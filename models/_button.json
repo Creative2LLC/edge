@@ -1,0 +1,66 @@
+{
+  "definitions": [
+    {
+      "title": "Button",
+      "id": "button",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/button/v1/button",
+            "template": {
+              "model": "button"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "button",
+      "fields": [
+        {
+          "component": "text",
+          "name": "aueLabel",
+          "label": "Editor Label",
+          "description": "The label of this component in the editor overlay and content tree.",
+          "value": "Button"
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Link"
+        },
+        {
+          "component": "text",
+          "name": "linkText",
+          "label": "Text"
+        },
+        {
+          "component": "text",
+          "name": "linkTitle",
+          "label": "Title"
+        },
+        {
+          "component": "select",
+          "name": "linkType",
+          "label": "Type",
+          "options": [
+            {
+              "name": "default",
+              "value": ""
+            },
+            {
+              "name": "primary",
+              "value": "primary"
+            },
+            {
+              "name": "secondary",
+              "value": "secondary"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

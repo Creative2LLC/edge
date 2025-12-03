@@ -1,0 +1,43 @@
+{
+  "definitions": [
+    {
+      "title": "Image",
+      "id": "image",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/image/v1/image",
+            "template": {
+              "model": "image"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "image",
+      "fields": [
+        {
+          "component": "text",
+          "name": "aueLabel",
+          "label": "Editor Label",
+          "description": "The label of this component in the editor overlay and content tree.",
+          "value": "Image"
+        },
+        {
+          "component": "reference",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "name": "imageAlt",
+          "label": "Alt Text"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "definitions": [
+    {
+      "title": "Columns",
+      "id": "columns",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/columns/v1/columns",
+            "template": {
+              "model": "columns",
+              "template": "columns",
+              "columns": "2",
+              "rows": "1"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "columns",
+      "fields": [
+        {
+          "component": "text",
+          "name": "aueLabel",
+          "label": "Editor Label",
+          "description": "The label of this component in the editor overlay and content tree.",
+          "value": "Columns"
+        },
+        {
+          "component": "text",
+          "valueType": "number",
+          "name": "columns",
+          "value": "",
+          "label": "Columns"
+        },
+        {
+          "component": "text",
+          "valueType": "number",
+          "name": "rows",
+          "value": "",
+          "label": "Rows"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "columns",
+      "components": [
+        "column"
+      ]
+    },
+    {
+      "id": "column",
+      "components": [
+        "text",
+        "image",
+        "button",
+        "title"
+      ]
+    }
+  ]
+}
