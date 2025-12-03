@@ -1,0 +1,81 @@
+{
+  "definitions": [
+    {
+      "title": "Section",
+      "id": "section",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/section/v1/section",
+            "template": {
+              "model": "section"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "section",
+      "fields": [
+        {
+          "component": "text",
+          "name": "name",
+          "label": "Section Name",
+          "description": "The label shown for this section in the Content Tree"
+        },
+        {
+          "component": "select",
+          "name": "style",
+          "label": "Style",
+          "options": [
+            {
+              "name": "None",
+              "value": ""
+            },
+            {
+              "name": "Highlight",
+              "value": "highlight"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "name": "style_paddings",
+          "label": "Paddings",
+          "options": [
+            {
+              "name": "None",
+              "value": "no-paddings"
+            },
+            {
+              "name": "Normal",
+              "value": ""
+            },
+            {
+              "name": "Large",
+              "value": "large-paddings"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "section",
+      "components": [
+        "text",
+        "image",
+        "button",
+        "title",
+        "hero",
+        "cards",
+        "columns",
+        "fragment",
+        "teaser"
+      ]
+    }
+  ]
+}
