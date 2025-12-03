@@ -1,0 +1,94 @@
+{
+  "models": [
+    {
+      "id": "page-metadata",
+      "fields": [
+        {
+          "component": "select",
+          "name": "template",
+          "label": "Template",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Article",
+              "value": "article"
+            }
+          ],
+          "condition": {
+            "===": [
+              {
+                "var": "initialContentRefTarget"
+              },
+              "true"
+            ]
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "jcr:title",
+          "label": "Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "jcr:description",
+          "label": "Description"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "keywords",
+          "multi": true,
+          "label": "Keywords"
+        },
+        {
+          "component": "container",
+          "name": "social",
+          "label": "Social",
+          "fields": [
+            {
+              "component": "text",
+              "name": "og:title",
+              "label": "Title"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "article-metadata",
+      "fields": [
+        {
+          "...": "#/models/page-metadata/fields/template"
+        },
+        {
+          "component": "container",
+          "name": "social",
+          "label": "Social",
+          "fields": [
+            {
+              "...": "#/models/page-metadata/fields/social/fields"
+            },
+            {
+              "component": "text",
+              "name": "article:author",
+              "label": "Author",
+              "condition": {
+                "===": [
+                  {
+                    "var": "template"
+                  },
+                  "article"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
