@@ -4,12 +4,25 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 const FALLBACK_OVERLAY_COLOR = '#000000';
 const FALLBACK_OVERLAY_OPACITY = 0.6;
 
+const FALLBACK_POSITIONS = {
+  intro: [0, 0],
+  primaryLabel: [1, 0],
+  primaryLink: [2, 0],
+  secondaryLabel: [3, 0],
+  secondaryLink: [4, 0],
+  backgroundImage: [5, 0],
+  backgroundAlt: [6, 0],
+  overlayColor: [7, 0],
+  overlayOpacity: [8, 0],
+};
+
 function getField(block, name, rowIndex, columnIndex = 0) {
   const instrumented = block.querySelector(`[data-aue-prop="${name}"]`);
   if (instrumented) return instrumented;
-  const row = block.children[rowIndex];
+  const [fallbackRow, fallbackCol] = FALLBACK_POSITIONS[name] || [];
+  const row = block.children[rowIndex ?? fallbackRow];
   if (!row) return null;
-  return row.children[columnIndex] || row;
+  return row.children[columnIndex ?? fallbackCol] || row;
 }
 
 function textContent(el) {
@@ -71,16 +84,16 @@ function buildBackground(mediaSource, alt) {
 }
 
 export default function decorate(block) {
-  const introSource = getField(block, 'intro', 0, 0);
-  const primaryLabel = getField(block, 'primaryLabel', 1, 0);
-  const primaryLink = getField(block, 'primaryLink', 1, 1) || primaryLabel;
-  const secondaryLabel = getField(block, 'secondaryLabel', 2, 0);
-  const secondaryLink = getField(block, 'secondaryLink', 2, 1) || secondaryLabel;
-  const backgroundAltSource = getField(block, 'backgroundAlt', 3, 1);
+  const introSource = getField(block, 'intro');
+  const primaryLabel = getField(block, 'primaryLabel');
+  const primaryLink = getField(block, 'primaryLink') || primaryLabel;
+  const secondaryLabel = getField(block, 'secondaryLabel');
+  const secondaryLink = getField(block, 'secondaryLink') || secondaryLabel;
+  const backgroundAltSource = getField(block, 'backgroundAlt');
   const backgroundAlt = textContent(backgroundAltSource);
-  const backgroundSource = getField(block, 'backgroundImage', 3, 0) || block.querySelector('picture');
-  const overlayColorSource = getField(block, 'overlayColor', 4, 0);
-  const overlayOpacitySource = getField(block, 'overlayOpacity', 4, 1);
+  const backgroundSource = getField(block, 'backgroundImage') || block.querySelector('picture');
+  const overlayColorSource = getField(block, 'overlayColor');
+  const overlayOpacitySource = getField(block, 'overlayOpacity');
   const overlayColor = textContent(overlayColorSource) || FALLBACK_OVERLAY_COLOR;
   const overlayOpacity = parseOpacity(textContent(overlayOpacitySource))
     ?? FALLBACK_OVERLAY_OPACITY;
