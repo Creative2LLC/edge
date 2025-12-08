@@ -26,6 +26,11 @@
     gap: 24px;
   }
 
+  .columns > div > div {
+    flex: 1;
+    order: unset;
+  }
+
   .columns.columns-align-top > div {
     align-items: flex-start;
   }
@@ -36,10 +41,5 @@
 
   .columns.columns-align-middle > div {
     align-items: center;
-  }
-
-  .columns > div > div {
-    flex: 1;
-    order: unset;
   }
 }

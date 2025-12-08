@@ -16,7 +16,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--giving-overlay-color, #000000);
+  background: var(--giving-overlay-color, #000);
   opacity: var(--giving-overlay-opacity, 0.6);
   z-index: 1;
   transition: opacity 200ms ease;
@@ -64,7 +64,7 @@
 
 .giving .giving-actions .button.secondary {
   background: transparent;
-  border-color: currentColor;
+  border-color: currentcolor;
   color: inherit;
 }
 
