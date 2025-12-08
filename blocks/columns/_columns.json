@@ -1,65 +1,58 @@
 {
-  "definitions": [
-    {
-      "title": "Columns",
-      "id": "columns",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/columns/v1/columns",
-            "template": {
-              "model": "columns",
-              "columns": "2",
-              "rows": "1"
-            }
+  "definitions": [{
+    "title": "Columns",
+    "id": "columns",
+    "plugins": {
+      "xwalk": {
+        "page": {
+          "resourceType": "core/franklin/components/columns/v1/columns",
+          "template": {
+            "model": "columns",
+            "columns": "2",
+            "rows": "1"
           }
         }
       }
     }
-  ],
-  "models": [
-    {
-      "id": "columns",
-      "fields": [
-        {
-          "component": "text",
-          "valueType": "number",
-          "name": "columns",
-          "value": "",
-          "label": "Columns"
-        },
-        {
-          "component": "text",
-          "valueType": "number",
-          "name": "rows",
-          "value": "",
-          "label": "Rows"
-        },
-        {
-          "component": "select",
-          "name": "verticalAlign",
-          "label": "Vertical Alignment",
-          "options": [
-            {
-              "name": "Top",
-              "value": "top"
-            },
-            {
-              "name": "Middle",
-              "value": "middle"
-            },
-            {
-              "name": "Bottom",
-              "value": "bottom"
-            }
-          ],
-          "value": "middle"
-        }
-      ]
-    }
-  ],
-  "filters": [
-    {
+  }],
+  "models": [{
+    "id": "columns",
+    "fields": [{
+        "component": "text",
+        "valueType": "number",
+        "name": "columns",
+        "value": "",
+        "label": "Columns"
+      },
+      {
+        "component": "text",
+        "valueType": "number",
+        "name": "rows",
+        "value": "",
+        "label": "Rows"
+      },
+      {
+        "component": "select",
+        "name": "verticalAlign",
+        "label": "Vertical Alignment",
+        "options": [{
+            "name": "Top",
+            "value": "top"
+          },
+          {
+            "name": "Middle",
+            "value": "middle"
+          },
+          {
+            "name": "Bottom",
+            "value": "bottom"
+          }
+        ],
+        "value": "top"
+      }
+    ]
+  }],
+  "filters": [{
       "id": "columns",
       "components": [
         "column"
