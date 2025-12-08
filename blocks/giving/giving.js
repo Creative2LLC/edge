@@ -20,10 +20,6 @@ function getField(block, name, rowIndex, columnIndex = 0) {
   return row.children[columnIndex ?? fallbackCol] || row;
 }
 
-function textContent(el) {
-  return el?.textContent?.trim() || '';
-}
-
 function parseOpacity(value) {
   const parsed = parseFloat(value);
   if (Number.isNaN(parsed)) return null;
