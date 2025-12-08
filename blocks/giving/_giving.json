@@ -27,28 +27,14 @@
           "valueType": "string"
         },
         {
-          "component": "text",
-          "name": "primaryLabel",
-          "label": "Primary Button Label",
-          "valueType": "string"
+          "component": "aem-content",
+          "name": "primaryButton",
+          "label": "Primary Button"
         },
         {
-          "component": "text",
-          "name": "primaryLink",
-          "label": "Primary Button Link",
-          "valueType": "string"
-        },
-        {
-          "component": "text",
-          "name": "secondaryLabel",
-          "label": "Secondary Button Label",
-          "valueType": "string"
-        },
-        {
-          "component": "text",
-          "name": "secondaryLink",
-          "label": "Secondary Button Link",
-          "valueType": "string"
+          "component": "aem-content",
+          "name": "secondaryButton",
+          "label": "Secondary Button"
         },
         {
           "component": "reference",
@@ -56,26 +42,6 @@
           "name": "backgroundImage",
           "label": "Background Image",
           "multi": false
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "backgroundAlt",
-          "label": "Background Image Alt"
-        },
-        {
-          "component": "text",
-          "name": "overlayColor",
-          "label": "Overlay Color",
-          "value": "#000000",
-          "valueType": "string"
-        },
-        {
-          "component": "text",
-          "name": "overlayOpacity",
-          "label": "Overlay Opacity (0-1)",
-          "value": "0.6",
-          "valueType": "number"
         }
       ]
     }

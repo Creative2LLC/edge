@@ -6,14 +6,9 @@ const FALLBACK_OVERLAY_OPACITY = 0.6;
 
 const FALLBACK_POSITIONS = {
   intro: [0, 0],
-  primaryLabel: [1, 0],
-  primaryLink: [2, 0],
-  secondaryLabel: [3, 0],
-  secondaryLink: [4, 0],
-  backgroundImage: [5, 0],
-  backgroundAlt: [6, 0],
-  overlayColor: [7, 0],
-  overlayOpacity: [8, 0],
+  primaryButton: [1, 0],
+  secondaryButton: [2, 0],
+  backgroundImage: [3, 0],
 };
 
 function getField(block, name, rowIndex, columnIndex = 0) {
@@ -45,13 +40,7 @@ function extractLinkData(sourceEl) {
   const rawText = (anchor || sourceEl).textContent?.trim() || '';
   const href = anchor?.href || (isUrl(rawText) ? rawText : '');
   const label = anchor?.textContent?.trim() || (href ? rawText || href : rawText);
-  return href
-    ? {
-        href,
-        label,
-        instrumentationSource: anchor || sourceEl,
-      }
-    : {};
+  return href ? { href, label, instrumentationSource: anchor || sourceEl } : {};
 }
 
 function buildButton(linkData, variant) {
@@ -83,20 +72,39 @@ function buildBackground(mediaSource, alt) {
   return optimized;
 }
 
+function readMetadata(block) {
+  const meta = {};
+  const rowsToRemove = [];
+  block.querySelectorAll(':scope > div').forEach((row) => {
+    if (row.children.length !== 2) return;
+    const key = row.children[0].textContent.trim().toLowerCase();
+    const valueEl = row.children[1];
+    const value = valueEl.textContent.trim();
+    if (key === 'overlay color') {
+      meta.overlayColor = value;
+      rowsToRemove.push(row);
+    }
+    if (key === 'overlay opacity') {
+      meta.overlayOpacity = value;
+      rowsToRemove.push(row);
+    }
+    if (key === 'background alt') {
+      meta.backgroundAlt = value;
+      rowsToRemove.push(row);
+    }
+  });
+  rowsToRemove.forEach((row) => row.remove());
+  return meta;
+}
+
 export default function decorate(block) {
   const introSource = getField(block, 'intro');
-  const primaryLabel = getField(block, 'primaryLabel');
-  const primaryLink = getField(block, 'primaryLink') || primaryLabel;
-  const secondaryLabel = getField(block, 'secondaryLabel');
-  const secondaryLink = getField(block, 'secondaryLink') || secondaryLabel;
-  const backgroundAltSource = getField(block, 'backgroundAlt');
-  const backgroundAlt = textContent(backgroundAltSource);
+  const primaryButtonSource = getField(block, 'primaryButton');
+  const secondaryButtonSource = getField(block, 'secondaryButton');
   const backgroundSource = getField(block, 'backgroundImage') || block.querySelector('picture');
-  const overlayColorSource = getField(block, 'overlayColor');
-  const overlayOpacitySource = getField(block, 'overlayOpacity');
-  const overlayColor = textContent(overlayColorSource) || FALLBACK_OVERLAY_COLOR;
-  const overlayOpacity = parseOpacity(textContent(overlayOpacitySource))
-    ?? FALLBACK_OVERLAY_OPACITY;
+  const metadata = readMetadata(block);
+  const overlayColor = metadata.overlayColor || FALLBACK_OVERLAY_COLOR;
+  const overlayOpacity = parseOpacity(metadata.overlayOpacity) ?? FALLBACK_OVERLAY_OPACITY;
 
   const content = document.createElement('div');
   content.className = 'giving-content';
@@ -113,8 +121,8 @@ export default function decorate(block) {
 
   const actions = document.createElement('div');
   actions.className = 'giving-actions';
-  const primaryBtn = buildButton(extractLinkData(primaryLink), 'primary');
-  const secondaryBtn = buildButton(extractLinkData(secondaryLink), 'secondary');
+  const primaryBtn = buildButton(extractLinkData(primaryButtonSource), 'primary');
+  const secondaryBtn = buildButton(extractLinkData(secondaryButtonSource), 'secondary');
   if (primaryBtn) actions.append(primaryBtn);
   if (secondaryBtn) actions.append(secondaryBtn);
   if (actions.children.length) content.append(actions);
@@ -122,32 +130,12 @@ export default function decorate(block) {
   const newChildren = [];
   const media = document.createElement('div');
   media.className = 'giving-media';
-  const bg = buildBackground(backgroundSource, backgroundAlt);
+  const bgAlt = metadata.backgroundAlt || backgroundSource?.querySelector('img')?.alt || '';
+  const bg = buildBackground(backgroundSource, bgAlt);
   if (bg) media.append(bg);
   if (media.childElementCount) newChildren.push(media);
 
-  if (bg && backgroundAltSource) {
-    moveInstrumentation(backgroundAltSource, bg.querySelector('img') || bg);
-  }
-
-  const meta = document.createElement('div');
-  meta.className = 'giving-meta';
-  meta.hidden = true;
-  if (overlayColorSource) {
-    const colorHolder = document.createElement('div');
-    colorHolder.textContent = overlayColor;
-    moveInstrumentation(overlayColorSource, colorHolder);
-    meta.append(colorHolder);
-  }
-  if (overlayOpacitySource) {
-    const opacityHolder = document.createElement('div');
-    opacityHolder.textContent = overlayOpacity;
-    moveInstrumentation(overlayOpacitySource, opacityHolder);
-    meta.append(opacityHolder);
-  }
-
   if (content.childElementCount) newChildren.push(content);
-  if (meta.childElementCount) newChildren.push(meta);
 
   block.replaceChildren(...newChildren);
   block.style.setProperty('--giving-overlay-color', overlayColor);
