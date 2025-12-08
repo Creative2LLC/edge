@@ -26,6 +26,18 @@
     gap: 24px;
   }
 
+  .columns.columns-align-top > div {
+    align-items: flex-start;
+  }
+
+  .columns.columns-align-bottom > div {
+    align-items: flex-end;
+  }
+
+  .columns.columns-align-middle > div {
+    align-items: center;
+  }
+
   .columns > div > div {
     flex: 1;
     order: unset;
