@@ -51,7 +51,10 @@
         "cards",
         "columns",
         "giving",
-        "fragment"
+        "fragment",
+        "carousel",
+        "embed",
+        "video"
       ]
     }
   ]

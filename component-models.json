@@ -200,12 +200,64 @@
     ]
   },
   {
+    "id": "embed",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Placeholder Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "url",
+        "label": "Embed URL"
+      }
+    ]
+  },
+  {
     "id": "fragment",
     "fields": [
       {
         "component": "aem-content",
         "name": "reference",
         "label": "Reference"
+      }
+    ]
+  },
+  {
+    "id": "giving",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "intro",
+        "label": "Intro Content",
+        "valueType": "string"
+      },
+      {
+        "component": "aem-content",
+        "name": "primaryButton",
+        "label": "Primary Button"
+      },
+      {
+        "component": "aem-content",
+        "name": "secondaryButton",
+        "label": "Secondary Button"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "backgroundImage",
+        "label": "Background Image",
+        "multi": false
       }
     ]
   },
@@ -236,30 +288,26 @@
     ]
   },
   {
-    "id": "giving",
+    "id": "video",
     "fields": [
-      {
-        "component": "richtext",
-        "name": "intro",
-        "label": "Intro Content",
-        "valueType": "string"
-      },
-      {
-        "component": "aem-content",
-        "name": "primaryButton",
-        "label": "Primary Button"
-      },
-      {
-        "component": "aem-content",
-        "name": "secondaryButton",
-        "label": "Secondary Button"
-      },
       {
         "component": "reference",
         "valueType": "string",
-        "name": "backgroundImage",
-        "label": "Background Image",
+        "name": "image",
+        "label": "Placeholder Image",
         "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "url",
+        "label": "Video URL"
       }
     ]
   }
