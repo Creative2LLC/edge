@@ -1,21 +1,30 @@
-export default function decorate(block) {
-  // read optional alignment control row (instrumented field or metadata key/value) and remove it
+function readAlignment(block) {
   let verticalAlign = 'top';
-  let metadataRow = null;
+  const rowsToRemove = [];
+
   [...block.children].forEach((row) => {
     const alignField = row.querySelector('[data-aue-prop="verticalAlign"]');
     if (alignField) {
       verticalAlign = alignField.textContent.trim().toLowerCase() || verticalAlign;
-      row.remove();
-    } else if (
-      row.children.length === 2
-      && row.children[0].textContent.trim().toLowerCase() === 'vertical alignment'
-    ) {
-      verticalAlign = row.children[1].textContent.trim().toLowerCase() || verticalAlign;
-      metadataRow = row;
+      rowsToRemove.push(row);
+      return;
+    }
+
+    if (row.children.length >= 2) {
+      const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
+      if (['verticalalignment', 'alignment', 'align', 'verticalalign'].includes(key)) {
+        verticalAlign = row.children[1].textContent.trim().toLowerCase() || verticalAlign;
+        rowsToRemove.push(row);
+      }
     }
   });
-  if (metadataRow) metadataRow.remove();
+
+  rowsToRemove.forEach((row) => row.remove());
+  return verticalAlign;
+}
+
+export default function decorate(block) {
+  const verticalAlign = readAlignment(block);
 
   const contentRow = [...block.children].find((row) => row.children.length);
   const cols = contentRow ? [...contentRow.children] : [];
