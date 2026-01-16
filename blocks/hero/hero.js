@@ -40,11 +40,43 @@ function normalizeHexColor(value) {
   return null;
 }
 
+function readTextColor(block) {
+  const rowsToRemove = [];
+  let rawValue = null;
+
+  const instrumented = block.querySelector('[data-aue-prop="text_color"]');
+  if (instrumented) {
+    rawValue = instrumented.textContent;
+    const row = instrumented.closest(':scope > div');
+    if (row) {
+      rowsToRemove.push(row);
+    } else {
+      const paragraph = instrumented.closest('p');
+      rowsToRemove.push(paragraph || instrumented);
+    }
+  } else {
+    block.querySelectorAll(':scope > div').forEach((row) => {
+      if (row.children.length !== 2) return;
+      const key = row.children[0].textContent.trim().toLowerCase();
+      if (['text color', 'text color (hex)', 'text colour', 'text colour (hex)'].includes(key)) {
+        rawValue = row.children[1].textContent;
+        rowsToRemove.push(row);
+      }
+    });
+  }
+
+  rowsToRemove.forEach((row) => row.remove());
+  return normalizeHexColor(rawValue);
+}
+
 function applyRichtextColor(block) {
-  const { source, value } = getFieldValue(block, 'text_color');
-  if (source) source.remove();
-  const color = normalizeHexColor(value);
+  const color = readTextColor(block);
   if (!color) return;
+  const header = block.querySelector('h1, h2, h3, h4, h5, h6');
+  if (header) {
+    header.style.color = color;
+    return;
+  }
   const richtext = block.querySelector('[data-aue-prop="text"]')
     || block.querySelector('[data-richtext-prop="text"]');
   if (richtext) richtext.style.color = color;
