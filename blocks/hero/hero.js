@@ -9,13 +9,18 @@ function normalizeHeight(value) {
   return null;
 }
 
+function getFieldValue(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (!source) return { source: null, value: '' };
+  return { source, value: source.textContent.trim() };
+}
+
 function renderHtmlText(block) {
-  const source = block.querySelector('[data-aue-prop="text_html"]');
-  if (!source) return;
-  const html = source.textContent.trim();
+  const { source, value: html } = getFieldValue(block, 'text_html');
+  if (!source) return null;
   if (!html) {
     source.remove();
-    return;
+    return null;
   }
 
   const wrapper = document.createElement('div');
@@ -23,6 +28,7 @@ function renderHtmlText(block) {
   wrapper.innerHTML = html;
   moveInstrumentation(source, wrapper);
   source.replaceWith(wrapper);
+  return wrapper;
 }
 
 function readHeight(block) {
@@ -55,7 +61,20 @@ function readHeight(block) {
 }
 
 export default function decorate(block) {
-  renderHtmlText(block);
+  const htmlWrapper = renderHtmlText(block);
+  if (htmlWrapper) {
+    const { source: classSource, value: classValue } = getFieldValue(block, 'text_html_class');
+    const { source: styleSource, value: styleValue } = getFieldValue(block, 'text_html_style');
+    if (classValue) {
+      const classes = classValue.split(/\s+/).filter(Boolean);
+      if (classes.length) htmlWrapper.classList.add(...classes);
+    }
+    if (styleValue) {
+      htmlWrapper.style.cssText = styleValue;
+    }
+    if (classSource) classSource.remove();
+    if (styleSource) styleSource.remove();
+  }
   const height = readHeight(block);
   if (height) {
     block.style.setProperty('--hero-height', height);
