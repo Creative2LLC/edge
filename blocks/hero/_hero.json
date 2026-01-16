@@ -47,6 +47,13 @@
           "value": "",
           "label": "Text",
           "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "text_html",
+          "value": "",
+          "label": "Text (HTML)",
+          "valueType": "string"
         }
       ]
     }
