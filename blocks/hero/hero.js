@@ -15,7 +15,11 @@ function readHeight(block) {
   if (instrumented) {
     rawValue = instrumented.textContent;
     const row = instrumented.closest(':scope > div');
-    if (row) rowsToRemove.push(row);
+    if (row) {
+      rowsToRemove.push(row);
+    } else {
+      rowsToRemove.push(instrumented);
+    }
   } else {
     block.querySelectorAll(':scope > div').forEach((row) => {
       if (row.children.length !== 2) return;
