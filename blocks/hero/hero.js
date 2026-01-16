@@ -114,17 +114,12 @@ function readHeight(block) {
 export default function decorate(block) {
   const htmlWrapper = renderHtmlText(block);
   if (htmlWrapper) {
-    const { source: classSource, value: classValue } = getFieldValue(block, 'text_html_class');
-    const { source: styleSource, value: styleValue } = getFieldValue(block, 'text_html_style');
+    const { source: classSource, value: classValue } = getFieldValue(block, 'textHtmlClass');
     if (classValue) {
       const classes = classValue.split(/\s+/).filter(Boolean);
       if (classes.length) htmlWrapper.classList.add(...classes);
     }
-    if (styleValue) {
-      htmlWrapper.style.cssText = styleValue;
-    }
     if (classSource) classSource.remove();
-    if (styleSource) styleSource.remove();
   }
   const height = readHeight(block);
   if (height) {

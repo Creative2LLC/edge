@@ -308,16 +308,9 @@
       },
       {
         "component": "text",
-        "name": "text_html_class",
+        "name": "textHtmlClass",
         "value": "",
         "label": "Text (HTML) Classes",
-        "valueType": "string"
-      },
-      {
-        "component": "text",
-        "name": "text_html_style",
-        "value": "",
-        "label": "Text (HTML) Styles",
         "valueType": "string"
       }
     ]
