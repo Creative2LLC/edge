@@ -18,7 +18,8 @@ function readHeight(block) {
     if (row) {
       rowsToRemove.push(row);
     } else {
-      rowsToRemove.push(instrumented);
+      const paragraph = instrumented.closest('p');
+      rowsToRemove.push(paragraph || instrumented);
     }
   } else {
     block.querySelectorAll(':scope > div').forEach((row) => {
