@@ -27,7 +27,10 @@ async function applyChanges(event) {
   // load dompurify
   await loadScript(`${window.hlx.codeBasePath}/scripts/dompurify.min.js`);
 
-  const sanitizedContent = window.DOMPurify.sanitize(content, { USE_PROFILES: { html: true } });
+  const sanitizedContent = window.DOMPurify.sanitize(content, {
+    USE_PROFILES: { html: true },
+    ADD_ATTR: ['class'],
+  });
   const parsedUpdate = new DOMParser().parseFromString(sanitizedContent, 'text/html');
   const element = document.querySelector(`[data-aue-resource="${resource}"]`);
 
