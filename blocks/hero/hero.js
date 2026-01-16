@@ -31,6 +31,25 @@ function renderHtmlText(block) {
   return wrapper;
 }
 
+function normalizeHexColor(value) {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (/^#[0-9a-fA-F]{3}$/.test(trimmed) || /^#[0-9a-fA-F]{6}$/.test(trimmed)) {
+    return trimmed;
+  }
+  return null;
+}
+
+function applyRichtextColor(block) {
+  const { source, value } = getFieldValue(block, 'text_color');
+  if (source) source.remove();
+  const color = normalizeHexColor(value);
+  if (!color) return;
+  const richtext = block.querySelector('[data-aue-prop="text"]')
+    || block.querySelector('[data-richtext-prop="text"]');
+  if (richtext) richtext.style.color = color;
+}
+
 function readHeight(block) {
   const rowsToRemove = [];
   let rawValue = null;
@@ -79,4 +98,5 @@ export default function decorate(block) {
   if (height) {
     block.style.setProperty('--hero-height', height);
   }
+  applyRichtextColor(block);
 }

@@ -294,6 +294,13 @@
       },
       {
         "component": "text",
+        "name": "text_color",
+        "value": "",
+        "label": "Text Color (Hex)",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
         "name": "text_html",
         "value": "",
         "label": "Text (HTML)",
