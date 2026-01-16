@@ -279,6 +279,13 @@
         "value": ""
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "height",
+        "label": "Height (rem)",
+        "value": ""
+      },
+      {
         "component": "richtext",
         "name": "text",
         "value": "",

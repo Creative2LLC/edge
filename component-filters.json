@@ -29,6 +29,21 @@
     ]
   },
   {
+    "id": "carousel",
+    "components": [
+      "carousel-slide"
+    ]
+  },
+  {
+    "id": "carousel-slide",
+    "components": [
+      "text",
+      "image",
+      "button",
+      "title"
+    ]
+  },
+  {
     "id": "columns",
     "components": [
       "column"
