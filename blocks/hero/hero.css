@@ -16,6 +16,10 @@
   color:#000;
 }
 
+.hero h2 {
+    color: lightblue;
+}
+
 .hero picture {
   position: absolute;
   z-index: -1;
