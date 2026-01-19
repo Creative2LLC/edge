@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
 
 .hero-container .hero-wrapper {
   max-width: unset;
@@ -15,7 +15,7 @@
   font-family: Inter, sans-serif;
   max-width: 1200px;
   color:#00264D;
-  font-weight: 900;
+  font-weight: 800;
   font-size: 64px;
   margin: 28rem auto 0;
 }
@@ -24,7 +24,7 @@
   font-family: Inter, sans-serif;
   max-width: 1200px;
   color: #008EB7;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 64px;
   margin: 0 auto;
 }
