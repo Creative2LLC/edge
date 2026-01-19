@@ -9,6 +9,7 @@
   position: relative;
   padding: 40px 24px;
   min-height: var(--hero-height, 300px);
+  font-weight: 700;
 }
 
 .hero h1 {
