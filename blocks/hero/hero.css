@@ -19,6 +19,7 @@
   color:#00264D;
   font-weight: 700;
   font-size: 64px;
+  margin-bottom: 0;
 }
 
 .hero h2 {
@@ -29,6 +30,7 @@
   color: #008EB7;
   font-weight: 700;
   font-size: 64px;
+  margin-top: 0;
 }
 
 .hero picture {
