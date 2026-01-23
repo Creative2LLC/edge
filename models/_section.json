@@ -55,7 +55,8 @@
         "fragment",
         "carousel",
         "embed",
-        "video"
+        "video",
+        "statistic"
       ]
     }
   ]
