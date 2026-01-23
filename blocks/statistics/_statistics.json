@@ -52,7 +52,8 @@
     {
       "id": "statistics",
       "components": [
-        "statistic"
+        "statistic",
+        "text"
       ]
     }
   ]
