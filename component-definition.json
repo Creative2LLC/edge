@@ -240,8 +240,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
-                  "name": "Statistic",
-                  "model": "statistic"
+                  "name": "Statistic"
                 }
               }
             }

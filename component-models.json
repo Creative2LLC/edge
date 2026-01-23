@@ -316,25 +316,6 @@
     ]
   },
   {
-    "id": "statistic",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "value": "",
-        "name": "value",
-        "label": "Value"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "value": "",
-        "name": "label",
-        "label": "Label"
-      }
-    ]
-  },
-  {
     "id": "video",
     "fields": [
       {

@@ -66,5 +66,11 @@
       "statistic",
       "text"
     ]
+  },
+  {
+    "id": "statistic",
+    "components": [
+      "text"
+    ]
   }
 ]

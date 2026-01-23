@@ -23,40 +23,25 @@
           "page": {
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
-              "name": "Statistic",
-              "model": "statistic"
+              "name": "Statistic"
             }
           }
         }
       }
     }
   ],
-  "models": [
-    {
-      "id": "statistic",
-      "fields": [
-        {
-          "component": "text",
-          "valueType": "string",
-          "value": "",
-          "name": "value",
-          "label": "Value"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "value": "",
-          "name": "label",
-          "label": "Label"
-        }
-      ]
-    }
-  ],
+  "models": [],
   "filters": [
     {
       "id": "statistics",
       "components": [
         "statistic",
+        "text"
+      ]
+    },
+    {
+      "id": "statistic",
+      "components": [
         "text"
       ]
     }
