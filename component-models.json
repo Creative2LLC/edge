@@ -321,12 +321,14 @@
       {
         "component": "text",
         "valueType": "string",
+        "value": "",
         "name": "value",
         "label": "Value"
       },
       {
         "component": "text",
         "valueType": "string",
+        "value": "",
         "name": "label",
         "label": "Label"
       }
