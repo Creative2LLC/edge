@@ -3,10 +3,10 @@
 }
 
 .statistics .statistics-heading {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.75rem, 3.2vw, 2.6rem);
   font-weight: 700;
   line-height: 1.1;
-  color: #4a4a4a;
+  color: #00264d;
   margin: 0 0 32px;
   text-align: left;
 }
