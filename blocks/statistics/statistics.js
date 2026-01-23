@@ -29,6 +29,9 @@ function buildItem(row) {
 }
 
 export default function decorate(block) {
+  if (document.querySelector('meta[name="urn:adobe:aue:config"]')) {
+    return;
+  }
   const list = document.createElement('ul');
   list.className = 'statistics-list';
 
