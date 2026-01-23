@@ -20,8 +20,7 @@
       "fragment",
       "carousel",
       "embed",
-      "video",
-      "statistic"
+      "video"
     ]
   },
   {
@@ -58,19 +57,6 @@
       "image",
       "button",
       "title"
-    ]
-  },
-  {
-    "id": "statistics",
-    "components": [
-      "statistic",
-      "text"
-    ]
-  },
-  {
-    "id": "statistic",
-    "components": [
-      "text"
     ]
   }
 ]
