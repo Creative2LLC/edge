@@ -2,6 +2,8 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 
 const LEGACY_LABELS = {
   heading: ['heading', 'title'],
+  statValues: ['stat values', 'values'],
+  statLabels: ['stat labels', 'labels'],
   stat1Value: ['stat 1 value', 'stat1 value', 'value 1'],
   stat1Label: ['stat 1 label', 'stat1 label', 'label 1'],
   stat2Value: ['stat 2 value', 'stat2 value', 'value 2'],
@@ -61,14 +63,31 @@ function buildItem(valueField, labelField) {
   return item;
 }
 
+function normalizeLines(field, fallback = []) {
+  if (!field) return fallback;
+  const value = field.value || '';
+  const lines = value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length) return lines;
+  return fallback;
+}
+
 export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
   const headingField = getField(block, legacyMap, 'heading');
-  const statFields = [
-    [getField(block, legacyMap, 'stat1Value'), getField(block, legacyMap, 'stat1Label')],
-    [getField(block, legacyMap, 'stat2Value'), getField(block, legacyMap, 'stat2Label')],
-    [getField(block, legacyMap, 'stat3Value'), getField(block, legacyMap, 'stat3Label')],
-  ];
+  const statValuesField = getField(block, legacyMap, 'statValues');
+  const statLabelsField = getField(block, legacyMap, 'statLabels');
+  const legacyValues = [
+    getField(block, legacyMap, 'stat1Value').value,
+    getField(block, legacyMap, 'stat2Value').value,
+    getField(block, legacyMap, 'stat3Value').value,
+  ].filter(Boolean);
+  const legacyLabels = [
+    getField(block, legacyMap, 'stat1Label').value,
+    getField(block, legacyMap, 'stat2Label').value,
+    getField(block, legacyMap, 'stat3Label').value,
+  ].filter(Boolean);
+  const values = normalizeLines(statValuesField, legacyValues);
+  const labels = normalizeLines(statLabelsField, legacyLabels);
 
   const wrapper = document.createElement('div');
   wrapper.className = 'statistics-inner';
@@ -78,10 +97,13 @@ export default function decorate(block) {
 
   const list = document.createElement('ul');
   list.className = 'statistics-list';
-  statFields.forEach(([valueField, labelField]) => {
+  const count = Math.max(values.length, labels.length);
+  for (let i = 0; i < count; i += 1) {
+    const valueField = { value: values[i] || '' };
+    const labelField = { value: labels[i] || '' };
     const item = buildItem(valueField, labelField);
     if (item) list.append(item);
-  });
+  }
   if (list.childElementCount) wrapper.append(list);
 
   block.replaceChildren(wrapper);

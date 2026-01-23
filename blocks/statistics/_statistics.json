@@ -31,43 +31,15 @@
           "component": "text",
           "valueType": "string",
           "value": "",
-          "name": "stat1Value",
-          "label": "Stat 1 Value"
+          "name": "statValues",
+          "label": "Stat Values (one per line)"
         },
         {
           "component": "text",
           "valueType": "string",
           "value": "",
-          "name": "stat1Label",
-          "label": "Stat 1 Label"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "value": "",
-          "name": "stat2Value",
-          "label": "Stat 2 Value"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "value": "",
-          "name": "stat2Label",
-          "label": "Stat 2 Label"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "value": "",
-          "name": "stat3Value",
-          "label": "Stat 3 Value"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "value": "",
-          "name": "stat3Label",
-          "label": "Stat 3 Label"
+          "name": "statLabels",
+          "label": "Stat Labels (one per line)"
         }
       ]
     }
