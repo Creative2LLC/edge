@@ -1,0 +1,42 @@
+.statistics {
+  padding: 20px 0 40px;
+}
+
+.statistics .statistics-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0;
+}
+
+.statistics .statistics-item {
+  text-align: center;
+  padding: 12px 24px;
+}
+
+.statistics .statistics-item + .statistics-item {
+  border-left: 1px solid #e6e0da;
+}
+
+.statistics .statistics-value {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: #4a4a4a;
+  margin-bottom: 10px;
+}
+
+.statistics .statistics-label {
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: #6b6b6b;
+}
+
+@media (width <= 700px) {
+  .statistics .statistics-item + .statistics-item {
+    border-left: none;
+    border-top: 1px solid #e6e0da;
+  }
+}

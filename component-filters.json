@@ -57,5 +57,11 @@
       "button",
       "title"
     ]
+  },
+  {
+    "id": "statistics",
+    "components": [
+      "statistic"
+    ]
   }
 ]

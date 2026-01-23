@@ -316,6 +316,21 @@
     ]
   },
   {
+    "id": "statistic",
+    "fields": [
+      {
+        "component": "text",
+        "name": "value",
+        "label": "Value"
+      },
+      {
+        "component": "text",
+        "name": "label",
+        "label": "Label"
+      }
+    ]
+  },
+  {
     "id": "video",
     "fields": [
       {
