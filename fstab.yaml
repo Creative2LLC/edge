@@ -1,5 +1,5 @@
 mountpoints:
   /:
-    url: "https://author-p171653-e1855116.adobeaemcloud.com/bin/franklin.delivery/creative2llc/edge/test"
+    url: "https://author-p171653-e1855116.adobeaemcloud.com/bin/franklin.delivery/creative2llc/edge/main"
     type: "markup"
     suffix: ".html"
