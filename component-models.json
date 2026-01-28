@@ -296,14 +296,14 @@
         "component": "text",
         "name": "text_color",
         "value": "",
-        "label": "Text Color (Hex)",
+        "label": "Text Color (Hex2)",
         "valueType": "string"
       },
       {
         "component": "text",
         "name": "text_html",
         "value": "",
-        "label": "Text (HTML)",
+        "label": "Text (HTML2)",
         "valueType": "string"
       },
       {
