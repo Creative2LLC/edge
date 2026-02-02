@@ -120,8 +120,8 @@ function decorateTopBanner(section) {
   const languageItems = [...languageList.querySelectorAll('li')];
   const selectedText = languageItems.length > 0 ? languageItems[0].textContent.trim() : 'English';
 
-  // Find the globe icon from the language list area
-  const globeIcon = section.querySelector('span.icon');
+  // Find the globe icon — look for an icon in a <p> tag (outside the lists)
+  const globeIcon = section.querySelector('p span.icon');
   const globeIconClone = globeIcon ? globeIcon.cloneNode(true) : document.createElement('span');
 
   const languageWrapper = document.createElement('div');
