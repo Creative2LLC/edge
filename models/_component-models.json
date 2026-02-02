@@ -6,9 +6,6 @@
     "...": "./_image.json#/models"
   },
   {
-    "...": "./_title.json#/models"
-  },
-  {
     "...": "./_text.json#/models"
   },
   {
