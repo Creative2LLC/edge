@@ -1,4 +1,4 @@
-import { getMetadata } from '../../scripts/aem.js';
+import { getMetadata, decorateIcons } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
@@ -104,6 +104,98 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 }
 
 /**
+ * Decorates the top banner section with links and language dropdown
+ * @param {Element} section The top-banner nav section
+ */
+function decorateTopBanner(section) {
+  const lists = section.querySelectorAll('ul');
+  if (lists.length < 2) return;
+
+  const linksList = lists[0];
+  const languageList = lists[1];
+
+  linksList.classList.add('top-banner-links');
+
+  // Build language dropdown
+  const languageItems = [...languageList.querySelectorAll('li')];
+  const selectedText = languageItems.length > 0 ? languageItems[0].textContent.trim() : 'English';
+
+  // Find the globe icon from the language list area
+  const globeIcon = section.querySelector('span.icon');
+  const globeIconClone = globeIcon ? globeIcon.cloneNode(true) : document.createElement('span');
+
+  const languageWrapper = document.createElement('div');
+  languageWrapper.className = 'top-banner-language';
+
+  const toggle = document.createElement('button');
+  toggle.className = 'top-banner-language-toggle';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-haspopup', 'listbox');
+
+  const langText = document.createElement('span');
+  langText.textContent = selectedText;
+
+  const chevron = document.createElement('span');
+  chevron.className = 'icon icon-chevron-down';
+
+  toggle.append(globeIconClone, langText, chevron);
+
+  const panel = document.createElement('ul');
+  panel.className = 'top-banner-language-panel';
+  panel.setAttribute('role', 'listbox');
+  panel.setAttribute('aria-hidden', 'true');
+
+  languageItems.forEach((item) => {
+    const option = document.createElement('li');
+    option.setAttribute('role', 'option');
+    option.textContent = item.textContent.trim();
+    option.addEventListener('click', () => {
+      langText.textContent = option.textContent;
+      toggle.setAttribute('aria-expanded', 'false');
+      panel.setAttribute('aria-hidden', 'true');
+    });
+    panel.append(option);
+  });
+
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    panel.setAttribute('aria-hidden', expanded ? 'true' : 'false');
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!languageWrapper.contains(e.target)) {
+      toggle.setAttribute('aria-expanded', 'false');
+      panel.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+      toggle.setAttribute('aria-expanded', 'false');
+      panel.setAttribute('aria-hidden', 'true');
+      toggle.focus();
+    }
+  });
+
+  languageWrapper.append(toggle, panel);
+
+  // Build the content container
+  const content = document.createElement('div');
+  content.className = 'top-banner-content';
+  content.append(linksList, languageWrapper);
+
+  // Clear section and add content
+  section.textContent = '';
+  section.append(content);
+
+  // Decorate the chevron icon
+  decorateIcons(toggle);
+}
+
+/**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
@@ -119,7 +211,9 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'sections', 'tools'];
+  const classes = nav.children.length >= 4
+    ? ['top-banner', 'brand', 'sections', 'tools']
+    : ['brand', 'sections', 'tools'];
   classes.forEach((c, i) => {
     const section = nav.children[i];
     if (section) section.classList.add(`nav-${c}`);
@@ -158,6 +252,14 @@ export default async function decorate(block) {
   // prevent mobile nav behavior on window resize
   toggleMenu(nav, navSections, isDesktop.matches);
   isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+
+  // Extract top banner out of nav if present, place above nav-wrapper
+  const topBanner = nav.querySelector('.nav-top-banner');
+  if (topBanner) {
+    topBanner.remove();
+    decorateTopBanner(topBanner);
+    block.append(topBanner);
+  }
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
