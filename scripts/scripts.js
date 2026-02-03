@@ -71,6 +71,27 @@ function buildAutoBlocks() {
   }
 }
 
+function applyTitleAlignment(main) {
+  const alignmentNodes = main.querySelectorAll('[data-aue-prop="titleAlignment"]');
+  alignmentNodes.forEach((node) => {
+    const value = node.textContent.trim().toLowerCase();
+    const alignment = ['left', 'center', 'right'].includes(value) ? value : null;
+    const resource = node.closest('[data-aue-resource]');
+    const heading = (resource || node.closest('.title') || main)
+      .querySelector?.('h1, h2, h3, h4, h5, h6');
+    if (heading && alignment) {
+      heading.classList.remove('text-align-left', 'text-align-center', 'text-align-right');
+      heading.classList.add(`text-align-${alignment}`);
+    }
+    const row = node.parentElement;
+    if (row && row.children.length === 2 && row.querySelector('[data-aue-prop="titleAlignment"]')) {
+      row.remove();
+    } else {
+      node.remove();
+    }
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -83,6 +104,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  applyTitleAlignment(main);
 }
 
 /**
