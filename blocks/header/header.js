@@ -269,4 +269,9 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
+
+  // Mark body when a hero block is present so the nav can overlay it
+  if (document.querySelector('main .hero')) {
+    document.body.classList.add('has-hero');
+  }
 }

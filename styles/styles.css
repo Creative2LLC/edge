@@ -95,6 +95,10 @@ header {
   header {
     height: calc(var(--nav-height) + var(--top-banner-height));
   }
+
+  body.has-hero header {
+    height: var(--top-banner-height);
+  }
 }
 
 header .header,
