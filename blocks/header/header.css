@@ -429,7 +429,15 @@ header .nav-top-banner .top-banner-language-panel li:hover {
 @media (width >= 900px) {
   body.has-hero header .nav-wrapper {
     background-color: transparent;
-    top: calc(var(--top-banner-height) + 8px);
+    top: calc(var(--top-banner-height) + 16px);
+  }
+
+  body.has-hero header nav {
+    padding: 0 16px;
+  }
+
+  body.has-hero header nav .nav-sections {
+    flex: 0 1 auto;
   }
 
   /* brand — larger logo */

@@ -265,6 +265,25 @@ export default async function decorate(block) {
     block.append(topBanner);
   }
 
+  // Inject icons into nav-tools buttons that carry an icon name in their title attribute
+  const navTools = nav.querySelector('.nav-tools');
+  if (navTools) {
+    navTools.querySelectorAll('a.button[title]').forEach((btn) => {
+      const iconName = btn.getAttribute('title').trim();
+      if (iconName) {
+        const icon = document.createElement('span');
+        icon.className = `icon icon-${iconName}`;
+        const img = document.createElement('img');
+        img.src = `${window.hlx.codeBasePath}/icons/${iconName}.svg`;
+        img.alt = '';
+        img.loading = 'lazy';
+        icon.append(img);
+        btn.prepend(icon);
+        btn.removeAttribute('title');
+      }
+    });
+  }
+
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
