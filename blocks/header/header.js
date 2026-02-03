@@ -1,4 +1,4 @@
-import { getMetadata, decorateIcons } from '../../scripts/aem.js';
+import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
@@ -191,8 +191,12 @@ function decorateTopBanner(section) {
   section.textContent = '';
   section.append(content);
 
-  // Decorate the chevron icon
-  decorateIcons(toggle);
+  // Manually add chevron img (globe clone is already decorated, so avoid decorateIcons)
+  const chevronImg = document.createElement('img');
+  chevronImg.src = `${window.hlx.codeBasePath}/icons/chevron-down.svg`;
+  chevronImg.alt = '';
+  chevronImg.loading = 'lazy';
+  chevron.append(chevronImg);
 }
 
 /**
