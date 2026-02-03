@@ -8,6 +8,9 @@
           "...": "./_text.json#/definitions"
         },
         {
+          "...": "./_title.json#/definitions"
+        },
+        {
           "...": "./_image.json#/definitions"
         },
         {
