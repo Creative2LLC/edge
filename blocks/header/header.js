@@ -282,6 +282,13 @@ export default async function decorate(block) {
         btn.removeAttribute('title');
       }
     });
+
+    const toolButtons = [...navTools.querySelectorAll('a.button')];
+    toolButtons.forEach((btn, index) => {
+      btn.classList.remove('nav-tool-primary', 'nav-tool-accent');
+      if (index === 0) btn.classList.add('nav-tool-primary');
+      if (index === 1) btn.classList.add('nav-tool-accent');
+    });
   }
 
   const navWrapper = document.createElement('div');
