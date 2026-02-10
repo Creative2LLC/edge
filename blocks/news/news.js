@@ -34,42 +34,66 @@ function getBlockField(block, legacyMap, name) {
   return legacyMap[name] || '';
 }
 
+function getColText(col) {
+  if (!col) return '';
+  // Prefer the anchor href for link columns
+  const a = col.querySelector('a');
+  if (a && a.href) return a.href;
+  return col.textContent.trim();
+}
+
+function getColImage(col) {
+  if (!col) return { src: '', alt: '' };
+  const img = col.querySelector('img');
+  if (img) return { src: img.src, alt: img.alt || '' };
+  return { src: '', alt: '' };
+}
+
+// Field order matches news-article model: image, imageAlt, title, subheading, linkUrl, tagNames, tagColors
+const ARTICLE_FIELD_COUNT = 7;
+
 function parseArticleRow(row) {
-  // Try data-aue-prop first
+  const cols = [...row.children];
+
+  // Multi-column: columns match model field order
+  if (cols.length >= ARTICLE_FIELD_COUNT) {
+    const image = getColImage(cols[0]);
+    return {
+      imgSrc: image.src,
+      imageAlt: getColText(cols[1]) || image.alt,
+      title: getColText(cols[2]),
+      subheading: getColText(cols[3]),
+      linkUrl: getColText(cols[4]),
+      tagNames: getColText(cols[5]),
+      tagColors: getColText(cols[6]),
+    };
+  }
+
+  // Try data-aue-prop (Universal Editor live context)
   const getField = (prop) => {
     const el = row.querySelector(`[data-aue-prop="${prop}"]`);
     return el ? el.textContent.trim() : '';
   };
-
-  const imageEl = row.querySelector(`[data-aue-prop="image"]`) || null;
-  let imageAlt = getField('imageAlt');
+  const imageEl = row.querySelector(`[data-aue-prop="image"]`);
   const title = getField('title');
-  const subheading = getField('subheading');
-  const linkUrl = getField('linkUrl');
-  const tagNames = getField('tagNames');
-  const tagColors = getField('tagColors');
-
-  // If we got structured fields, use them
   if (title) {
-    let imgSrc = '';
-    const pic = imageEl?.querySelector('picture img') || imageEl?.querySelector('img');
-    if (pic) {
-      imgSrc = pic.src;
-      if (!imageAlt) imageAlt = pic.alt || '';
-    }
+    const pic = imageEl?.querySelector('img');
     return {
-      imgSrc, imageAlt, title, subheading, linkUrl, tagNames, tagColors,
+      imgSrc: pic?.src || '',
+      imageAlt: getField('imageAlt') || pic?.alt || '',
+      title,
+      subheading: getField('subheading'),
+      linkUrl: getField('linkUrl'),
+      tagNames: getField('tagNames'),
+      tagColors: getField('tagColors'),
     };
   }
 
-  // Legacy fallback: 2 columns (image | text)
-  const cols = [...row.children];
+  // Minimal fallback: 2 columns (image | text)
   if (cols.length >= 2) {
-    const imgCol = cols[0];
-    const textCol = cols[1];
-    const img = imgCol.querySelector('img');
-    const paragraphs = textCol.querySelectorAll('p');
-    const link = textCol.querySelector('a');
+    const img = cols[0].querySelector('img');
+    const paragraphs = cols[1].querySelectorAll('p');
+    const link = cols[1].querySelector('a');
     return {
       imgSrc: img?.src || '',
       imageAlt: img?.alt || '',
