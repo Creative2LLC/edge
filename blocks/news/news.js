@@ -79,15 +79,43 @@ function getColTexts(col) {
   return [col.textContent.trim()];
 }
 
-// Field order matches news-article model (4 cells):
-// image+imageAlt | title+titleSub | link | tags
-const ARTICLE_FIELD_COUNT = 4;
+// Model fields: image, imageAlt, title, titleText, link, tags
+// Delivered columns depend on collapsing:
+//   6 cols: each field is its own column
+//   5 cols: image+imageAlt collapsed, rest separate
+//   4 cols: image+imageAlt collapsed, title+titleText collapsed
 
 function parseArticleRow(row) {
   const cols = [...row.children];
 
-  // 4-cell layout: image+imageAlt | title+titleSub | link | tags
-  if (cols.length >= ARTICLE_FIELD_COUNT) {
+  if (cols.length >= 6) {
+    // No collapsing — each field is a column
+    const image = getColImage(cols[0]);
+    return {
+      imgSrc: image.src,
+      imageAlt: getColText(cols[1]) || image.alt,
+      title: getColText(cols[2]),
+      subheading: getColText(cols[3]),
+      linkUrl: getColText(cols[4]),
+      tags: getColText(cols[5]),
+    };
+  }
+
+  if (cols.length >= 5) {
+    // image+imageAlt collapsed, title and titleText separate
+    const image = getColImage(cols[0]);
+    return {
+      imgSrc: image.src,
+      imageAlt: image.alt,
+      title: getColText(cols[1]),
+      subheading: getColText(cols[2]),
+      linkUrl: getColText(cols[3]),
+      tags: getColText(cols[4]),
+    };
+  }
+
+  if (cols.length >= 4) {
+    // Fully collapsed: image+imageAlt, title+titleText
     const image = getColImage(cols[0]);
     const texts = getColTexts(cols[1]);
     return {
