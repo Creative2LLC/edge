@@ -23,7 +23,7 @@
   padding: 32px;
   display: flex;
   flex-direction: column;
-  background-color: rgba(221, 213, 204, 0.32);
+  background-color: rgb(221 213 204 / 32%);
 }
 
 .news .news-featured-image {
@@ -69,7 +69,7 @@
 .news .news-tag {
   border-radius: 99px;
   padding: 4px 12px;
-  color: rgba(255, 255, 255, 0.83);
+  color: rgb(255 255 255 / 83%);
   font-size: 12px;
   font-weight: 700;
   line-height: 1.4;
@@ -125,7 +125,7 @@
 
 .news .news-card-content {
   padding: 20px;
-  background-color: rgba(221, 213, 204, 0.32);
+  background-color: rgb(221 213 204 / 32%);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -164,7 +164,7 @@
 
 .news .news-button {
   background: #0d273b;
-  color: rgba(255, 255, 255, 0.83);
+  color: rgb(255 255 255 / 83%);
   font-size: 16px;
   font-weight: 600;
   border-radius: 99px;

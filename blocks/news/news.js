@@ -3,7 +3,7 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
-  buttonText: ['button text', 'buttontext', 'button label'],
+  button: ['button text', 'buttontext', 'button label', 'button'],
 };
 
 function collectLegacyBlockFields(block) {
@@ -49,23 +49,42 @@ function getColImage(col) {
   return { src: '', alt: '' };
 }
 
-// Field order matches news-article model: image, imageAlt, title, subheading, linkUrl, tagNames, tagColors
-const ARTICLE_FIELD_COUNT = 7;
+function getColTexts(col) {
+  if (!col) return [];
+  const paragraphs = col.querySelectorAll('p');
+  if (paragraphs.length) {
+    return [...paragraphs].map((p) => p.textContent.trim());
+  }
+  // Fallback: split on <br>
+  const html = col.innerHTML;
+  if (html.includes('<br')) {
+    return html.split(/<br\s*\/?>/i).map((s) => {
+      const tmp = document.createElement('span');
+      tmp.innerHTML = s;
+      return tmp.textContent.trim();
+    });
+  }
+  return [col.textContent.trim()];
+}
+
+// Field order matches news-article model (4 cells):
+// image+imageAlt | title+titleSub | link | tags
+const ARTICLE_FIELD_COUNT = 4;
 
 function parseArticleRow(row) {
   const cols = [...row.children];
 
-  // Multi-column: columns match model field order
+  // 4-cell layout: image+imageAlt | title+titleSub | link | tags
   if (cols.length >= ARTICLE_FIELD_COUNT) {
     const image = getColImage(cols[0]);
+    const texts = getColTexts(cols[1]);
     return {
       imgSrc: image.src,
-      imageAlt: getColText(cols[1]) || image.alt,
-      title: getColText(cols[2]),
-      subheading: getColText(cols[3]),
-      linkUrl: getColText(cols[4]),
-      tagNames: getColText(cols[5]),
-      tagColors: getColText(cols[6]),
+      imageAlt: image.alt,
+      title: texts[0] || '',
+      subheading: texts[1] || '',
+      linkUrl: getColText(cols[2]),
+      tags: getColText(cols[3]),
     };
   }
 
@@ -74,7 +93,7 @@ function parseArticleRow(row) {
     const el = row.querySelector(`[data-aue-prop="${prop}"]`);
     return el ? el.textContent.trim() : '';
   };
-  const imageEl = row.querySelector(`[data-aue-prop="image"]`);
+  const imageEl = row.querySelector('[data-aue-prop="image"]');
   const title = getField('title');
   if (title) {
     const pic = imageEl?.querySelector('img');
@@ -82,10 +101,9 @@ function parseArticleRow(row) {
       imgSrc: pic?.src || '',
       imageAlt: getField('imageAlt') || pic?.alt || '',
       title,
-      subheading: getField('subheading'),
-      linkUrl: getField('linkUrl'),
-      tagNames: getField('tagNames'),
-      tagColors: getField('tagColors'),
+      subheading: getField('titleText'),
+      linkUrl: getField('link'),
+      tags: getField('tags'),
     };
   }
 
@@ -100,18 +118,23 @@ function parseArticleRow(row) {
       title: paragraphs[0]?.textContent.trim() || '',
       subheading: paragraphs[1]?.textContent.trim() || '',
       linkUrl: link?.href || '',
-      tagNames: '',
-      tagColors: '',
+      tags: '',
     };
   }
 
   return null;
 }
 
-function parseTags(tagNames, tagColors) {
-  const names = tagNames.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-  const colors = tagColors.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-  return names.map((name, i) => ({ name, color: colors[i] || '#666' }));
+function parseTags(tagsStr) {
+  if (!tagsStr) return [];
+  const lines = tagsStr.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  return lines.map((line) => {
+    const sep = line.lastIndexOf(':');
+    if (sep > 0) {
+      return { name: line.slice(0, sep).trim(), color: line.slice(sep + 1).trim() };
+    }
+    return { name: line, color: '#666' };
+  });
 }
 
 function buildTagsContainer(tags) {
@@ -147,7 +170,7 @@ function buildFeaturedCard(article, row) {
   const content = document.createElement('div');
   content.className = 'news-featured-content';
 
-  const tags = parseTags(article.tagNames, article.tagColors);
+  const tags = parseTags(article.tags);
   const tagsEl = buildTagsContainer(tags);
   if (tagsEl) content.append(tagsEl);
 
@@ -195,7 +218,7 @@ function buildSmallCard(article, row, hidden) {
   const content = document.createElement('div');
   content.className = 'news-card-content';
 
-  const tags = parseTags(article.tagNames, article.tagColors);
+  const tags = parseTags(article.tags);
   const tagsEl = buildTagsContainer(tags);
   if (tagsEl) content.append(tagsEl);
 
@@ -221,7 +244,7 @@ function buildSmallCard(article, row, hidden) {
 export default function decorate(block) {
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
-  const buttonText = getBlockField(block, legacyMap, 'buttonText') || 'View More News';
+  const buttonText = getBlockField(block, legacyMap, 'button') || 'View More News';
 
   // Remaining rows are article items
   const rows = [...block.querySelectorAll(':scope > div')];

@@ -327,7 +327,7 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "buttonText",
+        "name": "button",
         "label": "Button Text"
       }
     ]
@@ -357,26 +357,20 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "subheading",
+        "name": "titleText",
         "label": "Subheading"
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "linkUrl",
+        "name": "link",
         "label": "Read More URL"
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "tagNames",
-        "label": "Tag Names (one per line)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "tagColors",
-        "label": "Tag Colors (hex, one per line)"
+        "name": "tags",
+        "label": "Tags (Name:#hex per line)"
       }
     ]
   },
