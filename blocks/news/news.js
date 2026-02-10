@@ -49,60 +49,13 @@ function getColImage(col) {
   return { src: '', alt: '' };
 }
 
-function splitOnBr(el) {
-  const html = el.innerHTML;
-  if (html.includes('<br')) {
-    return html.split(/<br\s*\/?>/i).map((s) => {
-      const tmp = document.createElement('span');
-      tmp.innerHTML = s;
-      return tmp.textContent.trim();
-    }).filter(Boolean);
-  }
-  return null;
-}
-
-function getColTexts(col) {
-  if (!col) return [];
-  const paragraphs = col.querySelectorAll('p');
-  if (paragraphs.length === 1) {
-    // Collapsed fields may be inside a single <p> separated by <br>
-    const parts = splitOnBr(paragraphs[0]);
-    if (parts && parts.length > 1) return parts;
-    return [paragraphs[0].textContent.trim()];
-  }
-  if (paragraphs.length > 1) {
-    return [...paragraphs].map((p) => p.textContent.trim());
-  }
-  // Fallback: split on <br> at cell level
-  const parts = splitOnBr(col);
-  if (parts && parts.length > 1) return parts;
-  return [col.textContent.trim()];
-}
-
-// Model fields: image, imageAlt, title, titleText, link, tags
-// Delivered columns depend on collapsing:
-//   6 cols: each field is its own column
-//   5 cols: image+imageAlt collapsed, rest separate
-//   4 cols: image+imageAlt collapsed, title+titleText collapsed
+// Model fields: image, title, subtitle, link, tags (5 columns)
 
 function parseArticleRow(row) {
   const cols = [...row.children];
 
-  if (cols.length >= 6) {
-    // No collapsing — each field is a column
-    const image = getColImage(cols[0]);
-    return {
-      imgSrc: image.src,
-      imageAlt: getColText(cols[1]) || image.alt,
-      title: getColText(cols[2]),
-      subheading: getColText(cols[3]),
-      linkUrl: getColText(cols[4]),
-      tags: getColText(cols[5]),
-    };
-  }
-
+  // 5 columns: image | title | subtitle | link | tags
   if (cols.length >= 5) {
-    // image+imageAlt collapsed, title and titleText separate
     const image = getColImage(cols[0]);
     return {
       imgSrc: image.src,
@@ -111,20 +64,6 @@ function parseArticleRow(row) {
       subheading: getColText(cols[2]),
       linkUrl: getColText(cols[3]),
       tags: getColText(cols[4]),
-    };
-  }
-
-  if (cols.length >= 4) {
-    // Fully collapsed: image+imageAlt, title+titleText
-    const image = getColImage(cols[0]);
-    const texts = getColTexts(cols[1]);
-    return {
-      imgSrc: image.src,
-      imageAlt: image.alt,
-      title: texts[0] || '',
-      subheading: texts[1] || '',
-      linkUrl: getColText(cols[2]),
-      tags: getColText(cols[3]),
     };
   }
 
@@ -139,9 +78,9 @@ function parseArticleRow(row) {
     const pic = imageEl?.querySelector('img');
     return {
       imgSrc: pic?.src || '',
-      imageAlt: getField('imageAlt') || pic?.alt || '',
+      imageAlt: pic?.alt || '',
       title,
-      subheading: getField('titleText'),
+      subheading: getField('subtitle'),
       linkUrl: getField('link'),
       tags: getField('tags'),
     };

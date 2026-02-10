@@ -63,19 +63,13 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "imageAlt",
-          "label": "Image Alt Text"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
           "name": "title",
           "label": "Article Title"
         },
         {
           "component": "text",
           "valueType": "string",
-          "name": "titleText",
+          "name": "subtitle",
           "label": "Subheading"
         },
         {
