@@ -58,5 +58,11 @@
       "button",
       "title"
     ]
+  },
+  {
+    "id": "news",
+    "components": [
+      "news-article"
+    ]
   }
 ]

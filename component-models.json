@@ -316,6 +316,71 @@
     ]
   },
   {
+    "id": "news",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      }
+    ]
+  },
+  {
+    "id": "news-article",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Article Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkUrl",
+        "label": "Read More URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tagNames",
+        "label": "Tag Names (one per line)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tagColors",
+        "label": "Tag Colors (hex, one per line)"
+      }
+    ]
+  },
+  {
     "id": "statistics",
     "fields": [
       {
