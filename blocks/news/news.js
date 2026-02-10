@@ -49,21 +49,33 @@ function getColImage(col) {
   return { src: '', alt: '' };
 }
 
-function getColTexts(col) {
-  if (!col) return [];
-  const paragraphs = col.querySelectorAll('p');
-  if (paragraphs.length) {
-    return [...paragraphs].map((p) => p.textContent.trim());
-  }
-  // Fallback: split on <br>
-  const html = col.innerHTML;
+function splitOnBr(el) {
+  const html = el.innerHTML;
   if (html.includes('<br')) {
     return html.split(/<br\s*\/?>/i).map((s) => {
       const tmp = document.createElement('span');
       tmp.innerHTML = s;
       return tmp.textContent.trim();
-    });
+    }).filter(Boolean);
   }
+  return null;
+}
+
+function getColTexts(col) {
+  if (!col) return [];
+  const paragraphs = col.querySelectorAll('p');
+  if (paragraphs.length === 1) {
+    // Collapsed fields may be inside a single <p> separated by <br>
+    const parts = splitOnBr(paragraphs[0]);
+    if (parts && parts.length > 1) return parts;
+    return [paragraphs[0].textContent.trim()];
+  }
+  if (paragraphs.length > 1) {
+    return [...paragraphs].map((p) => p.textContent.trim());
+  }
+  // Fallback: split on <br> at cell level
+  const parts = splitOnBr(col);
+  if (parts && parts.length > 1) return parts;
   return [col.textContent.trim()];
 }
 
