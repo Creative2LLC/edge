@@ -34,41 +34,14 @@ function getBlockField(block, legacyMap, name) {
   return legacyMap[name] || '';
 }
 
-function getColText(col) {
-  if (!col) return '';
-  const a = col.querySelector('a');
-  if (a && a.href) return a.href;
-  return col.textContent.trim();
-}
-
 function parseResourceRow(row) {
   const cols = [...row.children];
 
-  // --- DEBUG: log the raw DOM structure of each row ---
-  // eslint-disable-next-line no-console
-  console.log('[Resources DEBUG] Row children count:', cols.length);
-  cols.forEach((col, i) => {
-    const aue = col.getAttribute('data-aue-prop');
-    const hasPicture = !!col.querySelector('picture');
-    const hasImg = !!col.querySelector('img');
-    const hasAnchor = !!col.querySelector('a');
-    // eslint-disable-next-line no-console
-    console.log(`[Resources DEBUG]   col[${i}]:`, {
-      'data-aue-prop': aue,
-      hasPicture,
-      hasImg,
-      hasAnchor,
-      textContent: col.textContent.trim().substring(0, 80),
-      innerHTML: col.innerHTML.substring(0, 200),
-    });
-  });
-  // --- END DEBUG ---
-
-  // Helper: extract picture element and img src from a column or AUE prop element
-  function getImageData(el) {
-    if (!el) return { picture: null, src: '', alt: '' };
-    const picture = el.querySelector('picture');
-    const img = el.querySelector('img');
+  // Extract picture + img from a column container
+  function getImageData(col) {
+    if (!col) return { picture: null, src: '', alt: '' };
+    const picture = col.querySelector('picture');
+    const img = col.querySelector('img');
     return {
       picture,
       src: img?.src || '',
@@ -76,47 +49,20 @@ function parseResourceRow(row) {
     };
   }
 
-  // Helper: extract link URL from a column (checks <a> first, then textContent)
-  function getLinkUrl(el) {
-    if (!el) return '';
-    const a = el.querySelector('a');
+  // Extract link URL: prefer <a> href, then fall back to textContent
+  function getLinkUrl(col) {
+    if (!col) return '';
+    const a = col.querySelector('a');
     if (a && a.href) return a.href;
-    return el.textContent.trim();
-  }
-
-  // Try data-aue-prop (Universal Editor live context)
-  const titleEl = row.querySelector('[data-aue-prop="title"]');
-  if (titleEl) {
-    // eslint-disable-next-line no-console
-    console.log('[Resources DEBUG] Using AUE prop path');
-    const imageData = getImageData(row.querySelector('[data-aue-prop="image"]'));
-    const iconData = getImageData(row.querySelector('[data-aue-prop="icon"]'));
-    const iconColorEl = row.querySelector('[data-aue-prop="iconColor"]');
-    const subtitleEl = row.querySelector('[data-aue-prop="subtitle"]');
-    const linkEl = row.querySelector('[data-aue-prop="link"]');
-    const result = {
-      imagePicture: imageData.picture,
-      imgSrc: imageData.src,
-      imageAlt: imageData.alt,
-      iconPicture: iconData.picture,
-      iconSrc: iconData.src,
-      iconColor: iconColorEl?.textContent.trim() || '',
-      title: titleEl.textContent.trim(),
-      subtitle: subtitleEl?.textContent.trim() || '',
-      linkUrl: getLinkUrl(linkEl),
-    };
-    // eslint-disable-next-line no-console
-    console.log('[Resources DEBUG] Parsed (AUE):', JSON.stringify(result, (k, v) => (v instanceof HTMLElement ? `<${v.tagName}>` : v)));
-    return result;
+    return col.textContent.trim();
   }
 
   // 6-column layout: image | icon | iconColor | title | subtitle | link
+  // This is the primary path — columns always exist in model field order
   if (cols.length >= 6) {
-    // eslint-disable-next-line no-console
-    console.log('[Resources DEBUG] Using 6-column path');
     const imageData = getImageData(cols[0]);
     const iconData = getImageData(cols[1]);
-    const result = {
+    return {
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
       imageAlt: imageData.alt,
@@ -125,21 +71,16 @@ function parseResourceRow(row) {
       iconColor: cols[2].textContent.trim(),
       title: cols[3].textContent.trim(),
       subtitle: cols[4].textContent.trim(),
-      linkUrl: getColText(cols[5]),
+      linkUrl: getLinkUrl(cols[5]),
     };
-    // eslint-disable-next-line no-console
-    console.log('[Resources DEBUG] Parsed (6-col):', JSON.stringify(result, (k, v) => (v instanceof HTMLElement ? `<${v.tagName}>` : v)));
-    return result;
   }
 
   // Minimal fallback: 2 columns (image | text)
   if (cols.length >= 2) {
-    // eslint-disable-next-line no-console
-    console.log('[Resources DEBUG] Using 2-column fallback path');
     const imageData = getImageData(cols[0]);
     const link = cols[1].querySelector('a');
     const paragraphs = cols[1].querySelectorAll('p');
-    const result = {
+    return {
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
       imageAlt: imageData.alt,
@@ -150,13 +91,8 @@ function parseResourceRow(row) {
       subtitle: paragraphs[1]?.textContent.trim() || '',
       linkUrl: link?.href || '',
     };
-    // eslint-disable-next-line no-console
-    console.log('[Resources DEBUG] Parsed (2-col):', JSON.stringify(result, (k, v) => (v instanceof HTMLElement ? `<${v.tagName}>` : v)));
-    return result;
   }
 
-  // eslint-disable-next-line no-console
-  console.log('[Resources DEBUG] No parsing path matched — returning null');
   return null;
 }
 
@@ -193,7 +129,6 @@ function buildResourceCard(resource, row) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'resources-card-icon';
     if (resource.iconColor) {
-      // Use mask-image to colorize the icon
       const iconImg = resource.iconPicture?.querySelector('img');
       const src = iconImg?.src || resource.iconSrc;
       if (src) {
@@ -258,11 +193,6 @@ function updateScrollbar(thumb, container) {
 }
 
 export default function decorate(block) {
-  // --- DEBUG: log the full raw block HTML before any processing ---
-  // eslint-disable-next-line no-console
-  console.log('[Resources DEBUG] Raw block HTML:\n', block.innerHTML);
-  // --- END DEBUG ---
-
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
   const buttonText = getBlockField(block, legacyMap, 'button') || 'View All Resources';
