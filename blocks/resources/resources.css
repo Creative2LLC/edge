@@ -1,0 +1,220 @@
+.resources {
+  padding: 20px 0 40px;
+}
+
+/* Header row */
+.resources .resources-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.resources .resources-heading {
+  font-size: 48px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.resources .resources-button {
+  background: rgb(13 39 59 / 80%);
+  color: rgb(255 255 255 / 83%);
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 99px;
+  padding: 12px 32px;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.resources .resources-button:hover {
+  opacity: 0.9;
+}
+
+/* Cards horizontal scroll */
+.resources .resources-cards {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.resources .resources-cards::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual card */
+.resources .resources-card {
+  flex: 0 0 346px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* Card image */
+.resources .resources-card-image {
+  height: 300px;
+  overflow: hidden;
+}
+
+.resources .resources-card-image picture {
+  display: block;
+  height: 100%;
+}
+
+.resources .resources-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Card content */
+.resources .resources-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Card icon (mask-image used for coloring when iconColor is set) */
+.resources .resources-card-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
+}
+
+.resources .resources-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Card title */
+.resources .resources-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #404041;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+/* Card subheading */
+.resources .resources-card-subheading {
+  font-size: 17px;
+  font-weight: 500;
+  color: #404041;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+/* Card link */
+.resources .resources-card-link {
+  color: #007294;
+  font-size: 17px;
+  font-weight: 500;
+  text-decoration: none;
+  margin-top: auto;
+}
+
+.resources .resources-card-link:hover {
+  text-decoration: underline;
+}
+
+/* Footer row */
+.resources .resources-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+/* Custom scrollbar */
+.resources .resources-scrollbar {
+  width: 200px;
+  height: 5px;
+  background: #a1a1a1;
+  border-radius: 99px;
+  position: relative;
+  overflow: hidden;
+}
+
+.resources .resources-scrollbar-thumb {
+  height: 100%;
+  background: #00264d;
+  border-radius: 99px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: left 0.2s ease, width 0.2s ease;
+}
+
+/* Nav buttons */
+.resources .resources-nav {
+  display: flex;
+  gap: 12px;
+}
+
+.resources .resources-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #a1a1a1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.resources .resources-nav-btn:hover {
+  opacity: 0.85;
+}
+
+.resources .resources-nav-btn svg {
+  width: 16px;
+  height: 16px;
+  color: rgb(255 255 255 / 83%);
+}
+
+/* Responsive */
+@media (width <= 700px) {
+  .resources .resources-heading {
+    font-size: 32px;
+  }
+
+  .resources .resources-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .resources .resources-card {
+    flex: 0 0 280px;
+  }
+
+  .resources .resources-card-image {
+    height: 200px;
+  }
+}

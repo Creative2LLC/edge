@@ -20,7 +20,9 @@
       "fragment",
       "carousel",
       "embed",
-      "video"
+      "video",
+      "news",
+      "resources"
     ]
   },
   {
@@ -63,6 +65,12 @@
     "id": "news",
     "components": [
       "news-article"
+    ]
+  },
+  {
+    "id": "resources",
+    "components": [
+      "resource-item"
     ]
   }
 ]
