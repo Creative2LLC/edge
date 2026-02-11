@@ -1,14 +1,37 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-function getBlockField(block, name) {
+const LEGACY_BLOCK_LABELS = {
+  heading: ['heading', 'title'],
+  button: ['button text', 'buttontext', 'button label', 'button'],
+};
+
+function collectLegacyBlockFields(block) {
+  const map = {};
+  const rowsToRemove = [];
+  block.querySelectorAll(':scope > div').forEach((row) => {
+    if (row.children.length !== 2) return;
+    const key = row.children[0].textContent.trim().toLowerCase();
+    const valueEl = row.children[1];
+    Object.entries(LEGACY_BLOCK_LABELS).some(([name, labels]) => {
+      if (!labels.includes(key)) return false;
+      map[name] = valueEl.textContent.trim();
+      rowsToRemove.push(row);
+      return true;
+    });
+  });
+  rowsToRemove.forEach((row) => row.remove());
+  return map;
+}
+
+function getBlockField(block, legacyMap, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const value = source.textContent.trim();
     source.remove();
     return value;
   }
-  return '';
+  return legacyMap[name] || '';
 }
 
 function getColText(col) {
@@ -21,36 +44,57 @@ function getColText(col) {
 function parseResourceRow(row) {
   const cols = [...row.children];
 
-  // Try data-aue-prop (Universal Editor live context)
-  const getField = (prop) => {
-    const el = row.querySelector(`[data-aue-prop="${prop}"]`);
-    return el ? el.textContent.trim() : '';
-  };
-  const imageEl = row.querySelector('[data-aue-prop="image"]');
-  const title = getField('title');
-  if (title) {
-    const pic = imageEl?.querySelector('img');
-    const iconEl = row.querySelector('[data-aue-prop="icon"]');
-    const iconPic = iconEl?.querySelector('img');
+  // Helper: extract picture element and img src from a column or AUE prop element
+  function getImageData(el) {
+    if (!el) return { picture: null, src: '', alt: '' };
+    const picture = el.querySelector('picture');
+    const img = el.querySelector('img');
     return {
-      imgSrc: pic?.src || '',
-      imageAlt: pic?.alt || '',
-      iconSrc: iconPic?.src || '',
-      iconColor: getField('iconColor'),
-      title,
-      subtitle: getField('subtitle'),
-      linkUrl: getField('link'),
+      picture,
+      src: img?.src || '',
+      alt: img?.alt || '',
     };
   }
 
-  // Legacy 6-column: image | icon | iconColor | title | subtitle | link
-  if (cols.length >= 6) {
-    const image = cols[0].querySelector('img');
-    const icon = cols[1].querySelector('img');
+  // Helper: extract link URL from a column (checks <a> first, then textContent)
+  function getLinkUrl(el) {
+    if (!el) return '';
+    const a = el.querySelector('a');
+    if (a && a.href) return a.href;
+    return el.textContent.trim();
+  }
+
+  // Try data-aue-prop (Universal Editor live context)
+  const titleEl = row.querySelector('[data-aue-prop="title"]');
+  if (titleEl) {
+    const imageData = getImageData(row.querySelector('[data-aue-prop="image"]'));
+    const iconData = getImageData(row.querySelector('[data-aue-prop="icon"]'));
+    const iconColorEl = row.querySelector('[data-aue-prop="iconColor"]');
+    const subtitleEl = row.querySelector('[data-aue-prop="subtitle"]');
+    const linkEl = row.querySelector('[data-aue-prop="link"]');
     return {
-      imgSrc: image?.src || '',
-      imageAlt: image?.alt || '',
-      iconSrc: icon?.src || '',
+      imagePicture: imageData.picture,
+      imgSrc: imageData.src,
+      imageAlt: imageData.alt,
+      iconPicture: iconData.picture,
+      iconSrc: iconData.src,
+      iconColor: iconColorEl?.textContent.trim() || '',
+      title: titleEl.textContent.trim(),
+      subtitle: subtitleEl?.textContent.trim() || '',
+      linkUrl: getLinkUrl(linkEl),
+    };
+  }
+
+  // 6-column layout: image | icon | iconColor | title | subtitle | link
+  if (cols.length >= 6) {
+    const imageData = getImageData(cols[0]);
+    const iconData = getImageData(cols[1]);
+    return {
+      imagePicture: imageData.picture,
+      imgSrc: imageData.src,
+      imageAlt: imageData.alt,
+      iconPicture: iconData.picture,
+      iconSrc: iconData.src,
       iconColor: cols[2].textContent.trim(),
       title: cols[3].textContent.trim(),
       subtitle: cols[4].textContent.trim(),
@@ -60,12 +104,14 @@ function parseResourceRow(row) {
 
   // Minimal fallback: 2 columns (image | text)
   if (cols.length >= 2) {
-    const img = cols[0].querySelector('img');
+    const imageData = getImageData(cols[0]);
     const link = cols[1].querySelector('a');
     const paragraphs = cols[1].querySelectorAll('p');
     return {
-      imgSrc: img?.src || '',
-      imageAlt: img?.alt || '',
+      imagePicture: imageData.picture,
+      imgSrc: imageData.src,
+      imageAlt: imageData.alt,
+      iconPicture: null,
       iconSrc: '',
       iconColor: '',
       title: paragraphs[0]?.textContent.trim() || '',
@@ -82,8 +128,19 @@ function buildResourceCard(resource, row) {
   card.className = 'resources-card';
   if (row) moveInstrumentation(row, card);
 
-  // Image
-  if (resource.imgSrc) {
+  // Image — preserve existing <picture> from DOM, then optimize
+  if (resource.imagePicture) {
+    const imageWrap = document.createElement('div');
+    imageWrap.className = 'resources-card-image';
+    imageWrap.append(resource.imagePicture);
+    const img = resource.imagePicture.querySelector('img');
+    if (img) {
+      const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '400' }]);
+      moveInstrumentation(img, optimized.querySelector('img'));
+      resource.imagePicture.replaceWith(optimized);
+    }
+    card.append(imageWrap);
+  } else if (resource.imgSrc) {
     const imageWrap = document.createElement('div');
     imageWrap.className = 'resources-card-image';
     const pic = createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '400' }]);
@@ -94,14 +151,21 @@ function buildResourceCard(resource, row) {
   const content = document.createElement('div');
   content.className = 'resources-card-content';
 
-  // Icon (uses mask-image for coloring when iconColor is set)
-  if (resource.iconSrc) {
+  // Icon — preserve existing <picture> or <img>, apply color via mask if set
+  if (resource.iconPicture || resource.iconSrc) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'resources-card-icon';
     if (resource.iconColor) {
-      iconWrap.style.maskImage = `url(${resource.iconSrc})`;
-      iconWrap.style.webkitMaskImage = `url(${resource.iconSrc})`;
-      iconWrap.style.backgroundColor = resource.iconColor;
+      // Use mask-image to colorize the icon
+      const iconImg = resource.iconPicture?.querySelector('img');
+      const src = iconImg?.src || resource.iconSrc;
+      if (src) {
+        iconWrap.style.maskImage = `url(${src})`;
+        iconWrap.style.webkitMaskImage = `url(${src})`;
+        iconWrap.style.backgroundColor = resource.iconColor;
+      }
+    } else if (resource.iconPicture) {
+      iconWrap.append(resource.iconPicture);
     } else {
       const iconImg = document.createElement('img');
       iconImg.src = resource.iconSrc;
@@ -157,10 +221,11 @@ function updateScrollbar(thumb, container) {
 }
 
 export default function decorate(block) {
-  const heading = getBlockField(block, 'heading');
-  const buttonText = getBlockField(block, 'button') || 'View All Resources';
+  const legacyMap = collectLegacyBlockFields(block);
+  const heading = getBlockField(block, legacyMap, 'heading');
+  const buttonText = getBlockField(block, legacyMap, 'button') || 'View All Resources';
 
-  // Parse resource rows
+  // Remaining rows are resource items
   const rows = [...block.querySelectorAll(':scope > div')];
   const resources = [];
   rows.forEach((row) => {
