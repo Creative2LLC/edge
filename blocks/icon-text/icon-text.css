@@ -20,8 +20,8 @@
 
 .icon-text .icon-text-icon {
   flex-shrink: 0;
-  width: 102px;
-  height: 97px;
+  width: 80px;
+  height: 76px;
 }
 
 .icon-text .icon-text-icon picture {
@@ -37,7 +37,7 @@
 }
 
 .icon-text .icon-text-line {
-  font-size: 44px;
+  font-size: 36px;
   font-weight: 400;
   line-height: 1.2;
   margin: 0;
