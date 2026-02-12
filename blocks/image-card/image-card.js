@@ -7,12 +7,11 @@ function getField(block, name) {
   return null;
 }
 
-function extractLinkData(sourceEl) {
-  if (!sourceEl) return {};
-  const anchor = sourceEl.tagName === 'A' ? sourceEl : sourceEl.querySelector('a');
-  const href = anchor?.href || sourceEl.textContent?.trim() || '';
-  const label = anchor?.textContent?.trim() || href;
-  return href ? { href, label, source: anchor || sourceEl } : {};
+function getLinkUrl(sourceEl) {
+  if (!sourceEl) return '';
+  const a = sourceEl.querySelector('a');
+  if (a && a.href) return a.href;
+  return sourceEl.textContent.trim();
 }
 
 function parseLegacyFields(block) {
@@ -67,16 +66,16 @@ function buildBackground(block) {
 
 const ARROW_SVG = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-function buildButton(text, linkData, variant) {
-  if (!text && !linkData?.href) return null;
+function buildButton(text, url, variant) {
+  if (!text && !url) return null;
   const btn = document.createElement('a');
   btn.className = `image-card-btn image-card-btn-${variant}`;
-  btn.href = linkData?.href || '#';
+  btn.href = url || '#';
   btn.target = '_blank';
   btn.rel = 'noopener noreferrer';
 
   const label = document.createElement('span');
-  label.textContent = text || linkData?.label || '';
+  label.textContent = text;
   btn.append(label);
 
   const arrow = document.createElement('span');
@@ -84,7 +83,6 @@ function buildButton(text, linkData, variant) {
   arrow.innerHTML = ARROW_SVG;
   btn.append(arrow);
 
-  if (linkData?.source) moveInstrumentation(linkData.source, btn);
   return btn;
 }
 
@@ -98,18 +96,18 @@ export default function decorate(block) {
 
   let headingText = headingSource?.textContent?.trim() || '';
   let primaryText = primaryTextSource?.textContent?.trim() || '';
-  let primaryLink = extractLinkData(primaryLinkSource);
+  let primaryUrl = getLinkUrl(primaryLinkSource);
   let secondaryText = secondaryTextSource?.textContent?.trim() || '';
-  let secondaryLink = extractLinkData(secondaryLinkSource);
+  let secondaryUrl = getLinkUrl(secondaryLinkSource);
 
-  /* legacy fallback: 6-column rows [image | heading | btn1Text | btn1Link | btn2Text | btn2Link] */
+  /* legacy fallback */
   if (!headingText) {
     const { fields, rowsToRemove } = parseLegacyFields(block);
     if (fields.heading) headingText = fields.heading.textContent.trim();
     if (fields.primaryButtonText) primaryText = fields.primaryButtonText.textContent.trim();
-    if (fields.primaryButtonLink) primaryLink = extractLinkData(fields.primaryButtonLink);
+    if (fields.primaryButtonLink) primaryUrl = getLinkUrl(fields.primaryButtonLink);
     if (fields.secondaryButtonText) secondaryText = fields.secondaryButtonText.textContent.trim();
-    if (fields.secondaryButtonLink) secondaryLink = extractLinkData(fields.secondaryButtonLink);
+    if (fields.secondaryButtonLink) secondaryUrl = getLinkUrl(fields.secondaryButtonLink);
     rowsToRemove.forEach((r) => r.remove());
   }
 
@@ -135,8 +133,8 @@ export default function decorate(block) {
   const actions = document.createElement('div');
   actions.className = 'image-card-actions';
 
-  const primaryBtn = buildButton(primaryText, primaryLink, 'primary');
-  const secondaryBtn = buildButton(secondaryText, secondaryLink, 'secondary');
+  const primaryBtn = buildButton(primaryText, primaryUrl, 'primary');
+  const secondaryBtn = buildButton(secondaryText, secondaryUrl, 'secondary');
   if (primaryBtn) actions.append(primaryBtn);
   if (secondaryBtn) actions.append(secondaryBtn);
   if (actions.children.length) content.append(actions);

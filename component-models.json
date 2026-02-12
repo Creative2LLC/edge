@@ -507,9 +507,10 @@
         "label": "Primary Button Text"
       },
       {
-        "component": "aem-content",
+        "component": "text",
+        "valueType": "string",
         "name": "primaryButtonLink",
-        "label": "Primary Button Link"
+        "label": "Primary Button URL"
       },
       {
         "component": "text",
@@ -518,9 +519,10 @@
         "label": "Secondary Button Text"
       },
       {
-        "component": "aem-content",
+        "component": "text",
+        "valueType": "string",
         "name": "secondaryButtonLink",
-        "label": "Secondary Button Link"
+        "label": "Secondary Button URL"
       }
     ]
   }
