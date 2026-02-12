@@ -1,0 +1,139 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+.hero-footer-container .hero-footer-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+.hero-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 810px;
+  overflow: hidden;
+}
+
+/* background image */
+.hero-footer-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+.hero-footer-bg picture {
+  width: 810px;
+  height: 810px;
+  display: block;
+}
+
+.hero-footer-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* content overlay */
+.hero-footer-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  max-width: 1200px;
+}
+
+/* heading line 1 */
+.hero-footer-heading-1 {
+  font-family: Inter, sans-serif;
+  font-size: 60px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.15;
+}
+
+/* heading line 2 */
+.hero-footer-heading-2 {
+  font-family: Inter, sans-serif;
+  font-size: 96px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.15;
+}
+
+/* subheading */
+.hero-footer-subheading {
+  font-family: Inter, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: #404041;
+  width: 1057px;
+  max-width: 100%;
+  margin: 24px 0 0;
+  line-height: 1.5;
+}
+
+/* buttons */
+.hero-footer-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-footer-btn {
+  font-family: Inter, sans-serif;
+  font-size: 25px;
+  color: rgb(255 255 255 / 83%);
+  padding: 14px 40px;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.hero-footer-btn:hover {
+  opacity: 0.9;
+}
+
+.hero-footer-btn-primary {
+  background-color: #008eb7;
+}
+
+.hero-footer-btn-secondary {
+  background-color: rgb(64 64 65 / 80%);
+}
+
+/* responsive */
+@media (width <= 900px) {
+  .hero-footer-heading-1 {
+    font-size: 36px;
+  }
+
+  .hero-footer-heading-2 {
+    font-size: 56px;
+  }
+
+  .hero-footer-subheading {
+    font-size: 18px;
+  }
+
+  .hero-footer-btn {
+    font-size: 20px;
+    padding: 12px 32px;
+  }
+
+  .hero-footer-bg picture {
+    width: 100%;
+    height: 100%;
+  }
+}
