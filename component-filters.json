@@ -22,7 +22,8 @@
       "embed",
       "video",
       "news",
-      "resources"
+      "resources",
+      "image-card"
     ]
   },
   {
