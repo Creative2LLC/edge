@@ -281,23 +281,28 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "headingLine1",
+        "name": "heading_line1",
         "label": "Heading Line 1",
         "value": ""
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "headingLine2",
+        "name": "heading_line2",
         "label": "Heading Line 2",
         "value": ""
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "subheading",
+        "name": "heading_subtext",
         "label": "Subheading Text",
         "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "button1",
+        "label": "Button 1 Link"
       },
       {
         "component": "text",
@@ -308,8 +313,8 @@
       },
       {
         "component": "aem-content",
-        "name": "button1Link",
-        "label": "Button 1 Link"
+        "name": "button2",
+        "label": "Button 2 Link"
       },
       {
         "component": "text",
@@ -317,11 +322,6 @@
         "name": "button2Text",
         "label": "Button 2 Text",
         "value": ""
-      },
-      {
-        "component": "aem-content",
-        "name": "button2Link",
-        "label": "Button 2 Link"
       }
     ]
   },

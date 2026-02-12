@@ -7,6 +7,14 @@ function getField(block, name) {
   return { source: null, value: '' };
 }
 
+function getLinkField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (!source) return { source: null, value: '' };
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  const href = anchor?.href || source.textContent.trim();
+  return { source, value: href };
+}
+
 function buildText(tag, className, field) {
   if (!field.value && !field.source) return null;
   const el = document.createElement(tag);
@@ -41,13 +49,13 @@ function buildButton(className, textField, linkField) {
 
 export default function decorate(block) {
   const imageField = getField(block, 'image');
-  const headingLine1Field = getField(block, 'headingLine1');
-  const headingLine2Field = getField(block, 'headingLine2');
-  const subheadingField = getField(block, 'subheading');
+  const headingField = getField(block, 'heading_line1');
+  const headingLargeField = getField(block, 'heading_line2');
+  const headingSubtextField = getField(block, 'heading_subtext');
   const btn1TextField = getField(block, 'button1Text');
-  const btn1LinkField = getField(block, 'button1Link');
+  const btn1LinkField = getLinkField(block, 'button1');
   const btn2TextField = getField(block, 'button2Text');
-  const btn2LinkField = getField(block, 'button2Link');
+  const btn2LinkField = getLinkField(block, 'button2');
 
   /* background image */
   const bgWrap = document.createElement('div');
@@ -70,13 +78,13 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-footer-content';
 
-  const h1 = buildText('h2', 'hero-footer-heading-1', headingLine1Field);
+  const h1 = buildText('h2', 'hero-footer-heading-1', headingField);
   if (h1) content.append(h1);
 
-  const h2 = buildText('h2', 'hero-footer-heading-2', headingLine2Field);
+  const h2 = buildText('h2', 'hero-footer-heading-2', headingLargeField);
   if (h2) content.append(h2);
 
-  const sub = buildText('p', 'hero-footer-subheading', subheadingField);
+  const sub = buildText('p', 'hero-footer-subheading', headingSubtextField);
   if (sub) content.append(sub);
 
   /* buttons */

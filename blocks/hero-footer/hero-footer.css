@@ -89,7 +89,9 @@
   justify-content: center;
 }
 
-.hero-footer-btn {
+.hero-footer-btn,
+.hero-footer-btn:any-link,
+.hero-footer-btn:hover {
   font-family: Inter, sans-serif;
   font-size: 25px;
   color: rgb(255 255 255 / 83%);
