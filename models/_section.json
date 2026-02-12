@@ -57,7 +57,8 @@
         "embed",
         "video",
         "news",
-        "resources"
+        "resources",
+        "icon-text"
       ]
     }
   ]
