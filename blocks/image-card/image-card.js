@@ -44,24 +44,25 @@ function parseLegacyFields(block) {
 }
 
 function buildBackground(block) {
-  const source = getField(block, 'image') || block.querySelector('picture')?.parentElement || block.querySelector('picture');
-  if (!source) return null;
+  const source = getField(block, 'image');
+  const picture = source?.querySelector('picture')
+    || block.querySelector('picture');
+  if (!picture) return null;
 
-  const picture = source.querySelector('picture') || (source.tagName === 'PICTURE' ? source : null);
-  const img = picture?.querySelector('img') || source.querySelector('img');
-  const src = img?.src || source.textContent?.trim();
-  if (!src) return null;
+  const img = picture.querySelector('img');
+  if (!img) return picture;
 
   const altSource = getField(block, 'imageAlt');
-  const alt = altSource?.textContent?.trim() || img?.alt || '';
+  const alt = altSource?.textContent?.trim() || img.alt || '';
 
-  const optimized = createOptimizedPicture(src, alt, false, [
+  const optimized = createOptimizedPicture(img.src, alt, false, [
     { media: '(min-width: 900px)', width: '2000' },
     { media: '(min-width: 600px)', width: '1400' },
     { width: '900' },
   ]);
 
-  if (img) moveInstrumentation(img, optimized.querySelector('img') || optimized);
+  moveInstrumentation(img, optimized.querySelector('img') || optimized);
+  picture.replaceWith(optimized);
   return optimized;
 }
 
