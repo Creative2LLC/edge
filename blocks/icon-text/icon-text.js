@@ -64,19 +64,27 @@ export default function decorate(block) {
   content.className = 'icon-text-content';
 
   /* icon */
-  if (iconField.source) {
-    const iconWrap = document.createElement('div');
-    iconWrap.className = 'icon-text-icon';
-    const img = iconField.source.querySelector('img');
+  const iconSource = iconField.source;
+  const picture = iconSource?.querySelector('picture') || block.querySelector('picture');
+  const iconWrap = document.createElement('div');
+  iconWrap.className = 'icon-text-icon';
+
+  if (picture) {
+    const img = picture.querySelector('img');
     if (img) {
       const optimized = createOptimizedPicture(img.src, img.alt || '', false, [{ width: '204' }]);
       moveInstrumentation(img, optimized.querySelector('img'));
+      picture.replaceWith(optimized);
       iconWrap.append(optimized);
     } else {
-      moveInstrumentation(iconField.source, iconWrap);
-      while (iconField.source.firstChild) iconWrap.append(iconField.source.firstChild);
+      iconWrap.append(picture);
     }
-    iconField.source.remove();
+    if (iconSource) iconSource.remove();
+    content.append(iconWrap);
+  } else if (iconSource) {
+    moveInstrumentation(iconSource, iconWrap);
+    while (iconSource.firstChild) iconWrap.append(iconSource.firstChild);
+    iconSource.remove();
     content.append(iconWrap);
   }
 
