@@ -10,9 +10,8 @@ function getField(block, name) {
 function extractLinkData(sourceEl) {
   if (!sourceEl) return {};
   const anchor = sourceEl.tagName === 'A' ? sourceEl : sourceEl.querySelector('a');
-  const rawText = (anchor || sourceEl).textContent?.trim() || '';
-  const href = anchor?.href || (/^https?:\/\//i.test(rawText) ? rawText : '');
-  const label = anchor?.textContent?.trim() || rawText;
+  const href = anchor?.href || sourceEl.textContent?.trim() || '';
+  const label = anchor?.textContent?.trim() || href;
   return href ? { href, label, source: anchor || sourceEl } : {};
 }
 
