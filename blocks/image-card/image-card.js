@@ -73,6 +73,8 @@ function buildButton(text, linkData, variant) {
   const btn = document.createElement('a');
   btn.className = `image-card-btn image-card-btn-${variant}`;
   btn.href = linkData?.href || '#';
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
 
   const label = document.createElement('span');
   label.textContent = text || linkData?.label || '';
