@@ -396,15 +396,31 @@ function parseMegaNavRow(row) {
     const cols = [...row.children];
     if (cols.length < 2) return null;
 
-    type = getTextValue(cols[0]);
-    column = getTextValue(cols[1]);
-    title = getTextValue(cols[2]);
-    link = getLinkValue(cols[3]);
-    description = getTextValue(cols[4]);
-    sublinks = parseLinksField(cols[5]);
-    image = getImageValue(cols[6]);
-    button = parseButtonField(cols[7]);
-    label = getTextValue(cols[8]);
+    if (cols.length <= 4) {
+      type = getTextValue(cols[0]);
+      column = getTextValue(cols[1]);
+      image = getImageValue(cols[3]);
+
+      if (cols[2]) {
+        const parsed = parseContentField(cols[2], type.toLowerCase());
+        label = parsed.label;
+        title = parsed.title;
+        link = parsed.link;
+        description = parsed.description;
+        sublinks = parsed.sublinks;
+        button = parsed.button;
+      }
+    } else {
+      type = getTextValue(cols[0]);
+      column = getTextValue(cols[1]);
+      title = getTextValue(cols[2]);
+      link = getLinkValue(cols[3]);
+      description = getTextValue(cols[4]);
+      sublinks = parseLinksField(cols[5]);
+      image = getImageValue(cols[6]);
+      button = parseButtonField(cols[7]);
+      label = getTextValue(cols[8]);
+    }
 
     if (!link && cols[2]) {
       const anchor = getAnchorFromElement(cols[2]);
@@ -634,15 +650,36 @@ function buildMegaNavFromBlocks(blocks) {
   if (!blocks.length) return null;
   const menus = new Map();
 
-  blocks.forEach((block) => {
-    const menuLabel = getBlockTextField(block, 'menu_label')
-      || getBlockTextField(block, 'menu')
-      || block.dataset.menu
+  blocks.forEach((blockEl) => {
+    let menuLabel = getBlockTextField(blockEl, 'menu_label')
+      || getBlockTextField(blockEl, 'menu')
+      || blockEl.dataset.menu
       || '';
-    if (!menuLabel) return;
+    let menuLink = getBlockLinkField(blockEl, 'menu_link')
+      || getBlockLinkField(blockEl, 'menu link');
 
-    const menuLink = getBlockLinkField(block, 'menu_link')
-      || getBlockLinkField(block, 'menu link');
+    const rows = [...blockEl.querySelectorAll(':scope > div')];
+    if (!menuLabel && rows.length) {
+      const firstRow = rows[0];
+      const cells = [...firstRow.children];
+      if (cells.length <= 2) {
+        const primaryCell = cells[0];
+        const paragraphs = primaryCell?.querySelectorAll('p') || [];
+        menuLabel = paragraphs[0]?.textContent.trim()
+          || primaryCell?.textContent.trim()
+          || '';
+        const firstLink = primaryCell?.querySelector('a')
+          || cells[1]?.querySelector('a');
+        menuLink = menuLink
+          || firstLink?.href
+          || cells[1]?.textContent.trim()
+          || '';
+        rows.shift();
+        firstRow.remove();
+      }
+    }
+
+    if (!menuLabel) return;
 
     if (!menus.has(menuLabel)) {
       menus.set(menuLabel, {
@@ -658,7 +695,6 @@ function buildMegaNavFromBlocks(blocks) {
     const data = menus.get(menuLabel);
     if (menuLink) data.menuLink = menuLink;
 
-    const rows = [...block.querySelectorAll(':scope > div')];
     rows.forEach((row) => {
       const entry = parseMegaNavRow(row);
       if (!entry) return;
