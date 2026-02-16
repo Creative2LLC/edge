@@ -279,6 +279,21 @@
           }
         },
         {
+          "title": "Mega Nav Link",
+          "id": "mega-nav-link",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Mega Nav Link",
+                  "model": "mega-nav-link"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "News",
           "id": "news",
           "plugins": {

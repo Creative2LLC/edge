@@ -291,6 +291,30 @@ function parseButtonField(element) {
   return parseDelimitedLinks(element.textContent || '')[0] || null;
 }
 
+function parsePathSegments(value) {
+  if (!value) return [];
+  return value
+    .split('>')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+}
+
+function addPathToTree(tree, segments, href) {
+  if (!segments.length) return;
+  const [head, ...rest] = segments;
+  let node = tree.find((item) => normalizeNavLabel(item.label) === normalizeNavLabel(head));
+  if (!node) {
+    node = { label: head, href: '', children: [] };
+    tree.push(node);
+  }
+  if (!rest.length) {
+    if (href) node.href = href;
+    return;
+  }
+  if (!node.children) node.children = [];
+  addPathToTree(node.children, rest, href);
+}
+
 function parseContentField(element, type) {
   if (!element) {
     return {
@@ -453,6 +477,32 @@ function parseMegaNavRow(row) {
   };
 }
 
+function parseMegaNavLinkRow(row) {
+  const getProp = (name) => row.querySelector(`[data-aue-prop="${name}"]`);
+  const pathProp = getProp('path');
+  const columnProp = getProp('column');
+  const linkProp = getProp('link');
+
+  if (pathProp || columnProp || linkProp) {
+    return {
+      column: getTextValue(columnProp),
+      path: getTextValue(pathProp),
+      link: getLinkValue(linkProp),
+    };
+  }
+
+  const cols = [...row.children];
+  if (cols.length === 3) {
+    return {
+      column: getTextValue(cols[0]),
+      path: getTextValue(cols[1]),
+      link: getLinkValue(cols[2]),
+    };
+  }
+
+  return null;
+}
+
 function getBlockTextField(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (!source) return '';
@@ -470,6 +520,31 @@ function getBlockLinkField(block, name) {
 }
 
 function buildMegaNavList(menus) {
+  const buildNestedList = (nodes) => {
+    if (!nodes?.length) return null;
+    const list = document.createElement('ul');
+    nodes.forEach((node) => {
+      const li = document.createElement('li');
+      if (node.href) {
+        const link = document.createElement('a');
+        link.textContent = node.label;
+        link.href = node.href;
+        li.append(link);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'mega-subheader';
+        span.textContent = node.label;
+        li.append(span);
+      }
+      if (node.children?.length) {
+        const childList = buildNestedList(node.children);
+        if (childList) li.append(childList);
+      }
+      list.append(li);
+    });
+    return list;
+  };
+
   const navList = document.createElement('ul');
   menus.forEach((data) => {
     const topLi = document.createElement('li');
@@ -499,17 +574,15 @@ function buildMegaNavList(menus) {
           desc.textContent = entry.description;
           colLi.append(desc);
         }
+        const linkTree = [...(entry.nestedLinks || [])];
         if (entry.sublinks.length) {
-          const subList = document.createElement('ul');
           entry.sublinks.forEach((sub) => {
-            const subLi = document.createElement('li');
-            const subLink = document.createElement('a');
-            subLink.textContent = sub.label;
-            if (sub.href) subLink.href = sub.href;
-            subLi.append(subLink);
-            subList.append(subLi);
+            linkTree.push({ label: sub.label, href: sub.href, children: [] });
           });
-          colLi.append(subList);
+        }
+        if (linkTree.length) {
+          const subList = buildNestedList(linkTree);
+          if (subList) colLi.append(subList);
         }
       });
       subNav.append(colLi);
@@ -700,6 +773,46 @@ function buildMegaNavFromBlocks(blocks) {
     if (menuLink) data.menuLink = menuLink;
 
     rows.forEach((row) => {
+      const linkRow = parseMegaNavLinkRow(row);
+      if (linkRow && linkRow.path) {
+        const columnKey = (linkRow.column || '1').toLowerCase();
+        if (!data.columns.has(columnKey)) {
+          data.columns.set(columnKey, []);
+          data.columnOrder.push(columnKey);
+        }
+
+        const segments = parsePathSegments(linkRow.path);
+        if (segments.length) {
+          const topLabel = segments.shift();
+          let entry = data.columns.get(columnKey)
+            .find((item) => normalizeNavLabel(item.title) === normalizeNavLabel(topLabel));
+          if (!entry) {
+            entry = {
+              title: topLabel,
+              link: '',
+              description: '',
+              sublinks: [],
+              image: null,
+              button: null,
+              label: '',
+              nestedLinks: [],
+            };
+            data.columns.get(columnKey).push(entry);
+          }
+          entry.nestedLinks = entry.nestedLinks || [];
+          if (!segments.length && linkRow.link) {
+            entry.link = entry.link || linkRow.link;
+          } else {
+            addPathToTree(
+              entry.nestedLinks,
+              segments.length ? segments : [topLabel],
+              linkRow.link,
+            );
+          }
+        }
+        return;
+      }
+
       const entry = parseMegaNavRow(row);
       if (!entry) return;
       const type = (entry.type || '').toLowerCase();
@@ -1052,7 +1165,6 @@ export default async function decorate(block) {
         'left-1/2',
         '-translate-x-1/2',
         'top-full',
-        'mt-3',
         'w-[calc(100vw-2rem)]',
         'max-w-[900px]',
         'rounded-[28px]',
@@ -1157,8 +1269,12 @@ export default async function decorate(block) {
           description.classList.add('text-sm', 'leading-snug', 'text-white/70');
         });
 
-        item.querySelectorAll(':scope > ul').forEach((links) => {
+        item.querySelectorAll('ul').forEach((links) => {
           links.classList.add('mt-2', 'space-y-1.5', 'border-l', 'border-white/10', 'pl-3');
+          const parentList = links.parentElement?.closest('ul');
+          if (parentList && parentList !== links) {
+            links.classList.add('pl-4');
+          }
           links.querySelectorAll('a').forEach((link) => {
             link.classList.add(
               'text-sm',
@@ -1171,6 +1287,27 @@ export default async function decorate(block) {
               'hover:decoration-white',
             );
           });
+        });
+
+        item.querySelectorAll('.mega-subheader').forEach((label) => {
+          label.classList.add(
+            'text-xs',
+            'uppercase',
+            'tracking-[0.18em]',
+            'text-white/60',
+          );
+        });
+
+        item.querySelectorAll('li').forEach((li) => {
+          const childList = li.querySelector(':scope > ul');
+          if (!childList) return;
+          const labelEl = li.querySelector(':scope > a, :scope > span');
+          if (!labelEl || labelEl.querySelector('.mega-arrow')) return;
+          const arrow = document.createElement('span');
+          arrow.className = 'mega-arrow ml-2 text-white/80';
+          arrow.setAttribute('aria-hidden', 'true');
+          arrow.textContent = '>';
+          labelEl.append(arrow);
         });
       });
 

@@ -79,7 +79,8 @@
   {
     "id": "mega-nav",
     "components": [
-      "mega-nav-row"
+      "mega-nav-row",
+      "mega-nav-link"
     ]
   }
 ]

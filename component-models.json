@@ -565,10 +565,24 @@
         "value": "column"
       },
       {
-        "component": "text",
-        "valueType": "string",
+        "component": "select",
         "name": "column",
-        "label": "Column (1, 2, 3)"
+        "label": "Column",
+        "options": [
+          {
+            "name": "Column 1",
+            "value": "1"
+          },
+          {
+            "name": "Column 2",
+            "value": "2"
+          },
+          {
+            "name": "Column 3",
+            "value": "3"
+          }
+        ],
+        "value": "1"
       },
       {
         "component": "richtext",
@@ -582,6 +596,42 @@
         "name": "image",
         "label": "Image (Featured only)",
         "multi": false
+      }
+    ]
+  },
+  {
+    "id": "mega-nav-link",
+    "fields": [
+      {
+        "component": "select",
+        "name": "column",
+        "label": "Column",
+        "options": [
+          {
+            "name": "Column 1",
+            "value": "1"
+          },
+          {
+            "name": "Column 2",
+            "value": "2"
+          },
+          {
+            "name": "Column 3",
+            "value": "3"
+          }
+        ],
+        "value": "1"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "path",
+        "label": "Path (Top Link > Child > Child)"
+      },
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Link (optional for headers)"
       }
     ]
   },
