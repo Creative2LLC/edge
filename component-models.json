@@ -526,6 +526,66 @@
     ]
   },
   {
+    "id": "mega-nav",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "menu_label",
+        "label": "Menu Label"
+      },
+      {
+        "component": "aem-content",
+        "name": "menu_link",
+        "label": "Menu Link"
+      }
+    ]
+  },
+  {
+    "id": "mega-nav-row",
+    "fields": [
+      {
+        "component": "select",
+        "name": "type",
+        "label": "Row Type",
+        "options": [
+          {
+            "name": "Column Item",
+            "value": "column"
+          },
+          {
+            "name": "Featured",
+            "value": "featured"
+          },
+          {
+            "name": "Footer",
+            "value": "footer"
+          }
+        ],
+        "value": "column"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "column",
+        "label": "Column (1, 2, 3)"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "content",
+        "label": "Content"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image (Featured only)",
+        "multi": false
+      }
+    ]
+  },
+  {
     "id": "statistics",
     "fields": [
       {

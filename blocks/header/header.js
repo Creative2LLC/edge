@@ -199,11 +199,493 @@ function decorateTopBanner(section) {
   chevron.append(chevronImg);
 }
 
+function toSlug(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 function normalizeNavLabel(label) {
   return label
     .toLowerCase()
     .replace(/&/g, 'and')
     .replace(/[^a-z0-9]+/g, '');
+}
+
+function findMegaNavTable(root) {
+  const tables = [...root.querySelectorAll('table')];
+  return tables.find((table) => {
+    const headerRow = table.querySelector('tr');
+    if (!headerRow) return false;
+    const headers = [...headerRow.children]
+      .map((cell) => cell.textContent.trim().toLowerCase());
+    return headers.includes('menu') && headers.includes('column');
+  });
+}
+
+function parseDelimitedLinks(value) {
+  if (!value) return [];
+  return value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split('|').map((part) => part.trim()).filter(Boolean);
+      if (parts.length === 1) return { label: parts[0], href: '' };
+      return { label: parts[0], href: parts[1] };
+    });
+}
+
+function getAnchorFromElement(element) {
+  if (!element) return null;
+  if (element.tagName === 'A') return element;
+  return element.querySelector('a');
+}
+
+function getTextValue(element) {
+  if (!element) return '';
+  const anchor = getAnchorFromElement(element);
+  if (anchor) return anchor.textContent.trim();
+  return element.textContent.trim();
+}
+
+function getLinkValue(element) {
+  if (!element) return '';
+  const anchor = getAnchorFromElement(element);
+  if (anchor && anchor.href) return anchor.href;
+  return element.textContent.trim();
+}
+
+function getImageValue(element) {
+  if (!element) return null;
+  const image = element.querySelector('picture, img');
+  return image ? image.cloneNode(true) : null;
+}
+
+function parseLinksField(element) {
+  if (!element) return [];
+  const links = [...element.querySelectorAll('a')];
+  if (links.length) {
+    return links.map((link) => ({
+      label: link.textContent.trim(),
+      href: link.href,
+    }));
+  }
+  return parseDelimitedLinks(element.textContent || element.innerText || '');
+}
+
+function parseButtonField(element) {
+  if (!element) return null;
+  const anchor = getAnchorFromElement(element);
+  if (anchor && (anchor.textContent || anchor.href)) {
+    return {
+      label: anchor.textContent.trim(),
+      href: anchor.href,
+    };
+  }
+  return parseDelimitedLinks(element.textContent || '')[0] || null;
+}
+
+function parseContentField(element, type) {
+  if (!element) {
+    return {
+      label: '',
+      title: '',
+      link: '',
+      description: '',
+      sublinks: [],
+      button: null,
+    };
+  }
+
+  const labelEl = element.querySelector('strong, em, h1, h2, h3, h4, h5, h6');
+  const label = labelEl ? labelEl.textContent.trim() : '';
+  const list = element.querySelector('ul');
+  const sublinks = list
+    ? [...list.querySelectorAll('a')].map((link) => ({
+      label: link.textContent.trim(),
+      href: link.href,
+    }))
+    : [];
+
+  const links = [...element.querySelectorAll('a')];
+  const titleLink = links.find((link) => !link.closest('ul')) || links[0];
+  const title = titleLink ? titleLink.textContent.trim() : '';
+  const link = titleLink?.href || '';
+
+  const paragraphs = [...element.querySelectorAll('p')]
+    .filter((p) => !p.querySelector('a') && !p.querySelector('ul'));
+  const description = paragraphs[0]?.textContent.trim() || '';
+
+  let button = null;
+  if (type === 'featured' && links.length > 1) {
+    const buttonLink = links[links.length - 1];
+    if (buttonLink && buttonLink !== titleLink) {
+      button = {
+        label: buttonLink.textContent.trim(),
+        href: buttonLink.href,
+      };
+    }
+  }
+
+  return {
+    label,
+    title,
+    link,
+    description,
+    sublinks,
+    button,
+  };
+}
+
+function parseMegaNavRow(row) {
+  const getProp = (name) => row.querySelector(`[data-aue-prop="${name}"]`);
+  const propEls = {
+    type: getProp('type'),
+    column: getProp('column'),
+    content: getProp('content'),
+    title: getProp('title'),
+    link: getProp('link'),
+    description: getProp('description'),
+    sublinks: getProp('sublinks'),
+    image: getProp('image'),
+    button: getProp('button'),
+    label: getProp('label'),
+  };
+  const hasProps = Object.values(propEls).some(Boolean);
+  let type = '';
+  let column = '';
+  let title = '';
+  let link = '';
+  let description = '';
+  let sublinks = [];
+  let image = null;
+  let button = null;
+  let label = '';
+
+  if (hasProps) {
+    type = getTextValue(propEls.type);
+    column = getTextValue(propEls.column);
+    title = getTextValue(propEls.title);
+    link = getLinkValue(propEls.link);
+    description = getTextValue(propEls.description);
+    sublinks = parseLinksField(propEls.sublinks);
+    image = getImageValue(propEls.image);
+    button = parseButtonField(propEls.button);
+    label = getTextValue(propEls.label);
+
+    if (propEls.content) {
+      const parsed = parseContentField(propEls.content, type.toLowerCase());
+      label = label || parsed.label;
+      title = title || parsed.title;
+      link = link || parsed.link;
+      description = description || parsed.description;
+      if (!sublinks.length) sublinks = parsed.sublinks;
+      button = button || parsed.button;
+    }
+
+    if (!link && propEls.title) {
+      const anchor = getAnchorFromElement(propEls.title);
+      if (anchor) {
+        title = anchor.textContent.trim();
+        link = anchor.href;
+      }
+    }
+  } else {
+    const cols = [...row.children];
+    if (cols.length < 2) return null;
+
+    type = getTextValue(cols[0]);
+    column = getTextValue(cols[1]);
+    title = getTextValue(cols[2]);
+    link = getLinkValue(cols[3]);
+    description = getTextValue(cols[4]);
+    sublinks = parseLinksField(cols[5]);
+    image = getImageValue(cols[6]);
+    button = parseButtonField(cols[7]);
+    label = getTextValue(cols[8]);
+
+    if (!link && cols[2]) {
+      const anchor = getAnchorFromElement(cols[2]);
+      if (anchor) {
+        title = anchor.textContent.trim();
+        link = anchor.href;
+      }
+    }
+  }
+
+  if (!type && !column && !title && !description
+    && !sublinks.length && !image && !button && !label) {
+    return null;
+  }
+
+  return {
+    type,
+    column,
+    title,
+    link,
+    description,
+    sublinks,
+    image,
+    button,
+    label,
+  };
+}
+
+function getBlockTextField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (!source) return '';
+  const value = getTextValue(source);
+  source.remove();
+  return value;
+}
+
+function getBlockLinkField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (!source) return '';
+  const value = getLinkValue(source);
+  source.remove();
+  return value;
+}
+
+function buildMegaNavList(menus) {
+  const navList = document.createElement('ul');
+  menus.forEach((data) => {
+    const topLi = document.createElement('li');
+    const topLink = document.createElement('a');
+    topLink.textContent = data.menu;
+    topLink.href = data.menuLink || `/${toSlug(data.menu)}`;
+    topLi.append(topLink);
+
+    const subNav = document.createElement('ul');
+    data.columnOrder.forEach((columnKey) => {
+      const colLi = document.createElement('li');
+      data.columns.get(columnKey).forEach((entry) => {
+        if (entry.label && !entry.title && !entry.description && !entry.sublinks.length) {
+          const label = document.createElement('strong');
+          label.textContent = entry.label;
+          colLi.append(label);
+          return;
+        }
+        if (entry.title) {
+          const linkEl = document.createElement('a');
+          linkEl.textContent = entry.title;
+          if (entry.link) linkEl.href = entry.link;
+          colLi.append(linkEl);
+        }
+        if (entry.description) {
+          const desc = document.createElement('p');
+          desc.textContent = entry.description;
+          colLi.append(desc);
+        }
+        if (entry.sublinks.length) {
+          const subList = document.createElement('ul');
+          entry.sublinks.forEach((sub) => {
+            const subLi = document.createElement('li');
+            const subLink = document.createElement('a');
+            subLink.textContent = sub.label;
+            if (sub.href) subLink.href = sub.href;
+            subLi.append(subLink);
+            subList.append(subLi);
+          });
+          colLi.append(subList);
+        }
+      });
+      subNav.append(colLi);
+    });
+
+    data.featured.forEach((entry) => {
+      const featuredLi = document.createElement('li');
+      featuredLi.dataset.mega = 'featured';
+
+      const featuredLabel = document.createElement('strong');
+      featuredLabel.textContent = entry.label || 'Featured';
+      featuredLi.append(featuredLabel);
+
+      if (entry.image) {
+        featuredLi.append(entry.image);
+      }
+
+      if (entry.title) {
+        const titleLink = document.createElement('a');
+        titleLink.textContent = entry.title;
+        if (entry.link) titleLink.href = entry.link;
+        featuredLi.append(titleLink);
+      }
+
+      if (entry.description) {
+        const desc = document.createElement('p');
+        desc.textContent = entry.description;
+        featuredLi.append(desc);
+      }
+
+      if (entry.button?.label) {
+        const button = document.createElement('a');
+        button.classList.add('button');
+        button.textContent = entry.button.label;
+        if (entry.button.href) button.href = entry.button.href;
+        featuredLi.append(button);
+      }
+
+      subNav.append(featuredLi);
+    });
+
+    data.footer.forEach((entry) => {
+      const footerLi = document.createElement('li');
+      footerLi.dataset.mega = 'footer';
+      const footer = document.createElement('div');
+      footer.className = 'mega-footer';
+      footer.textContent = entry.title || entry.description || '';
+      footerLi.append(footer);
+      subNav.append(footerLi);
+    });
+
+    topLi.append(subNav);
+    navList.append(topLi);
+  });
+
+  return navList;
+}
+
+function buildMegaNavFromTable(table) {
+  const rows = [...table.querySelectorAll('tr')];
+  if (rows.length < 2) return null;
+
+  const headerCells = [...rows.shift().children]
+    .map((cell) => cell.textContent.trim().toLowerCase());
+  const colIndex = (name) => headerCells.findIndex((header) => header === name);
+  const col = {
+    menu: colIndex('menu'),
+    menuLink: colIndex('menu link'),
+    column: colIndex('column'),
+    title: colIndex('title'),
+    link: colIndex('link'),
+    description: colIndex('description'),
+    sublinks: colIndex('sublinks'),
+    image: colIndex('image'),
+    button: colIndex('button'),
+    label: colIndex('label'),
+  };
+
+  const menus = new Map();
+
+  rows.forEach((row) => {
+    const cells = [...row.children];
+    const menu = cells[col.menu]?.textContent.trim();
+    if (!menu) return;
+
+    const menuLink = cells[col.menuLink]?.textContent.trim() || '';
+    const column = (cells[col.column]?.textContent.trim() || '1').toLowerCase();
+    const title = cells[col.title]?.textContent.trim() || '';
+    const link = cells[col.link]?.textContent.trim() || '';
+    const description = cells[col.description]?.textContent.trim() || '';
+    const sublinks = parseDelimitedLinks(cells[col.sublinks]?.innerText || '');
+    const label = cells[col.label]?.textContent.trim() || '';
+    const button = parseDelimitedLinks(cells[col.button]?.innerText || '')[0] || null;
+    const imageCell = cells[col.image];
+    const image = imageCell?.querySelector('picture, img')?.cloneNode(true) || null;
+
+    if (!menus.has(menu)) {
+      menus.set(menu, {
+        menu,
+        menuLink,
+        columns: new Map(),
+        columnOrder: [],
+        featured: [],
+        footer: [],
+      });
+    }
+
+    const data = menus.get(menu);
+    if (menuLink) data.menuLink = menuLink;
+
+    const entry = {
+      title,
+      link,
+      description,
+      sublinks,
+      image,
+      button,
+      label,
+    };
+
+    if (column === 'featured') {
+      data.featured.push(entry);
+      return;
+    }
+
+    if (column === 'footer') {
+      data.footer.push(entry);
+      return;
+    }
+
+    if (!data.columns.has(column)) {
+      data.columns.set(column, []);
+      data.columnOrder.push(column);
+    }
+    data.columns.get(column).push(entry);
+  });
+
+  return buildMegaNavList(menus);
+}
+
+function buildMegaNavFromBlocks(blocks) {
+  if (!blocks.length) return null;
+  const menus = new Map();
+
+  blocks.forEach((block) => {
+    const menuLabel = getBlockTextField(block, 'menu_label')
+      || getBlockTextField(block, 'menu')
+      || block.dataset.menu
+      || '';
+    if (!menuLabel) return;
+
+    const menuLink = getBlockLinkField(block, 'menu_link')
+      || getBlockLinkField(block, 'menu link');
+
+    if (!menus.has(menuLabel)) {
+      menus.set(menuLabel, {
+        menu: menuLabel,
+        menuLink,
+        columns: new Map(),
+        columnOrder: [],
+        featured: [],
+        footer: [],
+      });
+    }
+
+    const data = menus.get(menuLabel);
+    if (menuLink) data.menuLink = menuLink;
+
+    const rows = [...block.querySelectorAll(':scope > div')];
+    rows.forEach((row) => {
+      const entry = parseMegaNavRow(row);
+      if (!entry) return;
+      const type = (entry.type || '').toLowerCase();
+      const column = (entry.column || '1').toLowerCase();
+
+      if (type === 'featured' || column === 'featured') {
+        data.featured.push(entry);
+        return;
+      }
+
+      if (type === 'footer' || column === 'footer') {
+        data.footer.push(entry);
+        return;
+      }
+
+      const columnKey = column || '1';
+      if (!data.columns.has(columnKey)) {
+        data.columns.set(columnKey, []);
+        data.columnOrder.push(columnKey);
+      }
+      data.columns.get(columnKey).push(entry);
+    });
+  });
+
+  if (!menus.size) return null;
+  return buildMegaNavList(menus);
 }
 
 function buildDummyMegaMenu(label) {
@@ -411,6 +893,32 @@ export default async function decorate(block) {
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
+    const megaBlocks = [...nav.querySelectorAll('.mega-nav')];
+    let megaNav = null;
+
+    if (megaBlocks.length) {
+      megaNav = buildMegaNavFromBlocks(megaBlocks);
+      if (megaNav) {
+        const wrapper = navSections.querySelector('.default-content-wrapper') || navSections;
+        wrapper.textContent = '';
+        wrapper.append(megaNav);
+        megaBlocks.forEach((megaBlock) => megaBlock.remove());
+      }
+    }
+
+    if (!megaNav) {
+      const megaTable = findMegaNavTable(nav);
+      if (megaTable) {
+        megaNav = buildMegaNavFromTable(megaTable);
+        if (megaNav) {
+          const wrapper = navSections.querySelector('.default-content-wrapper') || navSections;
+          wrapper.textContent = '';
+          wrapper.append(megaNav);
+        }
+        megaTable.remove();
+      }
+    }
+
     const useDummyNav = ['localhost', '127.0.0.1'].includes(window.location.hostname);
     navSections.classList.add('relative', 'isolate');
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {

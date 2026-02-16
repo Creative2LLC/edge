@@ -24,7 +24,8 @@
       "news",
       "resources",
       "icon-text",
-      "hero-footer"
+      "hero-footer",
+      "mega-nav"
     ]
   },
   {
@@ -73,6 +74,12 @@
     "id": "resources",
     "components": [
       "resource-item"
+    ]
+  },
+  {
+    "id": "mega-nav",
+    "components": [
+      "mega-nav-row"
     ]
   }
 ]
