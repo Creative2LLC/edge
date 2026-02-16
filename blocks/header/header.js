@@ -57,9 +57,13 @@ function focusNavSection() {
  * @param {Boolean} expanded Whether the element should be expanded or collapsed
  */
 function toggleAllNavSections(sections, expanded = false) {
-  sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
-  });
+  sections
+    .querySelectorAll(
+      '.nav-sections .default-content-wrapper > ul > li, .nav-sections > ul > li',
+    )
+    .forEach((section) => {
+      section.setAttribute('aria-expanded', expanded);
+    });
 }
 
 /**
@@ -957,7 +961,23 @@ export default async function decorate(block) {
 
     const useDummyNav = ['localhost', '127.0.0.1'].includes(window.location.hostname);
     navSections.classList.add('relative', 'isolate');
-    navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
+    const navWrapper = navSections.querySelector('.default-content-wrapper') || navSections;
+    const topList = navWrapper.querySelector(':scope > ul');
+    if (topList) {
+      topList.classList.add(
+        'flex',
+        'flex-wrap',
+        'items-center',
+        'gap-2',
+        'rounded-full',
+        'bg-white',
+        'px-2',
+        'py-2',
+        'shadow-[0_10px_30px_rgba(0,0,0,0.15)]',
+      );
+    }
+
+    navWrapper.querySelectorAll(':scope > ul > li').forEach((navSection) => {
       let subNav = navSection.querySelector('ul');
       navSection.classList.add('group', '!static');
       if (subNav) {
