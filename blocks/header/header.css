@@ -389,6 +389,7 @@ header .top-banner-language-panel[aria-hidden='false'] {
   display: block;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 header .nav-top-banner .top-banner-language-panel li {
   padding: 8px 16px;
   color: rgb(255 255 255 / 83%);
@@ -397,6 +398,7 @@ header .nav-top-banner .top-banner-language-panel li {
   white-space: nowrap;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 header .nav-top-banner .top-banner-language-panel li:hover {
   background: rgb(255 255 255 / 10%);
   color: #fff;

@@ -16,6 +16,16 @@ module.exports = {
   },
   rules: {
     'import/extensions': ['error', { js: 'always' }], // require js file extensions in imports
+    'import/no-extraneous-dependencies': ['error', {
+      devDependencies: [
+        'vite.config.js',
+        'postcss.config.cjs',
+        'tailwind.config.cjs',
+        'scripts/**',
+        '**/*.test.js',
+        '**/*.spec.js',
+      ],
+    }],
     'linebreak-style': ['error', 'unix'], // enforce unix linebreaks
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', { '*': 4, 'news-article': 5, 'resource-item': 6 }],

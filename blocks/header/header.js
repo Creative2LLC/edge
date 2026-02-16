@@ -428,13 +428,20 @@ export default async function decorate(block) {
       });
 
       let topLink = navSection.querySelector(':scope > a, :scope > p > a');
-      let navLabel = topLink?.textContent.trim() || navSection.textContent.trim();
+      const navLabel = topLink?.textContent.trim()
+        || navSection.textContent.trim();
       if (!topLink) {
-        const textNodes = [...navSection.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE);
+        const textNodes = [...navSection.childNodes].filter(
+          (node) => node.nodeType === Node.TEXT_NODE,
+        );
         if (navLabel) {
           textNodes.forEach((node) => node.remove());
           topLink = document.createElement('a');
-          topLink.href = `/${navLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
+          const slug = navLabel
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+          topLink.href = `/${slug}`;
           topLink.textContent = navLabel;
           navSection.prepend(topLink);
         }
@@ -498,7 +505,9 @@ export default async function decorate(block) {
         'z-50',
       );
 
-      const footerCandidate = subNav.querySelector('.mega-footer, [data-mega="footer"]');
+      const footerCandidate = subNav.querySelector(
+        '.mega-footer, [data-mega="footer"]',
+      );
       if (footerCandidate) {
         const footerItem = document.createElement('li');
         footerItem.dataset.mega = 'footer';
