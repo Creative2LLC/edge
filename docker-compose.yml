@@ -1,0 +1,27 @@
+services:
+    edge:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: 'ncmec-edge'
+        ports:
+            - '3000:3000'
+        volumes:
+            - '.:/app'
+        working_dir: /app
+        command: ['aem', 'up', '--addr', '*', '--port', '3000']
+    css:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: 'ncmec-edge'
+        volumes:
+            - '.:/app'
+            - 'node-modules:/app/node_modules'
+        working_dir: /app
+        environment:
+            CHOKIDAR_USEPOLLING: '1'
+        command: ['sh', '-lc', 'npm ci && npm run dev:css']
+volumes:
+    node-modules:
+        driver: local

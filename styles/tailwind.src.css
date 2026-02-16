@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Example token to prove Tailwind is running; remove if undesired. */
+    --tw-ready: 1;
+  }
+}
