@@ -600,7 +600,67 @@
     ]
   },
   {
-    "id": "mega-nav-link",
+    "id": "mega-nav-item",
+    "fields": [
+      {
+        "component": "select",
+        "name": "column",
+        "label": "Column",
+        "options": [
+          {
+            "name": "Column 1",
+            "value": "1"
+          },
+          {
+            "name": "Column 2",
+            "value": "2"
+          },
+          {
+            "name": "Column 3",
+            "value": "3"
+          }
+        ],
+        "value": "1"
+      },
+      {
+        "component": "select",
+        "name": "level",
+        "label": "Level",
+        "options": [
+          {
+            "name": "Level 1",
+            "value": "1"
+          },
+          {
+            "name": "Level 2",
+            "value": "2"
+          },
+          {
+            "name": "Level 3",
+            "value": "3"
+          },
+          {
+            "name": "Level 4",
+            "value": "4"
+          }
+        ],
+        "value": "1"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Label"
+      },
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Link (optional for headers)"
+      }
+    ]
+  },
+  {
+    "id": "mega-nav-column",
     "fields": [
       {
         "component": "select",
@@ -625,13 +685,19 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "path",
-        "label": "Path (Top Link > Child > Child)"
+        "name": "title",
+        "label": "Title"
       },
       {
         "component": "aem-content",
         "name": "link",
-        "label": "Link (optional for headers)"
+        "label": "Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Description"
       }
     ]
   },

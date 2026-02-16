@@ -80,7 +80,8 @@
     "id": "mega-nav",
     "components": [
       "mega-nav-row",
-      "mega-nav-link"
+      "mega-nav-item",
+      "mega-nav-column"
     ]
   }
 ]
