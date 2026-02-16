@@ -780,6 +780,7 @@ function buildMegaNavFromBlocks(blocks) {
     if (menuLink) data.menuLink = menuLink;
 
     const levelContexts = new Map();
+    let currentColumnKey = '1';
 
     const getLevelContext = (columnKey) => {
       if (!levelContexts.has(columnKey)) {
@@ -813,7 +814,7 @@ function buildMegaNavFromBlocks(blocks) {
     rows.forEach((row) => {
       const columnRow = parseMegaNavColumnRow(row);
       if (columnRow && columnRow.title) {
-        const columnKey = (columnRow.column || '1').toLowerCase();
+        const columnKey = (columnRow.column || currentColumnKey || '1').toLowerCase();
         if (!data.columns.has(columnKey)) {
           data.columns.set(columnKey, []);
           data.columnOrder.push(columnKey);
@@ -841,12 +842,14 @@ function buildMegaNavFromBlocks(blocks) {
         const context = getLevelContext(columnKey);
         context.currentEntry = entry;
         context.stack = [];
+        currentColumnKey = columnKey;
         return;
       }
 
       const levelRow = parseMegaNavItemRow(row);
       if (levelRow && levelRow.label) {
-        const columnKey = (levelRow.column || '1').toLowerCase();
+        const columnKey = (levelRow.column || currentColumnKey || '1').toLowerCase();
+        if (levelRow.column) currentColumnKey = columnKey;
         if (!data.columns.has(columnKey)) {
           data.columns.set(columnKey, []);
           data.columnOrder.push(columnKey);

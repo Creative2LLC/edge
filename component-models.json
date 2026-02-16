@@ -570,6 +570,10 @@
         "label": "Column",
         "options": [
           {
+            "name": "Same as previous",
+            "value": ""
+          },
+          {
             "name": "Column 1",
             "value": "1"
           },
@@ -582,7 +586,7 @@
             "value": "3"
           }
         ],
-        "value": "1"
+        "value": ""
       },
       {
         "component": "richtext",
