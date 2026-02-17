@@ -604,13 +604,17 @@
     ]
   },
   {
-    "id": "mega-nav-item",
+    "id": "mega-nav-sub-link",
     "fields": [
       {
         "component": "select",
         "name": "column",
         "label": "Column",
         "options": [
+          {
+            "name": "Same as previous",
+            "value": ""
+          },
           {
             "name": "Column 1",
             "value": "1"
@@ -624,17 +628,13 @@
             "value": "3"
           }
         ],
-        "value": "1"
+        "value": ""
       },
       {
         "component": "select",
         "name": "level",
-        "label": "Level",
+        "label": "Level (2+ for nesting)",
         "options": [
-          {
-            "name": "Level 1",
-            "value": "1"
-          },
           {
             "name": "Level 2",
             "value": "2"
@@ -648,7 +648,7 @@
             "value": "4"
           }
         ],
-        "value": "1"
+        "value": "2"
       },
       {
         "component": "text",
@@ -659,12 +659,12 @@
       {
         "component": "aem-content",
         "name": "link",
-        "label": "Link (optional for headers)"
+        "label": "Link (leave blank for headers)"
       }
     ]
   },
   {
-    "id": "mega-nav-column",
+    "id": "mega-nav-top-link",
     "fields": [
       {
         "component": "select",

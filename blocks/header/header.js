@@ -453,7 +453,7 @@ function parseMegaNavRow(row) {
   };
 }
 
-function parseMegaNavItemRow(row) {
+function parseMegaNavSubLinkRow(row) {
   const getProp = (name) => row.querySelector(`[data-aue-prop="${name}"]`);
   const columnProp = getProp('column');
   const levelProp = getProp('level');
@@ -482,7 +482,7 @@ function parseMegaNavItemRow(row) {
   return null;
 }
 
-function parseMegaNavColumnRow(row) {
+function parseMegaNavTopLinkRow(row) {
   const getProp = (name) => row.querySelector(`[data-aue-prop="${name}"]`);
   const columnProp = getProp('column');
   const titleProp = getProp('title');
@@ -812,7 +812,7 @@ function buildMegaNavFromBlocks(blocks) {
     };
 
     rows.forEach((row) => {
-      const columnRow = parseMegaNavColumnRow(row);
+      const columnRow = parseMegaNavTopLinkRow(row);
       if (columnRow && columnRow.title) {
         const columnKey = (columnRow.column || currentColumnKey || '1').toLowerCase();
         if (!data.columns.has(columnKey)) {
@@ -846,7 +846,7 @@ function buildMegaNavFromBlocks(blocks) {
         return;
       }
 
-      const levelRow = parseMegaNavItemRow(row);
+      const levelRow = parseMegaNavSubLinkRow(row);
       if (levelRow && levelRow.label) {
         const columnKey = (levelRow.column || currentColumnKey || '1').toLowerCase();
         if (levelRow.column) currentColumnKey = columnKey;
@@ -856,8 +856,12 @@ function buildMegaNavFromBlocks(blocks) {
         }
 
         const context = getLevelContext(columnKey);
-        const level = Math.max(1, levelRow.level || 1);
+        let level = Math.max(1, levelRow.level || 1);
         const href = levelRow.link;
+
+        if (context.currentEntry && level === 1) {
+          level = 2;
+        }
 
         if (level === 1 || !context.currentEntry) {
           let entry = data.columns.get(columnKey)
