@@ -460,6 +460,14 @@ function parseMegaNavSubLinkRow(row) {
   const labelProp = getProp('label');
   const linkProp = getProp('link');
 
+  const isNumericLevel = (value) => {
+    if (!value) return false;
+    const trimmed = value.trim();
+    if (!/^\d+$/.test(trimmed)) return false;
+    const level = Number.parseInt(trimmed, 10);
+    return level >= 1 && level <= 6;
+  };
+
   if (columnProp || levelProp || labelProp || linkProp) {
     return {
       column: getTextValue(columnProp),
@@ -471,9 +479,11 @@ function parseMegaNavSubLinkRow(row) {
 
   const cols = [...row.children];
   if (cols.length === 4) {
+    const levelText = getTextValue(cols[1]);
+    if (!isNumericLevel(levelText)) return null;
     return {
       column: getTextValue(cols[0]),
-      level: Number.parseInt(getTextValue(cols[1]), 10) || 1,
+      level: Number.parseInt(levelText, 10) || 1,
       label: getTextValue(cols[2]),
       link: getLinkValue(cols[3]),
     };
@@ -500,6 +510,10 @@ function parseMegaNavTopLinkRow(row) {
 
   const cols = [...row.children];
   if (cols.length === 4) {
+    const possibleLevel = getTextValue(cols[1]);
+    if (/^\d+$/.test(possibleLevel.trim())) {
+      return null;
+    }
     return {
       column: getTextValue(cols[0]),
       title: getTextValue(cols[1]),
@@ -1127,7 +1141,9 @@ export default async function decorate(block) {
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
-    const megaBlocks = [...nav.querySelectorAll('.mega-nav')];
+    const megaBlocks = [...nav.querySelectorAll(
+      '.mega-nav, .mega-nav-parent-link, [data-block-name="mega-nav-parent-link"]',
+    )];
     let megaNav = null;
 
     if (megaBlocks.length) {
