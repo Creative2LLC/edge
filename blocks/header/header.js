@@ -355,12 +355,43 @@ function parseContentField(element, type) {
 
   const linksForTitle = links.filter((link) => link !== buttonLink && !link.closest('ul'));
   const titleLink = linksForTitle[0] || links.find((link) => link !== buttonLink) || null;
-  const title = titleLink ? titleLink.textContent.trim() : '';
+  let title = titleLink ? titleLink.textContent.trim() : '';
   const link = titleLink?.href || '';
 
-  const paragraphs = [...element.querySelectorAll('p')]
+  const allParagraphs = [...element.querySelectorAll('p')];
+  const paragraphs = allParagraphs
     .filter((p) => !p.querySelector('a') && !p.querySelector('ul'));
-  const description = paragraphs[0]?.textContent.trim() || '';
+  let description = paragraphs[0]?.textContent.trim() || '';
+
+  if (type === 'featured') {
+    if (!description) {
+      const paragraphWithLink = allParagraphs.find((p) => {
+        const text = p.textContent.trim();
+        if (!text) return false;
+        const linkEl = p.querySelector('a');
+        if (!linkEl) return false;
+        const linkText = linkEl.textContent.trim();
+        const cleaned = text.replace(linkText, '').trim();
+        return cleaned.length > 0;
+      });
+      if (paragraphWithLink) {
+        const linkText = paragraphWithLink.querySelector('a')?.textContent.trim() || '';
+        description = paragraphWithLink.textContent.replace(linkText, '').trim();
+      }
+    }
+
+    if (!title) {
+      const firstText = allParagraphs[0]?.innerText?.trim() || '';
+      const lines = firstText.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+      if (lines.length) {
+        const [firstLine, ...restLines] = lines;
+        title = firstLine;
+        if (!description && restLines.length) {
+          description = restLines.join(' ');
+        }
+      }
+    }
+  }
 
   let button = null;
   if (type === 'featured') {
@@ -586,15 +617,17 @@ function parseMegaNavSubLinkRow(row) {
 function parseMegaNavTopLinkRow(row) {
   const getProp = (name) => row.querySelector(`[data-aue-prop="${name}"]`);
   const columnProp = getProp('column');
+  const eyebrowProp = getProp('eyebrow');
   const titleProp = getProp('title');
   const linkProp = getProp('link');
   const descriptionProp = getProp('description');
 
-  if (columnProp || titleProp || linkProp || descriptionProp) {
+  if (columnProp || eyebrowProp || titleProp || linkProp || descriptionProp) {
     const linkText = linkProp ? getTextValue(linkProp) : '';
     const linkHref = linkProp ? getLinkValue(linkProp) : '';
     return {
       column: getTextValue(columnProp),
+      label: getTextValue(eyebrowProp),
       title: getTextValue(titleProp) || inferLabelFromLink(linkText, linkHref),
       link: linkHref,
       description: getTextValue(descriptionProp),
@@ -679,6 +712,12 @@ function buildMegaNavList(menus) {
           label.textContent = entry.label;
           colLi.append(label);
           return;
+        }
+        if (entry.label && (entry.title || entry.description || entry.sublinks.length)) {
+          const label = document.createElement('span');
+          label.className = 'mega-subheader';
+          label.textContent = entry.label;
+          colLi.append(label);
         }
         if (entry.title) {
           const linkEl = document.createElement('a');
@@ -959,6 +998,7 @@ function buildMegaNavFromBlocks(blocks) {
 
         if (columnRow.link) entry.link = columnRow.link;
         if (columnRow.description) entry.description = columnRow.description;
+        if (columnRow.label) entry.label = columnRow.label;
 
         const context = getLevelContext(columnKey);
         context.currentEntry = entry;

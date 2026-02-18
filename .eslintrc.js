@@ -33,6 +33,7 @@ module.exports = {
       'news-article': 5,
       'resource-item': 6,
       'mega-nav-row': 6,
+      'mega-nav-top-link': 5,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

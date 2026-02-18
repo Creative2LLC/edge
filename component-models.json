@@ -700,6 +700,12 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "eyebrow",
+        "label": "Top Description (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "title",
         "label": "Title"
       },
