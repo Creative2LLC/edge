@@ -477,6 +477,30 @@ function parseMegaNavRow(row) {
         button = parsed.button;
         footerHtml = parsed.footerHtml;
       }
+    } else if (cols.length === 6) {
+      type = getTextValue(cols[0]);
+      column = getTextValue(cols[1]);
+      image = getImageValue(cols[5]);
+
+      if (cols[2]) {
+        const parsed = parseContentField(cols[2], type.toLowerCase());
+        label = parsed.label;
+        title = parsed.title;
+        link = parsed.link;
+        description = parsed.description;
+        sublinks = parsed.sublinks;
+        button = parsed.button;
+        footerHtml = parsed.footerHtml;
+      }
+
+      const buttonText = getTextValue(cols[3]);
+      const buttonLink = getLinkValue(cols[4]);
+      if (buttonText || buttonLink) {
+        button = {
+          label: inferLabelFromLink(buttonText, buttonLink),
+          href: buttonLink,
+        };
+      }
     } else {
       type = getTextValue(cols[0]);
       column = getTextValue(cols[1]);
