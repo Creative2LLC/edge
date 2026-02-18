@@ -540,6 +540,8 @@ function parseMegaNavTopLinkRow(row) {
 
   const cols = [...row.children];
   if (cols.length === 4) {
+    const firstCell = getTextValue(cols[0]).toLowerCase();
+    if (['column', 'featured', 'footer'].includes(firstCell)) return null;
     const possibleLevel = getTextValue(cols[1]);
     if (/^\d+$/.test(possibleLevel.trim())) {
       return null;
@@ -1329,7 +1331,7 @@ export default async function decorate(block) {
         closeTimer = setTimeout(() => {
           if (navSection.matches(':hover') || subNav.matches(':hover')) return;
           navSection.setAttribute('aria-expanded', 'false');
-        }, 150);
+        }, 300);
       };
 
       navSection.addEventListener('mouseenter', () => {
