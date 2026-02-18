@@ -359,11 +359,20 @@ function parseContentField(element, type) {
   const link = titleLink?.href || '';
 
   const allParagraphs = [...element.querySelectorAll('p')];
+  const paragraphTexts = allParagraphs
+    .map((p) => p.textContent.trim())
+    .filter(Boolean);
   const paragraphs = allParagraphs
     .filter((p) => !p.querySelector('a') && !p.querySelector('ul'));
   let description = paragraphs[0]?.textContent.trim() || '';
 
   if (type === 'featured') {
+    if (!title && paragraphTexts.length) {
+      title = paragraphTexts[0];
+    }
+    if (paragraphTexts.length > 1 && (!description || description === paragraphTexts[0])) {
+      description = paragraphTexts[1];
+    }
     if (!description) {
       const paragraphWithLink = allParagraphs.find((p) => {
         const text = p.textContent.trim();
@@ -635,6 +644,23 @@ function parseMegaNavTopLinkRow(row) {
   }
 
   const cols = [...row.children];
+  if (cols.length === 5) {
+    const firstCell = getTextValue(cols[0]).toLowerCase();
+    if (['column', 'featured', 'footer'].includes(firstCell)) return null;
+    const possibleLevel = getTextValue(cols[1]);
+    if (/^\d+$/.test(possibleLevel.trim())) {
+      return null;
+    }
+    return {
+      column: getTextValue(cols[0]),
+      label: getTextValue(cols[1]),
+      title: getTextValue(cols[2])
+        || inferLabelFromLink(getTextValue(cols[3]), getLinkValue(cols[3])),
+      link: getLinkValue(cols[3]),
+      description: getTextValue(cols[4]),
+    };
+  }
+
   if (cols.length === 4) {
     const firstCell = getTextValue(cols[0]).toLowerCase();
     if (['column', 'featured', 'footer'].includes(firstCell)) return null;
@@ -1417,6 +1443,7 @@ export default async function decorate(block) {
         'px-8',
         'py-7',
         'text-white',
+        'whitespace-normal',
         'shadow-[0_20px_60px_rgba(0,0,0,0.25)]',
         'ring-1',
         'ring-white/10',
@@ -1575,6 +1602,8 @@ export default async function decorate(block) {
 
         item.querySelectorAll('.mega-subheader').forEach((label) => {
           label.classList.add(
+            'block',
+            'mb-2',
             'text-xs',
             'uppercase',
             'tracking-[0.18em]',
@@ -1633,7 +1662,7 @@ export default async function decorate(block) {
 
         const featuredDescription = featured.querySelector(':scope > p');
         if (featuredDescription) {
-          featuredDescription.classList.add('mt-2', 'text-sm', 'text-white/80');
+          featuredDescription.classList.add('mt-2', 'text-sm', 'text-white/80', '!whitespace-normal');
         }
 
         const picture = featured.querySelector('picture');
