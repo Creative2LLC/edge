@@ -1496,20 +1496,17 @@ export default async function decorate(block) {
 
         item.querySelectorAll(':scope > a').forEach((link) => {
           const next = link.nextElementSibling;
-          const isSection = next && (next.tagName === 'P' || next.tagName === 'UL');
           link.classList.add('block');
-          if (isSection) {
-            link.classList.add('text-base', 'font-semibold', 'leading-snug', 'text-white', 'hover:underline');
-            if (!link.querySelector('.mega-arrow')) {
-              const arrow = document.createElement('span');
-              arrow.className = 'mega-arrow ml-2 text-white/80';
-              arrow.setAttribute('aria-hidden', 'true');
-              arrow.textContent = '>';
-              link.append(arrow);
-            }
-          } else {
-            link.classList.add('text-sm', 'font-medium', 'leading-snug', 'text-white/90', 'hover:text-white');
+          const hasDetails = next && (next.tagName === 'P' || next.tagName === 'UL');
+          link.classList.add('text-base', 'font-semibold', 'leading-snug', 'text-white', 'hover:underline');
+          if (!link.querySelector('.mega-arrow')) {
+            const arrow = document.createElement('span');
+            arrow.className = 'mega-arrow ml-2 text-white/80';
+            arrow.setAttribute('aria-hidden', 'true');
+            arrow.textContent = '>';
+            link.append(arrow);
           }
+          if (!hasDetails) link.classList.add('text-white/90');
         });
 
         item.querySelectorAll(':scope > p').forEach((description) => {
