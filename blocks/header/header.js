@@ -1438,11 +1438,11 @@ export default async function decorate(block) {
         });
 
         item.querySelectorAll(':scope > p').forEach((description) => {
-          description.classList.add('text-sm', 'leading-snug', 'text-white/70');
+          description.classList.add('text-sm', 'leading-snug', 'text-white/70', '!mt-0');
         });
 
         item.querySelectorAll('ul').forEach((links) => {
-          links.classList.add('mt-2', 'space-y-1.5', 'border-l', 'border-white/10', 'pl-3');
+          links.classList.add('!mt-[10px]', '!mb-[30px]', 'space-y-1.5', 'border-l', 'border-white/10', 'pl-3');
           const parentList = links.parentElement?.closest('ul');
           if (parentList && parentList !== links) {
             links.classList.add('pl-4');
@@ -1490,9 +1490,11 @@ export default async function decorate(block) {
           'border-t',
           'border-white/10',
           'pt-4',
-          'text-sm',
-          'font-semibold',
-          'text-yellow-300',
+          'text-[#FCB813]',
+          'text-[20px]',
+          'font-["Inter"]',
+          'font-bold',
+          'leading-[1.48]',
         );
       }
 
