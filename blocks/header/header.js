@@ -217,6 +217,31 @@ function normalizeNavLabel(label) {
     .replace(/[^a-z0-9]+/g, '');
 }
 
+function humanizePathLabel(value) {
+  if (!value) return '';
+  try {
+    const url = new URL(value, window.location.origin);
+    const parts = url.pathname.split('/').filter(Boolean);
+    let slug = parts[parts.length - 1] || '';
+    slug = slug.replace(/\.(html|htm)$/i, '');
+    slug = slug.replace(/[-_]+/g, ' ');
+    return slug.replace(/\b\w/g, (char) => char.toUpperCase());
+  } catch (e) {
+    const trimmed = value.replace(/\?.*$/, '').replace(/#.*$/, '');
+    const parts = trimmed.split('/').filter(Boolean);
+    let slug = parts[parts.length - 1] || trimmed;
+    slug = slug.replace(/\.(html|htm)$/i, '');
+    slug = slug.replace(/[-_]+/g, ' ');
+    return slug.replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+}
+
+function inferLabelFromLink(text, href) {
+  const raw = (text || '').trim();
+  if (raw && !raw.startsWith('/') && !raw.startsWith('http')) return raw;
+  return humanizePathLabel(href || raw);
+}
+
 function findMegaNavTable(root) {
   const tables = [...root.querySelectorAll('table')];
   return tables.find((table) => {
@@ -469,11 +494,13 @@ function parseMegaNavSubLinkRow(row) {
   };
 
   if (columnProp || levelProp || labelProp || linkProp) {
+    const linkText = linkProp ? getTextValue(linkProp) : '';
+    const linkHref = linkProp ? getLinkValue(linkProp) : '';
     return {
       column: getTextValue(columnProp),
       level: Number.parseInt(getTextValue(levelProp), 10) || 1,
-      label: getTextValue(labelProp),
-      link: getLinkValue(linkProp),
+      label: getTextValue(labelProp) || inferLabelFromLink(linkText, linkHref),
+      link: linkHref,
     };
   }
 
@@ -484,7 +511,7 @@ function parseMegaNavSubLinkRow(row) {
     return {
       column: getTextValue(cols[0]),
       level: Number.parseInt(levelText, 10) || 1,
-      label: getTextValue(cols[2]),
+      label: getTextValue(cols[2]) || inferLabelFromLink(getTextValue(cols[3]), getLinkValue(cols[3])),
       link: getLinkValue(cols[3]),
     };
   }
@@ -500,10 +527,12 @@ function parseMegaNavTopLinkRow(row) {
   const descriptionProp = getProp('description');
 
   if (columnProp || titleProp || linkProp || descriptionProp) {
+    const linkText = linkProp ? getTextValue(linkProp) : '';
+    const linkHref = linkProp ? getLinkValue(linkProp) : '';
     return {
       column: getTextValue(columnProp),
-      title: getTextValue(titleProp),
-      link: getLinkValue(linkProp),
+      title: getTextValue(titleProp) || inferLabelFromLink(linkText, linkHref),
+      link: linkHref,
       description: getTextValue(descriptionProp),
     };
   }
@@ -516,7 +545,7 @@ function parseMegaNavTopLinkRow(row) {
     }
     return {
       column: getTextValue(cols[0]),
-      title: getTextValue(cols[1]),
+      title: getTextValue(cols[1]) || inferLabelFromLink(getTextValue(cols[2]), getLinkValue(cols[2])),
       link: getLinkValue(cols[2]),
       description: getTextValue(cols[3]),
     };
@@ -1262,6 +1291,7 @@ export default async function decorate(block) {
         'left-1/2',
         '-translate-x-1/2',
         'top-full',
+        'mt-3',
         'w-[calc(100vw-2rem)]',
         'max-w-[900px]',
         'rounded-[28px]',
@@ -1276,7 +1306,48 @@ export default async function decorate(block) {
         'grid-cols-12',
         'gap-8',
         'z-50',
+        'after:content-[""]',
+        'after:absolute',
+        'after:-top-3',
+        'after:left-0',
+        'after:right-0',
+        'after:h-3',
+        'after:bg-transparent',
       );
+
+      let closeTimer;
+      const clearCloseTimer = () => {
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+      };
+      const scheduleClose = () => {
+        clearCloseTimer();
+        closeTimer = setTimeout(() => {
+          if (navSection.matches(':hover') || subNav.matches(':hover')) return;
+          navSection.setAttribute('aria-expanded', 'false');
+        }, 150);
+      };
+
+      navSection.addEventListener('mouseenter', () => {
+        if (!isDesktop.matches) return;
+        clearCloseTimer();
+        navSection.setAttribute('aria-expanded', 'true');
+      });
+      navSection.addEventListener('mouseleave', () => {
+        if (!isDesktop.matches) return;
+        scheduleClose();
+      });
+      subNav.addEventListener('mouseenter', () => {
+        if (!isDesktop.matches) return;
+        clearCloseTimer();
+        navSection.setAttribute('aria-expanded', 'true');
+      });
+      subNav.addEventListener('mouseleave', () => {
+        if (!isDesktop.matches) return;
+        scheduleClose();
+      });
 
       const footerCandidate = subNav.querySelector(
         '.mega-footer, [data-mega="footer"]',
