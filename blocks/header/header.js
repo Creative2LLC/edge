@@ -1497,6 +1497,7 @@ export default async function decorate(block) {
         item.querySelectorAll(':scope > a').forEach((link) => {
           const next = link.nextElementSibling;
           const isSection = next && (next.tagName === 'P' || next.tagName === 'UL');
+          link.classList.add('block');
           if (isSection) {
             link.classList.add('text-base', 'font-semibold', 'leading-snug', 'text-white', 'hover:underline');
             if (!link.querySelector('.mega-arrow')) {
