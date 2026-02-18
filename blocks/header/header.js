@@ -511,7 +511,8 @@ function parseMegaNavSubLinkRow(row) {
     return {
       column: getTextValue(cols[0]),
       level: Number.parseInt(levelText, 10) || 1,
-      label: getTextValue(cols[2]) || inferLabelFromLink(getTextValue(cols[3]), getLinkValue(cols[3])),
+      label: getTextValue(cols[2])
+        || inferLabelFromLink(getTextValue(cols[3]), getLinkValue(cols[3])),
       link: getLinkValue(cols[3]),
     };
   }
@@ -545,7 +546,8 @@ function parseMegaNavTopLinkRow(row) {
     }
     return {
       column: getTextValue(cols[0]),
-      title: getTextValue(cols[1]) || inferLabelFromLink(getTextValue(cols[2]), getLinkValue(cols[2])),
+      title: getTextValue(cols[1])
+        || inferLabelFromLink(getTextValue(cols[2]), getLinkValue(cols[2])),
       link: getLinkValue(cols[2]),
       description: getTextValue(cols[3]),
     };
