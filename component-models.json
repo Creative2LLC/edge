@@ -595,6 +595,17 @@
         "label": "Content"
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text (Featured only)"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link (Featured only)"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",

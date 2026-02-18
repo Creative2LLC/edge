@@ -325,6 +325,7 @@ function parseContentField(element, type) {
       description: '',
       sublinks: [],
       button: null,
+      footerHtml: '',
     };
   }
 
@@ -339,7 +340,21 @@ function parseContentField(element, type) {
     : [];
 
   const links = [...element.querySelectorAll('a')];
-  const titleLink = links.find((link) => !link.closest('ul')) || links[0];
+  let buttonLink = null;
+
+  if (type === 'featured') {
+    buttonLink = element.querySelector('a.button')
+      || element.querySelector('.button-container a')
+      || element.querySelector('[data-block-name="button"] a')
+      || element.querySelector('.button.block a');
+
+    if (!buttonLink) {
+      buttonLink = links.find((link) => /^(button|cta)\s*:/i.test(link.textContent.trim())) || null;
+    }
+  }
+
+  const linksForTitle = links.filter((link) => link !== buttonLink && !link.closest('ul'));
+  const titleLink = linksForTitle[0] || links.find((link) => link !== buttonLink) || null;
   const title = titleLink ? titleLink.textContent.trim() : '';
   const link = titleLink?.href || '';
 
@@ -348,15 +363,20 @@ function parseContentField(element, type) {
   const description = paragraphs[0]?.textContent.trim() || '';
 
   let button = null;
-  if (type === 'featured' && links.length > 1) {
-    const buttonLink = links[links.length - 1];
+  if (type === 'featured') {
+    if (!buttonLink && links.length > 1) {
+      buttonLink = links[links.length - 1];
+    }
     if (buttonLink && buttonLink !== titleLink) {
+      const cleaned = buttonLink.textContent.trim().replace(/^(button|cta)\s*:\s*/i, '');
       button = {
-        label: buttonLink.textContent.trim(),
+        label: cleaned || buttonLink.textContent.trim(),
         href: buttonLink.href,
       };
     }
   }
+
+  const footerHtml = type === 'footer' ? element.innerHTML.trim() : '';
 
   return {
     label,
@@ -365,6 +385,7 @@ function parseContentField(element, type) {
     description,
     sublinks,
     button,
+    footerHtml,
   };
 }
 
@@ -380,6 +401,8 @@ function parseMegaNavRow(row) {
     sublinks: getProp('sublinks'),
     image: getProp('image'),
     button: getProp('button'),
+    buttonText: getProp('buttonText'),
+    buttonLink: getProp('buttonLink'),
     label: getProp('label'),
   };
   const hasProps = Object.values(propEls).some(Boolean);
@@ -392,6 +415,7 @@ function parseMegaNavRow(row) {
   let image = null;
   let button = null;
   let label = '';
+  let footerHtml = '';
 
   if (hasProps) {
     type = getTextValue(propEls.type);
@@ -402,6 +426,18 @@ function parseMegaNavRow(row) {
     sublinks = parseLinksField(propEls.sublinks);
     image = getImageValue(propEls.image);
     button = parseButtonField(propEls.button);
+    const buttonText = getTextValue(propEls.buttonText);
+    const buttonLink = getLinkValue(propEls.buttonLink);
+    if (buttonText || buttonLink) {
+      const inferredLabel = inferLabelFromLink(
+        buttonText || getTextValue(propEls.buttonLink),
+        buttonLink,
+      );
+      button = {
+        label: inferredLabel,
+        href: buttonLink,
+      };
+    }
     label = getTextValue(propEls.label);
 
     if (propEls.content) {
@@ -412,6 +448,7 @@ function parseMegaNavRow(row) {
       description = description || parsed.description;
       if (!sublinks.length) sublinks = parsed.sublinks;
       button = button || parsed.button;
+      footerHtml = footerHtml || parsed.footerHtml;
     }
 
     if (!link && propEls.title) {
@@ -438,6 +475,7 @@ function parseMegaNavRow(row) {
         description = parsed.description;
         sublinks = parsed.sublinks;
         button = parsed.button;
+        footerHtml = parsed.footerHtml;
       }
     } else {
       type = getTextValue(cols[0]);
@@ -475,6 +513,7 @@ function parseMegaNavRow(row) {
     image,
     button,
     label,
+    footerHtml,
   };
 }
 
@@ -683,7 +722,18 @@ function buildMegaNavList(menus) {
       footerLi.dataset.mega = 'footer';
       const footer = document.createElement('div');
       footer.className = 'mega-footer';
-      footer.textContent = entry.title || entry.description || '';
+      if (entry.footerHtml) {
+        footer.innerHTML = entry.footerHtml;
+        footer.querySelectorAll('a').forEach((link) => {
+          link.classList.add(
+            'underline',
+            'decoration-[#FCB813]/60',
+            'underline-offset-4',
+          );
+        });
+      } else {
+        footer.textContent = entry.title || entry.description || '';
+      }
       footerLi.append(footer);
       subNav.append(footerLi);
     });
