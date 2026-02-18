@@ -368,10 +368,12 @@ function parseContentField(element, type) {
 
   if (type === 'featured') {
     if (!title && paragraphTexts.length) {
-      title = paragraphTexts[0];
+      const [firstParagraph] = paragraphTexts;
+      title = firstParagraph;
     }
     if (paragraphTexts.length > 1 && (!description || description === paragraphTexts[0])) {
-      description = paragraphTexts[1];
+      const [, secondParagraph] = paragraphTexts;
+      description = secondParagraph;
     }
     if (!description) {
       const paragraphWithLink = allParagraphs.find((p) => {
