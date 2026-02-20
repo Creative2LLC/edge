@@ -1,8 +1,8 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
-// media query match that indicates mobile/tablet width
-const isDesktop = window.matchMedia('(min-width: 900px)');
+// desktop hover nav should only apply on larger screens with fine pointer devices
+const isDesktop = window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)');
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -22,6 +22,7 @@ function closeOnEscape(e) {
 }
 
 function closeOnFocusLost(e) {
+  if (!e.relatedTarget) return;
   const nav = e.currentTarget;
   if (!nav.contains(e.relatedTarget)) {
     const navSections = nav.querySelector('.nav-sections');
@@ -38,7 +39,7 @@ function closeOnFocusLost(e) {
 
 function openOnKeydown(e) {
   const focused = document.activeElement;
-  const isNavDrop = focused.className === 'nav-drop';
+  const isNavDrop = focused?.classList?.contains('nav-drop');
   if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
     const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
     // eslint-disable-next-line no-use-before-define
@@ -57,12 +58,23 @@ function focusNavSection() {
  * @param {Boolean} expanded Whether the element should be expanded or collapsed
  */
 function toggleAllNavSections(sections, expanded = false) {
+  const shouldExpand = expanded === true || expanded === 'true';
   sections
     .querySelectorAll(
       '.nav-sections .default-content-wrapper > ul > li, .nav-sections > ul > li',
     )
     .forEach((section) => {
-      section.setAttribute('aria-expanded', expanded);
+      section.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
+      const panel = section.querySelector(':scope > .nav-mega-panel, :scope > ul');
+      if (panel) {
+        if (isDesktop.matches) {
+          panel.removeAttribute('hidden');
+          panel.removeAttribute('aria-hidden');
+        } else {
+          panel.toggleAttribute('hidden', !shouldExpand);
+          panel.setAttribute('aria-hidden', shouldExpand ? 'false' : 'true');
+        }
+      }
     });
 }
 
@@ -77,7 +89,11 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   const button = nav.querySelector('.nav-hamburger button');
   document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
   nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-  toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
+  toggleAllNavSections(navSections, false);
+  navSections.classList.remove('is-mobile-detail-open');
+  navSections.querySelectorAll('.is-mobile-active').forEach((section) => {
+    section.classList.remove('is-mobile-active');
+  });
   button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
   // enable nav dropdown keyboard accessibility
   const navDrops = navSections.querySelectorAll('.nav-drop');
@@ -96,13 +112,16 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   }
 
   // enable menu collapse on escape keypress
-  if (!expanded || isDesktop.matches) {
-    // collapse menu on escape press
+  if (!expanded) {
     window.addEventListener('keydown', closeOnEscape);
-    // collapse menu on focus lost
-    nav.addEventListener('focusout', closeOnFocusLost);
   } else {
     window.removeEventListener('keydown', closeOnEscape);
+  }
+
+  // only use focusout close handling on desktop hover navigation
+  if (!expanded && isDesktop.matches) {
+    nav.addEventListener('focusout', closeOnFocusLost);
+  } else {
     nav.removeEventListener('focusout', closeOnFocusLost);
   }
 }
@@ -201,6 +220,35 @@ function decorateTopBanner(section) {
   chevronImg.alt = '';
   chevronImg.loading = 'lazy';
   chevron.append(chevronImg);
+}
+
+function decorateMobileTopBannerLinks(topBanner, navSections) {
+  if (!topBanner || !navSections) return;
+  const linksList = topBanner.querySelector('.top-banner-links');
+  if (!linksList) return;
+  const wrapper = navSections.querySelector('.default-content-wrapper') || navSections;
+  if (!wrapper) return;
+
+  let mobileMeta = wrapper.querySelector('.nav-mobile-meta');
+  if (!mobileMeta) {
+    mobileMeta = document.createElement('div');
+    mobileMeta.className = 'nav-mobile-meta';
+    wrapper.prepend(mobileMeta);
+  }
+
+  mobileMeta.textContent = '';
+  const mobileLinks = linksList.cloneNode(true);
+  mobileLinks.classList.remove('top-banner-links');
+  mobileLinks.classList.add('nav-mobile-meta-links');
+  mobileMeta.append(mobileLinks);
+
+  const languageLabel = topBanner.querySelector('.top-banner-language-toggle span:not(.icon)');
+  if (languageLabel?.textContent.trim()) {
+    const languageChip = document.createElement('span');
+    languageChip.className = 'nav-mobile-meta-language';
+    languageChip.textContent = languageLabel.textContent.trim();
+    mobileMeta.append(languageChip);
+  }
 }
 
 function toSlug(text) {
@@ -1349,32 +1397,42 @@ export default async function decorate(block) {
     const navWrapper = navSections.querySelector('.default-content-wrapper') || navSections;
     const topList = navWrapper.querySelector(':scope > ul');
     if (topList) {
-      topList.classList.add(
-        'flex',
-        'flex-wrap',
-        'items-center',
-        'gap-2',
-        'rounded-full',
-        'bg-white',
-        'px-2',
-        'py-2',
-        'shadow-[0_10px_30px_rgba(0,0,0,0.15)]',
-      );
+      topList.classList.add('nav-top-list');
     }
 
-    navWrapper.querySelectorAll(':scope > ul > li').forEach((navSection) => {
+    const navSectionsList = [...navWrapper.querySelectorAll(':scope > ul > li')];
+    const closeSectionNow = (section) => {
+      section.setAttribute('aria-expanded', 'false');
+      section.classList.remove('is-mobile-active');
+    };
+    const closeOtherDesktopSections = (activeSection) => {
+      navSectionsList.forEach((section) => {
+        if (section === activeSection || !section.classList.contains('nav-drop')) return;
+        closeSectionNow(section);
+      });
+    };
+    const setMobileDetailState = (activeSection = null) => {
+      const isOpen = !isDesktop.matches && !!activeSection;
+      navSections.classList.toggle('is-mobile-detail-open', isOpen);
+      navSectionsList.forEach((section) => {
+        section.classList.toggle('is-mobile-active', section === activeSection);
+      });
+    };
+    const getEqualSpans = (count) => {
+      if (count <= 0) return [];
+      const base = Math.floor(12 / count);
+      const remainder = 12 % count;
+      return Array.from({ length: count }, (_, index) => (
+        Math.max(1, Math.min(12, base + (index < remainder ? 1 : 0)))
+      ));
+    };
+
+    navSectionsList.forEach((navSection) => {
       let subNav = navSection.querySelector('ul');
       navSection.classList.add('group', '!static');
       if (subNav) {
         navSection.classList.add('nav-drop');
       }
-      navSection.addEventListener('click', () => {
-        if (!isDesktop.matches) {
-          const expanded = navSection.getAttribute('aria-expanded') === 'true';
-          toggleAllNavSections(navSections);
-          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        }
-      });
 
       let topLink = navSection.querySelector(':scope > a, :scope > p > a');
       const navLabel = topLink?.textContent.trim()
@@ -1408,24 +1466,85 @@ export default async function decorate(block) {
 
       if (topLink) {
         topLink.classList.add(
+          'nav-top-link',
           'inline-flex',
           'items-center',
           'gap-2',
-          'rounded-full',
-          'px-4',
-          'py-2',
           'font-semibold',
-          'text-[#252525]',
           'transition',
           'duration-200',
-          'group-hover:!bg-[#143654]',
-          'group-hover:!text-white',
-          'group-aria-expanded:!bg-[#143654]',
-          'group-aria-expanded:!text-white',
         );
       }
 
       if (!subNav) return;
+
+      subNav.setAttribute('hidden', '');
+      subNav.setAttribute('aria-hidden', 'true');
+      const closeMobileDetail = () => {
+        navSection.setAttribute('aria-expanded', 'false');
+        subNav.setAttribute('hidden', '');
+        subNav.setAttribute('aria-hidden', 'true');
+        setMobileDetailState(null);
+        topLink?.focus();
+      };
+      let panelHeader = navSection.querySelector(':scope > .nav-mobile-panel-header');
+      if (!panelHeader) {
+        panelHeader = document.createElement('div');
+        panelHeader.className = 'nav-mobile-panel-header';
+
+        const backButton = document.createElement('button');
+        backButton.type = 'button';
+        backButton.className = 'nav-mobile-back';
+        backButton.setAttribute('aria-label', `Back to main menu from ${navLabel}`);
+        backButton.innerHTML = '<span aria-hidden="true">&larr;</span> Back';
+        backButton.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          closeMobileDetail();
+        });
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        subNav.addEventListener('touchstart', (event) => {
+          const touch = event.changedTouches?.[0];
+          if (!touch) return;
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+        }, { passive: true });
+        subNav.addEventListener('touchend', (event) => {
+          if (isDesktop.matches) return;
+          const touch = event.changedTouches?.[0];
+          if (!touch) return;
+          const deltaX = touch.clientX - touchStartX;
+          const deltaY = Math.abs(touch.clientY - touchStartY);
+          if (deltaX > 60 && deltaY < 40) {
+            closeMobileDetail();
+          }
+        }, { passive: true });
+
+        const panelTitle = document.createElement('p');
+        panelTitle.className = 'nav-mobile-panel-title';
+        panelTitle.textContent = navLabel;
+        panelHeader.append(backButton, panelTitle);
+        navSection.insertBefore(panelHeader, subNav);
+      }
+
+      if (topLink) {
+        topLink.addEventListener('click', (event) => {
+          if (isDesktop.matches) return;
+          event.preventDefault();
+          const expanded = navSection.getAttribute('aria-expanded') === 'true';
+          if (expanded) {
+            closeMobileDetail();
+            return;
+          }
+          toggleAllNavSections(navSections, false);
+          navSection.setAttribute('aria-expanded', 'true');
+          subNav.removeAttribute('hidden');
+          subNav.setAttribute('aria-hidden', 'false');
+          setMobileDetailState(navSection);
+        });
+      }
 
       subNav.classList.add(
         'nav-mega-panel',
@@ -1476,11 +1595,16 @@ export default async function decorate(block) {
           navSection.setAttribute('aria-expanded', 'false');
         }, 300);
       };
+      const openDesktopSection = () => {
+        clearCloseTimer();
+        closeOtherDesktopSections(navSection);
+        setMobileDetailState(null);
+        navSection.setAttribute('aria-expanded', 'true');
+      };
 
       navSection.addEventListener('mouseenter', () => {
         if (!isDesktop.matches) return;
-        clearCloseTimer();
-        navSection.setAttribute('aria-expanded', 'true');
+        openDesktopSection();
       });
       navSection.addEventListener('mouseleave', () => {
         if (!isDesktop.matches) return;
@@ -1488,8 +1612,7 @@ export default async function decorate(block) {
       });
       subNav.addEventListener('mouseenter', () => {
         if (!isDesktop.matches) return;
-        clearCloseTimer();
-        navSection.setAttribute('aria-expanded', 'true');
+        openDesktopSection();
       });
       subNav.addEventListener('mouseleave', () => {
         if (!isDesktop.matches) return;
@@ -1514,11 +1637,17 @@ export default async function decorate(block) {
 
       const items = [...subNav.children];
       const colSpanClasses = {
+        1: 'col-span-1',
+        2: 'col-span-2',
         3: 'col-span-3',
         4: 'col-span-4',
         5: 'col-span-5',
         6: 'col-span-6',
         7: 'col-span-7',
+        8: 'col-span-8',
+        9: 'col-span-9',
+        10: 'col-span-10',
+        11: 'col-span-11',
         12: 'col-span-12',
       };
       const featured = items.find((item) => item.dataset.mega === 'featured'
@@ -1526,32 +1655,15 @@ export default async function decorate(block) {
         || /featured/i.test(item.textContent));
       const footer = items.find((item) => item.dataset.mega === 'footer');
       const normalItems = items.filter((item) => item !== featured && item !== footer);
-      let normalSpan = 7;
-      let featuredSpan = 5;
-
-      if (featured) {
-        if (normalItems.length <= 1) {
-          normalSpan = 7;
-          featuredSpan = 5;
-        } else if (normalItems.length === 2) {
-          normalSpan = 4;
-          featuredSpan = 4;
-        } else {
-          normalSpan = 3;
-          featuredSpan = 3;
-        }
-      } else if (normalItems.length === 2) {
-        normalSpan = 6;
-      } else if (normalItems.length === 3) {
-        normalSpan = 4;
-      } else {
-        normalSpan = 12;
-      }
+      const layoutItems = [...normalItems];
+      if (featured) layoutItems.push(featured);
+      const equalSpans = getEqualSpans(layoutItems.length);
+      const spanByItem = new Map(layoutItems.map((item, index) => [item, equalSpans[index] || 12]));
 
       items.forEach((item) => {
         if (item === featured || item === footer) return;
-        const colSpan = Number(item.dataset.col) || normalSpan;
-        item.classList.add(colSpanClasses[colSpan] || colSpanClasses[normalSpan], 'space-y-4');
+        const itemSpan = spanByItem.get(item) || 12;
+        item.classList.add(colSpanClasses[itemSpan] || colSpanClasses[12], 'space-y-4');
         const useDivider = featured
           ? true
           : item !== normalItems[normalItems.length - 1];
@@ -1642,9 +1754,9 @@ export default async function decorate(block) {
       }
 
       if (featured) {
-        const featuredColSpan = Number(featured.dataset.col) || featuredSpan;
+        const featuredColSpan = spanByItem.get(featured) || 12;
         featured.classList.add(
-          colSpanClasses[featuredColSpan] || colSpanClasses[featuredSpan],
+          colSpanClasses[featuredColSpan] || colSpanClasses[12],
           'self-start',
           'space-y-3',
           'rounded-2xl',
@@ -1714,6 +1826,7 @@ export default async function decorate(block) {
   if (topBanner) {
     topBanner.remove();
     decorateTopBanner(topBanner);
+    decorateMobileTopBannerLinks(topBanner, navSections);
     block.append(topBanner);
   }
 
