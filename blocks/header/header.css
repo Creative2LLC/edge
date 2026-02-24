@@ -205,6 +205,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
   header nav .nav-sections .nav-drop > a,
   header nav .nav-sections .nav-drop > p > a {
     position: relative;
+    text-decoration: none;
   }
 
   header nav .nav-sections .nav-drop[aria-expanded='true'] > a::after,
