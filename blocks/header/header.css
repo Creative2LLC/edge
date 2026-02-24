@@ -207,7 +207,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
     position: relative;
   }
 
-  header nav .nav-sections .nav-drop > a::after,
+  /* header nav .nav-sections .nav-drop > a::after,
   header nav .nav-sections .nav-drop > p > a::after {
     content: '';
     display: inline-block;
@@ -220,7 +220,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
     border: 2px solid currentcolor;
     border-radius: 0 1px 0 0;
     border-width: 2px 2px 0 0;
-  }
+  } */
 
   header nav .nav-sections .nav-drop[aria-expanded='true'] > a::after,
   header nav .nav-sections .nav-drop[aria-expanded='true'] > p > a::after {
