@@ -207,21 +207,6 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
     position: relative;
   }
 
-  /* header nav .nav-sections .nav-drop > a::after,
-  header nav .nav-sections .nav-drop > p > a::after {
-    content: '';
-    display: inline-block;
-    position: absolute;
-    top: 0.5em;
-    right: 2px;
-    transform: rotate(135deg);
-    width: 6px;
-    height: 6px;
-    border: 2px solid currentcolor;
-    border-radius: 0 1px 0 0;
-    border-width: 2px 2px 0 0;
-  } */
-
   header nav .nav-sections .nav-drop[aria-expanded='true'] > a::after,
   header nav .nav-sections .nav-drop[aria-expanded='true'] > p > a::after {
     top: unset;
@@ -241,9 +226,10 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
     align-items: center;
     gap: 8px;
     border-radius: 999px;
-    background: #fff;
+    background: rgb(255 255 255 / 80%);
+    backdrop-filter: blur(12px);
     padding: 8px;
-    box-shadow: 0 10px 30px rgb(0 0 0 / 15%);
+    box-shadow: 0 10px 20px rgb(0 0 0 / 10%);
   }
 
   header nav .nav-sections .nav-top-list > li {
