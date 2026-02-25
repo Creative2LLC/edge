@@ -6,7 +6,7 @@ header .nav-wrapper {
   position: fixed;
 }
 
-@media (width >= 900px) and (hover: hover) and (pointer: fine) {
+@media (width >= 900px) {
   header .nav-wrapper {
     top: var(--top-banner-height);
   }
@@ -36,13 +36,18 @@ header nav[aria-expanded='true'] {
   min-height: 100dvh;
 }
 
-@media (width >= 900px) and (hover: hover) and (pointer: fine) {
+@media (width >= 900px) {
   header nav {
     display: flex;
     justify-content: space-between;
     gap: 0 32px;
-    max-width: 1264px;
-    padding: 0 32px;
+    max-width: 100%;
+    padding: 48px 48px 0;
+  }
+
+  .is-sticky nav {
+    margin: 50px 0 18px !important;
+    padding: 0 48px !important;
   }
 
   header nav[aria-expanded='true'] {
@@ -134,7 +139,7 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   transform: rotate(-45deg);
 }
 
-@media (width >= 900px) and (hover: hover) and (pointer: fine) {
+@media (width >= 900px) {
   header nav .nav-hamburger {
     display: none;
     visibility: hidden;
@@ -175,6 +180,14 @@ header nav .nav-sections .default-content-wrapper > ul {
   font-size: var(--body-font-size-s);
 }
 
+header .top-banner-links li {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+}
+
 header nav .nav-sections .default-content-wrapper > ul > li {
   font-weight: 500;
 }
@@ -187,7 +200,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
   font-weight: 400;
 }
 
-@media (width >= 900px) and (hover: hover) and (pointer: fine) {
+@media (width >= 900px) {
   header nav .nav-sections {
     display: block;
     visibility: visible;
@@ -225,11 +238,10 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     border-radius: 999px;
     background: rgb(255 255 255 / 80%);
     backdrop-filter: blur(12px);
-    padding: 8px;
     box-shadow: 0 10px 20px rgb(0 0 0 / 10%);
   }
 
@@ -239,7 +251,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
 
   header nav .nav-sections .nav-top-link {
     border-radius: 999px;
-    padding: 8px 16px;
+    padding: 9px 14px 10px;
     color: #252525;
   }
 
@@ -287,10 +299,11 @@ header .nav-top-banner {
   font-size: 16px;
 }
 
-@media (width >= 900px) and (hover: hover) and (pointer: fine) {
+@media (width >= 900px) {
   header .nav-top-banner {
     display: flex;
     align-items: center;
+    padding: 24px 48px;
   }
 }
 
@@ -301,7 +314,6 @@ header .top-banner-content {
   align-items: center;
   width: 100%;
   margin: 0 auto;
-  padding: 0 16px;
   box-sizing: border-box;
 }
 
@@ -429,14 +441,23 @@ header .nav-top-banner .top-banner-language-panel li:hover {
 }
 
 /* transparent nav over hero — desktop only */
-@media (width >= 900px) and (hover: hover) and (pointer: fine) {
+@media (width >= 900px) {
   body.has-hero header .nav-wrapper {
     background-color: transparent;
-    top: calc(var(--top-banner-height) + 16px);
+    transition: background 0.25s ease, backdrop-filter 0.25s ease;
+    height: 133px;
   }
 
-  body.has-hero header nav {
-    padding: 0 16px;
+  body.has-hero header .nav-wrapper.is-sticky {
+    background: linear-gradient(180deg, rgb(255 255 255 / 75%) 0%, rgb(245 245 245 / 90%) 63%, #f5f5f5 100%);
+    backdrop-filter: blur(12px);
+  }
+
+  body.has-hero header .nav-wrapper.is-sticky nav .nav-top-list{
+    border-radius: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    backdrop-filter: unset !important;
   }
 
   body.has-hero header nav .nav-sections {
@@ -520,7 +541,7 @@ header .nav-top-banner .top-banner-language-panel li:hover {
 }
 
 /* mobile + touch tablet navigation pattern */
-@media (width < 900px), ((hover: none) and (pointer: coarse)) {
+@media (width < 900px) {
   /* stylelint-disable no-descending-specificity */
   header nav {
     position: relative;
@@ -794,8 +815,8 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     border-radius: 14px;
     width: 100%;
     max-width: 100%;
-    padding: 14px;
-    margin-top: 6px;
+    padding: 10px 14px 20px !important;
+    margin-top: 0;
     box-sizing: border-box;
     overflow: hidden;
   }
@@ -967,7 +988,7 @@ header .nav-top-banner .top-banner-language-panel li:hover {
   /* stylelint-enable no-descending-specificity */
 }
 
-@media (width >= 640px) and (width < 900px), ((hover: none) and (pointer: coarse) and (width >= 640px)) {
+@media (width >= 640px) and (width < 900px) {
   header nav .nav-mobile-meta {
     grid-template-columns: 1fr auto;
     align-items: start;

@@ -1,8 +1,8 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
-// desktop hover nav should only apply on larger screens with fine pointer devices
-const isDesktop = window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)');
+// desktop nav should apply at standard desktop breakpoints
+const isDesktop = window.matchMedia('(min-width: 900px)');
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -1668,7 +1668,7 @@ export default async function decorate(block) {
           ? true
           : item !== normalItems[normalItems.length - 1];
         if (item.dataset.divider === 'right' || useDivider) {
-          item.classList.add('border-r', 'border-white/10', 'pr-6');
+          item.classList.add('border-none', 'border-white/10');
         }
 
         item.querySelectorAll(':scope > strong, :scope > em').forEach((label) => {
@@ -1695,7 +1695,7 @@ export default async function decorate(block) {
         });
 
         item.querySelectorAll('ul').forEach((links) => {
-          links.classList.add('!mt-[10px]', '!mb-[30px]', 'space-y-1.5', 'border-l', 'border-white/10', 'pl-3');
+          links.classList.add('!mt-[10px]', '!mb-[30px]', 'space-y-1.5', 'border-white/10', 'pl-3');
           const parentList = links.parentElement?.closest('ul');
           if (parentList && parentList !== links) {
             links.classList.add('pl-4');
@@ -1760,8 +1760,9 @@ export default async function decorate(block) {
           'self-start',
           'space-y-3',
           'rounded-2xl',
-          'bg-[#0f2e4b]',
-          'p-4',
+          'px-0',
+          'py-0',
+          'mt-[-7px]',
         );
         const featuredLabel = featured.querySelector(':scope > strong, :scope > em');
         if (featuredLabel) {
@@ -1862,7 +1863,19 @@ export default async function decorate(block) {
   block.append(navWrapper);
 
   // Mark body when a hero block is present so the nav can overlay it
-  if (document.querySelector('main .hero')) {
+  const hasHero = !!document.querySelector('main .hero');
+  if (hasHero) {
     document.body.classList.add('has-hero');
+
+    const stickyScrollThreshold = 12;
+    const updateStickyState = () => {
+      const sticky = isDesktop.matches && window.scrollY > stickyScrollThreshold;
+      navWrapper.classList.toggle('is-sticky', sticky);
+    };
+
+    updateStickyState();
+    window.addEventListener('scroll', updateStickyState, { passive: true });
+    window.addEventListener('resize', updateStickyState);
+    isDesktop.addEventListener('change', updateStickyState);
   }
 }

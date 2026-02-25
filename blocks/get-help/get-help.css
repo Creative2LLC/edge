@@ -1,0 +1,251 @@
+.get-help-host {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  pointer-events: none;
+}
+
+.get-help {
+  position: relative;
+}
+
+.get-help-host .get-help {
+  pointer-events: auto;
+}
+
+.get-help .get-help-trigger,
+.get-help .get-help-close {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-family: var(--body-font-family);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  background: #e38b22;
+  color: #fff;
+  box-shadow: 0 14px 32px rgb(0 0 0 / 35%);
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.get-help .get-help-close {
+  position: absolute;
+  right: 0;
+  bottom: -76px;
+}
+
+.get-help .get-help-trigger:hover,
+.get-help .get-help-close:hover {
+  background: #cd7b1a;
+}
+
+.get-help .get-help-trigger .icon,
+.get-help .get-help-close .icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.get-help.is-open .get-help-trigger {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.get-help .get-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1201;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(8 18 28 / 58%);
+  backdrop-filter: blur(2px);
+  overflow: auto;
+}
+
+.get-help .get-help-overlay[hidden] {
+  display: none;
+}
+
+.get-help .get-help-panel {
+  width: min(1040px, calc(100vw - 48px));
+  margin-top: min(14vh, 110px);
+  position: relative;
+}
+
+.get-help .get-help-card {
+  border-radius: 10px;
+  border: 1px solid rgb(18 38 56 / 14%);
+  background: #eef1f5;
+  padding: 34px 30px;
+  box-shadow: 0 26px 60px rgb(0 0 0 / 45%);
+}
+
+.get-help .get-help-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+}
+
+.get-help .get-help-column + .get-help-column {
+  border-left: 1px solid #d3d8de;
+  padding-left: 48px;
+}
+
+.get-help .get-help-column-heading {
+  margin: 0;
+  color: #173147;
+  font-family: var(--body-font-family);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.get-help .get-help-list {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.get-help .get-help-item {
+  margin: 0;
+}
+
+.get-help .get-help-item-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #173147;
+  font-family: var(--body-font-family);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.get-help .get-help-item-link::after {
+  content: '\203a';
+  margin-left: auto;
+  color: #173147;
+  font-size: 3rem;
+  font-weight: 500;
+  line-height: 0.8;
+}
+
+.get-help .get-help-item-link .icon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+}
+
+.get-help .get-help-item-link.is-call .icon {
+  color: #ee7062;
+}
+
+.get-help .get-help-item-link.is-text .icon {
+  color: #f2a040;
+}
+
+.get-help .get-help-item-description {
+  margin: 4px 0 0;
+  color: #546475;
+  font-family: var(--body-font-family);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.get-help .get-help-note {
+  margin: 24px 0 0;
+  color: #7c8691;
+  font-family: var(--body-font-family);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+@media (width < 900px) {
+  .get-help-host {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .get-help .get-help-trigger,
+  .get-help .get-help-close {
+    font-size: 1rem;
+    padding: 12px 18px;
+  }
+
+  .get-help .get-help-overlay {
+    padding: 16px;
+  }
+
+  .get-help .get-help-panel {
+    width: min(640px, calc(100vw - 16px));
+    margin-top: 26px;
+  }
+
+  .get-help .get-help-card {
+    padding: 20px;
+  }
+
+  .get-help .get-help-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .get-help .get-help-column + .get-help-column {
+    border-left: 0;
+    border-top: 1px solid #d3d8de;
+    padding-left: 0;
+    padding-top: 24px;
+  }
+
+  .get-help .get-help-column-heading {
+    font-size: 1.2rem;
+  }
+
+  .get-help .get-help-item-link {
+    font-size: 1.25rem;
+  }
+
+  .get-help .get-help-item-link::after {
+    font-size: 2.2rem;
+  }
+
+  .get-help .get-help-item-description {
+    font-size: 1.05rem;
+  }
+
+  .get-help .get-help-note {
+    font-size: 1rem;
+  }
+
+  .get-help .get-help-close {
+    position: static;
+    margin: 16px 0 0 auto;
+  }
+}
+
+@media (width < 600px) {
+  .get-help-host {
+    left: 12px;
+    right: 12px;
+  }
+
+  .get-help .get-help-trigger {
+    width: 100%;
+  }
+}

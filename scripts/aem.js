@@ -657,6 +657,18 @@ async function loadFooter(footer) {
 }
 
 /**
+ * Loads a block named 'get-help' into a host element
+ * @param {Element} host host element
+ * @returns {Promise}
+ */
+async function loadGetHelp(host) {
+  const getHelpBlock = buildBlock('get-help', '');
+  host.append(getHelpBlock);
+  decorateBlock(getHelpBlock);
+  return loadBlock(getHelpBlock);
+}
+
+/**
  * Wait for Image.
  * @param {Element} section section element
  */
@@ -724,6 +736,7 @@ export {
   loadBlock,
   loadCSS,
   loadFooter,
+  loadGetHelp,
   loadHeader,
   loadScript,
   loadSection,

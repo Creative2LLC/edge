@@ -6,7 +6,7 @@ footer {
 
 footer .footer > div {
   margin: auto;
-  max-width: 1264px;
+  max-width: 1600px;
   padding: 56px 24px 32px;
 }
 
@@ -30,10 +30,6 @@ footer .footer .footer-brand {
   font-style: normal;
   font-weight: 400;
   line-height: 22px;
-}
-
-footer .footer .footer-brand > * + * {
-  margin-top: 12px;
 }
 
 footer .footer .footer-brand > p:has(> img:only-child),
@@ -84,7 +80,7 @@ footer .footer .footer-column a.button:hover {
 }
 
 footer .footer .footer-copyright {
-  font-size: 1rem;
+  font-size: 14px;
   line-height: 1.45;
 }
 
@@ -121,10 +117,6 @@ footer .footer .footer-column {
   min-width: 0;
 }
 
-footer .footer .footer-column > * + * {
-  margin-top: 10px;
-}
-
 footer .footer .footer-column ul,
 footer .footer .footer-column ol {
   list-style: none;
@@ -154,7 +146,7 @@ footer .footer .footer-column a {
 footer .footer .footer-legal-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 18px;
+  gap: 0 10px;
   line-height: 1.45;
 }
 
@@ -185,7 +177,7 @@ footer .footer .footer-column a:hover {
 
 @media (width >= 1024px) {
   footer .footer > div {
-    padding: 64px 32px 32px;
+    padding: 124px 84px;
   }
 
   footer .footer .footer-columns-layout > div {
