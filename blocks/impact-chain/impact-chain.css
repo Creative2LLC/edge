@@ -67,7 +67,7 @@
 }
 
 /* -------------------------------------------------------
-   Connector lines between cards (right-angle dashed paths)
+   Connector lines between cards (compact right-angle L shapes)
    ------------------------------------------------------- */
 
 /* Spacing between items to make room for connectors */
@@ -75,14 +75,15 @@
   margin-top: 60px;
 }
 
-/* Connector: vertical line going down from a card */
+/* L-shaped connector: a small box with only two dashed borders visible */
 .impact-chain .impact-chain-item::after {
   content: "";
   position: absolute;
   bottom: -60px;
-  width: 0;
   height: 60px;
-  border-left: 3px dashed #8b2020;
+  width: 100px;
+  border-style: dashed;
+  border-width: 0;
 }
 
 /* Hide connector on last item */
@@ -90,43 +91,20 @@
   display: none;
 }
 
-/* Odd items: vertical line exits from center-right area */
+/* Odd items: L exits right edge, vertical down + horizontal right */
 .impact-chain .impact-chain-item:nth-child(odd)::after {
-  right: -1.5px;
-  border-left-color: #8b2020;
+  left: 100%;
+  border-left-width: 3px;
+  border-bottom-width: 3px;
+  border-color: #8b2020;
 }
 
-/* Even items: vertical line exits from center-left area */
+/* Even items: L exits left edge, vertical down + horizontal left */
 .impact-chain .impact-chain-item:nth-child(even)::after {
-  left: -1.5px;
-  border-left-color: #d4842a;
-}
-
-/* Horizontal connector bridges between cards */
-.impact-chain .impact-chain-item + .impact-chain-item::before {
-  content: "";
-  position: absolute;
-  top: -31.5px;
-  height: 0;
-  border-top: 3px dashed;
-}
-
-/* Even items (come after odd): horizontal line goes from right to left */
-.impact-chain .impact-chain-item:nth-child(even)::before {
-  border-top-color: #8b2020;
-  left: -1.5px;
-  right: calc(-35% - 5% + -1.5px);
-}
-
-/* Odd items after even: horizontal line goes from left to right */
-.impact-chain .impact-chain-item:nth-child(odd) + .impact-chain-item:nth-child(odd)::before {
-  display: none;
-}
-
-.impact-chain .impact-chain-item:nth-child(even) + .impact-chain-item:nth-child(odd)::before {
-  border-top-color: #d4842a;
-  right: -1.5px;
-  left: calc(-35% - 5% + -1.5px);
+  right: 100%;
+  border-right-width: 3px;
+  border-bottom-width: 3px;
+  border-color: #d4842a;
 }
 
 /* Card image */
@@ -134,7 +112,16 @@
   flex: 0 0 45%;
   min-height: 240px;
   overflow: hidden;
-  border-radius: 12px;
+}
+
+/* Odd items: image is on the left — round only left corners */
+.impact-chain .impact-chain-item:nth-child(odd) .impact-chain-item-image {
+  border-radius: 12px 0 0 12px;
+}
+
+/* Even items: image is on the right — round only right corners */
+.impact-chain .impact-chain-item:nth-child(even) .impact-chain-item-image {
+  border-radius: 0 12px 12px 0;
 }
 
 .impact-chain .impact-chain-item-image picture {
@@ -239,17 +226,20 @@
     margin-top: 40px;
   }
 
+  /* Simple center vertical line on mobile */
   .impact-chain .impact-chain-item::after {
     left: 50% !important;
     right: auto !important;
     transform: translateX(-50%);
     bottom: -40px;
     height: 40px;
-    border-left-color: #8b2020 !important;
+    width: 0 !important;
+    border-left: 3px dashed #8b2020 !important;
+    border-bottom: 0 !important;
+    border-right: 0 !important;
   }
 
-  /* Hide horizontal bridges on mobile */
-  .impact-chain .impact-chain-item + .impact-chain-item::before {
-    display: none;
+  .impact-chain .impact-chain-item-image {
+    border-radius: 12px 12px 0 0 !important;
   }
 }
