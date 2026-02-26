@@ -67,21 +67,24 @@
 }
 
 /* -------------------------------------------------------
-   Connector lines between cards (compact right-angle L shapes)
+   Connector lines between cards (right-angle L shapes)
+   Image split is at 45% of card width (where image meets content).
+   The L drops vertically from the split, then turns horizontally
+   toward the next card's split point (~48% of card width across).
    ------------------------------------------------------- */
 
 /* Spacing between items to make room for connectors */
 .impact-chain .impact-chain-item + .impact-chain-item {
-  margin-top: 60px;
+  margin-top: 80px;
 }
 
-/* L-shaped connector: a small box with only two dashed borders visible */
+/* L-shaped connector base */
 .impact-chain .impact-chain-item::after {
   content: "";
   position: absolute;
-  bottom: -60px;
-  height: 60px;
-  width: 100px;
+  top: 100%;
+  height: 80px;
+  width: 48%;
   border-style: dashed;
   border-width: 0;
 }
@@ -91,17 +94,17 @@
   display: none;
 }
 
-/* Odd items: L exits right edge, vertical down + horizontal right */
+/* Odd items: L exits from image split (45%), drops down, turns right */
 .impact-chain .impact-chain-item:nth-child(odd)::after {
-  left: 100%;
+  left: 45%;
   border-left-width: 3px;
   border-bottom-width: 3px;
   border-color: #8b2020;
 }
 
-/* Even items: L exits left edge, vertical down + horizontal left */
+/* Even items: L exits from image split (45% from right), drops down, turns left */
 .impact-chain .impact-chain-item:nth-child(even)::after {
-  right: 100%;
+  right: 45%;
   border-right-width: 3px;
   border-bottom-width: 3px;
   border-color: #d4842a;
@@ -230,8 +233,8 @@
   .impact-chain .impact-chain-item::after {
     left: 50% !important;
     right: auto !important;
+    top: 100% !important;
     transform: translateX(-50%);
-    bottom: -40px;
     height: 40px;
     width: 0 !important;
     border-left: 3px dashed #8b2020 !important;
