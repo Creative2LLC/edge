@@ -67,10 +67,10 @@
 }
 
 /* -------------------------------------------------------
-   Connector lines between cards (right-angle L shapes)
-   Image split is at 45% of card width (where image meets content).
-   The L drops vertically from the split, then turns horizontally
-   toward the next card's split point (~48% of card width across).
+   Connector lines between cards
+   Two segments per connector:
+     ::before = horizontal line exiting from card's inner side
+     ::after  = vertical line dropping down to the next card
    ------------------------------------------------------- */
 
 /* Spacing between items to make room for connectors */
@@ -78,36 +78,52 @@
   margin-top: 80px;
 }
 
-/* L-shaped connector base */
+/* Horizontal segment: exits from card's inner side at vertical midpoint */
+.impact-chain .impact-chain-item::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 100px;
+  height: 0;
+  border-top: 3px dashed;
+}
+
+/* Vertical segment: drops from end of horizontal down to next card */
 .impact-chain .impact-chain-item::after {
   content: "";
   position: absolute;
-  top: 100%;
-  height: 80px;
-  width: 48%;
-  border-style: dashed;
-  border-width: 0;
+  top: 50%;
+  width: 0;
+  height: calc(50% + 80px);
+  border-left: 3px dashed;
 }
 
-/* Hide connector on last item */
+/* Hide connectors on last item */
+.impact-chain .impact-chain-item:last-child::before,
 .impact-chain .impact-chain-item:last-child::after {
   display: none;
 }
 
-/* Odd items: L exits from image split (45%), drops down, turns right */
-.impact-chain .impact-chain-item:nth-child(odd)::after {
-  left: 45%;
-  border-left-width: 3px;
-  border-bottom-width: 3px;
-  border-color: #8b2020;
+/* Odd items: line exits RIGHT side, vertical drops on the right end */
+.impact-chain .impact-chain-item:nth-child(odd)::before {
+  left: 100%;
+  border-top-color: #8b2020;
 }
 
-/* Even items: L exits from image split (45% from right), drops down, turns left */
+.impact-chain .impact-chain-item:nth-child(odd)::after {
+  left: calc(100% + 100px);
+  border-left-color: #8b2020;
+}
+
+/* Even items: line exits LEFT side, vertical drops on the left end */
+.impact-chain .impact-chain-item:nth-child(even)::before {
+  right: 100%;
+  border-top-color: #d4842a;
+}
+
 .impact-chain .impact-chain-item:nth-child(even)::after {
-  right: 45%;
-  border-right-width: 3px;
-  border-bottom-width: 3px;
-  border-color: #d4842a;
+  right: calc(100% + 100px);
+  border-left-color: #d4842a;
 }
 
 /* Card image */
@@ -229,17 +245,19 @@
     margin-top: 40px;
   }
 
+  /* Hide horizontal segment on mobile */
+  .impact-chain .impact-chain-item::before {
+    display: none !important;
+  }
+
   /* Simple center vertical line on mobile */
   .impact-chain .impact-chain-item::after {
     left: 50% !important;
     right: auto !important;
     top: 100% !important;
     transform: translateX(-50%);
-    height: 40px;
-    width: 0 !important;
+    height: 40px !important;
     border-left: 3px dashed #8b2020 !important;
-    border-bottom: 0 !important;
-    border-right: 0 !important;
   }
 
   .impact-chain .impact-chain-item-image {
