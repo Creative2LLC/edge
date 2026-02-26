@@ -49,7 +49,6 @@
   width: 65%;
   background: #f5f0eb;
   border-radius: 12px;
-  overflow: hidden;
   position: relative;
 }
 
@@ -135,6 +134,7 @@
   flex: 0 0 45%;
   min-height: 240px;
   overflow: hidden;
+  border-radius: 12px;
 }
 
 .impact-chain .impact-chain-item-image picture {
