@@ -248,61 +248,31 @@
           }
         },
         {
-          "title": "Mega Nav Parent Link",
-          "id": "mega-nav",
+          "title": "Impact Chain",
+          "id": "impact-chain",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Mega Nav",
-                  "model": "mega-nav",
-                  "filter": "mega-nav"
+                  "name": "Impact Chain",
+                  "model": "impact-chain",
+                  "filter": "impact-chain"
                 }
               }
             }
           }
         },
         {
-          "title": "Mega Nav Custom Dropdown Item",
-          "id": "mega-nav-row",
+          "title": "Impact Chain Item",
+          "id": "impact-chain-item",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
-                  "name": "Mega Nav Row",
-                  "model": "mega-nav-row"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Mega Dropdown Sub Link",
-          "id": "mega-nav-sub-link",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Mega Dropdown Sub Link",
-                  "model": "mega-nav-sub-link"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Mega Dropdown Top Link",
-          "id": "mega-nav-top-link",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Mega Dropdown Top Link",
-                  "model": "mega-nav-top-link"
+                  "name": "Impact Chain Item",
+                  "model": "impact-chain-item"
                 }
               }
             }

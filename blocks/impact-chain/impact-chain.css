@@ -1,0 +1,255 @@
+.impact-chain {
+  padding: 40px 0;
+}
+
+.impact-chain-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Heading */
+.impact-chain .impact-chain-heading {
+  font-size: 48px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0 0 16px;
+  line-height: 1.1;
+  text-align: center;
+  position: relative;
+  padding-bottom: 40px;
+}
+
+/* Vertical dashed line from heading down to first card */
+.impact-chain .impact-chain-heading::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 40px;
+  border-left: 3px dashed #8b2020;
+}
+
+/* Items container */
+.impact-chain .impact-chain-items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+/* Individual item card */
+.impact-chain .impact-chain-item {
+  display: flex;
+  align-items: stretch;
+  max-width: 65%;
+  width: 65%;
+  background: #f5f0eb;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Odd items (0, 2, 4): align left — image left, content right */
+.impact-chain .impact-chain-item:nth-child(odd) {
+  align-self: flex-start;
+  flex-direction: row;
+  margin-left: 5%;
+}
+
+/* Even items (1, 3, 5): align right — content left, image right */
+.impact-chain .impact-chain-item:nth-child(even) {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  margin-right: 5%;
+}
+
+/* -------------------------------------------------------
+   Connector lines between cards (right-angle dashed paths)
+   ------------------------------------------------------- */
+
+/* Spacing between items to make room for connectors */
+.impact-chain .impact-chain-item + .impact-chain-item {
+  margin-top: 60px;
+}
+
+/* Connector: vertical line going down from a card */
+.impact-chain .impact-chain-item::after {
+  content: "";
+  position: absolute;
+  bottom: -60px;
+  width: 0;
+  height: 60px;
+  border-left: 3px dashed #8b2020;
+}
+
+/* Hide connector on last item */
+.impact-chain .impact-chain-item:last-child::after {
+  display: none;
+}
+
+/* Odd items: vertical line exits from center-right area */
+.impact-chain .impact-chain-item:nth-child(odd)::after {
+  right: -1.5px;
+  border-left-color: #8b2020;
+}
+
+/* Even items: vertical line exits from center-left area */
+.impact-chain .impact-chain-item:nth-child(even)::after {
+  left: -1.5px;
+  border-left-color: #d4842a;
+}
+
+/* Horizontal connector bridges between cards */
+.impact-chain .impact-chain-item + .impact-chain-item::before {
+  content: "";
+  position: absolute;
+  top: -31.5px;
+  height: 0;
+  border-top: 3px dashed;
+}
+
+/* Even items (come after odd): horizontal line goes from right to left */
+.impact-chain .impact-chain-item:nth-child(even)::before {
+  border-top-color: #8b2020;
+  left: -1.5px;
+  right: calc(-35% - 5% + -1.5px);
+}
+
+/* Odd items after even: horizontal line goes from left to right */
+.impact-chain .impact-chain-item:nth-child(odd) + .impact-chain-item:nth-child(odd)::before {
+  display: none;
+}
+
+.impact-chain .impact-chain-item:nth-child(even) + .impact-chain-item:nth-child(odd)::before {
+  border-top-color: #d4842a;
+  right: -1.5px;
+  left: calc(-35% - 5% + -1.5px);
+}
+
+/* Card image */
+.impact-chain .impact-chain-item-image {
+  flex: 0 0 45%;
+  min-height: 240px;
+  overflow: hidden;
+}
+
+.impact-chain .impact-chain-item-image picture {
+  display: block;
+  height: 100%;
+}
+
+.impact-chain .impact-chain-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Card content */
+.impact-chain .impact-chain-item-content {
+  flex: 1;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Card icon (mask-image for coloring) */
+.impact-chain .impact-chain-item-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
+}
+
+.impact-chain .impact-chain-item-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Card title */
+.impact-chain .impact-chain-item-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #008eb7;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+/* Card description */
+.impact-chain .impact-chain-item-description {
+  font-size: 16px;
+  font-weight: 400;
+  color: #404041;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------
+   Responsive: mobile (<=700px)
+   ------------------------------------------------------- */
+@media (width <= 700px) {
+  .impact-chain .impact-chain-heading {
+    font-size: 32px;
+    padding-bottom: 24px;
+  }
+
+  .impact-chain .impact-chain-heading::after {
+    height: 24px;
+  }
+
+  /* Full-width stacked cards */
+  .impact-chain .impact-chain-item {
+    max-width: 100%;
+    width: 100%;
+    flex-direction: column !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .impact-chain .impact-chain-item:nth-child(odd),
+  .impact-chain .impact-chain-item:nth-child(even) {
+    align-self: center;
+  }
+
+  .impact-chain .impact-chain-item-image {
+    flex: none;
+    min-height: 200px;
+    max-height: 220px;
+  }
+
+  /* Simplify connectors to center vertical line */
+  .impact-chain .impact-chain-item + .impact-chain-item {
+    margin-top: 40px;
+  }
+
+  .impact-chain .impact-chain-item::after {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+    bottom: -40px;
+    height: 40px;
+    border-left-color: #8b2020 !important;
+  }
+
+  /* Hide horizontal bridges on mobile */
+  .impact-chain .impact-chain-item + .impact-chain-item::before {
+    display: none;
+  }
+}
