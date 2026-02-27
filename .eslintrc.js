@@ -30,6 +30,7 @@ module.exports = {
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', {
       '*': 4,
+      'leadership-profile': 7,
       'news-article': 5,
       'resource-item': 6,
       'mega-nav-row': 6,

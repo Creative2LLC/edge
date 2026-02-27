@@ -23,7 +23,6 @@
   inset: 0;
   z-index: 0;
   mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
 }
 
 .footer-banner-bg picture {
@@ -45,7 +44,6 @@
   z-index: 1;
   background: rgb(246 246 246 / 40%);
   mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
   pointer-events: none;
 }
 

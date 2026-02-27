@@ -259,6 +259,7 @@
     flex: none;
     min-height: 200px;
     max-height: 220px;
+    border-radius: 12px 12px 0 0 !important;
   }
 
   /* Simplify connectors to center vertical line */
@@ -281,7 +282,4 @@
     border-left: 3px dashed #8b2020 !important;
   }
 
-  .impact-chain .impact-chain-item-image {
-    border-radius: 12px 12px 0 0 !important;
-  }
 }
