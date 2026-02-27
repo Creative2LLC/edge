@@ -94,6 +94,22 @@ function getFieldValue(scope, name, resource) {
   return { node, value: value || '', resource: resolvedResource };
 }
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeLinkValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
 function applyAnchorToImage(imageElement, href, rawTarget = '_self') {
   if (!imageElement || !href) return;
   const target = ['_self', '_blank', '_parent', '_top'].includes(rawTarget) ? rawTarget : '_self';
@@ -113,6 +129,26 @@ function applyAnchorToImage(imageElement, href, rawTarget = '_self') {
   }
 }
 
+const imageLinkCache = new Map();
+
+async function resolveImageLinkFromResource(resourcePath) {
+  if (!resourcePath) return { href: '', target: '_self' };
+  if (imageLinkCache.has(resourcePath)) return imageLinkCache.get(resourcePath);
+
+  const promise = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return { href: '', target: '_self' };
+      const data = await response.json();
+      const href = normalizeLinkValue(data.imageLink);
+      const target = normalizeLinkValue(data.imageTarget) || '_self';
+      return { href, target };
+    })
+    .catch(() => ({ href: '', target: '_self' }));
+
+  imageLinkCache.set(resourcePath, promise);
+  return promise;
+}
+
 function applyImageLinksFromAue(main) {
   const imageNodes = main.querySelectorAll('[data-aue-prop="image"], [data-aue-model="image"]');
   imageNodes.forEach((node) => {
@@ -121,15 +157,22 @@ function applyImageLinksFromAue(main) {
       || '';
     const { node: linkNode, value: href } = getFieldValue(main, 'imageLink', resource);
     const { node: targetNode, value: rawTarget } = getFieldValue(main, 'imageTarget', resource);
-    if (!href) return;
-
-    cleanupFieldNode(linkNode);
-    cleanupFieldNode(targetNode);
-
     const image = node.tagName === 'IMG' ? node : node.querySelector('img');
     if (!image) return;
     const imageElement = image.closest('picture') || image;
-    applyAnchorToImage(imageElement, href, rawTarget);
+    if (href) {
+      cleanupFieldNode(linkNode);
+      cleanupFieldNode(targetNode);
+      applyAnchorToImage(imageElement, href, rawTarget);
+      return;
+    }
+
+    const resourcePath = resourcePathFromUrn(resource);
+    if (!resourcePath) return;
+    resolveImageLinkFromResource(resourcePath).then(({ href: resolvedHref, target }) => {
+      if (!resolvedHref) return;
+      applyAnchorToImage(imageElement, resolvedHref, target);
+    });
   });
 }
 
