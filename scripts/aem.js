@@ -567,6 +567,42 @@ function buildBlock(blockName, content) {
   return blockEl;
 }
 
+function extractResourceURL(error) {
+  const target = error?.target || error?.currentTarget;
+  if (target?.href) return target.href;
+
+  if (typeof error?.message === 'string') {
+    const match = error.message.match(/https?:\/\/\S+/);
+    if (match) return match[0].replace(/[).,;]+$/, '');
+  }
+
+  return '';
+}
+
+function compactHTML(element, maxLength = 320) {
+  if (!element?.outerHTML) return '';
+  return element.outerHTML.replace(/\s+/g, ' ').trim().slice(0, maxLength);
+}
+
+function logBlockLoadError(block, blockName, phase, error, resourceURL = '') {
+  const section = block.closest('.section');
+  const wrapper = block.parentElement;
+  const url = resourceURL || extractResourceURL(error);
+
+  // eslint-disable-next-line no-console
+  console.error(`[hlx:block-load] Failed to load "${blockName}" (${phase}).`, {
+    page: window.location.href,
+    blockName,
+    phase,
+    resourceURL: url,
+    blockClasses: [...block.classList],
+    sectionClasses: section ? [...section.classList] : [],
+    wrapperClasses: wrapper ? [...wrapper.classList] : [],
+    blockHTML: compactHTML(block),
+    wrapperHTML: compactHTML(wrapper),
+  }, error);
+}
+
 /**
  * Loads JS and CSS for a block.
  * @param {Element} block The block element
@@ -576,28 +612,37 @@ async function loadBlock(block) {
   if (status !== 'loading' && status !== 'loaded') {
     block.dataset.blockStatus = 'loading';
     const { blockName } = block.dataset;
+    let hasDetailedError = false;
+    const captureError = (phase, error, resourceURL = '') => {
+      hasDetailedError = true;
+      logBlockLoadError(block, blockName, phase, error, resourceURL);
+    };
+
     try {
-      const cssLoaded = loadCSS(`${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.css`);
+      const cssURL = `${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.css`;
+      const moduleURL = `${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.js`;
+      const cssLoaded = loadCSS(cssURL).catch((error) => {
+        captureError('css', error, cssURL);
+        throw error;
+      });
       const decorationComplete = new Promise((resolve) => {
         (async () => {
           try {
-            const mod = await import(
-              `${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.js`
-            );
+            const mod = await import(moduleURL);
             if (mod.default) {
               await mod.default(block);
             }
           } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error(`failed to load module for ${blockName}`, error);
+            captureError('module', error, moduleURL);
           }
           resolve();
         })();
       });
       await Promise.all([cssLoaded, decorationComplete]);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`failed to load block ${blockName}`, error);
+      if (!hasDetailedError) {
+        captureError('block', error);
+      }
     }
     block.dataset.blockStatus = 'loaded';
   }

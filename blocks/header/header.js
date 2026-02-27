@@ -1336,24 +1336,44 @@ function buildDummyMegaMenu(label) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+  const buildNavFromPath = async (path) => {
+    const fragment = await loadFragment(path);
+    if (!fragment) return null;
+
+    const navEl = document.createElement('nav');
+    navEl.id = 'nav';
+    while (fragment.firstElementChild) navEl.append(fragment.firstElementChild);
+
+    const classes = navEl.children.length >= 4
+      ? ['top-banner', 'brand', 'sections', 'tools']
+      : ['brand', 'sections', 'tools'];
+    classes.forEach((c, i) => {
+      const section = navEl.children[i];
+      if (section) section.classList.add(`nav-${c}`);
+    });
+
+    const hasBrand = !!navEl.querySelector('.nav-brand');
+    const hasSections = !!navEl.querySelector('.nav-sections');
+    return hasBrand && hasSections ? navEl : null;
+  };
+
   // load nav as fragment
   const navMeta = getMetadata('nav');
-  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-  const fragment = await loadFragment(navPath);
+  const configuredNavPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
+  let nav = await buildNavFromPath(configuredNavPath);
+  if (!nav && configuredNavPath !== '/nav') {
+    // eslint-disable-next-line no-console
+    console.warn(`Invalid nav fragment at "${configuredNavPath}". Falling back to "/nav".`);
+    nav = await buildNavFromPath('/nav');
+  }
+  if (!nav) {
+    // eslint-disable-next-line no-console
+    console.error('Unable to load a valid nav fragment for header.');
+    return;
+  }
 
   // decorate nav DOM
   block.textContent = '';
-  const nav = document.createElement('nav');
-  nav.id = 'nav';
-  while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
-
-  const classes = nav.children.length >= 4
-    ? ['top-banner', 'brand', 'sections', 'tools']
-    : ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
-  });
 
   const navBrand = nav.querySelector('.nav-brand');
   const brandLink = navBrand.querySelector('.button');
