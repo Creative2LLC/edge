@@ -1394,7 +1394,11 @@ export default async function decorate(block) {
   }
 
   if (brandLink) {
-    brandLink.href = '/';
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const contentRoot = (pathParts[0] === 'content' && pathParts[1])
+      ? `/${pathParts[0]}/${pathParts[1]}`
+      : '';
+    brandLink.href = `${contentRoot}/index.html`;
     brandLink.target = '_parent';
     brandLink.removeAttribute('rel');
   }
