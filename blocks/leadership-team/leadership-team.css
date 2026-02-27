@@ -1,0 +1,219 @@
+/* Leadership Team Block */
+.leadership-team {
+  padding: 0 0 60px;
+}
+
+.leadership-team-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* -------------------------------------------------------
+   Navigation Bar
+   ------------------------------------------------------- */
+.leadership-team-nav {
+  margin-bottom: 48px;
+  display: flex;
+  justify-content: center;
+}
+
+.leadership-team-nav-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  padding: 4px;
+  margin: 0;
+  background-color: #ddd5cc6b;
+  border-radius: 9999px;
+  height: 42px;
+}
+
+.leadership-team-nav-btn {
+  font-size: 15px;
+  font-weight: 600;
+  color: #00000080;
+  background: none;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, background-color 0.2s;
+  line-height: 1;
+}
+
+.leadership-team-nav-btn:hover {
+  color: #000;
+}
+
+.leadership-team-nav-btn.active {
+  color: #000;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+/* -------------------------------------------------------
+   Sections
+   ------------------------------------------------------- */
+.leadership-team-section {
+  margin-bottom: 56px;
+  scroll-margin-top: 100px;
+}
+
+.leadership-team-section:last-child {
+  margin-bottom: 0;
+}
+
+.leadership-team-section-heading {
+  font-size: 48px;
+  font-weight: 700;
+  color: #00264d;
+  text-align: center;
+  margin: 0 0 40px;
+  line-height: 1.1;
+}
+
+/* -------------------------------------------------------
+   Cards Grid
+   ------------------------------------------------------- */
+.leadership-team-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 32px 24px;
+  justify-items: center;
+}
+
+/* -------------------------------------------------------
+   Individual Leader Card
+   ------------------------------------------------------- */
+.leadership-team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 258px;
+  width: 100%;
+}
+
+/* Card image */
+.leadership-team-card-image {
+  width: 258px;
+  height: 348px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.leadership-team-card-image picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.leadership-team-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Card name */
+.leadership-team-card-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #404041;
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+/* Card title */
+.leadership-team-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #404041;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+/* Card bio */
+.leadership-team-card-bio {
+  font-size: 17px;
+  font-weight: 400;
+  color: #404041;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+/* Read bio link */
+.leadership-team-card-link {
+  font-size: 17px;
+  font-weight: 400;
+  color: #007294;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: auto;
+}
+
+.leadership-team-card-link:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------
+   Responsive: Tablet (<=1200px) — 4 columns
+   ------------------------------------------------------- */
+@media (width <= 1200px) {
+  .leadership-team-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* -------------------------------------------------------
+   Responsive: Small tablet (<=900px) — 3 columns
+   ------------------------------------------------------- */
+@media (width <= 900px) {
+  .leadership-team-section-heading {
+    font-size: 36px;
+  }
+
+  .leadership-team-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px 16px;
+  }
+
+  .leadership-team-card-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 258 / 348;
+  }
+
+  .leadership-team-nav-list {
+    flex-wrap: wrap;
+    height: auto;
+    border-radius: 16px;
+    justify-content: center;
+  }
+}
+
+/* -------------------------------------------------------
+   Responsive: Mobile (<=600px) — 2 columns
+   ------------------------------------------------------- */
+@media (width <= 600px) {
+  .leadership-team-section-heading {
+    font-size: 28px;
+  }
+
+  .leadership-team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 12px;
+  }
+
+  .leadership-team-card-name {
+    font-size: 18px;
+  }
+
+  .leadership-team-card-bio {
+    font-size: 15px;
+  }
+}

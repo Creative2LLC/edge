@@ -508,6 +508,25 @@
     ]
   },
   {
+    "id": "leadership-header",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "leadership-profile",
     "fields": [
       {
@@ -564,6 +583,61 @@
         "name": "bio",
         "label": "Biography",
         "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "leader-card",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "sectionName",
+        "label": "Section Name",
+        "description": "Group name (e.g. Leadership, Board of Directors). Leaders with the same section name are grouped together.",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Leader Photo",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Photo Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "name",
+        "label": "Leader Name",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "leaderTitle",
+        "label": "Leader Title/Role",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bio",
+        "label": "Short Bio",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "link",
+        "label": "Bio Page URL",
+        "value": ""
       }
     ]
   },
