@@ -72,6 +72,61 @@ function buildAutoBlocks() {
   }
 }
 
+function cleanupFieldNode(node) {
+  const row = node?.parentElement;
+  if (row && row.children?.length === 2 && row.children[1] === node) {
+    row.remove();
+  } else if (node) {
+    node.remove();
+  }
+}
+
+function getFieldValue(scope, name) {
+  const node = scope.querySelector(`[data-aue-prop="${name}"]`);
+  if (!node) return { node: null, value: '' };
+  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
+  const value = anchor?.getAttribute('href') || node.textContent.trim();
+  return { node, value: value || '' };
+}
+
+function applyImageLinks(main) {
+  const imageResources = main.querySelectorAll('[data-aue-model="image"]');
+  imageResources.forEach((resource) => {
+    const { node: linkNode, value: href } = getFieldValue(resource, 'imageLink');
+    const { node: targetNode, value: rawTarget } = getFieldValue(resource, 'imageTarget');
+    const target = ['_self', '_blank', '_parent', '_top'].includes(rawTarget) ? rawTarget : '_self';
+
+    cleanupFieldNode(linkNode);
+    cleanupFieldNode(targetNode);
+
+    const image = resource.querySelector('img');
+    if (!image) return;
+    const imageElement = image.closest('picture') || image;
+    const existingAnchor = imageElement.closest('a');
+
+    if (!href) {
+      if (existingAnchor && existingAnchor.contains(imageElement)) {
+        existingAnchor.replaceWith(imageElement);
+      }
+      return;
+    }
+
+    const anchor = existingAnchor || document.createElement('a');
+    anchor.href = href;
+    anchor.target = target;
+    if (target === '_blank') {
+      anchor.rel = 'noopener noreferrer';
+    } else {
+      anchor.removeAttribute('rel');
+    }
+
+    if (!existingAnchor) {
+      imageElement.replaceWith(anchor);
+      anchor.append(imageElement);
+    }
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -84,6 +139,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  applyImageLinks(main);
 }
 
 /**

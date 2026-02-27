@@ -27,6 +27,35 @@
           "component": "text",
           "name": "imageAlt",
           "label": "Alt Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "imageLink",
+          "label": "Link (Optional)"
+        },
+        {
+          "component": "select",
+          "name": "imageTarget",
+          "label": "Open Link In",
+          "options": [
+            {
+              "name": "Same Tab",
+              "value": "_self"
+            },
+            {
+              "name": "New Tab",
+              "value": "_blank"
+            },
+            {
+              "name": "Parent Frame",
+              "value": "_parent"
+            },
+            {
+              "name": "Top Frame",
+              "value": "_top"
+            }
+          ],
+          "value": "_self"
         }
       ]
     }
