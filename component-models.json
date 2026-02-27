@@ -643,7 +643,7 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "name",
+        "name": "leaderName",
         "label": "Leader Name",
         "value": ""
       },

@@ -48,7 +48,7 @@ function parseLeaderRow(row) {
     picture,
     imgSrc,
     imageAlt,
-    name: getPropText(row, 'name'),
+    name: getPropText(row, 'leaderName'),
     leaderTitle: getPropText(row, 'leaderTitle'),
     bio: getPropText(row, 'bio'),
     link: getPropLink(row, 'link'),
