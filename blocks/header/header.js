@@ -1376,10 +1376,27 @@ export default async function decorate(block) {
   block.textContent = '';
 
   const navBrand = nav.querySelector('.nav-brand');
-  const brandLink = navBrand.querySelector('.button');
+  const brandButton = navBrand.querySelector('.button');
+  if (brandButton) {
+    brandButton.className = '';
+    brandButton.closest('.button-container').className = '';
+  }
+
+  let brandLink = navBrand.querySelector('a');
+  if (!brandLink) {
+    const brandImage = navBrand.querySelector('picture, img');
+    if (brandImage) {
+      const imageWrapper = brandImage.closest('picture') || brandImage;
+      brandLink = document.createElement('a');
+      imageWrapper.replaceWith(brandLink);
+      brandLink.append(imageWrapper);
+    }
+  }
+
   if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
+    brandLink.href = '/';
+    brandLink.target = '_parent';
+    brandLink.removeAttribute('rel');
   }
 
   const navSections = nav.querySelector('.nav-sections');
