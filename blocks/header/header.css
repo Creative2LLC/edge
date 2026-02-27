@@ -46,7 +46,7 @@ header nav[aria-expanded='true'] {
   }
 
   .is-sticky nav {
-    margin: 50px 0 18px !important;
+    margin: 25px 0 18px !important;
     padding: 0 48px !important;
   }
 
@@ -445,7 +445,6 @@ header .nav-top-banner .top-banner-language-panel li:hover {
   body.has-hero header .nav-wrapper {
     background-color: transparent;
     transition: background 0.25s ease, backdrop-filter 0.25s ease;
-    height: 133px;
   }
 
   body.has-hero header .nav-wrapper.is-sticky {
