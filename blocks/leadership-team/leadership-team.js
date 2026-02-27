@@ -2,26 +2,38 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
+ * Get text from a data-aue-prop element, or return ''.
+ */
+function getPropText(row, prop) {
+  const el = row.querySelector(`[data-aue-prop="${prop}"]`);
+  return el?.textContent.trim() || '';
+}
+
+/**
+ * Get link from a data-aue-prop element — check for <a> first, then text.
+ */
+function getPropLink(row, prop) {
+  const el = row.querySelector(`[data-aue-prop="${prop}"]`);
+  if (!el) return '';
+  const a = el.querySelector('a');
+  return a?.href || el.textContent.trim();
+}
+
+/**
  * Parse a leader card row.
- * Instead of hardcoded column indices, we find the image column dynamically
- * and collect the remaining non-empty text columns in order.
- * This is robust against extra columns injected by the image model
- * (e.g. imageAlt, imageLink, imageTarget).
+ * Uses data-aue-prop attributes to find fields by name, avoiding any
+ * column-position issues from extra image model columns.
+ * Image is found by scanning for a <picture> element.
  */
 function parseLeaderRow(row) {
   const cols = [...row.children];
   if (cols.length < 2) return null;
 
-  // First column is always sectionName
-  const sectionName = cols[0]?.textContent.trim() || '';
-
-  // Find the image column (contains a <picture> element)
+  // Find the image by scanning for a <picture> or <img> element
   let imageCol = null;
-  let imageIdx = -1;
-  for (let i = 1; i < cols.length; i += 1) {
+  for (let i = 0; i < cols.length; i += 1) {
     if (cols[i].querySelector('picture') || cols[i].querySelector('img')) {
       imageCol = cols[i];
-      imageIdx = i;
       break;
     }
   }
@@ -31,33 +43,15 @@ function parseLeaderRow(row) {
   const imgSrc = img?.src || '';
   const imageAlt = img?.alt || '';
 
-  // Collect remaining non-empty text-only columns after the image
-  // These are: name, leaderTitle, bio, link (in order)
-  const startIdx = imageIdx >= 0 ? imageIdx + 1 : 2;
-  const textCols = cols.slice(startIdx).filter((col) => {
-    if (col.querySelector('picture') || col.querySelector('img')) return false;
-    return col.textContent.trim().length > 0;
-  });
-
-  // Map text columns to fields in order: name, title, bio, link
-  const name = textCols[0]?.textContent.trim() || '';
-  const leaderTitle = textCols[1]?.textContent.trim() || '';
-  const bio = textCols[2]?.textContent.trim() || '';
-
-  // Link: check for <a> tag first, then fall back to text
-  const linkCol = textCols[3];
-  const linkEl = linkCol?.querySelector('a');
-  const link = linkEl?.href || linkCol?.textContent.trim() || '';
-
   return {
-    sectionName,
+    sectionName: getPropText(row, 'sectionName'),
     picture,
     imgSrc,
     imageAlt,
-    name,
-    leaderTitle,
-    bio,
-    link,
+    name: getPropText(row, 'name'),
+    leaderTitle: getPropText(row, 'leaderTitle'),
+    bio: getPropText(row, 'bio'),
+    link: getPropLink(row, 'link'),
     row,
   };
 }

@@ -1,6 +1,7 @@
 /* Leadership Header Block */
 .leadership-header {
   padding: 48px 0 32px;
+  margin-top: var(--nav-height, 64px);
 }
 
 .leadership-header-inner {
