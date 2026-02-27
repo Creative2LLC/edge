@@ -158,6 +158,10 @@ blockquote {
   margin-bottom: 0.25em;
 }
 
+main .default-content-wrapper p + p {
+  margin-top: 1.1em;
+}
+
 code,
 pre {
   font-size: var(--body-font-size-s);
