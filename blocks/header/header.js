@@ -1886,16 +1886,16 @@ export default async function decorate(block) {
   const hasHero = !!document.querySelector('main .hero');
   if (hasHero) {
     document.body.classList.add('has-hero');
-
-    const stickyScrollThreshold = 12;
-    const updateStickyState = () => {
-      const sticky = isDesktop.matches && window.scrollY > stickyScrollThreshold;
-      navWrapper.classList.toggle('is-sticky', sticky);
-    };
-
-    updateStickyState();
-    window.addEventListener('scroll', updateStickyState, { passive: true });
-    window.addEventListener('resize', updateStickyState);
-    isDesktop.addEventListener('change', updateStickyState);
   }
+
+  const stickyScrollThreshold = 12;
+  const updateStickyState = () => {
+    const sticky = isDesktop.matches && window.scrollY > stickyScrollThreshold;
+    navWrapper.classList.toggle('is-sticky', sticky);
+  };
+
+  updateStickyState();
+  window.addEventListener('scroll', updateStickyState, { passive: true });
+  window.addEventListener('resize', updateStickyState);
+  isDesktop.addEventListener('change', updateStickyState);
 }

@@ -441,40 +441,40 @@ header .nav-top-banner .top-banner-language-panel li:hover {
   color: #fff;
 }
 
-/* transparent nav over hero — desktop only */
+/* unified desktop nav styling */
 @media (width >= 900px) {
-  body.has-hero header .nav-wrapper {
+  header .nav-wrapper {
     background-color: transparent;
     transition: background 0.25s ease, backdrop-filter 0.25s ease;
   }
 
-  body.has-hero header .nav-wrapper.is-sticky {
+  header .nav-wrapper.is-sticky {
     background: linear-gradient(180deg, rgb(255 255 255 / 75%) 0%, rgb(245 245 245 / 90%) 63%, #f5f5f5 100%);
     backdrop-filter: blur(12px);
   }
 
-  body.has-hero header .nav-wrapper.is-sticky nav .nav-top-list{
+  header .nav-wrapper.is-sticky nav .nav-top-list {
     border-radius: 0 !important;
     background: none !important;
     box-shadow: none !important;
     backdrop-filter: unset !important;
   }
 
-  body.has-hero header nav .nav-sections {
+  header nav .nav-sections {
     flex: 0 1 auto;
   }
 
   /* brand — larger logo */
-  body.has-hero header .nav-brand {
+  header .nav-brand {
     flex-basis: 224px;
   }
 
-  body.has-hero header nav .nav-brand img {
+  header nav .nav-brand img {
     width: 224px;
   }
 
   /* sections — pill-shaped link container */
-  body.has-hero header nav .nav-sections .default-content-wrapper > ul {
+  header nav .nav-sections .default-content-wrapper > ul {
     background-color: rgb(255 255 255 / 64%);
     border-radius: 99px;
     height: 49px;
@@ -484,30 +484,30 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     gap: 0;
   }
 
-  body.has-hero header nav .nav-sections .default-content-wrapper > ul > li {
+  header nav .nav-sections .default-content-wrapper > ul > li {
     padding: 10px 14px;
   }
 
-  body.has-hero header nav .nav-sections .default-content-wrapper > ul > li > a {
+  header nav .nav-sections .default-content-wrapper > ul > li > a {
     font-size: 18.5px;
     font-weight: 600;
     color: #252525;
   }
 
   /* tools — styled buttons */
-  body.has-hero header nav .nav-tools {
+  header nav .nav-tools {
     display: flex;
     align-items: center;
     gap: 12px;
   }
 
-  body.has-hero header nav .nav-tools .columns > div {
+  header nav .nav-tools .columns > div {
     flex-direction: row;
     align-items: center;
     gap: 12px;
   }
 
-  body.has-hero header nav .nav-tools a.button {
+  header nav .nav-tools a.button {
     border-radius: 99px;
     padding: 10px 20px;
     font-size: 18.5px;
@@ -520,22 +520,22 @@ header .nav-top-banner .top-banner-language-panel li:hover {
   }
 
   /* button 1 — translucent white */
-  body.has-hero header nav .nav-tools a.button.nav-tool-primary {
+  header nav .nav-tools a.button.nav-tool-primary {
     background-color: rgb(255 255 255 / 82%);
     color: #121a21;
   }
 
-  body.has-hero header nav .nav-tools a.button.nav-tool-primary .icon img {
+  header nav .nav-tools a.button.nav-tool-primary .icon img {
     filter: brightness(0) saturate(100%);
   }
 
   /* button 2 — teal */
-  body.has-hero header nav .nav-tools a.button.nav-tool-accent {
+  header nav .nav-tools a.button.nav-tool-accent {
     background-color: #008eb7;
     color: #fff;
   }
 
-  body.has-hero header nav .nav-tools a.button.nav-tool-accent .icon img {
+  header nav .nav-tools a.button.nav-tool-accent .icon img {
     filter: brightness(0) invert(1);
   }
 }
