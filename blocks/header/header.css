@@ -46,7 +46,7 @@ header nav[aria-expanded='true'] {
   }
 
   .is-sticky nav {
-    margin: 25px 0 18px !important;
+    margin: 24px 0 18px !important;
     padding: 0 48px !important;
   }
 
