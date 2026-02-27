@@ -508,6 +508,66 @@
     ]
   },
   {
+    "id": "leadership-profile",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "breadcrumbParent",
+        "label": "Breadcrumb Parent Text",
+        "value": "NCMEC Leadership"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "breadcrumbParentLink",
+        "label": "Breadcrumb Parent Link",
+        "value": "/leadership"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "breadcrumbCurrent",
+        "label": "Breadcrumb Current Page",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Leader Photo",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Photo Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "name",
+        "label": "Leader Name",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "leaderTitle",
+        "label": "Leader Title/Role",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "name": "bio",
+        "label": "Biography",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
     "id": "news",
     "fields": [
       {
