@@ -2,54 +2,42 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
- * Parse a leader card row from either instrumented (Universal Editor)
- * or legacy (column-based) content.
+ * Extract image data from a column element.
+ */
+function getImageData(col) {
+  if (!col) return { picture: null, src: '', alt: '' };
+  const picture = col.querySelector('picture');
+  const img = col.querySelector('img');
+  return {
+    picture,
+    src: img?.src || '',
+    alt: img?.alt || '',
+  };
+}
+
+/**
+ * Parse a leader card row.
+ * Column order: sectionName | image | imageAlt | name | leaderTitle | bio | link
  */
 function parseLeaderRow(row) {
-  // Try instrumented fields first
-  const instrSection = row.querySelector('[data-aue-prop="sectionName"]');
-  const instrImage = row.querySelector('[data-aue-prop="image"]');
-  const instrImageAlt = row.querySelector('[data-aue-prop="imageAlt"]');
-  const instrName = row.querySelector('[data-aue-prop="name"]');
-  const instrTitle = row.querySelector('[data-aue-prop="leaderTitle"]');
-  const instrBio = row.querySelector('[data-aue-prop="bio"]');
-  const instrLink = row.querySelector('[data-aue-prop="link"]');
-
-  if (instrSection || instrName) {
-    const img = (instrImage || row).querySelector('img');
-    return {
-      sectionName: instrSection?.textContent.trim() || '',
-      picture: (instrImage || row).querySelector('picture'),
-      imgSrc: img?.src || '',
-      imageAlt: instrImageAlt?.textContent.trim() || img?.alt || '',
-      name: instrName?.textContent.trim() || '',
-      leaderTitle: instrTitle?.textContent.trim() || '',
-      bio: instrBio?.textContent.trim() || '',
-      link: instrLink?.textContent.trim() || instrLink?.querySelector('a')?.href || '',
-      row,
-    };
-  }
-
-  // Fallback: column-based layout
-  // Columns: sectionName | image | name | title | bio | link
   const cols = [...row.children];
-  if (cols.length >= 4) {
-    const img = cols[1]?.querySelector('img');
-    const linkEl = cols[5]?.querySelector('a');
-    return {
-      sectionName: cols[0]?.textContent.trim() || '',
-      picture: cols[1]?.querySelector('picture'),
-      imgSrc: img?.src || '',
-      imageAlt: img?.alt || '',
-      name: cols[2]?.textContent.trim() || '',
-      leaderTitle: cols[3]?.textContent.trim() || '',
-      bio: cols[4]?.textContent.trim() || '',
-      link: linkEl?.href || cols[5]?.textContent.trim() || '',
-      row,
-    };
-  }
+  if (cols.length < 2) return null;
 
-  return null;
+  const imageData = getImageData(cols[1]);
+  const linkCol = cols[6];
+  const linkEl = linkCol?.querySelector('a');
+
+  return {
+    sectionName: cols[0]?.textContent.trim() || '',
+    picture: imageData.picture,
+    imgSrc: imageData.src,
+    imageAlt: cols[2]?.textContent.trim() || imageData.alt,
+    name: cols[3]?.textContent.trim() || '',
+    leaderTitle: cols[4]?.textContent.trim() || '',
+    bio: cols[5]?.textContent.trim() || '',
+    link: linkEl?.href || linkCol?.textContent.trim() || '',
+    row,
+  };
 }
 
 /**
@@ -64,28 +52,21 @@ function buildLeaderCard(leader) {
   if (leader.picture || leader.imgSrc) {
     const imageWrap = document.createElement('div');
     imageWrap.className = 'leadership-team-card-image';
-    if (leader.picture) {
-      const img = leader.picture.querySelector('img');
-      if (img) {
-        const optimized = createOptimizedPicture(
-          img.src,
-          leader.imageAlt || img.alt,
-          false,
-          [{ width: '400' }],
-        );
-        moveInstrumentation(img, optimized.querySelector('img'));
-        imageWrap.appendChild(optimized);
-      } else {
-        imageWrap.appendChild(leader.picture);
-      }
-    } else {
+    const src = leader.imgSrc || leader.picture?.querySelector('img')?.src;
+    if (src) {
       const optimized = createOptimizedPicture(
-        leader.imgSrc,
+        src,
         leader.imageAlt,
         false,
         [{ width: '400' }],
       );
+      if (leader.picture) {
+        const origImg = leader.picture.querySelector('img');
+        if (origImg) moveInstrumentation(origImg, optimized.querySelector('img'));
+      }
       imageWrap.appendChild(optimized);
+    } else if (leader.picture) {
+      imageWrap.appendChild(leader.picture.cloneNode(true));
     }
     card.appendChild(imageWrap);
   }
