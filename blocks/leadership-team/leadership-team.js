@@ -2,40 +2,62 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
- * Extract image data from a column element.
- */
-function getImageData(col) {
-  if (!col) return { picture: null, src: '', alt: '' };
-  const picture = col.querySelector('picture');
-  const img = col.querySelector('img');
-  return {
-    picture,
-    src: img?.src || '',
-    alt: img?.alt || '',
-  };
-}
-
-/**
  * Parse a leader card row.
- * Column order: sectionName | image | imageAlt | name | leaderTitle | bio | link
+ * Instead of hardcoded column indices, we find the image column dynamically
+ * and collect the remaining non-empty text columns in order.
+ * This is robust against extra columns injected by the image model
+ * (e.g. imageAlt, imageLink, imageTarget).
  */
 function parseLeaderRow(row) {
   const cols = [...row.children];
   if (cols.length < 2) return null;
 
-  const imageData = getImageData(cols[1]);
-  const linkCol = cols[6];
+  // First column is always sectionName
+  const sectionName = cols[0]?.textContent.trim() || '';
+
+  // Find the image column (contains a <picture> element)
+  let imageCol = null;
+  let imageIdx = -1;
+  for (let i = 1; i < cols.length; i += 1) {
+    if (cols[i].querySelector('picture') || cols[i].querySelector('img')) {
+      imageCol = cols[i];
+      imageIdx = i;
+      break;
+    }
+  }
+
+  const picture = imageCol?.querySelector('picture') || null;
+  const img = imageCol?.querySelector('img');
+  const imgSrc = img?.src || '';
+  const imageAlt = img?.alt || '';
+
+  // Collect remaining non-empty text-only columns after the image
+  // These are: name, leaderTitle, bio, link (in order)
+  const startIdx = imageIdx >= 0 ? imageIdx + 1 : 2;
+  const textCols = cols.slice(startIdx).filter((col) => {
+    if (col.querySelector('picture') || col.querySelector('img')) return false;
+    return col.textContent.trim().length > 0;
+  });
+
+  // Map text columns to fields in order: name, title, bio, link
+  const name = textCols[0]?.textContent.trim() || '';
+  const leaderTitle = textCols[1]?.textContent.trim() || '';
+  const bio = textCols[2]?.textContent.trim() || '';
+
+  // Link: check for <a> tag first, then fall back to text
+  const linkCol = textCols[3];
   const linkEl = linkCol?.querySelector('a');
+  const link = linkEl?.href || linkCol?.textContent.trim() || '';
 
   return {
-    sectionName: cols[0]?.textContent.trim() || '',
-    picture: imageData.picture,
-    imgSrc: imageData.src,
-    imageAlt: cols[2]?.textContent.trim() || imageData.alt,
-    name: cols[3]?.textContent.trim() || '',
-    leaderTitle: cols[4]?.textContent.trim() || '',
-    bio: cols[5]?.textContent.trim() || '',
-    link: linkEl?.href || linkCol?.textContent.trim() || '',
+    sectionName,
+    picture,
+    imgSrc,
+    imageAlt,
+    name,
+    leaderTitle,
+    bio,
+    link,
     row,
   };
 }
