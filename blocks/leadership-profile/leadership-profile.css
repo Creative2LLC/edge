@@ -1,0 +1,128 @@
+/* Leadership Profile Block */
+.leadership-profile-container .leadership-profile-wrapper {
+  max-width: 1420px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.leadership-profile {
+  padding: 32px 0;
+}
+
+/* Breadcrumb */
+.leadership-profile-breadcrumb ol {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  gap: 8px;
+}
+
+.leadership-profile-breadcrumb li a {
+  font-size: 15px;
+  font-weight: 500;
+  color: #000;
+  text-decoration: none;
+}
+
+.leadership-profile-breadcrumb li a:hover {
+  text-decoration: underline;
+}
+
+.leadership-profile-breadcrumb .breadcrumb-separator {
+  display: flex;
+  align-items: center;
+}
+
+.leadership-profile-breadcrumb .breadcrumb-current span {
+  font-size: 15px;
+  font-weight: 500;
+  color: #008eb7;
+}
+
+/* Profile Content Layout */
+.leadership-profile-content {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+/* Image */
+.leadership-profile-image {
+  flex-shrink: 0;
+}
+
+.leadership-profile-image picture,
+.leadership-profile-image img {
+  display: block;
+  width: 331px;
+  height: 348px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+/* Text Content */
+.leadership-profile-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.leadership-profile-name {
+  font-size: 64px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0 0 8px;
+  line-height: 1.1;
+}
+
+.leadership-profile-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #404041;
+  margin: 0 0 24px;
+}
+
+.leadership-profile-bio {
+  max-width: 1025px;
+}
+
+.leadership-profile-bio p {
+  font-size: 17px;
+  font-weight: 500;
+  color: #404041;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.leadership-profile-bio p:last-child {
+  margin-bottom: 0;
+}
+
+/* Mobile responsive */
+@media (width <= 900px) {
+  .leadership-profile-content {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .leadership-profile-image picture,
+  .leadership-profile-image img {
+    width: 100%;
+    max-width: 331px;
+    height: auto;
+    aspect-ratio: 331 / 348;
+  }
+
+  .leadership-profile-name {
+    font-size: 40px;
+  }
+
+  .leadership-profile-title {
+    font-size: 20px;
+  }
+
+  .leadership-profile-bio p {
+    font-size: 16px;
+  }
+}

@@ -25,7 +25,8 @@
       "resources",
       "icon-text",
       "hero-footer",
-      "mega-nav"
+      "impact-chain",
+      "leadership-profile"
     ]
   },
   {
@@ -65,6 +66,12 @@
     ]
   },
   {
+    "id": "impact-chain",
+    "components": [
+      "impact-chain-item"
+    ]
+  },
+  {
     "id": "news",
     "components": [
       "news-article"
@@ -74,14 +81,6 @@
     "id": "resources",
     "components": [
       "resource-item"
-    ]
-  },
-  {
-    "id": "mega-nav",
-    "components": [
-      "mega-nav-row",
-      "mega-nav-sub-link",
-      "mega-nav-top-link"
     ]
   }
 ]

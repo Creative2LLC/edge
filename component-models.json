@@ -224,6 +224,53 @@
     ]
   },
   {
+    "id": "footer-banner",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Background Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading Text",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "logo",
+        "label": "Logo Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "logoAlt",
+        "label": "Logo Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading Text",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "fragment",
     "fields": [
       {
@@ -413,6 +460,114 @@
     ]
   },
   {
+    "id": "impact-chain",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      }
+    ]
+  },
+  {
+    "id": "impact-chain-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Description"
+      }
+    ]
+  },
+  {
+    "id": "leadership-profile",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "breadcrumbParent",
+        "label": "Breadcrumb Parent Text",
+        "value": "NCMEC Leadership"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "breadcrumbParentLink",
+        "label": "Breadcrumb Parent Link",
+        "value": "/leadership"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "breadcrumbCurrent",
+        "label": "Breadcrumb Current Page",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Leader Photo",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Photo Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "name",
+        "label": "Leader Name",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "leaderTitle",
+        "label": "Leader Title/Role",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "name": "bio",
+        "label": "Biography",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
     "id": "news",
     "fields": [
       {
@@ -522,203 +677,6 @@
         "valueType": "string",
         "name": "link",
         "label": "Learn More URL"
-      }
-    ]
-  },
-  {
-    "id": "mega-nav",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "menu_label",
-        "label": "Menu Label"
-      },
-      {
-        "component": "aem-content",
-        "name": "menu_link",
-        "label": "Menu Link"
-      }
-    ]
-  },
-  {
-    "id": "mega-nav-row",
-    "fields": [
-      {
-        "component": "select",
-        "name": "type",
-        "label": "Row Type",
-        "options": [
-          {
-            "name": "Column Item",
-            "value": "column"
-          },
-          {
-            "name": "Featured",
-            "value": "featured"
-          },
-          {
-            "name": "Footer",
-            "value": "footer"
-          }
-        ],
-        "value": "column"
-      },
-      {
-        "component": "select",
-        "name": "column",
-        "label": "Column",
-        "options": [
-          {
-            "name": "Same as previous",
-            "value": ""
-          },
-          {
-            "name": "Column 1",
-            "value": "1"
-          },
-          {
-            "name": "Column 2",
-            "value": "2"
-          },
-          {
-            "name": "Column 3",
-            "value": "3"
-          }
-        ],
-        "value": ""
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "content",
-        "label": "Content"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "buttonText",
-        "label": "Button Text (Featured only)"
-      },
-      {
-        "component": "aem-content",
-        "name": "buttonLink",
-        "label": "Button Link (Featured only)"
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "image",
-        "label": "Image (Featured only)",
-        "multi": false
-      }
-    ]
-  },
-  {
-    "id": "mega-nav-sub-link",
-    "fields": [
-      {
-        "component": "select",
-        "name": "column",
-        "label": "Column",
-        "options": [
-          {
-            "name": "Same as previous",
-            "value": ""
-          },
-          {
-            "name": "Column 1",
-            "value": "1"
-          },
-          {
-            "name": "Column 2",
-            "value": "2"
-          },
-          {
-            "name": "Column 3",
-            "value": "3"
-          }
-        ],
-        "value": ""
-      },
-      {
-        "component": "select",
-        "name": "level",
-        "label": "Level (2+ for nesting)",
-        "options": [
-          {
-            "name": "Level 2",
-            "value": "2"
-          },
-          {
-            "name": "Level 3",
-            "value": "3"
-          },
-          {
-            "name": "Level 4",
-            "value": "4"
-          }
-        ],
-        "value": "2"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "label",
-        "label": "Label"
-      },
-      {
-        "component": "aem-content",
-        "name": "link",
-        "label": "Link (leave blank for headers)"
-      }
-    ]
-  },
-  {
-    "id": "mega-nav-top-link",
-    "fields": [
-      {
-        "component": "select",
-        "name": "column",
-        "label": "Column",
-        "options": [
-          {
-            "name": "Column 1",
-            "value": "1"
-          },
-          {
-            "name": "Column 2",
-            "value": "2"
-          },
-          {
-            "name": "Column 3",
-            "value": "3"
-          }
-        ],
-        "value": "1"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "eyebrow",
-        "label": "Top Description (Optional)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "title",
-        "label": "Title"
-      },
-      {
-        "component": "aem-content",
-        "name": "link",
-        "label": "Link"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "description",
-        "label": "Description"
       }
     ]
   },
