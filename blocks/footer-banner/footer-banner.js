@@ -21,28 +21,35 @@ function buildText(tag, className, field) {
   return el;
 }
 
+function extractImage(source) {
+  if (!source) return null;
+  const picture = source.querySelector('picture');
+  const img = picture?.querySelector('img') || source.querySelector('img');
+  const src = img?.src || source.textContent?.trim();
+  if (!src) return null;
+  return { picture, img, src };
+}
+
 export default function decorate(block) {
   const imageField = getField(block, 'image');
   const headingField = getField(block, 'heading');
   const logoField = getField(block, 'logo');
   const subheadingField = getField(block, 'subheading');
 
+  /* capture image refs before any DOM changes */
+  const bgImage = extractImage(imageField.source);
+  const logoImage = extractImage(logoField.source);
+
   /* background image */
   const bgWrap = document.createElement('div');
   bgWrap.className = 'footer-banner-bg';
 
-  const picture = imageField.source?.querySelector('picture') || block.querySelector('picture');
-  if (picture) {
-    const img = picture.querySelector('img');
-    if (img) {
-      const optimized = createOptimizedPicture(img.src, img.alt || '', false, [{ width: '1800' }]);
-      moveInstrumentation(img, optimized.querySelector('img'));
-      bgWrap.append(optimized);
-    } else {
-      bgWrap.append(picture);
-    }
-    if (imageField.source) imageField.source.remove();
+  if (bgImage) {
+    const optimized = createOptimizedPicture(bgImage.src, bgImage.img?.alt || '', false, [{ width: '1800' }]);
+    if (bgImage.img) moveInstrumentation(bgImage.img, optimized.querySelector('img'));
+    bgWrap.append(optimized);
   }
+  if (imageField.source) imageField.source.remove();
 
   /* color overlay (fades at bottom) */
   const overlay = document.createElement('div');
@@ -56,23 +63,16 @@ export default function decorate(block) {
   if (heading) content.append(heading);
 
   /* logo / small image */
-  if (logoField.source) {
-    const logoPicture = logoField.source.querySelector('picture');
-    const logoImg = logoPicture?.querySelector('img') || logoField.source.querySelector('img');
-    const logoSrc = logoImg?.src || logoField.source.textContent?.trim();
-    if (logoSrc) {
-      const logoWrap = document.createElement('div');
-      logoWrap.className = 'footer-banner-logo';
-      const optimizedLogo = createOptimizedPicture(logoSrc, logoImg?.alt || '', false, [{ width: '400' }]);
-      moveInstrumentation(logoImg || logoField.source, optimizedLogo.querySelector('img') || optimizedLogo);
-      logoWrap.append(optimizedLogo);
-      moveInstrumentation(logoField.source, logoWrap);
-      logoField.source.remove();
-      content.append(logoWrap);
-    } else {
-      logoField.source.remove();
-    }
+  if (logoImage) {
+    const logoWrap = document.createElement('div');
+    logoWrap.className = 'footer-banner-logo';
+    const optimizedLogo = createOptimizedPicture(logoImage.src, logoImage.img?.alt || '', false, [{ width: '400' }]);
+    if (logoImage.img) moveInstrumentation(logoImage.img, optimizedLogo.querySelector('img') || optimizedLogo);
+    logoWrap.append(optimizedLogo);
+    if (logoField.source) moveInstrumentation(logoField.source, logoWrap);
+    content.append(logoWrap);
   }
+  if (logoField.source) logoField.source.remove();
 
   const subheading = buildText('p', 'footer-banner-subheading', subheadingField);
   if (subheading) content.append(subheading);
