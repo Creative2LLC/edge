@@ -441,19 +441,19 @@ header .nav-top-banner .top-banner-language-panel li:hover {
   color: #fff;
 }
 
-/* transparent nav over hero — desktop only */
+/* unified desktop nav styling */
 @media (width >= 900px) {
-  body.has-hero header .nav-wrapper {
+  header .nav-wrapper {
     background-color: transparent;
     transition: background 0.25s ease, backdrop-filter 0.25s ease;
   }
 
-  body.has-hero header .nav-wrapper.is-sticky {
+  header .nav-wrapper.is-sticky {
     background: linear-gradient(180deg, rgb(255 255 255 / 75%) 0%, rgb(245 245 245 / 90%) 63%, #f5f5f5 100%);
     backdrop-filter: blur(12px);
   }
 
-  body.has-hero header .nav-wrapper.is-sticky nav .nav-top-list{
+  header .nav-wrapper.is-sticky nav .nav-top-list {
     border-radius: 0 !important;
     background: none !important;
     box-shadow: none !important;
