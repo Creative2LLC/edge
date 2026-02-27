@@ -56,25 +56,22 @@ export default function decorate(block) {
   if (heading) content.append(heading);
 
   /* logo / small image */
-  const logoPicture = logoField.source?.querySelector('picture');
-  if (logoPicture) {
-    const logoImg = logoPicture.querySelector('img');
-    const logoWrap = document.createElement('div');
-    logoWrap.className = 'footer-banner-logo';
-    if (logoImg) {
-      const optimizedLogo = createOptimizedPicture(logoImg.src, logoImg.alt || '', false, [{ width: '400' }]);
-      moveInstrumentation(logoImg, optimizedLogo.querySelector('img'));
+  if (logoField.source) {
+    const logoPicture = logoField.source.querySelector('picture');
+    const logoImg = logoPicture?.querySelector('img') || logoField.source.querySelector('img');
+    const logoSrc = logoImg?.src || logoField.source.textContent?.trim();
+    if (logoSrc) {
+      const logoWrap = document.createElement('div');
+      logoWrap.className = 'footer-banner-logo';
+      const optimizedLogo = createOptimizedPicture(logoSrc, logoImg?.alt || '', false, [{ width: '400' }]);
+      moveInstrumentation(logoImg || logoField.source, optimizedLogo.querySelector('img') || optimizedLogo);
       logoWrap.append(optimizedLogo);
-    } else {
-      logoWrap.append(logoPicture);
-    }
-    if (logoField.source) {
       moveInstrumentation(logoField.source, logoWrap);
       logoField.source.remove();
+      content.append(logoWrap);
+    } else {
+      logoField.source.remove();
     }
-    content.append(logoWrap);
-  } else if (logoField.source) {
-    logoField.source.remove();
   }
 
   const subheading = buildText('p', 'footer-banner-subheading', subheadingField);
