@@ -21,13 +21,19 @@ function buildText(tag, className, field) {
   return el;
 }
 
-function extractImage(source) {
+function findPicture(source, block, exclude) {
   if (!source) return null;
-  const picture = source.querySelector('picture');
-  const img = picture?.querySelector('img') || source.querySelector('img');
-  const src = img?.src || source.textContent?.trim();
-  if (!src) return null;
-  return { picture, img, src };
+  /* check inside the data-aue-prop element */
+  let picture = source.querySelector('picture');
+  if (picture && !exclude.includes(picture)) return picture;
+  /* check parent row (EDS puts each field in its own row <div>) */
+  let parent = source.parentElement;
+  while (parent && parent !== block) {
+    picture = parent.querySelector('picture');
+    if (picture && !exclude.includes(picture)) return picture;
+    parent = parent.parentElement;
+  }
+  return null;
 }
 
 export default function decorate(block) {
@@ -36,18 +42,33 @@ export default function decorate(block) {
   const logoField = getField(block, 'logo');
   const subheadingField = getField(block, 'subheading');
 
-  /* capture image refs before any DOM changes */
-  const bgImage = extractImage(imageField.source);
-  const logoImage = extractImage(logoField.source);
+  /* snapshot all pictures before any DOM changes */
+  const allPictures = [...block.querySelectorAll('picture')];
+
+  /* resolve background picture */
+  const bgPicture = findPicture(imageField.source, block, [])
+    || allPictures[0]
+    || null;
+
+  /* resolve logo picture (exclude the one used for background) */
+  const usedPictures = bgPicture ? [bgPicture] : [];
+  const logoPic = findPicture(logoField.source, block, usedPictures)
+    || allPictures.find((p) => !usedPictures.includes(p))
+    || null;
 
   /* background image */
   const bgWrap = document.createElement('div');
   bgWrap.className = 'footer-banner-bg';
 
-  if (bgImage) {
-    const optimized = createOptimizedPicture(bgImage.src, bgImage.img?.alt || '', false, [{ width: '1800' }]);
-    if (bgImage.img) moveInstrumentation(bgImage.img, optimized.querySelector('img'));
-    bgWrap.append(optimized);
+  if (bgPicture) {
+    const img = bgPicture.querySelector('img');
+    if (img) {
+      const optimized = createOptimizedPicture(img.src, img.alt || '', false, [{ width: '1800' }]);
+      moveInstrumentation(img, optimized.querySelector('img'));
+      bgWrap.append(optimized);
+    } else {
+      bgWrap.append(bgPicture);
+    }
   }
   if (imageField.source) imageField.source.remove();
 
@@ -63,12 +84,17 @@ export default function decorate(block) {
   if (heading) content.append(heading);
 
   /* logo / small image */
-  if (logoImage) {
+  if (logoPic) {
     const logoWrap = document.createElement('div');
     logoWrap.className = 'footer-banner-logo';
-    const optimizedLogo = createOptimizedPicture(logoImage.src, logoImage.img?.alt || '', false, [{ width: '400' }]);
-    if (logoImage.img) moveInstrumentation(logoImage.img, optimizedLogo.querySelector('img') || optimizedLogo);
-    logoWrap.append(optimizedLogo);
+    const logoImg = logoPic.querySelector('img');
+    if (logoImg) {
+      const optimizedLogo = createOptimizedPicture(logoImg.src, logoImg.alt || '', false, [{ width: '400' }]);
+      moveInstrumentation(logoImg, optimizedLogo.querySelector('img') || optimizedLogo);
+      logoWrap.append(optimizedLogo);
+    } else {
+      logoWrap.append(logoPic);
+    }
     if (logoField.source) moveInstrumentation(logoField.source, logoWrap);
     content.append(logoWrap);
   }
