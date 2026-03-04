@@ -38,6 +38,47 @@
         "value": ""
       },
       {
+        "component": "select",
+        "name": "contentPosition",
+        "label": "Content Position",
+        "options": [{
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "select",
+        "name": "showBreadcrumbs",
+        "label": "Show Breadcrumbs",
+        "options": [{
+            "name": "Hide",
+            "value": "hide"
+          },
+          {
+            "name": "Show",
+            "value": "show"
+          }
+        ],
+        "value": "hide"
+      },
+      {
+        "component": "text",
+        "name": "breadcrumbs",
+        "value": "",
+        "label": "Breadcrumb Trail (use > or |)",
+        "valueType": "string"
+      },
+      {
         "component": "richtext",
         "name": "text",
         "value": "",
@@ -63,6 +104,109 @@
         "name": "textHtmlClass",
         "value": "",
         "label": "Text (HTML) Classes",
+        "valueType": "string"
+      },
+      {
+        "component": "select",
+        "name": "ctaStyle",
+        "label": "Button Style",
+        "options": [{
+            "name": "Outline",
+            "value": "outline"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "outline"
+      },
+      {
+        "component": "text",
+        "name": "cta1Text",
+        "value": "",
+        "label": "Button 1 Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "cta1Link",
+        "value": "",
+        "label": "Button 1 Link",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "cta2Text",
+        "value": "",
+        "label": "Button 2 Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "cta2Link",
+        "value": "",
+        "label": "Button 2 Link",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "cta3Text",
+        "value": "",
+        "label": "Button 3 Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "cta3Link",
+        "value": "",
+        "label": "Button 3 Link",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "sidePanelTitle",
+        "value": "",
+        "label": "Side Panel Title",
+        "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "sidePanelText",
+        "value": "",
+        "label": "Side Panel Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "sidePanelPrimaryText",
+        "value": "",
+        "label": "Side Panel Primary Button Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "sidePanelPrimaryLink",
+        "value": "",
+        "label": "Side Panel Primary Button Link",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "sidePanelSecondaryText",
+        "value": "",
+        "label": "Side Panel Secondary Link Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "sidePanelSecondaryLink",
+        "value": "",
+        "label": "Side Panel Secondary Link",
         "valueType": "string"
       }
     ]

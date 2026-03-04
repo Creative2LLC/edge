@@ -10,16 +10,42 @@ function normalizeHeight(value) {
 }
 
 function getFieldValue(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const source = block.querySelector(`[data-aue-prop="${name}"]`)
+    || block.querySelector(`[data-richtext-prop="${name}"]`);
   if (!source) return { source: null, value: '' };
   return { source, value: source.textContent.trim() };
 }
 
-function renderHtmlText(block) {
+function getLinkFieldValue(block, name) {
+  const { source, value } = getFieldValue(block, name);
+  if (!source) return { source: null, value: '', href: '' };
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  return {
+    source,
+    value,
+    href: anchor?.href || value,
+  };
+}
+
+function normalizeChoice(value, allowed, fallback) {
+  const normalized = value?.trim().toLowerCase();
+  if (!normalized || !allowed.includes(normalized)) return fallback;
+  return normalized;
+}
+
+function getDirectRow(block, element) {
+  let current = element;
+  while (current && current.parentElement && current.parentElement !== block) {
+    current = current.parentElement;
+  }
+  if (current && current.parentElement === block) return current;
+  return null;
+}
+
+function buildHtmlText(block) {
   const { source, value: html } = getFieldValue(block, 'text_html');
   if (!source) return null;
   if (!html) {
-    source.remove();
     return null;
   }
 
@@ -27,7 +53,11 @@ function renderHtmlText(block) {
   wrapper.className = 'hero-text-html';
   wrapper.innerHTML = html;
   moveInstrumentation(source, wrapper);
-  source.replaceWith(wrapper);
+  const { value: classValue } = getFieldValue(block, 'textHtmlClass');
+  if (classValue) {
+    const classes = classValue.split(/\s+/).filter(Boolean);
+    if (classes.length) wrapper.classList.add(...classes);
+  }
   return wrapper;
 }
 
@@ -47,7 +77,7 @@ function readTextColor(block) {
   const instrumented = block.querySelector('[data-aue-prop="text_color"]');
   if (instrumented) {
     rawValue = instrumented.textContent;
-    const row = instrumented.closest(':scope > div');
+    const row = getDirectRow(block, instrumented);
     if (row) {
       rowsToRemove.push(row);
     } else {
@@ -69,19 +99,6 @@ function readTextColor(block) {
   return normalizeHexColor(rawValue);
 }
 
-function applyRichtextColor(block) {
-  const color = readTextColor(block);
-  if (!color) return;
-  const header = block.querySelector('h1, h2, h3, h4, h5, h6');
-  if (header) {
-    header.style.color = color;
-    return;
-  }
-  const richtext = block.querySelector('[data-aue-prop="text"]')
-    || block.querySelector('[data-richtext-prop="text"]');
-  if (richtext) richtext.style.color = color;
-}
-
 function readHeight(block) {
   const rowsToRemove = [];
   let rawValue = null;
@@ -89,7 +106,7 @@ function readHeight(block) {
   const instrumented = block.querySelector('[data-aue-prop="height"]');
   if (instrumented) {
     rawValue = instrumented.textContent;
-    const row = instrumented.closest(':scope > div');
+    const row = getDirectRow(block, instrumented);
     if (row) {
       rowsToRemove.push(row);
     } else {
@@ -111,19 +128,318 @@ function readHeight(block) {
   return normalizeHeight(rawValue);
 }
 
-export default function decorate(block) {
-  const htmlWrapper = renderHtmlText(block);
-  if (htmlWrapper) {
-    const { source: classSource, value: classValue } = getFieldValue(block, 'textHtmlClass');
-    if (classValue) {
-      const classes = classValue.split(/\s+/).filter(Boolean);
-      if (classes.length) htmlWrapper.classList.add(...classes);
-    }
-    if (classSource) classSource.remove();
+function formatPathSegment(segment) {
+  if (!segment) return '';
+  let decoded = segment;
+  try {
+    decoded = decodeURIComponent(segment);
+  } catch (e) {
+    decoded = segment;
   }
+  const cleaned = decoded.replace(/\.html$/i, '').replace(/[-_]+/g, ' ').trim();
+  if (!cleaned) return '';
+  return cleaned.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function buildPathBreadcrumbs() {
+  const segments = window.location.pathname
+    .replace(/\/$/, '')
+    .split('/')
+    .filter(Boolean)
+    .map(formatPathSegment)
+    .filter(Boolean);
+  return segments;
+}
+
+function parseBreadcrumbTrail(value) {
+  if (!value) return [];
+  return value
+    .split(/[>|]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function buildBreadcrumbs(block) {
+  const showBreadcrumbs = normalizeChoice(
+    getFieldValue(block, 'showBreadcrumbs').value,
+    ['show', 'hide'],
+    'hide',
+  );
+  if (showBreadcrumbs !== 'show') return null;
+
+  const configuredTrail = getFieldValue(block, 'breadcrumbs').value;
+  const items = parseBreadcrumbTrail(configuredTrail);
+  const crumbs = items.length ? items : buildPathBreadcrumbs();
+  if (!crumbs.length) return null;
+
+  const nav = document.createElement('nav');
+  nav.className = 'hero-breadcrumbs';
+  nav.setAttribute('aria-label', 'Breadcrumb');
+
+  const list = document.createElement('ol');
+
+  crumbs.forEach((crumb, index) => {
+    const item = document.createElement('li');
+    if (index === crumbs.length - 1) item.classList.add('is-current');
+
+    const label = document.createElement('span');
+    label.textContent = crumb;
+    item.append(label);
+    list.append(item);
+
+    if (index < crumbs.length - 1) {
+      const separator = document.createElement('li');
+      separator.className = 'separator';
+      separator.setAttribute('aria-hidden', 'true');
+      separator.textContent = '>';
+      list.append(separator);
+    }
+  });
+
+  nav.append(list);
+  return nav;
+}
+
+function buildInstrumentedText(field, tagName, className) {
+  if (!field.source && !field.value) return null;
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  if (field.source) {
+    moveInstrumentation(field.source, element);
+    if (field.source.childNodes.length) {
+      while (field.source.firstChild) {
+        element.append(field.source.firstChild);
+      }
+    } else {
+      element.textContent = field.value;
+    }
+  } else {
+    element.textContent = field.value;
+  }
+  return element;
+}
+
+function buildMainRichText(block) {
+  const source = block.querySelector('[data-aue-prop="text"]')
+    || block.querySelector('[data-richtext-prop="text"]');
+  if (source) {
+    const richText = document.createElement('div');
+    richText.className = 'hero-richtext';
+    moveInstrumentation(source, richText);
+    while (source.firstChild) {
+      richText.append(source.firstChild);
+    }
+    if (!richText.textContent.trim()) return null;
+    return richText;
+  }
+
+  const fallback = document.createElement('div');
+  fallback.className = 'hero-richtext';
+  const fallbackNodes = [
+    ...block.querySelectorAll(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6, :scope > p'),
+  ].filter((node) => !node.hasAttribute('data-aue-prop') && !node.hasAttribute('data-richtext-prop'));
+  fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
+  if (!fallback.textContent.trim()) return null;
+  return fallback;
+}
+
+function buildActionButton(textField, linkField, style) {
+  const labelValue = textField.value || linkField.value;
+  const hrefValue = linkField.href || linkField.value;
+  if (!labelValue && !hrefValue) return null;
+
+  const button = document.createElement('a');
+  button.className = `hero-action-btn hero-action-btn-${style}`;
+  button.href = hrefValue || '#';
+
+  const label = document.createElement('span');
+  label.className = 'hero-action-label';
+  label.textContent = labelValue || hrefValue || 'Learn More';
+  if (textField.source) moveInstrumentation(textField.source, label);
+  button.append(label);
+
+  if (linkField.source) moveInstrumentation(linkField.source, button);
+  return button;
+}
+
+function buildActions(block) {
+  const buttonStyle = normalizeChoice(
+    getFieldValue(block, 'ctaStyle').value,
+    ['outline', 'solid', 'inverted'],
+    'outline',
+  );
+
+  const rows = [
+    {
+      text: getFieldValue(block, 'cta1Text'),
+      link: getLinkFieldValue(block, 'cta1Link'),
+    },
+    {
+      text: getFieldValue(block, 'cta2Text'),
+      link: getLinkFieldValue(block, 'cta2Link'),
+    },
+    {
+      text: getFieldValue(block, 'cta3Text'),
+      link: getLinkFieldValue(block, 'cta3Link'),
+    },
+  ];
+
+  const actions = document.createElement('div');
+  actions.className = 'hero-actions';
+
+  rows.forEach((row) => {
+    const button = buildActionButton(row.text, row.link, buttonStyle);
+    if (button) actions.append(button);
+  });
+
+  if (!actions.children.length) return null;
+  return actions;
+}
+
+function buildPanelButton(textField, linkField, className) {
+  const labelValue = textField.value || linkField.value;
+  const hrefValue = linkField.href || linkField.value;
+  if (!labelValue && !hrefValue) return null;
+
+  const button = document.createElement('a');
+  button.className = className;
+  button.href = hrefValue || '#';
+  button.textContent = labelValue || hrefValue || 'Learn More';
+  if (textField.source) moveInstrumentation(textField.source, button);
+  if (linkField.source) moveInstrumentation(linkField.source, button);
+  return button;
+}
+
+function buildSidePanel(block) {
+  const titleField = getFieldValue(block, 'sidePanelTitle');
+  const textField = getFieldValue(block, 'sidePanelText');
+  const primaryTextField = getFieldValue(block, 'sidePanelPrimaryText');
+  const primaryLinkField = getLinkFieldValue(block, 'sidePanelPrimaryLink');
+  const secondaryTextField = getFieldValue(block, 'sidePanelSecondaryText');
+  const secondaryLinkField = getLinkFieldValue(block, 'sidePanelSecondaryLink');
+
+  const hasPanelContent = [
+    titleField.value,
+    textField.value,
+    primaryTextField.value,
+    primaryLinkField.value,
+    secondaryTextField.value,
+    secondaryLinkField.value,
+  ].some(Boolean);
+
+  if (!hasPanelContent) return null;
+
+  const panel = document.createElement('aside');
+  panel.className = 'hero-side-panel';
+
+  const title = buildInstrumentedText(titleField, 'h3', 'hero-side-panel-title');
+  if (title) panel.append(title);
+
+  const body = buildInstrumentedText(textField, 'div', 'hero-side-panel-text');
+  if (body) panel.append(body);
+
+  const actions = document.createElement('div');
+  actions.className = 'hero-side-panel-actions';
+
+  const primaryButton = buildPanelButton(
+    primaryTextField,
+    primaryLinkField,
+    'hero-side-panel-btn hero-side-panel-btn-primary',
+  );
+  if (primaryButton) actions.append(primaryButton);
+
+  const secondaryButton = buildPanelButton(
+    secondaryTextField,
+    secondaryLinkField,
+    'hero-side-panel-btn hero-side-panel-btn-secondary',
+  );
+  if (secondaryButton) actions.append(secondaryButton);
+
+  if (actions.children.length) panel.append(actions);
+  return panel;
+}
+
+function extractPicture(block) {
+  const imageField = getFieldValue(block, 'image');
+  let picture = null;
+  if (imageField.source) {
+    picture = imageField.source.tagName === 'PICTURE'
+      ? imageField.source
+      : imageField.source.querySelector('picture');
+  }
+  if (!picture) {
+    picture = block.querySelector('picture');
+  }
+  if (!picture) return null;
+
+  if (imageField.source && imageField.source !== picture) {
+    moveInstrumentation(imageField.source, picture);
+  }
+
+  const altField = getFieldValue(block, 'imageAlt');
+  const img = picture.querySelector('img');
+  if (img) {
+    if (altField.value) img.alt = altField.value;
+    if (altField.source) moveInstrumentation(altField.source, img);
+  }
+
+  return picture;
+}
+
+function applyTextColor(main, color) {
+  if (!color) return;
+  const heading = main.querySelector('h1, h2, h3, h4, h5, h6');
+  if (heading) {
+    heading.style.color = color;
+    return;
+  }
+  const richtext = main.querySelector('.hero-richtext, .hero-text-html');
+  if (richtext) richtext.style.color = color;
+}
+
+export default function decorate(block) {
   const height = readHeight(block);
   if (height) {
     block.style.setProperty('--hero-height', height);
   }
-  applyRichtextColor(block);
+
+  const contentPosition = normalizeChoice(
+    getFieldValue(block, 'contentPosition').value,
+    ['left', 'center', 'right'],
+    'left',
+  );
+  block.classList.remove('hero-pos-left', 'hero-pos-center', 'hero-pos-right');
+  block.classList.add(`hero-pos-${contentPosition}`);
+
+  const textColor = readTextColor(block);
+  const picture = extractPicture(block);
+  const breadcrumb = buildBreadcrumbs(block);
+  const richText = buildMainRichText(block);
+  const htmlText = buildHtmlText(block);
+  const actions = buildActions(block);
+  const sidePanel = buildSidePanel(block);
+
+  const main = document.createElement('div');
+  main.className = 'hero-main';
+  if (breadcrumb) main.append(breadcrumb);
+  if (richText) main.append(richText);
+  if (htmlText) main.append(htmlText);
+  if (actions) main.append(actions);
+  applyTextColor(main, textColor);
+
+  const layout = document.createElement('div');
+  layout.className = 'hero-layout';
+  if (sidePanel) layout.classList.add('has-side-panel');
+  layout.append(main);
+  if (sidePanel) layout.append(sidePanel);
+
+  const content = document.createElement('div');
+  content.className = 'hero-content';
+  content.append(layout);
+
+  if (picture) {
+    block.replaceChildren(picture, content);
+    return;
+  }
+  block.replaceChildren(content);
 }
