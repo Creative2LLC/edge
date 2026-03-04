@@ -36,6 +36,7 @@ module.exports = {
       'mega-nav-row': 6,
       'mega-nav-top-link': 5,
       'impact-chain-item': 5,
+      'leader-card': 7,
       'leadership-profile': 8,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',

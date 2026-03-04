@@ -1,0 +1,99 @@
+{
+  "definitions": [
+    {
+      "title": "Leadership Team",
+      "id": "leadership-team",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Leadership Team",
+              "filter": "leadership-team"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Leader Card",
+      "id": "leader-card",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Leader Card",
+              "model": "leader-card"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "leader-card",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "sectionName",
+          "label": "Section Name",
+          "description": "Group name (e.g. Leadership, Board of Directors). Leaders with the same section name are grouped together.",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Leader Photo",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Photo Alt Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "leaderName",
+          "label": "Leader Name",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "leaderTitle",
+          "label": "Leader Title/Role",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bio",
+          "label": "Short Bio",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "link",
+          "label": "Bio Page URL",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "leadership-team",
+      "components": [
+        "leader-card"
+      ]
+    }
+  ]
+}

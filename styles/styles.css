@@ -129,24 +129,24 @@ h5 { font-size: var(--heading-font-size-s); }
 h6 { font-size: var(--heading-font-size-xs); }
 
 /* Title component defaults */
-.title h1,
-.title h2,
-.title h3,
-.title h4,
-.title h5,
-.title h6 {
+main .section .default-content-wrapper > h1,
+main .section .default-content-wrapper > h2,
+main .section .default-content-wrapper > h3,
+main .section .default-content-wrapper > h4,
+main .section .default-content-wrapper > h5,
+main .section .default-content-wrapper > h6 {
   margin-top: 0;
   margin-bottom: 0.35em;
   font-weight: 700;
   line-height: 1.15;
 }
 
-.title h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
-.title h2 { font-size: clamp(2rem, 4.2vw, 3.2rem); }
-.title h3 { font-size: clamp(1.7rem, 3.5vw, 2.6rem); }
-.title h4 { font-size: clamp(1.45rem, 2.8vw, 2.1rem); }
-.title h5 { font-size: clamp(1.2rem, 2.2vw, 1.75rem); }
-.title h6 { font-size: clamp(1.05rem, 1.8vw, 1.45rem); }
+main .section .default-content-wrapper > h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
+main .section .default-content-wrapper > h2 { font-size: clamp(2rem, 4.2vw, 3.2rem); }
+main .section .default-content-wrapper > h3 { font-size: clamp(1.7rem, 3.5vw, 2.6rem); }
+main .section .default-content-wrapper > h4 { font-size: clamp(1.45rem, 2.8vw, 2.1rem); }
+main .section .default-content-wrapper > h5 { font-size: clamp(1.2rem, 2.2vw, 1.75rem); }
+main .section .default-content-wrapper > h6 { font-size: clamp(1.05rem, 1.8vw, 1.45rem); }
 
 p,
 dl,
@@ -156,6 +156,10 @@ pre,
 blockquote {
   margin-top: 0.8em;
   margin-bottom: 0.25em;
+}
+
+main .default-content-wrapper p + p {
+  margin-top: 1.1em;
 }
 
 code,

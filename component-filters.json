@@ -72,6 +72,12 @@
     ]
   },
   {
+    "id": "leadership-team",
+    "components": [
+      "leader-card"
+    ]
+  },
+  {
     "id": "news",
     "components": [
       "news-article"

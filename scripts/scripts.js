@@ -72,6 +72,147 @@ function buildAutoBlocks() {
   }
 }
 
+function cleanupFieldNode(node) {
+  const row = node?.parentElement;
+  if (row && row.children?.length === 2 && row.children[1] === node) {
+    row.remove();
+  } else if (node) {
+    node.remove();
+  }
+}
+
+function getFieldValue(scope, name, resource) {
+  const resourceSelector = resource
+    ? `[data-aue-resource="${resource}"][data-aue-prop="${name}"]`
+    : null;
+  const node = (resourceSelector && document.querySelector(resourceSelector))
+    || scope.querySelector(`[data-aue-prop="${name}"]`);
+  if (!node) return { node: null, value: '', resource };
+  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
+  const value = anchor?.getAttribute('href') || node.textContent.trim();
+  const resolvedResource = resource || node.getAttribute('data-aue-resource');
+  return { node, value: value || '', resource: resolvedResource };
+}
+
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeLinkValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+function applyAnchorToImage(imageElement, href, rawTarget = '_self') {
+  if (!imageElement || !href) return;
+  const target = ['_self', '_blank', '_parent', '_top'].includes(rawTarget) ? rawTarget : '_self';
+  const existingAnchor = imageElement.closest('a');
+  const anchor = existingAnchor || document.createElement('a');
+  anchor.href = href;
+  anchor.target = target;
+  if (target === '_blank') {
+    anchor.rel = 'noopener noreferrer';
+  } else {
+    anchor.removeAttribute('rel');
+  }
+
+  if (!existingAnchor) {
+    imageElement.replaceWith(anchor);
+    anchor.append(imageElement);
+  }
+}
+
+const imageLinkCache = new Map();
+
+async function resolveImageLinkFromResource(resourcePath) {
+  if (!resourcePath) return { href: '', target: '_self' };
+  if (imageLinkCache.has(resourcePath)) return imageLinkCache.get(resourcePath);
+
+  const promise = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return { href: '', target: '_self' };
+      const data = await response.json();
+      const href = normalizeLinkValue(data.imageLink);
+      const target = normalizeLinkValue(data.imageTarget) || '_self';
+      return { href, target };
+    })
+    .catch(() => ({ href: '', target: '_self' }));
+
+  imageLinkCache.set(resourcePath, promise);
+  return promise;
+}
+
+function applyImageLinksFromAue(main) {
+  const imageNodes = main.querySelectorAll('[data-aue-prop="image"], [data-aue-model="image"]');
+  imageNodes.forEach((node) => {
+    const resource = node.getAttribute('data-aue-resource')
+      || node.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+      || '';
+    const { node: linkNode, value: href } = getFieldValue(main, 'imageLink', resource);
+    const { node: targetNode, value: rawTarget } = getFieldValue(main, 'imageTarget', resource);
+    const image = node.tagName === 'IMG' ? node : node.querySelector('img');
+    if (!image) return;
+    const imageElement = image.closest('picture') || image;
+    if (href) {
+      cleanupFieldNode(linkNode);
+      cleanupFieldNode(targetNode);
+      applyAnchorToImage(imageElement, href, rawTarget);
+      return;
+    }
+
+    const resourcePath = resourcePathFromUrn(resource);
+    if (!resourcePath) return;
+    resolveImageLinkFromResource(resourcePath).then(({ href: resolvedHref, target }) => {
+      if (!resolvedHref) return;
+      applyAnchorToImage(imageElement, resolvedHref, target);
+    });
+  });
+}
+
+function applyImageLinksFromRows(main) {
+  main.querySelectorAll('.default-content-wrapper').forEach((wrapper) => {
+    const rows = [...wrapper.querySelectorAll(':scope > div')];
+    if (!rows.length) return;
+
+    let href = '';
+    let target = '_self';
+    const rowsToRemove = [];
+    rows.forEach((row) => {
+      if (row.children.length !== 2) return;
+      const key = row.children[0].textContent.trim().toLowerCase();
+      const valueNode = row.children[1];
+      const valueText = valueNode.textContent.trim();
+      const linkAnchor = valueNode.querySelector('a');
+      if (key === 'link (optional)' || key === 'image link') {
+        href = linkAnchor?.getAttribute('href') || valueText;
+        rowsToRemove.push(row);
+      } else if (key === 'open link in' || key === 'image target') {
+        target = valueText || '_self';
+        rowsToRemove.push(row);
+      }
+    });
+
+    if (!href) return;
+    const image = wrapper.querySelector('img');
+    if (!image) return;
+    const imageElement = image.closest('picture') || image;
+    applyAnchorToImage(imageElement, href, target);
+    rowsToRemove.forEach((row) => row.remove());
+  });
+}
+
+function applyImageLinks(main) {
+  applyImageLinksFromAue(main);
+  applyImageLinksFromRows(main);
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -84,6 +225,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  applyImageLinks(main);
 }
 
 /**
