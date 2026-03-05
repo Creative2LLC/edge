@@ -71,18 +71,6 @@
     ]
   },
   {
-    "id": "hero",
-    "components": [
-      "hero-content"
-    ]
-  },
-  {
-    "id": "image-card",
-    "components": [
-      "image-card-content"
-    ]
-  },
-  {
     "id": "impact-chain",
     "components": [
       "impact-chain-item"
@@ -98,12 +86,6 @@
     "id": "news",
     "components": [
       "news-article"
-    ]
-  },
-  {
-    "id": "newsletter",
-    "components": [
-      "newsletter-content"
     ]
   },
   {

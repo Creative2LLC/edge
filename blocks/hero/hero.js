@@ -1,4 +1,4 @@
-import { moveInstrumentation } from '../../scripts/scripts.js';
+import { moveAttributes } from '../../scripts/scripts.js';
 
 function normalizeHeight(value) {
   if (!value) return null;
@@ -14,6 +14,20 @@ function getFieldValue(block, name) {
     || block.querySelector(`[data-richtext-prop="${name}"]`);
   if (!source) return { source: null, value: '' };
   return { source, value: source.textContent.trim() };
+}
+
+function moveFieldBinding(from, to) {
+  if (!from || !to) return;
+  moveAttributes(
+    from,
+    to,
+    [...from.attributes]
+      .map(({ nodeName }) => nodeName)
+      .filter((attr) => attr.startsWith('data-aue-prop')
+        || attr.startsWith('data-richtext-prop')
+        || attr === 'data-aue-label'
+        || attr.startsWith('data-richtext-')),
+  );
 }
 
 function getLinkFieldValue(block, name) {
@@ -52,7 +66,7 @@ function buildHtmlText(block) {
   const wrapper = document.createElement('div');
   wrapper.className = 'hero-text-html';
   wrapper.innerHTML = html;
-  moveInstrumentation(source, wrapper);
+  moveFieldBinding(source, wrapper);
   const { value: classValue } = getFieldValue(block, 'textHtmlClass');
   if (classValue) {
     const classes = classValue.split(/\s+/).filter(Boolean);
@@ -322,7 +336,7 @@ function buildInstrumentedText(field, tagName, className) {
   const element = document.createElement(tagName);
   if (className) element.className = className;
   if (field.source) {
-    moveInstrumentation(field.source, element);
+    moveFieldBinding(field.source, element);
     if (field.source.childNodes.length) {
       while (field.source.firstChild) {
         element.append(field.source.firstChild);
@@ -342,7 +356,7 @@ function buildMainRichText(block) {
   if (source) {
     const richText = document.createElement('div');
     richText.className = 'hero-richtext';
-    moveInstrumentation(source, richText);
+    moveFieldBinding(source, richText);
     while (source.firstChild) {
       richText.append(source.firstChild);
     }
@@ -372,10 +386,10 @@ function buildActionButton(textField, linkField, style) {
   const label = document.createElement('span');
   label.className = 'hero-action-label';
   label.textContent = labelValue || hrefValue || 'Learn More';
-  if (textField.source) moveInstrumentation(textField.source, label);
+  if (textField.source) moveFieldBinding(textField.source, label);
   button.append(label);
 
-  if (linkField.source) moveInstrumentation(linkField.source, button);
+  if (linkField.source) moveFieldBinding(linkField.source, button);
   return button;
 }
 
@@ -422,8 +436,8 @@ function buildPanelButton(textField, linkField, className) {
   button.className = className;
   button.href = hrefValue || '#';
   button.textContent = labelValue || hrefValue || 'Learn More';
-  if (textField.source) moveInstrumentation(textField.source, button);
-  if (linkField.source) moveInstrumentation(linkField.source, button);
+  if (textField.source) moveFieldBinding(textField.source, button);
+  if (linkField.source) moveFieldBinding(linkField.source, button);
   return button;
 }
 
@@ -490,14 +504,14 @@ function extractPicture(block) {
   if (!picture) return null;
 
   if (imageField.source && imageField.source !== picture) {
-    moveInstrumentation(imageField.source, picture);
+    moveFieldBinding(imageField.source, picture);
   }
 
   const altField = getFieldValue(block, 'imageAlt');
   const img = picture.querySelector('img');
   if (img) {
     if (altField.value) img.alt = altField.value;
-    if (altField.source) moveInstrumentation(altField.source, img);
+    if (altField.source) moveFieldBinding(altField.source, img);
   }
 
   return picture;

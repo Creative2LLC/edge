@@ -1,10 +1,24 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { moveInstrumentation } from '../../scripts/scripts.js';
+import { moveAttributes } from '../../scripts/scripts.js';
 
 function getField(block, name) {
   const instrumented = block.querySelector(`[data-aue-prop="${name}"]`);
   if (instrumented) return instrumented;
   return null;
+}
+
+function moveFieldBinding(from, to) {
+  if (!from || !to) return;
+  moveAttributes(
+    from,
+    to,
+    [...from.attributes]
+      .map(({ nodeName }) => nodeName)
+      .filter((attr) => attr.startsWith('data-aue-prop')
+        || attr.startsWith('data-richtext-prop')
+        || attr === 'data-aue-label'
+        || attr.startsWith('data-richtext-')),
+  );
 }
 
 function getLinkUrl(sourceEl) {
@@ -59,7 +73,9 @@ function buildBackground(block) {
     { width: '900' },
   ]);
 
-  moveInstrumentation(img, optimized.querySelector('img') || optimized);
+  const target = optimized.querySelector('img') || optimized;
+  moveFieldBinding(source, target);
+  moveFieldBinding(altSource, target);
   picture.replaceWith(optimized);
   return optimized;
 }
@@ -126,7 +142,7 @@ export default function decorate(block) {
     const h2 = document.createElement('h2');
     h2.className = 'image-card-heading';
     h2.textContent = headingText;
-    if (headingSource) moveInstrumentation(headingSource, h2);
+    if (headingSource) moveFieldBinding(headingSource, h2);
     content.append(h2);
   }
 

@@ -1,5 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { moveInstrumentation } from '../../scripts/scripts.js';
+import { moveAttributes } from '../../scripts/scripts.js';
 
 const LEGACY_LABELS = {
   heading: ['heading', 'title'],
@@ -35,12 +35,26 @@ function getField(block, legacyMap, name) {
   return legacyMap[name] || { source: null, value: '' };
 }
 
+function moveFieldBinding(from, to) {
+  if (!from || !to) return;
+  moveAttributes(
+    from,
+    to,
+    [...from.attributes]
+      .map(({ nodeName }) => nodeName)
+      .filter((attr) => attr.startsWith('data-aue-prop')
+        || attr.startsWith('data-richtext-prop')
+        || attr === 'data-aue-label'
+        || attr.startsWith('data-richtext-')),
+  );
+}
+
 function buildTextElement(tag, className, field) {
   if (!field?.value && !field?.source?.childNodes?.length) return null;
   const el = document.createElement(tag);
   el.className = className;
   if (field.source) {
-    moveInstrumentation(field.source, el);
+    moveFieldBinding(field.source, el);
     while (field.source.firstChild) el.append(field.source.firstChild);
     field.source.remove();
   } else {
@@ -86,7 +100,9 @@ function buildBackground(block) {
     { media: '(min-width: 600px)', width: '1200' },
     { width: '900' },
   ]);
-  moveInstrumentation(img, optimized.querySelector('img') || optimized);
+  const target = optimized.querySelector('img') || optimized;
+  moveFieldBinding(imageField, target);
+  moveFieldBinding(imageAltField, target);
   imageField?.remove();
   imageAltField?.remove();
   return optimized;
