@@ -71,23 +71,6 @@
     ]
   },
   {
-    "id": "hero",
-    "components": [
-      "hero-layout-settings",
-      "hero-breadcrumbs-settings",
-      "hero-action-settings",
-      "hero-action-settings-2",
-      "hero-side-panel-settings",
-      "hero-side-panel-settings-2"
-    ]
-  },
-  {
-    "id": "image-card",
-    "components": [
-      "image-card-settings"
-    ]
-  },
-  {
     "id": "impact-chain",
     "components": [
       "impact-chain-item"
@@ -103,12 +86,6 @@
     "id": "news",
     "components": [
       "news-article"
-    ]
-  },
-  {
-    "id": "newsletter",
-    "components": [
-      "newsletter-settings"
     ]
   },
   {

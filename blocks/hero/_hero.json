@@ -9,98 +9,7 @@
             "resourceType": "core/franklin/components/block/v1/block",
             "template": {
               "name": "Hero",
-              "model": "hero-content",
-              "filter": "hero"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Hero Layout Settings",
-      "id": "hero-layout-settings",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Hero Layout Settings",
-              "model": "hero-layout-settings"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Hero Breadcrumbs Settings",
-      "id": "hero-breadcrumbs-settings",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Hero Breadcrumbs Settings",
-              "model": "hero-breadcrumbs-settings"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Hero Action Settings",
-      "id": "hero-action-settings",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Hero Action Settings",
-              "model": "hero-action-settings"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Hero Action Settings 2",
-      "id": "hero-action-settings-2",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Hero Action Settings 2",
-              "model": "hero-action-settings-2"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Hero Side Panel Settings",
-      "id": "hero-side-panel-settings",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Hero Side Panel Settings",
-              "model": "hero-side-panel-settings"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Hero Side Panel Settings 2",
-      "id": "hero-side-panel-settings-2",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Hero Side Panel Settings 2",
-              "model": "hero-side-panel-settings-2"
+              "model": "hero-content"
             }
           }
         }
@@ -114,27 +23,27 @@
         {
           "component": "reference",
           "valueType": "string",
-          "name": "image",
+          "name": "media_image",
           "label": "Image",
           "multi": false
         },
         {
           "component": "text",
           "valueType": "string",
-          "name": "imageAlt",
+          "name": "media_imageAlt",
           "label": "Alt",
           "value": ""
         },
         {
-          "component": "richtext",
-          "name": "text",
-          "value": "",
-          "label": "Text",
-          "valueType": "string"
+          "component": "text",
+          "valueType": "string",
+          "name": "content_height",
+          "label": "Height (rem)",
+          "value": ""
         },
         {
           "component": "select",
-          "name": "contentPosition",
+          "name": "content_position",
           "label": "Content Position",
           "options": [
             {
@@ -151,48 +60,10 @@
             }
           ],
           "value": "left"
-        }
-      ]
-    },
-    {
-      "id": "hero-layout-settings",
-      "fields": [
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "height",
-          "label": "Height (rem)",
-          "value": ""
         },
-        {
-          "component": "text",
-          "name": "text_color",
-          "value": "",
-          "label": "Text Color (Hex)",
-          "valueType": "string"
-        },
-        {
-          "component": "text",
-          "name": "text_html",
-          "value": "",
-          "label": "Text (HTML)",
-          "valueType": "string"
-        },
-        {
-          "component": "text",
-          "name": "textHtmlClass",
-          "value": "",
-          "label": "Text (HTML) Classes",
-          "valueType": "string"
-        }
-      ]
-    },
-    {
-      "id": "hero-breadcrumbs-settings",
-      "fields": [
         {
           "component": "select",
-          "name": "showBreadcrumbs",
+          "name": "content_showBreadcrumbs",
           "label": "Show Breadcrumbs",
           "options": [
             {
@@ -208,19 +79,42 @@
         },
         {
           "component": "text",
-          "name": "breadcrumbs",
+          "name": "content_breadcrumbs",
           "value": "",
           "label": "Breadcrumb Trail (use > or |)",
           "valueType": "string"
-        }
-      ]
-    },
-    {
-      "id": "hero-action-settings",
-      "fields": [
+        },
+        {
+          "component": "richtext",
+          "name": "content_text",
+          "value": "",
+          "label": "Text",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "content_textColor",
+          "value": "",
+          "label": "Text Color (Hex)",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "content_textHtml",
+          "value": "",
+          "label": "Text (HTML)",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "content_textHtmlClass",
+          "value": "",
+          "label": "Text (HTML) Classes",
+          "valueType": "string"
+        },
         {
           "component": "select",
-          "name": "ctaStyle",
+          "name": "action_style",
           "label": "Button Style",
           "options": [
             {
@@ -240,99 +134,84 @@
         },
         {
           "component": "text",
-          "name": "cta1Text",
+          "name": "action_1Text",
           "value": "",
           "label": "Button 1 Text",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "cta1Link",
+          "name": "action_1Link",
           "value": "",
           "label": "Button 1 Link",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "cta2Text",
+          "name": "action_2Text",
           "value": "",
           "label": "Button 2 Text",
           "valueType": "string"
-        }
-      ]
-    },
-    {
-      "id": "hero-action-settings-2",
-      "fields": [
+        },
         {
           "component": "text",
-          "name": "cta2Link",
+          "name": "action_2Link",
           "value": "",
           "label": "Button 2 Link",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "cta3Text",
+          "name": "action_3Text",
           "value": "",
           "label": "Button 3 Text",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "cta3Link",
+          "name": "action_3Link",
           "value": "",
           "label": "Button 3 Link",
           "valueType": "string"
-        }
-      ]
-    },
-    {
-      "id": "hero-side-panel-settings",
-      "fields": [
+        },
         {
           "component": "text",
-          "name": "sidePanelTitle",
+          "name": "panel_title",
           "value": "",
           "label": "Side Panel Title",
           "valueType": "string"
         },
         {
           "component": "richtext",
-          "name": "sidePanelText",
+          "name": "panel_text",
           "value": "",
           "label": "Side Panel Text",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "sidePanelPrimaryText",
+          "name": "panel_primaryText",
           "value": "",
           "label": "Side Panel Primary Button Text",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "sidePanelPrimaryLink",
+          "name": "panel_primaryLink",
           "value": "",
           "label": "Side Panel Primary Button Link",
           "valueType": "string"
-        }
-      ]
-    },
-    {
-      "id": "hero-side-panel-settings-2",
-      "fields": [
+        },
         {
           "component": "text",
-          "name": "sidePanelSecondaryText",
+          "name": "panel_secondaryText",
           "value": "",
           "label": "Side Panel Secondary Link Text",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "sidePanelSecondaryLink",
+          "name": "panel_secondaryLink",
           "value": "",
           "label": "Side Panel Secondary Link",
           "valueType": "string"
@@ -340,17 +219,5 @@
       ]
     }
   ],
-  "filters": [
-    {
-      "id": "hero",
-      "components": [
-        "hero-layout-settings",
-        "hero-breadcrumbs-settings",
-        "hero-action-settings",
-        "hero-action-settings-2",
-        "hero-side-panel-settings",
-        "hero-side-panel-settings-2"
-      ]
-    }
-  ]
+  "filters": []
 }

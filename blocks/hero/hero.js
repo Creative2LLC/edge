@@ -9,11 +9,17 @@ function normalizeHeight(value) {
   return null;
 }
 
-function getFieldValue(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`)
-    || block.querySelector(`[data-richtext-prop="${name}"]`);
-  if (!source) return { source: null, value: '' };
-  return { source, value: source.textContent.trim() };
+function getFieldValue(block, nameOrNames) {
+  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
+  for (let i = 0; i < names.length; i += 1) {
+    const name = names[i];
+    const source = block.querySelector(`[data-aue-prop="${name}"]`)
+      || block.querySelector(`[data-richtext-prop="${name}"]`);
+    if (source) {
+      return { source, value: source.textContent.trim() };
+    }
+  }
+  return { source: null, value: '' };
 }
 
 function moveFieldBinding(from, to) {
@@ -57,7 +63,7 @@ function getDirectRow(block, element) {
 }
 
 function buildHtmlText(block) {
-  const { source, value: html } = getFieldValue(block, 'text_html');
+  const { source, value: html } = getFieldValue(block, ['content_textHtml', 'text_html']);
   if (!source) return null;
   if (!html) {
     return null;
@@ -67,7 +73,7 @@ function buildHtmlText(block) {
   wrapper.className = 'hero-text-html';
   wrapper.innerHTML = html;
   moveFieldBinding(source, wrapper);
-  const { value: classValue } = getFieldValue(block, 'textHtmlClass');
+  const { value: classValue } = getFieldValue(block, ['content_textHtmlClass', 'textHtmlClass']);
   if (classValue) {
     const classes = classValue.split(/\s+/).filter(Boolean);
     if (classes.length) wrapper.classList.add(...classes);
@@ -88,9 +94,10 @@ function readTextColor(block) {
   const rowsToRemove = [];
   let rawValue = null;
 
-  const instrumented = block.querySelector('[data-aue-prop="text_color"]');
+  const textColorField = getFieldValue(block, ['content_textColor', 'text_color']);
+  const instrumented = textColorField.source;
   if (instrumented) {
-    rawValue = instrumented.textContent;
+    rawValue = textColorField.value;
     const row = getDirectRow(block, instrumented);
     if (row) {
       rowsToRemove.push(row);
@@ -117,9 +124,10 @@ function readHeight(block) {
   const rowsToRemove = [];
   let rawValue = null;
 
-  const instrumented = block.querySelector('[data-aue-prop="height"]');
+  const heightField = getFieldValue(block, ['content_height', 'height']);
+  const instrumented = heightField.source;
   if (instrumented) {
-    rawValue = instrumented.textContent;
+    rawValue = heightField.value;
     const row = getDirectRow(block, instrumented);
     if (row) {
       rowsToRemove.push(row);
@@ -269,13 +277,13 @@ async function doesBreadcrumbHrefExist(href) {
 
 async function buildBreadcrumbs(block) {
   const showBreadcrumbs = normalizeChoice(
-    getFieldValue(block, 'showBreadcrumbs').value,
+    getFieldValue(block, ['content_showBreadcrumbs', 'showBreadcrumbs']).value,
     ['show', 'hide'],
     'hide',
   );
   if (showBreadcrumbs !== 'show') return null;
 
-  const configuredTrail = getFieldValue(block, 'breadcrumbs').value;
+  const configuredTrail = getFieldValue(block, ['content_breadcrumbs', 'breadcrumbs']).value;
   const parsedItems = parseBreadcrumbTrail(configuredTrail);
   const crumbs = parsedItems.length
     ? buildConfiguredBreadcrumbs(parsedItems)
@@ -351,8 +359,7 @@ function buildInstrumentedText(field, tagName, className) {
 }
 
 function buildMainRichText(block) {
-  const source = block.querySelector('[data-aue-prop="text"]')
-    || block.querySelector('[data-richtext-prop="text"]');
+  const { source } = getFieldValue(block, ['content_text', 'text']);
   if (source) {
     const richText = document.createElement('div');
     richText.className = 'hero-richtext';
@@ -395,23 +402,23 @@ function buildActionButton(textField, linkField, style) {
 
 function buildActions(block) {
   const buttonStyle = normalizeChoice(
-    getFieldValue(block, 'ctaStyle').value,
+    getFieldValue(block, ['action_style', 'ctaStyle']).value,
     ['outline', 'solid', 'inverted'],
     'outline',
   );
 
   const rows = [
     {
-      text: getFieldValue(block, 'cta1Text'),
-      link: getLinkFieldValue(block, 'cta1Link'),
+      text: getFieldValue(block, ['action_1Text', 'cta1Text']),
+      link: getLinkFieldValue(block, ['action_1Link', 'cta1Link']),
     },
     {
-      text: getFieldValue(block, 'cta2Text'),
-      link: getLinkFieldValue(block, 'cta2Link'),
+      text: getFieldValue(block, ['action_2Text', 'cta2Text']),
+      link: getLinkFieldValue(block, ['action_2Link', 'cta2Link']),
     },
     {
-      text: getFieldValue(block, 'cta3Text'),
-      link: getLinkFieldValue(block, 'cta3Link'),
+      text: getFieldValue(block, ['action_3Text', 'cta3Text']),
+      link: getLinkFieldValue(block, ['action_3Link', 'cta3Link']),
     },
   ];
 
@@ -442,12 +449,12 @@ function buildPanelButton(textField, linkField, className) {
 }
 
 function buildSidePanel(block) {
-  const titleField = getFieldValue(block, 'sidePanelTitle');
-  const textField = getFieldValue(block, 'sidePanelText');
-  const primaryTextField = getFieldValue(block, 'sidePanelPrimaryText');
-  const primaryLinkField = getLinkFieldValue(block, 'sidePanelPrimaryLink');
-  const secondaryTextField = getFieldValue(block, 'sidePanelSecondaryText');
-  const secondaryLinkField = getLinkFieldValue(block, 'sidePanelSecondaryLink');
+  const titleField = getFieldValue(block, ['panel_title', 'sidePanelTitle']);
+  const textField = getFieldValue(block, ['panel_text', 'sidePanelText']);
+  const primaryTextField = getFieldValue(block, ['panel_primaryText', 'sidePanelPrimaryText']);
+  const primaryLinkField = getLinkFieldValue(block, ['panel_primaryLink', 'sidePanelPrimaryLink']);
+  const secondaryTextField = getFieldValue(block, ['panel_secondaryText', 'sidePanelSecondaryText']);
+  const secondaryLinkField = getLinkFieldValue(block, ['panel_secondaryLink', 'sidePanelSecondaryLink']);
 
   const hasPanelContent = [
     titleField.value,
@@ -491,7 +498,7 @@ function buildSidePanel(block) {
 }
 
 function extractPicture(block) {
-  const imageField = getFieldValue(block, 'image');
+  const imageField = getFieldValue(block, ['media_image', 'image']);
   let picture = null;
   if (imageField.source) {
     picture = imageField.source.tagName === 'PICTURE'
@@ -507,7 +514,7 @@ function extractPicture(block) {
     moveFieldBinding(imageField.source, picture);
   }
 
-  const altField = getFieldValue(block, 'imageAlt');
+  const altField = getFieldValue(block, ['media_imageAlt', 'imageAlt']);
   const img = picture.querySelector('img');
   if (img) {
     if (altField.value) img.alt = altField.value;
@@ -535,7 +542,7 @@ export default async function decorate(block) {
   }
 
   const contentPosition = normalizeChoice(
-    getFieldValue(block, 'contentPosition').value,
+    getFieldValue(block, ['content_position', 'contentPosition']).value,
     ['left', 'center', 'right'],
     'left',
   );

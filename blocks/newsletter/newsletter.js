@@ -27,12 +27,17 @@ function collectLegacyFields(block) {
   return map;
 }
 
-function getField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    return { source, value: source.textContent.trim() };
+function getField(block, legacyMap, nameOrNames) {
+  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
+  for (let i = 0; i < names.length; i += 1) {
+    const name = names[i];
+    const source = block.querySelector(`[data-aue-prop="${name}"]`);
+    if (source) {
+      return { source, value: source.textContent.trim() };
+    }
   }
-  return legacyMap[name] || { source: null, value: '' };
+  const legacyName = names.find((name) => legacyMap[name]);
+  return legacyName ? legacyMap[legacyName] : { source: null, value: '' };
 }
 
 function moveFieldBinding(from, to) {
@@ -89,8 +94,10 @@ function navigateTo(url, target) {
 }
 
 function buildBackground(block) {
-  const imageField = block.querySelector('[data-aue-prop="image"]');
-  const imageAltField = block.querySelector('[data-aue-prop="imageAlt"]');
+  const imageField = block.querySelector('[data-aue-prop="media_image"]')
+    || block.querySelector('[data-aue-prop="image"]');
+  const imageAltField = block.querySelector('[data-aue-prop="media_imageAlt"]')
+    || block.querySelector('[data-aue-prop="imageAlt"]');
   const picture = imageField?.querySelector('picture') || block.querySelector('picture');
   const img = picture?.querySelector('img');
   if (!img) return null;
@@ -110,11 +117,11 @@ function buildBackground(block) {
 
 export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
-  const headingField = getField(block, legacyMap, 'heading');
-  const subheadingField = getField(block, legacyMap, 'subheading');
-  const placeholderField = getField(block, legacyMap, 'placeholder');
-  const optionsField = getField(block, legacyMap, 'options');
-  const targetField = getField(block, legacyMap, 'target');
+  const headingField = getField(block, legacyMap, ['content_heading', 'heading']);
+  const subheadingField = getField(block, legacyMap, ['content_subheading', 'subheading']);
+  const placeholderField = getField(block, legacyMap, ['form_placeholder', 'placeholder']);
+  const optionsField = getField(block, legacyMap, ['form_options', 'options']);
+  const targetField = getField(block, legacyMap, ['form_target', 'target']);
   const background = buildBackground(block);
 
   const target = targetField.value === '_blank' ? '_blank' : '_self';

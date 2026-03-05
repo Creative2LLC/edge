@@ -1,9 +1,13 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveAttributes } from '../../scripts/scripts.js';
 
-function getField(block, name) {
-  const instrumented = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (instrumented) return instrumented;
+function getField(block, nameOrNames) {
+  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
+  for (let i = 0; i < names.length; i += 1) {
+    const name = names[i];
+    const instrumented = block.querySelector(`[data-aue-prop="${name}"]`);
+    if (instrumented) return instrumented;
+  }
   return null;
 }
 
@@ -56,7 +60,7 @@ function parseLegacyFields(block) {
 }
 
 function buildBackground(block) {
-  const source = getField(block, 'image');
+  const source = getField(block, ['media_image', 'image']);
   const picture = source?.querySelector('picture')
     || block.querySelector('picture');
   if (!picture) return null;
@@ -64,7 +68,7 @@ function buildBackground(block) {
   const img = picture.querySelector('img');
   if (!img) return picture;
 
-  const altSource = getField(block, 'imageAlt');
+  const altSource = getField(block, ['media_imageAlt', 'imageAlt']);
   const alt = altSource?.textContent?.trim() || img.alt || '';
 
   const optimized = createOptimizedPicture(img.src, alt, false, [
@@ -104,11 +108,11 @@ function buildButton(text, url, variant) {
 
 export default function decorate(block) {
   /* --- gather fields --- */
-  const headingSource = getField(block, 'heading');
-  const primaryTextSource = getField(block, 'primaryButtonText');
-  const primaryLinkSource = getField(block, 'primaryButtonLink');
-  const secondaryTextSource = getField(block, 'secondaryButtonText');
-  const secondaryLinkSource = getField(block, 'secondaryButtonLink');
+  const headingSource = getField(block, ['content_heading', 'heading']);
+  const primaryTextSource = getField(block, ['primary_text', 'primaryButtonText']);
+  const primaryLinkSource = getField(block, ['primary_link', 'primaryButtonLink']);
+  const secondaryTextSource = getField(block, ['secondary_text', 'secondaryButtonText']);
+  const secondaryLinkSource = getField(block, ['secondary_link', 'secondaryButtonLink']);
 
   let headingText = headingSource?.textContent?.trim() || '';
   let primaryText = primaryTextSource?.textContent?.trim() || '';
