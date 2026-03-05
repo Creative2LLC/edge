@@ -101,8 +101,38 @@ function normalizeResourcePath(path) {
       return '';
     }
   }
+  value = value.split('#')[0].split('?')[0];
+  value = value.replace(/^\/editor\.html/, '');
+  if (value && !value.startsWith('/')) {
+    const contentIndex = value.indexOf('/content/edge/');
+    if (contentIndex >= 0) {
+      value = value.slice(contentIndex);
+    } else {
+      value = `/${value}`;
+    }
+  }
   if (!value.startsWith('/')) return '';
-  return value.replace(/(\.plain)?\.html$/, '');
+  value = value.replace(/(\.plain)?\.html$/, '');
+  return value.replace(/\/+$/, '');
+}
+
+function resolveResourcePathCandidates(path) {
+  const normalized = normalizeResourcePath(path);
+  if (!normalized) return [];
+
+  const candidates = new Set([normalized]);
+
+  if (normalized.startsWith('/content/edge/')) {
+    const stripped = normalized.replace('/content/edge', '');
+    if (stripped) candidates.add(stripped);
+  }
+
+  if (normalized.startsWith('/edge/')) {
+    const stripped = normalized.replace('/edge', '');
+    if (stripped) candidates.add(stripped);
+  }
+
+  return [...candidates].filter(Boolean);
 }
 
 function getImageData(col) {
@@ -328,32 +358,36 @@ function sortValues(values) {
 }
 
 async function loadSourceResources(path) {
-  const normalizedPath = normalizeResourcePath(path);
-  if (!normalizedPath) return [];
+  const candidates = resolveResourcePathCandidates(path);
+  if (!candidates.length) return [];
 
-  try {
-    const response = await fetch(`${normalizedPath}.plain.html`);
-    if (!response.ok) return [];
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(`${candidate}.plain.html`);
+      if (!response.ok) continue;
 
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const sourceBlock = doc.querySelector('.resources-browser.block, .resources-browser')
-      || doc.querySelector('.resources.block, .resources');
-    if (!sourceBlock) return [];
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const sourceBlock = doc.querySelector('.resources-browser.block, .resources-browser')
+        || doc.querySelector('.resources.block, .resources');
+      if (!sourceBlock) continue;
 
-    const sourceClone = sourceBlock.cloneNode(true);
-    collectLegacyBlockFields(sourceClone);
+      const sourceClone = sourceBlock.cloneNode(true);
+      collectLegacyBlockFields(sourceClone);
 
-    const rows = [...sourceClone.querySelectorAll(':scope > div')];
-    const resources = [];
-    rows.forEach((row) => {
-      const resource = parseResourceRow(row);
-      if (resource) resources.push({ data: resource, row: null });
-    });
-    return resources;
-  } catch (error) {
-    return [];
+      const rows = [...sourceClone.querySelectorAll(':scope > div')];
+      const resources = [];
+      rows.forEach((row) => {
+        const resource = parseResourceRow(row);
+        if (resource) resources.push({ data: resource, row: null });
+      });
+      return resources;
+    } catch (error) {
+      // Try next path candidate.
+    }
   }
+
+  return [];
 }
 
 function createFilterSelect(label, values) {
