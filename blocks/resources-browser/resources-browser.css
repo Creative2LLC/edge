@@ -67,6 +67,38 @@
   flex-wrap: wrap;
 }
 
+.resources-browser .resources-browser-source-debug {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e8b7a6;
+  border-radius: 8px;
+  background: #fff7f3;
+  color: #5f2d1b;
+}
+
+.resources-browser .resources-browser-source-debug summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.resources-browser .resources-browser-source-debug-text {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.resources-browser .resources-browser-source-debug-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.resources-browser .resources-browser-source-debug-list code {
+  font-size: 12px;
+}
+
 .resources-browser .resources-browser-active-filters {
   display: flex;
   align-items: center;

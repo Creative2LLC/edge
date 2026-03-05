@@ -366,18 +366,50 @@ function sortValues(values) {
 
 async function loadSourceResources(path) {
   const candidates = resolveResourcePathCandidates(path);
-  if (!candidates.length) return [];
+  if (!candidates.length) {
+    return {
+      resources: [],
+      debug: {
+        requestedPath: path,
+        candidates: [],
+        attempts: [
+          {
+            candidate: '',
+            url: '',
+            ok: false,
+            message: 'Could not normalize source path.',
+          },
+        ],
+        failed: true,
+      },
+    };
+  }
 
   const attempts = await Promise.all(candidates.map(async (candidate) => {
+    const url = `${candidate}.plain.html`;
     try {
-      const response = await fetch(`${candidate}.plain.html`);
-      if (!response.ok) return null;
+      const response = await fetch(url);
+      if (!response.ok) {
+        return {
+          candidate,
+          url,
+          ok: false,
+          message: `HTTP ${response.status}`,
+        };
+      }
 
       const html = await response.text();
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const sourceBlock = doc.querySelector('.resources-browser.block, .resources-browser')
         || doc.querySelector('.resources.block, .resources');
-      if (!sourceBlock) return null;
+      if (!sourceBlock) {
+        return {
+          candidate,
+          url,
+          ok: false,
+          message: 'No resources-browser/resources block found on source page.',
+        };
+      }
 
       const sourceClone = sourceBlock.cloneNode(true);
       collectLegacyBlockFields(sourceClone);
@@ -388,14 +420,95 @@ async function loadSourceResources(path) {
         const resource = parseResourceRow(row);
         if (resource) resources.push({ data: resource, row: null });
       });
-      return resources;
+      return {
+        candidate,
+        url,
+        ok: true,
+        message: `Loaded ${resources.length} resource item(s).`,
+        resources,
+      };
     } catch (error) {
-      return null;
+      return {
+        candidate,
+        url,
+        ok: false,
+        message: error?.message || 'Fetch failed.',
+      };
     }
   }));
 
-  const firstResolved = attempts.find((resources) => resources !== null);
-  return firstResolved || [];
+  const firstResolved = attempts.find((attempt) => attempt.ok);
+  if (firstResolved) {
+    return {
+      resources: firstResolved.resources,
+      debug: {
+        requestedPath: path,
+        candidates,
+        attempts,
+        failed: false,
+        resolvedUrl: firstResolved.url,
+      },
+    };
+  }
+
+  return {
+    resources: [],
+    debug: {
+      requestedPath: path,
+      candidates,
+      attempts,
+      failed: true,
+    },
+  };
+}
+
+function buildSourceDebugPanel(sourcePath, sourceDebug, inlineCount) {
+  const details = document.createElement('details');
+  details.className = 'resources-browser-source-debug';
+  details.open = true;
+
+  const summary = document.createElement('summary');
+  summary.textContent = 'Resources Browser Source Debug';
+  details.append(summary);
+
+  const intro = document.createElement('p');
+  intro.className = 'resources-browser-source-debug-text';
+  intro.textContent = sourceDebug.failed
+    ? `Could not load source "${sourcePath}".`
+    : `Source "${sourcePath}" loaded but returned no items.`;
+  details.append(intro);
+
+  const hint = document.createElement('p');
+  hint.className = 'resources-browser-source-debug-text';
+  hint.textContent = inlineCount > 0
+    ? `Using ${inlineCount} inline item(s) as fallback.`
+    : 'No inline fallback items were found in this block.';
+  details.append(hint);
+
+  const list = document.createElement('ul');
+  list.className = 'resources-browser-source-debug-list';
+  sourceDebug.attempts.forEach((attempt) => {
+    const item = document.createElement('li');
+    const code = document.createElement('code');
+    code.textContent = attempt.url || '(no url)';
+    item.append(code);
+
+    const status = document.createElement('span');
+    status.textContent = ` - ${attempt.message}`;
+    item.append(status);
+
+    list.append(item);
+  });
+  details.append(list);
+
+  if (sourceDebug.resolvedUrl) {
+    const resolved = document.createElement('p');
+    resolved.className = 'resources-browser-source-debug-text';
+    resolved.textContent = `Resolved URL: ${sourceDebug.resolvedUrl}`;
+    details.append(resolved);
+  }
+
+  return details;
 }
 
 function createFilterSelect(label, values) {
@@ -470,7 +583,9 @@ export default async function decorate(block) {
     if (resource) inlineResources.push({ data: resource, row });
   });
 
-  const sourceResources = await loadSourceResources(sourcePath);
+  const sourceResult = await loadSourceResources(sourcePath);
+  const sourceResources = sourceResult.resources || [];
+  const sourceDebug = sourceResult.debug;
   const resourceRows = sourceResources.length ? sourceResources : inlineResources;
   let resources = resourceRows.map(({ data, row }) => ({ data, row }));
   if (selectedIds.size) {
@@ -520,6 +635,13 @@ export default async function decorate(block) {
 
   header.append(controls);
   inner.append(header);
+
+  const shouldShowSourceDebug = sourcePath
+    && (sourceDebug?.failed || sourceResources.length === 0);
+  if (shouldShowSourceDebug) {
+    const debugPanel = buildSourceDebugPanel(sourcePath, sourceDebug, inlineResources.length);
+    inner.append(debugPanel);
+  }
 
   const meta = document.createElement('div');
   meta.className = 'resources-browser-meta';
