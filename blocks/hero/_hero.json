@@ -1,22 +1,40 @@
 {
-  "definitions": [{
-    "title": "Hero",
-    "id": "hero",
-    "plugins": {
-      "xwalk": {
-        "page": {
-          "resourceType": "core/franklin/components/block/v1/block",
-          "template": {
-            "name": "Hero",
-            "model": "hero"
+  "definitions": [
+    {
+      "title": "Hero",
+      "id": "hero",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Hero",
+              "filter": "hero"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Hero Content",
+      "id": "hero-content",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Hero Content",
+              "model": "hero-content"
+            }
           }
         }
       }
     }
-  }],
-  "models": [{
-    "id": "hero",
-    "fields": [{
+  ],
+  "models": [
+    {
+      "id": "hero-content",
+      "fields": [{
         "component": "reference",
         "valueType": "string",
         "name": "image",
@@ -210,6 +228,14 @@
         "valueType": "string"
       }
     ]
-  }],
-  "filters": []
+    }
+  ],
+  "filters": [
+    {
+      "id": "hero",
+      "components": [
+        "hero-content"
+      ]
+    }
+  ]
 }

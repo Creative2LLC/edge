@@ -30,7 +30,7 @@ module.exports = {
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', {
       '*': 4,
-      hero: 20,
+      'hero-content': 20,
       'news-article': 5,
       'resource-item': 6,
       'mega-nav-row': 6,
@@ -38,8 +38,8 @@ module.exports = {
       'impact-chain-item': 5,
       'leader-card': 7,
       'leadership-profile': 8,
-      'image-card': 7,
-      newsletter: 7,
+      'image-card-content': 7,
+      'newsletter-content': 7,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

@@ -402,7 +402,7 @@
     ]
   },
   {
-    "id": "hero",
+    "id": "hero-content",
     "fields": [
       {
         "component": "reference",
@@ -636,7 +636,7 @@
     ]
   },
   {
-    "id": "image-card",
+    "id": "image-card-content",
     "fields": [
       {
         "component": "reference",
@@ -921,7 +921,7 @@
     ]
   },
   {
-    "id": "newsletter",
+    "id": "newsletter-content",
     "fields": [
       {
         "component": "reference",
