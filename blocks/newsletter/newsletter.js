@@ -6,6 +6,7 @@ const LEGACY_LABELS = {
   subheading: ['subheading', 'subtitle', 'description'],
   placeholder: ['placeholder', 'select placeholder'],
   options: ['options', 'newsletter options'],
+  buttonText: ['button text', 'button', 'cta text', 'cta label'],
   target: ['target', 'open links in'],
 };
 
@@ -121,6 +122,7 @@ export default function decorate(block) {
   const subheadingField = getField(block, legacyMap, ['content_subheading', 'subheading']);
   const placeholderField = getField(block, legacyMap, ['form_placeholder', 'placeholder']);
   const optionsField = getField(block, legacyMap, ['form_options', 'options']);
+  const buttonTextField = getField(block, legacyMap, ['form_buttonText', 'buttonText']);
   const targetField = getField(block, legacyMap, ['form_target', 'target']);
   const background = buildBackground(block);
 
@@ -140,6 +142,7 @@ export default function decorate(block) {
   if (optionsField.source) optionsField.source.remove();
   const placeholder = placeholderField.value || 'Select a Newsletter';
   if (placeholderField.source) placeholderField.source.remove();
+  const buttonText = buttonTextField.value || 'Go';
 
   if (options.length) {
     const form = document.createElement('form');
@@ -166,18 +169,24 @@ export default function decorate(block) {
       select.append(optionEl);
     });
 
-    select.addEventListener('change', () => {
-      navigateTo(select.value, target);
-    });
-
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       navigateTo(select.value, target);
     });
 
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.className = 'newsletter-submit';
+    submit.textContent = buttonText;
+    moveFieldBinding(buttonTextField.source, submit);
+    if (buttonTextField.source) buttonTextField.source.remove();
+
     selectWrap.append(select);
     form.append(selectWrap);
+    form.append(submit);
     content.append(form);
+  } else if (buttonTextField.source) {
+    buttonTextField.source.remove();
   }
 
   const children = [];

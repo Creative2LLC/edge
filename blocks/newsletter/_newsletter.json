@@ -63,6 +63,13 @@
           "value": ""
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "form_buttonText",
+          "label": "Button Text",
+          "value": "Go"
+        },
+        {
           "component": "select",
           "name": "form_target",
           "label": "Open Links In",
