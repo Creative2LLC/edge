@@ -25,7 +25,12 @@
       "resources",
       "icon-text",
       "hero-footer",
+      "footer-banner",
+      "image-card",
+      "newsletter",
       "impact-chain",
+      "leadership-header",
+      "leadership-team",
       "leadership-profile"
     ]
   },

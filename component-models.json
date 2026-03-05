@@ -636,6 +636,56 @@
     ]
   },
   {
+    "id": "image-card",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Background Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "primaryButtonText",
+        "label": "Primary Button Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "primaryButtonLink",
+        "label": "Primary Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "secondaryButtonText",
+        "label": "Secondary Button Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "secondaryButtonLink",
+        "label": "Secondary Button Link"
+      }
+    ]
+  },
+  {
     "id": "impact-chain",
     "fields": [
       {
@@ -871,6 +921,69 @@
     ]
   },
   {
+    "id": "newsletter",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Background Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "placeholder",
+        "label": "Select Placeholder",
+        "value": "Select a Newsletter"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "options",
+        "label": "Options (Label|URL per line)",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "target",
+        "label": "Open Links In",
+        "options": [
+          {
+            "name": "Same Tab",
+            "value": "_self"
+          },
+          {
+            "name": "New Tab",
+            "value": "_blank"
+          }
+        ],
+        "value": "_self"
+      }
+    ]
+  },
+  {
     "id": "resources",
     "fields": [
       {
@@ -884,6 +997,11 @@
         "valueType": "string",
         "name": "button",
         "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
       }
     ]
   },

@@ -38,6 +38,8 @@ module.exports = {
       'impact-chain-item': 5,
       'leader-card': 7,
       'leadership-profile': 8,
+      'image-card': 7,
+      newsletter: 7,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

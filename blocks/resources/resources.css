@@ -29,6 +29,10 @@
   border: none;
   font-family: inherit;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .resources .resources-button:hover {

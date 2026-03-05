@@ -4,6 +4,7 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
   button: ['button text', 'buttontext', 'button label', 'button'],
+  buttonLink: ['button link', 'button url', 'button href'],
 };
 
 function collectLegacyBlockFields(block) {
@@ -28,6 +29,17 @@ function getBlockField(block, legacyMap, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const value = source.textContent.trim();
+    source.remove();
+    return value;
+  }
+  return legacyMap[name] || '';
+}
+
+function getBlockLinkField(block, legacyMap, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    const value = anchor?.href || source.textContent.trim();
     source.remove();
     return value;
   }
@@ -196,6 +208,7 @@ export default function decorate(block) {
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
   const buttonText = getBlockField(block, legacyMap, 'button') || 'View All Resources';
+  const buttonLink = getBlockLinkField(block, legacyMap, 'buttonLink');
 
   // Remaining rows are resource items
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -219,9 +232,11 @@ export default function decorate(block) {
     header.append(h2);
   }
 
-  const btn = document.createElement('button');
+  const btn = document.createElement(buttonLink ? 'a' : 'button');
   btn.className = 'resources-button';
   btn.textContent = buttonText;
+  if (buttonLink) btn.href = buttonLink;
+  if (!buttonLink) btn.type = 'button';
   header.append(btn);
 
   inner.append(header);
