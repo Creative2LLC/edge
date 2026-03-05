@@ -1,0 +1,142 @@
+{
+  "definitions": [
+    {
+      "title": "Resources Browser",
+      "id": "resources-browser",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Resources Browser",
+              "model": "resources-browser",
+              "filter": "resources-browser"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Resources Browser Item",
+      "id": "resources-browser-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Resources Browser Item",
+              "model": "resources-browser-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "resources-browser",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "aem-content",
+          "name": "source",
+          "label": "Source Resources Block (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "selected",
+          "label": "Selected Resource IDs (Comma/Newline)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "pageSize",
+          "label": "Items Per Page",
+          "value": "8"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "searchPlaceholder",
+          "label": "Search Placeholder",
+          "value": "Search"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "loadMoreText",
+          "label": "Load More Text",
+          "value": "Load More"
+        }
+      ]
+    },
+    {
+      "id": "resources-browser-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Resource Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Description"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "link",
+          "label": "Learn More URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "id",
+          "label": "Resource ID (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "audience",
+          "label": "Audience Tags (Comma/Newline)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "issue",
+          "label": "Issue Tags (Comma/Newline)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "type",
+          "label": "Type Tags (Comma/Newline)"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "resources-browser",
+      "components": [
+        "resources-browser-item"
+      ]
+    }
+  ]
+}

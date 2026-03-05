@@ -23,6 +23,7 @@
       "video",
       "news",
       "resources",
+      "resources-browser",
       "icon-text",
       "hero-footer",
       "footer-banner",
@@ -86,6 +87,12 @@
     "id": "news",
     "components": [
       "news-article"
+    ]
+  },
+  {
+    "id": "resources-browser",
+    "components": [
+      "resources-browser-item"
     ]
   },
   {
