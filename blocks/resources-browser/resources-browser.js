@@ -101,7 +101,9 @@ function normalizeResourcePath(path) {
       return '';
     }
   }
-  value = value.split('#')[0].split('?')[0];
+  const [withoutHash] = value.split('#');
+  const [withoutQuery] = withoutHash.split('?');
+  value = withoutQuery;
   value = value.replace(/^\/editor\.html/, '');
   if (value && !value.startsWith('/')) {
     const contentIndex = value.indexOf('/content/edge/');
@@ -361,16 +363,16 @@ async function loadSourceResources(path) {
   const candidates = resolveResourcePathCandidates(path);
   if (!candidates.length) return [];
 
-  for (const candidate of candidates) {
+  const attempts = await Promise.all(candidates.map(async (candidate) => {
     try {
       const response = await fetch(`${candidate}.plain.html`);
-      if (!response.ok) continue;
+      if (!response.ok) return null;
 
       const html = await response.text();
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const sourceBlock = doc.querySelector('.resources-browser.block, .resources-browser')
         || doc.querySelector('.resources.block, .resources');
-      if (!sourceBlock) continue;
+      if (!sourceBlock) return null;
 
       const sourceClone = sourceBlock.cloneNode(true);
       collectLegacyBlockFields(sourceClone);
@@ -383,11 +385,12 @@ async function loadSourceResources(path) {
       });
       return resources;
     } catch (error) {
-      // Try next path candidate.
+      return null;
     }
-  }
+  }));
 
-  return [];
+  const firstResolved = attempts.find((resources) => resources !== null);
+  return firstResolved || [];
 }
 
 function createFilterSelect(label, values) {
