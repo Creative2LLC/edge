@@ -139,6 +139,15 @@ function resolveResourcePathCandidates(path) {
     if (stripped) candidates.add(stripped);
   }
 
+  const contentPath = normalized.startsWith('/content/edge/')
+    ? normalized
+    : `/content/edge${
+      normalized.startsWith('/edge/')
+        ? normalized.replace('/edge', '')
+        : normalized
+    }`;
+  if (contentPath) candidates.add(contentPath);
+
   return [...candidates].filter(Boolean);
 }
 
@@ -462,10 +471,17 @@ async function loadSourceResources(path) {
   };
 }
 
-function buildSourceDebugPanel(sourcePath, sourceDebug, inlineCount) {
+function buildSourceDebugPanel(
+  sourcePath,
+  sourceDebug,
+  inlineCount,
+  sourceCount,
+  finalCount,
+  selectedIds,
+) {
   const details = document.createElement('details');
   details.className = 'resources-browser-source-debug';
-  details.open = true;
+  details.open = sourceDebug.failed || sourceCount === 0;
 
   const summary = document.createElement('summary');
   summary.textContent = 'Resources Browser Source Debug';
@@ -473,17 +489,31 @@ function buildSourceDebugPanel(sourcePath, sourceDebug, inlineCount) {
 
   const intro = document.createElement('p');
   intro.className = 'resources-browser-source-debug-text';
-  intro.textContent = sourceDebug.failed
-    ? `Could not load source "${sourcePath}".`
-    : `Source "${sourcePath}" loaded but returned no items.`;
+  if (sourceDebug.failed) {
+    intro.textContent = `Could not load source "${sourcePath}".`;
+  } else if (sourceCount === 0) {
+    intro.textContent = `Source "${sourcePath}" loaded but returned no items.`;
+  } else {
+    intro.textContent = `Source "${sourcePath}" loaded successfully.`;
+  }
   details.append(intro);
 
-  const hint = document.createElement('p');
-  hint.className = 'resources-browser-source-debug-text';
-  hint.textContent = inlineCount > 0
-    ? `Using ${inlineCount} inline item(s) as fallback.`
-    : 'No inline fallback items were found in this block.';
-  details.append(hint);
+  const summaryInfo = document.createElement('p');
+  summaryInfo.className = 'resources-browser-source-debug-text';
+  summaryInfo.textContent = `Source items: ${sourceCount}; `
+    + `inline items: ${inlineCount}; `
+    + `selected IDs: ${selectedIds.length || 0}; `
+    + `final rendered items: ${finalCount}.`;
+  details.append(summaryInfo);
+
+  if (sourceDebug.failed || sourceCount === 0) {
+    const hint = document.createElement('p');
+    hint.className = 'resources-browser-source-debug-text';
+    hint.textContent = inlineCount > 0
+      ? `Using ${inlineCount} inline item(s) as fallback.`
+      : 'No inline fallback items were found in this block.';
+    details.append(hint);
+  }
 
   const list = document.createElement('ul');
   list.className = 'resources-browser-source-debug-list';
@@ -636,10 +666,15 @@ export default async function decorate(block) {
   header.append(controls);
   inner.append(header);
 
-  const shouldShowSourceDebug = sourcePath
-    && (sourceDebug?.failed || sourceResources.length === 0);
-  if (shouldShowSourceDebug) {
-    const debugPanel = buildSourceDebugPanel(sourcePath, sourceDebug, inlineResources.length);
+  if (sourcePath) {
+    const debugPanel = buildSourceDebugPanel(
+      sourcePath,
+      sourceDebug,
+      inlineResources.length,
+      sourceResources.length,
+      resources.length,
+      [...selectedIds],
+    );
     inner.append(debugPanel);
   }
 
