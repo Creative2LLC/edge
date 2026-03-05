@@ -43,9 +43,10 @@
           "label": "Heading"
         },
         {
-          "component": "aem-content",
+          "component": "text",
+          "valueType": "string",
           "name": "source",
-          "label": "Source Resources Block (Optional)"
+          "label": "Source Resources Block Path (Optional)"
         },
         {
           "component": "text",

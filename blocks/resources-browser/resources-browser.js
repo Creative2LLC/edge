@@ -55,7 +55,12 @@ function getBlockLinkField(block, legacyMap, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    const value = anchor?.getAttribute('href') || source.textContent.trim();
+    const resourceRef = source.getAttribute('data-aue-resource')
+      || source.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+      || '';
+    const resourcePathMatch = resourceRef.match(/(\/content\/[^?]+)/);
+    const resourcePath = resourcePathMatch ? resourcePathMatch[1] : '';
+    const value = anchor?.getAttribute('href') || source.textContent.trim() || resourcePath;
     source.remove();
     return value;
   }
