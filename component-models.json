@@ -419,11 +419,11 @@
         "value": ""
       },
       {
-        "component": "text",
-        "valueType": "string",
-        "name": "height",
-        "label": "Height (rem)",
-        "value": ""
+        "component": "richtext",
+        "name": "text",
+        "value": "",
+        "label": "Text",
+        "valueType": "string"
       },
       {
         "component": "select",
@@ -444,7 +444,45 @@
           }
         ],
         "value": "left"
+      }
+    ]
+  },
+  {
+    "id": "hero-layout-settings",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "height",
+        "label": "Height (rem)",
+        "value": ""
       },
+      {
+        "component": "text",
+        "name": "text_color",
+        "value": "",
+        "label": "Text Color (Hex)",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "text_html",
+        "value": "",
+        "label": "Text (HTML)",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "textHtmlClass",
+        "value": "",
+        "label": "Text (HTML) Classes",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "hero-breadcrumbs-settings",
+    "fields": [
       {
         "component": "select",
         "name": "showBreadcrumbs",
@@ -467,35 +505,12 @@
         "value": "",
         "label": "Breadcrumb Trail (use > or |)",
         "valueType": "string"
-      },
-      {
-        "component": "richtext",
-        "name": "text",
-        "value": "",
-        "label": "Text",
-        "valueType": "string"
-      },
-      {
-        "component": "text",
-        "name": "text_color",
-        "value": "",
-        "label": "Text Color (Hex2)",
-        "valueType": "string"
-      },
-      {
-        "component": "text",
-        "name": "text_html",
-        "value": "",
-        "label": "Text (HTML2)",
-        "valueType": "string"
-      },
-      {
-        "component": "text",
-        "name": "textHtmlClass",
-        "value": "",
-        "label": "Text (HTML) Classes",
-        "valueType": "string"
-      },
+      }
+    ]
+  },
+  {
+    "id": "hero-action-settings",
+    "fields": [
       {
         "component": "select",
         "name": "ctaStyle",
@@ -536,7 +551,12 @@
         "value": "",
         "label": "Button 2 Text",
         "valueType": "string"
-      },
+      }
+    ]
+  },
+  {
+    "id": "hero-action-settings-2",
+    "fields": [
       {
         "component": "text",
         "name": "cta2Link",
@@ -557,7 +577,12 @@
         "value": "",
         "label": "Button 3 Link",
         "valueType": "string"
-      },
+      }
+    ]
+  },
+  {
+    "id": "hero-side-panel-settings",
+    "fields": [
       {
         "component": "text",
         "name": "sidePanelTitle",
@@ -585,7 +610,12 @@
         "value": "",
         "label": "Side Panel Primary Button Link",
         "valueType": "string"
-      },
+      }
+    ]
+  },
+  {
+    "id": "hero-side-panel-settings-2",
+    "fields": [
       {
         "component": "text",
         "name": "sidePanelSecondaryText",
@@ -648,13 +678,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "imageAlt",
-        "label": "Image Alt Text",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "heading",
         "label": "Heading",
         "value": ""
@@ -670,6 +693,18 @@
         "component": "aem-content",
         "name": "primaryButtonLink",
         "label": "Primary Button Link"
+      }
+    ]
+  },
+  {
+    "id": "image-card-settings",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       },
       {
         "component": "text",
@@ -933,13 +968,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "imageAlt",
-        "label": "Image Alt Text",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "heading",
         "label": "Heading",
         "value": ""
@@ -954,16 +982,28 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "placeholder",
-        "label": "Select Placeholder",
-        "value": "Select a Newsletter"
+        "name": "options",
+        "label": "Options (Label|URL per line)",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "newsletter-settings",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "options",
-        "label": "Options (Label|URL per line)",
-        "value": ""
+        "name": "placeholder",
+        "label": "Select Placeholder",
+        "value": "Select a Newsletter"
       },
       {
         "component": "select",
