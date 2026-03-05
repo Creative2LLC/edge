@@ -141,25 +141,119 @@ function formatPathSegment(segment) {
   return cleaned.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function buildPathBreadcrumbs() {
-  const segments = window.location.pathname
+function getCurrentPathSegments() {
+  return window.location.pathname
     .replace(/\/$/, '')
     .split('/')
-    .filter(Boolean)
-    .map(formatPathSegment)
     .filter(Boolean);
-  return segments;
+}
+
+function buildCrumbHref(pathSegments, index) {
+  if (index < 0 || index >= pathSegments.length) return '';
+  return `/${pathSegments.slice(0, index + 1).join('/')}`;
+}
+
+function buildPathBreadcrumbs() {
+  const pathSegments = getCurrentPathSegments();
+  return pathSegments
+    .map((segment, index) => ({
+      label: formatPathSegment(segment),
+      href: index < pathSegments.length - 1 ? buildCrumbHref(pathSegments, index) : '',
+    }))
+    .filter((crumb) => crumb.label);
+}
+
+function parseTrailItem(item) {
+  if (!item) return null;
+  const [labelPart, hrefPart] = item.split('::').map((part) => part.trim());
+  if (!labelPart) return null;
+  return {
+    label: labelPart,
+    href: hrefPart || '',
+  };
 }
 
 function parseBreadcrumbTrail(value) {
   if (!value) return [];
   return value
     .split(/[>|]/)
-    .map((item) => item.trim())
+    .map((item) => parseTrailItem(item.trim()))
     .filter(Boolean);
 }
 
-function buildBreadcrumbs(block) {
+function buildConfiguredBreadcrumbs(items) {
+  const pathSegments = getCurrentPathSegments();
+  return items.map((item, index) => {
+    if (item.href) return item;
+    if (index >= items.length - 1) return item;
+    if (index >= pathSegments.length) return item;
+    return {
+      ...item,
+      href: buildCrumbHref(pathSegments, index),
+    };
+  });
+}
+
+function normalizeBreadcrumbHref(href) {
+  if (!href) return '';
+  try {
+    const url = new URL(href, window.location.origin);
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch (e) {
+    return '';
+  }
+}
+
+const breadcrumbHrefExistsCache = new Map();
+
+async function probeBreadcrumbUrl(url) {
+  try {
+    const headResponse = await fetch(url, { method: 'HEAD' });
+    if (headResponse.ok) return true;
+    if (headResponse.status === 405 || headResponse.status === 501) {
+      const getResponse = await fetch(url, { method: 'GET' });
+      return getResponse.ok;
+    }
+  } catch (e) {
+    // Ignore network/probe failures and treat as unresolved.
+  }
+  return false;
+}
+
+async function doesBreadcrumbHrefExist(href) {
+  const normalizedHref = normalizeBreadcrumbHref(href);
+  if (!normalizedHref) return false;
+
+  const absolute = new URL(normalizedHref, window.location.origin);
+  const cacheKey = absolute.toString();
+  if (breadcrumbHrefExistsCache.has(cacheKey)) {
+    return breadcrumbHrefExistsCache.get(cacheKey);
+  }
+
+  const basePath = absolute.pathname.replace(/\/$/, '');
+  const candidates = new Set([
+    absolute.toString(),
+  ]);
+
+  if (!absolute.pathname.endsWith('/')) {
+    const withSlash = new URL(`${absolute.pathname}/${absolute.search}${absolute.hash}`, absolute.origin);
+    candidates.add(withSlash.toString());
+  }
+
+  if (basePath && !basePath.endsWith('.html')) {
+    const withHtml = new URL(`${basePath}.html${absolute.search}${absolute.hash}`, absolute.origin);
+    candidates.add(withHtml.toString());
+  }
+
+  const checks = await Promise.all(
+    [...candidates].map((candidate) => probeBreadcrumbUrl(candidate)),
+  );
+  const exists = checks.some(Boolean);
+  breadcrumbHrefExistsCache.set(cacheKey, exists);
+  return exists;
+}
+
+async function buildBreadcrumbs(block) {
   const showBreadcrumbs = normalizeChoice(
     getFieldValue(block, 'showBreadcrumbs').value,
     ['show', 'hide'],
@@ -168,9 +262,24 @@ function buildBreadcrumbs(block) {
   if (showBreadcrumbs !== 'show') return null;
 
   const configuredTrail = getFieldValue(block, 'breadcrumbs').value;
-  const items = parseBreadcrumbTrail(configuredTrail);
-  const crumbs = items.length ? items : buildPathBreadcrumbs();
+  const parsedItems = parseBreadcrumbTrail(configuredTrail);
+  const crumbs = parsedItems.length
+    ? buildConfiguredBreadcrumbs(parsedItems)
+    : buildPathBreadcrumbs();
   if (!crumbs.length) return null;
+
+  const resolvedCrumbs = crumbs.map((crumb, index) => ({
+    label: crumb.label,
+    href: normalizeBreadcrumbHref(crumb.href),
+    isCurrent: index === crumbs.length - 1,
+  }));
+
+  const availableHrefs = await Promise.all(
+    resolvedCrumbs.map((crumb) => {
+      if (crumb.isCurrent || !crumb.href) return Promise.resolve(false);
+      return doesBreadcrumbHrefExist(crumb.href);
+    }),
+  );
 
   const nav = document.createElement('nav');
   nav.className = 'hero-breadcrumbs';
@@ -178,16 +287,24 @@ function buildBreadcrumbs(block) {
 
   const list = document.createElement('ol');
 
-  crumbs.forEach((crumb, index) => {
+  resolvedCrumbs.forEach((crumb, index) => {
     const item = document.createElement('li');
-    if (index === crumbs.length - 1) item.classList.add('is-current');
+    if (crumb.isCurrent) item.classList.add('is-current');
 
-    const label = document.createElement('span');
-    label.textContent = crumb;
-    item.append(label);
+    const shouldLink = !crumb.isCurrent && availableHrefs[index] && crumb.href;
+    if (shouldLink) {
+      const link = document.createElement('a');
+      link.href = crumb.href;
+      link.textContent = crumb.label;
+      item.append(link);
+    } else {
+      const label = document.createElement('span');
+      label.textContent = crumb.label;
+      item.append(label);
+    }
     list.append(item);
 
-    if (index < crumbs.length - 1) {
+    if (index < resolvedCrumbs.length - 1) {
       const separator = document.createElement('li');
       separator.className = 'separator';
       separator.setAttribute('aria-hidden', 'true');
@@ -397,7 +514,7 @@ function applyTextColor(main, color) {
   if (richtext) richtext.style.color = color;
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
   const height = readHeight(block);
   if (height) {
     block.style.setProperty('--hero-height', height);
@@ -413,7 +530,7 @@ export default function decorate(block) {
 
   const textColor = readTextColor(block);
   const picture = extractPicture(block);
-  const breadcrumb = buildBreadcrumbs(block);
+  const breadcrumb = await buildBreadcrumbs(block);
   const richText = buildMainRichText(block);
   const htmlText = buildHtmlText(block);
   const actions = buildActions(block);
