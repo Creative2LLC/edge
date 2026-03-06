@@ -3,7 +3,14 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
-  source: ['source', 'resource source', 'resources source', 'library source'],
+  source: [
+    'source',
+    'resource source',
+    'resources source',
+    'library source',
+    'source resources block path',
+    'source resources block path optional',
+  ],
   selected: ['selected', 'selected ids', 'resource ids', 'selected resources'],
   pageSize: ['page size', 'items per page', 'limit', 'initial count'],
   searchPlaceholder: ['search placeholder', 'placeholder'],
@@ -30,7 +37,8 @@ function collectLegacyBlockFields(block) {
     const key = row.children[0].textContent.trim().toLowerCase();
     const valueEl = row.children[1];
     Object.entries(LEGACY_BLOCK_LABELS).some(([name, labels]) => {
-      if (!labels.includes(key)) return false;
+      const matched = labels.some((label) => key === label || key.includes(label));
+      if (!matched) return false;
       const anchor = valueEl.querySelector('a');
       map[name] = anchor?.getAttribute('href') || valueEl.textContent.trim();
       rowsToRemove.push(row);
@@ -597,6 +605,7 @@ function createChip(label, onRemove) {
 }
 
 export default async function decorate(block) {
+  const isAuthorHost = window.location.hostname.includes('adobeaemcloud.com');
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
   const sourcePath = getBlockLinkField(block, legacyMap, 'source');
@@ -666,9 +675,9 @@ export default async function decorate(block) {
   header.append(controls);
   inner.append(header);
 
-  if (sourcePath) {
+  if (sourcePath || isAuthorHost) {
     const debugPanel = buildSourceDebugPanel(
-      sourcePath,
+      sourcePath || '(empty)',
       sourceDebug,
       inlineResources.length,
       sourceResources.length,
