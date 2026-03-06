@@ -75,6 +75,39 @@ function getBlockLinkField(block, legacyMap, name) {
   return legacyMap[name] || '';
 }
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+async function getBlockFieldFromResourceJson(block, name) {
+  const resource = block.getAttribute('data-aue-resource')
+    || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    return normalizeJsonFieldValue(data[name]);
+  } catch (error) {
+    return '';
+  }
+}
+
 function normalizeToken(value) {
   return `${value || ''}`.trim().toLowerCase();
 }
@@ -608,8 +641,14 @@ export default async function decorate(block) {
   const isAuthorHost = window.location.hostname.includes('adobeaemcloud.com');
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
-  const sourcePath = getBlockLinkField(block, legacyMap, 'source');
-  const selectedField = getBlockField(block, legacyMap, 'selected');
+  let sourcePath = getBlockLinkField(block, legacyMap, 'source');
+  if (!sourcePath) {
+    sourcePath = await getBlockFieldFromResourceJson(block, 'source');
+  }
+  let selectedField = getBlockField(block, legacyMap, 'selected');
+  if (!selectedField) {
+    selectedField = await getBlockFieldFromResourceJson(block, 'selected');
+  }
   const selectedIds = new Set(parseList(selectedField).map((id) => normalizeToken(id)));
   const pageSize = parseIntSafe(getBlockField(block, legacyMap, 'pageSize'), 8);
   const searchPlaceholder = getBlockField(block, legacyMap, 'searchPlaceholder') || 'Search';
