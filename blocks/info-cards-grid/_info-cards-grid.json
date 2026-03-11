@@ -103,6 +103,13 @@
           "name": "buttonBackgroundColor",
           "label": "Button Background Color (Hex)",
           "description": "Leave empty for transparent button with white border"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconColor",
+          "label": "Icon Color (Hex)",
+          "description": "Defaults to white (#ffffff) if left empty"
         }
       ]
     }

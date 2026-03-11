@@ -1,52 +1,152 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-function getPropText(row, prop) {
-  const el = row.querySelector(`[data-aue-prop="${prop}"]`);
-  return el?.textContent.trim() || '';
-}
-
-function getPropElement(row, prop) {
-  return row.querySelector(`[data-aue-prop="${prop}"]`) || null;
-}
-
-function getPropLink(row, prop) {
-  const el = row.querySelector(`[data-aue-prop="${prop}"]`);
-  if (!el) return '';
-  const a = el.querySelector('a');
-  return a?.href || el.textContent.trim();
-}
-
-function parseCardRow(row) {
+/**
+ * Get a field value by data-aue-prop first, then fall back to column index.
+ */
+function getField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, value: source.textContent.trim() };
   const cols = [...row.children];
-  if (cols.length < 2) return null;
+  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
+  return { source: null, value: '' };
+}
 
-  // Find image column
-  let imgCol = null;
-  for (let i = 0; i < cols.length; i += 1) {
-    if (cols[i].querySelector('picture') || cols[i].querySelector('img')) {
-      imgCol = cols[i];
-      break;
+/**
+ * Get a link field — checks for <a> inside.
+ */
+function getLinkField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
+  }
+  const cols = [...row.children];
+  if (cols[index]) {
+    const anchor = cols[index].querySelector('a');
+    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
+  }
+  return { source: null, value: '' };
+}
+
+/**
+ * Get a richtext/element field — returns the source element for moving children.
+ */
+function getRichField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return source;
+  const cols = [...row.children];
+  return cols[index] || null;
+}
+
+/**
+ * Get an image field.
+ */
+function getImageField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
+    return { source, img };
+  }
+  const cols = [...row.children];
+  if (cols[index]) {
+    const img = cols[index].querySelector('img');
+    return { source: null, img: img || null };
+  }
+  return { source: null, img: null };
+}
+
+function buildTitle(content, data) {
+  if (data.titleField.value || data.titleField.source) {
+    const h3 = document.createElement('h3');
+    h3.className = 'info-cards-grid-card-title';
+    if (data.titleField.source) {
+      moveInstrumentation(data.titleField.source, h3);
+      while (data.titleField.source.firstChild) h3.append(data.titleField.source.firstChild);
+    } else {
+      h3.textContent = data.titleField.value;
     }
+    content.append(h3);
+  }
+}
+
+function buildSubtitle(content, data) {
+  if (data.subtitleField.value || data.subtitleField.source) {
+    const p = document.createElement('p');
+    p.className = 'info-cards-grid-card-subtitle';
+    if (data.subtitleField.source) {
+      moveInstrumentation(data.subtitleField.source, p);
+      while (data.subtitleField.source.firstChild) p.append(data.subtitleField.source.firstChild);
+    } else {
+      p.textContent = data.subtitleField.value;
+    }
+    content.append(p);
+  }
+}
+
+function buildBody(content, data) {
+  if (data.bodySource) {
+    const body = document.createElement('div');
+    body.className = 'info-cards-grid-card-body';
+    moveInstrumentation(data.bodySource, body);
+    while (data.bodySource.firstChild) body.append(data.bodySource.firstChild);
+    content.append(body);
+  }
+}
+
+function buildButton(card, data, cardBg) {
+  const btnLabel = data.buttonTextField.value || 'Learn More';
+  const btnHref = data.buttonLinkField.value;
+  const btn = document.createElement(btnHref ? 'a' : 'button');
+  btn.className = 'info-cards-grid-card-button';
+  btn.textContent = btnLabel;
+  if (btnHref) btn.href = btnHref;
+  if (!btnHref) btn.type = 'button';
+  if (data.buttonTextField.source) {
+    moveInstrumentation(data.buttonTextField.source, btn);
   }
 
-  const iconImg = imgCol?.querySelector('img') || null;
-  const iconSource = getPropElement(row, 'icon') || imgCol;
+  if (data.buttonBg) {
+    btn.style.setProperty('background-color', data.buttonBg, 'important');
+    btn.style.setProperty('color', cardBg, 'important');
+    btn.style.setProperty('border', 'none', 'important');
+  } else {
+    btn.style.setProperty('background-color', cardBg, 'important');
+    btn.style.setProperty('color', '#ffffff', 'important');
+    btn.style.setProperty('border', '2px solid #ffffff', 'important');
+  }
 
-  return {
-    iconImg,
-    iconSource,
-    title: getPropText(row, 'title'),
-    titleSource: getPropElement(row, 'title'),
-    subtitle: getPropText(row, 'subtitle'),
-    subtitleSource: getPropElement(row, 'subtitle'),
-    bodySource: getPropElement(row, 'bodyContent'),
-    buttonText: getPropText(row, 'buttonText'),
-    buttonTextSource: getPropElement(row, 'buttonText'),
-    buttonLink: getPropLink(row, 'buttonLink'),
-    cardBg: getPropText(row, 'cardBackgroundColor'),
-    buttonBg: getPropText(row, 'buttonBackgroundColor'),
-    row,
-  };
+  card.append(btn);
+}
+
+function buildIcon(content, data) {
+  if (!data.iconField.img) return;
+
+  const iconColor = data.iconColor || '#ffffff';
+  const isWhite = iconColor.toLowerCase() === '#ffffff'
+    || iconColor.toLowerCase() === '#fff'
+    || iconColor.toLowerCase() === 'white';
+
+  if (isWhite) {
+    // White icon — use brightness invert filter on the img directly
+    const img = data.iconField.img.cloneNode(true);
+    img.className = 'info-cards-grid-card-icon';
+    if (data.iconField.source) moveInstrumentation(data.iconField.source, img);
+    img.style.setProperty('filter', 'brightness(0) invert(1)', 'important');
+    content.append(img);
+  } else {
+    // Custom color — use CSS mask with a colored div
+    const wrap = document.createElement('div');
+    wrap.className = 'info-cards-grid-card-icon-wrap';
+    wrap.style.setProperty('background-color', iconColor, 'important');
+    wrap.style.setProperty('-webkit-mask-image', `url(${data.iconField.img.src})`, 'important');
+    wrap.style.setProperty('mask-image', `url(${data.iconField.img.src})`, 'important');
+    wrap.style.setProperty('-webkit-mask-size', 'contain', 'important');
+    wrap.style.setProperty('mask-size', 'contain', 'important');
+    wrap.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
+    wrap.style.setProperty('mask-repeat', 'no-repeat', 'important');
+    if (data.iconField.source) moveInstrumentation(data.iconField.source, wrap);
+    content.append(wrap);
+  }
 }
 
 function buildCard(data) {
@@ -61,77 +161,13 @@ function buildCard(data) {
   const content = document.createElement('div');
   content.className = 'info-cards-grid-card-content';
 
-  // Icon
-  if (data.iconImg) {
-    const img = data.iconImg.cloneNode(true);
-    img.className = 'info-cards-grid-card-icon';
-    if (data.iconSource) moveInstrumentation(data.iconSource, img);
-    content.append(img);
-  }
-
-  // Title
-  if (data.title || data.titleSource) {
-    const h3 = document.createElement('h3');
-    h3.className = 'info-cards-grid-card-title';
-    if (data.titleSource) {
-      moveInstrumentation(data.titleSource, h3);
-      while (data.titleSource.firstChild) h3.append(data.titleSource.firstChild);
-    } else {
-      h3.textContent = data.title;
-    }
-    content.append(h3);
-  }
-
-  // Subtitle
-  if (data.subtitle || data.subtitleSource) {
-    const p = document.createElement('p');
-    p.className = 'info-cards-grid-card-subtitle';
-    if (data.subtitleSource) {
-      moveInstrumentation(data.subtitleSource, p);
-      while (data.subtitleSource.firstChild) p.append(data.subtitleSource.firstChild);
-    } else {
-      p.textContent = data.subtitle;
-    }
-    content.append(p);
-  }
-
-  // Body content (richtext — could be paragraph, ul, or ol)
-  if (data.bodySource) {
-    const body = document.createElement('div');
-    body.className = 'info-cards-grid-card-body';
-    moveInstrumentation(data.bodySource, body);
-    while (data.bodySource.firstChild) body.append(data.bodySource.firstChild);
-    content.append(body);
-  }
+  buildIcon(content, data);
+  buildTitle(content, data);
+  buildSubtitle(content, data);
+  buildBody(content, data);
 
   card.append(content);
-
-  // Button
-  const btnLabel = data.buttonText || 'Learn More';
-  const btnHref = data.buttonLink;
-  const btn = document.createElement(btnHref ? 'a' : 'button');
-  btn.className = 'info-cards-grid-card-button';
-  btn.textContent = btnLabel;
-  if (btnHref) btn.href = btnHref;
-  if (!btnHref) btn.type = 'button';
-  if (data.buttonTextSource) {
-    moveInstrumentation(data.buttonTextSource, btn);
-  }
-
-  if (data.buttonBg) {
-    // User provided a button background color
-    btn.style.setProperty('background-color', data.buttonBg, 'important');
-    // Button text color = card background color
-    btn.style.setProperty('color', cardBg, 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  } else {
-    // No button background — transparent with white border
-    btn.style.setProperty('background-color', cardBg, 'important');
-    btn.style.setProperty('color', '#ffffff', 'important');
-    btn.style.setProperty('border', '2px solid #ffffff', 'important');
-  }
-
-  card.append(btn);
+  buildButton(card, data, cardBg);
 
   return card;
 }
@@ -144,11 +180,37 @@ export default function decorate(block) {
   const columnsValue = columnsEl?.textContent.trim() || '3';
   const columns = parseInt(columnsValue, 10) || 3;
 
-  // Parse card rows
+  // Field index mapping for child items:
+  // 0: icon, 1: title, 2: subtitle, 3: bodyContent,
+  // 4: buttonText, 5: buttonLink, 6: cardBackgroundColor,
+  // 7: buttonBackgroundColor, 8: iconColor
   const cards = [];
   rows.forEach((row) => {
-    const card = parseCardRow(row);
-    if (card) cards.push(card);
+    const cols = [...row.children];
+    if (cols.length < 2) return;
+
+    const iconField = getImageField(row, 'icon', 0);
+    const titleField = getField(row, 'title', 1);
+    const subtitleField = getField(row, 'subtitle', 2);
+    const bodySource = getRichField(row, 'bodyContent', 3);
+    const buttonTextField = getField(row, 'buttonText', 4);
+    const buttonLinkField = getLinkField(row, 'buttonLink', 5);
+    const cardBgField = getField(row, 'cardBackgroundColor', 6);
+    const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
+    const iconColorField = getField(row, 'iconColor', 8);
+
+    cards.push({
+      iconField,
+      titleField,
+      subtitleField,
+      bodySource,
+      buttonTextField,
+      buttonLinkField,
+      cardBg: cardBgField.value,
+      buttonBg: buttonBgField.value,
+      iconColor: iconColorField.value,
+      row,
+    });
   });
 
   // Build grid
