@@ -1,16 +1,23 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-function getField(block, name) {
+function getField(block, rows, name, index) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
+  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
   return { source: null, value: '' };
 }
 
-function getLinkField(block, name) {
+function getLinkField(block, rows, name, index) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return { source: null, value: '' };
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return { source, value: anchor?.href || source.textContent.trim() };
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
+  }
+  if (rows[index]) {
+    const anchor = rows[index].querySelector('a');
+    return { source: null, value: anchor?.href || rows[index].textContent.trim() };
+  }
+  return { source: null, value: '' };
 }
 
 function buildTextElement(tag, className, field) {
@@ -28,29 +35,22 @@ function buildTextElement(tag, className, field) {
 }
 
 export default function decorate(block) {
-  const titleField = getField(block, 'title');
-  const subtitleField = getField(block, 'subtitle');
-  const gradientLeftField = getField(block, 'gradientLeft');
-  const gradientRightField = getField(block, 'gradientRight');
-  const buttonTextField = getField(block, 'buttonText');
-  const buttonLinkField = getLinkField(block, 'buttonLink');
-  const buttonColorField = getField(block, 'buttonColor');
-  const buttonTextColorField = getField(block, 'buttonTextColor');
-  const belowButtonTextField = getField(block, 'belowButtonText');
+  const rows = [...block.querySelectorAll(':scope > div')];
+
+  const titleField = getField(block, rows, 'title', 0);
+  const subtitleField = getField(block, rows, 'subtitle', 1);
+  const gradientLeftField = getField(block, rows, 'gradientLeft', 2);
+  const gradientRightField = getField(block, rows, 'gradientRight', 3);
+  const buttonTextField = getField(block, rows, 'buttonText', 4);
+  const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
+  const buttonColorField = getField(block, rows, 'buttonColor', 6);
+  const buttonTextColorField = getField(block, rows, 'buttonTextColor', 7);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 8);
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';
   const rightColor = gradientRightField.value || '#ffffff';
   block.style.setProperty('background', `linear-gradient(to right, ${leftColor}, ${rightColor})`, 'important');
-
-  // Clean up source elements for non-visible fields
-  [gradientLeftField, gradientRightField, buttonColorField, buttonTextColorField].forEach((f) => {
-    if (f.source) {
-      const row = f.source.closest('.cta-card-1 > div');
-      if (row) row.remove();
-      else f.source.remove();
-    }
-  });
 
   // Build inner layout
   const left = document.createElement('div');
