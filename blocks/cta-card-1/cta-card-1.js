@@ -1,76 +1,55 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-function getField(block, name) {
+/**
+ * Read a field value from data-aue-prop or from columns by index.
+ * Returns { source, value }.
+ */
+function readField(block, cols, name, index) {
+  // Universal Editor path: data-aue-prop attribute
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
+  if (source) {
+    return { source, value: source.textContent.trim() };
+  }
+  // Fallback: column by index
+  if (cols[index]) {
+    return { source: null, value: cols[index].textContent.trim() };
+  }
   return { source: null, value: '' };
 }
 
-function buildText(tag, className, field) {
-  if (!field.value && !field.source) return null;
-  const el = document.createElement(tag);
-  el.className = className;
-  if (field.source) {
-    moveInstrumentation(field.source, el);
-    while (field.source.firstChild) el.append(field.source.firstChild);
-    field.source.remove();
-  } else {
-    el.textContent = field.value;
+function readLinkField(block, cols, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
   }
-  return el;
-}
-
-function getFieldFromColumns(block, fieldNames) {
-  // Fallback: read fields from the EDS column structure (row > col order matches model field order)
-  const values = {};
-  const rows = [...block.querySelectorAll(':scope > div')];
-  if (rows.length === 1) {
-    // Single row block — columns are the fields in model order
-    const cols = [...rows[0].querySelectorAll(':scope > div')];
-    fieldNames.forEach((name, i) => {
-      if (cols[i]) {
-        values[name] = cols[i].textContent.trim();
-      }
-    });
+  if (cols[index]) {
+    const anchor = cols[index].querySelector('a');
+    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
   }
-  return values;
+  return { source: null, value: '' };
 }
 
 export default function decorate(block) {
-  const fieldOrder = [
-    'title', 'subtitle', 'gradientLeft', 'gradientRight',
-    'buttonText', 'buttonLink', 'buttonColor', 'buttonTextColor', 'belowButtonText',
-  ];
+  // Collect columns from the EDS row structure (single row, N columns)
+  const row = block.querySelector(':scope > div');
+  const cols = row ? [...row.querySelectorAll(':scope > div')] : [];
 
-  // Try data-aue-prop first (Universal Editor), then fall back to column order
-  const titleField = getField(block, 'title');
-  const subtitleField = getField(block, 'subtitle');
-  const gradientLeftField = getField(block, 'gradientLeft');
-  const gradientRightField = getField(block, 'gradientRight');
-  const buttonTextField = getField(block, 'buttonText');
-  const buttonLinkField = getField(block, 'buttonLink');
-  const buttonColorField = getField(block, 'buttonColor');
-  const buttonTextColorField = getField(block, 'buttonTextColor');
-  const belowButtonTextField = getField(block, 'belowButtonText');
-
-  // Fallback: if no data-aue-prop elements found, read from column structure
-  const colValues = (!titleField.source && !subtitleField.source)
-    ? getFieldFromColumns(block, fieldOrder)
-    : {};
-
-  const titleVal = titleField.value || colValues.title || '';
-  const subtitleVal = subtitleField.value || colValues.subtitle || '';
-  const gradientLeft = gradientLeftField.value || colValues.gradientLeft || '#ffffff';
-  const gradientRight = gradientRightField.value || colValues.gradientRight || '#ffffff';
-  const buttonTextVal = buttonTextField.value || colValues.buttonText || 'Learn More';
-  const buttonLinkVal = buttonLinkField.source?.querySelector('a')?.href
-    || buttonLinkField.value || colValues.buttonLink || '';
-  const btnColor = buttonColorField.value || colValues.buttonColor || '';
-  const btnTextColor = buttonTextColorField.value || colValues.buttonTextColor || '';
-  const belowButtonTextVal = belowButtonTextField.value || colValues.belowButtonText || '';
+  // Read all fields (data-aue-prop first, then column index fallback)
+  const title = readField(block, cols, 'title', 0);
+  const subtitle = readField(block, cols, 'subtitle', 1);
+  const gradientLeft = readField(block, cols, 'gradientLeft', 2);
+  const gradientRight = readField(block, cols, 'gradientRight', 3);
+  const buttonText = readField(block, cols, 'buttonText', 4);
+  const buttonLink = readLinkField(block, cols, 'buttonLink', 5);
+  const buttonColor = readField(block, cols, 'buttonColor', 6);
+  const buttonTextColor = readField(block, cols, 'buttonTextColor', 7);
+  const belowButtonText = readField(block, cols, 'belowButtonText', 8);
 
   // Apply gradient background
-  block.style.background = `linear-gradient(to right, ${gradientLeft}, ${gradientRight})`;
+  const leftColor = gradientLeft.value || '#ffffff';
+  const rightColor = gradientRight.value || '#ffffff';
+  block.style.background = `linear-gradient(to right, ${leftColor}, ${rightColor})`;
 
   // Build inner layout
   const inner = document.createElement('div');
@@ -80,24 +59,20 @@ export default function decorate(block) {
   const left = document.createElement('div');
   left.className = 'cta-card-1-left';
 
-  if (titleField.source) {
-    const title = buildText('h2', 'cta-card-1-title', titleField);
-    if (title) left.append(title);
-  } else if (titleVal) {
-    const title = document.createElement('h2');
-    title.className = 'cta-card-1-title';
-    title.textContent = titleVal;
-    left.append(title);
+  if (title.value) {
+    const h2 = document.createElement('h2');
+    h2.className = 'cta-card-1-title';
+    h2.textContent = title.value;
+    if (title.source) moveInstrumentation(title.source, h2);
+    left.append(h2);
   }
 
-  if (subtitleField.source) {
-    const subtitle = buildText('p', 'cta-card-1-subtitle', subtitleField);
-    if (subtitle) left.append(subtitle);
-  } else if (subtitleVal) {
-    const subtitle = document.createElement('p');
-    subtitle.className = 'cta-card-1-subtitle';
-    subtitle.textContent = subtitleVal;
-    left.append(subtitle);
+  if (subtitle.value) {
+    const p = document.createElement('p');
+    p.className = 'cta-card-1-subtitle';
+    p.textContent = subtitle.value;
+    if (subtitle.source) moveInstrumentation(subtitle.source, p);
+    left.append(p);
   }
 
   inner.append(left);
@@ -106,37 +81,28 @@ export default function decorate(block) {
   const right = document.createElement('div');
   right.className = 'cta-card-1-right';
 
-  // Button
-  const btn = document.createElement(buttonLinkVal ? 'a' : 'button');
+  const btnLabel = buttonText.value || 'Learn More';
+  const btnHref = buttonLink.value;
+  const btn = document.createElement(btnHref ? 'a' : 'button');
   btn.className = 'cta-card-1-button';
-  btn.textContent = buttonTextVal;
-  if (buttonLinkVal) btn.href = buttonLinkVal;
-  if (!buttonLinkVal) btn.type = 'button';
+  btn.textContent = btnLabel;
+  if (btnHref) btn.href = btnHref;
+  if (!btnHref) btn.type = 'button';
 
-  // Apply custom button colors
-  if (btnColor) btn.style.backgroundColor = btnColor;
-  if (btnTextColor) btn.style.color = btnTextColor;
+  if (buttonColor.value) btn.style.backgroundColor = buttonColor.value;
+  if (buttonTextColor.value) btn.style.color = buttonTextColor.value;
 
   right.append(btn);
 
-  // Below-button text
-  if (belowButtonTextField.source) {
-    const belowText = buildText('p', 'cta-card-1-below-button', belowButtonTextField);
-    if (belowText) right.append(belowText);
-  } else if (belowButtonTextVal) {
-    const belowText = document.createElement('p');
-    belowText.className = 'cta-card-1-below-button';
-    belowText.textContent = belowButtonTextVal;
-    right.append(belowText);
+  if (belowButtonText.value) {
+    const p = document.createElement('p');
+    p.className = 'cta-card-1-below-button';
+    p.textContent = belowButtonText.value;
+    if (belowButtonText.source) moveInstrumentation(belowButtonText.source, p);
+    right.append(p);
   }
 
   inner.append(right);
-
-  // Clean up remaining source elements
-  [gradientLeftField, gradientRightField, buttonLinkField,
-    buttonColorField, buttonTextColorField, buttonTextField].forEach((f) => {
-    if (f.source) f.source.remove();
-  });
 
   block.replaceChildren(inner);
 }

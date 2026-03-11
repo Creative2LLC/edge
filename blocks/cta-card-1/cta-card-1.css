@@ -1,36 +1,28 @@
-/* Reset EDS default block grid */
-.cta-card-1 > div {
-  display: contents;
-}
-
 .cta-card-1 {
   border-radius: 32px;
   min-height: 436px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
+  overflow: hidden;
 }
 
-.cta-card-1-inner {
+.cta-card-1 .cta-card-1-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   padding: 48px 56px;
   box-sizing: border-box;
-  gap: 40px;
+  gap: 48px;
 }
 
 /* Left side — takes up most of the space */
-.cta-card-1-left {
-  flex: 3 1 0%;
+.cta-card-1 .cta-card-1-left {
+  flex: 1 1 0%;
   min-width: 0;
 }
 
-.cta-card-1-title {
+.cta-card-1 .cta-card-1-title {
   font-size: 48px;
   font-weight: 700;
   color: #00264d;
@@ -38,7 +30,7 @@
   line-height: 1.15;
 }
 
-.cta-card-1-subtitle {
+.cta-card-1 .cta-card-1-subtitle {
   font-size: 20px;
   font-weight: 400;
   color: #404041;
@@ -47,16 +39,17 @@
   max-width: 700px;
 }
 
-/* Right side — button + small text */
-.cta-card-1-right {
+/* Right side — button + small text, shrink-wrapped */
+.cta-card-1 .cta-card-1-right {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  white-space: nowrap;
 }
 
-.cta-card-1-button {
+.cta-card-1 .cta-card-1-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -72,13 +65,13 @@
   transition: opacity 0.2s ease;
 }
 
-.cta-card-1-button:hover,
-.cta-card-1-button:focus {
+.cta-card-1 .cta-card-1-button:hover,
+.cta-card-1 .cta-card-1-button:focus {
   background-color: inherit;
   opacity: 0.85;
 }
 
-.cta-card-1-below-button {
+.cta-card-1 .cta-card-1-below-button {
   font-size: 17px;
   font-weight: 400;
   color: #404041;
@@ -88,26 +81,22 @@
 
 /* Responsive */
 @media (width <= 900px) {
-  .cta-card-1 {
-    padding: 0 32px;
-  }
-
-  .cta-card-1-inner {
+  .cta-card-1 .cta-card-1-inner {
     flex-direction: column;
     align-items: flex-start;
     padding: 40px 32px;
     gap: 32px;
   }
 
-  .cta-card-1-title {
+  .cta-card-1 .cta-card-1-title {
     font-size: 36px;
   }
 
-  .cta-card-1-subtitle {
+  .cta-card-1 .cta-card-1-subtitle {
     font-size: 18px;
   }
 
-  .cta-card-1-right {
+  .cta-card-1 .cta-card-1-right {
     align-self: flex-start;
   }
 }
