@@ -119,9 +119,8 @@
   display: block;
 }
 
-/* Smaller images for all sections after the first */
+/* Shorter images for all sections after the first */
 .leadership-team-section ~ .leadership-team-section .leadership-team-card-image {
-  width: 258px;
   height: 208px;
 }
 
