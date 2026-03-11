@@ -12,10 +12,12 @@
   overflow: hidden;
 }
 
-/* Left side — grows to fill available space */
+/* Left side — takes up most of the card */
 .cta-card-1 .cta-card-1-left {
   flex: 1 1 0% !important;
   min-width: 0;
+  max-width: none !important;
+  width: auto !important;
 }
 
 .cta-card-1 .cta-card-1-title {
@@ -35,29 +37,33 @@
   max-width: 700px;
 }
 
-/* Right side — shrink-wraps to content */
+/* Right side — shrink-wraps to button content */
 .cta-card-1 .cta-card-1-right {
   flex: 0 0 auto !important;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  max-width: 337px;
 }
 
 .cta-card-1 .cta-card-1-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 337px;
+  height: 70px;
   border-radius: 99px;
   font-size: 25px;
   font-weight: 600;
-  padding: 16px 40px;
+  padding: 0;
   cursor: pointer;
   border: none;
   font-family: inherit;
   white-space: nowrap;
   text-decoration: none;
   transition: opacity 0.2s ease;
+  box-sizing: border-box;
 }
 
 .cta-card-1 .cta-card-1-button:hover,
