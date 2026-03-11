@@ -39,6 +39,7 @@ module.exports = {
       'impact-chain-item': 5,
       'leader-card': 7,
       'leadership-profile': 8,
+      'cta-card-1': 9,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

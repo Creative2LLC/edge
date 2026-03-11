@@ -229,6 +229,64 @@
     ]
   },
   {
+    "id": "cta-card-1",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "gradientLeft",
+        "label": "Gradient Left Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "gradientRight",
+        "label": "Gradient Right Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "belowButtonText",
+        "label": "Text Below Button"
+      }
+    ]
+  },
+  {
     "id": "embed",
     "fields": [
       {
