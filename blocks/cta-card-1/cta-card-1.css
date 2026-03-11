@@ -43,7 +43,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
   max-width: 337px;
 }
 
@@ -76,7 +76,9 @@
   font-weight: 400;
   color: #404041;
   margin: 0;
-  text-align: center;
+  text-align: left;
+  max-width: 394px;
+  align-self: flex-start;
 }
 
 /* Responsive */
