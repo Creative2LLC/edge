@@ -1,0 +1,100 @@
+/* Block container */
+.cta-card-2.block {
+  display: flex !important;
+  align-items: stretch;
+  border-radius: 14px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Left side — icon area, compact */
+.cta-card-2 .cta-card-2-left {
+  flex: 0 0 auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.cta-card-2 .cta-card-2-icon {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Right side — takes up most of the card */
+.cta-card-2 .cta-card-2-right {
+  flex: 1 1 0% !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 40px 40px 0;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cta-card-2 .cta-card-2-title {
+  font-size: 40px !important;
+  font-weight: 700 !important;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.cta-card-2 .cta-card-2-subtitle {
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  color: #404041;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cta-card-2 .cta-card-2-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 284px;
+  height: 47px;
+  border-radius: 99px;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 0;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.cta-card-2 .cta-card-2-button:hover,
+.cta-card-2 .cta-card-2-button:focus {
+  opacity: 0.85;
+}
+
+/* Responsive */
+@media (width <= 900px) {
+  .cta-card-2.block {
+    flex-direction: column !important;
+    align-items: center;
+  }
+
+  .cta-card-2 .cta-card-2-left {
+    padding: 32px 32px 0;
+  }
+
+  .cta-card-2 .cta-card-2-right {
+    padding: 24px 32px 32px;
+  }
+
+  .cta-card-2 .cta-card-2-title {
+    font-size: 32px !important;
+  }
+}
