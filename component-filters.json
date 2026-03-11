@@ -34,7 +34,8 @@
       "leadership-team",
       "leadership-profile",
       "cta-card-1",
-      "cta-card-2"
+      "cta-card-2",
+      "info-cards-grid"
     ]
   },
   {
@@ -77,6 +78,12 @@
     "id": "impact-chain",
     "components": [
       "impact-chain-item"
+    ]
+  },
+  {
+    "id": "info-cards-grid",
+    "components": [
+      "info-card"
     ]
   },
   {
