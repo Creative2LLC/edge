@@ -35,7 +35,8 @@
       "leadership-profile",
       "cta-card-1",
       "cta-card-2",
-      "info-cards-grid"
+      "info-cards-grid",
+      "card-row"
     ]
   },
   {
@@ -108,6 +109,12 @@
     "id": "resources",
     "components": [
       "resource-item"
+    ]
+  },
+  {
+    "id": "card-row",
+    "components": [
+      "card-row-item"
     ]
   }
 ]
