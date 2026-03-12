@@ -14,15 +14,15 @@
 }
 
 /* ===== HORIZONTAL VARIANT (default) ===== */
-/* Card: ~457px x 381px, 3 per row default */
+/* Card: ~430px x 370px, 3 per row default */
 .card-row--horizontal .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  width: 457px;
-  min-height: 381px;
+  width: 430px;
+  min-height: 370px;
   padding: 36px 24px;
   box-sizing: border-box;
   box-shadow: 0px 4px 10px 0px #40404133;
@@ -69,14 +69,14 @@
 }
 
 /* ===== VERTICAL VARIANT ===== */
-/* Card: ~337px x 487px, 4 per row default */
+/* Card: ~320px x 470px, 4 per row default */
 .card-row--vertical .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   border-radius: 8px;
-  width: 337px;
-  min-height: 487px;
+  width: 320px;
+  min-height: 470px;
   padding: 36px 24px;
   box-sizing: border-box;
   box-shadow: 0px 4px 10px 0px #40404133;
@@ -144,7 +144,7 @@
   transition: opacity 0.2s ease;
   box-sizing: border-box;
   margin-top: 16px;
-  border: 2px solid #404041;
+  border: 2px solid #008DB6;
   background-color: transparent;
   color: #404041;
 }
