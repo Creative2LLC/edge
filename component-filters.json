@@ -36,7 +36,7 @@
       "cta-card-1",
       "cta-card-2",
       "info-cards-grid",
-      "card-row"
+      "section-title"
     ]
   },
   {
@@ -109,12 +109,6 @@
     "id": "resources",
     "components": [
       "resource-item"
-    ]
-  },
-  {
-    "id": "card-row",
-    "components": [
-      "card-row-item"
     ]
   }
 ]

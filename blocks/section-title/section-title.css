@@ -1,0 +1,34 @@
+.section-title {
+  padding: 40px 20px 0;
+}
+
+.section-title .section-title-inner {
+  max-width: 1261px;
+  margin: 0 auto;
+}
+
+.section-title .section-title-heading {
+  font-size: 48px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.section-title .section-title-subtitle {
+  font-size: 20px;
+  font-weight: 500;
+  color: #404041;
+  margin: 12px 0 0;
+  line-height: 1.4;
+}
+
+@media (width <= 768px) {
+  .section-title .section-title-heading {
+    font-size: 32px;
+  }
+
+  .section-title .section-title-subtitle {
+    font-size: 18px;
+  }
+}
