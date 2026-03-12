@@ -120,12 +120,15 @@ export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
   const headingField = getField(block, legacyMap, ['content_heading', 'heading']);
   const subheadingField = getField(block, legacyMap, ['content_subheading', 'subheading']);
+  const formTypeField = getField(block, legacyMap, ['form_type']);
   const placeholderField = getField(block, legacyMap, ['form_placeholder', 'placeholder']);
   const optionsField = getField(block, legacyMap, ['form_options', 'options']);
   const buttonTextField = getField(block, legacyMap, ['form_buttonText', 'buttonText']);
   const targetField = getField(block, legacyMap, ['form_target', 'target']);
   const background = buildBackground(block);
 
+  const formType = formTypeField.value || 'dropdown';
+  if (formTypeField.source) formTypeField.source.remove();
   const target = targetField.value === '_blank' ? '_blank' : '_self';
   if (targetField.source) targetField.source.remove();
 
@@ -140,11 +143,35 @@ export default function decorate(block) {
 
   const options = parseOptions(optionsField.value);
   if (optionsField.source) optionsField.source.remove();
-  const placeholder = placeholderField.value || 'Select a Newsletter';
+  const placeholder = placeholderField.value || (formType === 'input' ? 'Enter your email' : 'Select a Newsletter');
   if (placeholderField.source) placeholderField.source.remove();
   const buttonText = buttonTextField.value || 'Go';
 
-  if (options.length) {
+  if (formType === 'input') {
+    const form = document.createElement('form');
+    form.className = 'newsletter-form';
+
+    const inputWrap = document.createElement('div');
+    inputWrap.className = 'newsletter-input-wrap';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'newsletter-input';
+    input.placeholder = placeholder;
+    input.setAttribute('aria-label', placeholder);
+
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.className = 'newsletter-submit';
+    submit.textContent = buttonText;
+    moveFieldBinding(buttonTextField.source, submit);
+    if (buttonTextField.source) buttonTextField.source.remove();
+
+    inputWrap.append(input);
+    form.append(inputWrap);
+    form.append(submit);
+    content.append(form);
+  } else if (options.length) {
     const form = document.createElement('form');
     form.className = 'newsletter-form';
 

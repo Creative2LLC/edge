@@ -49,10 +49,26 @@
           "value": ""
         },
         {
+          "component": "select",
+          "name": "form_type",
+          "label": "Form Type",
+          "options": [
+            {
+              "name": "Dropdown",
+              "value": "dropdown"
+            },
+            {
+              "name": "Input Field",
+              "value": "input"
+            }
+          ],
+          "value": "dropdown"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "form_placeholder",
-          "label": "Select Placeholder",
+          "label": "Placeholder Text",
           "value": "Select a Newsletter"
         },
         {

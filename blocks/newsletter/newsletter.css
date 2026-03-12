@@ -66,7 +66,8 @@
   flex-wrap: wrap;
 }
 
-.newsletter .newsletter-select-wrap {
+.newsletter .newsletter-select-wrap,
+.newsletter .newsletter-input-wrap {
   width: min(380px, 100%);
 }
 
@@ -95,6 +96,27 @@
 
 .newsletter .newsletter-select option {
   color: #111;
+}
+
+.newsletter .newsletter-input {
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background-color: rgb(64 64 65 / 78%);
+  color: rgb(255 255 255 / 90%);
+  font-size: 0.95rem;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.newsletter .newsletter-input::placeholder {
+  color: rgb(255 255 255 / 60%);
+}
+
+.newsletter .newsletter-input:focus-visible {
+  outline: 2px solid #008eb7;
+  outline-offset: 2px;
 }
 
 .newsletter .newsletter-submit {
