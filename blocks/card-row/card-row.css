@@ -1,7 +1,6 @@
 /* Card Row Block */
 .card-row.block {
   padding: 60px 0;
-  max-width: 1440px;
   margin: 0 auto;
 }
 
@@ -14,14 +13,14 @@
 }
 
 /* ===== HORIZONTAL VARIANT (default) ===== */
-/* Card: ~430px x 370px, 3 per row default */
+/* Card: ~362px x 370px, 3 per row within 1136px usable width */
 .card-row--horizontal .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  width: 430px;
+  width: 362px;
   min-height: 370px;
   padding: 36px 24px;
   box-sizing: border-box;
@@ -64,18 +63,18 @@
   margin: 0;
   line-height: 1.5;
   text-align: center;
-  max-width: 361px;
+  max-width: 314px;
   width: 100%;
 }
 
 /* ===== VERTICAL VARIANT ===== */
-/* Card: ~320px x 470px, 4 per row default */
+/* Card: ~266px x 470px, 4 per row within 1136px usable width */
 .card-row--vertical .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   border-radius: 8px;
-  width: 320px;
+  width: 266px;
   min-height: 470px;
   padding: 36px 24px;
   box-sizing: border-box;
