@@ -71,6 +71,14 @@ function parseResourceRow(row) {
     return col.textContent.trim();
   }
 
+  // Try to get a field value by data-aue-prop attribute, then by column index
+  function getFieldText(colIndex, propName) {
+    const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
+    if (byProp) return byProp.textContent.trim();
+    if (cols[colIndex]) return cols[colIndex].textContent.trim();
+    return '';
+  }
+
   // 7-column layout: image | icon | iconColor | title | subtitle | link | linkText
   // This is the primary path — columns always exist in model field order
   if (cols.length >= 6) {
@@ -82,11 +90,11 @@ function parseResourceRow(row) {
       imageAlt: imageData.alt,
       iconPicture: iconData.picture,
       iconSrc: iconData.src,
-      iconColor: cols[2].textContent.trim(),
-      title: cols[3].textContent.trim(),
-      subtitle: cols[4].textContent.trim(),
+      iconColor: getFieldText(2, 'iconColor'),
+      title: getFieldText(3, 'title'),
+      subtitle: getFieldText(4, 'subtitle'),
       linkUrl: getLinkUrl(cols[5]),
-      linkText: cols[6] ? cols[6].textContent.trim() : '',
+      linkText: getFieldText(6, 'linkText'),
     };
   }
 
@@ -105,7 +113,7 @@ function parseResourceRow(row) {
       title: paragraphs[0]?.textContent.trim() || '',
       subtitle: paragraphs[1]?.textContent.trim() || '',
       linkUrl: link?.href || '',
-      linkText: '',
+      linkText: getFieldText(-1, 'linkText'),
     };
   }
 
