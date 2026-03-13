@@ -120,10 +120,6 @@ export default function decorate(block) {
   const subheading = buildTextElement('div', 'statistics-subheading', subheadingField);
   if (subheading) wrapper.append(subheading);
 
-  if (statValueColor) {
-    wrapper.style.setProperty('--stat-value-color', statValueColor);
-  }
-
   const list = document.createElement('ul');
   list.className = 'statistics-list';
   const count = Math.max(values.length, labels.length);
@@ -131,7 +127,13 @@ export default function decorate(block) {
     const valueField = { value: values[i] || '' };
     const labelField = { value: labels[i] || '' };
     const item = buildItem(valueField, labelField);
-    if (item) list.append(item);
+    if (item) {
+      if (statValueColor) {
+        const valueEl = item.querySelector('.statistics-value');
+        if (valueEl) valueEl.style.setProperty('color', statValueColor, 'important');
+      }
+      list.append(item);
+    }
   }
   if (list.childElementCount) wrapper.append(list);
 
