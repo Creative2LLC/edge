@@ -654,8 +654,41 @@ async function loadBlock(block) {
  * @param {Element} block The block element
  */
 function decorateBlock(block) {
-  const rawBlockName = block.classList[0];
-  const shortBlockName = toClassName(rawBlockName);
+  const getResourceSegments = (resource) => {
+    if (!resource) return [];
+    const match = resource.match(/(\/content\/[^?#]+)/);
+    const normalizedPath = (match ? match[1] : resource).replace(/\/+$/g, '');
+    return normalizedPath.split('/').filter(Boolean);
+  };
+
+  const getResourceBlockName = (element) => {
+    if (!element) return '';
+    const resource = element.getAttribute('data-aue-resource') || '';
+    const propName = toClassName(element.getAttribute('data-aue-prop') || '');
+    const segments = getResourceSegments(resource);
+    if (!segments.length) return '';
+    const lastSegment = toClassName(segments[segments.length - 1]);
+    if (propName && lastSegment === propName && segments.length > 1) {
+      return toClassName(segments[segments.length - 2]);
+    }
+    return lastSegment;
+  };
+
+  const modelField = block.querySelector('[data-aue-prop="model"], [data-aue-prop="aueComponentId"]');
+  const resourceField = block.querySelector('[data-aue-resource]');
+  const classCandidates = [...block.classList]
+    .map((className) => toClassName(className))
+    .filter((className) => className && className !== 'block');
+  const shortBlockName = toClassName(
+    block.getAttribute('data-block-name')
+    || modelField?.textContent.trim()
+    || getResourceBlockName(block)
+    || getResourceBlockName(modelField)
+    || getResourceBlockName(resourceField)
+    || classCandidates[0]
+    || '',
+  );
+
   if (shortBlockName && !block.dataset.blockStatus) {
     if (!block.classList.contains(shortBlockName)) {
       block.classList.add(shortBlockName);
