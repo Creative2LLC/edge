@@ -73,10 +73,25 @@ function normalizeLines(field, fallback = []) {
 
 export default function decorate(block) {
   // Read and remove block-level color prop before legacy parsing
+  // Try data-aue-prop first, then fall back to table row key-value format
+  let statValueColor = '';
   const statValueColorEl = block.querySelector('[data-aue-prop="statValueColor"]');
-  const statValueColor = statValueColorEl?.textContent.trim() || '';
-  const statValueColorRow = statValueColorEl?.closest(':scope > div');
-  if (statValueColorRow) statValueColorRow.remove();
+  if (statValueColorEl) {
+    statValueColor = statValueColorEl.textContent.trim();
+    const colorRow = statValueColorEl.closest(':scope > div');
+    if (colorRow) colorRow.remove();
+  } else {
+    [...block.querySelectorAll(':scope > div')].some((row) => {
+      if (row.children.length !== 2) return false;
+      const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
+      if (['statvaluecolor', 'valuecolor', 'color'].includes(key)) {
+        statValueColor = row.children[1].textContent.trim();
+        row.remove();
+        return true;
+      }
+      return false;
+    });
+  }
 
   const legacyMap = collectLegacyFields(block);
   const headingField = getField(block, legacyMap, 'heading');
@@ -105,6 +120,10 @@ export default function decorate(block) {
   const subheading = buildTextElement('div', 'statistics-subheading', subheadingField);
   if (subheading) wrapper.append(subheading);
 
+  if (statValueColor) {
+    wrapper.style.setProperty('--stat-value-color', statValueColor);
+  }
+
   const list = document.createElement('ul');
   list.className = 'statistics-list';
   const count = Math.max(values.length, labels.length);
@@ -112,13 +131,7 @@ export default function decorate(block) {
     const valueField = { value: values[i] || '' };
     const labelField = { value: labels[i] || '' };
     const item = buildItem(valueField, labelField);
-    if (item) {
-      if (statValueColor) {
-        const valueEl = item.querySelector('.statistics-value');
-        if (valueEl) valueEl.style.setProperty('color', statValueColor, 'important');
-      }
-      list.append(item);
-    }
+    if (item) list.append(item);
   }
   if (list.childElementCount) wrapper.append(list);
 
