@@ -72,7 +72,8 @@
         "cta-card-2",
         "info-cards-grid",
         "card-row",
-        "section-title"
+        "section-title",
+        "split-card"
       ]
     }
   ]
