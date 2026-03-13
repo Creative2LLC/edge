@@ -24,15 +24,6 @@ function readText(node) {
   return node?.textContent.trim() || '';
 }
 
-function readLink(node) {
-  if (!node) {
-    return '';
-  }
-
-  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
-  return (anchor?.getAttribute('href') || node.textContent || '').trim();
-}
-
 function getFieldRow(node) {
   let current = node;
 
@@ -100,6 +91,41 @@ function getPageTitle() {
   return document.title.replace(/\s*[|-].*$/, '').trim();
 }
 
+function formatPathSegment(segment) {
+  return segment
+    .replace(/\.html$/u, '')
+    .replace(/[-_]+/gu, ' ')
+    .replace(/\b\w/gu, (char) => char.toUpperCase());
+}
+
+function getBreadcrumbContext() {
+  let pathname = window.location.pathname || '/';
+
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    pathname = pathname.slice(0, -1);
+  }
+
+  const hasHtmlExtension = pathname.endsWith('.html');
+  const normalizedPathname = hasHtmlExtension ? pathname.slice(0, -5) : pathname;
+  const segments = normalizedPathname.split('/').filter(Boolean);
+
+  if (segments.length <= 1) {
+    return {
+      parentLabel: 'Leadership',
+      parentLink: '/leadership',
+    };
+  }
+
+  const parentSegments = segments.slice(0, -1);
+  const parentBasePath = `/${parentSegments.join('/')}`;
+  const parentSegment = parentSegments[parentSegments.length - 1] || 'leadership';
+
+  return {
+    parentLabel: formatPathSegment(parentSegment) || 'Leadership',
+    parentLink: hasHtmlExtension ? `${parentBasePath}.html` : parentBasePath,
+  };
+}
+
 export default function decorate(block) {
   const resource = block.getAttribute('data-aue-resource')
     || block.querySelector('[data-aue-resource]')?.getAttribute('data-aue-resource')
@@ -111,9 +137,9 @@ export default function decorate(block) {
   const instrName = resolveField(block, 'name', resource);
   const instrTitle = resolveField(block, 'leaderTitle', resource);
   const instrBio = resolveField(block, 'bio', resource);
-  const instrBreadcrumbParent = resolveField(block, 'breadcrumbParent', resource);
-  const instrBreadcrumbParentLink = resolveField(block, 'breadcrumbParentLink', resource);
-  const instrBreadcrumbCurrent = resolveField(block, 'breadcrumbCurrent', resource);
+  const legacyBreadcrumbParent = resolveField(block, 'breadcrumbParent', resource);
+  const legacyBreadcrumbParentLink = resolveField(block, 'breadcrumbParentLink', resource);
+  const legacyBreadcrumbCurrent = resolveField(block, 'breadcrumbCurrent', resource);
 
   [
     instrImage,
@@ -121,17 +147,18 @@ export default function decorate(block) {
     instrName,
     instrTitle,
     instrBio,
-    instrBreadcrumbParent,
-    instrBreadcrumbParentLink,
-    instrBreadcrumbCurrent,
+    legacyBreadcrumbParent,
+    legacyBreadcrumbParentLink,
+    legacyBreadcrumbCurrent,
   ].forEach((node) => queueCleanup(node, block, nodesToCleanup));
 
-  const leaderName = readText(instrName) || readText(instrBreadcrumbCurrent) || getPageTitle();
+  const leaderName = readText(instrName) || getPageTitle();
   const leaderTitle = readText(instrTitle);
-  const breadcrumbParent = readText(instrBreadcrumbParent) || 'Leadership';
-  const breadcrumbParentLink = readLink(instrBreadcrumbParentLink) || '/leadership';
-  const breadcrumbCurrent = readText(instrBreadcrumbCurrent) || leaderName;
   const imageAlt = readText(instrImageAlt) || leaderName;
+  const {
+    parentLabel: breadcrumbParent,
+    parentLink: breadcrumbParentLink,
+  } = getBreadcrumbContext();
 
   const breadcrumb = document.createElement('nav');
   breadcrumb.className = 'leadership-profile-breadcrumb';
@@ -143,12 +170,6 @@ export default function decorate(block) {
   const parentLink = document.createElement('a');
   parentLink.href = breadcrumbParentLink;
   parentLink.textContent = breadcrumbParent;
-  if (instrBreadcrumbParentLink) {
-    moveInstrumentation(instrBreadcrumbParentLink, parentLink);
-  }
-  if (instrBreadcrumbParent) {
-    moveInstrumentation(instrBreadcrumbParent, parentLink);
-  }
   parentItem.append(parentLink);
   breadcrumbList.append(parentItem);
 
@@ -158,14 +179,11 @@ export default function decorate(block) {
   separator.innerHTML = '<svg width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 0.5L3.5 4L0.5 7.5" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   breadcrumbList.append(separator);
 
-  const currentItem = document.createElement('li');
-  currentItem.className = 'breadcrumb-current';
-  const currentSpan = document.createElement('span');
-  if (breadcrumbCurrent) {
-    currentSpan.textContent = breadcrumbCurrent;
-    if (instrBreadcrumbCurrent) {
-      moveInstrumentation(instrBreadcrumbCurrent, currentSpan);
-    }
+  if (leaderName) {
+    const currentItem = document.createElement('li');
+    currentItem.className = 'breadcrumb-current';
+    const currentSpan = document.createElement('span');
+    currentSpan.textContent = leaderName;
     currentItem.append(currentSpan);
     breadcrumbList.append(currentItem);
   }

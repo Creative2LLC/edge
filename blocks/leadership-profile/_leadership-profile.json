@@ -21,27 +21,6 @@
       "id": "leadership-profile",
       "fields": [
         {
-          "component": "text",
-          "valueType": "string",
-          "name": "breadcrumbParent",
-          "label": "Breadcrumb Parent Text",
-          "value": "NCMEC Leadership"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "breadcrumbParentLink",
-          "label": "Breadcrumb Parent Link",
-          "value": "/leadership"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "breadcrumbCurrent",
-          "label": "Breadcrumb Current Page",
-          "value": ""
-        },
-        {
           "component": "reference",
           "valueType": "string",
           "name": "image",
