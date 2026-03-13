@@ -72,12 +72,17 @@ function normalizeLines(field, fallback = []) {
 }
 
 export default function decorate(block) {
+  // Read and remove block-level color prop before legacy parsing
+  const statValueColorEl = block.querySelector('[data-aue-prop="statValueColor"]');
+  const statValueColor = statValueColorEl?.textContent.trim() || '';
+  const statValueColorRow = statValueColorEl?.closest(':scope > div');
+  if (statValueColorRow) statValueColorRow.remove();
+
   const legacyMap = collectLegacyFields(block);
   const headingField = getField(block, legacyMap, 'heading');
   const subheadingField = getField(block, legacyMap, 'subheading');
   const statValuesField = getField(block, legacyMap, 'statValues');
   const statLabelsField = getField(block, legacyMap, 'statLabels');
-  const statValueColorField = getField(block, legacyMap, 'statValueColor');
   const legacyValues = [
     getField(block, legacyMap, 'stat1Value').value,
     getField(block, legacyMap, 'stat2Value').value,
@@ -99,9 +104,6 @@ export default function decorate(block) {
 
   const subheading = buildTextElement('div', 'statistics-subheading', subheadingField);
   if (subheading) wrapper.append(subheading);
-
-  const statValueColor = statValueColorField.value || '';
-  if (statValueColorField.source) statValueColorField.source.remove();
 
   const list = document.createElement('ul');
   list.className = 'statistics-list';
