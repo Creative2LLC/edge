@@ -4,6 +4,7 @@ const LEGACY_LABELS = {
   heading: ['heading', 'title'],
   statValues: ['stat values', 'values'],
   statLabels: ['stat labels', 'labels'],
+  statValueColor: ['stat value color', 'value color', 'color'],
   stat1Value: ['stat 1 value', 'stat1 value', 'value 1'],
   stat1Label: ['stat 1 label', 'stat1 label', 'label 1'],
   stat2Value: ['stat 2 value', 'stat2 value', 'value 2'],
@@ -72,32 +73,13 @@ function normalizeLines(field, fallback = []) {
 }
 
 export default function decorate(block) {
-  // Read and remove block-level color prop before legacy parsing
-  // Try data-aue-prop first, then fall back to table row key-value format
-  let statValueColor = '';
-  const statValueColorEl = block.querySelector('[data-aue-prop="statValueColor"]');
-  if (statValueColorEl) {
-    statValueColor = statValueColorEl.textContent.trim();
-    const colorRow = statValueColorEl.closest(':scope > div');
-    if (colorRow) colorRow.remove();
-  } else {
-    [...block.querySelectorAll(':scope > div')].some((row) => {
-      if (row.children.length !== 2) return false;
-      const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
-      if (['statvaluecolor', 'valuecolor', 'color'].includes(key)) {
-        statValueColor = row.children[1].textContent.trim();
-        row.remove();
-        return true;
-      }
-      return false;
-    });
-  }
-
   const legacyMap = collectLegacyFields(block);
   const headingField = getField(block, legacyMap, 'heading');
   const subheadingField = getField(block, legacyMap, 'subheading');
   const statValuesField = getField(block, legacyMap, 'statValues');
   const statLabelsField = getField(block, legacyMap, 'statLabels');
+  const statValueColorField = getField(block, legacyMap, 'statValueColor');
+  const statValueColor = statValueColorField.value || '';
   const legacyValues = [
     getField(block, legacyMap, 'stat1Value').value,
     getField(block, legacyMap, 'stat2Value').value,
