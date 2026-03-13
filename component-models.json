@@ -1161,11 +1161,10 @@
         "value": ""
       },
       {
-        "component": "text",
-        "valueType": "string",
+        "component": "aem-content",
         "name": "link",
-        "label": "Bio Page URL",
-        "value": ""
+        "label": "Bio Page",
+        "description": "Select the leader bio page from the content tree."
       }
     ]
   },
