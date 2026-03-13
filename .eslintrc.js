@@ -43,6 +43,7 @@ module.exports = {
       'cta-card-2': 8,
       'info-card': 9,
       'card-row-item': 8,
+      statistics: 5,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

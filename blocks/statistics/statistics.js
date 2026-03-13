@@ -74,8 +74,10 @@ function normalizeLines(field, fallback = []) {
 export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
   const headingField = getField(block, legacyMap, 'heading');
+  const subheadingField = getField(block, legacyMap, 'subheading');
   const statValuesField = getField(block, legacyMap, 'statValues');
   const statLabelsField = getField(block, legacyMap, 'statLabels');
+  const statValueColorField = getField(block, legacyMap, 'statValueColor');
   const legacyValues = [
     getField(block, legacyMap, 'stat1Value').value,
     getField(block, legacyMap, 'stat2Value').value,
@@ -95,6 +97,12 @@ export default function decorate(block) {
   const heading = buildTextElement('h2', 'statistics-heading', headingField);
   if (heading) wrapper.append(heading);
 
+  const subheading = buildTextElement('div', 'statistics-subheading', subheadingField);
+  if (subheading) wrapper.append(subheading);
+
+  const statValueColor = statValueColorField.value || '';
+  if (statValueColorField.source) statValueColorField.source.remove();
+
   const list = document.createElement('ul');
   list.className = 'statistics-list';
   const count = Math.max(values.length, labels.length);
@@ -102,7 +110,13 @@ export default function decorate(block) {
     const valueField = { value: values[i] || '' };
     const labelField = { value: labels[i] || '' };
     const item = buildItem(valueField, labelField);
-    if (item) list.append(item);
+    if (item) {
+      if (statValueColor) {
+        const valueEl = item.querySelector('.statistics-value');
+        if (valueEl) valueEl.style.color = statValueColor;
+      }
+      list.append(item);
+    }
   }
   if (list.childElementCount) wrapper.append(list);
 

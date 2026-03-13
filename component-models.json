@@ -1533,6 +1533,13 @@
         "label": "Heading"
       },
       {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading (Optional)",
+        "value": ""
+      },
+      {
         "component": "text",
         "valueType": "string",
         "value": "",
@@ -1545,6 +1552,14 @@
         "value": "",
         "name": "statLabels",
         "label": "Stat Labels (one per line)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "statValueColor",
+        "label": "Stat Value Color (Hex)",
+        "description": "Defaults to #00264d if left empty",
+        "value": ""
       }
     ]
   },
