@@ -1,156 +1,247 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-export default function decorate(block) {
-  // Read instrumented fields (Universal Editor)
-  const instrImage = block.querySelector('[data-aue-prop="image"]');
-  const instrName = block.querySelector('[data-aue-prop="name"]');
-  const instrTitle = block.querySelector('[data-aue-prop="leaderTitle"]');
-  const instrBio = block.querySelector('[data-aue-prop="bio"]');
-  const instrBreadcrumbParent = block.querySelector('[data-aue-prop="breadcrumbParent"]');
-  const instrBreadcrumbParentLink = block.querySelector('[data-aue-prop="breadcrumbParentLink"]');
-  const instrBreadcrumbCurrent = block.querySelector('[data-aue-prop="breadcrumbCurrent"]');
+function getFieldSelector(name) {
+  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
+}
 
-  // Build breadcrumb
+function resolveField(scope, name, resource = '') {
+  const localField = scope.querySelector(getFieldSelector(name));
+  if (localField) {
+    return localField;
+  }
+
+  if (!resource) {
+    return null;
+  }
+
+  return document.querySelector(
+    `[data-aue-resource="${resource}"][data-aue-prop="${name}"], `
+      + `[data-aue-resource="${resource}"][data-richtext-prop="${name}"]`,
+  );
+}
+
+function readText(node) {
+  return node?.textContent.trim() || '';
+}
+
+function readLink(node) {
+  if (!node) {
+    return '';
+  }
+
+  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
+  return (anchor?.getAttribute('href') || node.textContent || '').trim();
+}
+
+function getFieldRow(node) {
+  let current = node;
+
+  while (current?.parentElement) {
+    const parent = current.parentElement;
+    if (parent.children?.length === 2 && parent.children[1].contains(current)) {
+      return parent;
+    }
+    current = parent;
+  }
+
+  return null;
+}
+
+function cleanupFieldNode(node, block) {
+  if (!node || block.contains(node)) {
+    return;
+  }
+
+  const row = getFieldRow(node);
+  if (row) {
+    row.remove();
+    return;
+  }
+
+  node.remove();
+}
+
+function queueCleanup(node, block, nodesToCleanup) {
+  if (node && !block.contains(node)) {
+    nodesToCleanup.add(node);
+  }
+}
+
+function getPictureNode(field) {
+  if (!field) {
+    return null;
+  }
+
+  if (field.tagName === 'PICTURE') {
+    return field;
+  }
+
+  return field.querySelector('picture') || field.closest('picture');
+}
+
+function getImageNode(field) {
+  if (!field) {
+    return null;
+  }
+
+  if (field.tagName === 'IMG') {
+    return field;
+  }
+
+  return field.querySelector('img');
+}
+
+function getPageTitle() {
+  const metaTitle = document.querySelector('meta[property="og:title"], meta[name="title"]');
+  if (metaTitle?.content) {
+    return metaTitle.content.trim();
+  }
+
+  return document.title.replace(/\s*[|-].*$/, '').trim();
+}
+
+export default function decorate(block) {
+  const resource = block.getAttribute('data-aue-resource')
+    || block.querySelector('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const nodesToCleanup = new Set();
+
+  const instrImage = resolveField(block, 'image', resource);
+  const instrImageAlt = resolveField(block, 'imageAlt', resource);
+  const instrName = resolveField(block, 'name', resource);
+  const instrTitle = resolveField(block, 'leaderTitle', resource);
+  const instrBio = resolveField(block, 'bio', resource);
+  const instrBreadcrumbParent = resolveField(block, 'breadcrumbParent', resource);
+  const instrBreadcrumbParentLink = resolveField(block, 'breadcrumbParentLink', resource);
+  const instrBreadcrumbCurrent = resolveField(block, 'breadcrumbCurrent', resource);
+
+  [
+    instrImage,
+    instrImageAlt,
+    instrName,
+    instrTitle,
+    instrBio,
+    instrBreadcrumbParent,
+    instrBreadcrumbParentLink,
+    instrBreadcrumbCurrent,
+  ].forEach((node) => queueCleanup(node, block, nodesToCleanup));
+
+  const leaderName = readText(instrName) || readText(instrBreadcrumbCurrent) || getPageTitle();
+  const leaderTitle = readText(instrTitle);
+  const breadcrumbParent = readText(instrBreadcrumbParent) || 'Leadership';
+  const breadcrumbParentLink = readLink(instrBreadcrumbParentLink) || '/leadership';
+  const breadcrumbCurrent = readText(instrBreadcrumbCurrent) || leaderName;
+  const imageAlt = readText(instrImageAlt) || leaderName;
+
   const breadcrumb = document.createElement('nav');
   breadcrumb.className = 'leadership-profile-breadcrumb';
   breadcrumb.setAttribute('aria-label', 'Breadcrumb');
 
   const breadcrumbList = document.createElement('ol');
 
-  // Parent breadcrumb item
   const parentItem = document.createElement('li');
   const parentLink = document.createElement('a');
+  parentLink.href = breadcrumbParentLink;
+  parentLink.textContent = breadcrumbParent;
   if (instrBreadcrumbParentLink) {
-    parentLink.href = instrBreadcrumbParentLink.textContent.trim();
     moveInstrumentation(instrBreadcrumbParentLink, parentLink);
   }
   if (instrBreadcrumbParent) {
-    parentLink.textContent = instrBreadcrumbParent.textContent.trim() || 'Leadership';
     moveInstrumentation(instrBreadcrumbParent, parentLink);
-  } else {
-    parentLink.textContent = 'Leadership';
   }
-  parentItem.appendChild(parentLink);
-  breadcrumbList.appendChild(parentItem);
+  parentItem.append(parentLink);
+  breadcrumbList.append(parentItem);
 
-  // Chevron separator
   const separator = document.createElement('li');
   separator.className = 'breadcrumb-separator';
   separator.setAttribute('aria-hidden', 'true');
   separator.innerHTML = '<svg width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 0.5L3.5 4L0.5 7.5" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  breadcrumbList.appendChild(separator);
+  breadcrumbList.append(separator);
 
-  // Current breadcrumb item
   const currentItem = document.createElement('li');
   currentItem.className = 'breadcrumb-current';
   const currentSpan = document.createElement('span');
-  if (instrBreadcrumbCurrent) {
-    currentSpan.textContent = instrBreadcrumbCurrent.textContent.trim() || '';
-    moveInstrumentation(instrBreadcrumbCurrent, currentSpan);
+  if (breadcrumbCurrent) {
+    currentSpan.textContent = breadcrumbCurrent;
+    if (instrBreadcrumbCurrent) {
+      moveInstrumentation(instrBreadcrumbCurrent, currentSpan);
+    }
+    currentItem.append(currentSpan);
+    breadcrumbList.append(currentItem);
   }
-  currentItem.appendChild(currentSpan);
-  breadcrumbList.appendChild(currentItem);
 
-  breadcrumb.appendChild(breadcrumbList);
+  breadcrumb.append(breadcrumbList);
 
-  // Build profile layout
   const profileContainer = document.createElement('div');
   profileContainer.className = 'leadership-profile-content';
 
-  // Image column
   const imageColumn = document.createElement('div');
   imageColumn.className = 'leadership-profile-image';
 
-  if (instrImage) {
-    const picture = instrImage.querySelector('picture') || instrImage.closest('picture');
-    if (picture) {
-      imageColumn.appendChild(picture.cloneNode(true));
-      moveInstrumentation(instrImage, imageColumn);
-    } else {
-      const img = instrImage.querySelector('img');
-      if (img) {
-        imageColumn.appendChild(img.cloneNode(true));
-        moveInstrumentation(instrImage, imageColumn);
-      }
+  const picture = getPictureNode(instrImage);
+  const image = getImageNode(instrImage);
+  if (picture) {
+    const clonedPicture = picture.cloneNode(true);
+    const clonedImage = clonedPicture.querySelector('img');
+    if (clonedImage && imageAlt) {
+      clonedImage.alt = imageAlt;
     }
+    imageColumn.append(clonedPicture);
+    moveInstrumentation(instrImage, imageColumn);
+  } else if (image) {
+    const clonedImage = image.cloneNode(true);
+    if (imageAlt) {
+      clonedImage.alt = imageAlt;
+    }
+    imageColumn.append(clonedImage);
+    moveInstrumentation(instrImage, imageColumn);
   } else {
-    // Fallback: find picture in the first row
     const firstPicture = block.querySelector('picture');
     if (firstPicture) {
-      imageColumn.appendChild(firstPicture.cloneNode(true));
+      imageColumn.append(firstPicture.cloneNode(true));
     }
   }
 
-  // Text column
   const textColumn = document.createElement('div');
   textColumn.className = 'leadership-profile-text';
 
-  // Name
-  const nameHeading = document.createElement('h1');
-  nameHeading.className = 'leadership-profile-name';
-  let leaderName = '';
-  if (instrName) {
-    leaderName = instrName.textContent.trim();
-    nameHeading.textContent = leaderName;
-    moveInstrumentation(instrName, nameHeading);
-  } else {
-    // Fallback: look for first heading or bold text
-    const h = block.querySelector('h1, h2, h3');
-    if (h) {
-      leaderName = h.textContent.trim();
-      nameHeading.textContent = leaderName;
-    }
-  }
   if (leaderName) {
-    textColumn.appendChild(nameHeading);
+    const nameHeading = document.createElement('h1');
+    nameHeading.className = 'leadership-profile-name';
+    nameHeading.textContent = leaderName;
+    if (instrName) {
+      moveInstrumentation(instrName, nameHeading);
+    }
+    textColumn.append(nameHeading);
   }
 
-  // Title
-  const titleHeading = document.createElement('p');
-  titleHeading.className = 'leadership-profile-title';
-  let leaderTitle = '';
-  if (instrTitle) {
-    leaderTitle = instrTitle.textContent.trim();
-    titleHeading.textContent = leaderTitle;
-    moveInstrumentation(instrTitle, titleHeading);
-  }
   if (leaderTitle) {
-    textColumn.appendChild(titleHeading);
+    const titleHeading = document.createElement('p');
+    titleHeading.className = 'leadership-profile-title';
+    titleHeading.textContent = leaderTitle;
+    if (instrTitle) {
+      moveInstrumentation(instrTitle, titleHeading);
+    }
+    textColumn.append(titleHeading);
   }
 
-  // Bio
   const bioDiv = document.createElement('div');
   bioDiv.className = 'leadership-profile-bio';
   if (instrBio) {
     bioDiv.innerHTML = instrBio.innerHTML;
     moveInstrumentation(instrBio, bioDiv);
   } else {
-    // Fallback: collect remaining paragraphs
     const paragraphs = block.querySelectorAll('p');
-    paragraphs.forEach((p) => {
-      if (!p.querySelector('picture') && !p.closest('.leadership-profile-image')) {
-        bioDiv.appendChild(p.cloneNode(true));
+    paragraphs.forEach((paragraph) => {
+      if (!paragraph.querySelector('picture') && !paragraph.closest('.leadership-profile-image')) {
+        bioDiv.append(paragraph.cloneNode(true));
       }
     });
   }
-  textColumn.appendChild(bioDiv);
+  textColumn.append(bioDiv);
 
-  const currentLabel = instrBreadcrumbCurrent?.textContent.trim() || leaderName;
-  if (currentLabel) {
-    currentSpan.textContent = currentLabel;
-    if (instrBreadcrumbCurrent) {
-      moveInstrumentation(instrBreadcrumbCurrent, currentSpan);
-    }
-  } else {
-    separator.remove();
-    currentItem.remove();
-  }
+  profileContainer.append(imageColumn, textColumn);
 
-  profileContainer.appendChild(imageColumn);
-  profileContainer.appendChild(textColumn);
-
-  // Clear block and rebuild
-  block.textContent = '';
-  block.appendChild(breadcrumb);
-  block.appendChild(profileContainer);
+  nodesToCleanup.forEach((node) => cleanupFieldNode(node, block));
+  block.replaceChildren(breadcrumb, profileContainer);
 }
