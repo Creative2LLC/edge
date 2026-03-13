@@ -53,7 +53,7 @@
           "valueType": "string",
           "name": "statValueColor",
           "label": "Stat Value Color (Hex)",
-          "description": "Defaults to #00264d if left empty",
+          "description": "e.g. #00264d",
           "value": ""
         }
       ]

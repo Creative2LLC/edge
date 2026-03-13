@@ -1,40 +1,83 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-const LEGACY_LABELS = {
-  heading: ['heading', 'title'],
-  statValues: ['stat values', 'values'],
-  statLabels: ['stat labels', 'labels'],
-  statValueColor: ['stat value color', 'value color', 'color'],
-  stat1Value: ['stat 1 value', 'stat1 value', 'value 1'],
-  stat1Label: ['stat 1 label', 'stat1 label', 'label 1'],
-  stat2Value: ['stat 2 value', 'stat2 value', 'value 2'],
-  stat2Label: ['stat 2 label', 'stat2 label', 'label 2'],
-  stat3Value: ['stat 3 value', 'stat3 value', 'value 3'],
-  stat3Label: ['stat 3 label', 'stat3 label', 'label 3'],
-};
-
-function collectLegacyFields(block) {
-  const map = {};
-  const rowsToRemove = [];
-  block.querySelectorAll(':scope > div').forEach((row) => {
-    if (row.children.length !== 2) return;
-    const key = row.children[0].textContent.trim().toLowerCase();
-    const valueEl = row.children[1];
-    Object.entries(LEGACY_LABELS).some(([name, labels]) => {
-      if (!labels.includes(key)) return false;
-      map[name] = { source: valueEl, value: valueEl.textContent.trim() };
-      rowsToRemove.push(row);
-      return true;
-    });
-  });
-  rowsToRemove.forEach((row) => row.remove());
-  return map;
-}
-
-function getField(block, legacyMap, name) {
+/**
+ * Try to find a field by data-aue-prop attribute (universal editor),
+ * then fall back to scanning key-value rows.
+ * This mirrors the pattern used by hero, info-cards-grid, and card-row.
+ */
+function getFieldValue(block, name, altKeys) {
+  // 1. Try data-aue-prop (universal editor / xwalk)
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
-  return legacyMap[name] || { source: null, value: '' };
+
+  // 2. Scan key-value rows (delivered page fallback)
+  const keys = altKeys || [];
+  const allKeys = [name.toLowerCase().replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...keys];
+  const rows = [...block.querySelectorAll(':scope > div')];
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    const cols = [...row.children];
+    if (cols.length >= 2) {
+      const key = cols[0].textContent.trim().toLowerCase();
+      if (allKeys.includes(key)) {
+        return { source: cols[1], value: cols[1].textContent.trim(), row };
+      }
+    }
+  }
+
+  return { source: null, value: '', row: null };
+}
+
+/**
+ * Read and remove the stat value color field from the block.
+ * Follows the same readTextColor pattern used in hero.js.
+ */
+function readStatValueColor(block) {
+  // Try data-aue-prop first
+  const field = getFieldValue(block, 'statValueColor', [
+    'stat value color',
+    'value color',
+    'statvaluecolor',
+  ]);
+
+  if (field.source) {
+    // Remove the row containing this field so it doesn't appear as content
+    if (field.row) {
+      field.row.remove();
+    } else {
+      // In editor mode, the source might be directly in a wrapper row
+      let rowEl = field.source;
+      while (rowEl && rowEl.parentElement !== block) {
+        rowEl = rowEl.parentElement;
+      }
+      if (rowEl && rowEl.parentElement === block) rowEl.remove();
+    }
+  }
+
+  const raw = field.value;
+  if (!raw) return '';
+  const trimmed = raw.trim();
+  // Accept hex colors with or without #
+  if (/^#?[0-9a-fA-F]{3,6}$/.test(trimmed)) {
+    return trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
+  }
+  return '';
+}
+
+/**
+ * Read and remove a text field from the block.
+ */
+function readField(block, name, altKeys) {
+  const field = getFieldValue(block, name, altKeys);
+  if (field.row) field.row.remove();
+  else if (field.source) {
+    let rowEl = field.source;
+    while (rowEl && rowEl.parentElement !== block) {
+      rowEl = rowEl.parentElement;
+    }
+    if (rowEl && rowEl.parentElement === block) rowEl.remove();
+  }
+  return field;
 }
 
 function buildTextElement(tag, className, field) {
@@ -44,55 +87,31 @@ function buildTextElement(tag, className, field) {
   if (field.source) {
     moveInstrumentation(field.source, el);
     while (field.source.firstChild) el.append(field.source.firstChild);
-    field.source.remove();
   } else {
     el.textContent = field.value;
   }
   return el;
 }
 
-function buildItem(valueField, labelField) {
-  if (!valueField?.value && !labelField?.value && !valueField?.source && !labelField?.source) {
-    return null;
-  }
-  const item = document.createElement('li');
-  item.className = 'statistics-item';
-  const valueEl = buildTextElement('div', 'statistics-value', valueField);
-  const labelEl = buildTextElement('div', 'statistics-label', labelField);
-  if (valueEl) item.append(valueEl);
-  if (labelEl) item.append(labelEl);
-  return item;
-}
-
-function normalizeLines(field, fallback = []) {
-  if (!field) return fallback;
-  const value = field.value || '';
-  const lines = value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  if (lines.length) return lines;
-  return fallback;
+function normalizeLines(value) {
+  if (!value) return [];
+  return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 }
 
 export default function decorate(block) {
-  const legacyMap = collectLegacyFields(block);
-  const headingField = getField(block, legacyMap, 'heading');
-  const subheadingField = getField(block, legacyMap, 'subheading');
-  const statValuesField = getField(block, legacyMap, 'statValues');
-  const statLabelsField = getField(block, legacyMap, 'statLabels');
-  const statValueColorField = getField(block, legacyMap, 'statValueColor');
-  const statValueColor = statValueColorField.value || '';
-  const legacyValues = [
-    getField(block, legacyMap, 'stat1Value').value,
-    getField(block, legacyMap, 'stat2Value').value,
-    getField(block, legacyMap, 'stat3Value').value,
-  ].filter(Boolean);
-  const legacyLabels = [
-    getField(block, legacyMap, 'stat1Label').value,
-    getField(block, legacyMap, 'stat2Label').value,
-    getField(block, legacyMap, 'stat3Label').value,
-  ].filter(Boolean);
-  const values = normalizeLines(statValuesField, legacyValues);
-  const labels = normalizeLines(statLabelsField, legacyLabels);
+  // Read color FIRST (before other fields consume rows)
+  const statValueColor = readStatValueColor(block);
 
+  // Read content fields
+  const headingField = readField(block, 'heading', ['heading', 'title']);
+  const subheadingField = readField(block, 'subheading', ['subheading']);
+  const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
+  const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
+
+  const values = normalizeLines(statValuesField.value);
+  const labels = normalizeLines(statLabelsField.value);
+
+  // Build the output DOM
   const wrapper = document.createElement('div');
   wrapper.className = 'statistics-inner';
 
@@ -106,16 +125,27 @@ export default function decorate(block) {
   list.className = 'statistics-list';
   const count = Math.max(values.length, labels.length);
   for (let i = 0; i < count; i += 1) {
-    const valueField = { value: values[i] || '' };
-    const labelField = { value: labels[i] || '' };
-    const item = buildItem(valueField, labelField);
-    if (item) {
+    const item = document.createElement('li');
+    item.className = 'statistics-item';
+
+    if (values[i]) {
+      const valueEl = document.createElement('div');
+      valueEl.className = 'statistics-value';
+      valueEl.textContent = values[i];
       if (statValueColor) {
-        const valueEl = item.querySelector('.statistics-value');
-        if (valueEl) valueEl.style.setProperty('color', statValueColor, 'important');
+        valueEl.style.setProperty('color', statValueColor, 'important');
       }
-      list.append(item);
+      item.append(valueEl);
     }
+
+    if (labels[i]) {
+      const labelEl = document.createElement('div');
+      labelEl.className = 'statistics-label';
+      labelEl.textContent = labels[i];
+      item.append(labelEl);
+    }
+
+    if (item.children.length) list.append(item);
   }
   if (list.childElementCount) wrapper.append(list);
 
