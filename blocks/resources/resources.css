@@ -95,32 +95,6 @@
   display: block;
 }
 
-/* Card image — no-icon variant (image only, no icon) */
-.resources .resources-card-no-icon .resources-card-image {
-  height: auto;
-  padding: 20px 20px 0;
-}
-
-.resources .resources-card-no-icon .resources-card-image picture {
-  height: auto;
-}
-
-.resources .resources-card-no-icon .resources-card-image img {
-  max-width: 183px;
-  max-height: 183px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-}
-
-/* Card content */
-.resources .resources-card-content {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
 /* Card icon (mask-image used for coloring when iconColor is set) */
 .resources .resources-card-icon {
   width: 48px;
@@ -144,6 +118,32 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Card image - no-icon variant (image only, no icon) */
+.resources .resources-card-no-icon .resources-card-image {
+  height: auto;
+  padding: 20px 20px 0;
+}
+
+.resources .resources-card-no-icon .resources-card-image picture {
+  height: auto;
+}
+
+.resources .resources-card-no-icon .resources-card-image img {
+  max-width: 183px;
+  max-height: 183px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Card content */
+.resources .resources-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 /* Card title */
