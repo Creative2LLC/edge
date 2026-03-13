@@ -1560,14 +1560,6 @@
         "value": "",
         "name": "statLabels",
         "label": "Stat Labels (one per line)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "statValueColor",
-        "label": "Stat Value Color (Hex)",
-        "description": "e.g. #00264d",
-        "value": ""
       }
     ]
   },
