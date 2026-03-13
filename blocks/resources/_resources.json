@@ -45,6 +45,18 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Background Color (Hex)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "button",
           "label": "Button Text"
         },
@@ -95,6 +107,12 @@
           "valueType": "string",
           "name": "link",
           "label": "Learn More URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "Link Text"
         }
       ]
     }

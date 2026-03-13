@@ -1,5 +1,5 @@
 .resources {
-  padding: 20px 0 40px;
+  padding: 60px 0;
 }
 
 /* Header row */
@@ -10,12 +10,26 @@
   margin-bottom: 24px;
 }
 
+.resources .resources-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
 .resources .resources-heading {
   font-size: 48px;
   font-weight: 700;
   color: #00264d;
   margin: 0;
   line-height: 1.1;
+}
+
+.resources .resources-subheading {
+  font-size: 24px;
+  font-weight: 500;
+  color: #404041;
+  margin: 8px 0 0;
+  text-align: left;
+  line-height: 1.3;
 }
 
 .resources .resources-button {
@@ -79,6 +93,24 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Card image — no-icon variant (image only, no icon) */
+.resources .resources-card-no-icon .resources-card-image {
+  height: auto;
+  padding: 20px 20px 0;
+}
+
+.resources .resources-card-no-icon .resources-card-image picture {
+  height: auto;
+}
+
+.resources .resources-card-no-icon .resources-card-image img {
+  max-width: 183px;
+  max-height: 183px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 /* Card content */

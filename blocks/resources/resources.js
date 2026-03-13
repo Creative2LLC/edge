@@ -3,6 +3,8 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
+  subheading: ['subheading', 'sub heading'],
+  backgroundColor: ['background color', 'backgroundcolor', 'bg color'],
   button: ['button text', 'buttontext', 'button label', 'button'],
   buttonLink: ['button link', 'button url', 'button href'],
 };
@@ -69,7 +71,7 @@ function parseResourceRow(row) {
     return col.textContent.trim();
   }
 
-  // 6-column layout: image | icon | iconColor | title | subtitle | link
+  // 7-column layout: image | icon | iconColor | title | subtitle | link | linkText
   // This is the primary path — columns always exist in model field order
   if (cols.length >= 6) {
     const imageData = getImageData(cols[0]);
@@ -84,6 +86,7 @@ function parseResourceRow(row) {
       title: cols[3].textContent.trim(),
       subtitle: cols[4].textContent.trim(),
       linkUrl: getLinkUrl(cols[5]),
+      linkText: cols[6] ? cols[6].textContent.trim() : '',
     };
   }
 
@@ -102,6 +105,7 @@ function parseResourceRow(row) {
       title: paragraphs[0]?.textContent.trim() || '',
       subtitle: paragraphs[1]?.textContent.trim() || '',
       linkUrl: link?.href || '',
+      linkText: '',
     };
   }
 
@@ -112,6 +116,19 @@ function buildResourceCard(resource, row) {
   const card = document.createElement('div');
   card.className = 'resources-card';
   if (row) moveInstrumentation(row, card);
+
+  const hasIcon = resource.iconPicture || resource.iconSrc;
+  const hasImage = resource.imagePicture || resource.imgSrc;
+
+  // Add modifier class when image is present but no icon
+  if (hasImage && !hasIcon) {
+    card.classList.add('resources-card-no-icon');
+  }
+
+  // Add modifier class when neither image nor icon is present
+  if (!hasImage && !hasIcon) {
+    card.classList.add('resources-card-no-media');
+  }
 
   // Image — preserve existing <picture> from DOM, then optimize
   if (resource.imagePicture) {
@@ -176,12 +193,12 @@ function buildResourceCard(resource, row) {
     content.append(sub);
   }
 
-  // Learn More link
+  // Learn More link (customizable text)
   if (resource.linkUrl) {
     const link = document.createElement('a');
     link.className = 'resources-card-link';
     link.href = resource.linkUrl;
-    link.textContent = 'Learn More';
+    link.textContent = resource.linkText || 'Learn More';
     content.append(link);
   }
 
@@ -207,8 +224,15 @@ function updateScrollbar(thumb, container) {
 export default function decorate(block) {
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
+  const subheading = getBlockField(block, legacyMap, 'subheading');
+  const backgroundColor = getBlockField(block, legacyMap, 'backgroundColor');
   const buttonText = getBlockField(block, legacyMap, 'button') || 'View All Resources';
   const buttonLink = getBlockLinkField(block, legacyMap, 'buttonLink');
+
+  // Apply optional background color
+  if (backgroundColor) {
+    block.style.backgroundColor = backgroundColor;
+  }
 
   // Remaining rows are resource items
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -225,12 +249,24 @@ export default function decorate(block) {
   const header = document.createElement('div');
   header.className = 'resources-header';
 
+  const headerLeft = document.createElement('div');
+  headerLeft.className = 'resources-header-left';
+
   if (heading) {
     const h2 = document.createElement('h2');
     h2.className = 'resources-heading';
     h2.textContent = heading;
-    header.append(h2);
+    headerLeft.append(h2);
   }
+
+  if (subheading) {
+    const sub = document.createElement('p');
+    sub.className = 'resources-subheading';
+    sub.textContent = subheading;
+    headerLeft.append(sub);
+  }
+
+  header.append(headerLeft);
 
   const btn = document.createElement(buttonLink ? 'a' : 'button');
   btn.className = 'resources-button';
