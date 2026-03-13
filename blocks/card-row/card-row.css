@@ -13,8 +13,9 @@
 }
 
 /* ===== HORIZONTAL VARIANT (default) ===== */
+
 /* Card: ~362px x 370px, 3 per row within 1136px usable width */
-.card-row--horizontal .card-row-card {
+.card-row-horizontal .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,10 +25,10 @@
   min-height: 370px;
   padding: 36px 24px;
   box-sizing: border-box;
-  box-shadow: 0px 4px 10px 0px #40404133;
+  box-shadow: 0 4px 10px 0 #40404133;
 }
 
-.card-row--horizontal .card-row-card-content {
+.card-row-horizontal .card-row-card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,7 +39,7 @@
 }
 
 /* Horizontal logo */
-.card-row--horizontal .card-row-card-logo {
+.card-row-horizontal .card-row-card-logo {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +47,7 @@
   max-height: 90px;
 }
 
-.card-row--horizontal .card-row-card-logo img {
+.card-row-horizontal .card-row-card-logo img {
   max-width: 250px;
   max-height: 90px;
   width: auto;
@@ -56,7 +57,7 @@
 }
 
 /* Horizontal body text */
-.card-row--horizontal .card-row-card-body {
+.card-row-horizontal .card-row-card-body {
   font-size: 17px;
   font-weight: 500;
   color: #404041;
@@ -68,8 +69,9 @@
 }
 
 /* ===== VERTICAL VARIANT ===== */
+
 /* Card: ~266px x 470px, 4 per row within 1136px usable width */
-.card-row--vertical .card-row-card {
+.card-row-vertical .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -78,10 +80,10 @@
   min-height: 470px;
   padding: 36px 24px;
   box-sizing: border-box;
-  box-shadow: 0px 4px 10px 0px #40404133;
+  box-shadow: 0 4px 10px 0 #40404133;
 }
 
-.card-row--vertical .card-row-card-content {
+.card-row-vertical .card-row-card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -92,13 +94,13 @@
 }
 
 /* Vertical logo (small) */
-.card-row--vertical .card-row-card-logo {
+.card-row-vertical .card-row-card-logo {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.card-row--vertical .card-row-card-logo img {
+.card-row-vertical .card-row-card-logo img {
   width: 46px;
   height: 28px;
   object-fit: contain;
@@ -106,7 +108,7 @@
 }
 
 /* Vertical title */
-.card-row--vertical .card-row-card-title {
+.card-row-vertical .card-row-card-title {
   font-size: 28px;
   font-weight: 700;
   color: #404041;
@@ -117,7 +119,7 @@
 }
 
 /* Vertical body text */
-.card-row--vertical .card-row-card-body {
+.card-row-vertical .card-row-card-body {
   font-size: 17px;
   font-weight: 500;
   color: #404041;
@@ -143,7 +145,7 @@
   transition: opacity 0.2s ease;
   box-sizing: border-box;
   margin-top: 16px;
-  border: 2px solid #008DB6;
+  border: 2px solid #008db6;
   background-color: transparent;
   color: #404041;
 }
@@ -161,17 +163,17 @@
     gap: 20px;
   }
 
-  .card-row--horizontal .card-row-card {
+  .card-row-horizontal .card-row-card {
     width: calc(50% - 12px);
     min-height: 340px;
   }
 
-  .card-row--vertical .card-row-card {
+  .card-row-vertical .card-row-card {
     width: calc(50% - 12px);
     min-height: 420px;
   }
 
-  .card-row--vertical .card-row-card-title {
+  .card-row-vertical .card-row-card-title {
     font-size: 24px;
   }
 }
@@ -182,13 +184,13 @@
     gap: 16px;
   }
 
-  .card-row--horizontal .card-row-card,
-  .card-row--vertical .card-row-card {
+  .card-row-horizontal .card-row-card,
+  .card-row-vertical .card-row-card {
     width: 100%;
     min-height: auto;
   }
 
-  .card-row--vertical .card-row-card-title {
+  .card-row-vertical .card-row-card-title {
     font-size: 22px;
   }
 }

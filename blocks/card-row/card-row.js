@@ -47,7 +47,6 @@ function buildCard(data, variant) {
   const content = document.createElement('div');
   content.className = 'card-row-card-content';
 
-  // Logo
   if (data.logoField.img) {
     const logoWrap = document.createElement('div');
     logoWrap.className = 'card-row-card-logo';
@@ -57,7 +56,6 @@ function buildCard(data, variant) {
     content.append(logoWrap);
   }
 
-  // Title (vertical variant only)
   if (variant === 'vertical' && (data.titleField.value || data.titleField.source)) {
     const h3 = document.createElement('h3');
     h3.className = 'card-row-card-title';
@@ -70,7 +68,6 @@ function buildCard(data, variant) {
     content.append(h3);
   }
 
-  // Body text
   if (data.bodyField.value || data.bodyField.source) {
     const p = document.createElement('p');
     p.className = 'card-row-card-body';
@@ -85,7 +82,6 @@ function buildCard(data, variant) {
 
   card.append(content);
 
-  // Button
   const btnLabel = data.buttonTextField.value || 'Learn More';
   const btnHref = data.buttonLinkField.value;
   const btn = document.createElement(btnHref ? 'a' : 'button');
@@ -113,7 +109,6 @@ function buildCard(data, variant) {
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
-  // Get block-level settings
   const variantEl = block.querySelector('[data-aue-prop="variant"]');
   const variant = variantEl?.textContent.trim() || 'horizontal';
 
@@ -121,10 +116,6 @@ export default function decorate(block) {
   const defaultCols = variant === 'vertical' ? 4 : 3;
   const columns = parseInt(columnsEl?.textContent.trim(), 10) || defaultCols;
 
-  // Parse each card row
-  // Field index mapping:
-  // 0: logo, 1: title, 2: bodyText, 3: buttonText, 4: buttonLink,
-  // 5: buttonColor, 6: buttonTextColor, 7: cardBackgroundColor
   const cards = [];
   rows.forEach((row) => {
     const cols = [...row.children];
@@ -152,13 +143,11 @@ export default function decorate(block) {
     });
   });
 
-  // Build grid
   const grid = document.createElement('div');
   grid.className = 'card-row-grid';
   grid.style.setProperty('--grid-columns', columns);
 
-  // Add variant class to block
-  block.classList.add(`card-row--${variant}`);
+  block.classList.add(`card-row-${variant}`);
 
   cards.forEach((data) => {
     const card = buildCard(data, variant);
