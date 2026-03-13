@@ -41,6 +41,12 @@
     ]
   },
   {
+    "id": "card-row",
+    "components": [
+      "card-row-item"
+    ]
+  },
+  {
     "id": "cards",
     "components": [
       "card"

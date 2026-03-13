@@ -171,6 +171,121 @@
     ]
   },
   {
+    "id": "card-row",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "variant",
+        "label": "Card Variant",
+        "description": "Horizontal: larger cards (3/row). Vertical: taller cards with title (4/row).",
+        "options": [
+          {
+            "name": "Horizontal",
+            "value": "horizontal"
+          },
+          {
+            "name": "Vertical",
+            "value": "vertical"
+          }
+        ],
+        "value": "horizontal"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Cards Per Row",
+        "description": "Override the default cards per row (3 for horizontal, 4 for vertical)",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "1 Card",
+            "value": "1"
+          },
+          {
+            "name": "2 Cards",
+            "value": "2"
+          },
+          {
+            "name": "3 Cards",
+            "value": "3"
+          },
+          {
+            "name": "4 Cards",
+            "value": "4"
+          },
+          {
+            "name": "5 Cards",
+            "value": "5"
+          },
+          {
+            "name": "6 Cards",
+            "value": "6"
+          }
+        ],
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "card-row-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "logo",
+        "label": "Logo / Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title (Vertical variant only)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Background Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color (Hex)",
+        "description": "Defaults to white (#ffffff) if left empty"
+      }
+    ]
+  },
+  {
     "id": "card",
     "fields": [
       {
