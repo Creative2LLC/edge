@@ -29,9 +29,10 @@ module.exports = {
     'linebreak-style': ['error', 'unix'], // enforce unix linebreaks
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', {
-      '*': 4,
+      '*': 8,
       'news-article': 5,
-      'resource-item': 6,
+      resources: 5,
+      'resource-item': 7,
       'resources-browser': 6,
       'resources-browser-item': 8,
       'mega-nav-row': 6,
@@ -43,6 +44,7 @@ module.exports = {
       'cta-card-2': 8,
       'info-card': 10,
       'card-row-item': 8,
+      'split-card': 9,
       statistics: 5,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
