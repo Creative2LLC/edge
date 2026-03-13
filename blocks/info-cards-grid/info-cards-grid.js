@@ -157,6 +157,16 @@ function buildCard(data) {
   const cardBg = data.cardBg || '#1a1a2e';
   card.style.setProperty('background-color', cardBg, 'important');
 
+  // Overlay image
+  if (data.overlayField && data.overlayField.img) {
+    const overlay = document.createElement('div');
+    overlay.className = 'info-cards-grid-card-overlay';
+    const img = data.overlayField.img.cloneNode(true);
+    if (data.overlayField.source) moveInstrumentation(data.overlayField.source, img);
+    overlay.append(img);
+    card.append(overlay);
+  }
+
   // Content wrapper (everything above button)
   const content = document.createElement('div');
   content.className = 'info-cards-grid-card-content';
@@ -198,6 +208,7 @@ export default function decorate(block) {
     const cardBgField = getField(row, 'cardBackgroundColor', 6);
     const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
     const iconColorField = getField(row, 'iconColor', 8);
+    const overlayField = getImageField(row, 'overlayImage', 9);
 
     cards.push({
       iconField,
@@ -209,6 +220,7 @@ export default function decorate(block) {
       cardBg: cardBgField.value,
       buttonBg: buttonBgField.value,
       iconColor: iconColorField.value,
+      overlayField,
       row,
     });
   });

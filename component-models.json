@@ -1045,6 +1045,14 @@
         "name": "iconColor",
         "label": "Icon Color (Hex)",
         "description": "Defaults to white (#ffffff) if left empty"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "overlayImage",
+        "label": "Overlay Image (Optional)",
+        "description": "Image covers the card at low opacity so the background color shows through",
+        "multi": false
       }
     ]
   },
