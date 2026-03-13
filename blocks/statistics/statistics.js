@@ -113,7 +113,7 @@ export default function decorate(block) {
     if (item) {
       if (statValueColor) {
         const valueEl = item.querySelector('.statistics-value');
-        if (valueEl) valueEl.style.color = statValueColor;
+        if (valueEl) valueEl.style.setProperty('color', statValueColor, 'important');
       }
       list.append(item);
     }
