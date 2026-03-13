@@ -654,6 +654,8 @@ async function loadBlock(block) {
  * @param {Element} block The block element
  */
 function decorateBlock(block) {
+  const normalizeBlockNameCandidate = (value) => toClassName(value).replace(/-\d{4,}$/u, '');
+
   const getResourceSegments = (resource) => {
     if (!resource) return [];
     const match = resource.match(/(\/content\/[^?#]+)/);
@@ -664,27 +666,28 @@ function decorateBlock(block) {
   const getResourceBlockName = (element) => {
     if (!element) return '';
     const resource = element.getAttribute('data-aue-resource') || '';
-    const propName = toClassName(element.getAttribute('data-aue-prop') || '');
+    const propName = normalizeBlockNameCandidate(element.getAttribute('data-aue-prop') || '');
     const segments = getResourceSegments(resource);
     if (!segments.length) return '';
-    const lastSegment = toClassName(segments[segments.length - 1]);
+    const lastSegment = normalizeBlockNameCandidate(segments[segments.length - 1]);
     if (propName && lastSegment === propName && segments.length > 1) {
-      return toClassName(segments[segments.length - 2]);
+      return normalizeBlockNameCandidate(segments[segments.length - 2]);
     }
     return lastSegment;
   };
 
-  const modelField = block.querySelector('[data-aue-prop="model"], [data-aue-prop="aueComponentId"]');
+  const modelValue = block.querySelector('[data-aue-prop="model"]')?.textContent.trim() || '';
+  const componentIdValue = block.querySelector('[data-aue-prop="aueComponentId"]')?.textContent.trim() || '';
   const resourceField = block.querySelector('[data-aue-resource]');
   const classCandidates = [...block.classList]
-    .map((className) => toClassName(className))
+    .map((className) => normalizeBlockNameCandidate(className))
     .filter((className) => className && className !== 'block');
-  const shortBlockName = toClassName(
-    block.getAttribute('data-block-name')
-    || modelField?.textContent.trim()
+  const shortBlockName = normalizeBlockNameCandidate(
+    modelValue
     || getResourceBlockName(block)
-    || getResourceBlockName(modelField)
     || getResourceBlockName(resourceField)
+    || componentIdValue
+    || block.getAttribute('data-block-name')
     || classCandidates[0]
     || '',
   );
