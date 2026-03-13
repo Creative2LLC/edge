@@ -88,24 +88,35 @@ export default function decorate(block) {
   // Name
   const nameHeading = document.createElement('h1');
   nameHeading.className = 'leadership-profile-name';
+  let leaderName = '';
   if (instrName) {
-    nameHeading.textContent = instrName.textContent.trim();
+    leaderName = instrName.textContent.trim();
+    nameHeading.textContent = leaderName;
     moveInstrumentation(instrName, nameHeading);
   } else {
     // Fallback: look for first heading or bold text
     const h = block.querySelector('h1, h2, h3');
-    if (h) nameHeading.textContent = h.textContent.trim();
+    if (h) {
+      leaderName = h.textContent.trim();
+      nameHeading.textContent = leaderName;
+    }
   }
-  textColumn.appendChild(nameHeading);
+  if (leaderName) {
+    textColumn.appendChild(nameHeading);
+  }
 
   // Title
   const titleHeading = document.createElement('p');
   titleHeading.className = 'leadership-profile-title';
+  let leaderTitle = '';
   if (instrTitle) {
-    titleHeading.textContent = instrTitle.textContent.trim();
+    leaderTitle = instrTitle.textContent.trim();
+    titleHeading.textContent = leaderTitle;
     moveInstrumentation(instrTitle, titleHeading);
   }
-  textColumn.appendChild(titleHeading);
+  if (leaderTitle) {
+    textColumn.appendChild(titleHeading);
+  }
 
   // Bio
   const bioDiv = document.createElement('div');
@@ -123,6 +134,17 @@ export default function decorate(block) {
     });
   }
   textColumn.appendChild(bioDiv);
+
+  const currentLabel = instrBreadcrumbCurrent?.textContent.trim() || leaderName;
+  if (currentLabel) {
+    currentSpan.textContent = currentLabel;
+    if (instrBreadcrumbCurrent) {
+      moveInstrumentation(instrBreadcrumbCurrent, currentSpan);
+    }
+  } else {
+    separator.remove();
+    currentItem.remove();
+  }
 
   profileContainer.appendChild(imageColumn);
   profileContainer.appendChild(textColumn);

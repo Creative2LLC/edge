@@ -654,8 +654,12 @@ async function loadBlock(block) {
  * @param {Element} block The block element
  */
 function decorateBlock(block) {
-  const shortBlockName = block.classList[0];
+  const rawBlockName = block.classList[0];
+  const shortBlockName = toClassName(rawBlockName);
   if (shortBlockName && !block.dataset.blockStatus) {
+    if (!block.classList.contains(shortBlockName)) {
+      block.classList.add(shortBlockName);
+    }
     block.classList.add('block');
     block.dataset.blockName = shortBlockName;
     block.dataset.blockStatus = 'initialized';
