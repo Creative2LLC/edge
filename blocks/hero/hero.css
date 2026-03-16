@@ -20,7 +20,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: rgb(246 248 250 / 78%);
+  background: rgb(246 248 250 / var(--hero-overlay-opacity, 78%));
 }
 
 .hero picture {

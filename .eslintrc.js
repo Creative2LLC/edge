@@ -44,6 +44,7 @@ module.exports = {
       'cta-card-2': 8,
       'info-card': 10,
       'card-row-item': 8,
+      'card-row-detailed-item': 14,
       'split-card': 9,
       statistics: 5,
     }],

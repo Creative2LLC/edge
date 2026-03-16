@@ -535,10 +535,32 @@ function applyTextColor(main, color) {
   if (richtext) richtext.style.color = color;
 }
 
+function readOverlayOpacity(block) {
+  const field = getFieldValue(block, ['media_overlayOpacity', 'overlayOpacity']);
+  const { source, value } = field;
+  if (source) {
+    const row = getDirectRow(block, source);
+    if (row) row.remove();
+    else {
+      const paragraph = source.closest('p');
+      (paragraph || source).remove();
+    }
+  }
+  if (!value) return null;
+  const num = parseInt(value, 10);
+  if (Number.isNaN(num) || num < 0 || num > 100) return null;
+  return `${num}%`;
+}
+
 export default async function decorate(block) {
   const height = readHeight(block);
   if (height) {
     block.style.setProperty('--hero-height', height);
+  }
+
+  const overlayOpacity = readOverlayOpacity(block);
+  if (overlayOpacity) {
+    block.style.setProperty('--hero-overlay-opacity', overlayOpacity);
   }
 
   const contentPosition = normalizeChoice(
