@@ -536,16 +536,7 @@ function applyTextColor(main, color) {
 }
 
 function readOverlayOpacity(block) {
-  const field = getFieldValue(block, ['media_overlayOpacity', 'overlayOpacity']);
-  const { source, value } = field;
-  if (source) {
-    const row = getDirectRow(block, source);
-    if (row) row.remove();
-    else {
-      const paragraph = source.closest('p');
-      (paragraph || source).remove();
-    }
-  }
+  const { value } = getFieldValue(block, ['media_overlayOpacity', 'overlayOpacity']);
   if (!value) return null;
   const num = parseInt(value, 10);
   if (Number.isNaN(num) || num < 0 || num > 100) return null;
