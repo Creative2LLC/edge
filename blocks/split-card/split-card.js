@@ -64,6 +64,9 @@ function getImage(block) {
 export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
 
+  // Extract image before removing other fields
+  const picture = getImage(block);
+
   const heading = getField(block, legacyMap, 'heading');
   const subheading = getField(block, legacyMap, 'subheading');
   const buttonText = getField(block, legacyMap, 'buttonText');
@@ -73,7 +76,29 @@ export default function decorate(block) {
   const contentAlign = getField(block, legacyMap, 'contentAlign') || 'left';
   const imageAlt = getField(block, legacyMap, 'imageAlt');
 
-  const picture = getImage(block);
+  // Also scan remaining rows for any field values not yet extracted
+  const remainingFields = {};
+  block.querySelectorAll(':scope > div').forEach((row) => {
+    row.querySelectorAll('[data-aue-prop]').forEach((el) => {
+      const prop = el.getAttribute('data-aue-prop');
+      if (prop && !remainingFields[prop]) {
+        remainingFields[prop] = el.textContent.trim();
+      }
+    });
+    // Also check columns by index for single-row block rendering
+    const cols = [...row.children];
+    cols.forEach((col) => {
+      const prop = col.getAttribute('data-aue-prop');
+      if (prop && !remainingFields[prop]) {
+        remainingFields[prop] = col.textContent.trim();
+      }
+    });
+  });
+
+  const finalButtonColor = buttonColor || remainingFields.buttonColor || '';
+  const finalBackgroundColor = backgroundColor || remainingFields.backgroundColor || '';
+  const finalContentAlign = contentAlign !== 'left' ? contentAlign : (remainingFields.contentAlign || 'left');
+
   if (picture) {
     const img = picture.querySelector('img');
     if (img && imageAlt) img.alt = imageAlt;
@@ -92,16 +117,16 @@ export default function decorate(block) {
   // Right: content
   const contentSide = document.createElement('div');
   contentSide.className = 'split-card-content';
-  contentSide.style.textAlign = contentAlign;
+  contentSide.style.textAlign = finalContentAlign;
 
-  if (contentAlign === 'center') {
+  if (finalContentAlign === 'center') {
     contentSide.style.alignItems = 'center';
-  } else if (contentAlign === 'right') {
+  } else if (finalContentAlign === 'right') {
     contentSide.style.alignItems = 'flex-end';
   }
 
-  if (backgroundColor) {
-    contentSide.style.backgroundColor = backgroundColor;
+  if (finalBackgroundColor) {
+    contentSide.style.backgroundColor = finalBackgroundColor;
   }
 
   if (heading) {
@@ -123,8 +148,8 @@ export default function decorate(block) {
     btn.className = 'split-card-button';
     btn.href = buttonLink;
     btn.textContent = buttonText;
-    if (buttonColor) {
-      btn.style.backgroundColor = buttonColor;
+    if (finalButtonColor) {
+      btn.style.backgroundColor = finalButtonColor;
     }
     contentSide.append(btn);
   }
