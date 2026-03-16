@@ -76,6 +76,11 @@
   color: #008eb7;
 }
 
+/* Second line and beyond in rich text get the lighter blue */
+.hero .hero-richtext > :not(:first-child) {
+  color: #008eb7;
+}
+
 .hero .hero-richtext p {
   margin: 24px 0 0;
   max-width: 960px;
