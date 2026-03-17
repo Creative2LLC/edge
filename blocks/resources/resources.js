@@ -234,7 +234,7 @@ export default function decorate(block) {
   const heading = getBlockField(block, legacyMap, 'heading');
   const subheading = getBlockField(block, legacyMap, 'subheading');
   const backgroundColor = getBlockField(block, legacyMap, 'backgroundColor');
-  const buttonText = getBlockField(block, legacyMap, 'button') || 'View All Resources';
+  const buttonText = getBlockField(block, legacyMap, 'button');
   const buttonLink = getBlockLinkField(block, legacyMap, 'buttonLink');
 
   // Apply optional background color
@@ -276,12 +276,14 @@ export default function decorate(block) {
 
   header.append(headerLeft);
 
-  const btn = document.createElement(buttonLink ? 'a' : 'button');
-  btn.className = 'resources-button';
-  btn.textContent = buttonText;
-  if (buttonLink) btn.href = buttonLink;
-  if (!buttonLink) btn.type = 'button';
-  header.append(btn);
+  if (buttonText) {
+    const btn = document.createElement(buttonLink ? 'a' : 'button');
+    btn.className = 'resources-button';
+    btn.textContent = buttonText;
+    if (buttonLink) btn.href = buttonLink;
+    if (!buttonLink) btn.type = 'button';
+    header.append(btn);
+  }
 
   inner.append(header);
 
