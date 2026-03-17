@@ -4,13 +4,13 @@
     linear-gradient(0deg, #fff, #fff),
     linear-gradient(
       270deg,
-      rgba(231 228 225 / 15%) 0%,
-      rgba(0 141 182 / 15%) 100%
+      rgb(231 228 225 / 15%) 0%,
+      rgb(0 141 182 / 15%) 100%
     ),
     linear-gradient(
       270deg,
       #e7e4e1 0%,
-      rgba(231 228 225 / 0%) 100%
+      rgb(231 228 225 / 0%) 100%
     );
   border-radius: 32px;
   padding: 60px 48px;
@@ -60,7 +60,7 @@
   border-radius: 8px;
   padding: 28px 24px;
   box-sizing: border-box;
-  box-shadow: 0 4px 12px 0 rgba(64 64 65 / 12%);
+  box-shadow: 0 4px 12px 0 rgb(64 64 65 / 12%);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
