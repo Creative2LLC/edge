@@ -42,6 +42,12 @@
     ]
   },
   {
+    "id": "card-row-compact",
+    "components": [
+      "card-row-compact-item"
+    ]
+  },
+  {
     "id": "card-row-detailed",
     "components": [
       "card-row-detailed-item"

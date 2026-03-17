@@ -1,0 +1,136 @@
+/* Card Row Compact Block */
+.card-row-compact.block {
+  padding: 60px 0;
+  margin: 0 auto;
+}
+
+/* Grid container */
+.card-row-compact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+/* Individual card */
+.card-row-compact-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  width: 346px;
+  min-height: 317px;
+  padding: 28px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px 0 #40404133;
+}
+
+/* Card content */
+.card-row-compact-card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 12px;
+  width: 100%;
+}
+
+/* === Alignment variants === */
+
+/* Left (default) */
+.card-row-compact-align-left .card-row-compact-card-content {
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Center */
+.card-row-compact-align-center .card-row-compact-card-content {
+  align-items: center;
+  text-align: center;
+}
+
+/* Right */
+.card-row-compact-align-right .card-row-compact-card-content {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Icon */
+.card-row-compact-card-icon {
+  width: 48px;
+  height: 48px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
+}
+
+.card-row-compact-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Title */
+.card-row-compact-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #404041;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Subheading */
+.card-row-compact-card-subheading {
+  font-size: 17px;
+  font-weight: 500;
+  color: #404041;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Link */
+.card-row-compact-card-link {
+  font-size: 17px;
+  font-weight: 400;
+  color: #007294;
+  text-decoration: none;
+  margin-top: auto;
+}
+
+.card-row-compact-card-link:hover {
+  text-decoration: underline;
+}
+
+/* === Responsive === */
+
+/* Tablet */
+@media (width <= 900px) {
+  .card-row-compact-grid {
+    gap: 20px;
+  }
+
+  .card-row-compact-card {
+    width: calc(50% - 12px);
+    min-height: 280px;
+  }
+}
+
+/* Mobile */
+@media (width <= 600px) {
+  .card-row-compact-grid {
+    gap: 16px;
+  }
+
+  .card-row-compact-card {
+    width: 100%;
+    min-height: auto;
+  }
+}
