@@ -17,9 +17,10 @@
   display: flex;
   flex-direction: column;
   border-radius: 8px;
-  width: 346px;
-  min-height: 317px;
-  padding: 28px 24px;
+  flex: 1 1 0;
+  max-width: 266px;
+  min-height: 260px;
+  padding: 24px 20px;
   box-sizing: border-box;
   box-shadow: 0 4px 10px 0 #40404133;
 }
@@ -118,8 +119,9 @@
   }
 
   .card-row-compact-card {
-    width: calc(50% - 12px);
-    min-height: 280px;
+    flex: 1 1 calc(50% - 12px);
+    max-width: calc(50% - 12px);
+    min-height: auto;
   }
 }
 
@@ -130,7 +132,8 @@
   }
 
   .card-row-compact-card {
-    width: 100%;
+    flex: 1 1 100%;
+    max-width: 100%;
     min-height: auto;
   }
 }
