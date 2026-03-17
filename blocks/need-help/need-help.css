@@ -1,7 +1,11 @@
+/* Override section max-width for wider block */
+main > .section > .need-help-wrapper {
+  max-width: 1400px;
+}
+
 /* Need Help Block */
 .need-help.block {
   background:
-    linear-gradient(0deg, #fff, #fff),
     linear-gradient(
       270deg,
       rgb(231 228 225 / 15%) 0%,
@@ -43,6 +47,7 @@
   margin: 0 0 40px;
   line-height: 1.4;
   text-align: center;
+  max-width: 885px;
 }
 
 /* Cards row */
