@@ -81,7 +81,7 @@
 
 /* Title */
 .card-row-compact-card-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #404041;
   margin: 0;
@@ -90,7 +90,7 @@
 
 /* Subheading */
 .card-row-compact-card-subheading {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 500;
   color: #404041;
   margin: 0;
@@ -99,7 +99,7 @@
 
 /* Link */
 .card-row-compact-card-link {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 400;
   color: #007294;
   text-decoration: none;
