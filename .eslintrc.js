@@ -43,7 +43,7 @@ module.exports = {
       'cta-card-1': 9,
       'cta-card-2': 8,
       'info-card': 10,
-      'card-row-item': 8,
+      'card-row-item': 9,
       'card-row-detailed-item': 14,
       'split-card': 9,
       statistics: 5,
