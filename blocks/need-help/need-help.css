@@ -1,0 +1,146 @@
+/* Need Help Block */
+.need-help.block {
+  background:
+    linear-gradient(0deg, #fff, #fff),
+    linear-gradient(
+      270deg,
+      rgba(231 228 225 / 15%) 0%,
+      rgba(0 141 182 / 15%) 100%
+    ),
+    linear-gradient(
+      270deg,
+      #e7e4e1 0%,
+      rgba(231 228 225 / 0%) 100%
+    );
+  border-radius: 32px;
+  padding: 60px 48px;
+  margin: 0 auto;
+}
+
+/* Inner wrapper */
+.need-help-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+}
+
+/* Heading */
+.need-help-heading {
+  font-size: 64px;
+  font-weight: 600;
+  color: #008db6;
+  margin: 0 0 16px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* Subheading */
+.need-help-subheading {
+  font-size: 24px;
+  font-weight: 500;
+  color: #404041;
+  margin: 0 0 40px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Cards row */
+.need-help-cards {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Individual card */
+.need-help-card {
+  flex: 1 1 0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 28px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px 0 rgba(64 64 65 / 12%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Card title */
+.need-help-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #404041;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+/* Card subheading */
+.need-help-card-subheading {
+  font-size: 17px;
+  font-weight: 500;
+  color: #404041;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+/* Card link */
+.need-help-card-link {
+  font-size: 17px;
+  font-weight: 400;
+  color: #007294;
+  text-decoration: none;
+  margin-top: auto;
+}
+
+.need-help-card-link:hover {
+  text-decoration: underline;
+}
+
+/* Parenthesized text in link */
+.need-help-card-link-small {
+  font-size: 14px;
+}
+
+/* === Responsive === */
+
+/* Tablet */
+@media (width <= 900px) {
+  .need-help.block {
+    padding: 48px 32px;
+  }
+
+  .need-help-heading {
+    font-size: 44px;
+  }
+
+  .need-help-subheading {
+    font-size: 20px;
+  }
+
+  .need-help-cards {
+    gap: 20px;
+  }
+}
+
+/* Mobile */
+@media (width <= 600px) {
+  .need-help.block {
+    padding: 36px 20px;
+    border-radius: 20px;
+  }
+
+  .need-help-heading {
+    font-size: 32px;
+  }
+
+  .need-help-subheading {
+    font-size: 18px;
+    margin-bottom: 28px;
+  }
+
+  .need-help-cards {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

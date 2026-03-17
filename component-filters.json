@@ -37,7 +37,6 @@
       "cta-card-2",
       "info-cards-grid",
       "card-row",
-      "card-row-compact",
       "section-title",
       "split-card"
     ]
@@ -112,6 +111,12 @@
     "id": "leadership-team",
     "components": [
       "leader-card"
+    ]
+  },
+  {
+    "id": "need-help",
+    "components": [
+      "need-help-card"
     ]
   },
   {
