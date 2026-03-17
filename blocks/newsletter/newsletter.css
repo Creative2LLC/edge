@@ -1,3 +1,8 @@
+/* Override section max-width for wider block */
+main > .section > .newsletter-wrapper {
+  max-width: 1500px;
+}
+
 .newsletter {
   position: relative;
   min-height: 360px;
