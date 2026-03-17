@@ -59,6 +59,7 @@ function buildCard(data, variant) {
   if (variant === 'vertical' && (data.titleField.value || data.titleField.source)) {
     const h3 = document.createElement('h3');
     h3.className = 'card-row-card-title';
+    if (data.textColor) h3.style.color = data.textColor;
     if (data.titleField.source) {
       moveInstrumentation(data.titleField.source, h3);
       while (data.titleField.source.firstChild) h3.append(data.titleField.source.firstChild);
@@ -71,6 +72,7 @@ function buildCard(data, variant) {
   if (data.bodyField.value || data.bodyField.source) {
     const p = document.createElement('p');
     p.className = 'card-row-card-body';
+    if (data.textColor) p.style.color = data.textColor;
     if (data.bodyField.source) {
       moveInstrumentation(data.bodyField.source, p);
       while (data.bodyField.source.firstChild) p.append(data.bodyField.source.firstChild);
@@ -129,6 +131,7 @@ export default function decorate(block) {
     const buttonColorField = getField(row, 'buttonColor', 5);
     const buttonTextColorField = getField(row, 'buttonTextColor', 6);
     const cardBgField = getField(row, 'cardBackgroundColor', 7);
+    const textColorField = getField(row, 'textColor', 8);
 
     cards.push({
       logoField,
@@ -139,6 +142,7 @@ export default function decorate(block) {
       buttonColor: buttonColorField.value,
       buttonTextColor: buttonTextColorField.value,
       cardBg: cardBgField.value,
+      textColor: textColorField.value,
       row,
     });
   });
