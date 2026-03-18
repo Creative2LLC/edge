@@ -1,25 +1,25 @@
 /* Block root */
 .text-left-image-right {
-  padding: 0;
+  padding: 60px 0;
 }
 
-/* Inner container */
+/* Inner container — 2/3 text, 1/3 image */
 .text-left-image-right .text-left-image-right-inner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 48px;
 }
 
-/* Left: text content — takes majority of space */
+/* Left: text content — takes ~2/3 of space */
 .text-left-image-right .text-left-image-right-content {
-  flex: 1 1 0%;
+  flex: 2 1 0%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
 }
 
-/* Heading */
+/* Heading — override global h2 styles */
 .text-left-image-right .text-left-image-right-heading {
   font-size: 48px;
   font-weight: 700;
@@ -39,7 +39,7 @@
   text-align: left;
 }
 
-/* Right: image — fixed size */
+/* Right: image — takes ~1/3 of space */
 .text-left-image-right .text-left-image-right-media {
   flex: 0 0 459px;
 }
@@ -48,11 +48,15 @@
   display: block;
   width: 459px;
   height: 400px;
+  overflow: hidden;
+  border-radius: 14px;
 }
 
+/* Override global main img { width: auto; height: auto } */
 .text-left-image-right .text-left-image-right-media img {
   width: 100%;
   height: 100%;
+  max-width: none;
   object-fit: cover;
   display: block;
   border-radius: 14px;
