@@ -1,23 +1,4 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { moveInstrumentation } from '../../scripts/scripts.js';
-
-function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  // legacy table fallback: rows with key-value pairs
-  const match = [...block.querySelectorAll(':scope > div')]
-    .filter((row) => row.children.length >= 2)
-    .find((row) => {
-      const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
-      return key === name.toLowerCase();
-    });
-
-  if (match) {
-    return { source: match.children[1], value: match.children[1].textContent.trim(), row: match };
-  }
-  return { source: null, value: '' };
-}
 
 function getImage(block) {
   const source = block.querySelector('[data-aue-prop="image"]');
@@ -26,68 +7,55 @@ function getImage(block) {
   const img = picture.querySelector('img');
   if (!img) return picture;
   const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
-  if (source) {
-    moveInstrumentation(source, optimized);
-  }
+  picture.replaceWith(optimized);
   return optimized;
+}
+
+function getFieldText(block, propName) {
+  const el = block.querySelector(`[data-aue-prop="${propName}"]`);
+  if (el) return el.textContent.trim();
+  return '';
 }
 
 export default function decorate(block) {
   const picture = getImage(block);
-  const headingField = getField(block, 'heading');
-  const bodyField = getField(block, 'bodyText');
-  const imageAltField = getField(block, 'imageAlt');
+  const heading = getFieldText(block, 'heading');
+  const bodyText = getFieldText(block, 'bodyText');
+  const imageAlt = getFieldText(block, 'imageAlt');
 
-  if (picture && imageAltField.value) {
+  if (picture && imageAlt) {
     const img = picture.querySelector('img');
-    if (img) img.alt = imageAltField.value;
+    if (img) img.alt = imageAlt;
   }
 
-  // Clean up legacy rows
-  if (imageAltField.row) imageAltField.row.remove();
-
-  // Build DOM
-  const wrapper = document.createElement('div');
-  wrapper.className = 'text-left-image-right-inner';
+  const inner = document.createElement('div');
+  inner.className = 'text-left-image-right-inner';
 
   // Left: text content
   const contentSide = document.createElement('div');
   contentSide.className = 'text-left-image-right-content';
 
-  if (headingField.value || headingField.source) {
+  if (heading) {
     const h2 = document.createElement('h2');
     h2.className = 'text-left-image-right-heading';
-    if (headingField.source) {
-      moveInstrumentation(headingField.source, h2);
-      while (headingField.source.firstChild) h2.append(headingField.source.firstChild);
-      headingField.source.remove();
-    } else {
-      h2.textContent = headingField.value;
-    }
-    wrapper.append(contentSide);
+    h2.textContent = heading;
     contentSide.append(h2);
   }
 
-  if (bodyField.value || bodyField.source) {
+  if (bodyText) {
     const p = document.createElement('p');
     p.className = 'text-left-image-right-body';
-    if (bodyField.source) {
-      moveInstrumentation(bodyField.source, p);
-      while (bodyField.source.firstChild) p.append(bodyField.source.firstChild);
-      bodyField.source.remove();
-    } else {
-      p.textContent = bodyField.value;
-    }
+    p.textContent = bodyText;
     contentSide.append(p);
   }
 
-  wrapper.append(contentSide);
+  inner.append(contentSide);
 
   // Right: image
   const mediaSide = document.createElement('div');
   mediaSide.className = 'text-left-image-right-media';
   if (picture) mediaSide.append(picture);
-  wrapper.append(mediaSide);
+  inner.append(mediaSide);
 
-  block.replaceChildren(wrapper);
+  block.replaceChildren(inner);
 }

@@ -1,26 +1,25 @@
 /* Block root */
-.text-left-image-right {
+.text-left-image-right.block {
   padding: 60px 0;
 }
 
-/* Inner container — 2/3 text, 1/3 image */
-.text-left-image-right .text-left-image-right-inner {
+/* Inner container — text ~2/3, image ~1/3 */
+.text-left-image-right.block .text-left-image-right-inner {
   display: flex;
   align-items: flex-start;
   gap: 48px;
 }
 
-/* Left: text content — takes ~2/3 of space */
-.text-left-image-right .text-left-image-right-content {
+/* Left: text content */
+.text-left-image-right.block .text-left-image-right-content {
   flex: 2 1 0%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   align-items: flex-start;
 }
 
-/* Heading — override global h2 styles */
-.text-left-image-right .text-left-image-right-heading {
+/* Heading */
+.text-left-image-right.block .text-left-image-right-heading {
   font-size: 48px;
   font-weight: 700;
   color: #00264d;
@@ -30,7 +29,7 @@
 }
 
 /* Body text */
-.text-left-image-right .text-left-image-right-body {
+.text-left-image-right.block .text-left-image-right-body {
   font-size: 20px;
   font-weight: 500;
   color: #404041;
@@ -39,12 +38,12 @@
   text-align: left;
 }
 
-/* Right: image — takes ~1/3 of space */
-.text-left-image-right .text-left-image-right-media {
+/* Right: image */
+.text-left-image-right.block .text-left-image-right-media {
   flex: 0 0 459px;
 }
 
-.text-left-image-right .text-left-image-right-media picture {
+.text-left-image-right.block .text-left-image-right-media picture {
   display: block;
   width: 459px;
   height: 400px;
@@ -52,10 +51,9 @@
   border-radius: 14px;
 }
 
-/* Override global main img { width: auto; height: auto } */
-.text-left-image-right .text-left-image-right-media img {
-  width: 100%;
-  height: 100%;
+.text-left-image-right.block .text-left-image-right-media img {
+  width: 459px;
+  height: 400px;
   max-width: none;
   object-fit: cover;
   display: block;
@@ -64,32 +62,37 @@
 
 /* Responsive */
 @media (width <= 900px) {
-  .text-left-image-right .text-left-image-right-inner {
+  .text-left-image-right.block .text-left-image-right-inner {
     flex-direction: column;
     gap: 32px;
   }
 
-  .text-left-image-right .text-left-image-right-content {
+  .text-left-image-right.block .text-left-image-right-content {
     flex: none;
     width: 100%;
   }
 
-  .text-left-image-right .text-left-image-right-heading {
+  .text-left-image-right.block .text-left-image-right-heading {
     font-size: 32px;
   }
 
-  .text-left-image-right .text-left-image-right-body {
+  .text-left-image-right.block .text-left-image-right-body {
     font-size: 18px;
   }
 
-  .text-left-image-right .text-left-image-right-media {
+  .text-left-image-right.block .text-left-image-right-media {
     flex: none;
     width: 100%;
   }
 
-  .text-left-image-right .text-left-image-right-media picture {
+  .text-left-image-right.block .text-left-image-right-media picture {
     width: 100%;
     height: auto;
     aspect-ratio: 459 / 400;
+  }
+
+  .text-left-image-right.block .text-left-image-right-media img {
+    width: 100%;
+    height: 100%;
   }
 }
