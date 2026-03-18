@@ -46,6 +46,8 @@ module.exports = {
       'card-row-item': 9,
       'card-row-detailed-item': 14,
       'split-card': 9,
+      'image-text-card-row-item': 9,
+      'split-card-carousel-item': 9,
       statistics: 5,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
