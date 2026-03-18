@@ -38,8 +38,7 @@
       "info-cards-grid",
       "card-row",
       "section-title",
-      "split-card",
-      "text-left-image-right"
+      "split-card"
     ]
   },
   {
@@ -94,6 +93,12 @@
       "image",
       "button",
       "title"
+    ]
+  },
+  {
+    "id": "icon-text-row",
+    "components": [
+      "icon-text-row-item"
     ]
   },
   {

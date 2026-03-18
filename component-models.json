@@ -1145,6 +1145,35 @@
     ]
   },
   {
+    "id": "icon-text-row",
+    "fields": []
+  },
+  {
+    "id": "icon-text-row-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardText",
+        "label": "Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)",
+        "description": "Hex color to tint the icon (e.g. #008DB6)"
+      }
+    ]
+  },
+  {
     "id": "icon-text",
     "fields": [
       {

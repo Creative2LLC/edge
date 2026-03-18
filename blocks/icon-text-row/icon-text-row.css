@@ -1,0 +1,67 @@
+/* Block root */
+.icon-text-row.block {
+  padding: 60px 0;
+  margin: 0 auto;
+}
+
+/* Grid: 4 columns, even spacing */
+.icon-text-row-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+}
+
+/* Card: no background, centered content */
+.icon-text-row-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 calc(25% - 24px);
+  box-sizing: border-box;
+}
+
+/* Icon */
+.icon-text-row-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 16px;
+}
+
+.icon-text-row-icon img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Text */
+.icon-text-row-text {
+  font-size: 24px;
+  font-weight: 600;
+  color: #404041;
+  margin: 0;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Responsive — tablet: 2 per row */
+@media (width <= 900px) {
+  .icon-text-row-card {
+    flex: 0 0 calc(50% - 16px);
+  }
+}
+
+/* Responsive — mobile: 1 per row */
+@media (width <= 600px) {
+  .icon-text-row-grid {
+    gap: 24px;
+  }
+
+  .icon-text-row-card {
+    flex: 0 0 100%;
+  }
+}
