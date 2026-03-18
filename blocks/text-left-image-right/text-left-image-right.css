@@ -1,0 +1,91 @@
+/* Block root */
+.text-left-image-right {
+  padding: 0;
+}
+
+/* Inner container */
+.text-left-image-right .text-left-image-right-inner {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+/* Left: text content — takes majority of space */
+.text-left-image-right .text-left-image-right-content {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Heading */
+.text-left-image-right .text-left-image-right-heading {
+  font-size: 48px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0 0 16px;
+  line-height: 1.15;
+  text-align: left;
+}
+
+/* Body text */
+.text-left-image-right .text-left-image-right-body {
+  font-size: 20px;
+  font-weight: 500;
+  color: #404041;
+  margin: 0;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* Right: image — fixed size */
+.text-left-image-right .text-left-image-right-media {
+  flex: 0 0 459px;
+}
+
+.text-left-image-right .text-left-image-right-media picture {
+  display: block;
+  width: 459px;
+  height: 400px;
+}
+
+.text-left-image-right .text-left-image-right-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 14px;
+}
+
+/* Responsive */
+@media (width <= 900px) {
+  .text-left-image-right .text-left-image-right-inner {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .text-left-image-right .text-left-image-right-content {
+    flex: none;
+    width: 100%;
+  }
+
+  .text-left-image-right .text-left-image-right-heading {
+    font-size: 32px;
+  }
+
+  .text-left-image-right .text-left-image-right-body {
+    font-size: 18px;
+  }
+
+  .text-left-image-right .text-left-image-right-media {
+    flex: none;
+    width: 100%;
+  }
+
+  .text-left-image-right .text-left-image-right-media picture {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 459 / 400;
+  }
+}

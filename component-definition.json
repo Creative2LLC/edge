@@ -707,6 +707,21 @@
           }
         },
         {
+          "title": "Text Left Image Right",
+          "id": "text-left-image-right",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Text Left Image Right",
+                  "model": "text-left-image-right"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Video",
           "id": "video",
           "plugins": {
