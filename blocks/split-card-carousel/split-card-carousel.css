@@ -1,12 +1,25 @@
-/* Block root — acts as entire section */
+/* Block root — full-width background */
 .split-card-carousel {
   background-color: #DBD5CF52;
   padding: 0;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
 }
 
-/* Wrapper with generous spacing */
+/* Wrapper — constrains inner content to original width */
 .split-card-carousel .split-card-carousel-wrapper {
-  padding: 80px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+
+/* Override section max-width so full-width breakout works */
+main > .section > .split-card-carousel-wrapper {
+  max-width: none;
+  padding: 0;
 }
 
 /* Section title — top left */
@@ -18,7 +31,7 @@
   line-height: 1.1;
 }
 
-/* Carousel track — horizontal scroll, peek next card */
+/* Carousel track — extends to the right edge of the page */
 .split-card-carousel .split-card-carousel-track {
   display: flex;
   gap: 24px;
@@ -26,6 +39,10 @@
   scroll-behavior: smooth;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  margin-right: -24px;
+  width: calc(100% + 24px + max(0px, (100vw - 1200px) / 2));
+  padding-right: 40px;
+  box-sizing: border-box;
 }
 
 .split-card-carousel .split-card-carousel-track::-webkit-scrollbar {
