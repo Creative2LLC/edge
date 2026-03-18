@@ -1336,6 +1336,13 @@
         "valueType": "string",
         "name": "linkUrl",
         "label": "Link URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardContentBg",
+        "label": "Card Content Background Color (Hex)",
+        "description": "Background color for the content area below the image. Defaults to #DDD5CC52"
       }
     ]
   },

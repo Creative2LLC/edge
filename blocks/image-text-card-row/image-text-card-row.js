@@ -46,6 +46,7 @@ function parseCardRow(row) {
       bodyText: getFieldText(row, 5, 'bodyText'),
       linkText: getFieldText(row, 6, 'linkText'),
       linkUrl: getLinkUrl(cols[7]),
+      cardContentBg: getFieldText(row, 8, 'cardContentBg'),
     };
   }
 
@@ -66,6 +67,7 @@ function parseCardRow(row) {
       bodyText: paragraphs[2]?.textContent.trim() || '',
       linkUrl: link?.href || '',
       linkText: '',
+      cardContentBg: '',
     };
   }
 
@@ -100,6 +102,7 @@ function buildCard(data, row) {
 
   const content = document.createElement('div');
   content.className = 'image-text-card-row-card-content';
+  content.style.backgroundColor = data.cardContentBg || '#DDD5CC52';
 
   // Icon (optional)
   if (data.iconPicture || data.iconSrc) {
