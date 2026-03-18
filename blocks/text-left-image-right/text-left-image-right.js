@@ -1,52 +1,50 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-function getField(block, rows, name, index) {
+function getField(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
-  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
+
+  // legacy table fallback: rows with key-value pairs
+  const match = [...block.querySelectorAll(':scope > div')]
+    .filter((row) => row.children.length >= 2)
+    .find((row) => {
+      const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
+      return key === name.toLowerCase();
+    });
+
+  if (match) {
+    return { source: match.children[1], value: match.children[1].textContent.trim(), row: match };
+  }
   return { source: null, value: '' };
 }
 
-function getImageFromRows(block, rows, index) {
-  // Try data-aue-prop first
+function getImage(block) {
   const source = block.querySelector('[data-aue-prop="image"]');
-  const picture = source?.querySelector('picture')
-    || rows[index]?.querySelector('picture')
-    || block.querySelector('picture');
+  const picture = source?.querySelector('picture') || block.querySelector('picture');
   if (!picture) return null;
   const img = picture.querySelector('img');
   if (!img) return picture;
-  return createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
-}
-
-function buildTextElement(tag, className, field) {
-  if (!field?.value && !field?.source?.childNodes?.length) return null;
-  const el = document.createElement(tag);
-  el.className = className;
-  if (field.source) {
-    moveInstrumentation(field.source, el);
-    while (field.source.firstChild) el.append(field.source.firstChild);
-    field.source.remove();
-  } else {
-    el.textContent = field.value;
+  const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
+  if (source) {
+    moveInstrumentation(source, optimized);
   }
-  return el;
+  return optimized;
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const picture = getImage(block);
+  const headingField = getField(block, 'heading');
+  const bodyField = getField(block, 'bodyText');
+  const imageAltField = getField(block, 'imageAlt');
 
-  // Fields match the model order: heading (0), body (1), image (2), imageAlt (3)
-  const headingField = getField(block, rows, 'heading', 0);
-  const bodyField = getField(block, rows, 'body', 1);
-  const picture = getImageFromRows(block, rows, 2);
-  const imageAltField = getField(block, rows, 'imageAlt', 3);
-
-  if (picture) {
+  if (picture && imageAltField.value) {
     const img = picture.querySelector('img');
-    if (img && imageAltField.value) img.alt = imageAltField.value;
+    if (img) img.alt = imageAltField.value;
   }
+
+  // Clean up legacy rows
+  if (imageAltField.row) imageAltField.row.remove();
 
   // Build DOM
   const wrapper = document.createElement('div');
@@ -56,11 +54,32 @@ export default function decorate(block) {
   const contentSide = document.createElement('div');
   contentSide.className = 'text-left-image-right-content';
 
-  const heading = buildTextElement('h2', 'text-left-image-right-heading', headingField);
-  if (heading) contentSide.append(heading);
+  if (headingField.value || headingField.source) {
+    const h2 = document.createElement('h2');
+    h2.className = 'text-left-image-right-heading';
+    if (headingField.source) {
+      moveInstrumentation(headingField.source, h2);
+      while (headingField.source.firstChild) h2.append(headingField.source.firstChild);
+      headingField.source.remove();
+    } else {
+      h2.textContent = headingField.value;
+    }
+    wrapper.append(contentSide);
+    contentSide.append(h2);
+  }
 
-  const body = buildTextElement('p', 'text-left-image-right-body', bodyField);
-  if (body) contentSide.append(body);
+  if (bodyField.value || bodyField.source) {
+    const p = document.createElement('p');
+    p.className = 'text-left-image-right-body';
+    if (bodyField.source) {
+      moveInstrumentation(bodyField.source, p);
+      while (bodyField.source.firstChild) p.append(bodyField.source.firstChild);
+      bodyField.source.remove();
+    } else {
+      p.textContent = bodyField.value;
+    }
+    contentSide.append(p);
+  }
 
   wrapper.append(contentSide);
 

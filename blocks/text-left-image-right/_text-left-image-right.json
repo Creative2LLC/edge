@@ -29,7 +29,7 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "body",
+          "name": "bodyText",
           "label": "Body Text"
         },
         {
