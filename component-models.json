@@ -1258,6 +1258,88 @@
     ]
   },
   {
+    "id": "image-text-card-row",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Cards Per Row",
+        "description": "Number of cards to display per row (defaults to 3)",
+        "options": [
+          {
+            "name": "1 Card",
+            "value": "1"
+          },
+          {
+            "name": "2 Cards",
+            "value": "2"
+          },
+          {
+            "name": "3 Cards",
+            "value": "3"
+          }
+        ],
+        "value": "3"
+      }
+    ]
+  },
+  {
+    "id": "image-text-card-row-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Card Image",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon (Optional)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkText",
+        "label": "Link Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkUrl",
+        "label": "Link URL"
+      }
+    ]
+  },
+  {
     "id": "impact-chain",
     "fields": [
       {

@@ -73,7 +73,8 @@
         "info-cards-grid",
         "card-row",
         "section-title",
-        "split-card"
+        "split-card",
+        "image-text-card-row"
       ]
     }
   ]

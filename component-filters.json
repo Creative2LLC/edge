@@ -39,8 +39,7 @@
       "card-row",
       "section-title",
       "split-card",
-      "icon-text-row",
-      "text-left-image-right,"
+      "image-text-card-row"
     ]
   },
   {
@@ -101,6 +100,12 @@
     "id": "icon-text-row",
     "components": [
       "icon-text-row-item"
+    ]
+  },
+  {
+    "id": "image-text-card-row",
+    "components": [
+      "image-text-card-row-item"
     ]
   },
   {
