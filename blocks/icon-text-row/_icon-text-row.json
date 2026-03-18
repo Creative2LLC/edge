@@ -58,7 +58,8 @@
           "valueType": "string",
           "name": "iconColor",
           "label": "Icon Color (Hex)",
-          "description": "Hex color to tint the icon (e.g. #008DB6)"
+          "description": "Hex color to tint the icon. Defaults to #008DB6",
+          "value": "#008DB6"
         }
       ]
     }

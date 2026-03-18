@@ -33,8 +33,13 @@ function buildCard(data) {
     iconWrap.className = 'icon-text-row-icon';
     const img = data.iconField.img.cloneNode(true);
     if (data.iconField.source) moveInstrumentation(data.iconField.source, img);
-    if (data.iconColor) {
-      iconWrap.style.setProperty('--icon-color', data.iconColor);
+    const color = data.iconColor || '#008DB6';
+    const imgSrc = img.src || img.currentSrc;
+    if (imgSrc) {
+      iconWrap.style.setProperty('background-color', color);
+      iconWrap.style.setProperty('-webkit-mask-image', `url('${imgSrc}')`);
+      iconWrap.style.setProperty('mask-image', `url('${imgSrc}')`);
+      img.style.visibility = 'hidden';
     }
     iconWrap.append(img);
     card.append(iconWrap);
