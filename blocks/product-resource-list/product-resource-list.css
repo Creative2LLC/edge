@@ -1,16 +1,17 @@
-.product-resource-list {
+/* Block root */
+.product-resource-list.block {
   padding: 60px 0;
 }
 
 /* Container for all rows */
-.product-resource-list .product-resource-list-container {
+.product-resource-list-container {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
 /* Individual row — image left, content right */
-.product-resource-list .product-resource-list-row {
+.product-resource-list-row {
   display: flex;
   flex-direction: row;
   gap: 24px;
@@ -18,20 +19,19 @@
 }
 
 /* Image wrapper */
-.product-resource-list .product-resource-list-image {
-  flex: 0 0 auto;
-  max-width: 432px;
+.product-resource-list-image {
+  flex: 0 0 432px;
   max-height: 310px;
   border-radius: 14px;
   overflow: hidden;
 }
 
-.product-resource-list .product-resource-list-image picture {
+.product-resource-list-image picture {
   display: block;
   height: 100%;
 }
 
-.product-resource-list .product-resource-list-image img {
+.product-resource-list-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -39,7 +39,7 @@
 }
 
 /* Content card */
-.product-resource-list .product-resource-list-content {
+.product-resource-list-content {
   flex: 1;
   background-color: #DDD5CC52;
   border-radius: 14px;
@@ -50,7 +50,7 @@
 }
 
 /* Title */
-.product-resource-list .product-resource-list-title {
+.product-resource-list-title {
   font-size: 24px;
   font-weight: 700;
   color: #404041;
@@ -59,7 +59,7 @@
 }
 
 /* Description */
-.product-resource-list .product-resource-list-description {
+.product-resource-list-description {
   font-size: 17px;
   font-weight: 500;
   color: #404041;
@@ -69,20 +69,21 @@
 
 /* Responsive — tablet */
 @media (width <= 900px) {
-  .product-resource-list .product-resource-list-image {
-    max-width: 300px;
+  .product-resource-list-image {
+    flex: 0 0 300px;
     max-height: 220px;
   }
 }
 
 /* Responsive — mobile */
 @media (width <= 600px) {
-  .product-resource-list .product-resource-list-row {
+  .product-resource-list-row {
     flex-direction: column;
   }
 
-  .product-resource-list .product-resource-list-image {
-    max-width: 100%;
+  .product-resource-list-image {
+    flex: 0 0 auto;
+    width: 100%;
     max-height: 250px;
   }
 }
