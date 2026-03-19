@@ -107,12 +107,6 @@
     ]
   },
   {
-    "id": "faq",
-    "components": [
-      "faq-item"
-    ]
-  },
-  {
     "id": "icon-text-row",
     "components": [
       "icon-text-row-item"
