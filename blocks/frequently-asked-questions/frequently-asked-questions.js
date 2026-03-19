@@ -64,15 +64,9 @@ function buildFaqItem(row) {
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
-  // Optional heading (block-level field)
-  const headingProp = block.querySelector('[data-aue-prop="heading"]');
-  let headingText = '';
-  if (headingProp) {
-    headingText = headingProp.textContent.trim();
-    headingProp.closest(':scope > div')?.remove();
-  } else if (rows.length > 0 && rows[0].children.length === 1) {
-    headingText = rows[0].textContent.trim();
-  }
+  // Read optional heading (block-level field)
+  const headingEl = block.querySelector('[data-aue-prop="heading"]');
+  const headingText = headingEl?.textContent.trim() || '';
 
   const container = document.createElement('div');
   container.className = 'frequently-asked-questions-inner';
@@ -85,7 +79,8 @@ export default function decorate(block) {
   }
 
   rows.forEach((row) => {
-    if (row.children.length < 2 && !row.querySelector('[data-aue-prop="question"]')) return;
+    const cols = [...row.children];
+    if (cols.length < 2) return;
     const item = buildFaqItem(row);
     if (item) container.append(item);
   });
