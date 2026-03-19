@@ -22,31 +22,31 @@ function buildFaqItem(row) {
   if (!question) return null;
 
   const item = document.createElement('div');
-  item.className = 'faq-item';
+  item.className = 'frequently-asked-questions-item';
   moveInstrumentation(row, item);
 
   // Header (question + toggle icon)
   const header = document.createElement('button');
-  header.className = 'faq-item-header';
+  header.className = 'frequently-asked-questions-item-header';
   header.type = 'button';
   header.setAttribute('aria-expanded', 'false');
 
   const questionEl = document.createElement('span');
-  questionEl.className = 'faq-item-question';
+  questionEl.className = 'frequently-asked-questions-item-question';
   questionEl.textContent = question;
 
   const icon = document.createElement('span');
-  icon.className = 'faq-item-icon';
+  icon.className = 'frequently-asked-questions-item-icon';
   icon.setAttribute('aria-hidden', 'true');
 
   header.append(questionEl, icon);
 
   // Answer panel
   const panel = document.createElement('div');
-  panel.className = 'faq-item-panel';
+  panel.className = 'frequently-asked-questions-item-panel';
 
   const answerEl = document.createElement('div');
-  answerEl.className = 'faq-item-answer';
+  answerEl.className = 'frequently-asked-questions-item-answer';
   answerEl.innerHTML = answer;
   panel.append(answerEl);
 
@@ -54,7 +54,7 @@ function buildFaqItem(row) {
   header.addEventListener('click', () => {
     const expanded = header.getAttribute('aria-expanded') === 'true';
     header.setAttribute('aria-expanded', String(!expanded));
-    item.classList.toggle('faq-item-open', !expanded);
+    item.classList.toggle('frequently-asked-questions-item-open', !expanded);
   });
 
   item.append(header, panel);
@@ -63,23 +63,28 @@ function buildFaqItem(row) {
 
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
-  const container = document.createElement('div');
-  container.className = 'faq-container';
 
   // Optional heading (block-level field)
-  const headingEl = block.querySelector('[data-aue-prop="heading"]');
-  const headingText = headingEl?.textContent.trim()
-    || (rows[0]?.children.length === 1 ? rows[0].textContent.trim() : '');
+  const headingProp = block.querySelector('[data-aue-prop="heading"]');
+  let headingText = '';
+  if (headingProp) {
+    headingText = headingProp.textContent.trim();
+    headingProp.closest(':scope > div')?.remove();
+  } else if (rows.length > 0 && rows[0].children.length === 1) {
+    headingText = rows[0].textContent.trim();
+  }
+
+  const container = document.createElement('div');
+  container.className = 'frequently-asked-questions-inner';
 
   if (headingText) {
     const h2 = document.createElement('h2');
-    h2.className = 'faq-heading';
+    h2.className = 'frequently-asked-questions-heading';
     h2.textContent = headingText;
     container.append(h2);
   }
 
   rows.forEach((row) => {
-    // Skip single-column rows used as heading
     if (row.children.length < 2 && !row.querySelector('[data-aue-prop="question"]')) return;
     const item = buildFaqItem(row);
     if (item) container.append(item);
