@@ -40,10 +40,17 @@
       "section-title",
       "split-card",
       "image-text-card-row",
-      "text-image",
       "split-card-carousel",
       "product-list",
-      "faq"
+      "faq",
+      "text-image",
+      "btn-group"
+    ]
+  },
+  {
+    "id": "btn-group",
+    "components": [
+      "btn-group-item"
     ]
   },
   {

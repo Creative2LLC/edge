@@ -78,7 +78,8 @@
         "split-card-carousel",
         "product-list",
         "faq",
-        "text-image"
+        "text-image",
+        "btn-group"
       ]
     }
   ]

@@ -171,6 +171,76 @@
     ]
   },
   {
+    "id": "btn-group",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "layout",
+        "label": "Layout",
+        "description": "Side by side or stacked vertically",
+        "options": [
+          {
+            "name": "Side by Side",
+            "value": "row"
+          },
+          {
+            "name": "Stacked",
+            "value": "stack"
+          }
+        ],
+        "value": "row"
+      }
+    ]
+  },
+  {
+    "id": "btn-group-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "text",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bgColor",
+        "label": "Background Color (Hex)",
+        "description": "Defaults to #008db6"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "textColor",
+        "label": "Text Color (Hex)",
+        "description": "Defaults to #ffffff"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
+      }
+    ]
+  },
+  {
     "id": "card-row-compact",
     "fields": [
       {
