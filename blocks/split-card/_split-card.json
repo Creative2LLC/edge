@@ -65,6 +65,23 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "button2Text",
+          "label": "Second Button Text (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "button2Link",
+          "label": "Second Button Link (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Color",
+          "label": "Second Button Color (Hex, Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "backgroundColor",
           "label": "Content Background Color (Hex)"
         },

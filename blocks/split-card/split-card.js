@@ -72,6 +72,9 @@ export default function decorate(block) {
   const buttonText = getField(block, legacyMap, 'buttonText');
   const buttonLink = getLinkField(block, legacyMap, 'buttonLink');
   const buttonColor = getField(block, legacyMap, 'buttonColor');
+  const button2Text = getField(block, legacyMap, 'button2Text');
+  const button2Link = getLinkField(block, legacyMap, 'button2Link');
+  const button2Color = getField(block, legacyMap, 'button2Color');
   const backgroundColor = getField(block, legacyMap, 'backgroundColor');
   const contentAlign = getField(block, legacyMap, 'contentAlign') || 'left';
   const imageAlt = getField(block, legacyMap, 'imageAlt');
@@ -143,15 +146,34 @@ export default function decorate(block) {
     contentSide.append(p);
   }
 
-  if (buttonText && buttonLink) {
-    const btn = document.createElement('a');
-    btn.className = 'split-card-button';
-    btn.href = buttonLink;
-    btn.textContent = buttonText;
-    if (finalButtonColor) {
-      btn.style.backgroundColor = finalButtonColor;
+  const hasBtn1 = buttonText && buttonLink;
+  const hasBtn2 = button2Text && button2Link;
+
+  if (hasBtn1 || hasBtn2) {
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'split-card-buttons';
+    if (hasBtn1 && hasBtn2) btnContainer.classList.add('split-card-buttons-duo');
+
+    if (hasBtn1) {
+      const btn = document.createElement('a');
+      btn.className = 'split-card-button';
+      btn.href = buttonLink;
+      btn.textContent = buttonText;
+      if (finalButtonColor) btn.style.backgroundColor = finalButtonColor;
+      btnContainer.append(btn);
     }
-    contentSide.append(btn);
+
+    if (hasBtn2) {
+      const btn2 = document.createElement('a');
+      btn2.className = 'split-card-button';
+      btn2.href = button2Link;
+      btn2.textContent = button2Text;
+      const finalButton2Color = button2Color || remainingFields.button2Color || '';
+      if (finalButton2Color) btn2.style.backgroundColor = finalButton2Color;
+      btnContainer.append(btn2);
+    }
+
+    contentSide.append(btnContainer);
   }
 
   card.append(contentSide);
