@@ -795,6 +795,34 @@
     ]
   },
   {
+    "id": "frequently-asked-questions",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading (Optional)"
+      }
+    ]
+  },
+  {
+    "id": "faq-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "question",
+        "label": "Question"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "answer",
+        "label": "Answer"
+      }
+    ]
+  },
+  {
     "id": "giving",
     "fields": [
       {
@@ -1415,10 +1443,6 @@
           {
             "name": "3 Cards",
             "value": "3"
-          },
-          {
-            "name": "4 Cards",
-            "value": "4"
           }
         ],
         "value": "3"

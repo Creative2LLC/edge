@@ -1,0 +1,89 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+
+function getFieldText(row, colIndex, propName) {
+  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
+  if (byProp) return byProp.textContent.trim();
+  const cols = [...row.children];
+  if (cols[colIndex]) return cols[colIndex].textContent.trim();
+  return '';
+}
+
+function getFieldHtml(row, colIndex, propName) {
+  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
+  if (byProp) return byProp.innerHTML;
+  const cols = [...row.children];
+  if (cols[colIndex]) return cols[colIndex].innerHTML;
+  return '';
+}
+
+function buildFaqItem(row) {
+  const question = getFieldText(row, 0, 'question');
+  const answer = getFieldHtml(row, 1, 'answer');
+  if (!question) return null;
+
+  const item = document.createElement('div');
+  item.className = 'faq-item';
+  moveInstrumentation(row, item);
+
+  // Header (question + toggle icon)
+  const header = document.createElement('button');
+  header.className = 'faq-item-header';
+  header.type = 'button';
+  header.setAttribute('aria-expanded', 'false');
+
+  const questionEl = document.createElement('span');
+  questionEl.className = 'faq-item-question';
+  questionEl.textContent = question;
+
+  const icon = document.createElement('span');
+  icon.className = 'faq-item-icon';
+  icon.setAttribute('aria-hidden', 'true');
+
+  header.append(questionEl, icon);
+
+  // Answer panel
+  const panel = document.createElement('div');
+  panel.className = 'faq-item-panel';
+
+  const answerEl = document.createElement('div');
+  answerEl.className = 'faq-item-answer';
+  answerEl.innerHTML = answer;
+  panel.append(answerEl);
+
+  // Toggle
+  header.addEventListener('click', () => {
+    const expanded = header.getAttribute('aria-expanded') === 'true';
+    header.setAttribute('aria-expanded', String(!expanded));
+    item.classList.toggle('faq-item-open', !expanded);
+  });
+
+  item.append(header, panel);
+  return item;
+}
+
+export default function decorate(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const container = document.createElement('div');
+  container.className = 'faq-container';
+
+  // Optional heading (block-level field)
+  const headingEl = block.querySelector('[data-aue-prop="heading"]');
+  const headingText = headingEl?.textContent.trim()
+    || (rows[0]?.children.length === 1 ? rows[0].textContent.trim() : '');
+
+  if (headingText) {
+    const h2 = document.createElement('h2');
+    h2.className = 'faq-heading';
+    h2.textContent = headingText;
+    container.append(h2);
+  }
+
+  rows.forEach((row) => {
+    // Skip single-column rows used as heading
+    if (row.children.length < 2 && !row.querySelector('[data-aue-prop="question"]')) return;
+    const item = buildFaqItem(row);
+    if (item) container.append(item);
+  });
+
+  block.replaceChildren(container);
+}
