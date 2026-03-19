@@ -40,7 +40,16 @@
       "section-title",
       "split-card",
       "image-text-card-row",
-      "split-card-carousel"
+      "text-left-image-right",
+      "split-card-carousel",
+      "product-resource-list",
+      "frequently-asked-questions"
+    ]
+  },
+  {
+    "id": "frequently-asked-questions",
+    "components": [
+      "faq-item"
     ]
   },
   {
