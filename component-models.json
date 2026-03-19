@@ -1816,11 +1816,11 @@
     ]
   },
   {
-    "id": "product-resource-list",
+    "id": "product-list",
     "fields": []
   },
   {
-    "id": "product-resource-list-item",
+    "id": "product-list-item",
     "fields": [
       {
         "component": "reference",
@@ -2251,7 +2251,7 @@
     ]
   },
   {
-    "id": "text-left-image-right",
+    "id": "text-image",
     "fields": [
       {
         "component": "text",

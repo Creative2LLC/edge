@@ -1,15 +1,15 @@
 {
   "definitions": [
     {
-      "title": "Text Left Image Right",
-      "id": "text-left-image-right",
+      "title": "Text Image",
+      "id": "text-image",
       "plugins": {
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/block/v1/block",
             "template": {
-              "name": "Text Left Image Right",
-              "model": "text-left-image-right"
+              "name": "Text Image",
+              "model": "text-image"
             }
           }
         }
@@ -18,7 +18,7 @@
   ],
   "models": [
     {
-      "id": "text-left-image-right",
+      "id": "text-image",
       "fields": [
         {
           "component": "text",

@@ -44,13 +44,13 @@ function parseRow(row) {
 
 function buildCard(data, row) {
   const card = document.createElement('div');
-  card.className = 'product-resource-list-card';
+  card.className = 'product-list-card';
   if (row) moveInstrumentation(row, card);
 
   // Image side
   if (data.imagePicture || data.imgSrc) {
     const imageWrap = document.createElement('div');
-    imageWrap.className = 'product-resource-list-card-image';
+    imageWrap.className = 'product-list-card-image';
 
     if (data.imagePicture) {
       imageWrap.append(data.imagePicture);
@@ -70,18 +70,18 @@ function buildCard(data, row) {
 
   // Text side
   const content = document.createElement('div');
-  content.className = 'product-resource-list-card-content';
+  content.className = 'product-list-card-content';
 
   if (data.title) {
     const titleEl = document.createElement('h3');
-    titleEl.className = 'product-resource-list-card-title';
+    titleEl.className = 'product-list-card-title';
     titleEl.textContent = data.title;
     content.append(titleEl);
   }
 
   if (data.description) {
     const descEl = document.createElement('div');
-    descEl.className = 'product-resource-list-card-description';
+    descEl.className = 'product-list-card-description';
     descEl.innerHTML = data.description;
     content.append(descEl);
   }
@@ -93,7 +93,7 @@ function buildCard(data, row) {
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
   const container = document.createElement('div');
-  container.className = 'product-resource-list-container';
+  container.className = 'product-list-inner';
 
   rows.forEach((row) => {
     const data = parseRow(row);

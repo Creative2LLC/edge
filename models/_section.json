@@ -76,8 +76,9 @@
         "split-card",
         "image-text-card-row",
         "split-card-carousel",
-        "product-resource-list",
-        "faq"
+        "product-list",
+        "faq",
+        "text-image"
       ]
     }
   ]

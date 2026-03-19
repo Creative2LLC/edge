@@ -29,22 +29,22 @@ export default function decorate(block) {
   }
 
   const inner = document.createElement('div');
-  inner.className = 'text-left-image-right-inner';
+  inner.className = 'text-image-inner';
 
   // Left: text content
   const contentSide = document.createElement('div');
-  contentSide.className = 'text-left-image-right-content';
+  contentSide.className = 'text-image-content';
 
   if (heading) {
     const h2 = document.createElement('h2');
-    h2.className = 'text-left-image-right-heading';
+    h2.className = 'text-image-heading';
     h2.textContent = heading;
     contentSide.append(h2);
   }
 
   if (bodyText) {
     const p = document.createElement('p');
-    p.className = 'text-left-image-right-body';
+    p.className = 'text-image-body';
     p.textContent = bodyText;
     contentSide.append(p);
   }
@@ -53,7 +53,7 @@ export default function decorate(block) {
 
   // Right: image
   const mediaSide = document.createElement('div');
-  mediaSide.className = 'text-left-image-right-media';
+  mediaSide.className = 'text-image-media';
   if (picture) mediaSide.append(picture);
   inner.append(mediaSide);
 

@@ -40,16 +40,10 @@
       "section-title",
       "split-card",
       "image-text-card-row",
-      "text-left-image-right",
       "split-card-carousel",
-      "product-resource-list",
-      "faq"
-    ]
-  },
-  {
-    "id": "faq",
-    "components": [
-      "faq-item"
+      "product-list",
+      "faq",
+      "text-image"
     ]
   },
   {
@@ -155,9 +149,9 @@
     ]
   },
   {
-    "id": "product-resource-list",
+    "id": "product-list",
     "components": [
-      "product-resource-list-item"
+      "product-list-item"
     ]
   },
   {
