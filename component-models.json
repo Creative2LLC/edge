@@ -738,6 +738,34 @@
     ]
   },
   {
+    "id": "faq",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading (Optional)"
+      }
+    ]
+  },
+  {
+    "id": "faq-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "question",
+        "label": "Question"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "answer",
+        "label": "Answer"
+      }
+    ]
+  },
+  {
     "id": "footer-banner",
     "fields": [
       {
@@ -791,34 +819,6 @@
         "component": "aem-content",
         "name": "reference",
         "label": "Reference"
-      }
-    ]
-  },
-  {
-    "id": "frequently-asked-questions",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "heading",
-        "label": "Heading (Optional)"
-      }
-    ]
-  },
-  {
-    "id": "faq-item",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "question",
-        "label": "Question"
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "answer",
-        "label": "Answer"
       }
     ]
   },
