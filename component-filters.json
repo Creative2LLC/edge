@@ -40,7 +40,6 @@
       "section-title",
       "split-card",
       "image-text-card-row",
-      "text-left-image-right",
       "split-card-carousel"
     ]
   },
@@ -138,6 +137,12 @@
     "id": "news",
     "components": [
       "news-article"
+    ]
+  },
+  {
+    "id": "product-resource-list",
+    "components": [
+      "product-resource-list-item"
     ]
   },
   {

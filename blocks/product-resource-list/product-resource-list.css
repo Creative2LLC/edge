@@ -1,0 +1,117 @@
+.product-resource-list {
+  padding: 60px 0;
+}
+
+/* Stack of cards */
+.product-resource-list .product-resource-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Each card row: image left, text right */
+.product-resource-list .product-resource-list-card {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  max-height: 360px;
+}
+
+/* Image side */
+.product-resource-list .product-resource-list-card-image {
+  flex: 0 0 432px;
+  max-width: 432px;
+  max-height: 310px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.product-resource-list .product-resource-list-card-image picture {
+  display: block;
+  height: 100%;
+}
+
+.product-resource-list .product-resource-list-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Text/content side */
+.product-resource-list .product-resource-list-card-content {
+  flex: 1;
+  background-color: #DDD5CC52;
+  border-radius: 14px;
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+/* Title */
+.product-resource-list .product-resource-list-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #404041;
+  margin: 0 0 12px;
+  line-height: 1.3;
+  text-align: left;
+}
+
+/* Description */
+.product-resource-list .product-resource-list-card-description {
+  font-size: 17px;
+  font-weight: 500;
+  color: #404041;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.product-resource-list .product-resource-list-card-description p {
+  margin: 0 0 12px;
+}
+
+.product-resource-list .product-resource-list-card-description p:last-child {
+  margin-bottom: 0;
+}
+
+.product-resource-list .product-resource-list-card-description a {
+  color: #007294;
+  text-decoration: underline;
+}
+
+.product-resource-list .product-resource-list-card-description a:hover {
+  text-decoration: none;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .product-resource-list .product-resource-list-card-image {
+    flex: 0 0 300px;
+    max-width: 300px;
+  }
+
+  .product-resource-list .product-resource-list-card-content {
+    padding: 24px 28px;
+  }
+}
+
+/* Responsive — mobile */
+@media (width <= 600px) {
+  .product-resource-list .product-resource-list-card {
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .product-resource-list .product-resource-list-card-image {
+    flex: 0 0 auto;
+    max-width: 100%;
+    height: 220px;
+  }
+
+  .product-resource-list .product-resource-list-card-content {
+    padding: 24px;
+  }
+}
