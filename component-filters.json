@@ -40,16 +40,9 @@
       "section-title",
       "split-card",
       "image-text-card-row",
-      "text-left-image-right",
       "split-card-carousel",
       "product-resource-list",
       "faq"
-    ]
-  },
-  {
-    "id": "faq",
-    "components": [
-      "faq-item"
     ]
   },
   {
@@ -104,6 +97,12 @@
       "image",
       "button",
       "title"
+    ]
+  },
+  {
+    "id": "faq",
+    "components": [
+      "faq-item"
     ]
   },
   {
