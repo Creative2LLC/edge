@@ -19,7 +19,6 @@ function getFieldHtml(row, colIndex, propName) {
 function buildFaqItem(row) {
   const question = getFieldText(row, 0, 'question');
   const answer = getFieldHtml(row, 1, 'answer');
-  if (!question) return null;
 
   const item = document.createElement('div');
   item.className = 'faq-item';
