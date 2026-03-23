@@ -44,6 +44,7 @@ main > .section > .icon-card-carousel-wrapper {
 /* Carousel track — extends to the right edge */
 .icon-card-carousel .icon-card-carousel-track {
   display: flex;
+  align-items: stretch;
   gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
@@ -64,6 +65,7 @@ main > .section > .icon-card-carousel-wrapper {
 .icon-card-carousel .icon-card-carousel-slide {
   flex: 0 0 370px;
   min-width: 0;
+  display: flex;
 }
 
 /* Card */
@@ -73,7 +75,8 @@ main > .section > .icon-card-carousel-wrapper {
   align-items: flex-start;
   border-radius: 12px;
   overflow: hidden;
-  height: 460px;
+  min-height: 460px;
+  flex: 1;
   background: #fff;
   box-shadow: 0px 4px 10px 0px #40404133;
   padding: 40px 32px;
