@@ -31,6 +31,16 @@ main > .section > .icon-card-carousel-wrapper {
   line-height: 1.1;
 }
 
+/* Section subtitle */
+.icon-card-carousel .icon-card-carousel-subtitle {
+  font-size: 24px;
+  font-weight: 500;
+  color: #404041;
+  max-width: 843px;
+  margin: 0 0 40px;
+  line-height: 1.4;
+}
+
 /* Carousel track — extends to the right edge */
 .icon-card-carousel .icon-card-carousel-track {
   display: flex;
@@ -75,6 +85,18 @@ main > .section > .icon-card-carousel-wrapper {
   height: 96px;
   flex-shrink: 0;
   margin-bottom: 24px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
 }
 
 .icon-card-carousel .icon-card-carousel-icon picture {

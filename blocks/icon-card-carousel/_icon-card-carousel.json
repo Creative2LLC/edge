@@ -41,6 +41,12 @@
           "valueType": "string",
           "name": "heading",
           "label": "Section Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Section Subtitle"
         }
       ]
     },

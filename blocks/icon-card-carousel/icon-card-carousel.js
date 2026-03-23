@@ -69,7 +69,16 @@ function buildSlide(data, row) {
   const iconWrap = document.createElement('div');
   iconWrap.className = 'icon-card-carousel-icon';
 
-  if (data.iconPicture) {
+  const iconImg = data.iconPicture
+    ? data.iconPicture.querySelector('img')
+    : null;
+  const iconSrc = iconImg?.src || data.iconSrc;
+
+  if (data.iconColor && iconSrc) {
+    iconWrap.style.maskImage = `url(${iconSrc})`;
+    iconWrap.style.webkitMaskImage = `url(${iconSrc})`;
+    iconWrap.style.backgroundColor = data.iconColor;
+  } else if (data.iconPicture) {
     iconWrap.append(data.iconPicture);
   } else if (data.iconSrc) {
     const img = document.createElement('img');
@@ -77,10 +86,6 @@ function buildSlide(data, row) {
     img.alt = data.iconAlt || '';
     img.loading = 'lazy';
     iconWrap.append(img);
-  }
-
-  if (data.iconColor) {
-    iconWrap.style.color = data.iconColor;
   }
 
   card.append(iconWrap);
@@ -146,6 +151,14 @@ export default function decorate(block) {
     headingProp.closest(':scope > div')?.remove();
   }
 
+  // Extract section subtitle
+  const subtitleProp = block.querySelector('[data-aue-prop="subtitle"]');
+  let sectionSubtitle = '';
+  if (subtitleProp) {
+    sectionSubtitle = subtitleProp.textContent.trim();
+    subtitleProp.closest(':scope > div')?.remove();
+  }
+
   // Parse slides
   const rows = [...block.querySelectorAll(':scope > div')];
   const slides = [];
@@ -164,6 +177,14 @@ export default function decorate(block) {
     h2.className = 'icon-card-carousel-title';
     h2.textContent = sectionTitle;
     wrapper.append(h2);
+  }
+
+  // Section subtitle
+  if (sectionSubtitle) {
+    const p = document.createElement('p');
+    p.className = 'icon-card-carousel-subtitle';
+    p.textContent = sectionSubtitle;
+    wrapper.append(p);
   }
 
   // Track
