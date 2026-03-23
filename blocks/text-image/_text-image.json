@@ -23,11 +23,17 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "subhead",
+          "label": "Subhead (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "heading",
           "label": "Heading"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "bodyText",
           "label": "Body Text"
@@ -44,6 +50,12 @@
           "valueType": "string",
           "name": "imageAlt",
           "label": "Image Alt Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageOverlayText",
+          "label": "Image Overlay Text (Optional)"
         }
       ]
     }
