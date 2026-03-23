@@ -52,6 +52,7 @@ main > .section > .icon-card-carousel-wrapper {
   margin-right: -24px;
   width: calc(100% + 24px + max(0px, (100vw - 1200px) / 2));
   padding-right: 40px;
+  padding-bottom: 16px;
   box-sizing: border-box;
 }
 
@@ -61,7 +62,7 @@ main > .section > .icon-card-carousel-wrapper {
 
 /* Each slide — sized so 3 full cards + partial 4th are visible */
 .icon-card-carousel .icon-card-carousel-slide {
-  flex: 0 0 452px;
+  flex: 0 0 370px;
   min-width: 0;
 }
 
@@ -72,7 +73,7 @@ main > .section > .icon-card-carousel-wrapper {
   align-items: flex-start;
   border-radius: 12px;
   overflow: hidden;
-  height: 545px;
+  height: 460px;
   background: #fff;
   box-shadow: 0px 4px 10px 0px #40404133;
   padding: 40px 32px;
