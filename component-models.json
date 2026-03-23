@@ -1243,6 +1243,82 @@
     ]
   },
   {
+    "id": "icon-card-carousel",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Section Title"
+      }
+    ]
+  },
+  {
+    "id": "icon-card-carousel-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "body",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Background Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "textColor",
+        "label": "Text Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Card Background Color (Hex)"
+      }
+    ]
+  },
+  {
     "id": "icon-text-row",
     "fields": []
   },
