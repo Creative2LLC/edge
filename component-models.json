@@ -1256,6 +1256,12 @@
         "valueType": "string",
         "name": "subtitle",
         "label": "Section Subtitle"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Hex)"
       }
     ]
   },

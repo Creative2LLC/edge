@@ -159,6 +159,14 @@ export default function decorate(block) {
     subtitleProp.closest(':scope > div')?.remove();
   }
 
+  // Extract block background color
+  const bgColorProp = block.querySelector('[data-aue-prop="blockBackgroundColor"]');
+  let blockBgColor = '';
+  if (bgColorProp) {
+    blockBgColor = bgColorProp.textContent.trim();
+    bgColorProp.closest(':scope > div')?.remove();
+  }
+
   // Parse slides
   const rows = [...block.querySelectorAll(':scope > div')];
   const slides = [];
@@ -237,6 +245,11 @@ export default function decorate(block) {
   controls.append(nav);
 
   wrapper.append(controls);
+
+  // Apply block background color
+  if (blockBgColor) {
+    block.style.backgroundColor = blockBgColor;
+  }
 
   // Carousel state
   let current = 0;
