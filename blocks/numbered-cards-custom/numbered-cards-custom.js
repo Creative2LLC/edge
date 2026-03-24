@@ -1,14 +1,13 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-const BLOCK_PROPS = [
-  'title',
-  'subtitle',
-  'headerImage',
-  'textAlign',
-  'blockBackgroundColor',
-  'layout',
-  'cardsPerRow',
+const CARD_PROPS = [
+  'cardNumber',
+  'cardTitle',
+  'cardBody',
+  'numberColor',
+  'titleColor',
+  'bodyColor',
   'cardBackgroundColor',
 ];
 
@@ -142,11 +141,6 @@ export default function decorate(block) {
     activeNumberColor,
   } = DEFAULTS;
 
-  [...block.querySelectorAll(':scope > div')].forEach((row) => {
-    const isConfigRow = BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
-    if (isConfigRow) row.remove();
-  });
-
   block.style.backgroundColor = blockBg;
   block.classList.add(`numbered-cards-custom-${layout}-layout`);
 
@@ -195,8 +189,9 @@ export default function decorate(block) {
   const cards = [];
 
   rows.forEach((row) => {
-    const isConfigRow = BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
-    if (isConfigRow) return;
+    const cols = [...row.children];
+    const hasCardProp = CARD_PROPS.some((prop) => row.querySelector(getFieldSelector(prop)));
+    if (!hasCardProp && cols.length < 2) return;
 
     const cardTitleEl = getRichField(row, 'cardTitle', 1);
     const cardBodyEl = getRichField(row, 'cardBody', 2);

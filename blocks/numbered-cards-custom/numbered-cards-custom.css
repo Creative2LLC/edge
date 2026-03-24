@@ -82,6 +82,8 @@
   -ms-overflow-style: none;
   margin-right: -24px;
   width: calc(100% + 24px + max(0px, (100vw - 1440px) / 2));
+  margin-top: -12px;
+  padding-top: 12px;
   padding-right: 56px;
   box-sizing: border-box;
 }
@@ -286,7 +288,9 @@
   .numbered-cards-custom-carousel-layout .numbered-cards-custom-grid {
     gap: 24px;
     width: calc(100% + 20px + max(0px, (100vw - 100%) / 2));
+    margin-top: -12px;
     margin-right: -20px;
+    padding-top: 12px;
     padding-right: 24px;
   }
 
