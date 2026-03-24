@@ -1991,6 +1991,153 @@
     ]
   },
   {
+    "id": "numbered-cards-custom",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "headerImage",
+        "label": "Header Image (Optional)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle (Optional)",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "textAlign",
+        "label": "Header Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "center"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Hex)",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "layout",
+        "label": "Layout",
+        "options": [
+          {
+            "name": "Grid",
+            "value": "grid"
+          },
+          {
+            "name": "Carousel (Default)",
+            "value": "carousel"
+          }
+        ],
+        "value": "carousel"
+      },
+      {
+        "component": "select",
+        "name": "cardsPerRow",
+        "label": "Cards Per Row (Grid Only)",
+        "options": [
+          {
+            "name": "2 Cards",
+            "value": "2"
+          },
+          {
+            "name": "3 Cards",
+            "value": "3"
+          },
+          {
+            "name": "4 Cards",
+            "value": "4"
+          }
+        ],
+        "value": "4"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Default Card Background Color (Hex)",
+        "value": "#00264D"
+      }
+    ]
+  },
+  {
+    "id": "numbered-cards-custom-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardNumber",
+        "label": "Card Number"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "cardTitle",
+        "label": "Card Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "cardBody",
+        "label": "Card Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "numberColor",
+        "label": "Number Color (Hex)",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "titleColor",
+        "label": "Card Title Color (Hex)",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bodyColor",
+        "label": "Card Body Color (Hex)",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color Override (Hex)",
+        "description": "Overrides the default card background for this card",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "numbered-cards",
     "fields": [
       {

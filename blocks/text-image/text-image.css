@@ -45,6 +45,7 @@
 
 .text-image.block .text-image-body > :first-child {
   margin-top: 0;
+  margin-bottom: 1rem;
 }
 
 .text-image.block .text-image-body > :last-child {

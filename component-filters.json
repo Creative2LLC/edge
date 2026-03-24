@@ -44,6 +44,7 @@
       "split-card-carousel",
       "icon-card-carousel",
       "numbered-cards",
+      "numbered-cards-custom",
       "product-list",
       "faq",
       "text-image",
@@ -162,6 +163,12 @@
     "id": "news",
     "components": [
       "news-article"
+    ]
+  },
+  {
+    "id": "numbered-cards-custom",
+    "components": [
+      "numbered-cards-custom-item"
     ]
   },
   {

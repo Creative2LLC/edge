@@ -755,6 +755,37 @@
           }
         },
         {
+          "title": "Numbered Cards Custom",
+          "id": "numbered-cards-custom",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Numbered Cards Custom",
+                  "model": "numbered-cards-custom",
+                  "filter": "numbered-cards-custom"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Numbered Cards Custom Item",
+          "id": "numbered-cards-custom-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Numbered Cards Custom Item",
+                  "model": "numbered-cards-custom-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Numbered Cards",
           "id": "numbered-cards",
           "plugins": {

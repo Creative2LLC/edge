@@ -1,0 +1,331 @@
+.numbered-cards-custom {
+  width: 100vw;
+  padding: 0;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  background: #efebe8;
+}
+
+.numbered-cards-custom .numbered-cards-custom-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 88px 24px 76px;
+}
+
+.numbered-cards-custom .numbered-cards-custom-header {
+  max-width: 980px;
+  margin: 0 auto 56px;
+}
+
+.numbered-cards-custom .numbered-cards-custom-header-media {
+  width: min(168px, 42vw);
+  margin: 0 0 28px;
+}
+
+.numbered-cards-custom .numbered-cards-custom-header-media picture,
+.numbered-cards-custom .numbered-cards-custom-header-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.numbered-cards-custom .numbered-cards-custom-header[style*="text-align: center"] .numbered-cards-custom-header-media {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.numbered-cards-custom .numbered-cards-custom-header[style*="text-align: right"] .numbered-cards-custom-header-media {
+  margin-left: auto;
+}
+
+.numbered-cards-custom .numbered-cards-custom-heading {
+  margin: 0;
+  font-size: clamp(48px, 7vw, 76px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  color: #00264d;
+}
+
+.numbered-cards-custom .numbered-cards-custom-subtitle {
+  max-width: 840px;
+  margin: 24px 0 0;
+  font-size: clamp(21px, 2.8vw, 32px);
+  font-weight: 500;
+  line-height: 1.35;
+  color: #404041;
+}
+
+.numbered-cards-custom .numbered-cards-custom-header[style*="text-align: center"] .numbered-cards-custom-subtitle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.numbered-cards-custom .numbered-cards-custom-header[style*="text-align: right"] .numbered-cards-custom-subtitle {
+  margin-left: auto;
+}
+
+.numbered-cards-custom-grid-layout .numbered-cards-custom-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cards-per-row, 4), 1fr);
+  gap: 28px;
+}
+
+.numbered-cards-custom-carousel-layout .numbered-cards-custom-grid {
+  display: flex;
+  gap: 32px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin-right: -24px;
+  width: calc(100% + 24px + max(0px, (100vw - 1440px) / 2));
+  padding-right: 56px;
+  box-sizing: border-box;
+}
+
+.numbered-cards-custom-carousel-layout .numbered-cards-custom-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.numbered-cards-custom .numbered-cards-custom-card {
+  border-radius: 16px;
+  background: #00264d;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  box-sizing: border-box;
+}
+
+.numbered-cards-custom-grid-layout .numbered-cards-custom-card {
+  min-height: 360px;
+  padding: 32px 28px;
+}
+
+.numbered-cards-custom-carousel-layout .numbered-cards-custom-card {
+  flex: 0 0 400px;
+  min-width: 0;
+  min-height: 306px;
+  padding: 28px 30px 30px;
+  outline: none;
+}
+
+.numbered-cards-custom-carousel-layout .numbered-cards-custom-card.is-active {
+  transform: translateY(-10px);
+  box-shadow: 0 22px 44px rgb(0 38 77 / 18%);
+}
+
+.numbered-cards-custom .numbered-cards-custom-number {
+  margin-bottom: 20px;
+}
+
+.numbered-cards-custom-grid-layout .numbered-cards-custom-number-box {
+  width: 56px;
+  height: 56px;
+  border: 4px solid #92d6e3;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: #92d6e3;
+  box-sizing: border-box;
+}
+
+.numbered-cards-custom-carousel-layout .numbered-cards-custom-number-text {
+  display: inline-block;
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #12a0ca;
+}
+
+.numbered-cards-custom .numbered-cards-custom-card-title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.18;
+  color: #fff;
+}
+
+.numbered-cards-custom .numbered-cards-custom-card-title p,
+.numbered-cards-custom .numbered-cards-custom-card-body p {
+  margin: 0;
+}
+
+.numbered-cards-custom .numbered-cards-custom-card-title > :first-child,
+.numbered-cards-custom .numbered-cards-custom-card-body > :first-child {
+  margin-top: 0;
+}
+
+.numbered-cards-custom .numbered-cards-custom-card-title > :last-child,
+.numbered-cards-custom .numbered-cards-custom-card-body > :last-child {
+  margin-bottom: 0;
+}
+
+.numbered-cards-custom .numbered-cards-custom-card-body {
+  margin-top: 16px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #fff;
+}
+
+.numbered-cards-custom .numbered-cards-custom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 34px;
+}
+
+.numbered-cards-custom .numbered-cards-custom-dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.numbered-cards-custom .numbered-cards-custom-dot {
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-radius: 999px;
+  padding: 0;
+  background: rgb(0 38 77 / 20%);
+  cursor: pointer;
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.numbered-cards-custom .numbered-cards-custom-dot.active {
+  width: 60px;
+  background: rgb(0 38 77 / 36%);
+}
+
+.numbered-cards-custom .numbered-cards-custom-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.numbered-cards-custom .numbered-cards-custom-nav-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: rgb(0 38 77 / 24%);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.numbered-cards-custom .numbered-cards-custom-nav-btn:hover {
+  background: rgb(0 38 77 / 34%);
+  transform: translateY(-1px);
+}
+
+.numbered-cards-custom .numbered-cards-custom-nav-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (width <= 1200px) {
+  .numbered-cards-custom .numbered-cards-custom-wrapper {
+    padding: 72px 24px 64px;
+  }
+
+  .numbered-cards-custom-carousel-layout .numbered-cards-custom-card {
+    flex-basis: 360px;
+  }
+}
+
+@media (width <= 1024px) {
+  .numbered-cards-custom-grid-layout .numbered-cards-custom-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width <= 768px) {
+  .numbered-cards-custom .numbered-cards-custom-wrapper {
+    padding: 56px 20px 52px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-header {
+    margin-bottom: 40px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-header-media {
+    width: min(132px, 48vw);
+    margin-bottom: 22px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-heading {
+    font-size: 42px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-subtitle {
+    margin-top: 18px;
+    font-size: 20px;
+  }
+
+  .numbered-cards-custom-grid-layout .numbered-cards-custom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .numbered-cards-custom-grid-layout .numbered-cards-custom-card,
+  .numbered-cards-custom-carousel-layout .numbered-cards-custom-card {
+    min-height: auto;
+    padding: 24px 22px;
+  }
+
+  .numbered-cards-custom-carousel-layout .numbered-cards-custom-grid {
+    gap: 24px;
+    width: calc(100% + 20px + max(0px, (100vw - 100%) / 2));
+    margin-right: -20px;
+    padding-right: 24px;
+  }
+
+  .numbered-cards-custom-carousel-layout .numbered-cards-custom-card {
+    flex: 0 0 85%;
+  }
+
+  .numbered-cards-custom-carousel-layout .numbered-cards-custom-number-text {
+    font-size: 44px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-card-title {
+    font-size: 22px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-card-body {
+    font-size: 16px;
+  }
+}
+
+@media (width <= 560px) {
+  .numbered-cards-custom .numbered-cards-custom-wrapper {
+    padding: 48px 16px 44px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-heading {
+    font-size: 34px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-subtitle {
+    font-size: 18px;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .numbered-cards-custom .numbered-cards-custom-nav {
+    justify-content: flex-end;
+  }
+}
