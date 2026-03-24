@@ -66,12 +66,19 @@ function buildRichTextElement(field, className) {
 
   const element = document.createElement('div');
   element.className = className;
+  const hasElementChildren = field.source
+    ? [...field.source.childNodes].some((node) => node.nodeType === Node.ELEMENT_NODE)
+    : false;
 
   if (field.source) {
     moveInstrumentation(field.source, element);
   }
 
-  if (field.html && /<[^>]+>/u.test(field.html)) {
+  if (field.source && hasElementChildren) {
+    while (field.source.firstChild) {
+      element.append(field.source.firstChild);
+    }
+  } else if (field.html && /<[^>]+>/u.test(field.html)) {
     element.innerHTML = field.html;
   } else {
     appendPlainText(element, field.text);
