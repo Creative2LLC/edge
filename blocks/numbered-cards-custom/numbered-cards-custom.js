@@ -48,8 +48,16 @@ function getRichField(row, name, index) {
 
 function getImageField(scope, name) {
   const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  const picture = source?.querySelector('picture') || null;
-  const img = source?.querySelector('img') || picture?.querySelector('img');
+  const container = source?.parentElement || source;
+  const picture = source?.querySelector('picture')
+    || container?.querySelector('picture')
+    || scope.querySelector('picture')
+    || null;
+  const img = source?.querySelector('img')
+    || container?.querySelector('img')
+    || picture?.querySelector('img')
+    || scope.querySelector('img')
+    || null;
   return { source, picture, img };
 }
 
