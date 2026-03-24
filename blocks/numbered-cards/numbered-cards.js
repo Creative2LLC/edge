@@ -108,6 +108,7 @@ export default function decorate(block) {
     const numberColor = getTextField(row, 'numberColor', 2);
     const titleColor = getTextField(row, 'titleColor', 3);
     const bodyColor = getTextField(row, 'bodyColor', 4);
+    const cardBgOverride = getTextField(row, 'cardBackgroundColor', 5);
 
     cards.push({
       row,
@@ -116,6 +117,7 @@ export default function decorate(block) {
       numberColor,
       titleColor,
       bodyColor,
+      cardBgOverride,
     });
   });
 
@@ -130,7 +132,7 @@ export default function decorate(block) {
   cards.forEach((data, index) => {
     const card = document.createElement('div');
     card.className = 'numbered-cards-card';
-    card.style.backgroundColor = cardBg;
+    card.style.backgroundColor = data.cardBgOverride || cardBg;
     if (data.row) moveInstrumentation(data.row, card);
 
     // Number index

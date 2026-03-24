@@ -2113,6 +2113,14 @@
         "name": "bodyColor",
         "label": "Card Body Color (Hex)",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color (Hex)",
+        "description": "Overrides the block-level card background for this card",
+        "value": ""
       }
     ]
   },
