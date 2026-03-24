@@ -755,6 +755,37 @@
           }
         },
         {
+          "title": "Numbered Cards",
+          "id": "numbered-cards",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Numbered Cards",
+                  "model": "numbered-cards",
+                  "filter": "numbered-cards"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Numbered Cards Item",
+          "id": "numbered-cards-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Numbered Cards Item",
+                  "model": "numbered-cards-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Product List",
           "id": "product-list",
           "plugins": {

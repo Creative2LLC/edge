@@ -1,0 +1,301 @@
+/* Block root */
+.numbered-cards {
+  padding: 0;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+}
+
+/* Wrapper — constrains inner content */
+.numbered-cards .numbered-cards-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+
+/* Header — title + subtitle */
+.numbered-cards .numbered-cards-header {
+  margin-bottom: 48px;
+}
+
+.numbered-cards .numbered-cards-heading {
+  font-size: 48px;
+  font-weight: 700;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.numbered-cards .numbered-cards-subtitle {
+  font-size: 20px;
+  font-weight: 500;
+  color: #404041;
+  margin: 12px 0 0;
+  line-height: 1.4;
+}
+
+.numbered-cards .numbered-cards-header[style*="text-align: center"] .numbered-cards-subtitle {
+  max-width: 825px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===================== */
+/* GRID LAYOUT           */
+/* ===================== */
+.numbered-cards--grid .numbered-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cards-per-row, 4), 1fr);
+  gap: 24px;
+}
+
+.numbered-cards--grid .numbered-cards-card {
+  border-radius: 12px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 368px;
+  box-sizing: border-box;
+}
+
+/* Number with bordered box (grid) */
+.numbered-cards--grid .numbered-cards-number-box {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #92D6E3;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #92D6E3;
+  box-sizing: border-box;
+}
+
+.numbered-cards--grid .numbered-cards-number {
+  margin-bottom: 20px;
+}
+
+/* Card title (grid) */
+.numbered-cards--grid .numbered-cards-card-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.numbered-cards--grid .numbered-cards-card-title p {
+  margin: 0;
+}
+
+/* Card body (grid) */
+.numbered-cards--grid .numbered-cards-card-body {
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.numbered-cards--grid .numbered-cards-card-body p {
+  margin: 0;
+}
+
+/* ===================== */
+/* CAROUSEL LAYOUT       */
+/* ===================== */
+.numbered-cards--carousel .numbered-cards-grid {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  margin-right: -24px;
+  width: calc(100% + 24px + max(0px, (100vw - 1200px) / 2));
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+.numbered-cards--carousel .numbered-cards-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.numbered-cards--carousel .numbered-cards-card {
+  flex: 0 0 400px;
+  min-width: 0;
+  border-radius: 12px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 346px;
+  box-sizing: border-box;
+}
+
+/* Number without box (carousel) */
+.numbered-cards--carousel .numbered-cards-number {
+  margin-bottom: 20px;
+}
+
+.numbered-cards--carousel .numbered-cards-number-text {
+  font-size: 48px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Card title (carousel) */
+.numbered-cards--carousel .numbered-cards-card-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.numbered-cards--carousel .numbered-cards-card-title p {
+  margin: 0;
+}
+
+/* Card body (carousel) */
+.numbered-cards--carousel .numbered-cards-card-body {
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.numbered-cards--carousel .numbered-cards-card-body p {
+  margin: 0;
+}
+
+/* ===================== */
+/* CAROUSEL CONTROLS     */
+/* ===================== */
+.numbered-cards--carousel .numbered-cards-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  position: relative;
+}
+
+/* Dots */
+.numbered-cards--carousel .numbered-cards-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.numbered-cards--carousel .numbered-cards-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: #a1a1a1;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s ease;
+}
+
+.numbered-cards--carousel .numbered-cards-dot.active {
+  background: #00264d;
+}
+
+.numbered-cards--carousel .numbered-cards-dot:hover {
+  opacity: 0.8;
+}
+
+/* Nav arrows */
+.numbered-cards--carousel .numbered-cards-nav {
+  display: flex;
+  gap: 12px;
+  position: absolute;
+  right: 0;
+}
+
+.numbered-cards--carousel .numbered-cards-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #a1a1a1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.numbered-cards--carousel .numbered-cards-nav-btn:hover {
+  opacity: 0.85;
+}
+
+.numbered-cards--carousel .numbered-cards-nav-btn svg {
+  width: 16px;
+  height: 16px;
+  color: rgb(255 255 255 / 83%);
+}
+
+/* ===================== */
+/* RESPONSIVE            */
+/* ===================== */
+@media (width <= 1024px) {
+  .numbered-cards--grid .numbered-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .numbered-cards--carousel .numbered-cards-card {
+    flex: 0 0 340px;
+  }
+}
+
+@media (width <= 768px) {
+  .numbered-cards .numbered-cards-wrapper {
+    padding: 48px 20px;
+  }
+
+  .numbered-cards .numbered-cards-heading {
+    font-size: 32px;
+  }
+
+  .numbered-cards .numbered-cards-subtitle {
+    font-size: 18px;
+  }
+
+  .numbered-cards .numbered-cards-header {
+    margin-bottom: 32px;
+  }
+
+  .numbered-cards--grid .numbered-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .numbered-cards--grid .numbered-cards-card {
+    min-height: auto;
+  }
+
+  .numbered-cards--grid .numbered-cards-card-title {
+    font-size: 28px;
+  }
+
+  .numbered-cards--carousel .numbered-cards-card {
+    flex: 0 0 85%;
+    height: auto;
+    min-height: 280px;
+  }
+
+  .numbered-cards--carousel .numbered-cards-card-title {
+    font-size: 28px;
+  }
+
+  .numbered-cards--carousel .numbered-cards-nav {
+    position: static;
+    margin-left: 24px;
+  }
+}

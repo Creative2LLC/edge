@@ -163,6 +163,12 @@
     ]
   },
   {
+    "id": "numbered-cards",
+    "components": [
+      "numbered-cards-item"
+    ]
+  },
+  {
     "id": "product-list",
     "components": [
       "product-list-item"
