@@ -88,11 +88,21 @@ export default function decorate(block) {
 
   wrapper.append(headerDiv);
 
-  // Parse remaining rows as card items
+  // Parse remaining rows as card items — skip any row that still has block-level props
   const rows = [...block.querySelectorAll(':scope > div')];
   const cards = [];
 
   rows.forEach((row) => {
+    // Skip rows that contain block-level config fields (not card items)
+    const isConfigRow = BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
+    if (isConfigRow) return;
+
+    // Only treat as a card if it has card-level content
+    const hasCardProp = row.querySelector('[data-aue-prop="cardTitle"]')
+      || row.querySelector('[data-aue-prop="cardBody"]');
+    const cols = [...row.children];
+    if (!hasCardProp && cols.length < 2) return;
+
     const cardTitleEl = getRichField(row, 'cardTitle', 0);
     const cardBodyEl = getRichField(row, 'cardBody', 1);
     const numberColor = getTextField(row, 'numberColor', 2);
