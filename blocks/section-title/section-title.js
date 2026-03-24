@@ -47,9 +47,9 @@ export default function decorate(block) {
     wrapper.append(titleEl);
   }
 
-  // subtitle
+  // subtitle (richtext)
   if (subtitleField.value || subtitleField.source) {
-    const subtitleEl = document.createElement('p');
+    const subtitleEl = document.createElement('div');
     subtitleEl.className = 'section-title-subtitle';
     if (subtitleField.source) {
       moveInstrumentation(subtitleField.source, subtitleEl);
