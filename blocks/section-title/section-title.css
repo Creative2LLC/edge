@@ -26,7 +26,11 @@
 }
 
 .section-title .section-title-subtitle p {
-  margin: 0;
+  margin: 0.75em 0 0;
+}
+
+.section-title .section-title-subtitle p:first-child {
+  margin-top: 0;
 }
 
 .section-title .section-title-inner[style*="text-align: center"] .section-title-subtitle {
