@@ -554,6 +554,15 @@ export default async function decorate(block) {
     block.style.setProperty('--hero-overlay-opacity', overlayOpacity);
   }
 
+  const gradientOverlay = normalizeChoice(
+    getFieldValue(block, ['media_gradientOverlay', 'gradientOverlay']).value,
+    ['show', 'hide'],
+    'show',
+  );
+  if (gradientOverlay === 'show') {
+    block.classList.add('hero-gradient');
+  }
+
   const contentPosition = normalizeChoice(
     getFieldValue(block, ['content_position', 'contentPosition']).value,
     ['left', 'center', 'right'],

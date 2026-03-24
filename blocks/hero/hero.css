@@ -23,6 +23,17 @@
   background: rgb(246 248 250 / var(--hero-overlay-opacity, 78%));
 }
 
+.hero.hero-gradient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #00264D52;
+  background-blend-mode: overlay;
+  background: linear-gradient(180deg, rgba(157, 157, 157, 0) 20.19%, rgba(246, 246, 246, 0.4) 50%, #F6F6F6 94.71%, #F5F5F5 100%);
+  pointer-events: none;
+}
+
 .hero picture {
   position: absolute;
   z-index: -2;

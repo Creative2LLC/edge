@@ -1059,6 +1059,23 @@
         "value": ""
       },
       {
+        "component": "select",
+        "name": "media_gradientOverlay",
+        "label": "Gradient Overlay",
+        "description": "Adds a bottom-fade gradient over the hero image. Enabled by default.",
+        "options": [
+          {
+            "name": "Show (Default)",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ],
+        "value": "show"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "content_height",
