@@ -42,16 +42,14 @@
   margin-right: auto;
 }
 
-/* ===================== */
-/* GRID LAYOUT           */
-/* ===================== */
-.numbered-cards--grid .numbered-cards-grid {
+/* Grid layout */
+.numbered-cards-grid-layout .numbered-cards-grid {
   display: grid;
   grid-template-columns: repeat(var(--cards-per-row, 4), 1fr);
   gap: 24px;
 }
 
-.numbered-cards--grid .numbered-cards-card {
+.numbered-cards-grid-layout .numbered-cards-card {
   border-radius: 12px;
   padding: 32px 28px;
   display: flex;
@@ -62,7 +60,7 @@
 }
 
 /* Number with bordered box (grid) */
-.numbered-cards--grid .numbered-cards-number-box {
+.numbered-cards-grid-layout .numbered-cards-number-box {
   width: 48px;
   height: 48px;
   border: 4px solid #92D6E3;
@@ -76,12 +74,12 @@
   box-sizing: border-box;
 }
 
-.numbered-cards--grid .numbered-cards-number {
+.numbered-cards-grid-layout .numbered-cards-number {
   margin-bottom: 20px;
 }
 
 /* Card title (grid) */
-.numbered-cards--grid .numbered-cards-card-title {
+.numbered-cards-grid-layout .numbered-cards-card-title {
   font-size: 36px;
   font-weight: 700;
   color: #fff;
@@ -89,26 +87,24 @@
   margin-bottom: 12px;
 }
 
-.numbered-cards--grid .numbered-cards-card-title p {
+.numbered-cards-grid-layout .numbered-cards-card-title p {
   margin: 0;
 }
 
 /* Card body (grid) */
-.numbered-cards--grid .numbered-cards-card-body {
+.numbered-cards-grid-layout .numbered-cards-card-body {
   font-size: 17px;
   font-weight: 500;
   color: #fff;
   line-height: 1.5;
 }
 
-.numbered-cards--grid .numbered-cards-card-body p {
+.numbered-cards-grid-layout .numbered-cards-card-body p {
   margin: 0;
 }
 
-/* ===================== */
-/* CAROUSEL LAYOUT       */
-/* ===================== */
-.numbered-cards--carousel .numbered-cards-grid {
+/* Carousel layout */
+.numbered-cards-carousel-layout .numbered-cards-grid {
   display: flex;
   gap: 24px;
   overflow-x: auto;
@@ -121,11 +117,11 @@
   box-sizing: border-box;
 }
 
-.numbered-cards--carousel .numbered-cards-grid::-webkit-scrollbar {
+.numbered-cards-carousel-layout .numbered-cards-grid::-webkit-scrollbar {
   display: none;
 }
 
-.numbered-cards--carousel .numbered-cards-card {
+.numbered-cards-carousel-layout .numbered-cards-card {
   flex: 0 0 400px;
   min-width: 0;
   border-radius: 12px;
@@ -138,18 +134,18 @@
 }
 
 /* Number without box (carousel) */
-.numbered-cards--carousel .numbered-cards-number {
+.numbered-cards-carousel-layout .numbered-cards-number {
   margin-bottom: 20px;
 }
 
-.numbered-cards--carousel .numbered-cards-number-text {
+.numbered-cards-carousel-layout .numbered-cards-number-text {
   font-size: 48px;
   font-weight: 700;
   color: #fff;
 }
 
 /* Card title (carousel) */
-.numbered-cards--carousel .numbered-cards-card-title {
+.numbered-cards-carousel-layout .numbered-cards-card-title {
   font-size: 36px;
   font-weight: 700;
   color: #fff;
@@ -157,26 +153,24 @@
   margin-bottom: 12px;
 }
 
-.numbered-cards--carousel .numbered-cards-card-title p {
+.numbered-cards-carousel-layout .numbered-cards-card-title p {
   margin: 0;
 }
 
 /* Card body (carousel) */
-.numbered-cards--carousel .numbered-cards-card-body {
+.numbered-cards-carousel-layout .numbered-cards-card-body {
   font-size: 17px;
   font-weight: 500;
   color: #fff;
   line-height: 1.5;
 }
 
-.numbered-cards--carousel .numbered-cards-card-body p {
+.numbered-cards-carousel-layout .numbered-cards-card-body p {
   margin: 0;
 }
 
-/* ===================== */
-/* CAROUSEL CONTROLS     */
-/* ===================== */
-.numbered-cards--carousel .numbered-cards-controls {
+/* Carousel controls */
+.numbered-cards-carousel-layout .numbered-cards-controls {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,13 +179,13 @@
 }
 
 /* Dots */
-.numbered-cards--carousel .numbered-cards-dots {
+.numbered-cards-carousel-layout .numbered-cards-dots {
   display: flex;
   gap: 8px;
   align-items: center;
 }
 
-.numbered-cards--carousel .numbered-cards-dot {
+.numbered-cards-carousel-layout .numbered-cards-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -202,23 +196,23 @@
   transition: background-color 0.2s ease;
 }
 
-.numbered-cards--carousel .numbered-cards-dot.active {
+.numbered-cards-carousel-layout .numbered-cards-dot.active {
   background: #00264d;
 }
 
-.numbered-cards--carousel .numbered-cards-dot:hover {
+.numbered-cards-carousel-layout .numbered-cards-dot:hover {
   opacity: 0.8;
 }
 
 /* Nav arrows */
-.numbered-cards--carousel .numbered-cards-nav {
+.numbered-cards-carousel-layout .numbered-cards-nav {
   display: flex;
   gap: 12px;
   position: absolute;
   right: 0;
 }
 
-.numbered-cards--carousel .numbered-cards-nav-btn {
+.numbered-cards-carousel-layout .numbered-cards-nav-btn {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -232,25 +226,23 @@
   transition: opacity 0.2s ease;
 }
 
-.numbered-cards--carousel .numbered-cards-nav-btn:hover {
+.numbered-cards-carousel-layout .numbered-cards-nav-btn:hover {
   opacity: 0.85;
 }
 
-.numbered-cards--carousel .numbered-cards-nav-btn svg {
+.numbered-cards-carousel-layout .numbered-cards-nav-btn svg {
   width: 16px;
   height: 16px;
   color: rgb(255 255 255 / 83%);
 }
 
-/* ===================== */
-/* RESPONSIVE            */
-/* ===================== */
+/* Responsive */
 @media (width <= 1024px) {
-  .numbered-cards--grid .numbered-cards-grid {
+  .numbered-cards-grid-layout .numbered-cards-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .numbered-cards--carousel .numbered-cards-card {
+  .numbered-cards-carousel-layout .numbered-cards-card {
     flex: 0 0 340px;
   }
 }
@@ -272,29 +264,29 @@
     margin-bottom: 32px;
   }
 
-  .numbered-cards--grid .numbered-cards-grid {
+  .numbered-cards-grid-layout .numbered-cards-grid {
     grid-template-columns: 1fr;
   }
 
-  .numbered-cards--grid .numbered-cards-card {
+  .numbered-cards-grid-layout .numbered-cards-card {
     min-height: auto;
   }
 
-  .numbered-cards--grid .numbered-cards-card-title {
+  .numbered-cards-grid-layout .numbered-cards-card-title {
     font-size: 28px;
   }
 
-  .numbered-cards--carousel .numbered-cards-card {
+  .numbered-cards-carousel-layout .numbered-cards-card {
     flex: 0 0 85%;
     height: auto;
     min-height: 280px;
   }
 
-  .numbered-cards--carousel .numbered-cards-card-title {
+  .numbered-cards-carousel-layout .numbered-cards-card-title {
     font-size: 28px;
   }
 
-  .numbered-cards--carousel .numbered-cards-nav {
+  .numbered-cards-carousel-layout .numbered-cards-nav {
     position: static;
     margin-left: 24px;
   }

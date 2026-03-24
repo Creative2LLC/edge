@@ -50,7 +50,7 @@ export default function decorate(block) {
   }
 
   // Add layout class
-  block.classList.add(`numbered-cards--${layout}`);
+  block.classList.add(`numbered-cards-${layout}-layout`);
 
   const wrapper = document.createElement('div');
   wrapper.className = 'numbered-cards-wrapper';
