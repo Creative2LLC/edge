@@ -4,8 +4,7 @@
 }
 
 .trust-badges .trust-badges-inner {
-  max-width: 1240px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .trust-badges .trust-badges-header {

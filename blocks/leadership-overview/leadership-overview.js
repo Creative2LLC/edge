@@ -403,7 +403,7 @@ function buildFeaturedPanel(fields) {
   return panel;
 }
 
-function buildNavCard(row, index) {
+async function buildNavCard(row, index) {
   const titleField = readRowTextField(row, 'title', 0);
   const descriptionField = readRowTextField(row, 'description', 1);
   const linkTextField = readRowTextField(row, 'linkText', 2);
@@ -412,6 +412,11 @@ function buildNavCard(row, index) {
   const titleColorField = readRowTextField(row, 'titleColor', 5);
   const descriptionColorField = readRowTextField(row, 'descriptionColor', 6);
   const linkColorField = readRowTextField(row, 'linkColor', 7);
+
+  if (!linkField.value) {
+    linkField.value = await getFieldValueFromResourceJson(row, 'link');
+  }
+
   const hasVisibleContent = titleField.value
     || descriptionField.value
     || linkTextField.value
@@ -522,8 +527,8 @@ export default async function decorate(block) {
       ),
     );
 
-  rows.forEach((row, index) => {
-    const card = buildNavCard(row, index);
+  const cards = await Promise.all(rows.map((row, index) => buildNavCard(row, index)));
+  cards.forEach((card) => {
     if (card) navGrid.append(card);
   });
 

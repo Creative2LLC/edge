@@ -5,8 +5,7 @@
 }
 
 .partners-showcase .partners-showcase-shell {
-  max-width: 1240px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .partners-showcase .partners-showcase-header {
