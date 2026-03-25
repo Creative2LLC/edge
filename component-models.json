@@ -1737,13 +1737,6 @@
         "multi": false
       },
       {
-        "component": "text",
-        "valueType": "string",
-        "name": "featuredImageAlt",
-        "label": "Featured Image Alt Text",
-        "value": ""
-      },
-      {
         "component": "richtext",
         "valueType": "string",
         "name": "featuredQuote",
@@ -1772,22 +1765,6 @@
         "component": "aem-content",
         "name": "featuredLink",
         "label": "Featured Link"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "backgroundColor",
-        "label": "Section Background Color (Hex)",
-        "description": "Defaults to #F4F1EC",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "featuredCardBackgroundColor",
-        "label": "Featured Card Background Color (Hex)",
-        "description": "Defaults to #FFFFFF",
-        "value": ""
       }
     ]
   },
