@@ -1,7 +1,8 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-// Block-level model field order: heading(0), subheading(1), backgroundColor(2), button(3), buttonLink(4)
+// Block-level field order: heading(0), subheading(1), backgroundColor(2),
+// button(3), buttonLink(4)
 const BLOCK_PROPS = ['heading', 'subheading', 'backgroundColor', 'button', 'buttonLink'];
 
 function extractConfigRow(block) {
@@ -16,7 +17,7 @@ function extractConfigRow(block) {
       && !row.querySelector('[data-aue-prop="image"]')
       && !row.querySelector('picture'));
     // Last resort: first row
-    if (!configRow) configRow = rows[0];
+    if (!configRow) [configRow] = rows;
   }
 
   return configRow;
