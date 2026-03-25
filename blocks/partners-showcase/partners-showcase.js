@@ -54,6 +54,32 @@ function resolveLinkValue(source) {
   return resourcePathFromUrn(resourceRef);
 }
 
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+async function getFieldValueFromResourceJson(scope, name) {
+  const resource = scope.getAttribute('data-aue-resource')
+    || scope.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    return normalizeJsonFieldValue(data[name]);
+  } catch (error) {
+    return '';
+  }
+}
+
 function getFieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
@@ -441,7 +467,7 @@ function createShell(className) {
   return shell;
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
   const legacyMap = collectLegacyBlockFields(block);
 
   const fields = {
@@ -456,6 +482,10 @@ export default function decorate(block) {
       'testimonialCardBackgroundColor',
     ),
   };
+
+  if (!fields.ctaLink.value) {
+    fields.ctaLink.value = await getFieldValueFromResourceJson(block, 'ctaLink');
+  }
 
   block.style.backgroundColor = fields.backgroundColor.value || '#ffffff';
 

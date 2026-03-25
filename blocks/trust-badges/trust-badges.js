@@ -36,6 +36,32 @@ function resolveLinkValue(source) {
   return resourcePathFromUrn(resourceRef);
 }
 
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+async function getFieldValueFromResourceJson(scope, name) {
+  const resource = scope.getAttribute('data-aue-resource')
+    || scope.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    return normalizeJsonFieldValue(data[name]);
+  } catch (error) {
+    return '';
+  }
+}
+
 function getTextField(scope, name) {
   const source = scope.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
@@ -241,12 +267,16 @@ function buildBadge(row, index) {
   return badge;
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
   const legacyMap = collectLegacyBlockFields(block);
   const headingField = readBlockField(block, legacyMap, 'heading');
   const ctaTextField = readBlockField(block, legacyMap, 'ctaText');
   const ctaLinkField = readBlockField(block, legacyMap, 'ctaLink', 'link');
   const backgroundColorField = readBlockField(block, legacyMap, 'backgroundColor');
+
+  if (!ctaLinkField.value) {
+    ctaLinkField.value = await getFieldValueFromResourceJson(block, 'ctaLink');
+  }
 
   block.style.backgroundColor = backgroundColorField.value || '#ffffff';
 
