@@ -1,51 +1,49 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-const LEGACY_BLOCK_LABELS = {
-  heading: ['heading', 'title'],
-  subheading: ['subheading', 'sub heading'],
-  backgroundColor: ['background color', 'backgroundcolor', 'bg color'],
-  button: ['button text', 'buttontext', 'button label', 'button'],
-  buttonLink: ['button link', 'button url', 'button href'],
-};
+// Block-level model field order: heading(0), subheading(1), backgroundColor(2), button(3), buttonLink(4)
+const BLOCK_PROPS = ['heading', 'subheading', 'backgroundColor', 'button', 'buttonLink'];
 
-function collectLegacyBlockFields(block) {
-  const map = {};
-  const rowsToRemove = [];
-  block.querySelectorAll(':scope > div').forEach((row) => {
-    if (row.children.length !== 2) return;
-    const key = row.children[0].textContent.trim().toLowerCase();
-    const valueEl = row.children[1];
-    Object.entries(LEGACY_BLOCK_LABELS).some(([name, labels]) => {
-      if (!labels.includes(key)) return false;
-      map[name] = valueEl.textContent.trim();
-      rowsToRemove.push(row);
-      return true;
-    });
-  });
-  rowsToRemove.forEach((row) => row.remove());
-  return map;
-}
+function extractConfigRow(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
 
-function getBlockField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const value = source.textContent.trim();
-    source.remove();
-    return value;
+  // Prefer the row that contains a block-level data-aue-prop
+  let configRow = rows.find((row) => BLOCK_PROPS.some((p) => row.querySelector(`[data-aue-prop="${p}"]`)));
+
+  // Fallback: first row that does NOT look like a resource item (no image/icon prop)
+  if (!configRow && rows.length > 0) {
+    configRow = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
+      && !row.querySelector('[data-aue-prop="image"]')
+      && !row.querySelector('picture'));
+    // Last resort: first row
+    if (!configRow) configRow = rows[0];
   }
-  return legacyMap[name] || '';
+
+  return configRow;
 }
 
-function getBlockLinkField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+function readConfigField(configRow, name, colIndex) {
+  if (!configRow) return '';
+  const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return source.textContent.trim();
+  const cols = [...configRow.children];
+  if (cols[colIndex]) return cols[colIndex].textContent.trim();
+  return '';
+}
+
+function readConfigLinkField(configRow, name, colIndex) {
+  if (!configRow) return '';
+  const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    const value = anchor?.href || source.textContent.trim();
-    source.remove();
-    return value;
+    return anchor?.href || source.textContent.trim();
   }
-  return legacyMap[name] || '';
+  const cols = [...configRow.children];
+  if (cols[colIndex]) {
+    const anchor = cols[colIndex].querySelector('a');
+    return anchor?.href || cols[colIndex].textContent.trim();
+  }
+  return '';
 }
 
 function parseResourceRow(row) {
@@ -230,12 +228,16 @@ function updateScrollbar(thumb, container) {
 }
 
 export default function decorate(block) {
-  const legacyMap = collectLegacyBlockFields(block);
-  const heading = getBlockField(block, legacyMap, 'heading');
-  const subheading = getBlockField(block, legacyMap, 'subheading');
-  const backgroundColor = getBlockField(block, legacyMap, 'backgroundColor');
-  const buttonText = getBlockField(block, legacyMap, 'button');
-  const buttonLink = getBlockLinkField(block, legacyMap, 'buttonLink');
+  // Extract config row and read block-level fields by prop or column index
+  const configRow = extractConfigRow(block);
+  const heading = readConfigField(configRow, 'heading', 0);
+  const subheading = readConfigField(configRow, 'subheading', 1);
+  const backgroundColor = readConfigField(configRow, 'backgroundColor', 2);
+  const buttonText = readConfigField(configRow, 'button', 3);
+  const buttonLink = readConfigLinkField(configRow, 'buttonLink', 4);
+
+  // Remove the config row so it doesn't get parsed as a resource card
+  if (configRow) configRow.remove();
 
   // Apply optional background color
   if (backgroundColor) {
