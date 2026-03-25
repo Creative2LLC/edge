@@ -233,8 +233,8 @@ function buildHeader(fields) {
   return header.children.length ? header : null;
 }
 
-function buildCta(textField, linkField) {
-  if (!linkField.value || (!textField.value && !textField.source)) return null;
+function buildCta(textField, linkField, fallbackLabel = 'Learn More') {
+  if (!linkField.value) return null;
 
   const cta = document.createElement('a');
   cta.className = 'partners-showcase-cta';
@@ -243,10 +243,11 @@ function buildCta(textField, linkField) {
 
   const label = document.createElement('span');
   label.className = 'partners-showcase-cta-label';
+  const labelText = textField.value || fallbackLabel;
   if (textField.source) {
-    moveFieldContent(textField, label, textField.value || 'Learn More');
+    moveFieldContent(textField, label, labelText);
   } else {
-    label.textContent = textField.value || 'Learn More';
+    label.textContent = labelText;
   }
 
   const icon = document.createElement('span');
@@ -483,7 +484,7 @@ export default function decorate(block) {
     if (testimonialsGrid.children.length) contentShell.append(testimonialsGrid);
   }
 
-  const cta = buildCta(fields.ctaText, fields.ctaLink);
+  const cta = buildCta(fields.ctaText, fields.ctaLink, 'View All Partners');
   if (cta) {
     const footer = document.createElement('div');
     footer.className = 'partners-showcase-footer';

@@ -200,8 +200,8 @@ function buildOptimizedPicture(imageField, imageAltField, width = 760) {
   return optimized;
 }
 
-function buildLink(linkTextField, linkField, className) {
-  if (!linkField.value || (!linkTextField.value && !linkTextField.source)) {
+function buildLink(linkTextField, linkField, className, fallbackLabel = 'Learn More') {
+  if (!linkField.value) {
     return null;
   }
 
@@ -212,10 +212,11 @@ function buildLink(linkTextField, linkField, className) {
 
   const label = document.createElement('span');
   label.className = `${className}-label`;
+  const labelText = linkTextField.value || fallbackLabel;
   if (linkTextField.source) {
-    moveFieldContent(linkTextField, label, linkTextField.value);
+    moveFieldContent(linkTextField, label, labelText);
   } else {
-    label.textContent = linkTextField.value;
+    label.textContent = labelText;
   }
 
   const icon = document.createElement('span');
@@ -329,6 +330,7 @@ function buildFeaturedPanel(fields) {
     fields.featuredLinkText,
     fields.featuredLink,
     'leadership-overview-feature-link',
+    'Read Bio',
   );
   if (link) content.append(link);
 
@@ -380,7 +382,7 @@ function buildNavCard(row, index) {
     card.append(description);
   }
 
-  const link = buildLink(linkTextField, linkField, 'leadership-overview-nav-card-link');
+  const link = buildLink(linkTextField, linkField, 'leadership-overview-nav-card-link', 'Learn More');
   if (link) {
     link.style.color = linkColorField.value || '#00a0ca';
     card.append(link);
