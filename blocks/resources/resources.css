@@ -1,5 +1,22 @@
 .resources {
-  padding: 60px 0;
+  padding: 0;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+}
+
+/* Override section wrapper max-width for full-width breakout */
+main > .section > .resources-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.resources .resources-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px;
 }
 
 /* Header row */
@@ -236,6 +253,10 @@
 
 /* Responsive */
 @media (width <= 700px) {
+  .resources .resources-inner {
+    padding: 40px 20px;
+  }
+
   .resources .resources-heading {
     font-size: 32px;
   }
