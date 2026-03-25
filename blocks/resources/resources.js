@@ -62,27 +62,67 @@ function parseResourceRow(row) {
     };
   }
 
-  // Extract link URL: prefer <a> href, then fall back to textContent
-  function getLinkUrl(col) {
-    if (!col) return '';
+  // Extract link URL and text from a column (or merged link)
+  function getLinkData(col, nextCol) {
+    if (!col) return { url: '', text: '' };
     const a = col.querySelector('a');
-    if (a && a.href) return a.href;
-    return col.textContent.trim();
+    if (a && a.href) {
+      // EDS may merge link URL + text into one <a>
+      const aText = a.textContent.trim();
+      const isUrlText = aText === a.href
+        || aText === a.getAttribute('href')
+        || aText.replace(/\/$/, '') === a.href.replace(/\/$/, '');
+      return {
+        url: a.href,
+        text: isUrlText
+          ? (nextCol?.textContent.trim() || '')
+          : aText,
+      };
+    }
+    return {
+      url: col.textContent.trim(),
+      text: nextCol?.textContent.trim() || '',
+    };
   }
 
-  // Try to get a field value by data-aue-prop attribute, then by column index
+  // Try to get a field value by data-aue-prop, then column index
   function getFieldText(colIndex, propName) {
-    const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
+    const byProp = row.querySelector(
+      `[data-aue-prop="${propName}"]`,
+    );
     if (byProp) return byProp.textContent.trim();
     if (cols[colIndex]) return cols[colIndex].textContent.trim();
     return '';
   }
 
-  // 7-column layout: image | icon | iconColor | title | subtitle | link | linkText
-  // This is the primary path — columns always exist in model field order
+  // 7-column layout:
+  // image | icon | iconColor | title | subtitle | link | linkText
   if (cols.length >= 6) {
     const imageData = getImageData(cols[0]);
     const iconData = getImageData(cols[1]);
+
+    // Try data-aue-prop first for link text (editor)
+    const linkTextProp = row.querySelector(
+      '[data-aue-prop="linkText"]',
+    );
+    const linkProp = row.querySelector(
+      '[data-aue-prop="link"]',
+    );
+
+    let linkUrl;
+    let linkText;
+
+    if (linkProp) {
+      const a = linkProp.querySelector('a');
+      linkUrl = a?.href || linkProp.textContent.trim();
+      linkText = linkTextProp?.textContent.trim() || '';
+    } else {
+      // Column-index fallback (published pages)
+      const ld = getLinkData(cols[5], cols[6]);
+      linkUrl = ld.url;
+      linkText = ld.text;
+    }
+
     return {
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
@@ -92,8 +132,8 @@ function parseResourceRow(row) {
       iconColor: getFieldText(2, 'iconColor'),
       title: getFieldText(3, 'title'),
       subtitle: getFieldText(4, 'subtitle'),
-      linkUrl: getLinkUrl(cols[5]),
-      linkText: getFieldText(6, 'linkText'),
+      linkUrl,
+      linkText,
     };
   }
 

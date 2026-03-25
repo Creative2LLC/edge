@@ -20,7 +20,6 @@
   flex-direction: column;
   border-radius: 14px;
   width: 100%;
-  max-width: 452px;
   min-height: 540px;
   padding: 36px 32px;
   box-sizing: border-box;
@@ -146,6 +145,11 @@
 .info-cards-grid-card-button:hover,
 .info-cards-grid-card-button:focus {
   opacity: 0.85;
+}
+
+/* No button variant */
+.info-cards-grid-card-no-button {
+  min-height: auto;
 }
 
 /* Responsive: Tablet */

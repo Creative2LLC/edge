@@ -59,6 +59,7 @@ function buildTitle(content, data) {
   if (data.titleField.value || data.titleField.source) {
     const h3 = document.createElement('h3');
     h3.className = 'info-cards-grid-card-title';
+    if (data.textColor) h3.style.color = data.textColor;
     if (data.titleField.source) {
       moveInstrumentation(data.titleField.source, h3);
       while (data.titleField.source.firstChild) h3.append(data.titleField.source.firstChild);
@@ -73,6 +74,7 @@ function buildSubtitle(content, data) {
   if (data.subtitleField.value || data.subtitleField.source) {
     const p = document.createElement('p');
     p.className = 'info-cards-grid-card-subtitle';
+    if (data.textColor) p.style.color = data.textColor;
     if (data.subtitleField.source) {
       moveInstrumentation(data.subtitleField.source, p);
       while (data.subtitleField.source.firstChild) p.append(data.subtitleField.source.firstChild);
@@ -87,6 +89,7 @@ function buildBody(content, data) {
   if (data.bodySource) {
     const body = document.createElement('div');
     body.className = 'info-cards-grid-card-body';
+    if (data.textColor) body.style.color = data.textColor;
     moveInstrumentation(data.bodySource, body);
     while (data.bodySource.firstChild) body.append(data.bodySource.firstChild);
     content.append(body);
@@ -94,11 +97,15 @@ function buildBody(content, data) {
 }
 
 function buildButton(card, data, cardBg) {
-  const btnLabel = data.buttonTextField.value || 'Learn More';
+  const btnLabel = data.buttonTextField.value;
   const btnHref = data.buttonLinkField.value;
+  if (!btnLabel && !btnHref) {
+    card.classList.add('info-cards-grid-card-no-button');
+    return;
+  }
   const btn = document.createElement(btnHref ? 'a' : 'button');
   btn.className = 'info-cards-grid-card-button';
-  btn.textContent = btnLabel;
+  btn.textContent = btnLabel || 'Learn More';
   if (btnHref) btn.href = btnHref;
   if (!btnHref) btn.type = 'button';
   if (data.buttonTextField.source) {
@@ -193,7 +200,8 @@ export default function decorate(block) {
   // Field index mapping for child items:
   // 0: icon, 1: title, 2: subtitle, 3: bodyContent,
   // 4: buttonText, 5: buttonLink, 6: cardBackgroundColor,
-  // 7: buttonBackgroundColor, 8: iconColor
+  // 7: buttonBackgroundColor, 8: iconColor, 9: textColor,
+  // 10: overlayImage
   const cards = [];
   rows.forEach((row) => {
     const cols = [...row.children];
@@ -208,7 +216,8 @@ export default function decorate(block) {
     const cardBgField = getField(row, 'cardBackgroundColor', 6);
     const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
     const iconColorField = getField(row, 'iconColor', 8);
-    const overlayField = getImageField(row, 'overlayImage', 9);
+    const textColorField = getField(row, 'textColor', 9);
+    const overlayField = getImageField(row, 'overlayImage', 10);
 
     cards.push({
       iconField,
@@ -220,6 +229,7 @@ export default function decorate(block) {
       cardBg: cardBgField.value,
       buttonBg: buttonBgField.value,
       iconColor: iconColorField.value,
+      textColor: textColorField.value,
       overlayField,
       row,
     });
