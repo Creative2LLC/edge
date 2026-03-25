@@ -12,6 +12,30 @@ const LEGACY_BLOCK_LABELS = {
 
 const ARROW_SVG = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function resolveLinkValue(source) {
+  if (!source) return '';
+
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  const href = anchor?.getAttribute('href')
+    || source.getAttribute('href')
+    || source.textContent.trim();
+
+  if (href) return href;
+
+  const resourceRef = source.getAttribute('data-aue-resource')
+    || source.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  return resourcePathFromUrn(resourceRef);
+}
+
 function getTextField(scope, name) {
   const source = scope.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
@@ -20,10 +44,7 @@ function getTextField(scope, name) {
 
 function getLinkField(scope, name) {
   const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
+  if (source) return { source, value: resolveLinkValue(source) };
   return { source: null, value: '' };
 }
 
@@ -68,14 +89,14 @@ function readRowTextField(row, name, index) {
 
 function readRowLinkField(row, name, index) {
   const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
+  if (source) return { source, value: resolveLinkValue(source) };
   const cols = [...row.children];
   if (cols[index]) {
     const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
+    return {
+      source: null,
+      value: anchor?.getAttribute('href') || cols[index].textContent.trim(),
+    };
   }
   return { source: null, value: '' };
 }

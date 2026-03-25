@@ -39,6 +39,30 @@ const ARROW_SVG = [
   '</svg>',
 ].join('');
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function resolveLinkValue(source) {
+  if (!source) return '';
+
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  const href = anchor?.getAttribute('href')
+    || source.getAttribute('href')
+    || source.textContent.trim();
+
+  if (href) return href;
+
+  const resourceRef = source.getAttribute('data-aue-resource')
+    || source.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  return resourcePathFromUrn(resourceRef);
+}
+
 function getFieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
@@ -54,10 +78,9 @@ function getTextField(scope, name) {
 function getLinkField(scope, name) {
   const source = scope.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
     return {
       source,
-      value: anchor?.href || source.textContent.trim(),
+      value: resolveLinkValue(source),
     };
   }
 
@@ -136,14 +159,16 @@ function readRowTextField(row, name, index) {
 function readRowLinkField(row, name, index) {
   const source = row.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
+    return { source, value: resolveLinkValue(source) };
   }
 
   const cols = [...row.children];
   if (cols[index]) {
     const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
+    return {
+      source: null,
+      value: anchor?.getAttribute('href') || cols[index].textContent.trim(),
+    };
   }
 
   return { source: null, value: '' };
