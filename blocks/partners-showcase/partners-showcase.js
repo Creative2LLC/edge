@@ -206,6 +206,20 @@ function readRowImageField(row, name, index) {
   return { source: null, picture: null, img: null };
 }
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function buildAuthoringPlaceholder(tagName, className, text) {
+  const placeholder = document.createElement(tagName);
+  placeholder.className = `${className} ${className}-placeholder`;
+  placeholder.textContent = text;
+  return placeholder;
+}
+
 function moveFieldContent(field, target, fallbackValue = '') {
   if (!field?.source || !target) {
     if (!field?.source && fallbackValue) target.textContent = fallbackValue;
@@ -310,9 +324,10 @@ function buildCta(textField, linkField, fallbackLabel = 'Learn More') {
 }
 
 function buildLogoItem(data, clone = false) {
-  if (!data.logoField.img) return null;
+  const isAuthoringPlaceholder = !clone && hasAuthoringContext(data.row) && !data.logoField.img;
+  if (!data.logoField.img && !isAuthoringPlaceholder) return null;
 
-  const hasLink = !clone && data.logoLinkField.value;
+  const hasLink = !clone && data.logoField.img && data.logoLinkField.value;
   const item = document.createElement(hasLink ? 'a' : 'div');
   item.className = 'partners-showcase-logo-item';
 
@@ -323,6 +338,12 @@ function buildLogoItem(data, clone = false) {
 
   const picture = buildOptimizedPicture(data.logoField, data.logoAltField, 280, !clone);
   if (picture) item.append(picture);
+  if (isAuthoringPlaceholder) {
+    item.classList.add('is-authoring-placeholder');
+    item.append(
+      buildAuthoringPlaceholder('span', 'partners-showcase-item-placeholder', 'Add partner logo'),
+    );
+  }
 
   return item;
 }
@@ -349,7 +370,7 @@ function buildLogoBand(logos) {
 
   track.append(originalGroup);
 
-  if (originalGroup.children.length > 1) {
+  if (logos.filter((data) => data.logoField.img).length > 1) {
     band.classList.add('is-animated');
 
     const cloneGroup = document.createElement('div');
@@ -409,20 +430,26 @@ function buildAttribution(nameField, titleField) {
 }
 
 function buildTestimonialCard(data, cardBackgroundColor) {
-  const hasContent = data.logoField.img
+  const hasVisibleContent = data.logoField.img
     || data.quoteField.text
-    || data.quoteField.source
     || data.attributionNameField.value
-    || data.attributionNameField.source
-    || data.attributionTitleField.value
-    || data.attributionTitleField.source;
+    || data.attributionTitleField.value;
+  const isAuthoringPlaceholder = hasAuthoringContext(data.row) && !hasVisibleContent;
 
-  if (!hasContent) return null;
+  if (!hasVisibleContent && !isAuthoringPlaceholder) return null;
 
   const card = document.createElement('article');
   card.className = 'partners-showcase-testimonial';
   card.style.backgroundColor = cardBackgroundColor;
   if (data.row) moveInstrumentation(data.row, card);
+
+  if (isAuthoringPlaceholder) {
+    card.classList.add('is-authoring-placeholder');
+    card.append(
+      buildAuthoringPlaceholder('p', 'partners-showcase-item-placeholder', 'Add quote, logo, and attribution'),
+    );
+    return card;
+  }
 
   if (data.logoField.img) {
     const logo = document.createElement('div');
@@ -458,6 +485,7 @@ function normalizeItemType(rawValue, data) {
   if (value === 'logo') return 'logo';
   if (data.quoteField.text || data.quoteField.source) return 'testimonial';
   if (data.logoField.img) return 'logo';
+  if (hasAuthoringContext(data.row)) return 'logo';
   return '';
 }
 

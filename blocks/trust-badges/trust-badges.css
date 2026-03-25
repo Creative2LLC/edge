@@ -79,6 +79,31 @@
   text-decoration: none;
 }
 
+.trust-badges .trust-badges-item.is-authoring-placeholder {
+  padding: 20px 18px 24px;
+  border: 1px dashed rgb(0 38 77 / 16%);
+  border-radius: 18px;
+  background: rgb(0 38 77 / 3%);
+}
+
+.trust-badges .trust-badges-item-media.is-empty {
+  border: 1px dashed rgb(0 38 77 / 18%);
+  border-radius: 14px;
+  background: rgb(0 38 77 / 4%);
+}
+
+.trust-badges .trust-badges-item-placeholder,
+.trust-badges .trust-badges-item-caption-placeholder {
+  color: #5f6f7f;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.trust-badges .trust-badges-item-caption-placeholder {
+  max-width: 240px;
+}
+
 .trust-badges .trust-badges-item:hover,
 .trust-badges .trust-badges-item:focus-visible {
   text-decoration: none;

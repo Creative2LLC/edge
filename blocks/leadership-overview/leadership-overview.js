@@ -200,6 +200,20 @@ function readRowLinkField(row, name, index) {
   return { source: null, value: '' };
 }
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function buildAuthoringPlaceholder(tagName, className, text) {
+  const placeholder = document.createElement(tagName);
+  placeholder.className = `${className} ${className}-placeholder`;
+  placeholder.textContent = text;
+  return placeholder;
+}
+
 function moveFieldContent(field, target, fallbackValue = '') {
   if (!field?.source || !target) {
     if (!field?.source && fallbackValue) target.textContent = fallbackValue;
@@ -398,8 +412,13 @@ function buildNavCard(row, index) {
   const titleColorField = readRowTextField(row, 'titleColor', 5);
   const descriptionColorField = readRowTextField(row, 'descriptionColor', 6);
   const linkColorField = readRowTextField(row, 'linkColor', 7);
+  const hasVisibleContent = titleField.value
+    || descriptionField.value
+    || linkTextField.value
+    || linkField.value;
+  const isAuthoringPlaceholder = hasAuthoringContext(row) && !hasVisibleContent;
 
-  if (!titleField.value && !descriptionField.value && !linkTextField.value && !linkField.value) {
+  if (!hasVisibleContent && !isAuthoringPlaceholder) {
     return null;
   }
 
@@ -408,6 +427,19 @@ function buildNavCard(row, index) {
   card.dataset.index = `${index}`;
   card.style.backgroundColor = cardBackgroundColorField.value || '#00264d';
   if (row) moveInstrumentation(row, card);
+
+  if (isAuthoringPlaceholder) {
+    card.classList.add('is-authoring-placeholder');
+    card.append(
+      buildAuthoringPlaceholder('h3', 'leadership-overview-nav-card-title', 'New leadership card'),
+      buildAuthoringPlaceholder(
+        'p',
+        'leadership-overview-nav-card-description',
+        'Add title, description, and link.',
+      ),
+    );
+    return card;
+  }
 
   if (titleField.value || titleField.source) {
     const title = document.createElement('h3');

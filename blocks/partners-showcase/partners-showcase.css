@@ -102,6 +102,30 @@
   flex: 0 0 auto;
 }
 
+.partners-showcase .partners-showcase-logo-item.is-authoring-placeholder,
+.partners-showcase .partners-showcase-testimonial.is-authoring-placeholder {
+  border: 1px dashed rgb(0 38 77 / 16%);
+  background: rgb(0 38 77 / 3%);
+}
+
+.partners-showcase .partners-showcase-logo-item.is-authoring-placeholder {
+  min-width: 190px;
+  min-height: 96px;
+  padding: 20px 24px;
+  border-radius: 14px;
+}
+
+.partners-showcase .partners-showcase-testimonial.is-authoring-placeholder {
+  justify-content: center;
+}
+
+.partners-showcase .partners-showcase-item-placeholder {
+  color: #5f6f7f;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .partners-showcase .partners-showcase-logo-item:hover,
 .partners-showcase .partners-showcase-logo-item:focus-visible {
   text-decoration: none;

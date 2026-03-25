@@ -170,6 +170,19 @@
   box-sizing: border-box;
 }
 
+.leadership-overview .leadership-overview-nav-card.is-authoring-placeholder {
+  border: 1px dashed rgb(255 255 255 / 28%);
+}
+
+.leadership-overview .leadership-overview-nav-card-title-placeholder,
+.leadership-overview .leadership-overview-nav-card-description-placeholder {
+  color: rgb(255 255 255 / 88%);
+}
+
+.leadership-overview .leadership-overview-nav-card-description-placeholder {
+  max-width: 290px;
+}
+
 .leadership-overview .leadership-overview-nav-card-title {
   margin: 0;
   font-size: clamp(32px, 2.3vw, 40px);

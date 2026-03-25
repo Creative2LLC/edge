@@ -145,6 +145,20 @@ function readRowImageField(row, name, index) {
   return { source: null, picture: null, img: null };
 }
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function buildAuthoringPlaceholder(tagName, className, text) {
+  const placeholder = document.createElement(tagName);
+  placeholder.className = `${className} ${className}-placeholder`;
+  placeholder.textContent = text;
+  return placeholder;
+}
+
 function buildOptimizedPicture(imageField, width = 320) {
   if (!imageField.img) return null;
 
@@ -237,8 +251,10 @@ function buildBadge(row, index) {
   const logoField = readRowImageField(row, 'logo', 0);
   const captionField = readRowTextField(row, 'caption', 1);
   const linkField = readRowLinkField(row, 'badgeLink', 2);
+  const hasVisibleContent = logoField.img || captionField.value;
+  const isAuthoringPlaceholder = hasAuthoringContext(row) && !hasVisibleContent;
 
-  if (!logoField.img && !captionField.value && !captionField.source) return null;
+  if (!hasVisibleContent && !isAuthoringPlaceholder) return null;
 
   const badge = document.createElement(linkField.value ? 'a' : 'div');
   badge.className = 'trust-badges-item';
@@ -252,6 +268,18 @@ function buildBadge(row, index) {
   const picture = buildOptimizedPicture(logoField);
   if (picture) media.append(picture);
   badge.append(media);
+
+  if (isAuthoringPlaceholder) {
+    badge.classList.add('is-authoring-placeholder');
+    media.classList.add('is-empty');
+    media.append(
+      buildAuthoringPlaceholder('span', 'trust-badges-item-placeholder', 'Add badge logo'),
+    );
+    badge.append(
+      buildAuthoringPlaceholder('p', 'trust-badges-item-caption', 'Add caption and link in the editor.'),
+    );
+    return badge;
+  }
 
   if (captionField.value || captionField.source) {
     const caption = document.createElement('p');
