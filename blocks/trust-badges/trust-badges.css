@@ -1,6 +1,16 @@
 .trust-badges {
+  width: 100vw;
   padding: 96px 24px 88px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
   background: #fff;
+}
+
+main > .section > .trust-badges-wrapper {
+  max-width: none;
+  padding: 0;
 }
 
 .trust-badges .trust-badges-inner {
