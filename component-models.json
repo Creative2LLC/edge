@@ -1714,6 +1714,144 @@
     ]
   },
   {
+    "id": "leadership-overview",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "featuredImage",
+        "label": "Featured Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "featuredImageAlt",
+        "label": "Featured Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "featuredQuote",
+        "label": "Featured Quote"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "featuredName",
+        "label": "Featured Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "featuredTitle",
+        "label": "Featured Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "featuredLinkText",
+        "label": "Featured Link Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "featuredLink",
+        "label": "Featured Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Section Background Color (Hex)",
+        "description": "Defaults to #F4F1EC",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "featuredCardBackgroundColor",
+        "label": "Featured Card Background Color (Hex)",
+        "description": "Defaults to #FFFFFF",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "leadership-overview-card",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Card Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Card Description"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkText",
+        "label": "Link Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color (Hex)",
+        "description": "Defaults to #00264D",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "titleColor",
+        "label": "Title Color (Hex)",
+        "description": "Defaults to #FFFFFF",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "descriptionColor",
+        "label": "Description Color (Hex)",
+        "description": "Defaults to #FFFFFF",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkColor",
+        "label": "Link Color (Hex)",
+        "description": "Defaults to #00A0CA",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "leadership-profile",
     "fields": [
       {
@@ -2272,6 +2410,113 @@
     ]
   },
   {
+    "id": "partners-showcase",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "ctaText",
+        "label": "CTA Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "ctaLink",
+        "label": "CTA Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color (Hex)",
+        "description": "Defaults to #FFFFFF",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "testimonialCardBackgroundColor",
+        "label": "Testimonial Card Background Color (Hex)",
+        "description": "Defaults to #F4F0EA",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "partners-showcase-item",
+    "fields": [
+      {
+        "component": "select",
+        "name": "itemType",
+        "label": "Item Type",
+        "options": [
+          {
+            "name": "Logo",
+            "value": "logo"
+          },
+          {
+            "name": "Testimonial",
+            "value": "testimonial"
+          }
+        ],
+        "value": "logo"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "logo",
+        "label": "Logo",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "logoAlt",
+        "label": "Logo Alt Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "logoLink",
+        "label": "Logo Link"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "quote",
+        "label": "Quote",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "attributionName",
+        "label": "Attribution Name",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "attributionTitle",
+        "label": "Attribution Title",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "product-list",
     "fields": []
   },
@@ -2762,6 +3007,60 @@
         "valueType": "string",
         "name": "imageOverlayText",
         "label": "Image Overlay Text (Optional)"
+      }
+    ]
+  },
+  {
+    "id": "trust-badges",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "ctaText",
+        "label": "CTA Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "ctaLink",
+        "label": "CTA Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color (Hex)",
+        "description": "Defaults to white (#FFFFFF)",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "trust-badge-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "logo",
+        "label": "Logo",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "caption",
+        "label": "Caption"
+      },
+      {
+        "component": "aem-content",
+        "name": "badgeLink",
+        "label": "Badge Link"
       }
     ]
   },

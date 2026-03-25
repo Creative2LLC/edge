@@ -48,7 +48,10 @@
       "product-list",
       "faq",
       "text-image",
-      "btn-group"
+      "btn-group",
+      "trust-badges",
+      "leadership-overview",
+      "partners-showcase"
     ]
   },
   {
@@ -148,6 +151,12 @@
     ]
   },
   {
+    "id": "leadership-overview",
+    "components": [
+      "leadership-overview-card"
+    ]
+  },
+  {
     "id": "leadership-team",
     "components": [
       "leader-card"
@@ -178,6 +187,12 @@
     ]
   },
   {
+    "id": "partners-showcase",
+    "components": [
+      "partners-showcase-item"
+    ]
+  },
+  {
     "id": "product-list",
     "components": [
       "product-list-item"
@@ -199,6 +214,12 @@
     "id": "split-card-carousel",
     "components": [
       "split-card-carousel-item"
+    ]
+  },
+  {
+    "id": "trust-badges",
+    "components": [
+      "trust-badge-item"
     ]
   }
 ]

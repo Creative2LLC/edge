@@ -1,0 +1,183 @@
+{
+  "definitions": [
+    {
+      "title": "Leadership Overview",
+      "id": "leadership-overview",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Leadership Overview",
+              "model": "leadership-overview",
+              "filter": "leadership-overview"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Leadership Overview Card",
+      "id": "leadership-overview-card",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Leadership Overview Card",
+              "model": "leadership-overview-card"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "leadership-overview",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "featuredImage",
+          "label": "Featured Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "featuredImageAlt",
+          "label": "Featured Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "featuredQuote",
+          "label": "Featured Quote"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "featuredName",
+          "label": "Featured Name"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "featuredTitle",
+          "label": "Featured Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "featuredLinkText",
+          "label": "Featured Link Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "featuredLink",
+          "label": "Featured Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Section Background Color (Hex)",
+          "description": "Defaults to #F4F1EC",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "featuredCardBackgroundColor",
+          "label": "Featured Card Background Color (Hex)",
+          "description": "Defaults to #FFFFFF",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "leadership-overview-card",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Card Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "description",
+          "label": "Card Description"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "Link Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardBackgroundColor",
+          "label": "Card Background Color (Hex)",
+          "description": "Defaults to #00264D",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "titleColor",
+          "label": "Title Color (Hex)",
+          "description": "Defaults to #FFFFFF",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "descriptionColor",
+          "label": "Description Color (Hex)",
+          "description": "Defaults to #FFFFFF",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkColor",
+          "label": "Link Color (Hex)",
+          "description": "Defaults to #00A0CA",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "leadership-overview",
+      "components": [
+        "leadership-overview-card"
+      ]
+    }
+  ]
+}

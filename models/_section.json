@@ -83,7 +83,10 @@
         "product-list",
         "faq",
         "text-image",
-        "btn-group"
+        "btn-group",
+        "trust-badges",
+        "leadership-overview",
+        "partners-showcase"
       ]
     }
   ]
