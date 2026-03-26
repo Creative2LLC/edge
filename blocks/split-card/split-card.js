@@ -1,17 +1,22 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-function readField(block, name) {
+function readField(block, rows, name, index) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return source.textContent.trim();
+  if (rows[index]) return rows[index].textContent.trim();
   return '';
 }
 
-function readLinkField(block, name) {
+function readLinkField(block, rows, name, index) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const a = source.tagName === 'A'
       ? source : source.querySelector('a');
     return a?.href || source.textContent.trim();
+  }
+  if (rows[index]) {
+    const a = rows[index].querySelector('a');
+    return a?.href || rows[index].textContent.trim();
   }
   return '';
 }
@@ -29,19 +34,20 @@ function getImage(block) {
 }
 
 export default function decorate(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
   const picture = getImage(block);
-  const imageAlt = readField(block, 'imageAlt');
-  const heading = readField(block, 'heading');
-  const subheading = readField(block, 'subheading');
-  const buttonText = readField(block, 'buttonText');
-  const buttonLink = readLinkField(block, 'buttonLink');
-  const buttonColor = readField(block, 'buttonColor');
-  const button2Text = readField(block, 'button2Text');
-  const button2Link = readLinkField(block, 'button2Link');
-  const button2Color = readField(block, 'button2Color');
-  const backgroundColor = readField(block, 'backgroundColor');
-  const textColor = readField(block, 'textColor');
-  const contentAlign = readField(block, 'contentAlign') || 'left';
+  const imageAlt = readField(block, rows, 'imageAlt', 1);
+  const heading = readField(block, rows, 'heading', 2);
+  const subheading = readField(block, rows, 'subheading', 3);
+  const buttonText = readField(block, rows, 'buttonText', 4);
+  const buttonLink = readLinkField(block, rows, 'buttonLink', 5);
+  const buttonColor = readField(block, rows, 'buttonColor', 6);
+  const button2Text = readField(block, rows, 'button2Text', 7);
+  const button2Link = readLinkField(block, rows, 'button2Link', 8);
+  const button2Color = readField(block, rows, 'button2Color', 9);
+  const backgroundColor = readField(block, rows, 'backgroundColor', 10);
+  const textColor = readField(block, rows, 'textColor', 11);
+  const contentAlign = readField(block, rows, 'contentAlign', 12) || 'left';
 
   if (picture) {
     const img = picture.querySelector('img');
