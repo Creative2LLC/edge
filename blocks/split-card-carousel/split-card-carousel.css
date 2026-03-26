@@ -32,10 +32,6 @@ main > .section > .split-card-carousel-wrapper {
 }
 
 /* Section description */
-.split-card-carousel .split-card-carousel-title + .split-card-carousel-description {
-  margin-top: -28px;
-}
-
 .split-card-carousel .split-card-carousel-description {
   font-size: 20px;
   font-weight: 500;
@@ -43,6 +39,10 @@ main > .section > .split-card-carousel-wrapper {
   max-width: 680px;
   margin: 0 0 40px;
   line-height: 1.4;
+}
+
+.split-card-carousel .split-card-carousel-title + .split-card-carousel-description {
+  margin-top: -28px;
 }
 
 /* Carousel track — extends to the right edge of the page */
