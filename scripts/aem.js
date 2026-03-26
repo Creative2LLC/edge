@@ -601,12 +601,14 @@ function decorateSections(main) {
           .map((style) => toClassName(style.trim()));
         styles.forEach((style) => section.classList.add(style));
       } else if (camelKey === 'backgroundColor') {
-        const value = String(meta[key] || '').trim();
+        const value = normalizeColorValue(meta[key]);
         if (value) {
+          section.style.backgroundColor = value;
           [...section.querySelectorAll(':scope > div')].forEach((wrapper) => {
             wrapper.style.backgroundColor = value;
           });
-          section.dataset.backgroundColor = value;
+          section.setAttribute('data-background-color', value);
+          section.setAttribute('data-backgroundcolor', value);
         }
       } else {
         section.dataset[camelKey] = meta[key];
