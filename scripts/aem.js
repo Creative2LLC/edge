@@ -260,12 +260,8 @@ function cleanupFieldNode(node) {
   }
 }
 
-function readFieldValue(node) {
+function readSectionFieldValue(node) {
   if (!node) return '';
-  if (node.tagName === 'A') return node.href;
-
-  const anchor = node.querySelector('a');
-  if (anchor) return anchor.href;
 
   const paragraphs = [...node.querySelectorAll('p')]
     .map((paragraph) => paragraph.textContent.trim())
@@ -294,9 +290,9 @@ function getSectionMetadata(section) {
       const node = section.querySelector(selector);
       if (!node) return;
 
-      const value = readFieldValue(node);
+      const value = readSectionFieldValue(node);
       if (value) {
-        meta[toClassName(name)] = value;
+        meta[name] = value;
       }
 
       cleanupFieldNode(node);
@@ -577,7 +573,7 @@ function decorateSections(main) {
 
     const meta = getSectionMetadata(section);
     Object.keys(meta).forEach((key) => {
-      const camelKey = toCamelCase(key);
+      const camelKey = key.includes('-') ? toCamelCase(key) : key;
       if (camelKey === 'style') {
         const styles = String(meta[key] || '')
           .split(',')
