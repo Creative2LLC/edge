@@ -118,10 +118,6 @@ function updateDots(dots, activeIndex) {
 }
 
 export default function decorate(block) {
-  /* eslint-disable no-console */
-  console.log('[split-card-carousel] block.innerHTML BEFORE decoration:', block.innerHTML);
-  /* eslint-enable no-console */
-
   const rows = [...block.querySelectorAll(':scope > div')];
 
   // Block-level fields are in single-column rows;
