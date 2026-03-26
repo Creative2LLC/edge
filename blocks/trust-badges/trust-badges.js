@@ -306,7 +306,8 @@ export default async function decorate(block) {
     ctaLinkField.value = await getFieldValueFromResourceJson(block, 'ctaLink');
   }
 
-  block.style.backgroundColor = backgroundColorField.value || 'var(--section-background-color, #ffffff)';
+  const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
+  block.style.backgroundColor = backgroundColorField.value || (sectionBackgroundColor ? 'transparent' : '#ffffff');
 
   const inner = document.createElement('div');
   inner.className = 'trust-badges-inner';

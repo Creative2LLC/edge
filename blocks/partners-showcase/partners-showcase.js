@@ -515,7 +515,8 @@ export default async function decorate(block) {
     fields.ctaLink.value = await getFieldValueFromResourceJson(block, 'ctaLink');
   }
 
-  block.style.backgroundColor = fields.backgroundColor.value || 'var(--section-background-color, #ffffff)';
+  const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
+  block.style.backgroundColor = fields.backgroundColor.value || (sectionBackgroundColor ? 'transparent' : '#ffffff');
 
   const logos = [];
   const testimonials = [];
