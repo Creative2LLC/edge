@@ -92,7 +92,7 @@ function buildSlide(data, row) {
   }
 
   if (data.backgroundColor) {
-    contentSide.style.backgroundColor = data.backgroundColor;
+    contentSide.style.setProperty('background-color', data.backgroundColor, 'important');
   }
 
   if (data.heading) {
@@ -115,7 +115,7 @@ function buildSlide(data, row) {
     btn.href = data.buttonLink;
     btn.textContent = data.buttonText;
     if (data.buttonColor) {
-      btn.style.backgroundColor = data.buttonColor;
+      btn.style.setProperty('background-color', data.buttonColor, 'important');
     }
     contentSide.append(btn);
   }
