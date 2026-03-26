@@ -504,7 +504,7 @@ export default async function decorate(block) {
     fields.featuredLink.value = await getFieldValueFromResourceJson(block, 'featuredLink');
   }
 
-  block.style.backgroundColor = fields.backgroundColor.value || '#f4f1ec';
+  block.style.backgroundColor = fields.backgroundColor.value || 'var(--section-background-color, #f4f1ec)';
 
   const inner = document.createElement('div');
   inner.className = 'leadership-overview-inner';
