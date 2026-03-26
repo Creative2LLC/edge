@@ -1,38 +1,25 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-// Model field order:
-// 0:image, 1:imageAlt, 2:heading, 3:subheading,
-// 4:buttonText, 5:buttonLink, 6:buttonColor,
-// 7:button2Text, 8:button2Link, 9:button2Color,
-// 10:backgroundColor, 11:textColor, 12:contentAlign
-
-function readField(row, name, colIndex) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+function readField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return source.textContent.trim();
-  const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
   return '';
 }
 
-function readLinkField(row, name, colIndex) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+function readLinkField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const a = source.tagName === 'A'
       ? source : source.querySelector('a');
     return a?.href || source.textContent.trim();
   }
-  const cols = [...row.children];
-  if (cols[colIndex]) {
-    const a = cols[colIndex].querySelector('a');
-    return a?.href || cols[colIndex].textContent.trim();
-  }
   return '';
 }
 
-function getImage(row) {
-  const source = row.querySelector('[data-aue-prop="image"]');
+function getImage(block) {
+  const source = block.querySelector('[data-aue-prop="image"]');
   const picture = source?.querySelector('picture')
-    || row.querySelector('picture');
+    || block.querySelector('picture');
   if (!picture) return null;
   const img = picture.querySelector('img');
   if (!img) return picture;
@@ -42,23 +29,19 @@ function getImage(row) {
 }
 
 export default function decorate(block) {
-  // The block is a single-model block — all fields in one row
-  const row = block.querySelector(':scope > div');
-  if (!row) return;
-
-  const picture = getImage(row);
-  const imageAlt = readField(row, 'imageAlt', 1);
-  const heading = readField(row, 'heading', 2);
-  const subheading = readField(row, 'subheading', 3);
-  const buttonText = readField(row, 'buttonText', 4);
-  const buttonLink = readLinkField(row, 'buttonLink', 5);
-  const buttonColor = readField(row, 'buttonColor', 6);
-  const button2Text = readField(row, 'button2Text', 7);
-  const button2Link = readLinkField(row, 'button2Link', 8);
-  const button2Color = readField(row, 'button2Color', 9);
-  const backgroundColor = readField(row, 'backgroundColor', 10);
-  const textColor = readField(row, 'textColor', 11);
-  const contentAlign = readField(row, 'contentAlign', 12) || 'left';
+  const picture = getImage(block);
+  const imageAlt = readField(block, 'imageAlt');
+  const heading = readField(block, 'heading');
+  const subheading = readField(block, 'subheading');
+  const buttonText = readField(block, 'buttonText');
+  const buttonLink = readLinkField(block, 'buttonLink');
+  const buttonColor = readField(block, 'buttonColor');
+  const button2Text = readField(block, 'button2Text');
+  const button2Link = readLinkField(block, 'button2Link');
+  const button2Color = readField(block, 'button2Color');
+  const backgroundColor = readField(block, 'backgroundColor');
+  const textColor = readField(block, 'textColor');
+  const contentAlign = readField(block, 'contentAlign') || 'left';
 
   if (picture) {
     const img = picture.querySelector('img');
