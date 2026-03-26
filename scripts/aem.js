@@ -272,6 +272,18 @@ function readSectionFieldValue(node) {
   return node.textContent.trim();
 }
 
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) {
+    return hexMatch[0];
+  }
+
+  return normalized;
+}
+
 function getSectionMetadata(section) {
   const meta = {};
   const sectionMeta = section.querySelector('div.section-metadata');
@@ -292,11 +304,19 @@ function getSectionMetadata(section) {
 
       const value = readSectionFieldValue(node);
       if (value) {
-        meta[name] = value;
+        meta[name] = name === 'backgroundColor' ? normalizeColorValue(value) : value;
       }
 
       cleanupFieldNode(node);
     });
+  }
+
+  const existingBackgroundColor = normalizeColorValue(
+    section.getAttribute('data-background-color')
+    || section.getAttribute('data-backgroundcolor'),
+  );
+  if (existingBackgroundColor && !meta.backgroundColor) {
+    meta.backgroundColor = existingBackgroundColor;
   }
 
   if (sectionMeta) {
