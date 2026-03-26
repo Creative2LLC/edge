@@ -43,6 +43,10 @@ function getImage(row) {
 
 export default function decorate(block) {
   // The block is a single-model block — all fields in one row
+  /* eslint-disable no-console */
+  console.log('[split-card] block.innerHTML BEFORE decoration:', block.innerHTML);
+  /* eslint-enable no-console */
+
   const row = block.querySelector(':scope > div');
   if (!row) return;
 
