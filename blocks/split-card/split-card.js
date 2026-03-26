@@ -1,58 +1,38 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-const LEGACY_BLOCK_LABELS = {
-  heading: ['heading', 'title'],
-  subheading: ['subheading', 'sub heading'],
-  buttonText: ['button text', 'buttontext', 'button label', 'button'],
-  buttonLink: ['button link', 'button url', 'button href'],
-  buttonColor: ['button color', 'buttoncolor', 'button background color'],
-  backgroundColor: ['background color', 'backgroundcolor', 'bg color'],
-  contentAlign: ['content align', 'contentalign', 'alignment', 'text align'],
-  imageAlt: ['image alt', 'imagealt', 'alt text'],
-};
+// Model field order:
+// 0:image, 1:imageAlt, 2:heading, 3:subheading,
+// 4:buttonText, 5:buttonLink, 6:buttonColor,
+// 7:button2Text, 8:button2Link, 9:button2Color,
+// 10:backgroundColor, 11:textColor, 12:contentAlign
 
-function collectLegacyFields(block) {
-  const map = {};
-  const rowsToRemove = [];
-  block.querySelectorAll(':scope > div').forEach((row) => {
-    if (row.children.length !== 2) return;
-    const key = row.children[0].textContent.trim().toLowerCase();
-    const valueEl = row.children[1];
-    Object.entries(LEGACY_BLOCK_LABELS).some(([name, labels]) => {
-      if (!labels.includes(key)) return false;
-      map[name] = valueEl.textContent.trim();
-      rowsToRemove.push(row);
-      return true;
-    });
-  });
-  rowsToRemove.forEach((row) => row.remove());
-  return map;
+function readField(row, name, colIndex) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return source.textContent.trim();
+  const cols = [...row.children];
+  if (cols[colIndex]) return cols[colIndex].textContent.trim();
+  return '';
 }
 
-function getField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+function readLinkField(row, name, colIndex) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
-    const value = source.textContent.trim();
-    source.remove();
-    return value;
+    const a = source.tagName === 'A'
+      ? source : source.querySelector('a');
+    return a?.href || source.textContent.trim();
   }
-  return legacyMap[name] || '';
+  const cols = [...row.children];
+  if (cols[colIndex]) {
+    const a = cols[colIndex].querySelector('a');
+    return a?.href || cols[colIndex].textContent.trim();
+  }
+  return '';
 }
 
-function getLinkField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    const value = anchor?.href || source.textContent.trim();
-    source.remove();
-    return value;
-  }
-  return legacyMap[name] || '';
-}
-
-function getImage(block) {
-  const source = block.querySelector('[data-aue-prop="image"]');
-  const picture = source?.querySelector('picture') || block.querySelector('picture');
+function getImage(row) {
+  const source = row.querySelector('[data-aue-prop="image"]');
+  const picture = source?.querySelector('picture')
+    || row.querySelector('picture');
   if (!picture) return null;
   const img = picture.querySelector('img');
   if (!img) return picture;
@@ -62,45 +42,23 @@ function getImage(block) {
 }
 
 export default function decorate(block) {
-  const legacyMap = collectLegacyFields(block);
+  // The block is a single-model block — all fields in one row
+  const row = block.querySelector(':scope > div');
+  if (!row) return;
 
-  // Extract image before removing other fields
-  const picture = getImage(block);
-
-  const heading = getField(block, legacyMap, 'heading');
-  const subheading = getField(block, legacyMap, 'subheading');
-  const buttonText = getField(block, legacyMap, 'buttonText');
-  const buttonLink = getLinkField(block, legacyMap, 'buttonLink');
-  const buttonColor = getField(block, legacyMap, 'buttonColor');
-  const button2Text = getField(block, legacyMap, 'button2Text');
-  const button2Link = getLinkField(block, legacyMap, 'button2Link');
-  const button2Color = getField(block, legacyMap, 'button2Color');
-  const backgroundColor = getField(block, legacyMap, 'backgroundColor');
-  const contentAlign = getField(block, legacyMap, 'contentAlign') || 'left';
-  const imageAlt = getField(block, legacyMap, 'imageAlt');
-
-  // Also scan remaining rows for any field values not yet extracted
-  const remainingFields = {};
-  block.querySelectorAll(':scope > div').forEach((row) => {
-    row.querySelectorAll('[data-aue-prop]').forEach((el) => {
-      const prop = el.getAttribute('data-aue-prop');
-      if (prop && !remainingFields[prop]) {
-        remainingFields[prop] = el.textContent.trim();
-      }
-    });
-    // Also check columns by index for single-row block rendering
-    const cols = [...row.children];
-    cols.forEach((col) => {
-      const prop = col.getAttribute('data-aue-prop');
-      if (prop && !remainingFields[prop]) {
-        remainingFields[prop] = col.textContent.trim();
-      }
-    });
-  });
-
-  const finalButtonColor = buttonColor || remainingFields.buttonColor || '';
-  const finalBackgroundColor = backgroundColor || remainingFields.backgroundColor || '';
-  const finalContentAlign = contentAlign !== 'left' ? contentAlign : (remainingFields.contentAlign || 'left');
+  const picture = getImage(row);
+  const imageAlt = readField(row, 'imageAlt', 1);
+  const heading = readField(row, 'heading', 2);
+  const subheading = readField(row, 'subheading', 3);
+  const buttonText = readField(row, 'buttonText', 4);
+  const buttonLink = readLinkField(row, 'buttonLink', 5);
+  const buttonColor = readField(row, 'buttonColor', 6);
+  const button2Text = readField(row, 'button2Text', 7);
+  const button2Link = readLinkField(row, 'button2Link', 8);
+  const button2Color = readField(row, 'button2Color', 9);
+  const backgroundColor = readField(row, 'backgroundColor', 10);
+  const textColor = readField(row, 'textColor', 11);
+  const contentAlign = readField(row, 'contentAlign', 12) || 'left';
 
   if (picture) {
     const img = picture.querySelector('img');
@@ -120,22 +78,23 @@ export default function decorate(block) {
   // Right: content
   const contentSide = document.createElement('div');
   contentSide.className = 'split-card-content';
-  contentSide.style.textAlign = finalContentAlign;
+  contentSide.style.textAlign = contentAlign;
 
-  if (finalContentAlign === 'center') {
+  if (contentAlign === 'center') {
     contentSide.style.alignItems = 'center';
-  } else if (finalContentAlign === 'right') {
+  } else if (contentAlign === 'right') {
     contentSide.style.alignItems = 'flex-end';
   }
 
-  if (finalBackgroundColor) {
-    contentSide.style.backgroundColor = finalBackgroundColor;
+  if (backgroundColor) {
+    contentSide.style.backgroundColor = backgroundColor;
   }
 
   if (heading) {
     const h2 = document.createElement('h2');
     h2.className = 'split-card-heading';
     h2.textContent = heading;
+    if (textColor) h2.style.color = textColor;
     contentSide.append(h2);
   }
 
@@ -143,6 +102,7 @@ export default function decorate(block) {
     const p = document.createElement('p');
     p.className = 'split-card-subheading';
     p.textContent = subheading;
+    if (textColor) p.style.color = textColor;
     contentSide.append(p);
   }
 
@@ -152,14 +112,18 @@ export default function decorate(block) {
   if (hasBtn1 || hasBtn2) {
     const btnContainer = document.createElement('div');
     btnContainer.className = 'split-card-buttons';
-    if (hasBtn1 && hasBtn2) btnContainer.classList.add('split-card-buttons-duo');
+    if (hasBtn1 && hasBtn2) {
+      btnContainer.classList.add('split-card-buttons-duo');
+    }
 
     if (hasBtn1) {
       const btn = document.createElement('a');
       btn.className = 'split-card-button';
       btn.href = buttonLink;
       btn.textContent = buttonText;
-      if (finalButtonColor) btn.style.backgroundColor = finalButtonColor;
+      if (buttonColor) {
+        btn.style.backgroundColor = buttonColor;
+      }
       btnContainer.append(btn);
     }
 
@@ -168,8 +132,9 @@ export default function decorate(block) {
       btn2.className = 'split-card-button';
       btn2.href = button2Link;
       btn2.textContent = button2Text;
-      const finalButton2Color = button2Color || remainingFields.button2Color || '';
-      if (finalButton2Color) btn2.style.backgroundColor = finalButton2Color;
+      if (button2Color) {
+        btn2.style.backgroundColor = button2Color;
+      }
       btnContainer.append(btn2);
     }
 

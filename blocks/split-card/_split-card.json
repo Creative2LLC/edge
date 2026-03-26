@@ -86,6 +86,13 @@
           "label": "Content Background Color (Hex)"
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Heading / Subheading Text Color (Hex)",
+          "value": ""
+        },
+        {
           "component": "select",
           "name": "contentAlign",
           "label": "Content Alignment",
