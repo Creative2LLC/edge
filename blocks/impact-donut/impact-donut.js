@@ -9,11 +9,6 @@ const BLOCK_ROW_INDEX = {
   secondaryButtonLink: 5,
   surfaceColor: 6,
   chartTrackColor: 7,
-  statValues: 8,
-  statLabels: 9,
-  segmentValues: 10,
-  segmentLabels: 11,
-  segmentColors: 12,
 };
 
 const DEFAULT_SEGMENT_COLOR = '#008DB6';
@@ -96,11 +91,6 @@ function parseSegmentValue(value) {
   const normalized = String(value || '').replace(/[^0-9.]+/g, '');
   const parsed = Number.parseFloat(normalized);
   return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function normalizeLines(value) {
-  if (!value) return [];
-  return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 }
 
 function easeOutCubic(value) {
@@ -227,55 +217,6 @@ function animateChart(block, chart, segments, legendValues) {
   observer.observe(block);
 }
 
-function collectStatsFromFields(statItems, statValuesField, statLabelsField) {
-  if (statItems.length) return statItems;
-
-  const values = normalizeLines(statValuesField.value);
-  const labels = normalizeLines(statLabelsField.value);
-  const count = Math.max(values.length, labels.length);
-
-  for (let i = 0; i < count; i += 1) {
-    if (values[i] || labels[i]) {
-      statItems.push({
-        type: 'stat',
-        value: values[i] || '',
-        label: labels[i] || '',
-      });
-    }
-  }
-
-  return statItems;
-}
-
-function collectSegmentsFromFields(
-  segmentItems,
-  segmentValuesField,
-  segmentLabelsField,
-  segmentColorsField,
-) {
-  if (segmentItems.length) return segmentItems;
-
-  const values = normalizeLines(segmentValuesField.value);
-  const labels = normalizeLines(segmentLabelsField.value);
-  const colors = normalizeLines(segmentColorsField.value);
-  const count = Math.max(values.length, labels.length);
-
-  for (let i = 0; i < count; i += 1) {
-    const numericValue = parseSegmentValue(values[i]);
-    if (numericValue) {
-      segmentItems.push({
-        type: 'segment',
-        value: values[i] || '',
-        label: labels[i] || '',
-        color: colors[i] || DEFAULT_SEGMENT_COLOR,
-        numericValue,
-      });
-    }
-  }
-
-  return segmentItems;
-}
-
 export default function decorate(block) {
   const headingField = getBlockField(block, 'heading');
   const bodySource = getBlockRichField(block, 'bodyText');
@@ -285,11 +226,6 @@ export default function decorate(block) {
   const secondaryButtonLinkField = getBlockLinkField(block, 'secondaryButtonLink');
   const surfaceColorField = getBlockField(block, 'surfaceColor');
   const chartTrackColorField = getBlockField(block, 'chartTrackColor');
-  const statValuesField = getBlockField(block, 'statValues');
-  const statLabelsField = getBlockField(block, 'statLabels');
-  const segmentValuesField = getBlockField(block, 'segmentValues');
-  const segmentLabelsField = getBlockField(block, 'segmentLabels');
-  const segmentColorsField = getBlockField(block, 'segmentColors');
 
   const rows = [...block.querySelectorAll(':scope > div')];
   const statItems = [];
@@ -331,14 +267,6 @@ export default function decorate(block) {
 
     statItems.push(item);
   });
-
-  collectStatsFromFields(statItems, statValuesField, statLabelsField);
-  collectSegmentsFromFields(
-    segmentItems,
-    segmentValuesField,
-    segmentLabelsField,
-    segmentColorsField,
-  );
 
   const totalSegmentValue = segmentItems.reduce((sum, item) => sum + item.numericValue, 0);
   const segments = totalSegmentValue > 0

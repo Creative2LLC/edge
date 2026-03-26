@@ -1661,46 +1661,6 @@
         "label": "Chart Track Color (Hex)",
         "description": "Defaults to #edf1f3",
         "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "statValues",
-        "label": "Stat Values (one per line)",
-        "description": "Fallback authoring if child items are not available in the editor",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "statLabels",
-        "label": "Stat Labels (one per line)",
-        "description": "Fallback authoring if child items are not available in the editor",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "segmentValues",
-        "label": "Chart Segment Values (one per line)",
-        "description": "Fallback authoring if child items are not available in the editor",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "segmentLabels",
-        "label": "Chart Segment Labels (one per line)",
-        "description": "Fallback authoring if child items are not available in the editor",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "segmentColors",
-        "label": "Chart Segment Colors (one per line)",
-        "description": "Optional fallback colors for the chart segments",
-        "value": ""
       }
     ]
   },
