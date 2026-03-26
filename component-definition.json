@@ -587,6 +587,37 @@
           }
         },
         {
+          "title": "Impact Donut",
+          "id": "impact-donut",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Impact Donut",
+                  "model": "impact-donut",
+                  "filter": "impact-donut"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Impact Donut Item",
+          "id": "impact-donut-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Impact Donut Item",
+                  "model": "impact-donut-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Info Cards Grid",
           "id": "info-cards-grid",
           "plugins": {
@@ -910,6 +941,37 @@
           }
         },
         {
+          "title": "Regional Offices",
+          "id": "regional-offices",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Regional Offices",
+                  "model": "regional-offices",
+                  "filter": "regional-offices"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Regional Office Item",
+          "id": "regional-office-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Regional Office Item",
+                  "model": "regional-office-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Resources Browser",
           "id": "resources-browser",
           "plugins": {
@@ -1012,6 +1074,37 @@
                 "template": {
                   "name": "Split Card Carousel Item",
                   "model": "split-card-carousel-item"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Split Card Gap",
+          "id": "split-card-gap",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Split Card Gap",
+                  "model": "split-card-gap",
+                  "filter": "split-card-gap"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Split Card Gap Item",
+          "id": "split-card-gap-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Split Card Gap Item",
+                  "model": "split-card-gap-item"
                 }
               }
             }

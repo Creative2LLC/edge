@@ -1,0 +1,114 @@
+{
+  "definitions": [
+    {
+      "title": "Split Card Gap",
+      "id": "split-card-gap",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Split Card Gap",
+              "model": "split-card-gap",
+              "filter": "split-card-gap"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Split Card Gap Item",
+      "id": "split-card-gap-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Split Card Gap Item",
+              "model": "split-card-gap-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "split-card-gap",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contentBackgroundColor",
+          "label": "Content Background Color (Hex)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Text Color (Hex)",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "split-card-gap-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconColor",
+          "label": "Icon Color (Hex)",
+          "description": "Defaults to #008DB6",
+          "value": "#008DB6"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "split-card-gap",
+      "components": [
+        "split-card-gap-item"
+      ]
+    }
+  ]
+}

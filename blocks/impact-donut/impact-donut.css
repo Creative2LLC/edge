@@ -1,0 +1,299 @@
+.impact-donut {
+  --impact-donut-surface: #fff;
+  --impact-donut-track: #edf1f3;
+
+  padding: 72px 0;
+  background: var(--impact-donut-surface);
+}
+
+.impact-donut .impact-donut-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 48px;
+  align-items: center;
+}
+
+.impact-donut .impact-donut-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 650ms ease,
+    transform 650ms ease;
+}
+
+.impact-donut.is-visible .impact-donut-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.impact-donut .impact-donut-copy {
+  transition-delay: 80ms;
+}
+
+.impact-donut .impact-donut-heading {
+  max-width: 11ch;
+  margin: 0 0 24px;
+  color: #113a67;
+  font-size: clamp(2.25rem, 4.2vw, 4.1rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.impact-donut .impact-donut-body {
+  max-width: 620px;
+  margin-bottom: 40px;
+  color: #404041;
+  font-size: clamp(1.2rem, 2vw, 1.9rem);
+  line-height: 1.35;
+}
+
+.impact-donut .impact-donut-body > :first-child {
+  margin-top: 0;
+}
+
+.impact-donut .impact-donut-body > :last-child {
+  margin-bottom: 0;
+}
+
+.impact-donut .impact-donut-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 0 36px;
+}
+
+.impact-donut .impact-donut-stat {
+  padding: 28px 24px 26px 0;
+  transition-delay: calc(220ms + (var(--stagger-index, 0) * 90ms));
+}
+
+.impact-donut .impact-donut-stat:nth-child(2n) {
+  padding-left: 48px;
+  border-left: 1px solid #e5e1db;
+}
+
+.impact-donut .impact-donut-stat:nth-child(n + 3) {
+  border-top: 1px solid #e5e1db;
+  padding-top: 32px;
+}
+
+.impact-donut .impact-donut-stat-value {
+  margin-bottom: 10px;
+  color: #1491bf;
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.impact-donut .impact-donut-stat-label {
+  margin: 0;
+  color: #404041;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.impact-donut .impact-donut-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 22px;
+  transition-delay: 520ms;
+}
+
+.impact-donut .impact-donut-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  padding: 0 30px;
+  border-radius: 999px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    opacity 220ms ease;
+}
+
+.impact-donut .impact-donut-button::after {
+  content: '\2192';
+  margin-left: 10px;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.impact-donut .impact-donut-button:hover,
+.impact-donut .impact-donut-button:focus {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.impact-donut .impact-donut-button.primary {
+  background: #1491bf;
+  color: #fff;
+  box-shadow: 0 20px 34px rgb(20 145 191 / 18%);
+}
+
+.impact-donut .impact-donut-button.secondary {
+  background: #6f6f73;
+  color: #fff;
+  box-shadow: 0 20px 34px rgb(64 64 65 / 14%);
+}
+
+.impact-donut .impact-donut-chart-side {
+  display: grid;
+  gap: 28px;
+  justify-items: center;
+}
+
+.impact-donut .impact-donut-chart-shell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 520px);
+  transition-delay: 160ms;
+}
+
+.impact-donut .impact-donut-chart-shell::before {
+  content: '';
+  position: absolute;
+  inset: 12% 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 173 93 / 18%) 0%, rgb(255 173 93 / 0%) 72%);
+  filter: blur(10px);
+  transform: scale(0.88);
+  opacity: 0;
+  transition:
+    transform 900ms ease,
+    opacity 900ms ease;
+}
+
+.impact-donut.is-visible .impact-donut-chart-shell::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.impact-donut .impact-donut-chart {
+  position: relative;
+  width: min(100%, 460px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-image: conic-gradient(var(--impact-donut-track) 0deg 360deg);
+  transform: rotate(-90deg) scale(0.94);
+  box-shadow: 0 28px 56px rgb(17 58 103 / 10%);
+  transition: transform 850ms cubic-bezier(0.2, 1, 0.22, 1);
+}
+
+.impact-donut.is-visible .impact-donut-chart {
+  transform: rotate(-90deg) scale(1);
+}
+
+.impact-donut .impact-donut-chart-hole {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background: var(--impact-donut-surface);
+  box-shadow: inset 0 0 0 1px rgb(17 58 103 / 4%);
+}
+
+.impact-donut .impact-donut-legend {
+  width: min(100%, 560px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid transparent;
+}
+
+.impact-donut .impact-donut-legend-item {
+  padding: 8px 22px 0;
+  transition-delay: calc(220ms + (var(--stagger-index, 0) * 90ms));
+}
+
+.impact-donut .impact-donut-legend-item + .impact-donut-legend-item {
+  border-left: 1px solid #e5e1db;
+}
+
+.impact-donut .impact-donut-legend-value {
+  margin: 0 0 8px;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.impact-donut .impact-donut-legend-label {
+  margin: 0;
+  color: #404041;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+@media (width <= 1100px) {
+  .impact-donut .impact-donut-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .impact-donut .impact-donut-heading,
+  .impact-donut .impact-donut-body {
+    max-width: none;
+  }
+
+  .impact-donut .impact-donut-chart-shell {
+    width: min(100%, 460px);
+  }
+}
+
+@media (width <= 700px) {
+  .impact-donut {
+    padding: 56px 0;
+  }
+
+  .impact-donut .impact-donut-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .impact-donut .impact-donut-stat {
+    padding: 24px 0;
+  }
+
+  .impact-donut .impact-donut-stat:nth-child(2n) {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .impact-donut .impact-donut-stat + .impact-donut-stat {
+    border-top: 1px solid #e5e1db;
+  }
+
+  .impact-donut .impact-donut-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .impact-donut .impact-donut-button {
+    width: 100%;
+  }
+
+  .impact-donut .impact-donut-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .impact-donut .impact-donut-legend-item {
+    padding: 16px 0 0;
+  }
+
+  .impact-donut .impact-donut-legend-item + .impact-donut-legend-item {
+    border-left: none;
+    border-top: 1px solid #e5e1db;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-donut .impact-donut-reveal,
+  .impact-donut .impact-donut-chart-shell::before,
+  .impact-donut .impact-donut-chart,
+  .impact-donut .impact-donut-button {
+    transition: none;
+  }
+}

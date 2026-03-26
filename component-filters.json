@@ -40,6 +40,9 @@
       "card-row",
       "section-title",
       "split-card",
+      "split-card-gap",
+      "impact-donut",
+      "regional-offices",
       "image-text-card-row",
       "split-card-carousel",
       "icon-card-carousel",
@@ -145,6 +148,12 @@
     ]
   },
   {
+    "id": "impact-donut",
+    "components": [
+      "impact-donut-item"
+    ]
+  },
+  {
     "id": "info-cards-grid",
     "components": [
       "info-card"
@@ -199,6 +208,12 @@
     ]
   },
   {
+    "id": "regional-offices",
+    "components": [
+      "regional-office-item"
+    ]
+  },
+  {
     "id": "resources-browser",
     "components": [
       "resources-browser-item"
@@ -214,6 +229,12 @@
     "id": "split-card-carousel",
     "components": [
       "split-card-carousel-item"
+    ]
+  },
+  {
+    "id": "split-card-gap",
+    "components": [
+      "split-card-gap-item"
     ]
   },
   {

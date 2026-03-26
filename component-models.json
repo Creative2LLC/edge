@@ -1610,6 +1610,102 @@
     ]
   },
   {
+    "id": "impact-donut",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "primaryButtonText",
+        "label": "Primary Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "primaryButtonLink",
+        "label": "Primary Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "secondaryButtonText",
+        "label": "Secondary Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "secondaryButtonLink",
+        "label": "Secondary Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "surfaceColor",
+        "label": "Surface Color (Hex)",
+        "description": "Defaults to #ffffff",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "chartTrackColor",
+        "label": "Chart Track Color (Hex)",
+        "description": "Defaults to #edf1f3",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "impact-donut-item",
+    "fields": [
+      {
+        "component": "select",
+        "name": "itemType",
+        "label": "Item Type",
+        "options": [
+          {
+            "name": "Statistic",
+            "value": "stat"
+          },
+          {
+            "name": "Chart Segment",
+            "value": "segment"
+          }
+        ],
+        "value": "stat"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "value",
+        "label": "Value"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "color",
+        "label": "Color (Hex)",
+        "description": "Used for chart segments. Defaults to #008DB6",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "info-cards-grid",
     "fields": [
       {
@@ -2546,6 +2642,102 @@
     ]
   },
   {
+    "id": "regional-offices",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Cards Per Row",
+        "options": [
+          {
+            "name": "2 Cards",
+            "value": "2"
+          },
+          {
+            "name": "3 Cards",
+            "value": "3"
+          },
+          {
+            "name": "4 Cards",
+            "value": "4"
+          }
+        ],
+        "value": "3"
+      }
+    ]
+  },
+  {
+    "id": "regional-office-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Office Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Office Name"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          }
+        ],
+        "value": "outlined"
+      }
+    ]
+  },
+  {
     "id": "resources-browser",
     "fields": [
       {
@@ -2851,6 +3043,75 @@
             "value": "right"
           }
         ]
+      }
+    ]
+  },
+  {
+    "id": "split-card-gap",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contentBackgroundColor",
+        "label": "Content Background Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "textColor",
+        "label": "Text Color (Hex)",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "split-card-gap-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)",
+        "description": "Defaults to #008DB6",
+        "value": "#008DB6"
       }
     ]
   },

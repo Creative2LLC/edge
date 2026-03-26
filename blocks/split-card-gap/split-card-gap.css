@@ -1,0 +1,153 @@
+.split-card-gap {
+  padding: 60px 0;
+}
+
+.split-card-gap .split-card-gap-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 48px;
+  align-items: stretch;
+}
+
+.split-card-gap .split-card-gap-media {
+  min-height: 420px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #d9d9d9;
+}
+
+.split-card-gap .split-card-gap-media picture,
+.split-card-gap .split-card-gap-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.split-card-gap .split-card-gap-media img {
+  object-fit: cover;
+}
+
+.split-card-gap .split-card-gap-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px;
+  border-radius: 28px;
+  background: #fff;
+}
+
+.split-card-gap .split-card-gap-heading {
+  margin: 0 0 18px;
+  color: #143967;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.split-card-gap .split-card-gap-body {
+  color: #404041;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.split-card-gap .split-card-gap-body > :first-child {
+  margin-top: 0;
+}
+
+.split-card-gap .split-card-gap-body > :last-child {
+  margin-bottom: 0;
+}
+
+.split-card-gap .split-card-gap-body p {
+  margin: 0;
+}
+
+.split-card-gap .split-card-gap-body p + p {
+  margin-top: 1rem;
+}
+
+.split-card-gap .split-card-gap-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px 48px;
+  margin-top: 36px;
+}
+
+.split-card-gap .split-card-gap-benefit {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: center;
+}
+
+.split-card-gap .split-card-gap-benefit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: #008db6;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
+}
+
+.split-card-gap .split-card-gap-benefit-icon img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+}
+
+.split-card-gap .split-card-gap-benefit-title {
+  margin: 0;
+  color: #404041;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+@media (width <= 900px) {
+  .split-card-gap .split-card-gap-inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .split-card-gap .split-card-gap-media {
+    min-height: 320px;
+  }
+
+  .split-card-gap .split-card-gap-content {
+    padding: 36px 32px;
+  }
+}
+
+@media (width <= 600px) {
+  .split-card-gap .split-card-gap-media {
+    min-height: 260px;
+  }
+
+  .split-card-gap .split-card-gap-content {
+    padding: 28px 24px;
+    border-radius: 24px;
+  }
+
+  .split-card-gap .split-card-gap-benefits {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 28px;
+  }
+
+  .split-card-gap .split-card-gap-benefit-title {
+    font-size: 18px;
+  }
+}

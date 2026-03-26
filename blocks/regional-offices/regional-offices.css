@@ -1,0 +1,232 @@
+.regional-offices {
+  padding: 72px 0 60px;
+}
+
+.regional-offices .regional-offices-inner {
+  display: grid;
+  gap: 44px;
+}
+
+.regional-offices .regional-offices-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease;
+  transition-delay: calc(var(--stagger-index, 0) * 110ms);
+}
+
+.regional-offices.is-visible .regional-offices-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.regional-offices .regional-offices-header {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.regional-offices .regional-offices-heading {
+  margin: 0 0 14px;
+  color: #113a67;
+  font-size: clamp(2.5rem, 4vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+
+.regional-offices .regional-offices-subheading {
+  color: #404041;
+  font-size: 1.3rem;
+  line-height: 1.45;
+}
+
+.regional-offices .regional-offices-subheading > :first-child {
+  margin-top: 0;
+}
+
+.regional-offices .regional-offices-subheading > :last-child {
+  margin-bottom: 0;
+}
+
+.regional-offices .regional-offices-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--regional-offices-columns, 3), minmax(0, 1fr));
+  gap: 30px 42px;
+}
+
+.regional-offices .regional-offices-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.regional-offices .regional-offices-card-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 230px;
+  margin-bottom: 20px;
+}
+
+.regional-offices .regional-offices-card-media::before {
+  content: '';
+  position: absolute;
+  inset: 22% 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(20 145 191 / 10%) 0%, rgb(20 145 191 / 0%) 72%);
+  opacity: 0;
+  transform: scale(0.82);
+  transition:
+    opacity 800ms ease,
+    transform 800ms ease;
+  transition-delay: calc(var(--stagger-index, 0) * 110ms);
+}
+
+.regional-offices.is-visible .regional-offices-card-media::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.regional-offices .regional-offices-card-media picture,
+.regional-offices .regional-offices-card-media img {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+}
+
+.regional-offices .regional-offices-card-media img {
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgb(17 58 103 / 8%));
+  transform: translateY(0) scale(0.96);
+  transition: transform 850ms cubic-bezier(0.2, 1, 0.22, 1);
+}
+
+.regional-offices.is-visible .regional-offices-card-media img {
+  transform: translateY(0) scale(1);
+  animation: regional-offices-float 7s ease-in-out infinite;
+  animation-delay: calc(var(--stagger-index, 0) * 600ms);
+}
+
+.regional-offices .regional-offices-card-title {
+  margin: 0 0 14px;
+  color: #404041;
+  font-size: clamp(1.7rem, 2.6vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.regional-offices .regional-offices-card-body {
+  max-width: 370px;
+  margin-bottom: 24px;
+  color: #404041;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.regional-offices .regional-offices-card-body > :first-child {
+  margin-top: 0;
+}
+
+.regional-offices .regional-offices-card-body > :last-child {
+  margin-bottom: 0;
+}
+
+.regional-offices .regional-offices-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 2px solid #1491bf;
+  border-radius: 999px;
+  color: #1491bf;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+.regional-offices .regional-offices-button::after {
+  content: '\2192';
+  margin-left: 8px;
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+.regional-offices .regional-offices-button:hover,
+.regional-offices .regional-offices-button:focus {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.regional-offices .regional-offices-button-solid {
+  background: #1491bf;
+  color: #fff;
+  box-shadow: 0 18px 30px rgb(20 145 191 / 18%);
+}
+
+.regional-offices .regional-offices-button-outlined {
+  background: transparent;
+  color: #1491bf;
+}
+
+@keyframes regional-offices-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.012);
+  }
+}
+
+@media (width <= 1100px) {
+  .regional-offices .regional-offices-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 700px) {
+  .regional-offices {
+    padding: 56px 0 44px;
+  }
+
+  .regional-offices .regional-offices-inner {
+    gap: 34px;
+  }
+
+  .regional-offices .regional-offices-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .regional-offices .regional-offices-card-media {
+    min-height: 190px;
+    margin-bottom: 14px;
+  }
+
+  .regional-offices .regional-offices-card-body {
+    margin-bottom: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regional-offices .regional-offices-reveal,
+  .regional-offices .regional-offices-card-media::before,
+  .regional-offices .regional-offices-card-media img,
+  .regional-offices .regional-offices-button {
+    transition: none;
+    animation: none;
+  }
+}
