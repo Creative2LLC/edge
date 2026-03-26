@@ -6,33 +6,30 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 // 7:button2Text, 8:button2Link, 9:button2Color,
 // 10:backgroundColor, 11:textColor, 12:contentAlign
 
-function readField(row, name, colIndex) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source.textContent.trim();
-  const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
-  return '';
+function getField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, value: source.textContent.trim() };
+  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
+  return { source: null, value: '' };
 }
 
-function readLinkField(row, name, colIndex) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+function getLinkField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
-    const a = source.tagName === 'A'
-      ? source : source.querySelector('a');
-    return a?.href || source.textContent.trim();
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
   }
-  const cols = [...row.children];
-  if (cols[colIndex]) {
-    const a = cols[colIndex].querySelector('a');
-    return a?.href || cols[colIndex].textContent.trim();
+  if (rows[index]) {
+    const anchor = rows[index].querySelector('a');
+    return { source: null, value: anchor?.href || rows[index].textContent.trim() };
   }
-  return '';
+  return { source: null, value: '' };
 }
 
-function getImage(row) {
-  const source = row.querySelector('[data-aue-prop="image"]');
+function getImage(block) {
+  const source = block.querySelector('[data-aue-prop="image"]');
   const picture = source?.querySelector('picture')
-    || row.querySelector('picture');
+    || block.querySelector('picture');
   if (!picture) return null;
   const img = picture.querySelector('img');
   if (!img) return picture;
@@ -42,23 +39,34 @@ function getImage(row) {
 }
 
 export default function decorate(block) {
-  // The block is a single-model block — all fields in one row
-  const row = block.querySelector(':scope > div');
-  if (!row) return;
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const picture = getImage(block);
 
-  const picture = getImage(row);
-  const imageAlt = readField(row, 'imageAlt', 1);
-  const heading = readField(row, 'heading', 2);
-  const subheading = readField(row, 'subheading', 3);
-  const buttonText = readField(row, 'buttonText', 4);
-  const buttonLink = readLinkField(row, 'buttonLink', 5);
-  const buttonColor = readField(row, 'buttonColor', 6);
-  const button2Text = readField(row, 'button2Text', 7);
-  const button2Link = readLinkField(row, 'button2Link', 8);
-  const button2Color = readField(row, 'button2Color', 9);
-  const backgroundColor = readField(row, 'backgroundColor', 10);
-  const textColor = readField(row, 'textColor', 11);
-  const contentAlign = readField(row, 'contentAlign', 12) || 'left';
+  const imageAltField = getField(block, rows, 'imageAlt', 1);
+  const headingField = getField(block, rows, 'heading', 2);
+  const subheadingField = getField(block, rows, 'subheading', 3);
+  const buttonTextField = getField(block, rows, 'buttonText', 4);
+  const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
+  const buttonColorField = getField(block, rows, 'buttonColor', 6);
+  const button2TextField = getField(block, rows, 'button2Text', 7);
+  const button2LinkField = getLinkField(block, rows, 'button2Link', 8);
+  const button2ColorField = getField(block, rows, 'button2Color', 9);
+  const backgroundColorField = getField(block, rows, 'backgroundColor', 10);
+  const textColorField = getField(block, rows, 'textColor', 11);
+  const contentAlignField = getField(block, rows, 'contentAlign', 12);
+
+  const imageAlt = imageAltField.value;
+  const heading = headingField.value;
+  const subheading = subheadingField.value;
+  const buttonText = buttonTextField.value;
+  const buttonLink = buttonLinkField.value;
+  const buttonColor = buttonColorField.value;
+  const button2Text = button2TextField.value;
+  const button2Link = button2LinkField.value;
+  const button2Color = button2ColorField.value;
+  const backgroundColor = backgroundColorField.value;
+  const textColor = textColorField.value;
+  const contentAlign = contentAlignField.value || 'left';
 
   if (picture) {
     const img = picture.querySelector('img');
