@@ -70,7 +70,7 @@ export default function decorate(block) {
   }
 
   if (backgroundColor) {
-    contentSide.style.backgroundColor = backgroundColor;
+    contentSide.style.setProperty('background-color', backgroundColor, 'important');
   }
 
   if (heading) {
@@ -105,7 +105,7 @@ export default function decorate(block) {
       btn.href = buttonLink;
       btn.textContent = buttonText;
       if (buttonColor) {
-        btn.style.backgroundColor = buttonColor;
+        btn.style.setProperty('background-color', buttonColor, 'important');
       }
       btnContainer.append(btn);
     }
@@ -116,7 +116,7 @@ export default function decorate(block) {
       btn2.href = button2Link;
       btn2.textContent = button2Text;
       if (button2Color) {
-        btn2.style.backgroundColor = button2Color;
+        btn2.style.setProperty('background-color', button2Color, 'important');
       }
       btnContainer.append(btn2);
     }
