@@ -132,13 +132,25 @@ function updateDots(dots, activeIndex) {
 }
 
 export default function decorate(block) {
-  // Extract section heading
+  // Extract block-level fields
   const headingProp = block.querySelector('[data-aue-prop="heading"]');
+  const descriptionProp = block.querySelector('[data-aue-prop="description"]');
   let sectionTitle = '';
+  let sectionDescription = '';
   if (headingProp) {
     sectionTitle = headingProp.textContent.trim();
-    headingProp.closest(':scope > div')?.remove();
   }
+  if (descriptionProp) {
+    sectionDescription = descriptionProp.textContent.trim();
+  }
+
+  // Remove config rows containing block-level props
+  [...block.querySelectorAll(':scope > div')].forEach((row) => {
+    if (row.querySelector('[data-aue-prop="heading"]')
+      || row.querySelector('[data-aue-prop="description"]')) {
+      row.remove();
+    }
+  });
 
   // Parse slides
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -158,6 +170,14 @@ export default function decorate(block) {
     h2.className = 'split-card-carousel-title';
     h2.textContent = sectionTitle;
     wrapper.append(h2);
+  }
+
+  // Section description
+  if (sectionDescription) {
+    const desc = document.createElement('p');
+    desc.className = 'split-card-carousel-description';
+    desc.textContent = sectionDescription;
+    wrapper.append(desc);
   }
 
   // Track
