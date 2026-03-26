@@ -1,57 +1,77 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-function readField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source.textContent.trim();
-  if (rows[index]) return rows[index].textContent.trim();
-  return '';
+function getField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, value: source.textContent.trim() };
+  const cols = [...row.children];
+  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
+  return { source: null, value: '' };
 }
 
-function readLinkField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+function getLinkField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
-    const a = source.tagName === 'A'
-      ? source : source.querySelector('a');
-    return a?.href || source.textContent.trim();
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
   }
-  if (rows[index]) {
-    const a = rows[index].querySelector('a');
-    return a?.href || rows[index].textContent.trim();
+  const cols = [...row.children];
+  if (cols[index]) {
+    const anchor = cols[index].querySelector('a');
+    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
   }
-  return '';
+  return { source: null, value: '' };
 }
 
-function getImage(block) {
-  const source = block.querySelector('[data-aue-prop="image"]');
-  const picture = source?.querySelector('picture')
-    || block.querySelector('picture');
-  if (!picture) return null;
-  const img = picture.querySelector('img');
-  if (!img) return picture;
-  const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
-  picture.replaceWith(optimized);
-  return optimized;
+function getImageField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const picture = source.querySelector('picture');
+    const img = source.querySelector('img');
+    return { source, picture, img };
+  }
+  const cols = [...row.children];
+  if (cols[index]) {
+    const picture = cols[index].querySelector('picture');
+    const img = cols[index].querySelector('img');
+    return { source: null, picture, img };
+  }
+  return { source: null, picture: null, img: null };
 }
 
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
-  const picture = getImage(block);
-  const imageAlt = readField(block, rows, 'imageAlt', 1);
-  const heading = readField(block, rows, 'heading', 2);
-  const subheading = readField(block, rows, 'subheading', 3);
-  const buttonText = readField(block, rows, 'buttonText', 4);
-  const buttonLink = readLinkField(block, rows, 'buttonLink', 5);
-  const buttonColor = readField(block, rows, 'buttonColor', 6);
-  const button2Text = readField(block, rows, 'button2Text', 7);
-  const button2Link = readLinkField(block, rows, 'button2Link', 8);
-  const button2Color = readField(block, rows, 'button2Color', 9);
-  const backgroundColor = readField(block, rows, 'backgroundColor', 10);
-  const textColor = readField(block, rows, 'textColor', 11);
-  const contentAlign = readField(block, rows, 'contentAlign', 12) || 'left';
+  if (!rows.length) return;
+  const row = rows[0];
 
+  // Field index mapping:
+  // 0: image, 1: imageAlt, 2: heading, 3: subheading,
+  // 4: buttonText, 5: buttonLink, 6: buttonColor,
+  // 7: button2Text, 8: button2Link, 9: button2Color,
+  // 10: backgroundColor, 11: textColor, 12: contentAlign
+  const imageField = getImageField(row, 'image', 0);
+  const imageAlt = getField(row, 'imageAlt', 1).value;
+  const heading = getField(row, 'heading', 2).value;
+  const subheading = getField(row, 'subheading', 3).value;
+  const buttonText = getField(row, 'buttonText', 4).value;
+  const buttonLink = getLinkField(row, 'buttonLink', 5).value;
+  const buttonColor = getField(row, 'buttonColor', 6).value;
+  const button2Text = getField(row, 'button2Text', 7).value;
+  const button2Link = getLinkField(row, 'button2Link', 8).value;
+  const button2Color = getField(row, 'button2Color', 9).value;
+  const backgroundColor = getField(row, 'backgroundColor', 10).value;
+  const textColor = getField(row, 'textColor', 11).value;
+  const contentAlign = getField(row, 'contentAlign', 12).value || 'left';
+
+  // Optimized picture
+  let picture = imageField.picture || null;
   if (picture) {
     const img = picture.querySelector('img');
-    if (img && imageAlt) img.alt = imageAlt;
+    if (img) {
+      if (imageAlt) img.alt = imageAlt;
+      const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
+      picture.replaceWith(optimized);
+      picture = optimized;
+    }
   }
 
   // Build DOM
