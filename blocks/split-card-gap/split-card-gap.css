@@ -73,31 +73,18 @@
   margin-top: 36px;
 }
 
-.split-card-gap[data-aue-resource] .split-card-gap-benefits.is-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 132px;
-  padding: 24px;
-  border: 1px dashed #c7d4de;
-  border-radius: 24px;
-  background: rgb(20 145 191 / 4%);
-}
-
-.split-card-gap[data-aue-resource] .split-card-gap-empty-hint {
-  max-width: 28ch;
-  margin: 0;
-  color: #5f6e7f;
-  font-size: 0.98rem;
-  line-height: 1.5;
-  text-align: center;
-}
-
 .split-card-gap .split-card-gap-benefit {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 14px;
   align-items: center;
+}
+
+.split-card-gap .split-card-gap-benefit.is-authoring-placeholder {
+  padding: 18px;
+  border: 1px dashed rgb(20 57 103 / 18%);
+  border-radius: 20px;
+  background: rgb(20 145 191 / 4%);
 }
 
 .split-card-gap .split-card-gap-benefit-icon {
@@ -121,11 +108,34 @@
   -webkit-mask-position: center;
 }
 
+.split-card-gap .split-card-gap-benefit-icon.is-empty {
+  border: 1px dashed rgb(20 57 103 / 20%);
+  border-radius: 14px;
+  background: rgb(20 57 103 / 5%);
+  mask-image: none;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-image: none;
+}
+
 .split-card-gap .split-card-gap-benefit-icon img {
   width: 48px;
   height: 48px;
   object-fit: contain;
   display: block;
+}
+
+.split-card-gap .split-card-gap-benefit-placeholder,
+.split-card-gap .split-card-gap-benefit-title-placeholder {
+  color: #5f6f7f;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.split-card-gap .split-card-gap-benefit-title-placeholder {
+  max-width: 18ch;
+  text-align: left;
 }
 
 .split-card-gap .split-card-gap-benefit-title {

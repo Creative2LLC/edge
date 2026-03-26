@@ -43,6 +43,20 @@ function getImageField(scope, name, index) {
   };
 }
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function buildAuthoringPlaceholder(tagName, className, text) {
+  const placeholder = document.createElement(tagName);
+  placeholder.className = `${className} ${className}-placeholder`;
+  placeholder.textContent = text;
+  return placeholder;
+}
+
 function buildOptimizedImage(imageField, imageAlt) {
   const { img } = imageField;
   if (!img?.src) return null;
@@ -70,13 +84,38 @@ function buildBody(bodySource, textColor) {
 }
 
 function buildBenefitItem(data, textColor) {
-  if (!data.iconField.img && !data.titleField.value && !data.titleField.source) {
+  const hasVisibleContent = Boolean(
+    data.iconField.img || data.titleField.value,
+  );
+  const isAuthoringPlaceholder = hasAuthoringContext(data.row) && !hasVisibleContent;
+
+  if (!hasVisibleContent && !isAuthoringPlaceholder) {
     return null;
   }
 
   const item = document.createElement('div');
   item.className = 'split-card-gap-benefit';
   if (data.row) moveInstrumentation(data.row, item);
+
+  if (isAuthoringPlaceholder) {
+    item.classList.add('is-authoring-placeholder');
+
+    const icon = document.createElement('div');
+    icon.className = 'split-card-gap-benefit-icon is-empty';
+    icon.append(
+      buildAuthoringPlaceholder('span', 'split-card-gap-benefit-placeholder', 'Add benefit icon'),
+    );
+    item.append(icon);
+
+    const title = buildAuthoringPlaceholder(
+      'p',
+      'split-card-gap-benefit-title',
+      'Add benefit text in the editor.',
+    );
+    if (textColor) title.style.color = textColor;
+    item.append(title);
+    return item;
+  }
 
   if (data.iconField.img) {
     const icon = document.createElement('div');
@@ -98,7 +137,7 @@ function buildBenefitItem(data, textColor) {
     item.append(icon);
   }
 
-  if (data.titleField.value || data.titleField.source) {
+  if (data.titleField.value) {
     const title = document.createElement('p');
     title.className = 'split-card-gap-benefit-title';
     if (textColor) title.style.color = textColor;
@@ -117,7 +156,6 @@ function buildBenefitItem(data, textColor) {
 }
 
 export default function decorate(block) {
-  const isAuthoring = block.hasAttribute('data-aue-resource');
   const imageField = getImageField(block, 'image', 0);
   const imageAltField = getField(block, 'imageAlt', 1);
   const headingField = getField(block, 'heading', 2);
@@ -155,8 +193,6 @@ export default function decorate(block) {
     if (benefit) benefits.push(benefit);
   });
 
-  const showEmptyBenefitsHint = isAuthoring && !benefits.length;
-
   const inner = document.createElement('div');
   inner.className = 'split-card-gap-inner';
 
@@ -182,19 +218,10 @@ export default function decorate(block) {
   const body = buildBody(bodySource, textColor);
   if (body) content.append(body);
 
-  if (benefits.length || showEmptyBenefitsHint) {
+  if (benefits.length) {
     const benefitsGrid = document.createElement('div');
     benefitsGrid.className = 'split-card-gap-benefits';
     benefits.forEach((benefit) => benefitsGrid.append(benefit));
-
-    if (showEmptyBenefitsHint) {
-      benefitsGrid.classList.add('is-empty');
-      const hint = document.createElement('p');
-      hint.className = 'split-card-gap-empty-hint';
-      hint.textContent = 'Add Split Card Gap Item children in Universal Editor.';
-      benefitsGrid.append(hint);
-    }
-
     content.append(benefitsGrid);
   }
 

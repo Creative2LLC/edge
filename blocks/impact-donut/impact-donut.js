@@ -17,7 +17,7 @@ const DEFAULT_TRACK_COLOR = '#edf1f3';
 const ANIMATION_DURATION = 1400;
 
 function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
 
   const row = block.children[rowIndex];
@@ -28,7 +28,7 @@ function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnInde
 }
 
 function getBlockRichField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
   if (source) return source;
 
   const row = block.children[rowIndex];
@@ -52,12 +52,40 @@ function getBlockLinkField(block, name, rowIndex = BLOCK_ROW_INDEX[name], column
 }
 
 function getItemField(row, name, columnIndex) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  const source = row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
 
   const cols = [...row.children];
   if (cols[columnIndex]) return { source: null, value: cols[columnIndex].textContent.trim() };
   return { source: null, value: '' };
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function buildAuthoringPlaceholder(tagName, className, text) {
+  const placeholder = document.createElement(tagName);
+  placeholder.className = `${className} ${className}-placeholder`;
+  placeholder.textContent = text;
+  return placeholder;
+}
+
+function moveFieldContent(field, target, fallbackValue = '') {
+  if (!field?.source || !target) {
+    if (!field?.source && fallbackValue) target.textContent = fallbackValue;
+    return;
+  }
+
+  moveInstrumentation(field.source, target);
+  while (field.source.firstChild) target.append(field.source.firstChild);
+
+  if (!target.childNodes.length && fallbackValue) {
+    target.textContent = fallbackValue;
+  }
 }
 
 function buildRichContent(source, className) {
@@ -72,19 +100,25 @@ function buildRichContent(source, className) {
 }
 
 function buildButton(labelField, linkField, variant) {
-  if (!labelField.value && !linkField.value) return null;
+  if (!labelField.value && !labelField.source && !linkField.value) return null;
 
-  const label = labelField.value || 'Learn More';
   const button = document.createElement(linkField.value ? 'a' : 'span');
   button.className = `impact-donut-button ${variant}`;
-  button.textContent = label;
-
   if (linkField.value) button.href = linkField.value;
-  if (labelField.source || linkField.source) {
-    moveInstrumentation(labelField.source || linkField.source, button);
+  if (linkField.source) moveInstrumentation(linkField.source, button);
+
+  if (labelField.source) {
+    moveFieldContent(labelField, button, labelField.value || 'Learn More');
+  } else {
+    button.textContent = labelField.value || 'Learn More';
   }
 
   return button;
+}
+
+function normalizeItemType(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized.includes('segment') ? 'segment' : 'stat';
 }
 
 function parseSegmentValue(value) {
@@ -103,15 +137,40 @@ function buildStatItem(item, index) {
   stat.style.setProperty('--stagger-index', index);
   if (item.row) moveInstrumentation(item.row, stat);
 
-  const value = document.createElement('div');
-  value.className = 'impact-donut-stat-value';
-  value.textContent = item.value;
-  stat.append(value);
+  if (item.isAuthoringPlaceholder) {
+    stat.classList.add('is-authoring-placeholder');
+    stat.append(
+      buildAuthoringPlaceholder('p', 'impact-donut-placeholder-title', 'New impact stat'),
+      buildAuthoringPlaceholder(
+        'p',
+        'impact-donut-placeholder-body',
+        'Add the stat value and label in Universal Editor.',
+      ),
+    );
+    return stat;
+  }
 
-  const label = document.createElement('p');
-  label.className = 'impact-donut-stat-label';
-  label.textContent = item.label;
-  stat.append(label);
+  if (item.value || item.valueField?.source) {
+    const value = document.createElement('div');
+    value.className = 'impact-donut-stat-value';
+    if (item.valueField?.source) {
+      moveFieldContent(item.valueField, value, item.value);
+    } else {
+      value.textContent = item.value;
+    }
+    stat.append(value);
+  }
+
+  if (item.label || item.labelField?.source) {
+    const label = document.createElement('p');
+    label.className = 'impact-donut-stat-label';
+    if (item.labelField?.source) {
+      moveFieldContent(item.labelField, label, item.label);
+    } else {
+      label.textContent = item.label;
+    }
+    stat.append(label);
+  }
 
   return stat;
 }
@@ -122,24 +181,43 @@ function buildLegendItem(segment, index) {
   item.style.setProperty('--stagger-index', index + 1);
   if (segment.row) moveInstrumentation(segment.row, item);
 
+  if (segment.isAuthoringPlaceholder) {
+    item.classList.add('is-authoring-placeholder');
+    item.append(
+      buildAuthoringPlaceholder('p', 'impact-donut-placeholder-title', 'New donut segment'),
+      buildAuthoringPlaceholder(
+        'p',
+        'impact-donut-placeholder-body',
+        'Add the segment value, label, and color in Universal Editor.',
+      ),
+    );
+    return { item, value: null, segment };
+  }
+
   const value = document.createElement('p');
   value.className = 'impact-donut-legend-value';
   value.style.color = segment.color;
+  if (segment.valueField?.source) moveInstrumentation(segment.valueField.source, value);
   value.textContent = '0%';
   item.append(value);
 
   const label = document.createElement('p');
   label.className = 'impact-donut-legend-label';
-  label.textContent = segment.label;
+  if (segment.labelField?.source) {
+    moveFieldContent(segment.labelField, label, segment.label);
+  } else {
+    label.textContent = segment.label;
+  }
   item.append(label);
 
-  return { item, value };
+  return { item, value, segment };
 }
 
-function updateLegendValues(legendValues, segments, progress) {
-  legendValues.forEach((legendValue, index) => {
-    const percentage = Math.round(segments[index].percentage * progress);
-    legendValue.textContent = `${percentage}%`;
+function updateLegendValues(legendEntries, progress) {
+  legendEntries.forEach(({ value, segment }) => {
+    if (!value || segment.isAuthoringPlaceholder) return;
+    const percentage = Math.round(segment.percentage * progress);
+    value.textContent = `${percentage}%`;
   });
 }
 
@@ -169,22 +247,22 @@ function renderDonut(chart, segments, progress) {
   chart.style.backgroundImage = `conic-gradient(${gradientStops.join(', ')})`;
 }
 
-function animateChart(block, chart, segments, legendValues) {
+function animateChart(block, chart, chartSegments, legendEntries) {
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
   const finishImmediately = () => {
-    renderDonut(chart, segments, 1);
-    updateLegendValues(legendValues, segments, 1);
+    renderDonut(chart, chartSegments, 1);
+    updateLegendValues(legendEntries, 1);
     block.classList.add('is-visible');
   };
 
-  if (!chart || !segments.length || reducedMotion || !('IntersectionObserver' in window)) {
+  if (!chart || !chartSegments.length || reducedMotion || !('IntersectionObserver' in window)) {
     finishImmediately();
     return;
   }
 
-  renderDonut(chart, segments, 0);
-  updateLegendValues(legendValues, segments, 0);
+  renderDonut(chart, chartSegments, 0);
+  updateLegendValues(legendEntries, 0);
 
   let hasAnimated = false;
   const observer = new IntersectionObserver((entries) => {
@@ -200,8 +278,8 @@ function animateChart(block, chart, segments, legendValues) {
       const rawProgress = Math.min(elapsed / ANIMATION_DURATION, 1);
       const easedProgress = easeOutCubic(rawProgress);
 
-      renderDonut(chart, segments, easedProgress);
-      updateLegendValues(legendValues, segments, easedProgress);
+      renderDonut(chart, chartSegments, easedProgress);
+      updateLegendValues(legendEntries, easedProgress);
 
       if (rawProgress < 1) {
         window.requestAnimationFrame(tick);
@@ -218,7 +296,7 @@ function animateChart(block, chart, segments, legendValues) {
 }
 
 export default function decorate(block) {
-  const isAuthoring = block.hasAttribute('data-aue-resource');
+  const isAuthoring = hasAuthoringContext(block);
   const headingField = getBlockField(block, 'heading');
   const bodySource = getBlockRichField(block, 'bodyText');
   const primaryButtonTextField = getBlockField(block, 'primaryButtonText');
@@ -236,6 +314,7 @@ export default function decorate(block) {
     const cols = [...row.children];
     const isItemRow = row.querySelector('[data-aue-prop="itemType"]')
       || row.querySelector('[data-aue-prop="value"]')
+      || row.querySelector('[data-aue-prop="label"]')
       || cols.length >= 4;
 
     if (!isItemRow) return;
@@ -244,24 +323,27 @@ export default function decorate(block) {
     const valueField = getItemField(row, 'value', 1);
     const labelField = getItemField(row, 'label', 2);
     const colorField = getItemField(row, 'color', 3);
+    const itemType = normalizeItemType(itemTypeField.value);
+    const hasVisibleContent = Boolean(valueField.value || labelField.value || colorField.value);
+    const isAuthoringPlaceholder = hasAuthoringContext(row) && !hasVisibleContent;
 
-    const itemType = itemTypeField.value || 'stat';
+    if (!hasVisibleContent && !isAuthoringPlaceholder) return;
+
     const item = {
       type: itemType,
       value: valueField.value,
       label: labelField.value,
       color: colorField.value || DEFAULT_SEGMENT_COLOR,
+      valueField,
+      labelField,
       row,
+      isAuthoringPlaceholder,
     };
 
-    if (!item.value && !item.label) return;
-
-    if (item.type === 'segment') {
-      const numericValue = parseSegmentValue(item.value);
-      if (!numericValue) return;
+    if (itemType === 'segment') {
       segmentItems.push({
         ...item,
-        numericValue,
+        numericValue: parseSegmentValue(valueField.value),
       });
       return;
     }
@@ -269,33 +351,46 @@ export default function decorate(block) {
     statItems.push(item);
   });
 
-  const totalSegmentValue = segmentItems.reduce((sum, item) => sum + item.numericValue, 0);
-  const segments = totalSegmentValue > 0
-    ? segmentItems.map((item) => ({
-      ...item,
-      percentage: (item.numericValue / totalSegmentValue) * 100,
-    }))
-    : [];
-  const showEmptyItemsHint = isAuthoring && !statItems.length && !segmentItems.length;
+  const totalSegmentValue = segmentItems.reduce((sum, item) => (
+    item.isAuthoringPlaceholder ? sum : sum + item.numericValue
+  ), 0);
 
-  const heading = document.createElement('h2');
-  heading.className = 'impact-donut-heading';
-  heading.textContent = headingField.value;
-  if (headingField.source) moveInstrumentation(headingField.source, heading);
+  const segments = segmentItems.map((item) => ({
+    ...item,
+    percentage: totalSegmentValue > 0 ? (item.numericValue / totalSegmentValue) * 100 : 0,
+  }));
+
+  const chartSegments = segments.filter(
+    (segment) => !segment.isAuthoringPlaceholder && segment.percentage > 0,
+  );
+
+  const copy = document.createElement('div');
+  copy.className = 'impact-donut-copy impact-donut-reveal';
+
+  if (headingField.value || headingField.source) {
+    const heading = document.createElement('h2');
+    heading.className = 'impact-donut-heading';
+    if (headingField.source) {
+      moveFieldContent(headingField, heading, headingField.value);
+    } else {
+      heading.textContent = headingField.value;
+    }
+    copy.append(heading);
+  }
 
   const body = buildRichContent(bodySource, 'impact-donut-body');
+  if (body) copy.append(body);
 
-  const statsGrid = document.createElement('div');
-  statsGrid.className = 'impact-donut-stats';
-  statItems.forEach((item, index) => {
-    statsGrid.append(buildStatItem(item, index));
-  });
-  if (showEmptyItemsHint) {
-    statsGrid.classList.add('is-empty');
-    const hint = document.createElement('p');
-    hint.className = 'impact-donut-empty-hint';
-    hint.textContent = 'Add Impact Donut Item children in Universal Editor.';
-    statsGrid.append(hint);
+  if (statItems.length || isAuthoring) {
+    const statsGrid = document.createElement('div');
+    statsGrid.className = 'impact-donut-stats';
+    statItems.forEach((item, index) => {
+      statsGrid.append(buildStatItem(item, index));
+    });
+
+    if (statItems.length) {
+      copy.append(statsGrid);
+    }
   }
 
   const actions = document.createElement('div');
@@ -304,12 +399,6 @@ export default function decorate(block) {
   const secondaryButton = buildButton(secondaryButtonTextField, secondaryButtonLinkField, 'secondary');
   if (primaryButton) actions.append(primaryButton);
   if (secondaryButton) actions.append(secondaryButton);
-
-  const copy = document.createElement('div');
-  copy.className = 'impact-donut-copy impact-donut-reveal';
-  if (headingField.value) copy.append(heading);
-  if (body) copy.append(body);
-  if (statsGrid.childElementCount) copy.append(statsGrid);
   if (actions.childElementCount) copy.append(actions);
 
   const chartSide = document.createElement('div');
@@ -320,7 +409,9 @@ export default function decorate(block) {
 
   const chart = document.createElement('div');
   chart.className = 'impact-donut-chart';
-  const ariaSummary = segments.map((segment) => `${Math.round(segment.percentage)}% ${segment.label}`).join(', ');
+  const ariaSummary = chartSegments
+    .map((segment) => `${Math.round(segment.percentage)}% ${segment.label}`)
+    .join(', ');
   if (ariaSummary) chart.setAttribute('aria-label', ariaSummary);
   chart.setAttribute('role', 'img');
 
@@ -330,15 +421,33 @@ export default function decorate(block) {
   chartShell.append(chart);
   chartSide.append(chartShell);
 
-  const legend = document.createElement('div');
-  legend.className = 'impact-donut-legend';
-  const legendValues = [];
-  segments.forEach((segment, index) => {
-    const legendItem = buildLegendItem(segment, index);
-    legend.append(legendItem.item);
-    legendValues.push(legendItem.value);
-  });
-  if (legend.childElementCount) chartSide.append(legend);
+  if (segmentItems.length || isAuthoring) {
+    const legend = document.createElement('div');
+    legend.className = 'impact-donut-legend';
+    const legendEntries = [];
+
+    segments.forEach((segment, index) => {
+      const legendItem = buildLegendItem(segment, index);
+      legend.append(legendItem.item);
+      legendEntries.push(legendItem);
+    });
+
+    if (legend.childElementCount) chartSide.append(legend);
+
+    const inner = document.createElement('div');
+    inner.className = 'impact-donut-inner';
+    inner.append(copy);
+    inner.append(chartSide);
+
+    const surfaceColor = surfaceColorField.value || DEFAULT_SURFACE_COLOR;
+    const chartTrackColor = chartTrackColorField.value || DEFAULT_TRACK_COLOR;
+    block.style.setProperty('--impact-donut-surface', surfaceColor);
+    block.style.setProperty('--impact-donut-track', chartTrackColor);
+
+    block.replaceChildren(inner);
+    animateChart(block, chart, chartSegments, legendEntries);
+    return;
+  }
 
   const inner = document.createElement('div');
   inner.className = 'impact-donut-inner';
@@ -351,5 +460,5 @@ export default function decorate(block) {
   block.style.setProperty('--impact-donut-track', chartTrackColor);
 
   block.replaceChildren(inner);
-  animateChart(block, chart, segments, legendValues);
+  animateChart(block, chart, chartSegments, []);
 }
