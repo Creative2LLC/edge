@@ -152,6 +152,14 @@
   min-height: auto;
 }
 
+.info-cards-grid-card-no-button .info-cards-grid-card-content {
+  flex: 0 1 auto;
+}
+
+.info-cards-grid-card-no-button .info-cards-grid-card-body {
+  margin-bottom: 0;
+}
+
 /* Responsive: Tablet */
 @media (width <= 900px) {
   .info-cards-grid-inner {
