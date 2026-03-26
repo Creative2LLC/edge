@@ -1,55 +1,35 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-function getFieldText(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) return byProp.textContent.trim();
+function getField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, value: source.textContent.trim() };
   const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
-  return '';
+  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
+  return { source: null, value: '' };
 }
 
-function getFieldLink(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) {
-    const anchor = byProp.tagName === 'A' ? byProp : byProp.querySelector('a');
-    return anchor?.href || byProp.textContent.trim();
+function getLinkField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
   }
   const cols = [...row.children];
-  if (cols[colIndex]) {
-    const a = cols[colIndex].querySelector('a');
-    if (a && a.href) return a.href;
-    return cols[colIndex].textContent.trim();
+  if (cols[index]) {
+    const anchor = cols[index].querySelector('a');
+    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
   }
-  return '';
+  return { source: null, value: '' };
 }
 
-function getFieldImage(row, colIndex) {
+function getImageField(row, index) {
   const cols = [...row.children];
-  const col = cols[colIndex];
-  if (!col) return { picture: null, src: '', alt: '' };
+  const col = cols[index];
+  if (!col) return { picture: null, img: null };
   const picture = col.querySelector('picture');
   const img = col.querySelector('img');
-  return { picture, src: img?.src || '', alt: img?.alt || '' };
-}
-
-function parseSlide(row) {
-  const cols = [...row.children];
-  if (cols.length < 2) return null;
-
-  const imageData = getFieldImage(row, 0);
-  return {
-    imagePicture: imageData.picture,
-    imgSrc: imageData.src,
-    imageAlt: getFieldText(row, 1, 'imageAlt') || imageData.alt,
-    heading: getFieldText(row, 2, 'heading'),
-    subheading: getFieldText(row, 3, 'subheading'),
-    buttonText: getFieldText(row, 4, 'buttonText'),
-    buttonLink: getFieldLink(row, 5, 'buttonLink'),
-    buttonColor: getFieldText(row, 6, 'buttonColor'),
-    backgroundColor: getFieldText(row, 7, 'backgroundColor'),
-    contentAlign: getFieldText(row, 8, 'contentAlign') || 'left',
-  };
+  return { picture, img };
 }
 
 function buildSlide(data, row) {
@@ -64,17 +44,23 @@ function buildSlide(data, row) {
   const mediaSide = document.createElement('div');
   mediaSide.className = 'split-card-carousel-media';
 
-  if (data.imagePicture) {
-    mediaSide.append(data.imagePicture);
-    const img = data.imagePicture.querySelector('img');
+  if (data.imageField.picture) {
+    const { picture } = data.imageField;
+    mediaSide.append(picture);
+    const img = picture.querySelector('img');
     if (img) {
       if (data.imageAlt) img.alt = data.imageAlt;
       const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
       moveInstrumentation(img, optimized.querySelector('img'));
-      data.imagePicture.replaceWith(optimized);
+      picture.replaceWith(optimized);
     }
-  } else if (data.imgSrc) {
-    const pic = createOptimizedPicture(data.imgSrc, data.imageAlt, false, [{ width: '800' }]);
+  } else if (data.imageField.img) {
+    const pic = createOptimizedPicture(
+      data.imageField.img.src,
+      data.imageAlt,
+      false,
+      [{ width: '800' }],
+    );
     mediaSide.append(pic);
   }
 
@@ -92,7 +78,7 @@ function buildSlide(data, row) {
   }
 
   if (data.backgroundColor) {
-    contentSide.style.backgroundColor = data.backgroundColor;
+    contentSide.style.setProperty('background-color', data.backgroundColor, 'important');
   }
 
   if (data.heading) {
@@ -115,7 +101,7 @@ function buildSlide(data, row) {
     btn.href = data.buttonLink;
     btn.textContent = data.buttonText;
     if (data.buttonColor) {
-      btn.style.backgroundColor = data.buttonColor;
+      btn.style.setProperty('background-color', data.buttonColor, 'important');
     }
     contentSide.append(btn);
   }
@@ -132,32 +118,66 @@ function updateDots(dots, activeIndex) {
 }
 
 export default function decorate(block) {
-  // Extract block-level fields
-  const headingProp = block.querySelector('[data-aue-prop="heading"]');
-  const descriptionProp = block.querySelector('[data-aue-prop="description"]');
+  /* eslint-disable no-console */
+  console.log('[split-card-carousel] block.innerHTML BEFORE decoration:', block.innerHTML);
+  /* eslint-enable no-console */
+
+  const rows = [...block.querySelectorAll(':scope > div')];
+
+  // Block-level fields are in single-column rows;
+  // slide rows have multiple columns.
   let sectionTitle = '';
   let sectionDescription = '';
-  if (headingProp) {
-    sectionTitle = headingProp.textContent.trim();
-  }
-  if (descriptionProp) {
-    sectionDescription = descriptionProp.textContent.trim();
-  }
+  const slideRows = [];
 
-  // Remove config rows containing block-level props
-  [...block.querySelectorAll(':scope > div')].forEach((row) => {
-    if (row.querySelector('[data-aue-prop="heading"]')
-      || row.querySelector('[data-aue-prop="description"]')) {
-      row.remove();
+  rows.forEach((row) => {
+    const cols = [...row.children];
+    if (cols.length < 2) {
+      // Single-column row — block-level config field
+      const headingEl = row.querySelector('[data-aue-prop="heading"]');
+      const descEl = row.querySelector('[data-aue-prop="description"]');
+      if (headingEl) sectionTitle = headingEl.textContent.trim();
+      else if (descEl) sectionDescription = descEl.textContent.trim();
+      else {
+        // Fallback: first single-col row without prop = heading, second = description
+        const text = row.textContent.trim();
+        if (text && !sectionTitle) sectionTitle = text;
+        else if (text && !sectionDescription) sectionDescription = text;
+      }
+    } else {
+      slideRows.push(row);
     }
   });
 
-  // Parse slides
-  const rows = [...block.querySelectorAll(':scope > div')];
+  // Parse slides — each slide row has fields as columns
+  // Item field order: 0:image, 1:imageAlt, 2:heading, 3:subheading,
+  // 4:buttonText, 5:buttonLink, 6:buttonColor, 7:backgroundColor, 8:contentAlign
   const slides = [];
-  rows.forEach((row) => {
-    const data = parseSlide(row);
-    if (data) slides.push({ data, row });
+  slideRows.forEach((row) => {
+    const imageField = getImageField(row, 0);
+    const imageAltField = getField(row, 'imageAlt', 1);
+    const headingField = getField(row, 'heading', 2);
+    const subheadingField = getField(row, 'subheading', 3);
+    const buttonTextField = getField(row, 'buttonText', 4);
+    const buttonLinkField = getLinkField(row, 'buttonLink', 5);
+    const buttonColorField = getField(row, 'buttonColor', 6);
+    const bgColorField = getField(row, 'backgroundColor', 7);
+    const contentAlignField = getField(row, 'contentAlign', 8);
+
+    slides.push({
+      data: {
+        imageField,
+        imageAlt: imageAltField.value,
+        heading: headingField.value,
+        subheading: subheadingField.value,
+        buttonText: buttonTextField.value,
+        buttonLink: buttonLinkField.value,
+        buttonColor: buttonColorField.value,
+        backgroundColor: bgColorField.value,
+        contentAlign: contentAlignField.value || 'left',
+      },
+      row,
+    });
   });
 
   // Build wrapper
