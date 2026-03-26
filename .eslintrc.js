@@ -45,7 +45,7 @@ module.exports = {
       'info-card': 11,
       'card-row-item': 9,
       'card-row-detailed-item': 14,
-      'split-card': 11,
+      'split-card': 12,
       'image-text-card-row-item': 9,
       'split-card-carousel-item': 9,
       'icon-card-carousel-item': 10,
