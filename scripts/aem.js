@@ -583,8 +583,9 @@ function decorateSections(main) {
       } else if (camelKey === 'backgroundColor') {
         const value = String(meta[key] || '').trim();
         if (value) {
-          section.style.setProperty('--section-background-color', value);
-          section.style.backgroundColor = value;
+          [...section.querySelectorAll(':scope > div')].forEach((wrapper) => {
+            wrapper.style.backgroundColor = value;
+          });
           section.dataset.backgroundColor = value;
         }
       } else {

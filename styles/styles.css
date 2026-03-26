@@ -271,9 +271,6 @@ main > .section > div {
   padding: 0 24px;
 }
 
-main > .section[data-background-color] > div {
-  background-color: var(--section-background-color);
-}
 
 main > .section:first-of-type {
   margin-top: 0;
