@@ -59,7 +59,8 @@
           "component": "richtext",
           "valueType": "string",
           "name": "bodyText",
-          "label": "Body Text"
+          "label": "Body Text",
+          "description": "Add Split Card Gap Item child entries to render the SVG + text list below this copy on the right side."
         },
         {
           "component": "text",
@@ -83,14 +84,16 @@
           "component": "reference",
           "valueType": "string",
           "name": "icon",
-          "label": "Icon",
-          "multi": false
+          "label": "Benefit Icon / SVG",
+          "multi": false,
+          "description": "Upload or reference the SVG/icon that should appear in the benefit list."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "title",
-          "label": "Title"
+          "label": "Benefit Text",
+          "description": "This text renders beside the icon under the parent block body copy."
         },
         {
           "component": "text",

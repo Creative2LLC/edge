@@ -1661,6 +1661,46 @@
         "label": "Chart Track Color (Hex)",
         "description": "Defaults to #edf1f3",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "statValues",
+        "label": "Stat Values (one per line)",
+        "description": "Fallback authoring if child items are not available in the editor",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "statLabels",
+        "label": "Stat Labels (one per line)",
+        "description": "Fallback authoring if child items are not available in the editor",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "segmentValues",
+        "label": "Chart Segment Values (one per line)",
+        "description": "Fallback authoring if child items are not available in the editor",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "segmentLabels",
+        "label": "Chart Segment Labels (one per line)",
+        "description": "Fallback authoring if child items are not available in the editor",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "segmentColors",
+        "label": "Chart Segment Colors (one per line)",
+        "description": "Optional fallback colors for the chart segments",
+        "value": ""
       }
     ]
   },
@@ -1681,7 +1721,8 @@
             "value": "segment"
           }
         ],
-        "value": "stat"
+        "value": "stat",
+        "description": "Add child items under the block and choose whether each one is a left-side statistic or a donut chart segment."
       },
       {
         "component": "text",
@@ -3072,7 +3113,8 @@
         "component": "richtext",
         "valueType": "string",
         "name": "bodyText",
-        "label": "Body Text"
+        "label": "Body Text",
+        "description": "Add Split Card Gap Item child entries to render the SVG + text list below this copy on the right side."
       },
       {
         "component": "text",
@@ -3096,14 +3138,16 @@
         "component": "reference",
         "valueType": "string",
         "name": "icon",
-        "label": "Icon",
-        "multi": false
+        "label": "Benefit Icon / SVG",
+        "multi": false,
+        "description": "Upload or reference the SVG/icon that should appear in the benefit list."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "title",
-        "label": "Title"
+        "label": "Benefit Text",
+        "description": "This text renders beside the icon under the parent block body copy."
       },
       {
         "component": "text",
