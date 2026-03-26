@@ -1,77 +1,68 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-function getField(row, name, index) {
+// Model field order:
+// 0:image, 1:imageAlt, 2:heading, 3:subheading,
+// 4:buttonText, 5:buttonLink, 6:buttonColor,
+// 7:button2Text, 8:button2Link, 9:button2Color,
+// 10:backgroundColor, 11:textColor, 12:contentAlign
+
+function readField(row, name, colIndex) {
   const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
+  if (source) return source.textContent.trim();
   const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  if (cols[colIndex]) return cols[colIndex].textContent.trim();
+  return '';
 }
 
-function getLinkField(row, name, index) {
+function readLinkField(row, name, colIndex) {
   const source = row.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
+    const a = source.tagName === 'A'
+      ? source : source.querySelector('a');
+    return a?.href || source.textContent.trim();
   }
   const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
+  if (cols[colIndex]) {
+    const a = cols[colIndex].querySelector('a');
+    return a?.href || cols[colIndex].textContent.trim();
   }
-  return { source: null, value: '' };
+  return '';
 }
 
-function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.querySelector('picture');
-    const img = source.querySelector('img');
-    return { source, picture, img };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const picture = cols[index].querySelector('picture');
-    const img = cols[index].querySelector('img');
-    return { source: null, picture, img };
-  }
-  return { source: null, picture: null, img: null };
+function getImage(row) {
+  const source = row.querySelector('[data-aue-prop="image"]');
+  const picture = source?.querySelector('picture')
+    || row.querySelector('picture');
+  if (!picture) return null;
+  const img = picture.querySelector('img');
+  if (!img) return picture;
+  const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
+  picture.replaceWith(optimized);
+  return optimized;
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
-  if (!rows.length) return;
-  const row = rows[0];
+  // The block is a single-model block — all fields in one row
+  const row = block.querySelector(':scope > div');
+  if (!row) return;
 
-  // Field index mapping:
-  // 0: image, 1: imageAlt, 2: heading, 3: subheading,
-  // 4: buttonText, 5: buttonLink, 6: buttonColor,
-  // 7: button2Text, 8: button2Link, 9: button2Color,
-  // 10: backgroundColor, 11: textColor, 12: contentAlign
-  const imageField = getImageField(row, 'image', 0);
-  const imageAlt = getField(row, 'imageAlt', 1).value;
-  const heading = getField(row, 'heading', 2).value;
-  const subheading = getField(row, 'subheading', 3).value;
-  const buttonText = getField(row, 'buttonText', 4).value;
-  const buttonLink = getLinkField(row, 'buttonLink', 5).value;
-  const buttonColor = getField(row, 'buttonColor', 6).value;
-  const button2Text = getField(row, 'button2Text', 7).value;
-  const button2Link = getLinkField(row, 'button2Link', 8).value;
-  const button2Color = getField(row, 'button2Color', 9).value;
-  const backgroundColor = getField(row, 'backgroundColor', 10).value;
-  const textColor = getField(row, 'textColor', 11).value;
-  const contentAlign = getField(row, 'contentAlign', 12).value || 'left';
+  const picture = getImage(row);
+  const imageAlt = readField(row, 'imageAlt', 1);
+  const heading = readField(row, 'heading', 2);
+  const subheading = readField(row, 'subheading', 3);
+  const buttonText = readField(row, 'buttonText', 4);
+  const buttonLink = readLinkField(row, 'buttonLink', 5);
+  const buttonColor = readField(row, 'buttonColor', 6);
+  const button2Text = readField(row, 'button2Text', 7);
+  const button2Link = readLinkField(row, 'button2Link', 8);
+  const button2Color = readField(row, 'button2Color', 9);
+  const backgroundColor = readField(row, 'backgroundColor', 10);
+  const textColor = readField(row, 'textColor', 11);
+  const contentAlign = readField(row, 'contentAlign', 12) || 'left';
 
-  // Optimized picture
-  let picture = imageField.picture || null;
   if (picture) {
     const img = picture.querySelector('img');
-    if (img) {
-      if (imageAlt) img.alt = imageAlt;
-      const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
-      picture.replaceWith(optimized);
-      picture = optimized;
-    }
+    if (img && imageAlt) img.alt = imageAlt;
   }
 
   // Build DOM
@@ -103,7 +94,7 @@ export default function decorate(block) {
     const h2 = document.createElement('h2');
     h2.className = 'split-card-heading';
     h2.textContent = heading;
-    if (textColor) h2.style.color = textColor;
+    if (textColor) h2.style.setProperty('color', textColor, 'important');
     contentSide.append(h2);
   }
 
@@ -111,7 +102,7 @@ export default function decorate(block) {
     const p = document.createElement('p');
     p.className = 'split-card-subheading';
     p.textContent = subheading;
-    if (textColor) p.style.color = textColor;
+    if (textColor) p.style.setProperty('color', textColor, 'important');
     contentSide.append(p);
   }
 
