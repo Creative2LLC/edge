@@ -1,20 +1,11 @@
 .leadership-overview {
-  width: 100vw;
   padding: 88px 24px 96px;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  box-sizing: border-box;
   background: #f4f1ec;
 }
 
-main > .section > .leadership-overview-wrapper {
-  max-width: none;
-  padding: 0;
-}
-
 .leadership-overview .leadership-overview-inner {
-  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
 }
 
 .leadership-overview .leadership-overview-header {

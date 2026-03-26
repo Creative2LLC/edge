@@ -251,6 +251,65 @@ function readBlockConfig(block) {
   return config;
 }
 
+function cleanupFieldNode(node) {
+  const row = node?.parentElement;
+  if (row && row.children?.length === 2 && row.children[1] === node) {
+    row.remove();
+  } else if (node) {
+    node.remove();
+  }
+}
+
+function readFieldValue(node) {
+  if (!node) return '';
+  if (node.tagName === 'A') return node.href;
+
+  const anchor = node.querySelector('a');
+  if (anchor) return anchor.href;
+
+  const paragraphs = [...node.querySelectorAll('p')]
+    .map((paragraph) => paragraph.textContent.trim())
+    .filter(Boolean);
+  if (paragraphs.length === 1) return paragraphs[0];
+  if (paragraphs.length > 1) return paragraphs.join(', ');
+
+  return node.textContent.trim();
+}
+
+function getSectionMetadata(section) {
+  const meta = {};
+  const sectionMeta = section.querySelector('div.section-metadata');
+
+  if (sectionMeta) {
+    Object.assign(meta, readBlockConfig(sectionMeta));
+  }
+
+  const sectionResource = section.getAttribute('data-aue-resource')
+    || section.querySelector(':scope > [data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  if (sectionResource) {
+    ['name', 'style', 'backgroundColor'].forEach((name) => {
+      const selector = `[data-aue-resource="${sectionResource}"][data-aue-prop="${name}"]`;
+      const node = section.querySelector(selector);
+      if (!node) return;
+
+      const value = readFieldValue(node);
+      if (value) {
+        meta[toClassName(name)] = value;
+      }
+
+      cleanupFieldNode(node);
+    });
+  }
+
+  if (sectionMeta) {
+    sectionMeta.parentNode.remove();
+  }
+
+  return meta;
+}
+
 /**
  * Loads a CSS file.
  * @param {string} href URL to the CSS file
@@ -516,23 +575,25 @@ function decorateSections(main) {
     section.dataset.sectionStatus = 'initialized';
     section.style.display = 'none';
 
-    // Process section metadata
-    const sectionMeta = section.querySelector('div.section-metadata');
-    if (sectionMeta) {
-      const meta = readBlockConfig(sectionMeta);
-      Object.keys(meta).forEach((key) => {
-        if (key === 'style') {
-          const styles = meta.style
-            .split(',')
-            .filter((style) => style)
-            .map((style) => toClassName(style.trim()));
-          styles.forEach((style) => section.classList.add(style));
-        } else {
-          section.dataset[toCamelCase(key)] = meta[key];
+    const meta = getSectionMetadata(section);
+    Object.keys(meta).forEach((key) => {
+      const camelKey = toCamelCase(key);
+      if (camelKey === 'style') {
+        const styles = String(meta[key] || '')
+          .split(',')
+          .filter((style) => style)
+          .map((style) => toClassName(style.trim()));
+        styles.forEach((style) => section.classList.add(style));
+      } else if (camelKey === 'backgroundColor') {
+        const value = String(meta[key] || '').trim();
+        if (value) {
+          section.style.backgroundColor = value;
+          section.dataset.backgroundColor = value;
         }
-      });
-      sectionMeta.parentNode.remove();
-    }
+      } else {
+        section.dataset[camelKey] = meta[key];
+      }
+    });
   });
 }
 

@@ -35,6 +35,14 @@
               "value": "highlight"
             }
           ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Background Color",
+          "description": "Any valid CSS color value, for example #f4f1ec",
+          "value": ""
         }
       ]
     }
