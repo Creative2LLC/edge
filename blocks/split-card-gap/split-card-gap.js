@@ -117,6 +117,7 @@ function buildBenefitItem(data, textColor) {
 }
 
 export default function decorate(block) {
+  const isAuthoring = block.hasAttribute('data-aue-resource');
   const imageField = getImageField(block, 'image', 0);
   const imageAltField = getField(block, 'imageAlt', 1);
   const headingField = getField(block, 'heading', 2);
@@ -154,6 +155,8 @@ export default function decorate(block) {
     if (benefit) benefits.push(benefit);
   });
 
+  const showEmptyBenefitsHint = isAuthoring && !benefits.length;
+
   const inner = document.createElement('div');
   inner.className = 'split-card-gap-inner';
 
@@ -179,10 +182,19 @@ export default function decorate(block) {
   const body = buildBody(bodySource, textColor);
   if (body) content.append(body);
 
-  if (benefits.length) {
+  if (benefits.length || showEmptyBenefitsHint) {
     const benefitsGrid = document.createElement('div');
     benefitsGrid.className = 'split-card-gap-benefits';
     benefits.forEach((benefit) => benefitsGrid.append(benefit));
+
+    if (showEmptyBenefitsHint) {
+      benefitsGrid.classList.add('is-empty');
+      const hint = document.createElement('p');
+      hint.className = 'split-card-gap-empty-hint';
+      hint.textContent = 'Add Split Card Gap Item children in Universal Editor.';
+      benefitsGrid.append(hint);
+    }
+
     content.append(benefitsGrid);
   }
 

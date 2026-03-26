@@ -218,6 +218,7 @@ function animateChart(block, chart, segments, legendValues) {
 }
 
 export default function decorate(block) {
+  const isAuthoring = block.hasAttribute('data-aue-resource');
   const headingField = getBlockField(block, 'heading');
   const bodySource = getBlockRichField(block, 'bodyText');
   const primaryButtonTextField = getBlockField(block, 'primaryButtonText');
@@ -275,6 +276,7 @@ export default function decorate(block) {
       percentage: (item.numericValue / totalSegmentValue) * 100,
     }))
     : [];
+  const showEmptyItemsHint = isAuthoring && !statItems.length && !segmentItems.length;
 
   const heading = document.createElement('h2');
   heading.className = 'impact-donut-heading';
@@ -288,6 +290,13 @@ export default function decorate(block) {
   statItems.forEach((item, index) => {
     statsGrid.append(buildStatItem(item, index));
   });
+  if (showEmptyItemsHint) {
+    statsGrid.classList.add('is-empty');
+    const hint = document.createElement('p');
+    hint.className = 'impact-donut-empty-hint';
+    hint.textContent = 'Add Impact Donut Item children in Universal Editor.';
+    statsGrid.append(hint);
+  }
 
   const actions = document.createElement('div');
   actions.className = 'impact-donut-actions impact-donut-reveal';
