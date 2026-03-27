@@ -2,20 +2,30 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 
 export default function decorate(block) {
   /* --- Extract block-level fields and remove their rows --- */
+
+  /* Icon: reference fields render as <picture> at block level */
   const iconProp = block.querySelector('[data-aue-prop="icon"]');
-  let iconPicture = null;
+  let picture = null;
   let iconImg = null;
-  let iconSrc = '';
   if (iconProp) {
-    iconPicture = iconProp.querySelector('picture');
-    iconImg = iconProp.querySelector('img');
-    if (!iconImg) {
-      const src = iconProp.textContent.trim();
-      if (src && (src.startsWith('/') || src.startsWith('http'))) {
-        iconSrc = src;
-      }
+    picture = iconProp.closest('picture')
+      || iconProp.querySelector('picture');
+    if (picture) {
+      iconImg = picture.querySelector('img');
+    } else {
+      iconImg = iconProp.tagName === 'IMG'
+        ? iconProp
+        : iconProp.querySelector('img');
     }
     iconProp.closest(':scope > div')?.remove();
+  }
+  /* Fallback: grab any picture left in the block */
+  if (!picture && !iconImg) {
+    picture = block.querySelector('picture');
+    if (picture) {
+      iconImg = picture.querySelector('img');
+      picture.closest(':scope > div')?.remove();
+    }
   }
 
   const iconColorProp = block.querySelector('[data-aue-prop="iconColor"]');
@@ -50,7 +60,7 @@ export default function decorate(block) {
       if (!iconImg) {
         const img = cols[0].querySelector('img');
         if (img) {
-          iconPicture = cols[0].querySelector('picture');
+          picture = cols[0].querySelector('picture');
           iconImg = img;
         }
       }
@@ -71,29 +81,24 @@ export default function decorate(block) {
   const left = document.createElement('div');
   left.className = 'mail-address-left';
 
-  const resolvedSrc = iconImg?.src || iconSrc;
-  if (iconPicture || iconImg || resolvedSrc) {
+  if (picture || iconImg) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'mail-address-icon';
-    if (iconColor && resolvedSrc) {
-      iconWrap.style.maskImage = `url(${resolvedSrc})`;
-      iconWrap.style.webkitMaskImage = `url(${resolvedSrc})`;
+    const imgSrc = iconImg?.src;
+    if (iconColor && imgSrc) {
+      iconWrap.style.maskImage = `url(${imgSrc})`;
+      iconWrap.style.webkitMaskImage = `url(${imgSrc})`;
       iconWrap.style.maskSize = 'contain';
       iconWrap.style.webkitMaskSize = 'contain';
       iconWrap.style.maskRepeat = 'no-repeat';
       iconWrap.style.webkitMaskRepeat = 'no-repeat';
       iconWrap.style.backgroundColor = iconColor;
-    } else if (iconPicture) {
-      iconWrap.append(iconPicture);
+    } else if (picture) {
+      iconWrap.append(picture);
     } else if (iconImg) {
       iconWrap.append(iconImg);
-    } else if (resolvedSrc) {
-      const img = document.createElement('img');
-      img.src = resolvedSrc;
-      img.alt = '';
-      img.loading = 'lazy';
-      iconWrap.append(img);
     }
+    if (iconProp) moveInstrumentation(iconProp, iconWrap);
     left.append(iconWrap);
   }
 
