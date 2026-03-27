@@ -2106,6 +2106,29 @@
     ]
   },
   {
+    "id": "mail-address",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading Text"
+      },
+      {
+        "component": "richtext",
+        "name": "address",
+        "label": "Address"
+      }
+    ]
+  },
+  {
     "id": "need-help",
     "fields": [
       {

@@ -1,0 +1,45 @@
+{
+  "definitions": [
+    {
+      "title": "Mail Address",
+      "id": "mail-address",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Mail Address",
+              "model": "mail-address"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "mail-address",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading Text"
+        },
+        {
+          "component": "richtext",
+          "name": "address",
+          "label": "Address"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}
