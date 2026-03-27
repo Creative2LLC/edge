@@ -1,77 +1,68 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+function getFieldProp(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, value: source.textContent.trim() };
+  return { source: null, value: '' };
+}
+
+function getImageProp(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const picture = source.closest('picture')
+      || source.querySelector('picture');
+    const img = source.tagName === 'IMG'
+      ? source
+      : source.querySelector('img');
+    return { source, picture, img };
+  }
+  /* Fallback: grab any picture in the block */
+  const picture = block.querySelector('picture');
+  if (picture) {
+    return { source: null, picture, img: picture.querySelector('img') };
+  }
+  return { source: null, picture: null, img: null };
+}
+
 export default function decorate(block) {
-  /* --- Extract block-level fields and remove their rows --- */
+  /* --- Extract all fields before any DOM changes --- */
+  const iconData = getImageProp(block, 'icon');
+  const iconColorField = getFieldProp(block, 'iconColor');
+  const headingField = getFieldProp(block, 'heading');
+  const addressField = getFieldProp(block, 'address');
 
-  /* Icon: reference fields render as <picture> at block level */
-  const iconProp = block.querySelector('[data-aue-prop="icon"]');
-  let picture = null;
-  let iconImg = null;
-  if (iconProp) {
-    picture = iconProp.closest('picture')
-      || iconProp.querySelector('picture');
-    if (picture) {
-      iconImg = picture.querySelector('img');
-    } else {
-      iconImg = iconProp.tagName === 'IMG'
-        ? iconProp
-        : iconProp.querySelector('img');
-    }
-    iconProp.closest(':scope > div')?.remove();
-  }
-  /* Fallback: grab any picture left in the block */
-  if (!picture && !iconImg) {
-    picture = block.querySelector('picture');
-    if (picture) {
-      iconImg = picture.querySelector('img');
-      picture.closest(':scope > div')?.remove();
-    }
-  }
+  const iconColor = iconColorField.value;
+  const heading = headingField.value;
+  const addressHTML = addressField.source
+    ? addressField.source.innerHTML.trim()
+    : '';
 
-  const iconColorProp = block.querySelector('[data-aue-prop="iconColor"]');
-  let iconColor = '';
-  if (iconColorProp) {
-    iconColor = iconColorProp.textContent.trim();
-    iconColorProp.closest(':scope > div')?.remove();
-  }
-
-  const headingProp = block.querySelector('[data-aue-prop="heading"]');
-  let heading = '';
-  if (headingProp) {
-    heading = headingProp.textContent.trim();
-    headingProp.closest(':scope > div')?.remove();
-  }
-
-  const addressProp = block.querySelector('[data-aue-prop="address"]');
-  let addressHTML = '';
-  let addressSource = null;
-  if (addressProp) {
-    addressHTML = addressProp.innerHTML.trim();
-    addressSource = addressProp;
-    addressProp.closest(':scope > div')?.remove();
-  }
-
-  /* --- Fallback: parse from columns if no data-aue-prop --- */
+  /* --- Fallback: parse from rows if no data-aue-prop found --- */
+  let fallbackImg = null;
+  let fallbackPicture = null;
+  let fallbackHeading = '';
+  let fallbackAddress = '';
   if (!heading && !addressHTML) {
-    const rows = [...block.querySelectorAll(':scope > div')];
-    rows.forEach((row) => {
+    [...block.querySelectorAll(':scope > div')].forEach((row) => {
       const cols = [...row.children];
       if (cols.length < 2) return;
-      if (!iconImg) {
-        const img = cols[0].querySelector('img');
-        if (img) {
-          picture = cols[0].querySelector('picture');
-          iconImg = img;
-        }
+      if (!fallbackImg) {
+        fallbackImg = cols[0].querySelector('img');
+        fallbackPicture = cols[0].querySelector('picture');
       }
-      if (!heading && cols[1]) {
-        heading = cols[1].textContent.trim();
+      if (!fallbackHeading && cols[1]) {
+        fallbackHeading = cols[1].textContent.trim();
       }
-      if (!addressHTML && cols[2]) {
-        addressHTML = cols[2].innerHTML.trim();
+      if (!fallbackAddress && cols[2]) {
+        fallbackAddress = cols[2].innerHTML.trim();
       }
     });
   }
+
+  const finalImg = iconData.img || fallbackImg;
+  const finalPicture = iconData.picture || fallbackPicture;
+  const finalHeading = heading || fallbackHeading;
+  const finalAddress = addressHTML || fallbackAddress;
 
   /* --- Build card --- */
   const card = document.createElement('div');
@@ -81,10 +72,10 @@ export default function decorate(block) {
   const left = document.createElement('div');
   left.className = 'mail-address-left';
 
-  if (picture || iconImg) {
+  if (finalPicture || finalImg) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'mail-address-icon';
-    const imgSrc = iconImg?.src || iconImg?.currentSrc;
+    const imgSrc = finalImg?.src || finalImg?.currentSrc;
     if (iconColor && imgSrc) {
       iconWrap.style.setProperty('background-color', iconColor, 'important');
       iconWrap.style.setProperty('-webkit-mask-image', `url('${imgSrc}')`, 'important');
@@ -93,19 +84,19 @@ export default function decorate(block) {
       iconWrap.style.setProperty('mask-size', 'contain', 'important');
       iconWrap.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
       iconWrap.style.setProperty('mask-repeat', 'no-repeat', 'important');
-    } else if (picture) {
-      iconWrap.append(picture);
-    } else if (iconImg) {
-      iconWrap.append(iconImg);
+    } else if (finalPicture) {
+      iconWrap.append(finalPicture);
+    } else if (finalImg) {
+      iconWrap.append(finalImg);
     }
-    if (iconProp) moveInstrumentation(iconProp, iconWrap);
+    if (iconData.source) moveInstrumentation(iconData.source, iconWrap);
     left.append(iconWrap);
   }
 
-  if (heading) {
+  if (finalHeading) {
     const h2 = document.createElement('h2');
     h2.className = 'mail-address-heading';
-    h2.textContent = heading;
+    h2.textContent = finalHeading;
     left.append(h2);
   }
 
@@ -115,11 +106,11 @@ export default function decorate(block) {
   const right = document.createElement('div');
   right.className = 'mail-address-right';
 
-  if (addressHTML) {
+  if (finalAddress) {
     const addr = document.createElement('div');
     addr.className = 'mail-address-content';
-    addr.innerHTML = addressHTML;
-    if (addressSource) moveInstrumentation(addressSource, addr);
+    addr.innerHTML = finalAddress;
+    if (addressField.source) moveInstrumentation(addressField.source, addr);
     right.append(addr);
   }
 
