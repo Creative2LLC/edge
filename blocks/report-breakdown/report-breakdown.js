@@ -125,8 +125,9 @@ function parseTableLabels(value) {
   };
 }
 
-function normalizeBlockEntries(rows) {
+function normalizeBlockEntries(rows, fallbackYear = DEFAULTS.defaultYear) {
   const entries = [];
+  const placeholders = [];
 
   rows.forEach((row, index) => {
     const cols = [...row.children];
@@ -152,6 +153,35 @@ function normalizeBlockEntries(rows) {
     );
     const colorField = getField(row, 'color', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.color);
     const reportCount = parseNumber(reportCountField.value);
+    const hasVisibleContent = Boolean(
+      yearField.value || reportTypeField.value || reportCountField.value || colorField.value,
+    );
+    const isAuthoringPlaceholder = hasAuthoringContext(row)
+      && (!hasVisibleContent
+        || !yearField.value
+        || !reportTypeField.value
+        || !Number.isFinite(reportCount));
+
+    if (!hasVisibleContent && !isAuthoringPlaceholder) {
+      return;
+    }
+
+    if (isAuthoringPlaceholder) {
+      placeholders.push({
+        year: normalizeYear(yearField.value) || normalizeYear(fallbackYear) || DEFAULTS.defaultYear,
+        reportType: reportTypeField.value,
+        reportCount: Number.isFinite(reportCount) ? reportCount : 0,
+        reportCountRaw: reportCountField.value,
+        color: normalizeColor(colorField.value, index),
+        order: index,
+        row,
+        yearField,
+        reportTypeField,
+        reportCountField,
+        isAuthoringPlaceholder: true,
+      });
+      return;
+    }
 
     if (!yearField.value || !reportTypeField.value || !Number.isFinite(reportCount)) {
       return;
@@ -164,12 +194,16 @@ function normalizeBlockEntries(rows) {
       color: normalizeColor(colorField.value, index),
       order: index,
       row,
+      yearField,
       reportTypeField,
       reportCountField,
     });
   });
 
-  return entries;
+  return {
+    entries,
+    placeholders,
+  };
 }
 
 function normalizeApiEntry(rawEntry, index) {
@@ -305,7 +339,58 @@ function groupEntriesByYear(entries) {
       return {
         year,
         entries: yearEntries,
+        placeholderEntries: [],
+        tableEntries: yearEntries,
         total,
+      };
+    });
+}
+
+function mergeAuthoringPlaceholders(datasets, placeholders, preferredYear) {
+  if (!placeholders.length) return datasets;
+
+  const datasetMap = new Map(datasets.map((dataset) => [dataset.year, {
+    ...dataset,
+    entries: [...dataset.entries],
+    placeholderEntries: [...(dataset.placeholderEntries || [])],
+  }]));
+
+  placeholders.forEach((placeholder, index) => {
+    const targetYear = normalizeYear(placeholder.year)
+      || normalizeYear(preferredYear)
+      || DEFAULTS.defaultYear;
+
+    if (!datasetMap.has(targetYear)) {
+      datasetMap.set(targetYear, {
+        year: targetYear,
+        entries: [],
+        placeholderEntries: [],
+        tableEntries: [],
+        total: 0,
+      });
+    }
+
+    datasetMap.get(targetYear).placeholderEntries.push({
+      ...placeholder,
+      order: Number.isFinite(placeholder.order) ? placeholder.order : datasets.length + index,
+    });
+  });
+
+  return [...datasetMap.keys()]
+    .sort(sortYearsDescending)
+    .map((year) => {
+      const dataset = datasetMap.get(year);
+      const entries = [...dataset.entries]
+        .sort((entryA, entryB) => entryA.order - entryB.order);
+      const placeholderEntries = [...(dataset.placeholderEntries || [])]
+        .sort((entryA, entryB) => entryA.order - entryB.order);
+
+      return {
+        year,
+        entries,
+        placeholderEntries,
+        tableEntries: [...entries, ...placeholderEntries],
+        total: entries.reduce((sum, entry) => sum + entry.reportCount, 0),
       };
     });
 }
@@ -377,24 +462,44 @@ function buildTableRow(entry, index) {
 
   const type = document.createElement('div');
   type.className = 'report-breakdown-type';
+
+  const count = document.createElement('div');
+  count.className = 'report-breakdown-count';
+
+  const swatch = document.createElement('span');
+  swatch.className = 'report-breakdown-swatch';
+  swatch.style.backgroundColor = entry.color;
+  swatch.setAttribute('aria-hidden', 'true');
+
+  if (entry.isAuthoringPlaceholder) {
+    row.classList.add('is-authoring-placeholder');
+
+    moveFieldContent(
+      entry.reportTypeField,
+      type,
+      entry.reportType || 'New report breakdown item',
+    );
+    moveFieldContent(
+      entry.reportCountField,
+      count,
+      entry.reportCountRaw || 'Add report count',
+    );
+
+    row.append(type, count, swatch);
+    return row;
+  }
+
   if (entry.reportTypeField?.source) {
     moveFieldContent(entry.reportTypeField, type, entry.reportType);
   } else {
     type.textContent = entry.reportType;
   }
 
-  const count = document.createElement('div');
-  count.className = 'report-breakdown-count';
   if (entry.reportCountField?.source) {
     moveFieldContent(entry.reportCountField, count, formatNumber(entry.reportCount));
   } else {
     count.textContent = formatNumber(entry.reportCount);
   }
-
-  const swatch = document.createElement('span');
-  swatch.className = 'report-breakdown-swatch';
-  swatch.style.backgroundColor = entry.color;
-  swatch.setAttribute('aria-hidden', 'true');
 
   row.append(type, count, swatch);
   return row;
@@ -436,7 +541,7 @@ function buildPanel(dataset, state) {
 
   const rows = document.createElement('div');
   rows.className = 'report-breakdown-table-body';
-  dataset.entries.forEach((entry, index) => {
+  (dataset.tableEntries || dataset.entries).forEach((entry, index) => {
     rows.append(buildTableRow(entry, index));
   });
 
@@ -584,8 +689,8 @@ function enableReveal(block, state) {
   observer.observe(block);
 }
 
-async function resolveEntries(apiEndpoint, authoredEntries, isAuthoring) {
-  if (isAuthoring && authoredEntries.length) {
+async function resolveEntries(apiEndpoint, authoredEntries, isAuthoring, authoredPlaceholders) {
+  if (isAuthoring && (authoredEntries.length || authoredPlaceholders.length)) {
     return authoredEntries;
   }
 
@@ -607,14 +712,21 @@ export default async function decorate(block) {
   const apiEndpointField = getField(block, 'apiEndpoint', BLOCK_ROW_INDEX);
   const emptyStateField = getField(block, 'emptyStateMessage', BLOCK_ROW_INDEX);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const authoredEntries = normalizeBlockEntries(rows);
+  const requestedYear = defaultYearField.value || DEFAULTS.defaultYear;
+  const {
+    entries: authoredEntries,
+    placeholders: authoredPlaceholders,
+  } = normalizeBlockEntries(rows, requestedYear);
   const resolvedEntries = await resolveEntries(
     apiEndpointField.value,
     authoredEntries,
     isAuthoring,
+    authoredPlaceholders,
   );
-  const datasets = groupEntriesByYear(resolvedEntries);
-  const requestedYear = defaultYearField.value || DEFAULTS.defaultYear;
+  const baseDatasets = groupEntriesByYear(resolvedEntries);
+  const datasets = isAuthoring
+    ? mergeAuthoringPlaceholders(baseDatasets, authoredPlaceholders, requestedYear)
+    : baseDatasets;
   const activeYear = datasets.find((dataset) => dataset.year === requestedYear)?.year
     || datasets[0]?.year
     || DEFAULTS.defaultYear;

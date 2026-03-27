@@ -208,6 +208,21 @@
   border-radius: 4px;
 }
 
+.report-breakdown .report-breakdown-row.is-authoring-placeholder {
+  border-bottom-style: dashed;
+  background: rgb(20 145 191 / 5%);
+}
+
+.report-breakdown .report-breakdown-row.is-authoring-placeholder .report-breakdown-type,
+.report-breakdown .report-breakdown-row.is-authoring-placeholder .report-breakdown-count {
+  color: #5f6e7f;
+}
+
+.report-breakdown .report-breakdown-row.is-authoring-placeholder .report-breakdown-swatch {
+  box-shadow: inset 0 0 0 1px rgb(17 58 103 / 10%);
+}
+
+
 .report-breakdown .report-breakdown-total {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 18px;

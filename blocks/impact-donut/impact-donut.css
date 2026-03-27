@@ -58,7 +58,7 @@
 
 .impact-donut .impact-donut-stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--impact-donut-stat-columns, 2), minmax(0, 1fr));
   margin: 0 0 36px;
 }
 
@@ -76,6 +76,27 @@
   border-top: 1px solid #e5e1db;
   padding-top: 32px;
 }
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat {
+  padding: 12px 28px 10px 0;
+  border-top: none;
+}
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:nth-child(2n) {
+  padding-left: 0;
+  border-left: none;
+}
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:nth-child(n + 3) {
+  padding-top: 12px;
+  border-top: none;
+}
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:not(:first-child) {
+  padding-left: 28px;
+  border-left: 1px solid #e5e1db;
+}
+
 
 .impact-donut .impact-donut-stat.is-authoring-placeholder {
   display: grid;
@@ -115,7 +136,7 @@
 
 .impact-donut .impact-donut-stat-value {
   margin-bottom: 10px;
-  color: #1491bf;
+  color: var(--impact-donut-stat-color, #1491bf);
   font-size: clamp(3rem, 5vw, 4.5rem);
   font-weight: 700;
   line-height: 0.95;

@@ -12,6 +12,7 @@ const BLOCK_ROW_INDEX = {
 };
 
 const DEFAULT_SEGMENT_COLOR = '#008DB6';
+const DEFAULT_STAT_COLOR = '#1491bf';
 const DEFAULT_SURFACE_COLOR = '#ffffff';
 const DEFAULT_TRACK_COLOR = '#edf1f3';
 const ANIMATION_DURATION = 1400;
@@ -135,16 +136,21 @@ function buildStatItem(item, index) {
   const stat = document.createElement('article');
   stat.className = 'impact-donut-stat impact-donut-reveal';
   stat.style.setProperty('--stagger-index', index);
+  stat.style.setProperty('--impact-donut-stat-color', item.displayColor || DEFAULT_STAT_COLOR);
   if (item.row) moveInstrumentation(item.row, stat);
 
   if (item.isAuthoringPlaceholder) {
     stat.classList.add('is-authoring-placeholder');
     stat.append(
-      buildAuthoringPlaceholder('p', 'impact-donut-placeholder-title', 'New impact stat'),
+      buildAuthoringPlaceholder(
+        'p',
+        'impact-donut-placeholder-title',
+        item.placeholderTitle || 'New impact stat',
+      ),
       buildAuthoringPlaceholder(
         'p',
         'impact-donut-placeholder-body',
-        'Add the stat value and label in Universal Editor.',
+        item.placeholderBody || 'Add the stat value and label in Universal Editor.',
       ),
     );
     return stat;
@@ -363,6 +369,16 @@ export default function decorate(block) {
   const chartSegments = segments.filter(
     (segment) => !segment.isAuthoringPlaceholder && segment.percentage > 0,
   );
+  const useSegmentStats = !statItems.length && segmentItems.length > 0;
+  const displayStats = useSegmentStats
+    ? segments.map((segment) => ({
+      ...segment,
+      displayColor: segment.color,
+      placeholderTitle: 'New donut segment',
+      placeholderBody: 'Add the segment value, label, and color in Universal Editor.',
+    }))
+    : statItems;
+  const showLegend = !useSegmentStats && (segmentItems.length || isAuthoring);
 
   const copy = document.createElement('div');
   copy.className = 'impact-donut-copy impact-donut-reveal';
@@ -381,14 +397,22 @@ export default function decorate(block) {
   const body = buildRichContent(bodySource, 'impact-donut-body');
   if (body) copy.append(body);
 
-  if (statItems.length || isAuthoring) {
+  if (displayStats.length || isAuthoring) {
     const statsGrid = document.createElement('div');
     statsGrid.className = 'impact-donut-stats';
-    statItems.forEach((item, index) => {
+
+    if (useSegmentStats) {
+      const columns = displayStats.length === 3 ? 3 : Math.min(Math.max(displayStats.length, 1), 2);
+      statsGrid.classList.add('is-segment-source');
+      if (columns === 3) statsGrid.classList.add('is-three-up');
+      statsGrid.style.setProperty('--impact-donut-stat-columns', `${columns}`);
+    }
+
+    displayStats.forEach((item, index) => {
       statsGrid.append(buildStatItem(item, index));
     });
 
-    if (statItems.length) {
+    if (displayStats.length) {
       copy.append(statsGrid);
     }
   }
@@ -422,17 +446,20 @@ export default function decorate(block) {
   chartSide.append(chartShell);
 
   if (segmentItems.length || isAuthoring) {
-    const legend = document.createElement('div');
-    legend.className = 'impact-donut-legend';
     const legendEntries = [];
 
-    segments.forEach((segment, index) => {
-      const legendItem = buildLegendItem(segment, index);
-      legend.append(legendItem.item);
-      legendEntries.push(legendItem);
-    });
+    if (showLegend) {
+      const legend = document.createElement('div');
+      legend.className = 'impact-donut-legend';
 
-    if (legend.childElementCount) chartSide.append(legend);
+      segments.forEach((segment, index) => {
+        const legendItem = buildLegendItem(segment, index);
+        legend.append(legendItem.item);
+        legendEntries.push(legendItem);
+      });
+
+      if (legend.childElementCount) chartSide.append(legend);
+    }
 
     const inner = document.createElement('div');
     inner.className = 'impact-donut-inner';
