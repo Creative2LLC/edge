@@ -57,7 +57,9 @@
       "historical-trends",
       "report-breakdown",
       "connect-grid",
-      "partners-showcase"
+      "partners-showcase",
+      "card-testimonies",
+      "mail-address"
     ]
   },
   {
@@ -82,6 +84,12 @@
     "id": "card-row",
     "components": [
       "card-row-item"
+    ]
+  },
+  {
+    "id": "card-testimonies",
+    "components": [
+      "card-testimonies-item"
     ]
   },
   {

@@ -627,6 +627,69 @@
     ]
   },
   {
+    "id": "card-testimonies",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle (Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "titleAlign",
+        "label": "Title Alignment",
+        "description": "Alignment for the title and subtitle",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "center"
+      }
+    ]
+  },
+  {
+    "id": "card-testimonies-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image (add for main card, leave empty for small card)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "quote",
+        "label": "Quote Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "author",
+        "label": "Author Name"
+      }
+    ]
+  },
+  {
     "id": "card",
     "fields": [
       {
@@ -2282,6 +2345,35 @@
         "name": "link",
         "label": "Bio Page",
         "description": "Select the leader bio page from the content tree."
+      }
+    ]
+  },
+  {
+    "id": "mail-address",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading Text"
+      },
+      {
+        "component": "richtext",
+        "name": "address",
+        "label": "Address"
       }
     ]
   },
