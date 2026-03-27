@@ -54,6 +54,9 @@
       "btn-group",
       "trust-badges",
       "leadership-overview",
+      "historical-trends",
+      "report-breakdown",
+      "connect-grid",
       "partners-showcase"
     ]
   },
@@ -118,9 +121,21 @@
     ]
   },
   {
+    "id": "connect-grid",
+    "components": [
+      "connect-grid-item"
+    ]
+  },
+  {
     "id": "faq",
     "components": [
       "faq-item"
+    ]
+  },
+  {
+    "id": "historical-trends",
+    "components": [
+      "historical-trends-card"
     ]
   },
   {
@@ -211,6 +226,12 @@
     "id": "regional-offices",
     "components": [
       "regional-office-item"
+    ]
+  },
+  {
+    "id": "report-breakdown",
+    "components": [
+      "report-breakdown-item"
     ]
   },
   {

@@ -1,0 +1,123 @@
+{
+  "definitions": [
+    {
+      "title": "Report Breakdown",
+      "id": "report-breakdown",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Report Breakdown",
+              "model": "report-breakdown",
+              "filter": "report-breakdown"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Report Breakdown Item",
+      "id": "report-breakdown-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Report Breakdown Item",
+              "model": "report-breakdown-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "report-breakdown",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "2024 CyberTipline Reports by Type"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "defaultYear",
+          "label": "Default Active Year",
+          "value": "2024"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tableLabels",
+          "label": "Table Labels (Type|Reports)",
+          "value": "Report Type|Reports"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "totalLabel",
+          "label": "Total Label",
+          "value": "Total"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiEndpoint",
+          "label": "API Endpoint URL",
+          "description": "Optional. On the live site the block can fetch JSON from this endpoint and fall back to authored items if it fails.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emptyStateMessage",
+          "label": "Empty State Message",
+          "value": "No report data available."
+        }
+      ]
+    },
+    {
+      "id": "report-breakdown-item",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "year",
+          "label": "Year"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "reportType",
+          "label": "Report Type"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "reportCount",
+          "label": "Report Count"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "color",
+          "label": "Color (Hex)",
+          "description": "Optional. Defaults to the block palette if left empty."
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "report-breakdown",
+      "components": [
+        "report-breakdown-item"
+      ]
+    }
+  ]
+}

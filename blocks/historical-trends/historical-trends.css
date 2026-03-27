@@ -1,0 +1,337 @@
+.historical-trends {
+  --historical-trends-line-color: #0a8fbc;
+
+  position: relative;
+  padding: 84px 0 72px;
+}
+
+.historical-trends .historical-trends-inner {
+  display: grid;
+  gap: 44px;
+}
+
+.historical-trends .historical-trends-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 1, 0.22, 1);
+  transition-delay: calc(var(--stagger-index, 0) * 110ms);
+}
+
+.historical-trends.is-visible .historical-trends-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.historical-trends .historical-trends-header {
+  max-width: 760px;
+}
+
+.historical-trends .historical-trends-heading {
+  margin: 0 0 18px;
+  color: #113a67;
+  font-size: clamp(2.45rem, 4vw, 4.4rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
+.historical-trends .historical-trends-subheading {
+  max-width: 780px;
+  color: #404041;
+  font-size: clamp(1.25rem, 2vw, 1.9rem);
+  line-height: 1.38;
+}
+
+.historical-trends .historical-trends-subheading > :first-child {
+  margin-top: 0;
+}
+
+.historical-trends .historical-trends-subheading > :last-child {
+  margin-bottom: 0;
+}
+
+.historical-trends .historical-trends-chart-frame {
+  position: relative;
+}
+
+.historical-trends .historical-trends-chart-frame::before,
+.historical-trends .historical-trends-chart-frame::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
+}
+
+.historical-trends .historical-trends-chart-frame::before {
+  inset: 10% 30% 22% 2%;
+  background: radial-gradient(circle, rgb(110 174 201 / 18%) 0%, rgb(110 174 201 / 0%) 72%);
+  filter: blur(14px);
+}
+
+.historical-trends .historical-trends-chart-frame::after {
+  inset: 28% 0 18% 62%;
+  background: radial-gradient(circle, rgb(242 196 138 / 34%) 0%, rgb(242 196 138 / 0%) 74%);
+  filter: blur(18px);
+}
+
+.historical-trends.is-visible .historical-trends-chart-frame::before,
+.historical-trends.is-visible .historical-trends-chart-frame::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.historical-trends .historical-trends-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.historical-trends .historical-trends-fill-group {
+  opacity: 0.12;
+  transform: translateY(30px) scaleY(0.94);
+  transform-origin: center bottom;
+  transition:
+    opacity 1100ms ease 160ms,
+    transform 1100ms cubic-bezier(0.2, 1, 0.22, 1) 160ms;
+}
+
+.historical-trends.is-visible .historical-trends-fill-group {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+}
+
+.historical-trends .historical-trends-area {
+  pointer-events: none;
+}
+
+.historical-trends .historical-trends-area-base {
+  opacity: 0.86;
+}
+
+.historical-trends .historical-trends-area-highlight {
+  opacity: 0.98;
+}
+
+.historical-trends .historical-trends-line {
+  fill: none;
+  stroke: var(--historical-trends-line-color);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 6px 18px rgb(10 143 188 / 16%));
+}
+
+.historical-trends .historical-trends-axis {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--historical-trends-axis-columns, 2), minmax(0, 1fr));
+  gap: 0;
+  padding-top: 14px;
+}
+
+.historical-trends .historical-trends-axis::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgb(168 164 160 / 85%);
+}
+
+.historical-trends .historical-trends-axis-label {
+  color: #404041;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.historical-trends .historical-trends-axis-label:first-child {
+  justify-self: start;
+}
+
+.historical-trends .historical-trends-axis-label:last-child {
+  justify-self: end;
+}
+
+.historical-trends .historical-trends-axis-label:not(:first-child, :last-child) {
+  justify-self: center;
+}
+
+.historical-trends .historical-trends-cards-section {
+  display: grid;
+  gap: 24px;
+}
+
+.historical-trends .historical-trends-cards-heading {
+  margin: 0;
+  color: #113a67;
+  font-size: clamp(1.9rem, 2.7vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.historical-trends .historical-trends-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.historical-trends .historical-trends-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 34px 32px 30px;
+  border: 1px solid rgb(17 58 103 / 6%);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 98%) 0%, rgb(255 255 255 / 100%) 100%);
+  box-shadow:
+    0 6px 16px rgb(17 58 103 / 7%),
+    0 18px 30px rgb(17 58 103 / 10%);
+  transition:
+    transform 260ms ease,
+    box-shadow 260ms ease,
+    border-color 260ms ease;
+}
+
+.historical-trends .historical-trends-card:hover,
+.historical-trends .historical-trends-card:focus-within {
+  transform: translateY(-4px);
+  border-color: rgb(20 145 191 / 18%);
+  box-shadow:
+    0 10px 22px rgb(17 58 103 / 9%),
+    0 22px 42px rgb(17 58 103 / 12%);
+}
+
+.historical-trends .historical-trends-card.is-authoring-placeholder {
+  justify-content: center;
+  gap: 12px;
+  border-style: dashed;
+  border-color: #c8d8e1;
+  background: rgb(20 145 191 / 4%);
+  box-shadow: none;
+}
+
+.historical-trends .historical-trends-card-title {
+  margin: 0 0 16px;
+  color: #404041;
+  font-size: clamp(2rem, 2.4vw, 2.7rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
+.historical-trends .historical-trends-card-body {
+  margin: 0;
+  color: #404041;
+  font-size: 1.08rem;
+  line-height: 1.5;
+}
+
+.historical-trends .historical-trends-card-body > :first-child {
+  margin-top: 0;
+}
+
+.historical-trends .historical-trends-card-body > :last-child {
+  margin-bottom: 0;
+}
+
+.historical-trends .historical-trends-card-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 26px;
+  color: #008db6;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-decoration: none;
+  transition:
+    color 220ms ease,
+    transform 220ms ease;
+}
+
+.historical-trends .historical-trends-card-link::after {
+  content: '\2192';
+  margin-left: 8px;
+  font-size: 1.05em;
+  line-height: 1;
+  transition: transform 220ms ease;
+}
+
+.historical-trends .historical-trends-card-link:hover,
+.historical-trends .historical-trends-card-link:focus {
+  color: #113a67;
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+.historical-trends .historical-trends-card-link:hover::after,
+.historical-trends .historical-trends-card-link:focus::after {
+  transform: translateX(2px);
+}
+
+@media (width <= 1100px) {
+  .historical-trends .historical-trends-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 700px) {
+  .historical-trends {
+    padding: 58px 0 48px;
+  }
+
+  .historical-trends .historical-trends-inner {
+    gap: 34px;
+  }
+
+  .historical-trends .historical-trends-axis {
+    padding-top: 12px;
+  }
+
+  .historical-trends .historical-trends-axis-label {
+    font-size: 0.76rem;
+  }
+
+  .historical-trends .historical-trends-cards {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .historical-trends .historical-trends-card {
+    padding: 28px 24px 24px;
+  }
+
+  .historical-trends .historical-trends-card-title {
+    margin-bottom: 14px;
+    font-size: clamp(1.9rem, 9vw, 2.35rem);
+  }
+
+  .historical-trends .historical-trends-card-link {
+    padding-top: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .historical-trends .historical-trends-reveal,
+  .historical-trends .historical-trends-chart-frame::before,
+  .historical-trends .historical-trends-chart-frame::after,
+  .historical-trends .historical-trends-fill-group,
+  .historical-trends .historical-trends-card,
+  .historical-trends .historical-trends-card-link,
+  .historical-trends .historical-trends-card-link::after {
+    transition: none;
+    animation: none;
+  }
+}

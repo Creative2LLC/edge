@@ -685,6 +685,91 @@
     ]
   },
   {
+    "id": "connect-grid",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Additional Ways to Connect"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": "You can access additional ways to connect with NCMEC and find the support and resources that you need."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Cards Per Row",
+        "options": [
+          {
+            "name": "2 Cards",
+            "value": "2"
+          },
+          {
+            "name": "3 Cards",
+            "value": "3"
+          },
+          {
+            "name": "4 Cards",
+            "value": "4"
+          }
+        ],
+        "value": "3"
+      }
+    ]
+  },
+  {
+    "id": "connect-grid-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)",
+        "description": "Defaults to #ff8b7e if left empty."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "description",
+        "label": "Description"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethods",
+        "label": "Contact Methods (One Per Line: Label|Text|Link)",
+        "description": "Example: Email|help@ncmec.org|mailto:help@ncmec.org"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color (Hex)",
+        "description": "Defaults to #f4f0ec if left empty."
+      }
+    ]
+  },
+  {
     "id": "cta-card-1",
     "fields": [
       {
@@ -901,6 +986,71 @@
         "component": "aem-content",
         "name": "reference",
         "label": "Reference"
+      }
+    ]
+  },
+  {
+    "id": "general-inquiries",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "General Inquiries"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": "For non-urgent inquiries, send us a message and we'll respond within 2 business days."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "fieldPlaceholders",
+        "label": "Field Placeholders (One Per Line or Label|Placeholder)",
+        "description": "Use lines in order for Full Name, Email, Phone, Topic, and Message.",
+        "value": "Full Name|Full Name\nEmail|Email Address\nPhone|Phone (optional)\nTopic|Topic\nMessage|Message"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topicOptions",
+        "label": "Topic Options (One Per Line or Label|Value)",
+        "value": "General Question\nPartnership Opportunity\nMedia Inquiry\nTechnical Issue\nOther"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Send Message"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Optional. Add a relative or absolute endpoint later when the Laravel backend is ready.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "statusMessages",
+        "label": "Status Messages (One Per Line or Label|Message)",
+        "description": "Use lines in order for success then error, or prefix with Success| and Error|.",
+        "value": "Success|Thank you. We received your inquiry and will respond within 2 business days.\nError|We couldn't send your message. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color (Hex)",
+        "description": "Defaults to #efe9e4 if left empty.",
+        "value": ""
       }
     ]
   },
@@ -1268,6 +1418,99 @@
         "value": "",
         "label": "Side Panel Secondary Link",
         "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "historical-trends",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Historical Trends"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": "CyberTipline report volume has grown dramatically as more platforms implement reporting and as awareness of online threats increases."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "chartPoints",
+        "label": "Chart Points (One Per Line: Year|Value)",
+        "value": "2014|18\n2015|42\n2016|34\n2017|50\n2018|39\n2019|46\n2020|67\n2021|54\n2022|78\n2023|74\n2024|106"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "highlightFrom",
+        "label": "Highlight Starting Year",
+        "description": "Colors the chart area from this year onward.",
+        "value": "2021"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardsHeading",
+        "label": "Cards Heading",
+        "value": "Emerging Trends in 2024"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "lineColor",
+        "label": "Line Color (Hex)",
+        "description": "Defaults to #0a8fbc if left empty.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "baseFillColor",
+        "label": "Base Fill Color (Hex)",
+        "description": "Defaults to #d9e8ef if left empty.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "highlightFillColor",
+        "label": "Highlight Fill Color (Hex)",
+        "description": "Defaults to #f2c48a if left empty.",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "historical-trends-card",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkText",
+        "label": "Link Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "linkUrl",
+        "label": "Link URL"
       }
     ]
   },
@@ -2735,6 +2978,84 @@
           }
         ],
         "value": "outlined"
+      }
+    ]
+  },
+  {
+    "id": "report-breakdown",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "2024 CyberTipline Reports by Type"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "defaultYear",
+        "label": "Default Active Year",
+        "value": "2024"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tableLabels",
+        "label": "Table Labels (Type|Reports)",
+        "value": "Report Type|Reports"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "totalLabel",
+        "label": "Total Label",
+        "value": "Total"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiEndpoint",
+        "label": "API Endpoint URL",
+        "description": "Optional. On the live site the block can fetch JSON from this endpoint and fall back to authored items if it fails.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyStateMessage",
+        "label": "Empty State Message",
+        "value": "No report data available."
+      }
+    ]
+  },
+  {
+    "id": "report-breakdown-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "year",
+        "label": "Year"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "reportType",
+        "label": "Report Type"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "reportCount",
+        "label": "Report Count"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "color",
+        "label": "Color (Hex)",
+        "description": "Optional. Defaults to the block palette if left empty."
       }
     ]
   },

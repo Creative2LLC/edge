@@ -282,6 +282,37 @@
           }
         },
         {
+          "title": "Connect Grid",
+          "id": "connect-grid",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Connect Grid",
+                  "model": "connect-grid",
+                  "filter": "connect-grid"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Connect Grid Item",
+          "id": "connect-grid-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Connect Grid Item",
+                  "model": "connect-grid-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "CTA Card 1",
           "id": "cta-card-1",
           "plugins": {
@@ -388,6 +419,21 @@
           }
         },
         {
+          "title": "General Inquiries",
+          "id": "general-inquiries",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "General Inquiries",
+                  "model": "general-inquiries"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Giving",
           "id": "giving",
           "plugins": {
@@ -427,6 +473,37 @@
                 "template": {
                   "name": "Hero",
                   "model": "hero-content"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Historical Trends",
+          "id": "historical-trends",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Historical Trends",
+                  "model": "historical-trends",
+                  "filter": "historical-trends"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Historical Trends Card",
+          "id": "historical-trends-card",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Historical Trends Card",
+                  "model": "historical-trends-card"
                 }
               }
             }
@@ -966,6 +1043,37 @@
                 "template": {
                   "name": "Regional Office Item",
                   "model": "regional-office-item"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Report Breakdown",
+          "id": "report-breakdown",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Report Breakdown",
+                  "model": "report-breakdown",
+                  "filter": "report-breakdown"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Report Breakdown Item",
+          "id": "report-breakdown-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Report Breakdown Item",
+                  "model": "report-breakdown-item"
                 }
               }
             }
