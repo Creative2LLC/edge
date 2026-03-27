@@ -84,15 +84,15 @@ export default function decorate(block) {
   if (picture || iconImg) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'mail-address-icon';
-    const imgSrc = iconImg?.src;
+    const imgSrc = iconImg?.src || iconImg?.currentSrc;
     if (iconColor && imgSrc) {
-      iconWrap.style.maskImage = `url(${imgSrc})`;
-      iconWrap.style.webkitMaskImage = `url(${imgSrc})`;
-      iconWrap.style.maskSize = 'contain';
-      iconWrap.style.webkitMaskSize = 'contain';
-      iconWrap.style.maskRepeat = 'no-repeat';
-      iconWrap.style.webkitMaskRepeat = 'no-repeat';
-      iconWrap.style.backgroundColor = iconColor;
+      iconWrap.style.setProperty('background-color', iconColor, 'important');
+      iconWrap.style.setProperty('-webkit-mask-image', `url('${imgSrc}')`, 'important');
+      iconWrap.style.setProperty('mask-image', `url('${imgSrc}')`, 'important');
+      iconWrap.style.setProperty('-webkit-mask-size', 'contain', 'important');
+      iconWrap.style.setProperty('mask-size', 'contain', 'important');
+      iconWrap.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
+      iconWrap.style.setProperty('mask-repeat', 'no-repeat', 'important');
     } else if (picture) {
       iconWrap.append(picture);
     } else if (iconImg) {
