@@ -627,6 +627,89 @@
     ]
   },
   {
+    "id": "card-testimonies",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "titleAlign",
+        "label": "Title Alignment",
+        "description": "Alignment for the title and subtitle",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "center"
+      }
+    ]
+  },
+  {
+    "id": "card-testimonies-header",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle (Optional)"
+      }
+    ]
+  },
+  {
+    "id": "card-testimonies-main-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "richtext",
+        "name": "quote",
+        "label": "Quote Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "author",
+        "label": "Author Name"
+      }
+    ]
+  },
+  {
+    "id": "card-testimonies-small-item",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "quote",
+        "label": "Quote Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "author",
+        "label": "Author Name"
+      }
+    ]
+  },
+  {
     "id": "card",
     "fields": [
       {

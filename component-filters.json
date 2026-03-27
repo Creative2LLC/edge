@@ -54,7 +54,8 @@
       "btn-group",
       "trust-badges",
       "leadership-overview",
-      "partners-showcase"
+      "partners-showcase",
+      "card-testimonies"
     ]
   },
   {
@@ -79,6 +80,14 @@
     "id": "card-row",
     "components": [
       "card-row-item"
+    ]
+  },
+  {
+    "id": "card-testimonies",
+    "components": [
+      "card-testimonies-header",
+      "card-testimonies-main-item",
+      "card-testimonies-small-item"
     ]
   },
   {

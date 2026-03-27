@@ -207,6 +207,67 @@
           }
         },
         {
+          "title": "Card Testimonies",
+          "id": "card-testimonies",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Card Testimonies",
+                  "model": "card-testimonies",
+                  "filter": "card-testimonies"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Card Testimonies Header",
+          "id": "card-testimonies-header",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Card Testimonies Header",
+                  "model": "card-testimonies-header"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Card Testimonies Main Item",
+          "id": "card-testimonies-main-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Card Testimonies Main Item",
+                  "model": "card-testimonies-main-item"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Card Testimonies Small Item",
+          "id": "card-testimonies-small-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Card Testimonies Small Item",
+                  "model": "card-testimonies-small-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Cards",
           "id": "cards",
           "plugins": {
