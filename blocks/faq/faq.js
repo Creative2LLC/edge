@@ -1,5 +1,12 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
 function getField(row, colIndex, propName) {
   const source = row.querySelector(
     `[data-aue-prop="${propName}"], [data-richtext-prop="${propName}"]`,
@@ -146,6 +153,27 @@ function buildFaqItem(row, index, items) {
   return item;
 }
 
+function buildPlaceholderItem() {
+  const item = document.createElement('article');
+  item.className = 'faq-item is-authoring-placeholder faq-item-open';
+  item.style.setProperty('--faq-index', '0');
+
+  const body = document.createElement('div');
+  body.className = 'faq-item-placeholder';
+
+  const title = document.createElement('p');
+  title.className = 'faq-item-placeholder-title';
+  title.textContent = 'Add FAQ items';
+
+  const text = document.createElement('p');
+  text.className = 'faq-item-placeholder-body';
+  text.textContent = 'Use Universal Editor to add child FAQ items under this block.';
+
+  body.append(title, text);
+  item.append(body);
+  return item;
+}
+
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {
@@ -165,21 +193,20 @@ function observeReveal(block) {
 }
 
 export default function decorate(block) {
+  const isAuthoring = hasAuthoringContext(block);
   const rows = [...block.querySelectorAll(':scope > div')];
   const headingSource = block.querySelector('[data-aue-prop="heading"]');
   const headingText = headingSource?.textContent.trim() || '';
-
-  const container = document.createElement('div');
-  container.className = 'faq-inner';
+  const children = [];
+  const items = [];
 
   if (headingText) {
     const heading = document.createElement('h2');
     heading.className = 'faq-heading';
     moveText({ source: headingSource, text: headingText }, heading, headingText);
-    container.append(heading);
+    children.push(heading);
   }
 
-  const items = [];
   rows.forEach((row, index) => {
     const cols = [...row.children];
     if (cols.length < 2 && !row.querySelector('[data-aue-prop="question"]')) return;
@@ -188,9 +215,13 @@ export default function decorate(block) {
     if (!item) return;
 
     items.push(item);
-    container.append(item);
+    children.push(item);
   });
 
-  block.replaceChildren(container);
+  if (!items.length && isAuthoring) {
+    children.push(buildPlaceholderItem());
+  }
+
+  block.replaceChildren(...children);
   observeReveal(block);
 }
