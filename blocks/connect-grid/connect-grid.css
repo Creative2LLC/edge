@@ -82,10 +82,34 @@
 }
 
 .connect-grid .connect-grid-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 42px;
   height: 42px;
   margin-bottom: 26px;
   flex-shrink: 0;
+  background-color: #ff8b7e;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
+}
+
+.connect-grid .connect-grid-card-icon picture,
+.connect-grid .connect-grid-card-icon img {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
 }
 
 .connect-grid .connect-grid-card-title {

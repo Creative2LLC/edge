@@ -60,18 +60,31 @@ function getRichField(scope, name, rowIndexMap, columnIndex = 0) {
 function getImageField(scope, name, rowIndexMap, columnIndex = 0) {
   const source = scope.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
+    const picture = source.tagName === 'PICTURE' ? source : source.querySelector('picture');
     const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, img: img || null };
+    return {
+      source,
+      picture: picture || null,
+      img: img || picture?.querySelector('img') || null,
+    };
   }
 
   const rowIndex = rowIndexMap?.[name];
   const row = Number.isInteger(rowIndex) ? scope.children[rowIndex] : null;
-  if (!row) return { source: null, img: null };
+  if (!row) {
+    return {
+      source: null,
+      picture: null,
+      img: null,
+    };
+  }
 
   const cell = row.children[columnIndex] || row;
+  const picture = cell.querySelector('picture');
   return {
     source: null,
-    img: cell.querySelector('img'),
+    picture,
+    img: cell.querySelector('img') || picture?.querySelector('img') || null,
   };
 }
 
@@ -143,19 +156,37 @@ function shouldUseArrow(url) {
 }
 
 function buildIcon(item) {
-  if (!item.iconField.img?.src) return null;
+  const picture = item.iconField.picture?.cloneNode(true) || null;
+  const image = !picture && item.iconField.img ? item.iconField.img.cloneNode(true) : null;
+  const media = picture || image;
+  const mediaImage = picture?.querySelector('img') || image;
+  const imgSrc = mediaImage?.currentSrc
+    || mediaImage?.src
+    || item.iconField.img?.currentSrc
+    || item.iconField.img?.src
+    || '';
+
+  if (!media && !imgSrc) return null;
 
   const icon = document.createElement('div');
   icon.className = 'connect-grid-card-icon';
-  icon.style.backgroundColor = item.iconColor || DEFAULTS.iconColor;
-  icon.style.setProperty('-webkit-mask-image', `url(${item.iconField.img.src})`, 'important');
-  icon.style.setProperty('mask-image', `url(${item.iconField.img.src})`, 'important');
-  icon.style.setProperty('-webkit-mask-size', 'contain', 'important');
-  icon.style.setProperty('mask-size', 'contain', 'important');
-  icon.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
-  icon.style.setProperty('mask-repeat', 'no-repeat', 'important');
-  icon.style.setProperty('-webkit-mask-position', 'center', 'important');
-  icon.style.setProperty('mask-position', 'center', 'important');
+
+  if (imgSrc) {
+    icon.style.setProperty('background-color', item.iconColor || DEFAULTS.iconColor, 'important');
+    icon.style.setProperty('-webkit-mask-image', `url("${imgSrc}")`, 'important');
+    icon.style.setProperty('mask-image', `url("${imgSrc}")`, 'important');
+    icon.style.setProperty('-webkit-mask-size', 'contain', 'important');
+    icon.style.setProperty('mask-size', 'contain', 'important');
+    icon.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
+    icon.style.setProperty('mask-repeat', 'no-repeat', 'important');
+    icon.style.setProperty('-webkit-mask-position', 'center', 'important');
+    icon.style.setProperty('mask-position', 'center', 'important');
+    if (mediaImage) mediaImage.style.visibility = 'hidden';
+  }
+
+  if (media) {
+    icon.append(media);
+  }
 
   if (item.iconField.source) moveInstrumentation(item.iconField.source, icon);
 
