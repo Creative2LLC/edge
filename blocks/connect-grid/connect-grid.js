@@ -30,8 +30,7 @@ function hasAuthoringContext(scope) {
 
 function extractNodeValue(node) {
   if (!node) return '';
-  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
-  return anchor?.href || node.textContent.trim();
+  return node.textContent.trim();
 }
 
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
