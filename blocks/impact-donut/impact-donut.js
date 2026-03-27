@@ -52,13 +52,45 @@ function getBlockLinkField(block, name, rowIndex = BLOCK_ROW_INDEX[name], column
   return { source: cell, value: anchor?.href || cell.textContent.trim() };
 }
 
-function getItemField(row, name, columnIndex) {
+function getItemField(row, name, columnIndexes) {
   const source = row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
 
+  const indexes = Array.isArray(columnIndexes) ? columnIndexes : [columnIndexes];
   const cols = [...row.children];
-  if (cols[columnIndex]) return { source: null, value: cols[columnIndex].textContent.trim() };
+  const cell = indexes
+    .filter((index) => Number.isInteger(index) && index >= 0)
+    .map((index) => cols[index])
+    .find(Boolean);
+
+  if (cell) return { source: null, value: cell.textContent.trim() };
   return { source: null, value: '' };
+}
+
+function hasItemField(row, name) {
+  return Boolean(row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`));
+}
+
+function looksLikeColor(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return false;
+
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(normalized)
+    || /^(?:rgb|hsl)a?\(/i.test(normalized)
+    || /^[a-z]+$/i.test(normalized);
+}
+
+function hasExtendedItemFields(row) {
+  if (hasItemField(row, 'chartValue') || hasItemField(row, 'displayColor')) return true;
+
+  const cols = [...row.children];
+  if (cols.length >= 6) return true;
+  if (cols.length <= 4) return false;
+
+  const chartValueCandidate = cols[3]?.textContent.trim() || '';
+  const colorCandidate = cols[4]?.textContent.trim() || '';
+
+  return Boolean(colorCandidate || (chartValueCandidate && !looksLikeColor(chartValueCandidate)));
 }
 
 function hasAuthoringContext(scope) {
@@ -128,6 +160,10 @@ function parseSegmentValue(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function resolveSegmentNumericValue(chartValue, displayValue) {
+  return parseSegmentValue(chartValue || displayValue);
+}
+
 function easeOutCubic(value) {
   return 1 - ((1 - value) ** 3);
 }
@@ -194,7 +230,7 @@ function buildLegendItem(segment, index) {
       buildAuthoringPlaceholder(
         'p',
         'impact-donut-placeholder-body',
-        'Add the segment value, label, and color in Universal Editor.',
+        'Add the display value, optional chart value, label, and colors in Universal Editor.',
       ),
     );
     return { item, value: null, segment };
@@ -325,12 +361,25 @@ export default function decorate(block) {
 
     if (!isItemRow) return;
 
+    const usesExtendedFields = hasExtendedItemFields(row);
     const itemTypeField = getItemField(row, 'itemType', 0);
     const valueField = getItemField(row, 'value', 1);
     const labelField = getItemField(row, 'label', 2);
-    const colorField = getItemField(row, 'color', 3);
+    const chartValueField = usesExtendedFields
+      ? getItemField(row, 'chartValue', 3)
+      : { source: null, value: '' };
+    const colorField = getItemField(row, 'color', usesExtendedFields ? 4 : 3);
+    const displayColorField = usesExtendedFields
+      ? getItemField(row, 'displayColor', 5)
+      : { source: null, value: '' };
     const itemType = normalizeItemType(itemTypeField.value);
-    const hasVisibleContent = Boolean(valueField.value || labelField.value || colorField.value);
+    const hasVisibleContent = Boolean(
+      valueField.value
+        || labelField.value
+        || chartValueField.value
+        || colorField.value
+        || displayColorField.value,
+    );
     const isAuthoringPlaceholder = hasAuthoringContext(row) && !hasVisibleContent;
 
     if (!hasVisibleContent && !isAuthoringPlaceholder) return;
@@ -340,8 +389,11 @@ export default function decorate(block) {
       value: valueField.value,
       label: labelField.value,
       color: colorField.value || DEFAULT_SEGMENT_COLOR,
+      displayColor: displayColorField.value || '',
+      chartValue: chartValueField.value,
       valueField,
       labelField,
+      chartValueField,
       row,
       isAuthoringPlaceholder,
     };
@@ -349,7 +401,7 @@ export default function decorate(block) {
     if (itemType === 'segment') {
       segmentItems.push({
         ...item,
-        numericValue: parseSegmentValue(valueField.value),
+        numericValue: resolveSegmentNumericValue(chartValueField.value, valueField.value),
       });
       return;
     }
@@ -373,9 +425,9 @@ export default function decorate(block) {
   const displayStats = useSegmentStats
     ? segments.map((segment) => ({
       ...segment,
-      displayColor: segment.color,
+      displayColor: segment.displayColor || segment.color,
       placeholderTitle: 'New donut segment',
-      placeholderBody: 'Add the segment value, label, and color in Universal Editor.',
+      placeholderBody: 'Add the display value, chart value, label, and color in Universal Editor.',
     }))
     : statItems;
   const showLegend = !useSegmentStats && (segmentItems.length || isAuthoring);

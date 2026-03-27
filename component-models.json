@@ -1994,7 +1994,7 @@
         "component": "text",
         "valueType": "string",
         "name": "value",
-        "label": "Value"
+        "label": "Display Value"
       },
       {
         "component": "text",
@@ -2005,9 +2005,24 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "chartValue",
+        "label": "Chart Value",
+        "description": "Optional. Used for donut fill math only. If left empty, the block falls back to Display Value."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "color",
         "label": "Color (Hex)",
         "description": "Used for chart segments. Defaults to #008DB6",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "displayColor",
+        "label": "Display Value Color (Hex)",
+        "description": "Optional. Controls the left-side stat value color. For segments, donut fill still uses Color.",
         "value": ""
       }
     ]
