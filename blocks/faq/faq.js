@@ -96,13 +96,36 @@ function setExpanded(item, expanded, immediate = false) {
 function buildFaqItem(row, index, items) {
   const questionField = getField(row, 0, 'question');
   const answerField = getField(row, 1, 'answer');
+  const hasVisibleContent = Boolean(
+    questionField.text || answerField.text || answerField.html,
+  );
+  const isAuthoringPlaceholder = hasAuthoringContext(row) && !hasVisibleContent;
 
-  if (!questionField.text && !answerField.text && !answerField.html) return null;
+  if (!hasVisibleContent && !isAuthoringPlaceholder) return null;
 
   const item = document.createElement('article');
   item.className = 'faq-item';
   item.style.setProperty('--faq-index', index);
   moveInstrumentation(row, item);
+
+  if (isAuthoringPlaceholder) {
+    item.classList.add('is-authoring-placeholder', 'faq-item-open');
+
+    const body = document.createElement('div');
+    body.className = 'faq-item-placeholder';
+
+    const title = document.createElement('p');
+    title.className = 'faq-item-placeholder-title';
+    title.textContent = 'New FAQ item';
+
+    const text = document.createElement('p');
+    text.className = 'faq-item-placeholder-body';
+    text.textContent = 'Add a question and answer in Universal Editor.';
+
+    body.append(title, text);
+    item.append(body);
+    return item;
+  }
 
   const questionId = `faq-question-${Math.random().toString(36).slice(2, 9)}`;
   const panelId = `faq-panel-${Math.random().toString(36).slice(2, 9)}`;
