@@ -2118,6 +2118,12 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "heading",
         "label": "Heading Text"
       },

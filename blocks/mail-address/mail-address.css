@@ -7,7 +7,7 @@
 
 .mail-address-card {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   border-radius: 14px;
   background-color: #ddd5cc52;
   padding: 48px 56px;
@@ -17,7 +17,7 @@
 /* ===== LEFT SECTION ===== */
 .mail-address-left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
   flex: 1 1 0;
 }
