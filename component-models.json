@@ -630,6 +630,18 @@
     "id": "card-testimonies",
     "fields": [
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle (Optional)"
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "titleAlign",
@@ -654,50 +666,18 @@
     ]
   },
   {
-    "id": "card-testimonies-header",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "title",
-        "label": "Title"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "subtitle",
-        "label": "Subtitle (Optional)"
-      }
-    ]
-  },
-  {
-    "id": "card-testimonies-main-item",
+    "id": "card-testimonies-item",
     "fields": [
       {
         "component": "reference",
         "valueType": "string",
         "name": "image",
-        "label": "Image",
+        "label": "Image (add for main card, leave empty for small card)",
         "multi": false
-      },
-      {
-        "component": "richtext",
-        "name": "quote",
-        "label": "Quote Text"
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "author",
-        "label": "Author Name"
-      }
-    ]
-  },
-  {
-    "id": "card-testimonies-small-item",
-    "fields": [
-      {
-        "component": "richtext",
         "name": "quote",
         "label": "Quote Text"
       },

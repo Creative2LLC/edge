@@ -1,73 +1,52 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, img };
-  }
+function getFieldText(row, colIndex, propName) {
+  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
+  if (byProp) return byProp.textContent.trim();
   const cols = [...row.children];
-  if (cols[index]) {
-    const img = cols[index].querySelector('img');
-    return { source: null, img: img || null };
-  }
-  return { source: null, img: null };
+  if (cols[colIndex]) return cols[colIndex].textContent.trim();
+  return '';
 }
 
-function getRichTextField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    return {
-      source, html: source.innerHTML.trim(), value: source.textContent.trim(),
-    };
-  }
+function getFieldImage(row, colIndex) {
   const cols = [...row.children];
-  if (cols[index]) {
-    return {
-      source: null, html: cols[index].innerHTML.trim(), value: cols[index].textContent.trim(),
-    };
-  }
-  return { source: null, html: '', value: '' };
+  const col = cols[colIndex];
+  if (!col) return { picture: null, img: null };
+  const picture = col.querySelector('picture');
+  const img = col.querySelector('img');
+  return { picture, img };
 }
 
-function buildMainCard(data) {
+function buildMainCard(data, row) {
   const card = document.createElement('div');
   card.className = 'card-testimonies-main';
-  if (data.row) moveInstrumentation(data.row, card);
+  if (row) moveInstrumentation(row, card);
 
-  if (data.imageField.img) {
-    const imgWrap = document.createElement('div');
-    imgWrap.className = 'card-testimonies-main-image';
-    const img = data.imageField.img.cloneNode(true);
-    if (data.imageField.source) moveInstrumentation(data.imageField.source, img);
-    imgWrap.append(img);
-    card.append(imgWrap);
+  const imgWrap = document.createElement('div');
+  imgWrap.className = 'card-testimonies-main-image';
+
+  if (data.picture) {
+    imgWrap.append(data.picture);
+  } else if (data.img) {
+    imgWrap.append(data.img);
   }
+
+  card.append(imgWrap);
 
   const textSection = document.createElement('div');
   textSection.className = 'card-testimonies-main-text';
 
-  if (data.quoteField.value || data.quoteField.source) {
+  if (data.quote) {
     const quote = document.createElement('p');
     quote.className = 'card-testimonies-main-quote';
-    if (data.quoteField.source) {
-      moveInstrumentation(data.quoteField.source, quote);
-      quote.innerHTML = data.quoteField.html;
-    } else {
-      quote.textContent = data.quoteField.value;
-    }
+    quote.textContent = data.quote;
     textSection.append(quote);
   }
 
-  if (data.authorField.value || data.authorField.source) {
+  if (data.author) {
     const author = document.createElement('p');
     author.className = 'card-testimonies-main-author';
-    if (data.authorField.source) {
-      moveInstrumentation(data.authorField.source, author);
-      author.innerHTML = data.authorField.html;
-    } else {
-      author.textContent = data.authorField.value;
-    }
+    author.textContent = data.author;
     textSection.append(author);
   }
 
@@ -75,35 +54,25 @@ function buildMainCard(data) {
   return card;
 }
 
-function buildSmallCard(data) {
+function buildSmallCard(data, row) {
   const card = document.createElement('div');
   card.className = 'card-testimonies-small';
-  if (data.row) moveInstrumentation(data.row, card);
+  if (row) moveInstrumentation(row, card);
 
   const inner = document.createElement('div');
   inner.className = 'card-testimonies-small-inner';
 
-  if (data.quoteField.value || data.quoteField.source) {
+  if (data.quote) {
     const quote = document.createElement('p');
     quote.className = 'card-testimonies-small-quote';
-    if (data.quoteField.source) {
-      moveInstrumentation(data.quoteField.source, quote);
-      quote.innerHTML = data.quoteField.html;
-    } else {
-      quote.textContent = data.quoteField.value;
-    }
+    quote.textContent = data.quote;
     inner.append(quote);
   }
 
-  if (data.authorField.value || data.authorField.source) {
+  if (data.author) {
     const author = document.createElement('p');
     author.className = 'card-testimonies-small-author';
-    if (data.authorField.source) {
-      moveInstrumentation(data.authorField.source, author);
-      author.innerHTML = data.authorField.html;
-    } else {
-      author.textContent = data.authorField.value;
-    }
+    author.textContent = data.author;
     inner.append(author);
   }
 
@@ -112,82 +81,85 @@ function buildSmallCard(data) {
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+  /* --- Extract block-level fields and remove their rows --- */
+  const headingProp = block.querySelector('[data-aue-prop="heading"]');
+  let heading = '';
+  if (headingProp) {
+    heading = headingProp.textContent.trim();
+    headingProp.closest(':scope > div')?.remove();
+  }
+
+  const subtitleProp = block.querySelector('[data-aue-prop="subtitle"]');
+  let subtitle = '';
+  if (subtitleProp) {
+    subtitle = subtitleProp.textContent.trim();
+    subtitleProp.closest(':scope > div')?.remove();
+  }
+
+  const alignProp = block.querySelector('[data-aue-prop="titleAlign"]');
+  let align = 'center';
+  if (alignProp) {
+    align = alignProp.textContent.trim() || 'center';
+    alignProp.closest(':scope > div')?.remove();
+  }
+
+  /* --- Build container --- */
   const container = document.createElement('div');
   container.className = 'card-testimonies-container';
 
-  /* --- Block-level fields --- */
-  const alignEl = block.querySelector('[data-aue-prop="titleAlign"]');
-  const align = alignEl?.textContent.trim() || 'center';
-
-  /* --- Header: title + subtitle --- */
-  const headerRow = rows.find((r) => {
-    const cols = [...r.children];
-    return cols.length >= 1
-      && !r.querySelector('[data-aue-prop="image"]')
-      && !r.querySelector('[data-aue-prop="quote"]')
-      && (r.querySelector('[data-aue-prop="title"]') || cols.length <= 2);
-  });
-
-  if (headerRow) {
-    const titleField = getRichTextField(headerRow, 'title', 0);
-    const subtitleField = getRichTextField(headerRow, 'subtitle', 1);
-
+  /* --- Header --- */
+  if (heading || subtitle) {
     const header = document.createElement('div');
     header.className = 'card-testimonies-header';
     header.style.textAlign = align;
 
-    if (titleField.value || titleField.source) {
+    if (heading) {
       const h2 = document.createElement('h2');
       h2.className = 'card-testimonies-title';
-      if (titleField.source) {
-        moveInstrumentation(titleField.source, h2);
-        h2.innerHTML = titleField.html;
-      } else {
-        h2.textContent = titleField.value;
-      }
+      h2.textContent = heading;
       header.append(h2);
     }
 
-    if (subtitleField.value || subtitleField.source) {
+    if (subtitle) {
       const sub = document.createElement('p');
       sub.className = 'card-testimonies-subtitle';
       if (align === 'center') sub.style.margin = '0 auto';
-      if (subtitleField.source) {
-        moveInstrumentation(subtitleField.source, sub);
-        sub.innerHTML = subtitleField.html;
-      } else {
-        sub.textContent = subtitleField.value;
-      }
+      sub.textContent = subtitle;
       header.append(sub);
     }
 
     container.append(header);
   }
 
-  /* --- Testimony items --- */
-  const itemRows = rows.filter((r) => r !== headerRow && [...r.children].length >= 2);
+  /* --- Parse remaining rows as testimony items --- */
+  const rows = [...block.querySelectorAll(':scope > div')];
   let mainBuilt = false;
+  let smallRow = null;
 
-  itemRows.forEach((row) => {
-    const imageField = getImageField(row, 'image', 0);
-    const quoteField = getRichTextField(row, 'quote', 1);
-    const authorField = getRichTextField(row, 'author', 2);
+  rows.forEach((row) => {
+    const cols = [...row.children];
+    if (cols.length < 2) return;
 
-    if (!mainBuilt && imageField.img) {
-      container.append(buildMainCard({
-        row, imageField, quoteField, authorField,
-      }));
+    const imageData = getFieldImage(row, 0);
+    const quote = getFieldText(row, 1, 'quote');
+    const author = getFieldText(row, 2, 'author');
+
+    if (!mainBuilt && imageData.img) {
+      const card = buildMainCard({
+        picture: imageData.picture,
+        img: imageData.img,
+        quote,
+        author,
+      }, row);
+      container.append(card);
       mainBuilt = true;
     } else {
-      if (!container.querySelector('.card-testimonies-small-row')) {
-        const smallRow = document.createElement('div');
+      if (!smallRow) {
+        smallRow = document.createElement('div');
         smallRow.className = 'card-testimonies-small-row';
         container.append(smallRow);
       }
-      container
-        .querySelector('.card-testimonies-small-row')
-        .append(buildSmallCard({ row, quoteField, authorField }));
+      smallRow.append(buildSmallCard({ quote, author }, row));
     }
   });
 

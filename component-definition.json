@@ -223,45 +223,15 @@
           }
         },
         {
-          "title": "Card Testimonies Header",
-          "id": "card-testimonies-header",
+          "title": "Card Testimonies Item",
+          "id": "card-testimonies-item",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
-                  "name": "Card Testimonies Header",
-                  "model": "card-testimonies-header"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Card Testimonies Main Item",
-          "id": "card-testimonies-main-item",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Card Testimonies Main Item",
-                  "model": "card-testimonies-main-item"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Card Testimonies Small Item",
-          "id": "card-testimonies-small-item",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Card Testimonies Small Item",
-                  "model": "card-testimonies-small-item"
+                  "name": "Card Testimonies Item",
+                  "model": "card-testimonies-item"
                 }
               }
             }

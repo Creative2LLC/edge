@@ -85,9 +85,7 @@
   {
     "id": "card-testimonies",
     "components": [
-      "card-testimonies-header",
-      "card-testimonies-main-item",
-      "card-testimonies-small-item"
+      "card-testimonies-item"
     ]
   },
   {

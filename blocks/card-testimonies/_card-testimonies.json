@@ -17,45 +17,15 @@
       }
     },
     {
-      "title": "Card Testimonies Header",
-      "id": "card-testimonies-header",
+      "title": "Card Testimonies Item",
+      "id": "card-testimonies-item",
       "plugins": {
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
-              "name": "Card Testimonies Header",
-              "model": "card-testimonies-header"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Card Testimonies Main Item",
-      "id": "card-testimonies-main-item",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Card Testimonies Main Item",
-              "model": "card-testimonies-main-item"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Card Testimonies Small Item",
-      "id": "card-testimonies-small-item",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Card Testimonies Small Item",
-              "model": "card-testimonies-small-item"
+              "name": "Card Testimonies Item",
+              "model": "card-testimonies-item"
             }
           }
         }
@@ -66,6 +36,18 @@
     {
       "id": "card-testimonies",
       "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Subtitle (Optional)"
+        },
         {
           "component": "select",
           "valueType": "string",
@@ -91,50 +73,18 @@
       ]
     },
     {
-      "id": "card-testimonies-header",
-      "fields": [
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "title",
-          "label": "Title"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "subtitle",
-          "label": "Subtitle (Optional)"
-        }
-      ]
-    },
-    {
-      "id": "card-testimonies-main-item",
+      "id": "card-testimonies-item",
       "fields": [
         {
           "component": "reference",
           "valueType": "string",
           "name": "image",
-          "label": "Image",
+          "label": "Image (add for main card, leave empty for small card)",
           "multi": false
-        },
-        {
-          "component": "richtext",
-          "name": "quote",
-          "label": "Quote Text"
         },
         {
           "component": "text",
           "valueType": "string",
-          "name": "author",
-          "label": "Author Name"
-        }
-      ]
-    },
-    {
-      "id": "card-testimonies-small-item",
-      "fields": [
-        {
-          "component": "richtext",
           "name": "quote",
           "label": "Quote Text"
         },
@@ -151,9 +101,7 @@
     {
       "id": "card-testimonies",
       "components": [
-        "card-testimonies-header",
-        "card-testimonies-main-item",
-        "card-testimonies-small-item"
+        "card-testimonies-item"
       ]
     }
   ]
