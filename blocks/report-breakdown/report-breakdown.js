@@ -410,7 +410,8 @@ function buildSemiDonut(dataset) {
   const radius = 560;
   const strokeWidth = 162;
   const basePath = createSvgElement('path', {
-    d: `M ${centerX - radius} ${centerY} A ${radius} ${radius} 0 0 0 ${centerX + radius} ${centerY}`,
+    // Draw the upper semicircle so the chart arches above the table overlay.
+    d: `M ${centerX - radius} ${centerY} A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY}`,
     class: 'report-breakdown-arc-track',
   });
   const totalLength = basePath.getTotalLength();
