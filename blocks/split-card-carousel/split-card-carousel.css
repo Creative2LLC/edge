@@ -1,15 +1,23 @@
-/* Block root — full-width background */
+/* Block root - full-width background */
 .split-card-carousel {
+  --split-card-carousel-viewport-width: 100vw;
+
   background-color: #DBD5CF52;
   padding: 0;
-  width: 100vw;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  max-width: none;
+  margin-inline: calc(50% - (var(--split-card-carousel-viewport-width) / 2));
+  overflow-x: clip;
   box-sizing: border-box;
 }
 
-/* Wrapper — constrains inner content to original width */
+@supports (width: 100dvw) {
+  .split-card-carousel {
+    --split-card-carousel-viewport-width: 100dvw;
+  }
+}
+
+/* Wrapper - constrains inner content to original width */
 .split-card-carousel .split-card-carousel-wrapper {
   max-width: 1200px;
   margin: 0 auto;
@@ -22,7 +30,7 @@ main > .section > .split-card-carousel-wrapper {
   padding: 0;
 }
 
-/* Section title — top left */
+/* Section title - top left */
 .split-card-carousel .split-card-carousel-title {
   font-size: 48px;
   font-weight: 700;
@@ -45,7 +53,7 @@ main > .section > .split-card-carousel-wrapper {
   margin-top: -28px;
 }
 
-/* Carousel track — extends to the right edge of the page */
+/* Carousel track - extends to the right edge of the page */
 .split-card-carousel .split-card-carousel-track {
   display: flex;
   gap: 24px;
@@ -54,7 +62,7 @@ main > .section > .split-card-carousel-wrapper {
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (100vw - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--split-card-carousel-viewport-width) - 1200px) / 2));
   padding-right: 40px;
   box-sizing: border-box;
 }
@@ -69,7 +77,7 @@ main > .section > .split-card-carousel-wrapper {
   min-width: 0;
 }
 
-/* Card — replicates split-card styling */
+/* Card - replicates split-card styling */
 .split-card-carousel .split-card-carousel-card {
   display: flex;
   border-radius: 14px;
@@ -187,7 +195,7 @@ main > .section > .split-card-carousel-wrapper {
   opacity: 0.8;
 }
 
-/* Nav arrows — positioned right on the controls row */
+/* Nav arrows - positioned right on the controls row */
 .split-card-carousel .split-card-carousel-nav {
   display: flex;
   gap: 12px;
@@ -219,7 +227,7 @@ main > .section > .split-card-carousel-wrapper {
   color: rgb(255 255 255 / 83%);
 }
 
-/* Responsive — tablet */
+/* Responsive - tablet */
 @media (width <= 900px) {
   .split-card-carousel .split-card-carousel-slide {
     flex: 0 0 90%;
@@ -230,7 +238,7 @@ main > .section > .split-card-carousel-wrapper {
   }
 }
 
-/* Responsive — mobile */
+/* Responsive - mobile */
 @media (width <= 700px) {
   .split-card-carousel .split-card-carousel-wrapper {
     padding: 48px 0;

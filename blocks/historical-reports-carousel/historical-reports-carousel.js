@@ -73,6 +73,8 @@ function resourcePathFromUrn(resource) {
   return match ? match[1] : '';
 }
 
+const IMAGE_SOURCE_PATTERN = /\.(avif|bmp|gif|jfif|jpe?g|png|svg|webp)(\?.*)?$/i;
+
 function normalizeReferenceValue(value) {
   if (!value) return '';
 
@@ -128,20 +130,41 @@ async function getFieldValueFromResourceJson(scope, name) {
   }
 }
 
+function normalizeImageSource(value) {
+  const normalized = normalizeReferenceValue(value);
+  if (!normalized) return '';
+
+  const trimmed = normalized.trim();
+  if (!trimmed) return '';
+
+  if (/^data:image\//i.test(trimmed)) return trimmed;
+  if (IMAGE_SOURCE_PATTERN.test(trimmed)) return trimmed;
+
+  const isUrlLike = /^(https?:)?\/\//i.test(trimmed)
+    || trimmed.startsWith('/')
+    || trimmed.startsWith('./')
+    || trimmed.startsWith('../');
+
+  if (isUrlLike && trimmed.includes('/content/dam/')) return trimmed;
+
+  return '';
+}
+
 function getImageField(row, propName, columnIndex = 0) {
   const propSource = row.querySelector(`[data-aue-prop="${propName}"]`);
   const source = propSource || row.children[columnIndex];
   const picture = source?.querySelector('picture') || null;
   const img = source?.querySelector('img') || null;
   const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
-  const resource = source?.getAttribute('data-aue-resource')
-    || source?.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+  const sourceValue = source?.getAttribute('href')
+    || source?.getAttribute('src')
+    || source?.getAttribute('value')
     || '';
   const textValue = source?.textContent?.trim() || '';
-  const resolvedSrc = img?.src
-    || anchor?.href
-    || resourcePathFromUrn(resource)
-    || (/\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(textValue) ? textValue : '');
+  const resolvedSrc = normalizeImageSource(img?.getAttribute('src') || img?.src)
+    || normalizeImageSource(anchor?.getAttribute('href') || anchor?.href)
+    || normalizeImageSource(sourceValue)
+    || normalizeImageSource(textValue);
 
   return {
     source,
@@ -228,8 +251,9 @@ function createCoverImage(imageField, altText, fallbackLabel) {
 
 async function parseSlideRow(row) {
   const coverImageField = getImageField(row, 'coverImage', ITEM_COLUMN_INDEX.coverImage);
+  coverImageField.src = normalizeImageSource(coverImageField.src);
   if (!coverImageField.src) {
-    coverImageField.src = await getFieldValueFromResourceJson(row, 'coverImage');
+    coverImageField.src = normalizeImageSource(await getFieldValueFromResourceJson(row, 'coverImage'));
   }
   const coverImageAltField = getField(
     row,

@@ -1,15 +1,23 @@
-/* Block root — full-width background */
+/* Block root - full-width background */
 .icon-card-carousel {
+  --icon-card-carousel-viewport-width: 100vw;
+
   background-color: transparent;
   padding: 0;
-  width: 100vw;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  max-width: none;
+  margin-inline: calc(50% - (var(--icon-card-carousel-viewport-width) / 2));
+  overflow-x: clip;
   box-sizing: border-box;
 }
 
-/* Wrapper — constrains inner content */
+@supports (width: 100dvw) {
+  .icon-card-carousel {
+    --icon-card-carousel-viewport-width: 100dvw;
+  }
+}
+
+/* Wrapper - constrains inner content */
 .icon-card-carousel .icon-card-carousel-wrapper {
   max-width: 1200px;
   margin: 0 auto;
@@ -41,7 +49,7 @@ main > .section > .icon-card-carousel-wrapper {
   line-height: 1.4;
 }
 
-/* Carousel track — extends to the right edge */
+/* Carousel track - extends to the right edge */
 .icon-card-carousel .icon-card-carousel-track {
   display: flex;
   align-items: stretch;
@@ -51,7 +59,7 @@ main > .section > .icon-card-carousel-wrapper {
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (100vw - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--icon-card-carousel-viewport-width) - 1200px) / 2));
   padding-right: 40px;
   padding-bottom: 16px;
   box-sizing: border-box;
@@ -61,7 +69,7 @@ main > .section > .icon-card-carousel-wrapper {
   display: none;
 }
 
-/* Each slide — sized so 3 full cards + partial 4th are visible */
+/* Each slide - sized so 3 full cards + partial 4th are visible */
 .icon-card-carousel .icon-card-carousel-slide {
   flex: 0 0 370px;
   min-width: 0;
@@ -229,7 +237,7 @@ main > .section > .icon-card-carousel-wrapper {
   color: rgb(255 255 255 / 83%);
 }
 
-/* Responsive — tablet */
+/* Responsive - tablet */
 @media (width <= 900px) {
   .icon-card-carousel .icon-card-carousel-slide {
     flex: 0 0 340px;
@@ -249,7 +257,7 @@ main > .section > .icon-card-carousel-wrapper {
   }
 }
 
-/* Responsive — mobile */
+/* Responsive - mobile */
 @media (width <= 700px) {
   .icon-card-carousel .icon-card-carousel-wrapper {
     padding: 48px 0;

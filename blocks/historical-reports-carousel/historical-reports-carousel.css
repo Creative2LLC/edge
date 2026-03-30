@@ -1,12 +1,19 @@
 .historical-reports-carousel {
+  --historical-reports-carousel-viewport-width: 100vw;
+
   background: transparent;
   overflow: clip;
   padding: 0;
-  width: 100vw;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  max-width: none;
+  margin-inline: calc(50% - (var(--historical-reports-carousel-viewport-width) / 2));
   box-sizing: border-box;
+}
+
+@supports (width: 100dvw) {
+  .historical-reports-carousel {
+    --historical-reports-carousel-viewport-width: 100dvw;
+  }
 }
 
 .historical-reports-carousel .historical-reports-carousel-wrapper {
@@ -55,7 +62,7 @@ main > .section > .historical-reports-carousel-wrapper {
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: calc(100% + 24px + max(0px, (100vw - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--historical-reports-carousel-viewport-width) - 1200px) / 2));
   margin-right: -24px;
   padding: 6px 48px 18px 0;
   box-sizing: border-box;
@@ -322,7 +329,7 @@ main > .section > .historical-reports-carousel-wrapper {
   }
 
   .historical-reports-carousel .historical-reports-carousel-slide {
-    flex-basis: calc(100vw - 72px);
+    flex-basis: calc(var(--historical-reports-carousel-viewport-width) - 72px);
   }
 
   .historical-reports-carousel .historical-reports-carousel-card {

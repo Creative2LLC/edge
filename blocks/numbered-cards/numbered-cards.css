@@ -1,21 +1,29 @@
 /* Block root */
 .numbered-cards {
+  --numbered-cards-viewport-width: 100vw;
+
   padding: 0;
-  width: 100vw;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  max-width: none;
+  margin-inline: calc(50% - (var(--numbered-cards-viewport-width) / 2));
+  overflow-x: clip;
   box-sizing: border-box;
 }
 
-/* Wrapper — constrains inner content */
+@supports (width: 100dvw) {
+  .numbered-cards {
+    --numbered-cards-viewport-width: 100dvw;
+  }
+}
+
+/* Wrapper - constrains inner content */
 .numbered-cards .numbered-cards-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   padding: 80px 24px;
 }
 
-/* Header — title + subtitle */
+/* Header - title + subtitle */
 .numbered-cards .numbered-cards-header {
   margin-bottom: 48px;
 }
@@ -112,7 +120,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (100vw - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--numbered-cards-viewport-width) - 1200px) / 2));
   padding-right: 40px;
   box-sizing: border-box;
 }

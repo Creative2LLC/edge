@@ -1,11 +1,19 @@
 .numbered-cards-custom {
-  width: 100vw;
+  --numbered-cards-custom-viewport-width: 100vw;
+
   padding: 0;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  max-width: none;
+  margin-inline: calc(50% - (var(--numbered-cards-custom-viewport-width) / 2));
+  overflow-x: clip;
   box-sizing: border-box;
   background: #efebe8;
+}
+
+@supports (width: 100dvw) {
+  .numbered-cards-custom {
+    --numbered-cards-custom-viewport-width: 100dvw;
+  }
 }
 
 .numbered-cards-custom .numbered-cards-custom-wrapper {
@@ -81,7 +89,7 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (100vw - 1440px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--numbered-cards-custom-viewport-width) - 1440px) / 2));
   margin-top: -12px;
   padding-top: 12px;
   padding-right: 56px;
@@ -287,7 +295,7 @@
 
   .numbered-cards-custom-carousel-layout .numbered-cards-custom-grid {
     gap: 24px;
-    width: calc(100% + 20px + max(0px, (100vw - 100%) / 2));
+    width: calc(100% + 20px + max(0px, (var(--numbered-cards-custom-viewport-width) - 100%) / 2));
     margin-top: -12px;
     margin-right: -20px;
     padding-top: 12px;
