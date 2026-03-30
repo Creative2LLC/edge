@@ -234,6 +234,80 @@ function buildCard(data, index) {
   return card;
 }
 
+function setupMatchedHeights(block, grid) {
+  if (typeof block.infoCardsGridHeightCleanup === 'function') {
+    block.infoCardsGridHeightCleanup();
+  }
+
+  const cards = [...grid.querySelectorAll('.info-cards-grid-card')];
+  if (!cards.length) {
+    block.infoCardsGridHeightCleanup = null;
+    return;
+  }
+
+  let frameId = 0;
+  const syncHeights = () => {
+    if (frameId) window.cancelAnimationFrame(frameId);
+
+    frameId = window.requestAnimationFrame(() => {
+      frameId = 0;
+      cards.forEach((card) => card.style.removeProperty('--info-card-matched-height'));
+
+      const tallestHeight = Math.ceil(
+        Math.max(0, ...cards.map((card) => card.getBoundingClientRect().height)),
+      );
+
+      cards.forEach((card) => {
+        if (tallestHeight > 0) {
+          card.style.setProperty('--info-card-matched-height', `${tallestHeight}px`);
+        } else {
+          card.style.removeProperty('--info-card-matched-height');
+        }
+      });
+    });
+  };
+
+  const onResize = () => syncHeights();
+  window.addEventListener('resize', onResize, { passive: true });
+
+  const mutationObserver = 'MutationObserver' in window
+    ? new MutationObserver(() => syncHeights())
+    : null;
+  mutationObserver?.observe(grid, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+
+  const resizeObserver = 'ResizeObserver' in window
+    ? new ResizeObserver(() => syncHeights())
+    : null;
+  cards.forEach((card) => {
+    const observedTarget = card.querySelector('.info-cards-grid-card-content') || card;
+    resizeObserver?.observe(observedTarget);
+  });
+
+  grid.querySelectorAll('img').forEach((img) => {
+    if (img.complete) return;
+    img.addEventListener('load', syncHeights, { once: true });
+    img.addEventListener('error', syncHeights, { once: true });
+  });
+
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(() => syncHeights()).catch(() => {});
+  }
+
+  syncHeights();
+
+  block.infoCardsGridHeightCleanup = () => {
+    if (frameId) window.cancelAnimationFrame(frameId);
+    window.removeEventListener('resize', onResize);
+    mutationObserver?.disconnect();
+    resizeObserver?.disconnect();
+    cards.forEach((card) => card.style.removeProperty('--info-card-matched-height'));
+  };
+}
+
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {
@@ -298,5 +372,6 @@ export default function decorate(block) {
   });
 
   block.replaceChildren(grid);
+  setupMatchedHeights(block, grid);
   observeReveal(block);
 }

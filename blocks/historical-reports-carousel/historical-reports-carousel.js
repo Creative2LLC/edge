@@ -66,16 +66,88 @@ function getField(scope, name, rowIndexMap, columnIndex = 0) {
   };
 }
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeReferenceValue(value) {
+  if (!value) return '';
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return resourcePathFromUrn(trimmed) || trimmed;
+  }
+
+  if (Array.isArray(value)) {
+    return value.reduce((result, item) => result || normalizeReferenceValue(item), '');
+  }
+
+  if (typeof value === 'object') {
+    const preferredKeys = [
+      'path',
+      'url',
+      'href',
+      'src',
+      'fileReference',
+      'reference',
+      'destination',
+      'value',
+      '_path',
+      'repo:path',
+      'asset',
+    ];
+    const preferredValue = preferredKeys
+      .reduce((result, key) => result || normalizeReferenceValue(value[key]), '');
+
+    if (preferredValue) return preferredValue;
+
+    return Object.values(value)
+      .reduce((result, item) => result || normalizeReferenceValue(item), '');
+  }
+
+  return '';
+}
+
+async function getFieldValueFromResourceJson(scope, name) {
+  const resource = scope?.getAttribute('data-aue-resource')
+    || scope?.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    return normalizeReferenceValue(data?.[name]);
+  } catch (error) {
+    return '';
+  }
+}
+
 function getImageField(row, propName, columnIndex = 0) {
   const propSource = row.querySelector(`[data-aue-prop="${propName}"]`);
   const source = propSource || row.children[columnIndex];
   const picture = source?.querySelector('picture') || null;
   const img = source?.querySelector('img') || null;
+  const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
+  const resource = source?.getAttribute('data-aue-resource')
+    || source?.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const textValue = source?.textContent?.trim() || '';
+  const resolvedSrc = img?.src
+    || anchor?.href
+    || resourcePathFromUrn(resource)
+    || (/\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(textValue) ? textValue : '');
+
   return {
     source,
     picture,
     img,
-    src: img?.src || '',
+    src: resolvedSrc,
     alt: img?.alt || '',
   };
 }
@@ -138,6 +210,15 @@ function createCoverImage(imageField, altText, fallbackLabel) {
     return media;
   }
 
+  if (imageField.src) {
+    const img = document.createElement('img');
+    img.src = imageField.src;
+    img.alt = altText || '';
+    if (imageField.source) moveInstrumentation(imageField.source, img);
+    media.append(img);
+    return media;
+  }
+
   const placeholder = document.createElement('div');
   placeholder.className = 'historical-reports-carousel-card-media-placeholder';
   placeholder.textContent = fallbackLabel;
@@ -145,8 +226,11 @@ function createCoverImage(imageField, altText, fallbackLabel) {
   return media;
 }
 
-function parseSlideRow(row) {
+async function parseSlideRow(row) {
   const coverImageField = getImageField(row, 'coverImage', ITEM_COLUMN_INDEX.coverImage);
+  if (!coverImageField.src) {
+    coverImageField.src = await getFieldValueFromResourceJson(row, 'coverImage');
+  }
   const coverImageAltField = getField(
     row,
     'coverImageAlt',
@@ -305,7 +389,7 @@ function observeReveal(block) {
   observer.observe(block);
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
   const subheadingField = getField(block, 'subheading', BLOCK_ROW_INDEX);
   const blockBackgroundColorField = getField(block, 'blockBackgroundColor', BLOCK_ROW_INDEX);
@@ -318,9 +402,9 @@ export default function decorate(block) {
       || row.querySelector('[data-aue-prop="coverImage"]')
       || cols.length >= 6;
   });
-  const slideData = slideRows
-    .map((row) => ({ row, data: parseSlideRow(row) }))
-    .filter(({ data }) => Boolean(data));
+  const slideData = (await Promise.all(
+    slideRows.map(async (row) => ({ row, data: await parseSlideRow(row) })),
+  )).filter(({ data }) => Boolean(data));
   const isAuthoring = hasAuthoringContext(block);
 
   const wrapper = document.createElement('div');
