@@ -10,7 +10,7 @@
   display: grid;
   grid-template-columns: repeat(var(--grid-columns, 3), 1fr);
   gap: 24px;
-  justify-items: center;
+  place-items: start stretch;
 }
 
 /* Individual card */
@@ -20,10 +20,23 @@
   flex-direction: column;
   border-radius: 14px;
   width: 100%;
-  min-height: 540px;
+  min-height: 0;
   padding: 36px 32px;
   box-sizing: border-box;
   overflow: hidden;
+  align-self: start;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease,
+    box-shadow 0.25s ease;
+  transition-delay: calc(var(--info-card-index, 0) * 70ms);
+}
+
+.info-cards-grid.is-visible .info-cards-grid-card {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Overlay image */
@@ -41,11 +54,11 @@
   object-fit: cover;
 }
 
-/* Content wrapper — pushes button to bottom */
+/* Content wrapper */
 .info-cards-grid-card-content {
   position: relative;
   z-index: 1;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -138,7 +151,7 @@
   white-space: nowrap;
   transition: opacity 0.2s ease;
   box-sizing: border-box;
-  margin-top: auto;
+  margin-top: 8px;
   align-self: flex-start;
 }
 
@@ -147,28 +160,11 @@
   opacity: 0.85;
 }
 
-/* No button variant */
-.info-cards-grid-card-no-button {
-  min-height: auto;
-}
-
-.info-cards-grid-card-no-button .info-cards-grid-card-content {
-  flex: 0 1 auto;
-}
-
-.info-cards-grid-card-no-button .info-cards-grid-card-body {
-  margin-bottom: 0;
-}
-
 /* Responsive: Tablet */
 @media (width <= 900px) {
   .info-cards-grid-inner {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-  }
-
-  .info-cards-grid-card {
-    min-height: 480px;
   }
 
   .info-cards-grid-card-title {
@@ -185,7 +181,6 @@
 
   .info-cards-grid-card {
     max-width: 100%;
-    min-height: auto;
     padding: 28px 24px;
   }
 
