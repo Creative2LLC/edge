@@ -3,6 +3,8 @@
   --statistics-subheading-color: #404041;
   --statistics-value-color: #00264d;
   --statistics-label-color: #6b6b6b;
+  --statistics-value-size: clamp(2.5rem, 6vw, 4.5rem);
+  --statistics-label-size: 1.1rem;
 
   padding: 20px 0 40px;
 }
@@ -49,7 +51,7 @@
 }
 
 .statistics .statistics-value {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: var(--statistics-value-size);
   font-weight: 700;
   line-height: 1;
   color: var(--statistics-value-color);
@@ -57,7 +59,7 @@
 }
 
 .statistics .statistics-label {
-  font-size: 1.1rem;
+  font-size: var(--statistics-label-size);
   line-height: 1.4;
   color: var(--statistics-label-color);
 }

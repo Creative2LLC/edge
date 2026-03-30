@@ -3805,8 +3805,8 @@
         "valueType": "string",
         "value": "",
         "name": "textColors",
-        "label": "Text Colors",
-        "description": "Optional. One per line: heading|#00264d, subheading|#404041, value|#1491bf, label|#6b6b6b"
+        "label": "Text Styles",
+        "description": "Optional. One per line: heading|#00264d, subheading|#404041, value|#1491bf, label|#6b6b6b, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem"
       }
     ]
   },

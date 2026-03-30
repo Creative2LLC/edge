@@ -74,21 +74,43 @@ function parseTextColors(value) {
   }, {});
 }
 
+function parseTextSizes(value) {
+  return normalizeLines(value).reduce((sizes, line) => {
+    const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
+    if (separatorIndex <= 0) return sizes;
+
+    const key = normalizeColorKey(line.slice(0, separatorIndex));
+    const size = line.slice(separatorIndex + 1).trim();
+    if (!size) return sizes;
+
+    if (['value size', 'stat value size', 'stat values size'].includes(key)) {
+      sizes.value = size;
+    } else if (['label size', 'stat label size', 'stat labels size'].includes(key)) {
+      sizes.label = size;
+    }
+
+    return sizes;
+  }, {});
+}
+
 export default function decorate(block) {
   const headingField = readField(block, 'heading', ['heading', 'title']);
   const subheadingField = readField(block, 'subheading', ['subheading']);
   const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
   const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
-  const textColorsField = readField(block, 'textColors', ['text colors', 'colors']);
+  const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors']);
 
   const values = normalizeLines(statValuesField.value);
   const labels = normalizeLines(statLabelsField.value);
-  const textColors = parseTextColors(textColorsField.value);
+  const textColors = parseTextColors(textStylesField.value);
+  const textSizes = parseTextSizes(textStylesField.value);
 
   if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
   if (textColors.subheading) block.style.setProperty('--statistics-subheading-color', textColors.subheading);
   if (textColors.value) block.style.setProperty('--statistics-value-color', textColors.value);
   if (textColors.label) block.style.setProperty('--statistics-label-color', textColors.label);
+  if (textSizes.value) block.style.setProperty('--statistics-value-size', textSizes.value);
+  if (textSizes.label) block.style.setProperty('--statistics-label-size', textSizes.label);
 
   const wrapper = document.createElement('div');
   wrapper.className = 'statistics-inner';
