@@ -103,6 +103,7 @@ main > .section > .historical-reports-carousel-wrapper {
 .historical-reports-carousel .historical-reports-carousel-card-media picture,
 .historical-reports-carousel .historical-reports-carousel-card-media img {
   display: block;
+  width: min(174px, 100%);
   max-width: 174px;
 }
 

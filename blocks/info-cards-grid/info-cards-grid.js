@@ -10,6 +10,40 @@ function hasFieldContent(field) {
   return Boolean(field?.value || hasMeaningfulNodeContent(field?.source));
 }
 
+function normalizeLines(value) {
+  if (!value) return [];
+  return String(value).split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+}
+
+function normalizeStyleKey(value) {
+  return String(value || '').trim().toLowerCase().replace(/[^a-z]+/g, ' ');
+}
+
+function parseTextStyles(value) {
+  return normalizeLines(value).reduce((styles, line) => {
+    const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
+
+    if (separatorIndex <= 0) {
+      if (!styles.textColor) styles.textColor = line.trim();
+      return styles;
+    }
+
+    const key = normalizeStyleKey(line.slice(0, separatorIndex));
+    const styleValue = line.slice(separatorIndex + 1).trim();
+    if (!styleValue) return styles;
+
+    if (['color', 'text', 'text color'].includes(key)) styles.textColor = styleValue;
+    else if (['title color', 'heading color'].includes(key)) styles.titleColor = styleValue;
+    else if (['subtitle color', 'subheading color'].includes(key)) styles.subtitleColor = styleValue;
+    else if (['body color', 'body text color', 'text body color'].includes(key)) styles.bodyColor = styleValue;
+    else if (['title size', 'heading size', 'title font size', 'heading font size'].includes(key)) styles.titleSize = styleValue;
+    else if (['subtitle size', 'subheading size', 'subtitle font size', 'subheading font size'].includes(key)) styles.subtitleSize = styleValue;
+    else if (['body size', 'body font size', 'text size', 'body text size'].includes(key)) styles.bodySize = styleValue;
+
+    return styles;
+  }, {});
+}
+
 function getField(row, name, index) {
   const source = row.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
@@ -68,7 +102,6 @@ function buildTitle(content, data) {
 
   const h3 = document.createElement('h3');
   h3.className = 'info-cards-grid-card-title';
-  if (data.textColor) h3.style.color = data.textColor;
   moveFieldContent(data.titleField, h3);
   if (!h3.textContent.trim()) return;
   content.append(h3);
@@ -79,7 +112,6 @@ function buildSubtitle(content, data) {
 
   const p = document.createElement('p');
   p.className = 'info-cards-grid-card-subtitle';
-  if (data.textColor) p.style.color = data.textColor;
   moveFieldContent(data.subtitleField, p);
   if (!p.textContent.trim()) return;
   content.append(p);
@@ -90,7 +122,6 @@ function buildBody(content, data) {
 
   const body = document.createElement('div');
   body.className = 'info-cards-grid-card-body';
-  if (data.textColor) body.style.color = data.textColor;
   moveInstrumentation(data.bodySource, body);
   while (data.bodySource.firstChild) body.append(data.bodySource.firstChild);
   if (!hasMeaningfulNodeContent(body)) return;
@@ -153,6 +184,23 @@ function buildIcon(content, data) {
   content.append(wrap);
 }
 
+function applyTextStyles(card, textStyles) {
+  if (!textStyles) return;
+
+  if (textStyles.textColor) {
+    card.style.setProperty('--info-card-title-color', textStyles.textColor);
+    card.style.setProperty('--info-card-subtitle-color', textStyles.textColor);
+    card.style.setProperty('--info-card-body-color', textStyles.textColor);
+  }
+
+  if (textStyles.titleColor) card.style.setProperty('--info-card-title-color', textStyles.titleColor);
+  if (textStyles.subtitleColor) card.style.setProperty('--info-card-subtitle-color', textStyles.subtitleColor);
+  if (textStyles.bodyColor) card.style.setProperty('--info-card-body-color', textStyles.bodyColor);
+  if (textStyles.titleSize) card.style.setProperty('--info-card-title-size', textStyles.titleSize);
+  if (textStyles.subtitleSize) card.style.setProperty('--info-card-subtitle-size', textStyles.subtitleSize);
+  if (textStyles.bodySize) card.style.setProperty('--info-card-body-size', textStyles.bodySize);
+}
+
 function buildCard(data, index) {
   const card = document.createElement('div');
   card.className = 'info-cards-grid-card';
@@ -161,6 +209,7 @@ function buildCard(data, index) {
 
   const cardBg = data.cardBg || '#1a1a2e';
   card.style.setProperty('background-color', cardBg, 'important');
+  applyTextStyles(card, data.textStyles);
 
   if (data.overlayField?.img) {
     const overlay = document.createElement('div');
@@ -221,7 +270,7 @@ export default function decorate(block) {
     const cardBgField = getField(row, 'cardBackgroundColor', 6);
     const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
     const iconColorField = getField(row, 'iconColor', 8);
-    const textColorField = getField(row, 'textColor', 9);
+    const textStyleField = getField(row, 'textColor', 9);
     const overlayField = getImageField(row, 'overlayImage', 10);
 
     cards.push({
@@ -234,7 +283,7 @@ export default function decorate(block) {
       cardBg: cardBgField.value,
       buttonBg: buttonBgField.value,
       iconColor: iconColorField.value,
-      textColor: textColorField.value,
+      textStyles: parseTextStyles(textStyleField.value),
       overlayField,
       row,
     });

@@ -2192,8 +2192,8 @@
         "component": "text",
         "valueType": "string",
         "name": "textColor",
-        "label": "Text Color (Hex)",
-        "description": "Applied to title, subtitle, and body. Defaults to white.",
+        "label": "Text Styles",
+        "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px",
         "value": ""
       },
       {

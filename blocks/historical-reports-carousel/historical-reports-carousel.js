@@ -1,4 +1,3 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
 const BLOCK_ROW_INDEX = {
@@ -114,22 +113,28 @@ function createCoverImage(imageField, altText, fallbackLabel) {
   media.className = 'historical-reports-carousel-card-media';
 
   if (imageField.picture) {
-    const img = imageField.picture.querySelector('img');
-    if (img && altText) img.alt = altText;
-    if (img?.src) {
-      const optimized = createOptimizedPicture(img.src, altText || img.alt || '', false, [
-        { width: '480' },
-      ]);
-      moveInstrumentation(img, optimized.querySelector('img'));
-      media.append(optimized);
-      return media;
+    const picture = imageField.picture.cloneNode(true);
+    const pictureImg = picture.querySelector('img');
+    if (pictureImg && altText) pictureImg.alt = altText;
+
+    if (imageField.source && imageField.source !== imageField.picture) {
+      moveInstrumentation(imageField.source, picture);
     }
+    moveInstrumentation(imageField.picture, picture);
+    if (imageField.img && pictureImg) moveInstrumentation(imageField.img, pictureImg);
+
+    media.append(picture);
+    return media;
   }
 
   if (imageField.img?.src) {
-    media.append(createOptimizedPicture(imageField.img.src, altText || imageField.alt || '', false, [
-      { width: '480' },
-    ]));
+    const img = imageField.img.cloneNode(true);
+    if (altText) img.alt = altText;
+    if (imageField.source && imageField.source !== imageField.img) {
+      moveInstrumentation(imageField.source, img);
+    }
+    moveInstrumentation(imageField.img, img);
+    media.append(img);
     return media;
   }
 
