@@ -409,6 +409,7 @@ function buildSemiDonut(dataset) {
   const centerY = 760;
   const radius = 560;
   const strokeWidth = 162;
+  const minVisibleSegmentShare = 0.01;
   const basePath = createSvgElement('path', {
     // Draw the upper semicircle so the chart arches above the table overlay.
     d: `M ${centerX - radius} ${centerY} A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY}`,
@@ -429,12 +430,38 @@ function buildSemiDonut(dataset) {
   const arcGroup = createSvgElement('g', {
     class: 'report-breakdown-arc-group',
   });
+  const rawSegmentLengths = dataset.entries.map((entry) => (
+    dataset.total > 0 ? (entry.reportCount / dataset.total) * totalLength : 0
+  ));
+  const visualSegmentLengths = [...rawSegmentLengths];
+
+  if (dataset.entries.length > 2) {
+    const minVisibleLength = totalLength * minVisibleSegmentShare;
+    let visualBoost = 0;
+
+    visualSegmentLengths.forEach((segmentLength, index) => {
+      if (segmentLength > 0 && segmentLength < minVisibleLength) {
+        visualBoost += minVisibleLength - segmentLength;
+        visualSegmentLengths[index] = minVisibleLength;
+      }
+    });
+
+    if (visualBoost > 0) {
+      const largestIndex = rawSegmentLengths.indexOf(Math.max(...rawSegmentLengths));
+      if (largestIndex >= 0) {
+        visualSegmentLengths[largestIndex] = Math.max(
+          visualSegmentLengths[largestIndex] - visualBoost,
+          0,
+        );
+      }
+    }
+  }
+
   let consumedLength = 0;
 
-  dataset.entries.forEach((entry) => {
-    const segmentLength = dataset.total > 0
-      ? (entry.reportCount / dataset.total) * totalLength
-      : 0;
+  dataset.entries.forEach((entry, index) => {
+    const rawSegmentLength = rawSegmentLengths[index] || 0;
+    const segmentLength = visualSegmentLengths[index] || 0;
     const arc = createSvgElement('path', {
       d: basePath.getAttribute('d'),
       class: 'report-breakdown-arc',
@@ -446,8 +473,12 @@ function buildSemiDonut(dataset) {
     arc.setAttribute('stroke-linecap', 'butt');
     arc.style.strokeDasharray = `${segmentLength} ${Math.max(totalLength - segmentLength, 0)}`;
     arc.style.strokeDashoffset = `${-consumedLength}`;
-    arcGroup.append(arc);
 
+    if (segmentLength > rawSegmentLength) {
+      arc.classList.add('is-boosted');
+    }
+
+    arcGroup.append(arc);
     consumedLength += segmentLength;
   });
 

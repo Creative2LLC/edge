@@ -56,7 +56,9 @@
       "trust-badges",
       "leadership-overview",
       "historical-trends",
+      "historical-reports-carousel",
       "report-breakdown",
+      "report-download",
       "connect-grid",
       "partners-showcase",
       "card-testimonies",
@@ -139,6 +141,12 @@
     "id": "faq",
     "components": [
       "faq-item"
+    ]
+  },
+  {
+    "id": "historical-reports-carousel",
+    "components": [
+      "historical-reports-carousel-item"
     ]
   },
   {

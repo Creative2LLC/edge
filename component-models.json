@@ -1485,6 +1485,76 @@
     ]
   },
   {
+    "id": "historical-reports-carousel",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Hex)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color (Hex)"
+      }
+    ]
+  },
+  {
+    "id": "historical-reports-carousel-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "coverImage",
+        "label": "Cover Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "coverImageAlt",
+        "label": "Cover Image Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "year",
+        "label": "Year"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "reportCount",
+        "label": "Report Count"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkText",
+        "label": "Link Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "linkUrl",
+        "label": "Link URL"
+      }
+    ]
+  },
+  {
     "id": "historical-trends",
     "fields": [
       {
@@ -3167,6 +3237,62 @@
     ]
   },
   {
+    "id": "report-download",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "backImage",
+        "label": "Back Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backImageAlt",
+        "label": "Back Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "frontImage",
+        "label": "Front Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "frontImageAlt",
+        "label": "Front Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      }
+    ]
+  },
+  {
     "id": "resources-browser",
     "fields": [
       {
@@ -3673,6 +3799,14 @@
         "value": "",
         "name": "statLabels",
         "label": "Stat Labels (one per line)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "value": "",
+        "name": "textColors",
+        "label": "Text Colors",
+        "description": "Optional. One per line: heading|#00264d, subheading|#404041, value|#1491bf, label|#6b6b6b"
       }
     ]
   },

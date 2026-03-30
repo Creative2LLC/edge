@@ -52,14 +52,43 @@ function normalizeLines(value) {
   return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 }
 
+function normalizeColorKey(value) {
+  return String(value || '').trim().toLowerCase().replace(/[^a-z]+/g, ' ');
+}
+
+function parseTextColors(value) {
+  return normalizeLines(value).reduce((colors, line) => {
+    const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
+    if (separatorIndex <= 0) return colors;
+
+    const key = normalizeColorKey(line.slice(0, separatorIndex));
+    const color = line.slice(separatorIndex + 1).trim();
+    if (!color) return colors;
+
+    if (['heading', 'title'].includes(key)) colors.heading = color;
+    else if (['subheading', 'subtitle'].includes(key)) colors.subheading = color;
+    else if (['value', 'stat value', 'stat values'].includes(key)) colors.value = color;
+    else if (['label', 'stat label', 'stat labels'].includes(key)) colors.label = color;
+
+    return colors;
+  }, {});
+}
+
 export default function decorate(block) {
   const headingField = readField(block, 'heading', ['heading', 'title']);
   const subheadingField = readField(block, 'subheading', ['subheading']);
   const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
   const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
+  const textColorsField = readField(block, 'textColors', ['text colors', 'colors']);
 
   const values = normalizeLines(statValuesField.value);
   const labels = normalizeLines(statLabelsField.value);
+  const textColors = parseTextColors(textColorsField.value);
+
+  if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
+  if (textColors.subheading) block.style.setProperty('--statistics-subheading-color', textColors.subheading);
+  if (textColors.value) block.style.setProperty('--statistics-value-color', textColors.value);
+  if (textColors.label) block.style.setProperty('--statistics-label-color', textColors.label);
 
   const wrapper = document.createElement('div');
   wrapper.className = 'statistics-inner';

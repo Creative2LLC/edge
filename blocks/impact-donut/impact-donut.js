@@ -133,20 +133,23 @@ function buildRichContent(source, className) {
 }
 
 function buildButton(labelField, linkField, variant) {
-  if (!labelField.value && !labelField.source && !linkField.value) return null;
+  const label = labelField.value.trim();
+  const href = linkField.value.trim();
 
-  const button = document.createElement(linkField.value ? 'a' : 'span');
+  if (!label) return null;
+
+  const button = document.createElement(href ? 'a' : 'span');
   button.className = `impact-donut-button ${variant}`;
-  if (linkField.value) button.href = linkField.value;
-  if (linkField.source) moveInstrumentation(linkField.source, button);
+  if (href) button.href = href;
+  if (href && linkField.source) moveInstrumentation(linkField.source, button);
 
   if (labelField.source) {
-    moveFieldContent(labelField, button, labelField.value || 'Learn More');
+    moveFieldContent(labelField, button, label);
   } else {
-    button.textContent = labelField.value || 'Learn More';
+    button.textContent = label;
   }
 
-  return button;
+  return button.textContent.trim() ? button : null;
 }
 
 function normalizeItemType(value) {
