@@ -1,68 +1,45 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-function getFieldProp(block, name) {
+function getField(block, rows, name, index) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
+  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
   return { source: null, value: '' };
 }
 
-function getImageProp(block, name) {
+function getImageField(block, rows, name, index) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
-    const picture = source.closest('picture')
-      || source.querySelector('picture');
-    const img = source.tagName === 'IMG'
-      ? source
-      : source.querySelector('img');
-    return { source, picture, img };
+    const pic = source.closest('picture') || source.querySelector('picture');
+    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
+    return { source, picture: pic, img };
   }
-  /* Fallback: grab any picture in the block */
-  const picture = block.querySelector('picture');
-  if (picture) {
-    return { source: null, picture, img: picture.querySelector('img') };
+  if (rows[index]) {
+    const pic = rows[index].querySelector('picture');
+    const img = rows[index].querySelector('img');
+    return { source: null, picture: pic, img };
   }
   return { source: null, picture: null, img: null };
 }
 
+function getRichField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, html: source.innerHTML.trim() };
+  if (rows[index]) return { source: null, html: rows[index].innerHTML.trim() };
+  return { source: null, html: '' };
+}
+
 export default function decorate(block) {
-  /* --- Extract all fields before any DOM changes --- */
-  const iconData = getImageProp(block, 'icon');
-  const iconColorField = getFieldProp(block, 'iconColor');
-  const headingField = getFieldProp(block, 'heading');
-  const addressField = getFieldProp(block, 'address');
+  const rows = [...block.querySelectorAll(':scope > div')];
+
+  /* Fields match model order: icon=0, iconColor=1, heading=2, address=3 */
+  const iconField = getImageField(block, rows, 'icon', 0);
+  const iconColorField = getField(block, rows, 'iconColor', 1);
+  const headingField = getField(block, rows, 'heading', 2);
+  const addressField = getRichField(block, rows, 'address', 3);
 
   const iconColor = iconColorField.value;
   const heading = headingField.value;
-  const addressHTML = addressField.source
-    ? addressField.source.innerHTML.trim()
-    : '';
-
-  /* --- Fallback: parse from rows if no data-aue-prop found --- */
-  let fallbackImg = null;
-  let fallbackPicture = null;
-  let fallbackHeading = '';
-  let fallbackAddress = '';
-  if (!heading && !addressHTML) {
-    [...block.querySelectorAll(':scope > div')].forEach((row) => {
-      const cols = [...row.children];
-      if (cols.length < 2) return;
-      if (!fallbackImg) {
-        fallbackImg = cols[0].querySelector('img');
-        fallbackPicture = cols[0].querySelector('picture');
-      }
-      if (!fallbackHeading && cols[1]) {
-        fallbackHeading = cols[1].textContent.trim();
-      }
-      if (!fallbackAddress && cols[2]) {
-        fallbackAddress = cols[2].innerHTML.trim();
-      }
-    });
-  }
-
-  const finalImg = iconData.img || fallbackImg;
-  const finalPicture = iconData.picture || fallbackPicture;
-  const finalHeading = heading || fallbackHeading;
-  const finalAddress = addressHTML || fallbackAddress;
 
   /* --- Build card --- */
   const card = document.createElement('div');
@@ -72,10 +49,11 @@ export default function decorate(block) {
   const left = document.createElement('div');
   left.className = 'mail-address-left';
 
-  if (finalPicture || finalImg) {
+  if (iconField.img || iconField.picture) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'mail-address-icon';
-    const imgSrc = finalImg?.src || finalImg?.currentSrc;
+    const imgSrc = iconField.img?.src || iconField.img?.currentSrc;
+
     if (iconColor && imgSrc) {
       iconWrap.style.setProperty('background-color', iconColor, 'important');
       iconWrap.style.setProperty('-webkit-mask-image', `url('${imgSrc}')`, 'important');
@@ -84,19 +62,21 @@ export default function decorate(block) {
       iconWrap.style.setProperty('mask-size', 'contain', 'important');
       iconWrap.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
       iconWrap.style.setProperty('mask-repeat', 'no-repeat', 'important');
-    } else if (finalPicture) {
-      iconWrap.append(finalPicture);
-    } else if (finalImg) {
-      iconWrap.append(finalImg);
+    } else if (iconField.picture) {
+      iconWrap.append(iconField.picture);
+    } else if (iconField.img) {
+      const img = iconField.img.cloneNode(true);
+      iconWrap.append(img);
     }
-    if (iconData.source) moveInstrumentation(iconData.source, iconWrap);
+
+    if (iconField.source) moveInstrumentation(iconField.source, iconWrap);
     left.append(iconWrap);
   }
 
-  if (finalHeading) {
+  if (heading) {
     const h2 = document.createElement('h2');
     h2.className = 'mail-address-heading';
-    h2.textContent = finalHeading;
+    h2.textContent = heading;
     left.append(h2);
   }
 
@@ -106,10 +86,10 @@ export default function decorate(block) {
   const right = document.createElement('div');
   right.className = 'mail-address-right';
 
-  if (finalAddress) {
+  if (addressField.html) {
     const addr = document.createElement('div');
     addr.className = 'mail-address-content';
-    addr.innerHTML = finalAddress;
+    addr.innerHTML = addressField.html;
     if (addressField.source) moveInstrumentation(addressField.source, addr);
     right.append(addr);
   }
