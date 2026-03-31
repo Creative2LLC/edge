@@ -63,7 +63,8 @@
       "partners-showcase",
       "card-testimonies",
       "mail-address",
-      "split-card-detail"
+      "split-card-detail",
+      "job-postings"
     ]
   },
   {
@@ -190,6 +191,12 @@
     "id": "info-cards-grid",
     "components": [
       "info-card"
+    ]
+  },
+  {
+    "id": "job-postings",
+    "components": [
+      "job-posting-item"
     ]
   },
   {

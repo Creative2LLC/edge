@@ -50,6 +50,8 @@ module.exports = {
       'split-card-carousel-item': 9,
       'icon-card-carousel-item': 10,
       statistics: 5,
+      'job-posting-item': 10,
+      'job-postings': 8,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

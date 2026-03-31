@@ -2207,6 +2207,156 @@
     ]
   },
   {
+    "id": "job-postings",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "locationIcon",
+        "label": "Location Icon",
+        "description": "Shared icon shown before the location text on every card",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "categoryIcon",
+        "label": "Category Icon",
+        "description": "Shared icon shown before the category text on every card",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "typeIcon",
+        "label": "Employment Type Icon",
+        "description": "Shared icon shown before Full-time / Part-time text on every card",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bottomButtonText",
+        "label": "Bottom Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "bottomButtonLink",
+        "label": "Bottom Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bottomButtonColor",
+        "label": "Bottom Button Color (Hex)",
+        "description": "Defaults to #008db6"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bottomButtonTextColor",
+        "label": "Bottom Button Text Color (Hex)",
+        "description": "Defaults to #ffffff for solid, button color for outlined"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "bottomButtonStyle",
+        "label": "Bottom Button Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
+      }
+    ]
+  },
+  {
+    "id": "job-posting-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "positionName",
+        "label": "Position Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "location",
+        "label": "Location"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "category",
+        "label": "Category"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "employmentType",
+        "label": "Employment Type",
+        "description": "e.g. Full-time, Part-time"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Apply Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Apply Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Apply Button Color (Hex)",
+        "description": "Defaults to #008db6"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Apply Button Text Color (Hex)",
+        "description": "Defaults to #ffffff for solid, button color for outlined"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Apply Button Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color (Hex)",
+        "description": "Defaults to #DDD5CC52 if left empty"
+      }
+    ]
+  },
+  {
     "id": "leadership-header",
     "fields": [
       {
