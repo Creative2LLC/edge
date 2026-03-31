@@ -2207,6 +2207,132 @@
     ]
   },
   {
+    "id": "internship-program",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "sectionHeader",
+        "label": "Section Header"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "sectionText",
+        "label": "Section Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "card1Title",
+        "label": "Card 1 Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "card1Text",
+        "label": "Card 1 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "card2Title",
+        "label": "Card 2 Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "card2Text",
+        "label": "Card 2 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bottomHeader",
+        "label": "Bottom Header"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bottomText",
+        "label": "Bottom Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Color (Hex)",
+        "description": "Defaults to #008db6"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contentBackgroundColor",
+        "label": "Content Background Color (Hex)",
+        "description": "Defaults to #DDD5CC52 if left empty"
+      }
+    ]
+  },
+  {
     "id": "job-postings",
     "fields": [
       {
