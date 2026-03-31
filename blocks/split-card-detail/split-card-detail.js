@@ -32,7 +32,7 @@ function buildIcon(content, iconField, iconColor) {
 
   if (isWhite) {
     const img = iconField.img.cloneNode(true);
-    img.className = 'split-card-detailed-card-icon';
+    img.className = 'split-card-detail-card-icon';
     if (iconField.source) moveInstrumentation(iconField.source, img);
     img.style.setProperty('filter', 'brightness(0) invert(1)', 'important');
     content.append(img);
@@ -40,7 +40,7 @@ function buildIcon(content, iconField, iconColor) {
   }
 
   const wrap = document.createElement('div');
-  wrap.className = 'split-card-detailed-card-icon-wrap';
+  wrap.className = 'split-card-detail-card-icon-wrap';
   wrap.style.setProperty('background-color', color, 'important');
   wrap.style.setProperty('-webkit-mask-image', `url(${iconField.img.src})`, 'important');
   wrap.style.setProperty('mask-image', `url(${iconField.img.src})`, 'important');
@@ -91,25 +91,25 @@ function getRadius(index, total) {
 
 function buildCard(data, index, total) {
   const card = document.createElement('div');
-  card.className = 'split-card-detailed-card';
+  card.className = 'split-card-detail-card';
   card.style.borderRadius = getRadius(index, total);
   if (data.row) moveInstrumentation(data.row, card);
 
   const content = document.createElement('div');
-  content.className = 'split-card-detailed-card-content';
+  content.className = 'split-card-detail-card-content';
 
   buildIcon(content, data.iconField, data.iconColor);
 
   if (data.titleField.value) {
     const h3 = document.createElement('h3');
-    h3.className = 'split-card-detailed-card-title';
+    h3.className = 'split-card-detail-card-title';
     moveFieldContent(data.titleField, h3);
     content.append(h3);
   }
 
   if (data.subtitleField.value) {
     const p = document.createElement('p');
-    p.className = 'split-card-detailed-card-subtitle';
+    p.className = 'split-card-detail-card-subtitle';
     moveFieldContent(data.subtitleField, p);
     content.append(p);
   }
@@ -162,11 +162,11 @@ export default function decorate(block) {
 
   /* Outer wrapper */
   const inner = document.createElement('div');
-  inner.className = 'split-card-detailed-inner';
+  inner.className = 'split-card-detail-inner';
 
   /* Left side — 2x2 card grid */
   const grid = document.createElement('div');
-  grid.className = 'split-card-detailed-grid';
+  grid.className = 'split-card-detail-grid';
 
   cards.slice(0, 4).forEach((data, i) => {
     grid.append(buildCard(data, i, total));
@@ -175,7 +175,7 @@ export default function decorate(block) {
 
   /* Right side — image */
   const media = document.createElement('div');
-  media.className = 'split-card-detailed-media';
+  media.className = 'split-card-detail-media';
   if (picture) media.append(picture);
   inner.append(media);
 

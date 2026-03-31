@@ -1,11 +1,11 @@
 /* Split Card Detailed Block */
-.split-card-detailed.block {
+.split-card-detail.block {
   padding: 0;
   margin-top: 40px;
 }
 
 /* Outer flex container — cards left, image right */
-.split-card-detailed-inner {
+.split-card-detail-inner {
   display: flex;
   gap: 24px;
   align-items: stretch;
@@ -13,7 +13,7 @@
 }
 
 /* Left side — 2x2 card grid */
-.split-card-detailed-grid {
+.split-card-detail-grid {
   flex: 0 0 50%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -21,7 +21,7 @@
 }
 
 /* Individual card */
-.split-card-detailed-card {
+.split-card-detail-card {
   background-color: #fff;
   display: flex;
   flex-direction: column;
@@ -31,14 +31,14 @@
 }
 
 /* Card content wrapper */
-.split-card-detailed-card-content {
+.split-card-detail-card-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 /* Icon */
-.split-card-detailed-card-icon {
+.split-card-detail-card-icon {
   width: 48px;
   height: 48px;
   object-fit: contain;
@@ -47,7 +47,7 @@
 }
 
 /* Icon colour-mask wrapper */
-.split-card-detailed-card-icon-wrap {
+.split-card-detail-card-icon-wrap {
   width: 48px;
   height: 48px;
   display: block;
@@ -56,7 +56,7 @@
 }
 
 /* Title */
-.split-card-detailed-card-title {
+.split-card-detail-card-title {
   font-size: 20px;
   font-weight: 600;
   color: #404041;
@@ -65,7 +65,7 @@
 }
 
 /* Subtitle */
-.split-card-detailed-card-subtitle {
+.split-card-detail-card-subtitle {
   font-size: 15px;
   font-weight: 400;
   color: #6b6b6b;
@@ -74,19 +74,19 @@
 }
 
 /* Right side — image */
-.split-card-detailed-media {
+.split-card-detail-media {
   flex: 0 0 50%;
   border-radius: 32px;
   overflow: hidden;
 }
 
-.split-card-detailed-media picture {
+.split-card-detail-media picture {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.split-card-detailed-media img {
+.split-card-detail-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -95,16 +95,16 @@
 
 /* Responsive: Tablet */
 @media (width <= 900px) {
-  .split-card-detailed-inner {
+  .split-card-detail-inner {
     flex-direction: column;
     gap: 20px;
   }
 
-  .split-card-detailed-grid {
+  .split-card-detail-grid {
     flex: none;
   }
 
-  .split-card-detailed-media {
+  .split-card-detail-media {
     flex: none;
     min-height: 300px;
   }
@@ -112,17 +112,17 @@
 
 /* Responsive: Mobile */
 @media (width <= 600px) {
-  .split-card-detailed-grid {
+  .split-card-detail-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .split-card-detailed-card {
+  .split-card-detail-card {
     border-radius: 16px !important;
     padding: 24px 20px;
   }
 
-  .split-card-detailed-media {
+  .split-card-detail-media {
     min-height: 220px;
     border-radius: 16px;
   }

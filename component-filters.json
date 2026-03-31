@@ -63,7 +63,7 @@
       "partners-showcase",
       "card-testimonies",
       "mail-address",
-      "split-card-detailed"
+      "split-card-detail"
     ]
   },
   {
@@ -271,9 +271,9 @@
     ]
   },
   {
-    "id": "split-card-detailed",
+    "id": "split-card-detail",
     "components": [
-      "split-card-detailed-item"
+      "split-card-detail-item"
     ]
   },
   {

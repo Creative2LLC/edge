@@ -3602,7 +3602,7 @@
     ]
   },
   {
-    "id": "split-card-detailed",
+    "id": "split-card-detail",
     "fields": [
       {
         "component": "reference",
@@ -3620,7 +3620,7 @@
     ]
   },
   {
-    "id": "split-card-detailed-item",
+    "id": "split-card-detail-item",
     "fields": [
       {
         "component": "reference",

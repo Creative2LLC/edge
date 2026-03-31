@@ -1,31 +1,31 @@
 {
   "definitions": [
     {
-      "title": "Split Card Detailed",
-      "id": "split-card-detailed",
+      "title": "Split Card Detail",
+      "id": "split-card-detail",
       "plugins": {
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/block/v1/block",
             "template": {
-              "name": "Split Card Detailed",
-              "model": "split-card-detailed",
-              "filter": "split-card-detailed"
+              "name": "Split Card Detail",
+              "model": "split-card-detail",
+              "filter": "split-card-detail"
             }
           }
         }
       }
     },
     {
-      "title": "Split Card Detailed Item",
-      "id": "split-card-detailed-item",
+      "title": "Split Card Detail Item",
+      "id": "split-card-detail-item",
       "plugins": {
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
-              "name": "Split Card Detailed Item",
-              "model": "split-card-detailed-item"
+              "name": "Split Card Detail Item",
+              "model": "split-card-detail-item"
             }
           }
         }
@@ -34,7 +34,7 @@
   ],
   "models": [
     {
-      "id": "split-card-detailed",
+      "id": "split-card-detail",
       "fields": [
         {
           "component": "reference",
@@ -52,7 +52,7 @@
       ]
     },
     {
-      "id": "split-card-detailed-item",
+      "id": "split-card-detail-item",
       "fields": [
         {
           "component": "reference",
@@ -85,9 +85,9 @@
   ],
   "filters": [
     {
-      "id": "split-card-detailed",
+      "id": "split-card-detail",
       "components": [
-        "split-card-detailed-item"
+        "split-card-detail-item"
       ]
     }
   ]
