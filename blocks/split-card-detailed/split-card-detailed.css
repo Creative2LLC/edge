@@ -22,7 +22,7 @@
 
 /* Individual card */
 .split-card-detailed-card {
-  background-color: #ffffff;
+  background-color: #fff;
   display: flex;
   flex-direction: column;
   padding: 28px 24px;
