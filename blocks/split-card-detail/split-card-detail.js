@@ -1,6 +1,22 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function isItemRow(row) {
+  return Boolean(
+    row.querySelector('[data-aue-prop="icon"]')
+      || row.querySelector('[data-aue-prop="title"]')
+      || row.querySelector('[data-aue-prop="subtitle"]')
+      || row.querySelector('[data-aue-prop="iconColor"]'),
+  );
+}
+
 function getField(row, name, index) {
   const source = row.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
@@ -95,6 +111,20 @@ function buildCard(data, index, total) {
   card.style.borderRadius = getRadius(index, total);
   if (data.row) moveInstrumentation(data.row, card);
 
+  const hasVisibleContent = Boolean(
+    data.iconField.img || data.titleField.value || data.subtitleField.value,
+  );
+
+  /* Authoring placeholder — empty item just added in the editor */
+  if (!hasVisibleContent && data.isAuthoring) {
+    card.classList.add('is-authoring-placeholder');
+    const placeholder = document.createElement('p');
+    placeholder.className = 'split-card-detail-card-placeholder';
+    placeholder.textContent = 'Edit this card in the properties panel';
+    card.append(placeholder);
+    return card;
+  }
+
   const content = document.createElement('div');
   content.className = 'split-card-detail-card-content';
 
@@ -136,24 +166,32 @@ export default function decorate(block) {
     }
   }
 
-  /* Collect card items */
+  /* Collect card items — detect via AUE props OR column count */
   const cards = [];
   rows.forEach((row) => {
+    const aueItem = isItemRow(row);
     const cols = [...row.children];
-    if (cols.length < 2) return;
+    const enoughCols = cols.length >= 2;
+
+    if (!aueItem && !enoughCols) return;
 
     const iconField = getImageField(row, 'icon', 0);
     const titleField = getField(row, 'title', 1);
     const subtitleField = getField(row, 'subtitle', 2);
     const iconColorField = getField(row, 'iconColor', 3);
 
-    if (!iconField.img && !titleField.value && !subtitleField.value) return;
+    const hasContent = iconField.img || titleField.value || subtitleField.value;
+    const authoring = hasAuthoringContext(row);
+
+    /* Keep the row if it has content OR is an authoring placeholder */
+    if (!hasContent && !authoring) return;
 
     cards.push({
       iconField,
       titleField,
       subtitleField,
       iconColor: iconColorField.value,
+      isAuthoring: authoring && !hasContent,
       row,
     });
   });
