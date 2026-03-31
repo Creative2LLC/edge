@@ -1280,6 +1280,37 @@
           }
         },
         {
+          "title": "Split Card Detailed",
+          "id": "split-card-detailed",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Split Card Detailed",
+                  "model": "split-card-detailed",
+                  "filter": "split-card-detailed"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Split Card Detailed Item",
+          "id": "split-card-detailed-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Split Card Detailed Item",
+                  "model": "split-card-detailed-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Split Card Gap",
           "id": "split-card-gap",
           "plugins": {

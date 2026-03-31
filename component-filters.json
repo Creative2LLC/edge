@@ -62,7 +62,8 @@
       "connect-grid",
       "partners-showcase",
       "card-testimonies",
-      "mail-address"
+      "mail-address",
+      "split-card-detailed"
     ]
   },
   {
@@ -267,6 +268,12 @@
     "id": "split-card-carousel",
     "components": [
       "split-card-carousel-item"
+    ]
+  },
+  {
+    "id": "split-card-detailed",
+    "components": [
+      "split-card-detailed-item"
     ]
   },
   {

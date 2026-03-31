@@ -109,7 +109,8 @@
         "connect-grid",
         "partners-showcase",
         "card-testimonies",
-        "mail-address"
+        "mail-address",
+        "split-card-detailed"
       ]
     }
   ]
