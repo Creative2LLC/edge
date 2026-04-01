@@ -67,7 +67,8 @@
       "job-postings",
       "internship-program",
       "card-row-compact",
-      "detailed-carousel"
+      "detailed-carousel",
+      "us-map"
     ]
   },
   {
@@ -302,6 +303,12 @@
     "id": "trust-badges",
     "components": [
       "trust-badge-item"
+    ]
+  },
+  {
+    "id": "us-map",
+    "components": [
+      "us-map-state"
     ]
   }
 ]
