@@ -112,7 +112,8 @@
         "mail-address",
         "split-card-detail",
         "job-postings",
-        "internship-program"
+        "internship-program",
+        "card-row-compact"
       ]
     }
   ]
