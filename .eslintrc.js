@@ -29,7 +29,7 @@ module.exports = {
     'linebreak-style': ['error', 'unix'], // enforce unix linebreaks
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', {
-      '*': 8,
+      '*': 10,
       'news-article': 5,
       resources: 5,
       'resource-item': 7,
@@ -49,6 +49,7 @@ module.exports = {
       'image-text-card-row-item': 9,
       'split-card-carousel-item': 9,
       'icon-card-carousel-item': 10,
+      'card-row-compact-item': 10,
       statistics: 5,
       'job-posting-item': 10,
       'job-postings': 8,
