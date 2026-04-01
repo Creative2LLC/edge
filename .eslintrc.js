@@ -40,7 +40,7 @@ module.exports = {
       'impact-chain-item': 5,
       'leader-card': 7,
       'leadership-profile': 8,
-      'cta-card-1': 9,
+      'cta-card-1': 13,
       'cta-card-2': 8,
       'info-card': 11,
       'card-row-item': 9,
