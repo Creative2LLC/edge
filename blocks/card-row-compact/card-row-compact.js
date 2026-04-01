@@ -70,6 +70,7 @@ function buildCard(data) {
   if (data.titleField.value || data.titleField.source) {
     const h3 = document.createElement('h3');
     h3.className = 'card-row-compact-card-title';
+    if (data.titleColor) h3.style.color = data.titleColor;
     if (data.titleField.source) {
       moveInstrumentation(data.titleField.source, h3);
       while (data.titleField.source.firstChild) h3.append(data.titleField.source.firstChild);
@@ -83,6 +84,7 @@ function buildCard(data) {
   if (data.subheadingField.value || data.subheadingField.source) {
     const p = document.createElement('p');
     p.className = 'card-row-compact-card-subheading';
+    if (data.subheadingColor) p.style.color = data.subheadingColor;
     if (data.subheadingField.source) {
       moveInstrumentation(data.subheadingField.source, p);
       const { source } = data.subheadingField;
@@ -128,16 +130,20 @@ export default function decorate(block) {
     const iconColorField = getField(row, 'iconColor', 1);
     const titleField = getField(row, 'title', 2);
     const subheadingField = getField(row, 'subheading', 3);
-    const linkTextField = getField(row, 'linkText', 4);
-    const linkUrlField = getLinkField(row, 'linkUrl', 5);
-    const linkColorField = getField(row, 'linkColor', 6);
-    const cardBgField = getField(row, 'cardBackgroundColor', 7);
+    const titleColorField = getField(row, 'titleColor', 4);
+    const subheadingColorField = getField(row, 'subheadingColor', 5);
+    const linkTextField = getField(row, 'linkText', 6);
+    const linkUrlField = getLinkField(row, 'linkUrl', 7);
+    const linkColorField = getField(row, 'linkColor', 8);
+    const cardBgField = getField(row, 'cardBackgroundColor', 9);
 
     cards.push({
       iconField,
       iconColor: iconColorField.value,
       titleField,
       subheadingField,
+      titleColor: titleColorField.value,
+      subheadingColor: subheadingColorField.value,
       linkTextField,
       linkUrlField,
       linkColor: linkColorField.value,

@@ -130,6 +130,20 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "titleColor",
+          "label": "Title Text Color (Hex)",
+          "description": "Defaults to #404041 if left empty"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheadingColor",
+          "label": "Subheading Text Color (Hex)",
+          "description": "Defaults to #404041 if left empty"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "linkText",
           "label": "Link Text"
         },
