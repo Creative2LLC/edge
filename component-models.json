@@ -4335,6 +4335,18 @@
     ]
   },
   {
+    "id": "us-map",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "classes",
+        "label": "Style",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "us-map-state",
     "fields": [
       {
