@@ -83,6 +83,7 @@
 /* Top: image — 46% of card height */
 .detailed-carousel .detailed-carousel-media {
   flex: 0 0 46%;
+  max-height: 300px;
   overflow: hidden;
 }
 
