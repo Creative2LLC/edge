@@ -4335,18 +4335,6 @@
     ]
   },
   {
-    "id": "us-map",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "heading",
-        "label": "Heading (optional)",
-        "description": "Optional heading displayed above the map"
-      }
-    ]
-  },
-  {
     "id": "us-map-state",
     "fields": [
       {
