@@ -1,6 +1,6 @@
 .trust-badges {
   padding: 96px 24px 88px;
-  background: #fff;
+  background-color: #fff;
 }
 
 .trust-badges .trust-badges-inner {
@@ -60,6 +60,10 @@
 .trust-badges .trust-badges-cta-icon svg {
   width: 18px;
   height: 18px;
+}
+
+.trust-badges.no-header .trust-badges-grid {
+  margin-top: 0;
 }
 
 .trust-badges .trust-badges-grid {

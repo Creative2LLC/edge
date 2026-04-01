@@ -321,7 +321,11 @@ export default async function decorate(block) {
   const cta = buildCta(ctaTextField, ctaLinkField);
   if (cta) header.append(cta);
 
-  if (header.children.length) inner.append(header);
+  if (header.children.length) {
+    inner.append(header);
+  } else {
+    block.classList.add('no-header');
+  }
 
   const grid = document.createElement('div');
   grid.className = 'trust-badges-grid';
