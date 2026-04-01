@@ -45,10 +45,10 @@ export default function decorate(block) {
   const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
   const buttonColorField = getField(block, rows, 'buttonColor', 6);
   const buttonTextColorField = getField(block, rows, 'buttonTextColor', 7);
-  const button2TextField = getField(block, rows, 'button2Text', 9);
-  const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
-  const button2ColorField = getField(block, rows, 'button2Color', 11);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 12);
+  const button2TextField = getField(block, rows, 'button2Text', 8);
+  const button2LinkField = getLinkField(block, rows, 'button2Link', 9);
+  const button2ColorField = getField(block, rows, 'button2Color', 10);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 11);
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';
