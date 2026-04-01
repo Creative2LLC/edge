@@ -71,6 +71,11 @@
   opacity: 0.85;
 }
 
+.cta-card-1 .cta-card-1-button-secondary {
+  background-color: #fff !important;
+  border: 1px solid currentColor;
+}
+
 .cta-card-1 .cta-card-1-below-button {
   font-size: 17px;
   font-weight: 400;

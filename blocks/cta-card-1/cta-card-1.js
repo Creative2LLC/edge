@@ -45,7 +45,11 @@ export default function decorate(block) {
   const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
   const buttonColorField = getField(block, rows, 'buttonColor', 6);
   const buttonTextColorField = getField(block, rows, 'buttonTextColor', 7);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 8);
+  const button2TextField = getField(block, rows, 'button2Text', 9);
+  const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
+  const button2ColorField = getField(block, rows, 'button2Color', 11);
+  const button2TextColorField = getField(block, rows, 'button2TextColor', 12);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 13);
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';
@@ -83,6 +87,36 @@ export default function decorate(block) {
   if (btnColor) btn.style.setProperty('background-color', btnColor, 'important');
   if (btnTextColor) btn.style.setProperty('color', btnTextColor, 'important');
   right.append(btn);
+
+  // Second button (optional — outline style)
+  const btn2Label = button2TextField.value;
+  const btn2Href = button2LinkField.value;
+  if (btn2Label) {
+    const btn2 = document.createElement(btn2Href ? 'a' : 'button');
+    btn2.className = 'cta-card-1-button cta-card-1-button-secondary';
+    btn2.textContent = btn2Label;
+    if (btn2Href) btn2.href = btn2Href;
+    if (!btn2Href) btn2.type = 'button';
+    if (button2TextField.source) {
+      moveInstrumentation(button2TextField.source, btn2);
+      button2TextField.source.remove();
+    }
+
+    const btn2Color = button2ColorField.value;
+    if (btn2Color) {
+      btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
+      btn2.style.setProperty('color', btn2Color, 'important');
+    }
+    btn2.style.setProperty('background-color', '#ffffff', 'important');
+    right.append(btn2);
+  }
+
+  // Clean up button2Link source
+  if (button2LinkField.source) {
+    const row = button2LinkField.source.closest('.cta-card-1 > div');
+    if (row) row.remove();
+    else button2LinkField.source.remove();
+  }
 
   const belowText = buildTextElement('p', 'cta-card-1-below-button', belowButtonTextField);
   if (belowText) right.append(belowText);

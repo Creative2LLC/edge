@@ -70,6 +70,29 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "button2Text",
+          "label": "Button 2 Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "button2Link",
+          "label": "Button 2 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Color",
+          "label": "Button 2 Color (Hex)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2TextColor",
+          "label": "Button 2 Text Color (Hex)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "belowButtonText",
           "label": "Text Below Button"
         }
