@@ -188,6 +188,18 @@ function buildDropdown(onSelect) {
   return { wrap, label, list };
 }
 
+function parseCsv(text) {
+  const lines = text.split('\n').filter((l) => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map((h) => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map((line) => {
+    const vals = line.split(',').map((v) => v.trim().replace(/^"|"$/g, ''));
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+    return obj;
+  });
+}
+
 async function fetchStateLinks(sheetUrl) {
   const stateLinks = {};
   if (!sheetUrl) return stateLinks;
@@ -195,8 +207,17 @@ async function fetchStateLinks(sheetUrl) {
   try {
     const resp = await fetch(sheetUrl);
     if (!resp.ok) return stateLinks;
-    const json = await resp.json();
-    const data = json.data || json;
+    const contentType = resp.headers.get('content-type') || '';
+    let data;
+
+    if (contentType.includes('json')) {
+      const json = await resp.json();
+      data = json.data || json;
+    } else {
+      const text = await resp.text();
+      data = parseCsv(text);
+    }
+
     if (Array.isArray(data)) {
       data.forEach((row) => {
         const name = row.State || row.state || '';
