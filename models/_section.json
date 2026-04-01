@@ -113,7 +113,8 @@
         "split-card-detail",
         "job-postings",
         "internship-program",
-        "card-row-compact"
+        "card-row-compact",
+        "detailed-carousel"
       ]
     }
   ]

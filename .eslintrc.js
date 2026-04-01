@@ -54,6 +54,7 @@ module.exports = {
       'job-posting-item': 10,
       'job-postings': 8,
       'internship-program': 18,
+      'detailed-carousel-item': 11,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },
