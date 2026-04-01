@@ -1,5 +1,3 @@
-import { moveInstrumentation } from '../../scripts/scripts.js';
-
 /* Abbreviation → full name lookup */
 const STATE_NAMES = {
   AL: 'Alabama',
@@ -58,28 +56,6 @@ const STATE_NAMES = {
 const CHEVRON_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"></polyline></svg>';
 
 const ARROW_SVG = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
-function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
-}
-
-function getLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
-}
 
 const MAP_VIEWBOX = '174 100 959 593';
 
@@ -212,20 +188,51 @@ function buildDropdown(onSelect) {
   return { wrap, label, list };
 }
 
-export default function decorate(block) {
+async function fetchStateLinks(sheetUrl) {
+  const stateLinks = {};
+  if (!sheetUrl) return stateLinks;
+
+  try {
+    const resp = await fetch(sheetUrl);
+    if (!resp.ok) return stateLinks;
+    const json = await resp.json();
+    const data = json.data || json;
+    if (Array.isArray(data)) {
+      data.forEach((row) => {
+        const name = row.State || row.state || '';
+        const link = row.Link || row.link || row.URL || row.url || '';
+        if (name && link) {
+          stateLinks[name.trim().toLowerCase()] = link.trim();
+        }
+      });
+    }
+  } catch (e) {
+    /* silent fail — map still works, just no links */
+  }
+
+  return stateLinks;
+}
+
+export default async function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
-  /* Read state→link data from block items */
-  const stateLinks = {};
+  /* Read sheet URL from block field */
+  let sheetUrl = '';
   rows.forEach((row) => {
-    const cols = [...row.children];
-    if (cols.length < 2) return;
-    const nameField = getField(row, 'stateName', 0);
-    const linkField = getLinkField(row, 'stateLink', 1);
-    if (nameField.value) {
-      stateLinks[nameField.value.toLowerCase()] = linkField.value;
+    const el = row.querySelector('[data-aue-prop="sheetUrl"]');
+    if (el) {
+      const anchor = el.querySelector('a');
+      sheetUrl = anchor?.href || el.textContent.trim();
+    } else {
+      const cols = [...row.children];
+      if (cols.length === 1) {
+        const anchor = cols[0].querySelector('a');
+        sheetUrl = anchor?.href || cols[0].textContent.trim();
+      }
     }
   });
+
+  const stateLinks = await fetchStateLinks(sheetUrl);
 
   /* Load SVG map */
   const mapWrap = document.createElement('div');
@@ -322,6 +329,5 @@ export default function decorate(block) {
     }
   });
 
-  if (rows[0]) moveInstrumentation(rows[0], block);
   block.replaceChildren(mapWrap, info, linkBar);
 }

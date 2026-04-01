@@ -304,11 +304,5 @@
     "components": [
       "trust-badge-item"
     ]
-  },
-  {
-    "id": "us-map",
-    "components": [
-      "us-map-state"
-    ]
   }
 ]
