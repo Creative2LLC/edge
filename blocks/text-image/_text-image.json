@@ -54,6 +54,12 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "imageOverlayHeader",
+          "label": "Image Overlay Header (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "imageOverlayText",
           "label": "Image Overlay Text (Optional)"
         }

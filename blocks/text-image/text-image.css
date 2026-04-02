@@ -69,21 +69,21 @@
 
 .text-image.block .text-image-media {
   position: relative;
-  flex: 0 0 459px;
+  flex: 0 0 520px;
 }
 
 .text-image.block .text-image-media picture {
   display: block;
-  width: 459px;
-  height: 400px;
+  width: 520px;
+  height: 440px;
   overflow: hidden;
   border-radius: 14px;
 }
 
 .text-image.block .text-image-media img {
   display: block;
-  width: 459px;
-  height: 400px;
+  width: 520px;
+  height: 440px;
   max-width: none;
   object-fit: cover;
   border-radius: 14px;
@@ -93,7 +93,9 @@
   position: absolute;
   right: 18px;
   bottom: 18px;
-  max-width: min(250px, calc(100% - 36px));
+  max-width: min(280px, calc(100% - 36px));
+  max-height: calc(100% - 36px);
+  overflow: hidden;
   padding: 26px 24px;
   border: 1px solid rgb(255 255 255 / 42%);
   border-radius: 18px;
@@ -103,13 +105,30 @@
   backdrop-filter: blur(14px);
 }
 
+.text-image.block .text-image-overlay-header {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #163b61;
+}
+
 .text-image.block .text-image-overlay-text {
   margin: 0;
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: #163b61;
+}
+
+.text-image.block .text-image-overlay.text-small .text-image-overlay-header {
+  font-size: 21px;
+}
+
+.text-image.block .text-image-overlay.text-small .text-image-overlay-text {
+  font-size: 17px;
 }
 
 @media (width <= 900px) {
@@ -160,11 +179,24 @@
     right: 14px;
     bottom: 14px;
     max-width: min(270px, calc(100% - 28px));
+    max-height: calc(100% - 28px);
     padding: 22px 20px;
   }
 
+  .text-image.block .text-image-overlay-header {
+    font-size: 22px;
+  }
+
   .text-image.block .text-image-overlay-text {
-    font-size: 26px;
+    font-size: 18px;
+  }
+
+  .text-image.block .text-image-overlay.text-small .text-image-overlay-header {
+    font-size: 19px;
+  }
+
+  .text-image.block .text-image-overlay.text-small .text-image-overlay-text {
+    font-size: 16px;
   }
 }
 
@@ -173,10 +205,23 @@
     right: 12px;
     bottom: 12px;
     max-width: calc(100% - 24px);
+    max-height: calc(100% - 24px);
     padding: 18px 16px;
   }
 
+  .text-image.block .text-image-overlay-header {
+    font-size: 20px;
+  }
+
   .text-image.block .text-image-overlay-text {
-    font-size: 22px;
+    font-size: 17px;
+  }
+
+  .text-image.block .text-image-overlay.text-small .text-image-overlay-header {
+    font-size: 18px;
+  }
+
+  .text-image.block .text-image-overlay.text-small .text-image-overlay-text {
+    font-size: 15px;
   }
 }

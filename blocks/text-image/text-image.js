@@ -130,6 +130,7 @@ export default function decorate(block) {
   const headingField = getTextField(block, 'heading');
   const bodyTextField = getRichTextField(block, 'bodyText');
   const imageAltField = getTextField(block, 'imageAlt');
+  const overlayHeaderField = getTextField(block, 'imageOverlayHeader');
   const overlayTextField = getTextField(block, 'imageOverlayText');
   const imageField = getImageField(block);
   const picture = buildPicture(imageField, imageAltField);
@@ -158,12 +159,20 @@ export default function decorate(block) {
     mediaSide.append(picture);
   }
 
+  const overlayHeader = buildTextElement(overlayHeaderField, 'p', 'text-image-overlay-header');
   const overlayText = buildTextElement(overlayTextField, 'p', 'text-image-overlay-text');
-  if (overlayText && picture) {
+  if ((overlayHeader || overlayText) && picture) {
     const overlay = document.createElement('div');
     overlay.className = 'text-image-overlay';
-    overlay.append(overlayText);
+    if (overlayHeader) overlay.append(overlayHeader);
+    if (overlayText) overlay.append(overlayText);
     mediaSide.append(overlay);
+
+    requestAnimationFrame(() => {
+      if (overlay.scrollHeight > overlay.clientHeight) {
+        overlay.classList.add('text-small');
+      }
+    });
   }
 
   inner.append(mediaSide);
