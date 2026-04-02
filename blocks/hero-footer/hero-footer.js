@@ -15,6 +15,22 @@ function getLinkField(block, name) {
   return { source, value: href };
 }
 
+
+function observeReveal(block) {
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    block.classList.add('is-visible');
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    block.classList.add('is-visible');
+    observer.disconnect();
+  }, { threshold: 0.18 });
+
+  observer.observe(block);
+}
 function buildText(tag, className, field) {
   if (!field.value && !field.source) return null;
   const el = document.createElement(tag);
@@ -100,4 +116,5 @@ export default function decorate(block) {
   if (btnWrap.children.length) content.append(btnWrap);
 
   block.replaceChildren(bgWrap, content);
+  observeReveal(block);
 }

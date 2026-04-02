@@ -1,6 +1,9 @@
 /* Block root */
 .numbered-cards {
   --numbered-cards-viewport-width: 100vw;
+  --numbered-cards-reveal-duration: 0.52s;
+  --numbered-cards-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --numbered-cards-hover-bg: #008db6;
 
   padding: 0;
   position: relative;
@@ -16,16 +19,22 @@
   }
 }
 
-/* Wrapper - constrains inner content */
 .numbered-cards .numbered-cards-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   padding: 80px 24px;
 }
 
-/* Header - title + subtitle */
 .numbered-cards .numbered-cards-header {
   margin-bottom: 48px;
+}
+
+.numbered-cards .numbered-cards-header > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--numbered-cards-reveal-duration) var(--numbered-cards-reveal-ease),
+    transform var(--numbered-cards-reveal-duration) var(--numbered-cards-reveal-ease);
 }
 
 .numbered-cards .numbered-cards-heading {
@@ -42,6 +51,7 @@
   color: #404041;
   margin: 12px 0 0;
   line-height: 1.4;
+  transition-delay: 70ms;
 }
 
 .numbered-cards .numbered-cards-header[style*="text-align: center"] .numbered-cards-subtitle {
@@ -50,7 +60,6 @@
   margin-right: auto;
 }
 
-/* Grid layout */
 .numbered-cards-grid-layout .numbered-cards-grid {
   display: grid;
   grid-template-columns: repeat(var(--cards-per-row, 4), 1fr);
@@ -67,7 +76,6 @@
   box-sizing: border-box;
 }
 
-/* Number with bordered box (grid) */
 .numbered-cards-grid-layout .numbered-cards-number-box {
   width: 48px;
   height: 48px;
@@ -82,11 +90,18 @@
   box-sizing: border-box;
 }
 
+.numbered-cards.numbered-cards-hide-number-border.numbered-cards-grid-layout .numbered-cards-number-box {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
 .numbered-cards-grid-layout .numbered-cards-number {
   margin-bottom: 20px;
 }
 
-/* Card title (grid) */
 .numbered-cards-grid-layout .numbered-cards-card-title {
   font-size: 36px;
   font-weight: 700;
@@ -99,7 +114,6 @@
   margin: 0;
 }
 
-/* Card body (grid) */
 .numbered-cards-grid-layout .numbered-cards-card-body {
   font-size: 17px;
   font-weight: 500;
@@ -111,7 +125,6 @@
   margin: 0;
 }
 
-/* Carousel layout */
 .numbered-cards-carousel-layout .numbered-cards-grid {
   display: flex;
   gap: 24px;
@@ -141,7 +154,6 @@
   box-sizing: border-box;
 }
 
-/* Number without box (carousel) */
 .numbered-cards-carousel-layout .numbered-cards-number {
   margin-bottom: 20px;
 }
@@ -152,7 +164,6 @@
   color: #fff;
 }
 
-/* Card title (carousel) */
 .numbered-cards-carousel-layout .numbered-cards-card-title {
   font-size: 36px;
   font-weight: 700;
@@ -165,7 +176,6 @@
   margin: 0;
 }
 
-/* Card body (carousel) */
 .numbered-cards-carousel-layout .numbered-cards-card-body {
   font-size: 17px;
   font-weight: 500;
@@ -177,7 +187,17 @@
   margin: 0;
 }
 
-/* Carousel controls */
+.numbered-cards .numbered-cards-card {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--numbered-cards-reveal-duration) var(--numbered-cards-reveal-ease),
+    transform var(--numbered-cards-reveal-duration) var(--numbered-cards-reveal-ease),
+    box-shadow 0.28s ease,
+    background-color 0.28s ease;
+  transition-delay: calc(var(--numbered-card-index, 0) * 70ms + 130ms);
+}
+
 .numbered-cards-carousel-layout .numbered-cards-controls {
   display: flex;
   align-items: center;
@@ -186,7 +206,6 @@
   position: relative;
 }
 
-/* Dots */
 .numbered-cards-carousel-layout .numbered-cards-dots {
   display: flex;
   gap: 8px;
@@ -212,7 +231,6 @@
   opacity: 0.8;
 }
 
-/* Nav arrows */
 .numbered-cards-carousel-layout .numbered-cards-nav {
   display: flex;
   gap: 12px;
@@ -244,7 +262,20 @@
   color: rgb(255 255 255 / 83%);
 }
 
-/* Responsive */
+.numbered-cards.is-visible .numbered-cards-header > *,
+.numbered-cards.is-visible .numbered-cards-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: hover) {
+  .numbered-cards .numbered-cards-card:hover {
+    transform: translateY(-8px);
+    background-color: var(--numbered-cards-hover-bg) !important;
+    box-shadow: 0 24px 40px rgb(0 38 77 / 18%);
+  }
+}
+
 @media (width <= 1024px) {
   .numbered-cards-grid-layout .numbered-cards-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -297,5 +328,14 @@
   .numbered-cards-carousel-layout .numbered-cards-nav {
     position: static;
     margin-left: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numbered-cards .numbered-cards-header > *,
+  .numbered-cards .numbered-cards-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

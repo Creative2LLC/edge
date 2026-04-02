@@ -1,6 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
-const BLOCK_PROPS = ['title', 'subtitle', 'textAlign', 'blockBackgroundColor', 'layout', 'cardsPerRow', 'cardBackgroundColor'];
+const BLOCK_PROPS = ['title', 'subtitle', 'textAlign', 'blockBackgroundColor', 'layout', 'cardsPerRow', 'cardBackgroundColor', 'numberBorder'];
 
 function getBlockField(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
@@ -22,6 +22,22 @@ function getTextField(row, name, index) {
   return cols[index]?.textContent.trim() || '';
 }
 
+
+function observeReveal(block) {
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    block.classList.add('is-visible');
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    block.classList.add('is-visible');
+    observer.disconnect();
+  }, { threshold: 0.18 });
+
+  observer.observe(block);
+}
 function updateDots(dots, activeIndex) {
   dots.forEach((dot, i) => {
     dot.classList.toggle('active', i === activeIndex);
@@ -37,6 +53,7 @@ export default function decorate(block) {
   const layout = getBlockField(block, 'layout').value || 'grid';
   const cardsPerRow = parseInt(getBlockField(block, 'cardsPerRow').value, 10) || 4;
   const cardBg = getBlockField(block, 'cardBackgroundColor').value || '#00264D';
+  const numberBorder = getBlockField(block, 'numberBorder').value || 'show';
 
   // Remove config rows — any row that contains a block-level prop
   [...block.querySelectorAll(':scope > div')].forEach((row) => {
@@ -132,6 +149,7 @@ export default function decorate(block) {
   cards.forEach((data, index) => {
     const card = document.createElement('div');
     card.className = 'numbered-cards-card';
+    card.style.setProperty('--numbered-card-index', index);
     card.style.backgroundColor = data.cardBgOverride || cardBg;
     if (data.row) moveInstrumentation(data.row, card);
 
@@ -257,4 +275,5 @@ export default function decorate(block) {
   }
 
   block.replaceChildren(wrapper);
+  observeReveal(block);
 }

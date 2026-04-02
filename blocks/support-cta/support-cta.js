@@ -50,6 +50,22 @@ function getLinkField(block, rows, name, index) {
   };
 }
 
+
+function observeReveal(block) {
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    block.classList.add('is-visible');
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    block.classList.add('is-visible');
+    observer.disconnect();
+  }, { threshold: 0.18 });
+
+  observer.observe(block);
+}
 function moveText(field, target, fallbackValue = '') {
   if (!field?.source) {
     target.textContent = fallbackValue;
@@ -135,4 +151,5 @@ export default function decorate(block) {
   content.append(heading, subheading, cta, helperText);
   card.append(content);
   block.replaceChildren(card);
+  observeReveal(block);
 }

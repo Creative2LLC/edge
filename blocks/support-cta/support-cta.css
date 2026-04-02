@@ -7,6 +7,8 @@ main > .section > .support-cta-wrapper {
   --support-cta-background-end: #ece8e3;
   --support-cta-button-color: #0f94bf;
   --support-cta-button-text-color: #fff;
+  --support-cta-reveal-duration: 0.55s;
+  --support-cta-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   padding: 24px 0 48px;
 }
@@ -22,6 +24,12 @@ main > .section > .support-cta-wrapper {
       var(--support-cta-background-end) 100%
     );
   box-shadow: 0 18px 42px rgb(17 58 103 / 7%);
+  opacity: 0;
+  transform: translateY(34px) scale(0.985);
+  transition:
+    opacity var(--support-cta-reveal-duration) var(--support-cta-reveal-ease),
+    transform var(--support-cta-reveal-duration) var(--support-cta-reveal-ease),
+    box-shadow 0.28s ease;
 }
 
 .support-cta .support-cta-content {
@@ -40,6 +48,11 @@ main > .section > .support-cta-wrapper {
   font-weight: 700;
   line-height: 1.06;
   letter-spacing: -0.04em;
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease);
 }
 
 .support-cta .support-cta-subheading {
@@ -49,6 +62,12 @@ main > .section > .support-cta-wrapper {
   font-size: clamp(1.45rem, 2vw, 1.9rem);
   font-weight: 400;
   line-height: 1.38;
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease);
+  transition-delay: 70ms;
 }
 
 .support-cta .support-cta-button {
@@ -63,10 +82,14 @@ main > .section > .support-cta-wrapper {
   color: var(--support-cta-button-text-color);
   text-decoration: none;
   box-shadow: 0 14px 24px rgb(15 148 191 / 20%);
+  opacity: 0;
+  transform: translateY(22px);
   transition:
-    transform 0.22s ease,
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease),
     box-shadow 0.22s ease,
     filter 0.22s ease;
+  transition-delay: 140ms;
 }
 
 .support-cta .support-cta-button:hover,
@@ -107,6 +130,12 @@ main > .section > .support-cta-wrapper {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.45;
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease);
+  transition-delay: 210ms;
 }
 
 @media (width <= 900px) {
@@ -164,5 +193,26 @@ main > .section > .support-cta-wrapper {
 
   .support-cta .support-cta-helper {
     font-size: 0.95rem;
+  }
+}
+
+.support-cta.block.is-visible .support-cta-card,
+.support-cta.block.is-visible .support-cta-heading,
+.support-cta.block.is-visible .support-cta-subheading,
+.support-cta.block.is-visible .support-cta-button,
+.support-cta.block.is-visible .support-cta-helper {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-cta .support-cta-card,
+  .support-cta .support-cta-heading,
+  .support-cta .support-cta-subheading,
+  .support-cta .support-cta-button,
+  .support-cta .support-cta-helper {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

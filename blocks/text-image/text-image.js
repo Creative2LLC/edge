@@ -87,6 +87,22 @@ function buildRichTextElement(field, className) {
   return element.textContent.trim() ? element : null;
 }
 
+
+function observeReveal(block) {
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    block.classList.add('is-visible');
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    block.classList.add('is-visible');
+    observer.disconnect();
+  }, { threshold: 0.18 });
+
+  observer.observe(block);
+}
 function buildPicture(imageField, imageAltField) {
   if (!imageField.picture || !imageField.img) return null;
 
@@ -177,4 +193,5 @@ export default function decorate(block) {
 
   inner.append(mediaSide);
   block.replaceChildren(inner);
+  observeReveal(block);
 }

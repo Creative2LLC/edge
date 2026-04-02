@@ -3353,6 +3353,22 @@
         "name": "cardBackgroundColor",
         "label": "Card Background Color (Hex)",
         "value": "#00264D"
+      },
+      {
+        "component": "select",
+        "name": "numberBorder",
+        "label": "Number Border",
+        "options": [
+          {
+            "name": "Show (Default)",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ],
+        "value": "show"
       }
     ]
   },
