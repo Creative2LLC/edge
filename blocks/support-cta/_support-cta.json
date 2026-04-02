@@ -1,0 +1,95 @@
+{
+  "definitions": [
+    {
+      "title": "Support CTA",
+      "id": "support-cta",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Support CTA",
+              "model": "support-cta"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "support-cta",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Ready to talk? Call Team HOPE today."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading",
+          "value": "All support is phone-based and completely free of charge."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text",
+          "value": "Call 866-305-HOPE"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonSubtext",
+          "label": "Button Subtext",
+          "value": "866-305-4673"
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "helperText",
+          "label": "Helper Text",
+          "value": "You'll be connected with a volunteer who understands what you're going through."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundStart",
+          "label": "Background Start Color (Hex)",
+          "value": "#f3efea"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundEnd",
+          "label": "Background End Color (Hex)",
+          "value": "#ece8e3"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonColor",
+          "label": "Button Color (Hex)",
+          "value": "#0f94bf"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonTextColor",
+          "label": "Button Text Color (Hex)",
+          "value": "#ffffff"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

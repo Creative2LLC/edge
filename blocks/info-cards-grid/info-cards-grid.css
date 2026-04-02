@@ -21,6 +21,8 @@
   --info-card-title-color: #fff;
   --info-card-subtitle-color: #fff;
   --info-card-body-color: #fff;
+  --info-card-icon-size: 48px;
+  --info-card-icon-gap: 28px;
 
   position: relative;
   display: flex;
@@ -71,13 +73,29 @@
   align-items: flex-start;
 }
 
+.info-cards-grid-card-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.info-cards-grid-card-left-icon .info-cards-grid-card-content {
+  display: grid;
+  grid-template-columns: var(--info-card-icon-size) minmax(0, 1fr);
+  column-gap: var(--info-card-icon-gap);
+  align-items: start;
+}
+
 /* Icon */
 .info-cards-grid-card-icon {
-  width: 48px;
-  height: 48px;
+  width: var(--info-card-icon-size);
+  height: var(--info-card-icon-size);
   object-fit: contain;
+  object-position: center;
   display: block;
   margin-bottom: 24px;
+  flex-shrink: 0;
 }
 
 /* Title */
@@ -134,11 +152,16 @@
 
 /* Icon color mask wrapper */
 .info-cards-grid-card-icon-wrap {
-  width: 48px;
-  height: 48px;
+  width: var(--info-card-icon-size);
+  height: var(--info-card-icon-size);
   display: block;
   margin-bottom: 24px;
   flex-shrink: 0;
+}
+
+.info-cards-grid-card-left-icon .info-cards-grid-card-icon,
+.info-cards-grid-card-left-icon .info-cards-grid-card-icon-wrap {
+  margin-bottom: 0;
 }
 
 /* Button */
@@ -191,5 +214,10 @@
 
     max-width: 100%;
     padding: 28px 24px;
+  }
+
+  .info-cards-grid-card-left-icon .info-cards-grid-card-content {
+    grid-template-columns: 1fr;
+    row-gap: 18px;
   }
 }

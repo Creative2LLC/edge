@@ -54,6 +54,36 @@
               "value": "h6"
             }
           ]
+        },
+        {
+          "component": "select",
+          "name": "alignment",
+          "label": "Text Alignment",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            },
+            {
+              "name": "Justify",
+              "value": "justify"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "text",
+          "name": "textColor",
+          "label": "Text Color",
+          "description": "Any valid CSS color value, for example #00264d"
         }
       ]
     }

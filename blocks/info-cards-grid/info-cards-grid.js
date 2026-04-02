@@ -19,6 +19,23 @@ function normalizeStyleKey(value) {
   return String(value || '').trim().toLowerCase().replace(/[^a-z]+/g, ' ');
 }
 
+function normalizeIconLayout(value) {
+  const normalizedValue = normalizeStyleKey(value);
+
+  if (['left', 'left aligned', 'left align', 'icon left', 'left icon'].includes(normalizedValue)) {
+    return 'left';
+  }
+
+  return 'default';
+}
+
+function normalizeCssSize(value) {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) return '';
+  if (/^\d+(\.\d+)?$/.test(normalizedValue)) return `${normalizedValue}px`;
+  return normalizedValue;
+}
+
 function parseTextStyles(value) {
   return normalizeLines(value).reduce((styles, line) => {
     const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
@@ -39,6 +56,8 @@ function parseTextStyles(value) {
     else if (['title size', 'heading size', 'title font size', 'heading font size'].includes(key)) styles.titleSize = styleValue;
     else if (['subtitle size', 'subheading size', 'subtitle font size', 'subheading font size'].includes(key)) styles.subtitleSize = styleValue;
     else if (['body size', 'body font size', 'text size', 'body text size'].includes(key)) styles.bodySize = styleValue;
+    else if (['icon size', 'icon dimension', 'icon width'].includes(key)) styles.iconSize = normalizeCssSize(styleValue);
+    else if (['icon layout', 'icon position', 'layout'].includes(key)) styles.iconLayout = normalizeIconLayout(styleValue);
 
     return styles;
   }, {});
@@ -180,6 +199,8 @@ function buildIcon(content, data) {
   wrap.style.setProperty('mask-size', 'contain', 'important');
   wrap.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
   wrap.style.setProperty('mask-repeat', 'no-repeat', 'important');
+  wrap.style.setProperty('-webkit-mask-position', 'center', 'important');
+  wrap.style.setProperty('mask-position', 'center', 'important');
   if (data.iconField.source) moveInstrumentation(data.iconField.source, wrap);
   content.append(wrap);
 }
@@ -211,6 +232,14 @@ function buildCard(data, index) {
   card.style.setProperty('background-color', cardBg, 'important');
   applyTextStyles(card, data.textStyles);
 
+  if (data.iconSize) {
+    card.style.setProperty('--info-card-icon-size', data.iconSize);
+  }
+
+  if (data.iconLayout === 'left' && data.iconField.img) {
+    card.classList.add('info-cards-grid-card-left-icon');
+  }
+
   if (data.overlayField?.img) {
     const overlay = document.createElement('div');
     overlay.className = 'info-cards-grid-card-overlay';
@@ -224,9 +253,16 @@ function buildCard(data, index) {
   content.className = 'info-cards-grid-card-content';
 
   buildIcon(content, data);
-  buildTitle(content, data);
-  buildSubtitle(content, data);
-  buildBody(content, data);
+
+  const textContent = document.createElement('div');
+  textContent.className = 'info-cards-grid-card-text';
+  buildTitle(textContent, data);
+  buildSubtitle(textContent, data);
+  buildBody(textContent, data);
+
+  if (textContent.childElementCount) {
+    content.append(textContent);
+  }
 
   card.append(content);
   buildButton(card, data, cardBg);
@@ -346,6 +382,7 @@ export default function decorate(block) {
     const iconColorField = getField(row, 'iconColor', 8);
     const textStyleField = getField(row, 'textColor', 9);
     const overlayField = getImageField(row, 'overlayImage', 10);
+    const textStyles = parseTextStyles(textStyleField.value);
 
     cards.push({
       iconField,
@@ -357,8 +394,10 @@ export default function decorate(block) {
       cardBg: cardBgField.value,
       buttonBg: buttonBgField.value,
       iconColor: iconColorField.value,
-      textStyles: parseTextStyles(textStyleField.value),
+      textStyles,
       overlayField,
+      iconLayout: textStyles.iconLayout || 'default',
+      iconSize: textStyles.iconSize,
       row,
     });
   });

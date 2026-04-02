@@ -116,8 +116,8 @@
           "component": "text",
           "valueType": "string",
           "name": "textColor",
-          "label": "Text Styles",
-          "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px",
+          "label": "Card Styles",
+          "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px, icon-size|72px, icon-layout|left",
           "value": ""
         },
         {

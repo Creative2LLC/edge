@@ -106,6 +106,79 @@
             "value": "h6"
           }
         ]
+      },
+      {
+        "component": "select",
+        "name": "alignment",
+        "label": "Text Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "Justify",
+            "value": "justify"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "text",
+        "name": "textColor",
+        "label": "Text Color",
+        "description": "Any valid CSS color value, for example #00264d"
+      }
+    ]
+  },
+  {
+    "id": "text",
+    "fields": [
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "text",
+        "label": "Text"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "alignment",
+        "label": "Text Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "Justify",
+            "value": "justify"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "textColor",
+        "label": "Text Color",
+        "description": "Any valid CSS color value, for example #404041"
       }
     ]
   },
@@ -2312,8 +2385,8 @@
         "component": "text",
         "valueType": "string",
         "name": "textColor",
-        "label": "Text Styles",
-        "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px",
+        "label": "Card Styles",
+        "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px, icon-size|72px, icon-layout|left",
         "value": ""
       },
       {
@@ -4252,6 +4325,79 @@
         "name": "textColors",
         "label": "Text Styles",
         "description": "Optional. One per line: heading|#00264d, subheading|#404041, value|#1491bf, label|#6b6b6b, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem"
+      }
+    ]
+  },
+  {
+    "id": "support-cta",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Ready to talk? Call Team HOPE today."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": "All support is phone-based and completely free of charge."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Call 866-305-HOPE"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonSubtext",
+        "label": "Button Subtext",
+        "value": "866-305-4673"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "helperText",
+        "label": "Helper Text",
+        "value": "You'll be connected with a volunteer who understands what you're going through."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundStart",
+        "label": "Background Start Color (Hex)",
+        "value": "#f3efea"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundEnd",
+        "label": "Background End Color (Hex)",
+        "value": "#ece8e3"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Color (Hex)",
+        "value": "#0f94bf"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)",
+        "value": "#ffffff"
       }
     ]
   },

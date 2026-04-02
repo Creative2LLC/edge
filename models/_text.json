@@ -7,11 +7,57 @@
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/text/v1/text",
-            "template": {}
+            "template": {
+              "model": "text"
+            }
           }
         }
       }
     }
   ],
-  "models": []
+  "models": [
+    {
+      "id": "text",
+      "fields": [
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "text",
+          "label": "Text"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "alignment",
+          "label": "Text Alignment",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            },
+            {
+              "name": "Justify",
+              "value": "justify"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Text Color",
+          "description": "Any valid CSS color value, for example #404041"
+        }
+      ]
+    }
+  ]
 }

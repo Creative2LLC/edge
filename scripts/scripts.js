@@ -110,6 +110,49 @@ function normalizeLinkValue(value) {
   return '';
 }
 
+function normalizeTextAlignment(value) {
+  const normalizedValue = String(value || '').trim().toLowerCase();
+  return ['left', 'center', 'right', 'justify'].includes(normalizedValue) ? normalizedValue : '';
+}
+
+function normalizeTextColor(value) {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) return '';
+
+  const hexMatch = normalizedValue.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalizedValue) && hexMatch) return hexMatch[0];
+
+  return normalizedValue;
+}
+
+function getAuthorableTextRoots(main, propName) {
+  return [...main.querySelectorAll(`[data-aue-prop="${propName}"][data-aue-resource]`)]
+    .filter((node) => {
+      const resource = node.getAttribute('data-aue-resource');
+      return !node.parentElement?.closest(`[data-aue-prop="${propName}"][data-aue-resource="${resource}"]`);
+    });
+}
+
+function applyDefaultContentStyles(main, propName) {
+  getAuthorableTextRoots(main, propName).forEach((node) => {
+    const resource = node.getAttribute('data-aue-resource') || '';
+    const { node: alignmentNode, value: rawAlignment } = getFieldValue(main, 'alignment', resource);
+    const { node: colorNode, value: rawColor } = getFieldValue(main, 'textColor', resource);
+    const alignment = normalizeTextAlignment(rawAlignment);
+    const color = normalizeTextColor(rawColor);
+
+    if (alignment) node.style.textAlign = alignment;
+    if (color) node.style.color = color;
+
+    cleanupFieldNode(alignmentNode);
+    cleanupFieldNode(colorNode);
+  });
+}
+
+function applyDefaultContentAuthorStyles(main) {
+  applyDefaultContentStyles(main, 'title');
+  applyDefaultContentStyles(main, 'text');
+}
 function applyAnchorToImage(imageElement, href, rawTarget = '_self') {
   if (!imageElement || !href) return;
   const target = ['_self', '_blank', '_parent', '_top'].includes(rawTarget) ? rawTarget : '_self';
@@ -225,6 +268,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  applyDefaultContentAuthorStyles(main);
   applyImageLinks(main);
 }
 
