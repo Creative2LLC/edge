@@ -110,6 +110,21 @@
               "value": "right"
             }
           ]
+        },
+        {
+          "component": "select",
+          "name": "imagePosition",
+          "label": "Image Position",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ]
         }
       ]
     }

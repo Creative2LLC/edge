@@ -13,6 +13,10 @@
   background: #fff;
 }
 
+.split-card .split-card-inner.split-card-image-right {
+  flex-direction: row-reverse;
+}
+
 /* Left: image */
 .split-card .split-card-media {
   flex: 0 0 50%;

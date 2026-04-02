@@ -68,9 +68,10 @@ export default function decorate(block) {
     buttonColor, button2Color, backgroundColor, textColor,
   } = colors;
 
-  // contentAlign: last row with no link and no data-aue-prop
   const contentAlignField = getField(block, 'contentAlign');
   const contentAlign = contentAlignField || 'left';
+  const imagePositionField = getField(block, 'imagePosition');
+  const imagePosition = imagePositionField || 'left';
 
   if (picture) {
     const img = picture.querySelector('img');
@@ -80,6 +81,9 @@ export default function decorate(block) {
   // Build DOM
   const card = document.createElement('div');
   card.className = 'split-card-inner';
+  if (imagePosition === 'right') {
+    card.classList.add('split-card-image-right');
+  }
 
   // Left: image
   const mediaSide = document.createElement('div');
