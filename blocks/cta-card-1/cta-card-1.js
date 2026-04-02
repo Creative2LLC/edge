@@ -45,7 +45,11 @@ export default function decorate(block) {
   const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
   const buttonColorField = getField(block, rows, 'buttonColor', 6);
   const buttonTextColorField = getField(block, rows, 'buttonTextColor', 7);
-  const buttonSubtextField = getField(block, rows, 'buttonSubtext', -1);
+  const buttonSubtextSource = block.querySelector('[data-aue-prop="buttonSubtext"]');
+  const buttonSubtextField = {
+    source: buttonSubtextSource,
+    value: buttonSubtextSource?.textContent.trim() || '',
+  };
   const button2TextField = getField(block, rows, 'button2Text', 8);
   const button2LinkField = getLinkField(block, rows, 'button2Link', 9);
   const button2ColorField = getField(block, rows, 'button2Color', 10);
