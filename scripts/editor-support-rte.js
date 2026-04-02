@@ -40,13 +40,11 @@ export function decorateRichtext(container = document) {
     let orphanElements;
     if (richtextResource && richtextProp) {
       orphanElements = document.querySelectorAll(`[data-richtext-id="${richtextResource}"][data-richtext-prop="${richtextProp}"]`);
+    } else if (editable) {
+      orphanElements = editable.querySelectorAll(`:scope > :not([data-aue-resource]) [data-richtext-prop="${richtextProp}"]`);
     } else {
-      if (editable) {
-        orphanElements = editable.querySelectorAll(`:scope > :not([data-aue-resource]) [data-richtext-prop="${richtextProp}"]`);
-      } else {
-        console.warn(`Editable parent not found or richtext property ${richtextProp}`);
-        return;
-      }
+      console.warn(`Editable parent not found or richtext property ${richtextProp}`);
+      return;
     }
 
     if (orphanElements.length) {
@@ -72,4 +70,3 @@ export function decorateRichtext(container = document) {
     }
   }
 }
-
