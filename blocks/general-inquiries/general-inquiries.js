@@ -1,4 +1,7 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveAttributes } from '../../scripts/scripts.js';
+
+const resourceDataCache = new Map();
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -76,6 +79,44 @@ const DEFAULTS = {
   heroButtonLink: 'tel:+18663054673',
 };
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || value.src || '').trim();
+  }
+  return '';
+}
+
+async function getBlockResourceData(block) {
+  const resource = block.getAttribute('data-aue-resource')
+    || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return {};
+
+  if (resourceDataCache.has(resourcePath)) {
+    return resourceDataCache.get(resourcePath);
+  }
+
+  const pendingData = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return {};
+      return response.json();
+    })
+    .catch(() => ({}));
+
+  resourceDataCache.set(resourcePath, pendingData);
+  return pendingData;
+}
+
 function hasAuthoringContext(scope) {
   return Boolean(
     scope?.getAttribute('data-aue-resource')
@@ -127,6 +168,7 @@ function getImageField(block, name, rowIndexMap) {
     source: source || row,
     picture,
     img,
+    reference: extractNodeValue(source || row),
   };
 }
 
@@ -163,14 +205,22 @@ function moveFieldContent(field, target, fallbackValue = '') {
   }
 }
 
-function moveImageContent(field, target) {
-  if (!field?.picture || !target) return false;
+function moveImageContent(field, target, fallbackSrc = '') {
+  if (!target) return false;
 
-  moveFieldBinding(field.source || field.picture, target);
-  const image = field.picture.querySelector('img') || field.img;
+  moveFieldBinding(field?.source || field?.picture, target);
+
+  let picture = field?.picture || null;
+  if (!picture && fallbackSrc) {
+    picture = createOptimizedPicture(fallbackSrc, '', false, [{ width: '1600' }]);
+  }
+
+  if (!picture) return false;
+
+  const image = picture.querySelector('img') || field?.img;
   if (image) image.alt = '';
   target.setAttribute('aria-hidden', 'true');
-  target.append(field.picture);
+  target.append(picture);
   return true;
 }
 
@@ -501,7 +551,8 @@ function buildSupportIntro(
   return support;
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
+  const resourceData = await getBlockResourceData(block);
   const isAuthoring = hasAuthoringContext(block);
   const placeholderFields = buildPlaceholderFields(block);
   const messages = buildStatusMessages(block);
@@ -535,7 +586,11 @@ export default function decorate(block) {
   const heroButtonLinkField = getField(block, 'hero_buttonLink', BLOCK_ROW_INDEX);
   const heroBackgroundImageField = getImageField(block, 'hero_backgroundImage', BLOCK_ROW_INDEX);
 
-  const heroStyle = heroStyleField.value || DEFAULTS.heroStyle;
+  const heroStyle = heroStyleField.value
+    || normalizeJsonFieldValue(resourceData.hero_style)
+    || DEFAULTS.heroStyle;
+  const heroBackgroundImageSrc = normalizeJsonFieldValue(resourceData.hero_backgroundImage)
+    || heroBackgroundImageField.reference;
   const isSupportMode = heroStyle === 'support';
 
   block.classList.toggle('general-inquiries-support-mode', isSupportMode);
@@ -546,7 +601,7 @@ export default function decorate(block) {
   if (isSupportMode) {
     const backdrop = document.createElement('div');
     backdrop.className = 'general-inquiries-backdrop';
-    if (moveImageContent(heroBackgroundImageField, backdrop)) {
+    if (moveImageContent(heroBackgroundImageField, backdrop, heroBackgroundImageSrc)) {
       shell.append(backdrop);
     }
 
