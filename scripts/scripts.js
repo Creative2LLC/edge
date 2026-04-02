@@ -132,6 +132,40 @@ function normalizeTextColor(value) {
   return normalizedValue;
 }
 
+function inferDefaultContentModel(node) {
+  if (!node) return '';
+  if (node.dataset.aueModel) return node.dataset.aueModel;
+
+  const propNames = new Set(
+    [...node.querySelectorAll('[data-aue-prop]')]
+      .map((element) => element.getAttribute('data-aue-prop'))
+      .filter(Boolean),
+  );
+
+  if (propNames.has('text') || node.querySelector('[data-richtext-prop="text"]')) return 'text';
+  if (propNames.has('title')) return 'title';
+  if (propNames.has('image')) return 'image';
+  if (propNames.has('link') || propNames.has('linkText') || propNames.has('linkTitle')) return 'button';
+
+  return '';
+}
+
+function getDefaultContentComponentRoots(main) {
+  return [...main.querySelectorAll('.default-content-wrapper [data-aue-resource]')]
+    .filter((node) => !node.closest('.block'))
+    .filter((node) => !node.parentElement?.closest('[data-aue-resource]'));
+}
+
+function instrumentDefaultContentComponents(main) {
+  getDefaultContentComponentRoots(main).forEach((node) => {
+    const model = inferDefaultContentModel(node);
+    if (!model) return;
+
+    node.dataset.aueType = 'component';
+    node.dataset.aueModel = model;
+  });
+}
+
 function getAuthorableTextRoots(main, propName) {
   const propNodes = [...main.querySelectorAll(`[data-aue-prop="${propName}"][data-aue-resource]`)];
   const modelNodes = [...main.querySelectorAll(`[data-aue-model="${propName}"][data-aue-resource]`)];
@@ -227,6 +261,7 @@ function applyDefaultContentStyles(main, propName) {
 }
 
 export function applyDefaultContentAuthorStyles(main) {
+  instrumentDefaultContentComponents(main);
   applyDefaultContentStyles(main, 'title');
   applyDefaultContentStyles(main, 'text');
 }

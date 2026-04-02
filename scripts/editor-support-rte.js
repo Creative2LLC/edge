@@ -53,16 +53,17 @@ export function decorateRichtext(container = document) {
       orphanElements.forEach((orphanElement) => deleteInstrumentation(orphanElement));
     } else {
       const group = document.createElement('div');
-      const groupResource = richtextResource || editable?.dataset.aueResource;
+      const groupResource = isDefaultContentRichtext ? '' : (richtextResource || editable?.dataset.aueResource);
       if (groupResource) {
         group.dataset.aueResource = groupResource;
         group.dataset.aueBehavior = 'component';
       }
-      if (isDefaultContentRichtext && editable?.dataset.aueModel) {
-        group.dataset.aueModel = editable.dataset.aueModel;
-      }
       if (richtextProp) group.dataset.aueProp = richtextProp;
-      if (richtextLabel) group.dataset.aueLabel = richtextLabel;
+      if (isDefaultContentRichtext) {
+        group.dataset.aueLabel = 'Content';
+      } else if (richtextLabel) {
+        group.dataset.aueLabel = richtextLabel;
+      }
       if (richtextFilter) group.dataset.aueFilter = richtextFilter;
       group.dataset.aueType = 'richtext';
       element.replaceWith(group);
