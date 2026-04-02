@@ -45,10 +45,11 @@ export default function decorate(block) {
   const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
   const buttonColorField = getField(block, rows, 'buttonColor', 6);
   const buttonTextColorField = getField(block, rows, 'buttonTextColor', 7);
-  const button2TextField = getField(block, rows, 'button2Text', 8);
-  const button2LinkField = getLinkField(block, rows, 'button2Link', 9);
-  const button2ColorField = getField(block, rows, 'button2Color', 10);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 11);
+  const buttonSubtextField = getField(block, rows, 'buttonSubtext', 8);
+  const button2TextField = getField(block, rows, 'button2Text', 9);
+  const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
+  const button2ColorField = getField(block, rows, 'button2Color', 11);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 12);
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';
@@ -71,14 +72,31 @@ export default function decorate(block) {
 
   const btnLabel = buttonTextField.value || 'Learn More';
   const btnHref = buttonLinkField.value;
+  const btnSubtext = buttonSubtextField.value;
   const btn = document.createElement(btnHref ? 'a' : 'button');
   btn.className = 'cta-card-1-button';
-  btn.textContent = btnLabel;
   if (btnHref) btn.href = btnHref;
   if (!btnHref) btn.type = 'button';
   if (buttonTextField.source) {
     moveInstrumentation(buttonTextField.source, btn);
     buttonTextField.source.remove();
+  }
+
+  if (btnSubtext) {
+    btn.classList.add('has-subtext');
+    const mainSpan = document.createElement('span');
+    mainSpan.className = 'cta-card-1-button-main';
+    mainSpan.textContent = btnLabel;
+    const subSpan = document.createElement('span');
+    subSpan.className = 'cta-card-1-button-subtext';
+    subSpan.textContent = btnSubtext;
+    if (buttonSubtextField.source) {
+      moveInstrumentation(buttonSubtextField.source, subSpan);
+      buttonSubtextField.source.remove();
+    }
+    btn.append(mainSpan, subSpan);
+  } else {
+    btn.textContent = btnLabel;
   }
 
   const btnColor = buttonColorField.value;
