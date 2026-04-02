@@ -43,12 +43,74 @@
           "label": "Cards Per Row",
           "description": "Number of cards to display per row",
           "options": [
-            { "name": "1 Card", "value": "1" },
-            { "name": "2 Cards", "value": "2" },
-            { "name": "3 Cards", "value": "3" },
-            { "name": "4 Cards", "value": "4" }
+            {
+              "name": "1 Card",
+              "value": "1"
+            },
+            {
+              "name": "2 Cards",
+              "value": "2"
+            },
+            {
+              "name": "3 Cards",
+              "value": "3"
+            },
+            {
+              "name": "4 Cards",
+              "value": "4"
+            }
           ],
           "value": "3"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "styleVariant",
+          "label": "Optional Style",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Volunteer Section",
+              "value": "volunteer"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "sectionHeading",
+          "label": "Section Heading",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "sectionSubheading",
+          "label": "Section Subheading",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "footerText",
+          "label": "Footer Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "sectionButtonText",
+          "label": "Section Button Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "sectionButtonLink",
+          "label": "Section Button Link"
         }
       ]
     },
@@ -127,6 +189,28 @@
           "label": "Overlay Image (Optional)",
           "description": "Image covers the card at low opacity so the background color shows through",
           "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardStyle",
+          "label": "Card Style (Optional)",
+          "description": "Useful with the Volunteer Section layout for filled or outlined cards.",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Filled",
+              "value": "filled"
+            },
+            {
+              "name": "Outline",
+              "value": "outline"
+            }
+          ],
+          "value": "default"
         }
       ]
     }

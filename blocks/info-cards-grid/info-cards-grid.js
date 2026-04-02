@@ -1,5 +1,30 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+const BLOCK_FIELD_INDEX = {
+  columns: 0,
+  styleVariant: 1,
+  sectionHeading: 2,
+  sectionSubheading: 3,
+  footerText: 4,
+  sectionButtonText: 5,
+  sectionButtonLink: 6,
+};
+
+const ITEM_FIELD_NAMES = [
+  'icon',
+  'title',
+  'subtitle',
+  'bodyContent',
+  'buttonText',
+  'buttonLink',
+  'cardBackgroundColor',
+  'buttonBackgroundColor',
+  'iconColor',
+  'textColor',
+  'overlayImage',
+  'cardStyle',
+];
+
 function hasMeaningfulNodeContent(node) {
   if (!node) return false;
   if (node.textContent.trim()) return true;
@@ -24,6 +49,20 @@ function normalizeIconLayout(value) {
 
   if (['left', 'left aligned', 'left align', 'icon left', 'left icon'].includes(normalizedValue)) {
     return 'left';
+  }
+
+  return 'default';
+}
+
+function normalizeCardStyle(value) {
+  const normalizedValue = normalizeStyleKey(value);
+
+  if (['outline', 'outlined', 'border', 'bordered', 'dashed'].includes(normalizedValue)) {
+    return 'outline';
+  }
+
+  if (['filled', 'solid', 'light'].includes(normalizedValue)) {
+    return 'filled';
   }
 
   return 'default';
@@ -147,21 +186,27 @@ function buildBody(content, data) {
   content.append(body);
 }
 
-function buildButton(card, data, cardBg) {
+function buildButton(card, data, cardBg, variant) {
   const btnLabel = data.buttonTextField.value;
   const btnHref = data.buttonLinkField.value;
   if (!btnLabel && !btnHref) return;
 
+  const isVolunteerVariant = variant === 'volunteer';
   const btn = document.createElement(btnHref ? 'a' : 'button');
   btn.className = 'info-cards-grid-card-button';
   btn.textContent = btnLabel || 'Learn More';
   if (btnHref) btn.href = btnHref;
   if (!btnHref) btn.type = 'button';
   if (data.buttonTextField.source) moveInstrumentation(data.buttonTextField.source, btn);
+  if (data.buttonLinkField.source) moveInstrumentation(data.buttonLinkField.source, btn);
 
   if (data.buttonBg) {
     btn.style.setProperty('background-color', data.buttonBg, 'important');
-    btn.style.setProperty('color', cardBg, 'important');
+    btn.style.setProperty('color', isVolunteerVariant ? '#ffffff' : cardBg, 'important');
+    btn.style.setProperty('border', 'none', 'important');
+  } else if (isVolunteerVariant) {
+    btn.style.setProperty('background-color', '#008db6', 'important');
+    btn.style.setProperty('color', '#ffffff', 'important');
     btn.style.setProperty('border', 'none', 'important');
   } else {
     btn.style.setProperty('background-color', cardBg, 'important');
@@ -170,6 +215,37 @@ function buildButton(card, data, cardBg) {
   }
 
   card.append(btn);
+}
+
+function buildSectionText(field, tagName, className) {
+  if (!hasFieldContent(field)) return null;
+
+  const element = document.createElement(tagName);
+  element.className = className;
+  moveFieldContent(field, element);
+
+  if (!hasMeaningfulNodeContent(element)) return null;
+  return element;
+}
+
+function buildSectionButton(textField, linkField) {
+  const label = textField?.value || '';
+  const href = linkField?.value || '';
+  if (!label && !href) return null;
+
+  const button = document.createElement(href ? 'a' : 'button');
+  button.className = 'info-cards-grid-section-button';
+  button.textContent = label || 'Learn More';
+  if (href) button.href = href;
+  if (!href) button.type = 'button';
+  if (textField?.source) moveInstrumentation(textField.source, button);
+  if (linkField?.source) moveInstrumentation(linkField.source, button);
+
+  return button;
+}
+
+function hasItemFieldProps(row) {
+  return ITEM_FIELD_NAMES.some((name) => row.querySelector(`[data-aue-prop="${name}"]`));
 }
 
 function buildIcon(content, data) {
@@ -222,15 +298,41 @@ function applyTextStyles(card, textStyles) {
   if (textStyles.bodySize) card.style.setProperty('--info-card-body-size', textStyles.bodySize);
 }
 
-function buildCard(data, index) {
+function buildCard(data, index, variant) {
   const card = document.createElement('div');
   card.className = 'info-cards-grid-card';
   card.style.setProperty('--info-card-index', index);
   if (data.row) moveInstrumentation(data.row, card);
 
-  const cardBg = data.cardBg || '#1a1a2e';
-  card.style.setProperty('background-color', cardBg, 'important');
+  const isVolunteerVariant = variant === 'volunteer';
+  let { cardStyle } = data;
+  if (cardStyle === 'default' && isVolunteerVariant) {
+    cardStyle = 'filled';
+  }
+
+  if (isVolunteerVariant) {
+    card.classList.add('info-cards-grid-card-volunteer');
+  }
+
+  if (cardStyle === 'filled') {
+    card.classList.add('info-cards-grid-card-filled');
+  } else if (cardStyle === 'outline') {
+    card.classList.add('info-cards-grid-card-outline');
+  }
+
+  let cardBg = data.cardBg || '#1a1a2e';
+  if (isVolunteerVariant && !data.cardBg) {
+    cardBg = cardStyle === 'outline' ? 'transparent' : '#ffffff';
+  }
+
+  card.style.setProperty('--info-card-bg', cardBg);
   applyTextStyles(card, data.textStyles);
+
+  if (isVolunteerVariant && !data.textStyles.textColor) {
+    card.style.setProperty('--info-card-title-color', '#00264d');
+    card.style.setProperty('--info-card-subtitle-color', '#465a70');
+    card.style.setProperty('--info-card-body-color', '#2f485d');
+  }
 
   if (data.iconSize) {
     card.style.setProperty('--info-card-icon-size', data.iconSize);
@@ -265,7 +367,7 @@ function buildCard(data, index) {
   }
 
   card.append(content);
-  buildButton(card, data, cardBg);
+  buildButton(card, data, cardBg, variant);
 
   return card;
 }
@@ -362,55 +464,90 @@ function observeReveal(block) {
 
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
-  const columnsEl = block.querySelector('[data-aue-prop="columns"]');
-  const columnsValue = columnsEl?.textContent.trim() || '3';
-  const columns = parseInt(columnsValue, 10) || 3;
+  const columnsField = getField(block, 'columns', BLOCK_FIELD_INDEX.columns);
+  const styleVariantField = getField(block, 'styleVariant', BLOCK_FIELD_INDEX.styleVariant);
+  const sectionHeadingField = getField(block, 'sectionHeading', BLOCK_FIELD_INDEX.sectionHeading);
+  const sectionSubheadingField = getField(block, 'sectionSubheading', BLOCK_FIELD_INDEX.sectionSubheading);
+  const footerTextField = getField(block, 'footerText', BLOCK_FIELD_INDEX.footerText);
+  const sectionButtonTextField = getField(block, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText);
+  const sectionButtonLinkField = getLinkField(block, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink);
+
+  const columns = parseInt(columnsField.value, 10) || 3;
+  const variant = styleVariantField.value === 'volunteer' ? 'volunteer' : 'default';
+
+  block.classList.toggle('info-cards-grid-volunteer', variant === 'volunteer');
 
   const cards = [];
-  rows.forEach((row) => {
-    const cols = [...row.children];
-    if (cols.length < 2) return;
+  rows
+    .filter((row) => {
+      if (hasItemFieldProps(row)) return true;
+      if (row.querySelector('[data-aue-prop]')) return false;
+      return row.children.length >= 4;
+    })
+    .forEach((row) => {
+      const iconField = getImageField(row, 'icon', 0);
+      const titleField = getField(row, 'title', 1);
+      const subtitleField = getField(row, 'subtitle', 2);
+      const bodySource = getRichField(row, 'bodyContent', 3);
+      const buttonTextField = getField(row, 'buttonText', 4);
+      const buttonLinkField = getLinkField(row, 'buttonLink', 5);
+      const cardBgField = getField(row, 'cardBackgroundColor', 6);
+      const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
+      const iconColorField = getField(row, 'iconColor', 8);
+      const textStyleField = getField(row, 'textColor', 9);
+      const overlayField = getImageField(row, 'overlayImage', 10);
+      const cardStyleField = getField(row, 'cardStyle', 11);
+      const textStyles = parseTextStyles(textStyleField.value);
 
-    const iconField = getImageField(row, 'icon', 0);
-    const titleField = getField(row, 'title', 1);
-    const subtitleField = getField(row, 'subtitle', 2);
-    const bodySource = getRichField(row, 'bodyContent', 3);
-    const buttonTextField = getField(row, 'buttonText', 4);
-    const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-    const cardBgField = getField(row, 'cardBackgroundColor', 6);
-    const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
-    const iconColorField = getField(row, 'iconColor', 8);
-    const textStyleField = getField(row, 'textColor', 9);
-    const overlayField = getImageField(row, 'overlayImage', 10);
-    const textStyles = parseTextStyles(textStyleField.value);
-
-    cards.push({
-      iconField,
-      titleField,
-      subtitleField,
-      bodySource,
-      buttonTextField,
-      buttonLinkField,
-      cardBg: cardBgField.value,
-      buttonBg: buttonBgField.value,
-      iconColor: iconColorField.value,
-      textStyles,
-      overlayField,
-      iconLayout: textStyles.iconLayout || 'default',
-      iconSize: textStyles.iconSize,
-      row,
+      cards.push({
+        iconField,
+        titleField,
+        subtitleField,
+        bodySource,
+        buttonTextField,
+        buttonLinkField,
+        cardBg: cardBgField.value,
+        buttonBg: buttonBgField.value,
+        iconColor: iconColorField.value,
+        textStyles,
+        overlayField,
+        cardStyle: normalizeCardStyle(cardStyleField.value),
+        iconLayout: textStyles.iconLayout || 'default',
+        iconSize: textStyles.iconSize,
+        row,
+      });
     });
-  });
+
+  const shell = document.createElement('div');
+  shell.className = 'info-cards-grid-shell';
+
+  const intro = document.createElement('div');
+  intro.className = 'info-cards-grid-intro';
+  const introHeading = buildSectionText(sectionHeadingField, 'h2', 'info-cards-grid-section-heading');
+  const introSubheading = buildSectionText(sectionSubheadingField, 'p', 'info-cards-grid-section-subheading');
+  if (introHeading) intro.append(introHeading);
+  if (introSubheading) intro.append(introSubheading);
+  if (intro.childElementCount) shell.append(intro);
 
   const grid = document.createElement('div');
   grid.className = 'info-cards-grid-inner';
   grid.style.setProperty('--grid-columns', columns);
 
   cards.forEach((data, index) => {
-    grid.append(buildCard(data, index));
+    grid.append(buildCard(data, index, variant));
   });
 
-  block.replaceChildren(grid);
+  shell.append(grid);
+
+  const footer = document.createElement('div');
+  footer.className = 'info-cards-grid-footer';
+  const footerText = buildSectionText(footerTextField, 'p', 'info-cards-grid-footer-text');
+  const sectionButton = buildSectionButton(sectionButtonTextField, sectionButtonLinkField);
+  if (footerText) footer.append(footerText);
+  if (sectionButton) footer.append(sectionButton);
+  if (footer.childElementCount) shell.append(footer);
+
+  block.replaceChildren(shell);
   setupMatchedHeights(block, grid);
   observeReveal(block);
 }

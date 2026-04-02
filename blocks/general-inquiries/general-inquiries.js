@@ -9,6 +9,12 @@ const BLOCK_ROW_INDEX = {
   formAction: 5,
   statusMessages: 6,
   backgroundColor: 7,
+  hero_style: 8,
+  hero_heading: 9,
+  hero_subheading: 10,
+  hero_buttonText: 11,
+  hero_buttonLink: 12,
+  hero_backgroundImage: 13,
 };
 
 const LEGACY_ROW_INDEX = {
@@ -63,6 +69,11 @@ const DEFAULTS = {
   errorMessage: 'We couldn\'t send your message. Please try again.',
   missingEndpointMessage: 'This form is not connected yet.',
   missingEndpointAuthorMessage: 'Add a submit endpoint URL to enable this form.',
+  heroStyle: 'default',
+  heroHeading: 'You don\'t have to face this alone.',
+  heroSubheading: 'Team HOPE is here to listen, support, and walk alongside you.',
+  heroButtonText: '866-305-HOPE (4673)',
+  heroButtonLink: 'tel:+18663054673',
 };
 
 function hasAuthoringContext(scope) {
@@ -101,6 +112,24 @@ function getFieldFromMaps(block, name, rowMaps, columnIndex = 0) {
   return { source: null, value: '' };
 }
 
+function getImageField(block, name, rowIndexMap) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const rowIndex = rowIndexMap?.[name];
+  const row = Number.isInteger(rowIndex) ? block.children[rowIndex] : null;
+  const container = source || row;
+  const picture = source?.closest('picture')
+    || source?.querySelector('picture')
+    || row?.querySelector('picture')
+    || null;
+  const img = picture?.querySelector('img') || container?.querySelector('img') || null;
+
+  return {
+    source: source || row,
+    picture,
+    img,
+  };
+}
+
 function moveFieldBinding(from, to) {
   if (!from || !to) return;
 
@@ -132,6 +161,17 @@ function moveFieldContent(field, target, fallbackValue = '') {
   if (!target.childNodes.length && fallbackValue) {
     target.textContent = fallbackValue;
   }
+}
+
+function moveImageContent(field, target) {
+  if (!field?.picture || !target) return false;
+
+  moveFieldBinding(field.source || field.picture, target);
+  const image = field.picture.querySelector('img') || field.img;
+  if (image) image.alt = '';
+  target.setAttribute('aria-hidden', 'true');
+  target.append(field.picture);
+  return true;
 }
 
 function normalizeAccessibleLabel(text, fallback) {
@@ -426,6 +466,41 @@ function bindSubmit(block, form, submitButton, status, config) {
   });
 }
 
+function buildSupportIntro(
+  heroHeadingField,
+  heroSubheadingField,
+  heroButtonTextField,
+  heroButtonLinkField,
+) {
+  const support = document.createElement('div');
+  support.className = 'general-inquiries-support';
+
+  const heading = document.createElement('p');
+  heading.className = 'general-inquiries-support-heading';
+  moveFieldContent(heroHeadingField, heading, DEFAULTS.heroHeading);
+  support.append(heading);
+
+  const subheading = document.createElement('p');
+  subheading.className = 'general-inquiries-support-subheading';
+  moveFieldContent(heroSubheadingField, subheading, DEFAULTS.heroSubheading);
+  support.append(subheading);
+
+  const ctaHref = heroButtonLinkField.value || DEFAULTS.heroButtonLink;
+  const cta = document.createElement(ctaHref ? 'a' : 'div');
+  cta.className = 'general-inquiries-support-cta';
+  if (ctaHref) cta.href = ctaHref;
+  if (heroButtonLinkField.source) moveFieldBinding(heroButtonLinkField.source, cta);
+
+  const label = document.createElement('span');
+  label.className = 'general-inquiries-support-cta-label';
+  moveFieldContent(heroButtonTextField, label, DEFAULTS.heroButtonText);
+  cta.append(label);
+
+  support.append(cta);
+
+  return support;
+}
+
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const placeholderFields = buildPlaceholderFields(block);
@@ -453,9 +528,37 @@ export default function decorate(block) {
     'backgroundColor',
     [BLOCK_ROW_INDEX, LEGACY_ROW_INDEX],
   );
+  const heroStyleField = getField(block, 'hero_style', BLOCK_ROW_INDEX);
+  const heroHeadingField = getField(block, 'hero_heading', BLOCK_ROW_INDEX);
+  const heroSubheadingField = getField(block, 'hero_subheading', BLOCK_ROW_INDEX);
+  const heroButtonTextField = getField(block, 'hero_buttonText', BLOCK_ROW_INDEX);
+  const heroButtonLinkField = getField(block, 'hero_buttonLink', BLOCK_ROW_INDEX);
+  const heroBackgroundImageField = getImageField(block, 'hero_backgroundImage', BLOCK_ROW_INDEX);
+
+  const heroStyle = heroStyleField.value || DEFAULTS.heroStyle;
+  const isSupportMode = heroStyle === 'support';
+
+  block.classList.toggle('general-inquiries-support-mode', isSupportMode);
 
   const shell = document.createElement('div');
   shell.className = 'general-inquiries-shell';
+
+  if (isSupportMode) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'general-inquiries-backdrop';
+    if (moveImageContent(heroBackgroundImageField, backdrop)) {
+      shell.append(backdrop);
+    }
+
+    shell.append(
+      buildSupportIntro(
+        heroHeadingField,
+        heroSubheadingField,
+        heroButtonTextField,
+        heroButtonLinkField,
+      ),
+    );
+  }
 
   const copy = document.createElement('div');
   copy.className = 'general-inquiries-copy';

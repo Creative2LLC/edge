@@ -79,6 +79,55 @@
           "label": "Background Color (Hex)",
           "description": "Defaults to #efe9e4 if left empty.",
           "value": ""
+        },
+        {
+          "component": "select",
+          "name": "hero_style",
+          "label": "Optional Style",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Support Overlay",
+              "value": "support"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "hero_heading",
+          "label": "Support Heading",
+          "value": "You don't have to face this alone."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "hero_subheading",
+          "label": "Support Subheading",
+          "value": "Team HOPE is here to listen, support, and walk alongside you."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "hero_buttonText",
+          "label": "Support CTA Text",
+          "value": "866-305-HOPE (4673)"
+        },
+        {
+          "component": "aem-content",
+          "name": "hero_buttonLink",
+          "label": "Support CTA Link"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "hero_backgroundImage",
+          "label": "Support Background Image",
+          "multi": false
         }
       ]
     }
