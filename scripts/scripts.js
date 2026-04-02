@@ -81,16 +81,23 @@ function cleanupFieldNode(node) {
   }
 }
 
+function getResourceRoot(scope, resource) {
+  if (!resource) return null;
+  const selector = `[data-aue-resource="${resource}"]`;
+  return scope.querySelector(selector) || document.querySelector(selector);
+}
+
 function getFieldValue(scope, name, resource) {
-  const resourceSelector = resource
-    ? `[data-aue-resource="${resource}"][data-aue-prop="${name}"]`
-    : null;
-  const node = (resourceSelector && document.querySelector(resourceSelector))
-    || scope.querySelector(`[data-aue-prop="${name}"]`);
+  const propSelector = `[data-aue-prop="${name}"]`;
+  const resourceRoot = getResourceRoot(scope, resource);
+  const node = (resourceRoot?.matches(propSelector) ? resourceRoot : null)
+    || resourceRoot?.querySelector(propSelector)
+    || (resource && document.querySelector(`[data-aue-resource="${resource}"]${propSelector}`))
+    || scope.querySelector(propSelector);
   if (!node) return { node: null, value: '', resource };
   const anchor = node.tagName === 'A' ? node : node.querySelector('a');
   const value = anchor?.getAttribute('href') || node.textContent.trim();
-  const resolvedResource = resource || node.getAttribute('data-aue-resource');
+  const resolvedResource = resource || node.getAttribute('data-aue-resource') || resourceRoot?.getAttribute('data-aue-resource');
   return { node, value: value || '', resource: resolvedResource };
 }
 
@@ -145,9 +152,17 @@ function getAuthorableTextRoots(main, propName) {
 function getDefaultContentStyleTarget(node, propName) {
   if (!node) return null;
 
-  const preferredSelector = propName === 'title'
-    ? 'h1, h2, h3, h4, h5, h6, [data-aue-prop="title"]'
-    : '[data-aue-prop="text"], p, div, ul, ol, blockquote, pre';
+  if (propName === 'title') {
+    if (node.matches('h1, h2, h3, h4, h5, h6')) return node;
+    const heading = node.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) return heading;
+    if (node.matches('[data-aue-prop="title"]')) return node;
+    const titleProp = node.querySelector('[data-aue-prop="title"]');
+    if (titleProp) return titleProp;
+    return node.closest('h1, h2, h3, h4, h5, h6') || node;
+  }
+
+  const preferredSelector = '[data-aue-prop="text"], p, div, ul, ol, blockquote, pre';
 
   if (node.matches(preferredSelector)) return node;
 
@@ -160,7 +175,7 @@ function getDefaultContentStyleTarget(node, propName) {
 function applyDefaultContentStyle(target, styles) {
   if (!target || !styles) return;
   if (styles.alignment) target.style.textAlign = styles.alignment;
-  if (styles.color) target.style.color = styles.color;
+  if (styles.color) target.style.setProperty('color', styles.color, 'important');
 }
 
 const defaultContentStyleCache = new Map();
@@ -401,3 +416,4 @@ async function loadPage() {
 }
 
 loadPage();
+

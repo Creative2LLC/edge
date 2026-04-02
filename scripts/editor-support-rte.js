@@ -22,6 +22,10 @@ export function decorateRichtext(container = document) {
       richtextFilter,
       richtextLabel,
     } = element.dataset;
+    const editable = element.closest('[data-aue-resource]');
+    const isDefaultContentRichtext = Boolean(
+      editable?.closest('.default-content-wrapper') && !editable.closest('.block'),
+    );
     deleteInstrumentation(element);
     const siblings = [];
     let sibling = element;
@@ -37,7 +41,6 @@ export function decorateRichtext(container = document) {
     if (richtextResource && richtextProp) {
       orphanElements = document.querySelectorAll(`[data-richtext-id="${richtextResource}"][data-richtext-prop="${richtextProp}"]`);
     } else {
-      const editable = element.closest('[data-aue-resource]');
       if (editable) {
         orphanElements = editable.querySelectorAll(`:scope > :not([data-aue-resource]) [data-richtext-prop="${richtextProp}"]`);
       } else {
@@ -52,9 +55,13 @@ export function decorateRichtext(container = document) {
       orphanElements.forEach((orphanElement) => deleteInstrumentation(orphanElement));
     } else {
       const group = document.createElement('div');
-      if (richtextResource) {
-        group.dataset.aueResource = richtextResource;
+      const groupResource = richtextResource || editable?.dataset.aueResource;
+      if (groupResource) {
+        group.dataset.aueResource = groupResource;
         group.dataset.aueBehavior = 'component';
+      }
+      if (isDefaultContentRichtext && editable?.dataset.aueModel) {
+        group.dataset.aueModel = editable.dataset.aueModel;
       }
       if (richtextProp) group.dataset.aueProp = richtextProp;
       if (richtextLabel) group.dataset.aueLabel = richtextLabel;
@@ -65,3 +72,4 @@ export function decorateRichtext(container = document) {
     }
   }
 }
+
