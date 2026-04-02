@@ -4445,6 +4445,25 @@
         "label": "Body Text"
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "ctaText",
+        "label": "CTA Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "ctaLink",
+        "label": "CTA Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color (Optional)",
+        "value": ""
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",

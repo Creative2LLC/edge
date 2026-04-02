@@ -87,6 +87,38 @@
   padding-left: 1.25em;
 }
 
+.text-image.block .text-image-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  margin-top: 32px;
+  padding: 16px 26px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: #008db6;
+  box-shadow: 0 18px 36px rgb(0 141 182 / 22%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--text-image-reveal-duration) var(--text-image-reveal-ease),
+    transform var(--text-image-reveal-duration) var(--text-image-reveal-ease),
+    background-color 0.24s ease,
+    box-shadow 0.24s ease;
+  transition-delay: 210ms;
+}
+
+.text-image.block .text-image-cta-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .text-image.block .text-image-media {
   position: relative;
   flex: 0 0 520px;
@@ -191,6 +223,12 @@
     margin-top: 24px;
   }
 
+  .text-image.block .text-image-cta {
+    min-height: 52px;
+    margin-top: 28px;
+    padding: 14px 22px;
+  }
+
   .text-image.block .text-image-media {
     flex: none;
     width: 100%;
@@ -261,16 +299,34 @@
 .text-image.block.is-visible .text-image-subhead,
 .text-image.block.is-visible .text-image-heading,
 .text-image.block.is-visible .text-image-body,
+.text-image.block.is-visible .text-image-cta,
 .text-image.block.is-visible .text-image-media,
 .text-image.block.is-visible .text-image-overlay {
   opacity: 1;
   transform: translate(0, 0) scale(1);
 }
 
+@media (hover: hover) {
+  .text-image.block.is-visible .text-image-cta:hover {
+    background: #006f92;
+    box-shadow: 0 24px 40px rgb(0 38 77 / 18%);
+    transform: translateY(-3px);
+  }
+}
+
+.text-image.block.is-visible .text-image-cta:focus-visible {
+  background: #006f92;
+  box-shadow: 0 24px 40px rgb(0 38 77 / 18%);
+  outline: 2px solid #00264d;
+  outline-offset: 3px;
+  transform: translateY(-3px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .text-image.block .text-image-subhead,
   .text-image.block .text-image-heading,
   .text-image.block .text-image-body,
+  .text-image.block .text-image-cta,
   .text-image.block .text-image-media,
   .text-image.block .text-image-overlay {
     opacity: 1;

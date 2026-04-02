@@ -13,6 +13,16 @@ function getTextField(block, name) {
   };
 }
 
+function getLinkField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
+
+  return {
+    source,
+    value: anchor?.getAttribute('href') || source?.getAttribute('href') || source?.textContent.trim() || '',
+  };
+}
+
 function getRichTextField(block, name) {
   const source = block.querySelector(getFieldSelector(name));
   return {
@@ -87,6 +97,50 @@ function buildRichTextElement(field, className) {
   return element.textContent.trim() ? element : null;
 }
 
+function moveText(field, element) {
+  if (!field?.source) {
+    element.textContent = field?.value || '';
+    return;
+  }
+
+  moveInstrumentation(field.source, element);
+
+  if (field.source.firstChild) {
+    while (field.source.firstChild) {
+      element.append(field.source.firstChild);
+    }
+  }
+
+  if (!element.textContent.trim() && field.value) {
+    element.textContent = field.value;
+  }
+}
+
+function buildCta(textField, linkField) {
+  if (!textField.value && !textField.source) return null;
+
+  const href = linkField.value;
+  const cta = document.createElement(href ? 'a' : 'span');
+  cta.className = 'text-image-cta';
+
+  if (href) {
+    cta.href = href;
+  }
+
+  if (linkField.source) {
+    moveInstrumentation(linkField.source, cta);
+  }
+
+  const label = document.createElement('span');
+  label.className = 'text-image-cta-label';
+  moveText(textField, label);
+
+  if (!label.textContent.trim()) return null;
+
+  cta.append(label);
+  return cta;
+}
+
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {
@@ -102,6 +156,7 @@ function observeReveal(block) {
 
   observer.observe(block);
 }
+
 function buildPicture(imageField, imageAltField) {
   if (!imageField.picture || !imageField.img) return null;
 
@@ -144,11 +199,23 @@ export default function decorate(block) {
   const subheadField = getTextField(block, 'subhead');
   const headingField = getTextField(block, 'heading');
   const bodyTextField = getRichTextField(block, 'bodyText');
+  const ctaTextField = getTextField(block, 'ctaText');
+  const ctaLinkField = getLinkField(block, 'ctaLink');
+  const backgroundColorField = getTextField(block, 'backgroundColor');
   const imageAltField = getTextField(block, 'imageAlt');
   const overlayHeaderField = getTextField(block, 'imageOverlayHeader');
   const overlayTextField = getTextField(block, 'imageOverlayText');
   const imageField = getImageField(block);
   const picture = buildPicture(imageField, imageAltField);
+  const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
+
+  if (backgroundColorField.value) {
+    block.style.backgroundColor = backgroundColorField.value;
+  } else if (sectionBackgroundColor) {
+    block.style.backgroundColor = 'transparent';
+  } else {
+    block.style.removeProperty('background-color');
+  }
 
   const inner = document.createElement('div');
   inner.className = 'text-image-inner';
@@ -164,6 +231,9 @@ export default function decorate(block) {
 
   const body = buildRichTextElement(bodyTextField, 'text-image-body');
   if (body) contentSide.append(body);
+
+  const cta = buildCta(ctaTextField, ctaLinkField);
+  if (cta) contentSide.append(cta);
 
   inner.append(contentSide);
 
