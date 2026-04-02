@@ -1,6 +1,51 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+function normalizeColorValue(value) {
+  const normalized = normalizeJsonFieldValue(value);
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) {
+    return hexMatch[0];
+  }
+
+  return normalized;
+}
+
+async function getFieldValueFromResourceJson(scope, name) {
+  const resource = scope.getAttribute('data-aue-resource')
+    || scope.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    return normalizeJsonFieldValue(data[name]);
+  } catch (error) {
+    return '';
+  }
+}
+
 function getFieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
@@ -195,7 +240,7 @@ function buildPicture(imageField, imageAltField) {
   return optimized;
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
   const subheadField = getTextField(block, 'subhead');
   const headingField = getTextField(block, 'heading');
   const bodyTextField = getRichTextField(block, 'bodyText');
@@ -208,9 +253,12 @@ export default function decorate(block) {
   const imageField = getImageField(block);
   const picture = buildPicture(imageField, imageAltField);
   const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
+  const backgroundColor = normalizeColorValue(
+    backgroundColorField.value || await getFieldValueFromResourceJson(block, 'backgroundColor'),
+  );
 
-  if (backgroundColorField.value) {
-    block.style.backgroundColor = backgroundColorField.value;
+  if (backgroundColor) {
+    block.style.backgroundColor = backgroundColor;
   } else if (sectionBackgroundColor) {
     block.style.backgroundColor = 'transparent';
   } else {
