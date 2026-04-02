@@ -121,7 +121,7 @@ function applyCarouselState(cardRefs, activeIndex, activeCardBg, activeNumberCol
     cardRef.card.classList.toggle('is-active', isActive);
     cardRef.card.setAttribute('aria-current', isActive ? 'true' : 'false');
     cardRef.card.style.backgroundColor = isActive
-      ? activeCardBg
+      ? cardRef.activeCardBackground || activeCardBg
       : cardRef.normalCardBackground;
 
     const numberColor = isActive ? activeNumberColor : cardRef.normalNumberColor;
@@ -279,6 +279,7 @@ export default function decorate(block) {
     }
 
     const normalCardBackground = data.cardBackgroundColor || cardBg;
+    const activeCardBackground = data.cardBackgroundColor || '';
     card.style.backgroundColor = normalCardBackground;
     cardsContainer.append(card);
 
@@ -287,6 +288,7 @@ export default function decorate(block) {
       numberElement,
       numberBox,
       normalCardBackground,
+      activeCardBackground,
       normalNumberColor,
     });
   });
