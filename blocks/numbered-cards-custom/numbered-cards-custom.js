@@ -21,6 +21,7 @@ const DEFAULTS = {
   gridNumberColor: '#92d6e3',
   carouselNumberColor: '#12a0ca',
   invertCardBackgroundColor: '#e7e1d8',
+  invertNumberColor: '#00264d',
   invertTitleColor: '#00264d',
   invertBodyColor: '#355069',
   ctaBackgroundColor: '#008db6',
@@ -360,9 +361,12 @@ export default async function decorate(block) {
     card.tabIndex = layout === 'carousel' ? 0 : -1;
     if (data.row) moveInstrumentation(data.row, card);
 
-    const defaultNumberColor = layout === 'grid'
+    let defaultNumberColor = layout === 'grid'
       ? DEFAULTS.gridNumberColor
       : DEFAULTS.carouselNumberColor;
+    if (isInvertMode) {
+      defaultNumberColor = DEFAULTS.invertNumberColor;
+    }
     const normalNumberColor = data.numberColor || defaultNumberColor;
     const normalCardBackground = data.cardBackgroundColor
       || (isInvertMode ? DEFAULTS.invertCardBackgroundColor : cardBg);
