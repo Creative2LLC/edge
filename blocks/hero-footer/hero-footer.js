@@ -15,7 +15,6 @@ function getLinkField(block, name) {
   return { source, value: href };
 }
 
-
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {

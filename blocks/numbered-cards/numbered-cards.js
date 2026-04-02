@@ -22,7 +22,6 @@ function getTextField(row, name, index) {
   return cols[index]?.textContent.trim() || '';
 }
 
-
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {
@@ -68,6 +67,7 @@ export default function decorate(block) {
 
   // Add layout class
   block.classList.add(`numbered-cards-${layout}-layout`);
+  block.classList.toggle('numbered-cards-hide-number-border', numberBorder === 'hide');
 
   const wrapper = document.createElement('div');
   wrapper.className = 'numbered-cards-wrapper';

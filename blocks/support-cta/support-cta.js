@@ -50,7 +50,6 @@ function getLinkField(block, rows, name, index) {
   };
 }
 
-
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {

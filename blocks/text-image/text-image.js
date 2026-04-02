@@ -87,7 +87,6 @@ function buildRichTextElement(field, className) {
   return element.textContent.trim() ? element : null;
 }
 
-
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {
