@@ -126,11 +126,62 @@ function normalizeTextColor(value) {
 }
 
 function getAuthorableTextRoots(main, propName) {
-  return [...main.querySelectorAll(`[data-aue-prop="${propName}"][data-aue-resource]`)]
-    .filter((node) => {
-      const resource = node.getAttribute('data-aue-resource');
-      return !node.parentElement?.closest(`[data-aue-prop="${propName}"][data-aue-resource="${resource}"]`);
-    });
+  const propNodes = [...main.querySelectorAll(`[data-aue-prop="${propName}"][data-aue-resource]`)];
+  const modelNodes = [...main.querySelectorAll(`[data-aue-model="${propName}"][data-aue-resource]`)];
+  const roots = [];
+  const seenResources = new Set();
+
+  [...propNodes, ...modelNodes].forEach((node) => {
+    const resource = node.getAttribute('data-aue-resource');
+    if (!resource || seenResources.has(resource)) return;
+    seenResources.add(resource);
+    roots.push(node);
+  });
+
+  return roots;
+}
+
+function getDefaultContentStyleTarget(node, propName) {
+  if (!node) return null;
+
+  const preferredSelector = propName === 'title'
+    ? 'h1, h2, h3, h4, h5, h6, [data-aue-prop="title"]'
+    : '[data-aue-prop="text"], p, div, ul, ol, blockquote, pre';
+
+  if (node.matches(preferredSelector)) return node;
+
+  const preferredChild = node.querySelector(preferredSelector);
+  if (preferredChild) return preferredChild;
+
+  return node.closest('h1, h2, h3, h4, h5, h6, p, div, ul, ol, blockquote, pre') || node;
+}
+
+function applyDefaultContentStyle(target, styles) {
+  if (!target || !styles) return;
+  if (styles.alignment) target.style.textAlign = styles.alignment;
+  if (styles.color) target.style.color = styles.color;
+}
+
+const defaultContentStyleCache = new Map();
+
+async function getDefaultContentStylesFromResource(resource) {
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return { alignment: '', color: '' };
+  if (defaultContentStyleCache.has(resourcePath)) return defaultContentStyleCache.get(resourcePath);
+
+  const pendingStyles = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return { alignment: '', color: '' };
+      const data = await response.json();
+      return {
+        alignment: normalizeTextAlignment(data.alignment),
+        color: normalizeTextColor(data.textColor),
+      };
+    })
+    .catch(() => ({ alignment: '', color: '' }));
+
+  defaultContentStyleCache.set(resourcePath, pendingStyles);
+  return pendingStyles;
 }
 
 function applyDefaultContentStyles(main, propName) {
@@ -138,14 +189,24 @@ function applyDefaultContentStyles(main, propName) {
     const resource = node.getAttribute('data-aue-resource') || '';
     const { node: alignmentNode, value: rawAlignment } = getFieldValue(main, 'alignment', resource);
     const { node: colorNode, value: rawColor } = getFieldValue(main, 'textColor', resource);
-    const alignment = normalizeTextAlignment(rawAlignment);
-    const color = normalizeTextColor(rawColor);
+    const target = getDefaultContentStyleTarget(node, propName);
+    const styles = {
+      alignment: normalizeTextAlignment(rawAlignment),
+      color: normalizeTextColor(rawColor),
+    };
 
-    if (alignment) node.style.textAlign = alignment;
-    if (color) node.style.color = color;
-
+    applyDefaultContentStyle(target, styles);
     cleanupFieldNode(alignmentNode);
     cleanupFieldNode(colorNode);
+
+    if ((styles.alignment && styles.color) || !resource) return;
+
+    getDefaultContentStylesFromResource(resource).then((resourceStyles) => {
+      applyDefaultContentStyle(target, {
+        alignment: styles.alignment || resourceStyles.alignment,
+        color: styles.color || resourceStyles.color,
+      });
+    });
   });
 }
 
