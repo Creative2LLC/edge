@@ -3213,6 +3213,22 @@
         "name": "cardBackgroundColor",
         "label": "Default Card Background Color (Hex)",
         "value": "#00264D"
+      },
+      {
+        "component": "select",
+        "name": "colorMode",
+        "label": "Color Mode",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Invert",
+            "value": "invert"
+          }
+        ],
+        "value": "default"
       }
     ]
   },
@@ -3265,6 +3281,18 @@
         "label": "Card Background Color Override (Hex)",
         "description": "Overrides the default card background for this card",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "ctaText",
+        "label": "CTA Text (Optional)",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "ctaLink",
+        "label": "CTA Link (Optional)"
       }
     ]
   },

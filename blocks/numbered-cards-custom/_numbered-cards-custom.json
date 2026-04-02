@@ -61,9 +61,18 @@
           "name": "textAlign",
           "label": "Header Alignment",
           "options": [
-            { "name": "Left", "value": "left" },
-            { "name": "Center", "value": "center" },
-            { "name": "Right", "value": "right" }
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
           ],
           "value": "center"
         },
@@ -79,8 +88,14 @@
           "name": "layout",
           "label": "Layout",
           "options": [
-            { "name": "Grid", "value": "grid" },
-            { "name": "Carousel (Default)", "value": "carousel" }
+            {
+              "name": "Grid",
+              "value": "grid"
+            },
+            {
+              "name": "Carousel (Default)",
+              "value": "carousel"
+            }
           ],
           "value": "carousel"
         },
@@ -89,9 +104,18 @@
           "name": "cardsPerRow",
           "label": "Cards Per Row (Grid Only)",
           "options": [
-            { "name": "2 Cards", "value": "2" },
-            { "name": "3 Cards", "value": "3" },
-            { "name": "4 Cards", "value": "4" }
+            {
+              "name": "2 Cards",
+              "value": "2"
+            },
+            {
+              "name": "3 Cards",
+              "value": "3"
+            },
+            {
+              "name": "4 Cards",
+              "value": "4"
+            }
           ],
           "value": "4"
         },
@@ -101,6 +125,22 @@
           "name": "cardBackgroundColor",
           "label": "Default Card Background Color (Hex)",
           "value": "#00264D"
+        },
+        {
+          "component": "select",
+          "name": "colorMode",
+          "label": "Color Mode",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Invert",
+              "value": "invert"
+            }
+          ],
+          "value": "default"
         }
       ]
     },
@@ -153,6 +193,18 @@
           "label": "Card Background Color Override (Hex)",
           "description": "Overrides the default card background for this card",
           "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "ctaText",
+          "label": "CTA Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "ctaLink",
+          "label": "CTA Link (Optional)"
         }
       ]
     }

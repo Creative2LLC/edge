@@ -9,6 +9,8 @@ const CARD_PROPS = [
   'titleColor',
   'bodyColor',
   'cardBackgroundColor',
+  'ctaText',
+  'ctaLink',
 ];
 
 const DEFAULTS = {
@@ -18,6 +20,11 @@ const DEFAULTS = {
   activeNumberColor: '#ffffff',
   gridNumberColor: '#92d6e3',
   carouselNumberColor: '#12a0ca',
+  invertCardBackgroundColor: '#e7e1d8',
+  invertTitleColor: '#00264d',
+  invertBodyColor: '#355069',
+  ctaBackgroundColor: '#008db6',
+  ctaTextColor: '#ffffff',
 };
 
 const resourceDataCache = new Map();
@@ -90,6 +97,26 @@ function getRowTextField(row, name, index) {
   if (source) return source.textContent.trim();
   const cols = [...row.children];
   return cols[index]?.textContent.trim() || '';
+}
+
+function getRowLinkField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return anchor?.getAttribute('href')
+      || source.getAttribute('href')
+      || source.textContent.trim();
+  }
+
+  const cols = [...row.children];
+  const cell = cols[index];
+  if (!cell) return '';
+
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector('a');
+  return anchor?.getAttribute('href')
+    || cell.getAttribute('href')
+    || cell.textContent.trim()
+    || '';
 }
 
 function getRichField(row, name, index) {
@@ -168,22 +195,29 @@ function updateDots(dots, activeIndex) {
   });
 }
 
-function applyCarouselState(cardRefs, activeIndex, activeCardBg, activeNumberColor) {
-  cardRefs.forEach((cardRef, index) => {
+function applyCarouselState(cardRefs, activeIndex) {
+  cardRefs.forEach(({ card }, index) => {
     const isActive = index === activeIndex;
-    cardRef.card.classList.toggle('is-active', isActive);
-    cardRef.card.setAttribute('aria-current', isActive ? 'true' : 'false');
-    cardRef.card.style.backgroundColor = isActive
-      ? cardRef.activeCardBackground || activeCardBg
-      : cardRef.normalCardBackground;
-
-    const numberColor = isActive ? activeNumberColor : cardRef.normalNumberColor;
-    cardRef.numberElement.style.color = numberColor;
-
-    if (cardRef.numberBox) {
-      cardRef.numberBox.style.borderColor = numberColor;
-    }
+    card.classList.toggle('is-active', isActive);
+    card.setAttribute('aria-current', isActive ? 'true' : 'false');
   });
+}
+
+function buildCardCta(labelText, href) {
+  if (!labelText && !href) return null;
+
+  const cta = document.createElement(href ? 'a' : 'span');
+  cta.className = 'numbered-cards-custom-card-cta';
+  if (href) {
+    cta.href = href;
+  }
+
+  const label = document.createElement('span');
+  label.className = 'numbered-cards-custom-card-cta-label';
+  label.textContent = labelText || 'Learn More';
+  cta.append(label);
+
+  return cta;
 }
 
 export default async function decorate(block) {
@@ -209,13 +243,22 @@ export default async function decorate(block) {
   const cardBg = normalizeColorValue(
     getBlockField(block, 'cardBackgroundColor').value || blockData.cardBackgroundColor,
   ) || DEFAULTS.cardBackgroundColor;
-  const {
-    activeCardBackgroundColor: activeCardBg,
-    activeNumberColor,
-  } = DEFAULTS;
+  const colorMode = getBlockField(block, 'colorMode').value
+    || normalizeJsonFieldValue(blockData.colorMode)
+    || 'default';
+  const isInvertMode = colorMode === 'invert';
+  const { activeCardBackgroundColor: activeCardBg } = DEFAULTS;
 
   block.style.backgroundColor = blockBg;
+  block.classList.remove(
+    'numbered-cards-custom-grid-layout',
+    'numbered-cards-custom-carousel-layout',
+    'numbered-cards-custom-invert-mode',
+  );
   block.classList.add(`numbered-cards-custom-${layout}-layout`);
+  if (isInvertMode) {
+    block.classList.add('numbered-cards-custom-invert-mode');
+  }
 
   const wrapper = document.createElement('div');
   wrapper.className = 'numbered-cards-custom-wrapper';
@@ -269,13 +312,22 @@ export default async function decorate(block) {
     const rowData = await getResourceData(row);
     const cardNumber = getRowTextField(row, 'cardNumber', 0)
       || normalizeJsonFieldValue(rowData.cardNumber);
-    if (!cardTitleEl && !cardBodyEl && !cardNumber) return null;
+    const ctaText = getRowTextField(row, 'ctaText', 7)
+      || normalizeJsonFieldValue(rowData.ctaText);
+    const ctaLink = getRowLinkField(row, 'ctaLink', 8)
+      || normalizeJsonFieldValue(rowData.ctaLink);
+
+    if (!cardTitleEl && !cardBodyEl && !cardNumber && !ctaText && !ctaLink) {
+      return null;
+    }
 
     return {
       row,
       cardNumber,
       cardTitleEl,
       cardBodyEl,
+      ctaText,
+      ctaLink,
       numberColor: normalizeColorValue(
         getRowTextField(row, 'numberColor', 3) || rowData.numberColor,
       ),
@@ -308,31 +360,70 @@ export default async function decorate(block) {
     card.tabIndex = layout === 'carousel' ? 0 : -1;
     if (data.row) moveInstrumentation(data.row, card);
 
-    const numberWrap = document.createElement('div');
-    numberWrap.className = 'numbered-cards-custom-number';
-
     const defaultNumberColor = layout === 'grid'
       ? DEFAULTS.gridNumberColor
       : DEFAULTS.carouselNumberColor;
     const normalNumberColor = data.numberColor || defaultNumberColor;
-    const displayedNumber = data.cardNumber || `${index + 1}`;
-    let numberElement;
-    let numberBox = null;
+    const normalCardBackground = data.cardBackgroundColor
+      || (isInvertMode ? DEFAULTS.invertCardBackgroundColor : cardBg);
+    const activeCardBackground = data.cardBackgroundColor
+      || (isInvertMode ? cardBg : activeCardBg);
+    const normalTitleColor = data.titleColor
+      || (isInvertMode ? DEFAULTS.invertTitleColor : '#ffffff');
+    const activeTitleColor = isInvertMode ? '#ffffff' : normalTitleColor;
+    const normalBodyColor = data.bodyColor
+      || (isInvertMode ? DEFAULTS.invertBodyColor : '#ffffff');
+    const activeBodyColor = isInvertMode ? '#ffffff' : normalBodyColor;
+    const activeCtaTextColor = isInvertMode ? cardBg : DEFAULTS.ctaTextColor;
 
+    card.style.setProperty('--numbered-cards-custom-card-bg', normalCardBackground);
+    card.style.setProperty('--numbered-cards-custom-card-bg-active', activeCardBackground);
+    card.style.setProperty('--numbered-cards-custom-number-color', normalNumberColor);
+    card.style.setProperty(
+      '--numbered-cards-custom-number-color-active',
+      DEFAULTS.activeNumberColor,
+    );
+    card.style.setProperty('--numbered-cards-custom-title-color', normalTitleColor);
+    card.style.setProperty(
+      '--numbered-cards-custom-title-color-active',
+      activeTitleColor,
+    );
+    card.style.setProperty('--numbered-cards-custom-body-color', normalBodyColor);
+    card.style.setProperty(
+      '--numbered-cards-custom-body-color-active',
+      activeBodyColor,
+    );
+    card.style.setProperty(
+      '--numbered-cards-custom-cta-bg',
+      DEFAULTS.ctaBackgroundColor,
+    );
+    card.style.setProperty(
+      '--numbered-cards-custom-cta-bg-active',
+      isInvertMode ? '#ffffff' : DEFAULTS.ctaBackgroundColor,
+    );
+    card.style.setProperty(
+      '--numbered-cards-custom-cta-text',
+      DEFAULTS.ctaTextColor,
+    );
+    card.style.setProperty(
+      '--numbered-cards-custom-cta-text-active',
+      activeCtaTextColor,
+    );
+
+    const numberWrap = document.createElement('div');
+    numberWrap.className = 'numbered-cards-custom-number';
+
+    const displayedNumber = data.cardNumber || `${index + 1}`;
     if (layout === 'grid') {
-      numberBox = document.createElement('div');
+      const numberBox = document.createElement('div');
       numberBox.className = 'numbered-cards-custom-number-box';
       numberBox.textContent = displayedNumber;
-      numberBox.style.color = normalNumberColor;
-      numberBox.style.borderColor = normalNumberColor;
       numberWrap.append(numberBox);
-      numberElement = numberBox;
     } else {
-      numberElement = document.createElement('span');
-      numberElement.className = 'numbered-cards-custom-number-text';
-      numberElement.textContent = displayedNumber;
-      numberElement.style.color = normalNumberColor;
-      numberWrap.append(numberElement);
+      const numberText = document.createElement('span');
+      numberText.className = 'numbered-cards-custom-number-text';
+      numberText.textContent = displayedNumber;
+      numberWrap.append(numberText);
     }
 
     card.append(numberWrap);
@@ -340,7 +431,6 @@ export default async function decorate(block) {
     if (data.cardTitleEl) {
       const title = document.createElement('div');
       title.className = 'numbered-cards-custom-card-title';
-      title.style.color = data.titleColor || '#ffffff';
       moveFieldContent(data.cardTitleEl, title);
       card.append(title);
     }
@@ -348,24 +438,17 @@ export default async function decorate(block) {
     if (data.cardBodyEl) {
       const body = document.createElement('div');
       body.className = 'numbered-cards-custom-card-body';
-      body.style.color = data.bodyColor || '#ffffff';
       moveFieldContent(data.cardBodyEl, body);
       card.append(body);
     }
 
-    const normalCardBackground = data.cardBackgroundColor || cardBg;
-    const activeCardBackground = data.cardBackgroundColor || '';
-    card.style.backgroundColor = normalCardBackground;
-    cardsContainer.append(card);
+    const cta = buildCardCta(data.ctaText, data.ctaLink);
+    if (cta) {
+      card.append(cta);
+    }
 
-    cardRefs.push({
-      card,
-      numberElement,
-      numberBox,
-      normalCardBackground,
-      activeCardBackground,
-      normalNumberColor,
-    });
+    cardsContainer.append(card);
+    cardRefs.push({ card });
   });
 
   wrapper.append(cardsContainer);
@@ -393,13 +476,17 @@ export default async function decorate(block) {
     prevBtn.className = 'numbered-cards-custom-nav-btn';
     prevBtn.type = 'button';
     prevBtn.setAttribute('aria-label', 'Previous card');
-    prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+    prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+      + 'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
+      + '<polyline points="15 18 9 12 15 6"></polyline></svg>';
 
     const nextBtn = document.createElement('button');
     nextBtn.className = 'numbered-cards-custom-nav-btn';
     nextBtn.type = 'button';
     nextBtn.setAttribute('aria-label', 'Next card');
-    nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+    nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+      + 'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
+      + '<polyline points="9 6 15 12 9 18"></polyline></svg>';
 
     nav.append(prevBtn, nextBtn);
     controls.append(nav);
@@ -421,7 +508,7 @@ export default async function decorate(block) {
       }
 
       updateDots(dots, current);
-      applyCarouselState(cardRefs, current, activeCardBg, activeNumberColor);
+      applyCarouselState(cardRefs, current);
     };
 
     prevBtn.addEventListener('click', () => setActiveCard(current - 1, true));
@@ -448,7 +535,7 @@ export default async function decorate(block) {
       if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < cardRefs.length) {
         current = scrollIndex;
         updateDots(dots, current);
-        applyCarouselState(cardRefs, current, activeCardBg, activeNumberColor);
+        applyCarouselState(cardRefs, current);
       }
     });
 
