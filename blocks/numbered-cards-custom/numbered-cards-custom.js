@@ -20,6 +20,59 @@ const DEFAULTS = {
   carouselNumberColor: '#12a0ca',
 };
 
+const resourceDataCache = new Map();
+
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+function normalizeColorValue(value) {
+  const normalized = normalizeJsonFieldValue(value);
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) {
+    return hexMatch[0];
+  }
+
+  return normalized;
+}
+
+async function getResourceData(scope) {
+  const resource = scope?.getAttribute('data-aue-resource')
+    || scope?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || scope?.closest?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return {};
+
+  if (resourceDataCache.has(resourcePath)) {
+    return resourceDataCache.get(resourcePath);
+  }
+
+  const pendingData = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return {};
+      return response.json();
+    })
+    .catch(() => ({}));
+
+  resourceDataCache.set(resourcePath, pendingData);
+  return pendingData;
+}
+
 function getFieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
@@ -133,17 +186,29 @@ function applyCarouselState(cardRefs, activeIndex, activeCardBg, activeNumberCol
   });
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
+  const blockData = await getResourceData(block);
   const titleField = getBlockField(block, 'title');
   const subtitleField = getBlockField(block, 'subtitle');
   const headerImageField = getImageField(block, 'headerImage');
-  const alignment = getBlockField(block, 'textAlign').value || 'center';
-  const blockBg = getBlockField(block, 'blockBackgroundColor').value
-    || DEFAULTS.blockBackgroundColor;
-  const layout = getBlockField(block, 'layout').value || 'carousel';
-  const cardsPerRow = Number.parseInt(getBlockField(block, 'cardsPerRow').value, 10) || 4;
-  const cardBg = getBlockField(block, 'cardBackgroundColor').value
-    || DEFAULTS.cardBackgroundColor;
+  const titleValue = titleField.value || normalizeJsonFieldValue(blockData.title);
+  const subtitleValue = subtitleField.value || normalizeJsonFieldValue(blockData.subtitle);
+  const alignment = getBlockField(block, 'textAlign').value
+    || normalizeJsonFieldValue(blockData.textAlign)
+    || 'center';
+  const blockBg = normalizeColorValue(
+    getBlockField(block, 'blockBackgroundColor').value || blockData.blockBackgroundColor,
+  ) || DEFAULTS.blockBackgroundColor;
+  const layout = getBlockField(block, 'layout').value
+    || normalizeJsonFieldValue(blockData.layout)
+    || 'carousel';
+  const cardsPerRow = Number.parseInt(
+    getBlockField(block, 'cardsPerRow').value || normalizeJsonFieldValue(blockData.cardsPerRow),
+    10,
+  ) || 4;
+  const cardBg = normalizeColorValue(
+    getBlockField(block, 'cardBackgroundColor').value || blockData.cardBackgroundColor,
+  ) || DEFAULTS.cardBackgroundColor;
   const {
     activeCardBackgroundColor: activeCardBg,
     activeNumberColor,
@@ -169,24 +234,24 @@ export default function decorate(block) {
     header.append(headerMedia);
   }
 
-  if (titleField.value || titleField.source) {
+  if (titleValue || titleField.source) {
     const title = document.createElement('h2');
     title.className = 'numbered-cards-custom-heading';
     if (titleField.source) {
-      moveFieldContent(titleField.source, title, titleField.value);
+      moveFieldContent(titleField.source, title, titleValue);
     } else {
-      title.textContent = titleField.value;
+      title.textContent = titleValue;
     }
     header.append(title);
   }
 
-  if (subtitleField.value || subtitleField.source) {
+  if (subtitleValue || subtitleField.source) {
     const subtitle = document.createElement('p');
     subtitle.className = 'numbered-cards-custom-subtitle';
     if (subtitleField.source) {
-      moveFieldContent(subtitleField.source, subtitle, subtitleField.value);
+      moveFieldContent(subtitleField.source, subtitle, subtitleValue);
     } else {
-      subtitle.textContent = subtitleField.value;
+      subtitle.textContent = subtitleValue;
     }
     header.append(subtitle);
   }
@@ -194,29 +259,39 @@ export default function decorate(block) {
   wrapper.append(header);
 
   const rows = [...block.querySelectorAll(':scope > div')];
-  const cards = [];
-
-  rows.forEach((row) => {
+  const cardPromises = rows.map(async (row) => {
     const cols = [...row.children];
     const hasCardProp = CARD_PROPS.some((prop) => row.querySelector(getFieldSelector(prop)));
-    if (!hasCardProp && cols.length < 2) return;
+    if (!hasCardProp && cols.length < 2) return null;
 
     const cardTitleEl = getRichField(row, 'cardTitle', 1);
     const cardBodyEl = getRichField(row, 'cardBody', 2);
-    const cardNumber = getRowTextField(row, 'cardNumber', 0);
-    if (!cardTitleEl && !cardBodyEl && !cardNumber) return;
+    const rowData = await getResourceData(row);
+    const cardNumber = getRowTextField(row, 'cardNumber', 0)
+      || normalizeJsonFieldValue(rowData.cardNumber);
+    if (!cardTitleEl && !cardBodyEl && !cardNumber) return null;
 
-    cards.push({
+    return {
       row,
       cardNumber,
       cardTitleEl,
       cardBodyEl,
-      numberColor: getRowTextField(row, 'numberColor', 3),
-      titleColor: getRowTextField(row, 'titleColor', 4),
-      bodyColor: getRowTextField(row, 'bodyColor', 5),
-      cardBackgroundColor: getRowTextField(row, 'cardBackgroundColor', 6),
-    });
+      numberColor: normalizeColorValue(
+        getRowTextField(row, 'numberColor', 3) || rowData.numberColor,
+      ),
+      titleColor: normalizeColorValue(
+        getRowTextField(row, 'titleColor', 4) || rowData.titleColor,
+      ),
+      bodyColor: normalizeColorValue(
+        getRowTextField(row, 'bodyColor', 5) || rowData.bodyColor,
+      ),
+      cardBackgroundColor: normalizeColorValue(
+        getRowTextField(row, 'cardBackgroundColor', 6) || rowData.cardBackgroundColor,
+      ),
+    };
   });
+
+  const cards = (await Promise.all(cardPromises)).filter(Boolean);
 
   const cardsContainer = document.createElement('div');
   cardsContainer.className = 'numbered-cards-custom-grid';
