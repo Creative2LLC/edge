@@ -128,10 +128,11 @@ function normalizeTextColor(value) {
 function getAuthorableTextRoots(main, propName) {
   const propNodes = [...main.querySelectorAll(`[data-aue-prop="${propName}"][data-aue-resource]`)];
   const modelNodes = [...main.querySelectorAll(`[data-aue-model="${propName}"][data-aue-resource]`)];
+  const directDefaultNodes = [...main.querySelectorAll('.default-content-wrapper [data-aue-resource]')];
   const roots = [];
   const seenResources = new Set();
 
-  [...propNodes, ...modelNodes].forEach((node) => {
+  [...propNodes, ...modelNodes, ...directDefaultNodes].forEach((node) => {
     const resource = node.getAttribute('data-aue-resource');
     if (!resource || seenResources.has(resource)) return;
     seenResources.add(resource);
@@ -210,7 +211,7 @@ function applyDefaultContentStyles(main, propName) {
   });
 }
 
-function applyDefaultContentAuthorStyles(main) {
+export function applyDefaultContentAuthorStyles(main) {
   applyDefaultContentStyles(main, 'title');
   applyDefaultContentStyles(main, 'text');
 }
