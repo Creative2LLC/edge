@@ -1,5 +1,47 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+function normalizeColorValue(value) {
+  const normalized = normalizeJsonFieldValue(value);
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) {
+    return hexMatch[0];
+  }
+
+  return normalized;
+}
+
+async function getBlockResourceData(block) {
+  const resource = block.getAttribute('data-aue-resource') || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return {};
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    return {};
+  }
+}
+
 function getField(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return source.textContent.trim();
@@ -8,11 +50,10 @@ function getField(block, name) {
 
 function getLinkField(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return anchor?.href || source.textContent.trim();
-  }
-  return '';
+  if (!source) return '';
+
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  return anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim();
 }
 
 function getImage(block) {
@@ -21,18 +62,18 @@ function getImage(block) {
     || source?.querySelector('picture')
     || block.querySelector('picture');
   if (!picture) return null;
+
   const img = picture.querySelector('img');
   if (!img) return picture;
+
   const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
   picture.replaceWith(optimized);
   return optimized;
 }
 
 /**
- * Hex color values (e.g. #7BC581) are auto-linked by EDS into
- * <p class="button-container"><a class="button">#7BC581</a></p>.
- * These rows have no data-aue-prop. Collect them in document order
- * to map back to model field order.
+ * Legacy color rows may still be auto-linked by EDS into button anchors
+ * without data-aue-prop markers. Preserve the existing order for those rows.
  */
 function collectColorValues(block) {
   const values = [];
@@ -43,7 +84,7 @@ function collectColorValues(block) {
       values.push(anchor.textContent.trim());
     }
   });
-  // Model order: buttonColor, button2Color, backgroundColor, textColor
+
   return {
     buttonColor: values[0] || '',
     button2Color: values[1] || '',
@@ -52,46 +93,71 @@ function collectColorValues(block) {
   };
 }
 
-export default function decorate(block) {
+function buildButton(text, href, backgroundColor) {
+  if (!text && !href) return null;
+
+  const button = document.createElement(href ? 'a' : 'span');
+  button.className = 'split-card-button';
+  button.textContent = text || 'Learn More';
+
+  if (href) {
+    button.href = href;
+  }
+
+  if (backgroundColor) {
+    button.style.setProperty('background-color', backgroundColor, 'important');
+  }
+
+  return button;
+}
+
+export default async function decorate(block) {
+  const resourceData = await getBlockResourceData(block);
   const picture = getImage(block);
 
-  const heading = getField(block, 'heading');
-  const subheading = getField(block, 'subheading');
-  const buttonText = getField(block, 'buttonText');
-  const buttonLink = getLinkField(block, 'buttonLink');
-  const button2Text = getField(block, 'button2Text');
-  const button2Link = getLinkField(block, 'button2Link');
-  const imageAlt = getField(block, 'imageAlt');
+  const heading = getField(block, 'heading') || normalizeJsonFieldValue(resourceData.heading);
+  const subheading = getField(block, 'subheading') || normalizeJsonFieldValue(resourceData.subheading);
+  const buttonText = getField(block, 'buttonText') || normalizeJsonFieldValue(resourceData.buttonText);
+  const buttonLink = getLinkField(block, 'buttonLink') || normalizeJsonFieldValue(resourceData.buttonLink);
+  const button2Text = getField(block, 'button2Text') || normalizeJsonFieldValue(resourceData.button2Text);
+  const button2Link = getLinkField(block, 'button2Link') || normalizeJsonFieldValue(resourceData.button2Link);
+  const imageAlt = getField(block, 'imageAlt') || normalizeJsonFieldValue(resourceData.imageAlt);
 
   const colors = collectColorValues(block);
-  const {
-    buttonColor, button2Color, backgroundColor, textColor,
-  } = colors;
+  const buttonColor = colors.buttonColor || normalizeColorValue(resourceData.buttonColor);
+  const button2Color = colors.button2Color || normalizeColorValue(resourceData.button2Color);
+  const backgroundColor = colors.backgroundColor
+    || normalizeColorValue(resourceData.backgroundColor);
+  const sharedTextColor = colors.textColor || normalizeColorValue(resourceData.textColor);
+  const headingColor = normalizeColorValue(getField(block, 'headingColor') || resourceData.headingColor)
+    || sharedTextColor;
+  const subheadingColor = normalizeColorValue(
+    getField(block, 'subheadingColor') || resourceData.subheadingColor,
+  ) || sharedTextColor;
 
-  const contentAlignField = getField(block, 'contentAlign');
-  const contentAlign = contentAlignField || 'left';
-  const imagePositionField = getField(block, 'imagePosition');
-  const imagePosition = imagePositionField || 'left';
+  const contentAlign = getField(block, 'contentAlign')
+    || normalizeJsonFieldValue(resourceData.contentAlign)
+    || 'left';
+  const imagePosition = getField(block, 'imagePosition')
+    || normalizeJsonFieldValue(resourceData.imagePosition)
+    || 'left';
 
   if (picture) {
     const img = picture.querySelector('img');
     if (img && imageAlt) img.alt = imageAlt;
   }
 
-  // Build DOM
   const card = document.createElement('div');
   card.className = 'split-card-inner';
   if (imagePosition === 'right') {
     card.classList.add('split-card-image-right');
   }
 
-  // Left: image
   const mediaSide = document.createElement('div');
   mediaSide.className = 'split-card-media';
   if (picture) mediaSide.append(picture);
   card.append(mediaSide);
 
-  // Right: content
   const contentSide = document.createElement('div');
   contentSide.className = 'split-card-content';
   contentSide.style.textAlign = contentAlign;
@@ -110,7 +176,7 @@ export default function decorate(block) {
     const h2 = document.createElement('h2');
     h2.className = 'split-card-heading';
     h2.textContent = heading;
-    if (textColor) h2.style.setProperty('color', textColor, 'important');
+    if (headingColor) h2.style.setProperty('color', headingColor, 'important');
     contentSide.append(h2);
   }
 
@@ -118,46 +184,25 @@ export default function decorate(block) {
     const p = document.createElement('p');
     p.className = 'split-card-subheading';
     p.textContent = subheading;
-    if (textColor) p.style.setProperty('color', textColor, 'important');
+    if (subheadingColor) p.style.setProperty('color', subheadingColor, 'important');
     contentSide.append(p);
   }
 
-  const hasBtn1 = buttonText && buttonLink;
-  const hasBtn2 = button2Text && button2Link;
+  const primaryButton = buildButton(buttonText, buttonLink, buttonColor);
+  const secondaryButton = buildButton(button2Text, button2Link, button2Color);
 
-  if (hasBtn1 || hasBtn2) {
+  if (primaryButton || secondaryButton) {
     const btnContainer = document.createElement('div');
     btnContainer.className = 'split-card-buttons';
-    if (hasBtn1 && hasBtn2) {
+    if (primaryButton && secondaryButton) {
       btnContainer.classList.add('split-card-buttons-duo');
     }
 
-    if (hasBtn1) {
-      const btn = document.createElement('a');
-      btn.className = 'split-card-button';
-      btn.href = buttonLink;
-      btn.textContent = buttonText;
-      if (buttonColor) {
-        btn.style.setProperty('background-color', buttonColor, 'important');
-      }
-      btnContainer.append(btn);
-    }
-
-    if (hasBtn2) {
-      const btn2 = document.createElement('a');
-      btn2.className = 'split-card-button';
-      btn2.href = button2Link;
-      btn2.textContent = button2Text;
-      if (button2Color) {
-        btn2.style.setProperty('background-color', button2Color, 'important');
-      }
-      btnContainer.append(btn2);
-    }
-
+    if (primaryButton) btnContainer.append(primaryButton);
+    if (secondaryButton) btnContainer.append(secondaryButton);
     contentSide.append(btnContainer);
   }
 
   card.append(contentSide);
-
   block.replaceChildren(card);
 }

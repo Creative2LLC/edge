@@ -88,8 +88,22 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "headingColor",
+          "label": "Heading Color (Hex, Optional)",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheadingColor",
+          "label": "Subheading Color (Hex, Optional)",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "textColor",
-          "label": "Heading / Subheading Text Color (Hex)",
+          "label": "Shared Text Color (Hex, Optional)",
           "value": ""
         },
         {
