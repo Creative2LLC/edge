@@ -89,14 +89,13 @@
           "valueType": "string",
           "name": "imageSize",
           "label": "Image Size",
-          "description": "Choose the size for this leader's photo",
           "options": [
             {
-              "name": "Large (310px tall)",
+              "name": "Large",
               "value": "large"
             },
             {
-              "name": "Small (208px tall)",
+              "name": "Small",
               "value": "small"
             }
           ],
