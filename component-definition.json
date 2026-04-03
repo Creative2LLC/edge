@@ -1421,6 +1421,21 @@
           }
         },
         {
+          "title": "Split Card Info",
+          "id": "split-card-info",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Split Card Info",
+                  "model": "split-card-info"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Split Card",
           "id": "split-card",
           "plugins": {
