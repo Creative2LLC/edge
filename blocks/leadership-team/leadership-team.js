@@ -66,7 +66,7 @@ function buildLeaderCard(leader) {
 
   // Add image size class
   if (leader.imageSize === 'small') {
-    card.classList.add('leadership-team-card--small-image');
+    card.classList.add('leadership-team-card-small-image');
   }
 
   if (leader.row) moveInstrumentation(leader.row, card);
