@@ -3026,6 +3026,23 @@
         "name": "link",
         "label": "Bio Page",
         "description": "Select the leader bio page from the content tree."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "imageSize",
+        "label": "Image Size",
+        "options": [
+          {
+            "name": "Large",
+            "value": "large"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          }
+        ],
+        "value": "large"
       }
     ]
   },
