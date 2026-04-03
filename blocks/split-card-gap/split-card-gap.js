@@ -1,8 +1,26 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+const BLOCK_FIELD_NAMES = [
+  'image',
+  'imageAlt',
+  'heading',
+  'imageWidth',
+  'bodyText',
+  'contentBackgroundColor',
+  'textColor',
+  'primaryButtonText',
+  'primaryButtonLink',
+  'secondaryButtonText',
+  'secondaryButtonLink',
+];
+
+function getFieldSelector(name) {
+  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
+}
+
 function getField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
+  const source = scope.querySelector(getFieldSelector(name));
   if (source) return { source, value: source.textContent.trim() };
 
   const cols = [...scope.children];
@@ -11,11 +29,30 @@ function getField(scope, name, index) {
 }
 
 function getRichField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
+  const source = scope.querySelector(getFieldSelector(name));
   if (source) return source;
 
   const cols = [...scope.children];
   return cols[index] || null;
+}
+
+function getLinkField(scope, name, index) {
+  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return {
+      source,
+      value: anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim(),
+    };
+  }
+
+  const cols = [...scope.children];
+  const column = cols[index];
+  const anchor = column?.querySelector('a');
+  return {
+    source: null,
+    value: anchor?.getAttribute('href') || column?.textContent?.trim() || '',
+  };
 }
 
 function getImageField(scope, name, index) {
@@ -66,8 +103,53 @@ function buildOptimizedImage(imageField, imageAlt) {
     { width: '700' },
   ]);
 
-  moveInstrumentation(img, optimized.querySelector('img'));
+  const optimizedImg = optimized.querySelector('img');
+  moveInstrumentation(img, optimizedImg);
+
+  if (
+    imageField.source
+    && imageField.source !== imageField.picture
+    && imageField.source !== imageField.img
+  ) {
+    moveInstrumentation(imageField.source, optimized);
+  }
+
+  if (imageField.picture && imageField.picture !== imageField.source) {
+    moveInstrumentation(imageField.picture, optimized);
+  }
+
   return optimized;
+}
+
+function appendPlainText(wrapper, text) {
+  const normalized = text.replace(/\r\n?/gu, '\n').trim();
+  if (!normalized) return;
+
+  const paragraphs = normalized.split(/\n{2,}/u).filter(Boolean);
+  const chunks = paragraphs.length ? paragraphs : [normalized];
+
+  chunks.forEach((chunk) => {
+    const paragraph = document.createElement('p');
+    chunk.split('\n').forEach((line, index) => {
+      if (index > 0) paragraph.append(document.createElement('br'));
+      paragraph.append(document.createTextNode(line.trim()));
+    });
+    wrapper.append(paragraph);
+  });
+}
+
+function moveFieldContent(field, target, fallbackValue = '') {
+  if (!field?.source) {
+    target.textContent = fallbackValue;
+    return;
+  }
+
+  moveInstrumentation(field.source, target);
+  while (field.source.firstChild) target.append(field.source.firstChild);
+
+  if (!target.childNodes.length && fallbackValue) {
+    target.textContent = fallbackValue;
+  }
 }
 
 function buildBody(bodySource, textColor) {
@@ -78,15 +160,74 @@ function buildBody(bodySource, textColor) {
   if (textColor) body.style.color = textColor;
 
   moveInstrumentation(bodySource, body);
-  while (bodySource.firstChild) body.append(bodySource.firstChild);
 
-  return body.childNodes.length ? body : null;
+  const hasElementChildren = [...bodySource.childNodes]
+    .some((node) => node.nodeType === Node.ELEMENT_NODE);
+
+  if (hasElementChildren) {
+    while (bodySource.firstChild) body.append(bodySource.firstChild);
+  } else {
+    appendPlainText(body, bodySource.textContent || '');
+  }
+
+  return body.textContent.trim() ? body : null;
+}
+
+function buildButton(textField, linkField, className) {
+  const href = linkField.value;
+  const label = textField.value || href;
+  if (!label) return null;
+
+  const button = document.createElement(href ? 'a' : 'span');
+  button.className = className;
+  if (href) button.href = href;
+
+  moveFieldContent(textField, button, label);
+  if (linkField.source) moveInstrumentation(linkField.source, button);
+
+  return button;
+}
+
+function buildActions(primaryTextField, primaryLinkField, secondaryTextField, secondaryLinkField) {
+  const primaryButton = buildButton(
+    primaryTextField,
+    primaryLinkField,
+    'split-card-gap-button split-card-gap-button-primary',
+  );
+  const secondaryButton = buildButton(
+    secondaryTextField,
+    secondaryLinkField,
+    'split-card-gap-button split-card-gap-button-secondary',
+  );
+
+  if (!primaryButton && !secondaryButton) return null;
+
+  const actions = document.createElement('div');
+  actions.className = 'split-card-gap-actions';
+  if (primaryButton) actions.append(primaryButton);
+  if (secondaryButton) actions.append(secondaryButton);
+  return actions;
+}
+
+function normalizeSplitPercent(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+
+  const numeric = parseFloat(trimmed.replace('%', ''));
+  if (Number.isNaN(numeric)) return '';
+
+  const clamped = Math.min(75, Math.max(25, numeric));
+  return `${clamped}%`;
+}
+
+function isItemRow(row) {
+  if (row.querySelector('[data-aue-prop="icon"], [data-aue-prop="title"]')) return true;
+  if (row.querySelector(BLOCK_FIELD_NAMES.map((name) => getFieldSelector(name)).join(', '))) return false;
+  return row.children.length >= 3;
 }
 
 function buildBenefitItem(data, textColor) {
-  const hasVisibleContent = Boolean(
-    data.iconField.img || data.titleField.value,
-  );
+  const hasVisibleContent = Boolean(data.iconField.img || data.titleField.value);
   const isAuthoringPlaceholder = hasAuthoringContext(data.row) && !hasVisibleContent;
 
   if (!hasVisibleContent && !isAuthoringPlaceholder) {
@@ -159,25 +300,29 @@ export default function decorate(block) {
   const imageField = getImageField(block, 'image', 0);
   const imageAltField = getField(block, 'imageAlt', 1);
   const headingField = getField(block, 'heading', 2);
-  const bodySource = getRichField(block, 'bodyText', 3);
-  const contentBackgroundColorField = getField(block, 'contentBackgroundColor', 4);
-  const textColorField = getField(block, 'textColor', 5);
+  const imageWidthField = getField(block, 'imageWidth', 3);
+  const bodySource = getRichField(block, 'bodyText', 4);
+  const contentBackgroundColorField = getField(block, 'contentBackgroundColor', 5);
+  const textColorField = getField(block, 'textColor', 6);
+  const primaryButtonTextField = getField(block, 'primaryButtonText', 7);
+  const primaryButtonLinkField = getLinkField(block, 'primaryButtonLink', 8);
+  const secondaryButtonTextField = getField(block, 'secondaryButtonText', 9);
+  const secondaryButtonLinkField = getLinkField(block, 'secondaryButtonLink', 10);
 
   const imageAlt = imageAltField.value;
   const heading = headingField.value;
   const contentBackgroundColor = contentBackgroundColorField.value || '#ffffff';
   const textColor = textColorField.value || '';
+  const imageWidth = normalizeSplitPercent(imageWidthField.value) || '52.5%';
+
+  block.style.setProperty('--split-card-gap-media-width', imageWidth);
+  block.style.setProperty('--split-card-gap-content-width', `calc(100% - ${imageWidth})`);
 
   const rows = [...block.querySelectorAll(':scope > div')];
   const benefits = [];
 
   rows.forEach((row) => {
-    const cols = [...row.children];
-    const isItemRow = row.querySelector('[data-aue-prop="icon"]')
-      || row.querySelector('[data-aue-prop="title"]')
-      || cols.length >= 3;
-
-    if (!isItemRow) return;
+    if (!isItemRow(row)) return;
 
     const iconField = getImageField(row, 'icon', 0);
     const titleField = getField(row, 'title', 1);
@@ -224,6 +369,14 @@ export default function decorate(block) {
     benefits.forEach((benefit) => benefitsGrid.append(benefit));
     content.append(benefitsGrid);
   }
+
+  const actions = buildActions(
+    primaryButtonTextField,
+    primaryButtonLinkField,
+    secondaryButtonTextField,
+    secondaryButtonLinkField,
+  );
+  if (actions) content.append(actions);
 
   inner.append(content);
   block.replaceChildren(inner);

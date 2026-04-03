@@ -1,10 +1,15 @@
 .split-card-gap {
+  --split-card-gap-media-width: 52.5%;
+  --split-card-gap-content-width: calc(100% - var(--split-card-gap-media-width));
+
   padding: 60px 0;
 }
 
 .split-card-gap .split-card-gap-inner {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-columns:
+    minmax(0, var(--split-card-gap-media-width))
+    minmax(0, var(--split-card-gap-content-width));
   gap: 48px;
   align-items: stretch;
 }
@@ -58,12 +63,23 @@
   margin-bottom: 0;
 }
 
-.split-card-gap .split-card-gap-body p {
-  margin: 0;
+.split-card-gap .split-card-gap-body > * + * {
+  margin-top: 1rem;
 }
 
-.split-card-gap .split-card-gap-body p + p {
-  margin-top: 1rem;
+.split-card-gap .split-card-gap-body p,
+.split-card-gap .split-card-gap-body ul,
+.split-card-gap .split-card-gap-body ol {
+  margin-bottom: 0;
+}
+
+.split-card-gap .split-card-gap-body ul,
+.split-card-gap .split-card-gap-body ol {
+  padding-left: 1.25rem;
+}
+
+.split-card-gap .split-card-gap-body li + li {
+  margin-top: 0.45rem;
 }
 
 .split-card-gap .split-card-gap-benefits {
@@ -146,6 +162,64 @@
   line-height: 1.25;
 }
 
+.split-card-gap .split-card-gap-actions {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.split-card-gap .split-card-gap-button,
+.split-card-gap .split-card-gap-button:any-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 2px solid #0f9dcb;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.split-card-gap .split-card-gap-button:hover,
+.split-card-gap .split-card-gap-button:focus-visible {
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.split-card-gap .split-card-gap-button-primary,
+.split-card-gap .split-card-gap-button-primary:any-link {
+  background: #0f9dcb;
+  color: #fff;
+  box-shadow: 0 12px 24px rgb(15 157 203 / 18%);
+}
+
+.split-card-gap .split-card-gap-button-primary:hover,
+.split-card-gap .split-card-gap-button-primary:focus-visible {
+  background: #0b8cb6;
+  border-color: #0b8cb6;
+}
+
+.split-card-gap .split-card-gap-button-secondary,
+.split-card-gap .split-card-gap-button-secondary:any-link {
+  background: transparent;
+  color: #0f9dcb;
+}
+
+.split-card-gap .split-card-gap-button-secondary:hover,
+.split-card-gap .split-card-gap-button-secondary:focus-visible {
+  background: rgb(15 157 203 / 8%);
+}
+
 @media (width <= 900px) {
   .split-card-gap .split-card-gap-inner {
     grid-template-columns: 1fr;
@@ -179,5 +253,14 @@
 
   .split-card-gap .split-card-gap-benefit-title {
     font-size: 18px;
+  }
+
+  .split-card-gap .split-card-gap-actions {
+    width: 100%;
+  }
+
+  .split-card-gap .split-card-gap-button,
+  .split-card-gap .split-card-gap-button:any-link {
+    width: min(100%, 320px);
   }
 }

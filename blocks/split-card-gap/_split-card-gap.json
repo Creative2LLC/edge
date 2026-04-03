@@ -56,6 +56,14 @@
           "label": "Heading"
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageWidth",
+          "label": "Image Width (%)",
+          "description": "Desktop width for the image column. Use values like 50 or 75. Defaults to 52.5.",
+          "value": ""
+        },
+        {
           "component": "richtext",
           "valueType": "string",
           "name": "bodyText",
@@ -74,6 +82,30 @@
           "name": "textColor",
           "label": "Text Color (Hex)",
           "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "primaryButtonText",
+          "label": "Primary Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "primaryButtonLink",
+          "label": "Primary Button Link (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "secondaryButtonText",
+          "label": "Secondary Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "secondaryButtonLink",
+          "label": "Secondary Button Link (Optional)"
         }
       ]
     },
