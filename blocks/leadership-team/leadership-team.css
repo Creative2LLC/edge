@@ -119,8 +119,8 @@
   display: block;
 }
 
-/* Shorter images for all sections after the first */
-.leadership-team-section ~ .leadership-team-section .leadership-team-card-image {
+/* Small image size option */
+.leadership-team-card--small-image .leadership-team-card-image {
   height: 208px;
 }
 

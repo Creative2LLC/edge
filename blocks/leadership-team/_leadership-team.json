@@ -58,6 +58,24 @@
           "value": ""
         },
         {
+          "component": "select",
+          "name": "imageSize",
+          "label": "Image Size",
+          "description": "Choose the size for this leader's photo",
+          "value": "large",
+          "valueType": "string",
+          "options": [
+            {
+              "name": "Large (310px tall)",
+              "value": "large"
+            },
+            {
+              "name": "Small (208px tall)",
+              "value": "small"
+            }
+          ]
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "leaderName",

@@ -48,6 +48,7 @@ function parseLeaderRow(row) {
     picture,
     imgSrc,
     imageAlt,
+    imageSize: getPropText(row, 'imageSize') || 'large',
     name: getPropText(row, 'leaderName'),
     leaderTitle: getPropText(row, 'leaderTitle'),
     bio: getPropText(row, 'bio'),
@@ -62,6 +63,12 @@ function parseLeaderRow(row) {
 function buildLeaderCard(leader) {
   const card = document.createElement('div');
   card.className = 'leadership-team-card';
+
+  // Add image size class
+  if (leader.imageSize === 'small') {
+    card.classList.add('leadership-team-card--small-image');
+  }
+
   if (leader.row) moveInstrumentation(leader.row, card);
 
   // Image
