@@ -121,6 +121,7 @@
 
 /* Small image size option */
 .leadership-team-card-small-image .leadership-team-card-image {
+  width: 258px;
   height: 208px;
 }
 
