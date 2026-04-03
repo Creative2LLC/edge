@@ -116,12 +116,19 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
+  transform: scale(1.2);
 }
 
-/* Shorter images for all sections after the first */
-.leadership-team-section ~ .leadership-team-section .leadership-team-card-image {
-  height: 208px;
+/* Small image size option */
+.leadership-team-card-small-image {
+  max-width: 180px;
+}
+
+.leadership-team-card-small-image .leadership-team-card-image {
+  width: 100%;
+  height: 145px;
 }
 
 /* Card name */
