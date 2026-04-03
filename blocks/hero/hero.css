@@ -91,6 +91,14 @@
   color: #008eb7;
 }
 
+.hero .hero-richtext h3 {
+  font-size: 36px;
+}
+
+.hero .hero-richtext > h3:not(:first-child) {
+  margin-top: 8px;
+}
+
 /* Second line and beyond in rich text get the lighter blue */
 .hero .hero-richtext > :not(:first-child) {
   color: #008eb7;
@@ -366,6 +374,10 @@
     font-size: clamp(30px, 4.8vw, 42px);
   }
 
+  .hero .hero-richtext h3 {
+    font-size: 32px;
+  }
+
   .hero .hero-richtext p {
     margin-top: 18px;
     font-size: clamp(17px, 2.4vw, 20px);
@@ -400,6 +412,10 @@
   .hero .hero-richtext h2 {
     margin-top: 6px;
     font-size: clamp(26px, 6.7vw, 36px);
+  }
+
+  .hero .hero-richtext h3 {
+    font-size: 30px;
   }
 
   .hero .hero-richtext p {
@@ -469,6 +485,10 @@
     font-size: clamp(24px, 8vw, 32px);
   }
 
+  .hero .hero-richtext h3 {
+    font-size: 28px;
+  }
+
   .hero .hero-richtext p {
     font-size: 15px;
     line-height: 1.4;
@@ -485,3 +505,4 @@
     font-size: 12px;
   }
 }
+

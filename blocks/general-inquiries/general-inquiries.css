@@ -9,6 +9,7 @@ main > .section > .general-inquiries-wrapper {
 
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   border-radius: 28px;
   padding: clamp(26px, 4vw, 48px);
   background:
@@ -223,9 +224,15 @@ main > .section > .general-inquiries-wrapper {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgb(244 246 248 / 84%) 0%, rgb(217 222 226 / 76%) 100%),
-    radial-gradient(circle at 16% 18%, rgb(255 255 255 / 62%), transparent 38%),
-    radial-gradient(circle at 82% 66%, rgb(255 255 255 / 24%), transparent 32%);
+    linear-gradient(180deg, rgb(244 246 248 / 56%) 0%, rgb(217 222 226 / 48%) 100%),
+    radial-gradient(circle at 16% 18%, rgb(255 255 255 / 42%), transparent 38%),
+    radial-gradient(circle at 82% 66%, rgb(255 255 255 / 18%), transparent 32%);
+}
+
+.general-inquiries.general-inquiries-support-mode .general-inquiries-backdrop picture {
+  position: absolute;
+  inset: 0;
+  display: block;
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-backdrop picture,
@@ -237,9 +244,9 @@ main > .section > .general-inquiries-wrapper {
 .general-inquiries.general-inquiries-support-mode .general-inquiries-backdrop img {
   display: block;
   object-fit: cover;
-  opacity: 0.48;
+  opacity: 0.72;
   transform: scale(1.03);
-  filter: saturate(0.72);
+  filter: saturate(0.82);
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-support,
@@ -409,3 +416,4 @@ main > .section > .general-inquiries-wrapper {
     width: 100%;
   }
 }
+
