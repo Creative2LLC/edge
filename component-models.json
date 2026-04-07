@@ -2633,18 +2633,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "introButtonText",
-        "label": "Intro Button Text",
-        "value": ""
-      },
-      {
-        "component": "aem-content",
-        "name": "introButtonLink",
-        "label": "Intro Button Link"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "footerText",
         "label": "Footer Text",
         "value": ""
@@ -2660,6 +2648,18 @@
         "component": "aem-content",
         "name": "sectionButtonLink",
         "label": "Section Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "introButtonText",
+        "label": "Intro Button Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "introButtonLink",
+        "label": "Intro Button Link"
       }
     ]
   },

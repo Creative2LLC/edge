@@ -5,11 +5,11 @@ const BLOCK_FIELD_INDEX = {
   styleVariant: 1,
   sectionHeading: 2,
   sectionSubheading: 3,
-  introButtonText: 4,
-  introButtonLink: 5,
-  footerText: 6,
-  sectionButtonText: 7,
-  sectionButtonLink: 8,
+  footerText: 4,
+  sectionButtonText: 5,
+  sectionButtonLink: 6,
+  introButtonText: 7,
+  introButtonLink: 8,
 };
 
 const ITEM_FIELD_NAMES = [
