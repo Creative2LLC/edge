@@ -119,13 +119,8 @@
   margin-top: 8px;
 }
 
-/* Spacer pushes the button to the bottom of the card */
-.dark-feature-cards .dark-feature-cards-card-body > .dark-feature-cards-card-btn {
-  margin-top: auto;
-}
-
-/* ---------- Buttons ---------- */
-/* Compound selector beats global `button:hover` cascade in styles.css */
+/* ---------- Buttons ----------
+   Compound selector beats global `button:hover` cascade in styles.css */
 .dark-feature-cards .dark-feature-cards-card-btn {
   display: inline-flex;
   align-items: center;
@@ -180,6 +175,11 @@
   opacity: 0.85;
   outline: none;
   box-shadow: none;
+}
+
+/* Pushes the button to the bottom of the card so cards line up */
+.dark-feature-cards .dark-feature-cards-card-body > .dark-feature-cards-card-btn {
+  margin-top: auto;
 }
 
 /* ---------- Responsive ---------- */
