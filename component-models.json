@@ -1054,6 +1054,101 @@
     ]
   },
   {
+    "id": "dark-feature-cards",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Section Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Section Subtitle"
+      }
+    ]
+  },
+  {
+    "id": "dark-feature-cards-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Top Image (Optional)",
+        "description": "Optional image at the top of the card. Sits at the very top, full card width, max height 178px.",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon (64x64)",
+        "description": "Icon displayed at the top of the card body, color-tinted white.",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardTitle",
+        "label": "Card Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "cardSubtitle",
+        "label": "Card Subtitle"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          }
+        ],
+        "value": "outlined"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color",
+        "options": [
+          {
+            "name": "Dark Navy (#0F3357)",
+            "value": "#0f3357"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008db6"
+          }
+        ],
+        "value": "#0f3357"
+      }
+    ]
+  },
+  {
     "id": "detailed-carousel",
     "fields": [
       {
