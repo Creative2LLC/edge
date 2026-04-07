@@ -153,19 +153,30 @@ function buildCard(data) {
 
 export default function decorate(block) {
   // Pull out block-level fields and remove their rows so they're not parsed
-  // as item rows. Mirrors the icon-card-carousel pattern.
+  // as item rows. We can't use `closest(':scope > div')` here — `:scope` in
+  // closest() resolves to the calling element, so the selector never matches
+  // and the row would be left behind, getting picked up as a phantom card.
+  // Walk up manually until we hit a direct child of `block`.
+  const directRowOf = (el) => {
+    let cur = el;
+    while (cur && cur.parentElement && cur.parentElement !== block) {
+      cur = cur.parentElement;
+    }
+    return cur && cur.parentElement === block ? cur : null;
+  };
+
   let sectionTitle = '';
   const titleProp = block.querySelector('[data-aue-prop="title"]');
   if (titleProp) {
     sectionTitle = titleProp.textContent.trim();
-    titleProp.closest(':scope > div')?.remove();
+    directRowOf(titleProp)?.remove();
   }
 
   let sectionSubtitle = '';
   const subtitleProp = block.querySelector('[data-aue-prop="subtitle"]');
   if (subtitleProp) {
     sectionSubtitle = subtitleProp.textContent.trim();
-    subtitleProp.closest(':scope > div')?.remove();
+    directRowOf(subtitleProp)?.remove();
   }
 
   // Iterate remaining rows as cards
