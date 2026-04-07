@@ -497,6 +497,64 @@ function buildSidePanel(block) {
   return panel;
 }
 
+function extractVideoUrl(block) {
+  const source = block.querySelector('[data-aue-prop="media_video"]')
+    || block.querySelector('[data-aue-prop="video"]');
+  if (!source) return { source: null, url: '' };
+
+  // The reference field may render as an <a>, a <video>, an <img> with .mp4 src,
+  // or just a text node containing the path. Try them all.
+  if (source.tagName === 'A') {
+    return { source, url: source.getAttribute('href') || '' };
+  }
+  if (source.tagName === 'VIDEO') {
+    return { source, url: source.getAttribute('src') || source.querySelector('source')?.getAttribute('src') || '' };
+  }
+  const anchor = source.querySelector('a[href]');
+  if (anchor) {
+    const href = anchor.getAttribute('href') || '';
+    if (href) return { source, url: href };
+  }
+  const innerVideo = source.querySelector('video');
+  if (innerVideo) {
+    const src = innerVideo.getAttribute('src') || innerVideo.querySelector('source')?.getAttribute('src') || '';
+    if (src) return { source, url: src };
+  }
+  const text = source.textContent.trim();
+  if (text && /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(text)) {
+    return { source, url: text };
+  }
+  return { source: null, url: '' };
+}
+
+function buildVideoElement(url, posterUrl) {
+  const video = document.createElement('video');
+  video.className = 'hero-video';
+  video.src = url;
+  if (posterUrl) video.poster = posterUrl;
+  video.autoplay = true;
+  video.loop = true;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.setAttribute('autoplay', '');
+  video.setAttribute('loop', '');
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.setAttribute('aria-hidden', 'true');
+  video.setAttribute('preload', 'auto');
+  // Some browsers (Safari iOS) require .play() after the element exists.
+  const tryPlay = () => {
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => { /* autoplay blocked — leave poster visible */ });
+    }
+  };
+  if (video.readyState >= 2) tryPlay();
+  else video.addEventListener('loadeddata', tryPlay, { once: true });
+  return video;
+}
+
 function extractPicture(block) {
   const imageField = getFieldValue(block, ['media_image', 'image']);
   let picture = null;
@@ -573,6 +631,16 @@ export default async function decorate(block) {
 
   const textColor = readTextColor(block);
   const picture = extractPicture(block);
+  const { url: videoUrl, source: videoSource } = extractVideoUrl(block);
+  let videoEl = null;
+  if (videoUrl) {
+    const posterUrl = picture?.querySelector('img')?.src || '';
+    videoEl = buildVideoElement(videoUrl, posterUrl);
+    if (videoSource) moveFieldBinding(videoSource, videoEl);
+    // Drop the source row so its placeholder text doesn't leak into the DOM.
+    const row = videoSource ? getDirectRow(block, videoSource) : null;
+    if (row) row.remove();
+  }
   const breadcrumb = await buildBreadcrumbs(block);
   const richText = buildMainRichText(block);
   const htmlText = buildHtmlText(block);
@@ -597,6 +665,10 @@ export default async function decorate(block) {
   content.className = 'hero-content';
   content.append(layout);
 
+  if (videoEl) {
+    block.replaceChildren(videoEl, content);
+    return;
+  }
   if (picture) {
     block.replaceChildren(picture, content);
     return;
