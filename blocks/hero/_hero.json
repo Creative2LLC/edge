@@ -35,6 +35,14 @@
           "value": ""
         },
         {
+          "component": "reference",
+          "valueType": "string",
+          "name": "media_video",
+          "label": "Background Video (Optional, MP4)",
+          "description": "Optional looping MP4. When set, replaces the background image. The image (above) is used as the video poster while it loads.",
+          "multi": false
+        },
+        {
           "component": "select",
           "name": "media_overlayOpacity",
           "label": "Image Overlay Opacity",

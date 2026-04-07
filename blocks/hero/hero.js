@@ -503,6 +503,111 @@ function buildSidePanel(block) {
   return panel;
 }
 
+const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
+
+function isVideoUrl(value) {
+  if (!value || typeof value !== 'string') return false;
+  return VIDEO_EXT_RE.test(value.trim());
+}
+
+function findVideoInElement(el) {
+  if (!el) return '';
+  // 1. Element itself is a video
+  if (el.tagName === 'VIDEO') {
+    return el.getAttribute('src')
+      || el.querySelector('source')?.getAttribute('src')
+      || '';
+  }
+  // 2. Element itself is an anchor with a video href
+  if (el.tagName === 'A') {
+    const href = el.getAttribute('href') || '';
+    if (href) return href;
+  }
+  // 3. Any descendant <video>
+  const innerVideo = el.querySelector?.('video');
+  if (innerVideo) {
+    const src = innerVideo.getAttribute('src')
+      || innerVideo.querySelector('source')?.getAttribute('src') || '';
+    if (src) return src;
+  }
+  // 4. Any descendant anchor — prefer one whose href looks like a video,
+  //    otherwise fall back to the first anchor we see (the asset reference
+  //    may be linked even if the URL doesn't carry an extension).
+  const anchors = [...(el.querySelectorAll?.('a[href]') || [])];
+  const videoAnchorMatch = anchors.find((a) => isVideoUrl(a.getAttribute('href') || ''));
+  if (videoAnchorMatch) return videoAnchorMatch.getAttribute('href');
+  const firstAnchor = anchors.find((a) => a.getAttribute('href'));
+  if (firstAnchor) return firstAnchor.getAttribute('href');
+  // 5. Plain text content that looks like a video URL/path
+  const text = el.textContent?.trim() || '';
+  if (text && (isVideoUrl(text) || text.startsWith('/') || text.startsWith('http'))) {
+    return text;
+  }
+  return '';
+}
+
+function extractVideoUrl(block) {
+  // 1. Try the named field first
+  const named = block.querySelector('[data-aue-prop="media_video"]')
+    || block.querySelector('[data-aue-prop="video"]');
+  if (named) {
+    const url = findVideoInElement(named);
+    if (url) return { source: named, url };
+  }
+
+  // 2. Block-wide scan for any anchor whose href looks like a video file.
+  //    Catches the case where EDS auto-linked the asset path and dropped the
+  //    data-aue-prop marker (same trick we use for color rows elsewhere).
+  const videoAnchor = [...block.querySelectorAll('a[href]')]
+    .find((a) => isVideoUrl(a.getAttribute('href')));
+  if (videoAnchor) {
+    return { source: videoAnchor, url: videoAnchor.getAttribute('href') };
+  }
+
+  // 3. Block-wide scan for an actual <video> element
+  const anyVideo = block.querySelector('video');
+  if (anyVideo) {
+    const src = anyVideo.getAttribute('src')
+      || anyVideo.querySelector('source')?.getAttribute('src') || '';
+    if (src) return { source: anyVideo, url: src };
+  }
+
+  // 4. Last resort: scan every direct row for plain-text video paths
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const rowMatch = rows.find((row) => isVideoUrl(row.textContent.trim()));
+  if (rowMatch) return { source: rowMatch, url: rowMatch.textContent.trim() };
+
+  return { source: null, url: '' };
+}
+
+function buildVideoElement(url, posterUrl) {
+  const video = document.createElement('video');
+  video.className = 'hero-video';
+  video.src = url;
+  if (posterUrl) video.poster = posterUrl;
+  video.autoplay = true;
+  video.loop = true;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.setAttribute('autoplay', '');
+  video.setAttribute('loop', '');
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.setAttribute('aria-hidden', 'true');
+  video.setAttribute('preload', 'auto');
+  // Some browsers (Safari iOS) require .play() after the element exists.
+  const tryPlay = () => {
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => { /* autoplay blocked — leave poster visible */ });
+    }
+  };
+  if (video.readyState >= 2) tryPlay();
+  else video.addEventListener('loadeddata', tryPlay, { once: true });
+  return video;
+}
+
 function extractPicture(block) {
   const imageField = getFieldValue(block, ['media_image', 'image']);
   let picture = null;
@@ -579,6 +684,24 @@ export default async function decorate(block) {
 
   const textColor = readTextColor(block);
   const picture = extractPicture(block);
+  const { url: videoUrl, source: videoSource } = extractVideoUrl(block);
+  let videoEl = null;
+  if (videoUrl) {
+    const posterUrl = picture?.querySelector('img')?.src || '';
+    videoEl = buildVideoElement(videoUrl, posterUrl);
+    if (videoSource) moveFieldBinding(videoSource, videoEl);
+    // Drop the source row so its placeholder text doesn't leak into the DOM.
+    const row = videoSource ? getDirectRow(block, videoSource) : null;
+    if (row) row.remove();
+  } else if (block.querySelector('[data-aue-prop="media_video"]')) {
+    // Field exists in the DOM but we couldn't pull a URL out of it. Dump the
+    // rendered HTML so it's visible in DevTools while debugging.
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[hero] media_video field present but no URL extracted. HTML:',
+      block.querySelector('[data-aue-prop="media_video"]').outerHTML,
+    );
+  }
   const breadcrumb = await buildBreadcrumbs(block);
   const richText = buildMainRichText(block);
   const htmlText = buildHtmlText(block);
@@ -603,6 +726,10 @@ export default async function decorate(block) {
   content.className = 'hero-content';
   content.append(layout);
 
+  if (videoEl) {
+    block.replaceChildren(videoEl, content);
+    return;
+  }
   if (picture) {
     block.replaceChildren(picture, content);
     return;

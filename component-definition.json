@@ -376,6 +376,37 @@
           }
         },
         {
+          "title": "Dark Feature Cards",
+          "id": "dark-feature-cards",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Dark Feature Cards",
+                  "model": "dark-feature-cards",
+                  "filter": "dark-feature-cards"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Dark Feature Card",
+          "id": "dark-feature-cards-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Dark Feature Card",
+                  "model": "dark-feature-cards-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Detailed Carousel",
           "id": "detailed-carousel",
           "plugins": {
@@ -958,6 +989,37 @@
           }
         },
         {
+          "title": "Logo Carousel",
+          "id": "logo-carousel",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Logo Carousel",
+                  "model": "logo-carousel",
+                  "filter": "logo-carousel"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Logo Carousel Item",
+          "id": "logo-carousel-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Logo Carousel Item",
+                  "model": "logo-carousel-item"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Mail Address",
           "id": "mail-address",
           "plugins": {
@@ -1415,6 +1477,36 @@
                 "template": {
                   "name": "Split Card Gap Item",
                   "model": "split-card-gap-item"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Split Card Info",
+          "id": "split-card-info",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Split Card Info",
+                  "model": "split-card-info"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Split Card Offices",
+          "id": "split-card-offices",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Split Card Offices",
+                  "model": "split-card-offices"
                 }
               }
             }

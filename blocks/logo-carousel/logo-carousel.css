@@ -1,0 +1,198 @@
+/* Logo Carousel Block */
+.logo-carousel {
+  margin: 64px auto;
+  padding: 0 32px;
+  max-width: 1280px;
+  box-sizing: border-box;
+}
+
+.logo-carousel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+}
+
+/* Track — horizontally scrollable list of logos */
+.logo-carousel-track {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  padding: 8px 4px;
+
+  /* Hide native scrollbar — we render our own bar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.logo-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slide — wraps a single logo */
+.logo-carousel-slide {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  min-height: 64px;
+}
+
+.logo-carousel-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.logo-carousel-logo picture {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cap logo height at 64px and let width scale proportionally */
+.logo-carousel-logo img {
+  display: block;
+  height: auto;
+  max-height: 64px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+/* Authoring placeholder so empty items are still selectable in the editor */
+.logo-carousel-slide.is-authoring-placeholder {
+  min-width: 160px;
+  min-height: 64px;
+  border: 1px dashed #c4c4c4;
+  border-radius: 8px;
+  color: #8a8a8a;
+  font-size: 14px;
+}
+
+/* Controls row — slider bar (left) + nav buttons (right) */
+.logo-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Slider bar (bottom-left) */
+.logo-carousel-bar {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  max-width: 360px;
+}
+
+.logo-carousel-bar-track {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background-color: #ededed;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.logo-carousel-bar-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #a1a1a1;
+  border-radius: 99px;
+  transition: transform 0.15s ease;
+}
+
+/* Pagination buttons (bottom-right) — compound selector beats the global
+   `button:hover` rule in styles.css that would otherwise paint these blue. */
+.logo-carousel .logo-carousel-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.logo-carousel .logo-carousel-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26.67px;
+  height: 26.67px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 99px;
+  background-color: #a1a1a1;
+  color: #ffffffd4;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s ease;
+}
+
+.logo-carousel .logo-carousel-nav-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.logo-carousel .logo-carousel-nav-btn:hover,
+.logo-carousel .logo-carousel-nav-btn:focus,
+.logo-carousel .logo-carousel-nav-btn:focus-visible,
+.logo-carousel .logo-carousel-nav-btn:active {
+  background-color: #a1a1a1;
+  color: #ffffffd4;
+  opacity: 0.85;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Responsive */
+@media (width <= 900px) {
+  .logo-carousel {
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .logo-carousel-wrapper {
+    gap: 24px;
+  }
+
+  .logo-carousel-track {
+    gap: 40px;
+  }
+
+  .logo-carousel-logo img {
+    max-height: 56px;
+    max-width: 180px;
+  }
+
+  .logo-carousel-bar {
+    max-width: none;
+  }
+}
+
+@media (width <= 600px) {
+  .logo-carousel-track {
+    gap: 32px;
+  }
+
+  .logo-carousel-logo img {
+    max-height: 48px;
+    max-width: 140px;
+  }
+
+  .logo-carousel-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
