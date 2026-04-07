@@ -2,7 +2,6 @@
 .info-cards-grid.block {
   --info-cards-section-button-bg: #008db6;
   --info-cards-section-button-hover: #007ca1;
-  --info-card-default-hover-bg: #008db6;
 
   padding: 60px 0;
   max-width: 1440px;
@@ -262,9 +261,9 @@
   justify-content: space-between;
 }
 
-.info-cards-grid-card-default:hover,
-.info-cards-grid-card-default:focus-within {
-  background: var(--info-card-hover-bg, var(--info-card-default-hover-bg));
+.info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:hover,
+.info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:focus-within {
+  background: var(--info-card-hover-bg);
 }
 
 .info-cards-grid-card-button {

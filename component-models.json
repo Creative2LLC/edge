@@ -2733,13 +2733,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "cardHoverBackgroundColor",
-        "label": "Card Hover Background Color (Hex)",
-        "description": "Defaults to #008DB6 if left empty."
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "buttonBackgroundColor",
         "label": "Button Background Color (Hex)",
         "description": "Solid: fills the button. Outlined: used for the outline and text color."
@@ -2827,6 +2820,13 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardHoverBackgroundColor",
+        "label": "Card Hover Background Color (Hex)",
+        "description": "Defaults to #008DB6 if left empty."
       }
     ]
   },

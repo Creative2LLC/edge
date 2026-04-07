@@ -21,7 +21,6 @@ const ITEM_FIELD_NAMES = [
   'buttonLink',
   'buttonStyle',
   'cardBackgroundColor',
-  'cardHoverBackgroundColor',
   'buttonBackgroundColor',
   'button2Text',
   'button2Link',
@@ -31,6 +30,7 @@ const ITEM_FIELD_NAMES = [
   'textColor',
   'overlayImage',
   'cardStyle',
+  'cardHoverBackgroundColor',
 ];
 
 const ITEM_FIELD_INDEX = Object.fromEntries(
@@ -169,6 +169,28 @@ function getImageField(row, name, index) {
     return { source: null, img: img || null };
   }
   return { source: null, img: null };
+}
+
+function getBlockField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, value: source.textContent.trim() };
+  const row = rows[index];
+  if (!row) return { source: null, value: '' };
+  const cell = row.children[0] || row;
+  return { source: null, value: cell.textContent.trim() };
+}
+
+function getBlockLinkField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
+  }
+  const row = rows[index];
+  if (!row) return { source: null, value: '' };
+  const cell = row.children[0] || row;
+  const anchor = cell.querySelector?.('a');
+  return { source: null, value: anchor?.href || cell.textContent.trim() };
 }
 
 function moveFieldContent(field, target) {
@@ -407,7 +429,10 @@ function buildCard(data, index, variant) {
   }
 
   card.style.setProperty('--info-card-bg', cardBg);
-  card.style.setProperty('--info-card-hover-bg', data.cardHoverBg || '#008db6');
+  if (data.cardHoverBg) {
+    card.classList.add('info-cards-grid-card-has-hover-bg');
+    card.style.setProperty('--info-card-hover-bg', data.cardHoverBg);
+  }
   applyTextStyles(card, data.textStyles);
 
   if (isVolunteerVariant && !data.textStyles.textColor) {
@@ -546,15 +571,22 @@ function observeReveal(block) {
 
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
-  const columnsField = getField(block, 'columns', BLOCK_FIELD_INDEX.columns);
-  const styleVariantField = getField(block, 'styleVariant', BLOCK_FIELD_INDEX.styleVariant);
-  const sectionHeadingField = getField(block, 'sectionHeading', BLOCK_FIELD_INDEX.sectionHeading);
-  const sectionSubheadingField = getField(block, 'sectionSubheading', BLOCK_FIELD_INDEX.sectionSubheading);
-  const introButtonTextField = getField(block, 'introButtonText', BLOCK_FIELD_INDEX.introButtonText);
-  const introButtonLinkField = getLinkField(block, 'introButtonLink', BLOCK_FIELD_INDEX.introButtonLink);
-  const footerTextField = getField(block, 'footerText', BLOCK_FIELD_INDEX.footerText);
-  const sectionButtonTextField = getField(block, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText);
-  const sectionButtonLinkField = getLinkField(block, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink);
+  const firstItemRowIndex = rows.findIndex((row) => {
+    if (hasItemFieldProps(row)) return true;
+    if (row.querySelector('[data-aue-prop]')) return false;
+    return row.children.length >= 4;
+  });
+  const blockRows = firstItemRowIndex >= 0 ? rows.slice(0, firstItemRowIndex) : rows;
+  const itemRows = firstItemRowIndex >= 0 ? rows.slice(firstItemRowIndex) : [];
+  const columnsField = getBlockField(block, blockRows, 'columns', BLOCK_FIELD_INDEX.columns);
+  const styleVariantField = getBlockField(block, blockRows, 'styleVariant', BLOCK_FIELD_INDEX.styleVariant);
+  const sectionHeadingField = getBlockField(block, blockRows, 'sectionHeading', BLOCK_FIELD_INDEX.sectionHeading);
+  const sectionSubheadingField = getBlockField(block, blockRows, 'sectionSubheading', BLOCK_FIELD_INDEX.sectionSubheading);
+  const introButtonTextField = getBlockField(block, blockRows, 'introButtonText', BLOCK_FIELD_INDEX.introButtonText);
+  const introButtonLinkField = getBlockLinkField(block, blockRows, 'introButtonLink', BLOCK_FIELD_INDEX.introButtonLink);
+  const footerTextField = getBlockField(block, blockRows, 'footerText', BLOCK_FIELD_INDEX.footerText);
+  const sectionButtonTextField = getBlockField(block, blockRows, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText);
+  const sectionButtonLinkField = getBlockLinkField(block, blockRows, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink);
 
   const columns = parseInt(columnsField.value, 10) || 3;
   const variant = styleVariantField.value === 'volunteer' ? 'volunteer' : 'default';
@@ -562,61 +594,55 @@ export default function decorate(block) {
   block.classList.toggle('info-cards-grid-volunteer', variant === 'volunteer');
 
   const cards = [];
-  rows
-    .filter((row) => {
-      if (hasItemFieldProps(row)) return true;
-      if (row.querySelector('[data-aue-prop]')) return false;
-      return row.children.length >= 4;
-    })
-    .forEach((row) => {
-      const iconField = getImageField(row, 'icon', 0);
-      const titleField = getField(row, 'title', 1);
-      const subtitleField = getField(row, 'subtitle', 2);
-      const bodySource = getRichField(row, 'bodyContent', 3);
-      const buttonTextField = getField(row, 'buttonText', ITEM_FIELD_INDEX.buttonText);
-      const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink);
-      const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle);
-      const cardBgField = getField(row, 'cardBackgroundColor', ITEM_FIELD_INDEX.cardBackgroundColor);
-      const cardHoverBgField = getField(
-        row,
-        'cardHoverBackgroundColor',
-        ITEM_FIELD_INDEX.cardHoverBackgroundColor,
-      );
-      const buttonBgField = getField(row, 'buttonBackgroundColor', ITEM_FIELD_INDEX.buttonBackgroundColor);
-      const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text);
-      const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link);
-      const button2StyleField = getField(row, 'button2Style', ITEM_FIELD_INDEX.button2Style);
-      const button2BgField = getField(row, 'button2BackgroundColor', ITEM_FIELD_INDEX.button2BackgroundColor);
-      const iconColorField = getField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor);
-      const textStyleField = getField(row, 'textColor', ITEM_FIELD_INDEX.textColor);
-      const overlayField = getImageField(row, 'overlayImage', ITEM_FIELD_INDEX.overlayImage);
-      const cardStyleField = getField(row, 'cardStyle', ITEM_FIELD_INDEX.cardStyle);
-      const textStyles = parseTextStyles(textStyleField.value);
+  itemRows.forEach((row) => {
+    const iconField = getImageField(row, 'icon', 0);
+    const titleField = getField(row, 'title', 1);
+    const subtitleField = getField(row, 'subtitle', 2);
+    const bodySource = getRichField(row, 'bodyContent', 3);
+    const buttonTextField = getField(row, 'buttonText', ITEM_FIELD_INDEX.buttonText);
+    const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink);
+    const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle);
+    const cardBgField = getField(row, 'cardBackgroundColor', ITEM_FIELD_INDEX.cardBackgroundColor);
+    const cardHoverBgField = getField(
+      row,
+      'cardHoverBackgroundColor',
+      ITEM_FIELD_INDEX.cardHoverBackgroundColor,
+    );
+    const buttonBgField = getField(row, 'buttonBackgroundColor', ITEM_FIELD_INDEX.buttonBackgroundColor);
+    const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text);
+    const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link);
+    const button2StyleField = getField(row, 'button2Style', ITEM_FIELD_INDEX.button2Style);
+    const button2BgField = getField(row, 'button2BackgroundColor', ITEM_FIELD_INDEX.button2BackgroundColor);
+    const iconColorField = getField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor);
+    const textStyleField = getField(row, 'textColor', ITEM_FIELD_INDEX.textColor);
+    const overlayField = getImageField(row, 'overlayImage', ITEM_FIELD_INDEX.overlayImage);
+    const cardStyleField = getField(row, 'cardStyle', ITEM_FIELD_INDEX.cardStyle);
+    const textStyles = parseTextStyles(textStyleField.value);
 
-      cards.push({
-        iconField,
-        titleField,
-        subtitleField,
-        bodySource,
-        buttonTextField,
-        buttonLinkField,
-        buttonStyle: normalizeButtonStyle(buttonStyleField.value),
-        button2TextField,
-        button2LinkField,
-        button2Style: normalizeButtonStyle(button2StyleField.value),
-        cardBg: cardBgField.value,
-        cardHoverBg: cardHoverBgField.value,
-        buttonBg: buttonBgField.value,
-        button2Bg: button2BgField.value,
-        iconColor: iconColorField.value,
-        textStyles,
-        overlayField,
-        cardStyle: normalizeCardStyle(cardStyleField.value),
-        iconLayout: textStyles.iconLayout || 'default',
-        iconSize: textStyles.iconSize,
-        row,
-      });
+    cards.push({
+      iconField,
+      titleField,
+      subtitleField,
+      bodySource,
+      buttonTextField,
+      buttonLinkField,
+      buttonStyle: normalizeButtonStyle(buttonStyleField.value),
+      button2TextField,
+      button2LinkField,
+      button2Style: normalizeButtonStyle(button2StyleField.value),
+      cardBg: cardBgField.value,
+      cardHoverBg: cardHoverBgField.value,
+      buttonBg: buttonBgField.value,
+      button2Bg: button2BgField.value,
+      iconColor: iconColorField.value,
+      textStyles,
+      overlayField,
+      cardStyle: normalizeCardStyle(cardStyleField.value),
+      iconLayout: textStyles.iconLayout || 'default',
+      iconSize: textStyles.iconSize,
+      row,
     });
+  });
 
   const shell = document.createElement('div');
   shell.className = 'info-cards-grid-shell';
