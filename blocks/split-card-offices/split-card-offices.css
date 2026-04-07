@@ -1,6 +1,6 @@
 /* Split Card Offices Block */
 .split-card-offices {
-  margin: 64px auto;
+  margin: 112px auto;
   padding: 0 32px;
   max-width: 1280px;
   box-sizing: border-box;
@@ -166,7 +166,7 @@
 /* ---------- Responsive ---------- */
 @media (width <= 900px) {
   .split-card-offices {
-    margin: 40px auto;
+    margin: 72px auto;
     padding: 0 20px;
   }
 
