@@ -1,13 +1,20 @@
 /* Split Card Info Block */
 .split-card-info {
-  padding: 0;
-  margin: 0;
+  margin: 64px auto;
+  padding: 0 32px;
+  max-width: 1280px;
+  box-sizing: border-box;
 }
 
 /* Container */
 .split-card-info-container {
   display: flex;
   width: 100%;
+  background: transparent;
+}
+
+/* 50/50 variant: container clips both halves with one shared radius */
+.split-card-info-half .split-card-info-container {
   border-radius: 14px;
   overflow: hidden;
   background: #fff;
@@ -17,6 +24,19 @@
 .split-card-info-media {
   overflow: hidden;
   display: flex;
+}
+
+/* 1/3 variant: round media's right corners only (left corners stay square) */
+.split-card-info-third .split-card-info-media {
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* 1/3 variant: round content's left corners only (right corners stay square) */
+.split-card-info-third .split-card-info-content {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  overflow: hidden;
 }
 
 .split-card-info-media picture {
@@ -164,14 +184,23 @@
 
 /* Responsive */
 @media (width <= 900px) {
+  .split-card-info {
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
   .split-card-info-container {
     flex-direction: column;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
   }
 
   .split-card-info-half .split-card-info-media,
   .split-card-info-third .split-card-info-media {
     flex: none;
     height: 300px;
+    border-radius: 0;
   }
 
   .split-card-info-half .split-card-info-content,
@@ -179,6 +208,7 @@
     flex: none;
     margin-left: 0;
     padding: 32px 24px;
+    border-radius: 0;
   }
 
   .split-card-info-heading {
