@@ -18,17 +18,21 @@ const ITEM_FIELD_NAMES = [
   'buttonText',
   'buttonLink',
   'buttonStyle',
+  'cardBackgroundColor',
   'buttonBackgroundColor',
   'button2Text',
   'button2Link',
   'button2Style',
   'button2BackgroundColor',
-  'cardBackgroundColor',
   'iconColor',
   'textColor',
   'overlayImage',
   'cardStyle',
 ];
+
+const ITEM_FIELD_INDEX = Object.fromEntries(
+  ITEM_FIELD_NAMES.map((name, index) => [name, index]),
+);
 
 function hasMeaningfulNodeContent(node) {
   if (!node) return false;
@@ -561,19 +565,19 @@ export default function decorate(block) {
       const titleField = getField(row, 'title', 1);
       const subtitleField = getField(row, 'subtitle', 2);
       const bodySource = getRichField(row, 'bodyContent', 3);
-      const buttonTextField = getField(row, 'buttonText', 4);
-      const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-      const buttonStyleField = getField(row, 'buttonStyle', 6);
-      const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
-      const button2TextField = getField(row, 'button2Text', 8);
-      const button2LinkField = getLinkField(row, 'button2Link', 9);
-      const button2StyleField = getField(row, 'button2Style', 10);
-      const button2BgField = getField(row, 'button2BackgroundColor', 11);
-      const cardBgField = getField(row, 'cardBackgroundColor', 12);
-      const iconColorField = getField(row, 'iconColor', 13);
-      const textStyleField = getField(row, 'textColor', 14);
-      const overlayField = getImageField(row, 'overlayImage', 15);
-      const cardStyleField = getField(row, 'cardStyle', 16);
+      const buttonTextField = getField(row, 'buttonText', ITEM_FIELD_INDEX.buttonText);
+      const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink);
+      const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle);
+      const cardBgField = getField(row, 'cardBackgroundColor', ITEM_FIELD_INDEX.cardBackgroundColor);
+      const buttonBgField = getField(row, 'buttonBackgroundColor', ITEM_FIELD_INDEX.buttonBackgroundColor);
+      const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text);
+      const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link);
+      const button2StyleField = getField(row, 'button2Style', ITEM_FIELD_INDEX.button2Style);
+      const button2BgField = getField(row, 'button2BackgroundColor', ITEM_FIELD_INDEX.button2BackgroundColor);
+      const iconColorField = getField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor);
+      const textStyleField = getField(row, 'textColor', ITEM_FIELD_INDEX.textColor);
+      const overlayField = getImageField(row, 'overlayImage', ITEM_FIELD_INDEX.overlayImage);
+      const cardStyleField = getField(row, 'cardStyle', ITEM_FIELD_INDEX.cardStyle);
       const textStyles = parseTextStyles(textStyleField.value);
 
       cards.push({
