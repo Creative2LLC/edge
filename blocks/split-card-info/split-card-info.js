@@ -14,125 +14,197 @@ function parseNumberText(str) {
   return { number: '', text: str };
 }
 
+/* ---------- AEM resource + field helpers (mirrors split-card.js) ---------- */
+
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+function normalizeColorValue(value) {
+  const normalized = normalizeJsonFieldValue(value);
+  if (!normalized) return '';
+  // EDS may auto-link a hex value into an href; pull the hex back out.
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) {
+    return hexMatch[0];
+  }
+  return normalized;
+}
+
+async function getBlockResourceData(block) {
+  const resource = block.getAttribute('data-aue-resource') || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return {};
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    return {};
+  }
+}
+
+function getField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (!source) return '';
+  return source.textContent.trim();
+}
+
+function getRichTextField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (!source) return '';
+  return source.innerHTML;
+}
+
+function getLinkField(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (!source) return '';
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  return anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim();
+}
+
 /**
- * Look up a field by data-aue-prop name first, then fall back to a positional row.
- * Mirrors the pattern used by cta-card-1 / job-postings — robust to however AEM
- * decides to render a given field type.
+ * Resolve a picture for a named image field.
+ * EDS sometimes places `data-aue-prop` on the cell, the <picture>, or the
+ * <img> itself — walk in both directions and fall back to a positional
+ * picture if nothing else matches.
  */
-function getField(block, rows, name, index) {
+function getPictureFor(block, name, fallbackPicture) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
-  return { source: null, value: '' };
+  return (
+    source?.closest('picture')
+    || source?.querySelector('picture')
+    || fallbackPicture
+    || null
+  );
 }
 
-function getLinkField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
+/**
+ * Color text fields get auto-linked by EDS (because `#abc123` looks like a
+ * URL fragment) and the resulting <a> often loses its data-aue-prop marker.
+ * Walk every row that has *no* data-aue-prop element and read the anchor
+ * text positionally — same trick split-card.js uses.
+ */
+function collectOrphanedColorValues(block) {
+  const values = [];
+  block.querySelectorAll(':scope > div').forEach((row) => {
+    if (row.querySelector('[data-aue-prop]')) return;
+    const anchor = row.querySelector('a');
+    if (anchor) values.push(anchor.textContent.trim());
+    else values.push(row.textContent.trim());
+  });
+  return values;
+}
+
+/* ---------------------------------- decorate ---------------------------------- */
+
+export default async function decorate(block) {
+  const resourceData = await getBlockResourceData(block);
+
+  // Snapshot pictures up-front so we can hand them out to mainImage/topLogo
+  // before the parsed source rows are wiped.
+  const allPictures = [...block.querySelectorAll('picture')];
+
+  const mainPicture = getPictureFor(block, 'mainImage', allPictures[0]);
+  const topLogoPicture = getPictureFor(
+    block,
+    'topLogo',
+    allPictures.find((p) => p !== mainPicture) || null,
+  );
+
+  const imageSplit = getField(block, 'imageSplit') || normalizeJsonFieldValue(resourceData.imageSplit);
+  const mainImageAlt = getField(block, 'mainImageAlt') || normalizeJsonFieldValue(resourceData.mainImageAlt);
+  const topLogoAlt = getField(block, 'topLogoAlt') || normalizeJsonFieldValue(resourceData.topLogoAlt);
+  const heading = getField(block, 'heading') || normalizeJsonFieldValue(resourceData.heading);
+  const subheading = getField(block, 'subheading') || normalizeJsonFieldValue(resourceData.subheading);
+  const bodyText = getRichTextField(block, 'bodyText') || normalizeJsonFieldValue(resourceData.bodyText);
+  const buttonText = getField(block, 'buttonText') || normalizeJsonFieldValue(resourceData.buttonText);
+  const buttonLink = getLinkField(block, 'buttonLink') || normalizeJsonFieldValue(resourceData.buttonLink);
+
+  // Color fields: try the resource JSON first (most reliable for hex values
+  // since EDS doesn't mangle them there), then DOM by name, then fall back
+  // to positionally walking orphaned auto-linked rows.
+  let buttonColor = normalizeColorValue(resourceData.buttonColor) || normalizeColorValue(getField(block, 'buttonColor'));
+  let buttonTextColor = normalizeColorValue(resourceData.buttonTextColor) || normalizeColorValue(getField(block, 'buttonTextColor'));
+  let contentBackgroundColor = normalizeColorValue(resourceData.contentBackgroundColor) || normalizeColorValue(getField(block, 'contentBackgroundColor'));
+
+  if (!buttonColor || !buttonTextColor || !contentBackgroundColor) {
+    const orphans = collectOrphanedColorValues(block);
+    // The three color fields appear in this order in _split-card-info.json:
+    //   buttonColor, buttonTextColor, contentBackgroundColor
+    if (!buttonColor) buttonColor = normalizeColorValue(orphans[0] || '');
+    if (!buttonTextColor) buttonTextColor = normalizeColorValue(orphans[1] || '');
+    if (!contentBackgroundColor) contentBackgroundColor = normalizeColorValue(orphans[2] || '');
   }
-  if (rows[index]) {
-    const anchor = rows[index].querySelector('a');
-    return { source: null, value: anchor?.href || rows[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
-}
 
-function getImageField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  const scope = source || rows[index];
-  if (!scope) return { img: null };
-  return { img: scope.querySelector('img') };
-}
+  /* ---------- build the new DOM ---------- */
 
-export default function decorate(block) {
-  const rows = [...block.children];
-
-  const data = {
-    imageSplit: getField(block, rows, 'imageSplit', 0).value,
-    mainImage: getImageField(block, rows, 'mainImage', 1).img,
-    mainImageAlt: getField(block, rows, 'mainImageAlt', 2).value,
-    topLogo: getImageField(block, rows, 'topLogo', 3).img,
-    topLogoAlt: getField(block, rows, 'topLogoAlt', 4).value,
-    heading: getField(block, rows, 'heading', 5).value,
-    subheading: getField(block, rows, 'subheading', 6).value,
-    bodyText: (() => {
-      const source = block.querySelector('[data-aue-prop="bodyText"]');
-      if (source) return source.innerHTML;
-      return rows[7]?.innerHTML || '';
-    })(),
-    buttonText: getField(block, rows, 'buttonText', 8).value,
-    buttonLink: getLinkField(block, rows, 'buttonLink', 9).value,
-    buttonColor: getField(block, rows, 'buttonColor', 10).value,
-    buttonTextColor: getField(block, rows, 'buttonTextColor', 11).value,
-    contentBackgroundColor: getField(block, rows, 'contentBackgroundColor', 12).value,
-  };
-
-  if (data.mainImage && !data.mainImageAlt) data.mainImageAlt = data.mainImage.alt || '';
-  if (data.topLogo && !data.topLogoAlt) data.topLogoAlt = data.topLogo.alt || '';
-
-  // Build the new structure
   const container = document.createElement('div');
   container.className = 'split-card-info-container';
+  container.classList.add(imageSplit === 'third' ? 'split-card-info-third' : 'split-card-info-half');
 
-  // Apply image split class
-  if (data.imageSplit === 'third') {
-    container.classList.add('split-card-info-third');
-  } else {
-    container.classList.add('split-card-info-half');
-  }
-
-  // Left side: Main image
+  // Left: main image
   const mediaSection = document.createElement('div');
   mediaSection.className = 'split-card-info-media';
-
-  if (data.mainImage) {
-    const picture = createOptimizedPicture(
-      data.mainImage.src,
-      data.mainImageAlt,
-      false,
-      [{ width: '800' }],
-    );
-    mediaSection.appendChild(picture);
+  if (mainPicture) {
+    const img = mainPicture.querySelector('img');
+    if (img) {
+      const optimized = createOptimizedPicture(
+        img.src,
+        mainImageAlt || img.alt || '',
+        false,
+        [{ width: '800' }],
+      );
+      mediaSection.appendChild(optimized);
+    }
   }
-
   container.appendChild(mediaSection);
 
-  // Right side: Content
+  // Right: content
   const contentSection = document.createElement('div');
   contentSection.className = 'split-card-info-content';
-
-  // Apply background color
-  if (data.contentBackgroundColor) {
-    contentSection.style.backgroundColor = data.contentBackgroundColor;
+  if (contentBackgroundColor) {
+    contentSection.style.setProperty('background-color', contentBackgroundColor, 'important');
   }
 
-  // Top logo
-  if (data.topLogo) {
+  if (topLogoPicture) {
     const logoDiv = document.createElement('div');
     logoDiv.className = 'split-card-info-logo';
-    const logoPicture = createOptimizedPicture(
-      data.topLogo.src,
-      data.topLogoAlt,
-      false,
-      [{ width: '190' }],
-    );
-    logoDiv.appendChild(logoPicture);
+    const img = topLogoPicture.querySelector('img');
+    if (img) {
+      const optimized = createOptimizedPicture(
+        img.src,
+        topLogoAlt || img.alt || '',
+        false,
+        [{ width: '190' }],
+      );
+      logoDiv.appendChild(optimized);
+    }
     contentSection.appendChild(logoDiv);
   }
 
-  // Heading
-  if (data.heading) {
-    const heading = document.createElement('h2');
-    heading.className = 'split-card-info-heading';
-    heading.textContent = data.heading;
-    contentSection.appendChild(heading);
+  if (heading) {
+    const h2 = document.createElement('h2');
+    h2.className = 'split-card-info-heading';
+    h2.textContent = heading;
+    contentSection.appendChild(h2);
   }
 
-  // Subheading with number parsing
-  if (data.subheading) {
-    const { number, text } = parseNumberText(data.subheading);
+  if (subheading) {
+    const { number, text } = parseNumberText(subheading);
     const subheadingDiv = document.createElement('div');
     subheadingDiv.className = 'split-card-info-subheading';
 
@@ -149,40 +221,36 @@ export default function decorate(block) {
         subheadingDiv.appendChild(textSpan);
       }
     } else {
-      subheadingDiv.textContent = data.subheading;
+      subheadingDiv.textContent = subheading;
     }
 
     contentSection.appendChild(subheadingDiv);
   }
 
-  // Body text
-  if (data.bodyText) {
+  if (bodyText) {
     const bodyDiv = document.createElement('div');
     bodyDiv.className = 'split-card-info-body';
-    bodyDiv.innerHTML = data.bodyText;
+    bodyDiv.innerHTML = bodyText;
     contentSection.appendChild(bodyDiv);
   }
 
-  // Button — render whenever we have button text; link is optional.
-  if (data.buttonText) {
-    const button = document.createElement(data.buttonLink ? 'a' : 'button');
+  // Button — render whenever button text exists; link is optional.
+  // Use <a> when there's a real link, <span> otherwise (matches split-card.js
+  // pattern; avoids native <button> styling that looks disabled).
+  if (buttonText) {
+    const button = document.createElement(buttonLink ? 'a' : 'span');
     button.className = 'split-card-info-button';
-    if (data.buttonLink) {
-      button.href = data.buttonLink;
-    } else {
-      button.type = 'button';
-    }
-    button.textContent = data.buttonText;
+    if (buttonLink) button.href = buttonLink;
+    button.textContent = buttonText;
 
-    button.style.setProperty('background-color', data.buttonColor || '#008db6', 'important');
-    button.style.setProperty('color', data.buttonTextColor || '#ffffff', 'important');
+    button.style.setProperty('background-color', buttonColor || '#008db6', 'important');
+    button.style.setProperty('color', buttonTextColor || '#ffffff', 'important');
 
     contentSection.appendChild(button);
   }
 
   container.appendChild(contentSection);
 
-  // Replace block content
   block.textContent = '';
   block.appendChild(container);
 }
