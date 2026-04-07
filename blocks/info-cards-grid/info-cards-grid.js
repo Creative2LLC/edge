@@ -5,9 +5,11 @@ const BLOCK_FIELD_INDEX = {
   styleVariant: 1,
   sectionHeading: 2,
   sectionSubheading: 3,
-  footerText: 4,
-  sectionButtonText: 5,
-  sectionButtonLink: 6,
+  introButtonText: 4,
+  introButtonLink: 5,
+  footerText: 6,
+  sectionButtonText: 7,
+  sectionButtonLink: 8,
 };
 
 const ITEM_FIELD_NAMES = [
@@ -19,6 +21,7 @@ const ITEM_FIELD_NAMES = [
   'buttonLink',
   'buttonStyle',
   'cardBackgroundColor',
+  'cardHoverBackgroundColor',
   'buttonBackgroundColor',
   'button2Text',
   'button2Link',
@@ -304,13 +307,13 @@ function buildSectionText(field, tagName, className) {
   return element;
 }
 
-function buildSectionButton(textField, linkField) {
+function buildSectionButton(textField, linkField, className = 'info-cards-grid-section-button') {
   const label = textField?.value || '';
   const href = linkField?.value || '';
   if (!label && !href) return null;
 
   const button = document.createElement(href ? 'a' : 'button');
-  button.className = 'info-cards-grid-section-button';
+  button.className = className;
   button.textContent = label || 'Learn More';
   if (href) button.href = href;
   if (!href) button.type = 'button';
@@ -388,6 +391,8 @@ function buildCard(data, index, variant) {
 
   if (isVolunteerVariant) {
     card.classList.add('info-cards-grid-card-volunteer');
+  } else {
+    card.classList.add('info-cards-grid-card-default');
   }
 
   if (cardStyle === 'filled') {
@@ -402,6 +407,7 @@ function buildCard(data, index, variant) {
   }
 
   card.style.setProperty('--info-card-bg', cardBg);
+  card.style.setProperty('--info-card-hover-bg', data.cardHoverBg || '#008db6');
   applyTextStyles(card, data.textStyles);
 
   if (isVolunteerVariant && !data.textStyles.textColor) {
@@ -544,6 +550,8 @@ export default function decorate(block) {
   const styleVariantField = getField(block, 'styleVariant', BLOCK_FIELD_INDEX.styleVariant);
   const sectionHeadingField = getField(block, 'sectionHeading', BLOCK_FIELD_INDEX.sectionHeading);
   const sectionSubheadingField = getField(block, 'sectionSubheading', BLOCK_FIELD_INDEX.sectionSubheading);
+  const introButtonTextField = getField(block, 'introButtonText', BLOCK_FIELD_INDEX.introButtonText);
+  const introButtonLinkField = getLinkField(block, 'introButtonLink', BLOCK_FIELD_INDEX.introButtonLink);
   const footerTextField = getField(block, 'footerText', BLOCK_FIELD_INDEX.footerText);
   const sectionButtonTextField = getField(block, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText);
   const sectionButtonLinkField = getLinkField(block, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink);
@@ -569,6 +577,11 @@ export default function decorate(block) {
       const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink);
       const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle);
       const cardBgField = getField(row, 'cardBackgroundColor', ITEM_FIELD_INDEX.cardBackgroundColor);
+      const cardHoverBgField = getField(
+        row,
+        'cardHoverBackgroundColor',
+        ITEM_FIELD_INDEX.cardHoverBackgroundColor,
+      );
       const buttonBgField = getField(row, 'buttonBackgroundColor', ITEM_FIELD_INDEX.buttonBackgroundColor);
       const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text);
       const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link);
@@ -592,6 +605,7 @@ export default function decorate(block) {
         button2LinkField,
         button2Style: normalizeButtonStyle(button2StyleField.value),
         cardBg: cardBgField.value,
+        cardHoverBg: cardHoverBgField.value,
         buttonBg: buttonBgField.value,
         button2Bg: button2BgField.value,
         iconColor: iconColorField.value,
@@ -609,10 +623,19 @@ export default function decorate(block) {
 
   const intro = document.createElement('div');
   intro.className = 'info-cards-grid-intro';
+  const introContent = document.createElement('div');
+  introContent.className = 'info-cards-grid-intro-content';
   const introHeading = buildSectionText(sectionHeadingField, 'h2', 'info-cards-grid-section-heading');
   const introSubheading = buildSectionText(sectionSubheadingField, 'p', 'info-cards-grid-section-subheading');
-  if (introHeading) intro.append(introHeading);
-  if (introSubheading) intro.append(introSubheading);
+  const introButton = buildSectionButton(
+    introButtonTextField,
+    introButtonLinkField,
+    'info-cards-grid-intro-button',
+  );
+  if (introHeading) introContent.append(introHeading);
+  if (introSubheading) introContent.append(introSubheading);
+  if (introContent.childElementCount) intro.append(introContent);
+  if (introButton) intro.append(introButton);
   if (intro.childElementCount) shell.append(intro);
 
   const grid = document.createElement('div');

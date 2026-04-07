@@ -2633,6 +2633,18 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "introButtonText",
+        "label": "Intro Button Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "introButtonLink",
+        "label": "Intro Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "footerText",
         "label": "Footer Text",
         "value": ""
@@ -2717,6 +2729,13 @@
         "name": "cardBackgroundColor",
         "label": "Card Background Color (Hex)",
         "description": "e.g. #1a2b3c"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardHoverBackgroundColor",
+        "label": "Card Hover Background Color (Hex)",
+        "description": "Defaults to #008DB6 if left empty."
       },
       {
         "component": "text",
