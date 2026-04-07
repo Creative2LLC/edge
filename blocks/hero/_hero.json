@@ -289,6 +289,13 @@
           "value": "",
           "label": "Side Panel Secondary Link",
           "valueType": "string"
+        },
+        {
+          "component": "richtext",
+          "name": "panel_footerText",
+          "value": "",
+          "label": "Side Panel Footer Text",
+          "valueType": "string"
         }
       ]
     }

@@ -294,3 +294,49 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+main > .section.padding-top-sm { padding-top: 24px; }
+main > .section.padding-top-md { padding-top: 40px; }
+main > .section.padding-top-lg { padding-top: 64px; }
+main > .section.padding-bottom-sm { padding-bottom: 24px; }
+main > .section.padding-bottom-md { padding-bottom: 40px; }
+main > .section.padding-bottom-lg { padding-bottom: 64px; }
+
+main > .section.padding-y-sm {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+main > .section.padding-y-md {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+main > .section.padding-y-lg {
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+
+@media (width >= 900px) {
+  main > .section.padding-top-sm { padding-top: 32px; }
+  main > .section.padding-top-md { padding-top: 56px; }
+  main > .section.padding-top-lg { padding-top: 88px; }
+  main > .section.padding-bottom-sm { padding-bottom: 32px; }
+  main > .section.padding-bottom-md { padding-bottom: 56px; }
+  main > .section.padding-bottom-lg { padding-bottom: 88px; }
+
+  main > .section.padding-y-sm {
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+
+  main > .section.padding-y-md {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  main > .section.padding-y-lg {
+    padding-top: 88px;
+    padding-bottom: 88px;
+  }
+}

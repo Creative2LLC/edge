@@ -37,6 +37,42 @@
             {
               "name": "No Margin",
               "value": "no-margin"
+            },
+            {
+              "name": "Padding Top Small",
+              "value": "padding-top-sm"
+            },
+            {
+              "name": "Padding Top Medium",
+              "value": "padding-top-md"
+            },
+            {
+              "name": "Padding Top Large",
+              "value": "padding-top-lg"
+            },
+            {
+              "name": "Padding Bottom Small",
+              "value": "padding-bottom-sm"
+            },
+            {
+              "name": "Padding Bottom Medium",
+              "value": "padding-bottom-md"
+            },
+            {
+              "name": "Padding Bottom Large",
+              "value": "padding-bottom-lg"
+            },
+            {
+              "name": "Padding Y Small",
+              "value": "padding-y-sm"
+            },
+            {
+              "name": "Padding Y Medium",
+              "value": "padding-y-md"
+            },
+            {
+              "name": "Padding Y Large",
+              "value": "padding-y-lg"
             }
           ]
         },

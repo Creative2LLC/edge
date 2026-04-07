@@ -78,6 +78,7 @@
   font-family: Inter, sans-serif;
   font-weight: 800;
   line-height: 1.1;
+  white-space: pre-line;
   color: #00264d;
 }
 
@@ -144,6 +145,10 @@
   font-size: 15px;
   font-weight: 500;
   color: #515b67;
+}
+
+.hero .hero-side-panel-footer a {
+  color: #9be7ff;
 }
 
 .hero .hero-breadcrumbs li a,
@@ -275,6 +280,20 @@
   gap: 22px;
   margin-top: 24px;
 }
+
+.hero .hero-side-panel-footer {
+  margin-top: 18px;
+}
+
+.hero .hero-side-panel-footer p {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 78%);
+}
+
 
 .hero .hero-side-panel-btn,
 .hero .hero-side-panel-btn:any-link {
@@ -505,4 +524,6 @@
     font-size: 12px;
   }
 }
+
+
 

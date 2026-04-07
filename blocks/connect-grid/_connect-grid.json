@@ -84,11 +84,18 @@
           "multi": false
         },
         {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Top Image",
+          "multi": false
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "iconColor",
           "label": "Icon Color (Hex)",
-          "description": "Defaults to #ff8b7e if left empty."
+          "description": "Defaults to #ff8b7e if left empty. Used for icons only."
         },
         {
           "component": "text",
@@ -105,9 +112,81 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "contactMethod1Label",
+          "label": "Contact Method 1 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Text",
+          "label": "Contact Method 1 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Link",
+          "label": "Contact Method 1 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Label",
+          "label": "Contact Method 2 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Text",
+          "label": "Contact Method 2 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Link",
+          "label": "Contact Method 2 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Label",
+          "label": "Contact Method 3 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Text",
+          "label": "Contact Method 3 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Link",
+          "label": "Contact Method 3 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Label",
+          "label": "Contact Method 4 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Text",
+          "label": "Contact Method 4 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Link",
+          "label": "Contact Method 4 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "contactMethods",
-          "label": "Contact Methods (One Per Line: Label|Text|Link)",
-          "description": "Example: Email|help@ncmec.org|mailto:help@ncmec.org"
+          "label": "Legacy Contact Methods (One Per Line: Label|Text|Link)",
+          "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
         },
         {
           "component": "text",

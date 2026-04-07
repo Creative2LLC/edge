@@ -8,11 +8,24 @@ const BLOCK_ROW_INDEX = {
 
 const ITEM_COLUMN_INDEX = {
   icon: 0,
-  iconColor: 1,
-  title: 2,
-  description: 3,
-  contactMethods: 4,
-  cardBackgroundColor: 5,
+  image: 1,
+  iconColor: 2,
+  title: 3,
+  description: 4,
+  contactMethod1Label: 5,
+  contactMethod1Text: 6,
+  contactMethod1Link: 7,
+  contactMethod2Label: 8,
+  contactMethod2Text: 9,
+  contactMethod2Link: 10,
+  contactMethod3Label: 11,
+  contactMethod3Text: 12,
+  contactMethod3Link: 13,
+  contactMethod4Label: 14,
+  contactMethod4Text: 15,
+  contactMethod4Link: 16,
+  contactMethods: 17,
+  cardBackgroundColor: 18,
 };
 
 const DEFAULTS = {
@@ -149,12 +162,64 @@ function parseContactMethods(value) {
     .filter((method) => method.text);
 }
 
+function getStructuredContactMethods(row) {
+  const methods = [];
+
+  for (let index = 1; index <= 4; index += 1) {
+    const labelField = getField(
+      row,
+      `contactMethod${index}Label`,
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX[`contactMethod${index}Label`],
+    );
+    const textField = getField(
+      row,
+      `contactMethod${index}Text`,
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX[`contactMethod${index}Text`],
+    );
+    const linkField = getField(
+      row,
+      `contactMethod${index}Link`,
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX[`contactMethod${index}Link`],
+    );
+
+    const text = textField.value || linkField.value;
+    if (labelField.value || text || linkField.value) {
+      methods.push({
+        label: labelField.value,
+        text,
+        link: linkField.value,
+        labelField,
+        textField,
+        linkField,
+      });
+    }
+  }
+
+  return methods;
+}
+
 function shouldUseArrow(url) {
   if (!url) return false;
   return !url.startsWith('mailto:') && !url.startsWith('tel:');
 }
 
-function buildIcon(item) {
+function buildMedia(item) {
+  const imagePicture = item.imageField.picture?.cloneNode(true) || null;
+  const imageImg = !imagePicture && item.imageField.img
+    ? item.imageField.img.cloneNode(true)
+    : null;
+  const imageMedia = imagePicture || imageImg;
+  if (imageMedia) {
+    const media = document.createElement('div');
+    media.className = 'connect-grid-card-media is-image';
+    media.append(imageMedia);
+    if (item.imageField.source) moveInstrumentation(item.imageField.source, media);
+    return media;
+  }
+
   const picture = item.iconField.picture?.cloneNode(true) || null;
   const image = !picture && item.iconField.img ? item.iconField.img.cloneNode(true) : null;
   const media = picture || image;
@@ -168,7 +233,7 @@ function buildIcon(item) {
   if (!media && !imgSrc) return null;
 
   const icon = document.createElement('div');
-  icon.className = 'connect-grid-card-icon';
+  icon.className = 'connect-grid-card-media is-icon';
 
   if (imgSrc) {
     icon.style.setProperty('background-color', item.iconColor || DEFAULTS.iconColor, 'important');
@@ -196,22 +261,26 @@ function buildMethod(method) {
   const wrapper = document.createElement('div');
   wrapper.className = 'connect-grid-method';
 
-  if (method.label) {
+  if (method.label || method.labelField?.source) {
     const label = document.createElement('p');
     label.className = 'connect-grid-method-label';
-    label.textContent = method.label;
+    moveFieldContent(method.labelField, label, method.label);
     wrapper.append(label);
   }
 
   const value = document.createElement(method.link ? 'a' : 'span');
   value.className = 'connect-grid-method-value';
-  value.textContent = method.text;
+  moveFieldContent(method.textField, value, method.text);
 
   if (method.link) {
     value.href = method.link;
     if (shouldUseArrow(method.link)) {
       value.classList.add('with-arrow');
     }
+  }
+
+  if (method.linkField?.source) {
+    moveInstrumentation(method.linkField.source, value);
   }
 
   wrapper.append(value);
@@ -243,8 +312,8 @@ function buildCard(item, index) {
     return card;
   }
 
-  const icon = buildIcon(item);
-  if (icon) card.append(icon);
+  const media = buildMedia(item);
+  if (media) card.append(media);
 
   if (item.titleField.value || item.titleField.source) {
     const title = document.createElement('h3');
@@ -309,13 +378,16 @@ export default function decorate(block) {
   rows.forEach((row, index) => {
     const cols = [...row.children];
     const isItemRow = row.querySelector('[data-aue-prop="icon"]')
+      || row.querySelector('[data-aue-prop="image"]')
       || row.querySelector('[data-aue-prop="title"]')
       || row.querySelector('[data-aue-prop="contactMethods"]')
+      || row.querySelector('[data-aue-prop="contactMethod1Text"]')
       || cols.length >= 5;
 
     if (!isItemRow) return;
 
     const iconField = getImageField(row, 'icon', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.icon);
+    const imageField = getImageField(row, 'image', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.image);
     const iconColorField = getField(
       row,
       'iconColor',
@@ -335,6 +407,7 @@ export default function decorate(block) {
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.contactMethods,
     );
+    const structuredContactMethods = getStructuredContactMethods(row);
     const cardBackgroundColorField = getField(
       row,
       'cardBackgroundColor',
@@ -342,17 +415,25 @@ export default function decorate(block) {
       ITEM_COLUMN_INDEX.cardBackgroundColor,
     );
 
-    if (!titleField.value && !descriptionSource && !contactMethodsField.value) {
+    if (
+      !titleField.value
+      && !descriptionSource
+      && !contactMethodsField.value
+      && !structuredContactMethods.length
+    ) {
       return;
     }
 
     cards.push({
       iconField,
+      imageField,
       iconColor: iconColorField.value,
       titleField,
       descriptionSource,
       contactMethodsField,
-      contactMethods: parseContactMethods(contactMethodsField.value),
+      contactMethods: structuredContactMethods.length
+        ? structuredContactMethods
+        : parseContactMethods(contactMethodsField.value),
       cardBackgroundColor: cardBackgroundColorField.value,
       row,
       order: index,

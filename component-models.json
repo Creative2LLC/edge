@@ -242,6 +242,42 @@
           {
             "name": "No Margin",
             "value": "no-margin"
+          },
+          {
+            "name": "Padding Top Small",
+            "value": "padding-top-sm"
+          },
+          {
+            "name": "Padding Top Medium",
+            "value": "padding-top-md"
+          },
+          {
+            "name": "Padding Top Large",
+            "value": "padding-top-lg"
+          },
+          {
+            "name": "Padding Bottom Small",
+            "value": "padding-bottom-sm"
+          },
+          {
+            "name": "Padding Bottom Medium",
+            "value": "padding-bottom-md"
+          },
+          {
+            "name": "Padding Bottom Large",
+            "value": "padding-bottom-lg"
+          },
+          {
+            "name": "Padding Y Small",
+            "value": "padding-y-sm"
+          },
+          {
+            "name": "Padding Y Medium",
+            "value": "padding-y-md"
+          },
+          {
+            "name": "Padding Y Large",
+            "value": "padding-y-lg"
           }
         ]
       },
@@ -885,11 +921,18 @@
         "multi": false
       },
       {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Top Image",
+        "multi": false
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "iconColor",
         "label": "Icon Color (Hex)",
-        "description": "Defaults to #ff8b7e if left empty."
+        "description": "Defaults to #ff8b7e if left empty. Used for icons only."
       },
       {
         "component": "text",
@@ -906,9 +949,81 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "contactMethod1Label",
+        "label": "Contact Method 1 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod1Text",
+        "label": "Contact Method 1 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod1Link",
+        "label": "Contact Method 1 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod2Label",
+        "label": "Contact Method 2 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod2Text",
+        "label": "Contact Method 2 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod2Link",
+        "label": "Contact Method 2 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod3Label",
+        "label": "Contact Method 3 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod3Text",
+        "label": "Contact Method 3 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod3Link",
+        "label": "Contact Method 3 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod4Label",
+        "label": "Contact Method 4 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod4Text",
+        "label": "Contact Method 4 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod4Link",
+        "label": "Contact Method 4 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "contactMethods",
-        "label": "Contact Methods (One Per Line: Label|Text|Link)",
-        "description": "Example: Email|help@ncmec.org|mailto:help@ncmec.org"
+        "label": "Legacy Contact Methods (One Per Line: Label|Text|Link)",
+        "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
       },
       {
         "component": "text",
@@ -1729,6 +1844,13 @@
         "value": "",
         "label": "Side Panel Secondary Link",
         "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "panel_footerText",
+        "value": "",
+        "label": "Side Panel Footer Text",
+        "valueType": "string"
       }
     ]
   },
@@ -2466,6 +2588,27 @@
         "label": "Button Link"
       },
       {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "default"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "cardBackgroundColor",
@@ -2477,7 +2620,46 @@
         "valueType": "string",
         "name": "buttonBackgroundColor",
         "label": "Button Background Color (Hex)",
-        "description": "Leave empty for transparent button with white border"
+        "description": "Solid: fills the button. Outlined: used for the outline and text color."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "button2Text",
+        "label": "Button 2 Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "button2Link",
+        "label": "Button 2 Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "button2Style",
+        "label": "Button 2 Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "button2BackgroundColor",
+        "label": "Button 2 Background Color (Hex)",
+        "description": "Solid: fills the button. Outlined: used for the outline and text color."
       },
       {
         "component": "text",

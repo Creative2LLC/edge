@@ -455,6 +455,7 @@ function buildSidePanel(block) {
   const primaryLinkField = getLinkFieldValue(block, ['panel_primaryLink', 'sidePanelPrimaryLink']);
   const secondaryTextField = getFieldValue(block, ['panel_secondaryText', 'sidePanelSecondaryText']);
   const secondaryLinkField = getLinkFieldValue(block, ['panel_secondaryLink', 'sidePanelSecondaryLink']);
+  const footerTextField = getFieldValue(block, ['panel_footerText', 'sidePanelFooterText']);
 
   const hasPanelContent = [
     titleField.value,
@@ -463,6 +464,7 @@ function buildSidePanel(block) {
     primaryLinkField.value,
     secondaryTextField.value,
     secondaryLinkField.value,
+    footerTextField.value,
   ].some(Boolean);
 
   if (!hasPanelContent) return null;
@@ -494,6 +496,10 @@ function buildSidePanel(block) {
   if (secondaryButton) actions.append(secondaryButton);
 
   if (actions.children.length) panel.append(actions);
+
+  const footer = buildInstrumentedText(footerTextField, 'div', 'hero-side-panel-footer');
+  if (footer) panel.append(footer);
+
   return panel;
 }
 

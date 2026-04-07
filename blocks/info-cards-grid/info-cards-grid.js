@@ -17,8 +17,13 @@ const ITEM_FIELD_NAMES = [
   'bodyContent',
   'buttonText',
   'buttonLink',
-  'cardBackgroundColor',
+  'buttonStyle',
   'buttonBackgroundColor',
+  'button2Text',
+  'button2Link',
+  'button2Style',
+  'button2BackgroundColor',
+  'cardBackgroundColor',
   'iconColor',
   'textColor',
   'overlayImage',
@@ -63,6 +68,20 @@ function normalizeCardStyle(value) {
 
   if (['filled', 'solid', 'light'].includes(normalizedValue)) {
     return 'filled';
+  }
+
+  return 'default';
+}
+
+function normalizeButtonStyle(value) {
+  const normalizedValue = normalizeStyleKey(value);
+
+  if (['outline', 'outlined', 'border', 'bordered'].includes(normalizedValue)) {
+    return 'outlined';
+  }
+
+  if (['solid', 'filled', 'fill'].includes(normalizedValue)) {
+    return 'solid';
   }
 
   return 'default';
@@ -186,35 +205,88 @@ function buildBody(content, data) {
   content.append(body);
 }
 
-function buildButton(card, data, cardBg, variant) {
-  const btnLabel = data.buttonTextField.value;
-  const btnHref = data.buttonLinkField.value;
-  if (!btnLabel && !btnHref) return;
-
+function styleCardButton(btn, buttonBg, buttonStyle, cardBg, variant) {
   const isVolunteerVariant = variant === 'volunteer';
+  const normalizedStyle = normalizeButtonStyle(buttonStyle);
+
+  btn.classList.remove('is-solid', 'is-outlined');
+
+  if (normalizedStyle === 'outlined') {
+    const accentColor = buttonBg || (isVolunteerVariant ? '#008db6' : '#ffffff');
+    btn.classList.add('is-outlined');
+    btn.style.setProperty('background-color', 'transparent', 'important');
+    btn.style.setProperty('color', accentColor, 'important');
+    btn.style.setProperty('border', `2px solid ${accentColor}`, 'important');
+    return;
+  }
+
+  if (normalizedStyle === 'solid') {
+    const solidBg = buttonBg || '#008db6';
+    const solidText = buttonBg && !isVolunteerVariant ? cardBg : '#ffffff';
+    btn.classList.add('is-solid');
+    btn.style.setProperty('background-color', solidBg, 'important');
+    btn.style.setProperty('color', solidText, 'important');
+    btn.style.setProperty('border', 'none', 'important');
+    return;
+  }
+
+  if (buttonBg) {
+    btn.classList.add('is-solid');
+    btn.style.setProperty('background-color', buttonBg, 'important');
+    btn.style.setProperty('color', isVolunteerVariant ? '#ffffff' : cardBg, 'important');
+    btn.style.setProperty('border', 'none', 'important');
+  } else if (isVolunteerVariant) {
+    btn.classList.add('is-solid');
+    btn.style.setProperty('background-color', '#008db6', 'important');
+    btn.style.setProperty('color', '#ffffff', 'important');
+    btn.style.setProperty('border', 'none', 'important');
+  } else {
+    btn.classList.add('is-outlined');
+    btn.style.setProperty('background-color', cardBg, 'important');
+    btn.style.setProperty('color', '#ffffff', 'important');
+    btn.style.setProperty('border', '2px solid #ffffff', 'important');
+  }
+}
+
+function buildCardButton(buttonData, cardBg, variant) {
+  const btnLabel = buttonData.textField.value;
+  const btnHref = buttonData.linkField.value;
+  if (!btnLabel && !btnHref) return null;
+
   const btn = document.createElement(btnHref ? 'a' : 'button');
   btn.className = 'info-cards-grid-card-button';
   btn.textContent = btnLabel || 'Learn More';
   if (btnHref) btn.href = btnHref;
   if (!btnHref) btn.type = 'button';
-  if (data.buttonTextField.source) moveInstrumentation(data.buttonTextField.source, btn);
-  if (data.buttonLinkField.source) moveInstrumentation(data.buttonLinkField.source, btn);
+  if (buttonData.textField.source) moveInstrumentation(buttonData.textField.source, btn);
+  if (buttonData.linkField.source) moveInstrumentation(buttonData.linkField.source, btn);
 
-  if (data.buttonBg) {
-    btn.style.setProperty('background-color', data.buttonBg, 'important');
-    btn.style.setProperty('color', isVolunteerVariant ? '#ffffff' : cardBg, 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  } else if (isVolunteerVariant) {
-    btn.style.setProperty('background-color', '#008db6', 'important');
-    btn.style.setProperty('color', '#ffffff', 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  } else {
-    btn.style.setProperty('background-color', cardBg, 'important');
-    btn.style.setProperty('color', '#ffffff', 'important');
-    btn.style.setProperty('border', '2px solid #ffffff', 'important');
-  }
+  styleCardButton(btn, buttonData.backgroundColor, buttonData.style, cardBg, variant);
+  return btn;
+}
 
-  card.append(btn);
+function buildButtons(card, data, cardBg, variant) {
+  const buttons = [
+    buildCardButton({
+      textField: data.buttonTextField,
+      linkField: data.buttonLinkField,
+      backgroundColor: data.buttonBg,
+      style: data.buttonStyle,
+    }, cardBg, variant),
+    buildCardButton({
+      textField: data.button2TextField,
+      linkField: data.button2LinkField,
+      backgroundColor: data.button2Bg,
+      style: data.button2Style,
+    }, cardBg, variant),
+  ].filter(Boolean);
+
+  if (!buttons.length) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'info-cards-grid-card-buttons';
+  buttons.forEach((button) => wrapper.append(button));
+  card.append(wrapper);
 }
 
 function buildSectionText(field, tagName, className) {
@@ -367,7 +439,7 @@ function buildCard(data, index, variant) {
   }
 
   card.append(content);
-  buildButton(card, data, cardBg, variant);
+  buildButtons(card, data, cardBg, variant);
 
   return card;
 }
@@ -491,12 +563,17 @@ export default function decorate(block) {
       const bodySource = getRichField(row, 'bodyContent', 3);
       const buttonTextField = getField(row, 'buttonText', 4);
       const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-      const cardBgField = getField(row, 'cardBackgroundColor', 6);
+      const buttonStyleField = getField(row, 'buttonStyle', 6);
       const buttonBgField = getField(row, 'buttonBackgroundColor', 7);
-      const iconColorField = getField(row, 'iconColor', 8);
-      const textStyleField = getField(row, 'textColor', 9);
-      const overlayField = getImageField(row, 'overlayImage', 10);
-      const cardStyleField = getField(row, 'cardStyle', 11);
+      const button2TextField = getField(row, 'button2Text', 8);
+      const button2LinkField = getLinkField(row, 'button2Link', 9);
+      const button2StyleField = getField(row, 'button2Style', 10);
+      const button2BgField = getField(row, 'button2BackgroundColor', 11);
+      const cardBgField = getField(row, 'cardBackgroundColor', 12);
+      const iconColorField = getField(row, 'iconColor', 13);
+      const textStyleField = getField(row, 'textColor', 14);
+      const overlayField = getImageField(row, 'overlayImage', 15);
+      const cardStyleField = getField(row, 'cardStyle', 16);
       const textStyles = parseTextStyles(textStyleField.value);
 
       cards.push({
@@ -506,8 +583,13 @@ export default function decorate(block) {
         bodySource,
         buttonTextField,
         buttonLinkField,
+        buttonStyle: normalizeButtonStyle(buttonStyleField.value),
+        button2TextField,
+        button2LinkField,
+        button2Style: normalizeButtonStyle(button2StyleField.value),
         cardBg: cardBgField.value,
         buttonBg: buttonBgField.value,
+        button2Bg: button2BgField.value,
         iconColor: iconColorField.value,
         textStyles,
         overlayField,
