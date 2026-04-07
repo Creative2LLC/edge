@@ -170,10 +170,10 @@ export default function decorate(block) {
     button.textContent = data.buttonText;
 
     if (data.buttonColor) {
-      button.style.backgroundColor = data.buttonColor;
+      button.style.setProperty('background-color', data.buttonColor, 'important');
     }
     if (data.buttonTextColor) {
-      button.style.color = data.buttonTextColor;
+      button.style.setProperty('color', data.buttonTextColor, 'important');
     }
 
     contentSection.appendChild(button);
