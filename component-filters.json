@@ -70,7 +70,8 @@
       "card-row-compact",
       "detailed-carousel",
       "us-map",
-      "split-card-info"
+      "split-card-info",
+      "logo-carousel"
     ]
   },
   {
@@ -221,6 +222,12 @@
     "id": "leadership-team",
     "components": [
       "leader-card"
+    ]
+  },
+  {
+    "id": "logo-carousel",
+    "components": [
+      "logo-carousel-item"
     ]
   },
   {

@@ -3047,6 +3047,33 @@
     ]
   },
   {
+    "id": "logo-carousel",
+    "fields": []
+  },
+  {
+    "id": "logo-carousel-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "logo",
+        "label": "Logo Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "logoAlt",
+        "label": "Logo Alt Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "logoLink",
+        "label": "Logo Link (Optional)"
+      }
+    ]
+  },
+  {
     "id": "mail-address",
     "fields": [
       {
