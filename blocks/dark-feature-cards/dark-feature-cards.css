@@ -59,24 +59,27 @@
   box-sizing: border-box;
 }
 
-/* Top image — full card width, max-height 178px */
+/* Top image — full card width, locked to 178px tall so cards stay aligned
+   even when one card has a longer subtitle than the others. `flex: 0 0 178px`
+   prevents the flex parent from shrinking it. */
 .dark-feature-cards .dark-feature-cards-card-media {
   width: 100%;
+  height: 178px;
   display: block;
-  flex: 0 0 auto;
+  flex: 0 0 178px;
   overflow: hidden;
 }
 
 .dark-feature-cards .dark-feature-cards-card-media picture {
   display: block;
   width: 100%;
-  max-height: 178px;
+  height: 178px;
 }
 
 .dark-feature-cards .dark-feature-cards-card-media img {
   display: block;
   width: 100%;
-  max-height: 178px;
+  height: 178px;
   object-fit: cover;
 }
 
