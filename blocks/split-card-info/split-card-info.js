@@ -14,62 +14,63 @@ function parseNumberText(str) {
   return { number: '', text: str };
 }
 
+/**
+ * Look up a field by data-aue-prop name first, then fall back to a positional row.
+ * Mirrors the pattern used by cta-card-1 / job-postings — robust to however AEM
+ * decides to render a given field type.
+ */
+function getField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return { source, value: source.textContent.trim() };
+  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
+  return { source: null, value: '' };
+}
+
+function getLinkField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    return { source, value: anchor?.href || source.textContent.trim() };
+  }
+  if (rows[index]) {
+    const anchor = rows[index].querySelector('a');
+    return { source: null, value: anchor?.href || rows[index].textContent.trim() };
+  }
+  return { source: null, value: '' };
+}
+
+function getImageField(block, rows, name, index) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const scope = source || rows[index];
+  if (!scope) return { img: null };
+  return { img: scope.querySelector('img') };
+}
+
 export default function decorate(block) {
   const rows = [...block.children];
 
-  // Parse all the data from the block structure
   const data = {
-    imageSplit: '',
-    mainImage: null,
-    mainImageAlt: '',
-    topLogo: null,
-    topLogoAlt: '',
-    heading: '',
-    subheading: '',
-    bodyText: '',
-    buttonText: '',
-    buttonLink: '',
-    buttonColor: '',
-    buttonTextColor: '',
-    contentBackgroundColor: '',
+    imageSplit: getField(block, rows, 'imageSplit', 0).value,
+    mainImage: getImageField(block, rows, 'mainImage', 1).img,
+    mainImageAlt: getField(block, rows, 'mainImageAlt', 2).value,
+    topLogo: getImageField(block, rows, 'topLogo', 3).img,
+    topLogoAlt: getField(block, rows, 'topLogoAlt', 4).value,
+    heading: getField(block, rows, 'heading', 5).value,
+    subheading: getField(block, rows, 'subheading', 6).value,
+    bodyText: (() => {
+      const source = block.querySelector('[data-aue-prop="bodyText"]');
+      if (source) return source.innerHTML;
+      return rows[7]?.innerHTML || '';
+    })(),
+    buttonText: getField(block, rows, 'buttonText', 8).value,
+    buttonLink: getLinkField(block, rows, 'buttonLink', 9).value,
+    buttonColor: getField(block, rows, 'buttonColor', 10).value,
+    buttonTextColor: getField(block, rows, 'buttonTextColor', 11).value,
+    contentBackgroundColor: getField(block, rows, 'contentBackgroundColor', 12).value,
   };
 
-  // Extract data from rows based on data-aue-prop attributes
-  rows.forEach((row) => {
-    const prop = row.querySelector('[data-aue-prop]')?.getAttribute('data-aue-prop');
-    const value = row.textContent.trim();
-
-    if (prop === 'imageSplit') data.imageSplit = value;
-    else if (prop === 'mainImageAlt') data.mainImageAlt = value;
-    else if (prop === 'topLogoAlt') data.topLogoAlt = value;
-    else if (prop === 'heading') data.heading = value;
-    else if (prop === 'subheading') data.subheading = value;
-    else if (prop === 'bodyText') {
-      const richTextDiv = row.querySelector('[data-aue-prop="bodyText"]');
-      data.bodyText = richTextDiv?.innerHTML || value;
-    } else if (prop === 'buttonText') data.buttonText = value;
-    else if (prop === 'buttonLink') {
-      const link = row.querySelector('a');
-      data.buttonLink = link?.href || value;
-    } else if (prop === 'buttonColor') data.buttonColor = value;
-    else if (prop === 'buttonTextColor') data.buttonTextColor = value;
-    else if (prop === 'contentBackgroundColor') data.contentBackgroundColor = value;
-
-    // Extract images
-    if (prop === 'mainImage') {
-      const img = row.querySelector('img');
-      if (img) {
-        data.mainImage = img;
-        if (!data.mainImageAlt) data.mainImageAlt = img.alt || '';
-      }
-    } else if (prop === 'topLogo') {
-      const img = row.querySelector('img');
-      if (img) {
-        data.topLogo = img;
-        if (!data.topLogoAlt) data.topLogoAlt = img.alt || '';
-      }
-    }
-  });
+  if (data.mainImage && !data.mainImageAlt) data.mainImageAlt = data.mainImage.alt || '';
+  if (data.topLogo && !data.topLogoAlt) data.topLogoAlt = data.topLogo.alt || '';
 
   // Build the new structure
   const container = document.createElement('div');
@@ -162,19 +163,19 @@ export default function decorate(block) {
     contentSection.appendChild(bodyDiv);
   }
 
-  // Button
-  if (data.buttonText && data.buttonLink) {
-    const button = document.createElement('a');
+  // Button — render whenever we have button text; link is optional.
+  if (data.buttonText) {
+    const button = document.createElement(data.buttonLink ? 'a' : 'button');
     button.className = 'split-card-info-button';
-    button.href = data.buttonLink;
+    if (data.buttonLink) {
+      button.href = data.buttonLink;
+    } else {
+      button.type = 'button';
+    }
     button.textContent = data.buttonText;
 
-    if (data.buttonColor) {
-      button.style.setProperty('background-color', data.buttonColor, 'important');
-    }
-    if (data.buttonTextColor) {
-      button.style.setProperty('color', data.buttonTextColor, 'important');
-    }
+    button.style.setProperty('background-color', data.buttonColor || '#008db6', 'important');
+    button.style.setProperty('color', data.buttonTextColor || '#ffffff', 'important');
 
     contentSection.appendChild(button);
   }
