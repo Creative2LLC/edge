@@ -1,0 +1,212 @@
+/* Split Card Offices Block */
+.split-card-offices {
+  margin: 64px auto;
+  padding: 0 32px;
+  max-width: 1280px;
+  box-sizing: border-box;
+}
+
+/* Container — 50/50 split */
+.split-card-offices .split-card-offices-container {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+}
+
+/* ---------- Left side ---------- */
+.split-card-offices .split-card-offices-left {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.split-card-offices .split-card-offices-heading {
+  margin: 0 0 24px;
+  font-size: 36px;
+  font-weight: 700;
+  color: #404041;
+  line-height: 1.2;
+}
+
+.split-card-offices .split-card-offices-spacer {
+  flex: 1 1 auto;
+  min-height: 16px;
+}
+
+/* CTA buttons row — sit side-by-side at the bottom */
+.split-card-offices .split-card-offices-buttons {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+}
+
+.split-card-offices .split-card-offices-cta-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 18px;
+  margin: 0;
+  border: 2px solid #008db6;
+  border-radius: 99px;
+  background-color: transparent;
+  color: #008db6;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s ease;
+}
+
+.split-card-offices .split-card-offices-cta-btn:hover,
+.split-card-offices .split-card-offices-cta-btn:focus,
+.split-card-offices .split-card-offices-cta-btn:focus-visible,
+.split-card-offices .split-card-offices-cta-btn:active {
+  background-color: transparent;
+  color: #008db6;
+  border-color: #008db6;
+  opacity: 0.85;
+  outline: none;
+  box-shadow: none;
+}
+
+.split-card-offices .split-card-offices-cta-btn-icon {
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.split-card-offices .split-card-offices-cta-btn-icon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.split-card-offices .split-card-offices-cta-btn-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ---------- Right side ---------- */
+.split-card-offices .split-card-offices-right {
+  flex: 0 0 50%;
+  margin-left: 32px;
+  padding: 36px;
+  border-radius: 14px;
+  background-color: #ddd5cc52;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 24px;
+}
+
+.split-card-offices .split-card-offices-feature-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.split-card-offices .split-card-offices-feature-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.split-card-offices .split-card-offices-feature-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #404041;
+}
+
+.split-card-offices .split-card-offices-feature-heading {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #404041;
+  line-height: 1.25;
+}
+
+.split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text {
+  font-size: 17px;
+  font-weight: 500;
+  color: #404041;
+  line-height: 1.5;
+}
+
+.split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text p {
+  margin: 0;
+}
+
+.split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text p + p {
+  margin-top: 6px;
+}
+
+/* ---------- Responsive ---------- */
+@media (width <= 900px) {
+  .split-card-offices {
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .split-card-offices .split-card-offices-container {
+    flex-direction: column;
+  }
+
+  .split-card-offices .split-card-offices-left {
+    flex: none;
+    padding-right: 0;
+    margin-bottom: 32px;
+  }
+
+  .split-card-offices .split-card-offices-right {
+    flex: none;
+    margin-left: 0;
+    padding: 28px 24px;
+  }
+
+  .split-card-offices .split-card-offices-heading {
+    font-size: 30px;
+  }
+
+  .split-card-offices .split-card-offices-feature-heading {
+    font-size: 20px;
+  }
+}
+
+@media (width <= 600px) {
+  .split-card-offices .split-card-offices-buttons {
+    gap: 12px;
+  }
+
+  .split-card-offices .split-card-offices-cta-btn {
+    padding: 12px 14px;
+    font-size: 14px;
+    gap: 8px;
+  }
+
+  .split-card-offices .split-card-offices-heading {
+    font-size: 26px;
+  }
+}

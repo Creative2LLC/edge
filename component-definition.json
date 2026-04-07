@@ -1467,6 +1467,21 @@
           }
         },
         {
+          "title": "Split Card Offices",
+          "id": "split-card-offices",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Split Card Offices",
+                  "model": "split-card-offices"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Split Card",
           "id": "split-card",
           "plugins": {

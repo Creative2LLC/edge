@@ -1,0 +1,138 @@
+{
+  "definitions": [
+    {
+      "title": "Split Card Offices",
+      "id": "split-card-offices",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Split Card Offices",
+              "model": "split-card-offices"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "split-card-offices",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "headingText",
+          "label": "Left Side Heading",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "button1Icon",
+          "label": "Button 1 Icon (24x24)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button1Text",
+          "label": "Button 1 Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "button1Link",
+          "label": "Button 1 Link"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "button2Icon",
+          "label": "Button 2 Icon (24x24)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Text",
+          "label": "Button 2 Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "button2Link",
+          "label": "Button 2 Link"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "feature1Icon",
+          "label": "Feature 1 Icon (48x48)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "feature1IconColor",
+          "label": "Feature 1 Icon Color (Hex)",
+          "description": "Defaults to #FAAB60",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "feature1Heading",
+          "label": "Feature 1 Heading",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "feature2Icon",
+          "label": "Feature 2 Icon (24x24)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "feature2IconColor",
+          "label": "Feature 2 Icon Color (Hex)",
+          "description": "Defaults to #008DB6",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "feature2Text",
+          "label": "Feature 2 Text",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "feature3Icon",
+          "label": "Feature 3 Icon (24x24)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "feature3IconColor",
+          "label": "Feature 3 Icon Color (Hex)",
+          "description": "Defaults to #008DB6",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "feature3Text",
+          "label": "Feature 3 Text",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}
