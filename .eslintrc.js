@@ -31,7 +31,7 @@ module.exports = {
     'xwalk/max-cells': ['error', {
       '*': 10,
       'news-article': 5,
-      'resources': 5,
+      resources: 5,
       'resource-item': 7,
       'resources-browser': 6,
       'resources-browser-item': 8,
@@ -51,7 +51,7 @@ module.exports = {
       'split-card-carousel-item': 9,
       'icon-card-carousel-item': 10,
       'card-row-compact-item': 10,
-      'statistics': 5,
+      statistics: 5,
       'job-posting-item': 10,
       'job-postings': 8,
       'internship-program': 18,
