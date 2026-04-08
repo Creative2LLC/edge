@@ -103,6 +103,17 @@ export default function decorate(block) {
     alignProp.closest(':scope > div')?.remove();
   }
 
+  const backgroundColorProp = block.querySelector('[data-aue-prop="backgroundColor"]');
+  let backgroundColor = '';
+  if (backgroundColorProp) {
+    backgroundColor = backgroundColorProp.textContent.trim();
+    backgroundColorProp.closest(':scope > div')?.remove();
+  }
+
+  if (backgroundColor) {
+    block.style.setProperty('background-color', backgroundColor, 'important');
+  }
+
   /* --- Build container --- */
   const container = document.createElement('div');
   container.className = 'card-testimonies-container';

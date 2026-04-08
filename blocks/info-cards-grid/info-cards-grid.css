@@ -90,9 +90,9 @@
 }
 
 .info-cards-grid-intro-button {
-  place-self: start end;
+  place-self: center end;
   min-height: 28px;
-  margin-top: 4px;
+  margin-top: 0;
   padding: 6px 12px;
   border: 1px solid rgb(12 34 54 / 12%);
   border-radius: 999px;

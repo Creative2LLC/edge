@@ -28,6 +28,13 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
+function normalizeSizeValue(value) {
+  const normalized = normalizeJsonFieldValue(value);
+  if (!normalized) return '';
+  if (/^\d+(\.\d+)?$/.test(normalized)) return `${normalized}px`;
+  return normalized;
+}
+
 async function getBlockResourceData(block) {
   const resource = block.getAttribute('data-aue-resource') || '';
   const resourcePath = resourcePathFromUrn(resource);
@@ -141,10 +148,17 @@ export default async function decorate(block) {
   const imagePosition = getField(block, 'imagePosition')
     || normalizeJsonFieldValue(resourceData.imagePosition)
     || 'left';
+  const maxWidth = normalizeSizeValue(getField(block, 'maxWidth') || resourceData.maxWidth);
 
   if (picture) {
     const img = picture.querySelector('img');
     if (img && imageAlt) img.alt = imageAlt;
+  }
+
+  if (maxWidth) {
+    block.style.setProperty('--split-card-max-width', maxWidth);
+  } else {
+    block.style.removeProperty('--split-card-max-width');
   }
 
   const card = document.createElement('div');

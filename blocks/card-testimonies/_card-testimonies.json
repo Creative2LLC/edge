@@ -69,6 +69,13 @@
             }
           ],
           "value": "center"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Background Color (Hex)",
+          "value": ""
         }
       ]
     },

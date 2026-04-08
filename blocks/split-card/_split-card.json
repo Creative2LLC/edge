@@ -139,6 +139,13 @@
               "value": "right"
             }
           ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "maxWidth",
+          "label": "Max Width (e.g. 1200px or 72rem)",
+          "value": ""
         }
       ]
     }

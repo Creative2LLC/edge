@@ -116,17 +116,24 @@
 }
 
 .connect-grid .connect-grid-card-media.is-image {
-  width: fit-content;
-  max-width: min(100%, 180px);
+  width: calc(100% + 56px);
+  max-width: none;
+  margin: -30px -28px 26px;
+  align-self: stretch;
+  overflow: hidden;
 }
 
 .connect-grid .connect-grid-card-media.is-image picture,
 .connect-grid .connect-grid-card-media.is-image img {
   display: block;
-  width: auto;
-  max-width: 100%;
-  max-height: 78px;
-  object-fit: contain;
+  width: 100%;
+  max-width: none;
+}
+
+.connect-grid .connect-grid-card-media.is-image img {
+  height: auto;
+  max-height: none;
+  object-fit: cover;
 }
 
 .connect-grid .connect-grid-card-title {
@@ -221,6 +228,11 @@
   .connect-grid .connect-grid-card {
     min-height: 0;
     padding: 24px 22px 22px;
+  }
+
+  .connect-grid .connect-grid-card-media.is-image {
+    width: calc(100% + 44px);
+    margin: -24px -22px 22px;
   }
 
   .connect-grid .connect-grid-card-title {
