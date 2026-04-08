@@ -165,6 +165,14 @@ function buildCard(data, row) {
   return card;
 }
 
+function directRowOf(block, el) {
+  let cur = el;
+  while (cur && cur.parentElement && cur.parentElement !== block) {
+    cur = cur.parentElement;
+  }
+  return cur && cur.parentElement === block ? cur : null;
+}
+
 export default function decorate(block) {
   // Read columns setting
   const columnsProp = block.querySelector('[data-aue-prop="columns"]');
@@ -172,7 +180,16 @@ export default function decorate(block) {
   if (columnsProp) {
     const val = columnsProp.textContent.trim();
     if (val && !Number.isNaN(Number(val))) columns = Number(val);
-    columnsProp.remove();
+    directRowOf(block, columnsProp)?.remove();
+  }
+
+  // Read image style setting (default = current behavior, small = 141x183 top-left)
+  const imageStyleProp = block.querySelector('[data-aue-prop="imageStyle"]');
+  let imageStyle = 'default';
+  if (imageStyleProp) {
+    const val = imageStyleProp.textContent.trim().toLowerCase();
+    if (val === 'small') imageStyle = 'small';
+    directRowOf(block, imageStyleProp)?.remove();
   }
 
   // Parse card rows
@@ -184,7 +201,7 @@ export default function decorate(block) {
   });
 
   const grid = document.createElement('div');
-  grid.className = 'image-text-card-row-grid';
+  grid.className = `image-text-card-row-grid image-text-card-row-grid-${imageStyle}`;
   grid.style.setProperty('--grid-columns', columns);
 
   cards.forEach(({ data, row }) => {

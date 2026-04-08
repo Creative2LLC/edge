@@ -2376,6 +2376,24 @@
           }
         ],
         "value": "3"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "imageStyle",
+        "label": "Image Style",
+        "description": "Default = full-width image at the top of the card. Small = 141x183 image positioned at the top-left of the card with padding around it.",
+        "options": [
+          {
+            "name": "Default (Full Width Top)",
+            "value": "default"
+          },
+          {
+            "name": "Small (141x183 Top Left)",
+            "value": "small"
+          }
+        ],
+        "value": "default"
       }
     ]
   },
@@ -4527,6 +4545,51 @@
           }
         ],
         "value": "left"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text (Optional)",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Background / Border Color (Hex)",
+        "description": "Defaults to #008db6",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)",
+        "description": "Defaults to #ffffff for solid, or matches the border color for outlined",
+        "value": ""
       }
     ]
   },
