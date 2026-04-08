@@ -106,6 +106,13 @@
           "component": "aem-content",
           "name": "secondaryButtonLink",
           "label": "Secondary Button Link (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "maxWidth",
+          "label": "Max Width (e.g. 1200px or 72rem)",
+          "value": ""
         }
       ]
     },

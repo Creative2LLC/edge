@@ -13,6 +13,7 @@ const BLOCK_FIELD_NAMES = [
   'primaryButtonLink',
   'secondaryButtonText',
   'secondaryButtonLink',
+  'maxWidth',
 ];
 
 function getFieldSelector(name) {
@@ -220,6 +221,13 @@ function normalizeSplitPercent(value) {
   return `${clamped}%`;
 }
 
+function normalizeSizeValue(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (/^\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
+  return trimmed;
+}
+
 function isItemRow(row) {
   if (row.querySelector('[data-aue-prop="icon"], [data-aue-prop="title"]')) return true;
   if (row.querySelector(BLOCK_FIELD_NAMES.map((name) => getFieldSelector(name)).join(', '))) return false;
@@ -308,15 +316,22 @@ export default function decorate(block) {
   const primaryButtonLinkField = getLinkField(block, 'primaryButtonLink', 8);
   const secondaryButtonTextField = getField(block, 'secondaryButtonText', 9);
   const secondaryButtonLinkField = getLinkField(block, 'secondaryButtonLink', 10);
+  const maxWidthField = getField(block, 'maxWidth', 11);
 
   const imageAlt = imageAltField.value;
   const heading = headingField.value;
   const contentBackgroundColor = contentBackgroundColorField.value || '#ffffff';
   const textColor = textColorField.value || '';
   const imageWidth = normalizeSplitPercent(imageWidthField.value) || '52.5%';
+  const maxWidth = normalizeSizeValue(maxWidthField.value);
 
   block.style.setProperty('--split-card-gap-media-width', imageWidth);
   block.style.setProperty('--split-card-gap-content-width', `calc(100% - ${imageWidth})`);
+  if (maxWidth) {
+    block.style.setProperty('--split-card-gap-max-width', maxWidth);
+  } else {
+    block.style.removeProperty('--split-card-gap-max-width');
+  }
 
   const rows = [...block.querySelectorAll(':scope > div')];
   const benefits = [];

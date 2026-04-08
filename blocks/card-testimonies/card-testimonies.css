@@ -1,5 +1,8 @@
 /* Card Testimonies Block */
 .card-testimonies.block {
+  --card-testimonies-surface-bg: #fff;
+  --card-testimonies-secondary-surface-bg: #ddd5cc52;
+
   padding: 60px 24px;
   margin: 0 auto;
   max-width: 1200px;
@@ -57,7 +60,7 @@
   align-items: flex-start;
   justify-content: center;
   padding: 48px 56px;
-  background-color: #fff;
+  background-color: var(--card-testimonies-surface-bg);
 }
 
 .card-testimonies-main-quote {
@@ -85,7 +88,7 @@
 .card-testimonies-small {
   flex: 1 1 0;
   border-radius: 8px;
-  background-color: #ddd5cc52;
+  background-color: var(--card-testimonies-secondary-surface-bg);
   box-shadow: 0 4px 10px 0 #40404133;
   overflow: hidden;
 }

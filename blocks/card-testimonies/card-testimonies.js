@@ -1,5 +1,21 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+const BLOCK_FIELD_INDEX = {
+  heading: 0,
+  subtitle: 1,
+  titleAlign: 2,
+  backgroundColor: 3,
+};
+
+function getBlockFieldValue(block, rows, name, index, fallbackValue = '') {
+  const byProp = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (byProp) return byProp.textContent.trim();
+  const row = rows[index];
+  if (!row) return fallbackValue;
+  const cell = row.children[0] || row;
+  return cell.textContent.trim() || fallbackValue;
+}
+
 function getFieldText(row, colIndex, propName) {
   const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
   if (byProp) return byProp.textContent.trim();
@@ -81,42 +97,29 @@ function buildSmallCard(data, row) {
 }
 
 export default function decorate(block) {
-  /* --- Extract block-level fields and remove their rows --- */
-  const headingProp = block.querySelector('[data-aue-prop="heading"]');
-  let heading = '';
-  if (headingProp) {
-    heading = headingProp.textContent.trim();
-    headingProp.closest(':scope > div')?.remove();
-  }
-
-  const subtitleProp = block.querySelector('[data-aue-prop="subtitle"]');
-  let subtitle = '';
-  if (subtitleProp) {
-    subtitle = subtitleProp.textContent.trim();
-    subtitleProp.closest(':scope > div')?.remove();
-  }
-
-  const alignProp = block.querySelector('[data-aue-prop="titleAlign"]');
-  let align = 'center';
-  if (alignProp) {
-    align = alignProp.textContent.trim() || 'center';
-    alignProp.closest(':scope > div')?.remove();
-  }
-
-  const backgroundColorProp = block.querySelector('[data-aue-prop="backgroundColor"]');
-  let backgroundColor = '';
-  if (backgroundColorProp) {
-    backgroundColor = backgroundColorProp.textContent.trim();
-    backgroundColorProp.closest(':scope > div')?.remove();
-  }
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const heading = getBlockFieldValue(block, rows, 'heading', BLOCK_FIELD_INDEX.heading);
+  const subtitle = getBlockFieldValue(block, rows, 'subtitle', BLOCK_FIELD_INDEX.subtitle);
+  const align = getBlockFieldValue(block, rows, 'titleAlign', BLOCK_FIELD_INDEX.titleAlign, 'center') || 'center';
+  const backgroundColor = getBlockFieldValue(
+    block,
+    rows,
+    'backgroundColor',
+    BLOCK_FIELD_INDEX.backgroundColor,
+  );
 
   if (backgroundColor) {
     block.style.setProperty('background-color', backgroundColor, 'important');
+    block.style.setProperty('--card-testimonies-surface-bg', backgroundColor);
+    block.style.setProperty('--card-testimonies-secondary-surface-bg', backgroundColor);
   }
 
   /* --- Build container --- */
   const container = document.createElement('div');
   container.className = 'card-testimonies-container';
+  if (backgroundColor) {
+    container.style.setProperty('background-color', backgroundColor, 'important');
+  }
 
   /* --- Header --- */
   if (heading || subtitle) {
@@ -143,7 +146,6 @@ export default function decorate(block) {
   }
 
   /* --- Parse remaining rows as testimony items --- */
-  const rows = [...block.querySelectorAll(':scope > div')];
   let mainBuilt = false;
   let smallRow = null;
 
