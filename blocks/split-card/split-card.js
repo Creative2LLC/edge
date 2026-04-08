@@ -119,6 +119,7 @@ function buildButton(text, href, backgroundColor) {
 }
 
 export default async function decorate(block) {
+  const wrapper = block.closest('.split-card-wrapper') || block.parentElement;
   const resourceData = await getBlockResourceData(block);
   const picture = getImage(block);
 
@@ -157,8 +158,14 @@ export default async function decorate(block) {
 
   if (maxWidth) {
     block.style.setProperty('--split-card-max-width', maxWidth);
+    if (wrapper) {
+      wrapper.style.maxWidth = 'none';
+    }
   } else {
     block.style.removeProperty('--split-card-max-width');
+    if (wrapper) {
+      wrapper.style.removeProperty('max-width');
+    }
   }
 
   const card = document.createElement('div');

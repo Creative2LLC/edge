@@ -305,6 +305,7 @@ function buildBenefitItem(data, textColor) {
 }
 
 export default function decorate(block) {
+  const wrapper = block.closest('.split-card-gap-wrapper') || block.parentElement;
   const imageField = getImageField(block, 'image', 0);
   const imageAltField = getField(block, 'imageAlt', 1);
   const headingField = getField(block, 'heading', 2);
@@ -329,8 +330,14 @@ export default function decorate(block) {
   block.style.setProperty('--split-card-gap-content-width', `calc(100% - ${imageWidth})`);
   if (maxWidth) {
     block.style.setProperty('--split-card-gap-max-width', maxWidth);
+    if (wrapper) {
+      wrapper.style.maxWidth = 'none';
+    }
   } else {
     block.style.removeProperty('--split-card-gap-max-width');
+    if (wrapper) {
+      wrapper.style.removeProperty('max-width');
+    }
   }
 
   const rows = [...block.querySelectorAll(':scope > div')];
