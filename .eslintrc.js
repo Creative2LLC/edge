@@ -56,7 +56,7 @@ module.exports = {
       'job-postings': 8,
       'internship-program': 18,
       'detailed-carousel-item': 11,
-      'connect-grid-item': 20,
+      'connect-grid-item': 21,
       'split-card-offices': 16,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',

@@ -211,6 +211,13 @@
             }
           ],
           "value": "show"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardHoverBackgroundColor",
+          "label": "Card Hover Background Color (Hex)",
+          "description": "Optional. Applies only when provided."
         }
       ]
     }

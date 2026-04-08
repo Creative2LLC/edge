@@ -27,6 +27,7 @@ const ITEM_COLUMN_INDEX = {
   contactMethods: 17,
   cardBackgroundColor: 18,
   showDivider: 19,
+  cardHoverBackgroundColor: 20,
 };
 
 const DEFAULTS = {
@@ -302,6 +303,10 @@ function buildCard(item, index) {
     '--connect-grid-card-bg',
     item.cardBackgroundColor || DEFAULTS.cardBackgroundColor,
   );
+  if (item.cardHoverBackgroundColor) {
+    card.classList.add('has-hover-bg');
+    card.style.setProperty('--connect-grid-card-hover-bg', item.cardHoverBackgroundColor);
+  }
   if (item.row) moveInstrumentation(item.row, card);
 
   if (item.isAuthoringPlaceholder) {
@@ -504,6 +509,12 @@ export default function decorate(block) {
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.showDivider,
     );
+    const cardHoverBackgroundColorField = getField(
+      row,
+      'cardHoverBackgroundColor',
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX.cardHoverBackgroundColor,
+    );
 
     if (
       !titleField.value
@@ -526,6 +537,7 @@ export default function decorate(block) {
         : parseContactMethods(contactMethodsField.value),
       cardBackgroundColor: cardBackgroundColorField.value,
       showDivider: shouldShowDivider(showDividerField.value),
+      cardHoverBackgroundColor: cardHoverBackgroundColorField.value,
       row,
       order: index,
     });

@@ -73,6 +73,11 @@
   box-shadow: 0 18px 34px rgb(17 58 103 / 10%);
 }
 
+.connect-grid .connect-grid-card.has-hover-bg:hover,
+.connect-grid .connect-grid-card.has-hover-bg:focus-within {
+  background: var(--connect-grid-card-hover-bg);
+}
+
 .connect-grid .connect-grid-card.is-authoring-placeholder {
   justify-content: center;
   gap: 12px;
