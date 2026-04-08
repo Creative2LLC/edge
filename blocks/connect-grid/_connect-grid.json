@@ -194,6 +194,23 @@
           "name": "cardBackgroundColor",
           "label": "Card Background Color (Hex)",
           "description": "Defaults to #f4f0ec if left empty."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "showDivider",
+          "label": "Description Divider",
+          "options": [
+            {
+              "name": "Show",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ],
+          "value": "show"
         }
       ]
     }

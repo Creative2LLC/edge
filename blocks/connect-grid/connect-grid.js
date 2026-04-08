@@ -26,12 +26,14 @@ const ITEM_COLUMN_INDEX = {
   contactMethod4Link: 16,
   contactMethods: 17,
   cardBackgroundColor: 18,
+  showDivider: 19,
 };
 
 const DEFAULTS = {
   columns: '3',
   iconColor: '#ff8b7e',
   cardBackgroundColor: '#f4f0ec',
+  showDivider: 'show',
 };
 
 function hasAuthoringContext(scope) {
@@ -206,6 +208,11 @@ function shouldUseArrow(url) {
   return !url.startsWith('mailto:') && !url.startsWith('tel:');
 }
 
+function shouldShowDivider(value) {
+  const normalizedValue = String(value || DEFAULTS.showDivider).trim().toLowerCase();
+  return !['hide', 'hidden', 'off', 'false', 'no', 'none'].includes(normalizedValue);
+}
+
 function buildMedia(item) {
   const imagePicture = item.imageField.picture?.cloneNode(true) || null;
   const imageImg = !imagePicture && item.imageField.img
@@ -326,9 +333,11 @@ function buildCard(item, index) {
   if (description) card.append(description);
 
   if (item.contactMethods.length) {
-    const divider = document.createElement('div');
-    divider.className = 'connect-grid-card-divider';
-    card.append(divider);
+    if (item.showDivider) {
+      const divider = document.createElement('div');
+      divider.className = 'connect-grid-card-divider';
+      card.append(divider);
+    }
 
     const methods = document.createElement('div');
     methods.className = 'connect-grid-methods';
@@ -344,6 +353,81 @@ function buildCard(item, index) {
   }
 
   return card;
+}
+
+function setupMatchedHeights(block, grid) {
+  if (typeof block.connectGridHeightCleanup === 'function') {
+    block.connectGridHeightCleanup();
+  }
+
+  const cards = [...grid.querySelectorAll('.connect-grid-card:not(.is-authoring-placeholder)')];
+  if (!cards.length) {
+    block.connectGridHeightCleanup = null;
+    return;
+  }
+
+  let frameId = 0;
+  const syncHeights = () => {
+    if (frameId) window.cancelAnimationFrame(frameId);
+
+    frameId = window.requestAnimationFrame(() => {
+      frameId = 0;
+      cards.forEach((card) => card.style.removeProperty('--connect-grid-card-matched-height'));
+
+      const columns = getComputedStyle(grid).gridTemplateColumns
+        .split(' ')
+        .filter(Boolean)
+        .length;
+      if (columns <= 1) return;
+
+      const tallestHeight = Math.ceil(
+        Math.max(0, ...cards.map((card) => card.getBoundingClientRect().height)),
+      );
+
+      cards.forEach((card) => {
+        if (tallestHeight > 0) {
+          card.style.setProperty('--connect-grid-card-matched-height', `${tallestHeight}px`);
+        }
+      });
+    });
+  };
+
+  const onResize = () => syncHeights();
+  window.addEventListener('resize', onResize, { passive: true });
+
+  const mutationObserver = 'MutationObserver' in window
+    ? new MutationObserver(() => syncHeights())
+    : null;
+  mutationObserver?.observe(grid, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+
+  const resizeObserver = 'ResizeObserver' in window
+    ? new ResizeObserver(() => syncHeights())
+    : null;
+  cards.forEach((card) => resizeObserver?.observe(card));
+
+  grid.querySelectorAll('img').forEach((img) => {
+    if (img.complete) return;
+    img.addEventListener('load', syncHeights, { once: true });
+    img.addEventListener('error', syncHeights, { once: true });
+  });
+
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(() => syncHeights()).catch(() => {});
+  }
+
+  syncHeights();
+
+  block.connectGridHeightCleanup = () => {
+    if (frameId) window.cancelAnimationFrame(frameId);
+    window.removeEventListener('resize', onResize);
+    mutationObserver?.disconnect();
+    resizeObserver?.disconnect();
+    cards.forEach((card) => card.style.removeProperty('--connect-grid-card-matched-height'));
+  };
 }
 
 function enableReveal(block) {
@@ -414,6 +498,12 @@ export default function decorate(block) {
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.cardBackgroundColor,
     );
+    const showDividerField = getField(
+      row,
+      'showDivider',
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX.showDivider,
+    );
 
     if (
       !titleField.value
@@ -435,6 +525,7 @@ export default function decorate(block) {
         ? structuredContactMethods
         : parseContactMethods(contactMethodsField.value),
       cardBackgroundColor: cardBackgroundColorField.value,
+      showDivider: shouldShowDivider(showDividerField.value),
       row,
       order: index,
     });
@@ -472,5 +563,6 @@ export default function decorate(block) {
 
   inner.append(grid);
   block.replaceChildren(inner);
+  setupMatchedHeights(block, grid);
   enableReveal(block);
 }

@@ -17,7 +17,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 24px;
-  align-items: end;
+  align-items: start;
 }
 
 .info-cards-grid-intro-content {
@@ -62,6 +62,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.info-cards-grid-section-button {
   min-height: 44px;
   padding: 0 20px;
   border-radius: 999px;
@@ -70,21 +79,38 @@
   font-size: 15px;
   font-weight: 600;
   line-height: 1;
-  text-decoration: none;
   box-shadow: 0 12px 22px rgb(0 141 182 / 20%);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
 }
 
 .info-cards-grid-section-button:hover,
-.info-cards-grid-section-button:focus,
-.info-cards-grid-intro-button:hover,
-.info-cards-grid-intro-button:focus {
+.info-cards-grid-section-button:focus {
   background: var(--info-cards-section-button-hover);
   transform: translateY(-1px);
   box-shadow: 0 16px 26px rgb(0 141 182 / 24%);
+}
+
+.info-cards-grid-intro-button {
+  place-self: start end;
+  min-height: 28px;
+  margin-top: 4px;
+  padding: 6px 12px;
+  border: 1px solid rgb(12 34 54 / 12%);
+  border-radius: 999px;
+  background: #5f6c79;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgb(12 34 54 / 12%);
+}
+
+.info-cards-grid-intro-button:hover,
+.info-cards-grid-intro-button:focus {
+  background: #4f5b67;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgb(12 34 54 / 16%);
 }
 
 /* Grid container */

@@ -57,7 +57,7 @@
 .connect-grid .connect-grid-card {
   display: flex;
   flex-direction: column;
-  min-height: 430px;
+  min-height: var(--connect-grid-card-matched-height, 0);
   padding: 30px 28px 26px;
   border-radius: 18px;
   background: var(--connect-grid-card-bg, #f4f0ec);
@@ -219,7 +219,7 @@
   }
 
   .connect-grid .connect-grid-card {
-    min-height: auto;
+    min-height: 0;
     padding: 24px 22px 22px;
   }
 
