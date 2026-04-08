@@ -422,13 +422,15 @@ async function loadLazy(doc) {
 
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
-  let getHelpHost = doc.querySelector('.get-help-host');
-  if (!getHelpHost) {
-    getHelpHost = doc.createElement('div');
-    getHelpHost.className = 'get-help-host';
-    doc.body.append(getHelpHost);
+  if (!window.isErrorPage) {
+    let getHelpHost = doc.querySelector('.get-help-host');
+    if (!getHelpHost) {
+      getHelpHost = doc.createElement('div');
+      getHelpHost.className = 'get-help-host';
+      doc.body.append(getHelpHost);
+    }
+    loadGetHelp(getHelpHost);
   }
-  loadGetHelp(getHelpHost);
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
