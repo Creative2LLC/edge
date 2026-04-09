@@ -2,7 +2,7 @@ import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
-const isDesktop = window.matchMedia('(min-width: 900px)');
+const isDesktop = window.matchMedia('(min-width: 1260px)');
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
