@@ -31,6 +31,10 @@
   gap: 24px;
 }
 
+.section-title .section-title-inner.section-title-align-center .section-title-button {
+  margin-bottom: 80px;
+}
+
 .section-title .section-title-text {
   min-width: 0;
   flex: 1 1 auto;
