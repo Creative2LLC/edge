@@ -59,6 +59,7 @@ module.exports = {
       'connect-grid-item': 21,
       'split-card-offices': 16,
       'split-card-gap': 11,
+      'split-card-list-item': 10,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

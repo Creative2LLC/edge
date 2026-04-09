@@ -4953,6 +4953,160 @@
     ]
   },
   {
+    "id": "split-card-list",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Color (Hex)",
+        "description": "Defaults to #008db6"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)",
+        "description": "Defaults to #ffffff for solid, button color for outlined"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "layout",
+        "label": "Right Side Layout",
+        "description": "Statements: cards with title, subtitle, year, and button. Email Cards: dark cards with title and email link.",
+        "options": [
+          {
+            "name": "Statements",
+            "value": "statements"
+          },
+          {
+            "name": "Email Cards",
+            "value": "email-cards"
+          }
+        ],
+        "value": "statements"
+      }
+    ]
+  },
+  {
+    "id": "split-card-list-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle (Statements only)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "year",
+        "label": "Year (Statements only)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text (Statements only)"
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link (Statements only)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonColor",
+        "label": "Button Color (Hex)",
+        "description": "Defaults to #008db6"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonTextColor",
+        "label": "Button Text Color (Hex)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon (Email Cards only)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emailText",
+        "label": "Email Text (Email Cards only)"
+      }
+    ]
+  },
+  {
     "id": "split-card-offices",
     "fields": [
       {
