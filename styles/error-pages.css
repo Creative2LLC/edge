@@ -1,3 +1,8 @@
+body[data-error-code] header,
+body[data-error-code] footer {
+  display: none;
+}
+
 main.error {
   --error-accent: #008db6;
   --error-accent-deep: #00264d;
@@ -6,7 +11,7 @@ main.error {
   --error-shadow: 0 28px 80px rgb(9 41 67 / 16%);
   --error-glow: rgb(0 141 182 / 18%);
 
-  min-height: calc(100vh - var(--nav-height));
+  min-height: 100vh;
   position: relative;
   overflow: hidden;
   background:

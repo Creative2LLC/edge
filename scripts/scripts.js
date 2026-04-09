@@ -420,9 +420,9 @@ async function loadLazy(doc) {
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  loadHeader(doc.querySelector('header'));
-  loadFooter(doc.querySelector('footer'));
   if (!window.isErrorPage) {
+    loadHeader(doc.querySelector('header'));
+    loadFooter(doc.querySelector('footer'));
     let getHelpHost = doc.querySelector('.get-help-host');
     if (!getHelpHost) {
       getHelpHost = doc.createElement('div');
