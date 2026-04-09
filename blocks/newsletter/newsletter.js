@@ -162,14 +162,22 @@ export default function decorate(block) {
 
     const submit = document.createElement('button');
     submit.type = 'submit';
-    submit.className = 'newsletter-submit';
-    submit.textContent = buttonText;
+    submit.className = 'newsletter-send-icon';
+    submit.setAttribute('aria-label', buttonText || 'Send');
+
+    const sendImg = document.createElement('img');
+    sendImg.src = `${window.hlx.codeBasePath}/icons/send.svg`;
+    sendImg.alt = '';
+    sendImg.className = 'newsletter-send-img';
+    sendImg.setAttribute('aria-hidden', 'true');
+    submit.append(sendImg);
+
     moveFieldBinding(buttonTextField.source, submit);
     if (buttonTextField.source) buttonTextField.source.remove();
 
     inputWrap.append(input);
+    inputWrap.append(submit);
     form.append(inputWrap);
-    form.append(submit);
     content.append(form);
   } else if (options.length) {
     const form = document.createElement('form');
