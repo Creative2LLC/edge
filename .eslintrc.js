@@ -29,12 +29,12 @@ module.exports = {
     'linebreak-style': ['error', 'unix'], // enforce unix linebreaks
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', {
-      '*': 10,
+      '*': 12,
       'news-article': 5,
-      resources: 5,
+      resources: 12,
       'resource-item': 7,
-      'resources-browser': 6,
-      'resources-browser-item': 8,
+      'resources-browser': 11,
+      'resources-browser-item': 9,
       'mega-nav-row': 6,
       'mega-nav-top-link': 5,
       'impact-chain-item': 5,

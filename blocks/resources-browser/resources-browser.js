@@ -616,7 +616,6 @@ async function renderApiBrowser(block, config) {
     setFilterOptions(audienceSelect, 'Audience', audiences);
     setFilterOptions(issueSelect, 'Issue', issues);
     setFilterOptions(typeSelect, 'Type', types);
-
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
@@ -671,12 +670,14 @@ async function renderApiBrowser(block, config) {
 
     state.page = payload.meta?.current_page || 1;
     state.lastPage = payload.meta?.last_page || 1;
-    state.total = payload.meta?.total ?? cardsContainer.children.length;
+    state.total = payload.meta?.total
+      ?? cardsContainer.children.length;
     updateFilters(payload.filters || {});
     renderActiveFilters();
 
+    const total = cardsContainer.children.length;
     count.textContent = state.total
-      ? `Showing ${cardsContainer.children.length} of ${state.total} resources`
+      ? `Showing ${total} of ${state.total} resources`
       : 'Showing 0 resources';
     emptyState.hidden = cardsContainer.children.length > 0;
     loadMoreButton.hidden = state.page >= state.lastPage || state.total === 0;
