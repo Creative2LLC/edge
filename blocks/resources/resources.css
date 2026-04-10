@@ -163,6 +163,25 @@ main > .section > .resources-wrapper {
   flex: 1;
 }
 
+.resources .resources-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.resources .resources-card-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #e8f1f5;
+  color: #0d3c50;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 /* Card title */
 .resources .resources-card-title {
   font-size: 24px;
@@ -192,6 +211,13 @@ main > .section > .resources-wrapper {
 
 .resources .resources-card-link:hover {
   text-decoration: underline;
+}
+
+.resources .resources-empty {
+  margin: 0;
+  color: #404041;
+  font-size: 18px;
+  line-height: 1.5;
 }
 
 /* Footer row */

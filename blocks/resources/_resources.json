@@ -64,6 +64,49 @@
           "component": "aem-content",
           "name": "buttonLink",
           "label": "Button Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "selected",
+          "label": "Selected Resource Slugs or IDs (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "limit",
+          "label": "Resource Limit",
+          "value": "6"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "audiencePreset",
+          "label": "Preset Audiences (Enum Values)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "issuePreset",
+          "label": "Preset Issues (Enum Values)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "typePreset",
+          "label": "Preset Types (Enum Values)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tagPreset",
+          "label": "Preset Tags (Tag Slugs)"
         }
       ]
     },
@@ -113,6 +156,12 @@
           "valueType": "string",
           "name": "linkText",
           "label": "Link Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tags",
+          "label": "Custom Tags (Comma/Newline)"
         }
       ]
     }

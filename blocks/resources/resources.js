@@ -1,22 +1,29 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-// Block-level field order: heading(0), subheading(1), backgroundColor(2),
-// button(3), buttonLink(4)
-const BLOCK_PROPS = ['heading', 'subheading', 'backgroundColor', 'button', 'buttonLink'];
+const BLOCK_PROPS = [
+  'heading',
+  'subheading',
+  'backgroundColor',
+  'button',
+  'buttonLink',
+  'apiBaseUrl',
+  'selected',
+  'limit',
+  'audiencePreset',
+  'issuePreset',
+  'typePreset',
+  'tagPreset',
+];
 
 function extractConfigRow(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
+  let configRow = rows.find((row) => BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`)));
 
-  // Prefer the row that contains a block-level data-aue-prop
-  let configRow = rows.find((row) => BLOCK_PROPS.some((p) => row.querySelector(`[data-aue-prop="${p}"]`)));
-
-  // Fallback: first row that does NOT look like a resource item (no image/icon prop)
   if (!configRow && rows.length > 0) {
     configRow = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
       && !row.querySelector('[data-aue-prop="image"]')
       && !row.querySelector('picture'));
-    // Last resort: first row
     if (!configRow) [configRow] = rows;
   }
 
@@ -28,8 +35,7 @@ function readConfigField(configRow, name, colIndex) {
   const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return source.textContent.trim();
   const cols = [...configRow.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
-  return '';
+  return cols[colIndex]?.textContent.trim() || '';
 }
 
 function readConfigLinkField(configRow, name, colIndex) {
@@ -40,87 +46,94 @@ function readConfigLinkField(configRow, name, colIndex) {
     return anchor?.href || source.textContent.trim();
   }
   const cols = [...configRow.children];
-  if (cols[colIndex]) {
-    const anchor = cols[colIndex].querySelector('a');
-    return anchor?.href || cols[colIndex].textContent.trim();
-  }
-  return '';
+  const anchor = cols[colIndex]?.querySelector('a');
+  return anchor?.href || cols[colIndex]?.textContent.trim() || '';
+}
+
+function parseList(value) {
+  const values = `${value || ''}`
+    .split(/[\n,]+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  const seen = new Set();
+  return values.filter((entry) => {
+    const key = entry.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function parseIntSafe(value, fallback = 6) {
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
+}
+
+function normalizeApiBaseUrl(value) {
+  return `${value || ''}`.trim().replace(/\/+$/, '');
+}
+
+function splitSelectedResources(values) {
+  return values.reduce((accumulator, value) => {
+    if (/^\d+$/.test(value)) accumulator.ids.push(value);
+    else accumulator.slugs.push(value);
+    return accumulator;
+  }, { ids: [], slugs: [] });
 }
 
 function parseResourceRow(row) {
   const cols = [...row.children];
 
-  // Extract picture + img from a column container
   function getImageData(col) {
     if (!col) return { picture: null, src: '', alt: '' };
     const picture = col.querySelector('picture');
     const img = col.querySelector('img');
-    return {
-      picture,
-      src: img?.src || '',
-      alt: img?.alt || '',
-    };
+    return { picture, src: img?.src || '', alt: img?.alt || '' };
   }
 
-  // Extract link URL and text from a column (or merged link)
   function getLinkData(col, nextCol) {
     if (!col) return { url: '', text: '' };
-    const a = col.querySelector('a');
-    if (a && a.href) {
-      // EDS may merge link URL + text into one <a>
-      const aText = a.textContent.trim();
-      const isUrlText = aText === a.href
-        || aText === a.getAttribute('href')
-        || aText.replace(/\/$/, '') === a.href.replace(/\/$/, '');
+    const anchor = col.querySelector('a');
+    if (anchor && anchor.href) {
+      const anchorText = anchor.textContent.trim();
+      const isUrlText = anchorText === anchor.href
+        || anchorText === anchor.getAttribute('href')
+        || anchorText.replace(/\/$/, '') === anchor.href.replace(/\/$/, '');
       return {
-        url: a.href,
-        text: isUrlText
-          ? (nextCol?.textContent.trim() || '')
-          : aText,
+        url: anchor.href,
+        text: isUrlText ? (nextCol?.textContent.trim() || '') : anchorText,
       };
     }
+
     return {
       url: col.textContent.trim(),
       text: nextCol?.textContent.trim() || '',
     };
   }
 
-  // Try to get a field value by data-aue-prop, then column index
   function getFieldText(colIndex, propName) {
-    const byProp = row.querySelector(
-      `[data-aue-prop="${propName}"]`,
-    );
+    const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
     if (byProp) return byProp.textContent.trim();
-    if (cols[colIndex]) return cols[colIndex].textContent.trim();
-    return '';
+    return cols[colIndex]?.textContent.trim() || '';
   }
 
-  // 7-column layout:
-  // image | icon | iconColor | title | subtitle | link | linkText
   if (cols.length >= 6) {
     const imageData = getImageData(cols[0]);
     const iconData = getImageData(cols[1]);
-
-    // Try data-aue-prop first for link text (editor)
-    const linkTextProp = row.querySelector(
-      '[data-aue-prop="linkText"]',
-    );
-    const linkProp = row.querySelector(
-      '[data-aue-prop="link"]',
-    );
+    const linkTextProp = row.querySelector('[data-aue-prop="linkText"]');
+    const linkProp = row.querySelector('[data-aue-prop="link"]');
 
     let linkUrl;
     let linkText;
 
     if (linkProp) {
-      const a = linkProp.querySelector('a');
-      linkUrl = a?.href || linkProp.textContent.trim();
+      const anchor = linkProp.querySelector('a');
+      linkUrl = anchor?.href || linkProp.textContent.trim();
       linkText = linkTextProp?.textContent.trim() || '';
     } else {
-      // Column-index fallback (published pages)
-      const ld = getLinkData(cols[5], cols[6]);
-      linkUrl = ld.url;
-      linkText = ld.text;
+      const linkData = getLinkData(cols[5], cols[6]);
+      linkUrl = linkData.url;
+      linkText = linkData.text;
     }
 
     return {
@@ -134,29 +147,34 @@ function parseResourceRow(row) {
       subtitle: getFieldText(4, 'subtitle'),
       linkUrl,
       linkText,
-    };
-  }
-
-  // Minimal fallback: 2 columns (image | text)
-  if (cols.length >= 2) {
-    const imageData = getImageData(cols[0]);
-    const link = cols[1].querySelector('a');
-    const paragraphs = cols[1].querySelectorAll('p');
-    return {
-      imagePicture: imageData.picture,
-      imgSrc: imageData.src,
-      imageAlt: imageData.alt,
-      iconPicture: null,
-      iconSrc: '',
-      iconColor: '',
-      title: paragraphs[0]?.textContent.trim() || '',
-      subtitle: paragraphs[1]?.textContent.trim() || '',
-      linkUrl: link?.href || '',
-      linkText: getFieldText(-1, 'linkText'),
+      tags: parseList(getFieldText(7, 'tags')),
     };
   }
 
   return null;
+}
+
+function mapApiResource(resource) {
+  return {
+    imagePicture: null,
+    imgSrc: resource.thumbnail || '',
+    imageAlt: resource.title || '',
+    iconPicture: null,
+    iconSrc: '',
+    iconColor: '',
+    title: resource.title || '',
+    subtitle: resource.excerpt || '',
+    linkUrl: resource.resource_url || '',
+    linkText: 'Learn More',
+    tags: (resource.tags || []).map((tag) => tag.name).slice(0, 4),
+  };
+}
+
+function buildTag(tag) {
+  const pill = document.createElement('span');
+  pill.className = 'resources-card-tag';
+  pill.textContent = tag;
+  return pill;
 }
 
 function buildResourceCard(resource, row) {
@@ -166,18 +184,9 @@ function buildResourceCard(resource, row) {
 
   const hasIcon = resource.iconPicture || resource.iconSrc;
   const hasImage = resource.imagePicture || resource.imgSrc;
+  if (hasImage && !hasIcon) card.classList.add('resources-card-no-icon');
+  if (!hasImage && !hasIcon) card.classList.add('resources-card-no-media');
 
-  // Add modifier class when image is present but no icon
-  if (hasImage && !hasIcon) {
-    card.classList.add('resources-card-no-icon');
-  }
-
-  // Add modifier class when neither image nor icon is present
-  if (!hasImage && !hasIcon) {
-    card.classList.add('resources-card-no-media');
-  }
-
-  // Image — preserve existing <picture> from DOM, then optimize
   if (resource.imagePicture) {
     const imageWrap = document.createElement('div');
     imageWrap.className = 'resources-card-image';
@@ -192,15 +201,13 @@ function buildResourceCard(resource, row) {
   } else if (resource.imgSrc) {
     const imageWrap = document.createElement('div');
     imageWrap.className = 'resources-card-image';
-    const pic = createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '400' }]);
-    imageWrap.append(pic);
+    imageWrap.append(createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '400' }]));
     card.append(imageWrap);
   }
 
   const content = document.createElement('div');
   content.className = 'resources-card-content';
 
-  // Icon — preserve existing <picture> or <img>, apply color via mask if set
   if (resource.iconPicture || resource.iconSrc) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'resources-card-icon';
@@ -224,7 +231,13 @@ function buildResourceCard(resource, row) {
     content.append(iconWrap);
   }
 
-  // Title
+  if (resource.tags?.length) {
+    const tagsWrap = document.createElement('div');
+    tagsWrap.className = 'resources-card-tags';
+    resource.tags.forEach((tag) => tagsWrap.append(buildTag(tag)));
+    content.append(tagsWrap);
+  }
+
   if (resource.title) {
     const titleEl = document.createElement('h3');
     titleEl.className = 'resources-card-title';
@@ -232,7 +245,6 @@ function buildResourceCard(resource, row) {
     content.append(titleEl);
   }
 
-  // Subheading
   if (resource.subtitle) {
     const sub = document.createElement('p');
     sub.className = 'resources-card-subheading';
@@ -240,7 +252,6 @@ function buildResourceCard(resource, row) {
     content.append(sub);
   }
 
-  // Learn More link (customizable text)
   if (resource.linkUrl) {
     const link = document.createElement('a');
     link.className = 'resources-card-link';
@@ -268,84 +279,113 @@ function updateScrollbar(thumb, container) {
   thumb.style.left = `${thumbLeft}px`;
 }
 
-export default function decorate(block) {
-  // Extract config row and read block-level fields by prop or column index
+async function loadApiResources(config) {
+  const apiRoot = normalizeApiBaseUrl(config.apiBaseUrl);
+  if (!apiRoot) return [];
+
+  const selected = splitSelectedResources(parseList(config.selected));
+  const limit = parseIntSafe(config.limit, 6);
+  const requestSize = Math.max(limit, selected.ids.length + selected.slugs.length || limit);
+  const url = new URL('/api/resources', `${apiRoot}/`);
+  url.searchParams.set('per_page', String(requestSize));
+  parseList(config.audiencePreset).forEach((value) => url.searchParams.append('audiences[]', value.toLowerCase()));
+  parseList(config.issuePreset).forEach((value) => url.searchParams.append('issues[]', value.toLowerCase()));
+  parseList(config.typePreset).forEach((value) => url.searchParams.append('types[]', value.toLowerCase()));
+  parseList(config.tagPreset).forEach((value) => url.searchParams.append('tags[]', value.toLowerCase()));
+  selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
+  selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
+
+  const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`API request failed with HTTP ${response.status}.`);
+  const payload = await response.json();
+  return (payload.data || []).slice(0, limit).map((item) => ({ data: mapApiResource(item), row: null }));
+}
+
+export default async function decorate(block) {
   const configRow = extractConfigRow(block);
-  const heading = readConfigField(configRow, 'heading', 0);
-  const subheading = readConfigField(configRow, 'subheading', 1);
-  const backgroundColor = readConfigField(configRow, 'backgroundColor', 2);
-  const buttonText = readConfigField(configRow, 'button', 3);
-  const buttonLink = readConfigLinkField(configRow, 'buttonLink', 4);
+  const config = {
+    heading: readConfigField(configRow, 'heading', 0),
+    subheading: readConfigField(configRow, 'subheading', 1),
+    backgroundColor: readConfigField(configRow, 'backgroundColor', 2),
+    buttonText: readConfigField(configRow, 'button', 3),
+    buttonLink: readConfigLinkField(configRow, 'buttonLink', 4),
+    apiBaseUrl: readConfigField(configRow, 'apiBaseUrl', 5),
+    selected: readConfigField(configRow, 'selected', 6),
+    limit: readConfigField(configRow, 'limit', 7) || '6',
+    audiencePreset: readConfigField(configRow, 'audiencePreset', 8),
+    issuePreset: readConfigField(configRow, 'issuePreset', 9),
+    typePreset: readConfigField(configRow, 'typePreset', 10),
+    tagPreset: readConfigField(configRow, 'tagPreset', 11),
+  };
 
-  // Remove the config row so it doesn't get parsed as a resource card
   if (configRow) configRow.remove();
+  if (config.backgroundColor) block.style.backgroundColor = config.backgroundColor;
 
-  // Apply optional background color
-  if (backgroundColor) {
-    block.style.backgroundColor = backgroundColor;
+  let resources = [...block.querySelectorAll(':scope > div')]
+    .map((row) => {
+      const resource = parseResourceRow(row);
+      return resource ? { data: resource, row } : null;
+    })
+    .filter(Boolean);
+
+  if (config.apiBaseUrl) {
+    try {
+      resources = await loadApiResources(config);
+    } catch (error) {
+      // Fall back to inline-authored cards when the API is unavailable.
+    }
   }
-
-  // Remaining rows are resource items
-  const rows = [...block.querySelectorAll(':scope > div')];
-  const resources = [];
-  rows.forEach((row) => {
-    const resource = parseResourceRow(row);
-    if (resource) resources.push({ data: resource, row });
-  });
 
   const inner = document.createElement('div');
   inner.className = 'resources-inner';
 
-  // Header row: heading (left) + button (right)
   const header = document.createElement('div');
   header.className = 'resources-header';
-
   const headerLeft = document.createElement('div');
   headerLeft.className = 'resources-header-left';
 
-  if (heading) {
-    const h2 = document.createElement('h2');
-    h2.className = 'resources-heading';
-    h2.textContent = heading;
-    headerLeft.append(h2);
+  if (config.heading) {
+    const heading = document.createElement('h2');
+    heading.className = 'resources-heading';
+    heading.textContent = config.heading;
+    headerLeft.append(heading);
   }
 
-  if (subheading) {
-    const sub = document.createElement('p');
-    sub.className = 'resources-subheading';
-    sub.textContent = subheading;
-    headerLeft.append(sub);
+  if (config.subheading) {
+    const subheading = document.createElement('p');
+    subheading.className = 'resources-subheading';
+    subheading.textContent = config.subheading;
+    headerLeft.append(subheading);
   }
 
   header.append(headerLeft);
 
-  if (buttonText) {
-    const btn = document.createElement(buttonLink ? 'a' : 'button');
-    btn.className = 'resources-button';
-    btn.textContent = buttonText;
-    if (buttonLink) btn.href = buttonLink;
-    if (!buttonLink) btn.type = 'button';
-    header.append(btn);
+  if (config.buttonText) {
+    const button = document.createElement(config.buttonLink ? 'a' : 'button');
+    button.className = 'resources-button';
+    button.textContent = config.buttonText;
+    if (config.buttonLink) button.href = config.buttonLink;
+    else button.type = 'button';
+    header.append(button);
   }
 
   inner.append(header);
 
-  // Cards scrollable container
   const cardsContainer = document.createElement('div');
   cardsContainer.className = 'resources-cards';
-
-  resources.forEach(({ data, row }) => {
-    const card = buildResourceCard(data, row);
-    cardsContainer.append(card);
-  });
-
+  resources.forEach(({ data, row }) => cardsContainer.append(buildResourceCard(data, row)));
   inner.append(cardsContainer);
 
-  // Footer row: scrollbar (left) + nav buttons (right)
+  const emptyState = document.createElement('p');
+  emptyState.className = 'resources-empty';
+  emptyState.textContent = 'No resources available.';
+  emptyState.hidden = resources.length > 0;
+  inner.append(emptyState);
+
   const footer = document.createElement('div');
   footer.className = 'resources-footer';
+  footer.hidden = resources.length === 0;
 
-  // Scrollbar track + thumb
   const scrollbar = document.createElement('div');
   scrollbar.className = 'resources-scrollbar';
   const scrollThumb = document.createElement('div');
@@ -353,46 +393,24 @@ export default function decorate(block) {
   scrollbar.append(scrollThumb);
   footer.append(scrollbar);
 
-  // Nav buttons
   const nav = document.createElement('div');
   nav.className = 'resources-nav';
-
   const prevBtn = document.createElement('button');
   prevBtn.className = 'resources-nav-btn resources-nav-prev';
   prevBtn.setAttribute('aria-label', 'Previous');
   prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
-
   const nextBtn = document.createElement('button');
   nextBtn.className = 'resources-nav-btn resources-nav-next';
   nextBtn.setAttribute('aria-label', 'Next');
   nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
-
-  nav.append(prevBtn);
-  nav.append(nextBtn);
+  nav.append(prevBtn, nextBtn);
   footer.append(nav);
-
   inner.append(footer);
 
-  // Scroll by one card width + gap on nav click
-  const scrollAmount = 370;
-
-  prevBtn.addEventListener('click', () => {
-    cardsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-  });
-
-  nextBtn.addEventListener('click', () => {
-    cardsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  });
-
-  // Update scrollbar thumb position on scroll
-  cardsContainer.addEventListener('scroll', () => {
-    updateScrollbar(scrollThumb, cardsContainer);
-  });
-
-  // Initial scrollbar state after layout
-  requestAnimationFrame(() => {
-    updateScrollbar(scrollThumb, cardsContainer);
-  });
+  prevBtn.addEventListener('click', () => cardsContainer.scrollBy({ left: -370, behavior: 'smooth' }));
+  nextBtn.addEventListener('click', () => cardsContainer.scrollBy({ left: 370, behavior: 'smooth' }));
+  cardsContainer.addEventListener('scroll', () => updateScrollbar(scrollThumb, cardsContainer));
+  requestAnimationFrame(() => updateScrollbar(scrollThumb, cardsContainer));
 
   block.replaceChildren(inner);
 }

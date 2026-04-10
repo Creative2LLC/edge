@@ -3,18 +3,15 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
-  source: [
-    'source',
-    'resource source',
-    'resources source',
-    'library source',
-    'source resources block path',
-    'source resources block path optional',
-  ],
-  selected: ['selected', 'selected ids', 'resource ids', 'selected resources'],
+  apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
+  selected: ['selected', 'selected ids', 'selected slugs', 'resource ids', 'selected resources'],
   pageSize: ['page size', 'items per page', 'limit', 'initial count'],
   searchPlaceholder: ['search placeholder', 'placeholder'],
   loadMoreText: ['load more text', 'load more'],
+  audiencePreset: ['audience preset', 'preset audience', 'default audience'],
+  issuePreset: ['issue preset', 'preset issue', 'default issue'],
+  typePreset: ['type preset', 'preset type', 'default type'],
+  tagPreset: ['tag preset', 'preset tag', 'default tag'],
 };
 
 const TAG_COLORS = {
@@ -49,73 +46,18 @@ function collectLegacyBlockFields(block) {
   return map;
 }
 
-function getBlockField(block, legacyMap, name) {
+function getBlockField(block, legacyMap, name, fallback = '') {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const value = source.textContent.trim();
     source.remove();
-    return value;
+    return value || fallback;
   }
-  return legacyMap[name] || '';
-}
-
-function getBlockLinkField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    const resourceRef = source.getAttribute('data-aue-resource')
-      || source.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-      || '';
-    const resourcePathMatch = resourceRef.match(/(\/content\/[^?]+)/);
-    const resourcePath = resourcePathMatch ? resourcePathMatch[1] : '';
-    const value = anchor?.getAttribute('href') || source.textContent.trim() || resourcePath;
-    source.remove();
-    return value;
-  }
-  return legacyMap[name] || '';
-}
-
-function resourcePathFromUrn(resource) {
-  if (!resource) return '';
-  if (resource.startsWith('/')) return resource;
-  const match = resource.match(/(\/content\/[^?]+)/);
-  return match ? match[1] : '';
-}
-
-function normalizeJsonFieldValue(value) {
-  if (!value) return '';
-  if (typeof value === 'string') return value.trim();
-  if (typeof value === 'object') {
-    return (value.href || value.path || value.url || '').trim();
-  }
-  return '';
-}
-
-async function getBlockFieldFromResourceJson(block, name) {
-  const resource = block.getAttribute('data-aue-resource')
-    || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-    || '';
-  const resourcePath = resourcePathFromUrn(resource);
-  if (!resourcePath) return '';
-
-  try {
-    const response = await fetch(`${resourcePath}.json`);
-    if (!response.ok) return '';
-    const data = await response.json();
-    return normalizeJsonFieldValue(data[name]);
-  } catch (error) {
-    return '';
-  }
+  return legacyMap[name] || fallback;
 }
 
 function normalizeToken(value) {
   return `${value || ''}`.trim().toLowerCase();
-}
-
-function toResourceId(value) {
-  return normalizeToken(value)
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 function parseList(value) {
@@ -137,77 +79,29 @@ function parseIntSafe(value, fallback = 8) {
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
 }
 
-function normalizeResourcePath(path) {
-  let value = `${path || ''}`.trim();
-  if (!value) return '';
-  if (/^https?:\/\//i.test(value)) {
-    try {
-      value = new URL(value).pathname;
-    } catch (error) {
-      return '';
-    }
-  }
-  const [withoutHash] = value.split('#');
-  const [withoutQuery] = withoutHash.split('?');
-  value = withoutQuery;
-  value = value.replace(/^\/editor\.html/, '');
-  if (value && !value.startsWith('/')) {
-    const contentIndex = value.indexOf('/content/edge/');
-    if (contentIndex >= 0) {
-      value = value.slice(contentIndex);
-    } else {
-      value = `/${value}`;
-    }
-  }
-  if (!value.startsWith('/')) return '';
-  value = value.replace(/(\.plain)?\.html$/, '');
-  return value.replace(/\/+$/, '');
+function normalizeApiBaseUrl(value) {
+  return `${value || ''}`.trim().replace(/\/+$/, '');
 }
 
-function resolveResourcePathCandidates(path) {
-  const normalized = normalizeResourcePath(path);
-  if (!normalized) return [];
-
-  const candidates = new Set([normalized]);
-
-  if (normalized.startsWith('/content/edge/')) {
-    const stripped = normalized.replace('/content/edge', '');
-    if (stripped) candidates.add(stripped);
-  }
-
-  if (normalized.startsWith('/edge/')) {
-    const stripped = normalized.replace('/edge', '');
-    if (stripped) candidates.add(stripped);
-  }
-
-  const contentPath = normalized.startsWith('/content/edge/')
-    ? normalized
-    : `/content/edge${
-      normalized.startsWith('/edge/')
-        ? normalized.replace('/edge', '')
-        : normalized
-    }`;
-  if (contentPath) candidates.add(contentPath);
-
-  return [...candidates].filter(Boolean);
+function splitSelectedResources(values) {
+  return values.reduce((accumulator, value) => {
+    if (/^\d+$/.test(value)) accumulator.ids.push(value);
+    else accumulator.slugs.push(value);
+    return accumulator;
+  }, { ids: [], slugs: [] });
 }
 
 function getImageData(col) {
   if (!col) return { picture: null, src: '', alt: '' };
   const picture = col.querySelector('picture');
   const img = col.querySelector('img');
-  return {
-    picture,
-    src: img?.src || '',
-    alt: img?.alt || '',
-  };
+  return { picture, src: img?.src || '', alt: img?.alt || '' };
 }
 
 function getLinkUrl(col) {
   if (!col) return '';
   const anchor = col.querySelector('a');
-  if (anchor && anchor.href) return anchor.href;
-  return col.textContent.trim();
+  return anchor?.href || col.textContent.trim();
 }
 
 function getPropText(row, prop) {
@@ -224,16 +118,14 @@ function getPropLink(row, prop) {
 
 function getPropImage(row, prop) {
   const source = row.querySelector(`[data-aue-prop="${prop}"]`);
-  if (!source) return { picture: null, src: '', alt: '' };
-  return getImageData(source);
+  return source ? getImageData(source) : { picture: null, src: '', alt: '' };
 }
 
 function mapResource(resource) {
-  const id = resource.id || toResourceId(resource.title);
   const audience = parseList(resource.audience);
   const issue = parseList(resource.issue);
   const type = parseList(resource.type);
-  const tags = [...new Set([...type, ...audience, ...issue])];
+  const customTags = parseList(resource.tags);
   return {
     imagePicture: resource.imagePicture || null,
     imgSrc: resource.imgSrc || '',
@@ -241,12 +133,27 @@ function mapResource(resource) {
     title: resource.title || '',
     subtitle: resource.subtitle || '',
     linkUrl: resource.linkUrl || '',
-    id,
+    id: resource.id || resource.title || '',
     audience,
     issue,
     type,
-    tags,
+    tags: [...new Set([...customTags, ...type, ...audience, ...issue])],
   };
+}
+
+function mapApiResource(resource) {
+  return mapResource({
+    imgSrc: resource.thumbnail || '',
+    imageAlt: resource.title || '',
+    title: resource.title || '',
+    subtitle: resource.excerpt || '',
+    linkUrl: resource.resource_url || '',
+    id: resource.slug || `${resource.id || ''}`,
+    audience: resource.audience_label || '',
+    issue: resource.issue_label || '',
+    type: resource.resource_type_label || '',
+    tags: (resource.tags || []).map((tag) => tag.name),
+  });
 }
 
 function parseResourceRow(row) {
@@ -268,19 +175,6 @@ function parseResourceRow(row) {
     });
   }
 
-  // Supports legacy resources item: image | icon | iconColor | title | subtitle | link
-  if (cols.length >= 6) {
-    const imageData = getImageData(cols[0]);
-    return mapResource({
-      imagePicture: imageData.picture,
-      imgSrc: imageData.src,
-      imageAlt: imageData.alt,
-      title: cols[3].textContent.trim(),
-      subtitle: cols[4].textContent.trim(),
-      linkUrl: getLinkUrl(cols[5]),
-    });
-  }
-
   const propTitle = getPropText(row, 'title');
   if (propTitle) {
     const imageData = getPropImage(row, 'image');
@@ -295,21 +189,7 @@ function parseResourceRow(row) {
       audience: getPropText(row, 'audience'),
       issue: getPropText(row, 'issue'),
       type: getPropText(row, 'type'),
-    });
-  }
-
-  if (cols.length >= 2) {
-    const imageData = getImageData(cols[0]);
-    if (!imageData.picture && !imageData.src) return null;
-    const link = cols[1].querySelector('a');
-    const paragraphs = cols[1].querySelectorAll('p');
-    return mapResource({
-      imagePicture: imageData.picture,
-      imgSrc: imageData.src,
-      imageAlt: imageData.alt,
-      title: paragraphs[0]?.textContent.trim() || '',
-      subtitle: paragraphs[1]?.textContent.trim() || '',
-      linkUrl: link?.href || '',
+      tags: getPropText(row, 'tags'),
     });
   }
 
@@ -342,7 +222,6 @@ function buildTag(tag) {
 function buildResourceCard(resource, row = null) {
   const card = document.createElement('article');
   card.className = 'resources-browser-card';
-  card.dataset.resourceId = resource.id;
   if (row) moveInstrumentation(row, card);
 
   if (resource.imagePicture) {
@@ -359,13 +238,7 @@ function buildResourceCard(resource, row = null) {
   } else if (resource.imgSrc) {
     const imageWrap = document.createElement('div');
     imageWrap.className = 'resources-browser-card-image';
-    const picture = createOptimizedPicture(
-      resource.imgSrc,
-      resource.imageAlt,
-      false,
-      [{ width: '800' }],
-    );
-    imageWrap.append(picture);
+    imageWrap.append(createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '800' }]));
     card.append(imageWrap);
   }
 
@@ -405,216 +278,26 @@ function buildResourceCard(resource, row = null) {
   return card;
 }
 
-function matchesFacet(resourceValues, selectedValues) {
-  if (!selectedValues.size) return true;
-  return resourceValues.some((value) => selectedValues.has(normalizeToken(value)));
-}
-
-function sortValues(values) {
-  return [...values].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-}
-
-async function loadSourceResources(path) {
-  const candidates = resolveResourcePathCandidates(path);
-  if (!candidates.length) {
-    return {
-      resources: [],
-      debug: {
-        requestedPath: path,
-        candidates: [],
-        attempts: [
-          {
-            candidate: '',
-            url: '',
-            ok: false,
-            message: 'Could not normalize source path.',
-          },
-        ],
-        failed: true,
-      },
-    };
-  }
-
-  const attempts = await Promise.all(candidates.map(async (candidate) => {
-    const url = `${candidate}.plain.html`;
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        return {
-          candidate,
-          url,
-          ok: false,
-          message: `HTTP ${response.status}`,
-        };
-      }
-
-      const html = await response.text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const sourceBlock = doc.querySelector('.resources-browser.block, .resources-browser')
-        || doc.querySelector('.resources.block, .resources');
-      if (!sourceBlock) {
-        return {
-          candidate,
-          url,
-          ok: false,
-          message: 'No resources-browser/resources block found on source page.',
-        };
-      }
-
-      const sourceClone = sourceBlock.cloneNode(true);
-      collectLegacyBlockFields(sourceClone);
-
-      const rows = [...sourceClone.querySelectorAll(':scope > div')];
-      const resources = [];
-      rows.forEach((row) => {
-        const resource = parseResourceRow(row);
-        if (resource) resources.push({ data: resource, row: null });
-      });
-      return {
-        candidate,
-        url,
-        ok: true,
-        message: `Loaded ${resources.length} resource item(s).`,
-        resources,
-      };
-    } catch (error) {
-      return {
-        candidate,
-        url,
-        ok: false,
-        message: error?.message || 'Fetch failed.',
-      };
-    }
-  }));
-
-  const firstResolved = attempts.find((attempt) => attempt.ok);
-  if (firstResolved) {
-    return {
-      resources: firstResolved.resources,
-      debug: {
-        requestedPath: path,
-        candidates,
-        attempts,
-        failed: false,
-        resolvedUrl: firstResolved.url,
-      },
-    };
-  }
-
-  return {
-    resources: [],
-    debug: {
-      requestedPath: path,
-      candidates,
-      attempts,
-      failed: true,
-    },
-  };
-}
-
-function buildSourceDebugPanel(
-  sourcePath,
-  sourceDebug,
-  inlineCount,
-  sourceCount,
-  finalCount,
-  selectedIds,
-) {
-  const details = document.createElement('details');
-  details.className = 'resources-browser-source-debug';
-  details.open = sourceDebug.failed || sourceCount === 0;
-
-  const summary = document.createElement('summary');
-  summary.textContent = 'Resources Browser Source Debug';
-  details.append(summary);
-
-  const intro = document.createElement('p');
-  intro.className = 'resources-browser-source-debug-text';
-  if (sourceDebug.failed) {
-    intro.textContent = `Could not load source "${sourcePath}".`;
-  } else if (sourceCount === 0) {
-    intro.textContent = `Source "${sourcePath}" loaded but returned no items.`;
-  } else {
-    intro.textContent = `Source "${sourcePath}" loaded successfully.`;
-  }
-  details.append(intro);
-
-  const summaryInfo = document.createElement('p');
-  summaryInfo.className = 'resources-browser-source-debug-text';
-  summaryInfo.textContent = `Source items: ${sourceCount}; `
-    + `inline items: ${inlineCount}; `
-    + `selected IDs: ${selectedIds.length || 0}; `
-    + `final rendered items: ${finalCount}.`;
-  details.append(summaryInfo);
-
-  if (sourceDebug.failed || sourceCount === 0) {
-    const hint = document.createElement('p');
-    hint.className = 'resources-browser-source-debug-text';
-    hint.textContent = inlineCount > 0
-      ? `Using ${inlineCount} inline item(s) as fallback.`
-      : 'No inline fallback items were found in this block.';
-    details.append(hint);
-  }
-
-  const list = document.createElement('ul');
-  list.className = 'resources-browser-source-debug-list';
-  sourceDebug.attempts.forEach((attempt) => {
-    const item = document.createElement('li');
-    const code = document.createElement('code');
-    code.textContent = attempt.url || '(no url)';
-    item.append(code);
-
-    const status = document.createElement('span');
-    status.textContent = ` - ${attempt.message}`;
-    item.append(status);
-
-    list.append(item);
-  });
-  details.append(list);
-
-  if (sourceDebug.resolvedUrl) {
-    const resolved = document.createElement('p');
-    resolved.className = 'resources-browser-source-debug-text';
-    resolved.textContent = `Resolved URL: ${sourceDebug.resolvedUrl}`;
-    details.append(resolved);
-  }
-
-  return details;
-}
-
-function createFilterSelect(label, values) {
+function createFilterSelect(label) {
   const select = document.createElement('select');
   select.className = 'resources-browser-filter';
   select.setAttribute('aria-label', label);
+  return select;
+}
 
+function setFilterOptions(select, label, options = []) {
+  select.replaceChildren();
   const defaultOption = document.createElement('option');
   defaultOption.value = '';
   defaultOption.textContent = label;
   select.append(defaultOption);
-
-  sortValues(values).forEach((value) => {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = value;
-    select.append(option);
+  options.forEach((option) => {
+    const entry = document.createElement('option');
+    entry.value = option.value;
+    entry.textContent = option.label;
+    select.append(entry);
   });
-
-  if (values.size === 0) {
-    select.disabled = true;
-  }
-
-  return select;
-}
-
-function getSearchBlob(resource) {
-  return [
-    resource.title,
-    resource.subtitle,
-    resource.id,
-    resource.audience.join(' '),
-    resource.issue.join(' '),
-    resource.type.join(' '),
-  ].join(' ').toLowerCase();
+  select.disabled = options.length === 0;
 }
 
 function createChip(label, onRemove) {
@@ -626,56 +309,28 @@ function createChip(label, onRemove) {
 
   const close = document.createElement('span');
   close.className = 'resources-browser-active-chip-close';
-  close.setAttribute('aria-hidden', 'true');
   close.textContent = 'x';
   close.style.backgroundColor = colors.bg;
   close.style.color = colors.color;
   chip.append(close);
-
-  chip.setAttribute('aria-label', `Remove filter ${label}`);
   chip.addEventListener('click', onRemove);
   return chip;
 }
 
-export default async function decorate(block) {
-  const isAuthorHost = window.location.hostname.includes('adobeaemcloud.com');
-  const legacyMap = collectLegacyBlockFields(block);
-  const heading = getBlockField(block, legacyMap, 'heading');
-  let sourcePath = getBlockLinkField(block, legacyMap, 'source');
-  if (!sourcePath) {
-    sourcePath = await getBlockFieldFromResourceJson(block, 'source');
-  }
-  let selectedField = getBlockField(block, legacyMap, 'selected');
-  if (!selectedField) {
-    selectedField = await getBlockFieldFromResourceJson(block, 'selected');
-  }
-  const selectedIds = new Set(parseList(selectedField).map((id) => normalizeToken(id)));
-  const pageSize = parseIntSafe(getBlockField(block, legacyMap, 'pageSize'), 8);
-  const searchPlaceholder = getBlockField(block, legacyMap, 'searchPlaceholder') || 'Search';
-  const loadMoreText = getBlockField(block, legacyMap, 'loadMoreText') || 'Load More';
+function debounce(callback, wait = 250) {
+  let timeoutId;
+  return (...args) => {
+    window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => callback(...args), wait);
+  };
+}
 
-  const rows = [...block.querySelectorAll(':scope > div')];
-  const inlineResources = [];
-  rows.forEach((row) => {
-    const resource = parseResourceRow(row);
-    if (resource) inlineResources.push({ data: resource, row });
-  });
-
-  const sourceResult = await loadSourceResources(sourcePath);
-  const sourceResources = sourceResult.resources || [];
-  const sourceDebug = sourceResult.debug;
-  const resourceRows = sourceResources.length ? sourceResources : inlineResources;
-  let resources = resourceRows.map(({ data, row }) => ({ data, row }));
-  if (selectedIds.size) {
-    resources = resources.filter(({ data }) => selectedIds.has(normalizeToken(data.id)));
-  }
-
+function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   const inner = document.createElement('div');
   inner.className = 'resources-browser-inner';
 
   const header = document.createElement('div');
   header.className = 'resources-browser-header';
-
   if (heading) {
     const headingEl = document.createElement('h2');
     headingEl.className = 'resources-browser-heading';
@@ -685,11 +340,8 @@ export default async function decorate(block) {
 
   const controls = document.createElement('div');
   controls.className = 'resources-browser-controls';
-
   const searchWrap = document.createElement('label');
   searchWrap.className = 'resources-browser-search-wrap';
-  searchWrap.setAttribute('aria-label', 'Search resources');
-
   const searchInput = document.createElement('input');
   searchInput.className = 'resources-browser-search';
   searchInput.type = 'search';
@@ -697,55 +349,24 @@ export default async function decorate(block) {
   searchWrap.append(searchInput);
   controls.append(searchWrap);
 
-  const audienceValues = new Set();
-  const issueValues = new Set();
-  const typeValues = new Set();
-  resources.forEach(({ data }) => {
-    data.audience.forEach((value) => audienceValues.add(value));
-    data.issue.forEach((value) => issueValues.add(value));
-    data.type.forEach((value) => typeValues.add(value));
-  });
-
-  const audienceSelect = createFilterSelect('Audience', audienceValues);
-  const issueSelect = createFilterSelect('Issue', issueValues);
-  const typeSelect = createFilterSelect('Type', typeValues);
+  const audienceSelect = createFilterSelect('Audience');
+  const issueSelect = createFilterSelect('Issue');
+  const typeSelect = createFilterSelect('Type');
   controls.append(audienceSelect, issueSelect, typeSelect);
-
   header.append(controls);
   inner.append(header);
 
-  if (sourcePath || isAuthorHost) {
-    const debugPanel = buildSourceDebugPanel(
-      sourcePath || '(empty)',
-      sourceDebug,
-      inlineResources.length,
-      sourceResources.length,
-      resources.length,
-      [...selectedIds],
-    );
-    inner.append(debugPanel);
-  }
-
   const meta = document.createElement('div');
   meta.className = 'resources-browser-meta';
-
   const activeFilters = document.createElement('div');
   activeFilters.className = 'resources-browser-active-filters';
-  meta.append(activeFilters);
-
   const count = document.createElement('p');
   count.className = 'resources-browser-count';
-  meta.append(count);
+  meta.append(activeFilters, count);
   inner.append(meta);
 
   const cardsContainer = document.createElement('div');
   cardsContainer.className = 'resources-browser-cards';
-  const cards = resources.map(({ data, row }) => {
-    const card = buildResourceCard(data, row);
-    cardsContainer.append(card);
-    return { data, card };
-  });
-
   const emptyState = document.createElement('p');
   emptyState.className = 'resources-browser-empty';
   emptyState.hidden = true;
@@ -753,7 +374,6 @@ export default async function decorate(block) {
 
   const footer = document.createElement('div');
   footer.className = 'resources-browser-footer';
-
   const loadMoreButton = document.createElement('button');
   loadMoreButton.className = 'resources-browser-load-more';
   loadMoreButton.type = 'button';
@@ -762,110 +382,282 @@ export default async function decorate(block) {
 
   inner.append(cardsContainer, emptyState, footer);
 
+  return {
+    inner,
+    searchInput,
+    audienceSelect,
+    issueSelect,
+    typeSelect,
+    activeFilters,
+    count,
+    cardsContainer,
+    emptyState,
+    loadMoreButton,
+  };
+}
+
+function renderInlineBrowser(block, config, resources) {
+  const layout = buildShell(config);
+  const {
+    inner,
+    searchInput,
+    audienceSelect,
+    issueSelect,
+    typeSelect,
+    activeFilters,
+    count,
+    cardsContainer,
+    emptyState,
+    loadMoreButton,
+  } = layout;
+
+  const cards = resources.map(({ data, row }) => {
+    const card = buildResourceCard(data, row);
+    cardsContainer.append(card);
+    return { data, card };
+  });
+
+  const collectOptions = (facet) => [...new Set(cards.flatMap(({ data }) => data[facet]))]
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+    .map((value) => ({ value, label: value }));
+
+  const audiences = collectOptions('audience');
+  const issues = collectOptions('issue');
+  const types = collectOptions('type');
+  setFilterOptions(audienceSelect, 'Audience', audiences);
+  setFilterOptions(issueSelect, 'Issue', issues);
+  setFilterOptions(typeSelect, 'Type', types);
+
+  const optionLabels = {
+    audience: new Map(audiences.map((option) => [normalizeToken(option.value), option.label])),
+    issue: new Map(issues.map((option) => [normalizeToken(option.value), option.label])),
+    type: new Map(types.map((option) => [normalizeToken(option.value), option.label])),
+  };
+
   const state = {
     query: '',
+    visibleCount: config.pageSize,
     selectedAudience: new Set(),
     selectedIssue: new Set(),
     selectedType: new Set(),
-    visibleCount: pageSize,
   };
-
-  const optionLabels = {
-    audience: new Map(sortValues(audienceValues).map((value) => [normalizeToken(value), value])),
-    issue: new Map(sortValues(issueValues).map((value) => [normalizeToken(value), value])),
-    type: new Map(sortValues(typeValues).map((value) => [normalizeToken(value), value])),
-  };
-
-  let applyFilters = () => {};
 
   const renderActiveFilters = () => {
     activeFilters.replaceChildren();
-    const chips = [];
-    state.selectedType.forEach((value) => chips.push({ facet: 'type', value }));
-    state.selectedAudience.forEach((value) => chips.push({ facet: 'audience', value }));
-    state.selectedIssue.forEach((value) => chips.push({ facet: 'issue', value }));
-    if (!chips.length) return;
-
-    chips.forEach(({ facet, value }) => {
-      const label = optionLabels[facet].get(value) || value;
-      const chip = createChip(label, () => {
+    [
+      ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
+      ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
+      ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
+    ].forEach(({ facet, value }) => {
+      activeFilters.append(createChip(optionLabels[facet].get(value) || value, () => {
+        if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
-        if (facet === 'type') state.selectedType.delete(value);
-        state.visibleCount = pageSize;
+        state.visibleCount = config.pageSize;
         applyFilters();
-      });
-      activeFilters.append(chip);
+      }));
     });
-
-    const clear = document.createElement('button');
-    clear.type = 'button';
-    clear.className = 'resources-browser-clear-all';
-    clear.textContent = 'Clear All';
-    clear.addEventListener('click', () => {
-      state.selectedAudience.clear();
-      state.selectedIssue.clear();
-      state.selectedType.clear();
-      state.visibleCount = pageSize;
-      applyFilters();
-    });
-    activeFilters.append(clear);
   };
 
-  applyFilters = () => {
+  const applyFilters = () => {
     const query = state.query.trim().toLowerCase();
-    const filteredCards = cards.filter(({ data }) => {
-      const searchMatch = !query || getSearchBlob(data).includes(query);
+    const filtered = cards.filter(({ data }) => {
+      const searchMatch = !query || [data.title, data.subtitle, data.tags.join(' ')].join(' ').toLowerCase().includes(query);
       if (!searchMatch) return false;
-      const audienceMatch = matchesFacet(data.audience, state.selectedAudience);
-      if (!audienceMatch) return false;
-      const issueMatch = matchesFacet(data.issue, state.selectedIssue);
-      if (!issueMatch) return false;
-      return matchesFacet(data.type, state.selectedType);
+      const audienceMatch = !state.selectedAudience.size || data.audience.some((value) => state.selectedAudience.has(normalizeToken(value)));
+      const issueMatch = !state.selectedIssue.size || data.issue.some((value) => state.selectedIssue.has(normalizeToken(value)));
+      const typeMatch = !state.selectedType.size || data.type.some((value) => state.selectedType.has(normalizeToken(value)));
+      return audienceMatch && issueMatch && typeMatch;
     });
 
-    const shownCount = Math.min(state.visibleCount, filteredCards.length);
+    const shown = Math.min(state.visibleCount, filtered.length);
     cards.forEach(({ card }) => card.classList.add('resources-browser-card-hidden'));
-    filteredCards.slice(0, shownCount).forEach(({ card }) => {
-      card.classList.remove('resources-browser-card-hidden');
-    });
-
-    count.textContent = `Showing ${shownCount} of ${filteredCards.length} resources`;
-    emptyState.hidden = filteredCards.length > 0;
-    loadMoreButton.hidden = shownCount >= filteredCards.length;
+    filtered.slice(0, shown).forEach(({ card }) => card.classList.remove('resources-browser-card-hidden'));
+    count.textContent = filtered.length ? `Showing ${shown} of ${filtered.length} resources` : 'Showing 0 resources';
+    emptyState.hidden = filtered.length > 0;
+    loadMoreButton.hidden = shown >= filtered.length;
     renderActiveFilters();
   };
 
-  function applyFacetSelection(selectEl, selectedSet) {
-    const { value } = selectEl;
-    if (!value) return;
-    selectedSet.add(normalizeToken(value));
-    selectEl.value = '';
-    state.visibleCount = pageSize;
+  const applyFacet = (select, set) => {
+    if (!select.value) return;
+    set.add(normalizeToken(select.value));
+    select.value = '';
+    state.visibleCount = config.pageSize;
     applyFilters();
-  }
+  };
 
   searchInput.addEventListener('input', () => {
     state.query = searchInput.value;
-    state.visibleCount = pageSize;
+    state.visibleCount = config.pageSize;
     applyFilters();
   });
-
-  audienceSelect.addEventListener('change', () => {
-    applyFacetSelection(audienceSelect, state.selectedAudience);
-  });
-  issueSelect.addEventListener('change', () => {
-    applyFacetSelection(issueSelect, state.selectedIssue);
-  });
-  typeSelect.addEventListener('change', () => {
-    applyFacetSelection(typeSelect, state.selectedType);
-  });
-
+  audienceSelect.addEventListener('change', () => applyFacet(audienceSelect, state.selectedAudience));
+  issueSelect.addEventListener('change', () => applyFacet(issueSelect, state.selectedIssue));
+  typeSelect.addEventListener('change', () => applyFacet(typeSelect, state.selectedType));
   loadMoreButton.addEventListener('click', () => {
-    state.visibleCount += pageSize;
+    state.visibleCount += config.pageSize;
     applyFilters();
   });
 
   applyFilters();
   block.replaceChildren(inner);
+}
+
+async function renderApiBrowser(block, config) {
+  const layout = buildShell(config);
+  const {
+    inner,
+    searchInput,
+    audienceSelect,
+    issueSelect,
+    typeSelect,
+    activeFilters,
+    count,
+    cardsContainer,
+    emptyState,
+    loadMoreButton,
+  } = layout;
+
+  const apiRoot = normalizeApiBaseUrl(config.apiBaseUrl);
+  const selected = splitSelectedResources(parseList(config.selectedField));
+  const presetTags = parseList(config.tagPreset).map((value) => normalizeToken(value));
+  const state = {
+    query: '',
+    selectedAudience: new Set(parseList(config.audiencePreset).map((value) => normalizeToken(value))),
+    selectedIssue: new Set(parseList(config.issuePreset).map((value) => normalizeToken(value))),
+    selectedType: new Set(parseList(config.typePreset).map((value) => normalizeToken(value))),
+    page: 0,
+    lastPage: 1,
+    total: 0,
+    loading: false,
+  };
+
+  const optionLabels = {
+    audience: new Map(),
+    issue: new Map(),
+    type: new Map(),
+  };
+
+  const renderActiveFilters = () => {
+    activeFilters.replaceChildren();
+    [
+      ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
+      ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
+      ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
+    ].forEach(({ facet, value }) => {
+      activeFilters.append(createChip(optionLabels[facet].get(value) || value, () => {
+        if (facet === 'type') state.selectedType.delete(value);
+        if (facet === 'audience') state.selectedAudience.delete(value);
+        if (facet === 'issue') state.selectedIssue.delete(value);
+        loadResources(true);
+      }));
+    });
+  };
+
+  const updateFilters = (filters = {}) => {
+    const audiences = filters.audiences || [];
+    const issues = filters.issues || [];
+    const types = filters.types || [];
+    setFilterOptions(audienceSelect, 'Audience', audiences);
+    setFilterOptions(issueSelect, 'Issue', issues);
+    setFilterOptions(typeSelect, 'Type', types);
+    optionLabels.audience = new Map(audiences.map((option) => [normalizeToken(option.value), option.label]));
+    optionLabels.issue = new Map(issues.map((option) => [normalizeToken(option.value), option.label]));
+    optionLabels.type = new Map(types.map((option) => [normalizeToken(option.value), option.label]));
+  };
+
+  const loadResources = async (reset = false) => {
+    if (state.loading) return;
+    if (reset) {
+      state.page = 0;
+      state.lastPage = 1;
+      cardsContainer.replaceChildren();
+      emptyState.hidden = true;
+    }
+
+    state.loading = true;
+    count.textContent = cardsContainer.children.length ? count.textContent : 'Loading resources...';
+    loadMoreButton.disabled = true;
+
+    const url = new URL('/api/resources', `${apiRoot}/`);
+    url.searchParams.set('per_page', String(config.pageSize));
+    url.searchParams.set('page', String(reset ? 1 : state.page + 1));
+    if (state.query.trim()) url.searchParams.set('search', state.query.trim());
+    state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
+    state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
+    state.selectedType.forEach((value) => url.searchParams.append('types[]', value));
+    presetTags.forEach((value) => url.searchParams.append('tags[]', value));
+    selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
+    selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
+
+    const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`API request failed with HTTP ${response.status}.`);
+    const payload = await response.json();
+
+    (payload.data || []).forEach((item) => cardsContainer.append(buildResourceCard(mapApiResource(item))));
+    state.page = payload.meta?.current_page || 1;
+    state.lastPage = payload.meta?.last_page || 1;
+    state.total = payload.meta?.total ?? cardsContainer.children.length;
+    updateFilters(payload.filters || {});
+    renderActiveFilters();
+    count.textContent = state.total ? `Showing ${cardsContainer.children.length} of ${state.total} resources` : 'Showing 0 resources';
+    emptyState.hidden = cardsContainer.children.length > 0;
+    loadMoreButton.hidden = state.page >= state.lastPage || state.total === 0;
+    loadMoreButton.disabled = false;
+    state.loading = false;
+  };
+
+  const applyFacet = (select, set) => {
+    if (!select.value) return;
+    set.add(normalizeToken(select.value));
+    select.value = '';
+    loadResources(true);
+  };
+
+  searchInput.addEventListener('input', debounce(() => {
+    state.query = searchInput.value;
+    loadResources(true);
+  }, 300));
+  audienceSelect.addEventListener('change', () => applyFacet(audienceSelect, state.selectedAudience));
+  issueSelect.addEventListener('change', () => applyFacet(issueSelect, state.selectedIssue));
+  typeSelect.addEventListener('change', () => applyFacet(typeSelect, state.selectedType));
+  loadMoreButton.addEventListener('click', () => loadResources(false));
+
+  block.replaceChildren(inner);
+  await loadResources(true);
+}
+
+export default async function decorate(block) {
+  const legacyMap = collectLegacyBlockFields(block);
+  const config = {
+    heading: getBlockField(block, legacyMap, 'heading'),
+    apiBaseUrl: getBlockField(block, legacyMap, 'apiBaseUrl'),
+    selectedField: getBlockField(block, legacyMap, 'selected'),
+    pageSize: parseIntSafe(getBlockField(block, legacyMap, 'pageSize', '8'), 8),
+    searchPlaceholder: getBlockField(block, legacyMap, 'searchPlaceholder', 'Search'),
+    loadMoreText: getBlockField(block, legacyMap, 'loadMoreText', 'Load More'),
+    audiencePreset: getBlockField(block, legacyMap, 'audiencePreset'),
+    issuePreset: getBlockField(block, legacyMap, 'issuePreset'),
+    typePreset: getBlockField(block, legacyMap, 'typePreset'),
+    tagPreset: getBlockField(block, legacyMap, 'tagPreset'),
+  };
+
+  const inlineResources = [...block.querySelectorAll(':scope > div')]
+    .map((row) => {
+      const resource = parseResourceRow(row);
+      return resource ? { data: resource, row } : null;
+    })
+    .filter(Boolean);
+
+  if (config.apiBaseUrl) {
+    try {
+      await renderApiBrowser(block, config);
+      return;
+    } catch (error) {
+      // Fall back to inline-authored resources when the API is unavailable.
+    }
+  }
+
+  renderInlineBrowser(block, config, inlineResources);
 }

@@ -45,14 +45,38 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "source",
-          "label": "Source Resources Block Path (Optional)"
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "selected",
-          "label": "Selected Resource IDs (Comma/Newline)"
+          "label": "Selected Resource Slugs or IDs (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "audiencePreset",
+          "label": "Preset Audiences (Enum Values)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "issuePreset",
+          "label": "Preset Issues (Enum Values)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "typePreset",
+          "label": "Preset Types (Enum Values)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tagPreset",
+          "label": "Preset Tags (Tag Slugs)"
         },
         {
           "component": "text",
@@ -74,6 +98,12 @@
           "name": "loadMoreText",
           "label": "Load More Text",
           "value": "Load More"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "source",
+          "label": "Legacy Source Resources Block Path (Optional)"
         }
       ]
     },
@@ -128,6 +158,12 @@
           "valueType": "string",
           "name": "type",
           "label": "Type Tags (Comma/Newline)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tags",
+          "label": "Custom Tags (Comma/Newline)"
         }
       ]
     }
