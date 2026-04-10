@@ -60,7 +60,7 @@ module.exports = {
       'split-card-offices': 16,
       'split-card-gap': 11,
       'split-card-list-item': 10,
-      'split-thin-carousel-item': 12,
+      'split-thin-carousel-item': 13,
     }],
     'xwalk/no-orphan-collapsible-fields': 'off',
   },

@@ -132,6 +132,13 @@
           "name": "linkColor",
           "label": "Link Color (Hex)",
           "description": "Defaults to #008db6"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contentBackgroundColor",
+          "label": "Content Background Color (Hex)",
+          "description": "Defaults to #EDEBE9"
         }
       ]
     }

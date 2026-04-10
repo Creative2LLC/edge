@@ -1,11 +1,44 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
+function extractHexColor(el) {
+  if (!el) return '';
+  const anchor = el.querySelector('a');
+  if (anchor) {
+    const href = anchor.getAttribute('href') || '';
+    const hexMatch = href.match(/#(?:[0-9a-f]{3,8})\b/i);
+    if (hexMatch) return hexMatch[0];
+    const text = anchor.textContent.trim();
+    if (/^#[0-9a-f]{3,8}$/i.test(text)) return text;
+  }
+  return '';
+}
+
 function getField(row, name, index) {
   const source = row.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return { source, value: source.textContent.trim() };
   const cols = [...row.children];
   if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
+  return { source: null, value: '' };
+}
+
+function getColorField(row, name, index) {
+  const source = row.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const hex = extractHexColor(source);
+    if (hex) return { source, value: hex };
+    const text = source.textContent.trim();
+    if (/^#[0-9a-f]{3,8}$/i.test(text)) return { source, value: text };
+    return { source, value: '' };
+  }
+  const cols = [...row.children];
+  if (cols[index]) {
+    const hex = extractHexColor(cols[index]);
+    if (hex) return { source: null, value: hex };
+    const text = cols[index].textContent.trim();
+    if (/^#[0-9a-f]{3,8}$/i.test(text)) return { source: null, value: text };
+    return { source: null, value: '' };
+  }
   return { source: null, value: '' };
 }
 
@@ -101,6 +134,10 @@ function buildSlide(data, row) {
   const contentSide = document.createElement('div');
   contentSide.className = 'stc-content';
 
+  if (data.contentBackgroundColor) {
+    contentSide.style.setProperty('background-color', data.contentBackgroundColor, 'important');
+  }
+
   if (data.heading) {
     const h2 = document.createElement('h2');
     h2.className = 'stc-heading';
@@ -181,12 +218,13 @@ export default function decorate(block) {
     const subheadingField = getRichField(row, 'subheading', 3);
     const buttonTextField = getField(row, 'buttonText', 4);
     const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-    const buttonColorField = getField(row, 'buttonColor', 6);
-    const buttonTextColorField = getField(row, 'buttonTextColor', 7);
+    const buttonColorField = getColorField(row, 'buttonColor', 6);
+    const buttonTextColorField = getColorField(row, 'buttonTextColor', 7);
     const buttonStyleField = getField(row, 'buttonStyle', 8);
     const linkTextField = getField(row, 'linkText', 9);
     const linkUrlField = getLinkField(row, 'linkUrl', 10);
-    const linkColorField = getField(row, 'linkColor', 11);
+    const linkColorField = getColorField(row, 'linkColor', 11);
+    const contentBgField = getColorField(row, 'contentBackgroundColor', 12);
 
     slides.push({
       data: {
@@ -202,6 +240,7 @@ export default function decorate(block) {
         linkText: linkTextField.value,
         linkUrl: linkUrlField.value,
         linkColor: linkColorField.value,
+        contentBackgroundColor: contentBgField.value,
       },
       row,
     });

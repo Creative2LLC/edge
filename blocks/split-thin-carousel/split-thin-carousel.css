@@ -116,6 +116,7 @@ main > .section > .split-thin-carousel-wrapper {
   align-items: flex-start;
   padding: 40px 48px;
   box-sizing: border-box;
+  background-color: #edebe9;
 }
 
 /* Heading */
@@ -152,6 +153,8 @@ main > .section > .split-thin-carousel-wrapper {
   justify-content: center;
   padding: 12px 28px;
   border-radius: 99px;
+  background-color: #008db6;
+  color: #fff;
   font-size: 16px;
   font-weight: 500;
   font-family: inherit;
@@ -185,7 +188,7 @@ main > .section > .split-thin-carousel-wrapper {
 /* Link below button */
 .split-thin-carousel .stc-link {
   display: inline-flex;
-  margin-top: 12px;
+  margin-top: 20px;
   font-size: 16px;
   font-weight: 500;
   color: #008db6;
