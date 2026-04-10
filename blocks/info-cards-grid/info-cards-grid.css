@@ -318,6 +318,21 @@
   box-shadow: none;
 }
 
+.info-cards-grid-card-button.is-link {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.info-cards-grid-card-button.is-link:hover,
+.info-cards-grid-card-button.is-link:focus {
+  text-decoration: underline;
+  opacity: 1;
+}
+
 .info-cards-grid-volunteer.block {
   padding: 48px 40px 54px;
   max-width: 1320px;

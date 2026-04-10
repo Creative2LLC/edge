@@ -91,6 +91,10 @@ function normalizeButtonStyle(value) {
     return 'solid';
   }
 
+  if (['link', 'text', 'plain'].includes(normalizedValue)) {
+    return 'link';
+  }
+
   return 'default';
 }
 
@@ -238,7 +242,16 @@ function styleCardButton(btn, buttonBg, buttonStyle, cardBg, variant) {
   const isVolunteerVariant = variant === 'volunteer';
   const normalizedStyle = normalizeButtonStyle(buttonStyle);
 
-  btn.classList.remove('is-solid', 'is-outlined');
+  btn.classList.remove('is-solid', 'is-outlined', 'is-link');
+
+  if (normalizedStyle === 'link') {
+    const linkColor = buttonBg || '#008db6';
+    btn.classList.add('is-link');
+    btn.style.setProperty('background-color', 'transparent', 'important');
+    btn.style.setProperty('color', linkColor, 'important');
+    btn.style.setProperty('border', 'none', 'important');
+    return;
+  }
 
   if (normalizedStyle === 'outlined') {
     const accentColor = buttonBg || (isVolunteerVariant ? '#008db6' : '#ffffff');
