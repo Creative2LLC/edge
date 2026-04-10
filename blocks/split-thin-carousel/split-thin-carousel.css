@@ -146,6 +146,23 @@ main > .section > .split-thin-carousel-wrapper {
   margin-bottom: 0;
 }
 
+.split-thin-carousel .stc-subheading ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.split-thin-carousel .stc-subheading ol {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  list-style: decimal;
+}
+
+.split-thin-carousel .stc-subheading li {
+  margin-bottom: 4px;
+  display: list-item;
+}
+
 /* Button */
 .split-thin-carousel .stc-button {
   display: inline-flex;
