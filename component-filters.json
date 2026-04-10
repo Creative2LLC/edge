@@ -74,7 +74,8 @@
       "logo-carousel",
       "split-card-offices",
       "dark-feature-cards",
-      "split-card-list"
+      "split-card-list",
+      "split-thin-carousel"
     ]
   },
   {
@@ -321,6 +322,12 @@
     "id": "split-card-list",
     "components": [
       "split-card-list-item"
+    ]
+  },
+  {
+    "id": "split-thin-carousel",
+    "components": [
+      "split-thin-carousel-item"
     ]
   },
   {

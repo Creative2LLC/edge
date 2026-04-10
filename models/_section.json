@@ -157,7 +157,8 @@
         "logo-carousel",
         "split-card-offices",
         "dark-feature-cards",
-        "split-card-list"
+        "split-card-list",
+        "split-thin-carousel"
       ]
     }
   ]
