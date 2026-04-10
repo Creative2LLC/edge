@@ -12,6 +12,7 @@ const LEGACY_BLOCK_LABELS = {
   issuePreset: ['issue preset', 'preset issue', 'default issue'],
   typePreset: ['type preset', 'preset type', 'default type'],
   tagPreset: ['tag preset', 'preset tag', 'default tag'],
+  filters: ['filters', 'preset filters'],
 };
 
 const TAG_COLORS = {
@@ -72,6 +73,29 @@ function parseList(value) {
     seen.add(key);
     return true;
   });
+}
+
+function parseKeyValueLines(value) {
+  return `${value || ''}`
+    .split(/[\n,]+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .reduce((map, entry) => {
+      const [rawKey, ...rawValue] = entry.split(':');
+      if (!rawValue.length) return map;
+      map[normalizeToken(rawKey)] = rawValue.join(':').trim();
+      return map;
+    }, {});
+}
+
+function parseFilterLists(value) {
+  const map = parseKeyValueLines(value);
+  return {
+    audience: parseList(map.audience || map.audiences),
+    issue: parseList(map.issue || map.issues),
+    type: parseList(map.type || map.types),
+    tags: parseList(map.tag || map.tags),
+  };
 }
 
 function parseIntSafe(value, fallback = 8) {
@@ -178,6 +202,7 @@ function parseResourceRow(row) {
   const propTitle = getPropText(row, 'title');
   if (propTitle) {
     const imageData = getPropImage(row, 'image');
+    const filters = parseFilterLists(getPropText(row, 'filters'));
     return mapResource({
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
@@ -186,10 +211,10 @@ function parseResourceRow(row) {
       subtitle: getPropText(row, 'subtitle'),
       linkUrl: getPropLink(row, 'link'),
       id: getPropText(row, 'id'),
-      audience: getPropText(row, 'audience'),
-      issue: getPropText(row, 'issue'),
-      type: getPropText(row, 'type'),
-      tags: getPropText(row, 'tags'),
+      audience: getPropText(row, 'audience') || filters.audience.join(', '),
+      issue: getPropText(row, 'issue') || filters.issue.join(', '),
+      type: getPropText(row, 'type') || filters.type.join(', '),
+      tags: getPropText(row, 'tags') || filters.tags.join(', '),
     });
   }
 
@@ -442,14 +467,50 @@ function renderInlineBrowser(block, config, resources) {
     selectedType: new Set(),
   };
 
-  const renderActiveFilters = () => {
+  let renderActiveFilters = () => {};
+
+  function applyFilters() {
+    const query = state.query.trim().toLowerCase();
+    const filtered = cards.filter(({ data }) => {
+      const searchBlob = [data.title, data.subtitle, data.tags.join(' ')].join(' ');
+      const searchMatch = !query || searchBlob.toLowerCase().includes(query);
+      if (!searchMatch) return false;
+
+      const audienceMatch = !state.selectedAudience.size
+        || data.audience.some((value) => state.selectedAudience.has(normalizeToken(value)));
+      const issueMatch = !state.selectedIssue.size
+        || data.issue.some((value) => state.selectedIssue.has(normalizeToken(value)));
+      const typeMatch = !state.selectedType.size
+        || data.type.some((value) => state.selectedType.has(normalizeToken(value)));
+
+      return audienceMatch && issueMatch && typeMatch;
+    });
+
+    const shown = Math.min(state.visibleCount, filtered.length);
+    cards.forEach(({ card }) => card.classList.add('resources-browser-card-hidden'));
+    filtered.slice(0, shown).forEach(({ card }) => {
+      card.classList.remove('resources-browser-card-hidden');
+    });
+
+    count.textContent = filtered.length
+      ? `Showing ${shown} of ${filtered.length} resources`
+      : 'Showing 0 resources';
+    emptyState.hidden = filtered.length > 0;
+    loadMoreButton.hidden = shown >= filtered.length;
+    renderActiveFilters();
+  }
+
+  renderActiveFilters = () => {
     activeFilters.replaceChildren();
-    [
+    const facets = [
       ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
-    ].forEach(({ facet, value }) => {
-      activeFilters.append(createChip(optionLabels[facet].get(value) || value, () => {
+    ];
+
+    facets.forEach(({ facet, value }) => {
+      const label = optionLabels[facet].get(value) || value;
+      activeFilters.append(createChip(label, () => {
         if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
@@ -457,26 +518,6 @@ function renderInlineBrowser(block, config, resources) {
         applyFilters();
       }));
     });
-  };
-
-  const applyFilters = () => {
-    const query = state.query.trim().toLowerCase();
-    const filtered = cards.filter(({ data }) => {
-      const searchMatch = !query || [data.title, data.subtitle, data.tags.join(' ')].join(' ').toLowerCase().includes(query);
-      if (!searchMatch) return false;
-      const audienceMatch = !state.selectedAudience.size || data.audience.some((value) => state.selectedAudience.has(normalizeToken(value)));
-      const issueMatch = !state.selectedIssue.size || data.issue.some((value) => state.selectedIssue.has(normalizeToken(value)));
-      const typeMatch = !state.selectedType.size || data.type.some((value) => state.selectedType.has(normalizeToken(value)));
-      return audienceMatch && issueMatch && typeMatch;
-    });
-
-    const shown = Math.min(state.visibleCount, filtered.length);
-    cards.forEach(({ card }) => card.classList.add('resources-browser-card-hidden'));
-    filtered.slice(0, shown).forEach(({ card }) => card.classList.remove('resources-browser-card-hidden'));
-    count.textContent = filtered.length ? `Showing ${shown} of ${filtered.length} resources` : 'Showing 0 resources';
-    emptyState.hidden = filtered.length > 0;
-    loadMoreButton.hidden = shown >= filtered.length;
-    renderActiveFilters();
   };
 
   const applyFacet = (select, set) => {
@@ -492,9 +533,15 @@ function renderInlineBrowser(block, config, resources) {
     state.visibleCount = config.pageSize;
     applyFilters();
   });
-  audienceSelect.addEventListener('change', () => applyFacet(audienceSelect, state.selectedAudience));
-  issueSelect.addEventListener('change', () => applyFacet(issueSelect, state.selectedIssue));
-  typeSelect.addEventListener('change', () => applyFacet(typeSelect, state.selectedType));
+  audienceSelect.addEventListener('change', () => {
+    applyFacet(audienceSelect, state.selectedAudience);
+  });
+  issueSelect.addEventListener('change', () => {
+    applyFacet(issueSelect, state.selectedIssue);
+  });
+  typeSelect.addEventListener('change', () => {
+    applyFacet(typeSelect, state.selectedType);
+  });
   loadMoreButton.addEventListener('click', () => {
     state.visibleCount += config.pageSize;
     applyFilters();
@@ -524,9 +571,9 @@ async function renderApiBrowser(block, config) {
   const presetTags = parseList(config.tagPreset).map((value) => normalizeToken(value));
   const state = {
     query: '',
-    selectedAudience: new Set(parseList(config.audiencePreset).map((value) => normalizeToken(value))),
-    selectedIssue: new Set(parseList(config.issuePreset).map((value) => normalizeToken(value))),
-    selectedType: new Set(parseList(config.typePreset).map((value) => normalizeToken(value))),
+    selectedAudience: new Set(parseList(config.audiencePreset).map(normalizeToken)),
+    selectedIssue: new Set(parseList(config.issuePreset).map(normalizeToken)),
+    selectedType: new Set(parseList(config.typePreset).map(normalizeToken)),
     page: 0,
     lastPage: 1,
     total: 0,
@@ -539,14 +586,20 @@ async function renderApiBrowser(block, config) {
     type: new Map(),
   };
 
-  const renderActiveFilters = () => {
+  let renderActiveFilters = () => {};
+  let loadResources = async () => {};
+
+  renderActiveFilters = () => {
     activeFilters.replaceChildren();
-    [
+    const facets = [
       ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
-    ].forEach(({ facet, value }) => {
-      activeFilters.append(createChip(optionLabels[facet].get(value) || value, () => {
+    ];
+
+    facets.forEach(({ facet, value }) => {
+      const label = optionLabels[facet].get(value) || value;
+      activeFilters.append(createChip(label, () => {
         if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
@@ -555,20 +608,29 @@ async function renderApiBrowser(block, config) {
     });
   };
 
-  const updateFilters = (filters = {}) => {
+  function updateFilters(filters = {}) {
     const audiences = filters.audiences || [];
     const issues = filters.issues || [];
     const types = filters.types || [];
+
     setFilterOptions(audienceSelect, 'Audience', audiences);
     setFilterOptions(issueSelect, 'Issue', issues);
     setFilterOptions(typeSelect, 'Type', types);
-    optionLabels.audience = new Map(audiences.map((option) => [normalizeToken(option.value), option.label]));
-    optionLabels.issue = new Map(issues.map((option) => [normalizeToken(option.value), option.label]));
-    optionLabels.type = new Map(types.map((option) => [normalizeToken(option.value), option.label]));
-  };
 
-  const loadResources = async (reset = false) => {
+    optionLabels.audience = new Map(
+      audiences.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    optionLabels.issue = new Map(
+      issues.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    optionLabels.type = new Map(
+      types.map((option) => [normalizeToken(option.value), option.label]),
+    );
+  }
+
+  loadResources = async (reset = false) => {
     if (state.loading) return;
+
     if (reset) {
       state.page = 0;
       state.lastPage = 1;
@@ -577,13 +639,17 @@ async function renderApiBrowser(block, config) {
     }
 
     state.loading = true;
-    count.textContent = cardsContainer.children.length ? count.textContent : 'Loading resources...';
+    if (!cardsContainer.children.length) {
+      count.textContent = 'Loading resources...';
+    }
     loadMoreButton.disabled = true;
 
     const url = new URL('/api/resources', `${apiRoot}/`);
     url.searchParams.set('per_page', String(config.pageSize));
     url.searchParams.set('page', String(reset ? 1 : state.page + 1));
-    if (state.query.trim()) url.searchParams.set('search', state.query.trim());
+    if (state.query.trim()) {
+      url.searchParams.set('search', state.query.trim());
+    }
     state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
     state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
     state.selectedType.forEach((value) => url.searchParams.append('types[]', value));
@@ -591,17 +657,27 @@ async function renderApiBrowser(block, config) {
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
 
-    const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-    if (!response.ok) throw new Error(`API request failed with HTTP ${response.status}.`);
-    const payload = await response.json();
+    const response = await fetch(url.toString(), {
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error(`API request failed with HTTP ${response.status}.`);
+    }
 
-    (payload.data || []).forEach((item) => cardsContainer.append(buildResourceCard(mapApiResource(item))));
+    const payload = await response.json();
+    (payload.data || []).forEach((item) => {
+      cardsContainer.append(buildResourceCard(mapApiResource(item)));
+    });
+
     state.page = payload.meta?.current_page || 1;
     state.lastPage = payload.meta?.last_page || 1;
     state.total = payload.meta?.total ?? cardsContainer.children.length;
     updateFilters(payload.filters || {});
     renderActiveFilters();
-    count.textContent = state.total ? `Showing ${cardsContainer.children.length} of ${state.total} resources` : 'Showing 0 resources';
+
+    count.textContent = state.total
+      ? `Showing ${cardsContainer.children.length} of ${state.total} resources`
+      : 'Showing 0 resources';
     emptyState.hidden = cardsContainer.children.length > 0;
     loadMoreButton.hidden = state.page >= state.lastPage || state.total === 0;
     loadMoreButton.disabled = false;
@@ -619,9 +695,15 @@ async function renderApiBrowser(block, config) {
     state.query = searchInput.value;
     loadResources(true);
   }, 300));
-  audienceSelect.addEventListener('change', () => applyFacet(audienceSelect, state.selectedAudience));
-  issueSelect.addEventListener('change', () => applyFacet(issueSelect, state.selectedIssue));
-  typeSelect.addEventListener('change', () => applyFacet(typeSelect, state.selectedType));
+  audienceSelect.addEventListener('change', () => {
+    applyFacet(audienceSelect, state.selectedAudience);
+  });
+  issueSelect.addEventListener('change', () => {
+    applyFacet(issueSelect, state.selectedIssue);
+  });
+  typeSelect.addEventListener('change', () => {
+    applyFacet(typeSelect, state.selectedType);
+  });
   loadMoreButton.addEventListener('click', () => loadResources(false));
 
   block.replaceChildren(inner);
@@ -630,17 +712,27 @@ async function renderApiBrowser(block, config) {
 
 export default async function decorate(block) {
   const legacyMap = collectLegacyBlockFields(block);
+  const filterConfig = parseFilterLists(getBlockField(block, legacyMap, 'filters'));
   const config = {
     heading: getBlockField(block, legacyMap, 'heading'),
     apiBaseUrl: getBlockField(block, legacyMap, 'apiBaseUrl'),
     selectedField: getBlockField(block, legacyMap, 'selected'),
     pageSize: parseIntSafe(getBlockField(block, legacyMap, 'pageSize', '8'), 8),
-    searchPlaceholder: getBlockField(block, legacyMap, 'searchPlaceholder', 'Search'),
+    searchPlaceholder: getBlockField(
+      block,
+      legacyMap,
+      'searchPlaceholder',
+      'Search',
+    ),
     loadMoreText: getBlockField(block, legacyMap, 'loadMoreText', 'Load More'),
-    audiencePreset: getBlockField(block, legacyMap, 'audiencePreset'),
-    issuePreset: getBlockField(block, legacyMap, 'issuePreset'),
-    typePreset: getBlockField(block, legacyMap, 'typePreset'),
-    tagPreset: getBlockField(block, legacyMap, 'tagPreset'),
+    audiencePreset: getBlockField(block, legacyMap, 'audiencePreset')
+      || filterConfig.audience.join(', '),
+    issuePreset: getBlockField(block, legacyMap, 'issuePreset')
+      || filterConfig.issue.join(', '),
+    typePreset: getBlockField(block, legacyMap, 'typePreset')
+      || filterConfig.type.join(', '),
+    tagPreset: getBlockField(block, legacyMap, 'tagPreset')
+      || filterConfig.tags.join(', '),
   };
 
   const inlineResources = [...block.querySelectorAll(':scope > div')]

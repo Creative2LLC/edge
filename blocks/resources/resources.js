@@ -4,9 +4,10 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 const BLOCK_PROPS = [
   'heading',
   'subheading',
-  'backgroundColor',
   'button',
   'buttonLink',
+  'settings',
+  'backgroundColor',
   'apiBaseUrl',
   'selected',
   'limit',
@@ -18,7 +19,9 @@ const BLOCK_PROPS = [
 
 function extractConfigRow(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
-  let configRow = rows.find((row) => BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`)));
+  let configRow = rows.find((row) => BLOCK_PROPS.some(
+    (prop) => row.querySelector(`[data-aue-prop="${prop}"]`),
+  ));
 
   if (!configRow && rows.length > 0) {
     configRow = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
@@ -30,24 +33,36 @@ function extractConfigRow(block) {
   return configRow;
 }
 
-function readConfigField(configRow, name, colIndex) {
+function readConfigField(configRow, name, columnIndexes = []) {
   if (!configRow) return '';
   const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
   if (source) return source.textContent.trim();
+
   const cols = [...configRow.children];
-  return cols[colIndex]?.textContent.trim() || '';
+  const value = columnIndexes
+    .map((index) => cols[index]?.textContent.trim())
+    .find(Boolean);
+
+  return value || '';
 }
 
-function readConfigLinkField(configRow, name, colIndex) {
+function readConfigLinkField(configRow, name, columnIndexes = []) {
   if (!configRow) return '';
   const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const anchor = source.tagName === 'A' ? source : source.querySelector('a');
     return anchor?.href || source.textContent.trim();
   }
+
   const cols = [...configRow.children];
-  const anchor = cols[colIndex]?.querySelector('a');
-  return anchor?.href || cols[colIndex]?.textContent.trim() || '';
+  const value = columnIndexes
+    .map((index) => {
+      const anchor = cols[index]?.querySelector('a');
+      return anchor?.href || cols[index]?.textContent.trim() || '';
+    })
+    .find(Boolean);
+
+  return value || '';
 }
 
 function parseList(value) {
@@ -62,6 +77,25 @@ function parseList(value) {
     seen.add(key);
     return true;
   });
+}
+
+function parseKeyValueLines(value) {
+  return `${value || ''}`
+    .split(/[\n]+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .reduce((map, entry) => {
+      const [rawKey, ...rawValue] = entry.split(':');
+      if (!rawValue.length) return map;
+      map[rawKey.trim().toLowerCase()] = rawValue.join(':').trim();
+      return map;
+    }, {});
+}
+
+function getSettingValue(settings, keys) {
+  return keys
+    .map((key) => settings[key])
+    .find(Boolean) || '';
 }
 
 function parseIntSafe(value, fallback = 6) {
@@ -285,41 +319,71 @@ async function loadApiResources(config) {
 
   const selected = splitSelectedResources(parseList(config.selected));
   const limit = parseIntSafe(config.limit, 6);
-  const requestSize = Math.max(limit, selected.ids.length + selected.slugs.length || limit);
+  const selectionCount = selected.ids.length + selected.slugs.length;
+  const requestSize = Math.max(limit, selectionCount || limit);
   const url = new URL('/api/resources', `${apiRoot}/`);
   url.searchParams.set('per_page', String(requestSize));
-  parseList(config.audiencePreset).forEach((value) => url.searchParams.append('audiences[]', value.toLowerCase()));
-  parseList(config.issuePreset).forEach((value) => url.searchParams.append('issues[]', value.toLowerCase()));
-  parseList(config.typePreset).forEach((value) => url.searchParams.append('types[]', value.toLowerCase()));
-  parseList(config.tagPreset).forEach((value) => url.searchParams.append('tags[]', value.toLowerCase()));
+
+  parseList(config.audiencePreset).forEach((value) => {
+    url.searchParams.append('audiences[]', value.toLowerCase());
+  });
+  parseList(config.issuePreset).forEach((value) => {
+    url.searchParams.append('issues[]', value.toLowerCase());
+  });
+  parseList(config.typePreset).forEach((value) => {
+    url.searchParams.append('types[]', value.toLowerCase());
+  });
+  parseList(config.tagPreset).forEach((value) => {
+    url.searchParams.append('tags[]', value.toLowerCase());
+  });
   selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
   selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
 
-  const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`API request failed with HTTP ${response.status}.`);
+  const response = await fetch(url.toString(), {
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`API request failed with HTTP ${response.status}.`);
+  }
+
   const payload = await response.json();
-  return (payload.data || []).slice(0, limit).map((item) => ({ data: mapApiResource(item), row: null }));
+  return (payload.data || [])
+    .slice(0, limit)
+    .map((item) => ({ data: mapApiResource(item), row: null }));
 }
 
 export default async function decorate(block) {
   const configRow = extractConfigRow(block);
+  const settings = parseKeyValueLines(readConfigField(configRow, 'settings', [4]));
   const config = {
-    heading: readConfigField(configRow, 'heading', 0),
-    subheading: readConfigField(configRow, 'subheading', 1),
-    backgroundColor: readConfigField(configRow, 'backgroundColor', 2),
-    buttonText: readConfigField(configRow, 'button', 3),
-    buttonLink: readConfigLinkField(configRow, 'buttonLink', 4),
-    apiBaseUrl: readConfigField(configRow, 'apiBaseUrl', 5),
-    selected: readConfigField(configRow, 'selected', 6),
-    limit: readConfigField(configRow, 'limit', 7) || '6',
-    audiencePreset: readConfigField(configRow, 'audiencePreset', 8),
-    issuePreset: readConfigField(configRow, 'issuePreset', 9),
-    typePreset: readConfigField(configRow, 'typePreset', 10),
-    tagPreset: readConfigField(configRow, 'tagPreset', 11),
+    heading: readConfigField(configRow, 'heading', [0]),
+    subheading: readConfigField(configRow, 'subheading', [1]),
+    backgroundColor: readConfigField(configRow, 'backgroundColor', [2])
+      || getSettingValue(settings, ['backgroundcolor', 'background-color']),
+    buttonText: readConfigField(configRow, 'button', [3, 2]),
+    buttonLink: readConfigLinkField(configRow, 'buttonLink', [4, 3])
+      || getSettingValue(settings, ['buttonlink', 'button-link']),
+    apiBaseUrl: readConfigField(configRow, 'apiBaseUrl', [5])
+      || getSettingValue(settings, ['apibaseurl', 'api-base-url']),
+    selected: readConfigField(configRow, 'selected', [6])
+      || getSettingValue(settings, ['selected']),
+    limit: readConfigField(configRow, 'limit', [7])
+      || getSettingValue(settings, ['limit'])
+      || '6',
+    audiencePreset: readConfigField(configRow, 'audiencePreset', [8])
+      || getSettingValue(settings, ['audiencepreset', 'audiences', 'audience']),
+    issuePreset: readConfigField(configRow, 'issuePreset', [9])
+      || getSettingValue(settings, ['issuepreset', 'issues', 'issue']),
+    typePreset: readConfigField(configRow, 'typePreset', [10])
+      || getSettingValue(settings, ['typepreset', 'types', 'type']),
+    tagPreset: readConfigField(configRow, 'tagPreset', [11])
+      || getSettingValue(settings, ['tagpreset', 'tags', 'tag']),
   };
 
   if (configRow) configRow.remove();
-  if (config.backgroundColor) block.style.backgroundColor = config.backgroundColor;
+  if (config.backgroundColor) {
+    block.style.backgroundColor = config.backgroundColor;
+  }
 
   let resources = [...block.querySelectorAll(':scope > div')]
     .map((row) => {
@@ -373,7 +437,9 @@ export default async function decorate(block) {
 
   const cardsContainer = document.createElement('div');
   cardsContainer.className = 'resources-cards';
-  resources.forEach(({ data, row }) => cardsContainer.append(buildResourceCard(data, row)));
+  resources.forEach(({ data, row }) => {
+    cardsContainer.append(buildResourceCard(data, row));
+  });
   inner.append(cardsContainer);
 
   const emptyState = document.createElement('p');
@@ -399,17 +465,25 @@ export default async function decorate(block) {
   prevBtn.className = 'resources-nav-btn resources-nav-prev';
   prevBtn.setAttribute('aria-label', 'Previous');
   prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+
   const nextBtn = document.createElement('button');
   nextBtn.className = 'resources-nav-btn resources-nav-next';
   nextBtn.setAttribute('aria-label', 'Next');
   nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+
   nav.append(prevBtn, nextBtn);
   footer.append(nav);
   inner.append(footer);
 
-  prevBtn.addEventListener('click', () => cardsContainer.scrollBy({ left: -370, behavior: 'smooth' }));
-  nextBtn.addEventListener('click', () => cardsContainer.scrollBy({ left: 370, behavior: 'smooth' }));
-  cardsContainer.addEventListener('scroll', () => updateScrollbar(scrollThumb, cardsContainer));
+  prevBtn.addEventListener('click', () => {
+    cardsContainer.scrollBy({ left: -370, behavior: 'smooth' });
+  });
+  nextBtn.addEventListener('click', () => {
+    cardsContainer.scrollBy({ left: 370, behavior: 'smooth' });
+  });
+  cardsContainer.addEventListener('scroll', () => {
+    updateScrollbar(scrollThumb, cardsContainer);
+  });
   requestAnimationFrame(() => updateScrollbar(scrollThumb, cardsContainer));
 
   block.replaceChildren(inner);

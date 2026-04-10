@@ -4361,26 +4361,8 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "audiencePreset",
-        "label": "Preset Audiences (Enum Values)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "issuePreset",
-        "label": "Preset Issues (Enum Values)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "typePreset",
-        "label": "Preset Types (Enum Values)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "tagPreset",
-        "label": "Preset Tags (Tag Slugs)"
+        "name": "filters",
+        "label": "Preset Filters (audiences/issues/types/tags)"
       },
       {
         "component": "text",
@@ -4395,19 +4377,6 @@
         "name": "searchPlaceholder",
         "label": "Search Placeholder",
         "value": "Search"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "loadMoreText",
-        "label": "Load More Text",
-        "value": "Load More"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "source",
-        "label": "Legacy Source Resources Block Path (Optional)"
       }
     ]
   },
@@ -4448,26 +4417,8 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "audience",
-        "label": "Audience Tags (Comma/Newline)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "issue",
-        "label": "Issue Tags (Comma/Newline)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "type",
-        "label": "Type Tags (Comma/Newline)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "tags",
-        "label": "Custom Tags (Comma/Newline)"
+        "name": "filters",
+        "label": "Audience/Issue/Type/Tags"
       }
     ]
   },
@@ -4489,12 +4440,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "backgroundColor",
-        "label": "Background Color (Hex)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "button",
         "label": "Button Text"
       },
@@ -4506,45 +4451,8 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "apiBaseUrl",
-        "label": "API Base URL"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "selected",
-        "label": "Selected Resource Slugs or IDs (Optional)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "limit",
-        "label": "Resource Limit",
-        "value": "6"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "audiencePreset",
-        "label": "Preset Audiences (Enum Values)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "issuePreset",
-        "label": "Preset Issues (Enum Values)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "typePreset",
-        "label": "Preset Types (Enum Values)"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "tagPreset",
-        "label": "Preset Tags (Tag Slugs)"
+        "name": "settings",
+        "label": "Settings (background/api/selected/limit/filters)"
       }
     ]
   },
