@@ -262,7 +262,7 @@ function mapApiResource(resource) {
     imageAlt: resource.title || '',
     title: resource.title || '',
     subtitle: resource.excerpt || '',
-    linkUrl: resource.detail_path || resource.resource_url || '',
+    linkUrl: normalizeEdgeContentPath(resource.detail_path) || resource.resource_url || '',
     id: resource.slug || `${resource.id || ''}`,
     audience: resource.audience_label || '',
     issue: resource.issue_label || '',
@@ -901,3 +901,4 @@ export default async function decorate(block) {
     ]);
   }
 }
+

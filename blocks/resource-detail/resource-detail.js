@@ -16,6 +16,9 @@ const FIELD_COLUMN_INDEX = {
   ctaLabel: 4,
 };
 
+const EDGE_CONTENT_PREFIX = '/content/edge';
+const DEFAULT_RESOURCE_LISTING_PATH = '/content/edge/resources';
+
 function normalizeText(value) {
   return `${value || ''}`.trim();
 }
@@ -99,6 +102,15 @@ function getFieldValue(block, name, fallback = '') {
 
 function normalizeApiBaseUrl(value) {
   return normalizeText(value).replace(/\/+$/, '');
+}
+
+function normalizeEdgeContentPath(value, fallback = '') {
+  const normalized = normalizeText(value || fallback);
+  if (!normalized) return '';
+  if (/^https?:\/\//i.test(normalized)) return normalized;
+  if (normalized.startsWith(EDGE_CONTENT_PREFIX)) return normalized;
+  if (normalized.startsWith('/')) return ${EDGE_CONTENT_PREFIX};
+  return ${EDGE_CONTENT_PREFIX}/;
 }
 
 function normalizeSlug(value) {
@@ -297,7 +309,7 @@ export default async function decorate(block) {
   const config = {
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl')),
     slug: normalizeSlug(getFieldValue(block, 'slug')) || getSlugFromPathname(),
-    listingPath: getFieldValue(block, 'listingPath', '/resources') || '/resources',
+    listingPath: normalizeEdgeContentPath(getFieldValue(block, 'listingPath'), DEFAULT_RESOURCE_LISTING_PATH),
     listingLabel: getFieldValue(block, 'listingLabel', 'Back to Resources') || 'Back to Resources',
     ctaLabel: getFieldValue(block, 'ctaLabel', 'Open Resource') || 'Open Resource',
   };
