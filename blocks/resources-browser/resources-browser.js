@@ -262,7 +262,7 @@ function mapApiResource(resource) {
     imageAlt: resource.title || '',
     title: resource.title || '',
     subtitle: resource.excerpt || '',
-    linkUrl: resource.resource_url || '',
+    linkUrl: resource.detail_path || resource.resource_url || '',
     id: resource.slug || `${resource.id || ''}`,
     audience: resource.audience_label || '',
     issue: resource.issue_label || '',

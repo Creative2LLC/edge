@@ -1,0 +1,58 @@
+{
+  "definitions": [
+    {
+      "title": "Resource Detail",
+      "id": "resource-detail",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Resource Detail",
+              "model": "resource-detail"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "resource-detail",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "slug",
+          "label": "Preview Resource Slug (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "listingPath",
+          "label": "Back Link URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "listingLabel",
+          "label": "Back Link Label",
+          "value": "Back to Resources"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "ctaLabel",
+          "label": "Primary CTA Label",
+          "value": "Open Resource"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

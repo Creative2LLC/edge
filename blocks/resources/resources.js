@@ -198,7 +198,7 @@ function mapApiResource(resource) {
     iconColor: '',
     title: resource.title || '',
     subtitle: resource.excerpt || '',
-    linkUrl: resource.resource_url || '',
+    linkUrl: resource.detail_path || resource.resource_url || '',
     linkText: 'Learn More',
     tags: (resource.tags || []).map((tag) => tag.name).slice(0, 4),
   };
