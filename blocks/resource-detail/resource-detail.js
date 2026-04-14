@@ -1,27 +1,81 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const FIELD_LABELS = {
-  apiBaseUrl: ['api base url', 'api url'],
-  slug: ['slug', 'resource slug', 'preview slug'],
+  apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
+  slug: ['slug', 'resource slug', 'preview slug', 'preview resource slug'],
   listingPath: ['listing path', 'back link', 'back link url', 'back url'],
   listingLabel: ['listing label', 'back link label', 'back label'],
-  ctaLabel: ['cta label', 'resource cta label', 'button label'],
+  ctaLabel: ['cta label', 'resource cta label', 'button label', 'primary cta label'],
+};
+
+const FIELD_COLUMN_INDEX = {
+  apiBaseUrl: 0,
+  slug: 1,
+  listingPath: 2,
+  listingLabel: 3,
+  ctaLabel: 4,
 };
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
 }
 
-function getPropValue(block, name) {
-  const node = block.querySelector(`[data-aue-prop="${name}"]`);
+function findUrlLikeValue(value) {
+  const match = `${value || ''}`.match(/https?:\/\/[^\s<>"]+/i);
+  return match ? match[0].replace(/[),.;]+$/, '') : '';
+}
+
+function getPropValue(scope, name) {
+  const node = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
   if (!node) return '';
   const anchor = node.tagName === 'A' ? node : node.querySelector('a');
-  return normalizeText(anchor?.getAttribute('href') || node.textContent);
+  return normalizeText(anchor?.getAttribute('href') || node.getAttribute('href') || node.textContent);
+}
+
+function getRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function readConfigValue(rows, name, fallback = '') {
+  const propValue = rows
+    .map((row) => row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`))
+    .find(Boolean);
+
+  if (propValue) {
+    const anchor = propValue.tagName === 'A' ? propValue : propValue.querySelector('a');
+    return normalizeText(anchor?.getAttribute('href') || propValue.getAttribute('href') || propValue.textContent) || fallback;
+  }
+
+  const columnIndex = FIELD_COLUMN_INDEX[name];
+  if (columnIndex !== undefined) {
+    const value = rows
+      .map((row) => {
+        const cols = [...row.children];
+        const cell = cols[columnIndex];
+        if (!cell) return '';
+        const anchor = cell.querySelector('a');
+        if (anchor) return normalizeText(anchor.getAttribute('href') || anchor.textContent);
+        if (name === 'apiBaseUrl') return findUrlLikeValue(cell.textContent) || normalizeText(cell.textContent);
+        return normalizeText(cell.textContent);
+      })
+      .find(Boolean);
+
+    if (value) return value;
+  }
+
+  if (name === 'apiBaseUrl') {
+    const url = rows
+      .map((row) => row.querySelector('a')?.href || findUrlLikeValue(row.textContent))
+      .find(Boolean);
+    if (url) return normalizeText(url);
+  }
+
+  return fallback;
 }
 
 function getLegacyValue(block, name) {
   const labels = FIELD_LABELS[name] || [];
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const rows = getRows(block);
   const row = rows.find((entry) => {
     if (entry.children.length !== 2) return false;
     const key = normalizeText(entry.children[0].textContent).toLowerCase();
@@ -36,7 +90,11 @@ function getLegacyValue(block, name) {
 }
 
 function getFieldValue(block, name, fallback = '') {
-  return getPropValue(block, name) || getLegacyValue(block, name) || fallback;
+  const rows = getRows(block);
+  return getPropValue(block, name)
+    || readConfigValue(rows, name)
+    || getLegacyValue(block, name)
+    || fallback;
 }
 
 function normalizeApiBaseUrl(value) {
