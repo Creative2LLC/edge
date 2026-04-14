@@ -4204,6 +4204,37 @@
     ]
   },
   {
+    "id": "related-articles",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "slug",
+        "label": "Preview Resource Slug (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Related Articles"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "limit",
+        "label": "Item Limit",
+        "value": "3"
+      }
+    ]
+  },
+  {
     "id": "report-breakdown",
     "fields": [
       {

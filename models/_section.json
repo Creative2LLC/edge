@@ -1,166 +1,167 @@
 {
-  "definitions": [
-    {
-      "title": "Section",
-      "id": "section",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/section/v1/section",
-            "template": {
-              "model": "section"
-            }
-          }
-        }
-      }
-    }
-  ],
-  "models": [
-    {
-      "id": "section",
-      "fields": [
-        {
-          "component": "text",
-          "name": "name",
-          "label": "Section Name",
-          "description": "The label shown for this section in the Content Tree"
-        },
-        {
-          "component": "multiselect",
-          "name": "style",
-          "label": "Style",
-          "options": [
-            {
-              "name": "Highlight",
-              "value": "highlight"
-            },
-            {
-              "name": "No Margin",
-              "value": "no-margin"
-            },
-            {
-              "name": "Padding Top Small",
-              "value": "padding-top-sm"
-            },
-            {
-              "name": "Padding Top Medium",
-              "value": "padding-top-md"
-            },
-            {
-              "name": "Padding Top Large",
-              "value": "padding-top-lg"
-            },
-            {
-              "name": "Padding Bottom Small",
-              "value": "padding-bottom-sm"
-            },
-            {
-              "name": "Padding Bottom Medium",
-              "value": "padding-bottom-md"
-            },
-            {
-              "name": "Padding Bottom Large",
-              "value": "padding-bottom-lg"
-            },
-            {
-              "name": "Padding Y Small",
-              "value": "padding-y-sm"
-            },
-            {
-              "name": "Padding Y Medium",
-              "value": "padding-y-md"
-            },
-            {
-              "name": "Padding Y Large",
-              "value": "padding-y-lg"
-            }
-          ]
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "backgroundColor",
-          "label": "Background Color",
-          "description": "Any valid CSS color value, for example #f4f1ec",
-          "value": ""
-        }
-      ]
-    }
-  ],
-  "filters": [
-    {
-      "id": "section",
-      "components": [
-        "text",
-        "image",
-        "button",
-        "title",
-        "hero",
-        "cards",
-        "statistics",
-        "support-cta",
-        "columns",
-        "giving",
-        "fragment",
-        "carousel",
-        "embed",
-        "video",
-        "news",
-        "resources",
-        "resources-browser",
-        "resource-detail",
-        "icon-text",
-        "icon-text-row",
-        "hero-footer",
-        "footer-banner",
-        "image-card",
-        "newsletter",
-        "impact-chain",
-        "leadership-header",
-        "leadership-team",
-        "leadership-profile",
-        "cta-card-1",
-        "cta-card-2",
-        "info-cards-grid",
-        "card-row",
-        "section-title",
-        "split-card",
-        "split-card-gap",
-        "impact-donut",
-        "regional-offices",
-        "image-text-card-row",
-        "split-card-carousel",
-        "icon-card-carousel",
-        "numbered-cards",
-        "numbered-cards-custom",
-        "product-list",
-        "faq",
-        "general-inquiries",
-        "text-image",
-        "btn-group",
-        "trust-badges",
-        "leadership-overview",
-        "historical-trends",
-        "historical-reports-carousel",
-        "report-breakdown",
-        "report-download",
-        "connect-grid",
-        "partners-showcase",
-        "card-testimonies",
-        "mail-address",
-        "split-card-detail",
-        "job-postings",
-        "internship-program",
-        "card-row-compact",
-        "detailed-carousel",
-        "us-map",
-        "split-card-info",
-        "logo-carousel",
-        "split-card-offices",
-        "dark-feature-cards",
-        "split-card-list",
-        "split-thin-carousel"
-      ]
-    }
-  ]
+    "definitions":  [
+                        {
+                            "title":  "Section",
+                            "id":  "section",
+                            "plugins":  {
+                                            "xwalk":  {
+                                                          "page":  {
+                                                                       "resourceType":  "core/franklin/components/section/v1/section",
+                                                                       "template":  {
+                                                                                        "model":  "section"
+                                                                                    }
+                                                                   }
+                                                      }
+                                        }
+                        }
+                    ],
+    "models":  [
+                   {
+                       "id":  "section",
+                       "fields":  [
+                                      {
+                                          "component":  "text",
+                                          "name":  "name",
+                                          "label":  "Section Name",
+                                          "description":  "The label shown for this section in the Content Tree"
+                                      },
+                                      {
+                                          "component":  "multiselect",
+                                          "name":  "style",
+                                          "label":  "Style",
+                                          "options":  [
+                                                          {
+                                                              "name":  "Highlight",
+                                                              "value":  "highlight"
+                                                          },
+                                                          {
+                                                              "name":  "No Margin",
+                                                              "value":  "no-margin"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Top Small",
+                                                              "value":  "padding-top-sm"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Top Medium",
+                                                              "value":  "padding-top-md"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Top Large",
+                                                              "value":  "padding-top-lg"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Bottom Small",
+                                                              "value":  "padding-bottom-sm"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Bottom Medium",
+                                                              "value":  "padding-bottom-md"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Bottom Large",
+                                                              "value":  "padding-bottom-lg"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Y Small",
+                                                              "value":  "padding-y-sm"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Y Medium",
+                                                              "value":  "padding-y-md"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Y Large",
+                                                              "value":  "padding-y-lg"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "backgroundColor",
+                                          "label":  "Background Color",
+                                          "description":  "Any valid CSS color value, for example #f4f1ec",
+                                          "value":  ""
+                                      }
+                                  ]
+                   }
+               ],
+    "filters":  [
+                    {
+                        "id":  "section",
+                        "components":  [
+                                           "text",
+                                           "image",
+                                           "button",
+                                           "title",
+                                           "hero",
+                                           "cards",
+                                           "statistics",
+                                           "support-cta",
+                                           "columns",
+                                           "giving",
+                                           "fragment",
+                                           "carousel",
+                                           "embed",
+                                           "video",
+                                           "news",
+                                           "resources",
+                                           "resources-browser",
+                                           "resource-detail",
+                                           "related-articles",
+                                           "icon-text",
+                                           "icon-text-row",
+                                           "hero-footer",
+                                           "footer-banner",
+                                           "image-card",
+                                           "newsletter",
+                                           "impact-chain",
+                                           "leadership-header",
+                                           "leadership-team",
+                                           "leadership-profile",
+                                           "cta-card-1",
+                                           "cta-card-2",
+                                           "info-cards-grid",
+                                           "card-row",
+                                           "section-title",
+                                           "split-card",
+                                           "split-card-gap",
+                                           "impact-donut",
+                                           "regional-offices",
+                                           "image-text-card-row",
+                                           "split-card-carousel",
+                                           "icon-card-carousel",
+                                           "numbered-cards",
+                                           "numbered-cards-custom",
+                                           "product-list",
+                                           "faq",
+                                           "general-inquiries",
+                                           "text-image",
+                                           "btn-group",
+                                           "trust-badges",
+                                           "leadership-overview",
+                                           "historical-trends",
+                                           "historical-reports-carousel",
+                                           "report-breakdown",
+                                           "report-download",
+                                           "connect-grid",
+                                           "partners-showcase",
+                                           "card-testimonies",
+                                           "mail-address",
+                                           "split-card-detail",
+                                           "job-postings",
+                                           "internship-program",
+                                           "card-row-compact",
+                                           "detailed-carousel",
+                                           "us-map",
+                                           "split-card-info",
+                                           "logo-carousel",
+                                           "split-card-offices",
+                                           "dark-feature-cards",
+                                           "split-card-list",
+                                           "split-thin-carousel"
+                                       ]
+                    }
+                ]
 }

@@ -109,8 +109,8 @@ function normalizeEdgeContentPath(value, fallback = '') {
   if (!normalized) return '';
   if (/^https?:\/\//i.test(normalized)) return normalized;
   if (normalized.startsWith(EDGE_CONTENT_PREFIX)) return normalized;
-  if (normalized.startsWith('/')) return ${EDGE_CONTENT_PREFIX};
-  return ${EDGE_CONTENT_PREFIX}/;
+  if (normalized.startsWith('/')) return `${EDGE_CONTENT_PREFIX}${normalized}`;
+  return `${EDGE_CONTENT_PREFIX}/${normalized.replace(/^\/+/, '')}`;
 }
 
 function normalizeSlug(value) {
@@ -161,23 +161,6 @@ function buildMessage(title, description) {
   return wrapper;
 }
 
-function buildHeaderMedia(resource) {
-  if (!resource.header_image) return null;
-
-  const media = document.createElement('div');
-  media.className = 'resource-detail-media';
-  media.append(
-    createOptimizedPicture(
-      resource.header_image,
-      resource.title || 'Resource header image',
-      false,
-      [{ width: '750' }, { width: '1400' }],
-    ),
-  );
-
-  return media;
-}
-
 function buildTaxonomy(resource) {
   const values = [
     resource.resource_type_label,
@@ -206,6 +189,30 @@ function buildTags(resource) {
   return wrap;
 }
 
+function buildMeta(resource) {
+  const values = [resource.author, resource.article_date_label].filter(Boolean);
+  if (!values.length) return null;
+
+  const meta = document.createElement('div');
+  meta.className = 'resource-detail-meta';
+
+  values.forEach((value, index) => {
+    const item = document.createElement('span');
+    item.className = 'resource-detail-meta-item';
+    item.textContent = value;
+    meta.append(item);
+
+    if (index < values.length - 1) {
+      const separator = document.createElement('span');
+      separator.className = 'resource-detail-meta-separator';
+      separator.textContent = '|';
+      meta.append(separator);
+    }
+  });
+
+  return meta;
+}
+
 function buildActions(resource, ctaLabel) {
   if (!resource.resource_url) return null;
 
@@ -223,20 +230,88 @@ function buildActions(resource, ctaLabel) {
   return actions;
 }
 
+function buildHero(resource, config) {
+  const hero = document.createElement('section');
+  hero.className = 'resource-detail-hero';
+
+  if (resource.header_image) {
+    const media = document.createElement('div');
+    media.className = 'resource-detail-hero-media';
+    media.append(
+      createOptimizedPicture(
+        resource.header_image,
+        resource.title || 'Resource hero image',
+        false,
+        [{ width: '750' }, { width: '1600' }],
+      ),
+    );
+    hero.append(media);
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'resource-detail-hero-overlay';
+  hero.append(overlay);
+
+  const content = document.createElement('div');
+  content.className = 'resource-detail-hero-content';
+
+  const backLink = document.createElement('a');
+  backLink.className = 'resource-detail-back-link';
+  backLink.href = config.listingPath;
+  backLink.textContent = config.listingLabel;
+  content.append(backLink);
+
+  const taxonomy = buildTaxonomy(resource);
+  if (taxonomy) content.append(taxonomy);
+
+  const title = document.createElement('h1');
+  title.className = 'resource-detail-title';
+  title.textContent = resource.title || 'Resource';
+  content.append(title);
+
+  const meta = buildMeta(resource);
+  if (meta) content.append(meta);
+
+  if (normalizeText(resource.excerpt)) {
+    const excerpt = document.createElement('p');
+    excerpt.className = 'resource-detail-excerpt';
+    excerpt.textContent = resource.excerpt;
+    content.append(excerpt);
+  }
+
+  const actions = buildActions(resource, config.ctaLabel);
+  if (actions) content.append(actions);
+
+  hero.append(content);
+  return hero;
+}
+
 function buildBody(resource) {
-  const body = document.createElement('div');
-  body.className = 'resource-detail-body';
+  const article = document.createElement('article');
+  article.className = 'resource-detail-article';
+
+  const inner = document.createElement('div');
+  inner.className = 'resource-detail-prose';
+
+  const tags = buildTags(resource);
+  if (tags) inner.append(tags);
 
   if (normalizeText(resource.body)) {
+    const body = document.createElement('div');
+    body.className = 'resource-detail-body';
     body.innerHTML = resource.body;
-    return body;
+    inner.append(body);
+    article.append(inner);
+    return article;
   }
 
   if (normalizeText(resource.excerpt)) {
     const paragraph = document.createElement('p');
+    paragraph.className = 'resource-detail-body';
     paragraph.textContent = resource.excerpt;
-    body.append(paragraph);
-    return body;
+    inner.append(paragraph);
+    article.append(inner);
+    return article;
   }
 
   return null;
@@ -244,45 +319,7 @@ function buildBody(resource) {
 
 function buildResourceView(resource, config) {
   const fragment = document.createDocumentFragment();
-
-  const backLink = document.createElement('a');
-  backLink.className = 'resource-detail-back-link';
-  backLink.href = config.listingPath;
-  backLink.textContent = config.listingLabel;
-  fragment.append(backLink);
-
-  const hero = document.createElement('section');
-  hero.className = 'resource-detail-hero';
-
-  const media = buildHeaderMedia(resource);
-  if (media) hero.append(media);
-
-  const summary = document.createElement('div');
-  summary.className = 'resource-detail-summary';
-
-  const taxonomy = buildTaxonomy(resource);
-  if (taxonomy) summary.append(taxonomy);
-
-  const title = document.createElement('h1');
-  title.className = 'resource-detail-title';
-  title.textContent = resource.title || 'Resource';
-  summary.append(title);
-
-  if (normalizeText(resource.excerpt)) {
-    const excerpt = document.createElement('p');
-    excerpt.className = 'resource-detail-excerpt';
-    excerpt.textContent = resource.excerpt;
-    summary.append(excerpt);
-  }
-
-  const tags = buildTags(resource);
-  if (tags) summary.append(tags);
-
-  const actions = buildActions(resource, config.ctaLabel);
-  if (actions) summary.append(actions);
-
-  hero.append(summary);
-  fragment.append(hero);
+  fragment.append(buildHero(resource, config));
 
   const body = buildBody(resource);
   if (body) fragment.append(body);
