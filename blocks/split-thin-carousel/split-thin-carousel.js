@@ -343,4 +343,22 @@ export default function decorate(block) {
   });
 
   block.replaceChildren(wrapper);
+
+  /* Match card heights to the tallest card */
+  const cards = [...track.querySelectorAll('.stc-card')];
+  function syncCardHeights() {
+    cards.forEach((c) => c.style.removeProperty('min-height'));
+    const tallest = Math.ceil(
+      Math.max(0, ...cards.map((c) => c.getBoundingClientRect().height)),
+    );
+    if (tallest > 0) {
+      cards.forEach((c) => { c.style.minHeight = `${tallest}px`; });
+    }
+  }
+
+  syncCardHeights();
+  window.addEventListener('resize', syncCardHeights, { passive: true });
+  track.querySelectorAll('img').forEach((img) => {
+    if (!img.complete) img.addEventListener('load', syncCardHeights, { once: true });
+  });
 }
