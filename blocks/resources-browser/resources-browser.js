@@ -15,6 +15,47 @@ const LEGACY_BLOCK_LABELS = {
   filters: ['filters', 'preset filters'],
 };
 
+const BLOCK_PROPS = [
+  'heading',
+  'apiBaseUrl',
+  'selected',
+  'filters',
+  'pageSize',
+  'searchPlaceholder',
+  'loadMoreText',
+  'audiencePreset',
+  'issuePreset',
+  'typePreset',
+  'tagPreset',
+];
+
+function extractConfigRow(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  let configRow = rows.find((row) => BLOCK_PROPS.some(
+    (prop) => row.querySelector(`[data-aue-prop="${prop}"]`),
+  ));
+
+  if (!configRow && rows.length > 0) {
+    configRow = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
+      && !row.querySelector('[data-aue-prop="image"]')
+      && !row.querySelector('picture'));
+
+    if (!configRow) [configRow] = rows;
+  }
+
+  return configRow;
+}
+
+function readConfigField(configRow, name, columnIndex, fallback = '') {
+  if (!configRow) return fallback;
+
+  const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) return source.textContent.trim() || fallback;
+
+  const cols = [...configRow.children];
+  return cols[columnIndex]?.textContent.trim() || fallback;
+}
+
 const TAG_COLORS = {
   video: { bg: '#1f9bd1', color: '#fff' },
   families: { bg: '#ef4444', color: '#fff' },
@@ -350,6 +391,25 @@ function debounce(callback, wait = 250) {
   };
 }
 
+function buildDebugPanel(title, lines = []) {
+  const details = document.createElement('details');
+  details.className = 'resources-browser-source-debug';
+  details.open = true;
+
+  const summary = document.createElement('summary');
+  summary.textContent = title;
+  details.append(summary);
+
+  lines.filter(Boolean).forEach((line) => {
+    const paragraph = document.createElement('p');
+    paragraph.className = 'resources-browser-source-debug-text';
+    paragraph.textContent = line;
+    details.append(paragraph);
+  });
+
+  return details;
+}
+
 function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   const inner = document.createElement('div');
   inner.className = 'resources-browser-inner';
@@ -421,7 +481,7 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   };
 }
 
-function renderInlineBrowser(block, config, resources) {
+function renderInlineBrowser(block, config, resources, debugLines = []) {
   const layout = buildShell(config);
   const {
     inner,
@@ -435,6 +495,13 @@ function renderInlineBrowser(block, config, resources) {
     emptyState,
     loadMoreButton,
   } = layout;
+
+  if (debugLines.length) {
+    inner.insertBefore(
+      buildDebugPanel('Resources Browser Debug', debugLines),
+      inner.querySelector('.resources-browser-meta'),
+    );
+  }
 
   const cards = resources.map(({ data, row }) => {
     const card = buildResourceCard(data, row);
@@ -711,19 +778,28 @@ async function renderApiBrowser(block, config) {
 }
 
 export default async function decorate(block) {
+  const configRow = extractConfigRow(block);
   const legacyMap = collectLegacyBlockFields(block);
-  const filterConfig = parseFilterLists(getBlockField(block, legacyMap, 'filters'));
+  const filterValue = getBlockField(block, legacyMap, 'filters')
+    || readConfigField(configRow, 'filters', 3);
+  const filterConfig = parseFilterLists(filterValue);
   const config = {
-    heading: getBlockField(block, legacyMap, 'heading'),
-    apiBaseUrl: getBlockField(block, legacyMap, 'apiBaseUrl'),
-    selectedField: getBlockField(block, legacyMap, 'selected'),
-    pageSize: parseIntSafe(getBlockField(block, legacyMap, 'pageSize', '8'), 8),
-    searchPlaceholder: getBlockField(
-      block,
-      legacyMap,
-      'searchPlaceholder',
-      'Search',
+    heading: getBlockField(block, legacyMap, 'heading')
+      || readConfigField(configRow, 'heading', 0),
+    apiBaseUrl: normalizeApiBaseUrl(
+      getBlockField(block, legacyMap, 'apiBaseUrl')
+        || readConfigField(configRow, 'apiBaseUrl', 1),
     ),
+    selectedField: getBlockField(block, legacyMap, 'selected')
+      || readConfigField(configRow, 'selected', 2),
+    pageSize: parseIntSafe(
+      getBlockField(block, legacyMap, 'pageSize', '')
+        || readConfigField(configRow, 'pageSize', 4, '8'),
+      8,
+    ),
+    searchPlaceholder: getBlockField(block, legacyMap, 'searchPlaceholder', '')
+      || readConfigField(configRow, 'searchPlaceholder', 5, 'Search')
+      || 'Search',
     loadMoreText: getBlockField(block, legacyMap, 'loadMoreText', 'Load More'),
     audiencePreset: getBlockField(block, legacyMap, 'audiencePreset')
       || filterConfig.audience.join(', '),
@@ -735,6 +811,10 @@ export default async function decorate(block) {
       || filterConfig.tags.join(', '),
   };
 
+  if (configRow) {
+    configRow.remove();
+  }
+
   const inlineResources = [...block.querySelectorAll(':scope > div')]
     .map((row) => {
       const resource = parseResourceRow(row);
@@ -742,14 +822,21 @@ export default async function decorate(block) {
     })
     .filter(Boolean);
 
-  if (config.apiBaseUrl) {
-    try {
-      await renderApiBrowser(block, config);
-      return;
-    } catch (error) {
-      // Fall back to inline-authored resources when the API is unavailable.
-    }
+  if (!config.apiBaseUrl) {
+    renderInlineBrowser(block, config, inlineResources, [
+      'Missing API Base URL. The block is rendering inline fallback data only.',
+      'Set the published block field apiBaseUrl to the API origin, not /api/resources.',
+    ]);
+    return;
   }
 
-  renderInlineBrowser(block, config, inlineResources);
+  try {
+    await renderApiBrowser(block, config);
+  } catch (error) {
+    renderInlineBrowser(block, config, inlineResources, [
+      `API request failed for ${config.apiBaseUrl}.`,
+      error?.message || 'Unknown API error.',
+      'The block fell back to inline data.',
+    ]);
+  }
 }
