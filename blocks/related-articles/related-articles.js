@@ -155,7 +155,11 @@ function buildPill(label, className = '') {
 }
 
 function buildTaxonomy(resource) {
-  const values = [resource.resource_type_label, resource.audience_label, resource.issue_label].filter(Boolean);
+  const values = [
+    resource.resource_type_label,
+    resource.audience_label,
+    resource.issue_label,
+  ].filter(Boolean);
   if (!values.length) return null;
 
   const wrap = document.createElement('div');
@@ -268,12 +272,22 @@ export default async function decorate(block) {
   block.replaceChildren(buildMessage('Loading related articles...', ''));
 
   if (!config.apiBaseUrl) {
-    block.replaceChildren(buildMessage('Missing API configuration', 'Set apiBaseUrl on this block so it can load related article data.'));
+    block.replaceChildren(
+      buildMessage(
+        'Missing API configuration',
+        'Set apiBaseUrl on this block so it can load related article data.',
+      ),
+    );
     return;
   }
 
   if (!config.slug) {
-    block.replaceChildren(buildMessage('Missing resource slug', 'Set a preview slug on the block or open the page using a /resources/{slug} URL.'));
+    block.replaceChildren(
+      buildMessage(
+        'Missing resource slug',
+        'Set a preview slug on the block or open the page using a /resources/{slug} URL.',
+      ),
+    );
     return;
   }
 
