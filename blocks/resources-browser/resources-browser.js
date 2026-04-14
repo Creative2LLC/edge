@@ -56,6 +56,56 @@ function readConfigField(configRow, name, columnIndex, fallback = '') {
   return cols[columnIndex]?.textContent.trim() || fallback;
 }
 
+function isResourceItemRow(row) {
+  const cols = [...row.children];
+
+  if (row.querySelector('[data-aue-prop="title"]')) return true;
+  if (row.querySelector('[data-aue-prop="image"]')) return true;
+  if (cols.length >= 8) return true;
+
+  return cols.length >= 2 && Boolean(cols[0].querySelector('picture, img'));
+}
+
+function extractConfigRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isResourceItemRow(row));
+}
+
+function findUrlLikeValue(value) {
+  const match = `${value || ''}`.match(/https?:\/\/[^\s<>"]+/i);
+  return match ? match[0].replace(/[),.;]+$/, '') : '';
+}
+
+function readConfigValue(rows, name, columnIndex, fallback = '') {
+  const propValue = rows
+    .map((row) => row.querySelector(`[data-aue-prop="${name}"]`))
+    .find(Boolean);
+  if (propValue) {
+    const anchor = propValue.tagName === 'A' ? propValue : propValue.querySelector('a');
+    return anchor?.href || propValue.textContent.trim() || fallback;
+  }
+
+  const firstRow = rows[0];
+  if (firstRow) {
+    const cols = [...firstRow.children];
+    const col = cols[columnIndex];
+    if (col) {
+      const anchor = col.querySelector('a');
+      const value = anchor?.href || col.textContent.trim();
+      if (value) return value;
+    }
+  }
+
+  if (name === 'apiBaseUrl') {
+    const url = rows
+      .map((row) => row.querySelector('a')?.href || findUrlLikeValue(row.textContent))
+      .find(Boolean);
+    if (url) return url;
+  }
+
+  return fallback;
+}
+
 const TAG_COLORS = {
   video: { bg: '#1f9bd1', color: '#fff' },
   families: { bg: '#ef4444', color: '#fff' },
@@ -779,26 +829,34 @@ async function renderApiBrowser(block, config) {
 }
 
 export default async function decorate(block) {
-  const configRow = extractConfigRow(block);
+  const configRows = extractConfigRows(block);
+  const configRow = configRows[0] || extractConfigRow(block);
   const legacyMap = collectLegacyBlockFields(block);
   const filterValue = getBlockField(block, legacyMap, 'filters')
+    || readConfigValue(configRows, 'filters', 3)
     || readConfigField(configRow, 'filters', 3);
   const filterConfig = parseFilterLists(filterValue);
+  const apiBaseUrl = normalizeApiBaseUrl(
+    getBlockField(block, legacyMap, 'apiBaseUrl')
+      || readConfigValue(configRows, 'apiBaseUrl', 1)
+      || readConfigField(configRow, 'apiBaseUrl', 1),
+  );
   const config = {
     heading: getBlockField(block, legacyMap, 'heading')
+      || readConfigValue(configRows, 'heading', 0)
       || readConfigField(configRow, 'heading', 0),
-    apiBaseUrl: normalizeApiBaseUrl(
-      getBlockField(block, legacyMap, 'apiBaseUrl')
-        || readConfigField(configRow, 'apiBaseUrl', 1),
-    ),
+    apiBaseUrl,
     selectedField: getBlockField(block, legacyMap, 'selected')
+      || readConfigValue(configRows, 'selected', 2)
       || readConfigField(configRow, 'selected', 2),
     pageSize: parseIntSafe(
       getBlockField(block, legacyMap, 'pageSize', '')
+        || readConfigValue(configRows, 'pageSize', 4, '8')
         || readConfigField(configRow, 'pageSize', 4, '8'),
       8,
     ),
     searchPlaceholder: getBlockField(block, legacyMap, 'searchPlaceholder', '')
+      || readConfigValue(configRows, 'searchPlaceholder', 5, 'Search')
       || readConfigField(configRow, 'searchPlaceholder', 5, 'Search')
       || 'Search',
     loadMoreText: getBlockField(block, legacyMap, 'loadMoreText', 'Load More'),
@@ -812,7 +870,8 @@ export default async function decorate(block) {
       || filterConfig.tags.join(', '),
   };
 
-  if (configRow) {
+  configRows.forEach((row) => row.remove());
+  if (!configRows.length && configRow) {
     configRow.remove();
   }
 
@@ -825,8 +884,9 @@ export default async function decorate(block) {
 
   if (!config.apiBaseUrl) {
     renderInlineBrowser(block, config, inlineResources, [
-      'Missing API Base URL. The block is rendering inline fallback data only.',
-      'Set the published block field apiBaseUrl to the API origin, not /api/resources.',
+      'Could not detect apiBaseUrl in the published block markup.',
+      'The block is rendering inline fallback data only.',
+      'Republish the page after setting apiBaseUrl, or verify the published block includes that value.',
     ]);
     return;
   }
