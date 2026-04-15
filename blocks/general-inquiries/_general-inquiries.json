@@ -61,7 +61,7 @@
           "valueType": "string",
           "name": "formAction",
           "label": "Submit Endpoint URL",
-          "description": "Optional. Add a relative or absolute endpoint later when the Laravel backend is ready.",
+          "description": "Set this to the Laravel API endpoint for this form, for example https://your-backend.example.com/api/general-inquiries.",
           "value": ""
         },
         {
@@ -134,3 +134,4 @@
   ],
   "filters": []
 }
+

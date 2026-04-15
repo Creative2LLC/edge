@@ -453,6 +453,10 @@ async function extractResponseMessage(response) {
 
   try {
     const data = await response.json();
+    const validationMessage = Object.values(data?.errors || {})
+      .flat()
+      .find((entry) => typeof entry === 'string' && entry.trim());
+    if (validationMessage) return validationMessage.trim();
     return typeof data?.message === 'string' ? data.message.trim() : '';
   } catch {
     return '';
@@ -466,6 +470,8 @@ function bindSubmit(block, form, submitButton, status, config) {
 
     const formData = new FormData(form);
     formData.append('formId', 'general-inquiries');
+    if (window.location?.href) formData.append('pageUrl', window.location.href);
+    if (window.location?.pathname) formData.append('pagePath', window.location.pathname);
 
     block.dispatchEvent(
       new CustomEvent('general-inquiries:submit', {
@@ -700,3 +706,4 @@ export default async function decorate(block) {
     isAuthoring,
   });
 }
+
