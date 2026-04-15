@@ -17,7 +17,7 @@ const FIELD_COLUMN_INDEX = {
 };
 
 const EDGE_CONTENT_PREFIX = '/content/edge';
-const DEFAULT_RESOURCE_LISTING_PATH = '/content/edge/resources';
+const DEFAULT_RESOURCE_LISTING_PATH = '/content/edge/resources.html';
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
