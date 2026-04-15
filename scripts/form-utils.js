@@ -1,4 +1,4 @@
-export const PHONE_PATTERN = '^\+?[0-9().\-\s]{7,25}$';
+export const PHONE_PATTERN = '^[+]?[0-9().\\\\s-]{7,25}$';
 
 export const DEFAULT_FORM_ENDPOINTS = {
   'general-inquiries': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/general-inquiries',
