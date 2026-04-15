@@ -66,29 +66,34 @@ function buildSlide(data, row) {
   }
 
   // Icon
-  const iconWrap = document.createElement('div');
-  iconWrap.className = 'icon-card-carousel-icon';
-
   const iconImg = data.iconPicture
     ? data.iconPicture.querySelector('img')
     : null;
   const iconSrc = iconImg?.src || data.iconSrc;
+  const hasIcon = Boolean(iconSrc || data.iconPicture);
 
-  if (data.iconColor && iconSrc) {
-    iconWrap.style.maskImage = `url(${iconSrc})`;
-    iconWrap.style.webkitMaskImage = `url(${iconSrc})`;
-    iconWrap.style.backgroundColor = data.iconColor;
-  } else if (data.iconPicture) {
-    iconWrap.append(data.iconPicture);
-  } else if (data.iconSrc) {
-    const img = document.createElement('img');
-    img.src = data.iconSrc;
-    img.alt = data.iconAlt || '';
-    img.loading = 'lazy';
-    iconWrap.append(img);
+  if (hasIcon) {
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'icon-card-carousel-icon';
+
+    if (data.iconColor && iconSrc) {
+      iconWrap.style.maskImage = `url(${iconSrc})`;
+      iconWrap.style.webkitMaskImage = `url(${iconSrc})`;
+      iconWrap.style.backgroundColor = data.iconColor;
+    } else if (data.iconPicture) {
+      iconWrap.append(data.iconPicture);
+    } else if (data.iconSrc) {
+      const img = document.createElement('img');
+      img.src = data.iconSrc;
+      img.alt = data.iconAlt || '';
+      img.loading = 'lazy';
+      iconWrap.append(img);
+    }
+
+    card.append(iconWrap);
+  } else {
+    card.classList.add('no-icon');
   }
-
-  card.append(iconWrap);
 
   // Title
   if (data.heading) {

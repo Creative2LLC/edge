@@ -91,6 +91,17 @@ main > .section > .icon-card-carousel-wrapper {
   box-sizing: border-box;
 }
 
+/* No-icon variant - smaller card with evenly spaced content */
+.icon-card-carousel .icon-card-carousel-card.no-icon {
+  min-height: 340px;
+  justify-content: center;
+  padding: 32px;
+}
+
+.icon-card-carousel .icon-card-carousel-card.no-icon .icon-card-carousel-spacer {
+  flex: 0 0 24px;
+}
+
 /* Icon */
 .icon-card-carousel .icon-card-carousel-icon {
   width: 96px;
@@ -248,6 +259,12 @@ main > .section > .icon-card-carousel-wrapper {
     padding: 32px 24px;
   }
 
+  .icon-card-carousel .icon-card-carousel-card.no-icon {
+    height: auto;
+    min-height: 320px;
+    padding: 28px 24px;
+  }
+
   .icon-card-carousel .icon-card-carousel-heading {
     font-size: 28px;
   }
@@ -277,6 +294,11 @@ main > .section > .icon-card-carousel-wrapper {
     height: auto;
     min-height: 420px;
     padding: 28px 20px;
+  }
+
+  .icon-card-carousel .icon-card-carousel-card.no-icon {
+    min-height: 280px;
+    padding: 24px 20px;
   }
 
   .icon-card-carousel .icon-card-carousel-icon {
