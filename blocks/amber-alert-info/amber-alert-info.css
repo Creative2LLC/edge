@@ -26,11 +26,12 @@
   flex: 1;
   background-color: #e13e30;
   color: #fff;
-  padding: 64px 56px;
+  padding: 64px;
   display: flex;
   gap: 48px;
   box-sizing: border-box;
   align-items: flex-start;
+  justify-content: center;
 }
 
 /* Left column of the right side */
