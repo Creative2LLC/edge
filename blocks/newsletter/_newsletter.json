@@ -86,6 +86,22 @@
           "value": "Go"
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "formAction",
+          "label": "Submit Endpoint URL",
+          "description": "Used for Input Field mode. Optional override. Leave blank to use the default Laravel newsletter endpoint configured in code.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "statusMessages",
+          "label": "Status Messages (One Per Line or Label|Message)",
+          "description": "Use lines in order for success then error, or prefix with Success| and Error|.",
+          "value": "Success|Thank you. You have been added to the newsletter list.\nError|We couldn't add your email. Please try again."
+        },
+        {
           "component": "select",
           "name": "form_target",
           "label": "Open Links In",

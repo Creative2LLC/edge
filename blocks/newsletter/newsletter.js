@@ -1,4 +1,12 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  appendFormMetadata,
+  createFormSession,
+  extractApiMessage,
+  isFormValid,
+  resolveFormAction,
+  updateFormStatus,
+} from '../../scripts/form-utils.js';
 import { moveAttributes } from '../../scripts/scripts.js';
 
 const LEGACY_LABELS = {
@@ -7,7 +15,22 @@ const LEGACY_LABELS = {
   placeholder: ['placeholder', 'select placeholder'],
   options: ['options', 'newsletter options'],
   buttonText: ['button text', 'button', 'cta text', 'cta label'],
+  formAction: ['form action', 'submit endpoint url', 'submit url', 'action'],
+  statusMessages: ['status messages'],
+  successMessage: ['success message'],
+  errorMessage: ['error message'],
   target: ['target', 'open links in'],
+};
+
+const MESSAGE_KEYS = ['success', 'error'];
+
+const DEFAULTS = {
+  placeholder: 'Enter your email',
+  buttonText: 'Join',
+  successMessage: 'Thank you. You have been added to the newsletter list.',
+  errorMessage: 'We couldn\'t add your email. Please try again.',
+  missingEndpointMessage: 'This form is not connected yet.',
+  missingEndpointAuthorMessage: 'Add a submit endpoint URL to enable this form.',
 };
 
 function collectLegacyFields(block) {
@@ -116,21 +139,146 @@ function buildBackground(block) {
   return optimized;
 }
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function normalizeEntryKey(rawKey, fallbackKey = '') {
+  const normalized = String(rawKey || '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+
+  if (normalized === 'success') return 'success';
+  if (normalized === 'error' || normalized === 'failure') return 'error';
+  return fallbackKey;
+}
+
+function parseNamedEntries(value, orderedKeys) {
+  if (!value) return {};
+
+  const normalized = value.replace(/\r/g, '');
+  const lines = normalized
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return lines.reduce((entries, line, index) => {
+    let key = orderedKeys[index] || '';
+    let text = line;
+
+    if (line.includes('|')) {
+      const [rawKey, rawValue] = line.split('|', 2).map((part) => part.trim());
+      key = normalizeEntryKey(rawKey, key);
+      text = rawValue;
+    }
+
+    if (key && text) entries[key] = text;
+    return entries;
+  }, {});
+}
+
+function buildStatusMessages(statusField, legacyMap) {
+  const combinedValues = parseNamedEntries(statusField.value, MESSAGE_KEYS);
+  if (statusField.source || statusField.value) {
+    return {
+      success: combinedValues.success || DEFAULTS.successMessage,
+      error: combinedValues.error || DEFAULTS.errorMessage,
+    };
+  }
+
+  return {
+    success: legacyMap.successMessage?.value || DEFAULTS.successMessage,
+    error: legacyMap.errorMessage?.value || DEFAULTS.errorMessage,
+  };
+}
+
+function bindInputSubmit(block, form, submitButton, status, config) {
+  const formSession = createFormSession(form, 'newsletter');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (submitButton.disabled) return;
+    if (!isFormValid(form)) return;
+
+    const formData = new FormData(form);
+    appendFormMetadata(formData, formSession);
+
+    block.dispatchEvent(
+      new CustomEvent('newsletter:submit', {
+        bubbles: true,
+        detail: Object.fromEntries(formData.entries()),
+      }),
+    );
+
+    if (!config.action) {
+      const message = config.isAuthoring
+        ? DEFAULTS.missingEndpointAuthorMessage
+        : DEFAULTS.missingEndpointMessage;
+      updateFormStatus(status, message, 'info');
+      return;
+    }
+
+    submitButton.disabled = true;
+    block.classList.add('is-submitting');
+    updateFormStatus(status, '', 'info');
+
+    try {
+      const response = await fetch(config.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      const responseMessage = await extractApiMessage(response);
+
+      if (!response.ok) {
+        throw new Error(responseMessage || config.errorMessage);
+      }
+
+      form.reset();
+      formSession.reset();
+      updateFormStatus(status, responseMessage || config.successMessage, 'success');
+    } catch (error) {
+      const message = error instanceof Error
+        && error.message
+        && error.message !== 'Failed to fetch'
+        ? error.message
+        : config.errorMessage;
+      updateFormStatus(status, message, 'error');
+    } finally {
+      submitButton.disabled = false;
+      block.classList.remove('is-submitting');
+    }
+  });
+}
+
 export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
+  const isAuthoring = hasAuthoringContext(block);
   const headingField = getField(block, legacyMap, ['content_heading', 'heading']);
   const subheadingField = getField(block, legacyMap, ['content_subheading', 'subheading']);
   const formTypeField = getField(block, legacyMap, ['form_type']);
   const placeholderField = getField(block, legacyMap, ['form_placeholder', 'placeholder']);
   const optionsField = getField(block, legacyMap, ['form_options', 'options']);
   const buttonTextField = getField(block, legacyMap, ['form_buttonText', 'buttonText']);
+  const formActionField = getField(block, legacyMap, ['formAction', 'form_action']);
+  const statusMessagesField = getField(block, legacyMap, ['statusMessages', 'status_messages']);
   const targetField = getField(block, legacyMap, ['form_target', 'target']);
   const background = buildBackground(block);
 
+  const messages = buildStatusMessages(statusMessagesField, legacyMap);
   const formType = formTypeField.value || 'dropdown';
   if (formTypeField.source) formTypeField.source.remove();
   const target = targetField.value === '_blank' ? '_blank' : '_self';
   if (targetField.source) targetField.source.remove();
+  if (formActionField.source) formActionField.source.remove();
+  if (statusMessagesField.source) statusMessagesField.source.remove();
+  if (legacyMap.successMessage?.source) legacyMap.successMessage.source.remove();
+  if (legacyMap.errorMessage?.source) legacyMap.errorMessage.source.remove();
 
   const content = document.createElement('div');
   content.className = 'newsletter-content';
@@ -143,9 +291,10 @@ export default function decorate(block) {
 
   const options = parseOptions(optionsField.value);
   if (optionsField.source) optionsField.source.remove();
-  const placeholder = placeholderField.value || (formType === 'input' ? 'Enter your email' : 'Select a Newsletter');
+  const placeholder = placeholderField.value
+    || (formType === 'input' ? DEFAULTS.placeholder : 'Select a Newsletter');
   if (placeholderField.source) placeholderField.source.remove();
-  const buttonText = buttonTextField.value || 'Go';
+  const buttonText = buttonTextField.value || DEFAULTS.buttonText;
 
   if (formType === 'input') {
     const form = document.createElement('form');
@@ -155,7 +304,11 @@ export default function decorate(block) {
     inputWrap.className = 'newsletter-input-wrap';
 
     const input = document.createElement('input');
-    input.type = 'text';
+    input.type = 'email';
+    input.name = 'email';
+    input.required = true;
+    input.autocomplete = 'email';
+    input.inputMode = 'email';
     input.className = 'newsletter-input';
     input.placeholder = placeholder;
     input.setAttribute('aria-label', placeholder);
@@ -175,9 +328,22 @@ export default function decorate(block) {
     moveFieldBinding(buttonTextField.source, submit);
     if (buttonTextField.source) buttonTextField.source.remove();
 
-    inputWrap.append(input);
-    inputWrap.append(submit);
+    inputWrap.append(input, submit);
     form.append(inputWrap);
+
+    const status = document.createElement('p');
+    status.className = 'newsletter-status';
+    status.hidden = true;
+    status.setAttribute('aria-live', 'polite');
+    form.append(status);
+
+    bindInputSubmit(block, form, submit, status, {
+      action: resolveFormAction('newsletter', formActionField.value),
+      successMessage: messages.success,
+      errorMessage: messages.error,
+      isAuthoring,
+    });
+
     content.append(form);
   } else if (options.length) {
     const form = document.createElement('form');
@@ -217,8 +383,7 @@ export default function decorate(block) {
     if (buttonTextField.source) buttonTextField.source.remove();
 
     selectWrap.append(select);
-    form.append(selectWrap);
-    form.append(submit);
+    form.append(selectWrap, submit);
     content.append(form);
   } else if (buttonTextField.source) {
     buttonTextField.source.remove();

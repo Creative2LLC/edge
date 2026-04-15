@@ -61,7 +61,7 @@
           "valueType": "string",
           "name": "formAction",
           "label": "Submit Endpoint URL",
-          "description": "Set this to the Laravel API endpoint for this form, for example https://your-backend.example.com/api/general-inquiries.",
+          "description": "Optional override. Leave blank to use the default Laravel general inquiries endpoint configured in code.",
           "value": ""
         },
         {
@@ -134,4 +134,3 @@
   ],
   "filters": []
 }
-

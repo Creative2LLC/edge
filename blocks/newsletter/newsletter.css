@@ -196,3 +196,40 @@ main > .section > .newsletter-wrapper {
     width: min(220px, 100%);
   }
 }
+
+.newsletter .newsletter-status {
+  width: min(420px, 100%);
+  margin: 2px auto 0;
+  color: #404041;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.newsletter .newsletter-status[hidden] {
+  display: none;
+}
+
+.newsletter .newsletter-status.is-info {
+  color: #404041;
+}
+
+.newsletter .newsletter-status.is-success {
+  color: #1f6a3a;
+}
+
+.newsletter .newsletter-status.is-error {
+  color: #a13a31;
+}
+
+.newsletter.is-submitting .newsletter-send-icon,
+.newsletter.is-submitting .newsletter-submit,
+.newsletter .newsletter-send-icon:disabled,
+.newsletter .newsletter-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.newsletter .newsletter-input:invalid:not(:placeholder-shown) {
+  outline: 2px solid #a13a31;
+  outline-offset: 2px;
+}

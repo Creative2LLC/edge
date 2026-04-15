@@ -1,4 +1,13 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  appendFormMetadata,
+  applyPhoneValidation,
+  createFormSession,
+  extractApiMessage,
+  isFormValid,
+  resolveFormAction,
+  updateFormStatus,
+} from '../../scripts/form-utils.js';
 import { moveAttributes } from '../../scripts/scripts.js';
 
 const resourceDataCache = new Map();
@@ -440,38 +449,14 @@ function buildStatusMessages(block) {
   };
 }
 
-function setStatus(status, message, tone = 'info') {
-  status.textContent = message;
-  status.hidden = !message;
-  status.classList.remove('is-info', 'is-success', 'is-error');
-  if (message) status.classList.add(`is-${tone}`);
-}
-
-async function extractResponseMessage(response) {
-  const contentType = response.headers.get('content-type') || '';
-  if (!contentType.includes('application/json')) return '';
-
-  try {
-    const data = await response.json();
-    const validationMessage = Object.values(data?.errors || {})
-      .flat()
-      .find((entry) => typeof entry === 'string' && entry.trim());
-    if (validationMessage) return validationMessage.trim();
-    return typeof data?.message === 'string' ? data.message.trim() : '';
-  } catch {
-    return '';
-  }
-}
-
-function bindSubmit(block, form, submitButton, status, config) {
+function bindSubmit(block, form, submitButton, status, config, formSession) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (submitButton.disabled) return;
+    if (!isFormValid(form)) return;
 
     const formData = new FormData(form);
-    formData.append('formId', 'general-inquiries');
-    if (window.location?.href) formData.append('pageUrl', window.location.href);
-    if (window.location?.pathname) formData.append('pagePath', window.location.pathname);
+    appendFormMetadata(formData, formSession);
 
     block.dispatchEvent(
       new CustomEvent('general-inquiries:submit', {
@@ -484,13 +469,13 @@ function bindSubmit(block, form, submitButton, status, config) {
       const message = config.isAuthoring
         ? DEFAULTS.missingEndpointAuthorMessage
         : DEFAULTS.missingEndpointMessage;
-      setStatus(status, message, 'info');
+      updateFormStatus(status, message, 'info');
       return;
     }
 
     submitButton.disabled = true;
     block.classList.add('is-submitting');
-    setStatus(status, '', 'info');
+    updateFormStatus(status, '', 'info');
 
     try {
       const response = await fetch(config.action, {
@@ -500,21 +485,23 @@ function bindSubmit(block, form, submitButton, status, config) {
           Accept: 'application/json',
         },
       });
-      const responseMessage = await extractResponseMessage(response);
+      const responseMessage = await extractApiMessage(response);
 
       if (!response.ok) {
         throw new Error(responseMessage || config.errorMessage);
       }
 
       form.reset();
-      setStatus(status, responseMessage || config.successMessage, 'success');
+      formSession.reset();
+      form.querySelector('[name="phone"]')?.dispatchEvent(new Event('input'));
+      updateFormStatus(status, responseMessage || config.successMessage, 'success');
     } catch (error) {
       const message = error instanceof Error
         && error.message
         && error.message !== 'Failed to fetch'
         ? error.message
         : config.errorMessage;
-      setStatus(status, message, 'error');
+      updateFormStatus(status, message, 'error');
     } finally {
       submitButton.disabled = false;
       block.classList.remove('is-submitting');
@@ -688,6 +675,10 @@ export default async function decorate(block) {
   actions.append(submitButton);
 
   form.append(actions);
+
+  const formSession = createFormSession(form, 'general-inquiries');
+  applyPhoneValidation(form.querySelector('[name="phone"]'));
+
   shell.append(copy, form);
 
   if (backgroundColorField.value) {
@@ -700,9 +691,9 @@ export default async function decorate(block) {
   block.replaceChildren(shell);
 
   bindSubmit(block, form, submitButton, status, {
-    action: formActionField.value,
+    action: resolveFormAction('general-inquiries', formActionField.value),
     successMessage: messages.success,
     errorMessage: messages.error,
     isAuthoring,
-  });
+  }, formSession);
 }
