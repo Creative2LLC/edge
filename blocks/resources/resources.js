@@ -17,28 +17,37 @@ const BLOCK_PROPS = [
   'tagPreset',
 ];
 
-function extractConfigRow(block) {
+function extractConfigRows(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
-  let configRow = rows.find((row) => BLOCK_PROPS.some(
+  const configRows = rows.filter((row) => BLOCK_PROPS.some(
     (prop) => row.querySelector(`[data-aue-prop="${prop}"]`),
   ));
 
-  if (!configRow && rows.length > 0) {
-    configRow = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
+  if (configRows.length === 0 && rows.length > 0) {
+    const fallback = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
       && !row.querySelector('[data-aue-prop="image"]')
       && !row.querySelector('picture'));
-    if (!configRow) [configRow] = rows;
+    if (fallback) return [fallback];
+    return [rows[0]];
   }
 
-  return configRow;
+  return configRows;
 }
 
-function readConfigField(configRow, name, columnIndexes = []) {
-  if (!configRow) return '';
-  const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
+function findPropElement(configRows, name) {
+  for (const row of configRows) {
+    const el = row.querySelector(`[data-aue-prop="${name}"]`);
+    if (el) return el;
+  }
+  return null;
+}
+
+function readConfigField(configRows, name, columnIndexes = []) {
+  if (!configRows || configRows.length === 0) return '';
+  const source = findPropElement(configRows, name);
   if (source) return source.textContent.trim();
 
-  const cols = [...configRow.children];
+  const cols = [...(configRows[0]?.children || [])];
   const value = columnIndexes
     .map((index) => cols[index]?.textContent.trim())
     .find(Boolean);
@@ -46,15 +55,15 @@ function readConfigField(configRow, name, columnIndexes = []) {
   return value || '';
 }
 
-function readConfigLinkField(configRow, name, columnIndexes = []) {
-  if (!configRow) return '';
-  const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
+function readConfigLinkField(configRows, name, columnIndexes = []) {
+  if (!configRows || configRows.length === 0) return '';
+  const source = findPropElement(configRows, name);
   if (source) {
     const anchor = source.tagName === 'A' ? source : source.querySelector('a');
     return anchor?.href || source.textContent.trim();
   }
 
-  const cols = [...configRow.children];
+  const cols = [...(configRows[0]?.children || [])];
   const value = columnIndexes
     .map((index) => {
       const anchor = cols[index]?.querySelector('a');
@@ -353,34 +362,34 @@ async function loadApiResources(config) {
 }
 
 export default async function decorate(block) {
-  const configRow = extractConfigRow(block);
-  const settings = parseKeyValueLines(readConfigField(configRow, 'settings', [4]));
+  const configRows = extractConfigRows(block);
+  const settings = parseKeyValueLines(readConfigField(configRows, 'settings', [4]));
   const config = {
-    heading: readConfigField(configRow, 'heading', [0]),
-    subheading: readConfigField(configRow, 'subheading', [1]),
-    backgroundColor: readConfigField(configRow, 'backgroundColor', [2])
+    heading: readConfigField(configRows, 'heading', [0]),
+    subheading: readConfigField(configRows, 'subheading', [1]),
+    backgroundColor: readConfigField(configRows, 'backgroundColor', [2])
       || getSettingValue(settings, ['backgroundcolor', 'background-color']),
-    buttonText: readConfigField(configRow, 'button', [3, 2]),
-    buttonLink: readConfigLinkField(configRow, 'buttonLink', [4, 3])
+    buttonText: readConfigField(configRows, 'button', [3, 2]),
+    buttonLink: readConfigLinkField(configRows, 'buttonLink', [4, 3])
       || getSettingValue(settings, ['buttonlink', 'button-link']),
-    apiBaseUrl: readConfigField(configRow, 'apiBaseUrl', [5])
+    apiBaseUrl: readConfigField(configRows, 'apiBaseUrl', [5])
       || getSettingValue(settings, ['apibaseurl', 'api-base-url']),
-    selected: readConfigField(configRow, 'selected', [6])
+    selected: readConfigField(configRows, 'selected', [6])
       || getSettingValue(settings, ['selected']),
-    limit: readConfigField(configRow, 'limit', [7])
+    limit: readConfigField(configRows, 'limit', [7])
       || getSettingValue(settings, ['limit'])
       || '6',
-    audiencePreset: readConfigField(configRow, 'audiencePreset', [8])
+    audiencePreset: readConfigField(configRows, 'audiencePreset', [8])
       || getSettingValue(settings, ['audiencepreset', 'audiences', 'audience']),
-    issuePreset: readConfigField(configRow, 'issuePreset', [9])
+    issuePreset: readConfigField(configRows, 'issuePreset', [9])
       || getSettingValue(settings, ['issuepreset', 'issues', 'issue']),
-    typePreset: readConfigField(configRow, 'typePreset', [10])
+    typePreset: readConfigField(configRows, 'typePreset', [10])
       || getSettingValue(settings, ['typepreset', 'types', 'type']),
-    tagPreset: readConfigField(configRow, 'tagPreset', [11])
+    tagPreset: readConfigField(configRows, 'tagPreset', [11])
       || getSettingValue(settings, ['tagpreset', 'tags', 'tag']),
   };
 
-  if (configRow) configRow.remove();
+  configRows.forEach((row) => row.remove());
   if (config.backgroundColor) {
     block.style.backgroundColor = config.backgroundColor;
   }
