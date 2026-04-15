@@ -35,11 +35,9 @@ function extractConfigRows(block) {
 }
 
 function findPropElement(configRows, name) {
-  for (const row of configRows) {
-    const el = row.querySelector(`[data-aue-prop="${name}"]`);
-    if (el) return el;
-  }
-  return null;
+  return configRows
+    .map((row) => row.querySelector(`[data-aue-prop="${name}"]`))
+    .find(Boolean) || null;
 }
 
 function readConfigField(configRows, name, columnIndexes = []) {
