@@ -292,6 +292,86 @@
     ]
   },
   {
+    "id": "amber-alert-info",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "mainImage",
+        "label": "Main Image (Left Side)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "mainImageAlt",
+        "label": "Main Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon (rendered white, ~116x64)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "stat1Number",
+        "label": "Stat 1 Number",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "stat1Text",
+        "label": "Stat 1 Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "stat2Number",
+        "label": "Stat 2 Number",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "stat2Text",
+        "label": "Stat 2 Text",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "btn-group",
     "fields": [
       {
