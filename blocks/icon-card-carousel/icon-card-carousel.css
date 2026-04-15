@@ -98,10 +98,6 @@ main > .section > .icon-card-carousel-wrapper {
   padding: 32px;
 }
 
-.icon-card-carousel .icon-card-carousel-card.no-icon .icon-card-carousel-spacer {
-  flex: 0 0 24px;
-}
-
 /* Icon */
 .icon-card-carousel .icon-card-carousel-icon {
   width: 96px;
@@ -156,6 +152,10 @@ main > .section > .icon-card-carousel-wrapper {
 /* Spacer pushes button to the bottom */
 .icon-card-carousel .icon-card-carousel-spacer {
   flex: 1;
+}
+
+.icon-card-carousel .icon-card-carousel-card.no-icon .icon-card-carousel-spacer {
+  flex: 0 0 24px;
 }
 
 /* Button */
