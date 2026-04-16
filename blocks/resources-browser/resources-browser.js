@@ -1,4 +1,4 @@
-import { moveInstrumentation } from '../../scripts/scripts.js';
+﻿import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const LEGACY_BLOCK_LABELS = {
@@ -257,18 +257,21 @@ function mapResource(resource) {
 }
 
 function mapApiResource(resource) {
-  return mapResource({
-    imgSrc: resource.thumbnail || '',
-    imageAlt: resource.title || '',
-    title: resource.title || '',
-    subtitle: resource.excerpt || '',
-    linkUrl: resource.detail_path || resource.resource_url || '',
-    id: resource.slug || `${resource.id || ''}`,
-    audience: resource.audience_label || '',
-    issue: resource.issue_label || '',
-    type: resource.resource_type_label || '',
-    tags: (resource.tags || []).map((tag) => tag.name),
-  });
+  return {
+    ...mapResource({
+      imgSrc: resource.thumbnail || '',
+      imageAlt: resource.title || '',
+      title: resource.title || '',
+      subtitle: resource.excerpt || '',
+      linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
+      id: resource.slug || `${resource.id || ''}`,
+      audience: resource.audience_label || '',
+      issue: resource.issue_label || '',
+      type: resource.resource_type_label || '',
+      tags: (resource.tags || []).map((tag) => tag.name),
+    }),
+    linkAction: resource.primary_action || '',
+  };
 }
 
 function parseResourceRow(row) {
@@ -386,7 +389,11 @@ function buildResourceCard(resource, row = null) {
     const link = document.createElement('a');
     link.className = 'resources-browser-card-link';
     link.href = resource.linkUrl;
-    link.textContent = 'Learn more ->';
+    if (resource.linkAction === 'download') {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+    link.textContent = resource.linkAction === 'download' ? 'Download PDF ->' : 'Learn more ->';
     content.append(link);
   }
 
@@ -901,3 +908,4 @@ export default async function decorate(block) {
     ]);
   }
 }
+

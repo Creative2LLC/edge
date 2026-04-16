@@ -1,4 +1,4 @@
-import { moveInstrumentation } from '../../scripts/scripts.js';
+﻿import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const BLOCK_PROPS = [
@@ -205,8 +205,9 @@ function mapApiResource(resource) {
     iconColor: '',
     title: resource.title || '',
     subtitle: resource.excerpt || '',
-    linkUrl: resource.detail_path || resource.resource_url || '',
-    linkText: 'Learn More',
+    linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
+    linkText: resource.primary_action === 'download' ? 'Download PDF' : 'Learn More',
+    linkAction: resource.primary_action || '',
     tags: (resource.tags || []).map((tag) => tag.name).slice(0, 4),
   };
 }
@@ -297,6 +298,10 @@ function buildResourceCard(resource, row) {
     const link = document.createElement('a');
     link.className = 'resources-card-link';
     link.href = resource.linkUrl;
+    if (resource.linkAction === 'download') {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
     link.textContent = resource.linkText || 'Learn More';
     content.append(link);
   }
@@ -495,3 +500,4 @@ export default async function decorate(block) {
 
   block.replaceChildren(inner);
 }
+

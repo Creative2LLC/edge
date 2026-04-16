@@ -1,4 +1,4 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+﻿import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
@@ -214,14 +214,15 @@ function buildMeta(resource) {
 }
 
 function buildActions(resource, ctaLabel) {
-  if (!resource.resource_url) return null;
+  const downloadUrl = resource.download_url || resource.resource_url;
+  if (!downloadUrl) return null;
 
   const actions = document.createElement('div');
   actions.className = 'resource-detail-actions';
 
   const link = document.createElement('a');
   link.className = 'resource-detail-primary-action';
-  link.href = resource.resource_url;
+  link.href = downloadUrl;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.textContent = ctaLabel;
@@ -399,3 +400,4 @@ export default async function decorate(block) {
     );
   }
 }
+

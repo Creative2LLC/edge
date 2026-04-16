@@ -1,4 +1,4 @@
-const FIELD_LABELS = {
+﻿const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
   slug: ['slug', 'resource slug', 'preview slug', 'preview resource slug'],
   heading: ['heading', 'title'],
@@ -172,7 +172,7 @@ function buildCard(resource) {
   const card = document.createElement('article');
   card.className = 'related-articles-card';
 
-  const href = normalizeEdgeContentPath(resource.detail_path);
+  const href = normalizeEdgeContentPath(resource.primary_url || resource.detail_path);
   if (href) {
     const link = document.createElement('a');
     link.className = 'related-articles-card-link-cover';
@@ -305,3 +305,4 @@ export default async function decorate(block) {
     block.replaceChildren(buildMessage('Related articles unavailable', error?.message || 'The related article API request failed.'));
   }
 }
+
