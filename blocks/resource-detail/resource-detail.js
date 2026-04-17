@@ -1,4 +1,4 @@
-﻿import { createOptimizedPicture } from '../../scripts/aem.js';
+import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
@@ -400,4 +400,3 @@ export default async function decorate(block) {
     );
   }
 }
-

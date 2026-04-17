@@ -1,4 +1,4 @@
-﻿import { moveInstrumentation } from '../../scripts/scripts.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const LEGACY_BLOCK_LABELS = {
@@ -908,4 +908,3 @@ export default async function decorate(block) {
     ]);
   }
 }
-

@@ -1,4 +1,4 @@
-﻿const FIELD_LABELS = {
+const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
   slug: ['slug', 'resource slug', 'preview slug', 'preview resource slug'],
   heading: ['heading', 'title'],
@@ -305,4 +305,3 @@ export default async function decorate(block) {
     block.replaceChildren(buildMessage('Related articles unavailable', error?.message || 'The related article API request failed.'));
   }
 }
-

@@ -1,4 +1,4 @@
-﻿import { moveInstrumentation } from '../../scripts/scripts.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const BLOCK_PROPS = [
@@ -500,4 +500,3 @@ export default async function decorate(block) {
 
   block.replaceChildren(inner);
 }
-
