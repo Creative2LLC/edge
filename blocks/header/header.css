@@ -489,11 +489,11 @@ header .nav-top-banner .top-banner-language-panel li:hover {
   }
 
   header nav .nav-sections .nav-top-list > li:first-child {
-    padding-left: 24px;
+    padding-left: 12px;
   }
 
   header nav .nav-sections .nav-top-list > li:last-child {
-    padding-right: 24px;
+    padding-right: 12px;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > a {
