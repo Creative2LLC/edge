@@ -27,6 +27,8 @@
       "resources-browser",
       "resource-detail",
       "article-detail",
+      "article-details",
+      "article-list",
       "related-articles",
       "icon-text",
       "icon-text-row",

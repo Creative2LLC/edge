@@ -401,6 +401,129 @@
     ]
   },
   {
+    "id": "article-details",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "pageTitle",
+        "label": "Page Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "jcr:description",
+        "label": "Intro / Description"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "authorName",
+        "label": "Author Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "articleDate",
+        "label": "Article Date"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "thumbnail",
+        "label": "Thumbnail Image",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "headerImage",
+        "label": "Header Image",
+        "multi": false
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "articleBody",
+        "label": "Article Body"
+      }
+    ]
+  },
+  {
+    "id": "article-list",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "selected",
+        "label": "Selected Article Slugs or IDs (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "exclude",
+        "label": "Excluded Article Slugs (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "filters",
+        "label": "Preset Filters (audiences/issues/tags)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "pageSize",
+        "label": "Items Per Page",
+        "value": "9"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "searchPlaceholder",
+        "label": "Search Placeholder",
+        "value": "Search articles"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "loadMoreText",
+        "label": "Load More Label",
+        "value": "Load More Articles"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "audiencePreset",
+        "label": "Preset Audiences"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "issuePreset",
+        "label": "Preset Issues"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tagPreset",
+        "label": "Preset Tags"
+      }
+    ]
+  },
+  {
     "id": "btn-group",
     "fields": [
       {
