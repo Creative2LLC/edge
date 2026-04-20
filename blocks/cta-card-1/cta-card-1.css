@@ -123,8 +123,7 @@
 
 /* --- Button 2 Location: Left variant --- */
 .cta-card-1.cta-card-1-button2-left.block {
-  padding-top: 32px;
-  padding-bottom: 32px;
+  padding: 40px 64px;
   min-height: 0;
 }
 
