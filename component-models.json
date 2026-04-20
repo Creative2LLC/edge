@@ -372,6 +372,35 @@
     ]
   },
   {
+    "id": "article-detail",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "slug",
+        "label": "Preview Article Slug (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "listingPath",
+        "label": "Back Link URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "listingLabel",
+        "label": "Back Link Label",
+        "value": "Back to Articles"
+      }
+    ]
+  },
+  {
     "id": "btn-group",
     "fields": [
       {
@@ -4309,10 +4338,30 @@
         "label": "API Base URL"
       },
       {
+        "component": "select",
+        "name": "sourceType",
+        "label": "Source Type",
+        "value": "auto",
+        "options": [
+          {
+            "name": "Auto",
+            "value": "auto"
+          },
+          {
+            "name": "Articles",
+            "value": "articles"
+          },
+          {
+            "name": "Resources",
+            "value": "resources"
+          }
+        ]
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "slug",
-        "label": "Preview Resource Slug (Optional)"
+        "label": "Preview Slug (Optional)"
       },
       {
         "component": "text",

@@ -1,11 +1,10 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const FIELD_LABELS = {
-  apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
-  slug: ['slug', 'resource slug', 'preview slug', 'preview resource slug'],
+  apiBaseUrl: ['api base url', 'api url', 'article api base url', 'article api url'],
+  slug: ['slug', 'article slug', 'preview slug', 'preview article slug'],
   listingPath: ['listing path', 'back link', 'back link url', 'back url'],
   listingLabel: ['listing label', 'back link label', 'back label'],
-  ctaLabel: ['cta label', 'resource cta label', 'button label', 'primary cta label'],
 };
 
 const FIELD_COLUMN_INDEX = {
@@ -13,11 +12,10 @@ const FIELD_COLUMN_INDEX = {
   slug: 1,
   listingPath: 2,
   listingLabel: 3,
-  ctaLabel: 4,
 };
 
 const EDGE_CONTENT_PREFIX = '/content/edge';
-const DEFAULT_RESOURCE_LISTING_PATH = '/content/edge/resources.html';
+const DEFAULT_ARTICLE_LISTING_PATH = '/content/edge/articles.html';
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -135,25 +133,18 @@ function getSlugFromPathname(pathname = window.location.pathname) {
   return normalizeSlug(segments[segments.length - 1] || '');
 }
 
-function buildPill(label, className = '') {
-  const pill = document.createElement('span');
-  pill.className = `resource-detail-pill ${className}`.trim();
-  pill.textContent = label;
-  return pill;
-}
-
 function buildMessage(title, description) {
   const wrapper = document.createElement('div');
-  wrapper.className = 'resource-detail-message';
+  wrapper.className = 'article-detail-message';
 
   const heading = document.createElement('h2');
-  heading.className = 'resource-detail-message-title';
+  heading.className = 'article-detail-message-title';
   heading.textContent = title;
   wrapper.append(heading);
 
   if (description) {
     const text = document.createElement('p');
-    text.className = 'resource-detail-message-copy';
+    text.className = 'article-detail-message-copy';
     text.textContent = description;
     wrapper.append(text);
   }
@@ -161,50 +152,49 @@ function buildMessage(title, description) {
   return wrapper;
 }
 
-function buildTaxonomy(resource) {
-  const values = [
-    resource.resource_type_label,
-    resource.audience_label,
-    resource.issue_label,
-  ].filter(Boolean);
+function buildPill(label, className = '') {
+  const pill = document.createElement('span');
+  pill.className = `article-detail-pill ${className}`.trim();
+  pill.textContent = label;
+  return pill;
+}
 
+function buildTaxonomy(article) {
+  const values = [article.audience_label, article.issue_label].filter(Boolean);
   if (!values.length) return null;
 
   const wrap = document.createElement('div');
-  wrap.className = 'resource-detail-taxonomy';
+  wrap.className = 'article-detail-taxonomy';
   values.forEach((value) => wrap.append(buildPill(value, 'is-taxonomy')));
   return wrap;
 }
 
-function buildTags(resource) {
-  const tags = (resource.tags || [])
-    .map((tag) => normalizeText(tag.name))
-    .filter(Boolean);
-
+function buildTags(article) {
+  const tags = (article.tags || []).map((tag) => normalizeText(tag.name)).filter(Boolean);
   if (!tags.length) return null;
 
   const wrap = document.createElement('div');
-  wrap.className = 'resource-detail-tags';
+  wrap.className = 'article-detail-tags';
   tags.forEach((tag) => wrap.append(buildPill(tag)));
   return wrap;
 }
 
-function buildMeta(resource) {
-  const values = [resource.author, resource.article_date_label].filter(Boolean);
+function buildMeta(article) {
+  const values = [article.author, article.article_date_label].filter(Boolean);
   if (!values.length) return null;
 
   const meta = document.createElement('div');
-  meta.className = 'resource-detail-meta';
+  meta.className = 'article-detail-meta';
 
   values.forEach((value, index) => {
     const item = document.createElement('span');
-    item.className = 'resource-detail-meta-item';
+    item.className = 'article-detail-meta-item';
     item.textContent = value;
     meta.append(item);
 
     if (index < values.length - 1) {
       const separator = document.createElement('span');
-      separator.className = 'resource-detail-meta-separator';
+      separator.className = 'article-detail-meta-separator';
       separator.textContent = '|';
       meta.append(separator);
     }
@@ -213,123 +203,102 @@ function buildMeta(resource) {
   return meta;
 }
 
-function buildActions(resource, ctaLabel) {
-  const downloadUrl = resource.download_url || resource.resource_url;
-  if (!downloadUrl) return null;
-
-  const actions = document.createElement('div');
-  actions.className = 'resource-detail-actions';
-
-  const link = document.createElement('a');
-  link.className = 'resource-detail-primary-action';
-  link.href = downloadUrl;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.textContent = ctaLabel;
-  actions.append(link);
-
-  return actions;
-}
-
-function buildHero(resource, config) {
-  const hero = document.createElement('section');
-  hero.className = 'resource-detail-hero';
-
-  if (resource.header_image) {
-    const media = document.createElement('div');
-    media.className = 'resource-detail-hero-media';
-    media.append(
-      createOptimizedPicture(
-        resource.header_image,
-        resource.title || 'Resource hero image',
-        false,
-        [{ width: '750' }, { width: '1600' }],
-      ),
-    );
-    hero.append(media);
-  }
-
-  const overlay = document.createElement('div');
-  overlay.className = 'resource-detail-hero-overlay';
-  hero.append(overlay);
-
-  const content = document.createElement('div');
-  content.className = 'resource-detail-hero-content';
-
-  const backLink = document.createElement('a');
-  backLink.className = 'resource-detail-back-link';
-  backLink.href = config.listingPath;
-  backLink.textContent = config.listingLabel;
-  content.append(backLink);
-
-  const taxonomy = buildTaxonomy(resource);
-  if (taxonomy) content.append(taxonomy);
-
-  const title = document.createElement('h1');
-  title.className = 'resource-detail-title';
-  title.textContent = resource.title || 'Resource';
-  content.append(title);
-
-  const meta = buildMeta(resource);
-  if (meta) content.append(meta);
-
-  if (normalizeText(resource.excerpt)) {
-    const excerpt = document.createElement('p');
-    excerpt.className = 'resource-detail-excerpt';
-    excerpt.textContent = resource.excerpt;
-    content.append(excerpt);
-  }
-
-  const actions = buildActions(resource, config.ctaLabel);
-  if (actions) content.append(actions);
-
-  hero.append(content);
-  return hero;
-}
-
-function buildBody(resource) {
-  const article = document.createElement('article');
-  article.className = 'resource-detail-article';
+function buildHeader(article, config) {
+  const section = document.createElement('section');
+  section.className = 'article-detail-header';
 
   const inner = document.createElement('div');
-  inner.className = 'resource-detail-prose';
+  inner.className = 'article-detail-header-inner';
 
-  const tags = buildTags(resource);
-  if (tags) inner.append(tags);
+  const backLink = document.createElement('a');
+  backLink.className = 'article-detail-back-link';
+  backLink.href = config.listingPath;
+  backLink.textContent = config.listingLabel;
+  inner.append(backLink);
 
-  if (normalizeText(resource.body)) {
-    const body = document.createElement('div');
-    body.className = 'resource-detail-body';
-    body.innerHTML = resource.body;
-    inner.append(body);
-    article.append(inner);
-    return article;
+  const taxonomy = buildTaxonomy(article);
+  if (taxonomy) inner.append(taxonomy);
+
+  const title = document.createElement('h1');
+  title.className = 'article-detail-title';
+  title.textContent = article.title || 'Article';
+  inner.append(title);
+
+  const meta = buildMeta(article);
+  if (meta) inner.append(meta);
+
+  if (normalizeText(article.excerpt)) {
+    const excerpt = document.createElement('p');
+    excerpt.className = 'article-detail-excerpt';
+    excerpt.textContent = article.excerpt;
+    inner.append(excerpt);
   }
 
-  if (normalizeText(resource.excerpt)) {
-    const paragraph = document.createElement('p');
-    paragraph.className = 'resource-detail-body';
-    paragraph.textContent = resource.excerpt;
-    inner.append(paragraph);
-    article.append(inner);
-    return article;
-  }
-
-  return null;
+  section.append(inner);
+  return section;
 }
 
-function buildResourceView(resource, config) {
-  const fragment = document.createDocumentFragment();
-  fragment.append(buildHero(resource, config));
+function buildFeatureMedia(article) {
+  const image = article.header_image || article.thumbnail;
+  if (!image) return null;
 
-  const body = buildBody(resource);
+  const section = document.createElement('section');
+  section.className = 'article-detail-feature-media';
+
+  const frame = document.createElement('div');
+  frame.className = 'article-detail-feature-media-frame';
+  frame.append(
+    createOptimizedPicture(
+      image,
+      article.title || 'Article image',
+      false,
+      [{ width: '750' }, { width: '1600' }],
+    ),
+  );
+
+  section.append(frame);
+  return section;
+}
+
+function buildBody(article) {
+  const hasBody = normalizeText(article.body);
+  const tags = buildTags(article);
+  if (!hasBody && !tags) return null;
+
+  const section = document.createElement('article');
+  section.className = 'article-detail-content';
+
+  const inner = document.createElement('div');
+  inner.className = 'article-detail-prose';
+
+  if (tags) inner.append(tags);
+
+  if (hasBody) {
+    const body = document.createElement('div');
+    body.className = 'article-detail-body';
+    body.innerHTML = article.body;
+    inner.append(body);
+  }
+
+  section.append(inner);
+  return section;
+}
+
+function buildArticleView(article, config) {
+  const fragment = document.createDocumentFragment();
+  fragment.append(buildHeader(article, config));
+
+  const media = buildFeatureMedia(article);
+  if (media) fragment.append(media);
+
+  const body = buildBody(article);
   if (body) fragment.append(body);
 
   return fragment;
 }
 
-async function fetchResource(apiBaseUrl, slug) {
-  const endpoint = new URL(`/api/resources/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
+async function fetchArticle(apiBaseUrl, slug) {
+  const endpoint = new URL(`/api/articles/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
   const response = await fetch(endpoint.toString(), {
     headers: { Accept: 'application/json' },
   });
@@ -347,56 +316,35 @@ export default async function decorate(block) {
   const config = {
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl')),
     slug: normalizeSlug(getFieldValue(block, 'slug')) || getSlugFromPathname(),
-    listingPath: normalizeEdgeContentPath(getFieldValue(block, 'listingPath'), DEFAULT_RESOURCE_LISTING_PATH),
-    listingLabel: getFieldValue(block, 'listingLabel', 'Back to Resources') || 'Back to Resources',
-    ctaLabel: getFieldValue(block, 'ctaLabel', 'Open Resource') || 'Open Resource',
+    listingPath: normalizeEdgeContentPath(getFieldValue(block, 'listingPath'), DEFAULT_ARTICLE_LISTING_PATH),
+    listingLabel: getFieldValue(block, 'listingLabel', 'Back to Articles') || 'Back to Articles',
   };
 
-  block.replaceChildren(buildMessage('Loading resource...', ''));
+  block.replaceChildren(buildMessage('Loading article...', ''));
 
   if (!config.apiBaseUrl) {
-    block.replaceChildren(
-      buildMessage(
-        'Missing API configuration',
-        'Set apiBaseUrl on this block so the resource detail page can load data.',
-      ),
-    );
+    block.replaceChildren(buildMessage('Missing API configuration', 'Set apiBaseUrl on this block so the article page can load data.'));
     return;
   }
 
   if (!config.slug) {
-    block.replaceChildren(
-      buildMessage(
-        'Missing resource slug',
-        'Set a slug on the block for preview, or open the page using a /resources/{slug} URL.',
-      ),
-    );
+    block.replaceChildren(buildMessage('Missing article slug', 'Set a preview slug on the block or open the page using an /articles/{slug} URL.'));
     return;
   }
 
   try {
-    const resource = await fetchResource(config.apiBaseUrl, config.slug);
+    const article = await fetchArticle(config.apiBaseUrl, config.slug);
 
-    if (!resource) {
-      block.replaceChildren(
-        buildMessage(
-          'Resource not found',
-          `No published resource was found for the slug "${config.slug}".`,
-        ),
-      );
+    if (!article) {
+      block.replaceChildren(buildMessage('Article not found', `No published article was found for the slug "${config.slug}".`));
       return;
     }
 
-    block.replaceChildren(buildResourceView(resource, config));
-    if (normalizeText(resource.title)) {
-      document.title = `${resource.title} | NCMEC`;
+    block.replaceChildren(buildArticleView(article, config));
+    if (normalizeText(article.title)) {
+      document.title = `${article.title} | NCMEC`;
     }
   } catch (error) {
-    block.replaceChildren(
-      buildMessage(
-        'Resource unavailable',
-        error?.message || 'The resource detail API request failed.',
-      ),
-    );
+    block.replaceChildren(buildMessage('Article unavailable', error?.message || 'The article API request failed.'));
   }
 }

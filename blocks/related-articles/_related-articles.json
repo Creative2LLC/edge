@@ -27,10 +27,21 @@
           "label": "API Base URL"
         },
         {
+          "component": "select",
+          "name": "sourceType",
+          "label": "Source Type",
+          "value": "auto",
+          "options": [
+            { "name": "Auto", "value": "auto" },
+            { "name": "Articles", "value": "articles" },
+            { "name": "Resources", "value": "resources" }
+          ]
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "slug",
-          "label": "Preview Resource Slug (Optional)"
+          "label": "Preview Slug (Optional)"
         },
         {
           "component": "text",

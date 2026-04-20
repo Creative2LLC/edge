@@ -1,15 +1,17 @@
-﻿const FIELD_LABELS = {
-  apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
-  slug: ['slug', 'resource slug', 'preview slug', 'preview resource slug'],
+const FIELD_LABELS = {
+  apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url', 'article api base url', 'article api url'],
+  sourceType: ['source type', 'content type', 'mode'],
+  slug: ['slug', 'resource slug', 'article slug', 'preview slug', 'preview resource slug', 'preview article slug'],
   heading: ['heading', 'title'],
   limit: ['limit', 'item limit', 'count'],
 };
 
 const FIELD_COLUMN_INDEX = {
   apiBaseUrl: 0,
-  slug: 1,
-  heading: 2,
-  limit: 3,
+  sourceType: 1,
+  slug: 2,
+  heading: 3,
+  limit: 4,
 };
 
 const EDGE_CONTENT_PREFIX = '/content/edge';
@@ -34,6 +36,17 @@ function normalizeSlug(value) {
   } catch (e) {
     return normalized;
   }
+}
+
+function normalizeSourceType(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  return ['articles', 'resources', 'auto'].includes(normalized) ? normalized : 'auto';
+}
+
+function inferSourceType(pathname = window.location.pathname) {
+  const cleanPath = normalizeText(pathname).toLowerCase();
+  if (cleanPath.includes('/resources/')) return 'resources';
+  return 'articles';
 }
 
 function getSlugFromPathname(pathname = window.location.pathname) {
@@ -154,11 +167,11 @@ function buildPill(label, className = '') {
   return pill;
 }
 
-function buildTaxonomy(resource) {
+function buildTaxonomy(item) {
   const values = [
-    resource.resource_type_label,
-    resource.audience_label,
-    resource.issue_label,
+    item.resource_type_label,
+    item.audience_label,
+    item.issue_label,
   ].filter(Boolean);
   if (!values.length) return null;
 
@@ -168,25 +181,25 @@ function buildTaxonomy(resource) {
   return wrap;
 }
 
-function buildCard(resource) {
+function buildCard(item) {
   const card = document.createElement('article');
   card.className = 'related-articles-card';
 
-  const href = normalizeEdgeContentPath(resource.primary_url || resource.detail_path);
+  const href = normalizeEdgeContentPath(item.primary_url || item.detail_path || item.page_path);
   if (href) {
     const link = document.createElement('a');
     link.className = 'related-articles-card-link-cover';
     link.href = href;
-    link.setAttribute('aria-label', resource.title || 'Related article');
+    link.setAttribute('aria-label', item.title || 'Related article');
     card.append(link);
   }
 
-  if (resource.thumbnail) {
+  if (item.thumbnail) {
     const media = document.createElement('div');
     media.className = 'related-articles-card-media';
     const image = document.createElement('img');
-    image.src = resource.thumbnail;
-    image.alt = resource.title || 'Related article image';
+    image.src = item.thumbnail;
+    image.alt = item.title || 'Related article image';
     image.loading = 'lazy';
     media.append(image);
     card.append(media);
@@ -195,25 +208,25 @@ function buildCard(resource) {
   const body = document.createElement('div');
   body.className = 'related-articles-card-body';
 
-  const taxonomy = buildTaxonomy(resource);
+  const taxonomy = buildTaxonomy(item);
   if (taxonomy) body.append(taxonomy);
 
-  if (resource.article_date_label) {
+  if (item.article_date_label) {
     const date = document.createElement('p');
     date.className = 'related-articles-card-date';
-    date.textContent = resource.article_date_label;
+    date.textContent = item.article_date_label;
     body.append(date);
   }
 
   const title = document.createElement('h3');
   title.className = 'related-articles-card-title';
-  title.textContent = resource.title || 'Related article';
+  title.textContent = item.title || 'Related article';
   body.append(title);
 
-  if (resource.excerpt) {
+  if (item.excerpt) {
     const excerpt = document.createElement('p');
     excerpt.className = 'related-articles-card-excerpt';
-    excerpt.textContent = resource.excerpt;
+    excerpt.textContent = item.excerpt;
     body.append(excerpt);
   }
 
@@ -229,7 +242,7 @@ function buildCard(resource) {
   return card;
 }
 
-function buildView(resources, config) {
+function buildView(items, config) {
   const fragment = document.createDocumentFragment();
 
   if (config.heading) {
@@ -241,13 +254,13 @@ function buildView(resources, config) {
 
   const grid = document.createElement('div');
   grid.className = 'related-articles-grid';
-  resources.forEach((resource) => grid.append(buildCard(resource)));
+  items.forEach((item) => grid.append(buildCard(item)));
   fragment.append(grid);
   return fragment;
 }
 
-async function fetchResource(apiBaseUrl, slug) {
-  const endpoint = new URL(`/api/resources/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
+async function fetchItem(apiBaseUrl, sourceType, slug) {
+  const endpoint = new URL(`/api/${sourceType}/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
   const response = await fetch(endpoint.toString(), {
     headers: { Accept: 'application/json' },
   });
@@ -262,8 +275,12 @@ async function fetchResource(apiBaseUrl, slug) {
 }
 
 export default async function decorate(block) {
+  const configuredSourceType = normalizeSourceType(getFieldValue(block, 'sourceType', 'auto'));
+  const sourceType = configuredSourceType === 'auto' ? inferSourceType() : configuredSourceType;
+
   const config = {
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl')),
+    sourceType,
     slug: normalizeSlug(getFieldValue(block, 'slug')) || getSlugFromPathname(),
     heading: getFieldValue(block, 'heading', 'Related Articles') || 'Related Articles',
     limit: parseLimit(getFieldValue(block, 'limit', '3'), 3),
@@ -272,28 +289,18 @@ export default async function decorate(block) {
   block.replaceChildren(buildMessage('Loading related articles...', ''));
 
   if (!config.apiBaseUrl) {
-    block.replaceChildren(
-      buildMessage(
-        'Missing API configuration',
-        'Set apiBaseUrl on this block so it can load related article data.',
-      ),
-    );
+    block.replaceChildren(buildMessage('Missing API configuration', 'Set apiBaseUrl on this block so it can load related content.'));
     return;
   }
 
   if (!config.slug) {
-    block.replaceChildren(
-      buildMessage(
-        'Missing resource slug',
-        'Set a preview slug on the block or open the page using a /resources/{slug} URL.',
-      ),
-    );
+    block.replaceChildren(buildMessage('Missing preview slug', 'Set a preview slug on the block or open the page using an article or resource detail URL.'));
     return;
   }
 
   try {
-    const resource = await fetchResource(config.apiBaseUrl, config.slug);
-    const related = (resource?.related_articles || []).slice(0, config.limit);
+    const item = await fetchItem(config.apiBaseUrl, config.sourceType, config.slug);
+    const related = (item?.related_articles || []).slice(0, config.limit);
 
     if (!related.length) {
       block.replaceChildren();
@@ -305,4 +312,3 @@ export default async function decorate(block) {
     block.replaceChildren(buildMessage('Related articles unavailable', error?.message || 'The related article API request failed.'));
   }
 }
-
