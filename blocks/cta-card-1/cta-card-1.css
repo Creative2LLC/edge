@@ -34,7 +34,15 @@
   color: #404041;
   margin: 0;
   line-height: 1.5;
-  max-width: 700px;
+  max-width: 370px;
+}
+
+.cta-card-1 .cta-card-1-subtitle > *:first-child {
+  margin-top: 0;
+}
+
+.cta-card-1 .cta-card-1-subtitle > *:last-child {
+  margin-bottom: 0;
 }
 
 /* Right side — shrink-wraps to button content */
@@ -90,7 +98,7 @@
 }
 
 .cta-card-1 .cta-card-1-button-secondary {
-  background-color: #fff !important;
+  background-color: transparent !important;
   border: 1px solid currentcolor;
 }
 
@@ -102,6 +110,15 @@
   text-align: left;
   max-width: 394px;
   align-self: flex-start;
+  white-space: pre-wrap;
+}
+
+.cta-card-1 .cta-card-1-below-button > *:first-child {
+  margin-top: 0;
+}
+
+.cta-card-1 .cta-card-1-below-button > *:last-child {
+  margin-bottom: 0;
 }
 
 /* Responsive */

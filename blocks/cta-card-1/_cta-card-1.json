@@ -27,7 +27,7 @@
           "label": "Title"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "subtitle",
           "label": "Subtitle"
@@ -91,7 +91,7 @@
           "label": "Button 2 Color (Hex)"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "belowButtonText",
           "label": "Text Below Button"

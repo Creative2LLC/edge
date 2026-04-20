@@ -63,7 +63,7 @@ export default function decorate(block) {
   const title = buildTextElement('h2', 'cta-card-1-title', titleField);
   if (title) left.append(title);
 
-  const subtitle = buildTextElement('p', 'cta-card-1-subtitle', subtitleField);
+  const subtitle = buildTextElement('div', 'cta-card-1-subtitle', subtitleField);
   if (subtitle) left.append(subtitle);
 
   // Right side
@@ -124,7 +124,7 @@ export default function decorate(block) {
       btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
       btn2.style.setProperty('color', btn2Color, 'important');
     }
-    btn2.style.setProperty('background-color', '#ffffff', 'important');
+    btn2.style.setProperty('background-color', 'transparent', 'important');
     right.append(btn2);
   }
 
@@ -135,7 +135,7 @@ export default function decorate(block) {
     else button2LinkField.source.remove();
   }
 
-  const belowText = buildTextElement('p', 'cta-card-1-below-button', belowButtonTextField);
+  const belowText = buildTextElement('div', 'cta-card-1-below-button', belowButtonTextField);
   if (belowText) right.append(belowText);
 
   // Clean up buttonLink source
