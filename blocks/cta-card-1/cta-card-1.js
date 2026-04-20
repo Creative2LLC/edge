@@ -49,7 +49,11 @@ export default function decorate(block) {
   const button2TextField = getField(block, rows, 'button2Text', 9);
   const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
   const button2ColorField = getField(block, rows, 'button2Color', 11);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 12);
+  const button2LocationField = getField(block, rows, 'button2Location', 12);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 13);
+  const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
+  if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
+  if (button2LocationField.source) button2LocationField.source.remove();
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';
@@ -63,7 +67,7 @@ export default function decorate(block) {
   const title = buildTextElement('h2', 'cta-card-1-title', titleField);
   if (title) left.append(title);
 
-  const subtitle = buildTextElement('p', 'cta-card-1-subtitle', subtitleField);
+  const subtitle = buildTextElement('div', 'cta-card-1-subtitle', subtitleField);
   if (subtitle) left.append(subtitle);
 
   // Right side
@@ -124,8 +128,9 @@ export default function decorate(block) {
       btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
       btn2.style.setProperty('color', btn2Color, 'important');
     }
-    btn2.style.setProperty('background-color', '#ffffff', 'important');
-    right.append(btn2);
+    btn2.style.setProperty('background-color', 'transparent', 'important');
+    if (button2Location === 'left') left.append(btn2);
+    else right.append(btn2);
   }
 
   // Clean up button2Link source
@@ -135,8 +140,15 @@ export default function decorate(block) {
     else button2LinkField.source.remove();
   }
 
-  const belowText = buildTextElement('p', 'cta-card-1-below-button', belowButtonTextField);
-  if (belowText) right.append(belowText);
+  const belowText = buildTextElement('div', 'cta-card-1-below-button', belowButtonTextField);
+  if (belowText) {
+    if (button2Location === 'left') {
+      right.classList.add('cta-card-1-right-inline');
+      right.append(belowText);
+    } else {
+      right.append(belowText);
+    }
+  }
 
   // Clean up buttonLink source
   if (buttonLinkField.source) {

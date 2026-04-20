@@ -488,6 +488,14 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     padding: 10px 14px;
   }
 
+  header nav .nav-sections .nav-top-list > li:first-child {
+    padding-left: 12px;
+  }
+
+  header nav .nav-sections .nav-top-list > li:last-child {
+    padding-right: 12px;
+  }
+
   header nav .nav-sections .default-content-wrapper > ul > li > a {
     font-size: 18.5px;
     font-weight: 600;

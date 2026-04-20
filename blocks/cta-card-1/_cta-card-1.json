@@ -27,7 +27,7 @@
           "label": "Title"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "subtitle",
           "label": "Subtitle"
@@ -91,7 +91,24 @@
           "label": "Button 2 Color (Hex)"
         },
         {
-          "component": "text",
+          "component": "select",
+          "valueType": "string",
+          "name": "button2Location",
+          "label": "Button 2 Location",
+          "options": [
+            {
+              "name": "Right Side (default)",
+              "value": "right"
+            },
+            {
+              "name": "Left Side",
+              "value": "left"
+            }
+          ],
+          "value": "right"
+        },
+        {
+          "component": "richtext",
           "valueType": "string",
           "name": "belowButtonText",
           "label": "Text Below Button"
