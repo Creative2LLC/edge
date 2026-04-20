@@ -134,6 +134,18 @@
 .cta-card-1.cta-card-1-button2-left .cta-card-1-left .cta-card-1-button-secondary {
   display: inline-flex;
   margin-top: 24px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.cta-card-1.cta-card-1-button2-left .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.cta-card-1.cta-card-1-button2-left .cta-card-1-right .cta-card-1-button-main {
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-right.cta-card-1-right-inline {
