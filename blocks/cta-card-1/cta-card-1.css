@@ -34,7 +34,7 @@
   color: #404041;
   margin: 0;
   line-height: 1.5;
-  max-width: 370px;
+  max-width: 701px;
 }
 
 .cta-card-1 .cta-card-1-subtitle > *:first-child {
@@ -119,6 +119,31 @@
 
 .cta-card-1 .cta-card-1-below-button > *:last-child {
   margin-bottom: 0;
+}
+
+/* --- Button 2 Location: Left variant --- */
+.cta-card-1.cta-card-1-button2-left .cta-card-1-title {
+  font-size: 36px !important;
+}
+
+.cta-card-1.cta-card-1-button2-left .cta-card-1-subtitle {
+  font-size: 17px !important;
+  max-width: 367px;
+}
+
+.cta-card-1.cta-card-1-button2-left .cta-card-1-left .cta-card-1-button-secondary {
+  display: inline-flex;
+  margin-top: 24px;
+}
+
+.cta-card-1.cta-card-1-button2-left .cta-card-1-right.cta-card-1-right-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+}
+
+.cta-card-1.cta-card-1-button2-left .cta-card-1-right.cta-card-1-right-inline .cta-card-1-below-button {
+  align-self: center;
 }
 
 /* Responsive */

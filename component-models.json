@@ -1219,6 +1219,23 @@
         "label": "Button 2 Color (Hex)"
       },
       {
+        "component": "select",
+        "valueType": "string",
+        "name": "button2Location",
+        "label": "Button 2 Location",
+        "options": [
+          {
+            "name": "Right Side (default)",
+            "value": "right"
+          },
+          {
+            "name": "Left Side",
+            "value": "left"
+          }
+        ],
+        "value": "right"
+      },
+      {
         "component": "richtext",
         "valueType": "string",
         "name": "belowButtonText",

@@ -49,7 +49,11 @@ export default function decorate(block) {
   const button2TextField = getField(block, rows, 'button2Text', 9);
   const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
   const button2ColorField = getField(block, rows, 'button2Color', 11);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 12);
+  const button2LocationField = getField(block, rows, 'button2Location', 12);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 13);
+  const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
+  if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
+  if (button2LocationField.source) button2LocationField.source.remove();
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';
@@ -125,7 +129,8 @@ export default function decorate(block) {
       btn2.style.setProperty('color', btn2Color, 'important');
     }
     btn2.style.setProperty('background-color', 'transparent', 'important');
-    right.append(btn2);
+    if (button2Location === 'left') left.append(btn2);
+    else right.append(btn2);
   }
 
   // Clean up button2Link source
@@ -136,7 +141,14 @@ export default function decorate(block) {
   }
 
   const belowText = buildTextElement('div', 'cta-card-1-below-button', belowButtonTextField);
-  if (belowText) right.append(belowText);
+  if (belowText) {
+    if (button2Location === 'left') {
+      right.classList.add('cta-card-1-right-inline');
+      right.append(belowText);
+    } else {
+      right.append(belowText);
+    }
+  }
 
   // Clean up buttonLink source
   if (buttonLinkField.source) {
