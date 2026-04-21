@@ -18,12 +18,35 @@
   text-align: center;
 }
 
-.statistics .statistics-heading.statistics-heading-left {
+/* Content Alignment: Left / Right variants
+   Constrains the inner content to 1200px (matching the hero's .hero-content)
+   so left/right-aligned text lines up with the hero title's edge. */
+.statistics.statistics-align-left .statistics-inner,
+.statistics.statistics-align-right .statistics-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.statistics.statistics-align-left .statistics-heading,
+.statistics.statistics-align-left .statistics-subheading,
+.statistics.statistics-align-left .statistics-item {
   text-align: left;
 }
 
-.statistics .statistics-heading.statistics-heading-right {
+.statistics.statistics-align-right .statistics-heading,
+.statistics.statistics-align-right .statistics-subheading,
+.statistics.statistics-align-right .statistics-item {
   text-align: right;
+}
+
+/* Strip the outside edge padding so first/last item content
+   flushes with the container edge (matches heading/subheading). */
+.statistics.statistics-align-left .statistics-item:first-child {
+  padding-left: 0;
+}
+
+.statistics.statistics-align-right .statistics-item:last-child {
+  padding-right: 0;
 }
 
 .statistics .statistics-subheading {

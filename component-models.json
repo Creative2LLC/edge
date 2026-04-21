@@ -5838,8 +5838,8 @@
       {
         "component": "select",
         "valueType": "string",
-        "name": "headingAlignment",
-        "label": "Heading Alignment",
+        "name": "contentAlignment",
+        "label": "Content Alignment",
         "options": [
           {
             "name": "Center (default)",
