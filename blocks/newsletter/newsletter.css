@@ -51,6 +51,7 @@ main > .section > .newsletter-wrapper {
 
 .newsletter .newsletter-heading {
   margin: 0;
+  padding-top: 104px;
   color: #008eb7;
   font-size: clamp(2rem, 4vw, 3.25rem);
   line-height: 1.1;
@@ -65,6 +66,7 @@ main > .section > .newsletter-wrapper {
 
 .newsletter .newsletter-form {
   margin-top: 24px;
+  padding-bottom: 104px;
   display: flex;
   align-items: center;
   justify-content: center;

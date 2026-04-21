@@ -31,6 +31,13 @@ function getLinkField(row, name, index) {
   return { source: null, value: '' };
 }
 
+function normalizeLengthValue(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
+  return trimmed;
+}
+
 function formatLinkText(text) {
   return text.replace(
     /(\([^)]*\))/g,
@@ -97,6 +104,14 @@ export default function decorate(block) {
     '[data-aue-prop="subheading"]',
   );
   const subheading = subheadingEl?.textContent.trim() || '';
+
+  const marginTopEl = block.querySelector(
+    '[data-aue-prop="marginTop"]',
+  );
+  const marginTopValue = normalizeLengthValue(marginTopEl?.textContent);
+  if (marginTopValue) {
+    block.style.setProperty('margin-top', marginTopValue, 'important');
+  }
 
   const cards = [];
   rows.forEach((row) => {

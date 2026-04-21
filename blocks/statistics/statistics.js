@@ -95,6 +95,7 @@ function parseTextSizes(value) {
 
 export default function decorate(block) {
   const headingField = readField(block, 'heading', ['heading', 'title']);
+  const contentAlignmentField = readField(block, 'contentAlignment', ['content alignment', 'heading alignment']);
   const subheadingField = readField(block, 'subheading', ['subheading']);
   const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
   const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
@@ -111,6 +112,11 @@ export default function decorate(block) {
   if (textColors.label) block.style.setProperty('--statistics-label-color', textColors.label);
   if (textSizes.value) block.style.setProperty('--statistics-value-size', textSizes.value);
   if (textSizes.label) block.style.setProperty('--statistics-label-size', textSizes.label);
+
+  const alignment = contentAlignmentField.value.toLowerCase();
+  if (alignment === 'left' || alignment === 'right') {
+    block.classList.add(`statistics-align-${alignment}`);
+  }
 
   const wrapper = document.createElement('div');
   wrapper.className = 'statistics-inner';

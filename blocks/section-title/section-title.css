@@ -54,6 +54,7 @@
   color: #404041;
   margin: 12px 0 0;
   line-height: 1.4;
+  max-width: 799px;
 }
 
 .section-title .section-title-subtitle p {

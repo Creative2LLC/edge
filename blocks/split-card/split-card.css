@@ -109,6 +109,34 @@
   text-decoration: none;
 }
 
+/* Outlined variant — inline colors set via JS, base hook here */
+.split-card .split-card-button.is-outlined {
+  box-shadow: none;
+}
+
+/* Link variant — strips the pill look */
+.split-card .split-card-button.is-link {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.split-card .split-card-button.is-link:hover,
+.split-card .split-card-button.is-link:focus {
+  text-decoration: underline;
+  opacity: 1;
+}
+
+/* When a link-style button follows another button, add breathing room.
+   The .is-link variant has padding: 0, so the 12px container gap feels
+   tight compared to spacing between two padded buttons. */
+.split-card .split-card-button + .split-card-button.is-link {
+  margin-left: 12px;
+}
+
 /* Responsive */
 @media (width <= 700px) {
   .split-card .split-card-inner {

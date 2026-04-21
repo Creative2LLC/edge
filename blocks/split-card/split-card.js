@@ -100,7 +100,42 @@ function collectColorValues(block) {
   };
 }
 
-function buildButton(text, href, backgroundColor) {
+function normalizeButtonStyle(value) {
+  const v = String(value || '').trim().toLowerCase();
+  if (['outline', 'outlined', 'border', 'bordered'].includes(v)) return 'outlined';
+  if (['solid', 'filled', 'fill'].includes(v)) return 'solid';
+  if (['link', 'text', 'plain'].includes(v)) return 'link';
+  return 'default';
+}
+
+function applyButtonStyle(button, backgroundColor, style) {
+  const normalized = normalizeButtonStyle(style);
+  const accent = backgroundColor || '#008db6';
+
+  if (normalized === 'link') {
+    button.classList.add('is-link');
+    button.style.setProperty('background-color', 'transparent', 'important');
+    button.style.setProperty('color', accent, 'important');
+    button.style.setProperty('border', 'none', 'important');
+    return;
+  }
+
+  if (normalized === 'outlined') {
+    button.classList.add('is-outlined');
+    button.style.setProperty('background-color', 'transparent', 'important');
+    button.style.setProperty('color', accent, 'important');
+    button.style.setProperty('border', `2px solid ${accent}`, 'important');
+    return;
+  }
+
+  // default + solid share behavior: keep existing solid look
+  if (normalized === 'solid') button.classList.add('is-solid');
+  if (backgroundColor) {
+    button.style.setProperty('background-color', backgroundColor, 'important');
+  }
+}
+
+function buildButton(text, href, backgroundColor, style) {
   if (!text && !href) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
@@ -111,9 +146,7 @@ function buildButton(text, href, backgroundColor) {
     button.href = href;
   }
 
-  if (backgroundColor) {
-    button.style.setProperty('background-color', backgroundColor, 'important');
-  }
+  applyButtonStyle(button, backgroundColor, style);
 
   return button;
 }
@@ -129,6 +162,8 @@ export default async function decorate(block) {
   const buttonLink = getLinkField(block, 'buttonLink') || normalizeJsonFieldValue(resourceData.buttonLink);
   const button2Text = getField(block, 'button2Text') || normalizeJsonFieldValue(resourceData.button2Text);
   const button2Link = getLinkField(block, 'button2Link') || normalizeJsonFieldValue(resourceData.button2Link);
+  const buttonStyle = getField(block, 'buttonStyle') || normalizeJsonFieldValue(resourceData.buttonStyle);
+  const button2Style = getField(block, 'button2Style') || normalizeJsonFieldValue(resourceData.button2Style);
   const imageAlt = getField(block, 'imageAlt') || normalizeJsonFieldValue(resourceData.imageAlt);
 
   const colors = collectColorValues(block);
@@ -209,8 +244,8 @@ export default async function decorate(block) {
     contentSide.append(p);
   }
 
-  const primaryButton = buildButton(buttonText, buttonLink, buttonColor);
-  const secondaryButton = buildButton(button2Text, button2Link, button2Color);
+  const primaryButton = buildButton(buttonText, buttonLink, buttonColor, buttonStyle);
+  const secondaryButton = buildButton(button2Text, button2Link, button2Color, button2Style);
 
   if (primaryButton || secondaryButton) {
     const btnContainer = document.createElement('div');

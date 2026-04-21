@@ -28,6 +28,27 @@
           "label": "Heading"
         },
         {
+          "component": "select",
+          "valueType": "string",
+          "name": "contentAlignment",
+          "label": "Content Alignment",
+          "options": [
+            {
+              "name": "Center (default)",
+              "value": "center"
+            },
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "center"
+        },
+        {
           "component": "richtext",
           "valueType": "string",
           "name": "subheading",

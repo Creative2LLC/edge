@@ -34,6 +34,13 @@ function getLinkField(block, name) {
  * Color text fields can be auto-linked by EDS — pull a hex back out of an
  * https:// href if needed (mirrors split-card-info.js).
  */
+function normalizeLengthValue(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
+  return trimmed;
+}
+
 function normalizeColorValue(value) {
   if (!value) return '';
   const trimmed = value.trim();
@@ -88,6 +95,15 @@ export default function decorate(block) {
 
   const alignment = alignField.value || 'left';
   if (alignField.row) alignField.row.remove();
+
+  const marginTopField = getField(block, 'marginTop');
+  const marginBottomField = getField(block, 'marginBottom');
+  const marginTopValue = normalizeLengthValue(marginTopField.value);
+  const marginBottomValue = normalizeLengthValue(marginBottomField.value);
+  if (marginTopValue) block.style.setProperty('margin-top', marginTopValue, 'important');
+  if (marginBottomValue) block.style.setProperty('margin-bottom', marginBottomValue, 'important');
+  if (marginTopField.row) marginTopField.row.remove();
+  if (marginBottomField.row) marginBottomField.row.remove();
 
   // Build the button BEFORE we touch anything else, so its source rows are
   // still in place when we extract them.

@@ -47,6 +47,14 @@
           "valueType": "string",
           "name": "subheading",
           "label": "Subheading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "marginTop",
+          "label": "Top Spacing (Optional)",
+          "description": "Overrides the default top margin. Accepts any CSS length (e.g. 30px, -60px, 2rem, 0). Plain numbers default to px.",
+          "value": ""
         }
       ]
     },

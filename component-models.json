@@ -3726,6 +3726,14 @@
         "valueType": "string",
         "name": "subheading",
         "label": "Subheading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "marginTop",
+        "label": "Top Spacing (Optional)",
+        "description": "Overrides the default top margin. Accepts any CSS length (e.g. 30px, -60px, 2rem, 0). Plain numbers default to px.",
+        "value": ""
       }
     ]
   },
@@ -4943,6 +4951,22 @@
         "label": "Button Text Color (Hex)",
         "description": "Defaults to #ffffff for solid, or matches the border color for outlined",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "marginTop",
+        "label": "Top Spacing (Optional)",
+        "description": "Overrides the default top margin. Accepts any CSS length (e.g. 30px, -60px, 2rem, 0). Plain numbers default to px.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "marginBottom",
+        "label": "Bottom Spacing (Optional)",
+        "description": "Overrides the default bottom margin. Accepts any CSS length (e.g. 30px, -60px, 2rem, 0). Plain numbers default to px.",
+        "value": ""
       }
     ]
   },
@@ -5621,6 +5645,31 @@
         "label": "Button Background Color (Hex)"
       },
       {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          },
+          {
+            "name": "Link",
+            "value": "link"
+          }
+        ],
+        "value": "default"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "button2Text",
@@ -5636,6 +5685,31 @@
         "valueType": "string",
         "name": "button2Color",
         "label": "Second Button Color (Hex, Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "button2Style",
+        "label": "Second Button Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          },
+          {
+            "name": "Link",
+            "value": "link"
+          }
+        ],
+        "value": "default"
       },
       {
         "component": "text",
@@ -5834,6 +5908,27 @@
         "value": "",
         "name": "heading",
         "label": "Heading"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "contentAlignment",
+        "label": "Content Alignment",
+        "options": [
+          {
+            "name": "Center (default)",
+            "value": "center"
+          },
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "center"
       },
       {
         "component": "richtext",
