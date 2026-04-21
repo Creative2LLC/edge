@@ -5637,6 +5637,31 @@
         "label": "Button Background Color (Hex)"
       },
       {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          },
+          {
+            "name": "Link",
+            "value": "link"
+          }
+        ],
+        "value": "default"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "button2Text",
@@ -5652,6 +5677,31 @@
         "valueType": "string",
         "name": "button2Color",
         "label": "Second Button Color (Hex, Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "button2Style",
+        "label": "Second Button Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          },
+          {
+            "name": "Link",
+            "value": "link"
+          }
+        ],
+        "value": "default"
       },
       {
         "component": "text",
