@@ -95,6 +95,7 @@ function parseTextSizes(value) {
 
 export default function decorate(block) {
   const headingField = readField(block, 'heading', ['heading', 'title']);
+  const headingAlignmentField = readField(block, 'headingAlignment', ['heading alignment']);
   const subheadingField = readField(block, 'subheading', ['subheading']);
   const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
   const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
@@ -116,7 +117,13 @@ export default function decorate(block) {
   wrapper.className = 'statistics-inner';
 
   const heading = buildTextElement('h2', 'statistics-heading', headingField);
-  if (heading) wrapper.append(heading);
+  if (heading) {
+    const alignment = headingAlignmentField.value.toLowerCase();
+    if (alignment === 'left' || alignment === 'right') {
+      heading.classList.add(`statistics-heading-${alignment}`);
+    }
+    wrapper.append(heading);
+  }
 
   const subheading = buildTextElement('div', 'statistics-subheading', subheadingField);
   if (subheading) wrapper.append(subheading);

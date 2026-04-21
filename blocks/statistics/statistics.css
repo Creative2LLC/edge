@@ -18,6 +18,14 @@
   text-align: center;
 }
 
+.statistics .statistics-heading.statistics-heading-left {
+  text-align: left;
+}
+
+.statistics .statistics-heading.statistics-heading-right {
+  text-align: right;
+}
+
 .statistics .statistics-subheading {
   font-size: 32px;
   font-weight: 400;
