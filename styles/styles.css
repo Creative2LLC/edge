@@ -276,6 +276,14 @@ main > .section > div {
   padding: 0 24px;
 }
 
+/* Sections with an inline background color (set via AEM section metadata):
+   add top/bottom padding so the first and last blocks don't sit flush
+   against the section edge. Padding also prevents inner block margins
+   from collapsing up/out of the section. */
+main > .section[data-background-color] {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
 
 main > .section:first-of-type {
   margin-top: 0;
