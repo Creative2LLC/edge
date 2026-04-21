@@ -203,12 +203,34 @@ function buildMeta(article) {
   return meta;
 }
 
-function buildHeader(article, config) {
+function buildHero(article, config) {
+  const image = article.header_image || article.thumbnail;
+
   const section = document.createElement('section');
-  section.className = 'article-detail-header';
+  section.className = 'article-detail-hero';
+
+  if (image) {
+    const media = document.createElement('div');
+    media.className = 'article-detail-hero-media';
+    media.append(
+      createOptimizedPicture(
+        image,
+        article.title || 'Article image',
+        false,
+        [{ width: '750' }, { width: '1600' }],
+      ),
+    );
+    section.append(media);
+  } else {
+    section.classList.add('is-without-image');
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'article-detail-hero-overlay';
+  section.append(overlay);
 
   const inner = document.createElement('div');
-  inner.className = 'article-detail-header-inner';
+  inner.className = 'article-detail-hero-content';
 
   const backLink = document.createElement('a');
   backLink.className = 'article-detail-back-link';
@@ -238,28 +260,6 @@ function buildHeader(article, config) {
   return section;
 }
 
-function buildFeatureMedia(article) {
-  const image = article.header_image || article.thumbnail;
-  if (!image) return null;
-
-  const section = document.createElement('section');
-  section.className = 'article-detail-feature-media';
-
-  const frame = document.createElement('div');
-  frame.className = 'article-detail-feature-media-frame';
-  frame.append(
-    createOptimizedPicture(
-      image,
-      article.title || 'Article image',
-      false,
-      [{ width: '750' }, { width: '1600' }],
-    ),
-  );
-
-  section.append(frame);
-  return section;
-}
-
 function buildBody(article) {
   const hasBody = normalizeText(article.body);
   const tags = buildTags(article);
@@ -286,10 +286,7 @@ function buildBody(article) {
 
 function buildArticleView(article, config) {
   const fragment = document.createDocumentFragment();
-  fragment.append(buildHeader(article, config));
-
-  const media = buildFeatureMedia(article);
-  if (media) fragment.append(media);
+  fragment.append(buildHero(article, config));
 
   const body = buildBody(article);
   if (body) fragment.append(body);
