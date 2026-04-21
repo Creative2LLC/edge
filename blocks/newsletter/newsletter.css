@@ -12,7 +12,7 @@ main > .section > .newsletter-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 88px 24px;
+  padding: 56px 24px;
   background: #d8e7ef;
 }
 
@@ -51,6 +51,7 @@ main > .section > .newsletter-wrapper {
 
 .newsletter .newsletter-heading {
   margin: 0;
+  padding-top: 40px;
   color: #008eb7;
   font-size: clamp(2rem, 4vw, 3.25rem);
   line-height: 1.1;
@@ -65,6 +66,7 @@ main > .section > .newsletter-wrapper {
 
 .newsletter .newsletter-form {
   margin-top: 24px;
+  padding-bottom: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,7 +183,7 @@ main > .section > .newsletter-wrapper {
 @media (width <= 700px) {
   .newsletter {
     min-height: 300px;
-    padding: 64px 18px;
+    padding: 42px 18px;
   }
 
   .newsletter .newsletter-subheading {
