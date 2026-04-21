@@ -14,6 +14,11 @@ function normalizeText(value) {
   return `${value || ''}`.trim();
 }
 
+function findUrlLikeValue(value) {
+  const match = `${value || ''}`.match(/(?:https?:\/\/[^\s<>"]+|\/content\/dam\/[^\s<>"]+|\/media_[^\s<>"]+)/i);
+  return match ? match[0].replace(/[),.;]+$/, '') : '';
+}
+
 function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
 }
@@ -49,33 +54,55 @@ function getHtmlField(block, name) {
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return '';
 
-  const value = getRows(block).map((row) => [...row.children][columnIndex]?.innerHTML?.trim() || '').find(Boolean);
+  const value = getRows(block)
+    .map((row) => [...row.children][columnIndex]?.innerHTML?.trim() || '')
+    .find(Boolean);
   return value || '';
 }
 
-function getImageField(block, name) {
-  const propNode = getPropNode(block, name);
-  if (propNode) {
-    const img = propNode.querySelector('img');
-    if (img?.src) {
-      return {
-        src: img.src,
-        alt: img.alt || getTextField(block, 'pageTitle', 'Article image'),
-      };
-    }
+function imageFromNode(node, fallbackAlt) {
+  if (!node) return null;
+
+  const img = node.tagName === 'IMG' ? node : node.querySelector('img');
+  if (img?.src) {
+    return {
+      src: img.src,
+      alt: img.alt || fallbackAlt,
+    };
   }
+
+  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
+  const href = normalizeText(anchor?.getAttribute('href') || node.getAttribute?.('href') || '');
+  if (href) {
+    return {
+      src: href,
+      alt: fallbackAlt,
+    };
+  }
+
+  const textUrl = findUrlLikeValue(node.textContent || '');
+  if (textUrl) {
+    return {
+      src: textUrl,
+      alt: fallbackAlt,
+    };
+  }
+
+  return null;
+}
+
+function getImageField(block, name) {
+  const fallbackAlt = getTextField(block, 'pageTitle', 'Article image');
+  const propNode = getPropNode(block, name);
+  const propImage = imageFromNode(propNode, fallbackAlt);
+  if (propImage) return propImage;
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return null;
 
-  const image = getRows(block).map((row) => {
-    const img = [...row.children][columnIndex]?.querySelector('img');
-    if (!img?.src) return null;
-    return {
-      src: img.src,
-      alt: img.alt || getTextField(block, 'pageTitle', 'Article image'),
-    };
-  }).find(Boolean);
+  const image = getRows(block)
+    .map((row) => imageFromNode([...row.children][columnIndex], fallbackAlt))
+    .find(Boolean);
 
   return image || null;
 }
