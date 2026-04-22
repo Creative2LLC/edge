@@ -1,8 +1,147 @@
 import { getMetadata } from '../../scripts/aem.js';
+import {
+  debounce,
+  fetchSiteSearchSuggestions,
+  normalizeApiBaseUrl,
+  normalizeSitePath,
+} from '../../scripts/search-utils.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
+
+function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'nav-search';
+
+  const form = document.createElement('form');
+  form.className = 'nav-search-form';
+  form.setAttribute('role', 'search');
+
+  const input = document.createElement('input');
+  input.className = 'nav-search-input';
+  input.type = 'search';
+  input.name = 'q';
+  input.placeholder = placeholder;
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+
+  const button = document.createElement('button');
+  button.className = 'nav-search-submit';
+  button.type = 'submit';
+  button.textContent = 'Search';
+
+  const panel = document.createElement('div');
+  panel.className = 'nav-search-panel';
+  panel.hidden = true;
+
+  const closePanel = () => {
+    panel.hidden = true;
+    wrapper.classList.remove('is-open');
+  };
+
+  const openPanel = () => {
+    panel.hidden = false;
+    wrapper.classList.add('is-open');
+  };
+
+  const buildResultsLink = (query) => {
+    const url = new URL(resultsPath, window.location.origin);
+    if (query.trim()) url.searchParams.set('q', query.trim());
+    return url.toString();
+  };
+
+  const renderSuggestions = async () => {
+    const query = input.value.trim();
+
+    if (query.length < 2) {
+      closePanel();
+      return;
+    }
+
+    panel.replaceChildren();
+    openPanel();
+
+    const loading = document.createElement('p');
+    loading.className = 'nav-search-status';
+    loading.textContent = 'Searching...';
+    panel.append(loading);
+
+    try {
+      const payload = await fetchSiteSearchSuggestions({
+        apiBaseUrl,
+        query,
+        perPage: 6,
+      });
+
+      panel.replaceChildren();
+
+      if (!(payload.data || []).length) {
+        const empty = document.createElement('p');
+        empty.className = 'nav-search-status';
+        empty.textContent = 'No results found.';
+        panel.append(empty);
+      } else {
+        const list = document.createElement('div');
+        list.className = 'nav-search-results';
+
+        (payload.data || []).forEach((result) => {
+          const link = document.createElement('a');
+          link.className = 'nav-search-result';
+          link.href = result.url || '#';
+
+          const type = document.createElement('span');
+          type.className = 'nav-search-result-type';
+          type.textContent = result.document_type_label || 'Result';
+
+          const title = document.createElement('span');
+          title.className = 'nav-search-result-title';
+          title.textContent = result.title || 'Search Result';
+
+          link.append(type, title);
+          list.append(link);
+        });
+
+        panel.append(list);
+      }
+
+      const footer = document.createElement('a');
+      footer.className = 'nav-search-all-results';
+      footer.href = buildResultsLink(query);
+      footer.textContent = `View all results for "${query}"`;
+      panel.append(footer);
+    } catch (error) {
+      panel.replaceChildren();
+      const message = document.createElement('p');
+      message.className = 'nav-search-status';
+      message.textContent = error?.message || 'Search is unavailable.';
+      panel.append(message);
+    }
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const query = input.value.trim();
+    window.location.href = buildResultsLink(query);
+  });
+
+  input.addEventListener('input', debounce(renderSuggestions, 220));
+  input.addEventListener('focus', () => {
+    if (panel.children.length && input.value.trim().length >= 2) openPanel();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!wrapper.contains(event.target)) closePanel();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closePanel();
+  });
+
+  form.append(input, button);
+  wrapper.append(form, panel);
+  return wrapper;
+}
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -1875,6 +2014,15 @@ export default async function decorate(block) {
   // Inject icons into nav-tools buttons that carry an icon name in their title attribute
   const navTools = nav.querySelector('.nav-tools');
   if (navTools) {
+    const searchApiBaseUrl = normalizeApiBaseUrl(getMetadata('search-api-base-url'));
+    const searchResultsPath = normalizeSitePath(getMetadata('search-results-path'), '/search/');
+    const searchPlaceholder = getMetadata('search-placeholder') || 'Search the site';
+    navTools.prepend(buildHeaderSearch({
+      apiBaseUrl: searchApiBaseUrl,
+      resultsPath: searchResultsPath,
+      placeholder: searchPlaceholder,
+    }));
+
     navTools.querySelectorAll('a.button[title]').forEach((btn) => {
       const iconName = btn.getAttribute('title').trim();
       if (iconName) {

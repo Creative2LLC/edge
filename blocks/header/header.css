@@ -279,6 +279,91 @@ header nav .nav-tools {
   grid-area: tools;
 }
 
+header nav .nav-search {
+  position: relative;
+}
+
+header nav .nav-search-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+header nav .nav-search-input {
+  min-width: 220px;
+  height: 44px;
+  border: 1px solid rgb(18 41 62 / 14%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 82%);
+  padding: 0 18px;
+  color: #113652;
+  font: inherit;
+}
+
+header nav .nav-search-submit {
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: #113652;
+  color: #fff;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 600;
+}
+
+header nav .nav-search-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  display: grid;
+  gap: 10px;
+  width: min(440px, 90vw);
+  padding: 14px;
+  border: 1px solid rgb(18 41 62 / 10%);
+  border-radius: 24px;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 18px 44px rgb(18 41 62 / 14%);
+  backdrop-filter: blur(14px);
+}
+
+header nav .nav-search-results {
+  display: grid;
+  gap: 8px;
+}
+
+header nav .nav-search-result {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  text-decoration: none;
+}
+
+header nav .nav-search-result:hover {
+  background: rgb(17 54 82 / 6%);
+}
+
+header nav .nav-search-result-type {
+  color: #00708f;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+header nav .nav-search-result-title,
+header nav .nav-search-status,
+header nav .nav-search-all-results {
+  color: #113652;
+}
+
+header nav .nav-search-all-results {
+  padding: 10px 12px 0;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 header nav .nav-mobile-meta {
   display: none;
 }
@@ -507,6 +592,10 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+
+  header nav .nav-search-input {
+    min-width: 260px;
   }
 
   header nav .nav-tools .columns > div {
@@ -963,6 +1052,28 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  header nav .nav-search {
+    margin-bottom: 12px;
+  }
+
+  header nav .nav-search-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  header nav .nav-search-input {
+    min-width: 0;
+    width: 100%;
+    background: #fff;
+  }
+
+  header nav .nav-search-panel {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+    box-sizing: border-box;
   }
 
   header nav .nav-tools .button-container {

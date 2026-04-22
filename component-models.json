@@ -20,6 +20,26 @@
         "name": "keywords",
         "multi": true,
         "label": "Keywords"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "search-api-base-url",
+        "label": "Search API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "search-results-path",
+        "label": "Search Results Path",
+        "value": "/search/"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "search-placeholder",
+        "label": "Search Placeholder",
+        "value": "Search the site"
       }
     ]
   },
@@ -5016,6 +5036,59 @@
         "label": "Bottom Spacing (Optional)",
         "description": "Overrides the default bottom margin. Accepts any CSS length (e.g. 30px, -60px, 2rem, 0). Plain numbers default to px.",
         "value": ""
+      }
+    ]
+  },
+  {
+    "id": "site-search",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Search the Site"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "pageSize",
+        "label": "Items Per Page",
+        "value": "12"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "searchPlaceholder",
+        "label": "Search Placeholder",
+        "value": "Search the site"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "loadMoreText",
+        "label": "Load More Label",
+        "value": "Load More Results"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyStateHeading",
+        "label": "Empty State Heading",
+        "value": "No results found"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyStateCopy",
+        "label": "Empty State Copy",
+        "value": "Try a different keyword or remove a filter."
       }
     ]
   },

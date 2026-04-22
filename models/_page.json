@@ -21,6 +21,26 @@
           "name": "keywords",
           "multi": true,
           "label": "Keywords"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "search-api-base-url",
+          "label": "Search API Base URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "search-results-path",
+          "label": "Search Results Path",
+          "value": "/search/"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "search-placeholder",
+          "label": "Search Placeholder",
+          "value": "Search the site"
         }
       ]
     }
