@@ -11,13 +11,18 @@ const SITE_SEARCH_CONFIG_BY_HOST = Object.freeze({
   // Configure search once per environment here instead of setting page metadata everywhere.
   // Replace the placeholder values below with your real backend/search page settings.
   'author-p171653-e1855116.adobeaemcloud.com': {
-    apiBaseUrl: '',
     resultsPath: '/content/edge/search',
   },
 });
 
 function resolveHostConfig(hostname = window.location.hostname) {
   return SITE_SEARCH_CONFIG_BY_HOST[hostname] || {};
+}
+
+function compactConfig(config = {}) {
+  return Object.fromEntries(
+    Object.entries(config).filter(([, value]) => `${value ?? ''}`.trim() !== ''),
+  );
 }
 
 export default function getSiteSearchConfig(overrides = {}) {
@@ -30,10 +35,10 @@ export default function getSiteSearchConfig(overrides = {}) {
 
   const merged = {
     ...DEFAULT_SITE_SEARCH_CONFIG,
-    ...resolveHostConfig(),
-    ...runtimeConfig,
-    ...metadataConfig,
-    ...overrides,
+    ...compactConfig(resolveHostConfig()),
+    ...compactConfig(runtimeConfig),
+    ...compactConfig(metadataConfig),
+    ...compactConfig(overrides),
   };
 
   return {
