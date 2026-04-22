@@ -6,6 +6,7 @@ import {
   readSearchState,
   writeSearchState,
 } from '../../scripts/search-utils.js';
+import { getSiteSearchConfig } from '../../scripts/site-search-config.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -456,17 +457,19 @@ async function renderSearch(block, config) {
 }
 
 export default async function decorate(block) {
+  const siteSearchConfig = getSiteSearchConfig();
   const config = {
     heading: getFieldValue(block, 'heading', 'Search the Site'),
     apiBaseUrl: normalizeApiBaseUrl(
       getFieldValue(block, 'apiBaseUrl')
+      || siteSearchConfig.apiBaseUrl
       || getMetadata('search-api-base-url'),
     ),
     pageSize: parseIntSafe(getFieldValue(block, 'pageSize', '12'), 12),
     searchPlaceholder: getFieldValue(
       block,
       'searchPlaceholder',
-      getMetadata('search-placeholder') || 'Search the site',
+      siteSearchConfig.placeholder || getMetadata('search-placeholder') || 'Search the site',
     ) || 'Search the site',
     loadMoreText: getFieldValue(block, 'loadMoreText', 'Load More Results') || 'Load More Results',
     emptyStateHeading: getFieldValue(block, 'emptyStateHeading', 'No results found') || 'No results found',

@@ -1,5 +1,6 @@
 export function normalizeApiBaseUrl(value = '') {
-  return `${value || ''}`.trim().replace(/\/+$/, '');
+  const normalized = `${value || ''}`.trim().replace(/\/+$/, '');
+  return /^https?:\/\//i.test(normalized) ? normalized : '';
 }
 
 export function normalizeSitePath(value = '', fallback = '/search/') {
@@ -73,7 +74,11 @@ export async function fetchSiteSearch({
   page = 1,
   perPage = 12,
 }) {
-  const apiRoot = normalizeApiBaseUrl(apiBaseUrl) || window.location.origin;
+  const apiRoot = normalizeApiBaseUrl(apiBaseUrl);
+  if (!apiRoot) {
+    throw new Error('Search API is not configured.');
+  }
+
   const url = new URL('/api/search', `${apiRoot}/`);
 
   if (`${query || ''}`.trim()) url.searchParams.set('q', `${query}`.trim());
@@ -90,7 +95,11 @@ export async function fetchSiteSearchSuggestions({
   types = [],
   perPage = 6,
 }) {
-  const apiRoot = normalizeApiBaseUrl(apiBaseUrl) || window.location.origin;
+  const apiRoot = normalizeApiBaseUrl(apiBaseUrl);
+  if (!apiRoot) {
+    throw new Error('Search API is not configured.');
+  }
+
   const url = new URL('/api/search/suggest', `${apiRoot}/`);
 
   if (`${query || ''}`.trim()) url.searchParams.set('q', `${query}`.trim());

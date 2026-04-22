@@ -2,9 +2,8 @@ import { getMetadata } from '../../scripts/aem.js';
 import {
   debounce,
   fetchSiteSearchSuggestions,
-  normalizeApiBaseUrl,
-  normalizeSitePath,
 } from '../../scripts/search-utils.js';
+import { getSiteSearchConfig } from '../../scripts/site-search-config.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
@@ -56,6 +55,17 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
 
     if (query.length < 2) {
       closePanel();
+      return;
+    }
+
+    if (!apiBaseUrl) {
+      panel.replaceChildren();
+      openPanel();
+
+      const message = document.createElement('p');
+      message.className = 'nav-search-status';
+      message.textContent = 'Search is unavailable.';
+      panel.append(message);
       return;
     }
 
@@ -2014,14 +2024,7 @@ export default async function decorate(block) {
   // Inject icons into nav-tools buttons that carry an icon name in their title attribute
   const navTools = nav.querySelector('.nav-tools');
   if (navTools) {
-    const searchApiBaseUrl = normalizeApiBaseUrl(getMetadata('search-api-base-url'));
-    const searchResultsPath = normalizeSitePath(getMetadata('search-results-path'), '/search/');
-    const searchPlaceholder = getMetadata('search-placeholder') || 'Search the site';
-    navTools.prepend(buildHeaderSearch({
-      apiBaseUrl: searchApiBaseUrl,
-      resultsPath: searchResultsPath,
-      placeholder: searchPlaceholder,
-    }));
+    navTools.prepend(buildHeaderSearch(getSiteSearchConfig()));
 
     navTools.querySelectorAll('a.button[title]').forEach((btn) => {
       const iconName = btn.getAttribute('title').trim();
