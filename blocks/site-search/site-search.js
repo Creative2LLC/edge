@@ -6,7 +6,7 @@ import {
   readSearchState,
   writeSearchState,
 } from '../../scripts/search-utils.js';
-import { getSiteSearchConfig } from '../../scripts/site-search-config.js';
+import getSiteSearchConfig from '../../scripts/site-search-config.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],

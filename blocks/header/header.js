@@ -3,7 +3,7 @@ import {
   debounce,
   fetchSiteSearchSuggestions,
 } from '../../scripts/search-utils.js';
-import { getSiteSearchConfig } from '../../scripts/site-search-config.js';
+import getSiteSearchConfig from '../../scripts/site-search-config.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints

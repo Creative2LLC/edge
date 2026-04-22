@@ -20,7 +20,7 @@ function resolveHostConfig(hostname = window.location.hostname) {
   return SITE_SEARCH_CONFIG_BY_HOST[hostname] || {};
 }
 
-export function getSiteSearchConfig(overrides = {}) {
+export default function getSiteSearchConfig(overrides = {}) {
   const runtimeConfig = window.hlx?.siteSearchConfig || {};
   const metadataConfig = {
     apiBaseUrl: getMetadata('search-api-base-url'),
