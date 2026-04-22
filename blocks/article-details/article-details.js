@@ -10,6 +10,8 @@ const FIELD_COLUMN_INDEX = {
   articleBody: 6,
 };
 
+const resourceDataCache = new Map();
+
 function normalizeText(value) {
   return `${value || ''}`.trim();
 }
@@ -19,8 +21,47 @@ function findUrlLikeValue(value) {
   return match ? match[0].replace(/[),.;]+$/, '') : '';
 }
 
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return `${value.href || value.path || value.url || value.reference || ''}`.trim();
+  }
+  return '';
+}
+
 function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
+}
+
+async function getResourceData(scope) {
+  const resource = scope?.getAttribute('data-aue-resource')
+    || scope?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || scope?.closest?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return {};
+
+  if (resourceDataCache.has(resourcePath)) {
+    return resourceDataCache.get(resourcePath);
+  }
+
+  const pendingData = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return {};
+      return response.json();
+    })
+    .catch(() => ({}));
+
+  resourceDataCache.set(resourcePath, pendingData);
+  return pendingData;
 }
 
 function getPropNode(scope, name) {
@@ -91,7 +132,7 @@ function imageFromNode(node, fallbackAlt) {
   return null;
 }
 
-function getImageField(block, name) {
+function getImageField(block, name, resourceData = {}) {
   const fallbackAlt = getTextField(block, 'pageTitle', 'Article image');
   const propNode = getPropNode(block, name);
   const propImage = imageFromNode(propNode, fallbackAlt);
@@ -104,7 +145,17 @@ function getImageField(block, name) {
     .map((row) => imageFromNode([...row.children][columnIndex], fallbackAlt))
     .find(Boolean);
 
-  return image || null;
+  if (image) return image;
+
+  const jsonValue = normalizeJsonFieldValue(resourceData?.[name]);
+  if (jsonValue) {
+    return {
+      src: jsonValue,
+      alt: fallbackAlt,
+    };
+  }
+
+  return null;
 }
 
 function buildMessage(title, description) {
@@ -215,14 +266,16 @@ function buildBody(fields) {
   return section;
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
+  const resourceData = await getResourceData(block);
+
   const fields = {
-    pageTitle: getTextField(block, 'pageTitle'),
+    pageTitle: getTextField(block, 'pageTitle', normalizeJsonFieldValue(resourceData.pageTitle)),
     description: getTextField(block, 'jcr:description'),
     authorName: getTextField(block, 'authorName'),
     articleDate: getTextField(block, 'articleDate'),
-    thumbnail: getImageField(block, 'thumbnail'),
-    headerImage: getImageField(block, 'headerImage'),
+    thumbnail: getImageField(block, 'thumbnail', resourceData),
+    headerImage: getImageField(block, 'headerImage', resourceData),
     articleBody: getHtmlField(block, 'articleBody'),
   };
 
