@@ -153,7 +153,7 @@ main > .section > .newsletter-wrapper {
 }
 
 .newsletter .newsletter-input::placeholder {
-  color: rgb(255 255 255 / 60%);
+  color: #fff;
 }
 
 .newsletter .newsletter-input:focus-visible {
