@@ -18,7 +18,7 @@
 
 /* Wrapper */
 .split-thin-carousel .stc-wrapper {
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0 auto;
   padding: 80px 24px;
 }
@@ -61,7 +61,7 @@ main > .section > .split-thin-carousel-wrapper {
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (var(--stc-viewport-width) - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--stc-viewport-width) - 1420px) / 2));
   padding-right: 40px;
   box-sizing: border-box;
 }
@@ -82,7 +82,7 @@ main > .section > .split-thin-carousel-wrapper {
   border-radius: 14px;
   overflow: hidden;
   max-height: 630px;
-  max-width: 1200px;
+  max-width: 1420px;
   background: #fff;
 }
 

@@ -17,7 +17,7 @@
 }
 
 .historical-reports-carousel .historical-reports-carousel-wrapper {
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0 auto;
   padding: 96px 24px 84px;
 }
@@ -62,7 +62,7 @@ main > .section > .historical-reports-carousel-wrapper {
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: calc(100% + 24px + max(0px, (var(--historical-reports-carousel-viewport-width) - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--historical-reports-carousel-viewport-width) - 1420px) / 2));
   margin-right: -24px;
   padding: 6px 48px 18px 0;
   box-sizing: border-box;

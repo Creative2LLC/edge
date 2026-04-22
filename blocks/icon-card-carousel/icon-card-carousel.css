@@ -19,7 +19,7 @@
 
 /* Wrapper - constrains inner content */
 .icon-card-carousel .icon-card-carousel-wrapper {
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0 auto;
   padding: 80px 24px;
 }
@@ -59,7 +59,7 @@ main > .section > .icon-card-carousel-wrapper {
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (var(--icon-card-carousel-viewport-width) - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--icon-card-carousel-viewport-width) - 1420px) / 2));
   padding-right: 40px;
   padding-bottom: 16px;
   box-sizing: border-box;

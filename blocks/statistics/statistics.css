@@ -69,7 +69,7 @@
    so left/right-aligned text lines up with the hero title's edge. */
 .statistics.statistics-align-left .statistics-inner,
 .statistics.statistics-align-right .statistics-inner {
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0 auto;
 }
 

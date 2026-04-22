@@ -1,6 +1,5 @@
-/* Override section max-width for wider block */
 main > .section > .need-help-wrapper {
-  max-width: 1500px;
+  max-width: 1612px;
 }
 
 /* Need Help Block */
