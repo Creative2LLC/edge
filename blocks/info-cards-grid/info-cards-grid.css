@@ -4,7 +4,7 @@
   --info-cards-section-button-hover: #007ca1;
 
   padding: 60px 0;
-  max-width: 1440px;
+  max-width: 1420px;
   margin: 0 auto;
 }
 
@@ -91,15 +91,15 @@
 
 .info-cards-grid-intro-button {
   place-self: center end;
-  min-height: 28px;
+  min-height: 44px;
   margin-top: 0;
-  padding: 6px 12px;
+  padding: 12px 20px;
   border: 1px solid rgb(12 34 54 / 12%);
   border-radius: 999px;
-  background: #5f6c79;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
+  background: #3B4E5E;
+  color: #DFE1E3;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1;
   letter-spacing: 0;
   white-space: nowrap;
@@ -108,7 +108,7 @@
 
 .info-cards-grid-intro-button:hover,
 .info-cards-grid-intro-button:focus {
-  background: #4f5b67;
+  background: #2f3f4c;
   transform: translateY(-1px);
   box-shadow: 0 10px 20px rgb(12 34 54 / 16%);
 }
@@ -123,7 +123,7 @@
 
 /* Individual card */
 .info-cards-grid-card {
-  --info-card-title-size: 40px;
+  --info-card-title-size: 32px;
   --info-card-subtitle-size: 17px;
   --info-card-body-size: 17px;
   --info-card-title-color: #fff;
@@ -335,7 +335,7 @@
 
 .info-cards-grid-volunteer.block {
   padding: 48px 40px 54px;
-  max-width: 1320px;
+  max-width: 1420px;
   background: linear-gradient(180deg, #f4efea 0%, #efe8e2 100%);
   border-radius: 20px;
 }

@@ -1,6 +1,6 @@
 /* Override section max-width for wider block */
 main > .section > .newsletter-wrapper {
-  max-width: 1500px;
+  max-width: 1612px;
 }
 
 .newsletter {
@@ -153,7 +153,7 @@ main > .section > .newsletter-wrapper {
 }
 
 .newsletter .newsletter-input::placeholder {
-  color: rgb(255 255 255 / 60%);
+  color: #fff;
 }
 
 .newsletter .newsletter-input:focus-visible {

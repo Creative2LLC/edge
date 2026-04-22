@@ -161,20 +161,18 @@ function parseResourceRow(row) {
   if (cols.length >= 6) {
     const imageData = getImageData(cols[0]);
     const iconData = getImageData(cols[1]);
-    const linkTextProp = row.querySelector('[data-aue-prop="linkText"]');
     const linkProp = row.querySelector('[data-aue-prop="link"]');
 
     let linkUrl;
-    let linkText;
+    let linkText = getFieldText(6, 'linkText');
 
     if (linkProp) {
       const anchor = linkProp.querySelector('a');
       linkUrl = anchor?.href || linkProp.textContent.trim();
-      linkText = linkTextProp?.textContent.trim() || '';
     } else {
       const linkData = getLinkData(cols[5], cols[6]);
       linkUrl = linkData.url;
-      linkText = linkData.text;
+      if (!linkText) linkText = linkData.text;
     }
 
     return {

@@ -82,7 +82,9 @@
       "dark-feature-cards",
       "split-card-list",
       "split-thin-carousel",
-      "amber-alert-info"
+      "amber-alert-info",
+      "cta-banner",
+      "dual-cards"
     ]
   },
   {
@@ -167,6 +169,12 @@
     "id": "detailed-carousel",
     "components": [
       "detailed-carousel-item"
+    ]
+  },
+  {
+    "id": "dual-cards",
+    "components": [
+      "dual-card"
     ]
   },
   {

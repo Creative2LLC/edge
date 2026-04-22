@@ -66,8 +66,12 @@
 
 .hero .hero-content {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0 auto;
+}
+
+.hero .hero-richtext {
+  max-width: 900px;
 }
 
 .hero .hero-layout {
@@ -382,8 +386,12 @@
   }
 
   .hero .hero-layout.has-side-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(300px, 430px);
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 540px);
     column-gap: 56px;
+  }
+
+  .hero .hero-layout.has-side-panel .hero-side-panel {
+    max-width: 540px;
   }
 }
 

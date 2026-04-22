@@ -85,15 +85,15 @@ export default function decorate(block) {
   }
 
   if (subtitleField.value || subtitleField.source) {
-    const p = document.createElement('p');
-    p.className = 'cta-card-2-subtitle';
+    const subtitle = document.createElement('div');
+    subtitle.className = 'cta-card-2-subtitle';
     if (subtitleField.source) {
-      moveInstrumentation(subtitleField.source, p);
-      while (subtitleField.source.firstChild) p.append(subtitleField.source.firstChild);
+      moveInstrumentation(subtitleField.source, subtitle);
+      while (subtitleField.source.firstChild) subtitle.append(subtitleField.source.firstChild);
     } else {
-      p.textContent = subtitleField.value;
+      subtitle.textContent = subtitleField.value;
     }
-    right.append(p);
+    right.append(subtitle);
   }
 
   const btnLabel = buttonTextField.value || 'Learn More';

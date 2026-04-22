@@ -1,0 +1,93 @@
+/* Dual Cards Block */
+.dual-cards.block {
+  padding: 24px 0;
+  margin: 0 auto;
+}
+
+.dual-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.dual-cards-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 32px 36px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px 0 rgb(64 64 65 / 20%);
+  box-sizing: border-box;
+}
+
+.dual-cards-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.dual-cards-icon-masked {
+  display: block;
+}
+
+.dual-cards-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #404041;
+  margin: 0;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.dual-cards-link {
+  margin-top: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 500;
+  color: #007294;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 0.2s ease;
+}
+
+.dual-cards-link:hover,
+.dual-cards-link:focus {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .dual-cards-card {
+    padding: 28px;
+    gap: 18px;
+  }
+
+  .dual-cards-title {
+    font-size: 28px;
+  }
+}
+
+/* Responsive — mobile */
+@media (width <= 600px) {
+  .dual-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .dual-cards-card {
+    padding: 24px;
+  }
+
+  .dual-cards-title {
+    font-size: 24px;
+  }
+}

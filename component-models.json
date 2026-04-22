@@ -1318,6 +1318,51 @@
     ]
   },
   {
+    "id": "cta-banner",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)",
+        "description": "Any valid hex color, e.g. #008DB6. Leave empty to use the icon's original colors."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link"
+      }
+    ]
+  },
+  {
     "id": "cta-card-1",
     "fields": [
       {
@@ -1432,7 +1477,7 @@
         "label": "Title"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subtitle",
         "label": "Subtitle"
@@ -1649,6 +1694,48 @@
         "valueType": "string",
         "name": "buttonColor",
         "label": "Button Background Color (Hex)"
+      }
+    ]
+  },
+  {
+    "id": "dual-cards",
+    "fields": []
+  },
+  {
+    "id": "dual-card",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconColor",
+        "label": "Icon Color (Hex)",
+        "description": "Any valid hex color, e.g. #007294. Leave empty to use the icon's original colors."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Link Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Link URL"
       }
     ]
   },
@@ -3797,8 +3884,44 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "headerButtonText",
+        "label": "Header Button Text (Optional)",
+        "description": "Leave empty to hide the button"
+      },
+      {
+        "component": "aem-content",
+        "name": "headerButtonLink",
+        "label": "Header Button Link (Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "featuredMode",
+        "label": "Featured Article",
+        "description": "Show the first article as a featured card, or list all articles in the grid",
+        "options": [
+          {
+            "name": "Featured First Article",
+            "value": "featured"
+          },
+          {
+            "name": "No Featured Article",
+            "value": "none"
+          }
+        ],
+        "value": "featured"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "button",
-        "label": "Button Text"
+        "label": "View More Button Text"
       }
     ]
   },

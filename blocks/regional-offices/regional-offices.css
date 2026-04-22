@@ -141,6 +141,7 @@
   align-items: center;
   justify-content: center;
   min-height: 48px;
+  margin-top: auto;
   padding: 0 16px;
   border: 2px solid #1491bf;
   border-radius: 999px;

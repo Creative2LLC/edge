@@ -19,7 +19,7 @@
 
 /* Wrapper */
 .detailed-carousel .detailed-carousel-wrapper {
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0 auto;
   padding: 80px 24px;
 }
@@ -56,7 +56,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (var(--detailed-carousel-vw) - 1200px) / 2));
+  width: calc(100% + 24px + max(0px, (var(--detailed-carousel-vw) - 1420px) / 2));
   padding-right: 40px;
   box-sizing: border-box;
 }
