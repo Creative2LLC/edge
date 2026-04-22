@@ -54,6 +54,29 @@
   line-height: 1.5;
 }
 
+.cta-card-2 .cta-card-2-subtitle p {
+  margin: 0 0 12px;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.cta-card-2 .cta-card-2-subtitle p:last-child {
+  margin-bottom: 0;
+}
+
+.cta-card-2 .cta-card-2-subtitle ul,
+.cta-card-2 .cta-card-2-subtitle ol {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  color: inherit;
+}
+
+.cta-card-2 .cta-card-2-subtitle li {
+  margin-bottom: 4px;
+}
+
 .cta-card-2 .cta-card-2-button {
   display: inline-flex;
   align-items: center;
