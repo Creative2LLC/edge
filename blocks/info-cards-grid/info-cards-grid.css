@@ -123,7 +123,7 @@
 
 /* Individual card */
 .info-cards-grid-card {
-  --info-card-title-size: 40px;
+  --info-card-title-size: 32px;
   --info-card-subtitle-size: 17px;
   --info-card-body-size: 17px;
   --info-card-title-color: #fff;
