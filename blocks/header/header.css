@@ -286,7 +286,6 @@ header nav .nav-search {
 header nav .nav-search-form {
   display: flex;
   align-items: center;
-  gap: 8px;
   margin: 0;
 }
 
@@ -299,17 +298,6 @@ header nav .nav-search-input {
   padding: 0 18px;
   color: #113652;
   font: inherit;
-}
-
-header nav .nav-search-submit {
-  height: 44px;
-  border: 0;
-  border-radius: 999px;
-  background: #113652;
-  color: #fff;
-  padding: 0 16px;
-  font: inherit;
-  font-weight: 600;
 }
 
 header nav .nav-search-panel {
@@ -1060,7 +1048,7 @@ header .nav-top-banner .top-banner-language-panel li:hover {
 
   header nav .nav-search-form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   header nav .nav-search-input {

@@ -25,14 +25,10 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   input.autocomplete = 'off';
   input.spellcheck = false;
 
-  const button = document.createElement('button');
-  button.className = 'nav-search-submit';
-  button.type = 'submit';
-  button.textContent = 'Search';
-
   const panel = document.createElement('div');
   panel.className = 'nav-search-panel';
   panel.hidden = true;
+  let externalTrigger = null;
 
   const closePanel = () => {
     panel.hidden = true;
@@ -48,6 +44,11 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
     const url = new URL(resultsPath, window.location.origin);
     if (query.trim()) url.searchParams.set('q', query.trim());
     return url.toString();
+  };
+
+  const syncExternalTrigger = () => {
+    if (!externalTrigger) return;
+    externalTrigger.href = buildResultsLink(input.value);
   };
 
   const renderSuggestions = async () => {
@@ -135,6 +136,9 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
     window.location.href = buildResultsLink(query);
   });
 
+  input.addEventListener('input', () => {
+    syncExternalTrigger();
+  });
   input.addEventListener('input', debounce(renderSuggestions, 220));
   input.addEventListener('focus', () => {
     if (panel.children.length && input.value.trim().length >= 2) openPanel();
@@ -148,7 +152,17 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
     if (event.key === 'Escape') closePanel();
   });
 
-  form.append(input, button);
+  wrapper.bindExternalTrigger = (trigger) => {
+    externalTrigger = trigger;
+    syncExternalTrigger();
+
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      window.location.href = buildResultsLink(input.value);
+    });
+  };
+
+  form.append(input);
   wrapper.append(form, panel);
   return wrapper;
 }
@@ -2024,7 +2038,8 @@ export default async function decorate(block) {
   // Inject icons into nav-tools buttons that carry an icon name in their title attribute
   const navTools = nav.querySelector('.nav-tools');
   if (navTools) {
-    navTools.prepend(buildHeaderSearch(getSiteSearchConfig()));
+    const headerSearch = buildHeaderSearch(getSiteSearchConfig());
+    navTools.prepend(headerSearch);
 
     navTools.querySelectorAll('a.button[title]').forEach((btn) => {
       const iconName = btn.getAttribute('title').trim();
@@ -2047,6 +2062,11 @@ export default async function decorate(block) {
       if (index === 0) btn.classList.add('nav-tool-primary');
       if (index === 1) btn.classList.add('nav-tool-accent');
     });
+
+    const searchTrigger = toolButtons.find((btn) => btn.textContent.trim().toLowerCase() === 'search');
+    if (searchTrigger) {
+      headerSearch.bindExternalTrigger(searchTrigger);
+    }
   }
 
   const navWrapper = document.createElement('div');
