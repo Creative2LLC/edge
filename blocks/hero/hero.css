@@ -66,12 +66,12 @@
 
 .hero .hero-content {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1360px;
   margin: 0 auto;
 }
 
-.hero .hero-content:has(.hero-layout.has-side-panel) {
-  max-width: 1360px;
+.hero .hero-richtext {
+  max-width: 900px;
 }
 
 .hero .hero-layout {
