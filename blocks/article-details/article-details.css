@@ -1,28 +1,64 @@
 .article-details-container .article-details-wrapper {
-  width: min(100% - 32px, 980px);
-  margin: 0 auto;
+  max-width: unset;
+  padding: 0;
 }
 
 .article-details {
-  display: grid;
-  gap: 2rem;
-  padding: clamp(2.5rem, 5vw, 4rem) 0;
+  color: #24313f;
 }
 
-.article-details .article-details-header,
-.article-details .article-details-feature-media,
-.article-details .article-details-content,
-.article-details .article-details-message {
-  border-radius: 28px;
-  background: #fff;
-  box-shadow: 0 20px 50px rgb(22 50 74 / 8%);
+.article-details .article-details-hero {
+  position: relative;
+  display: flex;
+  min-height: clamp(360px, 58vw, 620px);
+  padding: clamp(112px, 16vw, 164px) 24px 56px;
+  overflow: hidden;
+  isolation: isolate;
+  align-items: flex-end;
 }
 
-.article-details .article-details-header {
-  padding: clamp(1.75rem, 4vw, 3rem);
+.article-details .article-details-hero.is-without-image {
+  background:
+    radial-gradient(circle at top left, rgb(31 141 184 / 18%) 0%, rgb(31 141 184 / 0%) 44%),
+    linear-gradient(135deg, #eef7fb 0%, #f7fbfd 52%, #edf4f8 100%);
 }
 
-.article-details .article-details-header-inner {
+.article-details .article-details-hero-media,
+.article-details .article-details-hero-media picture,
+.article-details .article-details-hero-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.article-details .article-details-hero-media {
+  z-index: -3;
+}
+
+.article-details .article-details-hero-media img {
+  display: block;
+  object-fit: cover;
+}
+
+.article-details .article-details-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgb(247 247 247 / 74%) 0%, rgb(247 247 247 / 42%) 34%, rgb(247 247 247 / 92%) 84%, #f6f6f6 100%),
+    linear-gradient(90deg, rgb(247 247 247 / 82%) 0%, rgb(247 247 247 / 38%) 100%);
+}
+
+.article-details .article-details-hero.is-without-image .article-details-hero-overlay {
+  background:
+    linear-gradient(180deg, rgb(246 251 253 / 92%) 0%, rgb(246 251 253 / 96%) 100%),
+    linear-gradient(90deg, rgb(13 110 140 / 8%) 0%, rgb(13 110 140 / 0%) 100%);
+}
+
+.article-details .article-details-hero-content {
+  width: min(100%, 1120px);
+  margin: 0 auto;
   display: grid;
   gap: 1rem;
 }
@@ -30,9 +66,10 @@
 .article-details .article-details-title {
   margin: 0;
   color: #16324a;
-  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  max-width: 14ch;
+  font-size: clamp(2.65rem, 6vw, 4.9rem);
   font-weight: 800;
-  line-height: 0.98;
+  line-height: 0.96;
   letter-spacing: -0.04em;
 }
 
@@ -53,38 +90,25 @@
 .article-details .article-details-excerpt {
   margin: 0;
   color: #516272;
-  font-size: 1.03rem;
+  max-width: 58rem;
+  font-size: 1.08rem;
   line-height: 1.75;
 }
 
-.article-details .article-details-feature-media {
-  overflow: hidden;
-}
-
-.article-details .article-details-feature-media-frame {
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #dde7ed;
-}
-
-.article-details .article-details-feature-media picture,
-.article-details .article-details-feature-media img {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.article-details .article-details-feature-media img {
-  object-fit: cover;
-}
-
 .article-details .article-details-content {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 32px, 1120px);
+  margin: clamp(1.5rem, 4vw, 3rem) auto 0;
   padding: clamp(1.75rem, 4vw, 3rem);
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgb(22 50 74 / 8%);
 }
 
 .article-details .article-details-prose {
-  display: grid;
-  gap: 1.5rem;
+  width: min(100%, 760px);
+  margin: 0 auto;
 }
 
 .article-details .article-details-body {
@@ -131,8 +155,12 @@
 }
 
 .article-details .article-details-message {
+  width: min(100% - 32px, 960px);
+  margin: 48px auto;
   padding: 1.5rem;
   border: 1px solid #d9e3ea;
+  border-radius: 24px;
+  background: #fff;
 }
 
 .article-details .article-details-message-title {
@@ -143,4 +171,26 @@
 .article-details .article-details-message-copy {
   margin: 0.75rem 0 0;
   color: #516272;
+}
+
+@media (width <= 768px) {
+  .article-details .article-details-hero {
+    min-height: 420px;
+    padding: 104px 18px 42px;
+  }
+
+  .article-details .article-details-title {
+    max-width: none;
+  }
+
+  .article-details .article-details-content,
+  .article-details .article-details-message {
+    width: calc(100% - 24px);
+  }
+
+  .article-details .article-details-content {
+    margin-top: -42px;
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+  }
 }
