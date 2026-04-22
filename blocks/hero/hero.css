@@ -70,6 +70,10 @@
   margin: 0 auto;
 }
 
+.hero .hero-content:has(.hero-layout.has-side-panel) {
+  max-width: 1360px;
+}
+
 .hero .hero-layout {
   display: grid;
   gap: 32px;
@@ -382,8 +386,12 @@
   }
 
   .hero .hero-layout.has-side-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(300px, 430px);
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 540px);
     column-gap: 56px;
+  }
+
+  .hero .hero-layout.has-side-panel .hero-side-panel {
+    max-width: 540px;
   }
 }
 
