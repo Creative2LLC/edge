@@ -2,7 +2,6 @@
 .split-thin-carousel {
   --stc-viewport-width: 100vw;
 
-  background-color: #dbd5cf52;
   padding: 0;
   position: relative;
   max-width: none;
