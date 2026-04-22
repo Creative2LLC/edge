@@ -30,7 +30,11 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   panel.hidden = true;
   let externalTrigger = null;
 
-  const closePanel = () => {
+  const closePanel = (clear = false) => {
+    if (clear) {
+      panel.replaceChildren();
+    }
+
     panel.hidden = true;
     wrapper.classList.remove('is-open');
   };
@@ -55,7 +59,7 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
     const query = input.value.trim();
 
     if (query.length < 2) {
-      closePanel();
+      closePanel(true);
       return;
     }
 
@@ -138,6 +142,10 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
 
   input.addEventListener('input', () => {
     syncExternalTrigger();
+
+    if (input.value.trim().length < 2) {
+      closePanel(true);
+    }
   });
   input.addEventListener('input', debounce(renderSuggestions, 220));
   input.addEventListener('focus', () => {

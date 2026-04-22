@@ -315,6 +315,10 @@ header nav .nav-search-panel {
   backdrop-filter: blur(14px);
 }
 
+header nav .nav-search-panel[hidden] {
+  display: none;
+}
+
 header nav .nav-search-results {
   display: grid;
   gap: 8px;
