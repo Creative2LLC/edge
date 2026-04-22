@@ -1,0 +1,295 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
+
+const FIELD_COLUMN_INDEX = {
+  pageTitle: 0,
+  'jcr:description': 1,
+  authorName: 2,
+  articleDate: 3,
+  thumbnail: 4,
+  headerImage: 5,
+  resourceBody: 6,
+};
+
+const resourceDataCache = new Map();
+
+function normalizeText(value) {
+  return `${value || ''}`.trim();
+}
+
+function findUrlLikeValue(value) {
+  const match = `${value || ''}`.match(/(?:https?:\/\/[^\s<>"]+|\/content\/dam\/[^\s<>"]+|\/media_[^\s<>"]+)/i);
+  return match ? match[0].replace(/[),.;]+$/, '') : '';
+}
+
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return `${value.href || value.path || value.url || value.reference || ''}`.trim();
+  }
+  return '';
+}
+
+function getRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+async function getResourceData(scope) {
+  const resource = scope?.getAttribute('data-aue-resource')
+    || scope?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || scope?.closest?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return {};
+
+  if (resourceDataCache.has(resourcePath)) {
+    return resourceDataCache.get(resourcePath);
+  }
+
+  const pendingData = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return {};
+      return response.json();
+    })
+    .catch(() => ({}));
+
+  resourceDataCache.set(resourcePath, pendingData);
+  return pendingData;
+}
+
+function getPropNode(scope, name) {
+  return scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
+}
+
+function getTextField(block, name, fallback = '') {
+  const propNode = getPropNode(block, name);
+  if (propNode) {
+    const anchor = propNode.tagName === 'A' ? propNode : propNode.querySelector('a');
+    return normalizeText(anchor?.getAttribute('href') || propNode.textContent) || fallback;
+  }
+
+  const columnIndex = FIELD_COLUMN_INDEX[name];
+  if (columnIndex === undefined) return fallback;
+
+  const value = getRows(block).map((row) => {
+    const cell = [...row.children][columnIndex];
+    if (!cell) return '';
+    const anchor = cell.querySelector('a');
+    return normalizeText(anchor?.getAttribute('href') || cell.textContent);
+  }).find(Boolean);
+
+  return value || fallback;
+}
+
+function getHtmlField(block, name) {
+  const propNode = getPropNode(block, name);
+  if (propNode) return propNode.innerHTML.trim();
+
+  const columnIndex = FIELD_COLUMN_INDEX[name];
+  if (columnIndex === undefined) return '';
+
+  const value = getRows(block)
+    .map((row) => [...row.children][columnIndex]?.innerHTML?.trim() || '')
+    .find(Boolean);
+  return value || '';
+}
+
+function imageFromNode(node, fallbackAlt) {
+  if (!node) return null;
+
+  const img = node.tagName === 'IMG' ? node : node.querySelector('img');
+  if (img?.src) {
+    return {
+      src: img.src,
+      alt: img.alt || fallbackAlt,
+    };
+  }
+
+  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
+  const href = normalizeText(anchor?.getAttribute('href') || node.getAttribute?.('href') || '');
+  if (href) {
+    return {
+      src: href,
+      alt: fallbackAlt,
+    };
+  }
+
+  const textUrl = findUrlLikeValue(node.textContent || '');
+  if (textUrl) {
+    return {
+      src: textUrl,
+      alt: fallbackAlt,
+    };
+  }
+
+  return null;
+}
+
+function getImageField(block, name, resourceData = {}) {
+  const fallbackAlt = getTextField(block, 'pageTitle', 'Resource image');
+  const propNode = getPropNode(block, name);
+  const propImage = imageFromNode(propNode, fallbackAlt);
+  if (propImage) return propImage;
+
+  const columnIndex = FIELD_COLUMN_INDEX[name];
+  if (columnIndex === undefined) return null;
+
+  const image = getRows(block)
+    .map((row) => imageFromNode([...row.children][columnIndex], fallbackAlt))
+    .find(Boolean);
+
+  if (image) return image;
+
+  const jsonValue = normalizeJsonFieldValue(resourceData?.[name]);
+  if (jsonValue) {
+    return {
+      src: jsonValue,
+      alt: fallbackAlt,
+    };
+  }
+
+  return null;
+}
+
+function buildMessage(title, description) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'resource-details-message';
+
+  const heading = document.createElement('h2');
+  heading.className = 'resource-details-message-title';
+  heading.textContent = title;
+  wrapper.append(heading);
+
+  if (description) {
+    const text = document.createElement('p');
+    text.className = 'resource-details-message-copy';
+    text.textContent = description;
+    wrapper.append(text);
+  }
+
+  return wrapper;
+}
+
+function buildMeta(authorName, articleDate) {
+  const values = [authorName, articleDate].filter(Boolean);
+  if (!values.length) return null;
+
+  const meta = document.createElement('div');
+  meta.className = 'resource-details-meta';
+
+  values.forEach((value, index) => {
+    const item = document.createElement('span');
+    item.className = 'resource-details-meta-item';
+    item.textContent = value;
+    meta.append(item);
+
+    if (index < values.length - 1) {
+      const separator = document.createElement('span');
+      separator.className = 'resource-details-meta-separator';
+      separator.textContent = '|';
+      meta.append(separator);
+    }
+  });
+
+  return meta;
+}
+
+function buildHero(fields) {
+  const image = fields.headerImage || fields.thumbnail;
+
+  const section = document.createElement('section');
+  section.className = 'resource-details-hero';
+
+  if (image?.src) {
+    const media = document.createElement('div');
+    media.className = 'resource-details-hero-media';
+    media.append(
+      createOptimizedPicture(
+        image.src,
+        image.alt || fields.pageTitle || 'Resource image',
+        false,
+        [{ width: '750' }, { width: '1600' }],
+      ),
+    );
+    section.append(media);
+  } else {
+    section.classList.add('is-without-image');
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'resource-details-hero-overlay';
+  section.append(overlay);
+
+  const inner = document.createElement('div');
+  inner.className = 'resource-details-hero-content';
+
+  const title = document.createElement('h1');
+  title.className = 'resource-details-title';
+  title.textContent = fields.pageTitle;
+  inner.append(title);
+
+  const meta = buildMeta(fields.authorName, fields.articleDate);
+  if (meta) inner.append(meta);
+
+  if (fields.description) {
+    const excerpt = document.createElement('p');
+    excerpt.className = 'resource-details-excerpt';
+    excerpt.textContent = fields.description;
+    inner.append(excerpt);
+  }
+
+  section.append(inner);
+  return section;
+}
+
+function buildBody(fields) {
+  if (!fields.resourceBody) return null;
+
+  const section = document.createElement('article');
+  section.className = 'resource-details-content';
+
+  const inner = document.createElement('div');
+  inner.className = 'resource-details-prose';
+
+  const body = document.createElement('div');
+  body.className = 'resource-details-body';
+  body.innerHTML = fields.resourceBody;
+  inner.append(body);
+
+  section.append(inner);
+  return section;
+}
+
+export default async function decorate(block) {
+  const resourceData = await getResourceData(block);
+
+  const fields = {
+    pageTitle: getTextField(block, 'pageTitle', normalizeJsonFieldValue(resourceData.pageTitle)),
+    description: getTextField(block, 'jcr:description'),
+    authorName: getTextField(block, 'authorName'),
+    articleDate: getTextField(block, 'articleDate'),
+    thumbnail: getImageField(block, 'thumbnail', resourceData),
+    headerImage: getImageField(block, 'headerImage', resourceData),
+    resourceBody: getHtmlField(block, 'resourceBody'),
+  };
+
+  if (!fields.pageTitle && !fields.resourceBody) {
+    block.replaceChildren(buildMessage('Resource Details', 'Add resource fields to this block in Universal Editor. These values can also be synced into the backend resource record.'));
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  fragment.append(buildHero(fields));
+
+  const body = buildBody(fields);
+  if (body) fragment.append(body);
+
+  block.replaceChildren(fragment);
+}

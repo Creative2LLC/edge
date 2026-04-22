@@ -4698,6 +4698,55 @@
     ]
   },
   {
+    "id": "resource-details",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "pageTitle",
+        "label": "Page Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "jcr:description",
+        "label": "Intro / Description"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "authorName",
+        "label": "Author Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "articleDate",
+        "label": "Resource Date"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "thumbnail",
+        "label": "Thumbnail Image",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "headerImage",
+        "label": "Header Image",
+        "multi": false
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "resourceBody",
+        "label": "Resource Body"
+      }
+    ]
+  },
+  {
     "id": "resources-browser",
     "fields": [
       {
