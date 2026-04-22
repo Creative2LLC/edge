@@ -1,0 +1,110 @@
+/* CTA Banner Block */
+.cta-banner.block {
+  padding: 24px 0;
+  margin: 0 auto;
+}
+
+.cta-banner-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 32px 40px;
+  border-radius: 14px;
+  background-color: #edebe9;
+  box-sizing: border-box;
+}
+
+.cta-banner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cta-banner-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.cta-banner-icon-masked {
+  display: block;
+}
+
+.cta-banner-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #404041;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.cta-banner-subtitle {
+  font-size: 17px;
+  font-weight: 500;
+  color: #404041;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cta-banner-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 12px 28px;
+  border-radius: 99px;
+  border: 2px solid #008db6;
+  background-color: transparent;
+  color: #008db6;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: opacity 0.2s ease;
+}
+
+.cta-banner-button:hover,
+.cta-banner-button:focus {
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .cta-banner-card {
+    padding: 28px 32px;
+    gap: 24px;
+  }
+
+  .cta-banner-title {
+    font-size: 28px;
+  }
+}
+
+/* Responsive — mobile */
+@media (width <= 600px) {
+  .cta-banner-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+    gap: 20px;
+  }
+
+  .cta-banner-title {
+    font-size: 24px;
+  }
+
+  .cta-banner-button {
+    width: 100%;
+  }
+}
