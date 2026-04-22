@@ -45,8 +45,44 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "headerButtonText",
+          "label": "Header Button Text (Optional)",
+          "description": "Leave empty to hide the button"
+        },
+        {
+          "component": "aem-content",
+          "name": "headerButtonLink",
+          "label": "Header Button Link (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "featuredMode",
+          "label": "Featured Article",
+          "description": "Show the first article as a featured card, or list all articles in the grid",
+          "options": [
+            {
+              "name": "Featured First Article",
+              "value": "featured"
+            },
+            {
+              "name": "No Featured Article",
+              "value": "none"
+            }
+          ],
+          "value": "featured"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "button",
-          "label": "Button Text"
+          "label": "View More Button Text"
         }
       ]
     },

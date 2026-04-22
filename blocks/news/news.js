@@ -3,6 +3,10 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
+  subheading: ['subheading', 'subtitle'],
+  headerButtonText: ['header button text', 'headerbuttontext', 'header button'],
+  headerButtonLink: ['header button link', 'headerbuttonlink'],
+  featuredMode: ['featured mode', 'featuredmode', 'featured article'],
   button: ['button text', 'buttontext', 'button label', 'button'],
 };
 
@@ -28,6 +32,17 @@ function getBlockField(block, legacyMap, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (source) {
     const value = source.textContent.trim();
+    source.remove();
+    return value;
+  }
+  return legacyMap[name] || '';
+}
+
+function getBlockLinkField(block, legacyMap, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+    const value = anchor?.href || source.textContent.trim();
     source.remove();
     return value;
   }
@@ -223,7 +238,13 @@ function buildSmallCard(article, row, hidden) {
 export default function decorate(block) {
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
+  const subheading = getBlockField(block, legacyMap, 'subheading');
+  const headerButtonText = getBlockField(block, legacyMap, 'headerButtonText');
+  const headerButtonLink = getBlockLinkField(block, legacyMap, 'headerButtonLink');
+  const featuredMode = getBlockField(block, legacyMap, 'featuredMode') || 'featured';
   const buttonText = getBlockField(block, legacyMap, 'button') || 'View More News';
+
+  const useFeatured = featuredMode !== 'none';
 
   // Remaining rows are article items
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -236,34 +257,67 @@ export default function decorate(block) {
   const inner = document.createElement('div');
   inner.className = 'news-inner';
 
-  // Heading
-  if (heading) {
-    const h2 = document.createElement('h2');
-    h2.className = 'news-heading';
-    h2.textContent = heading;
-    inner.append(h2);
+  // Header row — heading + subheading on left, optional button on right
+  const hasHeader = heading || subheading || headerButtonText || headerButtonLink;
+  if (hasHeader) {
+    const header = document.createElement('div');
+    header.className = 'news-header';
+
+    const headerLeft = document.createElement('div');
+    headerLeft.className = 'news-header-left';
+
+    if (heading) {
+      const h2 = document.createElement('h2');
+      h2.className = 'news-heading';
+      h2.textContent = heading;
+      headerLeft.append(h2);
+    }
+
+    if (subheading) {
+      const sub = document.createElement('p');
+      sub.className = 'news-subheading';
+      sub.textContent = subheading;
+      headerLeft.append(sub);
+    }
+
+    if (headerLeft.childElementCount) header.append(headerLeft);
+
+    if (headerButtonText || headerButtonLink) {
+      const headerBtn = document.createElement(headerButtonLink ? 'a' : 'button');
+      headerBtn.className = 'news-header-button';
+      headerBtn.textContent = headerButtonText || 'Learn More';
+      if (headerButtonLink) headerBtn.href = headerButtonLink;
+      else headerBtn.type = 'button';
+      header.append(headerBtn);
+    }
+
+    inner.append(header);
   }
 
-  // Featured card (first article)
-  if (articles.length > 0) {
+  // Featured card (first article) — only in featured mode
+  if (useFeatured && articles.length > 0) {
     const featured = buildFeaturedCard(articles[0].data, articles[0].row);
     inner.append(featured);
   }
 
-  // Small cards (remaining articles)
-  if (articles.length > 1) {
+  // Small cards — remaining articles (or all if no featured). First 3 visible, rest hidden.
+  const startIndex = useFeatured ? 1 : 0;
+  const visibleCount = 3;
+
+  if (articles.length > startIndex) {
     const ul = document.createElement('ul');
     ul.className = 'news-cards';
-    for (let i = 1; i < articles.length; i += 1) {
-      const hidden = i > 3; // First 3 small cards visible (indices 1-3), rest hidden
+    for (let i = startIndex; i < articles.length; i += 1) {
+      const positionInGrid = i - startIndex;
+      const hidden = positionInGrid >= visibleCount;
       const card = buildSmallCard(articles[i].data, articles[i].row, hidden);
       ul.append(card);
     }
     inner.append(ul);
 
-    // View More button (only if more than 3 small cards)
-    const smallCardCount = articles.length - 1;
-    if (smallCardCount > 3) {
+    // View More button — only if there are more small cards than visible
+    const smallCardCount = articles.length - startIndex;
+    if (smallCardCount > visibleCount) {
       const btnWrapper = document.createElement('div');
       btnWrapper.className = 'news-button-wrapper';
       const btn = document.createElement('button');
