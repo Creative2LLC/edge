@@ -123,9 +123,21 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
 
           const title = document.createElement('span');
           title.className = 'nav-search-result-title';
-          title.textContent = result.title || 'Search Result';
+          if (`${result.title_html || ''}`.trim()) {
+            title.innerHTML = result.title_html;
+          } else {
+            title.textContent = result.title || 'Search Result';
+          }
 
           link.append(type, title);
+
+          if (`${result.summary_html || ''}`.trim()) {
+            const summary = document.createElement('span');
+            summary.className = 'nav-search-result-summary';
+            summary.innerHTML = result.summary_html;
+            link.append(summary);
+          }
+
           list.append(link);
         });
 

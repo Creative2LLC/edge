@@ -386,9 +386,24 @@ header nav .nav-search-result-type {
 }
 
 header nav .nav-search-result-title,
+header nav .nav-search-result-summary,
 header nav .nav-search-status,
 header nav .nav-search-all-results {
   color: #113652;
+}
+
+header nav .nav-search-result-summary {
+  color: rgb(17 54 82 / 78%);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+header nav .nav-search-result-title mark,
+header nav .nav-search-result-summary mark {
+  padding: 0 0.2em;
+  border-radius: 0.35em;
+  background: rgb(255 205 87 / 58%);
+  color: #0f3350;
 }
 
 header nav .nav-search-all-results {
