@@ -7,6 +7,7 @@ header .nav-wrapper {
   --nav-mobile-shadow:
     0 28px 60px rgb(5 23 38 / 16%),
     0 10px 24px rgb(11 38 58 / 10%);
+
   background-color: var(--background-color);
   width: 100%;
   z-index: 2;
