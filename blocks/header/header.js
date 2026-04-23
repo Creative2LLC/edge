@@ -327,12 +327,10 @@ function toggleAllNavSections(sections, expanded = false) {
         if (isDesktop.matches) {
           panel.removeAttribute('hidden');
           panel.removeAttribute('aria-hidden');
+        } else if (shouldExpand) {
+          showMobilePanel(panel);
         } else {
-          if (shouldExpand) {
-            showMobilePanel(panel);
-          } else {
-            hideMobilePanel(panel);
-          }
+          hideMobilePanel(panel);
         }
       }
     });
