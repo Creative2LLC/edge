@@ -19,6 +19,17 @@ function splitPath(value) {
   };
 }
 
+function hasFileExtension(pathname) {
+  const lastSegment = pathname.split('/').pop() || '';
+  return /\.[a-z0-9]+$/i.test(lastSegment);
+}
+
+function withHtmlExtension(pathname) {
+  if (pathname === '/') return '/index.html';
+  if (pathname.endsWith('.html') || hasFileExtension(pathname)) return pathname;
+  return `${pathname}.html`;
+}
+
 export default function resolveSiteHref(value) {
   const raw = `${value || ''}`.trim();
   if (!raw || raw === '#') return raw || '#';
@@ -38,10 +49,11 @@ export default function resolveSiteHref(value) {
 
   if (isAuthorHost()) {
     if (cleanPath === EDGE_CONTENT_PREFIX || cleanPath.startsWith(`${EDGE_CONTENT_PREFIX}/`)) {
-      return `${cleanPath}${suffix}`;
+      return `${withHtmlExtension(cleanPath)}${suffix}`;
     }
 
-    return `${EDGE_CONTENT_PREFIX}${cleanPath === '/' ? '' : cleanPath}${suffix}`;
+    const authorPath = `${EDGE_CONTENT_PREFIX}${cleanPath === '/' ? '' : cleanPath}`;
+    return `${withHtmlExtension(authorPath)}${suffix}`;
   }
 
   if (cleanPath === EDGE_CONTENT_PREFIX) return `/${suffix}`;

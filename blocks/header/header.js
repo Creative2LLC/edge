@@ -57,7 +57,7 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   };
 
   const buildResultsLink = (query) => {
-    const url = new URL(resultsPath, window.location.origin);
+    const url = new URL(resolveSiteHref(resultsPath), window.location.origin);
     if (query.trim()) url.searchParams.set('q', query.trim());
     return url.toString();
   };
