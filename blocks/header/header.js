@@ -347,7 +347,6 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
     ? forceExpanded === true || forceExpanded === 'true'
     : nav.getAttribute('aria-expanded') !== 'true';
   const button = nav.querySelector('.nav-hamburger button');
-  const navBody = nav.querySelector('.nav-mobile-body');
   document.body.style.overflowY = (!isDesktop.matches && nextExpanded) ? 'hidden' : '';
   nav.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
   toggleAllNavSections(navSections, false);
@@ -357,7 +356,6 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   });
   button.setAttribute('aria-label', nextExpanded ? 'Close navigation' : 'Open navigation');
   button.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
-  navBody?.setAttribute('aria-hidden', nextExpanded ? 'false' : 'true');
   // enable nav dropdown keyboard accessibility
   const navDrops = navSections.querySelectorAll('.nav-drop');
   if (isDesktop.matches) {
@@ -2166,48 +2164,6 @@ export default async function decorate(block) {
       headerSearch.bindExternalTrigger(searchTrigger);
     }
   }
-
-  const navMobileBody = document.createElement('div');
-  navMobileBody.className = 'nav-mobile-body';
-  navMobileBody.setAttribute(
-    'aria-hidden',
-    nav.getAttribute('aria-expanded') === 'true' ? 'false' : 'true',
-  );
-  navMobileBody.append(navSections);
-  if (navTools) {
-    navMobileBody.append(navTools);
-  }
-
-  let menuTouchStartX = 0;
-  let menuTouchStartY = 0;
-  navMobileBody.addEventListener('touchstart', (event) => {
-    const touch = event.changedTouches?.[0];
-    if (!touch) return;
-    menuTouchStartX = touch.clientX;
-    menuTouchStartY = touch.clientY;
-  }, { passive: true });
-  navMobileBody.addEventListener('touchend', (event) => {
-    if (isDesktop.matches || navSections.classList.contains('is-mobile-detail-open')) return;
-    const touch = event.changedTouches?.[0];
-    if (!touch) return;
-    const deltaX = touch.clientX - menuTouchStartX;
-    const deltaY = Math.abs(touch.clientY - menuTouchStartY);
-    if (deltaX > 72 && deltaY < 56) {
-      toggleMenu(nav, navSections, false);
-      nav.querySelector('.nav-hamburger button')?.focus();
-    }
-  }, { passive: true });
-
-  const navMobileBackdrop = document.createElement('button');
-  navMobileBackdrop.type = 'button';
-  navMobileBackdrop.className = 'nav-mobile-backdrop';
-  navMobileBackdrop.setAttribute('aria-label', 'Close navigation');
-  navMobileBackdrop.addEventListener('click', () => {
-    toggleMenu(nav, navSections, false);
-    nav.querySelector('.nav-hamburger button')?.focus();
-  });
-
-  nav.append(navMobileBackdrop, navMobileBody);
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
