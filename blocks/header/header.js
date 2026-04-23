@@ -196,6 +196,11 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
     event.preventDefault();
     const query = input.value.trim();
 
+    if (!isDesktop.matches) {
+      window.location.href = buildResultsLink(query);
+      return;
+    }
+
     if (!query) {
       expandSearch();
       return;
@@ -239,6 +244,10 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
     trigger.addEventListener('click', (event) => {
       event.preventDefault();
       const query = input.value.trim();
+      if (!isDesktop.matches) {
+        window.location.href = buildResultsLink(query);
+        return;
+      }
       if (!wrapper.classList.contains('is-expanded') || !query) {
         expandSearch();
         return;
@@ -348,6 +357,7 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
     : nav.getAttribute('aria-expanded') !== 'true';
   const button = nav.querySelector('.nav-hamburger button');
   document.body.style.overflowY = (!isDesktop.matches && nextExpanded) ? 'hidden' : '';
+  document.body.classList.toggle('nav-mobile-open', !isDesktop.matches && nextExpanded);
   nav.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
   toggleAllNavSections(navSections, false);
   navSections.classList.remove('is-mobile-detail-open');
@@ -2154,9 +2164,10 @@ export default async function decorate(block) {
 
     const toolButtons = [...navTools.querySelectorAll('a.button')];
     toolButtons.forEach((btn, index) => {
-      btn.classList.remove('nav-tool-primary', 'nav-tool-accent');
+      btn.classList.remove('nav-tool-primary', 'nav-tool-accent', 'nav-tool-mobile-hidden');
       if (index === 0) btn.classList.add('nav-tool-primary');
       if (index === 1) btn.classList.add('nav-tool-accent');
+      if (index >= 2) btn.classList.add('nav-tool-mobile-hidden');
     });
 
     const searchTrigger = toolButtons.find((btn) => btn.textContent.trim().toLowerCase() === 'search');
