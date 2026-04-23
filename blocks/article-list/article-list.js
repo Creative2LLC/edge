@@ -12,6 +12,7 @@ const FIELD_LABELS = {
   loadMoreText: ['load more text', 'load more'],
   audiencePreset: ['audience preset', 'preset audience', 'default audience'],
   issuePreset: ['issue preset', 'preset issue', 'default issue'],
+  typePreset: ['type preset', 'preset type', 'default type'],
   tagPreset: ['tag preset', 'preset tag', 'default tag'],
 };
 
@@ -26,7 +27,8 @@ const FIELD_COLUMN_INDEX = {
   loadMoreText: 7,
   audiencePreset: 8,
   issuePreset: 9,
-  tagPreset: 10,
+  typePreset: 10,
+  tagPreset: 11,
 };
 
 function normalizeText(value) { return `${value || ''}`.trim(); }
@@ -62,6 +64,7 @@ function parseFilterLists(value) {
   return {
     audience: parseList(map.audience || map.audiences),
     issue: parseList(map.issue || map.issues),
+    type: parseList(map.type || map.types),
     tags: parseList(map.tag || map.tags),
   };
 }
@@ -306,8 +309,9 @@ function buildShell(config) {
 
   const audienceSelect = createFilterSelect('Audience');
   const issueSelect = createFilterSelect('Issue');
+  const typeSelect = createFilterSelect('Type');
   const tagSelect = createFilterSelect('Tag');
-  controls.append(audienceSelect, issueSelect, tagSelect);
+  controls.append(audienceSelect, issueSelect, typeSelect, tagSelect);
   header.append(controls);
   inner.append(header);
 
@@ -345,6 +349,7 @@ function buildShell(config) {
     searchInput,
     audienceSelect,
     issueSelect,
+    typeSelect,
     tagSelect,
     activeFilters,
     clearAllButton,
@@ -362,6 +367,7 @@ async function renderApiList(block, config) {
     searchInput,
     audienceSelect,
     issueSelect,
+    typeSelect,
     tagSelect,
     activeFilters,
     clearAllButton,
@@ -376,6 +382,7 @@ async function renderApiList(block, config) {
     query: '',
     selectedAudience: new Set(parseList(config.audiencePreset).map(normalizeToken)),
     selectedIssue: new Set(parseList(config.issuePreset).map(normalizeToken)),
+    selectedType: new Set(parseList(config.typePreset).map(normalizeToken)),
     selectedTags: new Set(parseList(config.tagPreset).map(normalizeToken)),
     page: 0,
     lastPage: 1,
@@ -385,24 +392,30 @@ async function renderApiList(block, config) {
   const optionLabels = {
     audience: new Map(),
     issue: new Map(),
+    type: new Map(),
     tags: new Map(),
   };
 
   const updateFilters = (filters = {}) => {
     const audiences = filters.audiences || [];
     const issues = filters.issues || [];
+    const types = filters.types || [];
     const tags = (filters.tags || []).map((tag) => ({
       value: tag.slug,
       label: tag.name,
     }));
     setFilterOptions(audienceSelect, 'Audience', audiences);
     setFilterOptions(issueSelect, 'Issue', issues);
+    setFilterOptions(typeSelect, 'Type', types);
     setFilterOptions(tagSelect, 'Tag', tags);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
     optionLabels.issue = new Map(
       issues.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    optionLabels.type = new Map(
+      types.map((option) => [normalizeToken(option.value), option.label]),
     );
     optionLabels.tags = new Map(
       tags.map((option) => [normalizeToken(option.value), option.label]),
@@ -415,6 +428,7 @@ async function renderApiList(block, config) {
     const facets = [
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
+      ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
     ];
     facets.forEach(({ facet, value }) => {
@@ -422,6 +436,7 @@ async function renderApiList(block, config) {
       activeFilters.append(createChip(label, () => {
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
+        if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'tags') state.selectedTags.delete(value);
         refreshArticles(true);
       }));
@@ -448,6 +463,7 @@ async function renderApiList(block, config) {
     if (state.query.trim()) url.searchParams.set('search', state.query.trim());
     state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
     state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
+    state.selectedType.forEach((value) => url.searchParams.append('types[]', value));
     state.selectedTags.forEach((value) => url.searchParams.append('tags[]', value));
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
@@ -496,6 +512,9 @@ async function renderApiList(block, config) {
   issueSelect.addEventListener('change', () => {
     applyFacet(issueSelect, state.selectedIssue);
   });
+  typeSelect.addEventListener('change', () => {
+    applyFacet(typeSelect, state.selectedType);
+  });
   tagSelect.addEventListener('change', () => {
     applyFacet(tagSelect, state.selectedTags);
   });
@@ -504,6 +523,7 @@ async function renderApiList(block, config) {
     state.query = '';
     state.selectedAudience.clear();
     state.selectedIssue.clear();
+    state.selectedType.clear();
     state.selectedTags.clear();
     searchInput.value = '';
     loadArticles(true);
@@ -533,6 +553,7 @@ export default async function decorate(block) {
     ) || 'Load More Articles',
     audiencePreset: getFieldValue(block, 'audiencePreset') || filters.audience.join(', '),
     issuePreset: getFieldValue(block, 'issuePreset') || filters.issue.join(', '),
+    typePreset: getFieldValue(block, 'typePreset') || filters.type.join(', '),
     tagPreset: getFieldValue(block, 'tagPreset') || filters.tags.join(', '),
   };
 

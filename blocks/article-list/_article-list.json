@@ -48,7 +48,7 @@
           "component": "text",
           "valueType": "string",
           "name": "filters",
-          "label": "Preset Filters (audiences/issues/tags)"
+          "label": "Preset Filters (audiences/issues/types/tags)"
         },
         {
           "component": "text",
@@ -82,6 +82,12 @@
           "valueType": "string",
           "name": "issuePreset",
           "label": "Preset Issues"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "typePreset",
+          "label": "Preset Types"
         },
         {
           "component": "text",

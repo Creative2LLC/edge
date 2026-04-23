@@ -205,8 +205,12 @@ function mapApiResource(resource) {
     title: resource.title || '',
     subtitle: resource.excerpt || '',
     linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
+    detailUrl: resource.detail_path || '',
+    downloadUrl: resource.download_url || resource.resource_url || '',
     linkText: resource.primary_action === 'download' ? 'Download PDF' : 'Learn More',
     linkAction: resource.primary_action || '',
+    hasDetailPage: Boolean(resource.has_detail_page),
+    hasDownload: Boolean(resource.has_download),
     tags: (resource.tags || []).map((tag) => tag.name).slice(0, 4),
   };
 }
@@ -293,17 +297,34 @@ function buildResourceCard(resource, row) {
     content.append(sub);
   }
 
-  if (resource.linkUrl) {
+  const actions = [
+    resource.hasDetailPage && resource.detailUrl
+      ? { href: resource.detailUrl, label: resource.linkText || 'Learn More', isDownload: false }
+      : null,
+    resource.hasDownload && resource.downloadUrl
+      ? { href: resource.downloadUrl, label: 'Download PDF', isDownload: true }
+      : null,
+  ].filter(Boolean);
+
+  if (!actions.length && resource.linkUrl) {
+    actions.push({
+      href: resource.linkUrl,
+      label: resource.linkText || 'Learn More',
+      isDownload: resource.linkAction === 'download',
+    });
+  }
+
+  actions.forEach((action) => {
     const link = document.createElement('a');
     link.className = 'resources-card-link';
-    link.href = resolveSiteHref(resource.linkUrl);
-    if (resource.linkAction === 'download') {
+    link.href = resolveSiteHref(action.href);
+    if (action.isDownload) {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
     }
-    link.textContent = resource.linkText || 'Learn More';
+    link.textContent = action.label;
     content.append(link);
-  }
+  });
 
   card.append(content);
   return card;

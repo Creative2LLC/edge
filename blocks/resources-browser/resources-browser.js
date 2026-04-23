@@ -265,6 +265,8 @@ function mapApiResource(resource) {
       title: resource.title || '',
       subtitle: resource.excerpt || '',
       linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
+      detailUrl: resource.detail_path || '',
+      downloadUrl: resource.download_url || resource.resource_url || '',
       id: resource.slug || `${resource.id || ''}`,
       audience: resource.audience_label || '',
       issue: resource.issue_label || '',
@@ -272,6 +274,8 @@ function mapApiResource(resource) {
       tags: (resource.tags || []).map((tag) => tag.name),
     }),
     linkAction: resource.primary_action || '',
+    hasDetailPage: Boolean(resource.has_detail_page),
+    hasDownload: Boolean(resource.has_download),
   };
 }
 
@@ -386,17 +390,34 @@ function buildResourceCard(resource, row = null) {
     content.append(subtitle);
   }
 
-  if (resource.linkUrl) {
+  const actions = [
+    resource.hasDetailPage && resource.detailUrl
+      ? { href: resource.detailUrl, label: 'Learn more ->', isDownload: false }
+      : null,
+    resource.hasDownload && resource.downloadUrl
+      ? { href: resource.downloadUrl, label: 'Download PDF ->', isDownload: true }
+      : null,
+  ].filter(Boolean);
+
+  if (!actions.length && resource.linkUrl) {
+    actions.push({
+      href: resource.linkUrl,
+      label: resource.linkAction === 'download' ? 'Download PDF ->' : 'Learn more ->',
+      isDownload: resource.linkAction === 'download',
+    });
+  }
+
+  actions.forEach((action) => {
     const link = document.createElement('a');
     link.className = 'resources-browser-card-link';
-    link.href = resolveSiteHref(resource.linkUrl);
-    if (resource.linkAction === 'download') {
+    link.href = resolveSiteHref(action.href);
+    if (action.isDownload) {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
     }
-    link.textContent = resource.linkAction === 'download' ? 'Download PDF ->' : 'Learn more ->';
+    link.textContent = action.label;
     content.append(link);
-  }
+  });
 
   card.append(content);
   return card;
