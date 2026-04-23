@@ -9,6 +9,40 @@ import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
+const MOBILE_SUBNAV_TRANSITION_MS = 260;
+
+function clearTransitionTimer(element, key) {
+  if (element?.[key]) {
+    window.clearTimeout(element[key]);
+    element[key] = null;
+  }
+}
+
+function showMobilePanel(panel) {
+  if (!panel) return;
+  clearTransitionTimer(panel, 'mobileHideTimer');
+  panel.hidden = false;
+  panel.setAttribute('aria-hidden', 'false');
+  panel.classList.add('is-mobile-visible');
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      panel.classList.add('is-mobile-active');
+    });
+  });
+}
+
+function hideMobilePanel(panel) {
+  if (!panel) return;
+  clearTransitionTimer(panel, 'mobileHideTimer');
+  panel.classList.remove('is-mobile-active');
+  panel.setAttribute('aria-hidden', 'true');
+  panel.mobileHideTimer = window.setTimeout(() => {
+    if (panel.getAttribute('aria-hidden') === 'true') {
+      panel.hidden = true;
+      panel.classList.remove('is-mobile-visible');
+    }
+  }, MOBILE_SUBNAV_TRANSITION_MS);
+}
 
 function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   const wrapper = document.createElement('div');
@@ -232,9 +266,14 @@ function closeOnEscape(e) {
       toggleAllNavSections(navSections);
       navSectionExpanded.focus();
     } else if (!isDesktop.matches) {
+      const activeLink = navSections.querySelector('.is-mobile-active > .nav-top-link');
+      if (navSections.classList.contains('is-mobile-detail-open') && activeLink) {
+        activeLink.click();
+        return;
+      }
       // eslint-disable-next-line no-use-before-define
       toggleMenu(nav, navSections);
-      nav.querySelector('button').focus();
+      nav.querySelector('.nav-hamburger button')?.focus();
     }
   }
 }
@@ -289,8 +328,11 @@ function toggleAllNavSections(sections, expanded = false) {
           panel.removeAttribute('hidden');
           panel.removeAttribute('aria-hidden');
         } else {
-          panel.toggleAttribute('hidden', !shouldExpand);
-          panel.setAttribute('aria-hidden', shouldExpand ? 'false' : 'true');
+          if (shouldExpand) {
+            showMobilePanel(panel);
+          } else {
+            hideMobilePanel(panel);
+          }
         }
       }
     });
@@ -303,16 +345,21 @@ function toggleAllNavSections(sections, expanded = false) {
  * @param {*} forceExpanded Optional param to force nav expand behavior when not null
  */
 function toggleMenu(nav, navSections, forceExpanded = null) {
-  const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
+  const nextExpanded = forceExpanded !== null
+    ? forceExpanded === true || forceExpanded === 'true'
+    : nav.getAttribute('aria-expanded') !== 'true';
   const button = nav.querySelector('.nav-hamburger button');
-  document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
-  nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  const navBody = nav.querySelector('.nav-mobile-body');
+  document.body.style.overflowY = (!isDesktop.matches && nextExpanded) ? 'hidden' : '';
+  nav.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
   toggleAllNavSections(navSections, false);
   navSections.classList.remove('is-mobile-detail-open');
   navSections.querySelectorAll('.is-mobile-active').forEach((section) => {
     section.classList.remove('is-mobile-active');
   });
-  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
+  button.setAttribute('aria-label', nextExpanded ? 'Close navigation' : 'Open navigation');
+  button.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
+  navBody?.setAttribute('aria-hidden', nextExpanded ? 'false' : 'true');
   // enable nav dropdown keyboard accessibility
   const navDrops = navSections.querySelectorAll('.nav-drop');
   if (isDesktop.matches) {
@@ -330,14 +377,14 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   }
 
   // enable menu collapse on escape keypress
-  if (!expanded) {
+  if (nextExpanded || isDesktop.matches) {
     window.addEventListener('keydown', closeOnEscape);
   } else {
     window.removeEventListener('keydown', closeOnEscape);
   }
 
   // only use focusout close handling on desktop hover navigation
-  if (!expanded && isDesktop.matches) {
+  if (nextExpanded && isDesktop.matches) {
     nav.addEventListener('focusout', closeOnFocusLost);
   } else {
     nav.removeEventListener('focusout', closeOnFocusLost);
@@ -1741,8 +1788,7 @@ export default async function decorate(block) {
       subNav.setAttribute('aria-hidden', 'true');
       const closeMobileDetail = () => {
         navSection.setAttribute('aria-expanded', 'false');
-        subNav.setAttribute('hidden', '');
-        subNav.setAttribute('aria-hidden', 'true');
+        hideMobilePanel(subNav);
         setMobileDetailState(null);
         topLink?.focus();
       };
@@ -1799,8 +1845,7 @@ export default async function decorate(block) {
           }
           toggleAllNavSections(navSections, false);
           navSection.setAttribute('aria-expanded', 'true');
-          subNav.removeAttribute('hidden');
-          subNav.setAttribute('aria-hidden', 'false');
+          showMobilePanel(subNav);
           setMobileDetailState(navSection);
         });
       }
@@ -2123,6 +2168,48 @@ export default async function decorate(block) {
       headerSearch.bindExternalTrigger(searchTrigger);
     }
   }
+
+  const navMobileBody = document.createElement('div');
+  navMobileBody.className = 'nav-mobile-body';
+  navMobileBody.setAttribute(
+    'aria-hidden',
+    nav.getAttribute('aria-expanded') === 'true' ? 'false' : 'true',
+  );
+  navMobileBody.append(navSections);
+  if (navTools) {
+    navMobileBody.append(navTools);
+  }
+
+  let menuTouchStartX = 0;
+  let menuTouchStartY = 0;
+  navMobileBody.addEventListener('touchstart', (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    menuTouchStartX = touch.clientX;
+    menuTouchStartY = touch.clientY;
+  }, { passive: true });
+  navMobileBody.addEventListener('touchend', (event) => {
+    if (isDesktop.matches || navSections.classList.contains('is-mobile-detail-open')) return;
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    const deltaX = touch.clientX - menuTouchStartX;
+    const deltaY = Math.abs(touch.clientY - menuTouchStartY);
+    if (deltaX > 72 && deltaY < 56) {
+      toggleMenu(nav, navSections, false);
+      nav.querySelector('.nav-hamburger button')?.focus();
+    }
+  }, { passive: true });
+
+  const navMobileBackdrop = document.createElement('button');
+  navMobileBackdrop.type = 'button';
+  navMobileBackdrop.className = 'nav-mobile-backdrop';
+  navMobileBackdrop.setAttribute('aria-label', 'Close navigation');
+  navMobileBackdrop.addEventListener('click', () => {
+    toggleMenu(nav, navSections, false);
+    nav.querySelector('.nav-hamburger button')?.focus();
+  });
+
+  nav.append(navMobileBackdrop, navMobileBody);
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
