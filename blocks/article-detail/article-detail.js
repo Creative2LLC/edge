@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'article api base url', 'article api url'],
@@ -14,7 +15,6 @@ const FIELD_COLUMN_INDEX = {
   listingLabel: 3,
 };
 
-const EDGE_CONTENT_PREFIX = '/content/edge';
 const DEFAULT_ARTICLE_LISTING_PATH = '/content/edge/articles.html';
 
 function normalizeText(value) {
@@ -103,12 +103,7 @@ function normalizeApiBaseUrl(value) {
 }
 
 function normalizeEdgeContentPath(value, fallback = '') {
-  const normalized = normalizeText(value || fallback);
-  if (!normalized) return '';
-  if (/^https?:\/\//i.test(normalized)) return normalized;
-  if (normalized.startsWith(EDGE_CONTENT_PREFIX)) return normalized;
-  if (normalized.startsWith('/')) return `${EDGE_CONTENT_PREFIX}${normalized}`;
-  return `${EDGE_CONTENT_PREFIX}/${normalized.replace(/^\/+/, '')}`;
+  return resolveSiteHref(value || fallback);
 }
 
 function normalizeSlug(value) {

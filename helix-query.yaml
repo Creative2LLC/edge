@@ -8,9 +8,30 @@ indices:
       - '/**.json'
     target: /query-index.json
     properties:
+      title:
+        selectFirst: head > meta[property="og:title"]
+        value: attribute(el, "content")
+      description:
+        selectFirst: head > meta[name="description"]
+        value: attribute(el, "content")
+      keywords:
+        selectFirst: head > meta[name="keywords"]
+        value: attribute(el, "content")
+      template:
+        selectFirst: head > meta[name="template"]
+        value: attribute(el, "content")
+      searchExcerpt:
+        selectFirst: head > meta[name="search-excerpt"]
+        value: attribute(el, "content")
+      audience:
+        selectFirst: head > meta[name="audience"]
+        value: attribute(el, "content")
+      topic:
+        selectFirst: head > meta[name="topic"]
+        value: attribute(el, "content")
       lastModified:
         select: none
         value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
       robots:
-        select: head > meta[name="robots"]
+        selectFirst: head > meta[name="robots"]
         value: attribute(el, "content")

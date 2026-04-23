@@ -4,6 +4,7 @@ import {
   fetchSiteSearchSuggestions,
 } from '../../scripts/search-utils.js';
 import getSiteSearchConfig from '../../scripts/site-search-config.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
@@ -114,7 +115,7 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
         (payload.data || []).forEach((result) => {
           const link = document.createElement('a');
           link.className = 'nav-search-result';
-          link.href = result.url || '#';
+          link.href = resolveSiteHref(result.url);
 
           const type = document.createElement('span');
           type.className = 'nav-search-result-type';

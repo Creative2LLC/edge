@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 
 const BLOCK_PROPS = [
   'heading',
@@ -295,7 +296,7 @@ function buildResourceCard(resource, row) {
   if (resource.linkUrl) {
     const link = document.createElement('a');
     link.className = 'resources-card-link';
-    link.href = resource.linkUrl;
+    link.href = resolveSiteHref(resource.linkUrl);
     if (resource.linkAction === 'download') {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';

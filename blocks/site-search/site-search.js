@@ -7,6 +7,7 @@ import {
   writeSearchState,
 } from '../../scripts/search-utils.js';
 import getSiteSearchConfig from '../../scripts/site-search-config.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -181,7 +182,8 @@ function buildResultCard(result, index = 0) {
   const title = document.createElement('h3');
   title.className = 'site-search-card-title';
   const titleLink = document.createElement('a');
-  titleLink.href = result.url || '#';
+  const href = resolveSiteHref(result.url);
+  titleLink.href = href;
   titleLink.textContent = result.title || 'Search Result';
   title.append(titleLink);
   body.append(title);
@@ -202,7 +204,7 @@ function buildResultCard(result, index = 0) {
 
   const cta = document.createElement('a');
   cta.className = 'site-search-card-link';
-  cta.href = result.url || '#';
+  cta.href = href;
   cta.textContent = 'Open Result';
   body.append(cta);
 

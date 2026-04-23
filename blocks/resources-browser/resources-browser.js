@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -388,7 +389,7 @@ function buildResourceCard(resource, row = null) {
   if (resource.linkUrl) {
     const link = document.createElement('a');
     link.className = 'resources-browser-card-link';
-    link.href = resource.linkUrl;
+    link.href = resolveSiteHref(resource.linkUrl);
     if (resource.linkAction === 'download') {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';

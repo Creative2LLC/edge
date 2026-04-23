@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -202,7 +203,7 @@ function buildCard(article, index = 0) {
   const card = document.createElement('article');
   card.className = 'article-list-card';
   card.style.setProperty('--article-card-index', String(index % 12));
-  const linkHref = article.primary_url || article.detail_path || article.page_path || '';
+  const linkHref = resolveSiteHref(article.primary_url || article.detail_path || article.page_path);
 
   if (linkHref) {
     const cover = document.createElement('a');

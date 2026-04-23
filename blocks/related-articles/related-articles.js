@@ -1,3 +1,5 @@
+import resolveSiteHref from '../../scripts/link-utils.js';
+
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url', 'article api base url', 'article api url'],
   sourceType: ['source type', 'content type', 'mode'],
@@ -13,8 +15,6 @@ const FIELD_COLUMN_INDEX = {
   heading: 3,
   limit: 4,
 };
-
-const EDGE_CONTENT_PREFIX = '/content/edge';
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -58,12 +58,7 @@ function getSlugFromPathname(pathname = window.location.pathname) {
 }
 
 function normalizeEdgeContentPath(value) {
-  const normalized = normalizeText(value);
-  if (!normalized) return '';
-  if (/^https?:\/\//i.test(normalized)) return normalized;
-  if (normalized.startsWith(EDGE_CONTENT_PREFIX)) return normalized;
-  if (normalized.startsWith('/')) return `${EDGE_CONTENT_PREFIX}${normalized}`;
-  return `${EDGE_CONTENT_PREFIX}/${normalized.replace(/^\/+/, '')}`;
+  return resolveSiteHref(value);
 }
 
 function findUrlLikeValue(value) {
