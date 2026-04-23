@@ -147,6 +147,14 @@
   color: var(--site-search-muted);
 }
 
+.site-search .site-search-card-title mark,
+.site-search .site-search-card-summary mark {
+  padding: 0 0.2em;
+  border-radius: 0.35em;
+  background: rgb(255 205 87 / 58%);
+  color: #0f3350;
+}
+
 .site-search .site-search-card-title {
   margin: 0;
   font-size: 1.4rem;

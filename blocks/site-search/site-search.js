@@ -184,14 +184,22 @@ function buildResultCard(result, index = 0) {
   const titleLink = document.createElement('a');
   const href = resolveSiteHref(result.url);
   titleLink.href = href;
-  titleLink.textContent = result.title || 'Search Result';
+  if (normalizeText(result.title_html)) {
+    titleLink.innerHTML = result.title_html;
+  } else {
+    titleLink.textContent = result.title || 'Search Result';
+  }
   title.append(titleLink);
   body.append(title);
 
-  if (normalizeText(result.summary)) {
+  if (normalizeText(result.summary_html || result.summary)) {
     const summary = document.createElement('p');
     summary.className = 'site-search-card-summary';
-    summary.textContent = result.summary;
+    if (normalizeText(result.summary_html)) {
+      summary.innerHTML = result.summary_html;
+    } else {
+      summary.textContent = result.summary;
+    }
     body.append(summary);
   }
 
