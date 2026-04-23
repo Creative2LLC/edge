@@ -11,7 +11,7 @@ const isDesktop = window.matchMedia('(min-width: 1260px)');
 
 function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   const wrapper = document.createElement('div');
-  wrapper.className = 'nav-search';
+  wrapper.className = 'nav-search is-collapsed';
 
   const form = document.createElement('form');
   form.className = 'nav-search-form';
@@ -29,6 +29,17 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   panel.className = 'nav-search-panel';
   panel.hidden = true;
   let externalTrigger = null;
+
+  const syncExpandedState = (expanded) => {
+    wrapper.classList.toggle('is-expanded', expanded);
+    wrapper.classList.toggle('is-collapsed', !expanded);
+    externalTrigger?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  };
+
+  const expandSearch = () => {
+    syncExpandedState(true);
+    window.requestAnimationFrame(() => input.focus());
+  };
 
   const closePanel = (clear = false) => {
     if (clear) {
@@ -137,10 +148,17 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const query = input.value.trim();
+
+    if (!query) {
+      expandSearch();
+      return;
+    }
+
     window.location.href = buildResultsLink(query);
   });
 
   input.addEventListener('input', () => {
+    syncExpandedState(true);
     syncExternalTrigger();
 
     if (input.value.trim().length < 2) {
@@ -149,11 +167,15 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   });
   input.addEventListener('input', debounce(renderSuggestions, 220));
   input.addEventListener('focus', () => {
+    syncExpandedState(true);
     if (panel.children.length && input.value.trim().length >= 2) openPanel();
   });
 
   document.addEventListener('click', (event) => {
-    if (!wrapper.contains(event.target)) closePanel();
+    if (!wrapper.contains(event.target)) {
+      closePanel();
+      if (!input.value.trim()) syncExpandedState(false);
+    }
   });
 
   document.addEventListener('keydown', (event) => {
@@ -161,13 +183,25 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   });
 
   wrapper.bindExternalTrigger = (trigger) => {
+    const triggerContainer = trigger.closest('.button-container');
     externalTrigger = trigger;
+    trigger.classList.add('nav-search-trigger');
+    trigger.setAttribute('aria-expanded', 'false');
     syncExternalTrigger();
 
     trigger.addEventListener('click', (event) => {
       event.preventDefault();
-      window.location.href = buildResultsLink(input.value);
+      const query = input.value.trim();
+      if (!wrapper.classList.contains('is-expanded') || !query) {
+        expandSearch();
+        return;
+      }
+
+      window.location.href = buildResultsLink(query);
     });
+
+    form.append(trigger);
+    triggerContainer?.remove();
   };
 
   form.append(input);
