@@ -259,7 +259,7 @@ function mapResource(resource) {
       ...type.map((label) => ({ facet: 'type', value: normalizeToken(label), label })),
       ...audience.map((label) => ({ facet: 'audience', value: normalizeToken(label), label })),
       ...issue.map((label) => ({ facet: 'issue', value: normalizeToken(label), label })),
-      ...customTags.map((label) => ({ facet: null, value: normalizeToken(label), label })),
+      ...customTags.map((label) => ({ facet: 'tags', value: normalizeToken(label), label })),
     ],
   };
 }
@@ -296,7 +296,7 @@ function mapApiResource(resource) {
         label: resource.issue_label,
       }] : []),
       ...((resource.tags || []).map((tag) => ({
-        facet: null,
+        facet: 'tags',
         value: normalizeToken(tag.slug || tag.name),
         label: tag.name,
       }))),
@@ -471,6 +471,17 @@ function createFilterSelect(label) {
   return select;
 }
 
+function createViewToggleButton(label, view, activeView) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'resources-browser-view-button';
+  button.dataset.view = view;
+  button.textContent = label;
+  if (view === activeView) button.classList.add('is-active');
+  button.setAttribute('aria-pressed', String(view === activeView));
+  return button;
+}
+
 function setFilterOptions(select, label, options = []) {
   select.replaceChildren();
   const defaultOption = document.createElement('option');
@@ -501,6 +512,27 @@ function createChip(label, onRemove) {
   chip.append(close);
   chip.addEventListener('click', onRemove);
   return chip;
+}
+
+function applyResultView(cardsContainer, buttons, view) {
+  cardsContainer.dataset.view = view;
+  buttons.forEach((button) => {
+    const active = button.dataset.view === view;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function syncSelectValue(select, selectedValues) {
+  const values = Array.from(selectedValues || []);
+  const selected = values.length ? values[values.length - 1] : '';
+  if (!selected) {
+    select.value = '';
+    return;
+  }
+
+  const option = [...select.options].find((entry) => normalizeToken(entry.value) === selected);
+  select.value = option?.value || '';
 }
 
 function debounce(callback, wait = 250) {
@@ -557,7 +589,14 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   const audienceSelect = createFilterSelect('Audience');
   const issueSelect = createFilterSelect('Issue');
   const typeSelect = createFilterSelect('Type');
-  controls.append(audienceSelect, issueSelect, typeSelect);
+  const tagSelect = createFilterSelect('Tag');
+  controls.append(audienceSelect, issueSelect, typeSelect, tagSelect);
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'resources-browser-view-toggle';
+  const gridButton = createViewToggleButton('Grid', 'grid', 'grid');
+  const listButton = createViewToggleButton('List', 'list', 'grid');
+  viewToggle.append(gridButton, listButton);
+  controls.append(viewToggle);
   header.append(controls);
   inner.append(header);
 
@@ -565,9 +604,14 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   meta.className = 'resources-browser-meta';
   const activeFilters = document.createElement('div');
   activeFilters.className = 'resources-browser-active-filters';
+  const clearAllButton = document.createElement('button');
+  clearAllButton.className = 'resources-browser-clear-all';
+  clearAllButton.type = 'button';
+  clearAllButton.textContent = 'Clear Filters';
+  clearAllButton.hidden = true;
   const count = document.createElement('p');
   count.className = 'resources-browser-count';
-  meta.append(activeFilters, count);
+  meta.append(activeFilters, clearAllButton, count);
   inner.append(meta);
 
   const cardsContainer = document.createElement('div');
@@ -593,7 +637,10 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
     audienceSelect,
     issueSelect,
     typeSelect,
+    tagSelect,
+    viewButtons: [gridButton, listButton],
     activeFilters,
+    clearAllButton,
     count,
     cardsContainer,
     emptyState,
@@ -609,7 +656,10 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     audienceSelect,
     issueSelect,
     typeSelect,
+    tagSelect,
+    viewButtons,
     activeFilters,
+    clearAllButton,
     count,
     cardsContainer,
     emptyState,
@@ -629,15 +679,19 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     selectedAudience: new Set(),
     selectedIssue: new Set(),
     selectedType: new Set(),
+    selectedTags: new Set(),
+    view: 'grid',
   };
   const defaultState = {
     query: '',
     selectedAudience: parseList(config.audiencePreset).map(normalizeToken),
     selectedIssue: parseList(config.issuePreset).map(normalizeToken),
     selectedType: parseList(config.typePreset).map(normalizeToken),
+    selectedTags: parseList(config.tagPreset).map(normalizeToken),
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
+  state.view = locationState.view || 'grid';
   state.selectedAudience = new Set(
     locationState.audiences.present
       ? locationState.audiences.values
@@ -653,13 +707,24 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       ? locationState.types.values
       : defaultState.selectedType,
   );
+  state.selectedTags = new Set(
+    locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
+  );
   const syncUrlState = (replace = true) => {
     writeListFilterState({
       query: state.query,
       audiences: [...state.selectedAudience],
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
+      tags: [...state.selectedTags],
+      view: state.view,
     }, replace);
+  };
+  const syncFilterControls = () => {
+    syncSelectValue(audienceSelect, state.selectedAudience);
+    syncSelectValue(issueSelect, state.selectedIssue);
+    syncSelectValue(typeSelect, state.selectedType);
+    syncSelectValue(tagSelect, state.selectedTags);
   };
 
   let renderActiveFilters = () => {};
@@ -668,6 +733,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     audience: new Map(),
     issue: new Map(),
     type: new Map(),
+    tags: new Map(),
   };
 
   function applyFilters() {
@@ -687,8 +753,10 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         || data.issue.some((value) => state.selectedIssue.has(normalizeToken(value)));
       const typeMatch = !state.selectedType.size
         || data.type.some((value) => state.selectedType.has(normalizeToken(value)));
+      const tagMatch = !state.selectedTags.size
+        || data.tags.some((value) => state.selectedTags.has(normalizeToken(value)));
 
-      return audienceMatch && issueMatch && typeMatch;
+      return audienceMatch && issueMatch && typeMatch && tagMatch;
     });
 
     const shown = Math.min(state.visibleCount, filtered.length);
@@ -712,8 +780,10 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     if (facet === 'type') state.selectedType.add(value);
     if (facet === 'audience') state.selectedAudience.add(value);
     if (facet === 'issue') state.selectedIssue.add(value);
+    if (facet === 'tags') state.selectedTags.add(value);
 
     state.visibleCount = config.pageSize;
+    syncFilterControls();
     syncUrlState();
     applyFilters();
   }
@@ -731,15 +801,19 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   const audiences = collectOptions('audience');
   const issues = collectOptions('issue');
   const types = collectOptions('type');
+  const tags = collectOptions('tags');
   setFilterOptions(audienceSelect, 'Audience', audiences);
   setFilterOptions(issueSelect, 'Issue', issues);
   setFilterOptions(typeSelect, 'Type', types);
+  setFilterOptions(tagSelect, 'Tag', tags);
 
   optionLabels = {
     audience: new Map(audiences.map((option) => [normalizeToken(option.value), option.label])),
     issue: new Map(issues.map((option) => [normalizeToken(option.value), option.label])),
     type: new Map(types.map((option) => [normalizeToken(option.value), option.label])),
+    tags: new Map(tags.map((option) => [normalizeToken(option.value), option.label])),
   };
+  syncFilterControls();
 
   renderActiveFilters = () => {
     activeFilters.replaceChildren();
@@ -747,6 +821,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
+      ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -755,18 +830,21 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
+        if (facet === 'tags') state.selectedTags.delete(value);
         state.visibleCount = config.pageSize;
+        syncFilterControls();
         syncUrlState();
         applyFilters();
       }));
     });
+    clearAllButton.hidden = !facets.length && !state.query.trim();
   };
 
   const applyFacet = (select, set) => {
     if (!select.value) return;
     set.add(normalizeToken(select.value));
-    select.value = '';
     state.visibleCount = config.pageSize;
+    syncFilterControls();
     syncUrlState();
     applyFilters();
   };
@@ -787,11 +865,36 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   typeSelect.addEventListener('change', () => {
     applyFacet(typeSelect, state.selectedType);
   });
+  tagSelect.addEventListener('change', () => {
+    applyFacet(tagSelect, state.selectedTags);
+  });
   loadMoreButton.addEventListener('click', () => {
     state.visibleCount += config.pageSize;
     applyFilters();
   });
+  clearAllButton.addEventListener('click', () => {
+    state.query = '';
+    state.selectedAudience.clear();
+    state.selectedIssue.clear();
+    state.selectedType.clear();
+    state.selectedTags.clear();
+    state.visibleCount = config.pageSize;
+    searchInput.value = '';
+    syncFilterControls();
+    syncUrlState();
+    applyFilters();
+  });
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextView = button.dataset.view === 'list' ? 'list' : 'grid';
+      if (state.view === nextView) return;
+      state.view = nextView;
+      applyResultView(cardsContainer, viewButtons, state.view);
+      syncUrlState();
+    });
+  });
 
+  applyResultView(cardsContainer, viewButtons, state.view);
   applyFilters();
   block.replaceChildren(inner);
 }
@@ -804,7 +907,10 @@ async function renderApiBrowser(block, config) {
     audienceSelect,
     issueSelect,
     typeSelect,
+    tagSelect,
+    viewButtons,
     activeFilters,
+    clearAllButton,
     count,
     cardsContainer,
     emptyState,
@@ -813,12 +919,13 @@ async function renderApiBrowser(block, config) {
 
   const apiRoot = normalizeApiBaseUrl(config.apiBaseUrl);
   const selected = splitSelectedResources(parseList(config.selectedField));
-  const presetTags = parseList(config.tagPreset).map((value) => normalizeToken(value));
   const state = {
     query: '',
     selectedAudience: new Set(),
     selectedIssue: new Set(),
     selectedType: new Set(),
+    selectedTags: new Set(),
+    view: 'grid',
     page: 0,
     lastPage: 1,
     total: 0,
@@ -829,9 +936,11 @@ async function renderApiBrowser(block, config) {
     selectedAudience: parseList(config.audiencePreset).map(normalizeToken),
     selectedIssue: parseList(config.issuePreset).map(normalizeToken),
     selectedType: parseList(config.typePreset).map(normalizeToken),
+    selectedTags: parseList(config.tagPreset).map(normalizeToken),
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
+  state.view = locationState.view || 'grid';
   state.selectedAudience = new Set(
     locationState.audiences.present
       ? locationState.audiences.values
@@ -847,11 +956,15 @@ async function renderApiBrowser(block, config) {
       ? locationState.types.values
       : defaultState.selectedType,
   );
+  state.selectedTags = new Set(
+    locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
+  );
 
   const optionLabels = {
     audience: new Map(),
     issue: new Map(),
     type: new Map(),
+    tags: new Map(),
   };
   const syncUrlState = (replace = true) => {
     writeListFilterState({
@@ -859,7 +972,15 @@ async function renderApiBrowser(block, config) {
       audiences: [...state.selectedAudience],
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
+      tags: [...state.selectedTags],
+      view: state.view,
     }, replace);
+  };
+  const syncFilterControls = () => {
+    syncSelectValue(audienceSelect, state.selectedAudience);
+    syncSelectValue(issueSelect, state.selectedIssue);
+    syncSelectValue(typeSelect, state.selectedType);
+    syncSelectValue(tagSelect, state.selectedTags);
   };
 
   let renderActiveFilters = () => {};
@@ -871,7 +992,9 @@ async function renderApiBrowser(block, config) {
     if (facet === 'type') state.selectedType.add(value);
     if (facet === 'audience') state.selectedAudience.add(value);
     if (facet === 'issue') state.selectedIssue.add(value);
+    if (facet === 'tags') state.selectedTags.add(value);
 
+    syncFilterControls();
     syncUrlState();
     loadResources(true);
   };
@@ -882,6 +1005,7 @@ async function renderApiBrowser(block, config) {
       ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
+      ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -890,20 +1014,28 @@ async function renderApiBrowser(block, config) {
         if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
+        if (facet === 'tags') state.selectedTags.delete(value);
+        syncFilterControls();
         syncUrlState();
         loadResources(true);
       }));
     });
+    clearAllButton.hidden = !facets.length && !state.query.trim();
   };
 
   function updateFilters(filters = {}) {
     const audiences = filters.audiences || [];
     const issues = filters.issues || [];
     const types = filters.types || [];
+    const tags = (filters.tags || []).map((option) => ({
+      value: option.slug,
+      label: option.name,
+    }));
 
     setFilterOptions(audienceSelect, 'Audience', audiences);
     setFilterOptions(issueSelect, 'Issue', issues);
     setFilterOptions(typeSelect, 'Type', types);
+    setFilterOptions(tagSelect, 'Tag', tags);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
@@ -913,6 +1045,10 @@ async function renderApiBrowser(block, config) {
     optionLabels.type = new Map(
       types.map((option) => [normalizeToken(option.value), option.label]),
     );
+    optionLabels.tags = new Map(
+      tags.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    syncFilterControls();
   }
 
   loadResources = async (reset = false) => {
@@ -940,7 +1076,7 @@ async function renderApiBrowser(block, config) {
     state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
     state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
     state.selectedType.forEach((value) => url.searchParams.append('types[]', value));
-    presetTags.forEach((value) => url.searchParams.append('tags[]', value));
+    state.selectedTags.forEach((value) => url.searchParams.append('tags[]', value));
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
 
@@ -976,7 +1112,7 @@ async function renderApiBrowser(block, config) {
   const applyFacet = (select, set) => {
     if (!select.value) return;
     set.add(normalizeToken(select.value));
-    select.value = '';
+    syncFilterControls();
     syncUrlState();
     loadResources(true);
   };
@@ -996,8 +1132,32 @@ async function renderApiBrowser(block, config) {
   typeSelect.addEventListener('change', () => {
     applyFacet(typeSelect, state.selectedType);
   });
+  tagSelect.addEventListener('change', () => {
+    applyFacet(tagSelect, state.selectedTags);
+  });
   loadMoreButton.addEventListener('click', () => loadResources(false));
+  clearAllButton.addEventListener('click', () => {
+    state.query = '';
+    state.selectedAudience.clear();
+    state.selectedIssue.clear();
+    state.selectedType.clear();
+    state.selectedTags.clear();
+    searchInput.value = '';
+    syncFilterControls();
+    syncUrlState();
+    loadResources(true);
+  });
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextView = button.dataset.view === 'list' ? 'list' : 'grid';
+      if (state.view === nextView) return;
+      state.view = nextView;
+      applyResultView(cardsContainer, viewButtons, state.view);
+      syncUrlState();
+    });
+  });
 
+  applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
   await loadResources(true);
 }

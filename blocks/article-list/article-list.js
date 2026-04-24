@@ -183,6 +183,17 @@ function createFilterSelect(label) {
   return select;
 }
 
+function createViewToggleButton(label, view, activeView) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'article-list-view-button';
+  button.dataset.view = view;
+  button.textContent = label;
+  if (view === activeView) button.classList.add('is-active');
+  button.setAttribute('aria-pressed', String(view === activeView));
+  return button;
+}
+
 function setFilterOptions(select, label, options = []) {
   select.replaceChildren();
   const defaultOption = document.createElement('option');
@@ -208,6 +219,27 @@ function createChip(label, onRemove) {
   chip.append(close);
   chip.addEventListener('click', onRemove);
   return chip;
+}
+
+function applyResultView(cardsContainer, buttons, view) {
+  cardsContainer.dataset.view = view;
+  buttons.forEach((button) => {
+    const active = button.dataset.view === view;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function syncSelectValue(select, selectedValues) {
+  const values = Array.from(selectedValues || []);
+  const selected = values.length ? values[values.length - 1] : '';
+  if (!selected) {
+    select.value = '';
+    return;
+  }
+
+  const option = [...select.options].find((entry) => normalizeToken(entry.value) === selected);
+  select.value = option?.value || '';
 }
 
 function debounce(callback, wait = 300) {
@@ -352,6 +384,12 @@ function buildShell(config) {
   const typeSelect = createFilterSelect('Type');
   const tagSelect = createFilterSelect('Tag');
   controls.append(audienceSelect, issueSelect, typeSelect, tagSelect);
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'article-list-view-toggle';
+  const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
+  const listButton = createViewToggleButton('List', 'list', config.defaultView);
+  viewToggle.append(gridButton, listButton);
+  controls.append(viewToggle);
   header.append(controls);
   inner.append(header);
 
@@ -391,6 +429,7 @@ function buildShell(config) {
     issueSelect,
     typeSelect,
     tagSelect,
+    viewButtons: [gridButton, listButton],
     activeFilters,
     clearAllButton,
     count,
@@ -409,6 +448,7 @@ async function renderApiList(block, config) {
     issueSelect,
     typeSelect,
     tagSelect,
+    viewButtons,
     activeFilters,
     clearAllButton,
     count,
@@ -424,6 +464,7 @@ async function renderApiList(block, config) {
     selectedIssue: new Set(),
     selectedType: new Set(),
     selectedTags: new Set(),
+    view: config.defaultView,
     page: 0,
     lastPage: 1,
     total: 0,
@@ -438,6 +479,7 @@ async function renderApiList(block, config) {
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
+  state.view = locationState.view || config.defaultView;
   state.selectedAudience = new Set(
     locationState.audiences.present
       ? locationState.audiences.values
@@ -469,7 +511,14 @@ async function renderApiList(block, config) {
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
       tags: [...state.selectedTags],
+      view: state.view,
     }, replace);
+  };
+  const syncFilterControls = () => {
+    syncSelectValue(audienceSelect, state.selectedAudience);
+    syncSelectValue(issueSelect, state.selectedIssue);
+    syncSelectValue(typeSelect, state.selectedType);
+    syncSelectValue(tagSelect, state.selectedTags);
   };
 
   const updateFilters = (filters = {}) => {
@@ -496,6 +545,7 @@ async function renderApiList(block, config) {
     optionLabels.tags = new Map(
       tags.map((option) => [normalizeToken(option.value), option.label]),
     );
+    syncFilterControls();
   };
   let refreshArticles = () => {};
   const applyFacetValue = (facet, rawValue) => {
@@ -507,6 +557,7 @@ async function renderApiList(block, config) {
     if (facet === 'type') state.selectedType.add(value);
     if (facet === 'tags') state.selectedTags.add(value);
 
+    syncFilterControls();
     syncUrlState();
     refreshArticles(true);
   };
@@ -526,6 +577,7 @@ async function renderApiList(block, config) {
         if (facet === 'issue') state.selectedIssue.delete(value);
         if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'tags') state.selectedTags.delete(value);
+        syncFilterControls();
         syncUrlState();
         refreshArticles(true);
       }));
@@ -587,7 +639,7 @@ async function renderApiList(block, config) {
   const applyFacet = (select, set) => {
     if (!select.value) return;
     set.add(normalizeToken(select.value));
-    select.value = '';
+    syncFilterControls();
     syncUrlState();
     loadArticles(true);
   };
@@ -618,10 +670,21 @@ async function renderApiList(block, config) {
     state.selectedType.clear();
     state.selectedTags.clear();
     searchInput.value = '';
+    syncFilterControls();
     syncUrlState();
     loadArticles(true);
   });
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextView = button.dataset.view === 'list' ? 'list' : 'grid';
+      if (state.view === nextView) return;
+      state.view = nextView;
+      applyResultView(cardsContainer, viewButtons, state.view);
+      syncUrlState();
+    });
+  });
 
+  applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
   await loadArticles(true);
 }
@@ -644,6 +707,7 @@ export default async function decorate(block) {
       'loadMoreText',
       'Load More Articles',
     ) || 'Load More Articles',
+    defaultView: 'grid',
     audiencePreset: getFieldValue(block, 'audiencePreset') || filters.audience.join(', '),
     issuePreset: getFieldValue(block, 'issuePreset') || filters.issue.join(', '),
     typePreset: getFieldValue(block, 'typePreset') || filters.type.join(', '),
