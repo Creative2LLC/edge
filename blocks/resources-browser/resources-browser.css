@@ -125,6 +125,20 @@
   line-height: 1.2;
 }
 
+.resources-browser button.resources-browser-tag {
+  border: 0;
+  cursor: pointer;
+}
+
+.resources-browser .resources-browser-tag.is-clickable {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.resources-browser .resources-browser-tag.is-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgb(0 0 0 / 10%);
+}
+
 .resources-browser .resources-browser-active-chip .resources-browser-tag {
   border-right: 1px solid rgb(255 255 255 / 40%);
   border-top-right-radius: 0;
@@ -271,7 +285,9 @@
 
 .resources-browser .resources-browser-search:focus-visible,
 .resources-browser .resources-browser-filter:focus-visible,
-.resources-browser .resources-browser-load-more:focus-visible {
+.resources-browser .resources-browser-load-more:focus-visible,
+.resources-browser .resources-browser-tag.is-clickable:focus-visible,
+.resources-browser .resources-browser-active-chip:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
 }

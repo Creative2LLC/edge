@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import { buildListFilterHref } from '../../scripts/list-filter-state.js';
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'article api base url', 'article api url'],
@@ -147,30 +148,58 @@ function buildMessage(title, description) {
   return wrapper;
 }
 
-function buildPill(label, className = '') {
-  const pill = document.createElement('span');
-  pill.className = `article-detail-pill ${className}`.trim();
+function buildLinkedPill(label, href, className = '') {
+  const pill = document.createElement('a');
+  pill.className = `article-detail-pill is-linked ${className}`.trim();
+  pill.href = href;
   pill.textContent = label;
   return pill;
 }
 
-function buildTaxonomy(article) {
-  const values = [article.audience_label, article.issue_label].filter(Boolean);
+function buildTaxonomy(article, listingPath) {
+  const values = [
+    ...((article.audience_labels || []).map((label, index) => ({
+      label,
+      href: buildListFilterHref(listingPath, {
+        audiences: [article.audience_values?.[index] || label],
+      }),
+    }))),
+    ...(article.issue && article.issue_label ? [{
+      label: article.issue_label,
+      href: buildListFilterHref(listingPath, {
+        issues: [article.issue],
+      }),
+    }] : []),
+    ...(article.resource_type && article.resource_type_label ? [{
+      label: article.resource_type_label,
+      href: buildListFilterHref(listingPath, {
+        types: [article.resource_type],
+      }),
+    }] : []),
+  ].filter((entry) => normalizeText(entry.label));
+
   if (!values.length) return null;
 
   const wrap = document.createElement('div');
   wrap.className = 'article-detail-taxonomy';
-  values.forEach((value) => wrap.append(buildPill(value, 'is-taxonomy')));
+  values.forEach((value) => wrap.append(buildLinkedPill(value.label, value.href, 'is-taxonomy')));
   return wrap;
 }
 
-function buildTags(article) {
-  const tags = (article.tags || []).map((tag) => normalizeText(tag.name)).filter(Boolean);
+function buildTags(article, listingPath) {
+  const tags = (article.tags || [])
+    .map((tag) => ({
+      label: normalizeText(tag.name),
+      value: normalizeText(tag.slug || tag.name),
+    }))
+    .filter((tag) => tag.label);
   if (!tags.length) return null;
 
   const wrap = document.createElement('div');
   wrap.className = 'article-detail-tags';
-  tags.forEach((tag) => wrap.append(buildPill(tag)));
+  tags.forEach((tag) => wrap.append(buildLinkedPill(tag.label, buildListFilterHref(listingPath, {
+    tags: [tag.value],
+  }))));
   return wrap;
 }
 
@@ -233,7 +262,7 @@ function buildHero(article, config) {
   backLink.textContent = config.listingLabel;
   inner.append(backLink);
 
-  const taxonomy = buildTaxonomy(article);
+  const taxonomy = buildTaxonomy(article, config.listingPath);
   if (taxonomy) inner.append(taxonomy);
 
   const title = document.createElement('h1');
@@ -255,9 +284,9 @@ function buildHero(article, config) {
   return section;
 }
 
-function buildBody(article) {
+function buildBody(article, config) {
   const hasBody = normalizeText(article.body);
-  const tags = buildTags(article);
+  const tags = buildTags(article, config.listingPath);
   if (!hasBody && !tags) return null;
 
   const section = document.createElement('article');
@@ -283,7 +312,7 @@ function buildArticleView(article, config) {
   const fragment = document.createDocumentFragment();
   fragment.append(buildHero(article, config));
 
-  const body = buildBody(article);
+  const body = buildBody(article, config);
   if (body) fragment.append(body);
 
   return fragment;

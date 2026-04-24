@@ -114,11 +114,21 @@
   color: #30424d;
   font-size: 0.82rem;
   font-weight: 700;
+  text-decoration: none;
 }
 
 .resource-detail .resource-detail-pill.is-taxonomy {
   background: #f2f7fb;
   color: #0d6e8c;
+}
+
+.resource-detail .resource-detail-pill.is-linked {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.resource-detail .resource-detail-pill.is-linked:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgb(13 110 140 / 12%);
 }
 
 .resource-detail .resource-detail-actions {

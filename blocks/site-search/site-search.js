@@ -33,10 +33,6 @@ function normalizeText(value) {
   return `${value || ''}`.trim();
 }
 
-function normalizeToken(value) {
-  return normalizeText(value).toLowerCase();
-}
-
 function parseIntSafe(value, fallback = 12) {
   const parsed = parseInt(value, 10);
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
@@ -91,37 +87,6 @@ function getFieldValue(block, name, fallback = '') {
     || readConfigValue(rows, name)
     || getLegacyValue(block, name)
     || fallback;
-}
-
-function createFilterSelect(label) {
-  const select = document.createElement('select');
-  select.className = 'site-search-filter';
-  select.setAttribute('aria-label', label);
-  return select;
-}
-
-function setFilterOptions(select, label, options = []) {
-  select.replaceChildren();
-  const defaultOption = document.createElement('option');
-  defaultOption.value = '';
-  defaultOption.textContent = label;
-  select.append(defaultOption);
-
-  options.forEach((option) => {
-    const entry = document.createElement('option');
-    entry.value = option.value;
-    entry.textContent = option.label;
-    select.append(entry);
-  });
-}
-
-function createChip(label, onRemove) {
-  const chip = document.createElement('button');
-  chip.type = 'button';
-  chip.className = 'site-search-chip';
-  chip.textContent = label;
-  chip.addEventListener('click', onRemove);
-  return chip;
 }
 
 function formatDate(value) {
@@ -220,6 +185,26 @@ function buildResultCard(result, index = 0) {
   return article;
 }
 
+function createViewToggleButton(label, view, activeView) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'site-search-view-button';
+  button.dataset.view = view;
+  if (view === activeView) button.classList.add('is-active');
+  button.setAttribute('aria-pressed', String(view === activeView));
+  button.textContent = label;
+  return button;
+}
+
+function applyResultView(cardsContainer, buttons, view) {
+  cardsContainer.dataset.view = view;
+  buttons.forEach((button) => {
+    const active = button.dataset.view === view;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
 function buildShell(config) {
   const inner = document.createElement('div');
   inner.className = 'site-search-inner';
@@ -245,27 +230,25 @@ function buildShell(config) {
   searchWrap.append(searchInput);
   controls.append(searchWrap);
 
-  const typeSelect = createFilterSelect('Type');
-  controls.append(typeSelect);
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'site-search-view-toggle';
+  const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
+  const listButton = createViewToggleButton('List', 'list', config.defaultView);
+  viewToggle.append(gridButton, listButton);
+  controls.append(viewToggle);
   header.append(controls);
   inner.append(header);
 
   const meta = document.createElement('div');
   meta.className = 'site-search-meta';
-  const activeFilters = document.createElement('div');
-  activeFilters.className = 'site-search-active-filters';
-  const clearAllButton = document.createElement('button');
-  clearAllButton.className = 'site-search-clear-all';
-  clearAllButton.type = 'button';
-  clearAllButton.textContent = 'Clear Filters';
-  clearAllButton.hidden = true;
   const count = document.createElement('p');
   count.className = 'site-search-count';
-  meta.append(activeFilters, clearAllButton, count);
+  meta.append(count);
   inner.append(meta);
 
   const cardsContainer = document.createElement('div');
   cardsContainer.className = 'site-search-grid';
+  cardsContainer.dataset.view = config.defaultView;
 
   const message = document.createElement('div');
   message.className = 'site-search-message';
@@ -287,9 +270,7 @@ function buildShell(config) {
   return {
     inner,
     searchInput,
-    typeSelect,
-    activeFilters,
-    clearAllButton,
+    viewButtons: [gridButton, listButton],
     count,
     cardsContainer,
     message,
@@ -304,9 +285,7 @@ async function renderSearch(block, config) {
   const {
     inner,
     searchInput,
-    typeSelect,
-    activeFilters,
-    clearAllButton,
+    viewButtons,
     count,
     cardsContainer,
     message,
@@ -318,13 +297,12 @@ async function renderSearch(block, config) {
   const initialState = readSearchState();
   const state = {
     query: initialState.query,
-    selectedTypes: new Set(initialState.types),
+    view: initialState.view || config.defaultView,
     page: 0,
     lastPage: 1,
     total: 0,
     loading: false,
   };
-  const typeLabels = new Map();
   let loadResults = async () => {};
 
   const updateMessage = (heading, copy = '') => {
@@ -336,28 +314,9 @@ async function renderSearch(block, config) {
   const syncUrl = () => {
     writeSearchState({
       query: state.query,
-      types: [...state.selectedTypes],
+      types: [],
+      view: state.view,
     });
-  };
-
-  const renderActiveFilters = () => {
-    activeFilters.replaceChildren();
-    [...state.selectedTypes].forEach((value) => {
-      const label = typeLabels.get(value) || value;
-      activeFilters.append(createChip(label, () => {
-        state.selectedTypes.delete(value);
-        syncUrl();
-        loadResults(true);
-      }));
-    });
-
-    clearAllButton.hidden = !state.selectedTypes.size && !state.query.trim();
-  };
-
-  const setTypeOptions = (filters = {}) => {
-    const typeOptions = filters.types || [];
-    setFilterOptions(typeSelect, 'Type', typeOptions);
-    typeOptions.forEach((option) => typeLabels.set(normalizeToken(option.value), option.label));
   };
 
   loadResults = async (reset = false) => {
@@ -367,7 +326,6 @@ async function renderSearch(block, config) {
       cardsContainer.replaceChildren();
       count.textContent = '';
       loadMoreButton.hidden = true;
-      renderActiveFilters();
       updateMessage('Start searching', 'Enter a keyword above to search the site.');
       return;
     }
@@ -386,13 +344,9 @@ async function renderSearch(block, config) {
       const payload = await fetchSiteSearch({
         apiBaseUrl: config.apiBaseUrl,
         query: state.query,
-        types: [...state.selectedTypes],
         page: reset ? 1 : state.page + 1,
         perPage: config.pageSize,
       });
-
-      setTypeOptions(payload.filters || {});
-      renderActiveFilters();
 
       const startIndex = cardsContainer.children.length;
       (payload.data || []).forEach((result, index) => {
@@ -434,34 +388,30 @@ async function renderSearch(block, config) {
     loadResults(true);
   }));
 
-  typeSelect.addEventListener('change', () => {
-    if (!typeSelect.value) return;
-    state.selectedTypes.add(normalizeToken(typeSelect.value));
-    typeSelect.value = '';
-    syncUrl();
-    loadResults(true);
-  });
-
-  clearAllButton.addEventListener('click', () => {
-    state.query = '';
-    state.selectedTypes.clear();
-    searchInput.value = '';
-    syncUrl();
-    loadResults(true);
-  });
-
   loadMoreButton.addEventListener('click', () => {
     loadResults(false);
+  });
+
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextView = button.dataset.view === 'list' ? 'list' : 'grid';
+      if (state.view === nextView) return;
+      state.view = nextView;
+      applyResultView(cardsContainer, viewButtons, state.view);
+      syncUrl();
+    });
   });
 
   window.addEventListener('popstate', () => {
     const urlState = readSearchState();
     state.query = urlState.query;
-    state.selectedTypes = new Set(urlState.types);
+    state.view = urlState.view || config.defaultView;
     searchInput.value = state.query;
+    applyResultView(cardsContainer, viewButtons, state.view);
     loadResults(true);
   });
 
+  applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
   await loadResults(true);
 }
@@ -476,6 +426,7 @@ export default async function decorate(block) {
       || getMetadata('search-api-base-url'),
     ),
     pageSize: parseIntSafe(getFieldValue(block, 'pageSize', '12'), 12),
+    defaultView: 'grid',
     searchPlaceholder: getFieldValue(
       block,
       'searchPlaceholder',
@@ -483,7 +434,7 @@ export default async function decorate(block) {
     ) || 'Search the site',
     loadMoreText: getFieldValue(block, 'loadMoreText', 'Load More Results') || 'Load More Results',
     emptyStateHeading: getFieldValue(block, 'emptyStateHeading', 'No results found') || 'No results found',
-    emptyStateCopy: getFieldValue(block, 'emptyStateCopy', 'Try a different keyword or remove a filter.') || 'Try a different keyword or remove a filter.',
+    emptyStateCopy: getFieldValue(block, 'emptyStateCopy', 'Try a different keyword or phrase.') || 'Try a different keyword or phrase.',
   };
 
   await renderSearch(block, config);

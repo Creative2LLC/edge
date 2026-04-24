@@ -91,6 +91,11 @@
   letter-spacing: 0.01em;
 }
 
+.article-list button.article-list-pill {
+  border: 0;
+  cursor: pointer;
+}
+
 .article-list .article-list-pill.is-taxonomy {
   background: #e7f4fa;
   color: #0b6b86;
@@ -99,6 +104,17 @@
 .article-list .article-list-pill.is-active-chip {
   background: #16324a;
   color: #fff;
+}
+
+.article-list .article-list-pill.is-clickable {
+  position: relative;
+  z-index: 3;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.article-list .article-list-pill.is-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgb(13 110 140 / 14%);
 }
 
 .article-list .article-list-active-chip-close {
@@ -177,7 +193,6 @@
 
 .article-list .article-list-card-body {
   position: relative;
-  z-index: 1;
   display: grid;
   gap: 0.85rem;
   padding: 1.15rem 1.15rem 1.3rem;
@@ -185,6 +200,8 @@
 
 .article-list .article-list-taxonomy,
 .article-list .article-list-tags {
+  position: relative;
+  z-index: 3;
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
@@ -214,6 +231,8 @@
 }
 
 .article-list .article-list-card-link {
+  position: relative;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -273,7 +292,8 @@
 .article-list .article-list-filter:focus-visible,
 .article-list .article-list-load-more:focus-visible,
 .article-list .article-list-clear-all:focus-visible,
-.article-list .article-list-active-chip:focus-visible {
+.article-list .article-list-active-chip:focus-visible,
+.article-list .article-list-pill.is-clickable:focus-visible {
   outline: 2px solid #0d6e8c;
   outline-offset: 3px;
 }

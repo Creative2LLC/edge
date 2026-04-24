@@ -30,17 +30,20 @@ export function readSearchState(search = window.location.search) {
   const params = new URLSearchParams(search);
   const directTypes = params.getAll('types');
   const fallbackTypes = params.getAll('type');
+  const view = `${params.get('view') || ''}`.trim().toLowerCase();
 
   return {
     query: (params.get('q') || params.get('search') || '').trim(),
     types: parseCsvList(directTypes.join(',') || fallbackTypes.join(',')),
+    view: view === 'list' ? 'list' : 'grid',
   };
 }
 
-export function writeSearchState({ query, types = [] }, replace = true) {
+export function writeSearchState({ query, types = [], view = '' }, replace = true) {
   const url = new URL(window.location.href);
   const normalizedQuery = `${query || ''}`.trim();
   const normalizedTypes = [...new Set(types.map((entry) => `${entry || ''}`.trim().toLowerCase()).filter(Boolean))];
+  const normalizedView = `${view || ''}`.trim().toLowerCase();
 
   if (normalizedQuery) url.searchParams.set('q', normalizedQuery);
   else url.searchParams.delete('q');
@@ -50,6 +53,10 @@ export function writeSearchState({ query, types = [] }, replace = true) {
 
   if (normalizedTypes.length) url.searchParams.set('types', normalizedTypes.join(','));
   else url.searchParams.delete('types');
+
+  if (normalizedView === 'list') url.searchParams.set('view', 'list');
+  else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
+  else url.searchParams.delete('view');
 
   if (replace) window.history.replaceState({}, '', url);
   else window.history.pushState({}, '', url);

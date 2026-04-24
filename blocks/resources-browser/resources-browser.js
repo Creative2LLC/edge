@@ -1,6 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -253,26 +254,53 @@ function mapResource(resource) {
     audience,
     issue,
     type,
-    tags: [...new Set([...customTags, ...type, ...audience, ...issue])],
+    tags: customTags,
+    tagEntries: [
+      ...type.map((label) => ({ facet: 'type', value: normalizeToken(label), label })),
+      ...audience.map((label) => ({ facet: 'audience', value: normalizeToken(label), label })),
+      ...issue.map((label) => ({ facet: 'issue', value: normalizeToken(label), label })),
+      ...customTags.map((label) => ({ facet: null, value: normalizeToken(label), label })),
+    ],
   };
 }
 
 function mapApiResource(resource) {
   return {
-    ...mapResource({
-      imgSrc: resource.thumbnail || '',
-      imageAlt: resource.title || '',
-      title: resource.title || '',
-      subtitle: resource.excerpt || '',
-      linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
-      detailUrl: resource.detail_path || '',
-      downloadUrl: resource.download_url || resource.resource_url || '',
-      id: resource.slug || `${resource.id || ''}`,
-      audience: resource.audience_label || '',
-      issue: resource.issue_label || '',
-      type: resource.resource_type_label || '',
-      tags: (resource.tags || []).map((tag) => tag.name),
-    }),
+    imagePicture: null,
+    imgSrc: resource.thumbnail || '',
+    imageAlt: resource.title || '',
+    title: resource.title || '',
+    subtitle: resource.excerpt || '',
+    linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
+    detailUrl: resource.detail_path || '',
+    downloadUrl: resource.download_url || resource.resource_url || '',
+    id: resource.slug || `${resource.id || ''}`,
+    audience: resource.audience_values || [],
+    issue: resource.issue ? [resource.issue] : [],
+    type: resource.resource_type ? [resource.resource_type] : [],
+    tags: (resource.tags || []).map((tag) => tag.name).filter(Boolean),
+    tagEntries: [
+      ...(resource.resource_type && resource.resource_type_label ? [{
+        facet: 'type',
+        value: normalizeToken(resource.resource_type),
+        label: resource.resource_type_label,
+      }] : []),
+      ...((resource.audience_labels || []).map((label, index) => ({
+        facet: 'audience',
+        value: normalizeToken(resource.audience_values?.[index] || label),
+        label,
+      }))),
+      ...(resource.issue && resource.issue_label ? [{
+        facet: 'issue',
+        value: normalizeToken(resource.issue),
+        label: resource.issue_label,
+      }] : []),
+      ...((resource.tags || []).map((tag) => ({
+        facet: null,
+        value: normalizeToken(tag.slug || tag.name),
+        label: tag.name,
+      }))),
+    ],
     linkAction: resource.primary_action || '',
     hasDetailPage: Boolean(resource.has_detail_page),
     hasDownload: Boolean(resource.has_download),
@@ -333,17 +361,28 @@ function colorFromTag(tag) {
   return { bg: `hsl(${hue}deg 65% 45%)`, color: '#fff' };
 }
 
-function buildTag(tag) {
-  const pill = document.createElement('span');
-  pill.className = 'resources-browser-tag';
-  pill.textContent = tag;
-  const colors = colorFromTag(tag);
+function buildTag(tagEntry, onActivate = null) {
+  const entry = typeof tagEntry === 'string'
+    ? { label: tagEntry, facet: null, value: normalizeToken(tagEntry) }
+    : tagEntry;
+  const pill = document.createElement(entry.facet && typeof onActivate === 'function' ? 'button' : 'span');
+  if (pill.tagName === 'BUTTON') pill.type = 'button';
+  pill.className = `resources-browser-tag${entry.facet && typeof onActivate === 'function' ? ' is-clickable' : ''}`;
+  pill.textContent = entry.label;
+  const colors = colorFromTag(entry.label);
   pill.style.backgroundColor = colors.bg;
   pill.style.color = colors.color;
+  if (entry.facet && typeof onActivate === 'function') {
+    pill.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onActivate(entry.facet, entry.value);
+    });
+  }
   return pill;
 }
 
-function buildResourceCard(resource, row = null) {
+function buildResourceCard(resource, row = null, onFacetActivate = null) {
   const card = document.createElement('article');
   card.className = 'resources-browser-card';
   if (row) moveInstrumentation(row, card);
@@ -376,10 +415,12 @@ function buildResourceCard(resource, row = null) {
     content.append(title);
   }
 
-  if (resource.tags.length) {
+  if (resource.tagEntries?.length) {
     const tagsWrap = document.createElement('div');
     tagsWrap.className = 'resources-browser-card-tags';
-    resource.tags.slice(0, 4).forEach((tag) => tagsWrap.append(buildTag(tag)));
+    resource.tagEntries
+      .slice(0, 4)
+      .forEach((tag) => tagsWrap.append(buildTag(tag, onFacetActivate)));
     content.append(tagsWrap);
   }
 
@@ -582,29 +623,6 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     );
   }
 
-  const cards = resources.map(({ data, row }) => {
-    const card = buildResourceCard(data, row);
-    cardsContainer.append(card);
-    return { data, card };
-  });
-
-  const collectOptions = (facet) => [...new Set(cards.flatMap(({ data }) => data[facet]))]
-    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
-    .map((value) => ({ value, label: value }));
-
-  const audiences = collectOptions('audience');
-  const issues = collectOptions('issue');
-  const types = collectOptions('type');
-  setFilterOptions(audienceSelect, 'Audience', audiences);
-  setFilterOptions(issueSelect, 'Issue', issues);
-  setFilterOptions(typeSelect, 'Type', types);
-
-  const optionLabels = {
-    audience: new Map(audiences.map((option) => [normalizeToken(option.value), option.label])),
-    issue: new Map(issues.map((option) => [normalizeToken(option.value), option.label])),
-    type: new Map(types.map((option) => [normalizeToken(option.value), option.label])),
-  };
-
   const state = {
     query: '',
     visibleCount: config.pageSize,
@@ -612,13 +630,54 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     selectedIssue: new Set(),
     selectedType: new Set(),
   };
+  const defaultState = {
+    query: '',
+    selectedAudience: parseList(config.audiencePreset).map(normalizeToken),
+    selectedIssue: parseList(config.issuePreset).map(normalizeToken),
+    selectedType: parseList(config.typePreset).map(normalizeToken),
+  };
+  const locationState = readListFilterState();
+  state.query = locationState.hasQuery ? locationState.query : defaultState.query;
+  state.selectedAudience = new Set(
+    locationState.audiences.present
+      ? locationState.audiences.values
+      : defaultState.selectedAudience,
+  );
+  state.selectedIssue = new Set(
+    locationState.issues.present
+      ? locationState.issues.values
+      : defaultState.selectedIssue,
+  );
+  state.selectedType = new Set(
+    locationState.types.present
+      ? locationState.types.values
+      : defaultState.selectedType,
+  );
+  const syncUrlState = (replace = true) => {
+    writeListFilterState({
+      query: state.query,
+      audiences: [...state.selectedAudience],
+      issues: [...state.selectedIssue],
+      types: [...state.selectedType],
+    }, replace);
+  };
 
   let renderActiveFilters = () => {};
+  let cards = [];
+  let optionLabels = {
+    audience: new Map(),
+    issue: new Map(),
+    type: new Map(),
+  };
 
   function applyFilters() {
     const query = state.query.trim().toLowerCase();
     const filtered = cards.filter(({ data }) => {
-      const searchBlob = [data.title, data.subtitle, data.tags.join(' ')].join(' ');
+      const searchBlob = [
+        data.title,
+        data.subtitle,
+        (data.tagEntries || []).map((entry) => entry.label).join(' '),
+      ].join(' ');
       const searchMatch = !query || searchBlob.toLowerCase().includes(query);
       if (!searchMatch) return false;
 
@@ -646,6 +705,42 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     renderActiveFilters();
   }
 
+  function applyFacetValue(facet, rawValue) {
+    const value = normalizeToken(rawValue);
+    if (!value) return;
+
+    if (facet === 'type') state.selectedType.add(value);
+    if (facet === 'audience') state.selectedAudience.add(value);
+    if (facet === 'issue') state.selectedIssue.add(value);
+
+    state.visibleCount = config.pageSize;
+    syncUrlState();
+    applyFilters();
+  }
+
+  cards = resources.map(({ data, row }) => {
+    const card = buildResourceCard(data, row, applyFacetValue);
+    cardsContainer.append(card);
+    return { data, card };
+  });
+
+  const collectOptions = (facet) => [...new Set(cards.flatMap(({ data }) => data[facet]))]
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+    .map((value) => ({ value, label: value }));
+
+  const audiences = collectOptions('audience');
+  const issues = collectOptions('issue');
+  const types = collectOptions('type');
+  setFilterOptions(audienceSelect, 'Audience', audiences);
+  setFilterOptions(issueSelect, 'Issue', issues);
+  setFilterOptions(typeSelect, 'Type', types);
+
+  optionLabels = {
+    audience: new Map(audiences.map((option) => [normalizeToken(option.value), option.label])),
+    issue: new Map(issues.map((option) => [normalizeToken(option.value), option.label])),
+    type: new Map(types.map((option) => [normalizeToken(option.value), option.label])),
+  };
+
   renderActiveFilters = () => {
     activeFilters.replaceChildren();
     const facets = [
@@ -661,6 +756,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
         state.visibleCount = config.pageSize;
+        syncUrlState();
         applyFilters();
       }));
     });
@@ -671,12 +767,15 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     set.add(normalizeToken(select.value));
     select.value = '';
     state.visibleCount = config.pageSize;
+    syncUrlState();
     applyFilters();
   };
 
+  searchInput.value = state.query;
   searchInput.addEventListener('input', () => {
     state.query = searchInput.value;
     state.visibleCount = config.pageSize;
+    syncUrlState();
     applyFilters();
   });
   audienceSelect.addEventListener('change', () => {
@@ -717,23 +816,65 @@ async function renderApiBrowser(block, config) {
   const presetTags = parseList(config.tagPreset).map((value) => normalizeToken(value));
   const state = {
     query: '',
-    selectedAudience: new Set(parseList(config.audiencePreset).map(normalizeToken)),
-    selectedIssue: new Set(parseList(config.issuePreset).map(normalizeToken)),
-    selectedType: new Set(parseList(config.typePreset).map(normalizeToken)),
+    selectedAudience: new Set(),
+    selectedIssue: new Set(),
+    selectedType: new Set(),
     page: 0,
     lastPage: 1,
     total: 0,
     loading: false,
   };
+  const defaultState = {
+    query: '',
+    selectedAudience: parseList(config.audiencePreset).map(normalizeToken),
+    selectedIssue: parseList(config.issuePreset).map(normalizeToken),
+    selectedType: parseList(config.typePreset).map(normalizeToken),
+  };
+  const locationState = readListFilterState();
+  state.query = locationState.hasQuery ? locationState.query : defaultState.query;
+  state.selectedAudience = new Set(
+    locationState.audiences.present
+      ? locationState.audiences.values
+      : defaultState.selectedAudience,
+  );
+  state.selectedIssue = new Set(
+    locationState.issues.present
+      ? locationState.issues.values
+      : defaultState.selectedIssue,
+  );
+  state.selectedType = new Set(
+    locationState.types.present
+      ? locationState.types.values
+      : defaultState.selectedType,
+  );
 
   const optionLabels = {
     audience: new Map(),
     issue: new Map(),
     type: new Map(),
   };
+  const syncUrlState = (replace = true) => {
+    writeListFilterState({
+      query: state.query,
+      audiences: [...state.selectedAudience],
+      issues: [...state.selectedIssue],
+      types: [...state.selectedType],
+    }, replace);
+  };
 
   let renderActiveFilters = () => {};
   let loadResources = async () => {};
+  const applyFacetValue = (facet, rawValue) => {
+    const value = normalizeToken(rawValue);
+    if (!value) return;
+
+    if (facet === 'type') state.selectedType.add(value);
+    if (facet === 'audience') state.selectedAudience.add(value);
+    if (facet === 'issue') state.selectedIssue.add(value);
+
+    syncUrlState();
+    loadResources(true);
+  };
 
   renderActiveFilters = () => {
     activeFilters.replaceChildren();
@@ -749,6 +890,7 @@ async function renderApiBrowser(block, config) {
         if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
+        syncUrlState();
         loadResources(true);
       }));
     });
@@ -811,7 +953,7 @@ async function renderApiBrowser(block, config) {
 
     const payload = await response.json();
     (payload.data || []).forEach((item) => {
-      cardsContainer.append(buildResourceCard(mapApiResource(item)));
+      cardsContainer.append(buildResourceCard(mapApiResource(item), null, applyFacetValue));
     });
 
     state.page = payload.meta?.current_page || 1;
@@ -835,11 +977,14 @@ async function renderApiBrowser(block, config) {
     if (!select.value) return;
     set.add(normalizeToken(select.value));
     select.value = '';
+    syncUrlState();
     loadResources(true);
   };
 
+  searchInput.value = state.query;
   searchInput.addEventListener('input', debounce(() => {
     state.query = searchInput.value;
+    syncUrlState();
     loadResources(true);
   }, 300));
   audienceSelect.addEventListener('change', () => {

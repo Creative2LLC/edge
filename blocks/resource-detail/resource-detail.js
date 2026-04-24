@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import { buildListFilterHref } from '../../scripts/list-filter-state.js';
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
@@ -137,6 +138,14 @@ function buildPill(label, className = '') {
   return pill;
 }
 
+function buildLinkedPill(label, href, className = '') {
+  const pill = document.createElement('a');
+  pill.className = `resource-detail-pill is-linked ${className}`.trim();
+  pill.href = href;
+  pill.textContent = label;
+  return pill;
+}
+
 function buildMessage(title, description) {
   const wrapper = document.createElement('div');
   wrapper.className = 'resource-detail-message';
@@ -156,18 +165,33 @@ function buildMessage(title, description) {
   return wrapper;
 }
 
-function buildTaxonomy(resource) {
+function buildTaxonomy(resource, listingPath) {
   const values = [
-    resource.resource_type_label,
-    resource.audience_label,
-    resource.issue_label,
-  ].filter(Boolean);
+    ...(resource.resource_type && resource.resource_type_label ? [{
+      label: resource.resource_type_label,
+      href: buildListFilterHref(listingPath, {
+        types: [resource.resource_type],
+      }),
+    }] : []),
+    ...((resource.audience_labels || []).map((label, index) => ({
+      label,
+      href: buildListFilterHref(listingPath, {
+        audiences: [resource.audience_values?.[index] || label],
+      }),
+    }))),
+    ...(resource.issue && resource.issue_label ? [{
+      label: resource.issue_label,
+      href: buildListFilterHref(listingPath, {
+        issues: [resource.issue],
+      }),
+    }] : []),
+  ].filter((entry) => normalizeText(entry.label));
 
   if (!values.length) return null;
 
   const wrap = document.createElement('div');
   wrap.className = 'resource-detail-taxonomy';
-  values.forEach((value) => wrap.append(buildPill(value, 'is-taxonomy')));
+  values.forEach((value) => wrap.append(buildLinkedPill(value.label, value.href, 'is-taxonomy')));
   return wrap;
 }
 
@@ -257,7 +281,7 @@ function buildHero(resource, config) {
   backLink.textContent = config.listingLabel;
   content.append(backLink);
 
-  const taxonomy = buildTaxonomy(resource);
+  const taxonomy = buildTaxonomy(resource, config.listingPath);
   if (taxonomy) content.append(taxonomy);
 
   const title = document.createElement('h1');

@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -160,6 +161,21 @@ function buildPill(label, className = '') {
   return pill;
 }
 
+function buildInteractivePill(label, className = '', onActivate = null) {
+  if (typeof onActivate !== 'function') return buildPill(label, className);
+
+  const pill = document.createElement('button');
+  pill.type = 'button';
+  pill.className = `article-list-pill is-clickable ${className}`.trim();
+  pill.textContent = label;
+  pill.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onActivate();
+  });
+  return pill;
+}
+
 function createFilterSelect(label) {
   const select = document.createElement('select');
   select.className = 'article-list-filter';
@@ -202,7 +218,7 @@ function debounce(callback, wait = 300) {
   };
 }
 
-function buildCard(article, index = 0) {
+function buildCard(article, index = 0, onFacetActivate = null) {
   const card = document.createElement('article');
   card.className = 'article-list-card';
   card.style.setProperty('--article-card-index', String(index % 12));
@@ -233,11 +249,30 @@ function buildCard(article, index = 0) {
 
   const body = document.createElement('div');
   body.className = 'article-list-card-body';
-  const taxonomyValues = [article.audience_label, article.issue_label].filter(Boolean);
-  if (taxonomyValues.length) {
+  const taxonomyEntries = [
+    ...((article.audience_labels || []).map((label, entryIndex) => ({
+      facet: 'audience',
+      label,
+      value: article.audience_values?.[entryIndex] || label,
+    }))),
+    ...(article.issue_label ? [{
+      facet: 'issue',
+      label: article.issue_label,
+      value: article.issue || article.issue_label,
+    }] : []),
+    ...(article.resource_type_label ? [{
+      facet: 'type',
+      label: article.resource_type_label,
+      value: article.resource_type || article.resource_type_label,
+    }] : []),
+  ].filter((entry) => normalizeText(entry.label) && normalizeText(entry.value));
+
+  if (taxonomyEntries.length) {
     const taxonomy = document.createElement('div');
     taxonomy.className = 'article-list-taxonomy';
-    taxonomyValues.forEach((value) => taxonomy.append(buildPill(value, 'is-taxonomy')));
+    taxonomyEntries.forEach(({ facet, label, value }) => taxonomy.append(
+      buildInteractivePill(label, 'is-taxonomy', () => onFacetActivate?.(facet, value)),
+    ));
     body.append(taxonomy);
   }
 
@@ -261,13 +296,18 @@ function buildCard(article, index = 0) {
   }
 
   const tags = (article.tags || [])
-    .map((tag) => normalizeText(tag.name))
-    .filter(Boolean)
+    .map((tag) => ({
+      label: normalizeText(tag.name),
+      value: normalizeText(tag.slug || tag.name),
+    }))
+    .filter((tag) => tag.label)
     .slice(0, 3);
   if (tags.length) {
     const tagsWrap = document.createElement('div');
     tagsWrap.className = 'article-list-tags';
-    tags.forEach((tag) => tagsWrap.append(buildPill(tag)));
+    tags.forEach((tag) => tagsWrap.append(
+      buildInteractivePill(tag.label, '', () => onFacetActivate?.('tags', tag.value)),
+    ));
     body.append(tagsWrap);
   }
 
@@ -380,20 +420,56 @@ async function renderApiList(block, config) {
   const excluded = parseList(config.excludeField);
   const state = {
     query: '',
-    selectedAudience: new Set(parseList(config.audiencePreset).map(normalizeToken)),
-    selectedIssue: new Set(parseList(config.issuePreset).map(normalizeToken)),
-    selectedType: new Set(parseList(config.typePreset).map(normalizeToken)),
-    selectedTags: new Set(parseList(config.tagPreset).map(normalizeToken)),
+    selectedAudience: new Set(),
+    selectedIssue: new Set(),
+    selectedType: new Set(),
+    selectedTags: new Set(),
     page: 0,
     lastPage: 1,
     total: 0,
     loading: false,
   };
+  const defaultState = {
+    query: '',
+    selectedAudience: parseList(config.audiencePreset).map(normalizeToken),
+    selectedIssue: parseList(config.issuePreset).map(normalizeToken),
+    selectedType: parseList(config.typePreset).map(normalizeToken),
+    selectedTags: parseList(config.tagPreset).map(normalizeToken),
+  };
+  const locationState = readListFilterState();
+  state.query = locationState.hasQuery ? locationState.query : defaultState.query;
+  state.selectedAudience = new Set(
+    locationState.audiences.present
+      ? locationState.audiences.values
+      : defaultState.selectedAudience,
+  );
+  state.selectedIssue = new Set(
+    locationState.issues.present
+      ? locationState.issues.values
+      : defaultState.selectedIssue,
+  );
+  state.selectedType = new Set(
+    locationState.types.present
+      ? locationState.types.values
+      : defaultState.selectedType,
+  );
+  state.selectedTags = new Set(
+    locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
+  );
   const optionLabels = {
     audience: new Map(),
     issue: new Map(),
     type: new Map(),
     tags: new Map(),
+  };
+  const syncUrlState = (replace = true) => {
+    writeListFilterState({
+      query: state.query,
+      audiences: [...state.selectedAudience],
+      issues: [...state.selectedIssue],
+      types: [...state.selectedType],
+      tags: [...state.selectedTags],
+    }, replace);
   };
 
   const updateFilters = (filters = {}) => {
@@ -422,6 +498,18 @@ async function renderApiList(block, config) {
     );
   };
   let refreshArticles = () => {};
+  const applyFacetValue = (facet, rawValue) => {
+    const value = normalizeToken(rawValue);
+    if (!value) return;
+
+    if (facet === 'audience') state.selectedAudience.add(value);
+    if (facet === 'issue') state.selectedIssue.add(value);
+    if (facet === 'type') state.selectedType.add(value);
+    if (facet === 'tags') state.selectedTags.add(value);
+
+    syncUrlState();
+    refreshArticles(true);
+  };
 
   const renderActiveFilters = () => {
     activeFilters.replaceChildren();
@@ -438,6 +526,7 @@ async function renderApiList(block, config) {
         if (facet === 'issue') state.selectedIssue.delete(value);
         if (facet === 'type') state.selectedType.delete(value);
         if (facet === 'tags') state.selectedTags.delete(value);
+        syncUrlState();
         refreshArticles(true);
       }));
     });
@@ -476,7 +565,7 @@ async function renderApiList(block, config) {
     const payload = await response.json();
     const startIndex = cardsContainer.children.length;
     (payload.data || []).forEach((article, index) => {
-      cardsContainer.append(buildCard(article, startIndex + index));
+      cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue));
     });
 
     state.page = payload.meta?.current_page || 1;
@@ -499,11 +588,14 @@ async function renderApiList(block, config) {
     if (!select.value) return;
     set.add(normalizeToken(select.value));
     select.value = '';
+    syncUrlState();
     loadArticles(true);
   };
 
+  searchInput.value = state.query;
   searchInput.addEventListener('input', debounce(() => {
     state.query = searchInput.value;
+    syncUrlState();
     loadArticles(true);
   }));
   audienceSelect.addEventListener('change', () => {
@@ -526,6 +618,7 @@ async function renderApiList(block, config) {
     state.selectedType.clear();
     state.selectedTags.clear();
     searchInput.value = '';
+    syncUrlState();
     loadArticles(true);
   });
 
