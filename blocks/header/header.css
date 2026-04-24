@@ -751,9 +751,9 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     clip-path: circle(26px at 40px 40px);
     transform: scale(0.98);
     background:
-      radial-gradient(circle at 16% 10%, rgb(252 184 19 / 26%) 0 9%, transparent 10%),
-      radial-gradient(circle at 82% 18%, rgb(255 255 255 / 14%) 0 16%, transparent 17%),
-      linear-gradient(145deg, #0f2a43 0%, #143b5d 46%, #1b5f82 100%);
+      radial-gradient(circle at 16% 10%, rgb(252 184 19 / 20%) 0 10%, transparent 11%),
+      radial-gradient(circle at 84% 18%, rgb(12 54 88 / 10%) 0 18%, transparent 19%),
+      linear-gradient(145deg, #edf5fb 0%, #ddebf7 48%, #d1e5f2 100%);
   }
 
   header nav::after {
@@ -761,8 +761,8 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     z-index: 1;
     opacity: 0;
     background:
-      radial-gradient(circle at 72% 20%, rgb(255 255 255 / 12%) 0 18%, transparent 19%),
-      linear-gradient(180deg, rgb(255 255 255 / 10%) 0%, rgb(255 255 255 / 0%) 24%);
+      radial-gradient(circle at 72% 20%, rgb(255 255 255 / 44%) 0 18%, transparent 19%),
+      linear-gradient(180deg, rgb(255 255 255 / 22%) 0%, rgb(255 255 255 / 0%) 28%);
   }
 
   header nav[aria-expanded='true'] {
@@ -774,7 +774,7 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     min-height: 100dvh;
     overflow: hidden;
     background:
-      linear-gradient(180deg, #10304d 0%, #16405f 48%, #1d5779 100%);
+      linear-gradient(180deg, #e7f1f8 0%, #dbeaf5 52%, #d4e6f1 100%);
     padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
 
@@ -974,7 +974,8 @@ header .nav-top-banner .top-banner-language-panel li:hover {
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li {
-    border: 1px solid rgb(255 255 255 / 14%);
+    width: 100%;
+    border: 1px solid rgb(19 54 84 / 10%);
     border-radius: 22px;
     background: rgb(255 255 255 / 97%);
     box-shadow: 0 16px 34px rgb(7 24 38 / 12%);
@@ -1013,6 +1014,11 @@ header .nav-top-banner .top-banner-language-panel li:hover {
       max-height 0.24s ease,
       padding 0.24s ease,
       margin 0.24s ease;
+  }
+
+  header nav .nav-sections .nav-top-list > li > .nav-top-link {
+    background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+    box-shadow: 0 10px 22px rgb(13 41 63 / 8%);
   }
 
   header nav .nav-sections .nav-top-link {
@@ -1221,6 +1227,67 @@ header .nav-top-banner .top-banner-language-panel li:hover {
     min-width: 0;
     border-left: 1px solid rgb(15 47 73 / 14%);
     padding-left: 12px;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 6px;
+  }
+
+  header nav .nav-sections .nav-mega-panel .has-mobile-subnav {
+    position: relative;
+  }
+
+  header nav .nav-sections .nav-mega-panel .has-mobile-subnav > .mobile-subnav-trigger {
+    position: relative;
+    padding-right: 42px;
+    cursor: pointer;
+  }
+
+  header nav .nav-sections .nav-mega-panel .has-mobile-subnav > .mobile-subnav-trigger::after {
+    content: '+';
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #e7f0f8;
+    color: #123654;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+    transform: translateY(-50%);
+    transition: transform 0.24s ease, background 0.24s ease, color 0.24s ease;
+  }
+
+  header nav .nav-sections .nav-mega-panel .has-mobile-subnav.is-mobile-subnav-open > .mobile-subnav-trigger::after {
+    content: '\2212';
+    background: #123654;
+    color: #fff;
+  }
+
+  header nav .nav-sections .nav-mega-panel .has-mobile-subnav > ul {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-8px);
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0;
+    transition:
+      max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.24s ease,
+      transform 0.24s ease,
+      margin 0.24s ease,
+      padding 0.24s ease;
+  }
+
+  header nav .nav-sections .nav-mega-panel .has-mobile-subnav.is-mobile-subnav-open > ul {
+    max-height: 720px;
+    opacity: 1;
+    transform: translateY(0);
     margin-top: 10px !important;
     margin-bottom: 10px !important;
     padding-bottom: 6px;

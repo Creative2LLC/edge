@@ -44,6 +44,44 @@ function hideMobilePanel(panel) {
   }, MOBILE_SUBNAV_TRANSITION_MS);
 }
 
+function setMobileAccordionState(item, list, expanded) {
+  item.classList.toggle('is-mobile-subnav-open', expanded);
+  item.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  list.hidden = !expanded;
+  list.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+}
+
+function decorateMobileAccordionItems(root) {
+  if (!root) return;
+
+  root.querySelectorAll(':scope > li, li').forEach((item) => {
+    const list = item.querySelector(':scope > ul');
+    const trigger = item.querySelector(':scope > a, :scope > span');
+    if (!list || !trigger) return;
+
+    item.classList.add('has-mobile-subnav');
+    trigger.classList.add('mobile-subnav-trigger');
+    trigger.setAttribute('aria-haspopup', 'true');
+    setMobileAccordionState(item, list, false);
+
+    trigger.addEventListener('click', (event) => {
+      if (isDesktop.matches) return;
+      event.preventDefault();
+      event.stopPropagation();
+
+      const expanded = item.classList.contains('is-mobile-subnav-open');
+      const siblings = item.parentElement?.querySelectorAll(':scope > li.has-mobile-subnav') || [];
+      siblings.forEach((sibling) => {
+        if (sibling === item) return;
+        const siblingList = sibling.querySelector(':scope > ul');
+        if (siblingList) setMobileAccordionState(sibling, siblingList, false);
+      });
+
+      setMobileAccordionState(item, list, !expanded);
+    });
+  });
+}
+
 function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   const wrapper = document.createElement('div');
   wrapper.className = 'nav-search is-collapsed';
@@ -2023,6 +2061,8 @@ export default async function decorate(block) {
             );
           });
         });
+
+        decorateMobileAccordionItems(item);
 
         item.querySelectorAll('.mega-subheader').forEach((label) => {
           label.classList.add(
