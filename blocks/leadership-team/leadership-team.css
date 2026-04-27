@@ -173,16 +173,20 @@
 }
 
 /* Read bio link */
-.leadership-team-card-link {
+.leadership-team-card-link,
+.leadership-team-card-link:any-link {
   font-size: 17px;
   font-weight: 400;
   color: #007294;
   text-decoration: none;
   display: inline-block;
+  align-self: flex-start;
+  padding-left: 12px;
   margin-top: auto;
 }
 
 .leadership-team-card-link:hover {
+  color: #007294;
   text-decoration: underline;
 }
 

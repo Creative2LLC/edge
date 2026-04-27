@@ -63,16 +63,17 @@ function getDirectRow(block, element) {
 }
 
 function buildHtmlText(block) {
-  const { source, value: html } = getFieldValue(block, ['content_textHtml', 'text_html']);
+  const { source } = getFieldValue(block, ['content_textHtml', 'text_html']);
   if (!source) return null;
-  if (!html) {
-    return null;
-  }
 
   const wrapper = document.createElement('div');
   wrapper.className = 'hero-text-html';
-  wrapper.innerHTML = html;
   moveFieldBinding(source, wrapper);
+  while (source.firstChild) {
+    wrapper.append(source.firstChild);
+  }
+  if (!wrapper.textContent.trim()) return null;
+
   const { value: classValue } = getFieldValue(block, ['content_textHtmlClass', 'textHtmlClass']);
   if (classValue) {
     const classes = classValue.split(/\s+/).filter(Boolean);
@@ -608,16 +609,17 @@ function buildVideoElement(url, posterUrl) {
   return video;
 }
 
-function extractPicture(block) {
+function pictureInSource(source, exclude) {
+  if (!source) return null;
+  if (source.tagName === 'PICTURE' && !exclude.includes(source)) return source;
+  return [...source.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
+}
+
+function extractPicture(block, exclude = []) {
   const imageField = getFieldValue(block, ['media_image', 'image']);
-  let picture = null;
-  if (imageField.source) {
-    picture = imageField.source.tagName === 'PICTURE'
-      ? imageField.source
-      : imageField.source.querySelector('picture');
-  }
+  let picture = pictureInSource(imageField.source, exclude);
   if (!picture) {
-    picture = block.querySelector('picture');
+    picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
   }
   if (!picture) return null;
 
@@ -633,6 +635,33 @@ function extractPicture(block) {
   }
 
   return picture;
+}
+
+function extractFeaturedPicture(block, exclude = []) {
+  const imageField = getFieldValue(block, ['media_featuredImage', 'featuredImage']);
+  if (!imageField.source) return null;
+
+  let picture = pictureInSource(imageField.source, exclude);
+  if (!picture) {
+    picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
+  }
+  if (!picture) return null;
+
+  if (imageField.source !== picture) {
+    moveFieldBinding(imageField.source, picture);
+  }
+
+  const altField = getFieldValue(block, ['media_featuredImageAlt', 'featuredImageAlt']);
+  const img = picture.querySelector('img');
+  if (img) {
+    if (altField.value) img.alt = altField.value;
+    if (altField.source) moveFieldBinding(altField.source, img);
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'hero-featured-image';
+  wrapper.append(picture);
+  return wrapper;
 }
 
 function applyTextColor(main, color) {
@@ -684,6 +713,7 @@ export default async function decorate(block) {
 
   const textColor = readTextColor(block);
   const picture = extractPicture(block);
+  const featuredImage = extractFeaturedPicture(block, picture ? [picture] : []);
   const { url: videoUrl, source: videoSource } = extractVideoUrl(block);
   let videoEl = null;
   if (videoUrl) {
@@ -710,10 +740,19 @@ export default async function decorate(block) {
 
   const main = document.createElement('div');
   main.className = 'hero-main';
-  if (breadcrumb) main.append(breadcrumb);
-  if (richText) main.append(richText);
-  if (htmlText) main.append(htmlText);
-  if (actions) main.append(actions);
+
+  const mainBody = document.createElement('div');
+  mainBody.className = 'hero-main-body';
+  if (breadcrumb) mainBody.append(breadcrumb);
+  if (richText) mainBody.append(richText);
+  if (htmlText) mainBody.append(htmlText);
+  if (actions) mainBody.append(actions);
+  main.append(mainBody);
+
+  if (featuredImage) {
+    main.classList.add('has-featured-image');
+    main.append(featuredImage);
+  }
   applyTextColor(main, textColor);
 
   const layout = document.createElement('div');
