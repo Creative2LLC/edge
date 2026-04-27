@@ -102,6 +102,33 @@ function formatDate(value) {
   }
 }
 
+function buildFallbackMedia() {
+  const media = document.createElement('div');
+  media.className = 'site-search-card-media site-search-card-media-placeholder';
+
+  const badge = document.createElement('div');
+  badge.className = 'site-search-card-media-fallback';
+
+  const brandLogo = document.querySelector('header .nav-brand img');
+  const logoSrc = brandLogo?.getAttribute('src') || brandLogo?.src;
+
+  if (logoSrc) {
+    const logo = document.createElement('img');
+    logo.className = 'site-search-card-media-fallback-logo';
+    logo.src = logoSrc;
+    logo.alt = brandLogo?.alt || 'NCMEC';
+    badge.append(logo);
+  } else {
+    const text = document.createElement('span');
+    text.className = 'site-search-card-media-fallback-text';
+    text.textContent = 'NCMEC';
+    badge.append(text);
+  }
+
+  media.append(badge);
+  return media;
+}
+
 function buildResultCard(result, index = 0) {
   const article = document.createElement('article');
   article.className = 'site-search-card';
@@ -119,6 +146,9 @@ function buildResultCard(result, index = 0) {
       ),
     );
     article.append(media);
+  } else {
+    article.classList.add('site-search-card-no-image');
+    article.append(buildFallbackMedia());
   }
 
   const body = document.createElement('div');
@@ -166,13 +196,6 @@ function buildResultCard(result, index = 0) {
       summary.textContent = result.summary;
     }
     body.append(summary);
-  }
-
-  if (normalizeText(result.url)) {
-    const url = document.createElement('p');
-    url.className = 'site-search-card-url';
-    url.textContent = result.url;
-    body.append(url);
   }
 
   const cta = document.createElement('a');
