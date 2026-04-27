@@ -2080,6 +2080,21 @@
       {
         "component": "reference",
         "valueType": "string",
+        "name": "media_featuredImage",
+        "label": "Featured Image (Optional)",
+        "description": "Optional image displayed to the right of the hero title/body, vertically centered. Max 202×200px.",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "media_featuredImageAlt",
+        "label": "Featured Image Alt",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
         "name": "media_video",
         "label": "Background Video (Optional, MP4)",
         "description": "Optional looping MP4. When set, replaces the background image. The image (above) is used as the video poster while it loads.",

@@ -617,7 +617,8 @@ function extractPicture(block) {
       : imageField.source.querySelector('picture');
   }
   if (!picture) {
-    picture = block.querySelector('picture');
+    const candidates = [...block.querySelectorAll('picture')];
+    picture = candidates.find((p) => !p.closest('[data-aue-prop="media_featuredImage"]')) || null;
   }
   if (!picture) return null;
 
@@ -633,6 +634,32 @@ function extractPicture(block) {
   }
 
   return picture;
+}
+
+function extractFeaturedPicture(block) {
+  const imageField = getFieldValue(block, ['media_featuredImage', 'featuredImage']);
+  if (!imageField.source) return null;
+
+  const picture = imageField.source.tagName === 'PICTURE'
+    ? imageField.source
+    : imageField.source.querySelector('picture');
+  if (!picture) return null;
+
+  if (imageField.source !== picture) {
+    moveFieldBinding(imageField.source, picture);
+  }
+
+  const altField = getFieldValue(block, ['media_featuredImageAlt', 'featuredImageAlt']);
+  const img = picture.querySelector('img');
+  if (img) {
+    if (altField.value) img.alt = altField.value;
+    if (altField.source) moveFieldBinding(altField.source, img);
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'hero-featured-image';
+  wrapper.append(picture);
+  return wrapper;
 }
 
 function applyTextColor(main, color) {
@@ -706,14 +733,24 @@ export default async function decorate(block) {
   const richText = buildMainRichText(block);
   const htmlText = buildHtmlText(block);
   const actions = buildActions(block);
+  const featuredImage = extractFeaturedPicture(block);
   const sidePanel = buildSidePanel(block);
 
   const main = document.createElement('div');
   main.className = 'hero-main';
-  if (breadcrumb) main.append(breadcrumb);
-  if (richText) main.append(richText);
-  if (htmlText) main.append(htmlText);
-  if (actions) main.append(actions);
+
+  const mainBody = document.createElement('div');
+  mainBody.className = 'hero-main-body';
+  if (breadcrumb) mainBody.append(breadcrumb);
+  if (richText) mainBody.append(richText);
+  if (htmlText) mainBody.append(htmlText);
+  if (actions) mainBody.append(actions);
+  main.append(mainBody);
+
+  if (featuredImage) {
+    main.classList.add('has-featured-image');
+    main.append(featuredImage);
+  }
   applyTextColor(main, textColor);
 
   const layout = document.createElement('div');
