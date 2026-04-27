@@ -20,22 +20,18 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
   text-align: left;
   padding-right: 24px;
   box-sizing: border-box;
 }
 
 .split-card-offices .split-card-offices-heading {
-  margin: 0 0 24px;
+  margin: 0;
   font-size: 36px;
   font-weight: 700;
   color: #404041;
   line-height: 1.2;
-}
-
-.split-card-offices .split-card-offices-spacer {
-  flex: 1 1 auto;
-  min-height: 16px;
 }
 
 /* CTA buttons row — sit side-by-side at the bottom */

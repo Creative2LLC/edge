@@ -195,11 +195,6 @@ export default async function decorate(block) {
     left.append(heading);
   }
 
-  // Spacer pushes the buttons to the bottom of the left column
-  const spacer = document.createElement('div');
-  spacer.className = 'split-card-offices-spacer';
-  left.append(spacer);
-
   const buttonRow = document.createElement('div');
   buttonRow.className = 'split-card-offices-buttons';
 
@@ -225,7 +220,6 @@ export default async function decorate(block) {
   const btn2 = buildCtaButton(button2Picture, button2Text, button2Link);
   if (btn1) buttonRow.append(btn1);
   if (btn2) buttonRow.append(btn2);
-  if (btn1 || btn2) left.append(buttonRow);
 
   container.append(left);
 
@@ -262,6 +256,7 @@ export default async function decorate(block) {
   right.append(buildFeatureRow(feature1Picture, feature1IconColor, 48, true, feature1Heading, ''));
   right.append(buildFeatureRow(feature2Picture, feature2IconColor, 24, false, '', feature2Text));
   right.append(buildFeatureRow(feature3Picture, feature3IconColor, 24, false, '', feature3Text));
+  if (btn1 || btn2) right.append(buttonRow);
 
   container.append(right);
 
