@@ -1,8 +1,6 @@
-/* Block root - full-width background */
 .split-card-carousel {
   --split-card-carousel-viewport-width: 100vw;
 
-  background-color: #DBD5CF52;
   padding: 0;
   position: relative;
   max-width: none;
