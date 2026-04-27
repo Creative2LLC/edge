@@ -179,6 +179,8 @@
   color: #007294;
   text-decoration: none;
   display: inline-block;
+  align-self: flex-start;
+  padding-left: 12px;
   margin-top: auto;
 }
 
