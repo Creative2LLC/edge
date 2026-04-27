@@ -191,10 +191,27 @@
           ]
         },
         {
+          "component": "select",
+          "valueType": "string",
+          "name": "blockSize",
+          "label": "Block Size",
+          "options": [
+            {
+              "name": "Normal",
+              "value": "normal"
+            },
+            {
+              "name": "Smaller",
+              "value": "smaller"
+            }
+          ],
+          "value": "normal"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "maxWidth",
-          "label": "Max Width (e.g. 1200px or 72rem)",
+          "label": "Max Width Override (e.g. 1200px or 72rem)",
           "value": ""
         }
       ]
