@@ -1,6 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
+import {
+  DEFAULT_LIST_SORT,
+  getListSortOptions,
+  normalizeListSort,
+} from '../../scripts/list-sort.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -179,6 +184,13 @@ function buildInteractivePill(label, className = '', onActivate = null) {
 function createFilterSelect(label) {
   const select = document.createElement('select');
   select.className = 'article-list-filter';
+  select.setAttribute('aria-label', label);
+  return select;
+}
+
+function createSortSelect(label) {
+  const select = document.createElement('select');
+  select.className = 'article-list-filter article-list-sort';
   select.setAttribute('aria-label', label);
   return select;
 }
@@ -383,7 +395,8 @@ function buildShell(config) {
   const issueSelect = createFilterSelect('Issue');
   const typeSelect = createFilterSelect('Type');
   const tagSelect = createFilterSelect('Tag');
-  controls.append(audienceSelect, issueSelect, typeSelect, tagSelect);
+  const sortSelect = createSortSelect('Sort articles');
+  controls.append(audienceSelect, issueSelect, typeSelect, tagSelect, sortSelect);
   const viewToggle = document.createElement('div');
   viewToggle.className = 'article-list-view-toggle';
   const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
@@ -429,6 +442,7 @@ function buildShell(config) {
     issueSelect,
     typeSelect,
     tagSelect,
+    sortSelect,
     viewButtons: [gridButton, listButton],
     activeFilters,
     clearAllButton,
@@ -448,6 +462,7 @@ async function renderApiList(block, config) {
     issueSelect,
     typeSelect,
     tagSelect,
+    sortSelect,
     viewButtons,
     activeFilters,
     clearAllButton,
@@ -464,6 +479,8 @@ async function renderApiList(block, config) {
     selectedIssue: new Set(),
     selectedType: new Set(),
     selectedTags: new Set(),
+    sort: '',
+    hasExplicitSort: false,
     view: config.defaultView,
     page: 0,
     lastPage: 1,
@@ -480,6 +497,8 @@ async function renderApiList(block, config) {
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
   state.view = locationState.view || config.defaultView;
+  state.hasExplicitSort = locationState.hasSort;
+  state.sort = locationState.hasSort ? normalizeListSort(locationState.sort) : '';
   state.selectedAudience = new Set(
     locationState.audiences.present
       ? locationState.audiences.values
@@ -511,6 +530,7 @@ async function renderApiList(block, config) {
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
       tags: [...state.selectedTags],
+      sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
   };
@@ -519,6 +539,9 @@ async function renderApiList(block, config) {
     syncSelectValue(issueSelect, state.selectedIssue);
     syncSelectValue(typeSelect, state.selectedType);
     syncSelectValue(tagSelect, state.selectedTags);
+  };
+  const syncSortControl = () => {
+    sortSelect.value = state.sort || '';
   };
 
   const updateFilters = (filters = {}) => {
@@ -546,6 +569,17 @@ async function renderApiList(block, config) {
       tags.map((option) => [normalizeToken(option.value), option.label]),
     );
     syncFilterControls();
+  };
+  const updateSorting = (sorting = {}, appliedSort = DEFAULT_LIST_SORT) => {
+    const options = sorting.options || getListSortOptions();
+    setFilterOptions(sortSelect, 'Sort', options);
+    const fallbackSort = normalizeListSort(sorting.default || DEFAULT_LIST_SORT);
+    if (!state.hasExplicitSort) {
+      state.sort = normalizeListSort(appliedSort || fallbackSort, fallbackSort);
+    } else {
+      state.sort = normalizeListSort(state.sort, fallbackSort);
+    }
+    syncSortControl();
   };
   let refreshArticles = () => {};
   const applyFacetValue = (facet, rawValue) => {
@@ -602,6 +636,7 @@ async function renderApiList(block, config) {
     url.searchParams.set('per_page', String(config.pageSize));
     url.searchParams.set('page', String(reset ? 1 : state.page + 1));
     if (state.query.trim()) url.searchParams.set('search', state.query.trim());
+    if (state.hasExplicitSort && state.sort) url.searchParams.set('sort', state.sort);
     state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
     state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
     state.selectedType.forEach((value) => url.searchParams.append('types[]', value));
@@ -624,6 +659,7 @@ async function renderApiList(block, config) {
     state.lastPage = payload.meta?.last_page || 1;
     state.total = payload.meta?.total ?? cardsContainer.children.length;
     updateFilters(payload.filters || {});
+    updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
     renderActiveFilters();
 
     const shown = cardsContainer.children.length;
@@ -662,6 +698,12 @@ async function renderApiList(block, config) {
   tagSelect.addEventListener('change', () => {
     applyFacet(tagSelect, state.selectedTags);
   });
+  sortSelect.addEventListener('change', () => {
+    state.sort = normalizeListSort(sortSelect.value);
+    state.hasExplicitSort = true;
+    syncUrlState();
+    loadArticles(true);
+  });
   loadMoreButton.addEventListener('click', () => loadArticles(false));
   clearAllButton.addEventListener('click', () => {
     state.query = '';
@@ -684,6 +726,7 @@ async function renderApiList(block, config) {
     });
   });
 
+  syncSortControl();
   applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
   await loadArticles(true);

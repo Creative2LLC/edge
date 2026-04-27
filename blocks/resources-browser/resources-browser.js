@@ -2,6 +2,12 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
+import {
+  DEFAULT_LIST_SORT,
+  getListSortOptions,
+  normalizeListSort,
+  sortListItems,
+} from '../../scripts/list-sort.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -471,6 +477,13 @@ function createFilterSelect(label) {
   return select;
 }
 
+function createSortSelect(label) {
+  const select = document.createElement('select');
+  select.className = 'resources-browser-filter resources-browser-sort';
+  select.setAttribute('aria-label', label);
+  return select;
+}
+
 function createViewToggleButton(label, view, activeView) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -590,7 +603,8 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   const issueSelect = createFilterSelect('Issue');
   const typeSelect = createFilterSelect('Type');
   const tagSelect = createFilterSelect('Tag');
-  controls.append(audienceSelect, issueSelect, typeSelect, tagSelect);
+  const sortSelect = createSortSelect('Sort resources');
+  controls.append(audienceSelect, issueSelect, typeSelect, tagSelect, sortSelect);
   const viewToggle = document.createElement('div');
   viewToggle.className = 'resources-browser-view-toggle';
   const gridButton = createViewToggleButton('Grid', 'grid', 'grid');
@@ -638,6 +652,7 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
     issueSelect,
     typeSelect,
     tagSelect,
+    sortSelect,
     viewButtons: [gridButton, listButton],
     activeFilters,
     clearAllButton,
@@ -657,6 +672,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     issueSelect,
     typeSelect,
     tagSelect,
+    sortSelect,
     viewButtons,
     activeFilters,
     clearAllButton,
@@ -680,6 +696,8 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     selectedIssue: new Set(),
     selectedType: new Set(),
     selectedTags: new Set(),
+    sort: DEFAULT_LIST_SORT,
+    hasExplicitSort: false,
     view: 'grid',
   };
   const defaultState = {
@@ -692,6 +710,10 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
   state.view = locationState.view || 'grid';
+  state.hasExplicitSort = locationState.hasSort;
+  state.sort = locationState.hasSort
+    ? normalizeListSort(locationState.sort)
+    : DEFAULT_LIST_SORT;
   state.selectedAudience = new Set(
     locationState.audiences.present
       ? locationState.audiences.values
@@ -717,6 +739,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
       tags: [...state.selectedTags],
+      sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
   };
@@ -725,6 +748,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     syncSelectValue(issueSelect, state.selectedIssue);
     syncSelectValue(typeSelect, state.selectedType);
     syncSelectValue(tagSelect, state.selectedTags);
+  };
+  const syncSortControl = () => {
+    sortSelect.value = state.sort || DEFAULT_LIST_SORT;
   };
 
   let renderActiveFilters = () => {};
@@ -759,17 +785,27 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       return audienceMatch && issueMatch && typeMatch && tagMatch;
     });
 
-    const shown = Math.min(state.visibleCount, filtered.length);
-    cards.forEach(({ card }) => card.classList.add('resources-browser-card-hidden'));
-    filtered.slice(0, shown).forEach(({ card }) => {
+    const sorted = sortListItems(filtered, state.sort, ({ data, originalIndex }) => ({
+      title: data.title,
+      articleDate: data.article_date || data.articleDate || '',
+      publishedAt: data.published_at || data.publishedAt || '',
+      updatedAt: data.updated_at || data.updatedAt || '',
+      createdAt: data.created_at || data.createdAt || '',
+      originalIndex,
+    }));
+
+    const shown = Math.min(state.visibleCount, sorted.length);
+    cardsContainer.replaceChildren(...sorted.map(({ card }) => card));
+    sorted.forEach(({ card }) => card.classList.add('resources-browser-card-hidden'));
+    sorted.slice(0, shown).forEach(({ card }) => {
       card.classList.remove('resources-browser-card-hidden');
     });
 
-    count.textContent = filtered.length
-      ? `Showing ${shown} of ${filtered.length} resources`
+    count.textContent = sorted.length
+      ? `Showing ${shown} of ${sorted.length} resources`
       : 'Showing 0 resources';
-    emptyState.hidden = filtered.length > 0;
-    loadMoreButton.hidden = shown >= filtered.length;
+    emptyState.hidden = sorted.length > 0;
+    loadMoreButton.hidden = shown >= sorted.length;
     renderActiveFilters();
   }
 
@@ -788,10 +824,10 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     applyFilters();
   }
 
-  cards = resources.map(({ data, row }) => {
+  cards = resources.map(({ data, row }, index) => {
     const card = buildResourceCard(data, row, applyFacetValue);
     cardsContainer.append(card);
-    return { data, card };
+    return { data, card, originalIndex: index };
   });
 
   const collectOptions = (facet) => [...new Set(cards.flatMap(({ data }) => data[facet]))]
@@ -806,6 +842,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   setFilterOptions(issueSelect, 'Issue', issues);
   setFilterOptions(typeSelect, 'Type', types);
   setFilterOptions(tagSelect, 'Tag', tags);
+  setFilterOptions(sortSelect, 'Sort', getListSortOptions());
 
   optionLabels = {
     audience: new Map(audiences.map((option) => [normalizeToken(option.value), option.label])),
@@ -814,6 +851,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     tags: new Map(tags.map((option) => [normalizeToken(option.value), option.label])),
   };
   syncFilterControls();
+  syncSortControl();
 
   renderActiveFilters = () => {
     activeFilters.replaceChildren();
@@ -868,6 +906,13 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   tagSelect.addEventListener('change', () => {
     applyFacet(tagSelect, state.selectedTags);
   });
+  sortSelect.addEventListener('change', () => {
+    state.sort = normalizeListSort(sortSelect.value);
+    state.hasExplicitSort = true;
+    state.visibleCount = config.pageSize;
+    syncUrlState();
+    applyFilters();
+  });
   loadMoreButton.addEventListener('click', () => {
     state.visibleCount += config.pageSize;
     applyFilters();
@@ -908,6 +953,7 @@ async function renderApiBrowser(block, config) {
     issueSelect,
     typeSelect,
     tagSelect,
+    sortSelect,
     viewButtons,
     activeFilters,
     clearAllButton,
@@ -925,6 +971,8 @@ async function renderApiBrowser(block, config) {
     selectedIssue: new Set(),
     selectedType: new Set(),
     selectedTags: new Set(),
+    sort: '',
+    hasExplicitSort: false,
     view: 'grid',
     page: 0,
     lastPage: 1,
@@ -941,6 +989,8 @@ async function renderApiBrowser(block, config) {
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
   state.view = locationState.view || 'grid';
+  state.hasExplicitSort = locationState.hasSort;
+  state.sort = locationState.hasSort ? normalizeListSort(locationState.sort) : '';
   state.selectedAudience = new Set(
     locationState.audiences.present
       ? locationState.audiences.values
@@ -973,6 +1023,7 @@ async function renderApiBrowser(block, config) {
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
       tags: [...state.selectedTags],
+      sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
   };
@@ -981,6 +1032,9 @@ async function renderApiBrowser(block, config) {
     syncSelectValue(issueSelect, state.selectedIssue);
     syncSelectValue(typeSelect, state.selectedType);
     syncSelectValue(tagSelect, state.selectedTags);
+  };
+  const syncSortControl = () => {
+    sortSelect.value = state.sort || '';
   };
 
   let renderActiveFilters = () => {};
@@ -1051,6 +1105,18 @@ async function renderApiBrowser(block, config) {
     syncFilterControls();
   }
 
+  function updateSorting(sorting = {}, appliedSort = DEFAULT_LIST_SORT) {
+    const options = sorting.options || getListSortOptions();
+    setFilterOptions(sortSelect, 'Sort', options);
+    const fallbackSort = normalizeListSort(sorting.default || DEFAULT_LIST_SORT);
+    if (!state.hasExplicitSort) {
+      state.sort = normalizeListSort(appliedSort || fallbackSort, fallbackSort);
+    } else {
+      state.sort = normalizeListSort(state.sort, fallbackSort);
+    }
+    syncSortControl();
+  }
+
   loadResources = async (reset = false) => {
     if (state.loading) return;
 
@@ -1072,6 +1138,9 @@ async function renderApiBrowser(block, config) {
     url.searchParams.set('page', String(reset ? 1 : state.page + 1));
     if (state.query.trim()) {
       url.searchParams.set('search', state.query.trim());
+    }
+    if (state.hasExplicitSort && state.sort) {
+      url.searchParams.set('sort', state.sort);
     }
     state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
     state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
@@ -1097,6 +1166,7 @@ async function renderApiBrowser(block, config) {
     state.total = payload.meta?.total
       ?? cardsContainer.children.length;
     updateFilters(payload.filters || {});
+    updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
     renderActiveFilters();
 
     const total = cardsContainer.children.length;
@@ -1135,6 +1205,12 @@ async function renderApiBrowser(block, config) {
   tagSelect.addEventListener('change', () => {
     applyFacet(tagSelect, state.selectedTags);
   });
+  sortSelect.addEventListener('change', () => {
+    state.sort = normalizeListSort(sortSelect.value);
+    state.hasExplicitSort = true;
+    syncUrlState();
+    loadResources(true);
+  });
   loadMoreButton.addEventListener('click', () => loadResources(false));
   clearAllButton.addEventListener('click', () => {
     state.query = '';
@@ -1157,6 +1233,7 @@ async function renderApiBrowser(block, config) {
     });
   });
 
+  syncSortControl();
   applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
   await loadResources(true);

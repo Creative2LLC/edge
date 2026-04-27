@@ -36,6 +36,7 @@ function writeFacetState(searchParams, primaryName, fallbackNames, values) {
 export function readListFilterState(search = window.location.search) {
   const params = new URLSearchParams(search);
   const view = `${params.get('view') || ''}`.trim().toLowerCase();
+  const sort = `${params.get('sort') || ''}`.trim().toLowerCase();
 
   return {
     query: (params.get('search') || params.get('q') || '').trim(),
@@ -45,6 +46,8 @@ export function readListFilterState(search = window.location.search) {
     types: readFacetState(params, ['types', 'types[]', 'type']),
     tags: readFacetState(params, ['tags', 'tags[]', 'tag']),
     view: view === 'list' ? 'list' : 'grid',
+    sort,
+    hasSort: params.has('sort'),
   };
 }
 
@@ -55,10 +58,12 @@ export function writeListFilterState({
   types = [],
   tags = [],
   view = '',
+  sort = '',
 }, replace = true) {
   const url = new URL(window.location.href);
   const normalizedQuery = `${query || ''}`.trim();
   const normalizedView = `${view || ''}`.trim().toLowerCase();
+  const normalizedSort = `${sort || ''}`.trim().toLowerCase();
 
   if (normalizedQuery) url.searchParams.set('search', normalizedQuery);
   else url.searchParams.delete('search');
@@ -71,6 +76,8 @@ export function writeListFilterState({
   if (normalizedView === 'list') url.searchParams.set('view', 'list');
   else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
   else url.searchParams.delete('view');
+  if (normalizedSort) url.searchParams.set('sort', normalizedSort);
+  else url.searchParams.delete('sort');
 
   if (replace) window.history.replaceState({}, '', url);
   else window.history.pushState({}, '', url);
@@ -83,10 +90,12 @@ export function buildListFilterHref(basePath, {
   types = [],
   tags = [],
   view = '',
+  sort = '',
 } = {}) {
   const url = new URL(basePath, window.location.origin);
   const normalizedQuery = `${query || ''}`.trim();
   const normalizedView = `${view || ''}`.trim().toLowerCase();
+  const normalizedSort = `${sort || ''}`.trim().toLowerCase();
 
   if (normalizedQuery) url.searchParams.set('search', normalizedQuery);
   writeFacetState(url.searchParams, 'audiences', ['audiences[]', 'audience'], audiences);
@@ -95,6 +104,7 @@ export function buildListFilterHref(basePath, {
   writeFacetState(url.searchParams, 'tags', ['tags[]', 'tag'], tags);
   if (normalizedView === 'list') url.searchParams.set('view', 'list');
   else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
+  if (normalizedSort) url.searchParams.set('sort', normalizedSort);
 
   return `${url.pathname}${url.search}${url.hash}`;
 }
