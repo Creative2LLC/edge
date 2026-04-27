@@ -608,17 +608,24 @@ function buildVideoElement(url, posterUrl) {
   return video;
 }
 
-function extractPicture(block) {
-  const imageField = getFieldValue(block, ['media_image', 'image']);
-  let picture = null;
-  if (imageField.source) {
-    picture = imageField.source.tagName === 'PICTURE'
-      ? imageField.source
-      : imageField.source.querySelector('picture');
+function findPictureForField(block, source, exclude) {
+  if (!source) return null;
+  if (source.tagName === 'PICTURE' && !exclude.includes(source)) return source;
+  const inside = [...source.querySelectorAll('picture')].find((p) => !exclude.includes(p));
+  if (inside) return inside;
+  const row = getDirectRow(block, source);
+  if (row) {
+    const inRow = [...row.querySelectorAll('picture')].find((p) => !exclude.includes(p));
+    if (inRow) return inRow;
   }
+  return null;
+}
+
+function extractPicture(block, exclude = []) {
+  const imageField = getFieldValue(block, ['media_image', 'image']);
+  let picture = findPictureForField(block, imageField.source, exclude);
   if (!picture) {
-    const candidates = [...block.querySelectorAll('picture')];
-    picture = candidates.find((p) => !p.closest('[data-aue-prop="media_featuredImage"]')) || null;
+    picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
   }
   if (!picture) return null;
 
@@ -640,9 +647,7 @@ function extractFeaturedPicture(block) {
   const imageField = getFieldValue(block, ['media_featuredImage', 'featuredImage']);
   if (!imageField.source) return null;
 
-  const picture = imageField.source.tagName === 'PICTURE'
-    ? imageField.source
-    : imageField.source.querySelector('picture');
+  const picture = findPictureForField(block, imageField.source, []);
   if (!picture) return null;
 
   if (imageField.source !== picture) {
@@ -710,7 +715,9 @@ export default async function decorate(block) {
   block.classList.add(`hero-pos-${contentPosition}`);
 
   const textColor = readTextColor(block);
-  const picture = extractPicture(block);
+  const featuredImage = extractFeaturedPicture(block);
+  const featuredPictureEl = featuredImage?.querySelector('picture');
+  const picture = extractPicture(block, featuredPictureEl ? [featuredPictureEl] : []);
   const { url: videoUrl, source: videoSource } = extractVideoUrl(block);
   let videoEl = null;
   if (videoUrl) {
@@ -733,7 +740,6 @@ export default async function decorate(block) {
   const richText = buildMainRichText(block);
   const htmlText = buildHtmlText(block);
   const actions = buildActions(block);
-  const featuredImage = extractFeaturedPicture(block);
   const sidePanel = buildSidePanel(block);
 
   const main = document.createElement('div');
