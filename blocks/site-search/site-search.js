@@ -213,9 +213,17 @@ function createViewToggleButton(label, view, activeView) {
   button.type = 'button';
   button.className = 'site-search-view-button';
   button.dataset.view = view;
+  button.setAttribute('aria-label', `${label} view`);
+  button.title = label;
+  const icon = document.createElement('span');
+  icon.className = `site-search-view-icon site-search-view-icon-${view}`;
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = view === 'list'
+    ? '<svg viewBox="0 0 20 20" fill="none"><path d="M4 5.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 10H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 14.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="none"><rect x="3.5" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/></svg>';
+  button.append(icon);
   if (view === activeView) button.classList.add('is-active');
   button.setAttribute('aria-pressed', String(view === activeView));
-  button.textContent = label;
   return button;
 }
 
@@ -234,12 +242,22 @@ function buildShell(config) {
 
   const header = document.createElement('div');
   header.className = 'site-search-header';
+  const headerTop = document.createElement('div');
+  headerTop.className = 'site-search-header-top';
   if (config.heading) {
     const heading = document.createElement('h2');
     heading.className = 'site-search-heading';
     heading.textContent = config.heading;
-    header.append(heading);
+    headerTop.append(heading);
   }
+
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'site-search-view-toggle';
+  const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
+  const listButton = createViewToggleButton('List', 'list', config.defaultView);
+  viewToggle.append(gridButton, listButton);
+  headerTop.append(viewToggle);
+  header.append(headerTop);
 
   const controls = document.createElement('div');
   controls.className = 'site-search-controls';
@@ -252,13 +270,6 @@ function buildShell(config) {
   searchInput.placeholder = config.searchPlaceholder;
   searchWrap.append(searchInput);
   controls.append(searchWrap);
-
-  const viewToggle = document.createElement('div');
-  viewToggle.className = 'site-search-view-toggle';
-  const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
-  const listButton = createViewToggleButton('List', 'list', config.defaultView);
-  viewToggle.append(gridButton, listButton);
-  controls.append(viewToggle);
   header.append(controls);
   inner.append(header);
 

@@ -195,12 +195,24 @@ function createSortSelect(label) {
   return select;
 }
 
+function createViewIcon(view) {
+  const icon = document.createElement('span');
+  icon.className = `article-list-view-icon article-list-view-icon-${view}`;
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = view === 'list'
+    ? '<svg viewBox="0 0 20 20" fill="none"><path d="M4 5.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 10H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 14.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="none"><rect x="3.5" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/></svg>';
+  return icon;
+}
+
 function createViewToggleButton(label, view, activeView) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'article-list-view-button';
   button.dataset.view = view;
-  button.textContent = label;
+  button.setAttribute('aria-label', `${label} view`);
+  button.title = label;
+  button.append(createViewIcon(view));
   if (view === activeView) button.classList.add('is-active');
   button.setAttribute('aria-pressed', String(view === activeView));
   return button;
@@ -373,15 +385,28 @@ function buildShell(config) {
   const header = document.createElement('div');
   header.className = 'article-list-header';
 
+  const headerTop = document.createElement('div');
+  headerTop.className = 'article-list-header-top';
+
   if (config.heading) {
     const heading = document.createElement('h2');
     heading.className = 'article-list-heading';
     heading.textContent = config.heading;
-    header.append(heading);
+    headerTop.append(heading);
   }
+
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'article-list-view-toggle';
+  const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
+  const listButton = createViewToggleButton('List', 'list', config.defaultView);
+  viewToggle.append(gridButton, listButton);
+  headerTop.append(viewToggle);
+  header.append(headerTop);
 
   const controls = document.createElement('div');
   controls.className = 'article-list-controls';
+  const primaryRow = document.createElement('div');
+  primaryRow.className = 'article-list-primary-row';
   const searchWrap = document.createElement('label');
   searchWrap.className = 'article-list-search-wrap';
   const searchInput = document.createElement('input');
@@ -389,20 +414,20 @@ function buildShell(config) {
   searchInput.type = 'search';
   searchInput.placeholder = config.searchPlaceholder;
   searchWrap.append(searchInput);
-  controls.append(searchWrap);
+  primaryRow.append(searchWrap);
 
   const audienceSelect = createFilterSelect('Audience');
   const issueSelect = createFilterSelect('Issue');
   const typeSelect = createFilterSelect('Type');
   const tagSelect = createFilterSelect('Tag');
   const sortSelect = createSortSelect('Sort articles');
-  controls.append(audienceSelect, issueSelect, typeSelect, tagSelect, sortSelect);
-  const viewToggle = document.createElement('div');
-  viewToggle.className = 'article-list-view-toggle';
-  const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
-  const listButton = createViewToggleButton('List', 'list', config.defaultView);
-  viewToggle.append(gridButton, listButton);
-  controls.append(viewToggle);
+  primaryRow.append(sortSelect);
+  controls.append(primaryRow);
+
+  const filterRow = document.createElement('div');
+  filterRow.className = 'article-list-filter-row';
+  filterRow.append(audienceSelect, issueSelect, typeSelect, tagSelect);
+  controls.append(filterRow);
   header.append(controls);
   inner.append(header);
 
