@@ -608,22 +608,15 @@ function buildVideoElement(url, posterUrl) {
   return video;
 }
 
-function findPictureForField(block, source, exclude) {
+function pictureInSource(source, exclude) {
   if (!source) return null;
   if (source.tagName === 'PICTURE' && !exclude.includes(source)) return source;
-  const inside = [...source.querySelectorAll('picture')].find((p) => !exclude.includes(p));
-  if (inside) return inside;
-  const row = getDirectRow(block, source);
-  if (row) {
-    const inRow = [...row.querySelectorAll('picture')].find((p) => !exclude.includes(p));
-    if (inRow) return inRow;
-  }
-  return null;
+  return [...source.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
 }
 
 function extractPicture(block, exclude = []) {
   const imageField = getFieldValue(block, ['media_image', 'image']);
-  let picture = findPictureForField(block, imageField.source, exclude);
+  let picture = pictureInSource(imageField.source, exclude);
   if (!picture) {
     picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
   }
@@ -643,11 +636,14 @@ function extractPicture(block, exclude = []) {
   return picture;
 }
 
-function extractFeaturedPicture(block) {
+function extractFeaturedPicture(block, exclude = []) {
   const imageField = getFieldValue(block, ['media_featuredImage', 'featuredImage']);
   if (!imageField.source) return null;
 
-  const picture = findPictureForField(block, imageField.source, []);
+  let picture = pictureInSource(imageField.source, exclude);
+  if (!picture) {
+    picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
+  }
   if (!picture) return null;
 
   if (imageField.source !== picture) {
@@ -715,9 +711,8 @@ export default async function decorate(block) {
   block.classList.add(`hero-pos-${contentPosition}`);
 
   const textColor = readTextColor(block);
-  const featuredImage = extractFeaturedPicture(block);
-  const featuredPictureEl = featuredImage?.querySelector('picture');
-  const picture = extractPicture(block, featuredPictureEl ? [featuredPictureEl] : []);
+  const picture = extractPicture(block);
+  const featuredImage = extractFeaturedPicture(block, picture ? [picture] : []);
   const { url: videoUrl, source: videoSource } = extractVideoUrl(block);
   let videoEl = null;
   if (videoUrl) {
