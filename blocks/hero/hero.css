@@ -95,10 +95,12 @@
 }
 
 .hero .hero-main.has-featured-image .hero-main-body {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
 }
 
 .hero .hero-featured-image {
+  position: relative;
+  z-index: 1;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
