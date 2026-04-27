@@ -89,7 +89,11 @@ body.appear {
 }
 
 header {
+  position: relative;
   height: var(--nav-height);
+  background:
+    radial-gradient(circle at top right, rgb(0 141 182 / 8%) 0 18%, transparent 19%),
+    linear-gradient(180deg, #fbfdff 0%, #eef5fb 100%);
 }
 
 @media (width >= 900px) {
@@ -106,6 +110,91 @@ footer .footer {
 header .header[data-block-status="loaded"],
 footer .footer[data-block-status="loaded"] {
   visibility: visible;
+}
+
+header.is-shell-loading {
+  overflow: hidden;
+}
+
+header.is-shell-loading::before,
+header.is-shell-loading::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 32%) 0%,
+      rgb(255 255 255 / 72%) 50%,
+      rgb(255 255 255 / 32%) 100%
+    );
+  background-size: 200% 100%;
+  animation: header-shell-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+header.is-shell-loading::before {
+  top: 10px;
+  width: min(240px, calc(100% - 32px));
+  height: 18px;
+}
+
+header.is-shell-loading::after {
+  top: 36px;
+  height: 52px;
+  box-shadow: 0 16px 34px rgb(17 54 82 / 8%);
+}
+
+@media (width < 900px) {
+  header.is-shell-loading {
+    height: 76px;
+  }
+
+  header.is-shell-loading::before {
+    top: 14px;
+    width: 108px;
+    height: 16px;
+  }
+
+  header.is-shell-loading::after {
+    top: 18px;
+    left: 140px;
+    right: 16px;
+    height: 40px;
+  }
+}
+
+@media (width >= 900px) {
+  header.is-shell-loading {
+    height: calc(var(--top-banner-height) + 92px);
+  }
+
+  header.is-shell-loading::before {
+    top: 14px;
+    left: 48px;
+    right: auto;
+    width: 360px;
+  }
+
+  header.is-shell-loading::after {
+    top: 52px;
+    left: 32px;
+    right: 32px;
+    height: 84px;
+    border-radius: 32px;
+  }
+}
+
+@keyframes header-shell-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 h1,

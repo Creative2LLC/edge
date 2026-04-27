@@ -384,6 +384,23 @@ export function decorateMain(main) {
   applyImageLinks(main);
 }
 
+function startHeaderLoad(doc) {
+  if (window.isErrorPage) return;
+
+  const header = doc.querySelector('header');
+  if (!header || header.dataset.headerLoading === 'true' || header.querySelector('.header')) return;
+
+  header.dataset.headerLoading = 'true';
+  header.classList.add('is-shell-loading');
+
+  loadHeader(header)
+    .catch(() => {})
+    .finally(() => {
+      header.classList.remove('is-shell-loading');
+      header.dataset.headerLoading = 'false';
+    });
+}
+
 /**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
@@ -391,6 +408,7 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+  startHeaderLoad(doc);
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
@@ -414,14 +432,9 @@ async function loadEager(doc) {
  */
 async function loadLazy(doc) {
   const main = doc.querySelector('main');
-  await loadSections(main);
-
-  const { hash } = window.location;
-  const element = hash ? doc.getElementById(hash.substring(1)) : false;
-  if (hash && element) element.scrollIntoView();
+  startHeaderLoad(doc);
 
   if (!window.isErrorPage) {
-    loadHeader(doc.querySelector('header'));
     loadFooter(doc.querySelector('footer'));
     let getHelpHost = doc.querySelector('.get-help-host');
     if (!getHelpHost) {
@@ -431,6 +444,12 @@ async function loadLazy(doc) {
     }
     loadGetHelp(getHelpHost);
   }
+
+  await loadSections(main);
+
+  const { hash } = window.location;
+  const element = hash ? doc.getElementById(hash.substring(1)) : false;
+  if (hash && element) element.scrollIntoView();
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
