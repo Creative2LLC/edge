@@ -63,16 +63,17 @@ function getDirectRow(block, element) {
 }
 
 function buildHtmlText(block) {
-  const { source, value: html } = getFieldValue(block, ['content_textHtml', 'text_html']);
+  const { source } = getFieldValue(block, ['content_textHtml', 'text_html']);
   if (!source) return null;
-  if (!html) {
-    return null;
-  }
 
   const wrapper = document.createElement('div');
   wrapper.className = 'hero-text-html';
-  wrapper.innerHTML = html;
   moveFieldBinding(source, wrapper);
+  while (source.firstChild) {
+    wrapper.append(source.firstChild);
+  }
+  if (!wrapper.textContent.trim()) return null;
+
   const { value: classValue } = getFieldValue(block, ['content_textHtmlClass', 'textHtmlClass']);
   if (classValue) {
     const classes = classValue.split(/\s+/).filter(Boolean);

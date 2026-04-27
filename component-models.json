@@ -2239,10 +2239,10 @@
         "valueType": "string"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "name": "content_textHtml",
         "value": "",
-        "label": "Text (HTML)",
+        "label": "Body Text",
         "valueType": "string"
       },
       {
