@@ -352,6 +352,11 @@
   color: rgb(255 255 255 / 78%);
 }
 
+.hero .hero-side-panel-text p:first-child {
+  font-size: 20px;
+  font-weight: 700;
+}
+
 .hero .hero-text-html p:empty,
 .hero .hero-text-html p:has(br:only-child) {
   min-height: 1em;
