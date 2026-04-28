@@ -331,11 +331,6 @@
   color: rgb(255 255 255 / 92%);
 }
 
-.hero .hero-side-panel-text p:first-child {
-  font-size: 20px;
-  font-weight: 700;
-}
-
 .hero .hero-side-panel-actions {
   display: flex;
   flex-wrap: wrap;
@@ -355,6 +350,11 @@
   font-weight: 500;
   line-height: 1.45;
   color: rgb(255 255 255 / 78%);
+}
+
+.hero .hero-side-panel-text p:first-child {
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .hero .hero-text-html p:empty,
