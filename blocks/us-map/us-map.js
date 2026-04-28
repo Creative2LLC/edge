@@ -188,12 +188,103 @@ function buildDropdown(onSelect) {
   return { wrap, label, list };
 }
 
+function normalizeText(value) {
+  return `${value || ''}`.trim();
+}
+
+function normalizeApiBaseUrl(value) {
+  return normalizeText(value).replace(/\/+$/, '');
+}
+
+function findUrlLikeValue(value) {
+  const match = `${value || ''}`.match(/https?:\/\/[^\s<>"]+/i);
+  return match ? match[0].replace(/[),.;]+$/, '') : '';
+}
+
+function getRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function getPropValue(scope, name) {
+  const node = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
+  if (!node) return '';
+  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
+  return normalizeText(anchor?.getAttribute('href') || node.getAttribute('href') || node.textContent);
+}
+
+function getLegacyValue(block, labels = []) {
+  const rows = getRows(block);
+  const row = rows.find((entry) => {
+    if (entry.children.length !== 2) return false;
+    const key = normalizeText(entry.children[0].textContent).toLowerCase();
+    return labels.some((label) => key === label || key.includes(label));
+  });
+
+  if (!row) return '';
+
+  const valueCell = row.children[1];
+  const anchor = valueCell.querySelector('a');
+  return normalizeText(anchor?.getAttribute('href') || valueCell.textContent);
+}
+
+function getFieldValue(block, name, options = {}) {
+  const { columnIndex, labels = [] } = options;
+  const rows = getRows(block);
+  const propValue = getPropValue(block, name);
+  if (propValue) return propValue;
+
+  if (columnIndex !== undefined) {
+    const value = rows
+      .map((row) => {
+        const cols = [...row.children];
+        const cell = cols[columnIndex];
+        if (!cell) return '';
+        const anchor = cell.querySelector('a');
+        if (anchor) return normalizeText(anchor.getAttribute('href') || anchor.textContent);
+        return findUrlLikeValue(cell.textContent) || normalizeText(cell.textContent);
+      })
+      .find(Boolean);
+
+    if (value) return value;
+  }
+
+  return getLegacyValue(block, labels);
+}
+
+function parseCsvLine(line) {
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    const next = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      values.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  values.push(current.trim());
+  return values.map((value) => value.replace(/^"|"$/g, ''));
+}
+
 function parseCsv(text) {
-  const lines = text.split('\n').filter((l) => l.trim());
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
   if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map((h) => h.trim().replace(/^"|"$/g, ''));
+  const headers = parseCsvLine(lines[0]);
   return lines.slice(1).map((line) => {
-    const vals = line.split(',').map((v) => v.trim().replace(/^"|"$/g, ''));
+    const vals = parseCsvLine(line);
     const obj = {};
     headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
     return obj;
@@ -234,26 +325,91 @@ async function fetchStateLinks(sheetUrl) {
   return stateLinks;
 }
 
-export default async function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+function buildStateLinks(rows = []) {
+  const stateLinks = {};
 
-  /* Read sheet URL from block field */
-  let sheetUrl = '';
   rows.forEach((row) => {
-    const el = row.querySelector('[data-aue-prop="sheetUrl"]');
-    if (el) {
-      const anchor = el.querySelector('a');
-      sheetUrl = anchor?.href || el.textContent.trim();
-    } else {
-      const cols = [...row.children];
-      if (cols.length === 1) {
-        const anchor = cols[0].querySelector('a');
-        sheetUrl = anchor?.href || cols[0].textContent.trim();
-      }
-    }
+    const name = normalizeText(row.name || row.Name || row.State || row.state);
+    const abbr = normalizeText(row.abbreviation || row.Abbreviation || row.abbr || row.code);
+    const rawLink = row.link_url || row.linkUrl || row.Link || row.link || row.URL || row.url;
+    const link = normalizeText(rawLink);
+
+    if (name) stateLinks[name.toLowerCase()] = link;
+    if (abbr) stateLinks[abbr.toLowerCase()] = link;
   });
 
-  const stateLinks = await fetchStateLinks(sheetUrl);
+  return stateLinks;
+}
+
+async function fetchStateLinksFromApi(apiBaseUrl) {
+  const apiRoot = normalizeApiBaseUrl(apiBaseUrl);
+  if (!apiRoot) return null;
+
+  try {
+    const endpoint = new URL('/api/state-map', `${apiRoot}/`);
+    const response = await fetch(endpoint.toString(), {
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return null;
+
+    const payload = await response.json();
+    let data = null;
+
+    if (Array.isArray(payload?.data)) {
+      data = payload.data;
+    } else if (Array.isArray(payload)) {
+      data = payload;
+    }
+
+    if (!data) return null;
+
+    return buildStateLinks(data);
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchStateLinksFromSheet(sheetUrl) {
+  const url = normalizeText(sheetUrl);
+  if (!url) return null;
+
+  const links = await fetchStateLinks(url);
+  return Object.keys(links).length ? links : {};
+}
+
+async function loadStateLinks(config) {
+  const apiLinks = await fetchStateLinksFromApi(config.apiBaseUrl);
+  if (apiLinks && Object.keys(apiLinks).length) return apiLinks;
+
+  const sheetLinks = await fetchStateLinksFromSheet(config.sheetUrl);
+  if (sheetLinks) return sheetLinks;
+
+  return apiLinks || {};
+}
+
+export default async function decorate(block) {
+  const legacySheetUrl = getRows(block)
+    .map((row) => {
+      const cols = [...row.children];
+      if (cols.length !== 1) return '';
+      const anchor = cols[0].querySelector('a');
+      const url = normalizeText(anchor?.getAttribute('href') || cols[0].textContent);
+      return /docs\.google\.com|\.csv(?:[?#]|$)/i.test(url) ? url : '';
+    })
+    .find(Boolean) || '';
+
+  const config = {
+    apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', {
+      columnIndex: 0,
+      labels: ['api base url', 'api url', 'state map api base url', 'backend url'],
+    })),
+    sheetUrl: getFieldValue(block, 'sheetUrl', {
+      columnIndex: 1,
+      labels: ['sheet url', 'google sheet url', 'legacy sheet url'],
+    }) || legacySheetUrl,
+  };
+
+  const stateLinks = await loadStateLinks(config);
 
   /* Load SVG map */
   const mapWrap = document.createElement('div');
@@ -305,7 +461,7 @@ export default async function decorate(block) {
 
     info.classList.add('visible');
 
-    const link = stateLinks[name.toLowerCase()] || '';
+    const link = stateLinks[abbr.toLowerCase()] || stateLinks[name.toLowerCase()] || '';
     if (link) {
       linkBar.classList.add('visible');
       linkBarName.textContent = name;

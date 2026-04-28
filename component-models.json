@@ -6444,9 +6444,16 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches state links from /api/state-map"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "sheetUrl",
-        "label": "Google Sheet URL",
-        "description": "Published Google Sheet URL with columns: State, Link"
+        "label": "Legacy Sheet URL",
+        "description": "Optional fallback published sheet URL with columns: State, Link"
       }
     ]
   },
