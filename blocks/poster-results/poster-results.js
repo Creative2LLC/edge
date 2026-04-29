@@ -207,16 +207,22 @@ export default async function decorate(block) {
   const form = document.createElement('form');
   form.className = 'poster-results-form';
 
+  const apiField = createTextInput('API Base URL', config.apiBaseUrl);
   const providerField = createTextInput('Provider', config.provider);
   const caseField = createTextInput('Case Number', config.caseNumber);
   const posterField = createTextInput('Poster Number', String(config.posterNumber));
   const environmentField = createEnvironmentSelect(config.environment);
+
+  if (config.apiBaseUrl) {
+    apiField.label.classList.add('poster-results-api-field', 'is-hidden');
+  }
 
   const submit = document.createElement('button');
   submit.type = 'submit';
   submit.textContent = config.submitLabel;
 
   form.append(
+    apiField.label,
     providerField.label,
     caseField.label,
     posterField.label,
@@ -234,12 +240,13 @@ export default async function decorate(block) {
   block.replaceChildren(section);
 
   async function loadPoster() {
+    const apiBaseUrl = normalizeApiBaseUrl(apiField.input.value);
     const provider = normalizeText(providerField.input.value);
     const caseNumber = normalizeText(caseField.input.value);
     const posterNumber = parsePosterNumber(posterField.input.value);
     const environment = environmentField.select.value;
 
-    if (!config.apiBaseUrl || !provider || !caseNumber) {
+    if (!apiBaseUrl || !provider || !caseNumber) {
       setStatus(status, 'Enter an API base URL, provider, and case number.', 'error');
       results.replaceChildren();
       return;
@@ -249,7 +256,13 @@ export default async function decorate(block) {
     submit.disabled = true;
 
     try {
-      const endpoint = buildEndpoint(config, provider, caseNumber, posterNumber, environment);
+      const endpoint = buildEndpoint(
+        { ...config, apiBaseUrl },
+        provider,
+        caseNumber,
+        posterNumber,
+        environment,
+      );
       const response = await fetch(endpoint, {
         headers: { Accept: 'application/json' },
       });

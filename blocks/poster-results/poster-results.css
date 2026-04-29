@@ -29,6 +29,10 @@
   min-width: 0;
 }
 
+.poster-results-field.is-hidden {
+  display: none;
+}
+
 .poster-results-field span {
   color: #404041;
   font-size: 13px;
