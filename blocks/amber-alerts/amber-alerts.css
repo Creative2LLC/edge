@@ -94,12 +94,19 @@
   color: #243846;
 }
 
+.amber-alerts-card-actions .amber-alerts-card-secondary {
+  border: 1px solid #c7d1d8;
+  background: #fff;
+  color: #243846;
+}
+
 .amber-alerts-controls button:hover,
 .amber-alerts-card-actions button:hover {
   background: #005f7d;
 }
 
 .amber-alerts-card-actions a:hover,
+.amber-alerts-card-actions .amber-alerts-card-secondary:hover,
 .amber-alerts-detail-back:hover {
   background: #eef3f6;
 }

@@ -196,10 +196,12 @@ function createAlertCard(alert, config, onSelect) {
   detail.addEventListener('click', () => onSelect(alert));
   actions.append(detail);
 
-  if (alert.poster_url) {
-    const poster = document.createElement('a');
-    poster.href = alert.poster_url;
+  if (caseNumber(alert)) {
+    const poster = document.createElement('button');
+    poster.type = 'button';
+    poster.className = 'amber-alerts-card-secondary';
     poster.textContent = 'Open poster';
+    poster.addEventListener('click', () => onSelect(alert));
     actions.append(poster);
   }
 
