@@ -4708,11 +4708,11 @@
         "value": "National Center for Missing & Exploited Children"
       },
       {
-        "component": "text",
+        "component": "reference",
         "valueType": "string",
         "name": "qrCodeUrl",
         "label": "QR Code PDF URL",
-        "value": ""
+        "multi": false
       },
       {
         "component": "text",
