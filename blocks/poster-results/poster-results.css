@@ -4,12 +4,12 @@
 }
 
 .poster-results-inner {
-  width: min(1160px, calc(100% - 40px));
+  width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
 }
 
 .poster-results-header {
-  max-width: 760px;
+  max-width: 840px;
   margin-bottom: 24px;
 }
 
@@ -31,12 +31,10 @@
 
 .poster-results-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: end;
-  max-width: 760px;
-  margin-bottom: 18px;
-  padding: 18px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 20px;
   border: 1px solid #d9e1e6;
   border-radius: 8px;
   background: #fff;
@@ -49,22 +47,24 @@
   min-width: 0;
 }
 
-.poster-results-field span {
+.poster-results-field span,
+.poster-results-radio-group legend {
   color: #3f4b53;
   font-size: 14px;
   font-weight: 800;
 }
 
-.poster-results-field input {
+.poster-results-field input,
+.poster-results-field select {
   width: 100%;
-  height: 48px;
+  height: 46px;
   border: 1px solid #c7d1d8;
   border-radius: 6px;
   background: #fff;
   color: #243846;
   font: inherit;
-  font-size: 16px;
-  padding: 10px 14px;
+  font-size: 15px;
+  padding: 9px 12px;
   box-sizing: border-box;
 }
 
@@ -72,16 +72,53 @@
   color: #6b7882;
 }
 
+.poster-results-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.poster-results-radio-group legend {
+  flex-basis: 100%;
+  margin-bottom: -4px;
+}
+
+.poster-results-radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #243846;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.poster-results-radio-group input {
+  width: 16px;
+  height: 16px;
+  accent-color: #007294;
+}
+
+.poster-results-actions {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
 .poster-results-form button {
-  height: 48px;
+  height: 46px;
   border: 0;
   border-radius: 6px;
   background: #007294;
   color: #fff;
   font: inherit;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
-  padding: 0 24px;
+  padding: 0 22px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -95,7 +132,18 @@
   opacity: 0.65;
 }
 
-.poster-results-status {
+.poster-results-form .poster-results-reset {
+  border: 1px solid #c7d1d8;
+  background: #fff;
+  color: #243846;
+}
+
+.poster-results-form .poster-results-reset:hover {
+  background: #eef3f6;
+}
+
+.poster-results-status,
+.poster-results-meta {
   margin: 0 0 18px;
   color: #3f4b53;
   font-size: 15px;
@@ -118,8 +166,8 @@
 
 .poster-results-card {
   display: grid;
-  grid-template-columns: 152px minmax(0, 1fr);
-  min-height: 210px;
+  grid-template-columns: 150px minmax(0, 1fr);
+  min-height: 220px;
   overflow: hidden;
   border: 1px solid #d9e1e6;
   border-radius: 8px;
@@ -128,6 +176,7 @@
 }
 
 .poster-results-photo {
+  display: block;
   background: #dfe5e9;
 }
 
@@ -146,7 +195,7 @@
 .poster-results-card-body h3 {
   margin: 0 0 14px;
   color: #243846;
-  font-size: 24px;
+  font-size: 23px;
   line-height: 1.12;
 }
 
@@ -171,6 +220,19 @@
   overflow-wrap: anywhere;
 }
 
+.poster-results-card-link {
+  display: inline-flex;
+  margin-top: 14px;
+  color: #007294;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.poster-results-card-link:hover {
+  text-decoration: underline;
+}
+
 .poster-results-empty {
   grid-column: 1 / -1;
   margin: 12px 0;
@@ -179,12 +241,20 @@
 }
 
 .poster-results-field input:focus-visible,
-.poster-results-form button:focus-visible {
+.poster-results-field select:focus-visible,
+.poster-results-radio-group input:focus-visible,
+.poster-results-form button:focus-visible,
+.poster-results-card-link:focus-visible,
+.poster-results-photo:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
 }
 
 @media (width <= 1100px) {
+  .poster-results-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .poster-results-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -196,7 +266,7 @@
   }
 
   .poster-results-inner {
-    width: min(1160px, calc(100% - 24px));
+    width: min(1180px, calc(100% - 24px));
   }
 
   .poster-results-heading {
@@ -208,8 +278,12 @@
     grid-template-columns: 1fr;
   }
 
-  .poster-results-form button {
-    width: 100%;
+  .poster-results-actions {
+    align-items: stretch;
+  }
+
+  .poster-results-actions button {
+    flex: 1 1 0;
   }
 
   .poster-results-card {

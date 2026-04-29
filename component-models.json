@@ -4544,43 +4544,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "provider",
-        "label": "Default Provider",
-        "value": "NCMC"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "caseNumber",
-        "label": "Default Case Number"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "posterNumber",
-        "label": "Default Poster Number",
-        "value": "1"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "environment",
-        "label": "Environment",
-        "value": "prod",
-        "options": [
-          {
-            "name": "Production",
-            "value": "prod"
-          },
-          {
-            "name": "Staging",
-            "value": "staging"
-          }
-        ]
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "submitLabel",
         "label": "Submit Label",
         "value": "Search"
