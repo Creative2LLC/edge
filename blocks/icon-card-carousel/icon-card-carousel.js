@@ -237,13 +237,13 @@ export default function decorate(block) {
   prevBtn.className = 'icon-card-carousel-nav-btn';
   prevBtn.setAttribute('aria-label', 'Previous slide');
   prevBtn.type = 'button';
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
   const nextBtn = document.createElement('button');
   nextBtn.className = 'icon-card-carousel-nav-btn';
   nextBtn.setAttribute('aria-label', 'Next slide');
   nextBtn.type = 'button';
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
 
   nav.append(prevBtn);
   nav.append(nextBtn);
@@ -279,7 +279,7 @@ export default function decorate(block) {
   // Sync dots on manual scroll
   track.addEventListener('scroll', () => {
     const slideWidth = track.children[0]?.offsetWidth || 1;
-    const gap = 24;
+    const gap = 48;
     const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
     if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
       current = scrollIndex;
