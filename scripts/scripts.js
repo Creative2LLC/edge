@@ -72,6 +72,26 @@ function buildAutoBlocks() {
   }
 }
 
+function isPdfHref(href) {
+  if (!href) return false;
+
+  try {
+    return new URL(href, window.location.href).pathname.toLowerCase().endsWith('.pdf');
+  } catch (error) {
+    return /\.pdf(?:[?#].*)?$/i.test(href);
+  }
+}
+
+function decoratePdfLinks(scope) {
+  scope.querySelectorAll('a[href]').forEach((link) => {
+    if (!isPdfHref(link.getAttribute('href'))) return;
+
+    link.removeAttribute('download');
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  });
+}
+
 function cleanupFieldNode(node) {
   const row = node?.parentElement;
   if (row && row.children?.length === 2 && row.children[1] === node) {
@@ -382,6 +402,7 @@ export function decorateMain(main) {
   decorateBlocks(main);
   applyDefaultContentAuthorStyles(main);
   applyImageLinks(main);
+  decoratePdfLinks(main);
 }
 
 function startHeaderLoad(doc) {
@@ -414,6 +435,7 @@ async function loadEager(doc) {
     decorateMain(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
+    decoratePdfLinks(main);
   }
 
   try {
@@ -446,6 +468,7 @@ async function loadLazy(doc) {
   }
 
   await loadSections(main);
+  if (main) decoratePdfLinks(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;

@@ -637,6 +637,7 @@ function createNearMeSection(config, onNearMe) {
     link.textContent = config.qrCodeLabel;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
+    link.removeAttribute('download');
     qr.append(link);
   } else {
     const placeholder = document.createElement('strong');
