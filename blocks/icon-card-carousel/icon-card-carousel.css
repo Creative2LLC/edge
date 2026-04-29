@@ -60,7 +60,7 @@ main > .section > .icon-card-carousel-wrapper {
   scrollbar-width: none;
   margin-right: -24px;
   width: calc(100% + 24px + max(0px, (var(--icon-card-carousel-viewport-width) - 1420px) / 2));
-  padding-right: 0;
+  padding-right: 48px;
   padding-bottom: 16px;
   box-sizing: border-box;
 }
