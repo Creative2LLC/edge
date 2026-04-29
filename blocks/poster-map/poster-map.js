@@ -74,6 +74,38 @@ function getFieldValue(block, name, columnIndex, fallback = '') {
   return getPropValue(block, name) || getLegacyValue(block, name, columnIndex) || fallback;
 }
 
+function getImageFromContainer(container) {
+  if (!container) return null;
+  return container.closest('picture')
+    || container.querySelector('picture')
+    || (container.tagName === 'IMG' ? container : null)
+    || container.querySelector('img');
+}
+
+function getLegacyCell(block, name, columnIndex) {
+  const labels = FIELD_LABELS[name] || [];
+  const row = getRows(block).find((entry) => {
+    if (entry.children.length !== 2) return false;
+    const label = normalizeText(entry.children[0].textContent).toLowerCase();
+    return labels.some((option) => label === option || label.includes(option));
+  });
+
+  if (row) return row.children[1];
+
+  const configRow = getRows(block)[0];
+  return configRow ? [...configRow.children][columnIndex] : null;
+}
+
+function getAuthoredImage(block) {
+  const source = block.querySelector('[data-aue-prop="image"]');
+  const image = getImageFromContainer(source)
+    || getImageFromContainer(getLegacyCell(block, 'image', 9))
+    || block.querySelector('picture')
+    || block.querySelector('img');
+
+  return image ? image.cloneNode(true) : null;
+}
+
 function createViewerLink(label, href, copy) {
   const item = document.createElement('div');
   item.className = 'poster-map-viewer';
@@ -92,6 +124,7 @@ function createViewerLink(label, href, copy) {
 }
 
 export default function decorate(block) {
+  const authoredImage = getAuthoredImage(block);
   const config = {
     heading: getFieldValue(block, 'heading', 0, DEFAULTS.heading),
     copy: getFieldValue(block, 'copy', 1, DEFAULTS.copy),
@@ -132,14 +165,17 @@ export default function decorate(block) {
 
   body.append(content);
 
-  if (config.image) {
+  if (authoredImage || config.image) {
     const media = document.createElement('div');
     media.className = 'poster-map-media';
-    const img = document.createElement('img');
-    img.src = config.image;
-    img.alt = config.imageAlt;
-    img.loading = 'lazy';
-    media.append(img);
+    const image = authoredImage || document.createElement('img');
+    const img = image.tagName === 'IMG' ? image : image.querySelector('img');
+    if (!authoredImage) img.src = config.image;
+    if (img) {
+      img.alt = config.imageAlt;
+      img.loading = 'lazy';
+    }
+    media.append(image);
     body.append(media);
   }
 
