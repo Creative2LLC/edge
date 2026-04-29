@@ -48,6 +48,27 @@
           "name": "submitLabel",
           "label": "Submit Label",
           "value": "Search"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "submitTipUrl",
+          "label": "Submit Tip URL",
+          "value": "/gethelpnow/cybertipline"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "organizationLogo",
+          "label": "Detail Footer Logo",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "organizationLogoAlt",
+          "label": "Detail Footer Logo Alt Text",
+          "value": "National Center for Missing & Exploited Children"
         }
       ]
     }

@@ -3,6 +3,9 @@ const DEFAULTS = {
   eyebrow: 'Poster Search',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   submitLabel: 'Search',
+  submitTipUrl: '/gethelpnow/cybertipline',
+  organizationLogo: '',
+  organizationLogoAlt: 'National Center for Missing & Exploited Children',
 };
 
 const FIELD_LABELS = {
@@ -10,6 +13,9 @@ const FIELD_LABELS = {
   eyebrow: ['eyebrow', 'label'],
   apiBaseUrl: ['api base url', 'api url', 'backend url'],
   submitLabel: ['submit label', 'button label'],
+  submitTipUrl: ['submit tip url', 'tip url'],
+  organizationLogo: ['organization logo', 'detail footer logo', 'logo'],
+  organizationLogoAlt: ['organization logo alt', 'detail footer logo alt', 'logo alt'],
 };
 
 const STATES = [
@@ -130,7 +136,8 @@ function getPropValue(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   if (!source) return '';
   const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return normalizeText(anchor?.getAttribute('href') || source.textContent);
+  const img = source.querySelector('img');
+  return normalizeText(img?.getAttribute('src') || anchor?.getAttribute('href') || source.textContent);
 }
 
 function getLegacyValue(block, name, columnIndex) {
@@ -144,14 +151,16 @@ function getLegacyValue(block, name, columnIndex) {
   if (labeledRow) {
     const valueCell = labeledRow.children[1];
     const anchor = valueCell.querySelector('a');
-    return normalizeText(anchor?.getAttribute('href') || valueCell.textContent);
+    const img = valueCell.querySelector('img');
+    return normalizeText(img?.getAttribute('src') || anchor?.getAttribute('href') || valueCell.textContent);
   }
 
   const configRow = getRows(block)[0];
   const cell = configRow ? [...configRow.children][columnIndex] : null;
   if (!cell) return '';
   const anchor = cell.querySelector('a');
-  return normalizeText(anchor?.getAttribute('href') || cell.textContent);
+  const img = cell.querySelector('img');
+  return normalizeText(img?.getAttribute('src') || anchor?.getAttribute('href') || cell.textContent);
 }
 
 function getFieldValue(block, name, columnIndex, fallback = '') {
@@ -267,6 +276,10 @@ function createDetailRow(label, value) {
   return [dt, dd];
 }
 
+function detailValue(payload, child, keys) {
+  return firstValue(child, keys) || firstValue(payload, keys);
+}
+
 function appendDetailRows(list, rows) {
   rows.forEach(([label, value]) => {
     const row = createDetailRow(label, value);
@@ -274,7 +287,122 @@ function appendDetailRows(list, rows) {
   });
 }
 
-function renderPosterDetail(container, meta, payload, onBack) {
+function formatAgencyLine(payload, child) {
+  const agency = detailValue(payload, child, [
+    'investigatingAgency',
+    'lawEnforcementAgency',
+    'policeDepartment',
+    'agencyName',
+    'contactAgency',
+  ]);
+  const phone = detailValue(payload, child, [
+    'agencyPhone',
+    'phone',
+    'phoneNumber',
+    'contactPhone',
+    'lawEnforcementPhone',
+  ]);
+
+  return { agency, phone };
+}
+
+function createActionLink(label, href) {
+  const link = document.createElement('a');
+  link.className = 'poster-results-detail-action';
+  link.href = href;
+  link.textContent = label;
+  return link;
+}
+
+function createActionButton(label, onClick) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'poster-results-detail-action';
+  button.textContent = label;
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+function createActionBar(config) {
+  const actions = document.createElement('div');
+  actions.className = 'poster-results-detail-actions';
+
+  actions.append(createActionLink('CALL 911', 'tel:911'));
+  actions.append(createActionLink('SUBMIT A TIP', config.submitTipUrl));
+  actions.append(createActionButton('PRINT POSTER', () => window.print()));
+  actions.append(createActionButton('SHARE', async () => {
+    const shareData = {
+      title: document.title,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(window.location.href);
+    }
+  }));
+
+  return actions;
+}
+
+function createOrganizationMark(config) {
+  const wrap = document.createElement('div');
+  wrap.className = 'poster-results-detail-logo';
+
+  if (config.organizationLogo) {
+    const img = document.createElement('img');
+    img.src = config.organizationLogo;
+    img.alt = config.organizationLogoAlt;
+    wrap.append(img);
+    return wrap;
+  }
+
+  const kicker = document.createElement('span');
+  kicker.textContent = 'National Center for';
+  const name = document.createElement('strong');
+  name.textContent = 'Missing & Exploited';
+  const suffix = document.createElement('span');
+  suffix.textContent = 'Children';
+  wrap.append(kicker, name, suffix);
+  return wrap;
+}
+
+function createDetailFooter(config, payload, child) {
+  const footer = document.createElement('div');
+  footer.className = 'poster-results-detail-footer';
+  footer.append(createOrganizationMark(config));
+
+  const info = document.createElement('div');
+  info.className = 'poster-results-detail-footer-info';
+
+  const agencyLine = formatAgencyLine(payload, child);
+  if (agencyLine.agency || agencyLine.phone) {
+    const agency = document.createElement('p');
+    agency.className = 'poster-results-detail-agency';
+    agency.textContent = agencyLine.agency || 'Law Enforcement Agency';
+    if (agencyLine.phone) {
+      const phone = document.createElement('a');
+      phone.href = `tel:${agencyLine.phone.replace(/[^\d+]/g, '')}`;
+      phone.textContent = agencyLine.phone;
+      agency.append(document.createTextNode(' '), phone);
+    }
+    info.append(agency);
+  }
+
+  const caseNumber = payload?.caseNumber || child.caseNumber;
+  if (caseNumber) {
+    const ncmec = document.createElement('p');
+    ncmec.className = 'poster-results-detail-case';
+    ncmec.textContent = `NCMEC: ${caseNumber}`;
+    info.append(ncmec);
+  }
+
+  footer.append(info);
+  return footer;
+}
+
+function renderPosterDetail(container, meta, payload, config, onBack) {
   container.replaceChildren();
   meta.textContent = '';
 
@@ -283,9 +411,12 @@ function renderPosterDetail(container, meta, payload, onBack) {
   const name = fullName(child) || payload?.fullName || payload?.name || 'Missing child poster';
   const photos = Array.isArray(child.photos) ? child.photos : [];
   const imageSrc = photoSource(photos[0]) || child.image_url || child.thumbnail_url;
+  const missingDate = detailValue(payload, child, ['missingDate', 'dateMissing', 'missingSince']);
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail';
+
+  detail.append(createActionBar(config));
 
   const back = document.createElement('button');
   back.type = 'button';
@@ -315,18 +446,25 @@ function renderPosterDetail(container, meta, payload, onBack) {
   const details = document.createElement('dl');
   appendDetailRows(details, [
     ['Case', payload?.caseNumber || child.caseNumber],
-    ['Missing Since', firstValue(child, ['missingDate', 'dateMissing', 'missingSince'])],
+    ['Missing Since', missingDate],
     ['Missing From', locationText(child)],
-    ['Age Now', firstValue(child, ['age', 'ageNow'])],
-    ['Age Missing', firstValue(child, ['ageMissing', 'missingAge'])],
-    ['Gender', firstValue(child, ['sex', 'gender'])],
-    ['Race', child.race],
-    ['Hair Color', firstValue(child, ['hairColor', 'hair'])],
-    ['Eye Color', firstValue(child, ['eyeColor', 'eyes'])],
-    ['Height', child.height],
-    ['Weight', child.weight],
+    ['Age Now', detailValue(payload, child, ['age', 'ageNow'])],
+    ['Age Missing', detailValue(payload, child, ['ageMissing', 'missingAge'])],
+    ['Gender', detailValue(payload, child, ['sex', 'gender'])],
+    ['Race', detailValue(payload, child, ['race'])],
+    ['Hair Color', detailValue(payload, child, ['hairColor', 'hair'])],
+    ['Eye Color', detailValue(payload, child, ['eyeColor', 'eyes'])],
+    ['Height', detailValue(payload, child, ['height'])],
+    ['Weight', detailValue(payload, child, ['weight'])],
   ]);
   body.append(details);
+
+  if (missingDate) {
+    const seen = document.createElement('p');
+    seen.className = 'poster-results-detail-seen';
+    seen.textContent = `${name} was last seen on ${missingDate}.`;
+    body.append(seen);
+  }
 
   const narrative = firstValue(payload, ['circumstances', 'description', 'posterText', 'remarks'])
     || firstValue(child, ['circumstances', 'description', 'posterText', 'remarks']);
@@ -338,7 +476,7 @@ function renderPosterDetail(container, meta, payload, onBack) {
   }
 
   layout.append(body);
-  detail.append(back, layout);
+  detail.append(back, layout, createDetailFooter(config, payload, child));
   container.append(detail);
 }
 
@@ -429,6 +567,14 @@ export default async function decorate(block) {
     eyebrow: getFieldValue(block, 'eyebrow', 1, DEFAULTS.eyebrow),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
     submitLabel: getFieldValue(block, 'submitLabel', 3, DEFAULTS.submitLabel),
+    submitTipUrl: getFieldValue(block, 'submitTipUrl', 4, DEFAULTS.submitTipUrl),
+    organizationLogo: getFieldValue(block, 'organizationLogo', 5, DEFAULTS.organizationLogo),
+    organizationLogoAlt: getFieldValue(
+      block,
+      'organizationLogoAlt',
+      6,
+      DEFAULTS.organizationLogoAlt,
+    ),
   };
 
   const inner = document.createElement('div');
@@ -548,7 +694,7 @@ export default async function decorate(block) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       setStatus(status, '', '');
-      renderPosterDetail(results, meta, payload, restoreResults);
+      renderPosterDetail(results, meta, payload, config, restoreResults);
     } catch (error) {
       setStatus(status, 'Poster details are unavailable.', 'error');
       restoreResults();
