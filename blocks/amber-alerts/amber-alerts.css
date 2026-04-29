@@ -100,6 +100,13 @@
   color: #243846;
 }
 
+.amber-alerts-detail-back {
+  border: 1px solid #c7d1d8;
+  background: #fff;
+  color: #243846;
+  margin-bottom: 20px;
+}
+
 .amber-alerts-controls button:hover,
 .amber-alerts-card-actions button:hover {
   background: #005f7d;
@@ -228,13 +235,6 @@
 .amber-alerts-detail {
   grid-column: 1 / -1;
   padding: 22px;
-}
-
-.amber-alerts-detail-back {
-  border: 1px solid #c7d1d8;
-  background: #fff;
-  color: #243846;
-  margin-bottom: 20px;
 }
 
 .amber-alerts-detail-body {
