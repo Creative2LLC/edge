@@ -25,20 +25,29 @@
           "valueType": "string",
           "name": "heading",
           "label": "Heading",
-          "value": "Poster Results"
+          "value": "Search Missing Children Posters"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow",
+          "value": "Poster Search"
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "apiBaseUrl",
           "label": "API Base URL",
-          "description": "Laravel backend base URL. The block fetches posters from /api/posters."
+          "description": "Laravel backend base URL. The block fetches posters from /api/posters.",
+          "value": "https://stunning-dust-ntqeawud3dqy.on-vapor.com"
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "provider",
-          "label": "Default Provider"
+          "label": "Default Provider",
+          "value": "NCMC"
         },
         {
           "component": "text",

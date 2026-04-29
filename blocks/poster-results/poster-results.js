@@ -1,11 +1,22 @@
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
+  eyebrow: ['eyebrow', 'label'],
   apiBaseUrl: ['api base url', 'api url', 'backend url'],
   provider: ['provider', 'organization', 'organization code'],
   caseNumber: ['case number', 'case', 'case id'],
   posterNumber: ['poster number', 'poster', 'number', 'num'],
   environment: ['environment', 'env'],
   submitLabel: ['submit label', 'button label'],
+};
+
+const DEFAULTS = {
+  heading: 'Search Missing Children Posters',
+  eyebrow: 'Poster Search',
+  apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
+  provider: 'NCMC',
+  posterNumber: 1,
+  environment: 'prod',
+  submitLabel: 'Search',
 };
 
 function normalizeText(value) {
@@ -66,7 +77,13 @@ function normalizeEnvironment(value) {
 function buildEndpoint(config, provider, caseNumber, posterNumber, environment) {
   const apiRoot = normalizeApiBaseUrl(config.apiBaseUrl);
   const route = environment === 'staging' ? '/api/posters/staging' : '/api/posters';
-  const url = new URL(`${route}/${encodeURIComponent(provider)}/${encodeURIComponent(caseNumber)}/${posterNumber}`, `${apiRoot}/`);
+  const path = [
+    route,
+    encodeURIComponent(provider),
+    encodeURIComponent(caseNumber),
+    posterNumber,
+  ].join('/');
+  const url = new URL(path, `${apiRoot}/`);
   return url.toString();
 }
 
@@ -84,29 +101,6 @@ function createTextInput(labelText, value = '') {
 
   label.append(span, input);
   return { label, input };
-}
-
-function createEnvironmentSelect(value) {
-  const label = document.createElement('label');
-  label.className = 'poster-results-field';
-
-  const span = document.createElement('span');
-  span.textContent = 'Environment';
-
-  const select = document.createElement('select');
-  [
-    ['prod', 'Production'],
-    ['staging', 'Staging'],
-  ].forEach(([optionValue, text]) => {
-    const option = document.createElement('option');
-    option.value = optionValue;
-    option.textContent = text;
-    option.selected = optionValue === value;
-    select.append(option);
-  });
-
-  label.append(span, select);
-  return { label, select };
 }
 
 function setStatus(node, message, type = '') {
@@ -127,7 +121,10 @@ function detailEntries(child) {
   return [
     ['Age', child.age || child.ageNow],
     ['Missing Since', child.missingDate || child.dateMissing],
-    ['Missing From', child.missingCityState || [child.missingCity, child.missingState].filter(Boolean).join(', ')],
+    [
+      'Missing From',
+      child.missingCityState || [child.missingCity, child.missingState].filter(Boolean).join(', '),
+    ],
     ['Case', child.caseNumber],
   ].filter(([, value]) => normalizeText(value));
 }
@@ -188,47 +185,48 @@ function renderPoster(container, payload) {
 
 export default async function decorate(block) {
   const config = {
-    heading: getFieldValue(block, 'heading', 0, 'Poster Results'),
-    apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 1)),
-    provider: getFieldValue(block, 'provider', 2),
-    caseNumber: getFieldValue(block, 'caseNumber', 3),
-    posterNumber: parsePosterNumber(getFieldValue(block, 'posterNumber', 4, '1')),
-    environment: normalizeEnvironment(getFieldValue(block, 'environment', 5, 'prod')),
-    submitLabel: getFieldValue(block, 'submitLabel', 6, 'Search'),
+    heading: getFieldValue(block, 'heading', 0, DEFAULTS.heading),
+    eyebrow: getFieldValue(block, 'eyebrow', 1, DEFAULTS.eyebrow),
+    apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
+    provider: getFieldValue(block, 'provider', 3, DEFAULTS.provider),
+    caseNumber: getFieldValue(block, 'caseNumber', 4),
+    posterNumber: parsePosterNumber(getFieldValue(
+      block,
+      'posterNumber',
+      5,
+      String(DEFAULTS.posterNumber),
+    )),
+    environment: normalizeEnvironment(getFieldValue(block, 'environment', 6, DEFAULTS.environment)),
+    submitLabel: getFieldValue(block, 'submitLabel', 7, DEFAULTS.submitLabel),
   };
 
   const section = document.createElement('div');
   section.className = 'poster-results-inner';
 
+  const header = document.createElement('div');
+  header.className = 'poster-results-header';
+
+  const eyebrow = document.createElement('p');
+  eyebrow.className = 'poster-results-eyebrow';
+  eyebrow.textContent = config.eyebrow;
+
   const heading = document.createElement('h2');
   heading.className = 'poster-results-heading';
   heading.textContent = config.heading;
+  header.append(eyebrow, heading);
 
   const form = document.createElement('form');
   form.className = 'poster-results-form';
 
-  const apiField = createTextInput('API Base URL', config.apiBaseUrl);
-  const providerField = createTextInput('Provider', config.provider);
   const caseField = createTextInput('Case Number', config.caseNumber);
-  const posterField = createTextInput('Poster Number', String(config.posterNumber));
-  const environmentField = createEnvironmentSelect(config.environment);
-
-  if (config.apiBaseUrl) {
-    apiField.label.classList.add('poster-results-api-field', 'is-hidden');
-  }
+  caseField.input.placeholder = 'Enter a case number';
+  caseField.input.inputMode = 'numeric';
 
   const submit = document.createElement('button');
   submit.type = 'submit';
   submit.textContent = config.submitLabel;
 
-  form.append(
-    apiField.label,
-    providerField.label,
-    caseField.label,
-    posterField.label,
-    environmentField.label,
-    submit,
-  );
+  form.append(caseField.label, submit);
 
   const status = document.createElement('p');
   status.hidden = true;
@@ -236,18 +234,14 @@ export default async function decorate(block) {
   const results = document.createElement('div');
   results.className = 'poster-results-list';
 
-  section.append(heading, form, status, results);
+  section.append(header, form, status, results);
   block.replaceChildren(section);
 
   async function loadPoster() {
-    const apiBaseUrl = normalizeApiBaseUrl(apiField.input.value);
-    const provider = normalizeText(providerField.input.value);
     const caseNumber = normalizeText(caseField.input.value);
-    const posterNumber = parsePosterNumber(posterField.input.value);
-    const environment = environmentField.select.value;
 
-    if (!apiBaseUrl || !provider || !caseNumber) {
-      setStatus(status, 'Enter an API base URL, provider, and case number.', 'error');
+    if (!caseNumber) {
+      setStatus(status, 'Enter a case number.', 'error');
       results.replaceChildren();
       return;
     }
@@ -257,11 +251,11 @@ export default async function decorate(block) {
 
     try {
       const endpoint = buildEndpoint(
-        { ...config, apiBaseUrl },
-        provider,
+        config,
+        config.provider,
         caseNumber,
-        posterNumber,
-        environment,
+        config.posterNumber,
+        config.environment,
       );
       const response = await fetch(endpoint, {
         headers: { Accept: 'application/json' },
@@ -283,7 +277,7 @@ export default async function decorate(block) {
     loadPoster();
   });
 
-  if (config.apiBaseUrl && config.provider && config.caseNumber) {
+  if (config.caseNumber) {
     await loadPoster();
   }
 }
