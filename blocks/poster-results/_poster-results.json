@@ -1,0 +1,84 @@
+{
+  "definitions": [
+    {
+      "title": "Poster Results",
+      "id": "poster-results",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Poster Results",
+              "model": "poster-results"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "poster-results",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Poster Results"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "description": "Laravel backend base URL. The block fetches posters from /api/posters."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "provider",
+          "label": "Default Provider"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "caseNumber",
+          "label": "Default Case Number"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "posterNumber",
+          "label": "Default Poster Number",
+          "value": "1"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "environment",
+          "label": "Environment",
+          "value": "prod",
+          "options": [
+            {
+              "name": "Production",
+              "value": "prod"
+            },
+            {
+              "name": "Staging",
+              "value": "staging"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "submitLabel",
+          "label": "Submit Label",
+          "value": "Search"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}
