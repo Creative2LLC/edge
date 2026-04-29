@@ -149,8 +149,12 @@
 
 .amber-alerts-card {
   display: grid;
-  grid-template-columns: 170px minmax(0, 1fr);
+  grid-template-columns: minmax(160px, 190px) minmax(0, 1fr);
   min-height: 220px;
+}
+
+.amber-alerts-card.is-no-media {
+  grid-template-columns: 1fr;
 }
 
 .amber-alerts-card-media {
@@ -181,7 +185,7 @@
 .amber-alerts-card dl,
 .amber-alerts-detail dl {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-columns: minmax(84px, max-content) minmax(0, 1fr);
   gap: 8px 12px;
   margin: 0;
 }
@@ -198,7 +202,8 @@
   margin: 0;
   color: #303030;
   font-size: 15px;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .amber-alerts-card-actions {

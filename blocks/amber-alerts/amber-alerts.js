@@ -166,6 +166,8 @@ function createAlertCard(alert, config, onSelect) {
     img.loading = 'lazy';
     media.append(img);
     card.append(media);
+  } else {
+    card.classList.add('is-no-media');
   }
 
   const body = document.createElement('div');
@@ -223,6 +225,18 @@ function renderAlerts(container, payload, config, onSelect) {
   }
 
   alerts.forEach((alert) => container.append(createAlertCard(alert, config, onSelect)));
+}
+
+function detailImage(payload) {
+  const people = Array.isArray(payload?.data) ? payload.data : [];
+  const alert = people[0] || payload || {};
+  return normalizeText(
+    alert.image_url
+      || alert.thumbnail_url
+      || alert.imageUrl
+      || alert.thumbnailUrl
+      || alert.image?.image_url,
+  );
 }
 
 function renderDetail(container, payload, onBack) {
@@ -385,6 +399,25 @@ export default async function decorate(block) {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
+      const alerts = Array.isArray(payload?.data) ? payload.data : [];
+      await Promise.all(alerts.map(async (alert) => {
+        if (alert.image_url || !caseNumber(alert)) return;
+        try {
+          const detailUrl = new URL(
+            `/api/amber-alerts/${encodeURIComponent(caseNumber(alert))}`,
+            `${config.apiBaseUrl}/`,
+          );
+          const detailResponse = await fetch(detailUrl.toString(), {
+            headers: { Accept: 'application/json' },
+          });
+          if (!detailResponse.ok) return;
+          const detailPayload = await detailResponse.json();
+          const image = detailImage(detailPayload);
+          if (image) alert.image_url = image;
+        } catch (error) {
+          // The card remains usable without an image.
+        }
+      }));
       lastPayload = payload;
       setStatus(status, '', '');
       renderAlerts(list, payload, config, showAlertDetail);
