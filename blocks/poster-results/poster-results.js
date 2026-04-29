@@ -182,6 +182,25 @@ function getFieldValue(block, name, columnIndex, fallback = '') {
   return getPropValue(block, name) || getLegacyValue(block, name, columnIndex) || fallback;
 }
 
+function getAuthoredAssetValue(block, name, columnIndex, extensionPattern) {
+  const direct = getPropValue(block, name) || getLegacyValue(block, name, columnIndex);
+  if (extensionPattern.test(direct)) return direct;
+
+  const field = block.querySelector(`[data-aue-prop="${name}"]`);
+  const fieldLink = getReferenceValue(field);
+  if (extensionPattern.test(fieldLink)) return fieldLink;
+
+  const legacyCell = getRows(block)[0]?.children[columnIndex];
+  const legacyLink = getReferenceValue(legacyCell);
+  if (extensionPattern.test(legacyLink)) return legacyLink;
+
+  const matchingLink = [...block.querySelectorAll('a[href]')]
+    .map((link) => link.getAttribute('href') || '')
+    .find((href) => extensionPattern.test(href));
+
+  return matchingLink || direct || fieldLink || legacyLink;
+}
+
 function createField(labelText, name, type = 'text', placeholder = '') {
   const label = document.createElement('label');
   label.className = 'poster-results-field';
@@ -644,7 +663,8 @@ export default async function decorate(block) {
       6,
       DEFAULTS.organizationLogoAlt,
     ),
-    qrCodeUrl: getFieldValue(block, 'qrCodeUrl', 7, DEFAULTS.qrCodeUrl),
+    qrCodeUrl: getAuthoredAssetValue(block, 'qrCodeUrl', 7, /\.pdf(?:[?#].*)?$/i)
+      || DEFAULTS.qrCodeUrl,
     qrCodeLabel: getFieldValue(block, 'qrCodeLabel', 8, DEFAULTS.qrCodeLabel),
   };
 
