@@ -1,0 +1,134 @@
+.poster-map {
+  background: #d9eef2;
+  padding: 58px 0 64px;
+}
+
+.poster-map-inner {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.poster-map-header {
+  max-width: 880px;
+  margin: 0 auto 36px;
+  text-align: center;
+}
+
+.poster-map-header h2 {
+  margin: 0 0 16px;
+  color: #243846;
+  font-size: 42px;
+  line-height: 1.08;
+}
+
+.poster-map-header p {
+  margin: 0;
+  color: #243846;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.poster-map-body {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1.2fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.poster-map-content {
+  text-align: center;
+}
+
+.poster-map-content h3 {
+  margin: 0 0 18px;
+  color: #111827;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.poster-map-viewer {
+  margin: 0 auto 34px;
+  max-width: 390px;
+}
+
+.poster-map-viewer:last-child {
+  margin-bottom: 0;
+}
+
+.poster-map-viewer a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 280px;
+  padding: 8px 22px;
+  border: 1px solid #243846;
+  border-radius: 8px;
+  background: #fff;
+  color: #243846;
+  font-size: 24px;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.poster-map-viewer a:hover {
+  background: #f4fbfd;
+}
+
+.poster-map-viewer p {
+  margin: 16px 0 0;
+  color: #243846;
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.poster-map-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.poster-map-viewer a:focus-visible {
+  outline: 2px solid #007294;
+  outline-offset: 3px;
+}
+
+@media (width <= 900px) {
+  .poster-map-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .poster-map-content {
+    order: 2;
+  }
+
+  .poster-map-media {
+    order: 1;
+  }
+}
+
+@media (width <= 600px) {
+  .poster-map {
+    padding: 42px 0 48px;
+  }
+
+  .poster-map-inner {
+    width: min(1180px, calc(100% - 24px));
+  }
+
+  .poster-map-header h2 {
+    font-size: 32px;
+  }
+
+  .poster-map-header p,
+  .poster-map-viewer p {
+    font-size: 16px;
+  }
+
+  .poster-map-viewer a {
+    min-width: 0;
+    width: 100%;
+    font-size: 20px;
+  }
+}

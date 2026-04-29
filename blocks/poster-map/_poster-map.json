@@ -1,0 +1,98 @@
+{
+  "definitions": [
+    {
+      "title": "Poster Map",
+      "id": "poster-map",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Poster Map",
+              "model": "poster-map"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "poster-map",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Interactive Search Missing Children Poster Map"
+        },
+        {
+          "component": "textarea",
+          "valueType": "string",
+          "name": "copy",
+          "label": "Intro Copy",
+          "value": "Welcome to the NCMEC Poster Map, where you can explore and share information to help bring missing children home. This map features only missing or unidentified child cases for which a poster was requested. Click within the map to view active cases and begin your search."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading",
+          "value": "Explore the map your way!"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "standardLabel",
+          "label": "Standard Link Label",
+          "value": "Standard Map Viewer"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "standardUrl",
+          "label": "Standard Link URL",
+          "value": "https://experience.arcgis.com/experience/e3f5a6be1fe247b0be53d5a48a3f0877"
+        },
+        {
+          "component": "textarea",
+          "valueType": "string",
+          "name": "standardCopy",
+          "label": "Standard Description",
+          "value": "Use the Standard Viewer to browse with ease and enjoy a helpful photo gallery."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "advancedLabel",
+          "label": "Advanced Link Label",
+          "value": "Advanced Map Viewer"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "advancedUrl",
+          "label": "Advanced Link URL",
+          "value": "https://experience.arcgis.com/experience/26e6505b54f841039d2a97adc1dd5b3f"
+        },
+        {
+          "component": "textarea",
+          "valueType": "string",
+          "name": "advancedCopy",
+          "label": "Advanced Description",
+          "value": "The Advanced Viewer will allow you to filter by date, location, or radius."
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Map Image",
+          "multi": false,
+          "value": "/icons/esri-interactive-map-animation-transparent.gif"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

@@ -300,8 +300,10 @@ function renderResults(container, meta, payload) {
   container.replaceChildren();
 
   const people = Array.isArray(payload?.data) ? payload.data : [];
+  const page = payload?.current_page || 1;
+  const totalPages = payload?.total_pages || 1;
   meta.textContent = payload?.total_records
-    ? `Showing ${people.length} of ${payload.total_records} results`
+    ? `Showing ${people.length} of ${payload.total_records} results - Page ${page} of ${totalPages}`
     : 'Showing 0 results';
 
   if (!people.length) {
@@ -421,35 +423,82 @@ export default async function decorate(block) {
   meta.className = 'poster-results-meta';
   const results = document.createElement('div');
   results.className = 'poster-results-list';
+  const pagination = document.createElement('nav');
+  pagination.className = 'poster-results-pagination';
+  pagination.setAttribute('aria-label', 'Poster search pagination');
 
-  inner.append(header, form, status, meta, results);
+  inner.append(header, form, status, meta, results, pagination);
   block.replaceChildren(inner);
 
-  async function searchPosters() {
+  let currentPage = 1;
+  let totalPages = 1;
+  let searchPosters;
+
+  function renderPagination() {
+    pagination.replaceChildren();
+    pagination.hidden = totalPages <= 1;
+    if (totalPages <= 1) return;
+
+    const prev = document.createElement('button');
+    prev.type = 'button';
+    prev.textContent = 'Previous';
+    prev.disabled = currentPage <= 1;
+    prev.addEventListener('click', () => searchPosters(currentPage - 1));
+
+    const label = document.createElement('span');
+    label.textContent = `Page ${currentPage} of ${totalPages}`;
+
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.textContent = 'Next';
+    next.disabled = currentPage >= totalPages;
+    next.addEventListener('click', () => searchPosters(currentPage + 1));
+
+    pagination.append(prev, label, next);
+  }
+
+  searchPosters = async (page = 1) => {
     setStatus(status, 'Searching posters...', 'loading');
     submit.disabled = true;
     results.replaceChildren();
     meta.textContent = '';
+    pagination.replaceChildren();
+    pagination.hidden = true;
 
     try {
       const url = new URL('/api/posters/search', `${config.apiBaseUrl}/`);
       appendParams(url, form);
+      url.searchParams.set('page', String(Math.max(1, page)));
       const response = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
+      currentPage = payload.current_page || page;
+      totalPages = payload.total_pages || 1;
       setStatus(status, '', '');
       renderResults(results, meta, payload);
+      renderPagination();
     } catch (error) {
       setStatus(status, 'Poster search is unavailable.', 'error');
     } finally {
       submit.disabled = false;
     }
-  }
+  };
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    searchPosters();
+    searchPosters(1);
+  });
+
+  form.addEventListener('reset', () => {
+    window.setTimeout(() => {
+      results.replaceChildren();
+      pagination.replaceChildren();
+      meta.textContent = '';
+      setStatus(status, '', '');
+      currentPage = 1;
+      totalPages = 1;
+    }, 0);
   });
 }
