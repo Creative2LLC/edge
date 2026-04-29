@@ -131,10 +131,47 @@ function caseNumber(alert) {
   return normalizeText(alert.case_number || alert.caseNumber || alert.amberId);
 }
 
+function sequenceNumber(alert) {
+  return normalizeText(alert.sequence_number || alert.seqNumber || alert.seqNum);
+}
+
+function personId(alert) {
+  return normalizeText(alert.personId || alert.personID || alert.id);
+}
+
 function alertName(alert) {
   return normalizeText(alert.name || alert.fullName)
     || [alert.firstName, alert.middleName, alert.lastName].map(normalizeText).filter(Boolean).join(' ')
     || 'AMBER Alert';
+}
+
+function normalizedName(alert) {
+  return alertName(alert).toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function matchingDetailAlert(payload, sourceAlert) {
+  const people = Array.isArray(payload?.data) ? payload.data : [];
+  if (!people.length) return payload || {};
+
+  const sourceId = personId(sourceAlert);
+  if (sourceId) {
+    const match = people.find((person) => personId(person) === sourceId);
+    if (match) return match;
+  }
+
+  const sourceSequence = sequenceNumber(sourceAlert);
+  if (sourceSequence) {
+    const match = people.find((person) => sequenceNumber(person) === sourceSequence);
+    if (match) return match;
+  }
+
+  const sourceName = normalizedName(sourceAlert);
+  if (sourceName) {
+    const match = people.find((person) => normalizedName(person) === sourceName);
+    if (match) return match;
+  }
+
+  return people.length === 1 ? people[0] : sourceAlert;
 }
 
 function createDetailRow(label, value) {
@@ -227,9 +264,8 @@ function renderAlerts(container, payload, config, onSelect) {
   alerts.forEach((alert) => container.append(createAlertCard(alert, config, onSelect)));
 }
 
-function detailImage(payload) {
-  const people = Array.isArray(payload?.data) ? payload.data : [];
-  const alert = people[0] || payload || {};
+function detailImage(payload, sourceAlert) {
+  const alert = matchingDetailAlert(payload, sourceAlert);
   return normalizeText(
     alert.image_url
       || alert.thumbnail_url
@@ -239,10 +275,9 @@ function detailImage(payload) {
   );
 }
 
-function renderDetail(container, payload, onBack) {
+function renderDetail(container, payload, sourceAlert, onBack) {
   container.replaceChildren();
-  const people = Array.isArray(payload?.data) ? payload.data : [];
-  const alert = people[0] || payload || {};
+  const alert = matchingDetailAlert(payload, sourceAlert);
   const detail = document.createElement('article');
   detail.className = 'amber-alerts-detail';
 
@@ -375,7 +410,7 @@ export default async function decorate(block) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       setStatus(status, '', '');
-      renderDetail(list, payload, restoreList);
+      renderDetail(list, payload, alert, restoreList);
     } catch (error) {
       setStatus(status, 'AMBER alert detail is unavailable.', 'error');
       restoreList();
@@ -412,7 +447,7 @@ export default async function decorate(block) {
           });
           if (!detailResponse.ok) return;
           const detailPayload = await detailResponse.json();
-          const image = detailImage(detailPayload);
+          const image = detailImage(detailPayload, alert);
           if (image) alert.image_url = image;
         } catch (error) {
           // The card remains usable without an image.
