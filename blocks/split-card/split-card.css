@@ -58,7 +58,7 @@ main > .section > .split-card-wrapper {
 
 /* Heading */
 .split-card .split-card-heading {
-  font-size: 40px;
+  font-size: 64px;
   font-weight: 700;
   color: #404041;
   margin: 0 0 12px;
@@ -94,7 +94,7 @@ main > .section > .split-card-wrapper {
   background-color: #008db6;
   color: #fff;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
   text-decoration: none;
   cursor: pointer;
@@ -148,6 +148,15 @@ main > .section > .split-card-wrapper {
 
 .split-card.split-card-size-smaller .split-card-inner {
   max-height: 564px;
+}
+
+.split-card.split-card-size-smaller .split-card-heading {
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.split-card.split-card-size-smaller .split-card-button {
+  font-weight: 500;
 }
 
 /* Responsive */
