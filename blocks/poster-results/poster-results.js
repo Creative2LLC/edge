@@ -136,12 +136,29 @@ function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
 }
 
+function getReferenceValue(source) {
+  if (!source) return '';
+  const link = source.tagName === 'A'
+    ? source
+    : source.querySelector('[href]') || source.closest('a[href]');
+  const media = source.tagName === 'IMG' ? source : source.querySelector('img');
+
+  return normalizeText(
+    link?.getAttribute('href')
+      || media?.getAttribute('src')
+      || source.getAttribute('href')
+      || source.getAttribute('src')
+      || source.getAttribute('data-href')
+      || source.getAttribute('data-src')
+      || source.getAttribute('data-path')
+      || source.getAttribute('data-url')
+      || source.textContent,
+  );
+}
+
 function getPropValue(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  const img = source.querySelector('img');
-  return normalizeText(img?.getAttribute('src') || anchor?.getAttribute('href') || source.textContent);
+  return getReferenceValue(source);
 }
 
 function getLegacyValue(block, name, columnIndex) {
@@ -153,18 +170,12 @@ function getLegacyValue(block, name, columnIndex) {
   });
 
   if (labeledRow) {
-    const valueCell = labeledRow.children[1];
-    const anchor = valueCell.querySelector('a');
-    const img = valueCell.querySelector('img');
-    return normalizeText(img?.getAttribute('src') || anchor?.getAttribute('href') || valueCell.textContent);
+    return getReferenceValue(labeledRow.children[1]);
   }
 
   const configRow = getRows(block)[0];
   const cell = configRow ? [...configRow.children][columnIndex] : null;
-  if (!cell) return '';
-  const anchor = cell.querySelector('a');
-  const img = cell.querySelector('img');
-  return normalizeText(img?.getAttribute('src') || anchor?.getAttribute('href') || cell.textContent);
+  return getReferenceValue(cell);
 }
 
 function getFieldValue(block, name, columnIndex, fallback = '') {
