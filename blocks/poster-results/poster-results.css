@@ -195,7 +195,12 @@
 
 .poster-results-photo {
   display: block;
+  width: 100%;
+  min-height: 220px;
+  padding: 0;
+  border: 0;
   background: #dfe5e9;
+  cursor: pointer;
 }
 
 .poster-results-photo img {
@@ -241,7 +246,12 @@
 .poster-results-card-link {
   display: inline-flex;
   margin-top: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: #007294;
+  cursor: pointer;
+  font: inherit;
   font-size: 15px;
   font-weight: 800;
   text-decoration: none;
@@ -251,10 +261,91 @@
   text-decoration: underline;
 }
 
+.poster-results-detail {
+  grid-column: 1 / -1;
+  padding: 22px;
+  border: 1px solid #d9e1e6;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.poster-results-detail-back {
+  min-height: 42px;
+  margin-bottom: 20px;
+  padding: 0 18px;
+  border: 1px solid #c7d1d8;
+  border-radius: 6px;
+  background: #fff;
+  color: #243846;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.poster-results-detail-back:hover {
+  background: #eef3f6;
+}
+
+.poster-results-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+
+.poster-results-detail-media {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #dfe5e9;
+}
+
+.poster-results-detail-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.poster-results-detail-body h3 {
+  margin: 0 0 18px;
+  color: #243846;
+  font-size: 34px;
+  line-height: 1.12;
+}
+
+.poster-results-detail-body dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 10px 16px;
+  margin: 0;
+}
+
+.poster-results-detail-body dt {
+  color: #5f6a72;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.poster-results-detail-body dd {
+  margin: 0;
+  color: #303030;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.poster-results-detail-copy {
+  margin: 22px 0 0;
+  color: #303030;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
 .poster-results-field input:focus-visible,
 .poster-results-field select:focus-visible,
 .poster-results-radio-group input:focus-visible,
 .poster-results-form button:focus-visible,
+.poster-results-detail-back:focus-visible,
 .poster-results-pagination button:focus-visible,
 .poster-results-card-link:focus-visible,
 .poster-results-photo:focus-visible {
@@ -331,11 +422,27 @@
     grid-template-columns: 116px minmax(0, 1fr);
   }
 
+  .poster-results-photo {
+    min-height: 180px;
+  }
+
   .poster-results-card-body {
     padding: 14px;
   }
 
   .poster-results-card-body h3 {
     font-size: 20px;
+  }
+
+  .poster-results-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .poster-results-detail-body h3 {
+    font-size: 26px;
+  }
+
+  .poster-results-detail-body dl {
+    grid-template-columns: 1fr;
   }
 }

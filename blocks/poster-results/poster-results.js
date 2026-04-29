@@ -231,7 +231,11 @@ function fullName(person) {
 }
 
 function locationText(person) {
-  return [person.missingCity, person.missingState, person.missingCountry]
+  return [
+    person.missingCity || person.city,
+    person.missingState || person.state,
+    person.missingCountry || person.country,
+  ]
     .map(normalizeText)
     .filter(Boolean)
     .join(', ');
@@ -243,16 +247,110 @@ function posterPath(person) {
     .join('/');
 }
 
-function createResultCard(person) {
+function firstValue(source, keys) {
+  return keys.map((key) => source?.[key]).find((value) => normalizeText(value)) || '';
+}
+
+function photoSource(photo) {
+  if (!photo) return '';
+  if (typeof photo === 'string') return photo;
+  if (photo.base64) return `data:image/jpeg;base64,${photo.base64}`;
+  return photo.url || photo.photoUrl || photo.photoUri || '';
+}
+
+function createDetailRow(label, value) {
+  if (!normalizeText(value)) return null;
+  const dt = document.createElement('dt');
+  dt.textContent = label;
+  const dd = document.createElement('dd');
+  dd.textContent = value;
+  return [dt, dd];
+}
+
+function appendDetailRows(list, rows) {
+  rows.forEach(([label, value]) => {
+    const row = createDetailRow(label, value);
+    if (row) list.append(...row);
+  });
+}
+
+function renderPosterDetail(container, meta, payload, onBack) {
+  container.replaceChildren();
+  meta.textContent = '';
+
+  const children = Array.isArray(payload?.children) ? payload.children : [];
+  const child = children[0] || payload || {};
+  const name = fullName(child) || payload?.fullName || payload?.name || 'Missing child poster';
+  const photos = Array.isArray(child.photos) ? child.photos : [];
+  const imageSrc = photoSource(photos[0]) || child.image_url || child.thumbnail_url;
+
+  const detail = document.createElement('article');
+  detail.className = 'poster-results-detail';
+
+  const back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'poster-results-detail-back';
+  back.textContent = 'Back to results';
+  back.addEventListener('click', onBack);
+
+  const layout = document.createElement('div');
+  layout.className = 'poster-results-detail-layout';
+
+  if (imageSrc) {
+    const media = document.createElement('div');
+    media.className = 'poster-results-detail-media';
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.alt = name;
+    media.append(img);
+    layout.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'poster-results-detail-body';
+  const title = document.createElement('h3');
+  title.textContent = name;
+  body.append(title);
+
+  const details = document.createElement('dl');
+  appendDetailRows(details, [
+    ['Case', payload?.caseNumber || child.caseNumber],
+    ['Missing Since', firstValue(child, ['missingDate', 'dateMissing', 'missingSince'])],
+    ['Missing From', locationText(child)],
+    ['Age Now', firstValue(child, ['age', 'ageNow'])],
+    ['Age Missing', firstValue(child, ['ageMissing', 'missingAge'])],
+    ['Gender', firstValue(child, ['sex', 'gender'])],
+    ['Race', child.race],
+    ['Hair Color', firstValue(child, ['hairColor', 'hair'])],
+    ['Eye Color', firstValue(child, ['eyeColor', 'eyes'])],
+    ['Height', child.height],
+    ['Weight', child.weight],
+  ]);
+  body.append(details);
+
+  const narrative = firstValue(payload, ['circumstances', 'description', 'posterText', 'remarks'])
+    || firstValue(child, ['circumstances', 'description', 'posterText', 'remarks']);
+  if (narrative) {
+    const copy = document.createElement('p');
+    copy.className = 'poster-results-detail-copy';
+    copy.textContent = narrative;
+    body.append(copy);
+  }
+
+  layout.append(body);
+  detail.append(back, layout);
+  container.append(detail);
+}
+
+function createResultCard(person, onSelect) {
   const card = document.createElement('article');
   card.className = 'poster-results-card';
 
   if (person.thumbnail_url) {
-    const imageLink = document.createElement('a');
+    const imageLink = document.createElement('button');
+    imageLink.type = 'button';
     imageLink.className = 'poster-results-photo';
-    imageLink.href = person.poster_url || `/poster/${posterPath(person)}/screen`;
-    imageLink.target = '_blank';
-    imageLink.rel = 'noopener noreferrer';
+    imageLink.addEventListener('click', () => onSelect(person));
 
     const img = document.createElement('img');
     img.src = person.thumbnail_url;
@@ -284,19 +382,18 @@ function createResultCard(person) {
   });
   body.append(details);
 
-  const link = document.createElement('a');
+  const link = document.createElement('button');
+  link.type = 'button';
   link.className = 'poster-results-card-link';
-  link.href = person.poster_url || `/poster/${posterPath(person)}/screen`;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.textContent = 'View poster';
+  link.textContent = 'View details';
+  link.addEventListener('click', () => onSelect(person));
   body.append(link);
 
   card.append(body);
   return card;
 }
 
-function renderResults(container, meta, payload) {
+function renderResults(container, meta, payload, onSelect) {
   container.replaceChildren();
 
   const people = Array.isArray(payload?.data) ? payload.data : [];
@@ -314,7 +411,7 @@ function renderResults(container, meta, payload) {
     return;
   }
 
-  people.forEach((person) => container.append(createResultCard(person)));
+  people.forEach((person) => container.append(createResultCard(person, onSelect)));
 }
 
 function appendParams(url, form) {
@@ -432,9 +529,40 @@ export default async function decorate(block) {
 
   let currentPage = 1;
   let totalPages = 1;
+  let lastPayload = null;
   let searchPosters;
+  let renderPagination = () => {};
+  let restoreResults = () => {};
 
-  function renderPagination() {
+  async function showPosterDetail(person) {
+    setStatus(status, 'Loading poster details...', 'loading');
+    results.replaceChildren();
+    pagination.replaceChildren();
+    pagination.hidden = true;
+
+    try {
+      const url = new URL(`/api/posters/${posterPath(person)}`, `${config.apiBaseUrl}/`);
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      setStatus(status, '', '');
+      renderPosterDetail(results, meta, payload, restoreResults);
+    } catch (error) {
+      setStatus(status, 'Poster details are unavailable.', 'error');
+      restoreResults();
+    }
+  }
+
+  restoreResults = () => {
+    if (lastPayload) {
+      renderResults(results, meta, lastPayload, showPosterDetail);
+      renderPagination();
+    }
+  };
+
+  renderPagination = () => {
     pagination.replaceChildren();
     pagination.hidden = totalPages <= 1;
     if (totalPages <= 1) return;
@@ -455,7 +583,7 @@ export default async function decorate(block) {
     next.addEventListener('click', () => searchPosters(currentPage + 1));
 
     pagination.append(prev, label, next);
-  }
+  };
 
   searchPosters = async (page = 1) => {
     setStatus(status, 'Searching posters...', 'loading');
@@ -476,8 +604,9 @@ export default async function decorate(block) {
       const payload = await response.json();
       currentPage = payload.current_page || page;
       totalPages = payload.total_pages || 1;
+      lastPayload = payload;
       setStatus(status, '', '');
-      renderResults(results, meta, payload);
+      renderResults(results, meta, payload, showPosterDetail);
       renderPagination();
     } catch (error) {
       setStatus(status, 'Poster search is unavailable.', 'error');
@@ -499,6 +628,7 @@ export default async function decorate(block) {
       setStatus(status, '', '');
       currentPage = 1;
       totalPages = 1;
+      lastPayload = null;
     }, 0);
   });
 }
