@@ -69,6 +69,20 @@
           "name": "organizationLogoAlt",
           "label": "Detail Footer Logo Alt Text",
           "value": "National Center for Missing & Exploited Children"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "qrCodeUrl",
+          "label": "QR Code PDF URL",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "qrCodeLabel",
+          "label": "QR Code Link Label",
+          "value": "this QR Code"
         }
       ]
     }

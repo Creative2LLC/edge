@@ -100,6 +100,21 @@
           }
         },
         {
+          "title": "Amber Alerts",
+          "id": "amber-alerts",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Amber Alerts",
+                  "model": "amber-alerts"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Article Detail",
           "id": "article-detail",
           "plugins": {

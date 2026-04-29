@@ -6,6 +6,8 @@ const DEFAULTS = {
   submitTipUrl: '/gethelpnow/cybertipline',
   organizationLogo: '',
   organizationLogoAlt: 'National Center for Missing & Exploited Children',
+  qrCodeUrl: '',
+  qrCodeLabel: 'this QR Code',
 };
 
 const FIELD_LABELS = {
@@ -16,6 +18,8 @@ const FIELD_LABELS = {
   submitTipUrl: ['submit tip url', 'tip url'],
   organizationLogo: ['organization logo', 'detail footer logo', 'logo'],
   organizationLogoAlt: ['organization logo alt', 'detail footer logo alt', 'logo alt'],
+  qrCodeUrl: ['qr code url', 'qr code pdf url'],
+  qrCodeLabel: ['qr code label', 'qr code link label'],
 };
 
 const STATES = [
@@ -537,8 +541,12 @@ function renderResults(container, meta, payload, onSelect) {
   const people = Array.isArray(payload?.data) ? payload.data : [];
   const page = payload?.current_page || 1;
   const totalPages = payload?.total_pages || 1;
+  const geo = payload?.geolocation;
+  const geoText = geo?.distanceInMiles
+    ? ` within ${geo.distanceInMiles} miles${geo.zip ? ` of ${geo.zip}` : ''}`
+    : '';
   meta.textContent = payload?.total_records
-    ? `Showing ${people.length} of ${payload.total_records} results - Page ${page} of ${totalPages}`
+    ? `Showing ${people.length} of ${payload.total_records} results${geoText} - Page ${page} of ${totalPages}`
     : 'Showing 0 results';
 
   if (!people.length) {
@@ -561,6 +569,56 @@ function appendParams(url, form) {
   });
 }
 
+function createNearMeSection(config, onNearMe) {
+  const wrap = document.createElement('div');
+  wrap.className = 'poster-results-near-me';
+
+  const divider = document.createElement('div');
+  divider.className = 'poster-results-near-me-divider';
+  const lineStart = document.createElement('span');
+  const text = document.createElement('strong');
+  text.textContent = 'or';
+  const lineEnd = document.createElement('span');
+  divider.append(lineStart, text, lineEnd);
+
+  const action = document.createElement('div');
+  action.className = 'poster-results-near-me-action';
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = 'Search Near Me';
+  button.addEventListener('click', onNearMe);
+
+  const tip = document.createElement('span');
+  tip.className = 'poster-results-near-me-tip';
+  tip.tabIndex = 0;
+  tip.textContent = 'i';
+  const tooltip = document.createElement('span');
+  tooltip.className = 'poster-results-near-me-tooltip';
+  tooltip.textContent = 'Search for children who have gone missing within 50 miles of your current location. Location is estimated using your IP address.';
+  tip.append(tooltip);
+  action.append(button, tip);
+
+  const qr = document.createElement('p');
+  qr.className = 'poster-results-qr';
+  qr.append(document.createTextNode('Download, print, and share '));
+  if (config.qrCodeUrl) {
+    const link = document.createElement('a');
+    link.href = config.qrCodeUrl;
+    link.textContent = config.qrCodeLabel;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    qr.append(link);
+  } else {
+    const placeholder = document.createElement('strong');
+    placeholder.textContent = config.qrCodeLabel;
+    qr.append(placeholder);
+  }
+  qr.append(document.createTextNode(' handout to help people view missing children from their area.'));
+
+  wrap.append(divider, action, qr);
+  return { wrap, button };
+}
+
 export default async function decorate(block) {
   const config = {
     heading: getFieldValue(block, 'heading', 0, DEFAULTS.heading),
@@ -575,6 +633,8 @@ export default async function decorate(block) {
       6,
       DEFAULTS.organizationLogoAlt,
     ),
+    qrCodeUrl: getFieldValue(block, 'qrCodeUrl', 7, DEFAULTS.qrCodeUrl),
+    qrCodeLabel: getFieldValue(block, 'qrCodeLabel', 8, DEFAULTS.qrCodeLabel),
   };
 
   const inner = document.createElement('div');
@@ -670,15 +730,17 @@ export default async function decorate(block) {
   pagination.className = 'poster-results-pagination';
   pagination.setAttribute('aria-label', 'Poster search pagination');
 
-  inner.append(header, form, status, meta, results, pagination);
-  block.replaceChildren(inner);
-
   let currentPage = 1;
   let totalPages = 1;
+  let currentNearSearch = false;
   let lastPayload = null;
   let searchPosters;
   let renderPagination = () => {};
   let restoreResults = () => {};
+  const nearMe = createNearMeSection(config, () => searchPosters(1, true));
+
+  inner.append(header, form, nearMe.wrap, status, meta, results, pagination);
+  block.replaceChildren(inner);
 
   async function showPosterDetail(person) {
     setStatus(status, 'Loading poster details...', 'loading');
@@ -717,7 +779,7 @@ export default async function decorate(block) {
     prev.type = 'button';
     prev.textContent = 'Previous';
     prev.disabled = currentPage <= 1;
-    prev.addEventListener('click', () => searchPosters(currentPage - 1));
+    prev.addEventListener('click', () => searchPosters(currentPage - 1, currentNearSearch));
 
     const label = document.createElement('span');
     label.textContent = `Page ${currentPage} of ${totalPages}`;
@@ -726,14 +788,15 @@ export default async function decorate(block) {
     next.type = 'button';
     next.textContent = 'Next';
     next.disabled = currentPage >= totalPages;
-    next.addEventListener('click', () => searchPosters(currentPage + 1));
+    next.addEventListener('click', () => searchPosters(currentPage + 1, currentNearSearch));
 
     pagination.append(prev, label, next);
   };
 
-  searchPosters = async (page = 1) => {
-    setStatus(status, 'Searching posters...', 'loading');
+  searchPosters = async (page = 1, nearCurrentLocation = false) => {
+    setStatus(status, nearCurrentLocation ? 'Searching near your location...' : 'Searching posters...', 'loading');
     submit.disabled = true;
+    nearMe.button.disabled = true;
     results.replaceChildren();
     meta.textContent = '';
     pagination.replaceChildren();
@@ -741,7 +804,11 @@ export default async function decorate(block) {
 
     try {
       const url = new URL('/api/posters/search', `${config.apiBaseUrl}/`);
-      appendParams(url, form);
+      if (nearCurrentLocation) {
+        url.searchParams.set('near_me', '1');
+      } else {
+        appendParams(url, form);
+      }
       url.searchParams.set('page', String(Math.max(1, page)));
       const response = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
@@ -750,14 +817,16 @@ export default async function decorate(block) {
       const payload = await response.json();
       currentPage = payload.current_page || page;
       totalPages = payload.total_pages || 1;
+      currentNearSearch = nearCurrentLocation;
       lastPayload = payload;
       setStatus(status, '', '');
       renderResults(results, meta, payload, showPosterDetail);
       renderPagination();
     } catch (error) {
-      setStatus(status, 'Poster search is unavailable.', 'error');
+      setStatus(status, nearCurrentLocation ? 'Search near me is unavailable.' : 'Poster search is unavailable.', 'error');
     } finally {
       submit.disabled = false;
+      nearMe.button.disabled = false;
     }
   };
 
@@ -774,6 +843,7 @@ export default async function decorate(block) {
       setStatus(status, '', '');
       currentPage = 1;
       totalPages = 1;
+      currentNearSearch = false;
       lastPayload = null;
     }, 0);
   });

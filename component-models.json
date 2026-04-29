@@ -392,6 +392,62 @@
     ]
   },
   {
+    "id": "amber-alerts",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Active AMBER Alerts"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "AMBER Alert"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "copy",
+        "label": "Intro Copy",
+        "value": "Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches active alerts from /api/amber-alerts.",
+        "value": "https://stunning-dust-ntqeawud3dqy.on-vapor.com"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "state",
+        "label": "Default State Filter",
+        "description": "Optional two-letter state abbreviation. Leave blank for all active alerts.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyMessage",
+        "label": "Empty Message",
+        "value": "There are no AMBER Alerts at this time."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "detailLabel",
+        "label": "Detail Button Label",
+        "value": "View alert"
+      }
+    ]
+  },
+  {
     "id": "article-detail",
     "fields": [
       {
@@ -4650,6 +4706,20 @@
         "name": "organizationLogoAlt",
         "label": "Detail Footer Logo Alt Text",
         "value": "National Center for Missing & Exploited Children"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "qrCodeUrl",
+        "label": "QR Code PDF URL",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "qrCodeLabel",
+        "label": "QR Code Link Label",
+        "value": "this QR Code"
       }
     ]
   },

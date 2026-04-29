@@ -136,7 +136,25 @@
   cursor: pointer;
 }
 
+.poster-results-near-me-action button {
+  min-height: 36px;
+  min-width: 150px;
+  padding: 0 18px;
+  border: 1px solid #8a6500;
+  border-radius: 6px;
+  background: #ffb71b;
+  color: #243846;
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
+}
+
 .poster-results-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.poster-results-near-me-action button:disabled {
   cursor: wait;
   opacity: 0.65;
 }
@@ -158,6 +176,84 @@
 
 .poster-results-form .poster-results-reset:hover {
   background: #eef3f6;
+}
+
+.poster-results-near-me {
+  display: grid;
+  gap: 26px;
+  margin: 12px 0 30px;
+}
+
+.poster-results-near-me-divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  color: #243846;
+  font-size: 16px;
+}
+
+.poster-results-near-me-divider span {
+  height: 1px;
+  background: #243846;
+}
+
+.poster-results-near-me-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.poster-results-near-me-action button:hover {
+  background: #f0a900;
+}
+
+.poster-results-near-me-tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #6b7882;
+  color: #fff;
+  cursor: help;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.poster-results-near-me-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 2;
+  width: 190px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #7a7f86;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.25;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  transform: translateX(-50%);
+  transition: opacity 0.15s ease;
+}
+
+.poster-results-near-me-tip:hover .poster-results-near-me-tooltip,
+.poster-results-near-me-tip:focus .poster-results-near-me-tooltip {
+  opacity: 1;
+}
+
+.poster-results-qr {
+  margin: 20px 0 0;
+  color: #243846;
+  font-size: 18px;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .poster-results-status,
@@ -444,7 +540,17 @@
   text-decoration: none;
 }
 
+.poster-results-qr a {
+  color: #007294;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .poster-results-detail-footer-info a:hover {
+  text-decoration: underline;
+}
+
+.poster-results-qr a:hover {
   text-decoration: underline;
 }
 
@@ -452,6 +558,9 @@
 .poster-results-field select:focus-visible,
 .poster-results-radio-group input:focus-visible,
 .poster-results-form button:focus-visible,
+.poster-results-near-me-action button:focus-visible,
+.poster-results-near-me-tip:focus-visible,
+.poster-results-qr a:focus-visible,
 .poster-results-detail-back:focus-visible,
 .poster-results-detail-action:focus-visible,
 .poster-results-pagination button:focus-visible,
@@ -524,6 +633,14 @@
 
   .poster-results-actions button {
     flex: 1 1 0;
+  }
+
+  .poster-results-near-me {
+    gap: 20px;
+  }
+
+  .poster-results-qr {
+    font-size: 16px;
   }
 
   .poster-results-card {
