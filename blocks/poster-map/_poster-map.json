@@ -88,8 +88,14 @@
           "valueType": "string",
           "name": "image",
           "label": "Map Image",
-          "multi": false,
-          "value": "/icons/esri-interactive-map-animation-transparent.gif"
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Map Image Alt Text",
+          "value": ""
         }
       ]
     }

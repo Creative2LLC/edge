@@ -8,7 +8,8 @@ const DEFAULTS = {
   advancedLabel: 'Advanced Map Viewer',
   advancedUrl: 'https://experience.arcgis.com/experience/26e6505b54f841039d2a97adc1dd5b3f',
   advancedCopy: 'The Advanced Viewer will allow you to filter by date, location, or radius.',
-  image: '/icons/esri-interactive-map-animation-transparent.gif',
+  image: '',
+  imageAlt: '',
 };
 
 const FIELD_LABELS = {
@@ -22,6 +23,7 @@ const FIELD_LABELS = {
   advancedUrl: ['advanced url', 'advanced map url'],
   advancedCopy: ['advanced copy', 'advanced description'],
   image: ['image', 'map image'],
+  imageAlt: ['image alt', 'map image alt'],
 };
 
 function normalizeText(value) {
@@ -101,6 +103,7 @@ export default function decorate(block) {
     advancedUrl: getFieldValue(block, 'advancedUrl', 7, DEFAULTS.advancedUrl),
     advancedCopy: getFieldValue(block, 'advancedCopy', 8, DEFAULTS.advancedCopy),
     image: getFieldValue(block, 'image', 9, DEFAULTS.image),
+    imageAlt: getFieldValue(block, 'imageAlt', 10, DEFAULTS.imageAlt),
   };
 
   const inner = document.createElement('div');
@@ -127,15 +130,19 @@ export default function decorate(block) {
     createViewerLink(config.advancedLabel, config.advancedUrl, config.advancedCopy),
   );
 
-  const media = document.createElement('div');
-  media.className = 'poster-map-media';
-  const img = document.createElement('img');
-  img.src = config.image;
-  img.alt = '';
-  img.loading = 'lazy';
-  media.append(img);
+  body.append(content);
 
-  body.append(content, media);
+  if (config.image) {
+    const media = document.createElement('div');
+    media.className = 'poster-map-media';
+    const img = document.createElement('img');
+    img.src = config.image;
+    img.alt = config.imageAlt;
+    img.loading = 'lazy';
+    media.append(img);
+    body.append(media);
+  }
+
   inner.append(header, body);
   block.replaceChildren(inner);
 }
