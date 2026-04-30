@@ -18,27 +18,33 @@
   display: block;
 }
 
-.us-map-svg-wrap svg path {
+.us-map-svg-wrap svg path[data-state] {
   fill: #edebe9;
+  stroke: none;
+  cursor: pointer;
+  transition: fill 0.15s ease;
+}
+
+.us-map-svg-wrap svg path[data-state]:hover {
+  fill: #dcdad8;
+}
+
+.us-map-svg-wrap svg path[data-state].selected {
+  fill: #f9ab61;
+}
+
+.us-map-svg-wrap svg path[data-state].selected:hover {
+  fill: #f9ab61;
+}
+
+.us-map-svg-wrap svg path.us-map-borders {
+  fill: none;
   stroke: #a1a1a1;
   stroke-width: 1;
   stroke-linejoin: round;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  cursor: pointer;
-  transition: fill 0.15s ease;
-}
-
-.us-map-svg-wrap svg path:hover {
-  fill: #dcdad8;
-}
-
-.us-map-svg-wrap svg path.selected {
-  fill: #f9ab61;
-}
-
-.us-map-svg-wrap svg path.selected:hover {
-  fill: #f9ab61;
+  pointer-events: none;
 }
 
 /* State info row: name left, dropdown right */
