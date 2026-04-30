@@ -19,23 +19,26 @@
 }
 
 .us-map-svg-wrap svg path {
-  fill: #a1a1a1;
-  stroke: #fff;
-  stroke-width: 1.5;
+  fill: #edebe9;
+  stroke: #a1a1a1;
+  stroke-width: 1;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
   cursor: pointer;
   transition: fill 0.15s ease;
 }
 
 .us-map-svg-wrap svg path:hover {
-  fill: #8a8a8a;
+  fill: #dcdad8;
 }
 
 .us-map-svg-wrap svg path.selected {
-  fill: #faab60;
+  fill: #f9ab61;
 }
 
 .us-map-svg-wrap svg path.selected:hover {
-  fill: #faab60;
+  fill: #f9ab61;
 }
 
 /* State info row: name left, dropdown right */
@@ -44,7 +47,7 @@
   align-items: center;
   justify-content: space-between;
   max-width: 960px;
-  margin: 48px auto 0;
+  margin: 96px auto 0;
   gap: 24px;
 }
 
@@ -77,7 +80,7 @@
   background-color: #00264d;
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 999px;
   font-size: 16px;
   font-weight: 500;
   font-family: inherit;
@@ -140,9 +143,9 @@
   display: none;
   align-items: center;
   max-width: 960px;
-  margin: 24px auto 0;
+  margin: 48px auto 0;
   background-color: #ddd5cc52;
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   padding: 0 28px;
   height: 85px;
   box-sizing: border-box;
