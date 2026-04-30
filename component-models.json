@@ -1498,6 +1498,12 @@
         "label": "Button 2 Color (Hex)"
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "button2BackgroundColor",
+        "label": "Button 2 Background Color (Hex)"
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "button2Location",

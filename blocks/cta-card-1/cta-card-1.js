@@ -49,8 +49,9 @@ export default function decorate(block) {
   const button2TextField = getField(block, rows, 'button2Text', 9);
   const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
   const button2ColorField = getField(block, rows, 'button2Color', 11);
-  const button2LocationField = getField(block, rows, 'button2Location', 12);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 13);
+  const button2BackgroundColorField = getField(block, rows, 'button2BackgroundColor', 12);
+  const button2LocationField = getField(block, rows, 'button2Location', 13);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 14);
   const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
   if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
   if (button2LocationField.source) button2LocationField.source.remove();
@@ -128,7 +129,8 @@ export default function decorate(block) {
       btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
       btn2.style.setProperty('color', btn2Color, 'important');
     }
-    btn2.style.setProperty('background-color', 'transparent', 'important');
+    const btn2BgColor = button2BackgroundColorField.value;
+    btn2.style.setProperty('background-color', btn2BgColor || 'transparent', 'important');
     if (button2Location === 'left') left.append(btn2);
     else right.append(btn2);
   }
