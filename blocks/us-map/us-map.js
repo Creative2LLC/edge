@@ -57,6 +57,10 @@ const CHEVRON_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" 
 
 const ARROW_SVG = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+const MAP_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>';
+
+const LIST_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18"/><path d="M3 12h18"/><path d="M3 19h18"/></svg>';
+
 const MAP_VIEWBOX = '0 0 975 610';
 
 /* eslint-disable max-len */
@@ -194,6 +198,89 @@ function buildDropdown(onSelect) {
 
   wrap.append(btn, list);
   return { wrap, label, list };
+}
+
+/* View toggle: map | list */
+function buildViewToggle(onChange) {
+  const row = document.createElement('div');
+  row.className = 'us-map-toggle-row';
+
+  const toggle = document.createElement('div');
+  toggle.className = 'us-map-view-toggle';
+  toggle.setAttribute('role', 'tablist');
+
+  const mapBtn = document.createElement('button');
+  mapBtn.type = 'button';
+  mapBtn.className = 'us-map-view-toggle-btn selected';
+  mapBtn.dataset.view = 'map';
+  mapBtn.setAttribute('aria-label', 'Map view');
+  mapBtn.setAttribute('aria-pressed', 'true');
+  mapBtn.innerHTML = MAP_ICON_SVG;
+
+  const listBtn = document.createElement('button');
+  listBtn.type = 'button';
+  listBtn.className = 'us-map-view-toggle-btn';
+  listBtn.dataset.view = 'list';
+  listBtn.setAttribute('aria-label', 'List view');
+  listBtn.setAttribute('aria-pressed', 'false');
+  listBtn.innerHTML = LIST_ICON_SVG;
+
+  function setView(view) {
+    const isMap = view === 'map';
+    mapBtn.classList.toggle('selected', isMap);
+    listBtn.classList.toggle('selected', !isMap);
+    mapBtn.setAttribute('aria-pressed', isMap ? 'true' : 'false');
+    listBtn.setAttribute('aria-pressed', isMap ? 'false' : 'true');
+    onChange(view);
+  }
+
+  mapBtn.addEventListener('click', () => setView('map'));
+  listBtn.addEventListener('click', () => setView('list'));
+
+  toggle.append(mapBtn, listBtn);
+  row.append(toggle);
+  return row;
+}
+
+/* List view: all states + URLs */
+function buildListView(stateLinks) {
+  const view = document.createElement('div');
+  view.className = 'us-map-list-view';
+
+  const sorted = Object.entries(STATE_NAMES)
+    .map(([abbr, name]) => ({ abbr, name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  sorted.forEach(({ abbr, name }) => {
+    const link = stateLinks[abbr.toLowerCase()] || stateLinks[name.toLowerCase()] || '';
+    const row = document.createElement('div');
+    row.className = 'us-map-list-row';
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'us-map-list-row-name';
+    nameEl.textContent = name;
+
+    const urlEl = document.createElement('span');
+    urlEl.className = 'us-map-list-row-url';
+    if (link) {
+      const a = document.createElement('a');
+      a.href = link;
+      a.textContent = link;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      urlEl.appendChild(a);
+    } else {
+      const empty = document.createElement('span');
+      empty.className = 'us-map-list-row-empty';
+      empty.textContent = '—';
+      urlEl.appendChild(empty);
+    }
+
+    row.append(nameEl, urlEl);
+    view.appendChild(row);
+  });
+
+  return view;
 }
 
 function normalizeText(value) {
@@ -514,5 +601,11 @@ export default async function decorate(block) {
     }
   });
 
-  block.replaceChildren(mapWrap, info, linkBar);
+  /* View toggle (map ↔ list) */
+  const toggleRow = buildViewToggle((view) => {
+    block.classList.toggle('list-view-active', view === 'list');
+  });
+  const listView = buildListView(stateLinks);
+
+  block.replaceChildren(toggleRow, mapWrap, info, linkBar, listView);
 }
