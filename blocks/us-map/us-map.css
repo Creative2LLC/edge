@@ -40,7 +40,7 @@
 .us-map-svg-wrap svg path.us-map-borders {
   fill: none;
   stroke: #a1a1a1;
-  stroke-width: 1;
+  stroke-width: 3;
   stroke-linejoin: round;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
