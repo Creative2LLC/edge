@@ -114,7 +114,7 @@
   box-sizing: border-box;
   border: 2px solid #008db6;
   background-color: transparent;
-  color: #404041;
+  color: var(--btn-text-color, #404041);
 }
 
 .card-row-detailed-button:hover,
