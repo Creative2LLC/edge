@@ -4,24 +4,30 @@
   margin: 0 auto;
 }
 
+/* Break out of the section's side padding so the block spans the full 1420px */
+@media (width >= 900px) {
+  .card-row.block {
+    margin: 0 -32px;
+  }
+}
+
 /* Grid container */
 .card-row-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
-  justify-content: center;
+  width: 100%;
 }
 
 /* ===== HORIZONTAL VARIANT (default) ===== */
 
-/* Card: ~362px x 370px, 3 per row within 1136px usable width */
 .card-row-horizontal .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  width: 362px;
+  width: calc((100% - 24px * (var(--grid-columns, 3) - 1)) / var(--grid-columns, 3));
   min-height: 370px;
   padding: 36px 24px;
   box-sizing: border-box;
@@ -70,13 +76,12 @@
 
 /* ===== VERTICAL VARIANT ===== */
 
-/* Card: ~266px x 470px, 4 per row within 1136px usable width */
 .card-row-vertical .card-row-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   border-radius: 8px;
-  width: 266px;
+  width: calc((100% - 24px * (var(--grid-columns, 4) - 1)) / var(--grid-columns, 4));
   min-height: 470px;
   padding: 36px 24px;
   box-sizing: border-box;
