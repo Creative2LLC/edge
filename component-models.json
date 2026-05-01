@@ -3119,28 +3119,6 @@
         "value": ""
       },
       {
-        "component": "select",
-        "valueType": "string",
-        "name": "headerAlignment",
-        "label": "Header Alignment",
-        "description": "Aligns the Section Heading and Section Subheading.",
-        "options": [
-          {
-            "name": "Left",
-            "value": "left"
-          },
-          {
-            "name": "Center",
-            "value": "center"
-          },
-          {
-            "name": "Right",
-            "value": "right"
-          }
-        ],
-        "value": "left"
-      },
-      {
         "component": "text",
         "valueType": "string",
         "name": "footerText",
@@ -3170,6 +3148,28 @@
         "component": "aem-content",
         "name": "introButtonLink",
         "label": "Intro Button Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "headerAlignment",
+        "label": "Header Alignment",
+        "description": "Aligns the Section Heading and Section Subheading.",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
       }
     ]
   },
