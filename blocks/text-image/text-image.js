@@ -250,7 +250,12 @@ export default async function decorate(block) {
   const imageAltField = getTextField(block, 'imageAlt');
   const overlayHeaderField = getTextField(block, 'imageOverlayHeader');
   const overlayTextField = getTextField(block, 'imageOverlayText');
+  const styleVariantField = getTextField(block, 'styleVariant');
   const imageField = getImageField(block);
+
+  if (styleVariantField.value === 'variant-2') {
+    block.classList.add('text-image--variant-2');
+  }
   const picture = buildPicture(imageField, imageAltField);
   const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
   const backgroundColor = normalizeColorValue(

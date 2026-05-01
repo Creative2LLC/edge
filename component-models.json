@@ -6652,6 +6652,23 @@
         "valueType": "string",
         "name": "imageOverlayText",
         "label": "Image Overlay Text (Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "styleVariant",
+        "label": "Style Variant",
+        "value": "default",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Variant 2",
+            "value": "variant-2"
+          }
+        ]
       }
     ]
   },
