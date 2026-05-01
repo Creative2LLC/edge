@@ -71,6 +71,12 @@ export default function decorate(block) {
   const btn1LinkField = getLinkField(block, 'button1');
   const btn2TextField = getField(block, 'button2Text');
   const btn2LinkField = getLinkField(block, 'button2');
+  const variantField = getField(block, 'variant');
+
+  if (variantField.value.toLowerCase() === 'variant-2') {
+    block.classList.add('hero-footer-variant-2');
+  }
+  if (variantField.source) variantField.source.remove();
 
   /* background image */
   const bgWrap = document.createElement('div');

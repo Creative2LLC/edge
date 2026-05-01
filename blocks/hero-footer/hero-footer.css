@@ -140,6 +140,30 @@
   background-color: rgb(64 64 65 / 80%);
 }
 
+/* ===== Variant 2 ===== */
+.hero-footer.hero-footer-variant-2 .hero-footer-heading-1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #E13E30;
+}
+
+.hero-footer.hero-footer-variant-2 .hero-footer-heading-2 {
+  font-size: 60px;
+  font-weight: 700;
+}
+
+.hero-footer.hero-footer-variant-2 .hero-footer-subheading {
+  width: auto;
+  max-width: 701px;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.hero-footer.hero-footer-variant-2 .hero-footer-btn {
+  font-size: 25px;
+  font-weight: 600;
+}
+
 @media (width <= 900px) {
   .hero-footer-heading-1 {
     font-size: 36px;

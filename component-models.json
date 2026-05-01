@@ -2119,6 +2119,24 @@
         "name": "button2Text",
         "label": "Button 2 Text",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "variant",
+        "label": "Style Variant",
+        "description": "Switches the hero-footer styling.",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Variant 2",
+            "value": "variant-2"
+          }
+        ],
+        "value": "default"
       }
     ]
   },
