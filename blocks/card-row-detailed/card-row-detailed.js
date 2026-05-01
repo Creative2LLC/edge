@@ -55,7 +55,7 @@ function buildButton(label, href, color, textColor, sourceEl) {
     btn.style.setProperty('background-color', color, 'important');
     btn.style.setProperty('border', `2px solid ${color}`, 'important');
   }
-  if (textColor) btn.style.setProperty('color', textColor, 'important');
+  if (textColor) btn.style.setProperty('--btn-text-color', textColor);
   return btn;
 }
 

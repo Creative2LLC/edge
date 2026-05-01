@@ -10,6 +10,7 @@ const BLOCK_FIELD_INDEX = {
   sectionButtonLink: 6,
   introButtonText: 7,
   introButtonLink: 8,
+  headerAlignment: 9,
 };
 
 const ITEM_FIELD_NAMES = [
@@ -600,9 +601,13 @@ export default function decorate(block) {
   const footerTextField = getBlockField(block, blockRows, 'footerText', BLOCK_FIELD_INDEX.footerText);
   const sectionButtonTextField = getBlockField(block, blockRows, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText);
   const sectionButtonLinkField = getBlockLinkField(block, blockRows, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink);
+  const headerAlignmentField = getBlockField(block, blockRows, 'headerAlignment', BLOCK_FIELD_INDEX.headerAlignment);
 
   const columns = parseInt(columnsField.value, 10) || 3;
   const variant = styleVariantField.value === 'volunteer' ? 'volunteer' : 'default';
+  const headerAlignment = ['left', 'center', 'right'].includes(headerAlignmentField.value)
+    ? headerAlignmentField.value
+    : 'left';
 
   block.classList.toggle('info-cards-grid-volunteer', variant === 'volunteer');
 
@@ -662,6 +667,7 @@ export default function decorate(block) {
 
   const intro = document.createElement('div');
   intro.className = 'info-cards-grid-intro';
+  intro.classList.add(`info-cards-grid-intro-align-${headerAlignment}`);
   const introContent = document.createElement('div');
   introContent.className = 'info-cards-grid-intro-content';
   const introHeading = buildSectionText(sectionHeadingField, 'h2', 'info-cards-grid-section-heading');

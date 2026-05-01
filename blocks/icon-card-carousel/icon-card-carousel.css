@@ -53,14 +53,14 @@ main > .section > .icon-card-carousel-wrapper {
 .icon-card-carousel .icon-card-carousel-track {
   display: flex;
   align-items: stretch;
-  gap: 24px;
+  gap: 48px;
   overflow-x: auto;
   scroll-behavior: smooth;
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
   width: calc(100% + 24px + max(0px, (var(--icon-card-carousel-viewport-width) - 1420px) / 2));
-  padding-right: 40px;
+  padding-right: 48px;
   padding-bottom: 16px;
   box-sizing: border-box;
 }
@@ -69,9 +69,10 @@ main > .section > .icon-card-carousel-wrapper {
   display: none;
 }
 
-/* Each slide - sized so 3 full cards + partial 4th are visible */
+/* Each slide - sized so 2 full cards + partial 3rd are visible */
 .icon-card-carousel .icon-card-carousel-slide {
-  flex: 0 0 370px;
+  flex: 0 0 600px;
+  max-width: 600px;
   min-width: 0;
   display: flex;
 }
@@ -84,6 +85,7 @@ main > .section > .icon-card-carousel-wrapper {
   border-radius: 12px;
   overflow: hidden;
   min-height: 460px;
+  max-height: 649px;
   flex: 1;
   background: #fff;
   box-shadow: 0 4px 10px 0 #40404133;
@@ -103,7 +105,7 @@ main > .section > .icon-card-carousel-wrapper {
   width: 96px;
   height: 96px;
   flex-shrink: 0;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;
@@ -198,8 +200,8 @@ main > .section > .icon-card-carousel-wrapper {
 }
 
 .icon-card-carousel .icon-card-carousel-dot {
-  width: 10px;
-  height: 10px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   border: none;
   background: #a1a1a1;
@@ -243,8 +245,8 @@ main > .section > .icon-card-carousel-wrapper {
 }
 
 .icon-card-carousel .icon-card-carousel-nav-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   color: rgb(255 255 255 / 83%);
 }
 

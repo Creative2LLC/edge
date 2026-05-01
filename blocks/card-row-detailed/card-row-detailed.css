@@ -114,12 +114,14 @@
   box-sizing: border-box;
   border: 2px solid #008db6;
   background-color: transparent;
-  color: #404041;
+  color: var(--btn-text-color, #404041);
 }
 
 .card-row-detailed-button:hover,
 .card-row-detailed-button:focus {
   opacity: 0.85;
+  background-color: #008db6 !important;
+  color: #fff !important;
 }
 
 /* Additional text (same style as subheading) */

@@ -101,7 +101,7 @@ function buildCard(data, variant) {
     btn.style.setProperty('background-color', btnColor, 'important');
     btn.style.setProperty('border', `2px solid ${btnColor}`, 'important');
   }
-  if (btnTextColor) btn.style.setProperty('color', btnTextColor, 'important');
+  if (btnTextColor) btn.style.setProperty('--btn-text-color', btnTextColor);
 
   card.append(btn);
 

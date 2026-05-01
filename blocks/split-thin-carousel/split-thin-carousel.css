@@ -205,6 +205,7 @@ main > .section > .split-thin-carousel-wrapper {
 .split-thin-carousel .stc-link {
   display: inline-flex;
   margin-top: 20px;
+  margin-left: 28px;
   font-size: 16px;
   font-weight: 500;
   color: #008db6;
@@ -215,6 +216,12 @@ main > .section > .split-thin-carousel-wrapper {
 
 .split-thin-carousel .stc-link:hover {
   text-decoration: underline;
+}
+
+/* When the button above is rendered as a plain link (no padding),
+   align the link flush-left to match the button text position. */
+.split-thin-carousel .stc-button.is-link + .stc-link {
+  margin-left: 0;
 }
 
 /* Controls */
@@ -229,13 +236,13 @@ main > .section > .split-thin-carousel-wrapper {
 /* Dots */
 .split-thin-carousel .stc-dots {
   display: flex;
-  gap: 8px;
+  gap: 15px;
   align-items: center;
 }
 
 .split-thin-carousel .stc-dot {
-  width: 10px;
-  height: 10px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   border: none;
   background: #a1a1a1;
@@ -279,8 +286,8 @@ main > .section > .split-thin-carousel-wrapper {
 }
 
 .split-thin-carousel .stc-nav-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   color: rgb(255 255 255 / 83%);
 }
 

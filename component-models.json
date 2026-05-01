@@ -1498,6 +1498,12 @@
         "label": "Button 2 Color (Hex)"
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "button2BackgroundColor",
+        "label": "Button 2 Background Color (Hex)"
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "button2Location",
@@ -2113,6 +2119,24 @@
         "name": "button2Text",
         "label": "Button 2 Text",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "variant",
+        "label": "Style Variant",
+        "description": "Switches the hero-footer styling.",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Variant 2",
+            "value": "variant-2"
+          }
+        ],
+        "value": "default"
       }
     ]
   },
@@ -3142,6 +3166,28 @@
         "component": "aem-content",
         "name": "introButtonLink",
         "label": "Intro Button Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "headerAlignment",
+        "label": "Header Alignment",
+        "description": "Aligns the Section Heading and Section Subheading.",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
       }
     ]
   },
@@ -6426,6 +6472,24 @@
         "name": "subheading",
         "label": "Subheading (Optional)",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalDividers",
+        "label": "Vertical Dividers",
+        "description": "Show or hide the vertical dividers between stats.",
+        "options": [
+          {
+            "name": "Show (default)",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ],
+        "value": "show"
       },
       {
         "component": "text",

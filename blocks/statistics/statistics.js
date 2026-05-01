@@ -97,6 +97,7 @@ export default function decorate(block) {
   const headingField = readField(block, 'heading', ['heading', 'title']);
   const contentAlignmentField = readField(block, 'contentAlignment', ['content alignment', 'heading alignment']);
   const subheadingField = readField(block, 'subheading', ['subheading']);
+  const verticalDividersField = readField(block, 'verticalDividers', ['vertical dividers', 'dividers']);
   const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
   const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
   const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors']);
@@ -116,6 +117,10 @@ export default function decorate(block) {
   const alignment = contentAlignmentField.value.toLowerCase();
   if (alignment === 'left' || alignment === 'right') {
     block.classList.add(`statistics-align-${alignment}`);
+  }
+
+  if (verticalDividersField.value.toLowerCase() === 'hide') {
+    block.classList.add('statistics-no-dividers');
   }
 
   const wrapper = document.createElement('div');

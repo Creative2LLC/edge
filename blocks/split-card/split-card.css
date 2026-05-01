@@ -52,7 +52,7 @@ main > .section > .split-card-wrapper {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: 64px 56px;
+  padding: 88px 72px;
   box-sizing: border-box;
 }
 
