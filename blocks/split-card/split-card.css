@@ -141,15 +141,18 @@ main > .section > .split-card-wrapper {
   margin-left: 12px;
 }
 
-/* Image-smaller variant: lock the media to 500x446, let content fill the rest */
+/* Image-smaller variant: lock the whole row to 446px tall and the media to
+   500px wide. Media stretches to fill via the flex container's default
+   align-items: stretch, so the image fills the full 446px. Content fills
+   the remaining horizontal space. */
 .split-card.split-card-image-smaller .split-card-inner {
   min-height: 446px;
+  max-height: 446px;
 }
 
 .split-card.split-card-image-smaller .split-card-media {
   flex: 0 0 500px;
   max-width: 500px;
-  height: 446px;
 }
 
 .split-card.split-card-image-smaller .split-card-content {
@@ -201,6 +204,7 @@ main > .section > .split-card-wrapper {
   /* Mobile: image-smaller variant falls back to the stacked layout */
   .split-card.split-card-image-smaller .split-card-inner {
     min-height: auto;
+    max-height: none;
   }
 
   .split-card.split-card-image-smaller .split-card-media {
