@@ -59,10 +59,6 @@
   border-left: 1px solid #e6e0da;
 }
 
-.statistics.statistics-no-dividers .statistics-item + .statistics-item {
-  border-left: none;
-}
-
 .statistics .statistics-value {
   font-size: var(--statistics-value-size);
   font-weight: 700;
@@ -106,6 +102,10 @@
 
 .statistics.statistics-align-right .statistics-item:last-child {
   padding-right: 0;
+}
+
+.statistics.statistics-no-dividers .statistics-item + .statistics-item {
+  border-left: none;
 }
 
 @media (width <= 700px) {
