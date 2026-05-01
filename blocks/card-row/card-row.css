@@ -158,8 +158,8 @@
 .card-row-card-button:hover,
 .card-row-card-button:focus {
   opacity: 0.85;
-  background-color: #008db6;
-  color: #fff;
+  background-color: #008db6 !important;
+  color: #fff !important;
 }
 
 /* ===== RESPONSIVE ===== */
