@@ -159,6 +159,11 @@ main > .section > .split-card-wrapper {
   flex: 1 1 auto;
 }
 
+.split-card.split-card-image-smaller .split-card-heading,
+.split-card.split-card-image-smaller .split-card-subheading {
+  max-width: 750px;
+}
+
 /* Smaller-size variant */
 .split-card.split-card-size-smaller {
   --split-card-max-width: 1420px;
