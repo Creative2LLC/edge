@@ -450,7 +450,7 @@
 @media (width >= 900px) and (width <= 1199px) {
   .hero {
     min-height: min(var(--hero-height, 520px), 520px);
-    padding: clamp(72px, 9vw, 108px) 28px 34px;
+    padding: clamp(72px, 9vw, 108px) 32px 34px;
   }
 
   .hero .hero-layout {
@@ -488,7 +488,7 @@
   .hero {
     align-items: flex-start;
     min-height: min(var(--hero-height, 420px), 420px);
-    padding: 38px 20px 28px;
+    padding: 38px 24px 28px;
   }
 
   .hero .hero-main.has-featured-image {
@@ -569,7 +569,7 @@
 @media (width <= 600px) {
   .hero {
     min-height: min(var(--hero-height, 360px), 360px);
-    padding: 26px 16px 22px;
+    padding: 26px 24px 22px;
   }
 
   .hero .hero-main.has-featured-image {
