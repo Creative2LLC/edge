@@ -4,12 +4,19 @@
   margin: 0 auto;
 }
 
+/* Break out of the section's side padding so the block spans the full 1420px */
+@media (width >= 900px) {
+  .card-row-compact.block {
+    margin: 0 -32px;
+  }
+}
+
 /* Grid container */
 .card-row-compact-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
-  justify-content: center;
+  width: 100%;
 }
 
 /* Individual card */
@@ -17,8 +24,7 @@
   display: flex;
   flex-direction: column;
   border-radius: 8px;
-  flex: 1 1 0;
-  max-width: 266px;
+  width: calc((100% - 24px * (var(--grid-columns, 4) - 1)) / var(--grid-columns, 4));
   min-height: 0;
   padding: 24px 20px;
   box-sizing: border-box;
@@ -119,8 +125,7 @@
   }
 
   .card-row-compact-card {
-    flex: 1 1 calc(50% - 12px);
-    max-width: calc(50% - 12px);
+    width: calc(50% - 12px);
     min-height: auto;
   }
 }
@@ -132,8 +137,7 @@
   }
 
   .card-row-compact-card {
-    flex: 1 1 100%;
-    max-width: 100%;
+    width: 100%;
     min-height: auto;
   }
 }
