@@ -4,8 +4,19 @@
   margin-bottom: -20px;
 }
 
+/* At desktop, break out of the section's 32px side padding so the inner
+   can actually reach the full 1420px width (so left/right-aligned text
+   sits flush against the section edge). */
+@media (width >= 900px) {
+  .section-title {
+    padding: 40px 0 0;
+    margin-left: -32px;
+    margin-right: -32px;
+  }
+}
+
 .section-title .section-title-inner {
-  max-width: 1261px;
+  max-width: 1420px;
   margin: 0 auto;
   display: flex;
   align-items: center;
