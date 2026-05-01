@@ -10,6 +10,8 @@ import { loadFragment } from '../fragment/fragment.js';
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 260;
+const POSTER_LISTING_PATH = '/missing-children-posters.html';
+const CYBERTIPLINE_DATA_PATH = '/content/edge/data-and-impact/cybertipline-data.html';
 
 function clearTransitionTimer(element, key) {
   if (element?.[key]) {
@@ -848,6 +850,14 @@ function decorateTopBanner(section) {
   const languageList = lists[1];
 
   linksList.classList.add('top-banner-links');
+  linksList.querySelectorAll('a').forEach((link) => {
+    const label = link.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+    if (label === 'amber alerts' || label === 'missing posters') {
+      link.href = resolveSiteHref(POSTER_LISTING_PATH);
+    } else if (label === 'cybertipline') {
+      link.href = resolveSiteHref(CYBERTIPLINE_DATA_PATH);
+    }
+  });
 
   // Build language dropdown
   const languageItems = [...languageList.querySelectorAll('li')];
