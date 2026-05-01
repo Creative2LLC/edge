@@ -254,7 +254,7 @@ export default async function decorate(block) {
   const imageField = getImageField(block);
 
   if (styleVariantField.value === 'variant-2') {
-    block.classList.add('text-image--variant-2');
+    block.classList.add('text-image-variant-2');
   }
   const picture = buildPicture(imageField, imageAltField);
   const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';

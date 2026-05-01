@@ -341,42 +341,43 @@
 }
 
 /* ---------- Style Variant 2 ---------- */
+
 /* Full 1420px width: break out of the section wrapper's 24px inline padding. */
-.text-image.block.text-image--variant-2 {
+.text-image.block.text-image-variant-2 {
   margin-inline: -24px;
   border-radius: 0;
   overflow: visible;
 }
 
-.text-image.block.text-image--variant-2 .text-image-inner {
+.text-image.block.text-image-variant-2 .text-image-inner {
   align-items: flex-start;
   height: auto;
 }
 
-.text-image.block.text-image--variant-2 .text-image-content {
+.text-image.block.text-image-variant-2 .text-image-content {
   padding: 0;
 }
 
-.text-image.block.text-image--variant-2 .text-image-media {
+.text-image.block.text-image-variant-2 .text-image-media {
   flex: 0 0 459px;
   width: 459px;
   height: 400px;
 }
 
-.text-image.block.text-image--variant-2 .text-image-media picture {
+.text-image.block.text-image-variant-2 .text-image-media picture {
   border-radius: 14px;
 }
 
 @media (width <= 900px) {
-  .text-image.block.text-image--variant-2 {
+  .text-image.block.text-image-variant-2 {
     margin-inline: 0;
   }
 
-  .text-image.block.text-image--variant-2 .text-image-content {
+  .text-image.block.text-image-variant-2 .text-image-content {
     padding: 48px 24px;
   }
 
-  .text-image.block.text-image--variant-2 .text-image-media {
+  .text-image.block.text-image-variant-2 .text-image-media {
     flex: none;
     width: 100%;
     height: auto;
