@@ -186,6 +186,7 @@ export default async function decorate(block) {
     || 'left';
   const maxWidth = normalizeSizeValue(getField(block, 'maxWidth') || resourceData.maxWidth);
   const blockSize = (getField(block, 'blockSize') || normalizeJsonFieldValue(resourceData.blockSize) || 'normal').toLowerCase();
+  const imageSize = (getField(block, 'imageSize') || normalizeJsonFieldValue(resourceData.imageSize) || 'even').toLowerCase();
 
   if (picture) {
     const img = picture.querySelector('img');
@@ -193,6 +194,7 @@ export default async function decorate(block) {
   }
 
   block.classList.toggle('split-card-size-smaller', blockSize === 'smaller');
+  block.classList.toggle('split-card-image-smaller', imageSize === 'smaller');
 
   if (maxWidth) {
     block.style.setProperty('--split-card-max-width', maxWidth);

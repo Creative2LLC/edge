@@ -6294,6 +6294,23 @@
       {
         "component": "select",
         "valueType": "string",
+        "name": "imageSize",
+        "label": "Image Size",
+        "value": "even",
+        "options": [
+          {
+            "name": "Image Even Split",
+            "value": "even"
+          },
+          {
+            "name": "Image Smaller",
+            "value": "smaller"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
         "name": "blockSize",
         "label": "Block Size",
         "options": [

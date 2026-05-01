@@ -141,6 +141,21 @@ main > .section > .split-card-wrapper {
   margin-left: 12px;
 }
 
+/* Image-smaller variant: lock the media to 500x446, let content fill the rest */
+.split-card.split-card-image-smaller .split-card-inner {
+  min-height: 446px;
+}
+
+.split-card.split-card-image-smaller .split-card-media {
+  flex: 0 0 500px;
+  max-width: 500px;
+  height: 446px;
+}
+
+.split-card.split-card-image-smaller .split-card-content {
+  flex: 1 1 auto;
+}
+
 /* Smaller-size variant */
 .split-card.split-card-size-smaller {
   --split-card-max-width: 1420px;
@@ -181,5 +196,17 @@ main > .section > .split-card-wrapper {
 
   .split-card.split-card-size-smaller .split-card-inner {
     max-height: none;
+  }
+
+  /* Mobile: image-smaller variant falls back to the stacked layout */
+  .split-card.split-card-image-smaller .split-card-inner {
+    min-height: auto;
+  }
+
+  .split-card.split-card-image-smaller .split-card-media {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    height: 240px;
   }
 }
