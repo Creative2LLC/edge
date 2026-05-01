@@ -42,6 +42,17 @@
   line-height: 1.55;
 }
 
+/* Header alignment (Section Heading + Section Subheading) */
+.info-cards-grid-intro-align-center .info-cards-grid-section-heading,
+.info-cards-grid-intro-align-center .info-cards-grid-section-subheading {
+  text-align: center;
+}
+
+.info-cards-grid-intro-align-right .info-cards-grid-section-heading,
+.info-cards-grid-intro-align-right .info-cards-grid-section-subheading {
+  text-align: right;
+}
+
 .info-cards-grid-footer {
   display: grid;
   justify-items: center;
