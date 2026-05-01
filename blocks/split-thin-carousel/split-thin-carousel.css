@@ -214,14 +214,14 @@ main > .section > .split-thin-carousel-wrapper {
   transition: opacity 0.2s ease;
 }
 
+.split-thin-carousel .stc-link:hover {
+  text-decoration: underline;
+}
+
 /* When the button above is rendered as a plain link (no padding),
    align the link flush-left to match the button text position. */
 .split-thin-carousel .stc-button.is-link + .stc-link {
   margin-left: 0;
-}
-
-.split-thin-carousel .stc-link:hover {
-  text-decoration: underline;
 }
 
 /* Controls */
