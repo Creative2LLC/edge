@@ -9,6 +9,15 @@
   padding: 20px 0 40px;
 }
 
+/* Break out of the section wrapper's 24px inline padding so first/last items
+   sit flush with the 1420px outer edges. Tablet+ only — mobile keeps
+   breathing room. */
+@media (width >= 700px) {
+  .statistics {
+    margin-inline: -24px;
+  }
+}
+
 .statistics .statistics-heading {
   font-size: clamp(1.75rem, 3.2vw, 2.6rem);
   font-weight: 700;
