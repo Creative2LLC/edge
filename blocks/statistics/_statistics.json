@@ -56,6 +56,24 @@
           "value": ""
         },
         {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalDividers",
+          "label": "Vertical Dividers",
+          "description": "Show or hide the vertical dividers between stats.",
+          "options": [
+            {
+              "name": "Show (default)",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ],
+          "value": "show"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "value": "",
