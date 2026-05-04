@@ -401,12 +401,23 @@ function normalizeSpacingValue(raw) {
 }
 
 function applySectionSpacing(main) {
-  main.querySelectorAll(':scope > div').forEach((section) => {
+  main.querySelectorAll('.section').forEach((section) => {
     SPACING_FIELDS.forEach(({ name, cssProp }) => {
-      const node = section.querySelector(`[data-aue-prop="${name}"]`);
-      if (!node) return;
-      const value = normalizeSpacingValue(node.textContent);
-      cleanupFieldNode(node);
+      const lowerName = name.toLowerCase();
+      let raw = section.dataset[name] || section.dataset[lowerName] || '';
+
+      if (!raw) {
+        const node = section.querySelector(`[data-aue-prop="${name}"]`);
+        if (node) {
+          raw = node.textContent;
+          cleanupFieldNode(node);
+        }
+      }
+
+      delete section.dataset[name];
+      delete section.dataset[lowerName];
+
+      const value = normalizeSpacingValue(raw);
       if (value) section.style.setProperty(cssProp, value, 'important');
     });
   });
@@ -422,8 +433,8 @@ export function decorateMain(main) {
   decorateButtons(main);
   decorateIcons(main);
   buildAutoBlocks(main);
-  applySectionSpacing(main);
   decorateSections(main);
+  applySectionSpacing(main);
   decorateBlocks(main);
   applyDefaultContentAuthorStyles(main);
   applyImageLinks(main);
