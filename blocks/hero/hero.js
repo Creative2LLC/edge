@@ -360,41 +360,12 @@ function buildInstrumentedText(field, tagName, className) {
 }
 
 function applyAccentBrackets(richText) {
-  const ACCENT_RE = /\[([^\]]+)\]/g;
-  const walker = document.createTreeWalker(richText, NodeFilter.SHOW_TEXT);
-  const targets = [];
-  let node = walker.nextNode();
-  while (node) {
-    if (node.nodeValue && node.nodeValue.includes('[') && node.nodeValue.includes(']')) {
-      targets.push(node);
-    }
-    node = walker.nextNode();
-  }
-  targets.forEach((textNode) => {
-    const text = textNode.nodeValue;
-    ACCENT_RE.lastIndex = 0;
-    if (!ACCENT_RE.test(text)) return;
-    const fragment = document.createDocumentFragment();
-    let lastIndex = 0;
-    ACCENT_RE.lastIndex = 0;
-    let match = ACCENT_RE.exec(text);
-    while (match) {
-      if (match.index > lastIndex) {
-        fragment.append(document.createTextNode(text.slice(lastIndex, match.index)));
-      }
-      const [fullMatch, inner] = match;
-      const span = document.createElement('span');
-      span.className = 'hero-accent';
-      span.textContent = inner;
-      fragment.append(span);
-      lastIndex = match.index + fullMatch.length;
-      match = ACCENT_RE.exec(text);
-    }
-    if (lastIndex < text.length) {
-      fragment.append(document.createTextNode(text.slice(lastIndex)));
-    }
-    textNode.replaceWith(fragment);
-  });
+  const original = richText.innerHTML;
+  const replaced = original.replace(
+    /\[([^\]<>]+)\]/g,
+    '<span class="hero-accent">$1</span>',
+  );
+  if (replaced !== original) richText.innerHTML = replaced;
 }
 
 function buildMainRichText(block) {
