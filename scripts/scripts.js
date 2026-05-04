@@ -400,7 +400,7 @@ function normalizeSpacingValue(raw) {
   return trimmed;
 }
 
-function applySectionSpacing(main) {
+export function applySectionSpacing(main) {
   main.querySelectorAll('.section').forEach((section) => {
     SPACING_FIELDS.forEach(({ name, cssProp }) => {
       const lowerName = name.toLowerCase();

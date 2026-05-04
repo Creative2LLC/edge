@@ -9,7 +9,7 @@ import {
   loadSections,
 } from './aem.js';
 import { decorateRichtext } from './editor-support-rte.js';
-import { applyDefaultContentAuthorStyles, decorateMain } from './scripts.js';
+import { applyDefaultContentAuthorStyles, applySectionSpacing, decorateMain } from './scripts.js';
 
 const SECTION_BACKGROUND_FALLBACKS = {
   'leadership-overview': '#f4f1ec',
@@ -190,6 +190,7 @@ async function applyChanges(event) {
           decorateIcons(newSection);
           decorateRichtext(newSection);
           decorateSections(parentElement);
+          applySectionSpacing(parentElement);
           decorateBlocks(parentElement);
           applyDefaultContentAuthorStyles(newSection);
           await loadSections(parentElement);
