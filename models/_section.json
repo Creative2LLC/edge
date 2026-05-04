@@ -83,6 +83,22 @@
                                           "label":  "Background Color",
                                           "description":  "Any valid CSS color value, for example #f4f1ec",
                                           "value":  ""
+                                      },
+                                      {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "topSpacing",
+                                          "label":  "Top Spacing",
+                                          "description":  "Adds margin-top to the section. Type a number for px (e.g. 30 or -10) or include a unit (px, rem, em, %, vh, vw).",
+                                          "value":  ""
+                                      },
+                                      {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "bottomSpacing",
+                                          "label":  "Bottom Spacing",
+                                          "description":  "Adds margin-bottom to the section. Type a number for px (e.g. 30 or -10) or include a unit (px, rem, em, %, vh, vw).",
+                                          "value":  ""
                                       }
                                   ]
                    }

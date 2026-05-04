@@ -388,6 +388,48 @@ function applyImageLinks(main) {
   applyImageLinksFromRows(main);
 }
 
+const SPACING_FIELDS = [
+  { name: 'topSpacing', cssProp: 'marginTop' },
+  { name: 'bottomSpacing', cssProp: 'marginBottom' },
+];
+const SPACING_UNIT_RE = /^-?[0-9]*\.?[0-9]+(px|rem|em|%|vh|vw)$/i;
+const SPACING_NUMBER_RE = /^-?[0-9]*\.?[0-9]+$/;
+
+function parseSpacingValue(raw) {
+  if (raw === null || raw === undefined) return null;
+  const trimmed = String(raw).trim();
+  if (!trimmed) return null;
+  if (SPACING_NUMBER_RE.test(trimmed)) return `${trimmed}px`;
+  if (SPACING_UNIT_RE.test(trimmed)) return trimmed;
+  return null;
+}
+
+function applySectionSpacing(main) {
+  main.querySelectorAll('.section').forEach((section) => {
+    const sectionResource = section.getAttribute('data-aue-resource')
+      || section.querySelector(':scope > [data-aue-resource]')?.getAttribute('data-aue-resource')
+      || '';
+
+    SPACING_FIELDS.forEach(({ name, cssProp }) => {
+      let raw = '';
+      const selector = sectionResource
+        ? `[data-aue-resource="${sectionResource}"][data-aue-prop="${name}"]`
+        : `[data-aue-prop="${name}"]`;
+      const node = section.querySelector(selector);
+      if (node) {
+        raw = node.textContent.trim();
+        cleanupFieldNode(node);
+      } else if (section.dataset[name]) {
+        raw = section.dataset[name];
+      }
+      if (name in section.dataset) delete section.dataset[name];
+
+      const value = parseSpacingValue(raw);
+      if (value !== null) section.style[cssProp] = value;
+    });
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -399,6 +441,7 @@ export function decorateMain(main) {
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
+  applySectionSpacing(main);
   decorateBlocks(main);
   applyDefaultContentAuthorStyles(main);
   applyImageLinks(main);
