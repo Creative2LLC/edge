@@ -158,11 +158,6 @@
   margin-top: 8px;
 }
 
-/* Second line and beyond in rich text get the lighter blue */
-.hero .hero-richtext > :not(:first-child) {
-  color: #008eb7;
-}
-
 .hero .hero-richtext p {
   margin: 24px 0 0;
   max-width: 960px;
@@ -431,6 +426,14 @@
 
 .hero.hero-pos-right .hero-text-html {
   margin-left: auto;
+}
+
+.hero.hero-variant-homepage {
+  --hero-height: 1117px;
+}
+
+.hero.hero-variant-homepage .hero-richtext .hero-accent {
+  color: #008eb7;
 }
 
 @media (width >= 900px) {

@@ -359,6 +359,43 @@ function buildInstrumentedText(field, tagName, className) {
   return element;
 }
 
+function applyAccentBrackets(richText) {
+  const ACCENT_RE = /\[([^\]]+)\]/g;
+  const walker = document.createTreeWalker(richText, NodeFilter.SHOW_TEXT);
+  const targets = [];
+  let node = walker.nextNode();
+  while (node) {
+    if (node.nodeValue && node.nodeValue.includes('[') && node.nodeValue.includes(']')) {
+      targets.push(node);
+    }
+    node = walker.nextNode();
+  }
+  targets.forEach((textNode) => {
+    const text = textNode.nodeValue;
+    ACCENT_RE.lastIndex = 0;
+    if (!ACCENT_RE.test(text)) return;
+    const fragment = document.createDocumentFragment();
+    let lastIndex = 0;
+    ACCENT_RE.lastIndex = 0;
+    let match = ACCENT_RE.exec(text);
+    while (match) {
+      if (match.index > lastIndex) {
+        fragment.append(document.createTextNode(text.slice(lastIndex, match.index)));
+      }
+      const span = document.createElement('span');
+      span.className = 'hero-accent';
+      span.textContent = match[1];
+      fragment.append(span);
+      lastIndex = match.index + match[0].length;
+      match = ACCENT_RE.exec(text);
+    }
+    if (lastIndex < text.length) {
+      fragment.append(document.createTextNode(text.slice(lastIndex)));
+    }
+    textNode.replaceWith(fragment);
+  });
+}
+
 function buildMainRichText(block) {
   const { source } = getFieldValue(block, ['content_text', 'text']);
   if (source) {
@@ -684,6 +721,14 @@ function readOverlayOpacity(block) {
 }
 
 export default async function decorate(block) {
+  const variant = normalizeChoice(
+    getFieldValue(block, ['variant']).value,
+    ['default', 'homepage'],
+    'default',
+  );
+  block.classList.remove('hero-variant-default', 'hero-variant-homepage');
+  block.classList.add(`hero-variant-${variant}`);
+
   const height = readHeight(block);
   if (height) {
     block.style.setProperty('--hero-height', height);
@@ -734,6 +779,9 @@ export default async function decorate(block) {
   }
   const breadcrumb = await buildBreadcrumbs(block);
   const richText = buildMainRichText(block);
+  if (richText && variant === 'homepage') {
+    applyAccentBrackets(richText);
+  }
   const htmlText = buildHtmlText(block);
   const actions = buildActions(block);
   const sidePanel = buildSidePanel(block);

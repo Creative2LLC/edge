@@ -2144,6 +2144,23 @@
     "id": "hero-content",
     "fields": [
       {
+        "component": "select",
+        "name": "variant",
+        "label": "Hero Variant",
+        "description": "Default uses the standard hero. Homepage Hero uses the taller homepage layout and lets you accent words with [brackets].",
+        "options": [
+          {
+            "name": "Default Hero",
+            "value": "default"
+          },
+          {
+            "name": "Homepage Hero",
+            "value": "homepage"
+          }
+        ],
+        "value": "default"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "media_image",
