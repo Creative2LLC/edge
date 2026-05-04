@@ -430,6 +430,7 @@
 
 .hero.hero-variant-homepage {
   --hero-height: 1117px;
+
   padding-bottom: clamp(140px, 16vw, 220px);
 }
 
