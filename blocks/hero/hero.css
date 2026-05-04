@@ -431,7 +431,7 @@
 .hero.hero-variant-homepage {
   --hero-height: 1117px;
 
-  padding-bottom: clamp(200px, 22vw, 320px);
+  padding-bottom: clamp(160px, 18vw, 240px);
 }
 
 .hero.hero-variant-homepage .hero-richtext .hero-accent {
