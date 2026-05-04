@@ -382,11 +382,12 @@ function applyAccentBrackets(richText) {
       if (match.index > lastIndex) {
         fragment.append(document.createTextNode(text.slice(lastIndex, match.index)));
       }
+      const [fullMatch, inner] = match;
       const span = document.createElement('span');
       span.className = 'hero-accent';
-      span.textContent = match[1];
+      span.textContent = inner;
       fragment.append(span);
-      lastIndex = match.index + match[0].length;
+      lastIndex = match.index + fullMatch.length;
       match = ACCENT_RE.exec(text);
     }
     if (lastIndex < text.length) {
