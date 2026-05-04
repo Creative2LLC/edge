@@ -134,20 +134,19 @@
 .hero .hero-richtext h6 {
   margin: 0;
   font-family: Inter, sans-serif;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.1;
   white-space: pre-line;
   color: #00264d;
 }
 
 .hero .hero-richtext h1 {
-  font-size: clamp(42px, 7vw, 64px);
+  font-size: 64px;
 }
 
 .hero .hero-richtext h2 {
   margin-top: 8px;
-  font-size: clamp(36px, 6vw, 58px);
-  color: #008eb7;
+  font-size: 36px;
 }
 
 .hero .hero-richtext h3 {
