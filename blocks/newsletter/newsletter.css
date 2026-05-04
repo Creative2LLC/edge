@@ -45,13 +45,14 @@ main > .section > .newsletter-wrapper {
 .newsletter .newsletter-content {
   position: relative;
   z-index: 2;
-  max-width: 760px;
+  max-width: 1080px;
   text-align: center;
 }
 
 .newsletter .newsletter-heading {
-  margin: 0;
+  margin: 0 auto;
   padding-top: 104px;
+  max-width: 1080px;
   color: #008eb7;
   font-size: clamp(2rem, 5vw, 4rem);
   font-weight: 600;
@@ -59,7 +60,8 @@ main > .section > .newsletter-wrapper {
 }
 
 .newsletter .newsletter-subheading {
-  margin: 14px 0 0;
+  margin: 14px auto 0;
+  max-width: 760px;
   color: #404041;
   font-size: 1.05rem;
   line-height: 1.5;
