@@ -13,12 +13,12 @@
   font-size: 34px;
   font-weight: 500;
   color: #404041;
-  max-width: 861px;
+  max-width: 890px;
   margin: 0 auto 32px;
   line-height: 1.1;
   text-align: center;
   position: relative;
-  padding-bottom: 40px;
+  padding-bottom: 72px;
 }
 
 /* Vertical dashed line from heading down to first card */
@@ -235,7 +235,7 @@
 @media (width <= 700px) {
   .impact-chain .impact-chain-heading {
     font-size: 32px;
-    padding-bottom: 24px;
+    padding-bottom: 44px;
   }
 
   .impact-chain .impact-chain-heading::after {
