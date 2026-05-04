@@ -431,11 +431,26 @@
 .hero.hero-variant-homepage {
   --hero-height: 1117px;
 
-  padding-bottom: clamp(140px, 16vw, 220px);
+  padding-bottom: clamp(200px, 22vw, 320px);
 }
 
 .hero.hero-variant-homepage .hero-richtext .hero-accent {
   color: #008eb7;
+}
+
+.hero.hero-variant-homepage .hero-richtext h1,
+.hero.hero-variant-homepage .hero-richtext h2,
+.hero.hero-variant-homepage .hero-richtext h3,
+.hero.hero-variant-homepage .hero-richtext h4,
+.hero.hero-variant-homepage .hero-richtext h5,
+.hero.hero-variant-homepage .hero-richtext h6 {
+  font-size: clamp(56px, 8vw, 96px);
+  font-weight: 700;
+}
+
+.hero.hero-variant-homepage .hero-text-html {
+  font-size: 24px;
+  font-weight: 500;
 }
 
 @media (width >= 900px) {
