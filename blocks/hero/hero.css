@@ -433,7 +433,7 @@
   padding-bottom: clamp(160px, 18vw, 240px);
 }
 
-.hero.hero-variant-homepage .hero-richtext .hero-accent {
+.hero .hero-richtext .hero-accent {
   color: #008eb7;
 }
 

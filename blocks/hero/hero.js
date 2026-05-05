@@ -751,7 +751,7 @@ export default async function decorate(block) {
   }
   const breadcrumb = await buildBreadcrumbs(block);
   const richText = buildMainRichText(block);
-  if (richText && variant === 'homepage') {
+  if (richText) {
     applyAccentBrackets(richText);
   }
   const htmlText = buildHtmlText(block);
