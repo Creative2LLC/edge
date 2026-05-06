@@ -1,12 +1,19 @@
 /* Leadership Team Block */
 .leadership-team {
+  margin-inline: -24px;
   padding: 0 0 60px;
+}
+
+@media (width >= 900px) {
+  .leadership-team {
+    margin-inline: -32px;
+  }
 }
 
 .leadership-team-inner {
   max-width: 1420px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0;
 }
 
 /* -------------------------------------------------------
@@ -93,14 +100,14 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 230px;
+  max-width: 258px;
   width: 100%;
 }
 
 /* Card image */
 .leadership-team-card-image {
   width: 100%;
-  height: 310px;
+  height: 348px;
   margin-bottom: 16px;
   overflow: hidden;
   border-radius: 14px;
@@ -142,10 +149,11 @@
   font-weight: 600;
   color: #404041;
   margin: 0 0 4px;
-  padding: 0 12px;
+  padding: 0;
   line-height: 1.3;
   text-align: left;
   width: 100%;
+  max-width: 194px;
 }
 
 /* Card title */
@@ -154,10 +162,11 @@
   font-weight: 600;
   color: #404041;
   margin: 0 0 8px;
-  padding: 0 12px;
+  padding: 0;
   line-height: 1.4;
   text-align: left;
   width: 100%;
+  max-width: 194px;
 }
 
 /* Card bio */
@@ -166,10 +175,11 @@
   font-weight: 400;
   color: #404041;
   margin: 0 0 8px;
-  padding: 0 12px;
+  padding: 0;
   line-height: 1.5;
   text-align: left;
   width: 100%;
+  max-width: 194px;
 }
 
 /* Read bio link */
@@ -180,9 +190,9 @@
   color: #007294;
   text-decoration: none;
   display: inline-block;
-  align-self: flex-start;
-  padding-left: 12px;
-  margin-top: auto;
+  width: 100%;
+  max-width: 194px;
+  text-align: left;
 }
 
 .leadership-team-card-link:hover {
