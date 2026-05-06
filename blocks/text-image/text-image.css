@@ -358,8 +358,22 @@
   padding: 0;
 }
 
+.text-image.block.text-image-variant-2 .text-image-subhead {
+  font-size: 24px;
+  font-weight: 600;
+  color: #404041;
+}
+
+.text-image.block.text-image-variant-2 .text-image-heading {
+  max-width: 700px;
+  font-size: 48px;
+  font-weight: 700;
+}
+
 .text-image.block.text-image-variant-2 .text-image-body {
-  max-width: 825px;
+  max-width: 700px;
+  font-size: 20px;
+  font-weight: 500;
 }
 
 .text-image.block.text-image-variant-2 .text-image-media {
