@@ -1,0 +1,159 @@
+.amber-still-missing {
+  background: #f5f7f8;
+  padding: 0 0 56px;
+}
+
+.amber-still-missing-inner {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.amber-still-missing-intro {
+  margin: 0 0 16px;
+  color: #3f4b53;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.amber-still-missing-accordion {
+  overflow: hidden;
+  border: 1px solid #8f969b;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.amber-still-missing-accordion summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  background: #969a9d;
+  color: #fff;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  list-style: none;
+  padding: 14px 52px 14px 16px;
+}
+
+.amber-still-missing-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.amber-still-missing-accordion summary::after {
+  position: absolute;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: #969a9d;
+  content: "+";
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.amber-still-missing-accordion[open] summary::after {
+  content: "-";
+}
+
+.amber-still-missing-panel {
+  padding: 20px 16px;
+}
+
+.amber-still-missing-status {
+  margin: 16px;
+  color: #3f4b53;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.amber-still-missing-status.is-loading {
+  color: #007294;
+}
+
+.amber-still-missing-status.is-error {
+  color: #b42318;
+}
+
+.amber-still-missing-empty {
+  margin: 0;
+  color: #3f4b53;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.amber-still-missing-table-wrap {
+  overflow-x: auto;
+}
+
+.amber-still-missing table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #303030;
+  font-size: 15px;
+}
+
+.amber-still-missing th,
+.amber-still-missing td {
+  border: 1px solid #a8adb1;
+  padding: 8px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.amber-still-missing th {
+  border-top: 0;
+  color: #3f4b53;
+  font-weight: 400;
+}
+
+.amber-still-missing td:nth-child(2),
+.amber-still-missing td:nth-child(3) {
+  white-space: nowrap;
+}
+
+.amber-still-missing a:any-link {
+  color: #007294;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.amber-still-missing a:hover {
+  text-decoration: underline;
+}
+
+.amber-still-missing summary:focus-visible,
+.amber-still-missing a:focus-visible {
+  outline: 2px solid #007294;
+  outline-offset: 2px;
+}
+
+@media (width <= 800px) {
+  .amber-still-missing {
+    padding-bottom: 40px;
+  }
+
+  .amber-still-missing-inner {
+    width: min(1120px, calc(100% - 24px));
+  }
+
+  .amber-still-missing-accordion summary {
+    font-size: 15px;
+  }
+
+  .amber-still-missing-panel {
+    padding: 14px 12px;
+  }
+
+  .amber-still-missing th,
+  .amber-still-missing td {
+    padding: 8px 12px;
+  }
+}

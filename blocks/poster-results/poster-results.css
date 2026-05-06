@@ -357,7 +357,8 @@
   text-decoration: underline;
 }
 
-.poster-results-search-back {
+.poster-results-search-back,
+.poster-results-search-back:any-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -370,11 +371,14 @@
   color: #fff;
   font-size: 14px;
   font-weight: 800;
+  overflow-wrap: normal;
   text-decoration: none;
 }
 
 .poster-results-search-back:hover,
-.poster-results-search-back:focus-visible {
+.poster-results-search-back:focus-visible,
+.poster-results-search-back:any-link:hover,
+.poster-results-search-back:any-link:focus-visible {
   border-color: #005f7d;
   background: #005f7d;
   color: #fff;
@@ -659,7 +663,6 @@
 .poster-results-near-me-action button:focus-visible,
 .poster-results-near-me-tip:focus-visible,
 .poster-results-qr a:focus-visible,
-.poster-results-search-back:focus-visible,
 .poster-results-detail-back:focus-visible,
 .poster-results-detail-thumb:focus-visible,
 .poster-results-pagination button:focus-visible,

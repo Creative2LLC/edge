@@ -468,6 +468,63 @@
         "label": "Poster Page Path",
         "description": "EDS page containing the Poster Results block. Open Poster links add AMBER query parameters to this path.",
         "value": "/missing-children-posters.html"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclosure",
+        "label": "Disclosure Text",
+        "value": "Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster."
+      }
+    ]
+  },
+  {
+    "id": "amber-still-missing",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Accordion Heading",
+        "value": "Children Still Missing from AMBER Alerts - Expand for details"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches rows from the configured endpoint path.",
+        "value": "https://stunning-dust-ntqeawud3dqy.on-vapor.com"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "endpointPath",
+        "label": "Endpoint Path",
+        "description": "API endpoint that returns children still missing from AMBER Alerts.",
+        "value": "/api/amber-alerts/still-missing"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "posterPagePath",
+        "label": "Poster Page Path",
+        "description": "EDS page containing the Poster Results block. Poster links add a poster query parameter to this path.",
+        "value": "/missing-children-posters.html"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyMessage",
+        "label": "Empty Message",
+        "value": "There are no children still missing from AMBER Alerts at this time."
       }
     ]
   },

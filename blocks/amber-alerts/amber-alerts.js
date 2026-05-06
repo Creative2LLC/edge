@@ -9,6 +9,7 @@ const DEFAULTS = {
   emptyMessage: 'There are no AMBER Alerts at this time.',
   detailLabel: 'View alert',
   posterPagePath: '/missing-children-posters.html',
+  disclosure: 'Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster.',
 };
 
 const FIELD_LABELS = {
@@ -20,6 +21,7 @@ const FIELD_LABELS = {
   emptyMessage: ['empty message', 'no alerts message'],
   detailLabel: ['detail label', 'button label', 'detail button label'],
   posterPagePath: ['poster page path', 'poster page url', 'poster url'],
+  disclosure: ['disclosure', 'notice', 'disclosure text'],
 };
 
 const STATES = [
@@ -410,6 +412,7 @@ export default async function decorate(block) {
     emptyMessage: getFieldValue(block, 'emptyMessage', 5, DEFAULTS.emptyMessage),
     detailLabel: getFieldValue(block, 'detailLabel', 6, DEFAULTS.detailLabel),
     posterPagePath: getFieldValue(block, 'posterPagePath', 7, DEFAULTS.posterPagePath),
+    disclosure: getFieldValue(block, 'disclosure', 8, DEFAULTS.disclosure),
   };
 
   const inner = document.createElement('div');
@@ -440,7 +443,12 @@ export default async function decorate(block) {
   const list = document.createElement('div');
   list.className = 'amber-alerts-list';
 
+  const disclosure = document.createElement('p');
+  disclosure.className = 'amber-alerts-disclosure';
+  disclosure.textContent = config.disclosure;
+
   inner.append(header, controls, status, list);
+  if (config.disclosure) inner.append(disclosure);
   block.replaceChildren(inner);
 
   let lastPayload = null;

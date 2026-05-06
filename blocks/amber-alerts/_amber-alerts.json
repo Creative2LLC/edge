@@ -78,6 +78,13 @@
           "label": "Poster Page Path",
           "description": "EDS page containing the Poster Results block. Open Poster links add AMBER query parameters to this path.",
           "value": "/missing-children-posters.html"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "disclosure",
+          "label": "Disclosure Text",
+          "value": "Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster."
         }
       ]
     }

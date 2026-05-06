@@ -233,6 +233,13 @@
   font-weight: 800;
 }
 
+.amber-alerts-disclosure {
+  margin: 22px 0 0;
+  color: #3f4b53;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .amber-alerts-detail {
   grid-column: 1 / -1;
   padding: 22px;
