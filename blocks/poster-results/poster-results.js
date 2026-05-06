@@ -880,6 +880,73 @@ export default async function decorate(block) {
     qrCodeLabel: getFieldValue(block, 'qrCodeLabel', 8, DEFAULTS.qrCodeLabel),
   };
 
+  const directRequest = directPosterRequest();
+  if (directRequest) {
+    const existingDirectPoster = document.querySelector('.poster-results.is-poster-page');
+    if (existingDirectPoster && existingDirectPoster !== block) {
+      block.hidden = true;
+      block.replaceChildren();
+      return;
+    }
+
+    block.classList.add('is-poster-page');
+
+    const inner = document.createElement('div');
+    inner.className = 'poster-results-inner';
+    const status = document.createElement('p');
+    status.hidden = true;
+    const meta = document.createElement('p');
+    meta.className = 'poster-results-meta';
+    const results = document.createElement('div');
+    results.className = 'poster-results-list';
+
+    inner.append(status, meta, results);
+    block.replaceChildren(inner);
+    setStatus(status, 'Loading poster...', 'loading');
+
+    try {
+      if (directRequest.type === 'amber') {
+        const url = new URL(
+          `/api/amber-alerts/${encodeURIComponent(directRequest.caseNumber)}`,
+          `${config.apiBaseUrl}/`,
+        );
+        const response = await fetch(url.toString(), {
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        setStatus(status, '', '');
+        renderAmberPosterDetail(results, meta, payload, {
+          caseNumber: directRequest.caseNumber,
+          seqNumber: directRequest.seqNumber,
+          personId: directRequest.personId,
+          name: directRequest.name,
+        }, config);
+        return;
+      }
+
+      const url = new URL(
+        `/api/posters/${[
+          directRequest.provider,
+          directRequest.caseNumber,
+          directRequest.num || 1,
+        ].map((segment) => encodeURIComponent(segment)).join('/')}`,
+        `${config.apiBaseUrl}/`,
+      );
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      setStatus(status, '', '');
+      renderPosterDetail(results, meta, payload, config, () => window.history.back());
+      return;
+    } catch (error) {
+      setStatus(status, 'Poster details are unavailable.', 'error');
+      return;
+    }
+  }
+
   const inner = document.createElement('div');
   inner.className = 'poster-results-inner';
 
@@ -1006,55 +1073,6 @@ export default async function decorate(block) {
     }
   }
 
-  async function loadDirectPoster(request) {
-    if (!request) return false;
-
-    block.classList.add('is-poster-page');
-    form.hidden = true;
-    nearMe.wrap.hidden = true;
-    header.hidden = true;
-    setStatus(status, 'Loading poster...', 'loading');
-
-    try {
-      if (request.type === 'amber') {
-        const url = new URL(`/api/amber-alerts/${encodeURIComponent(request.caseNumber)}`, `${config.apiBaseUrl}/`);
-        const response = await fetch(url.toString(), {
-          headers: { Accept: 'application/json' },
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const payload = await response.json();
-        setStatus(status, '', '');
-        renderAmberPosterDetail(results, meta, payload, {
-          caseNumber: request.caseNumber,
-          seqNumber: request.seqNumber,
-          personId: request.personId,
-          name: request.name,
-        }, config);
-        return true;
-      }
-
-      const url = new URL(
-        `/api/posters/${[
-          request.provider,
-          request.caseNumber,
-          request.num || 1,
-        ].map((segment) => encodeURIComponent(segment)).join('/')}`,
-        `${config.apiBaseUrl}/`,
-      );
-      const response = await fetch(url.toString(), {
-        headers: { Accept: 'application/json' },
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload = await response.json();
-      setStatus(status, '', '');
-      renderPosterDetail(results, meta, payload, config, () => window.history.back());
-      return true;
-    } catch (error) {
-      setStatus(status, 'Poster details are unavailable.', 'error');
-      return false;
-    }
-  }
-
   restoreResults = () => {
     if (lastPayload) {
       renderResults(results, meta, lastPayload, showPosterDetail);
@@ -1139,6 +1157,4 @@ export default async function decorate(block) {
       lastPayload = null;
     }, 0);
   });
-
-  loadDirectPoster(directPosterRequest());
 }
