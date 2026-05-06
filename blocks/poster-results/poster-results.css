@@ -395,12 +395,16 @@
   margin: -22px -22px 30px;
 }
 
-.poster-results-detail-action {
+.poster-results-detail-actions .poster-results-detail-action,
+.poster-results-detail-actions .poster-results-detail-action:any-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   min-height: 44px;
   min-width: 132px;
+  max-width: none;
+  margin: 0;
   padding: 0 20px;
   border: 1px solid #007294;
   border-radius: 6px;
@@ -411,23 +415,30 @@
   font-size: 14px;
   font-weight: 800;
   text-decoration: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
 }
 
-.poster-results-detail-action:first-child {
+.poster-results-detail-actions .poster-results-detail-action:first-child {
   background: #b51f24;
   border-color: #b51f24;
+  color: #fff;
 }
 
-.poster-results-detail-action:last-child {
+.poster-results-detail-actions .poster-results-detail-action:last-child {
   background: #fff;
   color: #007294;
 }
 
-.poster-results-detail-action:hover,
-.poster-results-detail-action:focus-visible {
+.poster-results-detail-actions .poster-results-detail-action:hover,
+.poster-results-detail-actions .poster-results-detail-action:focus-visible,
+.poster-results-detail-actions .poster-results-detail-action:any-link:hover,
+.poster-results-detail-actions .poster-results-detail-action:any-link:focus-visible {
   background: #005f7d;
   border-color: #005f7d;
   color: #fff;
+  text-decoration: none;
 }
 
 .poster-results-detail-back {
@@ -625,7 +636,6 @@
 .poster-results-near-me-tip:focus-visible,
 .poster-results-qr a:focus-visible,
 .poster-results-detail-back:focus-visible,
-.poster-results-detail-action:focus-visible,
 .poster-results-detail-thumb:focus-visible,
 .poster-results-pagination button:focus-visible,
 .poster-results-card-link:focus-visible,
@@ -665,7 +675,7 @@
 
 .poster-results.is-poster-page {
   background: #eee;
-  padding: 96px 0 72px;
+  padding: 140px 0 72px;
 }
 
 body.poster-results-direct-page main > .section:not(.poster-results-direct-section) {

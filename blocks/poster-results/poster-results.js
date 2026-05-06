@@ -4,7 +4,7 @@ const DEFAULTS = {
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   submitLabel: 'Search',
   submitTipUrl: '/gethelpnow/cybertipline',
-  organizationLogo: 'https://author-p171653-e1855116.adobeaemcloud.com/linkshare.html?sh=7584916d_8e5b_43d7_baf9_4c7470ffc190.obEi3bJPiO5CrZPbp8f6ScyCulPWpwJVNWyaI2adgx0',
+  organizationLogo: '',
   organizationLogoAlt: 'National Center for Missing & Exploited Children',
   qrCodeUrl: '',
   qrCodeLabel: 'this QR Code',
@@ -579,9 +579,13 @@ function createOrganizationMark(config) {
   const wrap = document.createElement('div');
   wrap.className = 'poster-results-detail-logo';
 
-  if (config.organizationLogo) {
+  const logoSrc = config.organizationLogo || document.querySelector('header img')?.currentSrc
+    || document.querySelector('header img')?.src
+    || '';
+
+  if (logoSrc) {
     const img = document.createElement('img');
-    img.src = config.organizationLogo;
+    img.src = logoSrc;
     img.alt = config.organizationLogoAlt;
     wrap.append(img);
     return wrap;
