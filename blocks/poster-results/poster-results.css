@@ -675,7 +675,14 @@
 
 .poster-results.is-poster-page {
   background: #eee;
-  padding: 140px 0 72px;
+  padding: 30px 0 72px;
+  margin-top: 140px;
+}
+
+@media (width <= 1200px) {
+    .poster-results.is-poster-page {
+  margin-top: 0px;
+}
 }
 
 body.poster-results-direct-page main > .section:not(.poster-results-direct-section) {
