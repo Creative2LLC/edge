@@ -361,13 +361,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
+  min-height: 44px;
   margin: 0 0 28px;
-  padding: 0 16px;
-  border: 1px solid #c7d1d8;
+  padding: 0 20px;
+  border: 1px solid #007294;
   border-radius: 6px;
-  background: #fff;
-  color: #243846;
+  background: #007294;
+  color: #fff;
   font-size: 14px;
   font-weight: 800;
   text-decoration: none;
@@ -375,9 +375,9 @@
 
 .poster-results-search-back:hover,
 .poster-results-search-back:focus-visible {
-  border-color: #007294;
-  background: #eef7fa;
-  color: #007294;
+  border-color: #005f7d;
+  background: #005f7d;
+  color: #fff;
   text-decoration: none;
 }
 

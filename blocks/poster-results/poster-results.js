@@ -4,7 +4,7 @@ const DEFAULTS = {
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   submitLabel: 'Search',
   submitTipUrl: '/gethelpnow/cybertipline',
-  organizationLogo: '/blocks/poster-results/NCMEC_Heart_Logo.png',
+  organizationLogo: new URL('./NCMEC_Heart_Logo.png', import.meta.url).href,
   organizationLogoAlt: 'National Center for Missing & Exploited Children',
   qrCodeUrl: '',
   qrCodeLabel: 'this QR Code',
@@ -655,9 +655,9 @@ function createMissingChildHeading() {
 
 function createPosterSearchBackLink() {
   const link = document.createElement('a');
-  link.className = 'poster-results-search-back';
+  link.className = 'poster-results-detail-action poster-results-search-back';
   link.href = posterSearchUrl();
-  link.textContent = 'Back to poster search';
+  link.textContent = '← Back to poster search';
   return link;
 }
 
