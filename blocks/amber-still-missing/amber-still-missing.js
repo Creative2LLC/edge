@@ -194,7 +194,6 @@ export default async function decorate(block) {
 
   const details = document.createElement('details');
   details.className = 'amber-still-missing-accordion';
-  details.open = true;
 
   const summary = document.createElement('summary');
   summary.textContent = config.heading;

@@ -18,57 +18,68 @@
 
 .amber-still-missing-accordion {
   overflow: hidden;
-  border: 1px solid #8f969b;
   border-radius: 8px;
-  background: #fff;
+  background-color: #ddd5cc52;
 }
 
 .amber-still-missing-accordion summary {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  min-height: 54px;
-  background: #969a9d;
-  color: #fff;
+  gap: 20px;
+  min-height: 80px;
+  background: transparent;
+  color: #404041;
   cursor: pointer;
-  font-size: 17px;
-  font-weight: 800;
-  line-height: 1.25;
+  font-size: clamp(1.35rem, 1.95vw, 2rem);
+  font-weight: 700;
+  line-height: 1.22;
   list-style: none;
-  padding: 14px 52px 14px 16px;
+  padding: 26px 64px 26px 30px;
 }
 
 .amber-still-missing-accordion summary::-webkit-details-marker {
   display: none;
 }
 
+.amber-still-missing-accordion summary:hover,
+.amber-still-missing-accordion summary:focus,
+.amber-still-missing-accordion summary:focus-visible {
+  background: transparent;
+  color: #404041;
+  text-decoration: none;
+}
+
+.amber-still-missing-accordion summary::before,
 .amber-still-missing-accordion summary::after {
   position: absolute;
-  right: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  top: 50%;
+  right: 30px;
   width: 16px;
+  height: 2px;
+  background: #404041;
+  content: "";
+  transform: translateY(-50%);
+}
+
+.amber-still-missing-accordion summary::after {
+  width: 2px;
   height: 16px;
-  border-radius: 999px;
-  background: #fff;
-  color: #969a9d;
-  content: "+";
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1;
+  right: 37px;
 }
 
 .amber-still-missing-accordion[open] summary::after {
-  content: "-";
+  opacity: 0;
 }
 
 .amber-still-missing-panel {
-  padding: 20px 16px;
+  padding: 0 30px 30px;
 }
 
 .amber-still-missing-status {
-  margin: 16px;
+  margin: 0;
+  padding: 0 30px 18px;
   color: #3f4b53;
   font-size: 15px;
   font-weight: 800;
@@ -145,15 +156,46 @@
   }
 
   .amber-still-missing-accordion summary {
-    font-size: 15px;
+    min-height: 68px;
+    padding: 22px 56px 22px 24px;
+    font-size: 1.35rem;
   }
 
   .amber-still-missing-panel {
-    padding: 14px 12px;
+    padding: 0 24px 24px;
+  }
+
+  .amber-still-missing-status {
+    padding: 0 24px 16px;
   }
 
   .amber-still-missing th,
   .amber-still-missing td {
     padding: 8px 12px;
+  }
+}
+
+@media (width < 600px) {
+  .amber-still-missing-accordion summary {
+    gap: 14px;
+    padding: 18px 52px 18px 20px;
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  .amber-still-missing-accordion summary::before {
+    right: 22px;
+  }
+
+  .amber-still-missing-accordion summary::after {
+    right: 29px;
+  }
+
+  .amber-still-missing-panel {
+    padding: 0 20px 20px;
+  }
+
+  .amber-still-missing-status {
+    padding: 0 20px 14px;
   }
 }
