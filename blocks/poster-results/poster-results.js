@@ -4,7 +4,7 @@ const DEFAULTS = {
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   submitLabel: 'Search',
   submitTipUrl: '/gethelpnow/cybertipline',
-  organizationLogo: '',
+  organizationLogo: '/blocks/poster-results/NCMEC_Heart_Logo.png',
   organizationLogoAlt: 'National Center for Missing & Exploited Children',
   qrCodeUrl: '',
   qrCodeLabel: 'this QR Code',
@@ -307,6 +307,14 @@ function posterDetailUrl(person) {
   return `${url.pathname}${url.search}`;
 }
 
+function posterSearchUrl() {
+  const url = new URL(window.location.href);
+  ['poster', 'amber_case', 'seq', 'person_id', 'name', 'provider', 'case', 'num'].forEach((key) => {
+    url.searchParams.delete(key);
+  });
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 function sequenceNumber(person) {
   return normalizeText(person?.sequence_number || person?.seqNumber || person?.seqNum);
 }
@@ -579,13 +587,9 @@ function createOrganizationMark(config) {
   const wrap = document.createElement('div');
   wrap.className = 'poster-results-detail-logo';
 
-  const logoSrc = config.organizationLogo || document.querySelector('header img')?.currentSrc
-    || document.querySelector('header img')?.src
-    || '';
-
-  if (logoSrc) {
+  if (config.organizationLogo) {
     const img = document.createElement('img');
-    img.src = logoSrc;
+    img.src = config.organizationLogo;
     img.alt = config.organizationLogoAlt;
     wrap.append(img);
     return wrap;
@@ -649,6 +653,14 @@ function createMissingChildHeading() {
   return heading;
 }
 
+function createPosterSearchBackLink() {
+  const link = document.createElement('a');
+  link.className = 'poster-results-search-back';
+  link.href = posterSearchUrl();
+  link.textContent = 'Back to poster search';
+  return link;
+}
+
 function renderPosterDetail(container, meta, payload, config, onBack) {
   container.replaceChildren();
   meta.textContent = '';
@@ -662,7 +674,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail';
 
-  detail.append(createMissingChildHeading(), createActionBar(config));
+  detail.append(createPosterSearchBackLink(), createMissingChildHeading(), createActionBar(config));
 
   const back = document.createElement('button');
   back.type = 'button';
@@ -739,7 +751,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail poster-results-amber-poster';
-  detail.append(createMissingChildHeading(), createActionBar(config));
+  detail.append(createPosterSearchBackLink(), createMissingChildHeading(), createActionBar(config));
 
   const layout = document.createElement('div');
   layout.className = 'poster-results-detail-layout';
