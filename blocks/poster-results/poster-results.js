@@ -353,6 +353,50 @@ function firstValue(source, keys) {
   return keys.map((key) => source?.[key]).find((value) => normalizeText(value)) || '';
 }
 
+function deepFirstValue(source, keys, depth = 0) {
+  if (!source || typeof source !== 'object' || depth > 4) return '';
+
+  const direct = firstValue(source, keys);
+  if (direct) return direct;
+
+  return Object.values(source).reduce((found, value) => {
+    if (found) return found;
+    if (Array.isArray(value)) {
+      return value.reduce((arrayFound, item) => (
+        arrayFound || deepFirstValue(item, keys, depth + 1)
+      ), '');
+    }
+    return deepFirstValue(value, keys, depth + 1);
+  }, '');
+}
+
+function detailDeepValue(payload, child, keys) {
+  return firstValue(child, keys)
+    || firstValue(payload, keys)
+    || deepFirstValue(child, keys)
+    || deepFirstValue(payload, keys);
+}
+
+function firstArrayItem(...values) {
+  return values.flatMap((value) => (Array.isArray(value) ? value : [])).find(Boolean) || {};
+}
+
+function firstArrayValue(value) {
+  return Array.isArray(value) ? normalizeText(value[0]) : normalizeText(value);
+}
+
+function formatPhoneNumber(value) {
+  const text = normalizeText(value);
+  const digits = text.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+  return text;
+}
+
 function photoSource(photo) {
   if (!photo) return '';
   if (typeof photo === 'string') return photo;
@@ -417,7 +461,8 @@ function appendPhotoGallery(container, child, name) {
 }
 
 function formatAgencyLine(payload, child) {
-  const agency = detailValue(payload, child, [
+  const contact = firstArrayItem(child?.contacts, payload?.contacts);
+  const agency = detailDeepValue(payload, child, [
     'investigatingAgency',
     'lawEnforcementAgency',
     'policeDepartment',
@@ -425,17 +470,69 @@ function formatAgencyLine(payload, child) {
     'contactAgency',
     'policeDepartmentName',
     'investigatingAgencyName',
-  ]);
-  const phone = detailValue(payload, child, [
+    'investigatingAgencyDisplayName',
+    'leadAgency',
+    'leadAgencyName',
+    'displayAgency',
+    'displayAgencyName',
+    'orgName',
+    'departmentName',
+  ]) || normalizeText(contact.name);
+  const agencyState = detailDeepValue(payload, child, [
+    'investigatingAgencyState',
+    'lawEnforcementAgencyState',
+    'policeDepartmentState',
+    'agencyState',
+    'leadAgencyState',
+    'orgState',
+    'state',
+  ]) || normalizeText(contact.state);
+  const phone = detailDeepValue(payload, child, [
     'agencyPhone',
     'phone',
     'phoneNumber',
     'contactPhone',
     'lawEnforcementPhone',
     'investigatingAgencyPhone',
-  ]);
+    'investigatingAgencyPhoneNumber',
+    'policeDepartmentPhone',
+    'agencyPhoneNumber',
+    'leadAgencyPhone',
+    'leadAgencyPhoneNumber',
+    'orgPhone',
+    'telephone',
+    'telephoneNumber',
+    'phoneNumbers',
+  ]) || firstArrayValue(contact.phoneNumbers);
 
-  return { agency, phone };
+  const agencyWithState = agency && agencyState && !agency.includes(`(${agencyState})`)
+    ? `${agency} (${agencyState})`
+    : agency;
+
+  return { agency: agencyWithState, phone: formatPhoneNumber(phone) };
+}
+
+function posterNarrative(payload, child) {
+  const keys = [
+    'circumstances',
+    'circumstance',
+    'missingCircumstances',
+    'caseCircumstances',
+    'description',
+    'posterDescription',
+    'posterText',
+    'posterCopy',
+    'remarks',
+    'remark',
+    'caseRemarks',
+    'comment',
+    'comments',
+    'narrative',
+    'childDescription',
+    'otherInfo',
+    'additionalInformation',
+  ];
+  return detailDeepValue(payload, child, keys);
 }
 
 function createActionLink(label, href) {
@@ -613,15 +710,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   ]);
   body.append(details);
 
-  if (missingDate) {
-    const seen = document.createElement('p');
-    seen.className = 'poster-results-detail-seen';
-    seen.textContent = `${name} was last seen on ${missingDate}.`;
-    body.append(seen);
-  }
-
-  const narrative = firstValue(payload, ['circumstances', 'description', 'posterText', 'remarks'])
-    || firstValue(child, ['circumstances', 'description', 'posterText', 'remarks']);
+  const narrative = posterNarrative(payload, child);
   if (narrative) {
     const copy = document.createElement('p');
     copy.className = 'poster-results-detail-copy';
@@ -690,8 +779,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   ]);
   body.append(details);
 
-  const narrative = firstValue(payload, ['circumstances', 'description', 'posterText', 'remarks'])
-    || firstValue(alert, ['circumstances', 'description', 'posterText', 'remarks']);
+  const narrative = posterNarrative(payload, alert);
   if (narrative) {
     const copy = document.createElement('p');
     copy.className = 'poster-results-detail-copy';
@@ -773,6 +861,8 @@ function createResultCard(person) {
   if (person.thumbnail_url) {
     const imageLink = document.createElement('a');
     imageLink.href = detailUrl;
+    imageLink.target = '_blank';
+    imageLink.rel = 'noopener noreferrer';
     imageLink.className = 'poster-results-photo';
 
     const img = document.createElement('img');
@@ -807,6 +897,8 @@ function createResultCard(person) {
 
   const link = document.createElement('a');
   link.href = detailUrl;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
   link.className = 'poster-results-card-link';
   link.textContent = 'View details';
   body.append(link);
