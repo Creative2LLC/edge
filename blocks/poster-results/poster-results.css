@@ -366,6 +366,28 @@
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
 }
 
+.poster-results-missing-child-heading {
+  display: grid;
+  grid-template-columns: minmax(40px, 1fr) auto minmax(40px, 1fr);
+  align-items: center;
+  gap: 32px;
+  margin: 0 0 34px;
+}
+
+.poster-results-missing-child-heading span {
+  height: 10px;
+  background: #b51f24;
+}
+
+.poster-results-missing-child-heading h1 {
+  margin: 0;
+  color: #b51f24;
+  font-size: 58px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .poster-results-detail-actions {
   display: flex;
   justify-content: center;
@@ -637,8 +659,12 @@
 }
 
 .poster-results.is-poster-page {
-  background: #f2f2f2;
-  padding-top: 32px;
+  background: #eee;
+  padding: 48px 0 64px;
+}
+
+body.poster-results-direct-page main > .section:not(.poster-results-direct-section) {
+  display: none;
 }
 
 .poster-results.is-poster-page .poster-results-header,
@@ -653,12 +679,38 @@
 }
 
 .poster-results.is-poster-page .poster-results-detail {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.poster-results.is-poster-page .poster-results-detail-actions {
+  margin: 0 0 32px;
+}
+
+.poster-results.is-poster-page .poster-results-detail-layout {
   max-width: 980px;
   margin: 0 auto;
 }
 
 .poster-results.is-poster-page .poster-results-detail-back {
   display: none;
+}
+
+.poster-results.is-poster-page .poster-results-detail-gallery {
+  max-width: 980px;
+  margin: 34px auto 0;
+  padding-left: 346px;
+}
+
+.poster-results.is-poster-page .poster-results-detail-footer {
+  max-width: 980px;
+  margin: 48px auto 0;
+  border: 0;
+  background: transparent;
 }
 
 @media (width <= 1100px) {
@@ -741,9 +793,26 @@
     flex: 1 1 50%;
   }
 
+  .poster-results-missing-child-heading {
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+
+  .poster-results-missing-child-heading span {
+    height: 6px;
+  }
+
+  .poster-results-missing-child-heading h1 {
+    font-size: 34px;
+  }
+
   .poster-results-detail-footer {
     grid-template-columns: 1fr;
     padding: 26px 20px;
+  }
+
+  .poster-results.is-poster-page .poster-results-detail-gallery {
+    padding-left: 0;
   }
 }
 

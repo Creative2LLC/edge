@@ -292,10 +292,19 @@ function locationText(person) {
     .join(', ');
 }
 
-function posterPath(person) {
+function posterReference(person) {
   return [person.orgPrefix, person.caseNumber, person.seqNumber || 1]
-    .map((value) => encodeURIComponent(value))
+    .map(normalizeText)
+    .filter(Boolean)
     .join('/');
+}
+
+function posterDetailUrl(person) {
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.hash = '';
+  url.searchParams.set('poster', posterReference(person));
+  return `${url.pathname}${url.search}`;
 }
 
 function sequenceNumber(person) {
@@ -528,6 +537,17 @@ function createDetailFooter(config, payload, child) {
   return footer;
 }
 
+function createMissingChildHeading() {
+  const heading = document.createElement('div');
+  heading.className = 'poster-results-missing-child-heading';
+  const start = document.createElement('span');
+  const text = document.createElement('h1');
+  text.textContent = 'Missing Child';
+  const end = document.createElement('span');
+  heading.append(start, text, end);
+  return heading;
+}
+
 function renderPosterDetail(container, meta, payload, config, onBack) {
   container.replaceChildren();
   meta.textContent = '';
@@ -541,7 +561,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail';
 
-  detail.append(createActionBar(config));
+  detail.append(createMissingChildHeading(), createActionBar(config));
 
   const back = document.createElement('button');
   back.type = 'button';
@@ -626,7 +646,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail poster-results-amber-poster';
-  detail.append(createActionBar(config));
+  detail.append(createMissingChildHeading(), createActionBar(config));
 
   const layout = document.createElement('div');
   layout.className = 'poster-results-detail-layout';
@@ -725,15 +745,35 @@ function directPosterRequest() {
   return null;
 }
 
-function createResultCard(person, onSelect) {
+function enterDirectPosterPage(block) {
+  document.body.classList.add('poster-results-direct-page');
+
+  const section = block.closest('.section') || block.parentElement;
+  section?.classList.add('poster-results-direct-section');
+
+  const main = block.closest('main');
+  if (main && section) {
+    [...main.children].forEach((child) => {
+      child.hidden = child !== section;
+    });
+  }
+
+  if (section) {
+    [...section.children].forEach((child) => {
+      child.hidden = child !== block && !child.contains(block);
+    });
+  }
+}
+
+function createResultCard(person) {
   const card = document.createElement('article');
   card.className = 'poster-results-card';
+  const detailUrl = posterDetailUrl(person);
 
   if (person.thumbnail_url) {
-    const imageLink = document.createElement('button');
-    imageLink.type = 'button';
+    const imageLink = document.createElement('a');
+    imageLink.href = detailUrl;
     imageLink.className = 'poster-results-photo';
-    imageLink.addEventListener('click', () => onSelect(person));
 
     const img = document.createElement('img');
     img.src = person.thumbnail_url;
@@ -765,18 +805,17 @@ function createResultCard(person, onSelect) {
   });
   body.append(details);
 
-  const link = document.createElement('button');
-  link.type = 'button';
+  const link = document.createElement('a');
+  link.href = detailUrl;
   link.className = 'poster-results-card-link';
   link.textContent = 'View details';
-  link.addEventListener('click', () => onSelect(person));
   body.append(link);
 
   card.append(body);
   return card;
 }
 
-function renderResults(container, meta, payload, onSelect) {
+function renderResults(container, meta, payload) {
   container.replaceChildren();
 
   const people = Array.isArray(payload?.data) ? payload.data : [];
@@ -798,7 +837,7 @@ function renderResults(container, meta, payload, onSelect) {
     return;
   }
 
-  people.forEach((person) => container.append(createResultCard(person, onSelect)));
+  people.forEach((person) => container.append(createResultCard(person)));
 }
 
 function appendParams(url, form) {
@@ -890,6 +929,7 @@ export default async function decorate(block) {
     }
 
     block.classList.add('is-poster-page');
+    enterDirectPosterPage(block);
 
     const inner = document.createElement('div');
     inner.className = 'poster-results-inner';
@@ -1043,42 +1083,12 @@ export default async function decorate(block) {
   let currentPage = 1;
   let totalPages = 1;
   let currentNearSearch = false;
-  let lastPayload = null;
   let searchPosters;
   let renderPagination = () => {};
-  let restoreResults = () => {};
   const nearMe = createNearMeSection(config, () => searchPosters(1, true));
 
   inner.append(header, form, nearMe.wrap, status, meta, results, pagination);
   block.replaceChildren(inner);
-
-  async function showPosterDetail(person) {
-    setStatus(status, 'Loading poster details...', 'loading');
-    results.replaceChildren();
-    pagination.replaceChildren();
-    pagination.hidden = true;
-
-    try {
-      const url = new URL(`/api/posters/${posterPath(person)}`, `${config.apiBaseUrl}/`);
-      const response = await fetch(url.toString(), {
-        headers: { Accept: 'application/json' },
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload = await response.json();
-      setStatus(status, '', '');
-      renderPosterDetail(results, meta, payload, config, restoreResults);
-    } catch (error) {
-      setStatus(status, 'Poster details are unavailable.', 'error');
-      restoreResults();
-    }
-  }
-
-  restoreResults = () => {
-    if (lastPayload) {
-      renderResults(results, meta, lastPayload, showPosterDetail);
-      renderPagination();
-    }
-  };
 
   renderPagination = () => {
     pagination.replaceChildren();
@@ -1128,9 +1138,8 @@ export default async function decorate(block) {
       currentPage = payload.current_page || page;
       totalPages = payload.total_pages || 1;
       currentNearSearch = nearCurrentLocation;
-      lastPayload = payload;
       setStatus(status, '', '');
-      renderResults(results, meta, payload, showPosterDetail);
+      renderResults(results, meta, payload);
       renderPagination();
     } catch (error) {
       setStatus(status, nearCurrentLocation ? 'Search near me is unavailable.' : 'Poster search is unavailable.', 'error');
@@ -1154,7 +1163,6 @@ export default async function decorate(block) {
       currentPage = 1;
       totalPages = 1;
       currentNearSearch = false;
-      lastPayload = null;
     }, 0);
   });
 }

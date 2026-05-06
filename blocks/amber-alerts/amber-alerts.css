@@ -46,7 +46,7 @@
 }
 
 .amber-alerts-filter {
-  display: grid;
+  display: none;
   gap: 7px;
   min-width: 220px;
 }
