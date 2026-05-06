@@ -95,6 +95,7 @@
 }
 
 .amber-alerts-card-actions .amber-alerts-card-secondary {
+  display: inline-flex;
   border: 1px solid #c7d1d8;
   background: #fff;
   color: #243846;
@@ -265,6 +266,22 @@
   color: #303030;
   font-size: 17px;
   line-height: 1.5;
+}
+
+.amber-alerts-detail-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.amber-alerts-detail-gallery img {
+  width: 118px;
+  height: 146px;
+  border: 2px solid #b8e8f3;
+  border-radius: 8px;
+  background: #fff;
+  object-fit: cover;
 }
 
 .amber-alerts-filter select:focus-visible,

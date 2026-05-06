@@ -132,6 +132,10 @@ function normalizeApiBaseUrl(value) {
   return normalizeText(value).replace(/\/+$/, '');
 }
 
+function joinValues(values, separator = ', ') {
+  return values.map(normalizeText).filter(Boolean).join(separator);
+}
+
 function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
 }
@@ -273,6 +277,10 @@ function fullName(person) {
     .join(' ');
 }
 
+function displayName(person, fallback = 'Missing child poster') {
+  return fullName(person) || normalizeText(person?.fullName || person?.name) || fallback;
+}
+
 function locationText(person) {
   return [
     person.missingCity || person.city,
@@ -290,6 +298,48 @@ function posterPath(person) {
     .join('/');
 }
 
+function sequenceNumber(person) {
+  return normalizeText(person?.sequence_number || person?.seqNumber || person?.seqNum);
+}
+
+function personId(person) {
+  return normalizeText(person?.personId || person?.personID || person?.id);
+}
+
+function normalizedPersonName(person) {
+  return displayName(person, '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function matchingPerson(payload, sourcePerson = {}) {
+  let people = [];
+  if (Array.isArray(payload?.data)) {
+    people = payload.data;
+  } else if (Array.isArray(payload?.children)) {
+    people = payload.children;
+  }
+  if (!people.length) return sourcePerson || payload || {};
+
+  const sourceId = personId(sourcePerson);
+  if (sourceId) {
+    const match = people.find((person) => personId(person) === sourceId);
+    if (match) return match;
+  }
+
+  const sourceSequence = sequenceNumber(sourcePerson);
+  if (sourceSequence) {
+    const match = people.find((person) => sequenceNumber(person) === sourceSequence);
+    if (match) return match;
+  }
+
+  const sourceName = normalizedPersonName(sourcePerson);
+  if (sourceName) {
+    const match = people.find((person) => normalizedPersonName(person) === sourceName);
+    if (match) return match;
+  }
+
+  return people.length === 1 ? people[0] : sourcePerson;
+}
+
 function firstValue(source, keys) {
   return keys.map((key) => source?.[key]).find((value) => normalizeText(value)) || '';
 }
@@ -299,6 +349,18 @@ function photoSource(photo) {
   if (typeof photo === 'string') return photo;
   if (photo.base64) return `data:image/jpeg;base64,${photo.base64}`;
   return photo.url || photo.photoUrl || photo.photoUri || '';
+}
+
+function childPhotoSources(child) {
+  const photos = Array.isArray(child?.photos) ? child.photos : [];
+  return [
+    ...photos.map(photoSource),
+    child?.image_url,
+    child?.thumbnail_url,
+    child?.imageUrl,
+    child?.thumbnailUrl,
+    child?.image?.image_url,
+  ].map(normalizeText).filter(Boolean);
 }
 
 function createDetailRow(label, value) {
@@ -321,6 +383,30 @@ function appendDetailRows(list, rows) {
   });
 }
 
+function appendPhotoGallery(container, child, name) {
+  const photos = [...new Set(childPhotoSources(child))];
+  if (photos.length <= 1) return;
+
+  const gallery = document.createElement('div');
+  gallery.className = 'poster-results-detail-gallery';
+  photos.forEach((src) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'poster-results-detail-thumb';
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = name;
+    img.loading = 'lazy';
+    button.append(img);
+    button.addEventListener('click', () => {
+      const main = container.querySelector('.poster-results-detail-media img');
+      if (main) main.src = src;
+    });
+    gallery.append(button);
+  });
+  container.querySelector('.poster-results-detail-body')?.append(gallery);
+}
+
 function formatAgencyLine(payload, child) {
   const agency = detailValue(payload, child, [
     'investigatingAgency',
@@ -328,6 +414,8 @@ function formatAgencyLine(payload, child) {
     'policeDepartment',
     'agencyName',
     'contactAgency',
+    'policeDepartmentName',
+    'investigatingAgencyName',
   ]);
   const phone = detailValue(payload, child, [
     'agencyPhone',
@@ -335,6 +423,7 @@ function formatAgencyLine(payload, child) {
     'phoneNumber',
     'contactPhone',
     'lawEnforcementPhone',
+    'investigatingAgencyPhone',
   ]);
 
   return { agency, phone };
@@ -424,7 +513,10 @@ function createDetailFooter(config, payload, child) {
     info.append(agency);
   }
 
-  const caseNumber = payload?.caseNumber || child.caseNumber;
+  const caseNumber = payload?.caseNumber
+    || payload?.case_number
+    || child.caseNumber
+    || child.case_number;
   if (caseNumber) {
     const ncmec = document.createElement('p');
     ncmec.className = 'poster-results-detail-case';
@@ -442,9 +534,8 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
 
   const children = Array.isArray(payload?.children) ? payload.children : [];
   const child = children[0] || payload || {};
-  const name = fullName(child) || payload?.fullName || payload?.name || 'Missing child poster';
-  const photos = Array.isArray(child.photos) ? child.photos : [];
-  const imageSrc = photoSource(photos[0]) || child.image_url || child.thumbnail_url;
+  const name = displayName(child);
+  const imageSrc = childPhotoSources(child)[0];
   const missingDate = detailValue(payload, child, ['missingDate', 'dateMissing', 'missingSince']);
 
   const detail = document.createElement('article');
@@ -480,16 +571,25 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   const details = document.createElement('dl');
   appendDetailRows(details, [
     ['Case', payload?.caseNumber || child.caseNumber],
+    ['NCIC', detailValue(payload, child, ['ncicNumber', 'ncic'])],
     ['Missing Since', missingDate],
     ['Missing From', locationText(child)],
     ['Age Now', detailValue(payload, child, ['age', 'ageNow'])],
     ['Age Missing', detailValue(payload, child, ['ageMissing', 'missingAge'])],
+    ['Date of Birth', detailValue(payload, child, ['dateOfBirth', 'birthDate', 'dob'])],
     ['Gender', detailValue(payload, child, ['sex', 'gender'])],
     ['Race', detailValue(payload, child, ['race'])],
     ['Hair Color', detailValue(payload, child, ['hairColor', 'hair'])],
     ['Eye Color', detailValue(payload, child, ['eyeColor', 'eyes'])],
-    ['Height', detailValue(payload, child, ['height'])],
-    ['Weight', detailValue(payload, child, ['weight'])],
+    ['Height', joinValues([
+      detailValue(payload, child, ['height']),
+      detailValue(payload, child, ['heightTo']),
+    ], ' - ')],
+    ['Weight', joinValues([
+      detailValue(payload, child, ['weight']),
+      detailValue(payload, child, ['weightTo']),
+    ], ' - ')],
+    ['Aliases', detailValue(payload, child, ['alias', 'aliases', 'nickname'])],
   ]);
   body.append(details);
 
@@ -512,6 +612,117 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   layout.append(body);
   detail.append(back, layout, createDetailFooter(config, payload, child));
   container.append(detail);
+  appendPhotoGallery(detail, child, name);
+}
+
+function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) {
+  container.replaceChildren();
+  meta.textContent = '';
+
+  const alert = matchingPerson(payload, sourceAlert);
+  const name = displayName(alert, 'AMBER Alert');
+  const imageSrc = childPhotoSources(alert)[0];
+  const missingDate = firstValue(alert, ['missing_date', 'missingDate', 'dateMissing', 'missingSince']);
+
+  const detail = document.createElement('article');
+  detail.className = 'poster-results-detail poster-results-amber-poster';
+  detail.append(createActionBar(config));
+
+  const layout = document.createElement('div');
+  layout.className = 'poster-results-detail-layout';
+
+  if (imageSrc) {
+    const media = document.createElement('div');
+    media.className = 'poster-results-detail-media';
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.alt = name;
+    media.append(img);
+    layout.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'poster-results-detail-body';
+  const title = document.createElement('h3');
+  title.textContent = name;
+  body.append(title);
+
+  const caseLine = document.createElement('p');
+  caseLine.className = 'poster-results-detail-subcase';
+  caseLine.textContent = `NCMEC # ${payload.case_number || alert.case_number || alert.caseNumber || ''}`.trim();
+  body.append(caseLine);
+
+  const details = document.createElement('dl');
+  appendDetailRows(details, [
+    ['NCIC', firstValue(alert, ['ncicNumber', 'ncic'])],
+    ['Missing Since', missingDate],
+    ['Missing From', alert.missing_location || alert.missingLocation],
+    ['Age Now', firstValue(alert, ['age', 'ageNow'])],
+    ['Age Missing', firstValue(alert, ['ageMissing', 'missingAge'])],
+    ['Date of Birth', firstValue(alert, ['dateOfBirth', 'birthDate', 'dob'])],
+    ['Gender', firstValue(alert, ['sex', 'gender'])],
+    ['Race', firstValue(alert, ['race'])],
+    ['Hair Color', firstValue(alert, ['hairColor'])],
+    ['Eye Color', firstValue(alert, ['eyeColor'])],
+    ['Height', joinValues([firstValue(alert, ['height']), firstValue(alert, ['heightTo'])], ' - ')],
+    ['Weight', joinValues([firstValue(alert, ['weight']), firstValue(alert, ['weightTo'])], ' - ')],
+    ['Issued For', alert.issued_for || alert.issuedFor],
+  ]);
+  body.append(details);
+
+  const narrative = firstValue(payload, ['circumstances', 'description', 'posterText', 'remarks'])
+    || firstValue(alert, ['circumstances', 'description', 'posterText', 'remarks']);
+  if (narrative) {
+    const copy = document.createElement('p');
+    copy.className = 'poster-results-detail-copy';
+    copy.textContent = narrative;
+    body.append(copy);
+  }
+
+  layout.append(body);
+  detail.append(layout, createDetailFooter(config, payload, alert));
+  container.append(detail);
+  appendPhotoGallery(detail, alert, name);
+}
+
+function directPosterRequest() {
+  const params = new URLSearchParams(window.location.search);
+  const poster = normalizeText(params.get('poster'));
+  if (poster) {
+    const [provider, caseNumber, num = '1'] = poster.split('/').map(normalizeText);
+    if (provider && caseNumber) {
+      return {
+        type: 'poster',
+        provider,
+        caseNumber,
+        num,
+      };
+    }
+  }
+
+  const amberCase = normalizeText(params.get('amber_case'));
+  if (amberCase) {
+    return {
+      type: 'amber',
+      caseNumber: amberCase,
+      seqNumber: normalizeText(params.get('seq')),
+      personId: normalizeText(params.get('person_id')),
+      name: normalizeText(params.get('name')),
+    };
+  }
+
+  const provider = normalizeText(params.get('provider'));
+  const caseNumber = normalizeText(params.get('case'));
+  if (provider && caseNumber) {
+    return {
+      type: 'poster',
+      provider,
+      caseNumber,
+      num: normalizeText(params.get('num')) || '1',
+    };
+  }
+
+  return null;
 }
 
 function createResultCard(person, onSelect) {
@@ -795,6 +1006,55 @@ export default async function decorate(block) {
     }
   }
 
+  async function loadDirectPoster(request) {
+    if (!request) return false;
+
+    block.classList.add('is-poster-page');
+    form.hidden = true;
+    nearMe.wrap.hidden = true;
+    header.hidden = true;
+    setStatus(status, 'Loading poster...', 'loading');
+
+    try {
+      if (request.type === 'amber') {
+        const url = new URL(`/api/amber-alerts/${encodeURIComponent(request.caseNumber)}`, `${config.apiBaseUrl}/`);
+        const response = await fetch(url.toString(), {
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        setStatus(status, '', '');
+        renderAmberPosterDetail(results, meta, payload, {
+          caseNumber: request.caseNumber,
+          seqNumber: request.seqNumber,
+          personId: request.personId,
+          name: request.name,
+        }, config);
+        return true;
+      }
+
+      const url = new URL(
+        `/api/posters/${[
+          request.provider,
+          request.caseNumber,
+          request.num || 1,
+        ].map((segment) => encodeURIComponent(segment)).join('/')}`,
+        `${config.apiBaseUrl}/`,
+      );
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      setStatus(status, '', '');
+      renderPosterDetail(results, meta, payload, config, () => window.history.back());
+      return true;
+    } catch (error) {
+      setStatus(status, 'Poster details are unavailable.', 'error');
+      return false;
+    }
+  }
+
   restoreResults = () => {
     if (lastPayload) {
       renderResults(results, meta, lastPayload, showPosterDetail);
@@ -879,4 +1139,6 @@ export default async function decorate(block) {
       lastPayload = null;
     }, 0);
   });
+
+  loadDirectPoster(directPosterRequest());
 }

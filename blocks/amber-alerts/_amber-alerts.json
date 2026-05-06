@@ -70,6 +70,14 @@
           "name": "detailLabel",
           "label": "Detail Button Label",
           "value": "View alert"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "posterPagePath",
+          "label": "Poster Page Path",
+          "description": "EDS page containing the Poster Results block. Open Poster links add AMBER query parameters to this path.",
+          "value": "/missing-children-posters.html"
         }
       ]
     }

@@ -1,3 +1,5 @@
+import resolveSiteHref from '../../scripts/link-utils.js';
+
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
   eyebrow: 'AMBER Alert',
@@ -6,6 +8,7 @@ const DEFAULTS = {
   state: '',
   emptyMessage: 'There are no AMBER Alerts at this time.',
   detailLabel: 'View alert',
+  posterPagePath: '/missing-children-posters.html',
 };
 
 const FIELD_LABELS = {
@@ -16,6 +19,7 @@ const FIELD_LABELS = {
   state: ['state', 'default state filter'],
   emptyMessage: ['empty message', 'no alerts message'],
   detailLabel: ['detail label', 'button label', 'detail button label'],
+  posterPagePath: ['poster page path', 'poster page url', 'poster url'],
 };
 
 const STATES = [
@@ -127,6 +131,10 @@ function firstValue(source, keys) {
   return keys.map((key) => source?.[key]).find((value) => normalizeText(value)) || '';
 }
 
+function joinValues(values) {
+  return values.map(normalizeText).filter(Boolean).join(', ');
+}
+
 function caseNumber(alert) {
   return normalizeText(alert.case_number || alert.caseNumber || alert.amberId);
 }
@@ -190,6 +198,15 @@ function appendDetailRows(list, rows) {
   });
 }
 
+function posterPageUrl(alert, config) {
+  const url = new URL(resolveSiteHref(config.posterPagePath), window.location.origin);
+  url.searchParams.set('amber_case', caseNumber(alert));
+  if (sequenceNumber(alert)) url.searchParams.set('seq', sequenceNumber(alert));
+  if (personId(alert)) url.searchParams.set('person_id', personId(alert));
+  if (alertName(alert)) url.searchParams.set('name', alertName(alert));
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 function createAlertCard(alert, config, onSelect) {
   const card = document.createElement('article');
   card.className = 'amber-alerts-card';
@@ -236,11 +253,10 @@ function createAlertCard(alert, config, onSelect) {
   actions.append(detail);
 
   if (caseNumber(alert)) {
-    const poster = document.createElement('button');
-    poster.type = 'button';
+    const poster = document.createElement('a');
+    poster.href = posterPageUrl(alert, config);
     poster.className = 'amber-alerts-card-secondary';
     poster.textContent = 'Open poster';
-    poster.addEventListener('click', () => onSelect(alert));
     actions.append(poster);
   }
 
@@ -273,6 +289,29 @@ function detailImage(payload, sourceAlert) {
       || alert.thumbnailUrl
       || alert.image?.image_url,
   );
+}
+
+function appendImageGallery(container, alert) {
+  const images = [
+    alert.image_url,
+    alert.thumbnail_url,
+    alert.image?.image_url,
+    alert.imageUrl,
+    alert.thumbnailUrl,
+  ].map(normalizeText).filter(Boolean);
+  const uniqueImages = [...new Set(images)];
+  if (uniqueImages.length <= 1) return;
+
+  const gallery = document.createElement('div');
+  gallery.className = 'amber-alerts-detail-gallery';
+  uniqueImages.forEach((src) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alertName(alert);
+    img.loading = 'lazy';
+    gallery.append(img);
+  });
+  container.append(gallery);
 }
 
 function renderDetail(container, payload, sourceAlert, onBack) {
@@ -311,13 +350,20 @@ function renderDetail(container, payload, sourceAlert, onBack) {
   const details = document.createElement('dl');
   appendDetailRows(details, [
     ['Case', payload.case_number || caseNumber(alert)],
+    ['NCMEC', firstValue(alert, ['ncmecNumber', 'ncmecCaseNumber', 'caseNumber'])],
+    ['NCIC', firstValue(alert, ['ncicNumber', 'ncic'])],
     ['Missing From', alert.missing_location || alert.missingLocation],
     ['Alert Date', alert.missing_date || alert.missingDate],
+    ['Missing Since', firstValue(alert, ['missingDate', 'dateMissing', 'missingSince'])],
     ['Issued For', alert.issued_for || alert.issuedFor],
+    ['Age Now', firstValue(alert, ['age', 'ageNow'])],
+    ['Age Missing', firstValue(alert, ['ageMissing', 'missingAge'])],
     ['Gender', firstValue(alert, ['sex', 'gender'])],
     ['Race', firstValue(alert, ['race'])],
     ['Hair Color', firstValue(alert, ['hairColor'])],
     ['Eye Color', firstValue(alert, ['eyeColor'])],
+    ['Height', joinValues([firstValue(alert, ['height']), firstValue(alert, ['heightTo'])])],
+    ['Weight', joinValues([firstValue(alert, ['weight']), firstValue(alert, ['weightTo'])])],
   ]);
 
   const narrative = firstValue(payload, ['circumstances', 'description', 'posterText', 'remarks'])
@@ -329,6 +375,7 @@ function renderDetail(container, payload, sourceAlert, onBack) {
     copy.textContent = narrative;
     content.append(copy);
   }
+  appendImageGallery(content, alert);
   body.append(content);
   detail.append(back, body);
   container.append(detail);
@@ -360,6 +407,7 @@ export default async function decorate(block) {
     state: getFieldValue(block, 'state', 4, DEFAULTS.state).toUpperCase(),
     emptyMessage: getFieldValue(block, 'emptyMessage', 5, DEFAULTS.emptyMessage),
     detailLabel: getFieldValue(block, 'detailLabel', 6, DEFAULTS.detailLabel),
+    posterPagePath: getFieldValue(block, 'posterPagePath', 7, DEFAULTS.posterPagePath),
   };
 
   const inner = document.createElement('div');
