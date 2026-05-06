@@ -1,12 +1,19 @@
 /* Leadership Team Block */
 .leadership-team {
+  margin-inline: -24px;
   padding: 0 0 60px;
+}
+
+@media (width >= 900px) {
+  .leadership-team {
+    margin-inline: -32px;
+  }
 }
 
 .leadership-team-inner {
   max-width: 1420px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0;
 }
 
 /* -------------------------------------------------------
