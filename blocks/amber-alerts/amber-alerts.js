@@ -255,6 +255,8 @@ function createAlertCard(alert, config, onSelect) {
   if (caseNumber(alert)) {
     const poster = document.createElement('a');
     poster.href = posterPageUrl(alert, config);
+    poster.target = '_blank';
+    poster.rel = 'noopener noreferrer';
     poster.className = 'amber-alerts-card-secondary';
     poster.textContent = 'Open poster';
     actions.append(poster);
