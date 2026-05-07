@@ -437,3 +437,14 @@ main > .section.padding-y-lg {
     padding-bottom: 88px;
   }
 }
+
+/* RTE inline text colors (applied via Styles dropdown in the rich text editor) */
+.rte-color-brand-dark-blue  { color: #00264D; }
+.rte-color-brand-light-blue { color: #008EB7; }
+.rte-color-brand-grey       { color: #404041; }
+.rte-color-brand-red        { color: #F58A80; }
+.rte-color-brand-green      { color: #7BC581; }
+.rte-color-brand-orange     { color: #FAAD67; }
+.rte-color-brand-teal       { color: #92D6E3; }
+.rte-color-white            { color: #FFFFFF; }
+.rte-color-muted-grey       { color: #A1A1A1; }

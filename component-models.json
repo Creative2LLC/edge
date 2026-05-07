@@ -166,7 +166,45 @@
         "component": "richtext",
         "valueType": "string",
         "name": "text",
-        "label": "Text"
+        "label": "Text",
+        "styles": [
+          {
+            "label": "Brand Dark Blue",
+            "value": "rte-color-brand-dark-blue"
+          },
+          {
+            "label": "Brand Light Blue",
+            "value": "rte-color-brand-light-blue"
+          },
+          {
+            "label": "Brand Grey",
+            "value": "rte-color-brand-grey"
+          },
+          {
+            "label": "Brand Red",
+            "value": "rte-color-brand-red"
+          },
+          {
+            "label": "Brand Green",
+            "value": "rte-color-brand-green"
+          },
+          {
+            "label": "Brand Orange",
+            "value": "rte-color-brand-orange"
+          },
+          {
+            "label": "Brand Teal",
+            "value": "rte-color-brand-teal"
+          },
+          {
+            "label": "White",
+            "value": "rte-color-white"
+          },
+          {
+            "label": "Muted Grey",
+            "value": "rte-color-muted-grey"
+          }
+        ]
       },
       {
         "component": "select",
