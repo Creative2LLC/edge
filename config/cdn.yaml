@@ -1,0 +1,85 @@
+kind: "CDN"
+version: "1"
+
+data:
+  redirects:
+    rules:
+      # /index.html -> /
+      - name: remove-root-index-html
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/index\\.html$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: url
+            transform:
+              - op: replace
+                match: "^/index\\.html(\\?.*)?$"
+                replacement: "/\\1"
+
+      # /content/edge/index.html -> /
+      - name: remove-content-edge-root-index-html
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/content/edge/index\\.html$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: url
+            transform:
+              - op: replace
+                match: "^/content/edge/index\\.html(\\?.*)?$"
+                replacement: "/\\1"
+
+      # /content/edge/foo/bar.html -> /foo/bar
+      - name: remove-content-edge-html-extension
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/content/edge/.+\\.html$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: url
+            transform:
+              - op: replace
+                match: "^/content/edge/(.+)\\.html(\\?.*)?$"
+                replacement: "/\\1\\2"
+
+      # /foo/bar.html -> /foo/bar
+      - name: remove-html-extension
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/.+\\.html$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: url
+            transform:
+              - op: replace
+                match: "^/(.+)\\.html(\\?.*)?$"
+                replacement: "/\\1\\2"
