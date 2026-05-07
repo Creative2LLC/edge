@@ -1239,36 +1239,8 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "heading",
-        "label": "Heading",
-        "value": "Case Anniversaries"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "intro",
-        "label": "Intro Copy",
-        "value": "Help bring missing children home. Media coverage around the anniversary of a child's disappearance can generate new leads and can keep cases in the public eye. Browse upcoming anniversaries and help us spread awareness."
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "eyebrow",
-        "label": "Breadcrumb",
-        "value": "Resources > Media > Case Anniversaries"
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "heroImage",
-        "label": "Hero Image",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "findHeading",
-        "label": "Find Section Heading",
+        "label": "Heading",
         "value": "Find Cases"
       },
       {
@@ -1313,13 +1285,6 @@
         "name": "searchPlaceholder",
         "label": "Search Placeholder",
         "value": "Search"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "mediaEmail",
-        "label": "Media Email",
-        "value": "media@ncmec.org"
       }
     ]
   },
@@ -4127,6 +4092,107 @@
         "component": "richtext",
         "name": "address",
         "label": "Address"
+      }
+    ]
+  },
+  {
+    "id": "media-contact-cta",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Contact Our Media Team"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "copy",
+        "label": "Copy Before Email",
+        "value": "For interview requests, B-roll, or expert commentary:"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "email",
+        "label": "Email Address",
+        "value": "media@ncmec.org"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "note",
+        "label": "Note",
+        "value": "Include the case name/number, your outlet, and deadline in your request."
+      }
+    ]
+  },
+  {
+    "id": "media-reporting-info",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Reporting on an Anniversary?"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "NCMEC's media team can help you develop compelling anniversary coverage that may generate new leads."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "itemOneHeading",
+        "label": "Item 1 Heading",
+        "value": "Case Information"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "itemOneCopy",
+        "label": "Item 1 Copy",
+        "value": "Need additional details, family contact, or case background for your story? Our media team can help."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "itemTwoHeading",
+        "label": "Item 2 Heading",
+        "value": "Age-Progressed Images"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "itemTwoCopy",
+        "label": "Item 2 Copy",
+        "value": "For long-term cases, our forensic artists create age-progressed images showing what the child might look like today."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "itemThreeHeading",
+        "label": "Item 3 Heading",
+        "value": "Expert Commentary"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "itemThreeCopy",
+        "label": "Item 3 Copy",
+        "value": "NCMEC staff can provide expert context on case types, trends, and the importance of public awareness."
       }
     ]
   },

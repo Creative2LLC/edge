@@ -24,36 +24,8 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "heading",
-          "label": "Heading",
-          "value": "Case Anniversaries"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "intro",
-          "label": "Intro Copy",
-          "value": "Help bring missing children home. Media coverage around the anniversary of a child's disappearance can generate new leads and can keep cases in the public eye. Browse upcoming anniversaries and help us spread awareness."
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "eyebrow",
-          "label": "Breadcrumb",
-          "value": "Resources > Media > Case Anniversaries"
-        },
-        {
-          "component": "reference",
-          "valueType": "string",
-          "name": "heroImage",
-          "label": "Hero Image",
-          "multi": false
-        },
-        {
-          "component": "text",
-          "valueType": "string",
           "name": "findHeading",
-          "label": "Find Section Heading",
+          "label": "Heading",
           "value": "Find Cases"
         },
         {
@@ -98,13 +70,6 @@
           "name": "searchPlaceholder",
           "label": "Search Placeholder",
           "value": "Search"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "mediaEmail",
-          "label": "Media Email",
-          "value": "media@ncmec.org"
         }
       ]
     }

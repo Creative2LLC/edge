@@ -2,9 +2,6 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 
 const DEFAULTS = {
-  heading: 'Case Anniversaries',
-  intro: 'Help bring missing children home. Media coverage around the anniversary of a child\'s disappearance can generate new leads and can keep cases in the public eye. Browse upcoming anniversaries and help us spread awareness.',
-  eyebrow: 'Resources > Media > Case Anniversaries',
   findHeading: 'Find Cases',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/case-anniversaries',
@@ -14,16 +11,9 @@ const DEFAULTS = {
   searchPlaceholder: 'Search',
   loadMoreText: 'Load More',
   emptyMessage: 'No case anniversaries match your current filters.',
-  reportingHeading: 'Reporting on an Anniversary?',
-  reportingCopy: 'NCMEC\'s media team can help you develop compelling anniversary coverage that may generate new leads.',
-  mediaEmail: 'media@ncmec.org',
-  heroImage: '',
 };
 
 const FIELD_LABELS = {
-  heading: ['heading', 'title'],
-  intro: ['intro', 'copy', 'description'],
-  eyebrow: ['eyebrow', 'breadcrumb', 'breadcrumbs'],
   findHeading: ['find heading', 'results heading'],
   apiBaseUrl: ['api base url', 'api url', 'backend url'],
   endpointPath: ['endpoint path', 'endpoint'],
@@ -33,22 +23,18 @@ const FIELD_LABELS = {
   searchPlaceholder: ['search placeholder', 'placeholder'],
   loadMoreText: ['load more text', 'load more'],
   emptyMessage: ['empty message'],
-  reportingHeading: ['reporting heading'],
-  reportingCopy: ['reporting copy'],
-  mediaEmail: ['media email', 'email'],
-  heroImage: ['hero image', 'background image'],
 };
 
 const FIELD_COLUMN_INDEX = {
-  heading: 0,
-  intro: 1,
-  apiBaseUrl: 2,
-  endpointPath: 3,
-  posterPagePath: 4,
-  timeframe: 5,
-  pageSize: 6,
-  heroImage: 7,
-  mediaEmail: 8,
+  findHeading: 0,
+  apiBaseUrl: 1,
+  endpointPath: 2,
+  posterPagePath: 3,
+  timeframe: 4,
+  pageSize: 5,
+  searchPlaceholder: 6,
+  loadMoreText: 7,
+  emptyMessage: 8,
 };
 
 function normalizeText(value) {
@@ -155,6 +141,38 @@ function createSelect(label, className = '') {
   return select;
 }
 
+function createViewIcon(view) {
+  const icon = document.createElement('span');
+  icon.className = `case-anniversaries-view-icon case-anniversaries-view-icon-${view}`;
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = view === 'list'
+    ? '<svg viewBox="0 0 20 20" fill="none"><path d="M4 5.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 10H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 14.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="none"><rect x="3.5" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/></svg>';
+  return icon;
+}
+
+function createViewToggleButton(label, view, activeView) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'case-anniversaries-view-button';
+  button.dataset.view = view;
+  button.setAttribute('aria-label', `${label} view`);
+  button.setAttribute('aria-pressed', String(view === activeView));
+  button.title = label;
+  button.append(createViewIcon(view));
+  if (view === activeView) button.classList.add('is-active');
+  return button;
+}
+
+function applyResultView(cardsContainer, buttons, view) {
+  cardsContainer.dataset.view = view;
+  buttons.forEach((button) => {
+    const active = button.dataset.view === view;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
 function setOptions(select, label, options = []) {
   const current = select.value;
   select.replaceChildren();
@@ -255,107 +273,58 @@ function buildCard(item, config) {
   return card;
 }
 
-function buildReportingSection(config) {
-  const section = document.createElement('section');
-  section.className = 'case-anniversaries-reporting';
-
-  const heading = document.createElement('h2');
-  heading.textContent = config.reportingHeading;
-  const copy = document.createElement('p');
-  copy.className = 'case-anniversaries-reporting-copy';
-  copy.textContent = config.reportingCopy;
-  section.append(heading, copy);
-
-  const features = document.createElement('div');
-  features.className = 'case-anniversaries-reporting-grid';
-  [
-    ['Case Information', 'Need additional details, family contact, or case background for your story? Our media team can help.'],
-    ['Age-Progressed Images', 'For long-term cases, forensic artists create age-progressed images showing what the child might look like today.'],
-    ['Expert Commentary', 'NCMEC staff can provide expert context on case types, trends, and the importance of public awareness.'],
-  ].forEach(([titleText, copyText]) => {
-    const item = document.createElement('div');
-    const title = document.createElement('h3');
-    title.textContent = titleText;
-    const text = document.createElement('p');
-    text.textContent = copyText;
-    item.append(title, text);
-    features.append(item);
-  });
-  section.append(features);
-
-  const cta = document.createElement('div');
-  cta.className = 'case-anniversaries-media-cta';
-  const icon = document.createElement('span');
-  icon.className = 'case-anniversaries-media-icon';
-  icon.setAttribute('aria-hidden', 'true');
-  const ctaBody = document.createElement('div');
-  const ctaHeading = document.createElement('h3');
-  ctaHeading.textContent = 'Contact Our Media Team';
-  const ctaCopy = document.createElement('p');
-  ctaCopy.append(
-    document.createTextNode('For interview requests, B-roll, or expert commentary: '),
-    Object.assign(document.createElement('a'), {
-      href: `mailto:${config.mediaEmail}`,
-      textContent: config.mediaEmail,
-    }),
-  );
-  const ctaNote = document.createElement('p');
-  ctaNote.className = 'case-anniversaries-media-note';
-  ctaNote.textContent = 'Include the case name/number, your outlet, and deadline in your request.';
-  ctaBody.append(ctaHeading, ctaCopy, ctaNote);
-  cta.append(icon, ctaBody);
-  section.append(cta);
-
-  return section;
-}
-
 function buildShell(config) {
   const inner = document.createElement('div');
   inner.className = 'case-anniversaries-inner';
 
-  const hero = document.createElement('section');
-  hero.className = 'case-anniversaries-hero';
-  if (config.heroImage) hero.style.setProperty('--case-anniversaries-hero-image', `url("${config.heroImage}")`);
+  const header = document.createElement('div');
+  header.className = 'case-anniversaries-header';
+  const headerTop = document.createElement('div');
+  headerTop.className = 'case-anniversaries-header-top';
+  const findHeading = document.createElement('h2');
+  findHeading.className = 'case-anniversaries-heading';
+  findHeading.textContent = config.findHeading;
+  headerTop.append(findHeading);
 
-  const heroContent = document.createElement('div');
-  heroContent.className = 'case-anniversaries-hero-content';
-  if (config.eyebrow) {
-    const crumb = document.createElement('p');
-    crumb.className = 'case-anniversaries-eyebrow';
-    crumb.textContent = config.eyebrow;
-    heroContent.append(crumb);
-  }
-  const h1 = document.createElement('h1');
-  h1.textContent = config.heading;
-  const intro = document.createElement('p');
-  intro.className = 'case-anniversaries-intro';
-  intro.textContent = config.intro;
-  heroContent.append(h1, intro);
-  hero.append(heroContent);
-  inner.append(hero);
-
-  const listing = document.createElement('section');
-  listing.className = 'case-anniversaries-listing';
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'case-anniversaries-view-toggle';
+  const gridButton = createViewToggleButton('Grid', 'grid', 'grid');
+  const listButton = createViewToggleButton('List', 'list', 'grid');
+  viewToggle.append(gridButton, listButton);
+  headerTop.append(viewToggle);
+  header.append(headerTop);
 
   const controls = document.createElement('div');
   controls.className = 'case-anniversaries-controls';
-  const findHeading = document.createElement('h2');
-  findHeading.textContent = config.findHeading;
-  controls.append(findHeading);
 
   const form = document.createElement('form');
   form.className = 'case-anniversaries-form';
+  const primaryRow = document.createElement('div');
+  primaryRow.className = 'case-anniversaries-primary-row';
+  const searchWrap = document.createElement('label');
+  searchWrap.className = 'case-anniversaries-search-wrap';
   const search = document.createElement('input');
   search.className = 'case-anniversaries-search';
   search.type = 'search';
   search.placeholder = config.searchPlaceholder;
   search.setAttribute('aria-label', config.searchPlaceholder);
+  searchWrap.append(search);
+  primaryRow.append(searchWrap);
+  form.append(primaryRow);
+
+  const filterRow = document.createElement('div');
+  filterRow.className = 'case-anniversaries-filter-row';
   const stateSelect = createSelect('State');
   const typeSelect = createSelect('Case Type');
   const yearsSelect = createSelect('Years Missing');
-  form.append(search, stateSelect, typeSelect, yearsSelect);
+  filterRow.append(stateSelect, typeSelect, yearsSelect);
+  form.append(filterRow);
   controls.append(form);
-  listing.append(controls);
+  header.append(controls);
+  inner.append(header);
+
+  const listing = document.createElement('section');
+  listing.className = 'case-anniversaries-listing';
 
   const meta = document.createElement('div');
   meta.className = 'case-anniversaries-meta';
@@ -388,7 +357,7 @@ function buildShell(config) {
   loadMore.textContent = config.loadMoreText;
   footer.append(loadMore);
   listing.append(status, grid, empty, footer);
-  inner.append(listing, buildReportingSection(config));
+  inner.append(listing);
 
   return {
     inner,
@@ -397,6 +366,7 @@ function buildShell(config) {
     stateSelect,
     typeSelect,
     yearsSelect,
+    viewButtons: [gridButton, listButton],
     activeFilters,
     clearAll,
     count,
@@ -417,9 +387,6 @@ function debounce(callback, wait = 300) {
 
 export default async function decorate(block) {
   const config = {
-    heading: getFieldValue(block, 'heading', DEFAULTS.heading),
-    intro: getFieldValue(block, 'intro', DEFAULTS.intro),
-    eyebrow: getFieldValue(block, 'eyebrow', DEFAULTS.eyebrow),
     findHeading: getFieldValue(block, 'findHeading', DEFAULTS.findHeading),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', DEFAULTS.apiBaseUrl)),
     endpointPath: getFieldValue(block, 'endpointPath', DEFAULTS.endpointPath),
@@ -429,10 +396,6 @@ export default async function decorate(block) {
     searchPlaceholder: getFieldValue(block, 'searchPlaceholder', DEFAULTS.searchPlaceholder),
     loadMoreText: getFieldValue(block, 'loadMoreText', DEFAULTS.loadMoreText),
     emptyMessage: getFieldValue(block, 'emptyMessage', DEFAULTS.emptyMessage),
-    reportingHeading: getFieldValue(block, 'reportingHeading', DEFAULTS.reportingHeading),
-    reportingCopy: getFieldValue(block, 'reportingCopy', DEFAULTS.reportingCopy),
-    mediaEmail: getFieldValue(block, 'mediaEmail', DEFAULTS.mediaEmail),
-    heroImage: getFieldValue(block, 'heroImage', DEFAULTS.heroImage),
   };
 
   const layout = buildShell(config);
@@ -441,6 +404,7 @@ export default async function decorate(block) {
     lastPage: 1,
     total: 0,
     loading: false,
+    view: 'grid',
     filters: {
       search: '',
       state: '',
@@ -486,6 +450,8 @@ export default async function decorate(block) {
     setOptions(layout.typeSelect, 'Case Type', filters.case_types || []);
     setOptions(layout.yearsSelect, 'Years Missing', filters.years_missing || []);
   };
+
+  applyResultView(layout.grid, layout.viewButtons, state.view);
 
   loadCases = async (reset = false) => {
     if (state.loading || !config.apiBaseUrl) return;
@@ -571,6 +537,14 @@ export default async function decorate(block) {
     loadCases(true);
   });
   layout.loadMore.addEventListener('click', () => loadCases(false));
+  layout.viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextView = button.dataset.view === 'list' ? 'list' : 'grid';
+      if (state.view === nextView) return;
+      state.view = nextView;
+      applyResultView(layout.grid, layout.viewButtons, state.view);
+    });
+  });
 
   block.replaceChildren(layout.inner);
 
