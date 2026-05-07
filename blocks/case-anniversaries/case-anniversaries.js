@@ -13,6 +13,8 @@ const DEFAULTS = {
   emptyMessage: 'No case anniversaries match your current filters.',
 };
 
+const EXTERNAL_LINK_ICON = new URL('./link-off-logo.svg', import.meta.url).href;
+
 const FIELD_LABELS = {
   findHeading: ['find heading', 'results heading'],
   apiBaseUrl: ['api base url', 'api url', 'backend url'],
@@ -56,6 +58,10 @@ function findUrlLikeValue(value) {
 function parseIntSafe(value, fallback) {
   const parsed = parseInt(value, 10);
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
+}
+
+function normalizeTimeframe(value) {
+  return normalizeText(value) === 'today' ? 'today' : 'thisWeek';
 }
 
 function getRows(block) {
@@ -134,6 +140,32 @@ function posterHref(item, config) {
   return `${url.pathname}${url.search}`;
 }
 
+function isExternalUrl(src) {
+  try {
+    return new URL(src, window.location.href).origin !== window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+function createCaseImage(src, alt) {
+  if (!src) return null;
+
+  if (!isExternalUrl(src)) {
+    return createOptimizedPicture(src, alt, false, [{ width: '500' }]);
+  }
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = alt;
+  img.loading = 'lazy';
+  img.decoding = 'async';
+
+  const picture = document.createElement('picture');
+  picture.append(img);
+  return picture;
+}
+
 function createSelect(label, className = '') {
   const select = document.createElement('select');
   select.className = `case-anniversaries-filter ${className}`.trim();
@@ -168,6 +200,25 @@ function applyResultView(cardsContainer, buttons, view) {
   cardsContainer.dataset.view = view;
   buttons.forEach((button) => {
     const active = button.dataset.view === view;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function createTimeframeButton(label, timeframe, activeTimeframe) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'case-anniversaries-timeframe-button';
+  button.dataset.timeframe = timeframe;
+  button.textContent = label;
+  button.setAttribute('aria-pressed', String(timeframe === activeTimeframe));
+  if (timeframe === activeTimeframe) button.classList.add('is-active');
+  return button;
+}
+
+function applyTimeframe(buttons, timeframe) {
+  buttons.forEach((button) => {
+    const active = button.dataset.timeframe === timeframe;
     button.classList.toggle('is-active', active);
     button.setAttribute('aria-pressed', String(active));
   });
@@ -219,7 +270,7 @@ function buildCard(item, config) {
   const media = document.createElement('div');
   media.className = 'case-anniversaries-card-media';
   if (imageUrl) {
-    media.append(createOptimizedPicture(imageUrl, name, false, [{ width: '500' }]));
+    media.append(createCaseImage(imageUrl, name));
   } else {
     media.classList.add('is-placeholder');
   }
@@ -263,9 +314,20 @@ function buildCard(item, config) {
   }
   actions.append(link);
 
-  const external = document.createElement('span');
+  const external = document.createElement(href ? 'a' : 'span');
   external.className = 'case-anniversaries-card-external';
-  external.setAttribute('aria-hidden', 'true');
+  const externalIcon = document.createElement('img');
+  externalIcon.src = EXTERNAL_LINK_ICON;
+  externalIcon.alt = '';
+  external.append(externalIcon);
+  if (href) {
+    external.href = href;
+    external.target = '_blank';
+    external.rel = 'noopener noreferrer';
+    external.setAttribute('aria-label', `View case for ${name}`);
+  } else {
+    external.setAttribute('aria-hidden', 'true');
+  }
   actions.append(external);
   body.append(actions);
 
@@ -310,6 +372,19 @@ function buildShell(config) {
   search.setAttribute('aria-label', config.searchPlaceholder);
   searchWrap.append(search);
   primaryRow.append(searchWrap);
+
+  const timeframe = document.createElement('div');
+  timeframe.className = 'case-anniversaries-timeframe';
+  const timeframeLabel = document.createElement('span');
+  timeframeLabel.className = 'case-anniversaries-timeframe-label';
+  timeframeLabel.textContent = 'View anniversaries for:';
+  const timeframeToggle = document.createElement('div');
+  timeframeToggle.className = 'case-anniversaries-timeframe-toggle';
+  const weekButton = createTimeframeButton('This Week', 'thisWeek', config.timeframe);
+  const dayButton = createTimeframeButton('This Day', 'today', config.timeframe);
+  timeframeToggle.append(weekButton, dayButton);
+  timeframe.append(timeframeLabel, timeframeToggle);
+  primaryRow.append(timeframe);
   form.append(primaryRow);
 
   const filterRow = document.createElement('div');
@@ -367,6 +442,7 @@ function buildShell(config) {
     typeSelect,
     yearsSelect,
     viewButtons: [gridButton, listButton],
+    timeframeButtons: [weekButton, dayButton],
     activeFilters,
     clearAll,
     count,
@@ -391,7 +467,7 @@ export default async function decorate(block) {
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', DEFAULTS.apiBaseUrl)),
     endpointPath: getFieldValue(block, 'endpointPath', DEFAULTS.endpointPath),
     posterPagePath: getFieldValue(block, 'posterPagePath', DEFAULTS.posterPagePath),
-    timeframe: getFieldValue(block, 'timeframe', DEFAULTS.timeframe),
+    timeframe: normalizeTimeframe(getFieldValue(block, 'timeframe', DEFAULTS.timeframe)),
     pageSize: parseIntSafe(getFieldValue(block, 'pageSize', DEFAULTS.pageSize), DEFAULTS.pageSize),
     searchPlaceholder: getFieldValue(block, 'searchPlaceholder', DEFAULTS.searchPlaceholder),
     loadMoreText: getFieldValue(block, 'loadMoreText', DEFAULTS.loadMoreText),
@@ -405,6 +481,7 @@ export default async function decorate(block) {
     total: 0,
     loading: false,
     view: 'grid',
+    timeframe: config.timeframe,
     filters: {
       search: '',
       state: '',
@@ -452,6 +529,7 @@ export default async function decorate(block) {
   };
 
   applyResultView(layout.grid, layout.viewButtons, state.view);
+  applyTimeframe(layout.timeframeButtons, state.timeframe);
 
   loadCases = async (reset = false) => {
     if (state.loading || !config.apiBaseUrl) return;
@@ -468,7 +546,7 @@ export default async function decorate(block) {
 
     try {
       const url = new URL(config.endpointPath, `${config.apiBaseUrl}/`);
-      url.searchParams.set('timeframe', config.timeframe);
+      url.searchParams.set('timeframe', state.timeframe);
       url.searchParams.set('per_page', String(config.pageSize));
       url.searchParams.set('page', String(reset ? 1 : state.page + 1));
       if (state.filters.search) url.searchParams.set('search', state.filters.search);
@@ -543,6 +621,15 @@ export default async function decorate(block) {
       if (state.view === nextView) return;
       state.view = nextView;
       applyResultView(layout.grid, layout.viewButtons, state.view);
+    });
+  });
+  layout.timeframeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextTimeframe = normalizeTimeframe(button.dataset.timeframe);
+      if (state.timeframe === nextTimeframe) return;
+      state.timeframe = nextTimeframe;
+      applyTimeframe(layout.timeframeButtons, state.timeframe);
+      loadCases(true);
     });
   });
 

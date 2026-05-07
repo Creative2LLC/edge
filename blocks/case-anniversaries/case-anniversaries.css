@@ -87,9 +87,49 @@
 
 .case-anniversaries-primary-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
+}
+
+.case-anniversaries-timeframe {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+  color: #3f4b53;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.case-anniversaries-timeframe-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid #d8d8d8;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 7%);
+}
+
+.case-anniversaries-timeframe-button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #303030;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.case-anniversaries-timeframe-button.is-active {
+  background: #243846;
+  color: #fff;
 }
 
 .case-anniversaries-filter-row {
@@ -313,6 +353,7 @@
   margin: 0 0 14px;
   color: #444;
   font-size: 21px;
+  font-weight: 800;
   line-height: 1.15;
   letter-spacing: 0;
 }
@@ -369,22 +410,19 @@
 }
 
 .case-anniversaries-card-external {
-  position: relative;
-  width: 15px;
-  height: 15px;
-  border: 2px solid #0098bf;
-  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: #007294;
+  text-decoration: none;
 }
 
-.case-anniversaries-card-external::before {
-  content: "";
-  position: absolute;
-  right: -3px;
-  top: -3px;
-  width: 7px;
-  height: 7px;
-  border-top: 2px solid #0098bf;
-  border-right: 2px solid #0098bf;
+.case-anniversaries-card-external img {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .case-anniversaries-footer {
@@ -419,9 +457,11 @@
 .case-anniversaries-search:focus-visible,
 .case-anniversaries-filter:focus-visible,
 .case-anniversaries-view-button:focus-visible,
+.case-anniversaries-timeframe-button:focus-visible,
 .case-anniversaries-chip:focus-visible,
 .case-anniversaries-clear:focus-visible,
 .case-anniversaries-card-link:focus-visible,
+.case-anniversaries-card-external:focus-visible,
 .case-anniversaries-load-more:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
@@ -434,6 +474,16 @@
 }
 
 @media (width <= 920px) {
+  .case-anniversaries-primary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .case-anniversaries-timeframe {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
   .case-anniversaries-filter-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
