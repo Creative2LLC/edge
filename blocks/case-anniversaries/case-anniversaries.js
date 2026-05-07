@@ -6,7 +6,7 @@ const DEFAULTS = {
   intro: 'Help bring missing children home. Media coverage around the anniversary of a child\'s disappearance can generate new leads and can keep cases in the public eye. Browse upcoming anniversaries and help us spread awareness.',
   eyebrow: 'Resources > Media > Case Anniversaries',
   findHeading: 'Find Cases',
-  apiBaseUrl: '',
+  apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/case-anniversaries',
   posterPagePath: '/missing-children-posters.html',
   timeframe: 'thisWeek',
@@ -63,6 +63,10 @@ function normalizeApiBaseUrl(value) {
   return normalizeText(value).replace(/\/+$/, '');
 }
 
+function findUrlLikeValue(value) {
+  return normalizeText(value).match(/https?:\/\/[^\s<>"']+/i)?.[0] || '';
+}
+
 function parseIntSafe(value, fallback) {
   const parsed = parseInt(value, 10);
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
@@ -87,7 +91,7 @@ function getReferenceValue(source) {
 }
 
 function getPropValue(block, name) {
-  return getReferenceValue(block.querySelector(`[data-aue-prop="${name}"]`));
+  return getReferenceValue(block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`));
 }
 
 function getLegacyValue(block, name) {
@@ -102,7 +106,15 @@ function getLegacyValue(block, name) {
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   const configRow = getRows(block)[0];
-  return columnIndex === undefined ? '' : getReferenceValue(configRow?.children[columnIndex]);
+  const fallbackValue = columnIndex === undefined ? '' : getReferenceValue(configRow?.children[columnIndex]);
+
+  if (name === 'apiBaseUrl') {
+    return fallbackValue || getRows(block)
+      .map((row) => row.querySelector('a')?.href || findUrlLikeValue(row.textContent))
+      .find(Boolean) || '';
+  }
+
+  return fallbackValue;
 }
 
 function getFieldValue(block, name, fallback = '') {
