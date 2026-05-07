@@ -423,6 +423,50 @@ export function applySectionSpacing(main) {
   });
 }
 
+// Inline color syntax: {#hex}text{#hex} → <span style="color:#hex">text</span>
+// Hex must be 3, 4, 6, or 8 digits. Open and close hex must match (regex backref).
+const INLINE_COLOR_RE = /\{(#(?:[0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{3}))\}([\s\S]*?)\{\1\}/g;
+const INLINE_COLOR_SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'CODE', 'PRE']);
+
+export function decorateInlineColors(main) {
+  const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (INLINE_COLOR_SKIP_TAGS.has(node.parentNode?.nodeName)) return NodeFilter.FILTER_REJECT;
+      return node.nodeValue.includes('{#') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+    },
+  });
+
+  const targets = [];
+  let current = walker.nextNode();
+  while (current) {
+    targets.push(current);
+    current = walker.nextNode();
+  }
+
+  targets.forEach((textNode) => {
+    const text = textNode.nodeValue;
+    const re = new RegExp(INLINE_COLOR_RE.source, 'g');
+    let match = re.exec(text);
+    if (!match) return;
+    const frag = document.createDocumentFragment();
+    let last = 0;
+    while (match) {
+      const [full, color, inner] = match;
+      if (match.index > last) {
+        frag.appendChild(document.createTextNode(text.slice(last, match.index)));
+      }
+      const span = document.createElement('span');
+      span.style.color = color;
+      span.textContent = inner;
+      frag.appendChild(span);
+      last = match.index + full.length;
+      match = re.exec(text);
+    }
+    if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+    textNode.replaceWith(frag);
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -439,6 +483,7 @@ export function decorateMain(main) {
   applyDefaultContentAuthorStyles(main);
   applyImageLinks(main);
   decoratePdfLinks(main);
+  decorateInlineColors(main);
 }
 
 function startHeaderLoad(doc) {

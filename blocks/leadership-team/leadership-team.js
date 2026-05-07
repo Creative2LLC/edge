@@ -94,38 +94,39 @@ function buildLeaderCard(leader) {
     card.appendChild(imageWrap);
   }
 
-  // Name
+  const textWrap = document.createElement('div');
+  textWrap.className = 'leadership-team-card-text';
+
   if (leader.name) {
     const nameEl = document.createElement('h3');
     nameEl.className = 'leadership-team-card-name';
     nameEl.textContent = leader.name;
-    card.appendChild(nameEl);
+    textWrap.appendChild(nameEl);
   }
 
-  // Title
   if (leader.leaderTitle) {
     const titleEl = document.createElement('p');
     titleEl.className = 'leadership-team-card-title';
     titleEl.textContent = leader.leaderTitle;
-    card.appendChild(titleEl);
+    textWrap.appendChild(titleEl);
   }
 
-  // Bio
   if (leader.bio) {
     const bioEl = document.createElement('p');
     bioEl.className = 'leadership-team-card-bio';
     bioEl.textContent = leader.bio;
-    card.appendChild(bioEl);
+    textWrap.appendChild(bioEl);
   }
 
-  // Read bio link
   if (leader.link) {
     const linkEl = document.createElement('a');
     linkEl.className = 'leadership-team-card-link';
     linkEl.href = leader.link;
     linkEl.textContent = 'Read bio →';
-    card.appendChild(linkEl);
+    textWrap.appendChild(linkEl);
   }
+
+  if (textWrap.childElementCount) card.appendChild(textWrap);
 
   return card;
 }
