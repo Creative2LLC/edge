@@ -130,12 +130,19 @@
 
 /* Small image size option */
 .leadership-team-card-small-image {
-  max-width: 180px;
+  max-width: 258px;
 }
 
 .leadership-team-card-small-image .leadership-team-card-image {
   width: 100%;
-  height: 145px;
+  height: 208px;
+  margin-bottom: 0;
+}
+
+.leadership-team-card-small-image .leadership-team-card-text {
+  width: 100%;
+  padding: 32px;
+  box-sizing: border-box;
 }
 
 /* Sections after the first: shorter image height (258 x 208) */
