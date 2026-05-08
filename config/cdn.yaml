@@ -4,6 +4,86 @@ version: "1"
 data:
   redirects:
     rules:
+      # /poster/AMBER/31656/1 -> /missing-children-posters?amber_case=31656&seq=1
+      - name: route-amber-poster-with-sequence
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/poster/AMBER/[^/]+/[0-9]+/?$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: originalPath
+            transform:
+              - op: replace
+                match: "^/poster/AMBER/([^/]+)/([0-9]+)/?$"
+                replacement: "/missing-children-posters?amber_case=\\1&seq=\\2"
+
+      # /poster/AMBER/31656 -> /missing-children-posters?amber_case=31656&seq=1
+      - name: route-amber-poster-default-sequence
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/poster/AMBER/[^/]+/?$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: originalPath
+            transform:
+              - op: replace
+                match: "^/poster/AMBER/([^/]+)/?$"
+                replacement: "/missing-children-posters?amber_case=\\1&seq=1"
+
+      # /poster/NCMC/2086740/1 -> /missing-children-posters?poster=NCMC/2086740/1
+      - name: route-poster-with-sequence
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/poster/[A-Za-z0-9]{4}/[^/]+/[0-9]+/?$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: originalPath
+            transform:
+              - op: replace
+                match: "^/poster/([A-Za-z0-9]{4})/([^/]+)/([0-9]+)/?$"
+                replacement: "/missing-children-posters?poster=\\1/\\2/\\3"
+
+      # /poster/NCMC/2086740 -> /missing-children-posters?poster=NCMC/2086740/1
+      - name: route-poster-default-sequence
+        when:
+          allOf:
+            - reqProperty: tier
+              equals: publish
+            - reqProperty: domain
+              equals: "test--edge--creative2llc.aem.page"
+            - reqProperty: originalPath
+              matches: "^/poster/[A-Za-z0-9]{4}/[^/]+/?$"
+        action:
+          type: redirect
+          status: 302
+          location:
+            reqProperty: originalPath
+            transform:
+              - op: replace
+                match: "^/poster/([A-Za-z0-9]{4})/([^/]+)/?$"
+                replacement: "/missing-children-posters?poster=\\1/\\2/1"
+
       # /index.html -> /
       - name: remove-root-index-html
         when:
