@@ -1,34 +1,20 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function getFieldText(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) return byProp.textContent.trim();
-  const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
-  return '';
+  return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
 function getFieldLink(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) {
-    const anchor = byProp.tagName === 'A' ? byProp : byProp.querySelector('a');
-    return anchor?.href || byProp.textContent.trim();
-  }
-  const cols = [...row.children];
-  if (cols[colIndex]) {
-    const a = cols[colIndex].querySelector('a');
-    if (a && a.href) return a.href;
-    return cols[colIndex].textContent.trim();
-  }
-  return '';
+  return readLinkField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
 function getFieldImage(row, colIndex) {
-  const cols = [...row.children];
-  const col = cols[colIndex];
-  if (!col) return { picture: null, src: '', alt: '' };
-  const picture = col.querySelector('picture');
-  const img = col.querySelector('img');
+  const { picture, img } = readImageField(row, 'icon', { fallbackCell: row.children[colIndex] });
   return { picture, src: img?.src || '', alt: img?.alt || '' };
 }
 
@@ -149,27 +135,27 @@ function updateDots(dots, activeIndex) {
 
 export default function decorate(block) {
   // Extract section heading
-  const headingProp = block.querySelector('[data-aue-prop="heading"]');
+  const headingProp = readTextField(block, 'heading');
   let sectionTitle = '';
-  if (headingProp) {
-    sectionTitle = headingProp.textContent.trim();
-    headingProp.closest(':scope > div')?.remove();
+  if (headingProp.source) {
+    sectionTitle = headingProp.value;
+    headingProp.source.closest(':scope > div')?.remove();
   }
 
   // Extract section subtitle
-  const subtitleProp = block.querySelector('[data-aue-prop="subtitle"]');
+  const subtitleProp = readTextField(block, 'subtitle');
   let sectionSubtitle = '';
-  if (subtitleProp) {
-    sectionSubtitle = subtitleProp.textContent.trim();
-    subtitleProp.closest(':scope > div')?.remove();
+  if (subtitleProp.source) {
+    sectionSubtitle = subtitleProp.value;
+    subtitleProp.source.closest(':scope > div')?.remove();
   }
 
   // Extract block background color
-  const bgColorProp = block.querySelector('[data-aue-prop="blockBackgroundColor"]');
+  const bgColorProp = readTextField(block, 'blockBackgroundColor');
   let blockBgColor = '';
-  if (bgColorProp) {
-    blockBgColor = bgColorProp.textContent.trim();
-    bgColorProp.closest(':scope > div')?.remove();
+  if (bgColorProp.source) {
+    blockBgColor = bgColorProp.value;
+    bgColorProp.source.closest(':scope > div')?.remove();
   }
 
   // Parse slides

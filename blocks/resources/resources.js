@@ -1,6 +1,12 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import {
+  getFieldSelector,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_PROPS = [
   'heading',
@@ -21,12 +27,12 @@ const BLOCK_PROPS = [
 function extractConfigRows(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
   const configRows = rows.filter((row) => BLOCK_PROPS.some(
-    (prop) => row.querySelector(`[data-aue-prop="${prop}"]`),
+    (prop) => row.querySelector(getFieldSelector(prop)),
   ));
 
   if (configRows.length === 0 && rows.length > 0) {
-    const fallback = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
-      && !row.querySelector('[data-aue-prop="image"]')
+    const fallback = rows.find((row) => !row.querySelector(getFieldSelector('title'))
+      && !row.querySelector(getFieldSelector('image'))
       && !row.querySelector('picture'));
     if (fallback) return [fallback];
     return [rows[0]];
@@ -37,7 +43,7 @@ function extractConfigRows(block) {
 
 function findPropElement(configRows, name) {
   return configRows
-    .map((row) => row.querySelector(`[data-aue-prop="${name}"]`))
+    .map((row) => row.querySelector(getFieldSelector(name)))
     .find(Boolean) || null;
 }
 
@@ -126,13 +132,6 @@ function splitSelectedResources(values) {
 function parseResourceRow(row) {
   const cols = [...row.children];
 
-  function getImageData(col) {
-    if (!col) return { picture: null, src: '', alt: '' };
-    const picture = col.querySelector('picture');
-    const img = col.querySelector('img');
-    return { picture, src: img?.src || '', alt: img?.alt || '' };
-  }
-
   function getLinkData(col, nextCol) {
     if (!col) return { url: '', text: '' };
     const anchor = col.querySelector('a');
@@ -154,22 +153,29 @@ function parseResourceRow(row) {
   }
 
   function getFieldText(colIndex, propName) {
-    const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-    if (byProp) return byProp.textContent.trim();
-    return cols[colIndex]?.textContent.trim() || '';
+    return readTextField(row, propName, { fallbackCell: cols[colIndex] }).value;
   }
 
   if (cols.length >= 6) {
-    const imageData = getImageData(cols[0]);
-    const iconData = getImageData(cols[1]);
-    const linkProp = row.querySelector('[data-aue-prop="link"]');
+    const imageField = readImageField(row, 'image', { fallbackCell: cols[0] });
+    const iconField = readImageField(row, 'icon', { fallbackCell: cols[1] });
+    const imageData = {
+      picture: imageField.picture,
+      src: imageField.img?.src || '',
+      alt: imageField.img?.alt || '',
+    };
+    const iconData = {
+      picture: iconField.picture,
+      src: iconField.img?.src || '',
+      alt: iconField.img?.alt || '',
+    };
+    const linkField = readLinkField(row, 'link', { fallbackCell: cols[5] });
 
     let linkUrl;
     let linkText = getFieldText(6, 'linkText');
 
-    if (linkProp) {
-      const anchor = linkProp.querySelector('a');
-      linkUrl = anchor?.href || linkProp.textContent.trim();
+    if (linkField.source) {
+      linkUrl = linkField.value;
     } else {
       const linkData = getLinkData(cols[5], cols[6]);
       linkUrl = linkData.url;

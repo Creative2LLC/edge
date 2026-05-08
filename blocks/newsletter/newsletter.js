@@ -1,5 +1,9 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
+  readImageField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import {
   appendFormMetadata,
   createFormSession,
   extractApiMessage,
@@ -55,9 +59,9 @@ function getField(block, legacyMap, nameOrNames) {
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
   for (let i = 0; i < names.length; i += 1) {
     const name = names[i];
-    const source = block.querySelector(`[data-aue-prop="${name}"]`);
-    if (source) {
-      return { source, value: source.textContent.trim() };
+    const field = readTextField(block, name);
+    if (field.source) {
+      return { source: field.source, value: field.value };
     }
   }
   const legacyName = names.find((name) => legacyMap[name]);
@@ -118,24 +122,23 @@ function navigateTo(url, target) {
 }
 
 function buildBackground(block) {
-  const imageField = block.querySelector('[data-aue-prop="media_image"]')
-    || block.querySelector('[data-aue-prop="image"]');
-  const imageAltField = block.querySelector('[data-aue-prop="media_imageAlt"]')
-    || block.querySelector('[data-aue-prop="imageAlt"]');
-  const picture = imageField?.querySelector('picture') || block.querySelector('picture');
-  const img = picture?.querySelector('img');
+  const imageField = readImageField(block, 'media_image');
+  const fallbackImageField = imageField.img ? imageField : readImageField(block, 'image');
+  const imageAltField = readTextField(block, 'media_imageAlt');
+  const fallbackAltField = imageAltField.source ? imageAltField : readTextField(block, 'imageAlt');
+  const { img } = fallbackImageField;
   if (!img) return null;
-  const alt = imageAltField?.textContent?.trim() || img.alt || '';
+  const alt = fallbackAltField.value || img.alt || '';
   const optimized = createOptimizedPicture(img.src, alt, false, [
     { media: '(min-width: 900px)', width: '1800' },
     { media: '(min-width: 600px)', width: '1200' },
     { width: '900' },
   ]);
   const target = optimized.querySelector('img') || optimized;
-  moveFieldBinding(imageField, target);
-  moveFieldBinding(imageAltField, target);
-  imageField?.remove();
-  imageAltField?.remove();
+  moveFieldBinding(fallbackImageField.source, target);
+  moveFieldBinding(fallbackAltField.source, target);
+  fallbackImageField.source?.remove();
+  fallbackAltField.source?.remove();
   return optimized;
 }
 

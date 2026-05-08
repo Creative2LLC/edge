@@ -1,4 +1,8 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELD_INDEX = {
   heading: 0,
@@ -8,28 +12,17 @@ const BLOCK_FIELD_INDEX = {
 };
 
 function getBlockFieldValue(block, rows, name, index, fallbackValue = '') {
-  const byProp = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (byProp) return byProp.textContent.trim();
   const row = rows[index];
-  if (!row) return fallbackValue;
-  const cell = row.children[0] || row;
-  return cell.textContent.trim() || fallbackValue;
+  return readTextField(block, name, { fallbackCell: row?.children[0] || row }).value
+    || fallbackValue;
 }
 
 function getFieldText(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) return byProp.textContent.trim();
-  const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
-  return '';
+  return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
 function getFieldImage(row, colIndex) {
-  const cols = [...row.children];
-  const col = cols[colIndex];
-  if (!col) return { picture: null, img: null };
-  const picture = col.querySelector('picture');
-  const img = col.querySelector('img');
+  const { picture, img } = readImageField(row, 'image', { fallbackCell: row.children[colIndex] });
   return { picture, img };
 }
 

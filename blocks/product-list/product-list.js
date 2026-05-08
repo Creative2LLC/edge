@@ -1,26 +1,21 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  readImageField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function getFieldText(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) return byProp.textContent.trim();
-  const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
-  return '';
+  return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
 function getFieldHtml(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) return byProp.innerHTML;
-  const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].innerHTML;
-  return '';
+  return readRichTextField(row, propName, { fallbackCell: row.children[colIndex] }).html;
 }
 
-function getImageData(col) {
-  if (!col) return { picture: null, src: '', alt: '' };
-  const picture = col.querySelector('picture');
-  const img = col.querySelector('img');
+function getImageData(row, colIndex) {
+  const { picture, img } = readImageField(row, 'image', { fallbackCell: row.children[colIndex] });
   return {
     picture,
     src: img?.src || '',
@@ -32,7 +27,7 @@ function parseRow(row) {
   const cols = [...row.children];
   if (cols.length < 2) return null;
 
-  const imageData = getImageData(cols[0]);
+  const imageData = getImageData(row, 0);
   return {
     imagePicture: imageData.picture,
     imgSrc: imageData.src,

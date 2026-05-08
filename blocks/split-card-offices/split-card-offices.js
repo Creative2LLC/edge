@@ -1,3 +1,10 @@
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+
 /* ---------- AEM resource + field helpers (mirrors split-card-info.js) ---------- */
 
 function resourcePathFromUrn(resource) {
@@ -42,31 +49,19 @@ async function getBlockResourceData(block) {
 }
 
 function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  return source.textContent.trim();
+  return readTextField(block, name).value;
 }
 
 function getRichTextField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  return source.innerHTML;
+  return readRichTextField(block, name).html;
 }
 
 function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim();
+  return readLinkField(block, name).value;
 }
 
 function getPictureFor(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  return (
-    source?.closest('picture')
-    || source?.querySelector('picture')
-    || null
-  );
+  return readImageField(block, name).picture;
 }
 
 /**

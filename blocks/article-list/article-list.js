@@ -6,6 +6,11 @@ import {
   getListSortOptions,
   normalizeListSort,
 } from '../../scripts/list-sort.js';
+import {
+  getBlockRows,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -44,7 +49,7 @@ function parseIntSafe(value, fallback = 9) {
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
 }
 function normalizeApiBaseUrl(value) { return normalizeText(value).replace(/\/+$/, ''); }
-function getRows(block) { return [...block.querySelectorAll(':scope > div')]; }
+function getRows(block) { return getBlockRows(block); }
 
 function parseList(value) {
   const seen = new Set();
@@ -89,17 +94,15 @@ function findUrlLikeValue(value) {
 }
 
 function getPropValue(scope, name) {
-  const node = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (!node) return '';
-  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
-  return normalizeText(anchor?.getAttribute('href') || node.getAttribute('href') || node.textContent);
+  return normalizeText(readLinkField(scope, name).value || readTextField(scope, name).value);
 }
 
 function readConfigValue(rows, name, fallback = '') {
-  const propValue = rows.map((row) => row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`)).find(Boolean);
+  const propValue = rows
+    .map((row) => readLinkField(row, name).value || readTextField(row, name).value)
+    .find(Boolean);
   if (propValue) {
-    const anchor = propValue.tagName === 'A' ? propValue : propValue.querySelector('a');
-    return normalizeText(anchor?.getAttribute('href') || propValue.getAttribute('href') || propValue.textContent) || fallback;
+    return normalizeText(propValue) || fallback;
   }
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
