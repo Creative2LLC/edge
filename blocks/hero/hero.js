@@ -383,9 +383,27 @@ function buildMainRichText(block) {
 
   const fallback = document.createElement('div');
   fallback.className = 'hero-richtext';
+  const ignoredTextValues = new Set([
+    'default',
+    'homepage',
+    'show',
+    'hide',
+    'left',
+    'center',
+    'right',
+  ]);
   const fallbackNodes = [
-    ...block.querySelectorAll(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6, :scope > p'),
-  ].filter((node) => !node.hasAttribute('data-aue-prop') && !node.hasAttribute('data-richtext-prop'));
+    ...block.querySelectorAll('h1, h2, h3, h4, h5, h6, p'),
+  ].filter((node) => {
+    if (node.hasAttribute('data-aue-prop') || node.hasAttribute('data-richtext-prop')) return false;
+    if (node.closest('[data-aue-prop], [data-richtext-prop], picture, video')) return false;
+    const text = node.textContent.trim();
+    if (!text) return false;
+    if (ignoredTextValues.has(text.toLowerCase())) return false;
+    if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text)) return false;
+    if (/^\d+(\.\d+)?(rem|px|%)?$/.test(text)) return false;
+    return true;
+  });
   fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
   if (!fallback.textContent.trim()) return null;
   return fallback;

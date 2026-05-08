@@ -1,6 +1,18 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
+const LEGACY_FIELD_INDEX = {
+  subhead: 0,
+  heading: 1,
+  bodyText: 2,
+  ctaText: 3,
+  ctaLink: 4,
+  backgroundColor: 5,
+  imageAlt: 7,
+  imageOverlayText: 8,
+  styleVariant: 9,
+};
+
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
   if (resource.startsWith('/')) return resource;
@@ -50,30 +62,47 @@ function getFieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
 
+function getLegacyFieldCell(block, name) {
+  const index = LEGACY_FIELD_INDEX[name];
+  if (index === undefined) return null;
+  const row = block.querySelectorAll(':scope > div')[index];
+  if (!row || row.querySelector('[data-aue-prop], [data-richtext-prop]')) return null;
+  return row.children[0] || null;
+}
+
 function getTextField(block, name) {
   const source = block.querySelector(getFieldSelector(name));
+  const fallback = source ? '' : getLegacyFieldCell(block, name)?.textContent.trim() || '';
   return {
     source,
-    value: source?.textContent.trim() || '',
+    value: source?.textContent.trim() || fallback,
   };
 }
 
 function getLinkField(block, name) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
+  const fallbackCell = source ? null : getLegacyFieldCell(block, name);
+  const fallbackAnchor = fallbackCell?.querySelector('a');
 
   return {
     source,
-    value: anchor?.getAttribute('href') || source?.getAttribute('href') || source?.textContent.trim() || '',
+    value: anchor?.getAttribute('href')
+      || source?.getAttribute('href')
+      || source?.textContent.trim()
+      || fallbackAnchor?.getAttribute('href')
+      || fallbackCell?.textContent.trim()
+      || '',
   };
 }
 
 function getRichTextField(block, name) {
   const source = block.querySelector(getFieldSelector(name));
+  const fallbackCell = source ? null : getLegacyFieldCell(block, name);
   return {
     source,
-    html: source?.innerHTML?.trim() || '',
-    text: source?.textContent.trim() || '',
+    html: source?.innerHTML?.trim() || fallbackCell?.innerHTML?.trim() || '',
+    text: source?.textContent.trim() || fallbackCell?.textContent.trim() || '',
   };
 }
 

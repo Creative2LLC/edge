@@ -12,6 +12,7 @@ const isDesktop = window.matchMedia('(min-width: 1260px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 260;
 const POSTER_LISTING_PATH = '/missing-children-posters';
 const CYBERTIPLINE_DATA_PATH = '/content/edge/data-and-impact/cybertipline-data.html';
+const FALLBACK_BRAND_LOGO = new URL('../poster-results/NCMEC_Heart_Logo.png', import.meta.url).href;
 
 function clearTransitionTimer(element, key) {
   if (element?.[key]) {
@@ -2114,6 +2115,12 @@ export default async function decorate(block) {
   }
 
   if (brandLink) {
+    const brandImg = brandLink.querySelector('img');
+    if (brandImg && brandImg.getAttribute('src') === 'about:error') {
+      brandImg.src = FALLBACK_BRAND_LOGO;
+      brandImg.alt = brandImg.alt || 'NCMEC';
+    }
+
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const contentRoot = (pathParts[0] === 'content' && pathParts[1])
       ? `/${pathParts[0]}/${pathParts[1]}`

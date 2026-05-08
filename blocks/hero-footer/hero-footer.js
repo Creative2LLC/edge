@@ -1,19 +1,10 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
-
-function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  return { source: null, value: '' };
-}
-
-function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return { source: null, value: '' };
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  const href = anchor?.href || source.textContent.trim();
-  return { source, value: href };
-}
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -63,15 +54,16 @@ function buildButton(className, textField, linkField) {
 }
 
 export default function decorate(block) {
-  const imageField = getField(block, 'image');
-  const headingField = getField(block, 'heading_line1');
-  const headingLargeField = getField(block, 'heading_line2');
-  const headingSubtextField = getField(block, 'heading_subtext');
-  const btn1TextField = getField(block, 'button1Text');
-  const btn1LinkField = getLinkField(block, 'button1');
-  const btn2TextField = getField(block, 'button2Text');
-  const btn2LinkField = getLinkField(block, 'button2');
-  const variantField = getField(block, 'variant');
+  const imageField = readImageField(block, 'image', 0);
+  const imageAltField = readTextField(block, 'imageAlt', 1);
+  const headingField = readTextField(block, 'heading_line1', 2);
+  const headingLargeField = readTextField(block, 'heading_line2', 3);
+  const headingSubtextField = readTextField(block, 'heading_subtext', 4);
+  const btn1LinkField = readLinkField(block, 'button1', 5);
+  const btn1TextField = readTextField(block, 'button1Text', 6);
+  const btn2LinkField = readLinkField(block, 'button2', 7);
+  const btn2TextField = readTextField(block, 'button2Text', 8);
+  const variantField = readTextField(block, 'variant', 9);
 
   if (variantField.value.toLowerCase() === 'variant-2') {
     block.classList.add('hero-footer-variant-2');
@@ -82,11 +74,16 @@ export default function decorate(block) {
   const bgWrap = document.createElement('div');
   bgWrap.className = 'hero-footer-bg';
 
-  const picture = imageField.source?.querySelector('picture') || block.querySelector('picture');
+  const picture = imageField.picture || block.querySelector('picture');
   if (picture) {
     const img = picture.querySelector('img');
     if (img) {
-      const optimized = createOptimizedPicture(img.src, img.alt || '', false, [{ width: '810' }]);
+      const optimized = createOptimizedPicture(
+        img.src,
+        imageAltField.value || img.alt || '',
+        false,
+        [{ width: '810' }],
+      );
       moveInstrumentation(img, optimized.querySelector('img'));
       bgWrap.append(optimized);
     } else {

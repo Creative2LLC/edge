@@ -1,31 +1,14 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
-function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  return { source: null, value: '' };
-}
-
-function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  return { source: null, value: '' };
-}
-
-function getRichField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  return source || null;
-}
-
-function getImage(block) {
-  const source = block.querySelector('[data-aue-prop="image"]');
-  const picture = source?.closest('picture')
-    || source?.querySelector('picture')
-    || block.querySelector('picture');
+function getImage(imageField) {
+  const { picture } = imageField;
   if (!picture) return null;
   const img = picture.querySelector('img');
   if (!img) return picture;
@@ -38,11 +21,12 @@ function getImage(block) {
 }
 
 function appendRichContent(parent, source, className) {
-  if (!source) return;
+  const cell = source?.cell || source;
+  if (!cell) return;
   const div = document.createElement('div');
   div.className = className;
-  moveInstrumentation(source, div);
-  while (source.firstChild) div.append(source.firstChild);
+  if (source?.source) moveInstrumentation(source.source, div);
+  while (cell.firstChild) div.append(cell.firstChild);
   if (div.childNodes.length) parent.append(div);
 }
 
@@ -60,25 +44,26 @@ function styleButton(btn, color, textColor, style) {
 }
 
 export default function decorate(block) {
-  const picture = getImage(block);
-  const imageAlt = getField(block, 'imageAlt').value;
+  const imageField = readImageField(block, 'image', 0);
+  const picture = getImage(imageField);
+  const imageAlt = readTextField(block, 'imageAlt', 1).value;
 
-  const titleField = getField(block, 'title');
-  const subtitleSource = getRichField(block, 'subtitle');
-  const sectionHeaderField = getField(block, 'sectionHeader');
-  const sectionTextSource = getRichField(block, 'sectionText');
-  const card1TitleField = getField(block, 'card1Title');
-  const card1TextSource = getRichField(block, 'card1Text');
-  const card2TitleField = getField(block, 'card2Title');
-  const card2TextSource = getRichField(block, 'card2Text');
-  const bottomHeaderField = getField(block, 'bottomHeader');
-  const bottomTextSource = getRichField(block, 'bottomText');
-  const buttonTextField = getField(block, 'buttonText');
-  const buttonLinkField = getLinkField(block, 'buttonLink');
-  const buttonColorField = getField(block, 'buttonColor');
-  const buttonTextColorField = getField(block, 'buttonTextColor');
-  const buttonStyleField = getField(block, 'buttonStyle');
-  const contentBgField = getField(block, 'contentBackgroundColor');
+  const titleField = readTextField(block, 'title', 2);
+  const subtitleSource = readRichTextField(block, 'subtitle', 3);
+  const sectionHeaderField = readTextField(block, 'sectionHeader', 4);
+  const sectionTextSource = readRichTextField(block, 'sectionText', 5);
+  const card1TitleField = readTextField(block, 'card1Title', 6);
+  const card1TextSource = readRichTextField(block, 'card1Text', 7);
+  const card2TitleField = readTextField(block, 'card2Title', 8);
+  const card2TextSource = readRichTextField(block, 'card2Text', 9);
+  const bottomHeaderField = readTextField(block, 'bottomHeader', 10);
+  const bottomTextSource = readRichTextField(block, 'bottomText', 11);
+  const buttonTextField = readTextField(block, 'buttonText', 12);
+  const buttonLinkField = readLinkField(block, 'buttonLink', 13);
+  const buttonColorField = readTextField(block, 'buttonColor', 14);
+  const buttonTextColorField = readTextField(block, 'buttonTextColor', 15);
+  const buttonStyleField = readTextField(block, 'buttonStyle', 16);
+  const contentBgField = readTextField(block, 'contentBackgroundColor', 17);
 
   if (picture) {
     const img = picture.querySelector('img');
@@ -126,8 +111,8 @@ export default function decorate(block) {
   appendRichContent(content, sectionTextSource, 'internship-program-section-text');
 
   /* Two side-by-side cards */
-  const hasCard1 = card1TitleField.value || card1TextSource;
-  const hasCard2 = card2TitleField.value || card2TextSource;
+  const hasCard1 = card1TitleField.value || card1TextSource.text;
+  const hasCard2 = card2TitleField.value || card2TextSource.text;
 
   if (hasCard1 || hasCard2) {
     const cardRow = document.createElement('div');
@@ -137,7 +122,7 @@ export default function decorate(block) {
       { title: card1TitleField, text: card1TextSource },
       { title: card2TitleField, text: card2TextSource },
     ].forEach((cardData) => {
-      if (!cardData.title.value && !cardData.text) return;
+      if (!cardData.title.value && !cardData.text.text) return;
 
       const card = document.createElement('div');
       card.className = 'internship-program-card';

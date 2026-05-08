@@ -1,46 +1,26 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-
-function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  return source.textContent.trim();
-}
-
-function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim();
-}
-
-function getPictureFor(block, name, fallbackPicture) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  return (
-    source?.closest('picture')
-    || source?.querySelector('picture')
-    || fallbackPicture
-    || null
-  );
-}
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 export default function decorate(block) {
   const allPictures = [...block.querySelectorAll('picture')];
-  const mainPicture = getPictureFor(block, 'mainImage', allPictures[0]);
-  const iconPicture = getPictureFor(
-    block,
-    'icon',
-    allPictures.find((p) => p !== mainPicture) || null,
-  );
+  const mainImageField = readImageField(block, 'mainImage', 0);
+  const iconField = readImageField(block, 'icon', 2);
+  const mainPicture = mainImageField.picture || allPictures[0] || null;
+  const iconPicture = iconField.picture || allPictures.find((p) => p !== mainPicture) || null;
 
-  const mainImageAlt = getField(block, 'mainImageAlt');
-  const title = getField(block, 'title');
-  const subtitle = getField(block, 'subtitle');
-  const buttonText = getField(block, 'buttonText');
-  const buttonLink = getLinkField(block, 'buttonLink');
-  const stat1Number = getField(block, 'stat1Number');
-  const stat1Text = getField(block, 'stat1Text');
-  const stat2Number = getField(block, 'stat2Number');
-  const stat2Text = getField(block, 'stat2Text');
+  const mainImageAlt = readTextField(block, 'mainImageAlt', 1).value;
+  const title = readTextField(block, 'title', 3).value;
+  const subtitle = readTextField(block, 'subtitle', 4).value;
+  const buttonText = readTextField(block, 'buttonText', 5).value;
+  const buttonLink = readLinkField(block, 'buttonLink', 6).value;
+  const stat1Number = readTextField(block, 'stat1Number', 7).value;
+  const stat1Text = readTextField(block, 'stat1Text', 8).value;
+  const stat2Number = readTextField(block, 'stat2Number', 9).value;
+  const stat2Text = readTextField(block, 'stat2Text', 10).value;
 
   const container = document.createElement('div');
   container.className = 'amber-alert-info-container';
