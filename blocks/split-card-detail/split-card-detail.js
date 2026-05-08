@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -18,25 +19,12 @@ function isItemRow(row) {
 }
 
 function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(row, name, { fallbackCell: row.children[index] });
 }
 
 function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, img };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const img = cols[index].querySelector('img');
-    return { source: null, img: img || null };
-  }
-  return { source: null, img: null };
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, img: field.img };
 }
 
 function buildIcon(content, iconField, iconColor) {
@@ -152,10 +140,8 @@ export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
   /* Block-level image */
-  const imageEl = block.querySelector('[data-aue-prop="image"]');
-  let picture = imageEl?.closest('picture')
-    || imageEl?.querySelector('picture')
-    || block.querySelector('picture');
+  const imageField = readImageField(block, 'image');
+  let picture = imageField.picture || block.querySelector('picture');
 
   if (picture) {
     const img = picture.querySelector('img');

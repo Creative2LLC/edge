@@ -1,55 +1,29 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 /* ---------- Field helpers (mirror card-row-detailed.js) ---------- */
 
 function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(row, name, { fallbackCell: row.children[index] });
 }
 
 function getRichTextField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.innerHTML };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].innerHTML };
-  return { source: null, value: '' };
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.html };
 }
 
 function getLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  return readLinkField(row, name, { fallbackCell: row.children[index] });
 }
 
 function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.tagName === 'PICTURE'
-      ? source
-      : source.closest('picture') || source.querySelector('picture');
-    const img = source.tagName === 'IMG'
-      ? source
-      : (picture?.querySelector('img') || source.querySelector('img'));
-    return { source, picture, img };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const picture = cols[index].querySelector('picture');
-    const img = cols[index].querySelector('img');
-    return { source: null, picture, img };
-  }
-  return { source: null, picture: null, img: null };
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, picture: field.picture, img: field.img };
 }
 
 /* ---------- Icon builder (white-tinted via CSS mask) ---------- */
@@ -166,17 +140,17 @@ export default function decorate(block) {
   };
 
   let sectionTitle = '';
-  const titleProp = block.querySelector('[data-aue-prop="title"]');
-  if (titleProp) {
-    sectionTitle = titleProp.textContent.trim();
-    directRowOf(titleProp)?.remove();
+  const titleField = readTextField(block, 'title');
+  if (titleField.source) {
+    sectionTitle = titleField.value;
+    directRowOf(titleField.source)?.remove();
   }
 
   let sectionSubtitle = '';
-  const subtitleProp = block.querySelector('[data-aue-prop="subtitle"]');
-  if (subtitleProp) {
-    sectionSubtitle = subtitleProp.textContent.trim();
-    directRowOf(subtitleProp)?.remove();
+  const subtitleField = readTextField(block, 'subtitle');
+  if (subtitleField.source) {
+    sectionSubtitle = subtitleField.value;
+    directRowOf(subtitleField.source)?.remove();
   }
 
   // Iterate remaining rows as cards

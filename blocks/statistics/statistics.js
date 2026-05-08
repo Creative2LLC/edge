@@ -1,24 +1,25 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readTextField } from '../../scripts/block-field-utils.js';
+
+function directRowOf(block, element) {
+  let rowEl = element;
+  while (rowEl && rowEl.parentElement !== block) {
+    rowEl = rowEl.parentElement;
+  }
+  return rowEl && rowEl.parentElement === block ? rowEl : null;
+}
 
 function getFieldValue(block, name, altKeys) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  const keys = altKeys || [];
-  const allKeys = [name.toLowerCase().replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...keys];
-  const rows = [...block.querySelectorAll(':scope > div')];
-  for (let i = 0; i < rows.length; i += 1) {
-    const row = rows[i];
-    const cols = [...row.children];
-    if (cols.length >= 2) {
-      const key = cols[0].textContent.trim().toLowerCase();
-      if (allKeys.includes(key)) {
-        return { source: cols[1], value: cols[1].textContent.trim(), row };
-      }
-    }
-  }
-
-  return { source: null, value: '', row: null };
+  const labels = [
+    name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
+    ...(altKeys || []),
+  ];
+  const field = readTextField(block, name, { labels });
+  return {
+    source: field.source || field.cell,
+    value: field.value,
+    row: field.cell ? directRowOf(block, field.cell) : null,
+  };
 }
 
 function readField(block, name, altKeys) {

@@ -1,41 +1,17 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(row, name, { fallbackCell: row.children[index] });
 }
 
 function getLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  return readLinkField(row, name, { fallbackCell: row.children[index] });
 }
 
 function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.tagName === 'PICTURE' ? source : source.closest('picture') || source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : (picture?.querySelector('img') || source.querySelector('img'));
-    return { source, picture, img };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const picture = cols[index].querySelector('picture');
-    const img = cols[index].querySelector('img');
-    return { source: null, picture, img };
-  }
-  return { source: null, picture: null, img: null };
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, picture: field.picture, img: field.img };
 }
 
 function buildSlide(data) {

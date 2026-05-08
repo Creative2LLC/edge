@@ -1,25 +1,19 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 
 const BLOCK_PROPS = ['title', 'subtitle', 'textAlign', 'blockBackgroundColor', 'layout', 'cardsPerRow', 'cardBackgroundColor', 'numberBorder'];
 
 function getBlockField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(block, name);
 }
 
 function getRichField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source;
-  const cols = [...row.children];
-  return cols[index] || null;
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return field.source || field.cell;
 }
 
 function getTextField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source.textContent.trim();
-  const cols = [...row.children];
-  return cols[index]?.textContent.trim() || '';
+  return readTextField(row, name, { fallbackCell: row.children[index] }).value;
 }
 
 function observeReveal(block) {

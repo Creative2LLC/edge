@@ -1,36 +1,27 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  getBlockRows,
+  readImageField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function getField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(block, name, { fallbackCell: rows[index] });
 }
 
 function getImageField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const pic = source.closest('picture') || source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, picture: pic, img };
-  }
-  if (rows[index]) {
-    const pic = rows[index].querySelector('picture');
-    const img = rows[index].querySelector('img');
-    return { source: null, picture: pic, img };
-  }
-  return { source: null, picture: null, img: null };
+  const field = readImageField(block, name, { fallbackCell: rows[index] });
+  return { source: field.source, picture: field.picture, img: field.img };
 }
 
 function getRichField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, html: source.innerHTML.trim() };
-  if (rows[index]) return { source: null, html: rows[index].innerHTML.trim() };
-  return { source: null, html: '' };
+  const field = readRichTextField(block, name, { fallbackCell: rows[index] });
+  return { source: field.source, html: field.html };
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const rows = getBlockRows(block);
 
   /* Fields match model order: icon=0, iconColor=1, heading=2, address=3 */
   const iconField = getImageField(block, rows, 'icon', 0);

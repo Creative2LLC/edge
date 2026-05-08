@@ -1,42 +1,25 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function getField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source.textContent.trim();
-  const cols = [...scope.children];
-  if (cols[index]) return cols[index].textContent.trim();
-  return '';
+  return readTextField(scope, name, { fallbackCell: scope.children[index] }).value;
 }
 
 function getRichTextField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source.innerHTML.trim();
-  const cols = [...scope.children];
-  if (cols[index]) return cols[index].innerHTML.trim();
-  return '';
+  return readRichTextField(scope, name, { fallbackCell: scope.children[index] }).html;
 }
 
 function getLinkField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return anchor?.href || source.textContent.trim();
-  }
-  const cols = [...scope.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return anchor?.href || cols[index].textContent.trim();
-  }
-  return '';
+  return readLinkField(scope, name, { fallbackCell: scope.children[index] }).value;
 }
 
-function getImageField(scope, name) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return img || null;
-  }
-  return null;
+function getImageField(scope, name, index) {
+  return readImageField(scope, name, { fallbackCell: scope.children[index] }).img;
 }
 
 function isItemRow(row) {
@@ -173,7 +156,7 @@ export default function decorate(block) {
       buttonColor: getField(row, 'buttonColor', 5),
       buttonTextColor: getField(row, 'buttonTextColor', 6),
       buttonStyle: getField(row, 'buttonStyle', 7),
-      icon: getImageField(row, 'icon'),
+      icon: getImageField(row, 'icon', 8),
       emailText: getField(row, 'emailText', 9),
       row,
     });

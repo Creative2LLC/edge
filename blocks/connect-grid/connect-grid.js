@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readImageField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -44,63 +45,22 @@ function hasAuthoringContext(scope) {
   );
 }
 
-function extractNodeValue(node) {
-  if (!node) return '';
-  return node.textContent.trim();
-}
-
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return { source, value: extractNodeValue(source) };
-
   const rowIndex = rowIndexMap?.[name];
-  const row = Number.isInteger(rowIndex) ? scope.children[rowIndex] : null;
-  if (!row) return { source: null, value: '' };
-
-  const cell = row.children[columnIndex] || row;
-  return { source: cell, value: extractNodeValue(cell) };
+  const field = readTextField(scope, name, { rowIndex, columnIndex });
+  return { ...field, source: field.source || field.cell };
 }
 
 function getRichField(scope, name, rowIndexMap, columnIndex = 0) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return source;
-
   const rowIndex = rowIndexMap?.[name];
-  const row = Number.isInteger(rowIndex) ? scope.children[rowIndex] : null;
-  if (!row) return null;
-
-  return row.children[columnIndex] || row;
+  const field = readRichTextField(scope, name, { rowIndex, columnIndex });
+  return field.source || field.cell;
 }
 
 function getImageField(scope, name, rowIndexMap, columnIndex = 0) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.tagName === 'PICTURE' ? source : source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return {
-      source,
-      picture: picture || null,
-      img: img || picture?.querySelector('img') || null,
-    };
-  }
-
   const rowIndex = rowIndexMap?.[name];
-  const row = Number.isInteger(rowIndex) ? scope.children[rowIndex] : null;
-  if (!row) {
-    return {
-      source: null,
-      picture: null,
-      img: null,
-    };
-  }
-
-  const cell = row.children[columnIndex] || row;
-  const picture = cell.querySelector('picture');
-  return {
-    source: null,
-    picture,
-    img: cell.querySelector('img') || picture?.querySelector('img') || null,
-  };
+  const field = readImageField(scope, name, { rowIndex, columnIndex });
+  return { source: field.source, picture: field.picture, img: field.img };
 }
 
 function moveFieldContent(field, target, fallbackValue = '') {

@@ -1,18 +1,15 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
 function getFieldText(row, colIndex, propName) {
-  const byProp = row.querySelector(`[data-aue-prop="${propName}"]`);
-  if (byProp) return byProp.textContent.trim();
-  const cols = [...row.children];
-  if (cols[colIndex]) return cols[colIndex].textContent.trim();
-  return '';
+  return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
-function getImageData(col) {
-  if (!col) return { picture: null, src: '', alt: '' };
-  const picture = col.querySelector('picture');
-  const img = col.querySelector('img');
+function getImageData(row, propName, colIndex) {
+  const { picture, img } = readImageField(row, propName, {
+    fallbackCell: row.children[colIndex],
+  });
   return {
     picture,
     src: img?.src || '',
@@ -20,11 +17,8 @@ function getImageData(col) {
   };
 }
 
-function getLinkUrl(col) {
-  if (!col) return '';
-  const a = col.querySelector('a');
-  if (a && a.href) return a.href;
-  return col.textContent.trim();
+function getLinkUrl(row, propName, colIndex) {
+  return readLinkField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
 function parseCardRow(row) {
@@ -32,8 +26,8 @@ function parseCardRow(row) {
 
   // 8-column layout: image | icon | iconColor | title | subtitle | bodyText | linkText | linkUrl
   if (cols.length >= 6) {
-    const imageData = getImageData(cols[0]);
-    const iconData = getImageData(cols[1]);
+    const imageData = getImageData(row, 'image', 0);
+    const iconData = getImageData(row, 'icon', 1);
     return {
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
@@ -45,14 +39,14 @@ function parseCardRow(row) {
       subtitle: getFieldText(row, 4, 'subtitle'),
       bodyText: getFieldText(row, 5, 'bodyText'),
       linkText: getFieldText(row, 6, 'linkText'),
-      linkUrl: getLinkUrl(cols[7]),
+      linkUrl: getLinkUrl(row, 'linkUrl', 7),
       cardContentBg: getFieldText(row, 8, 'cardContentBg'),
     };
   }
 
   // Minimal fallback: 2 columns (image | text)
   if (cols.length >= 2) {
-    const imageData = getImageData(cols[0]);
+    const imageData = getImageData(row, 'image', 0);
     const paragraphs = cols[1].querySelectorAll('p');
     const link = cols[1].querySelector('a');
     return {
