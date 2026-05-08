@@ -5,9 +5,44 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
-function getGroupCell(block, index) {
-  const row = block.querySelectorAll(':scope > div')[index];
-  return row?.children?.[0] || row || null;
+const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
+
+function isVideoUrl(value) {
+  if (!value || typeof value !== 'string') return false;
+  return VIDEO_EXT_RE.test(value.trim());
+}
+
+function getRowCells(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
+}
+
+function getCellText(cell) {
+  return cell?.textContent?.trim() || '';
+}
+
+function isExactChoiceCell(cell, allowed) {
+  const value = getCellText(cell).toLowerCase();
+  return allowed.includes(value);
+}
+
+function getContentCell(block) {
+  return getRowCells(block).find((cell) => cell.querySelector('h1, h2, h3, h4, h5, h6'))
+    || null;
+}
+
+function getActionStyleCell(block) {
+  return getRowCells(block).find((cell) => (
+    isExactChoiceCell(cell, ['outline', 'solid', 'inverted'])
+  )) || null;
+}
+
+function getMediaCell(block) {
+  return getRowCells(block).find((cell) => (
+    cell.querySelector('picture')
+      || [...cell.querySelectorAll('a[href]')].some((link) => isVideoUrl(link.getAttribute('href')))
+  )) || null;
 }
 
 function getChoiceFromCell(cell, allowed) {
@@ -51,22 +86,24 @@ function getFieldValue(block, nameOrNames) {
   let fallbackValue = '';
 
   if (hasName('variant')) {
-    fallbackCell = getGroupCell(block, 0);
-    fallbackValue = fallbackCell?.textContent.trim() || '';
+    fallbackCell = getRowCells(block).find((cell) => (
+      isExactChoiceCell(cell, ['default', 'homepage'])
+    ));
+    fallbackValue = getCellText(fallbackCell);
   } else if (hasName('media_overlayOpacity', 'overlayOpacity')) {
-    fallbackCell = getGroupCell(block, 1);
+    fallbackCell = getMediaCell(block);
     fallbackValue = getNumberFromCell(fallbackCell);
   } else if (hasName('media_gradientOverlay', 'gradientOverlay')) {
-    fallbackCell = getGroupCell(block, 1);
+    fallbackCell = getMediaCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
   } else if (hasName('content_position', 'contentPosition')) {
-    fallbackCell = getGroupCell(block, 2);
+    fallbackCell = getContentCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['left', 'center', 'right']);
   } else if (hasName('content_showBreadcrumbs', 'showBreadcrumbs')) {
-    fallbackCell = getGroupCell(block, 2);
+    fallbackCell = getContentCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
   } else if (hasName('action_style', 'ctaStyle')) {
-    fallbackCell = getGroupCell(block, 3);
+    fallbackCell = getActionStyleCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['outline', 'solid', 'inverted'])
       || fallbackCell?.textContent.trim()
       || '';
@@ -457,18 +494,18 @@ function buildMainRichText(block) {
     'center',
     'right',
   ]);
-  const fallbackNodes = [
-    ...(getGroupCell(block, 2) || block).querySelectorAll('h1, h2, h3, h4, h5, h6, p'),
-  ].filter((node) => {
-    if (node.hasAttribute('data-aue-prop') || node.hasAttribute('data-richtext-prop')) return false;
-    if (node.closest('[data-aue-prop], [data-richtext-prop], picture, video')) return false;
-    const text = node.textContent.trim();
-    if (!text) return false;
-    if (ignoredTextValues.has(text.toLowerCase())) return false;
-    if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text)) return false;
-    if (/^\d+(\.\d+)?(rem|px|%)?$/.test(text)) return false;
-    return true;
-  });
+  const contentCell = getContentCell(block) || block;
+  const fallbackNodes = [...contentCell.querySelectorAll('h1, h2, h3, h4, h5, h6, p')]
+    .filter((node) => {
+      if (node.hasAttribute('data-aue-prop') || node.hasAttribute('data-richtext-prop')) return false;
+      if (node.closest('[data-aue-prop], [data-richtext-prop], picture, video')) return false;
+      const text = node.textContent.trim();
+      if (!text) return false;
+      if (ignoredTextValues.has(text.toLowerCase())) return false;
+      if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text)) return false;
+      if (/^\d+(\.\d+)?(rem|px|%)?$/.test(text)) return false;
+      return true;
+    });
   fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
   if (!fallback.textContent.trim()) return null;
   return fallback;
@@ -596,13 +633,6 @@ function buildSidePanel(block) {
   return panel;
 }
 
-const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
-
-function isVideoUrl(value) {
-  if (!value || typeof value !== 'string') return false;
-  return VIDEO_EXT_RE.test(value.trim());
-}
-
 function findVideoInElement(el) {
   if (!el) return '';
   // 1. Element itself is a video
@@ -719,7 +749,7 @@ function pictureInSource(source, exclude) {
 
 function extractPicture(block, exclude = []) {
   const imageField = readImageField(block, ['media_image', 'image'], {
-    fallbackCell: getGroupCell(block, 1),
+    fallbackCell: getMediaCell(block),
   });
   const imageSource = imageField.source || imageField.cell;
   let picture = imageField.picture && !exclude.includes(imageField.picture)

@@ -68,6 +68,43 @@ function getField(block, legacyMap, nameOrNames) {
   return legacyName ? legacyMap[legacyName] : { source: null, value: '' };
 }
 
+function getRowCells(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
+}
+
+function getParagraphValues(cell) {
+  return [...(cell?.querySelectorAll?.('p') || [])]
+    .map((paragraph) => paragraph.textContent.trim())
+    .filter(Boolean);
+}
+
+function applyFallbackField(field, source, value) {
+  if (field.source || field.value || !value) return field;
+  return { source: null, cell: source, value };
+}
+
+function getContentCell(block) {
+  return getRowCells(block).find((cell) => {
+    if (cell.querySelector('picture')) return false;
+    const values = getParagraphValues(cell);
+    if (!values.length) return false;
+    return !['input', 'dropdown'].includes(values[0].toLowerCase());
+  }) || null;
+}
+
+function getFormCell(block) {
+  return getRowCells(block).find((cell) => {
+    const [firstValue] = getParagraphValues(cell);
+    return ['input', 'dropdown'].includes(firstValue?.toLowerCase());
+  }) || null;
+}
+
+function getStatusCell(block) {
+  return getRowCells(block).find((cell) => /success\s*\|/i.test(cell.textContent)) || null;
+}
+
 function moveFieldBinding(from, to) {
   if (!from || !to) return;
   moveAttributes(
@@ -122,8 +159,11 @@ function navigateTo(url, target) {
 }
 
 function buildBackground(block) {
-  const imageField = readImageField(block, 'media_image');
-  const fallbackImageField = imageField.img ? imageField : readImageField(block, 'image');
+  const imageFallback = getRowCells(block).find((cell) => cell.querySelector('picture'));
+  const imageField = readImageField(block, 'media_image', { fallbackCell: imageFallback });
+  const fallbackImageField = imageField.img ? imageField : readImageField(block, 'image', {
+    fallbackCell: imageFallback,
+  });
   const imageAltField = readTextField(block, 'media_imageAlt');
   const fallbackAltField = imageAltField.source ? imageAltField : readTextField(block, 'imageAlt');
   const { img } = fallbackImageField;
@@ -262,15 +302,45 @@ function bindInputSubmit(block, form, submitButton, status, config) {
 export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
   const isAuthoring = hasAuthoringContext(block);
-  const headingField = getField(block, legacyMap, ['content_heading', 'heading']);
-  const subheadingField = getField(block, legacyMap, ['content_subheading', 'subheading']);
-  const formTypeField = getField(block, legacyMap, ['form_type']);
-  const placeholderField = getField(block, legacyMap, ['form_placeholder', 'placeholder']);
-  const optionsField = getField(block, legacyMap, ['form_options', 'options']);
-  const buttonTextField = getField(block, legacyMap, ['form_buttonText', 'buttonText']);
+  const contentValues = getParagraphValues(getContentCell(block));
+  const formCell = getFormCell(block);
+  const formValues = getParagraphValues(formCell);
+  const targetValue = formValues.find((value) => ['_self', '_blank'].includes(value));
+  const formTypeValue = ['input', 'dropdown'].includes(formValues[0]?.toLowerCase())
+    ? formValues[0]
+    : '';
+  const buttonFallback = [...formValues]
+    .reverse()
+    .find((value) => value !== targetValue && value !== formTypeValue);
+  const optionFallback = formValues
+    .filter((value) => (
+      value !== formTypeValue
+        && value !== formValues[1]
+        && value !== buttonFallback
+        && value !== targetValue
+    ))
+    .join('\n');
+  let headingField = getField(block, legacyMap, ['content_heading', 'heading']);
+  let subheadingField = getField(block, legacyMap, ['content_subheading', 'subheading']);
+  let formTypeField = getField(block, legacyMap, ['form_type']);
+  let placeholderField = getField(block, legacyMap, ['form_placeholder', 'placeholder']);
+  let optionsField = getField(block, legacyMap, ['form_options', 'options']);
+  let buttonTextField = getField(block, legacyMap, ['form_buttonText', 'buttonText']);
   const formActionField = getField(block, legacyMap, ['formAction', 'form_action']);
-  const statusMessagesField = getField(block, legacyMap, ['statusMessages', 'status_messages']);
-  const targetField = getField(block, legacyMap, ['form_target', 'target']);
+  let statusMessagesField = getField(block, legacyMap, ['statusMessages', 'status_messages']);
+  let targetField = getField(block, legacyMap, ['form_target', 'target']);
+  headingField = applyFallbackField(headingField, getContentCell(block), contentValues[0]);
+  subheadingField = applyFallbackField(subheadingField, getContentCell(block), contentValues[1]);
+  formTypeField = applyFallbackField(formTypeField, formCell, formTypeValue);
+  placeholderField = applyFallbackField(placeholderField, formCell, formValues[1]);
+  optionsField = applyFallbackField(optionsField, formCell, optionFallback);
+  buttonTextField = applyFallbackField(buttonTextField, formCell, buttonFallback);
+  statusMessagesField = applyFallbackField(
+    statusMessagesField,
+    getStatusCell(block),
+    getStatusCell(block)?.textContent.trim(),
+  );
+  targetField = applyFallbackField(targetField, formCell, targetValue);
   const background = buildBackground(block);
 
   const messages = buildStatusMessages(statusMessagesField, legacyMap);

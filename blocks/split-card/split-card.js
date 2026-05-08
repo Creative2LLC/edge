@@ -58,8 +58,34 @@ function getLinkField(block, name) {
   return readLinkField(block, name).value;
 }
 
+function getRowCells(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
+}
+
+function getFallbackText(block, index) {
+  return getRowCells(block)[index]?.textContent?.trim() || '';
+}
+
+function getFallbackLink(block, index) {
+  const cell = getRowCells(block)[index];
+  const anchor = cell?.querySelector?.('a[href]');
+  return anchor?.getAttribute('href') || cell?.textContent?.trim() || '';
+}
+
+function getFieldWithFallback(block, name, fallbackIndex) {
+  return getField(block, name) || getFallbackText(block, fallbackIndex);
+}
+
+function getLinkFieldWithFallback(block, name, fallbackIndex) {
+  return getLinkField(block, name) || getFallbackLink(block, fallbackIndex);
+}
+
 function getImage(block) {
-  const imageField = readImageField(block, 'image');
+  const imageField = readImageField(block, 'image', {
+    fallbackCell: getRowCells(block).find((cell) => cell.querySelector('picture')),
+  });
   const picture = imageField.picture || block.querySelector('picture');
   if (!picture) return null;
 
@@ -80,8 +106,9 @@ function collectColorValues(block) {
   block.querySelectorAll(':scope > div').forEach((row) => {
     if (row.querySelector('[data-aue-prop]')) return;
     const anchor = row.querySelector('a');
-    if (anchor) {
-      values.push(anchor.textContent.trim());
+    const value = anchor?.textContent.trim() || '';
+    if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)) {
+      values.push(value);
     }
   });
 
@@ -149,14 +176,22 @@ export default async function decorate(block) {
   const resourceData = await getBlockResourceData(block);
   const picture = getImage(block);
 
-  const heading = getField(block, 'heading') || normalizeJsonFieldValue(resourceData.heading);
-  const subheading = getField(block, 'subheading') || normalizeJsonFieldValue(resourceData.subheading);
-  const buttonText = getField(block, 'buttonText') || normalizeJsonFieldValue(resourceData.buttonText);
-  const buttonLink = getLinkField(block, 'buttonLink') || normalizeJsonFieldValue(resourceData.buttonLink);
-  const button2Text = getField(block, 'button2Text') || normalizeJsonFieldValue(resourceData.button2Text);
-  const button2Link = getLinkField(block, 'button2Link') || normalizeJsonFieldValue(resourceData.button2Link);
-  const buttonStyle = getField(block, 'buttonStyle') || normalizeJsonFieldValue(resourceData.buttonStyle);
-  const button2Style = getField(block, 'button2Style') || normalizeJsonFieldValue(resourceData.button2Style);
+  const heading = getFieldWithFallback(block, 'heading', 1)
+    || normalizeJsonFieldValue(resourceData.heading);
+  const subheading = getFieldWithFallback(block, 'subheading', 2)
+    || normalizeJsonFieldValue(resourceData.subheading);
+  const buttonText = getFieldWithFallback(block, 'buttonText', 3)
+    || normalizeJsonFieldValue(resourceData.buttonText);
+  const buttonLink = getLinkFieldWithFallback(block, 'buttonLink', 4)
+    || normalizeJsonFieldValue(resourceData.buttonLink);
+  const button2Text = getFieldWithFallback(block, 'button2Text', 7)
+    || normalizeJsonFieldValue(resourceData.button2Text);
+  const button2Link = getLinkFieldWithFallback(block, 'button2Link', 8)
+    || normalizeJsonFieldValue(resourceData.button2Link);
+  const buttonStyle = getFieldWithFallback(block, 'buttonStyle', 6)
+    || normalizeJsonFieldValue(resourceData.buttonStyle);
+  const button2Style = getFieldWithFallback(block, 'button2Style', 10)
+    || normalizeJsonFieldValue(resourceData.button2Style);
   const imageAlt = getField(block, 'imageAlt') || normalizeJsonFieldValue(resourceData.imageAlt);
 
   const colors = collectColorValues(block);
@@ -171,15 +206,17 @@ export default async function decorate(block) {
     getField(block, 'subheadingColor') || resourceData.subheadingColor,
   ) || sharedTextColor;
 
-  const contentAlign = getField(block, 'contentAlign')
+  const contentAlign = getFieldWithFallback(block, 'contentAlign', 15)
     || normalizeJsonFieldValue(resourceData.contentAlign)
     || 'left';
-  const imagePosition = getField(block, 'imagePosition')
+  const imagePosition = getFieldWithFallback(block, 'imagePosition', 16)
     || normalizeJsonFieldValue(resourceData.imagePosition)
     || 'left';
-  const maxWidth = normalizeSizeValue(getField(block, 'maxWidth') || resourceData.maxWidth);
-  const blockSize = (getField(block, 'blockSize') || normalizeJsonFieldValue(resourceData.blockSize) || 'normal').toLowerCase();
-  const imageSize = (getField(block, 'imageSize') || normalizeJsonFieldValue(resourceData.imageSize) || 'even').toLowerCase();
+  const maxWidth = normalizeSizeValue(getFieldWithFallback(block, 'maxWidth', 19) || resourceData.maxWidth);
+  const blockSize = (getFieldWithFallback(block, 'blockSize', 18)
+    || normalizeJsonFieldValue(resourceData.blockSize) || 'normal').toLowerCase();
+  const imageSize = (getFieldWithFallback(block, 'imageSize', 17)
+    || normalizeJsonFieldValue(resourceData.imageSize) || 'even').toLowerCase();
 
   if (picture) {
     const img = picture.querySelector('img');
