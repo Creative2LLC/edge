@@ -1,23 +1,12 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { getBlockRows, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
 function getField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(block, name, { fallbackCell: rows[index] });
 }
 
 function getLinkField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  if (rows[index]) {
-    const anchor = rows[index].querySelector('a');
-    return { source: null, value: anchor?.href || rows[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  return readLinkField(block, name, { fallbackCell: rows[index] });
 }
 
 function buildTextElement(tag, className, field) {
@@ -35,7 +24,7 @@ function buildTextElement(tag, className, field) {
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const rows = getBlockRows(block);
 
   const titleField = getField(block, rows, 'title', 0);
   const subtitleField = getField(block, rows, 'subtitle', 1);

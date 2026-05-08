@@ -12,7 +12,7 @@ const isDesktop = window.matchMedia('(min-width: 1260px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 260;
 const POSTER_LISTING_PATH = '/missing-children-posters';
 const CYBERTIPLINE_DATA_PATH = '/content/edge/data-and-impact/cybertipline-data.html';
-const FALLBACK_BRAND_LOGO = new URL('../poster-results/NCMEC_Heart_Logo.png', import.meta.url).href;
+const FALLBACK_BRAND_LOGO = new URL('./ncmec-brand-mark.svg', import.meta.url).href;
 
 function clearTransitionTimer(element, key) {
   if (element?.[key]) {

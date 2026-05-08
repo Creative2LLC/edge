@@ -633,6 +633,9 @@ function buildVideoElement(url, posterUrl) {
   };
   if (video.readyState >= 2) tryPlay();
   else video.addEventListener('loadeddata', tryPlay, { once: true });
+  video.addEventListener('error', () => {
+    video.remove();
+  }, { once: true });
   return video;
 }
 
@@ -804,7 +807,11 @@ export default async function decorate(block) {
   content.append(layout);
 
   if (videoEl) {
-    block.replaceChildren(videoEl, content);
+    if (picture) {
+      block.replaceChildren(picture, videoEl, content);
+    } else {
+      block.replaceChildren(videoEl, content);
+    }
     return;
   }
   if (picture) {

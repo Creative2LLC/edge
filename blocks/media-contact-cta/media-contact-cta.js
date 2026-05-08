@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
 
 const FIELD_INDEX = {
   image: 0,
@@ -12,25 +13,9 @@ function normalizeText(value) {
   return `${value || ''}`.trim();
 }
 
-function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  const row = block.querySelector(':scope > div');
-  const cell = row?.children[FIELD_INDEX[name]];
-  return { source: cell || null, value: cell?.textContent.trim() || '' };
-}
-
 function getImageField(block) {
-  const field = getField(block, 'image');
-  const img = field.source?.tagName === 'IMG'
-    ? field.source
-    : field.source?.querySelector('img') || field.source?.querySelector('picture img');
-  if (img) return { source: field.source, img };
-
-  const row = block.querySelector(':scope > div');
-  const cell = row?.children[FIELD_INDEX.image];
-  return { source: cell || null, img: cell?.querySelector('img') || null };
+  const field = readImageField(block, 'image', { rowIndex: 0, columnIndex: FIELD_INDEX.image });
+  return { source: field.source || field.cell, img: field.img };
 }
 
 function mailTo(email) {
@@ -77,10 +62,10 @@ function buildVisual(imageField, href) {
 
 export default function decorate(block) {
   const imageField = getImageField(block);
-  const headingField = getField(block, 'heading');
-  const copyField = getField(block, 'copy');
-  const emailField = getField(block, 'email');
-  const noteField = getField(block, 'note');
+  const headingField = readTextField(block, 'heading', { rowIndex: 0, columnIndex: FIELD_INDEX.heading });
+  const copyField = readTextField(block, 'copy', { rowIndex: 0, columnIndex: FIELD_INDEX.copy });
+  const emailField = readTextField(block, 'email', { rowIndex: 0, columnIndex: FIELD_INDEX.email });
+  const noteField = readTextField(block, 'note', { rowIndex: 0, columnIndex: FIELD_INDEX.note });
   const email = normalizeText(emailField.value);
   const href = mailTo(email);
 

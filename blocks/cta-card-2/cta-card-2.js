@@ -1,36 +1,22 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function getField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  if (rows[index]) return { source: null, value: rows[index].textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(block, name, { fallbackCell: rows[index] });
 }
 
 function getLinkField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  if (rows[index]) {
-    const anchor = rows[index].querySelector('a');
-    return { source: null, value: anchor?.href || rows[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  return readLinkField(block, name, { fallbackCell: rows[index] });
 }
 
 function getImageField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, img };
-  }
-  if (rows[index]) {
-    const img = rows[index].querySelector('img');
-    return { source: null, img: img || null };
-  }
-  return { source: null, img: null };
+  const field = readImageField(block, name, { fallbackCell: rows[index] });
+  return { source: field.source || field.cell, img: field.img };
 }
 
 function hexToRgba(hex, opacity) {
@@ -42,7 +28,7 @@ function hexToRgba(hex, opacity) {
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const rows = getBlockRows(block);
 
   const iconField = getImageField(block, rows, 'icon', 0);
   const titleField = getField(block, rows, 'title', 1);

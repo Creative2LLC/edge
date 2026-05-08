@@ -14,13 +14,32 @@ function normalizeOptions(options) {
   return {
     rowIndex: options?.rowIndex ?? options?.row,
     columnIndex: options?.columnIndex ?? options?.column ?? 0,
+    labels: options?.labels || options?.label || null,
     fallbackCell: options?.fallbackCell || null,
   };
 }
 
+function normalizeLabel(value) {
+  return `${value || ''}`.trim().toLowerCase().replace(/[\s_-]+/g, '');
+}
+
 export function getFallbackCell(scope, options = {}) {
-  const { rowIndex, columnIndex, fallbackCell } = normalizeOptions(options);
+  const {
+    rowIndex,
+    columnIndex,
+    labels,
+    fallbackCell,
+  } = normalizeOptions(options);
   if (fallbackCell) return fallbackCell;
+
+  if (labels) {
+    const accepted = (Array.isArray(labels) ? labels : [labels]).map(normalizeLabel);
+    const row = getBlockRows(scope).find((candidate) => {
+      if (candidate.children.length < 2) return false;
+      return accepted.includes(normalizeLabel(candidate.children[0].textContent));
+    });
+    if (row) return row.children[1] || null;
+  }
 
   if (rowIndex === undefined || rowIndex === null) return null;
   const row = getBlockRows(scope)[rowIndex];

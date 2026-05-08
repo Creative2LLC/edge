@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -24,9 +25,10 @@ function collectLegacyBlockFields(block) {
 }
 
 function getBlockField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const field = readTextField(block, name);
+  const { source } = field;
   if (source) {
-    const value = source.textContent.trim();
+    const { value } = field;
     source.remove();
     return value;
   }
@@ -36,10 +38,8 @@ function getBlockField(block, legacyMap, name) {
 function parseItemRow(row) {
   const cols = [...row.children];
 
-  function getImageData(col) {
-    if (!col) return { picture: null, src: '', alt: '' };
-    const picture = col.querySelector('picture');
-    const img = col.querySelector('img');
+  function getImageData(field) {
+    const { picture, img } = field;
     return {
       picture,
       src: img?.src || '',
@@ -47,25 +47,27 @@ function parseItemRow(row) {
     };
   }
 
+  const hasItemProps = row.querySelector('[data-aue-prop="image"], [data-aue-prop="icon"], [data-aue-prop="title"]');
+
   // 5-column layout: image | icon | iconColor | title | description
-  if (cols.length >= 5) {
-    const imageData = getImageData(cols[0]);
-    const iconData = getImageData(cols[1]);
+  if (hasItemProps || cols.length >= 5) {
+    const imageData = getImageData(readImageField(row, 'image', { fallbackCell: cols[0] }));
+    const iconData = getImageData(readImageField(row, 'icon', { fallbackCell: cols[1] }));
     return {
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
       imageAlt: imageData.alt,
       iconPicture: iconData.picture,
       iconSrc: iconData.src,
-      iconColor: cols[2].textContent.trim(),
-      title: cols[3].textContent.trim(),
-      description: cols[4].textContent.trim(),
+      iconColor: readTextField(row, 'iconColor', { fallbackCell: cols[2] }).value,
+      title: readTextField(row, 'title', { fallbackCell: cols[3] }).value,
+      description: readTextField(row, 'description', { fallbackCell: cols[4] }).value,
     };
   }
 
   // Minimal fallback: 2 columns (image | text)
   if (cols.length >= 2) {
-    const imageData = getImageData(cols[0]);
+    const imageData = getImageData(readImageField(row, 'image', { fallbackCell: cols[0] }));
     const paragraphs = cols[1].querySelectorAll('p');
     return {
       imagePicture: imageData.picture,

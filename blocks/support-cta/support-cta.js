@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
 const FIELD_INDEX = {
   heading: 0,
@@ -25,30 +26,6 @@ const DEFAULTS = {
   buttonColor: '#0f94bf',
   buttonTextColor: '#ffffff',
 };
-
-function getCell(rows, index) {
-  const row = rows[index];
-  if (!row) return null;
-  return row.children[0] || row;
-}
-
-function getTextField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  const cell = source || getCell(rows, index);
-  return {
-    source: cell,
-    value: cell?.textContent?.trim() || '',
-  };
-}
-
-function getLinkField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`) || getCell(rows, index);
-  const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
-  return {
-    source,
-    value: anchor?.href || source?.textContent?.trim() || '',
-  };
-}
 
 function observeReveal(block) {
   const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -80,18 +57,16 @@ function moveText(field, target, fallbackValue = '') {
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
-
-  const headingField = getTextField(block, rows, 'heading', FIELD_INDEX.heading);
-  const subheadingField = getTextField(block, rows, 'subheading', FIELD_INDEX.subheading);
-  const buttonTextField = getTextField(block, rows, 'buttonText', FIELD_INDEX.buttonText);
-  const buttonSubtextField = getTextField(block, rows, 'buttonSubtext', FIELD_INDEX.buttonSubtext);
-  const buttonLinkField = getLinkField(block, rows, 'buttonLink', FIELD_INDEX.buttonLink);
-  const helperTextField = getTextField(block, rows, 'helperText', FIELD_INDEX.helperText);
-  const backgroundStartField = getTextField(block, rows, 'backgroundStart', FIELD_INDEX.backgroundStart);
-  const backgroundEndField = getTextField(block, rows, 'backgroundEnd', FIELD_INDEX.backgroundEnd);
-  const buttonColorField = getTextField(block, rows, 'buttonColor', FIELD_INDEX.buttonColor);
-  const buttonTextColorField = getTextField(block, rows, 'buttonTextColor', FIELD_INDEX.buttonTextColor);
+  const headingField = readTextField(block, 'heading', FIELD_INDEX.heading);
+  const subheadingField = readTextField(block, 'subheading', FIELD_INDEX.subheading);
+  const buttonTextField = readTextField(block, 'buttonText', FIELD_INDEX.buttonText);
+  const buttonSubtextField = readTextField(block, 'buttonSubtext', FIELD_INDEX.buttonSubtext);
+  const buttonLinkField = readLinkField(block, 'buttonLink', FIELD_INDEX.buttonLink);
+  const helperTextField = readTextField(block, 'helperText', FIELD_INDEX.helperText);
+  const backgroundStartField = readTextField(block, 'backgroundStart', FIELD_INDEX.backgroundStart);
+  const backgroundEndField = readTextField(block, 'backgroundEnd', FIELD_INDEX.backgroundEnd);
+  const buttonColorField = readTextField(block, 'buttonColor', FIELD_INDEX.buttonColor);
+  const buttonTextColorField = readTextField(block, 'buttonTextColor', FIELD_INDEX.buttonTextColor);
 
   block.style.setProperty(
     '--support-cta-background-start',
