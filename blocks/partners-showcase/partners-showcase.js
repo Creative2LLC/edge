@@ -186,12 +186,16 @@ function readRowTextField(row, name, index) {
 function isItemRow(row) {
   const firstValue = row.children[0]?.textContent.trim().toLowerCase();
   if (firstValue === 'logo' || firstValue === 'testimonial') return true;
-  return row.children.length >= 4 && Boolean(row.querySelector('picture'));
+  return row.children.length >= 4;
 }
 
 function readRowRichTextField(row, name, index) {
   const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
-  return { source: field.source, text: field.text };
+  return {
+    source: field.source || (field.text ? field.cell : null),
+    text: field.text,
+    html: field.html,
+  };
 }
 
 function readRowLinkField(row, name, index) {
@@ -494,6 +498,36 @@ function normalizeItemType(rawValue, data) {
   return '';
 }
 
+function hasPicture(cell) {
+  return Boolean(cell?.querySelector?.('picture, img'));
+}
+
+function cellHasLink(cell) {
+  return Boolean(cell?.querySelector?.('a[href]'));
+}
+
+function firstTextCell(row, startIndex = 0) {
+  return [...row.children]
+    .slice(startIndex)
+    .find((cell) => cell.textContent.trim() && !hasPicture(cell) && !cellHasLink(cell))
+    || null;
+}
+
+function readCompactTestimonialData(row) {
+  const cells = [...row.children];
+  const firstValue = cells[0]?.textContent.trim().toLowerCase();
+  const offset = firstValue === 'testimonial' || firstValue === 'quote' ? 1 : 0;
+  const textCells = cells
+    .slice(offset)
+    .filter((cell) => cell.textContent.trim() && !hasPicture(cell) && !cellHasLink(cell));
+
+  return {
+    quoteCell: firstTextCell(row, offset),
+    attributionNameCell: textCells[1] || null,
+    attributionTitleCell: textCells[2] || null,
+  };
+}
+
 function createShell(className) {
   const shell = document.createElement('div');
   shell.className = `partners-showcase-shell ${className}`.trim();
@@ -532,6 +566,7 @@ export default async function decorate(block) {
   ));
 
   rows.forEach((row) => {
+    const compactTestimonial = readCompactTestimonialData(row);
     const data = {
       row,
       logoField: readRowImageField(row, 'logo', 1),
@@ -544,6 +579,26 @@ export default async function decorate(block) {
 
     const itemTypeField = readRowTextField(row, 'itemType', 0);
     const itemType = normalizeItemType(itemTypeField.value, data);
+
+    if (itemType === 'testimonial' && !data.quoteField.text && compactTestimonial.quoteCell) {
+      data.quoteField = {
+        source: compactTestimonial.quoteCell,
+        text: compactTestimonial.quoteCell.textContent.trim(),
+        html: compactTestimonial.quoteCell.innerHTML.trim(),
+      };
+    }
+    if (itemType === 'testimonial' && !data.attributionNameField.value && compactTestimonial.attributionNameCell) {
+      data.attributionNameField = {
+        source: compactTestimonial.attributionNameCell,
+        value: compactTestimonial.attributionNameCell.textContent.trim(),
+      };
+    }
+    if (itemType === 'testimonial' && !data.attributionTitleField.value && compactTestimonial.attributionTitleCell) {
+      data.attributionTitleField = {
+        source: compactTestimonial.attributionTitleCell,
+        value: compactTestimonial.attributionTitleCell.textContent.trim(),
+      };
+    }
 
     if (itemType === 'testimonial') testimonials.push(data);
     else if (itemType === 'logo') logos.push(data);

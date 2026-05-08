@@ -7,6 +7,39 @@ import {
 
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
 
+const HERO_FIELD_INDEX = {
+  variant: 0,
+  media_image: 1,
+  media_imageAlt: 2,
+  media_featuredImage: 3,
+  media_featuredImageAlt: 4,
+  media_video: 5,
+  media_overlayOpacity: 6,
+  media_gradientOverlay: 7,
+  content_height: 8,
+  content_position: 9,
+  content_showBreadcrumbs: 10,
+  content_breadcrumbs: 11,
+  content_text: 12,
+  content_textColor: 13,
+  content_textHtml: 14,
+  content_textHtmlClass: 15,
+  action_style: 16,
+  action_1Text: 17,
+  action_1Link: 18,
+  action_2Text: 19,
+  action_2Link: 20,
+  action_3Text: 21,
+  action_3Link: 22,
+  panel_title: 23,
+  panel_text: 24,
+  panel_primaryText: 25,
+  panel_primaryLink: 26,
+  panel_secondaryText: 27,
+  panel_secondaryLink: 28,
+  panel_footerText: 29,
+};
+
 function isVideoUrl(value) {
   if (!value || typeof value !== 'string') return false;
   return VIDEO_EXT_RE.test(value.trim());
@@ -16,6 +49,11 @@ function getRowCells(block) {
   return [...block.querySelectorAll(':scope > div')]
     .map((row) => row.children[0] || row)
     .filter(Boolean);
+}
+
+function getHeroFieldCell(block, name) {
+  const index = HERO_FIELD_INDEX[name];
+  return Number.isInteger(index) ? getRowCells(block)[index] || null : null;
 }
 
 function getCellText(cell) {
@@ -670,7 +708,9 @@ function findVideoInElement(el) {
 }
 
 function extractVideoUrl(block) {
-  const videoField = readLinkField(block, ['media_video', 'video']);
+  const videoField = readLinkField(block, ['media_video', 'video'], {
+    fallbackCell: getHeroFieldCell(block, 'media_video'),
+  });
   const videoSource = videoField.source || videoField.cell;
   if (videoSource || videoField.value) {
     const url = findVideoInElement(videoSource) || videoField.value;
@@ -693,6 +733,10 @@ function extractVideoUrl(block) {
   if (videoAnchor) {
     return { source: videoAnchor, url: videoAnchor.getAttribute('href') };
   }
+
+  const videoCell = getHeroFieldCell(block, 'media_video');
+  const fallbackUrl = findVideoInElement(videoCell);
+  if (fallbackUrl) return { source: videoCell, url: fallbackUrl };
 
   // 3. Block-wide scan for an actual <video> element
   const anyVideo = block.querySelector('video');

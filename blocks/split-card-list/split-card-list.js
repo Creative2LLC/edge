@@ -1,34 +1,95 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
+  getFieldSelector,
   readImageField,
   readLinkField,
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
-function getField(scope, name, index) {
-  return readTextField(scope, name, { fallbackCell: scope.children[index] }).value;
-}
-
-function getRichTextField(scope, name, index) {
-  return readRichTextField(scope, name, { fallbackCell: scope.children[index] }).html;
-}
-
-function getLinkField(scope, name, index) {
-  return readLinkField(scope, name, { fallbackCell: scope.children[index] }).value;
-}
-
-function getImageField(scope, name, index) {
-  return readImageField(scope, name, { fallbackCell: scope.children[index] }).img;
-}
+const BLOCK_FIELDS = [
+  'heading',
+  'bodyText',
+  'buttonText',
+  'buttonLink',
+  'buttonColor',
+  'buttonTextColor',
+  'buttonStyle',
+  'layout',
+];
 
 function isItemRow(row) {
   return Boolean(
     row.querySelector('[data-aue-prop="title"]')
       || row.querySelector('[data-aue-prop="subtitle"]')
       || row.querySelector('[data-aue-prop="year"]')
-      || row.querySelector('[data-aue-prop="emailText"]'),
+      || row.querySelector('[data-aue-prop="emailText"]')
+      || row.children.length >= 3,
   );
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')].filter((row) => !isItemRow(row));
+}
+
+function getParentCell(block, index) {
+  const row = getParentRows(block)[index];
+  return row?.children?.[0] || row || null;
+}
+
+function getParentFieldSource(block, name) {
+  const selector = getFieldSelector(name);
+  return getParentRows(block)
+    .map((row) => (row.matches(selector) ? row : row.querySelector(selector)))
+    .find(Boolean)
+    || null;
+}
+
+function getBlockTextField(block, name) {
+  const source = getParentFieldSource(block, name);
+  const fallbackCell = source || getParentCell(block, BLOCK_FIELDS.indexOf(name));
+  return fallbackCell?.textContent?.trim() || '';
+}
+
+function getBlockRichTextField(block, name) {
+  const source = getParentFieldSource(block, name);
+  const fallbackCell = source || getParentCell(block, BLOCK_FIELDS.indexOf(name));
+  return fallbackCell?.innerHTML?.trim() || '';
+}
+
+function getBlockLinkField(block, name) {
+  const source = getParentFieldSource(block, name);
+  const fallbackCell = source || getParentCell(block, BLOCK_FIELDS.indexOf(name));
+  const anchor = fallbackCell?.tagName === 'A' ? fallbackCell : fallbackCell?.querySelector?.('a[href]');
+  return anchor?.getAttribute('href') || fallbackCell?.textContent?.trim() || '';
+}
+
+function getField(scope, name, index) {
+  if (scope.classList?.contains('split-card-list')) {
+    return getBlockTextField(scope, name);
+  }
+  const fallbackCell = scope.children[index];
+  return readTextField(scope, name, { fallbackCell }).value;
+}
+
+function getRichTextField(scope, name, index) {
+  if (scope.classList?.contains('split-card-list')) {
+    return getBlockRichTextField(scope, name);
+  }
+  const fallbackCell = scope.children[index];
+  return readRichTextField(scope, name, { fallbackCell }).html;
+}
+
+function getLinkField(scope, name, index) {
+  if (scope.classList?.contains('split-card-list')) {
+    return getBlockLinkField(scope, name);
+  }
+  const fallbackCell = scope.children[index];
+  return readLinkField(scope, name, { fallbackCell }).value;
+}
+
+function getImageField(scope, name, index) {
+  return readImageField(scope, name, { fallbackCell: scope.children[index] }).img;
 }
 
 function styleButton(btn, color, textColor, style) {

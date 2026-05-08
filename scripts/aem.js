@@ -297,9 +297,10 @@ function getSectionMetadata(section) {
     || '';
 
   if (sectionResource) {
-    ['name', 'style', 'backgroundColor'].forEach((name) => {
+    ['name', 'style', 'backgroundColor', 'topSpacing', 'bottomSpacing'].forEach((name) => {
       const selector = `[data-aue-resource="${sectionResource}"][data-aue-prop="${name}"]`;
-      const node = section.querySelector(selector);
+      const node = section.querySelector(selector)
+        || section.querySelector(`[data-aue-prop="${name}"]`);
       if (!node) return;
 
       const value = readSectionFieldValue(node);
