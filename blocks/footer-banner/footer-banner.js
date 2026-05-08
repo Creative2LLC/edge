@@ -19,13 +19,25 @@ function buildText(tag, className, field) {
   return el;
 }
 
+function getRowCells(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
+}
+
 export default function decorate(block) {
-  const imageField = readImageField(block, 'image', 0);
-  const imageAltField = readTextField(block, 'imageAlt', 1);
-  const headingField = readTextField(block, 'heading', 2);
-  const logoField = readImageField(block, 'logo', 3);
-  const logoAltField = readTextField(block, 'logoAlt', 4);
-  const subheadingField = readTextField(block, 'subheading', 5);
+  const rowCells = getRowCells(block);
+  const textCells = rowCells.filter((cell) => !cell.querySelector('picture') && cell.textContent.trim());
+  const imageField = readImageField(block, 'image', { fallbackCell: rowCells[0] });
+  const imageAltField = readTextField(block, 'imageAlt');
+  const headingField = readTextField(block, 'heading', { fallbackCell: textCells[0] });
+  const logoField = readImageField(block, 'logo', {
+    fallbackCell: rowCells.find((cell, index) => (
+      index > 0 && cell.querySelector('picture')
+    )),
+  });
+  const logoAltField = readTextField(block, 'logoAlt');
+  const subheadingField = readTextField(block, 'subheading', { fallbackCell: textCells[1] });
 
   /* snapshot all pictures before any DOM changes */
   const allPictures = [...block.querySelectorAll('picture')];

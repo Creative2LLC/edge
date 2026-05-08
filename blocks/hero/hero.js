@@ -5,74 +5,26 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
-const FIELD_ROW_INDEX = {
-  variant: 0,
-  media_image: 1,
-  image: 1,
-  media_imageAlt: 2,
-  imageAlt: 2,
-  media_featuredImage: 3,
-  featuredImage: 3,
-  media_featuredImageAlt: 4,
-  featuredImageAlt: 4,
-  media_video: 5,
-  video: 5,
-  media_overlayOpacity: 6,
-  overlayOpacity: 6,
-  media_gradientOverlay: 7,
-  gradientOverlay: 7,
-  content_height: 8,
-  height: 8,
-  content_position: 9,
-  contentPosition: 9,
-  content_showBreadcrumbs: 10,
-  showBreadcrumbs: 10,
-  content_breadcrumbs: 11,
-  breadcrumbs: 11,
-  content_text: 12,
-  text: 12,
-  content_textColor: 13,
-  text_color: 13,
-  content_textHtml: 14,
-  text_html: 14,
-  content_textHtmlClass: 15,
-  textHtmlClass: 15,
-  action_style: 16,
-  ctaStyle: 16,
-  action_1Text: 17,
-  cta1Text: 17,
-  action_1Link: 18,
-  cta1Link: 18,
-  action_2Text: 19,
-  cta2Text: 19,
-  action_2Link: 20,
-  cta2Link: 20,
-  action_3Text: 21,
-  cta3Text: 21,
-  action_3Link: 22,
-  cta3Link: 22,
-  panel_title: 23,
-  sidePanelTitle: 23,
-  panel_text: 24,
-  sidePanelText: 24,
-  panel_primaryText: 25,
-  sidePanelPrimaryText: 25,
-  panel_primaryLink: 26,
-  sidePanelPrimaryLink: 26,
-  panel_secondaryText: 27,
-  sidePanelSecondaryText: 27,
-  panel_secondaryLink: 28,
-  sidePanelSecondaryLink: 28,
-  panel_footerText: 29,
-  sidePanelFooterText: 29,
-};
+function getGroupCell(block, index) {
+  const row = block.querySelectorAll(':scope > div')[index];
+  return row?.children?.[0] || row || null;
+}
 
-function getFieldOptions(nameOrNames) {
-  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
-  const rowIndex = names
-    .map((name) => FIELD_ROW_INDEX[name])
-    .find((index) => index !== undefined);
-  return rowIndex === undefined ? {} : { rowIndex };
+function getChoiceFromCell(cell, allowed) {
+  if (!cell) return '';
+  const accepted = new Set(allowed);
+  const textNodes = [...cell.querySelectorAll('p, div, span')]
+    .map((node) => node.textContent.trim().toLowerCase())
+    .filter(Boolean);
+  return textNodes.find((value) => accepted.has(value)) || '';
+}
+
+function getNumberFromCell(cell) {
+  if (!cell) return '';
+  const textNodes = [...cell.querySelectorAll('p, div, span')]
+    .map((node) => node.textContent.trim())
+    .filter(Boolean);
+  return textNodes.find((value) => /^(?:100|[1-9]?[0-9])$/.test(value)) || '';
 }
 
 function normalizeHeight(value) {
@@ -85,10 +37,51 @@ function normalizeHeight(value) {
 }
 
 function getFieldValue(block, nameOrNames) {
-  const field = readTextField(block, nameOrNames, getFieldOptions(nameOrNames));
+  const field = readTextField(block, nameOrNames);
+  if (field.source) {
+    return {
+      source: field.source,
+      value: field.value,
+    };
+  }
+
+  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
+  const hasName = (...candidates) => candidates.some((candidate) => names.includes(candidate));
+  let fallbackCell = null;
+  let fallbackValue = '';
+
+  if (hasName('variant')) {
+    fallbackCell = getGroupCell(block, 0);
+    fallbackValue = fallbackCell?.textContent.trim() || '';
+  } else if (hasName('media_overlayOpacity', 'overlayOpacity')) {
+    fallbackCell = getGroupCell(block, 1);
+    fallbackValue = getNumberFromCell(fallbackCell);
+  } else if (hasName('media_gradientOverlay', 'gradientOverlay')) {
+    fallbackCell = getGroupCell(block, 1);
+    fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
+  } else if (hasName('content_position', 'contentPosition')) {
+    fallbackCell = getGroupCell(block, 2);
+    fallbackValue = getChoiceFromCell(fallbackCell, ['left', 'center', 'right']);
+  } else if (hasName('content_showBreadcrumbs', 'showBreadcrumbs')) {
+    fallbackCell = getGroupCell(block, 2);
+    fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
+  } else if (hasName('action_style', 'ctaStyle')) {
+    fallbackCell = getGroupCell(block, 3);
+    fallbackValue = getChoiceFromCell(fallbackCell, ['outline', 'solid', 'inverted'])
+      || fallbackCell?.textContent.trim()
+      || '';
+  }
+
+  if (fallbackValue) {
+    return {
+      source: fallbackCell,
+      value: fallbackValue,
+    };
+  }
+
   return {
-    source: field.source || field.cell,
-    value: field.value,
+    source: null,
+    value: '',
   };
 }
 
@@ -108,7 +101,7 @@ function moveFieldBinding(from, to) {
 
 function getLinkFieldValue(block, name) {
   const textField = getFieldValue(block, name);
-  const linkField = readLinkField(block, name, getFieldOptions(name));
+  const linkField = readLinkField(block, name);
   const source = linkField.source || linkField.cell || textField.source;
   if (!source && !linkField.value) return { source: null, value: '', href: '' };
   const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
@@ -441,7 +434,7 @@ function applyAccentBrackets(richText) {
 }
 
 function buildMainRichText(block) {
-  const { source } = getFieldValue(block, ['content_text', 'text']);
+  const { source } = readTextField(block, ['content_text', 'text']);
   if (source) {
     const richText = document.createElement('div');
     richText.className = 'hero-richtext';
@@ -465,7 +458,7 @@ function buildMainRichText(block) {
     'right',
   ]);
   const fallbackNodes = [
-    ...block.querySelectorAll('h1, h2, h3, h4, h5, h6, p'),
+    ...(getGroupCell(block, 2) || block).querySelectorAll('h1, h2, h3, h4, h5, h6, p'),
   ].filter((node) => {
     if (node.hasAttribute('data-aue-prop') || node.hasAttribute('data-richtext-prop')) return false;
     if (node.closest('[data-aue-prop], [data-richtext-prop], picture, video')) return false;
@@ -647,7 +640,7 @@ function findVideoInElement(el) {
 }
 
 function extractVideoUrl(block) {
-  const videoField = readLinkField(block, ['media_video', 'video'], getFieldOptions('media_video'));
+  const videoField = readLinkField(block, ['media_video', 'video']);
   const videoSource = videoField.source || videoField.cell;
   if (videoSource || videoField.value) {
     const url = findVideoInElement(videoSource) || videoField.value;
@@ -725,7 +718,9 @@ function pictureInSource(source, exclude) {
 }
 
 function extractPicture(block, exclude = []) {
-  const imageField = readImageField(block, ['media_image', 'image'], getFieldOptions('media_image'));
+  const imageField = readImageField(block, ['media_image', 'image'], {
+    fallbackCell: getGroupCell(block, 1),
+  });
   const imageSource = imageField.source || imageField.cell;
   let picture = imageField.picture && !exclude.includes(imageField.picture)
     ? imageField.picture
@@ -754,7 +749,6 @@ function extractFeaturedPicture(block, exclude = []) {
   const imageField = readImageField(
     block,
     ['media_featuredImage', 'featuredImage'],
-    getFieldOptions('media_featuredImage'),
   );
   const imageSource = imageField.source || imageField.cell;
   if (!imageSource && !imageField.picture) return null;

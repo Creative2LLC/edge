@@ -2,12 +2,10 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveAttributes } from '../../scripts/scripts.js';
 import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
-function readField(block, nameOrNames, rowIndex) {
-  return readTextField(block, nameOrNames, { rowIndex });
-}
-
-function readUrlField(block, nameOrNames, rowIndex) {
-  return readLinkField(block, nameOrNames, { rowIndex });
+function getRowCells(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
 }
 
 function moveFieldBinding(from, to) {
@@ -58,9 +56,12 @@ function parseLegacyFields(block) {
 }
 
 function buildBackground(block) {
-  const imageField = readImageField(block, ['media_image', 'image'], { rowIndex: 0 });
+  const rowCells = getRowCells(block);
+  const imageField = readImageField(block, ['media_image', 'image'], {
+    fallbackCell: rowCells.find((cell) => cell.querySelector('picture')),
+  });
   const fallbackImageField = imageField.picture ? imageField : readImageField(block, 'image', {
-    rowIndex: 0,
+    fallbackCell: rowCells.find((cell) => cell.querySelector('picture')),
   });
   const { source } = fallbackImageField;
   const picture = fallbackImageField.picture || block.querySelector('picture');
@@ -110,11 +111,26 @@ function buildButton(text, url, variant) {
 
 export default function decorate(block) {
   /* --- gather fields --- */
-  const headingField = readField(block, ['content_heading', 'heading'], 2);
-  const primaryTextField = readField(block, ['primary_text', 'primaryButtonText'], 3);
-  const primaryLinkField = readUrlField(block, ['primary_link', 'primaryButtonLink'], 4);
-  const secondaryTextField = readField(block, ['secondary_text', 'secondaryButtonText'], 5);
-  const secondaryLinkField = readUrlField(block, ['secondary_link', 'secondaryButtonLink'], 6);
+  const rowCells = getRowCells(block);
+  const textCells = rowCells.filter((cell) => (
+    !cell.querySelector('picture') && !cell.querySelector('a[href]') && cell.textContent.trim()
+  ));
+  const linkCells = rowCells.filter((cell) => cell.querySelector('a[href]'));
+  const headingField = readTextField(block, ['content_heading', 'heading'], {
+    fallbackCell: textCells[0],
+  });
+  const primaryTextField = readTextField(block, ['primary_text', 'primaryButtonText'], {
+    fallbackCell: textCells[1],
+  });
+  const primaryLinkField = readLinkField(block, ['primary_link', 'primaryButtonLink'], {
+    fallbackCell: linkCells[0],
+  });
+  const secondaryTextField = readTextField(block, ['secondary_text', 'secondaryButtonText'], {
+    fallbackCell: textCells[2],
+  });
+  const secondaryLinkField = readLinkField(block, ['secondary_link', 'secondaryButtonLink'], {
+    fallbackCell: linkCells[1],
+  });
 
   let headingText = headingField.value;
   let primaryText = primaryTextField.value;
