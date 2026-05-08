@@ -1,3 +1,9 @@
+import {
+  getBlockRows,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
   eyebrow: 'AMBER Alert',
@@ -86,14 +92,11 @@ function normalizeApiBaseUrl(value) {
 }
 
 function getRows(block) {
-  return [...block.querySelectorAll(':scope > div')];
+  return getBlockRows(block);
 }
 
 function getPropValue(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return normalizeText(anchor?.getAttribute('href') || source.textContent);
+  return normalizeText(readLinkField(block, name).value || readTextField(block, name).value);
 }
 
 function getLegacyValue(block, name, columnIndex) {

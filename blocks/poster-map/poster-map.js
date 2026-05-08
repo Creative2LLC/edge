@@ -1,3 +1,10 @@
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+
 const DEFAULTS = {
   heading: 'Interactive Search Missing Children Poster Map',
   copy: 'Welcome to the NCMEC Poster Map, where you can explore and share information to help bring missing children home. This map features only missing or unidentified child cases for which a poster was requested. Click within the map to view active cases and begin your search.',
@@ -31,19 +38,14 @@ function normalizeText(value) {
 }
 
 function getRows(block) {
-  return [...block.querySelectorAll(':scope > div')];
+  return getBlockRows(block);
 }
 
 function getPropValue(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  const img = source.querySelector('img');
   return normalizeText(
-    img?.getAttribute('src')
-      || anchor?.getAttribute('href')
-      || source.getAttribute('href')
-      || source.textContent,
+    readImageField(block, name).img?.getAttribute('src')
+      || readLinkField(block, name).value
+      || readTextField(block, name).value,
   );
 }
 
@@ -97,8 +99,9 @@ function getLegacyCell(block, name, columnIndex) {
 }
 
 function getAuthoredImage(block) {
-  const source = block.querySelector('[data-aue-prop="image"]');
-  const image = getImageFromContainer(source)
+  const imageField = readImageField(block, 'image');
+  const image = imageField.picture
+    || imageField.img
     || getImageFromContainer(getLegacyCell(block, 'image', 9))
     || block.querySelector('picture')
     || block.querySelector('img');

@@ -8,6 +8,11 @@ import {
 } from '../../scripts/search-utils.js';
 import getSiteSearchConfig from '../../scripts/site-search-config.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import {
+  getBlockRows,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -39,21 +44,19 @@ function parseIntSafe(value, fallback = 12) {
 }
 
 function getRows(block) {
-  return [...block.querySelectorAll(':scope > div')];
+  return getBlockRows(block);
 }
 
 function getPropValue(scope, name) {
-  const node = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (!node) return '';
-  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
-  return normalizeText(anchor?.getAttribute('href') || node.getAttribute('href') || node.textContent);
+  return normalizeText(readLinkField(scope, name).value || readTextField(scope, name).value);
 }
 
 function readConfigValue(rows, name, fallback = '') {
-  const propValue = rows.map((row) => row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`)).find(Boolean);
+  const propValue = rows
+    .map((row) => readLinkField(row, name).value || readTextField(row, name).value)
+    .find(Boolean);
   if (propValue) {
-    const anchor = propValue.tagName === 'A' ? propValue : propValue.querySelector('a');
-    return normalizeText(anchor?.getAttribute('href') || propValue.getAttribute('href') || propValue.textContent) || fallback;
+    return normalizeText(propValue) || fallback;
   }
 
   const columnIndex = FIELD_COLUMN_INDEX[name];

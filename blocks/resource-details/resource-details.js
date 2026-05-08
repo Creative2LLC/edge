@@ -1,4 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const FIELD_COLUMN_INDEX = {
   pageTitle: 0,
@@ -38,7 +45,7 @@ function normalizeJsonFieldValue(value) {
 }
 
 function getRows(block) {
-  return [...block.querySelectorAll(':scope > div')];
+  return getBlockRows(block);
 }
 
 async function getResourceData(scope) {
@@ -64,39 +71,33 @@ async function getResourceData(scope) {
   return pendingData;
 }
 
-function getPropNode(scope, name) {
-  return scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-}
-
 function getTextField(block, name, fallback = '') {
-  const propNode = getPropNode(block, name);
-  if (propNode) {
-    const anchor = propNode.tagName === 'A' ? propNode : propNode.querySelector('a');
-    return normalizeText(anchor?.getAttribute('href') || propNode.textContent) || fallback;
-  }
+  const namedValue = normalizeText(
+    readLinkField(block, name).value || readTextField(block, name).value,
+  );
+  if (namedValue) return namedValue;
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return fallback;
 
   const value = getRows(block).map((row) => {
-    const cell = [...row.children][columnIndex];
-    if (!cell) return '';
-    const anchor = cell.querySelector('a');
-    return normalizeText(anchor?.getAttribute('href') || cell.textContent);
+    const cell = row.children[columnIndex];
+    return normalizeText(readLinkField(row, name, { fallbackCell: cell }).value
+      || readTextField(row, name, { fallbackCell: cell }).value);
   }).find(Boolean);
 
   return value || fallback;
 }
 
 function getHtmlField(block, name) {
-  const propNode = getPropNode(block, name);
-  if (propNode) return propNode.innerHTML.trim();
+  const richField = readRichTextField(block, name);
+  if (richField.source) return richField.html;
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return '';
 
   const value = getRows(block)
-    .map((row) => [...row.children][columnIndex]?.innerHTML?.trim() || '')
+    .map((row) => readRichTextField(row, name, { fallbackCell: row.children[columnIndex] }).html)
     .find(Boolean);
   return value || '';
 }
@@ -134,15 +135,15 @@ function imageFromNode(node, fallbackAlt) {
 
 function getImageField(block, name, resourceData = {}) {
   const fallbackAlt = getTextField(block, 'pageTitle', 'Resource image');
-  const propNode = getPropNode(block, name);
-  const propImage = imageFromNode(propNode, fallbackAlt);
-  if (propImage) return propImage;
+  const namedImage = readImageField(block, name);
+  const propImage = imageFromNode(namedImage.cell, fallbackAlt);
+  if (namedImage.source && propImage) return propImage;
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return null;
 
   const image = getRows(block)
-    .map((row) => imageFromNode([...row.children][columnIndex], fallbackAlt))
+    .map((row) => imageFromNode(row.children[columnIndex], fallbackAlt))
     .find(Boolean);
 
   if (image) return image;

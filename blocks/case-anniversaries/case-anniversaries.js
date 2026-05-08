@@ -1,4 +1,10 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const DEFAULTS = {
   findHeading: 'Find Cases',
@@ -64,7 +70,7 @@ function normalizeTimeframe(value) {
 }
 
 function getRows(block) {
-  return [...block.querySelectorAll(':scope > div')];
+  return getBlockRows(block);
 }
 
 function getReferenceValue(source) {
@@ -82,7 +88,12 @@ function getReferenceValue(source) {
 }
 
 function getPropValue(block, name) {
-  return getReferenceValue(block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`));
+  const imageValue = readImageField(block, name).img?.getAttribute('src') || '';
+  return normalizeText(
+    imageValue
+      || readLinkField(block, name).value
+      || readTextField(block, name).value,
+  );
 }
 
 function getLegacyValue(block, name) {

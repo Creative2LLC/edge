@@ -1,4 +1,9 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -32,37 +37,15 @@ function hasAuthoringContext(scope) {
   );
 }
 
-function extractNodeValue(node) {
-  if (!node) return '';
-  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
-  return anchor?.href || node.textContent.trim();
-}
-
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) {
-    return {
-      source,
-      value: extractNodeValue(source),
-      html: source.innerHTML,
-    };
-  }
-
   const rowIndex = rowIndexMap?.[name];
-  const row = Number.isInteger(rowIndex) ? scope.children[rowIndex] : null;
-  if (!row) {
-    return {
-      source: null,
-      value: '',
-      html: '',
-    };
-  }
-
-  const cell = row.children[columnIndex] || row;
+  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX ? scope.children[columnIndex] : null;
+  const linkField = readLinkField(scope, name, { rowIndex, columnIndex, fallbackCell });
+  const textField = readTextField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return {
-    source: cell,
-    value: extractNodeValue(cell),
-    html: cell.innerHTML,
+    source: linkField.source || textField.source || linkField.cell || textField.cell,
+    value: linkField.value || textField.value,
+    html: (linkField.cell || textField.cell)?.innerHTML || '',
   };
 }
 
@@ -151,10 +134,9 @@ function normalizeImageSource(value) {
 }
 
 function getImageField(row, propName, columnIndex = 0) {
-  const propSource = row.querySelector(`[data-aue-prop="${propName}"]`);
-  const source = propSource || row.children[columnIndex];
-  const picture = source?.querySelector('picture') || null;
-  const img = source?.querySelector('img') || null;
+  const field = readImageField(row, propName, { fallbackCell: row.children[columnIndex] });
+  const source = field.source || field.cell;
+  const { picture, img } = field;
   const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
   const sourceValue = source?.getAttribute('href')
     || source?.getAttribute('src')

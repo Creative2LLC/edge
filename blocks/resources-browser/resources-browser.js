@@ -8,6 +8,12 @@ import {
   normalizeListSort,
   sortListItems,
 } from '../../scripts/list-sort.js';
+import {
+  getFieldSelector,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -40,12 +46,12 @@ const BLOCK_PROPS = [
 function extractConfigRow(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
   let configRow = rows.find((row) => BLOCK_PROPS.some(
-    (prop) => row.querySelector(`[data-aue-prop="${prop}"]`),
+    (prop) => row.querySelector(getFieldSelector(prop)),
   ));
 
   if (!configRow && rows.length > 0) {
-    configRow = rows.find((row) => !row.querySelector('[data-aue-prop="title"]')
-      && !row.querySelector('[data-aue-prop="image"]')
+    configRow = rows.find((row) => !row.querySelector(getFieldSelector('title'))
+      && !row.querySelector(getFieldSelector('image'))
       && !row.querySelector('picture'));
 
     if (!configRow) [configRow] = rows;
@@ -57,8 +63,8 @@ function extractConfigRow(block) {
 function readConfigField(configRow, name, columnIndex, fallback = '') {
   if (!configRow) return fallback;
 
-  const source = configRow.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source.textContent.trim() || fallback;
+  const field = readTextField(configRow, name);
+  if (field.source) return field.value || fallback;
 
   const cols = [...configRow.children];
   return cols[columnIndex]?.textContent.trim() || fallback;
@@ -67,8 +73,8 @@ function readConfigField(configRow, name, columnIndex, fallback = '') {
 function isResourceItemRow(row) {
   const cols = [...row.children];
 
-  if (row.querySelector('[data-aue-prop="title"]')) return true;
-  if (row.querySelector('[data-aue-prop="image"]')) return true;
+  if (row.querySelector(getFieldSelector('title'))) return true;
+  if (row.querySelector(getFieldSelector('image'))) return true;
   if (cols.length >= 8) return true;
 
   return cols.length >= 2 && Boolean(cols[0].querySelector('picture, img'));
@@ -86,11 +92,10 @@ function findUrlLikeValue(value) {
 
 function readConfigValue(rows, name, columnIndex, fallback = '') {
   const propValue = rows
-    .map((row) => row.querySelector(`[data-aue-prop="${name}"]`))
+    .map((row) => readLinkField(row, name).value || readTextField(row, name).value)
     .find(Boolean);
   if (propValue) {
-    const anchor = propValue.tagName === 'A' ? propValue : propValue.querySelector('a');
-    return anchor?.href || propValue.textContent.trim() || fallback;
+    return propValue || fallback;
   }
 
   const firstRow = rows[0];
@@ -228,20 +233,20 @@ function getLinkUrl(col) {
 }
 
 function getPropText(row, prop) {
-  const source = row.querySelector(`[data-aue-prop="${prop}"]`);
-  return source ? source.textContent.trim() : '';
+  return readTextField(row, prop).value;
 }
 
 function getPropLink(row, prop) {
-  const source = row.querySelector(`[data-aue-prop="${prop}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return anchor?.href || source.textContent.trim();
+  return readLinkField(row, prop).value;
 }
 
 function getPropImage(row, prop) {
-  const source = row.querySelector(`[data-aue-prop="${prop}"]`);
-  return source ? getImageData(source) : { picture: null, src: '', alt: '' };
+  const field = readImageField(row, prop);
+  return {
+    picture: field.picture,
+    src: field.img?.src || '',
+    alt: field.img?.alt || '',
+  };
 }
 
 function mapResource(resource) {

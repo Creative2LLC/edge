@@ -1,3 +1,9 @@
+import {
+  getBlockRows,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+
 const DEFAULTS = {
   intro: 'AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below.',
   heading: 'Children Still Missing from AMBER Alerts - Expand for details',
@@ -25,14 +31,11 @@ function normalizeApiBaseUrl(value) {
 }
 
 function getRows(block) {
-  return [...block.querySelectorAll(':scope > div')];
+  return getBlockRows(block);
 }
 
 function getPropValue(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return normalizeText(anchor?.getAttribute('href') || source.textContent);
+  return normalizeText(readLinkField(block, name).value || readTextField(block, name).value);
 }
 
 function getLegacyValue(block, name, columnIndex) {
