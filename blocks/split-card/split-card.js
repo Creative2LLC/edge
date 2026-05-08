@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
@@ -50,24 +51,16 @@ async function getBlockResourceData(block) {
 }
 
 function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source.textContent.trim();
-  return '';
+  return readTextField(block, name).value;
 }
 
 function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim();
+  return readLinkField(block, name).value;
 }
 
 function getImage(block) {
-  const source = block.querySelector('[data-aue-prop="image"]');
-  const picture = source?.closest('picture')
-    || source?.querySelector('picture')
-    || block.querySelector('picture');
+  const imageField = readImageField(block, 'image');
+  const picture = imageField.picture || block.querySelector('picture');
   if (!picture) return null;
 
   const img = picture.querySelector('img');

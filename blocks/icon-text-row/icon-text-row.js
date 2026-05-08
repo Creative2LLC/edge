@@ -1,25 +1,13 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  return readTextField(row, name, { fallbackCell: row.children[index] });
 }
 
 function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, img };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const img = cols[index].querySelector('img');
-    return { source: null, img: img || null };
-  }
-  return { source: null, img: null };
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source || field.cell, img: field.img };
 }
 
 function buildCard(data) {

@@ -1,4 +1,10 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const FIELD_INDEX = {
   icon: 0,
@@ -9,35 +15,25 @@ const FIELD_INDEX = {
   buttonLink: 5,
 };
 
-function getCell(rows, index) {
-  const row = rows[index];
-  if (!row) return null;
-  return row.children[0] || row;
-}
-
 function getTextField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  const cell = source || getCell(rows, index);
-  return {
-    source: cell,
-    value: cell?.textContent?.trim() || '',
-  };
+  const field = readTextField(block, name, {
+    fallbackCell: rows[index]?.children[0] || rows[index],
+  });
+  return { ...field, source: field.source || field.cell };
 }
 
 function getLinkField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`) || getCell(rows, index);
-  const anchor = source?.tagName === 'A' ? source : source?.querySelector?.('a');
-  return {
-    source,
-    value: anchor?.href || source?.textContent?.trim() || '',
-  };
+  const field = readLinkField(block, name, {
+    fallbackCell: rows[index]?.children[0] || rows[index],
+  });
+  return { ...field, source: field.source || field.cell };
 }
 
 function getImageField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`) || getCell(rows, index);
-  if (!source) return { source: null, img: null };
-  const img = source.tagName === 'IMG' ? source : source.querySelector?.('img');
-  return { source, img: img || null };
+  const field = readImageField(block, name, {
+    fallbackCell: rows[index]?.children[0] || rows[index],
+  });
+  return { source: field.source || field.cell, img: field.img };
 }
 
 function moveText(field, target) {
@@ -87,7 +83,7 @@ function buildIcon(iconField, iconColor) {
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const rows = getBlockRows(block);
 
   const iconField = getImageField(block, rows, 'icon', FIELD_INDEX.icon);
   const iconColorField = getTextField(block, rows, 'iconColor', FIELD_INDEX.iconColor);

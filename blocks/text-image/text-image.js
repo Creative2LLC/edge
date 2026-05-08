@@ -1,5 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const LEGACY_FIELD_INDEX = {
   subhead: 0,
@@ -58,10 +64,6 @@ async function getFieldValueFromResourceJson(scope, name) {
   }
 }
 
-function getFieldSelector(name) {
-  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
-}
-
 function getLegacyFieldCell(block, name) {
   const index = LEGACY_FIELD_INDEX[name];
   if (index === undefined) return null;
@@ -71,47 +73,24 @@ function getLegacyFieldCell(block, name) {
 }
 
 function getTextField(block, name) {
-  const source = block.querySelector(getFieldSelector(name));
-  const fallback = source ? '' : getLegacyFieldCell(block, name)?.textContent.trim() || '';
-  return {
-    source,
-    value: source?.textContent.trim() || fallback,
-  };
+  return readTextField(block, name, { fallbackCell: getLegacyFieldCell(block, name) });
 }
 
 function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
-  const fallbackCell = source ? null : getLegacyFieldCell(block, name);
-  const fallbackAnchor = fallbackCell?.querySelector('a');
-
-  return {
-    source,
-    value: anchor?.getAttribute('href')
-      || source?.getAttribute('href')
-      || source?.textContent.trim()
-      || fallbackAnchor?.getAttribute('href')
-      || fallbackCell?.textContent.trim()
-      || '',
-  };
+  return readLinkField(block, name, { fallbackCell: getLegacyFieldCell(block, name) });
 }
 
 function getRichTextField(block, name) {
-  const source = block.querySelector(getFieldSelector(name));
-  const fallbackCell = source ? null : getLegacyFieldCell(block, name);
-  return {
-    source,
-    html: source?.innerHTML?.trim() || fallbackCell?.innerHTML?.trim() || '',
-    text: source?.textContent.trim() || fallbackCell?.textContent.trim() || '',
-  };
+  return readRichTextField(block, name, { fallbackCell: getLegacyFieldCell(block, name) });
 }
 
 function getImageField(block) {
-  const source = block.querySelector('[data-aue-prop="image"]');
-  const picture = source?.querySelector('picture') || block.querySelector('picture');
-  const img = source?.querySelector('img') || picture?.querySelector('img');
-
-  return { source, picture, img };
+  const field = readImageField(block, 'image');
+  return {
+    source: field.source,
+    picture: field.picture || block.querySelector('picture'),
+    img: field.img || block.querySelector('picture img'),
+  };
 }
 
 function appendPlainText(wrapper, text) {

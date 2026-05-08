@@ -1,12 +1,13 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveAttributes } from '../../scripts/scripts.js';
+import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
 function getField(block, nameOrNames) {
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
   for (let i = 0; i < names.length; i += 1) {
     const name = names[i];
-    const instrumented = block.querySelector(`[data-aue-prop="${name}"]`);
-    if (instrumented) return instrumented;
+    const field = readTextField(block, name);
+    if (field.source) return field.source;
   }
   return null;
 }
@@ -27,9 +28,7 @@ function moveFieldBinding(from, to) {
 
 function getLinkUrl(sourceEl) {
   if (!sourceEl) return '';
-  const a = sourceEl.querySelector('a');
-  if (a && a.href) return a.href;
-  return sourceEl.textContent.trim();
+  return readLinkField(sourceEl, '', { fallbackCell: sourceEl }).value;
 }
 
 function parseLegacyFields(block) {
@@ -60,9 +59,10 @@ function parseLegacyFields(block) {
 }
 
 function buildBackground(block) {
-  const source = getField(block, ['media_image', 'image']);
-  const picture = source?.querySelector('picture')
-    || block.querySelector('picture');
+  const imageField = readImageField(block, 'media_image');
+  const fallbackImageField = imageField.picture ? imageField : readImageField(block, 'image');
+  const { source } = fallbackImageField;
+  const picture = fallbackImageField.picture || block.querySelector('picture');
   if (!picture) return null;
 
   const img = picture.querySelector('img');

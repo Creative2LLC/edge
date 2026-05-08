@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
 
 const LEGACY_LABELS = {
   heading: ['heading', 'title'],
@@ -27,9 +28,23 @@ function collectLegacyFields(block) {
 }
 
 function getField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
+  const field = readTextField(block, name);
+  if (field.source) return field;
   return legacyMap[name] || { source: null, value: '' };
+}
+
+function getImageField(block, legacyMap, name) {
+  const field = readImageField(block, name);
+  if (field.img || field.picture || field.source) return field;
+  const legacyField = legacyMap[name] || { source: null };
+  const picture = legacyField.source?.querySelector('picture') || block.querySelector('picture');
+  const img = legacyField.source?.querySelector('img') || picture?.querySelector('img') || null;
+  return {
+    source: legacyField.source,
+    cell: legacyField.source,
+    picture,
+    img,
+  };
 }
 
 function buildTextElement(tag, className, field) {
@@ -50,7 +65,7 @@ export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
 
   const headingField = getField(block, legacyMap, 'heading');
-  const iconField = getField(block, legacyMap, 'icon');
+  const iconField = getImageField(block, legacyMap, 'icon');
   const redTextField = getField(block, legacyMap, 'redText');
   const blueTextField = getField(block, legacyMap, 'blueText');
 
@@ -65,7 +80,7 @@ export default function decorate(block) {
 
   /* icon */
   const iconSource = iconField.source;
-  const picture = iconSource?.querySelector('picture') || block.querySelector('picture');
+  const picture = iconField.picture || block.querySelector('picture');
   const iconWrap = document.createElement('div');
   iconWrap.className = 'icon-text-icon';
 

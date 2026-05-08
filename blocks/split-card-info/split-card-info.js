@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { readLinkField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 
 /**
  * Extracts a number from the start of text and returns both parts
@@ -58,22 +59,15 @@ async function getBlockResourceData(block) {
 }
 
 function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  return source.textContent.trim();
+  return readTextField(block, name).value;
 }
 
 function getRichTextField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  return source.innerHTML;
+  return readRichTextField(block, name).html;
 }
 
 function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (!source) return '';
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-  return anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim();
+  return readLinkField(block, name).value;
 }
 
 /**

@@ -1,33 +1,14 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
 function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  // legacy table fallback
-  const match = [...block.querySelectorAll(':scope > div')]
-    .filter((row) => row.children.length >= 2)
-    .find((row) => {
-      const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
-      return key === name.toLowerCase();
-    });
-
-  if (match) {
-    return { source: match.children[1], value: match.children[1].textContent.trim(), row: match };
-  }
-  return { source: null, value: '' };
+  const field = readTextField(block, name, { labels: name });
+  return { ...field, source: field.source || field.cell };
 }
 
 function getLinkField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return {
-      source,
-      value: anchor?.getAttribute('href') || source.textContent.trim(),
-    };
-  }
-  return { source: null, value: '' };
+  const field = readLinkField(block, name, { labels: name });
+  return { ...field, source: field.source || field.cell };
 }
 
 /**
@@ -94,7 +75,6 @@ export default function decorate(block) {
   const alignField = getField(block, 'textAlign');
 
   const alignment = alignField.value || 'left';
-  if (alignField.row) alignField.row.remove();
 
   const marginTopField = getField(block, 'marginTop');
   const marginBottomField = getField(block, 'marginBottom');
@@ -102,8 +82,6 @@ export default function decorate(block) {
   const marginBottomValue = normalizeLengthValue(marginBottomField.value);
   if (marginTopValue) block.style.setProperty('margin-top', marginTopValue, 'important');
   if (marginBottomValue) block.style.setProperty('margin-bottom', marginBottomValue, 'important');
-  if (marginTopField.row) marginTopField.row.remove();
-  if (marginBottomField.row) marginBottomField.row.remove();
 
   // Build the button BEFORE we touch anything else, so its source rows are
   // still in place when we extract them.
