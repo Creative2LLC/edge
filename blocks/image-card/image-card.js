@@ -2,14 +2,12 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveAttributes } from '../../scripts/scripts.js';
 import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
 
-function getField(block, nameOrNames) {
-  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
-  for (let i = 0; i < names.length; i += 1) {
-    const name = names[i];
-    const field = readTextField(block, name);
-    if (field.source) return field.source;
-  }
-  return null;
+function readField(block, nameOrNames, rowIndex) {
+  return readTextField(block, nameOrNames, { rowIndex });
+}
+
+function readUrlField(block, nameOrNames, rowIndex) {
+  return readLinkField(block, nameOrNames, { rowIndex });
 }
 
 function moveFieldBinding(from, to) {
@@ -26,9 +24,10 @@ function moveFieldBinding(from, to) {
   );
 }
 
-function getLinkUrl(sourceEl) {
-  if (!sourceEl) return '';
-  return readLinkField(sourceEl, '', { fallbackCell: sourceEl }).value;
+function getLinkUrl(fieldOrSource) {
+  if (!fieldOrSource) return '';
+  if (fieldOrSource.value) return fieldOrSource.value;
+  return readLinkField(fieldOrSource, '', { fallbackCell: fieldOrSource }).value;
 }
 
 function parseLegacyFields(block) {
@@ -59,8 +58,10 @@ function parseLegacyFields(block) {
 }
 
 function buildBackground(block) {
-  const imageField = readImageField(block, 'media_image');
-  const fallbackImageField = imageField.picture ? imageField : readImageField(block, 'image');
+  const imageField = readImageField(block, ['media_image', 'image'], { rowIndex: 0 });
+  const fallbackImageField = imageField.picture ? imageField : readImageField(block, 'image', {
+    rowIndex: 0,
+  });
   const { source } = fallbackImageField;
   const picture = fallbackImageField.picture || block.querySelector('picture');
   if (!picture) return null;
@@ -68,8 +69,9 @@ function buildBackground(block) {
   const img = picture.querySelector('img');
   if (!img) return picture;
 
-  const altSource = getField(block, ['media_imageAlt', 'imageAlt']);
-  const alt = altSource?.textContent?.trim() || img.alt || '';
+  const altField = readTextField(block, ['media_imageAlt', 'imageAlt'], { rowIndex: 1 });
+  const altSource = altField.source || altField.cell;
+  const alt = altField.value || img.alt || '';
 
   const optimized = createOptimizedPicture(img.src, alt, false, [
     { media: '(min-width: 900px)', width: '2000' },
@@ -108,17 +110,17 @@ function buildButton(text, url, variant) {
 
 export default function decorate(block) {
   /* --- gather fields --- */
-  const headingSource = getField(block, ['content_heading', 'heading']);
-  const primaryTextSource = getField(block, ['primary_text', 'primaryButtonText']);
-  const primaryLinkSource = getField(block, ['primary_link', 'primaryButtonLink']);
-  const secondaryTextSource = getField(block, ['secondary_text', 'secondaryButtonText']);
-  const secondaryLinkSource = getField(block, ['secondary_link', 'secondaryButtonLink']);
+  const headingField = readField(block, ['content_heading', 'heading'], 2);
+  const primaryTextField = readField(block, ['primary_text', 'primaryButtonText'], 3);
+  const primaryLinkField = readUrlField(block, ['primary_link', 'primaryButtonLink'], 4);
+  const secondaryTextField = readField(block, ['secondary_text', 'secondaryButtonText'], 5);
+  const secondaryLinkField = readUrlField(block, ['secondary_link', 'secondaryButtonLink'], 6);
 
-  let headingText = headingSource?.textContent?.trim() || '';
-  let primaryText = primaryTextSource?.textContent?.trim() || '';
-  let primaryUrl = getLinkUrl(primaryLinkSource);
-  let secondaryText = secondaryTextSource?.textContent?.trim() || '';
-  let secondaryUrl = getLinkUrl(secondaryLinkSource);
+  let headingText = headingField.value;
+  let primaryText = primaryTextField.value;
+  let primaryUrl = getLinkUrl(primaryLinkField);
+  let secondaryText = secondaryTextField.value;
+  let secondaryUrl = getLinkUrl(secondaryLinkField);
 
   /* legacy fallback */
   if (!headingText) {
@@ -146,7 +148,7 @@ export default function decorate(block) {
     const h2 = document.createElement('h2');
     h2.className = 'image-card-heading';
     h2.textContent = headingText;
-    if (headingSource) moveFieldBinding(headingSource, h2);
+    if (headingField.source) moveFieldBinding(headingField.source, h2);
     content.append(h2);
   }
 

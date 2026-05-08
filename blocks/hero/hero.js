@@ -1,4 +1,79 @@
 import { moveAttributes } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+
+const FIELD_ROW_INDEX = {
+  variant: 0,
+  media_image: 1,
+  image: 1,
+  media_imageAlt: 2,
+  imageAlt: 2,
+  media_featuredImage: 3,
+  featuredImage: 3,
+  media_featuredImageAlt: 4,
+  featuredImageAlt: 4,
+  media_video: 5,
+  video: 5,
+  media_overlayOpacity: 6,
+  overlayOpacity: 6,
+  media_gradientOverlay: 7,
+  gradientOverlay: 7,
+  content_height: 8,
+  height: 8,
+  content_position: 9,
+  contentPosition: 9,
+  content_showBreadcrumbs: 10,
+  showBreadcrumbs: 10,
+  content_breadcrumbs: 11,
+  breadcrumbs: 11,
+  content_text: 12,
+  text: 12,
+  content_textColor: 13,
+  text_color: 13,
+  content_textHtml: 14,
+  text_html: 14,
+  content_textHtmlClass: 15,
+  textHtmlClass: 15,
+  action_style: 16,
+  ctaStyle: 16,
+  action_1Text: 17,
+  cta1Text: 17,
+  action_1Link: 18,
+  cta1Link: 18,
+  action_2Text: 19,
+  cta2Text: 19,
+  action_2Link: 20,
+  cta2Link: 20,
+  action_3Text: 21,
+  cta3Text: 21,
+  action_3Link: 22,
+  cta3Link: 22,
+  panel_title: 23,
+  sidePanelTitle: 23,
+  panel_text: 24,
+  sidePanelText: 24,
+  panel_primaryText: 25,
+  sidePanelPrimaryText: 25,
+  panel_primaryLink: 26,
+  sidePanelPrimaryLink: 26,
+  panel_secondaryText: 27,
+  sidePanelSecondaryText: 27,
+  panel_secondaryLink: 28,
+  sidePanelSecondaryLink: 28,
+  panel_footerText: 29,
+  sidePanelFooterText: 29,
+};
+
+function getFieldOptions(nameOrNames) {
+  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
+  const rowIndex = names
+    .map((name) => FIELD_ROW_INDEX[name])
+    .find((index) => index !== undefined);
+  return rowIndex === undefined ? {} : { rowIndex };
+}
 
 function normalizeHeight(value) {
   if (!value) return null;
@@ -10,16 +85,11 @@ function normalizeHeight(value) {
 }
 
 function getFieldValue(block, nameOrNames) {
-  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
-  for (let i = 0; i < names.length; i += 1) {
-    const name = names[i];
-    const source = block.querySelector(`[data-aue-prop="${name}"]`)
-      || block.querySelector(`[data-richtext-prop="${name}"]`);
-    if (source) {
-      return { source, value: source.textContent.trim() };
-    }
-  }
-  return { source: null, value: '' };
+  const field = readTextField(block, nameOrNames, getFieldOptions(nameOrNames));
+  return {
+    source: field.source || field.cell,
+    value: field.value,
+  };
 }
 
 function moveFieldBinding(from, to) {
@@ -37,13 +107,15 @@ function moveFieldBinding(from, to) {
 }
 
 function getLinkFieldValue(block, name) {
-  const { source, value } = getFieldValue(block, name);
-  if (!source) return { source: null, value: '', href: '' };
-  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  const textField = getFieldValue(block, name);
+  const linkField = readLinkField(block, name, getFieldOptions(name));
+  const source = linkField.source || linkField.cell || textField.source;
+  if (!source && !linkField.value) return { source: null, value: '', href: '' };
+  const anchor = source?.tagName === 'A' ? source : source?.querySelector('a');
   return {
     source,
-    value,
-    href: anchor?.href || value,
+    value: textField.value || linkField.value,
+    href: anchor?.href || linkField.value,
   };
 }
 
@@ -575,6 +647,13 @@ function findVideoInElement(el) {
 }
 
 function extractVideoUrl(block) {
+  const videoField = readLinkField(block, ['media_video', 'video'], getFieldOptions('media_video'));
+  const videoSource = videoField.source || videoField.cell;
+  if (videoSource || videoField.value) {
+    const url = findVideoInElement(videoSource) || videoField.value;
+    if (url) return { source: videoSource, url };
+  }
+
   // 1. Try the named field first
   const named = block.querySelector('[data-aue-prop="media_video"]')
     || block.querySelector('[data-aue-prop="video"]');
@@ -646,15 +725,19 @@ function pictureInSource(source, exclude) {
 }
 
 function extractPicture(block, exclude = []) {
-  const imageField = getFieldValue(block, ['media_image', 'image']);
-  let picture = pictureInSource(imageField.source, exclude);
+  const imageField = readImageField(block, ['media_image', 'image'], getFieldOptions('media_image'));
+  const imageSource = imageField.source || imageField.cell;
+  let picture = imageField.picture && !exclude.includes(imageField.picture)
+    ? imageField.picture
+    : null;
+  picture = picture || pictureInSource(imageSource, exclude);
   if (!picture) {
     picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
   }
   if (!picture) return null;
 
-  if (imageField.source && imageField.source !== picture) {
-    moveFieldBinding(imageField.source, picture);
+  if (imageSource && imageSource !== picture) {
+    moveFieldBinding(imageSource, picture);
   }
 
   const altField = getFieldValue(block, ['media_imageAlt', 'imageAlt']);
@@ -668,17 +751,25 @@ function extractPicture(block, exclude = []) {
 }
 
 function extractFeaturedPicture(block, exclude = []) {
-  const imageField = getFieldValue(block, ['media_featuredImage', 'featuredImage']);
-  if (!imageField.source) return null;
+  const imageField = readImageField(
+    block,
+    ['media_featuredImage', 'featuredImage'],
+    getFieldOptions('media_featuredImage'),
+  );
+  const imageSource = imageField.source || imageField.cell;
+  if (!imageSource && !imageField.picture) return null;
 
-  let picture = pictureInSource(imageField.source, exclude);
+  let picture = imageField.picture && !exclude.includes(imageField.picture)
+    ? imageField.picture
+    : null;
+  picture = picture || pictureInSource(imageSource, exclude);
   if (!picture) {
     picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
   }
   if (!picture) return null;
 
-  if (imageField.source !== picture) {
-    moveFieldBinding(imageField.source, picture);
+  if (imageSource !== picture) {
+    moveFieldBinding(imageSource, picture);
   }
 
   const altField = getFieldValue(block, ['media_featuredImageAlt', 'featuredImageAlt']);

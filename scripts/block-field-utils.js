@@ -1,5 +1,18 @@
+function normalizeNames(name) {
+  return (Array.isArray(name) ? name : [name])
+    .filter((value) => value !== undefined && value !== null);
+}
+
 export function getFieldSelector(name) {
-  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
+  return normalizeNames(name)
+    .map((fieldName) => `[data-aue-prop="${fieldName}"], [data-richtext-prop="${fieldName}"]`)
+    .join(', ');
+}
+
+function getDataPropSelector(name) {
+  return normalizeNames(name)
+    .map((fieldName) => `[data-aue-prop="${fieldName}"]`)
+    .join(', ');
 }
 
 export function getBlockRows(scope) {
@@ -62,7 +75,7 @@ export function readTextField(scope, name, options = {}) {
 }
 
 export function readLinkField(scope, name, options = {}) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
+  const source = scope.querySelector(getDataPropSelector(name));
   const fallbackCell = source ? null : getFallbackCell(scope, options);
   const cell = source || fallbackCell;
   const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a');
@@ -106,10 +119,11 @@ function findPictureNearSource(source, scope) {
 }
 
 export function readImageField(scope, name, options = {}) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
+  const source = scope.querySelector(getDataPropSelector(name));
   const fallbackCell = source ? null : getFallbackCell(scope, options);
   const cell = source || fallbackCell;
   const picture = findPictureNearSource(source, scope)
+    || (cell?.tagName === 'PICTURE' ? cell : null)
     || cell?.querySelector?.('picture')
     || null;
   const img = (cell?.tagName === 'IMG' ? cell : null)
