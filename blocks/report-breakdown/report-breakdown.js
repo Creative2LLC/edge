@@ -1,4 +1,8 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
@@ -49,22 +53,33 @@ function hasAuthoringContext(scope) {
   );
 }
 
-function extractNodeValue(node) {
-  if (!node) return '';
-  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
-  return anchor?.href || node.textContent.trim();
-}
-
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return { source, value: extractNodeValue(source) };
-
   const rowIndex = rowIndexMap?.[name];
-  const row = Number.isInteger(rowIndex) ? scope.children[rowIndex] : null;
-  if (!row) return { source: null, value: '' };
+  const options = {
+    rowIndex,
+    columnIndex,
+    fallbackCell: rowIndexMap === ITEM_COLUMN_INDEX ? scope.children[columnIndex] : null,
+  };
+  const linkField = readLinkField(scope, name, options);
+  if (linkField.source) {
+    return {
+      source: linkField.source,
+      value: linkField.value,
+    };
+  }
 
-  const cell = row.children[columnIndex] || row;
-  return { source: cell, value: extractNodeValue(cell) };
+  const textField = readTextField(scope, name, options);
+  if (textField.source) {
+    return {
+      source: textField.source,
+      value: textField.value,
+    };
+  }
+
+  return {
+    source: linkField.cell || textField.cell,
+    value: linkField.value || textField.value,
+  };
 }
 
 function moveFieldContent(field, target, fallbackValue = '') {

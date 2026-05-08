@@ -1,5 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const FIELD_ROW_INDEX = {
   backImage: 0,
@@ -19,73 +25,27 @@ function hasAuthoringContext(scope) {
   );
 }
 
-function getFieldSelector(name) {
-  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
-}
-
 function getTextField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(getFieldSelector(name));
-  if (source) return { source, value: source.textContent.trim() };
-
-  const row = block.children[rowIndex];
-  if (!row) return { source: null, value: '' };
-
-  const cell = row.children[columnIndex] || row;
-  return { source: cell, value: cell.textContent.trim() };
+  const field = readTextField(block, name, { rowIndex, columnIndex });
+  return { source: field.source || field.cell, value: field.value };
 }
 
 function getRichField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(getFieldSelector(name));
-  if (source) return source;
-
-  const row = block.children[rowIndex];
-  if (!row) return null;
-
-  return row.children[columnIndex] || row;
+  const field = readRichTextField(block, name, { rowIndex, columnIndex });
+  return field.source || field.cell;
 }
 
 function getLinkField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-
-  const row = block.children[rowIndex];
-  if (!row) return { source: null, value: '' };
-
-  const cell = row.children[columnIndex] || row;
-  const anchor = cell.querySelector('a');
-  return { source: cell, value: anchor?.href || cell.textContent.trim() };
+  const field = readLinkField(block, name, { rowIndex, columnIndex });
+  return { source: field.source || field.cell, value: field.value };
 }
 
 function getImageField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.tagName === 'PICTURE' ? source : source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return {
-      source,
-      picture: picture || null,
-      img: img || picture?.querySelector('img') || null,
-    };
-  }
-
-  const row = block.children[rowIndex];
-  if (!row) {
-    return {
-      source: null,
-      picture: null,
-      img: null,
-    };
-  }
-
-  const cell = row.children[columnIndex] || row;
-  const picture = cell.querySelector('picture');
+  const field = readImageField(block, name, { rowIndex, columnIndex });
   return {
-    source: null,
-    picture,
-    img: cell.querySelector('img') || picture?.querySelector('img') || null,
+    source: field.source || field.cell,
+    picture: field.picture,
+    img: field.img,
   };
 }
 

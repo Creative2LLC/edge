@@ -1,4 +1,9 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -17,34 +22,17 @@ function isItemRow(row) {
 }
 
 function getField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...scope.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(scope, name, { fallbackCell: scope.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getLinkField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  const cols = [...scope.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  const field = readLinkField(scope, name, { fallbackCell: scope.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getImageField(scope, name) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return img || null;
-  }
-  return null;
+  return readImageField(scope, name).img;
 }
 
 function styleButton(btn, color, textColor, style) {

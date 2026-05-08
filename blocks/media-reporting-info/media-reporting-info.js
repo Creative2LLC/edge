@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readTextField } from '../../scripts/block-field-utils.js';
 
 const FIELD_INDEX = {
   heading: 0,
@@ -12,12 +13,14 @@ const FIELD_INDEX = {
 };
 
 function getField(block, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  const row = block.querySelector(':scope > div');
-  const cell = row?.children[FIELD_INDEX[name]];
-  return { source: cell || null, value: cell?.textContent.trim() || '' };
+  const field = readTextField(block, name, {
+    rowIndex: 0,
+    columnIndex: FIELD_INDEX[name],
+  });
+  return {
+    source: field.source || field.cell,
+    value: field.value,
+  };
 }
 
 function appendField(parent, field, tagName, className) {

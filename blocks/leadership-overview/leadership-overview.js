@@ -1,5 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELDS = [
   'heading',
@@ -89,47 +95,37 @@ async function getFieldValueFromResourceJson(scope, name) {
   }
 }
 
-function getFieldSelector(name) {
-  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
-}
-
 function getTextField(scope, name) {
-  const source = scope.querySelector(getFieldSelector(name));
+  const field = readTextField(scope, name);
   return {
-    source,
-    value: source?.textContent.trim() || '',
+    source: field.source,
+    value: field.value,
   };
 }
 
 function getLinkField(scope, name) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    return {
-      source,
-      value: resolveLinkValue(source),
-    };
-  }
-
-  return { source: null, value: '' };
+  const field = readLinkField(scope, name);
+  return {
+    source: field.source,
+    value: (field.source ? resolveLinkValue(field.source) : '') || field.value,
+  };
 }
 
 function getRichTextField(scope, name) {
-  const source = scope.querySelector(getFieldSelector(name));
+  const field = readRichTextField(scope, name);
   return {
-    source,
-    text: source?.textContent.trim() || '',
+    source: field.source,
+    text: field.text,
   };
 }
 
 function getImageField(scope, name) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.tagName === 'PICTURE' ? source : source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, picture, img };
-  }
-
-  return { source: null, picture: null, img: null };
+  const field = readImageField(scope, name);
+  return {
+    source: field.source,
+    picture: field.picture,
+    img: field.img,
+  };
 }
 
 function collectLegacyBlockFields(block) {
@@ -169,35 +165,27 @@ function readBlockField(block, legacyMap, name, type = 'text') {
   else field = getTextField(block, name);
 
   if (field.value || field.text || field.source) return field;
-  return legacyMap[name] || { source: null, value: '', text: '' };
+  const legacyField = legacyMap[name];
+  if (legacyField) {
+    return {
+      ...legacyField,
+      text: legacyField.text || legacyField.value || '',
+    };
+  }
+  return { source: null, value: '', text: '' };
 }
 
 function readRowTextField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-
-  return { source: null, value: '' };
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function readRowLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    return { source, value: resolveLinkValue(source) };
-  }
-
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return {
-      source: null,
-      value: anchor?.getAttribute('href') || cols[index].textContent.trim(),
-    };
-  }
-
-  return { source: null, value: '' };
+  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  return {
+    source: field.source,
+    value: (field.source ? resolveLinkValue(field.source) : '') || field.value,
+  };
 }
 
 function hasAuthoringContext(scope) {

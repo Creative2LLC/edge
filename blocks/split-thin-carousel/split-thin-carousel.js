@@ -1,5 +1,11 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function extractHexColor(el) {
   if (!el) return '';
@@ -15,61 +21,30 @@ function extractHexColor(el) {
 }
 
 function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getColorField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const hex = extractHexColor(source);
-    if (hex) return { source, value: hex };
-    const text = source.textContent.trim();
-    if (/^#[0-9a-f]{3,8}$/i.test(text)) return { source, value: text };
-    return { source, value: '' };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const hex = extractHexColor(cols[index]);
-    if (hex) return { source: null, value: hex };
-    const text = cols[index].textContent.trim();
-    if (/^#[0-9a-f]{3,8}$/i.test(text)) return { source: null, value: text };
-    return { source: null, value: '' };
-  }
-  return { source: null, value: '' };
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  const hex = extractHexColor(field.cell);
+  if (hex) return { source: field.source, value: hex };
+  if (/^#[0-9a-f]{3,8}$/i.test(field.value)) return { source: field.source, value: field.value };
+  return { source: field.source, value: '' };
 }
 
 function getRichField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.innerHTML.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].innerHTML.trim() };
-  return { source: null, value: '' };
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.html };
 }
 
 function getLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getImageField(row, index) {
-  const cols = [...row.children];
-  const col = cols[index];
-  if (!col) return { picture: null, img: null };
-  const picture = col.querySelector('picture');
-  const img = col.querySelector('img');
+  const { picture, img } = readImageField(row, 'image', { fallbackCell: row.children[index] });
   return { picture, img };
 }
 

@@ -1,22 +1,23 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 /**
  * Get text from a data-aue-prop element, or return ''.
  */
 function getPropText(row, prop) {
-  const el = row.querySelector(`[data-aue-prop="${prop}"]`);
-  return el?.textContent.trim() || '';
+  return readTextField(row, prop).value;
 }
 
 /**
  * Get link from a data-aue-prop element — check for <a> first, then text.
  */
 function getPropLink(row, prop) {
-  const el = row.querySelector(`[data-aue-prop="${prop}"]`);
-  if (!el) return '';
-  const a = el.querySelector('a');
-  return a?.href || el.textContent.trim();
+  return readLinkField(row, prop).value;
 }
 
 /**
@@ -38,8 +39,8 @@ function parseLeaderRow(row) {
     }
   }
 
-  const picture = imageCol?.querySelector('picture') || null;
-  const img = imageCol?.querySelector('img');
+  const imageField = readImageField(row, 'image', { fallbackCell: imageCol });
+  const { picture, img } = imageField;
   const imgSrc = img?.src || '';
   const imageAlt = img?.alt || '';
 
