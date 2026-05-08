@@ -6,6 +6,7 @@ import {
 } from '../../scripts/block-field-utils.js';
 
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
+const IMAGE_EXT_RE = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?(#.*)?$/i;
 
 const HERO_FIELD_INDEX = {
   variant: 0,
@@ -43,6 +44,70 @@ const HERO_FIELD_INDEX = {
 function isVideoUrl(value) {
   if (!value || typeof value !== 'string') return false;
   return VIDEO_EXT_RE.test(value.trim());
+}
+
+function isDamAssetUrl(value) {
+  return typeof value === 'string' && /\/content\/dam\//i.test(value.trim());
+}
+
+function isPossibleVideoUrl(value) {
+  const trimmed = typeof value === 'string' ? value.trim() : '';
+  if (!trimmed) return false;
+  if (isVideoUrl(trimmed)) return true;
+  if (isDamAssetUrl(trimmed) && !IMAGE_EXT_RE.test(trimmed)) return true;
+  return false;
+}
+
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function getBlockResourcePath(block) {
+  const resource = block.getAttribute('data-aue-resource')
+    || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  return resourcePathFromUrn(resource);
+}
+
+function normalizeVideoFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeVideoFieldValue(item)).find(Boolean) || '';
+  }
+  if (typeof value === 'object') {
+    const aemPath = value[['_path'].join('')];
+    const direct = value.href
+      || value.path
+      || value.url
+      || value.src
+      || value.fileReference
+      || aemPath
+      || '';
+    if (direct) return normalizeVideoFieldValue(direct);
+    return Object.values(value)
+      .map((item) => normalizeVideoFieldValue(item))
+      .find(Boolean)
+      || '';
+  }
+  return '';
+}
+
+async function getVideoUrlFromResourceJson(block) {
+  const resourcePath = getBlockResourcePath(block);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    return normalizeVideoFieldValue(data.media_video || data.video);
+  } catch (error) {
+    return '';
+  }
 }
 
 function getRowCells(block) {
@@ -671,7 +736,8 @@ function buildSidePanel(block) {
   return panel;
 }
 
-function findVideoInElement(el) {
+function findVideoInElement(el, options = {}) {
+  const { allowGenericAssetLink = false } = options;
   if (!el) return '';
   // 1. Element itself is a video
   if (el.tagName === 'VIDEO') {
@@ -682,8 +748,21 @@ function findVideoInElement(el) {
   // 2. Element itself is an anchor with a video href
   if (el.tagName === 'A') {
     const href = el.getAttribute('href') || '';
-    if (href) return href;
+    if (href && (allowGenericAssetLink || isPossibleVideoUrl(href))) return href;
   }
+  const ownAttributeUrl = [
+    'href',
+    'src',
+    'data-src',
+    'data-href',
+    'data-aue-resource',
+    'content',
+    'value',
+  ]
+    .map((attr) => el.getAttribute?.(attr) || '')
+    .find((value) => isPossibleVideoUrl(value));
+  if (ownAttributeUrl) return resourcePathFromUrn(ownAttributeUrl) || ownAttributeUrl;
+
   // 3. Any descendant <video>
   const innerVideo = el.querySelector?.('video');
   if (innerVideo) {
@@ -695,25 +774,33 @@ function findVideoInElement(el) {
   //    otherwise fall back to the first anchor we see (the asset reference
   //    may be linked even if the URL doesn't carry an extension).
   const anchors = [...(el.querySelectorAll?.('a[href]') || [])];
-  const videoAnchorMatch = anchors.find((a) => isVideoUrl(a.getAttribute('href') || ''));
+  const videoAnchorMatch = anchors.find((a) => isPossibleVideoUrl(a.getAttribute('href') || ''));
   if (videoAnchorMatch) return videoAnchorMatch.getAttribute('href');
-  const firstAnchor = anchors.find((a) => a.getAttribute('href'));
+  const firstAnchor = allowGenericAssetLink
+    ? anchors.find((a) => a.getAttribute('href'))
+    : null;
   if (firstAnchor) return firstAnchor.getAttribute('href');
   // 5. Plain text content that looks like a video URL/path
   const text = el.textContent?.trim() || '';
-  if (text && (isVideoUrl(text) || text.startsWith('/') || text.startsWith('http'))) {
+  const textMatch = text.match(/(?:https?:\/\/\S+|\/content\/dam\/\S+|\/\S+\.(?:mp4|webm|mov|m4v|ogv)(?:[?#]\S*)?)/i);
+  if (textMatch && isPossibleVideoUrl(textMatch[0])) {
+    return textMatch[0];
+  }
+  if (text && isPossibleVideoUrl(text)) {
     return text;
   }
   return '';
 }
 
-function extractVideoUrl(block) {
+async function extractVideoUrl(block) {
   const videoField = readLinkField(block, ['media_video', 'video'], {
     fallbackCell: getHeroFieldCell(block, 'media_video'),
   });
   const videoSource = videoField.source || videoField.cell;
   if (videoSource || videoField.value) {
-    const url = findVideoInElement(videoSource) || videoField.value;
+    const url = findVideoInElement(videoSource, {
+      allowGenericAssetLink: Boolean(videoField.source),
+    }) || (isPossibleVideoUrl(videoField.value) ? videoField.value : '');
     if (url) return { source: videoSource, url };
   }
 
@@ -721,7 +808,7 @@ function extractVideoUrl(block) {
   const named = block.querySelector('[data-aue-prop="media_video"]')
     || block.querySelector('[data-aue-prop="video"]');
   if (named) {
-    const url = findVideoInElement(named);
+    const url = findVideoInElement(named, { allowGenericAssetLink: true });
     if (url) return { source: named, url };
   }
 
@@ -729,7 +816,7 @@ function extractVideoUrl(block) {
   //    Catches the case where EDS auto-linked the asset path and dropped the
   //    data-aue-prop marker (same trick we use for color rows elsewhere).
   const videoAnchor = [...block.querySelectorAll('a[href]')]
-    .find((a) => isVideoUrl(a.getAttribute('href')));
+    .find((a) => isPossibleVideoUrl(a.getAttribute('href')));
   if (videoAnchor) {
     return { source: videoAnchor, url: videoAnchor.getAttribute('href') };
   }
@@ -748,8 +835,13 @@ function extractVideoUrl(block) {
 
   // 4. Last resort: scan every direct row for plain-text video paths
   const rows = [...block.querySelectorAll(':scope > div')];
-  const rowMatch = rows.find((row) => isVideoUrl(row.textContent.trim()));
-  if (rowMatch) return { source: rowMatch, url: rowMatch.textContent.trim() };
+  const rowMatch = rows
+    .map((row) => ({ row, url: findVideoInElement(row) }))
+    .find(({ url }) => url);
+  if (rowMatch) return { source: rowMatch.row, url: rowMatch.url };
+
+  const resourceUrl = await getVideoUrlFromResourceJson(block);
+  if (resourceUrl) return { source: null, url: resourceUrl };
 
   return { source: null, url: '' };
 }
@@ -911,7 +1003,7 @@ export default async function decorate(block) {
   const textColor = readTextColor(block);
   const picture = extractPicture(block);
   const featuredImage = extractFeaturedPicture(block, picture ? [picture] : []);
-  const { url: videoUrl, source: videoSource } = extractVideoUrl(block);
+  const { url: videoUrl, source: videoSource } = await extractVideoUrl(block);
   let videoEl = null;
   if (videoUrl) {
     const posterUrl = picture?.querySelector('img')?.src || '';

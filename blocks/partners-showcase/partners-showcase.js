@@ -178,19 +178,39 @@ function readLiveBlockField(block, name, type = 'text') {
   };
 }
 
+function getRowCells(row) {
+  if (row.children.length === 1) {
+    const child = row.children[0];
+    const nestedCells = [...(child?.children || [])];
+    if (nestedCells.length > 1) return nestedCells;
+  }
+  return [...row.children];
+}
+
+function getRowCell(row, index) {
+  return getRowCells(row)[index] || row.children[index] || null;
+}
+
 function readRowTextField(row, name, index) {
-  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  const field = readTextField(row, name, { fallbackCell: getRowCell(row, index) });
   return { source: field.source, value: field.value };
 }
 
 function isItemRow(row) {
-  const firstValue = row.children[0]?.textContent.trim().toLowerCase();
+  const firstValue = getRowCell(row, 0)?.textContent.trim().toLowerCase();
   if (firstValue === 'logo' || firstValue === 'testimonial') return true;
-  return row.children.length >= 4;
+  if (row.querySelector(getFieldSelector([
+    'itemType',
+    'logo',
+    'quote',
+    'attributionName',
+    'attributionTitle',
+  ]))) return true;
+  return getRowCells(row).length >= 4;
 }
 
 function readRowRichTextField(row, name, index) {
-  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  const field = readRichTextField(row, name, { fallbackCell: getRowCell(row, index) });
   return {
     source: field.source || (field.text ? field.cell : null),
     text: field.text,
@@ -199,7 +219,7 @@ function readRowRichTextField(row, name, index) {
 }
 
 function readRowLinkField(row, name, index) {
-  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  const field = readLinkField(row, name, { fallbackCell: getRowCell(row, index) });
   return {
     source: field.source,
     value: (field.source ? resolveLinkValue(field.source) : '') || field.value,
@@ -207,7 +227,7 @@ function readRowLinkField(row, name, index) {
 }
 
 function readRowImageField(row, name, index) {
-  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  const field = readImageField(row, name, { fallbackCell: getRowCell(row, index) });
   return {
     source: field.source,
     picture: field.picture,
@@ -507,14 +527,14 @@ function cellHasLink(cell) {
 }
 
 function firstTextCell(row, startIndex = 0) {
-  return [...row.children]
+  return getRowCells(row)
     .slice(startIndex)
     .find((cell) => cell.textContent.trim() && !hasPicture(cell) && !cellHasLink(cell))
     || null;
 }
 
 function readCompactTestimonialData(row) {
-  const cells = [...row.children];
+  const cells = getRowCells(row);
   const firstValue = cells[0]?.textContent.trim().toLowerCase();
   const offset = firstValue === 'testimonial' || firstValue === 'quote' ? 1 : 0;
   const textCells = cells

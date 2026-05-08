@@ -284,6 +284,34 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
+function normalizeSectionFieldName(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+const SECTION_FIELD_LABELS = {
+  name: ['name', 'sectionname'],
+  style: ['style', 'styles'],
+  backgroundColor: ['backgroundcolor', 'sectionbackgroundcolor'],
+  topSpacing: ['topspacing', 'margintop', 'sectiontopspacing'],
+  bottomSpacing: ['bottomspacing', 'marginbottom', 'sectionbottomspacing'],
+};
+
+const SECTION_FIELDS = Object.keys(SECTION_FIELD_LABELS);
+
+function findSectionLabeledField(section, name) {
+  const acceptedLabels = SECTION_FIELD_LABELS[name] || [];
+  const rows = [...section.querySelectorAll(':scope > div, :scope > div > div, :scope > div > div > div')]
+    .filter((row) => row.children?.length === 2)
+    .filter((row) => !row.closest('.block'));
+
+  return rows.find((row) => (
+    acceptedLabels.includes(normalizeSectionFieldName(row.children[0].textContent))
+  )) || null;
+}
+
 function getSectionMetadata(section) {
   const meta = {};
   const sectionMeta = section.querySelector('div.section-metadata');
@@ -297,7 +325,7 @@ function getSectionMetadata(section) {
     || '';
 
   if (sectionResource) {
-    ['name', 'style', 'backgroundColor', 'topSpacing', 'bottomSpacing'].forEach((name) => {
+    SECTION_FIELDS.forEach((name) => {
       const selector = `[data-aue-resource="${sectionResource}"][data-aue-prop="${name}"]`;
       const node = section.querySelector(selector)
         || section.querySelector(`[data-aue-prop="${name}"]`);
@@ -312,6 +340,18 @@ function getSectionMetadata(section) {
     });
   }
 
+  SECTION_FIELDS.forEach((name) => {
+    if (meta[name]) return;
+    const row = findSectionLabeledField(section, name);
+    if (!row) return;
+
+    const value = readSectionFieldValue(row.children[1]);
+    if (value) {
+      meta[name] = name === 'backgroundColor' ? normalizeColorValue(value) : value;
+    }
+    row.remove();
+  });
+
   const existingBackgroundColor = normalizeColorValue(
     section.getAttribute('data-background-color')
     || section.getAttribute('data-backgroundcolor'),
@@ -319,6 +359,16 @@ function getSectionMetadata(section) {
   if (existingBackgroundColor && !meta.backgroundColor) {
     meta.backgroundColor = existingBackgroundColor;
   }
+
+  [
+    ['topSpacing', 'data-top-spacing', 'data-topspacing'],
+    ['bottomSpacing', 'data-bottom-spacing', 'data-bottomspacing'],
+  ].forEach(([name, dashAttr, compactAttr]) => {
+    if (meta[name]) return;
+    meta[name] = section.getAttribute(dashAttr)
+      || section.getAttribute(compactAttr)
+      || '';
+  });
 
   if (sectionMeta) {
     sectionMeta.parentNode.remove();
