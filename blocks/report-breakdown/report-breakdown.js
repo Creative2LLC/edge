@@ -53,12 +53,35 @@ function hasAuthoringContext(scope) {
   );
 }
 
+function isReportItemRow(row) {
+  const cols = [...row.children];
+  return Boolean(
+    row.querySelector('[data-aue-prop="year"]')
+      || row.querySelector('[data-aue-prop="reportType"]')
+      || row.querySelector('[data-aue-prop="reportCount"]')
+      || cols.length >= 4,
+  );
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isReportItemRow(row));
+}
+
+function getParentFallbackCell(scope, rowIndex) {
+  if (!scope?.classList?.contains('report-breakdown')) return null;
+  const row = getParentRows(scope)[rowIndex];
+  return row?.children?.[0] || row || null;
+}
+
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
   const rowIndex = rowIndexMap?.[name];
   const options = {
     rowIndex,
     columnIndex,
-    fallbackCell: rowIndexMap === ITEM_COLUMN_INDEX ? scope.children[columnIndex] : null,
+    fallbackCell: rowIndexMap === ITEM_COLUMN_INDEX
+      ? scope.children[columnIndex]
+      : getParentFallbackCell(scope, rowIndex),
   };
   const linkField = readLinkField(scope, name, options);
   if (linkField.source) {
@@ -145,11 +168,7 @@ function normalizeBlockEntries(rows, fallbackYear = DEFAULTS.defaultYear) {
   const placeholders = [];
 
   rows.forEach((row, index) => {
-    const cols = [...row.children];
-    const isItemRow = row.querySelector('[data-aue-prop="year"]')
-      || row.querySelector('[data-aue-prop="reportType"]')
-      || row.querySelector('[data-aue-prop="reportCount"]')
-      || cols.length >= 4;
+    const isItemRow = isReportItemRow(row);
 
     if (!isItemRow) return;
 

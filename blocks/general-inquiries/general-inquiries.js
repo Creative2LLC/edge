@@ -139,6 +139,57 @@ function extractNodeValue(node) {
   return anchor?.href || node.textContent.trim();
 }
 
+function getDirectRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function hasImage(node) {
+  return Boolean(node?.querySelector?.('picture, img'));
+}
+
+function findSemanticFallbackCell(block, name, rowIndex, columnIndex = 0) {
+  const rows = getDirectRows(block);
+  const rowText = (row) => row.textContent.trim();
+  const findRow = (predicate) => rows.find((row) => predicate(rowText(row), row));
+  const supportStyleIndex = rows.findIndex((row) => /^(default|support)$/i.test(rowText(row)));
+  const supportRow = (offset) => (supportStyleIndex >= 0 ? rows[supportStyleIndex + offset] : null);
+  const urlRow = () => findRow((text, row) => {
+    const href = row.querySelector('a')?.href || '';
+    return /^https?:\/\//i.test(text) || /^https?:\/\//i.test(href);
+  });
+
+  const semanticFinders = {
+    fieldPlaceholders: () => findRow((text) => /full\s*name/i.test(text)
+      && /email/i.test(text)
+      && /message/i.test(text)),
+    topicOptions: () => findRow((text) => /general question/i.test(text)
+      || /partnership opportunity/i.test(text)
+      || /media inquiry/i.test(text)),
+    formAction: urlRow,
+    statusMessages: () => findRow((text) => /success\|/i.test(text)
+      || /error\|/i.test(text)
+      || (/thank you/i.test(text) && /try again/i.test(text))),
+    backgroundColor: () => findRow((text) => /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text)),
+    hero_style: () => findRow((text) => /^(default|support)$/i.test(text)),
+    hero_heading: () => supportRow(1),
+    hero_subheading: () => supportRow(2),
+    hero_buttonText: () => supportRow(3),
+    hero_buttonLink: () => findRow((text, row) => {
+      const href = row.querySelector('a')?.href || '';
+      return /^tel:/i.test(text) || /^tel:/i.test(href);
+    }) || supportRow(4),
+    hero_backgroundImage: () => findRow((text, row) => hasImage(row) || /\/content\/dam\//i.test(text))
+      || supportRow(5),
+  };
+  const semanticFinder = semanticFinders[name];
+  const semanticRow = semanticFinder?.();
+
+  if (semanticFinder && !semanticRow) return null;
+
+  const row = semanticRow || rows[rowIndex];
+  return row?.children?.[columnIndex] || row || null;
+}
+
 function getField(block, name, rowIndexMap, columnIndex = 0) {
   const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
   if (source) {
@@ -146,10 +197,11 @@ function getField(block, name, rowIndexMap, columnIndex = 0) {
   }
 
   const rowIndex = rowIndexMap?.[name];
-  const row = Number.isInteger(rowIndex) ? block.children[rowIndex] : null;
-  if (!row) return { source: null, value: '' };
+  const cell = Number.isInteger(rowIndex)
+    ? findSemanticFallbackCell(block, name, rowIndex, columnIndex)
+    : null;
+  if (!cell) return { source: null, value: '' };
 
-  const cell = row.children[columnIndex] || row;
   return { source: cell, value: extractNodeValue(cell) };
 }
 
@@ -165,7 +217,9 @@ function getFieldFromMaps(block, name, rowMaps, columnIndex = 0) {
 function getImageField(block, name, rowIndexMap) {
   const source = block.querySelector(`[data-aue-prop="${name}"]`);
   const rowIndex = rowIndexMap?.[name];
-  const row = Number.isInteger(rowIndex) ? block.children[rowIndex] : null;
+  const row = Number.isInteger(rowIndex)
+    ? findSemanticFallbackCell(block, name, rowIndex, 0)
+    : null;
   const container = source || row;
   const picture = source?.closest('picture')
     || source?.querySelector('picture')

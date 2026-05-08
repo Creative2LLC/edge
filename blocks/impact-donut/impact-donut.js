@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readLinkField,
@@ -23,18 +24,64 @@ const DEFAULT_TRACK_COLOR = '#edf1f3';
 const ANIMATION_DURATION = 1400;
 
 function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const field = readTextField(block, name, { rowIndex, columnIndex });
+  const field = readTextField(block, name, {
+    rowIndex,
+    columnIndex,
+    fallbackCell: getBlockFallbackCell(block, name),
+  });
   return { source: field.source || field.cell, value: field.value };
 }
 
 function getBlockRichField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const field = readRichTextField(block, name, { rowIndex, columnIndex });
+  const field = readRichTextField(block, name, {
+    rowIndex,
+    columnIndex,
+    fallbackCell: getBlockFallbackCell(block, name),
+  });
   return field.source || field.cell;
 }
 
 function getBlockLinkField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const field = readLinkField(block, name, { rowIndex, columnIndex });
+  const field = readLinkField(block, name, {
+    rowIndex,
+    columnIndex,
+    fallbackCell: getBlockFallbackCell(block, name),
+  });
   return { source: field.source || field.cell, value: field.value };
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')].filter((row) => !isImpactItemRow(row));
+}
+
+function getParentCells(block) {
+  return getParentRows(block)
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
+}
+
+function getBlockFallbackCell(block, name) {
+  const parentCells = getParentCells(block);
+  const plainTextCells = parentCells.filter((cell) => {
+    const text = cell.textContent.trim();
+    return text && !cell.querySelector('a[href]');
+  });
+  const linkCells = parentCells.filter((cell) => cell.querySelector('a[href]'));
+  const colorCells = parentCells.filter((cell) => {
+    const value = cell.textContent.trim();
+    return /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value);
+  });
+  const fallbackMap = {
+    heading: plainTextCells[0],
+    bodyText: plainTextCells[1],
+    primaryButtonText: plainTextCells[2],
+    primaryButtonLink: linkCells[0],
+    secondaryButtonText: plainTextCells[3],
+    secondaryButtonLink: linkCells[1],
+    surfaceColor: colorCells[0],
+    chartTrackColor: colorCells[1],
+  };
+  return fallbackMap[name] || null;
 }
 
 function getItemField(row, name, columnIndexes) {
@@ -49,6 +96,16 @@ function getItemField(row, name, columnIndexes) {
 
 function hasItemField(row, name) {
   return Boolean(row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`));
+}
+
+function isImpactItemRow(row) {
+  const itemType = row.children[0]?.textContent.trim().toLowerCase();
+  return itemType === 'stat'
+    || itemType === 'segment'
+    || hasItemField(row, 'itemType')
+    || hasItemField(row, 'value')
+    || hasItemField(row, 'label')
+    || row.children.length >= 4;
 }
 
 function looksLikeColor(value) {
@@ -336,13 +393,7 @@ export default function decorate(block) {
   const segmentItems = [];
 
   rows.forEach((row) => {
-    const cols = [...row.children];
-    const isItemRow = row.querySelector('[data-aue-prop="itemType"]')
-      || row.querySelector('[data-aue-prop="value"]')
-      || row.querySelector('[data-aue-prop="label"]')
-      || cols.length >= 4;
-
-    if (!isItemRow) return;
+    if (!isImpactItemRow(row)) return;
 
     const usesExtendedFields = hasExtendedItemFields(row);
     const itemTypeField = getItemField(row, 'itemType', 0);

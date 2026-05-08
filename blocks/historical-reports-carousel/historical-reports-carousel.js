@@ -37,9 +37,32 @@ function hasAuthoringContext(scope) {
   );
 }
 
+function isReportSlideRow(row) {
+  const cols = [...row.children];
+  return Boolean(
+    row.querySelector('[data-aue-prop="year"]')
+      || row.querySelector('[data-aue-prop="reportCount"]')
+      || row.querySelector('[data-aue-prop="coverImage"]')
+      || cols.length >= 6,
+  );
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isReportSlideRow(row));
+}
+
+function getParentFallbackCell(scope, rowIndex) {
+  if (!scope?.classList?.contains('historical-reports-carousel')) return null;
+  const row = getParentRows(scope)[rowIndex];
+  return row?.children?.[0] || row || null;
+}
+
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
   const rowIndex = rowIndexMap?.[name];
-  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX ? scope.children[columnIndex] : null;
+  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX
+    ? scope.children[columnIndex]
+    : getParentFallbackCell(scope, rowIndex);
   const linkField = readLinkField(scope, name, { rowIndex, columnIndex, fallbackCell });
   const textField = readTextField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return {
@@ -401,13 +424,7 @@ export default async function decorate(block) {
   const blockBackgroundColorField = getField(block, 'blockBackgroundColor', BLOCK_ROW_INDEX);
   const cardBackgroundColorField = getField(block, 'cardBackgroundColor', BLOCK_ROW_INDEX);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const slideRows = rows.filter((row) => {
-    const cols = [...row.children];
-    return row.querySelector('[data-aue-prop="year"]')
-      || row.querySelector('[data-aue-prop="reportCount"]')
-      || row.querySelector('[data-aue-prop="coverImage"]')
-      || cols.length >= 6;
-  });
+  const slideRows = rows.filter(isReportSlideRow);
   const slideData = (await Promise.all(
     slideRows.map(async (row) => ({ row, data: await parseSlideRow(row) })),
   )).filter(({ data }) => Boolean(data));

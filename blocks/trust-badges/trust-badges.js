@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
@@ -108,7 +109,36 @@ function collectLegacyBlockFields(block) {
 
 function readBlockField(block, legacyMap, name, type = 'text') {
   const field = type === 'link' ? getLinkField(block, name) : getTextField(block, name);
-  return field.value || field.source ? field : legacyMap[name] || { source: null, value: '' };
+  if (field.value || field.source) return field;
+  const liveField = readLiveBlockField(block, name, type);
+  if (liveField.value || liveField.source) return liveField;
+  return legacyMap[name] || { source: null, value: '' };
+}
+
+function isBadgeRow(row) {
+  return row.children.length >= 3 && Boolean(row.querySelector('picture'));
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')].filter((row) => !isBadgeRow(row));
+}
+
+function getParentCell(block, index) {
+  const row = getParentRows(block)[index];
+  return row?.children?.[0] || row || null;
+}
+
+function readLiveBlockField(block, name, type = 'text') {
+  const fieldIndex = BLOCK_FIELDS.indexOf(name);
+  const cell = fieldIndex >= 0 ? getParentCell(block, fieldIndex) : null;
+  if (!cell) return { source: null, value: '' };
+  const anchor = cell.querySelector?.('a[href]');
+  return {
+    source: null,
+    value: type === 'link'
+      ? anchor?.getAttribute('href') || cell.textContent.trim()
+      : cell.textContent.trim(),
+  };
 }
 
 function readRowTextField(row, name, index) {
@@ -318,7 +348,10 @@ export default async function decorate(block) {
   const grid = document.createElement('div');
   grid.className = 'trust-badges-grid';
 
-  const rows = [...block.querySelectorAll(':scope > div')].filter((row) => !BLOCK_FIELDS.some((name) => row.querySelector(`[data-aue-prop="${name}"]`)));
+  const rows = [...block.querySelectorAll(':scope > div')].filter((row) => (
+    isBadgeRow(row)
+      && !BLOCK_FIELDS.some((name) => row.querySelector(`[data-aue-prop="${name}"]`))
+  ));
 
   rows.forEach((row, index) => {
     const badge = buildBadge(row, index);

@@ -179,6 +179,12 @@ function getLegacyValue(block, name, columnIndex) {
     return getReferenceValue(labeledRow.children[1]);
   }
 
+  const compactRow = getRows(block)[columnIndex];
+  if (compactRow) {
+    const compactValue = getReferenceValue(compactRow.children[0] || compactRow);
+    if (compactValue) return compactValue;
+  }
+
   const configRow = getRows(block)[0];
   const cell = configRow ? [...configRow.children][columnIndex] : null;
   return getReferenceValue(cell);
@@ -199,6 +205,10 @@ function getAuthoredAssetValue(block, name, columnIndex, extensionPattern) {
   const legacyCell = getRows(block)[0]?.children[columnIndex];
   const legacyLink = getReferenceValue(legacyCell);
   if (extensionPattern.test(legacyLink)) return legacyLink;
+
+  const compactCell = getRows(block)[columnIndex]?.children[0] || getRows(block)[columnIndex];
+  const compactLink = getReferenceValue(compactCell);
+  if (extensionPattern.test(compactLink)) return compactLink;
 
   const matchingLink = [...block.querySelectorAll('a[href]')]
     .map((link) => link.getAttribute('href') || '')

@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
@@ -35,6 +36,17 @@ const LEGACY_BLOCK_LABELS = {
     'featured card background color',
     'card background color',
   ],
+};
+
+const LIVE_BLOCK_FIELD_INDEX = {
+  heading: 0,
+  subheading: 1,
+  featuredImage: 2,
+  featuredQuote: 3,
+  featuredName: 4,
+  featuredTitle: 5,
+  featuredLinkText: 6,
+  featuredLink: 6,
 };
 
 const ARROW_SVG = [
@@ -120,12 +132,29 @@ function getRichTextField(scope, name) {
 }
 
 function getImageField(scope, name) {
-  const field = readImageField(scope, name);
+  const field = readImageField(scope, name, {
+    fallbackCell: scope?.matches?.('.leadership-overview')
+      ? getParentCell(scope, LIVE_BLOCK_FIELD_INDEX[name])
+      : null,
+  });
   return {
     source: field.source,
     picture: field.picture,
     img: field.img,
   };
+}
+
+function isNavCardRow(row) {
+  return row.children.length >= 3 && !row.querySelector('picture');
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')].filter((row) => !isNavCardRow(row));
+}
+
+function getParentCell(block, index) {
+  const row = getParentRows(block)[index];
+  return row?.children?.[0] || row || null;
 }
 
 function collectLegacyBlockFields(block) {
@@ -165,6 +194,8 @@ function readBlockField(block, legacyMap, name, type = 'text') {
   else field = getTextField(block, name);
 
   if (field.value || field.text || field.source) return field;
+  const liveField = readLiveBlockField(block, name, type);
+  if (liveField.value || liveField.text || liveField.source) return liveField;
   const legacyField = legacyMap[name];
   if (legacyField) {
     return {
@@ -173,6 +204,21 @@ function readBlockField(block, legacyMap, name, type = 'text') {
     };
   }
   return { source: null, value: '', text: '' };
+}
+
+function readLiveBlockField(block, name, type = 'text') {
+  const fieldIndex = LIVE_BLOCK_FIELD_INDEX[name];
+  const cell = fieldIndex >= 0 ? getParentCell(block, fieldIndex) : null;
+  if (!cell) return { source: null, value: '', text: '' };
+  const anchor = cell.querySelector?.('a[href]');
+  const value = type === 'link'
+    ? anchor?.getAttribute('href') || cell.textContent.trim()
+    : cell.textContent.trim();
+  return {
+    source: null,
+    value,
+    text: value,
+  };
 }
 
 function readRowTextField(row, name, index) {
@@ -508,13 +554,14 @@ export default async function decorate(block) {
   navGrid.className = 'leadership-overview-nav-grid';
 
   const rows = [...block.querySelectorAll(':scope > div')]
-    .filter(
-      (row) => !BLOCK_FIELDS.some(
-        (name) => row.querySelector(
-          `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`,
-        ),
-      ),
-    );
+    .filter((row) => (
+      isNavCardRow(row)
+        && !BLOCK_FIELDS.some(
+          (name) => row.querySelector(
+            `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`,
+          ),
+        )
+    ));
 
   const cards = await Promise.all(rows.map((row, index) => buildNavCard(row, index)));
   cards.forEach((card) => {

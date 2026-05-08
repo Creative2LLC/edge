@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
@@ -24,27 +25,70 @@ const BLOCK_FIELD_NAMES = [
 ];
 
 function getField(scope, name, index) {
-  const field = readTextField(scope, name, { fallbackCell: scope.children[index] });
+  const field = readTextField(scope, name, { fallbackCell: getFallbackCell(scope, index) });
   return { source: field.source, value: field.value };
 }
 
 function getRichField(scope, name, index) {
-  const field = readRichTextField(scope, name, { fallbackCell: scope.children[index] });
+  const field = readRichTextField(scope, name, { fallbackCell: getFallbackCell(scope, index) });
   return field.source || field.cell;
 }
 
 function getLinkField(scope, name, index) {
-  const field = readLinkField(scope, name, { fallbackCell: scope.children[index] });
+  const field = readLinkField(scope, name, { fallbackCell: getFallbackCell(scope, index) });
   return { source: field.source, value: field.value };
 }
 
 function getImageField(scope, name, index) {
-  const field = readImageField(scope, name, { fallbackCell: scope.children[index] });
+  const field = readImageField(scope, name, { fallbackCell: getFallbackCell(scope, index) });
   return {
     source: field.source,
     picture: field.picture,
     img: field.img,
   };
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isItemRow(row));
+}
+
+function getParentCells(block) {
+  return getParentRows(block)
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
+}
+
+function getFallbackCell(scope, index) {
+  if (!scope?.matches?.('.split-card-gap')) return scope?.children?.[index] || null;
+  const parentCells = getParentCells(scope);
+  const plainTextCells = parentCells.filter((cell) => {
+    const text = cell.textContent.trim();
+    return text && !cell.querySelector('picture') && !cell.querySelector('a[href]');
+  });
+  const colorCells = parentCells.filter((cell) => /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(
+    cell.textContent.trim(),
+  ));
+  const linkCells = parentCells.filter((cell) => {
+    const anchor = cell.querySelector('a[href]');
+    return anchor && !/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(anchor.textContent.trim());
+  });
+
+  const fallbackMap = {
+    0: parentCells.find((cell) => cell.querySelector('picture')),
+    2: plainTextCells[0],
+    3: parentCells.find((cell) => /^\d+(\.\d+)?%?$/.test(cell.textContent.trim())),
+    4: plainTextCells[1],
+    5: colorCells[0],
+    6: colorCells[1],
+    7: plainTextCells[2],
+    8: linkCells[0],
+    9: plainTextCells[3],
+    10: linkCells[1],
+    11: parentCells.find((cell) => /^\d+(\.\d+)?(px|rem|%)?$/.test(cell.textContent.trim())),
+  };
+
+  return fallbackMap[index] || parentCells[index] || null;
 }
 
 function hasAuthoringContext(scope) {
@@ -197,7 +241,7 @@ function normalizeSizeValue(value) {
 function isItemRow(row) {
   if (row.querySelector('[data-aue-prop="icon"], [data-aue-prop="title"]')) return true;
   if (row.querySelector(BLOCK_FIELD_NAMES.map((name) => getFieldSelector(name)).join(', '))) return false;
-  return row.children.length >= 3;
+  return row.children.length >= 3 && Boolean(row.querySelector('picture'));
 }
 
 function buildBenefitItem(data, textColor) {
@@ -306,7 +350,9 @@ export default function decorate(block) {
     }
   }
 
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const rows = getParentRows(block).length
+    ? [...block.querySelectorAll(':scope > div')].filter(isItemRow)
+    : [...block.querySelectorAll(':scope > div')];
   const benefits = [];
 
   rows.forEach((row) => {

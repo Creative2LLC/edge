@@ -116,6 +116,14 @@ function readConfigValue(rows, name, columnIndex, fallback = '') {
     if (url) return url;
   }
 
+  const compactRow = rows[columnIndex];
+  if (compactRow) {
+    const compactCell = compactRow.children[0] || compactRow;
+    const anchor = compactCell.querySelector?.('a');
+    const compactValue = anchor?.href || compactCell.textContent.trim();
+    if (compactValue) return compactValue;
+  }
+
   return fallback;
 }
 

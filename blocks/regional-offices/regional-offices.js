@@ -13,13 +13,41 @@ const BLOCK_ROW_INDEX = {
   columns: 2,
 };
 
+function isRegionalOfficeItemRow(row) {
+  const cols = [...row.children];
+  return Boolean(
+    row.querySelector('[data-aue-prop="image"]')
+      || row.querySelector('[data-aue-prop="title"]')
+      || row.querySelector('[data-aue-prop="buttonText"]')
+      || cols.length >= 5,
+  );
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isRegionalOfficeItemRow(row));
+}
+
+function getParentFallbackCell(block, rowIndex) {
+  const row = getParentRows(block)[rowIndex];
+  return row?.children?.[0] || row || null;
+}
+
 function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const field = readTextField(block, name, { rowIndex, columnIndex });
+  const field = readTextField(block, name, {
+    rowIndex,
+    columnIndex,
+    fallbackCell: getParentFallbackCell(block, rowIndex),
+  });
   return { source: field.source || field.cell, value: field.value };
 }
 
 function getBlockRichField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const field = readRichTextField(block, name, { rowIndex, columnIndex });
+  const field = readRichTextField(block, name, {
+    rowIndex,
+    columnIndex,
+    fallbackCell: getParentFallbackCell(block, rowIndex),
+  });
   return field.source || field.cell;
 }
 
@@ -154,11 +182,7 @@ export default function decorate(block) {
   const offices = [];
 
   rows.forEach((row) => {
-    const cols = [...row.children];
-    const isItemRow = row.querySelector('[data-aue-prop="image"]')
-      || row.querySelector('[data-aue-prop="title"]')
-      || row.querySelector('[data-aue-prop="buttonText"]')
-      || cols.length >= 5;
+    const isItemRow = isRegionalOfficeItemRow(row);
 
     if (!isItemRow) return;
 

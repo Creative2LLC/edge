@@ -45,21 +45,53 @@ function hasAuthoringContext(scope) {
   );
 }
 
+function isConnectGridItemRow(row) {
+  const cols = [...row.children];
+  return Boolean(
+    row.querySelector('[data-aue-prop="icon"]')
+      || row.querySelector('[data-aue-prop="image"]')
+      || row.querySelector('[data-aue-prop="title"]')
+      || row.querySelector('[data-aue-prop="contactMethods"]')
+      || row.querySelector('[data-aue-prop="contactMethod1Text"]')
+      || cols.length >= 5,
+  );
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isConnectGridItemRow(row));
+}
+
+function getParentFallbackCell(scope, rowIndex) {
+  if (!scope?.classList?.contains('connect-grid')) return null;
+  const row = getParentRows(scope)[rowIndex];
+  return row?.children?.[0] || row || null;
+}
+
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
   const rowIndex = rowIndexMap?.[name];
-  const field = readTextField(scope, name, { rowIndex, columnIndex });
+  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX
+    ? scope.children[columnIndex]
+    : getParentFallbackCell(scope, rowIndex);
+  const field = readTextField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return { ...field, source: field.source || field.cell };
 }
 
 function getRichField(scope, name, rowIndexMap, columnIndex = 0) {
   const rowIndex = rowIndexMap?.[name];
-  const field = readRichTextField(scope, name, { rowIndex, columnIndex });
+  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX
+    ? scope.children[columnIndex]
+    : getParentFallbackCell(scope, rowIndex);
+  const field = readRichTextField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return field.source || field.cell;
 }
 
 function getImageField(scope, name, rowIndexMap, columnIndex = 0) {
   const rowIndex = rowIndexMap?.[name];
-  const field = readImageField(scope, name, { rowIndex, columnIndex });
+  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX
+    ? scope.children[columnIndex]
+    : getParentFallbackCell(scope, rowIndex);
+  const field = readImageField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return { source: field.source, picture: field.picture, img: field.img };
 }
 
@@ -425,13 +457,7 @@ export default function decorate(block) {
   const cards = [];
 
   rows.forEach((row, index) => {
-    const cols = [...row.children];
-    const isItemRow = row.querySelector('[data-aue-prop="icon"]')
-      || row.querySelector('[data-aue-prop="image"]')
-      || row.querySelector('[data-aue-prop="title"]')
-      || row.querySelector('[data-aue-prop="contactMethods"]')
-      || row.querySelector('[data-aue-prop="contactMethod1Text"]')
-      || cols.length >= 5;
+    const isItemRow = isConnectGridItemRow(row);
 
     if (!isItemRow) return;
 

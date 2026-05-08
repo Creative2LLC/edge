@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
@@ -148,12 +149,44 @@ function readBlockField(block, legacyMap, name, type = 'text') {
   else field = getTextField(block, name);
 
   if (field.value || field.text || field.source) return field;
+  const liveField = readLiveBlockField(block, name, type);
+  if (liveField.value || liveField.text || liveField.source) return liveField;
   return legacyMap[name] || { source: null, value: '', text: '' };
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')].filter((row) => !isItemRow(row));
+}
+
+function getParentCell(block, index) {
+  const row = getParentRows(block)[index];
+  return row?.children?.[0] || row || null;
+}
+
+function readLiveBlockField(block, name, type = 'text') {
+  const fieldIndex = BLOCK_FIELDS.indexOf(name);
+  const cell = fieldIndex >= 0 ? getParentCell(block, fieldIndex) : null;
+  if (!cell) return { source: null, value: '', text: '' };
+  const anchor = cell.querySelector?.('a[href]');
+  const value = type === 'link'
+    ? anchor?.getAttribute('href') || cell.textContent.trim()
+    : cell.textContent.trim();
+  return {
+    source: null,
+    value,
+    text: value,
+  };
 }
 
 function readRowTextField(row, name, index) {
   const field = readTextField(row, name, { fallbackCell: row.children[index] });
   return { source: field.source, value: field.value };
+}
+
+function isItemRow(row) {
+  const firstValue = row.children[0]?.textContent.trim().toLowerCase();
+  if (firstValue === 'logo' || firstValue === 'testimonial') return true;
+  return row.children.length >= 4 && Boolean(row.querySelector('picture'));
 }
 
 function readRowRichTextField(row, name, index) {
@@ -493,9 +526,10 @@ export default async function decorate(block) {
   const logos = [];
   const testimonials = [];
 
-  const rows = [...block.querySelectorAll(':scope > div')].filter(
-    (row) => !BLOCK_FIELDS.some((name) => row.querySelector(getFieldSelector(name))),
-  );
+  const rows = [...block.querySelectorAll(':scope > div')].filter((row) => (
+    isItemRow(row)
+      && !BLOCK_FIELDS.some((name) => row.querySelector(getFieldSelector(name)))
+  ));
 
   rows.forEach((row) => {
     const data = {

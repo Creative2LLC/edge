@@ -2116,9 +2116,18 @@ export default async function decorate(block) {
 
   if (brandLink) {
     const brandImg = brandLink.querySelector('img');
-    if (brandImg && brandImg.getAttribute('src') === 'about:error') {
-      brandImg.src = FALLBACK_BRAND_LOGO;
-      brandImg.alt = brandImg.alt || 'NCMEC';
+    if (brandImg) {
+      const useFallbackLogo = () => {
+        if (brandImg.src === FALLBACK_BRAND_LOGO) return;
+        brandImg.src = FALLBACK_BRAND_LOGO;
+        brandImg.alt = brandImg.alt || 'NCMEC';
+      };
+
+      if (brandImg.getAttribute('src') === 'about:error') {
+        useFallbackLogo();
+      }
+
+      brandImg.addEventListener('error', useFallbackLogo, { once: true });
     }
 
     const pathParts = window.location.pathname.split('/').filter(Boolean);

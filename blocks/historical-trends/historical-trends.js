@@ -57,12 +57,35 @@ function hasAuthoringContext(scope) {
   );
 }
 
+function isTrendCardRow(row) {
+  const cols = [...row.children];
+  return Boolean(
+    row.querySelector('[data-aue-prop="title"]')
+      || row.querySelector('[data-aue-prop="bodyText"]')
+      || row.querySelector('[data-aue-prop="linkText"]')
+      || cols.length >= 4,
+  );
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isTrendCardRow(row));
+}
+
+function getParentFallbackCell(scope, rowIndex) {
+  if (!scope?.classList?.contains('historical-trends')) return null;
+  const row = getParentRows(scope)[rowIndex];
+  return row?.children?.[0] || row || null;
+}
+
 function getField(scope, name, rowIndexMap, columnIndex = 0) {
   const rowIndex = rowIndexMap?.[name];
   const options = {
     rowIndex,
     columnIndex,
-    fallbackCell: rowIndexMap === CARD_COLUMN_INDEX ? scope.children[columnIndex] : null,
+    fallbackCell: rowIndexMap === CARD_COLUMN_INDEX
+      ? scope.children[columnIndex]
+      : getParentFallbackCell(scope, rowIndex),
   };
   const linkField = readLinkField(scope, name, options);
   const textField = readTextField(scope, name, options);
@@ -77,7 +100,9 @@ function getRichField(scope, name, rowIndexMap, columnIndex = 0) {
   const field = readRichTextField(scope, name, {
     rowIndex,
     columnIndex,
-    fallbackCell: rowIndexMap === CARD_COLUMN_INDEX ? scope.children[columnIndex] : null,
+    fallbackCell: rowIndexMap === CARD_COLUMN_INDEX
+      ? scope.children[columnIndex]
+      : getParentFallbackCell(scope, rowIndex),
   });
   return field.source || field.cell;
 }
@@ -462,11 +487,7 @@ export default function decorate(block) {
   const cards = [];
 
   rows.forEach((row) => {
-    const cols = [...row.children];
-    const isItemRow = row.querySelector('[data-aue-prop="title"]')
-      || row.querySelector('[data-aue-prop="bodyText"]')
-      || row.querySelector('[data-aue-prop="linkText"]')
-      || cols.length >= 4;
+    const isItemRow = isTrendCardRow(row);
 
     if (!isItemRow) return;
 

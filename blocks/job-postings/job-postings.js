@@ -5,6 +5,17 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
+const BLOCK_ROW_INDEX = {
+  locationIcon: 0,
+  categoryIcon: 1,
+  typeIcon: 2,
+  bottomButtonText: 3,
+  bottomButtonLink: 4,
+  bottomButtonColor: 5,
+  bottomButtonTextColor: 6,
+  bottomButtonStyle: 7,
+};
+
 function hasAuthoringContext(scope) {
   return Boolean(
     scope?.getAttribute('data-aue-resource')
@@ -13,26 +24,48 @@ function hasAuthoringContext(scope) {
 }
 
 function isItemRow(row) {
+  const cols = [...row.children];
   return Boolean(
     row.querySelector('[data-aue-prop="positionName"]')
       || row.querySelector('[data-aue-prop="location"]')
       || row.querySelector('[data-aue-prop="category"]')
-      || row.querySelector('[data-aue-prop="employmentType"]'),
+      || row.querySelector('[data-aue-prop="employmentType"]')
+      || cols.length >= 4,
   );
 }
 
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isItemRow(row));
+}
+
+function getParentFallbackCell(block, name) {
+  const rowIndex = BLOCK_ROW_INDEX[name];
+  if (!Number.isInteger(rowIndex)) return null;
+  const row = getParentRows(block)[rowIndex];
+  return row?.children?.[0] || row || null;
+}
+
 function getField(scope, name, index) {
-  const field = readTextField(scope, name, { fallbackCell: scope.children[index] });
+  const fallbackCell = Number.isInteger(index)
+    ? scope.children[index]
+    : getParentFallbackCell(scope, name);
+  const field = readTextField(scope, name, { fallbackCell });
   return { source: field.source, value: field.value };
 }
 
 function getLinkField(scope, name, index) {
-  const field = readLinkField(scope, name, { fallbackCell: scope.children[index] });
+  const fallbackCell = Number.isInteger(index)
+    ? scope.children[index]
+    : getParentFallbackCell(scope, name);
+  const field = readLinkField(scope, name, { fallbackCell });
   return { source: field.source, value: field.value };
 }
 
 function getImageField(scope, name) {
-  return readImageField(scope, name).img;
+  return readImageField(scope, name, {
+    fallbackCell: getParentFallbackCell(scope, name),
+  }).img;
 }
 
 function styleButton(btn, color, textColor, style) {
@@ -153,10 +186,8 @@ export default function decorate(block) {
   const items = [];
   rows.forEach((row) => {
     const aueItem = isItemRow(row);
-    const cols = [...row.children];
-    const enoughCols = cols.length >= 2;
 
-    if (!aueItem && !enoughCols) return;
+    if (!aueItem) return;
 
     const positionNameField = getField(row, 'positionName', 0);
     const locationField = getField(row, 'location', 1);
