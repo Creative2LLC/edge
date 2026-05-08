@@ -1,5 +1,12 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  getFieldSelector,
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELD_NAMES = [
   'image',
@@ -16,68 +23,27 @@ const BLOCK_FIELD_NAMES = [
   'maxWidth',
 ];
 
-function getFieldSelector(name) {
-  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
-}
-
 function getField(scope, name, index) {
-  const source = scope.querySelector(getFieldSelector(name));
-  if (source) return { source, value: source.textContent.trim() };
-
-  const cols = [...scope.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(scope, name, { fallbackCell: scope.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getRichField(scope, name, index) {
-  const source = scope.querySelector(getFieldSelector(name));
-  if (source) return source;
-
-  const cols = [...scope.children];
-  return cols[index] || null;
+  const field = readRichTextField(scope, name, { fallbackCell: scope.children[index] });
+  return field.source || field.cell;
 }
 
 function getLinkField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return {
-      source,
-      value: anchor?.getAttribute('href') || source.getAttribute('href') || source.textContent.trim(),
-    };
-  }
-
-  const cols = [...scope.children];
-  const column = cols[index];
-  const anchor = column?.querySelector('a');
-  return {
-    source: null,
-    value: anchor?.getAttribute('href') || column?.textContent?.trim() || '',
-  };
+  const field = readLinkField(scope, name, { fallbackCell: scope.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getImageField(scope, name, index) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return {
-      source,
-      picture,
-      img: img || picture?.querySelector('img') || null,
-    };
-  }
-
-  const cols = [...scope.children];
-  const column = cols[index];
-  if (!column) {
-    return { source: null, picture: null, img: null };
-  }
-
+  const field = readImageField(scope, name, { fallbackCell: scope.children[index] });
   return {
-    source: null,
-    picture: column.querySelector('picture'),
-    img: column.querySelector('img'),
+    source: field.source,
+    picture: field.picture,
+    img: field.img,
   };
 }
 

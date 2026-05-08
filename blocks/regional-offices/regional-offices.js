@@ -1,5 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -8,79 +14,36 @@ const BLOCK_ROW_INDEX = {
 };
 
 function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  const row = block.children[rowIndex];
-  if (!row) return { source: null, value: '' };
-
-  const cell = row.children[columnIndex] || row;
-  return { source: cell, value: cell.textContent.trim() };
+  const field = readTextField(block, name, { rowIndex, columnIndex });
+  return { source: field.source || field.cell, value: field.value };
 }
 
 function getBlockRichField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source;
-
-  const row = block.children[rowIndex];
-  if (!row) return null;
-  return row.children[columnIndex] || row;
+  const field = readRichTextField(block, name, { rowIndex, columnIndex });
+  return field.source || field.cell;
 }
 
 function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getRichField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source;
-
-  const cols = [...row.children];
-  return cols[index] || null;
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return field.source || field.cell;
 }
 
 function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return {
-      source,
-      picture,
-      img: img || picture?.querySelector('img') || null,
-    };
-  }
-
-  const cols = [...row.children];
-  const column = cols[index];
-  if (!column) {
-    return { source: null, picture: null, img: null };
-  }
-
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
   return {
-    source: null,
-    picture: column.querySelector('picture'),
-    img: column.querySelector('img'),
+    source: field.source,
+    picture: field.picture,
+    img: field.img,
   };
 }
 

@@ -1,4 +1,8 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -8,31 +12,11 @@ function hasAuthoringContext(scope) {
 }
 
 function getField(row, colIndex, propName) {
-  const source = row.querySelector(
-    `[data-aue-prop="${propName}"], [data-richtext-prop="${propName}"]`,
-  );
-  if (source) {
-    return {
-      source,
-      text: source.textContent.trim(),
-      html: source.innerHTML,
-    };
-  }
-
-  const cols = [...row.children];
-  const cell = cols[colIndex];
-  if (!cell) {
-    return {
-      source: null,
-      text: '',
-      html: '',
-    };
-  }
-
+  const field = readRichTextField(row, propName, { fallbackCell: row.children[colIndex] });
   return {
-    source: null,
-    text: cell.textContent.trim(),
-    html: cell.innerHTML,
+    source: field.source,
+    text: field.text,
+    html: field.html,
   };
 }
 
@@ -218,15 +202,15 @@ function observeReveal(block) {
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const headingSource = block.querySelector('[data-aue-prop="heading"]');
-  const headingText = headingSource?.textContent.trim() || '';
+  const headingField = readTextField(block, 'heading');
+  const headingText = headingField.value;
   const children = [];
   const items = [];
 
   if (headingText) {
     const heading = document.createElement('h2');
     heading.className = 'faq-heading';
-    moveText({ source: headingSource, text: headingText }, heading, headingText);
+    moveText(headingField, heading, headingText);
     children.push(heading);
   }
 

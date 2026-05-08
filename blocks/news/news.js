@@ -1,5 +1,10 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -29,22 +34,19 @@ function collectLegacyBlockFields(block) {
 }
 
 function getBlockField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const value = source.textContent.trim();
-    source.remove();
-    return value;
+  const field = readTextField(block, name);
+  if (field.source) {
+    field.source.remove();
+    return field.value;
   }
   return legacyMap[name] || '';
 }
 
 function getBlockLinkField(block, legacyMap, name) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    const value = anchor?.href || source.textContent.trim();
-    source.remove();
-    return value;
+  const field = readLinkField(block, name);
+  if (field.source) {
+    field.source.remove();
+    return field.value;
   }
   return legacyMap[name] || '';
 }
@@ -84,19 +86,18 @@ function parseArticleRow(row) {
 
   // Try data-aue-prop (Universal Editor live context)
   const getField = (prop) => {
-    const el = row.querySelector(`[data-aue-prop="${prop}"]`);
-    return el ? el.textContent.trim() : '';
+    const field = readTextField(row, prop);
+    return field.value;
   };
-  const imageEl = row.querySelector('[data-aue-prop="image"]');
+  const imageField = readImageField(row, 'image');
   const title = getField('title');
   if (title) {
-    const pic = imageEl?.querySelector('img');
     return {
-      imgSrc: pic?.src || '',
-      imageAlt: pic?.alt || '',
+      imgSrc: imageField.img?.src || '',
+      imageAlt: imageField.img?.alt || '',
       title,
       subheading: getField('subtitle'),
-      linkUrl: getField('link'),
+      linkUrl: readLinkField(row, 'link').value,
       tags: getField('tags'),
     };
   }

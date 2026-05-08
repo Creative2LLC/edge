@@ -1,4 +1,11 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  getFieldSelector,
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELD_INDEX = {
   columns: 0,
@@ -134,68 +141,35 @@ function parseTextStyles(value) {
 }
 
 function getField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return { source: null, value: anchor?.href || cols[index].textContent.trim() };
-  }
-  return { source: null, value: '' };
+  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function getRichField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return source;
-  const cols = [...row.children];
-  return cols[index] || null;
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return field.source || field.cell;
 }
 
 function getImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, img };
-  }
-  const cols = [...row.children];
-  if (cols[index]) {
-    const img = cols[index].querySelector('img');
-    return { source: null, img: img || null };
-  }
-  return { source: null, img: null };
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, img: field.img };
 }
 
 function getBlockField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
   const row = rows[index];
-  if (!row) return { source: null, value: '' };
-  const cell = row.children[0] || row;
-  return { source: null, value: cell.textContent.trim() };
+  const field = readTextField(block, name, { fallbackCell: row?.children[0] || row });
+  return { source: field.source, value: field.value };
 }
 
 function getBlockLinkField(block, rows, name, index) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
   const row = rows[index];
-  if (!row) return { source: null, value: '' };
-  const cell = row.children[0] || row;
-  const anchor = cell.querySelector?.('a');
-  return { source: null, value: anchor?.href || cell.textContent.trim() };
+  const field = readLinkField(block, name, { fallbackCell: row?.children[0] || row });
+  return { source: field.source, value: field.value };
 }
 
 function moveFieldContent(field, target) {
@@ -360,7 +334,7 @@ function buildSectionButton(textField, linkField, className = 'info-cards-grid-s
 }
 
 function hasItemFieldProps(row) {
-  return ITEM_FIELD_NAMES.some((name) => row.querySelector(`[data-aue-prop="${name}"]`));
+  return ITEM_FIELD_NAMES.some((name) => row.querySelector(getFieldSelector(name)));
 }
 
 function buildIcon(content, data) {

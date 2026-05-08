@@ -1,5 +1,12 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  getFieldSelector,
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const CARD_PROPS = [
   'cardNumber',
@@ -81,65 +88,34 @@ async function getResourceData(scope) {
   return pendingData;
 }
 
-function getFieldSelector(name) {
-  return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
-}
-
 function getBlockField(block, name) {
-  const source = block.querySelector(getFieldSelector(name));
+  const field = readTextField(block, name);
   return {
-    source,
-    value: source?.textContent.trim() || '',
+    source: field.source,
+    value: field.value,
   };
 }
 
 function getRowTextField(row, name, index) {
-  const source = row.querySelector(getFieldSelector(name));
-  if (source) return source.textContent.trim();
-  const cols = [...row.children];
-  return cols[index]?.textContent.trim() || '';
+  return readTextField(row, name, { fallbackCell: row.children[index] }).value;
 }
 
 function getRowLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return anchor?.getAttribute('href')
-      || source.getAttribute('href')
-      || source.textContent.trim();
-  }
-
-  const cols = [...row.children];
-  const cell = cols[index];
-  if (!cell) return '';
-
-  const anchor = cell.tagName === 'A' ? cell : cell.querySelector('a');
-  return anchor?.getAttribute('href')
-    || cell.getAttribute('href')
-    || cell.textContent.trim()
-    || '';
+  return readLinkField(row, name, { fallbackCell: row.children[index] }).value;
 }
 
 function getRichField(row, name, index) {
-  const source = row.querySelector(getFieldSelector(name));
-  if (source) return source;
-  const cols = [...row.children];
-  return cols[index] || null;
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return field.source || field.cell;
 }
 
 function getImageField(scope, name) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  const container = source?.parentElement || source;
-  const picture = source?.querySelector('picture')
-    || container?.querySelector('picture')
-    || scope.querySelector('picture')
-    || null;
-  const img = source?.querySelector('img')
-    || container?.querySelector('img')
-    || picture?.querySelector('img')
-    || scope.querySelector('img')
-    || null;
-  return { source, picture, img };
+  const field = readImageField(scope, name, { fallbackCell: scope });
+  return {
+    source: field.source,
+    picture: field.picture,
+    img: field.img,
+  };
 }
 
 function moveFieldContent(source, target, fallbackValue = '') {

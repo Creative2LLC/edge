@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readRichTextField } from '../../scripts/block-field-utils.js';
 
 const FALLBACK_OVERLAY_COLOR = '#000000';
 const FALLBACK_OVERLAY_OPACITY = 0.6;
@@ -12,12 +13,11 @@ const FALLBACK_POSITIONS = {
 };
 
 function getField(block, name, rowIndex, columnIndex = 0) {
-  const instrumented = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (instrumented) return instrumented;
   const [fallbackRow, fallbackCol] = FALLBACK_POSITIONS[name] || [];
   const row = block.children[rowIndex ?? fallbackRow];
-  if (!row) return null;
-  return row.children[columnIndex ?? fallbackCol] || row;
+  const fallbackCell = row?.children[columnIndex ?? fallbackCol] || row;
+  const field = readRichTextField(block, name, { fallbackCell });
+  return field.source || field.cell;
 }
 
 function parseOpacity(value) {

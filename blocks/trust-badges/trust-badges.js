@@ -1,5 +1,10 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELDS = ['heading', 'ctaText', 'ctaLink', 'backgroundColor'];
 
@@ -63,15 +68,16 @@ async function getFieldValueFromResourceJson(scope, name) {
 }
 
 function getTextField(scope, name) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(scope, name);
+  return { source: field.source, value: field.value };
 }
 
 function getLinkField(scope, name) {
-  const source = scope.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: resolveLinkValue(source) };
-  return { source: null, value: '' };
+  const field = readLinkField(scope, name);
+  return {
+    source: field.source,
+    value: (field.source ? resolveLinkValue(field.source) : '') || field.value,
+  };
 }
 
 function collectLegacyBlockFields(block) {
@@ -106,43 +112,25 @@ function readBlockField(block, legacyMap, name, type = 'text') {
 }
 
 function readRowTextField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-  const cols = [...row.children];
-  if (cols[index]) return { source: null, value: cols[index].textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
 }
 
 function readRowLinkField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) return { source, value: resolveLinkValue(source) };
-  const cols = [...row.children];
-  if (cols[index]) {
-    const anchor = cols[index].querySelector('a');
-    return {
-      source: null,
-      value: anchor?.getAttribute('href') || cols[index].textContent.trim(),
-    };
-  }
-  return { source: null, value: '' };
+  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  return {
+    source: field.source,
+    value: (field.source ? resolveLinkValue(field.source) : '') || field.value,
+  };
 }
 
 function readRowImageField(row, name, index) {
-  const source = row.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const picture = source.tagName === 'PICTURE' ? source : source.querySelector('picture');
-    const img = source.tagName === 'IMG' ? source : source.querySelector('img');
-    return { source, picture, img };
-  }
-
-  const cols = [...row.children];
-  if (cols[index]) {
-    const picture = cols[index].querySelector('picture');
-    const img = cols[index].querySelector('img');
-    return { source: null, picture, img: img || null };
-  }
-
-  return { source: null, picture: null, img: null };
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return {
+    source: field.source,
+    picture: field.picture,
+    img: field.img,
+  };
 }
 
 function hasAuthoringContext(scope) {

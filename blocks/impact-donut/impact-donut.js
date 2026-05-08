@@ -1,4 +1,9 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -18,53 +23,28 @@ const DEFAULT_TRACK_COLOR = '#edf1f3';
 const ANIMATION_DURATION = 1400;
 
 function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
-  const row = block.children[rowIndex];
-  if (!row) return { source: null, value: '' };
-
-  const cell = row.children[columnIndex] || row;
-  return { source: cell, value: cell.textContent.trim() };
+  const field = readTextField(block, name, { rowIndex, columnIndex });
+  return { source: field.source || field.cell, value: field.value };
 }
 
 function getBlockRichField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return source;
-
-  const row = block.children[rowIndex];
-  if (!row) return null;
-  return row.children[columnIndex] || row;
+  const field = readRichTextField(block, name, { rowIndex, columnIndex });
+  return field.source || field.cell;
 }
 
 function getBlockLinkField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
-  const source = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (source) {
-    const anchor = source.tagName === 'A' ? source : source.querySelector('a');
-    return { source, value: anchor?.href || source.textContent.trim() };
-  }
-
-  const row = block.children[rowIndex];
-  if (!row) return { source: null, value: '' };
-
-  const cell = row.children[columnIndex] || row;
-  const anchor = cell.querySelector('a');
-  return { source: cell, value: anchor?.href || cell.textContent.trim() };
+  const field = readLinkField(block, name, { rowIndex, columnIndex });
+  return { source: field.source || field.cell, value: field.value };
 }
 
 function getItemField(row, name, columnIndexes) {
-  const source = row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
-  if (source) return { source, value: source.textContent.trim() };
-
   const indexes = Array.isArray(columnIndexes) ? columnIndexes : [columnIndexes];
-  const cols = [...row.children];
   const cell = indexes
     .filter((index) => Number.isInteger(index) && index >= 0)
-    .map((index) => cols[index])
+    .map((index) => row.children[index])
     .find(Boolean);
-
-  if (cell) return { source: null, value: cell.textContent.trim() };
-  return { source: null, value: '' };
+  const field = readTextField(row, name, { fallbackCell: cell });
+  return { source: field.source, value: field.value };
 }
 
 function hasItemField(row, name) {
