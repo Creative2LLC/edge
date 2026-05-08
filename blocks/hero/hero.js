@@ -7,6 +7,7 @@ import {
 
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
 const IMAGE_EXT_RE = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?(#.*)?$/i;
+const AEM_PUBLISH_ASSET_ORIGIN = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
 const HERO_FIELD_INDEX = {
   variant: 0,
@@ -108,6 +109,37 @@ async function getVideoUrlFromResourceJson(block) {
   } catch (error) {
     return '';
   }
+}
+
+function isAemPageHost(hostname = window.location.hostname) {
+  return hostname.endsWith('.aem.page') || hostname.endsWith('.aem.live');
+}
+
+function getAssetOrigin() {
+  if (window.location.hostname.includes('adobeaemcloud.com')) {
+    return window.location.origin;
+  }
+  return AEM_PUBLISH_ASSET_ORIGIN;
+}
+
+function resolveVideoPlaybackUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+
+  try {
+    const url = new URL(raw, window.location.origin);
+    if (!url.pathname.startsWith('/content/dam/')) return raw;
+    if (url.hostname.includes('adobeaemcloud.com')) return url.toString();
+    if (url.origin === window.location.origin || isAemPageHost(url.hostname)) {
+      return new URL(`${url.pathname}${url.search}${url.hash}`, getAssetOrigin()).toString();
+    }
+  } catch (error) {
+    if (raw.startsWith('/content/dam/')) {
+      return `${getAssetOrigin()}${raw}`;
+    }
+  }
+
+  return raw;
 }
 
 function getRowCells(block) {
@@ -849,7 +881,7 @@ async function extractVideoUrl(block) {
 function buildVideoElement(url, posterUrl) {
   const video = document.createElement('video');
   video.className = 'hero-video';
-  video.src = url;
+  video.src = resolveVideoPlaybackUrl(url);
   if (posterUrl) video.poster = posterUrl;
   video.autoplay = true;
   video.loop = true;

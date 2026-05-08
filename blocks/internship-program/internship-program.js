@@ -7,6 +7,54 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
+const FIELD_INDEX = {
+  image: 0,
+  imageAlt: 1,
+  title: 2,
+  subtitle: 3,
+  sectionHeader: 4,
+  sectionText: 5,
+  card1Title: 6,
+  card1Text: 7,
+  card2Title: 8,
+  card2Text: 9,
+  bottomHeader: 10,
+  bottomText: 11,
+  buttonText: 12,
+  buttonLink: 13,
+  buttonColor: 14,
+  buttonTextColor: 15,
+  buttonStyle: 16,
+  contentBackgroundColor: 17,
+};
+
+function getRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function getFallbackCell(block, name) {
+  const row = getRows(block)[FIELD_INDEX[name]];
+  if (!row) return null;
+  if (row.children.length === 2) return row.children[1];
+  return row.children[0] || row;
+}
+
+function getTextField(block, name) {
+  return readTextField(block, name, { fallbackCell: getFallbackCell(block, name) });
+}
+
+function getRichTextField(block, name) {
+  return readRichTextField(block, name, { fallbackCell: getFallbackCell(block, name) });
+}
+
+function getLinkField(block, name) {
+  return readLinkField(block, name, { fallbackCell: getFallbackCell(block, name) });
+}
+
+function getImageField(block, name) {
+  return readImageField(block, name, { fallbackCell: getFallbackCell(block, name) });
+}
+
 function getImage(imageField) {
   const { picture } = imageField;
   if (!picture) return null;
@@ -44,26 +92,26 @@ function styleButton(btn, color, textColor, style) {
 }
 
 export default function decorate(block) {
-  const imageField = readImageField(block, 'image', 0);
+  const imageField = getImageField(block, 'image');
   const picture = getImage(imageField);
-  const imageAlt = readTextField(block, 'imageAlt', 1).value;
+  const imageAlt = getTextField(block, 'imageAlt').value;
 
-  const titleField = readTextField(block, 'title', 2);
-  const subtitleSource = readRichTextField(block, 'subtitle', 3);
-  const sectionHeaderField = readTextField(block, 'sectionHeader', 4);
-  const sectionTextSource = readRichTextField(block, 'sectionText', 5);
-  const card1TitleField = readTextField(block, 'card1Title', 6);
-  const card1TextSource = readRichTextField(block, 'card1Text', 7);
-  const card2TitleField = readTextField(block, 'card2Title', 8);
-  const card2TextSource = readRichTextField(block, 'card2Text', 9);
-  const bottomHeaderField = readTextField(block, 'bottomHeader', 10);
-  const bottomTextSource = readRichTextField(block, 'bottomText', 11);
-  const buttonTextField = readTextField(block, 'buttonText', 12);
-  const buttonLinkField = readLinkField(block, 'buttonLink', 13);
-  const buttonColorField = readTextField(block, 'buttonColor', 14);
-  const buttonTextColorField = readTextField(block, 'buttonTextColor', 15);
-  const buttonStyleField = readTextField(block, 'buttonStyle', 16);
-  const contentBgField = readTextField(block, 'contentBackgroundColor', 17);
+  const titleField = getTextField(block, 'title');
+  const subtitleSource = getRichTextField(block, 'subtitle');
+  const sectionHeaderField = getTextField(block, 'sectionHeader');
+  const sectionTextSource = getRichTextField(block, 'sectionText');
+  const card1TitleField = getTextField(block, 'card1Title');
+  const card1TextSource = getRichTextField(block, 'card1Text');
+  const card2TitleField = getTextField(block, 'card2Title');
+  const card2TextSource = getRichTextField(block, 'card2Text');
+  const bottomHeaderField = getTextField(block, 'bottomHeader');
+  const bottomTextSource = getRichTextField(block, 'bottomText');
+  const buttonTextField = getTextField(block, 'buttonText');
+  const buttonLinkField = getLinkField(block, 'buttonLink');
+  const buttonColorField = getTextField(block, 'buttonColor');
+  const buttonTextColorField = getTextField(block, 'buttonTextColor');
+  const buttonStyleField = getTextField(block, 'buttonStyle');
+  const contentBgField = getTextField(block, 'contentBackgroundColor');
 
   if (picture) {
     const img = picture.querySelector('img');

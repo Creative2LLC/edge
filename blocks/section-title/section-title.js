@@ -1,13 +1,51 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import { readLinkField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+
+const FIELD_INDEX = {
+  title: 0,
+  subtitle: 1,
+  textAlign: 2,
+  buttonText: 3,
+  buttonLink: 4,
+  buttonStyle: 5,
+  buttonColor: 6,
+  buttonTextColor: 7,
+  marginTop: 8,
+  marginBottom: 9,
+};
+
+function getRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function getIndexedFallbackCell(block, name) {
+  const row = getRows(block)[FIELD_INDEX[name]];
+  if (!row) return null;
+  if (row.children.length === 2) return row.children[1];
+  return row.children[0] || row;
+}
 
 function getField(block, name) {
-  const field = readTextField(block, name, { labels: name });
+  const field = readTextField(block, name, {
+    labels: name,
+    fallbackCell: getIndexedFallbackCell(block, name),
+  });
   return { ...field, source: field.source || field.cell };
 }
 
+function getRichField(block, name) {
+  const field = readRichTextField(block, name, {
+    labels: name,
+    fallbackCell: getIndexedFallbackCell(block, name),
+  });
+  return { ...field, source: field.source || field.cell, value: field.html || field.text };
+}
+
 function getLinkField(block, name) {
-  const field = readLinkField(block, name, { labels: name });
+  const field = readLinkField(block, name, {
+    labels: name,
+    fallbackCell: getIndexedFallbackCell(block, name),
+  });
   return { ...field, source: field.source || field.cell };
 }
 
@@ -71,7 +109,7 @@ function buildButton(block) {
 
 export default function decorate(block) {
   const titleField = getField(block, 'title');
-  const subtitleField = getField(block, 'subtitle');
+  const subtitleField = getRichField(block, 'subtitle');
   const alignField = getField(block, 'textAlign');
 
   const alignment = alignField.value || 'left';
