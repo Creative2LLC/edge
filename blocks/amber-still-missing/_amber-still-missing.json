@@ -55,8 +55,8 @@
           "valueType": "string",
           "name": "posterPagePath",
           "label": "Poster Page Path",
-          "description": "EDS page containing the Poster Results block. Poster links add a poster query parameter to this path.",
-          "value": "/missing-children-posters.html"
+          "description": "Legacy fallback page containing the Poster Results block. Live poster links use /poster/{provider}/{case}/{sequence}.",
+          "value": "/missing-children-posters"
         },
         {
           "component": "text",

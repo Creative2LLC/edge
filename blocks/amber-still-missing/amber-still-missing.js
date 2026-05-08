@@ -1,11 +1,9 @@
-import resolveSiteHref from '../../scripts/link-utils.js';
-
 const DEFAULTS = {
   intro: 'AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below.',
   heading: 'Children Still Missing from AMBER Alerts - Expand for details',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/amber-alerts/still-missing',
-  posterPagePath: '/missing-children-posters.html',
+  posterPagePath: '/missing-children-posters',
   emptyMessage: 'There are no children still missing from AMBER Alerts at this time.',
 };
 
@@ -77,10 +75,18 @@ function posterPartsFromUrl(url) {
   };
 }
 
-function posterHref(row, config) {
+function cleanPosterPath(provider, caseNumber, sequenceNumber = '1') {
+  if (!provider || !caseNumber) return '';
+
+  return `/poster/${[provider, caseNumber, sequenceNumber]
+    .map((segment) => encodeURIComponent(normalizeText(segment)))
+    .join('/')}`;
+}
+
+function posterHref(row) {
   const posterUrl = firstValue(row, ['poster_url', 'posterUrl', 'posterLink', 'poster']);
   const parts = posterPartsFromUrl(posterUrl);
-  const orgPrefix = normalizeText(firstValue(row, ['org_prefix', 'orgPrefix', 'provider']) || parts.orgPrefix || 'NCMC');
+  const orgPrefix = normalizeText(firstValue(row, ['org_prefix', 'orgPrefix', 'provider']) || parts.orgPrefix || 'NCMC').toUpperCase();
   const caseNumber = normalizeText(firstValue(row, ['case_number', 'caseNumber', 'ncmecNumber', 'ncmec']) || parts.caseNumber);
   const sequenceNumber = normalizeText(
     firstValue(row, ['sequence_number', 'sequenceNumber', 'seqNumber', 'seqNum']) || parts.sequenceNumber || '1',
@@ -88,13 +94,11 @@ function posterHref(row, config) {
 
   if (!caseNumber) return '';
 
-  const url = new URL(resolveSiteHref(config.posterPagePath), window.location.origin);
-  url.searchParams.set('poster', `${orgPrefix}/${caseNumber}/${sequenceNumber}`);
-  return `${url.pathname}${url.search}${url.hash}`;
+  return cleanPosterPath(orgPrefix, caseNumber, sequenceNumber);
 }
 
-function normalizeRow(row, config) {
-  const href = posterHref(row, config);
+function normalizeRow(row) {
+  const href = posterHref(row);
   return {
     name: normalizeText(firstValue(row, ['name', 'fullName']) || [
       row.firstName,
@@ -107,13 +111,13 @@ function normalizeRow(row, config) {
   };
 }
 
-function rowsFromPayload(payload, config) {
+function rowsFromPayload(payload) {
   const source = Array.isArray(payload?.data) ? payload.data : payload?.children;
   if (!Array.isArray(source)) return [];
 
   return source
     .filter((row) => row && typeof row === 'object')
-    .map((row) => normalizeRow(row, config))
+    .map((row) => normalizeRow(row))
     .filter((row) => row.name || row.missingState || row.missingDate || row.posterHref);
 }
 
@@ -217,7 +221,7 @@ export default async function decorate(block) {
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
-    const rows = rowsFromPayload(payload, config);
+    const rows = rowsFromPayload(payload);
     setStatus(status, '', '');
     renderTable(panel, rows, config);
   } catch (error) {

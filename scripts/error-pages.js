@@ -1,5 +1,7 @@
 import { sampleRUM } from './aem.js';
 
+const POSTER_RESULTS_PAGE = '/missing-children-posters';
+
 const ERROR_CONFIG = {
   403: {
     title: 'Access denied',
@@ -95,6 +97,63 @@ function getRequestedPath() {
   return combined;
 }
 
+function posterPathIndex(segments) {
+  if (segments[0] === 'poster') return 0;
+  if (segments[0]?.length === 2 && segments[1] === 'poster') return 1;
+  return -1;
+}
+
+function legacyPosterRequestFromPath(pathname = window.location.pathname) {
+  const normalizedPath = pathname
+    .replace(/^\/content\/edge(?=\/)/, '')
+    .replace(/\/+$/g, '')
+    .replace(/\.html$/i, '');
+  const segments = normalizedPath.split('/').filter(Boolean);
+  const posterIndex = posterPathIndex(segments);
+
+  if (posterIndex < 0) return null;
+
+  const provider = `${segments[posterIndex + 1] || ''}`.trim().toUpperCase();
+  const caseNumber = `${segments[posterIndex + 2] || ''}`.trim();
+  const sequenceOrLayout = `${segments[posterIndex + 3] || ''}`.trim();
+  if (!provider || !caseNumber) return null;
+
+  return {
+    locale: posterIndex === 1 ? segments[0] : '',
+    provider,
+    caseNumber,
+    sequenceNumber: /^\d+$/.test(sequenceOrLayout) ? sequenceOrLayout : '1',
+  };
+}
+
+function redirectLegacyPosterRequest() {
+  if (String(window.errorCode || '') !== '404') return false;
+
+  const poster = legacyPosterRequestFromPath();
+  if (!poster) return false;
+
+  let targetPath = POSTER_RESULTS_PAGE;
+  if (window.location.pathname.startsWith('/content/edge/')) {
+    targetPath = `/content/edge${POSTER_RESULTS_PAGE}.html`;
+  } else if (poster.locale === 'es') {
+    targetPath = `/es${POSTER_RESULTS_PAGE}`;
+  }
+  const target = new URL(targetPath, window.location.origin);
+  new URLSearchParams(window.location.search).forEach((value, key) => {
+    target.searchParams.set(key, value);
+  });
+
+  if (poster.provider.toUpperCase() === 'AMBER') {
+    target.searchParams.set('amber_case', poster.caseNumber);
+    target.searchParams.set('seq', poster.sequenceNumber);
+  } else {
+    target.searchParams.set('poster', `${poster.provider}/${poster.caseNumber}/${poster.sequenceNumber}`);
+  }
+
+  window.location.replace(`${target.pathname}${target.search}${window.location.hash}`);
+  return true;
+}
+
 function createLinkAction(href, label, secondary = false) {
   const link = document.createElement('a');
   link.className = 'error-page-action';
@@ -168,6 +227,8 @@ function updateHead(config) {
 }
 
 function initErrorPage() {
+  if (redirectLegacyPosterRequest()) return;
+
   const root = document.querySelector('[data-error-page]');
   if (!root) return;
 

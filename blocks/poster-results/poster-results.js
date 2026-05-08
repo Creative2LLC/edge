@@ -10,6 +10,8 @@ const DEFAULTS = {
   qrCodeLabel: 'this QR Code',
 };
 
+const POSTER_RESULTS_PAGE_PATH = '/missing-children-posters';
+
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
   eyebrow: ['eyebrow', 'label'],
@@ -299,20 +301,45 @@ function posterReference(person) {
     .join('/');
 }
 
+function cleanPosterPath(provider, caseNumber, seqNumber = '1') {
+  if (!provider || !caseNumber) return '';
+
+  return `/poster/${[provider, caseNumber, seqNumber]
+    .map((segment) => encodeURIComponent(normalizeText(segment)))
+    .join('/')}`;
+}
+
 function posterDetailUrl(person) {
-  const url = new URL(window.location.href);
-  url.search = '';
-  url.hash = '';
-  url.searchParams.set('poster', posterReference(person));
-  return `${url.pathname}${url.search}`;
+  const [provider, caseNumber, seqNumber = '1'] = posterReference(person).split('/');
+  return cleanPosterPath(provider?.toUpperCase(), caseNumber, seqNumber);
 }
 
 function posterSearchUrl() {
-  const url = new URL(window.location.href);
-  ['poster', 'amber_case', 'seq', 'person_id', 'name', 'provider', 'case', 'num'].forEach((key) => {
-    url.searchParams.delete(key);
-  });
-  return `${url.pathname}${url.search}${url.hash}`;
+  return POSTER_RESULTS_PAGE_PATH;
+}
+
+function canonicalPosterPath(directRequest) {
+  if (!directRequest) return '';
+
+  if (directRequest.type === 'amber') {
+    return cleanPosterPath('AMBER', directRequest.caseNumber, directRequest.seqNumber || '1');
+  }
+
+  return cleanPosterPath(
+    directRequest.provider?.toUpperCase(),
+    directRequest.caseNumber,
+    directRequest.num || '1',
+  );
+}
+
+function replaceWithCanonicalPosterUrl(directRequest) {
+  const canonicalPath = canonicalPosterPath(directRequest);
+  if (!canonicalPath || !window.history?.replaceState) return;
+
+  const canonicalUrl = `${canonicalPath}${window.location.hash}`;
+  if (`${window.location.pathname}${window.location.hash}` !== canonicalUrl || window.location.search) {
+    window.history.replaceState(null, '', canonicalUrl);
+  }
 }
 
 function sequenceNumber(person) {
@@ -809,12 +836,61 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   appendPhotoGallery(detail, alert, name);
 }
 
+function posterPathIndex(segments) {
+  if (segments[0] === 'poster') return 0;
+  if (segments[0]?.length === 2 && segments[1] === 'poster') return 1;
+  return -1;
+}
+
+function legacyPosterPathRequest() {
+  const normalizedPath = window.location.pathname
+    .replace(/^\/content\/edge(?=\/)/, '')
+    .replace(/\/+$/g, '')
+    .replace(/\.html$/i, '');
+  const segments = normalizedPath.split('/').filter(Boolean);
+  const posterIndex = posterPathIndex(segments);
+
+  if (posterIndex < 0) return null;
+
+  const provider = normalizeText(segments[posterIndex + 1]).toUpperCase();
+  const caseNumber = normalizeText(segments[posterIndex + 2]);
+  const sequenceOrLayout = normalizeText(segments[posterIndex + 3]);
+  if (!provider || !caseNumber) return null;
+
+  const seqNumber = /^\d+$/.test(sequenceOrLayout) ? sequenceOrLayout : '1';
+  const type = provider.toUpperCase() === 'AMBER' ? 'amber' : 'poster';
+
+  if (type === 'amber') {
+    return {
+      type,
+      caseNumber,
+      seqNumber,
+    };
+  }
+
+  return {
+    type,
+    provider,
+    caseNumber,
+    num: seqNumber,
+  };
+}
+
 function directPosterRequest() {
   const params = new URLSearchParams(window.location.search);
   const poster = normalizeText(params.get('poster'));
   if (poster) {
-    const [provider, caseNumber, num = '1'] = poster.split('/').map(normalizeText);
+    const [rawProvider, caseNumber, num = '1'] = poster.split('/').map(normalizeText);
+    const provider = rawProvider.toUpperCase();
     if (provider && caseNumber) {
+      if (provider.toUpperCase() === 'AMBER') {
+        return {
+          type: 'amber',
+          caseNumber,
+          seqNumber: num,
+        };
+      }
+
       return {
         type: 'poster',
         provider,
@@ -846,7 +922,7 @@ function directPosterRequest() {
     };
   }
 
-  return null;
+  return legacyPosterPathRequest();
 }
 
 function enterDirectPosterPage(block) {
@@ -1064,6 +1140,7 @@ export default async function decorate(block) {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const payload = await response.json();
         setStatus(status, '', '');
+        replaceWithCanonicalPosterUrl(directRequest);
         renderAmberPosterDetail(results, meta, payload, {
           caseNumber: directRequest.caseNumber,
           seqNumber: directRequest.seqNumber,
@@ -1087,6 +1164,7 @@ export default async function decorate(block) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       setStatus(status, '', '');
+      replaceWithCanonicalPosterUrl(directRequest);
       renderPosterDetail(results, meta, payload, config, () => window.history.back());
       return;
     } catch (error) {

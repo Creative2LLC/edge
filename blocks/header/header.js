@@ -10,7 +10,7 @@ import { loadFragment } from '../fragment/fragment.js';
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 260;
-const POSTER_LISTING_PATH = '/missing-children-posters.html';
+const POSTER_LISTING_PATH = '/missing-children-posters';
 const CYBERTIPLINE_DATA_PATH = '/content/edge/data-and-impact/cybertipline-data.html';
 
 function clearTransitionTimer(element, key) {

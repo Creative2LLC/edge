@@ -46,8 +46,8 @@
           "component": "text",
           "valueType": "string",
           "name": "posterPagePath",
-          "label": "Poster Detail Page Path",
-          "value": "/missing-children-posters.html"
+          "label": "Legacy Poster Detail Page Path",
+          "value": "/missing-children-posters"
         },
         {
           "component": "text",

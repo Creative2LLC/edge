@@ -1,5 +1,3 @@
-import resolveSiteHref from '../../scripts/link-utils.js';
-
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
   eyebrow: 'AMBER Alert',
@@ -8,7 +6,7 @@ const DEFAULTS = {
   state: '',
   emptyMessage: 'There are no AMBER Alerts at this time.',
   detailLabel: 'View alert',
-  posterPagePath: '/missing-children-posters.html',
+  posterPagePath: '/missing-children-posters',
   disclosure: 'Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster.',
 };
 
@@ -200,13 +198,16 @@ function appendDetailRows(list, rows) {
   });
 }
 
-function posterPageUrl(alert, config) {
-  const url = new URL(resolveSiteHref(config.posterPagePath), window.location.origin);
-  url.searchParams.set('amber_case', caseNumber(alert));
-  if (sequenceNumber(alert)) url.searchParams.set('seq', sequenceNumber(alert));
-  if (personId(alert)) url.searchParams.set('person_id', personId(alert));
-  if (alertName(alert)) url.searchParams.set('name', alertName(alert));
-  return `${url.pathname}${url.search}${url.hash}`;
+function cleanPosterPath(provider, caseNumberValue, sequenceNumberValue = '1') {
+  if (!provider || !caseNumberValue) return '';
+
+  return `/poster/${[provider, caseNumberValue, sequenceNumberValue]
+    .map((segment) => encodeURIComponent(normalizeText(segment)))
+    .join('/')}`;
+}
+
+function posterPageUrl(alert) {
+  return cleanPosterPath('AMBER', caseNumber(alert), sequenceNumber(alert) || '1');
 }
 
 function createAlertCard(alert, config, onSelect) {
@@ -256,7 +257,7 @@ function createAlertCard(alert, config, onSelect) {
 
   if (caseNumber(alert)) {
     const poster = document.createElement('a');
-    poster.href = posterPageUrl(alert, config);
+    poster.href = posterPageUrl(alert);
     poster.target = '_blank';
     poster.rel = 'noopener noreferrer';
     poster.className = 'amber-alerts-card-secondary';

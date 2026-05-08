@@ -1,11 +1,10 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import resolveSiteHref from '../../scripts/link-utils.js';
 
 const DEFAULTS = {
   findHeading: 'Find Cases',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/case-anniversaries',
-  posterPagePath: '/missing-children-posters.html',
+  posterPagePath: '/missing-children-posters',
   timeframe: 'thisWeek',
   pageSize: 8,
   searchPlaceholder: 'Search',
@@ -130,14 +129,19 @@ function posterParts(item) {
   };
 }
 
-function posterHref(item, config) {
+function cleanPosterPath(provider, caseNumber, sequenceNumber = '1') {
+  if (!provider || !caseNumber) return '';
+
+  return `/poster/${[provider, caseNumber, sequenceNumber]
+    .map((segment) => encodeURIComponent(normalizeText(segment)))
+    .join('/')}`;
+}
+
+function posterHref(item) {
   const parts = posterParts(item);
   if (!parts.caseNumber) return '';
 
-  const url = new URL(resolveSiteHref(config.posterPagePath), window.location.origin);
-  url.searchParams.set('poster', `${parts.orgPrefix}/${parts.caseNumber}/${parts.sequenceNumber}`);
-
-  return `${url.pathname}${url.search}`;
+  return cleanPosterPath(parts.orgPrefix.toUpperCase(), parts.caseNumber, parts.sequenceNumber);
 }
 
 function isExternalUrl(src) {
@@ -259,13 +263,13 @@ function createChip(label, onRemove) {
   return chip;
 }
 
-function buildCard(item, config) {
+function buildCard(item) {
   const card = document.createElement('article');
   card.className = 'case-anniversaries-card';
 
   const imageUrl = normalizeText(item.image_url || item.thumbnail_url);
   const name = normalizeText(item.name || item.fullName) || 'Missing Child';
-  const href = posterHref(item, config);
+  const href = posterHref(item);
 
   const media = document.createElement('div');
   media.className = 'case-anniversaries-card-media';
@@ -558,7 +562,7 @@ export default async function decorate(block) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
 
-      (payload.data || []).forEach((item) => layout.grid.append(buildCard(item, config)));
+      (payload.data || []).forEach((item) => layout.grid.append(buildCard(item)));
       state.page = payload.meta?.current_page || 1;
       state.lastPage = payload.meta?.last_page || 1;
       state.total = payload.meta?.total ?? payload.total_records ?? layout.grid.children.length;
