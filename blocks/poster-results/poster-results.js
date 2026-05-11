@@ -1261,7 +1261,7 @@ export default async function decorate(block) {
   const backToSearch = document.createElement('button');
   backToSearch.type = 'button';
   backToSearch.className = 'poster-results-back-to-search';
-  backToSearch.textContent = 'Back to top of search';
+  backToSearch.textContent = 'Top of search';
   backToSearch.hidden = true;
   backToSearch.addEventListener('click', () => {
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });

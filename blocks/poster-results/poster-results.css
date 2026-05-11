@@ -137,20 +137,26 @@
 }
 
 .poster-results-back-to-search {
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 20;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  margin: 0 0 16px;
+  min-height: 34px;
+  max-width: calc(100vw - 36px);
   border: 1px solid #c7d1d8;
-  border-radius: 6px;
+  border-radius: 999px;
   background: #fff;
   color: #243846;
   cursor: pointer;
   font: inherit;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 800;
-  padding: 0 16px;
+  line-height: 1;
+  padding: 0 12px;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 16%);
 }
 
 .poster-results-back-to-search[hidden] {
