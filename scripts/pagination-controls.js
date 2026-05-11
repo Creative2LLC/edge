@@ -1,7 +1,9 @@
 export function normalizePaginationMode(value, fallback = 'load-more') {
   const normalized = `${value || ''}`.trim().toLowerCase();
   if (!normalized) return fallback;
-  if (normalized.includes('page')) return 'pagination';
+  if (normalized === 'pagination' || normalized.includes('paginat') || normalized.includes('page')) {
+    return 'pagination';
+  }
   return 'load-more';
 }
 
