@@ -11,7 +11,6 @@ import { loadFragment } from '../fragment/fragment.js';
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 260;
-const POSTER_LISTING_PATH = '/missing-children-posters';
 const CYBERTIPLINE_DATA_PATH = '/content/edge/data-and-impact/cybertipline-data.html';
 const FALLBACK_BRAND_LOGO = new URL('./ncmec-brand-mark.svg', import.meta.url).href;
 
@@ -852,11 +851,10 @@ function decorateTopBanner(section) {
   const languageList = lists[1];
 
   linksList.classList.add('top-banner-links');
+  applyNavLinkOverrides(linksList);
   linksList.querySelectorAll('a').forEach((link) => {
     const label = link.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
-    if (label === 'amber alerts' || label === 'missing posters') {
-      link.href = resolveSiteHref(POSTER_LISTING_PATH);
-    } else if (label === 'cybertipline') {
+    if (label === 'cybertipline') {
       link.href = resolveSiteHref(CYBERTIPLINE_DATA_PATH);
     }
   });
@@ -2142,8 +2140,6 @@ export default async function decorate(block) {
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
-    applyNavLinkOverrides(navSections);
-
     const megaBlocks = [...nav.querySelectorAll(
       '.mega-nav, .mega-nav-parent-link, [data-block-name="mega-nav-parent-link"]',
     )];
