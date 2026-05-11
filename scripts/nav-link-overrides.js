@@ -28,6 +28,17 @@ function updateExistingLinks(root) {
     if (!config) return;
     link.href = config.href;
   });
+
+  root.querySelectorAll('li').forEach((item) => {
+    if (item.querySelector('a')) return;
+    const config = matchingLinkConfig(item.textContent);
+    if (!config) return;
+
+    const link = document.createElement('a');
+    link.href = config.href;
+    while (item.firstChild) link.append(item.firstChild);
+    item.append(link);
+  });
 }
 
 function createCaseAnniversariesItem(templateItem) {
