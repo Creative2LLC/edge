@@ -1,5 +1,10 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
+  createPaginationControls,
+  isPaginationMode,
+  normalizePaginationMode,
+} from '../../scripts/pagination-controls.js';
+import {
   getBlockRows,
   readImageField,
   readLinkField,
@@ -15,6 +20,7 @@ const DEFAULTS = {
   pageSize: 8,
   searchPlaceholder: 'Search',
   loadMoreText: 'Load More',
+  paginationMode: 'load-more',
   emptyMessage: 'No case anniversaries match your current filters.',
 };
 
@@ -29,6 +35,7 @@ const FIELD_LABELS = {
   pageSize: ['page size', 'items per page', 'limit'],
   searchPlaceholder: ['search placeholder', 'placeholder'],
   loadMoreText: ['load more text', 'load more'],
+  paginationMode: ['pagination mode', 'display mode', 'results mode'],
   emptyMessage: ['empty message'],
 };
 
@@ -41,7 +48,8 @@ const FIELD_COLUMN_INDEX = {
   pageSize: 5,
   searchPlaceholder: 6,
   loadMoreText: 7,
-  emptyMessage: 8,
+  paginationMode: 8,
+  emptyMessage: 9,
 };
 
 function normalizeText(value) {
@@ -445,7 +453,8 @@ function buildShell(config) {
   loadMore.type = 'button';
   loadMore.className = 'case-anniversaries-load-more';
   loadMore.textContent = config.loadMoreText;
-  footer.append(loadMore);
+  const pagination = createPaginationControls('case-anniversaries', 'Case anniversaries pagination');
+  footer.append(loadMore, pagination.nav);
   listing.append(status, grid, empty, footer);
   inner.append(listing);
 
@@ -465,6 +474,7 @@ function buildShell(config) {
     grid,
     empty,
     loadMore,
+    pagination,
   };
 }
 
@@ -486,8 +496,10 @@ export default async function decorate(block) {
     pageSize: parseIntSafe(getFieldValue(block, 'pageSize', DEFAULTS.pageSize), DEFAULTS.pageSize),
     searchPlaceholder: getFieldValue(block, 'searchPlaceholder', DEFAULTS.searchPlaceholder),
     loadMoreText: getFieldValue(block, 'loadMoreText', DEFAULTS.loadMoreText),
+    paginationMode: normalizePaginationMode(getFieldValue(block, 'paginationMode', DEFAULTS.paginationMode)),
     emptyMessage: getFieldValue(block, 'emptyMessage', DEFAULTS.emptyMessage),
   };
+  const usePagination = isPaginationMode(config.paginationMode);
 
   const layout = buildShell(config);
   const state = {
@@ -546,7 +558,19 @@ export default async function decorate(block) {
   applyResultView(layout.grid, layout.viewButtons, state.view);
   applyTimeframe(layout.timeframeButtons, state.timeframe);
 
-  loadCases = async (reset = false) => {
+  const updatePagination = () => {
+    if (!usePagination) {
+      layout.pagination.nav.hidden = true;
+      return;
+    }
+    layout.pagination.update({
+      page: state.page,
+      lastPage: state.lastPage,
+      onPage: (page) => loadCases(true, page),
+    });
+  };
+
+  loadCases = async (reset = false, targetPage = null) => {
     if (state.loading || !config.apiBaseUrl) return;
     if (reset) {
       state.page = 0;
@@ -557,13 +581,16 @@ export default async function decorate(block) {
 
     state.loading = true;
     layout.loadMore.disabled = true;
+    layout.pagination.nav.querySelectorAll('button').forEach((button) => {
+      button.disabled = true;
+    });
     setStatus(layout.status, 'Loading case anniversaries...', 'loading');
 
     try {
       const url = new URL(config.endpointPath, `${config.apiBaseUrl}/`);
       url.searchParams.set('timeframe', state.timeframe);
       url.searchParams.set('per_page', String(config.pageSize));
-      url.searchParams.set('page', String(reset ? 1 : state.page + 1));
+      url.searchParams.set('page', String(targetPage || (reset ? 1 : state.page + 1)));
       if (state.filters.search) url.searchParams.set('search', state.filters.search);
       if (state.filters.state) url.searchParams.set('state', state.filters.state);
       if (state.filters.caseType) url.searchParams.set('case_type', state.filters.caseType);
@@ -573,6 +600,7 @@ export default async function decorate(block) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
 
+      if (usePagination) layout.grid.replaceChildren();
       (payload.data || []).forEach((item) => layout.grid.append(buildCard(item)));
       state.page = payload.meta?.current_page || 1;
       state.lastPage = payload.meta?.last_page || 1;
@@ -580,14 +608,22 @@ export default async function decorate(block) {
       updateFilterOptions(payload.filters || {});
       updateActiveFilters();
 
-      const shown = layout.grid.children.length;
+      let shownStart = state.total ? 1 : 0;
+      if (state.total && usePagination) {
+        shownStart = ((state.page - 1) * config.pageSize) + 1;
+      }
+      const shownEnd = usePagination
+        ? Math.min(state.page * config.pageSize, state.total)
+        : layout.grid.children.length;
       layout.count.textContent = state.total
-        ? `Showing ${shown} of ${state.total} resources`
-        : 'Showing 0 resources';
-      layout.empty.hidden = shown > 0;
-      layout.loadMore.hidden = state.page >= state.lastPage || state.total === 0;
+        ? `Showing ${shownStart}-${shownEnd} of ${state.total} case anniversaries`
+        : 'Showing 0 case anniversaries';
+      layout.empty.hidden = layout.grid.children.length > 0;
+      layout.loadMore.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
+      updatePagination();
       setStatus(layout.status, '', '');
     } catch (error) {
+      layout.pagination.nav.hidden = true;
       setStatus(layout.status, 'Case anniversaries are unavailable.', 'error');
     } finally {
       state.loading = false;

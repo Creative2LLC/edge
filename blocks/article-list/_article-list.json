@@ -47,12 +47,6 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "filters",
-          "label": "Preset Filters (audiences/issues/types/tags)"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
           "name": "pageSize",
           "label": "Items Per Page",
           "value": "9"
@@ -70,6 +64,22 @@
           "name": "loadMoreText",
           "label": "Load More Label",
           "value": "Load More Articles"
+        },
+        {
+          "component": "select",
+          "name": "paginationMode",
+          "label": "Results Navigation",
+          "options": [
+            {
+              "name": "Load More",
+              "value": "load-more"
+            },
+            {
+              "name": "Pagination",
+              "value": "pagination"
+            }
+          ],
+          "value": "load-more"
         },
         {
           "component": "text",

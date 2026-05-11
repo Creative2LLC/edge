@@ -309,6 +309,8 @@
 
 .site-search .site-search-footer {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   justify-content: center;
 }
 
@@ -319,17 +321,54 @@
   font-weight: 700;
 }
 
+.site-search .site-search-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-search .site-search-pagination[hidden] {
+  display: none;
+}
+
+.site-search .site-search-pagination-label {
+  color: var(--site-search-text);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.site-search .site-search-pagination-button {
+  padding: 10px 16px;
+  border: 1px solid rgb(19 54 84 / 18%);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--site-search-text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
 .site-search .site-search-card-link:hover,
 .site-search .site-search-load-more:hover {
   background: var(--site-search-accent-hover);
 }
 
+.site-search .site-search-pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .site-search .site-search-search:focus-visible,
 .site-search .site-search-view-button:focus-visible,
 .site-search .site-search-load-more:focus-visible,
+.site-search .site-search-pagination-button:focus-visible,
 .site-search .site-search-card-link:focus-visible {
   outline: 3px solid rgb(0 141 182 / 25%);
   outline-offset: 2px;
+}
+
+.site-search .site-search-pagination-button:hover:not(:disabled) {
+  background: rgb(0 141 182 / 8%);
 }
 
 @media (width < 960px) {

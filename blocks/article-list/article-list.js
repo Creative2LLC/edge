@@ -7,6 +7,11 @@ import {
   normalizeListSort,
 } from '../../scripts/list-sort.js';
 import {
+  createPaginationControls,
+  isPaginationMode,
+  normalizePaginationMode,
+} from '../../scripts/pagination-controls.js';
+import {
   getBlockRows,
   readLinkField,
   readTextField,
@@ -21,6 +26,7 @@ const FIELD_LABELS = {
   pageSize: ['page size', 'items per page', 'limit', 'initial count'],
   searchPlaceholder: ['search placeholder', 'placeholder'],
   loadMoreText: ['load more text', 'load more'],
+  paginationMode: ['pagination mode', 'display mode', 'results mode'],
   audiencePreset: ['audience preset', 'preset audience', 'default audience'],
   issuePreset: ['issue preset', 'preset issue', 'default issue'],
   typePreset: ['type preset', 'preset type', 'default type'],
@@ -36,10 +42,11 @@ const FIELD_COLUMN_INDEX = {
   pageSize: 5,
   searchPlaceholder: 6,
   loadMoreText: 7,
-  audiencePreset: 8,
-  issuePreset: 9,
-  typePreset: 10,
-  tagPreset: 11,
+  paginationMode: 8,
+  audiencePreset: 9,
+  issuePreset: 10,
+  typePreset: 11,
+  tagPreset: 12,
 };
 
 function normalizeText(value) { return `${value || ''}`.trim(); }
@@ -460,7 +467,8 @@ function buildShell(config) {
   loadMoreButton.className = 'article-list-load-more';
   loadMoreButton.type = 'button';
   loadMoreButton.textContent = config.loadMoreText;
-  footer.append(loadMoreButton);
+  const pagination = createPaginationControls('article-list', 'Article results pagination');
+  footer.append(loadMoreButton, pagination.nav);
   inner.append(cardsContainer, emptyState, footer);
 
   return {
@@ -478,6 +486,7 @@ function buildShell(config) {
     cardsContainer,
     emptyState,
     loadMoreButton,
+    pagination,
   };
 }
 
@@ -498,7 +507,9 @@ async function renderApiList(block, config) {
     cardsContainer,
     emptyState,
     loadMoreButton,
+    pagination,
   } = layout;
+  const usePagination = isPaginationMode(config.paginationMode);
   const selected = splitSelectedArticles(parseList(config.selectedField));
   const excluded = parseList(config.excludeField);
   const state = {
@@ -610,6 +621,7 @@ async function renderApiList(block, config) {
     syncSortControl();
   };
   let refreshArticles = () => {};
+  let loadArticles = async () => {};
   const applyFacetValue = (facet, rawValue) => {
     const value = normalizeToken(rawValue);
     if (!value) return;
@@ -647,7 +659,19 @@ async function renderApiList(block, config) {
     clearAllButton.hidden = !facets.length && !state.query.trim();
   };
 
-  async function loadArticles(reset = false) {
+  const updatePagination = () => {
+    if (!usePagination) {
+      pagination.nav.hidden = true;
+      return;
+    }
+    pagination.update({
+      page: state.page,
+      lastPage: state.lastPage,
+      onPage: (page) => loadArticles(true, page),
+    });
+  };
+
+  loadArticles = async (reset = false, targetPage = null) => {
     if (state.loading) return;
     if (reset) {
       state.page = 0;
@@ -659,10 +683,13 @@ async function renderApiList(block, config) {
     state.loading = true;
     if (!cardsContainer.children.length) count.textContent = 'Loading articles...';
     loadMoreButton.disabled = true;
+    pagination.nav.querySelectorAll('button').forEach((button) => {
+      button.disabled = true;
+    });
 
     const url = new URL('/api/articles', `${config.apiBaseUrl}/`);
     url.searchParams.set('per_page', String(config.pageSize));
-    url.searchParams.set('page', String(reset ? 1 : state.page + 1));
+    url.searchParams.set('page', String(targetPage || (reset ? 1 : state.page + 1)));
     if (state.query.trim()) url.searchParams.set('search', state.query.trim());
     if (state.hasExplicitSort && state.sort) url.searchParams.set('sort', state.sort);
     state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
@@ -678,6 +705,7 @@ async function renderApiList(block, config) {
     });
     if (!response.ok) throw new Error(`API request failed with HTTP ${response.status}.`);
     const payload = await response.json();
+    if (usePagination) cardsContainer.replaceChildren();
     const startIndex = cardsContainer.children.length;
     (payload.data || []).forEach((article, index) => {
       cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue));
@@ -690,13 +718,20 @@ async function renderApiList(block, config) {
     updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
     renderActiveFilters();
 
-    const shown = cardsContainer.children.length;
-    count.textContent = state.total ? `Showing ${shown} of ${state.total} articles` : 'Showing 0 articles';
-    emptyState.hidden = shown > 0;
-    loadMoreButton.hidden = state.page >= state.lastPage || state.total === 0;
+    let shownStart = state.total ? 1 : 0;
+    if (state.total && usePagination) {
+      shownStart = ((state.page - 1) * config.pageSize) + 1;
+    }
+    const shownEnd = usePagination
+      ? Math.min(state.page * config.pageSize, state.total)
+      : cardsContainer.children.length;
+    count.textContent = state.total ? `Showing ${shownStart}-${shownEnd} of ${state.total} articles` : 'Showing 0 articles';
+    emptyState.hidden = cardsContainer.children.length > 0;
+    loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
     loadMoreButton.disabled = false;
     state.loading = false;
-  }
+    updatePagination();
+  };
 
   refreshArticles = loadArticles;
 
@@ -778,6 +813,7 @@ export default async function decorate(block) {
       'loadMoreText',
       'Load More Articles',
     ) || 'Load More Articles',
+    paginationMode: normalizePaginationMode(getFieldValue(block, 'paginationMode', 'load-more')),
     defaultView: 'grid',
     audiencePreset: getFieldValue(block, 'audiencePreset') || filters.audience.join(', '),
     issuePreset: getFieldValue(block, 'issuePreset') || filters.issue.join(', '),

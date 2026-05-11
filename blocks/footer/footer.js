@@ -1,4 +1,5 @@
 import { decorateIcons, getMetadata } from '../../scripts/aem.js';
+import applyNavLinkOverrides from '../../scripts/nav-link-overrides.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 const SOCIAL_DEFINITIONS = {
@@ -285,6 +286,7 @@ export default async function decorate(block) {
   footer.className = 'footer-content';
   while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
 
+  applyNavLinkOverrides(footer);
   decorateFlexibleColumns(footer);
   decorateIcons(footer);
 

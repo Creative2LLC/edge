@@ -55,6 +55,22 @@
           "value": "Load More Results"
         },
         {
+          "component": "select",
+          "name": "paginationMode",
+          "label": "Results Navigation",
+          "options": [
+            {
+              "name": "Load More",
+              "value": "load-more"
+            },
+            {
+              "name": "Pagination",
+              "value": "pagination"
+            }
+          ],
+          "value": "load-more"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "emptyStateHeading",

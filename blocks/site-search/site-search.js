@@ -9,6 +9,11 @@ import {
 import getSiteSearchConfig from '../../scripts/site-search-config.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import {
+  createPaginationControls,
+  isPaginationMode,
+  normalizePaginationMode,
+} from '../../scripts/pagination-controls.js';
+import {
   getBlockRows,
   readLinkField,
   readTextField,
@@ -20,6 +25,7 @@ const FIELD_LABELS = {
   pageSize: ['page size', 'items per page', 'limit'],
   searchPlaceholder: ['search placeholder', 'placeholder'],
   loadMoreText: ['load more text', 'load more'],
+  paginationMode: ['pagination mode', 'display mode', 'results mode'],
   emptyStateHeading: ['empty state heading', 'empty heading'],
   emptyStateCopy: ['empty state copy', 'empty copy'],
 };
@@ -30,8 +36,9 @@ const FIELD_COLUMN_INDEX = {
   pageSize: 2,
   searchPlaceholder: 3,
   loadMoreText: 4,
-  emptyStateHeading: 5,
-  emptyStateCopy: 6,
+  paginationMode: 5,
+  emptyStateHeading: 6,
+  emptyStateCopy: 7,
 };
 
 function normalizeText(value) {
@@ -301,7 +308,8 @@ function buildShell(config) {
   loadMoreButton.className = 'site-search-load-more';
   loadMoreButton.type = 'button';
   loadMoreButton.textContent = config.loadMoreText;
-  footer.append(loadMoreButton);
+  const pagination = createPaginationControls('site-search', 'Search results pagination');
+  footer.append(loadMoreButton, pagination.nav);
   inner.append(cardsContainer, message, footer);
 
   return {
@@ -314,6 +322,7 @@ function buildShell(config) {
     messageHeading,
     messageCopy,
     loadMoreButton,
+    pagination,
   };
 }
 
@@ -329,7 +338,9 @@ async function renderSearch(block, config) {
     messageHeading,
     messageCopy,
     loadMoreButton,
+    pagination,
   } = layout;
+  const usePagination = isPaginationMode(config.paginationMode);
 
   const initialState = readSearchState();
   const state = {
@@ -356,13 +367,26 @@ async function renderSearch(block, config) {
     });
   };
 
-  loadResults = async (reset = false) => {
+  const updatePagination = () => {
+    if (!usePagination) {
+      pagination.nav.hidden = true;
+      return;
+    }
+    pagination.update({
+      page: state.page,
+      lastPage: state.lastPage,
+      onPage: (page) => loadResults(true, page),
+    });
+  };
+
+  loadResults = async (reset = false, targetPage = null) => {
     if (state.loading) return;
 
     if (!state.query.trim()) {
       cardsContainer.replaceChildren();
       count.textContent = '';
       loadMoreButton.hidden = true;
+      pagination.nav.hidden = true;
       updateMessage('Start searching', 'Enter a keyword above to search the site.');
       return;
     }
@@ -375,16 +399,21 @@ async function renderSearch(block, config) {
 
     state.loading = true;
     loadMoreButton.disabled = true;
+    pagination.nav.querySelectorAll('button').forEach((button) => {
+      button.disabled = true;
+    });
     if (!cardsContainer.children.length) updateMessage('Searching...', '');
 
     try {
+      const nextPage = targetPage || (reset ? 1 : state.page + 1);
       const payload = await fetchSiteSearch({
         apiBaseUrl: config.apiBaseUrl,
         query: state.query,
-        page: reset ? 1 : state.page + 1,
+        page: nextPage,
         perPage: config.pageSize,
       });
 
+      if (usePagination) cardsContainer.replaceChildren();
       const startIndex = cardsContainer.children.length;
       (payload.data || []).forEach((result, index) => {
         cardsContainer.append(buildResultCard(result, startIndex + index));
@@ -393,8 +422,15 @@ async function renderSearch(block, config) {
       state.page = payload.meta?.current_page || 1;
       state.lastPage = payload.meta?.last_page || 1;
       state.total = payload.meta?.total ?? cardsContainer.children.length;
+      let shownStart = state.total ? 1 : 0;
+      if (state.total && usePagination) {
+        shownStart = ((state.page - 1) * config.pageSize) + 1;
+      }
+      const shownEnd = usePagination
+        ? Math.min(state.page * config.pageSize, state.total)
+        : cardsContainer.children.length;
       count.textContent = state.total
-        ? `Showing ${cardsContainer.children.length} of ${state.total} results`
+        ? `Showing ${shownStart}-${shownEnd} of ${state.total} results`
         : 'Showing 0 results';
 
       if (cardsContainer.children.length) {
@@ -406,16 +442,19 @@ async function renderSearch(block, config) {
         );
       }
 
-      loadMoreButton.hidden = state.page >= state.lastPage || state.total === 0;
+      loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
+      updatePagination();
     } catch (error) {
       cardsContainer.replaceChildren();
       count.textContent = '';
       loadMoreButton.hidden = true;
+      pagination.nav.hidden = true;
       updateMessage('Search unavailable', error?.message || 'The search API request failed.');
     }
 
     loadMoreButton.disabled = false;
     state.loading = false;
+    updatePagination();
   };
 
   searchInput.value = state.query;
@@ -470,6 +509,7 @@ export default async function decorate(block) {
       siteSearchConfig.placeholder || getMetadata('search-placeholder') || 'Search the site',
     ) || 'Search the site',
     loadMoreText: getFieldValue(block, 'loadMoreText', 'Load More Results') || 'Load More Results',
+    paginationMode: normalizePaginationMode(getFieldValue(block, 'paginationMode', 'load-more')),
     emptyStateHeading: getFieldValue(block, 'emptyStateHeading', 'No results found') || 'No results found',
     emptyStateCopy: getFieldValue(block, 'emptyStateCopy', 'Try a different keyword or phrase.') || 'Try a different keyword or phrase.',
   };

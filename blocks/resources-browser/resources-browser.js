@@ -9,6 +9,11 @@ import {
   sortListItems,
 } from '../../scripts/list-sort.js';
 import {
+  createPaginationControls,
+  isPaginationMode,
+  normalizePaginationMode,
+} from '../../scripts/pagination-controls.js';
+import {
   getFieldSelector,
   readImageField,
   readLinkField,
@@ -22,6 +27,7 @@ const LEGACY_BLOCK_LABELS = {
   pageSize: ['page size', 'items per page', 'limit', 'initial count'],
   searchPlaceholder: ['search placeholder', 'placeholder'],
   loadMoreText: ['load more text', 'load more'],
+  paginationMode: ['pagination mode', 'display mode', 'results mode'],
   audiencePreset: ['audience preset', 'preset audience', 'default audience'],
   issuePreset: ['issue preset', 'preset issue', 'default issue'],
   typePreset: ['type preset', 'preset type', 'default type'],
@@ -37,6 +43,7 @@ const BLOCK_PROPS = [
   'pageSize',
   'searchPlaceholder',
   'loadMoreText',
+  'paginationMode',
   'audiencePreset',
   'issuePreset',
   'typePreset',
@@ -678,7 +685,8 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   loadMoreButton.className = 'resources-browser-load-more';
   loadMoreButton.type = 'button';
   loadMoreButton.textContent = loadMoreText;
-  footer.append(loadMoreButton);
+  const pagination = createPaginationControls('resources-browser', 'Resource results pagination');
+  footer.append(loadMoreButton, pagination.nav);
 
   inner.append(cardsContainer, emptyState, footer);
 
@@ -697,6 +705,7 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
     cardsContainer,
     emptyState,
     loadMoreButton,
+    pagination,
   };
 }
 
@@ -717,7 +726,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     cardsContainer,
     emptyState,
     loadMoreButton,
+    pagination,
   } = layout;
+  const usePagination = isPaginationMode(config.paginationMode);
 
   if (debugLines.length) {
     inner.insertBefore(
@@ -729,6 +740,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   const state = {
     query: '',
     visibleCount: config.pageSize,
+    page: 1,
     selectedAudience: new Set(),
     selectedIssue: new Set(),
     selectedType: new Set(),
@@ -831,18 +843,37 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       originalIndex,
     }));
 
-    const shown = Math.min(state.visibleCount, sorted.length);
+    const lastPage = Math.max(1, Math.ceil(sorted.length / config.pageSize));
+    if (state.page > lastPage) state.page = lastPage;
+    const pageStart = usePagination ? (state.page - 1) * config.pageSize : 0;
+    const shown = usePagination
+      ? Math.min(config.pageSize, Math.max(0, sorted.length - pageStart))
+      : Math.min(state.visibleCount, sorted.length);
     cardsContainer.replaceChildren(...sorted.map(({ card }) => card));
     sorted.forEach(({ card }) => card.classList.add('resources-browser-card-hidden'));
-    sorted.slice(0, shown).forEach(({ card }) => {
+    sorted.slice(pageStart, pageStart + shown).forEach(({ card }) => {
       card.classList.remove('resources-browser-card-hidden');
     });
 
+    const shownStart = sorted.length ? pageStart + 1 : 0;
+    const shownEnd = usePagination ? Math.min(pageStart + shown, sorted.length) : shown;
     count.textContent = sorted.length
-      ? `Showing ${shown} of ${sorted.length} resources`
+      ? `Showing ${shownStart}-${shownEnd} of ${sorted.length} resources`
       : 'Showing 0 resources';
     emptyState.hidden = sorted.length > 0;
-    loadMoreButton.hidden = shown >= sorted.length;
+    loadMoreButton.hidden = usePagination || shown >= sorted.length;
+    if (usePagination) {
+      pagination.update({
+        page: state.page,
+        lastPage,
+        onPage: (page) => {
+          state.page = page;
+          applyFilters();
+        },
+      });
+    } else {
+      pagination.nav.hidden = true;
+    }
     renderActiveFilters();
   }
 
@@ -856,6 +887,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     if (facet === 'tags') state.selectedTags.add(value);
 
     state.visibleCount = config.pageSize;
+    state.page = 1;
     syncFilterControls();
     syncUrlState();
     applyFilters();
@@ -907,6 +939,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         if (facet === 'issue') state.selectedIssue.delete(value);
         if (facet === 'tags') state.selectedTags.delete(value);
         state.visibleCount = config.pageSize;
+        state.page = 1;
         syncFilterControls();
         syncUrlState();
         applyFilters();
@@ -919,6 +952,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     if (!select.value) return;
     set.add(normalizeToken(select.value));
     state.visibleCount = config.pageSize;
+    state.page = 1;
     syncFilterControls();
     syncUrlState();
     applyFilters();
@@ -928,6 +962,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   searchInput.addEventListener('input', () => {
     state.query = searchInput.value;
     state.visibleCount = config.pageSize;
+    state.page = 1;
     syncUrlState();
     applyFilters();
   });
@@ -947,6 +982,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     state.sort = normalizeListSort(sortSelect.value);
     state.hasExplicitSort = true;
     state.visibleCount = config.pageSize;
+    state.page = 1;
     syncUrlState();
     applyFilters();
   });
@@ -961,6 +997,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     state.selectedType.clear();
     state.selectedTags.clear();
     state.visibleCount = config.pageSize;
+    state.page = 1;
     searchInput.value = '';
     syncFilterControls();
     syncUrlState();
@@ -998,7 +1035,9 @@ async function renderApiBrowser(block, config) {
     cardsContainer,
     emptyState,
     loadMoreButton,
+    pagination,
   } = layout;
+  const usePagination = isPaginationMode(config.paginationMode);
 
   const apiRoot = normalizeApiBaseUrl(config.apiBaseUrl);
   const selected = splitSelectedResources(parseList(config.selectedField));
@@ -1154,7 +1193,19 @@ async function renderApiBrowser(block, config) {
     syncSortControl();
   }
 
-  loadResources = async (reset = false) => {
+  const updatePagination = () => {
+    if (!usePagination) {
+      pagination.nav.hidden = true;
+      return;
+    }
+    pagination.update({
+      page: state.page,
+      lastPage: state.lastPage,
+      onPage: (page) => loadResources(true, page),
+    });
+  };
+
+  loadResources = async (reset = false, targetPage = null) => {
     if (state.loading) return;
 
     if (reset) {
@@ -1169,10 +1220,13 @@ async function renderApiBrowser(block, config) {
       count.textContent = 'Loading resources...';
     }
     loadMoreButton.disabled = true;
+    pagination.nav.querySelectorAll('button').forEach((button) => {
+      button.disabled = true;
+    });
 
     const url = new URL('/api/resources', `${apiRoot}/`);
     url.searchParams.set('per_page', String(config.pageSize));
-    url.searchParams.set('page', String(reset ? 1 : state.page + 1));
+    url.searchParams.set('page', String(targetPage || (reset ? 1 : state.page + 1)));
     if (state.query.trim()) {
       url.searchParams.set('search', state.query.trim());
     }
@@ -1194,6 +1248,7 @@ async function renderApiBrowser(block, config) {
     }
 
     const payload = await response.json();
+    if (usePagination) cardsContainer.replaceChildren();
     (payload.data || []).forEach((item) => {
       cardsContainer.append(buildResourceCard(mapApiResource(item), null, applyFacetValue));
     });
@@ -1206,14 +1261,21 @@ async function renderApiBrowser(block, config) {
     updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
     renderActiveFilters();
 
-    const total = cardsContainer.children.length;
+    let shownStart = state.total ? 1 : 0;
+    if (state.total && usePagination) {
+      shownStart = ((state.page - 1) * config.pageSize) + 1;
+    }
+    const shownEnd = usePagination
+      ? Math.min(state.page * config.pageSize, state.total)
+      : cardsContainer.children.length;
     count.textContent = state.total
-      ? `Showing ${total} of ${state.total} resources`
+      ? `Showing ${shownStart}-${shownEnd} of ${state.total} resources`
       : 'Showing 0 resources';
     emptyState.hidden = cardsContainer.children.length > 0;
-    loadMoreButton.hidden = state.page >= state.lastPage || state.total === 0;
+    loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
     loadMoreButton.disabled = false;
     state.loading = false;
+    updatePagination();
   };
 
   const applyFacet = (select, set) => {
@@ -1308,6 +1370,11 @@ export default async function decorate(block) {
       || readConfigField(configRow, 'searchPlaceholder', 5, 'Search')
       || 'Search',
     loadMoreText: getBlockField(block, legacyMap, 'loadMoreText', 'Load More'),
+    paginationMode: normalizePaginationMode(
+      getBlockField(block, legacyMap, 'paginationMode', '')
+        || readConfigValue(configRows, 'paginationMode', 7, 'load-more')
+        || readConfigField(configRow, 'paginationMode', 7, 'load-more'),
+    ),
     audiencePreset: getBlockField(block, legacyMap, 'audiencePreset')
       || filterConfig.audience.join(', '),
     issuePreset: getBlockField(block, legacyMap, 'issuePreset')

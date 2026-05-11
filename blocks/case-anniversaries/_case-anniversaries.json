@@ -70,6 +70,36 @@
           "name": "searchPlaceholder",
           "label": "Search Placeholder",
           "value": "Search"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "loadMoreText",
+          "label": "Load More Label",
+          "value": "Load More"
+        },
+        {
+          "component": "select",
+          "name": "paginationMode",
+          "label": "Results Navigation",
+          "options": [
+            {
+              "name": "Load More",
+              "value": "load-more"
+            },
+            {
+              "name": "Pagination",
+              "value": "pagination"
+            }
+          ],
+          "value": "load-more"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emptyMessage",
+          "label": "Empty Message",
+          "value": "No case anniversaries match your current filters."
         }
       ]
     }

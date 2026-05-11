@@ -350,6 +350,8 @@
 .resources-browser .resources-browser-footer {
   margin-top: 20px;
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   justify-content: center;
 }
 
@@ -368,15 +370,53 @@
   opacity: 0.92;
 }
 
+.resources-browser .resources-browser-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resources-browser .resources-browser-pagination[hidden] {
+  display: none;
+}
+
+.resources-browser .resources-browser-pagination-label {
+  color: #243846;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.resources-browser .resources-browser-pagination-button {
+  min-height: 42px;
+  border: 1px solid #d8e1e7;
+  border-radius: 999px;
+  background: #fff;
+  color: #243846;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0 18px;
+}
+
+.resources-browser .resources-browser-pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .resources-browser .resources-browser-search:focus-visible,
 .resources-browser .resources-browser-filter:focus-visible,
 .resources-browser .resources-browser-view-button:focus-visible,
 .resources-browser .resources-browser-load-more:focus-visible,
+.resources-browser .resources-browser-pagination-button:focus-visible,
 .resources-browser .resources-browser-tag.is-clickable:focus-visible,
 .resources-browser .resources-browser-active-chip:focus-visible,
 .resources-browser .resources-browser-clear-all:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
+}
+
+.resources-browser .resources-browser-pagination-button:hover:not(:disabled) {
+  background: #eef3f6;
 }
 
 @media (width <= 1280px) {

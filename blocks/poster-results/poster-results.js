@@ -10,8 +10,6 @@ const DEFAULTS = {
   qrCodeLabel: 'this QR Code',
 };
 
-const POSTER_RESULTS_PAGE_PATH = '/missing-children-posters';
-
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
   eyebrow: ['eyebrow', 'label'],
@@ -322,10 +320,6 @@ function cleanPosterPath(provider, caseNumber, seqNumber = '1') {
 function posterDetailUrl(person) {
   const [provider, caseNumber, seqNumber = '1'] = posterReference(person).split('/');
   return cleanPosterPath(provider?.toUpperCase(), caseNumber, seqNumber);
-}
-
-function posterSearchUrl() {
-  return POSTER_RESULTS_PAGE_PATH;
 }
 
 function canonicalPosterPath(directRequest) {
@@ -690,14 +684,6 @@ function createMissingChildHeading() {
   return heading;
 }
 
-function createPosterSearchBackLink() {
-  const link = document.createElement('a');
-  link.className = 'poster-results-detail-action poster-results-search-back';
-  link.href = posterSearchUrl();
-  link.textContent = '← Back to poster search';
-  return link;
-}
-
 function renderPosterDetail(container, meta, payload, config, onBack) {
   container.replaceChildren();
   meta.textContent = '';
@@ -711,7 +697,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail';
 
-  detail.append(createPosterSearchBackLink(), createMissingChildHeading(), createActionBar(config));
+  detail.append(createMissingChildHeading(), createActionBar(config));
 
   const back = document.createElement('button');
   back.type = 'button';
@@ -788,7 +774,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail poster-results-amber-poster';
-  detail.append(createPosterSearchBackLink(), createMissingChildHeading(), createActionBar(config));
+  detail.append(createMissingChildHeading(), createActionBar(config));
 
   const layout = document.createElement('div');
   layout.className = 'poster-results-detail-layout';
@@ -1272,6 +1258,15 @@ export default async function decorate(block) {
   meta.className = 'poster-results-meta';
   const results = document.createElement('div');
   results.className = 'poster-results-list';
+  const backToSearch = document.createElement('button');
+  backToSearch.type = 'button';
+  backToSearch.className = 'poster-results-back-to-search';
+  backToSearch.textContent = 'Back to top of search';
+  backToSearch.hidden = true;
+  backToSearch.addEventListener('click', () => {
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    firstName.focus({ preventScroll: true });
+  });
   const pagination = document.createElement('nav');
   pagination.className = 'poster-results-pagination';
   pagination.setAttribute('aria-label', 'Poster search pagination');
@@ -1283,7 +1278,7 @@ export default async function decorate(block) {
   let renderPagination = () => {};
   const nearMe = createNearMeSection(config, () => searchPosters(1, true));
 
-  inner.append(header, form, nearMe.wrap, status, meta, results, pagination);
+  inner.append(header, form, nearMe.wrap, status, meta, backToSearch, results, pagination);
   block.replaceChildren(inner);
 
   renderPagination = () => {
@@ -1315,6 +1310,7 @@ export default async function decorate(block) {
     nearMe.button.disabled = true;
     results.replaceChildren();
     meta.textContent = '';
+    backToSearch.hidden = true;
     pagination.replaceChildren();
     pagination.hidden = true;
 
@@ -1336,7 +1332,11 @@ export default async function decorate(block) {
       currentNearSearch = nearCurrentLocation;
       setStatus(status, '', '');
       renderResults(results, meta, payload);
+      backToSearch.hidden = !results.children.length;
       renderPagination();
+      if (results.children.length) {
+        meta.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     } catch (error) {
       setStatus(status, nearCurrentLocation ? 'Search near me is unavailable.' : 'Poster search is unavailable.', 'error');
     } finally {
@@ -1355,6 +1355,7 @@ export default async function decorate(block) {
       results.replaceChildren();
       pagination.replaceChildren();
       meta.textContent = '';
+      backToSearch.hidden = true;
       setStatus(status, '', '');
       currentPage = 1;
       totalPages = 1;

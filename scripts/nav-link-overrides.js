@@ -1,0 +1,74 @@
+const NAV_LINKS = [
+  {
+    labels: ['amber alerts', 'amber alert'],
+    href: '/amber-alerts',
+  },
+  {
+    labels: ['missing posters', 'missing children posters', 'missing poster'],
+    href: '/missing-children-posters',
+  },
+  {
+    labels: ['case anniversaries'],
+    href: '/media/case-anniversaries',
+  },
+];
+
+function normalizeLabel(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function matchingLinkConfig(text) {
+  const normalized = normalizeLabel(text);
+  return NAV_LINKS.find(({ labels }) => labels.includes(normalized)) || null;
+}
+
+function updateExistingLinks(root) {
+  root.querySelectorAll('a').forEach((link) => {
+    const config = matchingLinkConfig(link.textContent);
+    if (!config) return;
+    link.href = config.href;
+  });
+}
+
+function createCaseAnniversariesItem(templateItem) {
+  const item = templateItem?.cloneNode(false) || document.createElement('li');
+
+  const link = document.createElement('a');
+  link.href = '/media/case-anniversaries';
+  link.textContent = 'Case Anniversaries';
+  item.append(link);
+  return item;
+}
+
+function findInsertionList(root) {
+  const missingLink = [...root.querySelectorAll('a')]
+    .find((link) => matchingLinkConfig(link.textContent)?.href === '/missing-children-posters');
+  const amberLink = [...root.querySelectorAll('a')]
+    .find((link) => matchingLinkConfig(link.textContent)?.href === '/amber-alerts');
+  const anchorLink = missingLink || amberLink;
+  const item = anchorLink?.closest('li');
+  const list = item?.parentElement?.matches('ul, ol') ? item.parentElement : null;
+  return { list, item };
+}
+
+function ensureCaseAnniversariesLink(root) {
+  const hasCaseLink = [...root.querySelectorAll('a')]
+    .some((link) => matchingLinkConfig(link.textContent)?.href === '/media/case-anniversaries');
+  if (hasCaseLink) return;
+
+  const { list, item } = findInsertionList(root);
+  if (!list) return;
+
+  const caseItem = createCaseAnniversariesItem(item);
+  if (item?.nextSibling) {
+    list.insertBefore(caseItem, item.nextSibling);
+  } else {
+    list.append(caseItem);
+  }
+}
+
+export default function applyNavLinkOverrides(root) {
+  if (!root) return;
+  updateExistingLinks(root);
+  ensureCaseAnniversariesLink(root);
+}

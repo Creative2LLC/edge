@@ -450,6 +450,8 @@
 
 .case-anniversaries-footer {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   justify-content: center;
   margin-top: 34px;
 }
@@ -477,15 +479,55 @@
   opacity: 0.7;
 }
 
+.case-anniversaries-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.case-anniversaries-pagination[hidden] {
+  display: none;
+}
+
+.case-anniversaries-pagination-label {
+  color: #243846;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.case-anniversaries-pagination-button {
+  min-height: 38px;
+  padding: 0 18px;
+  border: 1px solid #d5dde2;
+  border-radius: 999px;
+  background: #fff;
+  color: #243846;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.case-anniversaries-pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .case-anniversaries-search:focus-visible,
 .case-anniversaries-filter:focus-visible,
 .case-anniversaries-timeframe-button:focus-visible,
 .case-anniversaries-chip:focus-visible,
 .case-anniversaries-clear:focus-visible,
 .case-anniversaries-card-external:focus-visible,
-.case-anniversaries-load-more:focus-visible {
+.case-anniversaries-load-more:focus-visible,
+.case-anniversaries-pagination-button:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
+}
+
+.case-anniversaries-pagination-button:hover:not(:disabled) {
+  background: #eef3f6;
 }
 
 @media (width <= 1180px) {

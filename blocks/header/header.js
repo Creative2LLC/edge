@@ -5,6 +5,7 @@ import {
 } from '../../scripts/search-utils.js';
 import getSiteSearchConfig from '../../scripts/site-search-config.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import applyNavLinkOverrides from '../../scripts/nav-link-overrides.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
@@ -2141,6 +2142,8 @@ export default async function decorate(block) {
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
+    applyNavLinkOverrides(navSections);
+
     const megaBlocks = [...nav.querySelectorAll(
       '.mega-nav, .mega-nav-parent-link, [data-block-name="mega-nav-parent-link"]',
     )];
