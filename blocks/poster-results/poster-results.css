@@ -752,6 +752,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 .poster-results.is-poster-page .poster-results-header,
 .poster-results.is-poster-page .poster-results-form,
 .poster-results.is-poster-page .poster-results-near-me,
+.poster-results.is-poster-page .poster-results-back-to-search,
 .poster-results.is-poster-page .poster-results-pagination {
   display: none;
 }
