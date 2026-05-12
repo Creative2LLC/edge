@@ -21,6 +21,44 @@ const SOCIAL_DEFINITIONS = {
   },
 };
 
+const FOOTER_LEGAL_LINKS = [
+  {
+    text: 'Terms and Conditions',
+    href: '/footer/termsandconditions',
+  },
+  {
+    text: 'Privacy Policy',
+    href: '/footer/privacypolicy',
+  },
+  {
+    text: 'Donor Policy',
+    href: '/footer/privacypolicy/donorpolicy',
+  },
+  {
+    text: 'Sitemap',
+    href: '/sitemap.xml',
+  },
+];
+
+const FOOTER_SOCIAL_LINKS = [
+  {
+    text: 'Facebook',
+    href: 'https://www.facebook.com/ncmec',
+  },
+  {
+    text: 'X',
+    href: 'https://x.com/NCMEC',
+  },
+  {
+    text: 'YouTube',
+    href: 'https://www.youtube.com/@ncmec',
+  },
+  {
+    text: 'Instagram',
+    href: 'https://www.instagram.com/ncmec',
+  },
+];
+
 function normalizeLabel(value) {
   return value.trim().toLowerCase().replace(/[\s_-]+/g, '');
 }
@@ -68,6 +106,45 @@ function decorateSocialLinks(element) {
     icon.setAttribute('aria-hidden', 'true');
     link.append(icon);
   });
+}
+
+function buildFooterLinkItem({ text, href }) {
+  const item = document.createElement('p');
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  item.append(link);
+  return item;
+}
+
+function getOrCreateBrandGroup(brandColumn, className, fallbackSelector) {
+  const existing = brandColumn.querySelector(`:scope > .${className}`);
+  if (existing) return existing;
+
+  const group = document.createElement('div');
+  group.className = className;
+
+  const fallback = fallbackSelector ? brandColumn.querySelector(fallbackSelector) : null;
+  if (fallback) {
+    fallback.before(group);
+  } else {
+    brandColumn.append(group);
+  }
+
+  return group;
+}
+
+function normalizeBrandFooterLinks(brandColumn) {
+  const social = getOrCreateBrandGroup(
+    brandColumn,
+    'footer-social',
+    ':scope > .footer-legal-links, :scope > .footer-copyright',
+  );
+  social.replaceChildren(...FOOTER_SOCIAL_LINKS.map(buildFooterLinkItem));
+  decorateSocialLinks(social);
+
+  const legal = getOrCreateBrandGroup(brandColumn, 'footer-legal-links', ':scope > .footer-copyright');
+  legal.replaceChildren(...FOOTER_LEGAL_LINKS.map(buildFooterLinkItem));
 }
 
 function collectSingleLinkRows(brandColumn, predicate) {
@@ -259,6 +336,7 @@ function decorateFlexibleColumns(footerRoot) {
       column.classList.add('footer-brand');
       applyBrandWidth(columnsBlock, column);
       classifyBrandContent(column);
+      normalizeBrandFooterLinks(column);
       return;
     }
 
