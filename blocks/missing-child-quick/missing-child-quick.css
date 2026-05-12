@@ -1,0 +1,5 @@
+@import url("../missing-child-quick-report/missing-child-quick-report.css");
+
+main > .section > .missing-child-quick-wrapper {
+  max-width: 1420px;
+}
