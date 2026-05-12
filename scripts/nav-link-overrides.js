@@ -9,7 +9,7 @@ const NAV_LINKS = [
   },
   {
     labels: ['case anniversaries'],
-    href: '/media/case-anniversaries',
+    href: '/resources/for-professionals/media/case-anniversaries.html',
   },
 ];
 
@@ -45,7 +45,7 @@ function createCaseAnniversariesItem(templateItem) {
   const item = templateItem?.cloneNode(false) || document.createElement('li');
 
   const link = document.createElement('a');
-  link.href = '/media/case-anniversaries';
+  link.href = matchingLinkConfig('Case Anniversaries').href;
   link.textContent = 'Case Anniversaries';
   item.append(link);
   return item;
@@ -63,8 +63,9 @@ function findInsertionList(root) {
 }
 
 function ensureCaseAnniversariesLink(root) {
+  const caseHref = matchingLinkConfig('Case Anniversaries').href;
   const hasCaseLink = [...root.querySelectorAll('a')]
-    .some((link) => matchingLinkConfig(link.textContent)?.href === '/media/case-anniversaries');
+    .some((link) => matchingLinkConfig(link.textContent)?.href === caseHref);
   if (hasCaseLink) return;
 
   const { list, item } = findInsertionList(root);
