@@ -443,10 +443,7 @@
 }
 
 .text-image.block.text-image-variant-3 .text-image-overlay {
-  top: auto;
-  right: auto;
-  bottom: 24px;
-  left: 24px;
+  inset: auto auto 24px 24px;
   max-width: min(320px, calc(100% - 48px));
   max-height: calc(100% - 48px);
 }
