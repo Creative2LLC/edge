@@ -588,6 +588,25 @@ function debounce(callback, wait = 250) {
   };
 }
 
+function ensurePreconnect(url) {
+  try {
+    const { origin } = new URL(url, window.location.href);
+    if (origin === window.location.origin) return;
+
+    const existing = [...document.head.querySelectorAll('link[rel="preconnect"]')]
+      .some(({ href }) => href.replace(/\/$/, '') === origin);
+    if (existing) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = origin;
+    link.crossOrigin = '';
+    document.head.append(link);
+  } catch {
+    // Ignore malformed author-provided URLs; fetch error handling will surface failures.
+  }
+}
+
 function buildDebugPanel(title, lines = []) {
   const details = document.createElement('details');
   details.className = 'resources-browser-source-debug';
@@ -1018,7 +1037,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   block.replaceChildren(inner);
 }
 
-async function renderApiBrowser(block, config) {
+function renderApiBrowser(block, config) {
   const layout = buildShell(config);
   const {
     inner,
@@ -1115,6 +1134,8 @@ async function renderApiBrowser(block, config) {
 
   let renderActiveFilters = () => {};
   let loadResources = async () => {};
+  let activeController = null;
+  let requestToken = 0;
   const applyFacetValue = (facet, rawValue) => {
     const value = normalizeToken(rawValue);
     if (!value) return;
@@ -1206,7 +1227,13 @@ async function renderApiBrowser(block, config) {
   };
 
   loadResources = async (reset = false, targetPage = null) => {
-    if (state.loading) return;
+    if (state.loading && !reset && targetPage === null) return;
+    if (activeController) activeController.abort();
+
+    const currentToken = requestToken + 1;
+    requestToken = currentToken;
+    const controller = new AbortController();
+    activeController = controller;
 
     if (reset) {
       state.page = 0;
@@ -1240,42 +1267,55 @@ async function renderApiBrowser(block, config) {
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
 
-    const response = await fetch(url.toString(), {
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) {
-      throw new Error(`API request failed with HTTP ${response.status}.`);
+    try {
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        throw new Error(`API request failed with HTTP ${response.status}.`);
+      }
+
+      const payload = await response.json();
+      if (currentToken !== requestToken) return;
+
+      if (usePagination) cardsContainer.replaceChildren();
+      (payload.data || []).forEach((item) => {
+        cardsContainer.append(buildResourceCard(mapApiResource(item), null, applyFacetValue));
+      });
+
+      state.page = payload.meta?.current_page || 1;
+      state.lastPage = payload.meta?.last_page || 1;
+      state.total = payload.meta?.total
+        ?? cardsContainer.children.length;
+      updateFilters(payload.filters || {});
+      updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
+      renderActiveFilters();
+
+      let shownStart = state.total ? 1 : 0;
+      if (state.total && usePagination) {
+        shownStart = ((state.page - 1) * config.pageSize) + 1;
+      }
+      const shownEnd = usePagination
+        ? Math.min(state.page * config.pageSize, state.total)
+        : cardsContainer.children.length;
+      count.textContent = state.total
+        ? `Showing ${shownStart}-${shownEnd} of ${state.total} resources`
+        : 'Showing 0 resources';
+      emptyState.hidden = cardsContainer.children.length > 0;
+      loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
+      updatePagination();
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      count.textContent = error?.message || 'Resources unavailable.';
+      emptyState.hidden = cardsContainer.children.length > 0;
+    } finally {
+      if (currentToken === requestToken) {
+        activeController = null;
+        loadMoreButton.disabled = false;
+        state.loading = false;
+      }
     }
-
-    const payload = await response.json();
-    if (usePagination) cardsContainer.replaceChildren();
-    (payload.data || []).forEach((item) => {
-      cardsContainer.append(buildResourceCard(mapApiResource(item), null, applyFacetValue));
-    });
-
-    state.page = payload.meta?.current_page || 1;
-    state.lastPage = payload.meta?.last_page || 1;
-    state.total = payload.meta?.total
-      ?? cardsContainer.children.length;
-    updateFilters(payload.filters || {});
-    updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
-    renderActiveFilters();
-
-    let shownStart = state.total ? 1 : 0;
-    if (state.total && usePagination) {
-      shownStart = ((state.page - 1) * config.pageSize) + 1;
-    }
-    const shownEnd = usePagination
-      ? Math.min(state.page * config.pageSize, state.total)
-      : cardsContainer.children.length;
-    count.textContent = state.total
-      ? `Showing ${shownStart}-${shownEnd} of ${state.total} resources`
-      : 'Showing 0 resources';
-    emptyState.hidden = cardsContainer.children.length > 0;
-    loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
-    loadMoreButton.disabled = false;
-    state.loading = false;
-    updatePagination();
   };
 
   const applyFacet = (select, set) => {
@@ -1335,10 +1375,12 @@ async function renderApiBrowser(block, config) {
   syncSortControl();
   applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
-  await loadResources(true);
+  window.requestAnimationFrame(() => {
+    loadResources(true);
+  });
 }
 
-export default async function decorate(block) {
+export default function decorate(block) {
   const configRows = extractConfigRows(block);
   const configRow = configRows[0] || extractConfigRow(block);
   const legacyMap = collectLegacyBlockFields(block);
@@ -1406,13 +1448,6 @@ export default async function decorate(block) {
     return;
   }
 
-  try {
-    await renderApiBrowser(block, config);
-  } catch (error) {
-    renderInlineBrowser(block, config, inlineResources, [
-      `API request failed for ${config.apiBaseUrl}.`,
-      error?.message || 'Unknown API error.',
-      'The block fell back to inline data.',
-    ]);
-  }
+  ensurePreconnect(config.apiBaseUrl);
+  renderApiBrowser(block, config);
 }

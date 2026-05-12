@@ -284,6 +284,25 @@ function debounce(callback, wait = 300) {
   };
 }
 
+function ensurePreconnect(url) {
+  try {
+    const { origin } = new URL(url, window.location.href);
+    if (origin === window.location.origin) return;
+
+    const existing = [...document.head.querySelectorAll('link[rel="preconnect"]')]
+      .some(({ href }) => href.replace(/\/$/, '') === origin);
+    if (existing) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = origin;
+    link.crossOrigin = '';
+    document.head.append(link);
+  } catch {
+    // Ignore malformed author-provided URLs; fetch error handling will surface failures.
+  }
+}
+
 function buildCard(article, index = 0, onFacetActivate = null) {
   const card = document.createElement('article');
   card.className = 'article-list-card';
@@ -490,7 +509,7 @@ function buildShell(config) {
   };
 }
 
-async function renderApiList(block, config) {
+function renderApiList(block, config) {
   const layout = buildShell(config);
   const {
     inner,
@@ -622,6 +641,8 @@ async function renderApiList(block, config) {
   };
   let refreshArticles = () => {};
   let loadArticles = async () => {};
+  let activeController = null;
+  let requestToken = 0;
   const applyFacetValue = (facet, rawValue) => {
     const value = normalizeToken(rawValue);
     if (!value) return;
@@ -672,7 +693,14 @@ async function renderApiList(block, config) {
   };
 
   loadArticles = async (reset = false, targetPage = null) => {
-    if (state.loading) return;
+    if (state.loading && !reset && targetPage === null) return;
+    if (activeController) activeController.abort();
+
+    const currentToken = requestToken + 1;
+    requestToken = currentToken;
+    const controller = new AbortController();
+    activeController = controller;
+
     if (reset) {
       state.page = 0;
       state.lastPage = 1;
@@ -700,37 +728,50 @@ async function renderApiList(block, config) {
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
     excluded.forEach((value) => url.searchParams.append('exclude_slugs[]', value));
 
-    const response = await fetch(url.toString(), {
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) throw new Error(`API request failed with HTTP ${response.status}.`);
-    const payload = await response.json();
-    if (usePagination) cardsContainer.replaceChildren();
-    const startIndex = cardsContainer.children.length;
-    (payload.data || []).forEach((article, index) => {
-      cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue));
-    });
+    try {
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`API request failed with HTTP ${response.status}.`);
+      const payload = await response.json();
+      if (currentToken !== requestToken) return;
 
-    state.page = payload.meta?.current_page || 1;
-    state.lastPage = payload.meta?.last_page || 1;
-    state.total = payload.meta?.total ?? cardsContainer.children.length;
-    updateFilters(payload.filters || {});
-    updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
-    renderActiveFilters();
+      if (usePagination) cardsContainer.replaceChildren();
+      const startIndex = cardsContainer.children.length;
+      (payload.data || []).forEach((article, index) => {
+        cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue));
+      });
 
-    let shownStart = state.total ? 1 : 0;
-    if (state.total && usePagination) {
-      shownStart = ((state.page - 1) * config.pageSize) + 1;
+      state.page = payload.meta?.current_page || 1;
+      state.lastPage = payload.meta?.last_page || 1;
+      state.total = payload.meta?.total ?? cardsContainer.children.length;
+      updateFilters(payload.filters || {});
+      updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
+      renderActiveFilters();
+
+      let shownStart = state.total ? 1 : 0;
+      if (state.total && usePagination) {
+        shownStart = ((state.page - 1) * config.pageSize) + 1;
+      }
+      const shownEnd = usePagination
+        ? Math.min(state.page * config.pageSize, state.total)
+        : cardsContainer.children.length;
+      count.textContent = state.total ? `Showing ${shownStart}-${shownEnd} of ${state.total} articles` : 'Showing 0 articles';
+      emptyState.hidden = cardsContainer.children.length > 0;
+      loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
+      updatePagination();
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      count.textContent = error?.message || 'Articles unavailable.';
+      emptyState.hidden = cardsContainer.children.length > 0;
+    } finally {
+      if (currentToken === requestToken) {
+        activeController = null;
+        loadMoreButton.disabled = false;
+        state.loading = false;
+      }
     }
-    const shownEnd = usePagination
-      ? Math.min(state.page * config.pageSize, state.total)
-      : cardsContainer.children.length;
-    count.textContent = state.total ? `Showing ${shownStart}-${shownEnd} of ${state.total} articles` : 'Showing 0 articles';
-    emptyState.hidden = cardsContainer.children.length > 0;
-    loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
-    loadMoreButton.disabled = false;
-    state.loading = false;
-    updatePagination();
   };
 
   refreshArticles = loadArticles;
@@ -792,10 +833,12 @@ async function renderApiList(block, config) {
   syncSortControl();
   applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
-  await loadArticles(true);
+  window.requestAnimationFrame(() => {
+    loadArticles(true);
+  });
 }
 
-export default async function decorate(block) {
+export default function decorate(block) {
   const filters = parseFilterLists(getFieldValue(block, 'filters'));
   const config = {
     heading: getFieldValue(block, 'heading'),
@@ -820,6 +863,7 @@ export default async function decorate(block) {
     typePreset: getFieldValue(block, 'typePreset') || filters.type.join(', '),
     tagPreset: getFieldValue(block, 'tagPreset') || filters.tags.join(', '),
   };
+  ensurePreconnect(config.apiBaseUrl);
 
   block.replaceChildren(buildMessage('Loading articles...', ''));
   if (!config.apiBaseUrl) {
@@ -832,14 +876,5 @@ export default async function decorate(block) {
     return;
   }
 
-  try {
-    await renderApiList(block, config);
-  } catch (error) {
-    block.replaceChildren(
-      buildMessage(
-        'Articles unavailable',
-        error?.message || 'The article API request failed.',
-      ),
-    );
-  }
+  renderApiList(block, config);
 }

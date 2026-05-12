@@ -1262,6 +1262,7 @@ export default async function decorate(block) {
   backToSearch.type = 'button';
   backToSearch.className = 'poster-results-back-to-search';
   backToSearch.textContent = 'Top of search';
+  backToSearch.hidden = true;
   backToSearch.addEventListener('click', () => {
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     firstName.focus({ preventScroll: true });
@@ -1309,6 +1310,7 @@ export default async function decorate(block) {
     nearMe.button.disabled = true;
     results.replaceChildren();
     meta.textContent = '';
+    backToSearch.hidden = true;
     pagination.replaceChildren();
     pagination.hidden = true;
 
@@ -1330,6 +1332,7 @@ export default async function decorate(block) {
       currentNearSearch = nearCurrentLocation;
       setStatus(status, '', '');
       renderResults(results, meta, payload);
+      backToSearch.hidden = !results.children.length;
       renderPagination();
       if (results.children.length) {
         meta.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1352,6 +1355,7 @@ export default async function decorate(block) {
       results.replaceChildren();
       pagination.replaceChildren();
       meta.textContent = '';
+      backToSearch.hidden = true;
       setStatus(status, '', '');
       currentPage = 1;
       totalPages = 1;

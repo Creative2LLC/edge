@@ -189,6 +189,25 @@ function createCaseImage(src, alt) {
   return picture;
 }
 
+function ensurePreconnect(url) {
+  try {
+    const { origin } = new URL(url, window.location.href);
+    if (origin === window.location.origin) return;
+
+    const existing = [...document.head.querySelectorAll('link[rel="preconnect"]')]
+      .some(({ href }) => href.replace(/\/$/, '') === origin);
+    if (existing) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = origin;
+    link.crossOrigin = '';
+    document.head.append(link);
+  } catch {
+    // Ignore malformed author-provided URLs; the fetch path handles the visible error.
+  }
+}
+
 function createSelect(label, className = '') {
   const select = document.createElement('select');
   select.className = `case-anniversaries-filter ${className}`.trim();
@@ -486,7 +505,7 @@ function debounce(callback, wait = 300) {
   };
 }
 
-export default async function decorate(block) {
+export default function decorate(block) {
   const config = {
     findHeading: getFieldValue(block, 'findHeading', DEFAULTS.findHeading),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', DEFAULTS.apiBaseUrl)),
@@ -500,6 +519,7 @@ export default async function decorate(block) {
     emptyMessage: getFieldValue(block, 'emptyMessage', DEFAULTS.emptyMessage),
   };
   const usePagination = isPaginationMode(config.paginationMode);
+  ensurePreconnect(config.apiBaseUrl);
 
   const layout = buildShell(config);
   const state = {
@@ -517,6 +537,8 @@ export default async function decorate(block) {
     },
   };
   let loadCases = () => {};
+  let activeController = null;
+  let requestToken = 0;
 
   const updateActiveFilters = () => {
     layout.activeFilters.replaceChildren();
@@ -571,7 +593,15 @@ export default async function decorate(block) {
   };
 
   loadCases = async (reset = false, targetPage = null) => {
-    if (state.loading || !config.apiBaseUrl) return;
+    if (!config.apiBaseUrl) return;
+    if (state.loading && !reset && targetPage === null) return;
+    if (activeController) activeController.abort();
+
+    const currentToken = requestToken + 1;
+    requestToken = currentToken;
+    const controller = new AbortController();
+    activeController = controller;
+
     if (reset) {
       state.page = 0;
       state.lastPage = 1;
@@ -596,9 +626,13 @@ export default async function decorate(block) {
       if (state.filters.caseType) url.searchParams.set('case_type', state.filters.caseType);
       if (state.filters.yearsMissing) url.searchParams.set('years_missing', state.filters.yearsMissing);
 
-      const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
+      if (currentToken !== requestToken) return;
 
       if (usePagination) layout.grid.replaceChildren();
       (payload.data || []).forEach((item) => layout.grid.append(buildCard(item)));
@@ -623,11 +657,15 @@ export default async function decorate(block) {
       updatePagination();
       setStatus(layout.status, '', '');
     } catch (error) {
+      if (error.name === 'AbortError') return;
       layout.pagination.nav.hidden = true;
       setStatus(layout.status, 'Case anniversaries are unavailable.', 'error');
     } finally {
-      state.loading = false;
-      layout.loadMore.disabled = false;
+      if (currentToken === requestToken) {
+        activeController = null;
+        state.loading = false;
+        layout.loadMore.disabled = false;
+      }
     }
   };
 
@@ -691,5 +729,7 @@ export default async function decorate(block) {
     return;
   }
 
-  await loadCases(true);
+  window.requestAnimationFrame(() => {
+    loadCases(true);
+  });
 }

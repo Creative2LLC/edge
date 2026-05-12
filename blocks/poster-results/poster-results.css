@@ -138,9 +138,8 @@
 
 .poster-results-back-to-search {
   position: fixed;
-  top: 50%;
-  right: 14px;
-  bottom: auto;
+  right: 198px;
+  bottom: 22px;
   z-index: 10000;
   display: inline-flex;
   align-items: center;
@@ -158,7 +157,6 @@
   line-height: 1;
   padding: 0 12px;
   box-shadow: 0 8px 20px rgb(0 0 0 / 16%);
-  transform: translateY(-50%);
 }
 
 .poster-results-back-to-search[hidden] {
@@ -744,6 +742,13 @@
 @media (width <= 1200px) {
   .poster-results.is-poster-page {
     margin-top: 0;
+  }
+}
+
+@media (width <= 640px) {
+  .poster-results-back-to-search {
+    right: 14px;
+    bottom: 78px;
   }
 }
 
