@@ -1,0 +1,100 @@
+{
+  "definitions": [
+    {
+      "title": "Missing Child Poster API Registration",
+      "id": "missing-child-poster-api-registration",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Missing Child Poster API Registration",
+              "model": "missing-child-poster-api-registration"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "missing-child-poster-api-registration",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow",
+          "value": "Poster API Registration"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Missing Child Poster API Registration"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro Copy",
+          "value": "Register your application to request access to NCMEC missing child poster data."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "formAction",
+          "label": "Submit Endpoint URL",
+          "description": "Defaults to the legacy AEM Poster API registration endpoint. Replace later with a Laravel endpoint when available.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "clientTokensEndpoint",
+          "label": "Client Tokens Endpoint URL",
+          "description": "Defaults to the legacy AEM endpoint that returns the generated client ID and secret from the current session.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "docsUrl",
+          "label": "Documentation URL",
+          "value": "http://external-api-posterqa.ncmecad.net/swagger/index.html"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text",
+          "value": "Register Application"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "successMessage",
+          "label": "Success Message",
+          "value": "Your application has been registered. Please record these credentials now."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "errorMessage",
+          "label": "Error Message",
+          "value": "We could not register this application. Please review the form and try again."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "topPadding",
+          "label": "Top Padding (Optional)",
+          "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

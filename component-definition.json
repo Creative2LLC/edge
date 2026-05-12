@@ -81,6 +81,72 @@
       ]
     },
     {
+      "title": "Forms",
+      "id": "forms",
+      "components": [
+        {
+          "title": "General Inquiries",
+          "id": "general-inquiries",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "General Inquiries",
+                  "model": "general-inquiries"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Newsletter",
+          "id": "newsletter",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Newsletter",
+                  "model": "newsletter-content"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Missing Child Quick Report",
+          "id": "missing-child-quick-report",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Missing Child Quick Report",
+                  "model": "missing-child-quick-report"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Missing Child Poster API Registration",
+          "id": "missing-child-poster-api-registration",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Missing Child Poster API Registration",
+                  "model": "missing-child-poster-api-registration"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "title": "Blocks",
       "id": "blocks",
       "components": [
@@ -1211,6 +1277,36 @@
                 "template": {
                   "name": "Media Reporting Info",
                   "model": "media-reporting-info"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Missing Child Poster API Registration",
+          "id": "missing-child-poster-api-registration",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Missing Child Poster API Registration",
+                  "model": "missing-child-poster-api-registration"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Missing Child Quick Report",
+          "id": "missing-child-quick-report",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Missing Child Quick Report",
+                  "model": "missing-child-quick-report"
                 }
               }
             }

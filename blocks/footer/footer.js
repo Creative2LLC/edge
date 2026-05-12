@@ -32,7 +32,7 @@ const FOOTER_LEGAL_LINKS = [
   },
   {
     text: 'Donor Policy',
-    href: '/footer/privacypolicy/donorpolicy',
+    href: '/footer/privacypolicy/donorprivacypolicy',
   },
   {
     text: 'Sitemap',

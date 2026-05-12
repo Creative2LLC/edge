@@ -28,6 +28,24 @@
       ]
     },
     {
+      "title": "Forms",
+      "id": "forms",
+      "components": [
+        {
+          "...": "../blocks/general-inquiries/_general-inquiries.json#/definitions"
+        },
+        {
+          "...": "../blocks/newsletter/_newsletter.json#/definitions"
+        },
+        {
+          "...": "../blocks/missing-child-quick-report/_missing-child-quick-report.json#/definitions"
+        },
+        {
+          "...": "../blocks/missing-child-poster-api-registration/_missing-child-poster-api-registration.json#/definitions"
+        }
+      ]
+    },
+    {
       "title": "Blocks",
       "id": "blocks",
       "components": [
