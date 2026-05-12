@@ -11,16 +11,17 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration-shell {
   display: grid;
-  grid-template-columns: minmax(280px, 0.55fr) minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 72px);
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 40px);
   align-items: start;
+  max-width: 1040px;
+  margin: 0 auto;
 }
 
 .missing-child-poster-api-registration-header {
-  position: sticky;
-  top: 120px;
   display: grid;
   gap: 18px;
+  max-width: 920px;
 }
 
 .missing-child-poster-api-registration-eyebrow {
@@ -47,7 +48,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 }
 
 .missing-child-poster-api-registration-intro {
-  max-width: 40rem;
+  max-width: 56rem;
   color: #4b4b4f;
   font-size: clamp(1.04rem, 1.25vw, 1.2rem);
   font-weight: 500;
@@ -64,13 +65,13 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration-form,
 .missing-child-poster-api-registration-credentials {
-  grid-column: 2;
   border-radius: 8px;
   padding: clamp(22px, 4vw, 42px);
   background:
     radial-gradient(circle at top right, rgb(255 255 255 / 78%), transparent 36%),
     linear-gradient(180deg, #f4f5f5 0%, #ece9e5 100%);
   box-shadow: 0 24px 60px rgb(17 54 82 / 10%);
+  animation: missing-child-poster-api-registration-panel-in 420ms ease both;
 }
 
 .missing-child-poster-api-registration-form {
@@ -104,18 +105,18 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
 .missing-child-poster-api-registration-field {
   display: grid;
   gap: 8px;
+  transition: transform 180ms ease;
 }
 
-.missing-child-poster-api-registration-field:has(textarea),
-.missing-child-poster-api-registration-field:has([name="posterDistributionInformation"]) {
-  grid-column: 1 / -1;
+.missing-child-poster-api-registration-field:focus-within {
+  transform: translateY(-1px);
 }
 
 .missing-child-poster-api-registration-label {
@@ -123,6 +124,10 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.25;
+}
+
+.missing-child-poster-api-registration-field:focus-within .missing-child-poster-api-registration-label {
+  color: #007294;
 }
 
 .missing-child-poster-api-registration-required {
@@ -146,7 +151,8 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,
-    background-color 180ms ease;
+    background-color 180ms ease,
+    transform 180ms ease;
 }
 
 .missing-child-poster-api-registration-select {
@@ -178,6 +184,25 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   outline: 0;
   border-color: #de8a2a;
   box-shadow: 0 0 0 4px rgb(227 139 34 / 16%);
+  transform: translateY(-1px);
+}
+
+.missing-child-poster-api-registration-input:hover,
+.missing-child-poster-api-registration-select:hover,
+.missing-child-poster-api-registration-textarea:hover,
+.missing-child-poster-api-registration-token-control input:hover {
+  border-color: #c8bdb2;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 70%),
+    0 8px 22px rgb(17 54 82 / 7%);
+}
+
+.missing-child-poster-api-registration-input:user-invalid,
+.missing-child-poster-api-registration-select:user-invalid,
+.missing-child-poster-api-registration-textarea:user-invalid {
+  border-color: #b6462f;
+  background: #fffafa;
+  box-shadow: 0 0 0 4px rgb(182 70 47 / 12%);
 }
 
 .missing-child-poster-api-registration-actions {
@@ -317,18 +342,15 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   text-underline-offset: 0.16em;
 }
 
-@media (width < 1000px) {
-  .missing-child-poster-api-registration-shell {
-    grid-template-columns: 1fr;
+@keyframes missing-child-poster-api-registration-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 
-  .missing-child-poster-api-registration-header {
-    position: static;
-  }
-
-  .missing-child-poster-api-registration-form,
-  .missing-child-poster-api-registration-credentials {
-    grid-column: auto;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -340,10 +362,6 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   .missing-child-poster-api-registration-form,
   .missing-child-poster-api-registration-credentials {
     padding: 20px 16px;
-  }
-
-  .missing-child-poster-api-registration-grid {
-    grid-template-columns: 1fr;
   }
 
   .missing-child-poster-api-registration-actions,
@@ -359,5 +377,19 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
   .missing-child-poster-api-registration-token-control {
     flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .missing-child-poster-api-registration-form,
+  .missing-child-poster-api-registration-credentials,
+  .missing-child-poster-api-registration-field,
+  .missing-child-poster-api-registration-input,
+  .missing-child-poster-api-registration-select,
+  .missing-child-poster-api-registration-textarea,
+  .missing-child-poster-api-registration-token-button,
+  .missing-child-poster-api-registration-submit {
+    animation: none;
+    transition: none;
   }
 }
