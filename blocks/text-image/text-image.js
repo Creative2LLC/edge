@@ -257,12 +257,14 @@ export default async function decorate(block) {
   const backgroundColorField = getTextField(block, 'backgroundColor');
   const imageAltField = getTextField(block, 'imageAlt');
   const overlayHeaderField = getTextField(block, 'imageOverlayHeader');
-  const overlayTextField = getTextField(block, 'imageOverlayText');
+  const overlayTextField = getRichTextField(block, 'imageOverlayText');
   const styleVariantField = getTextField(block, 'styleVariant');
   const imageField = getImageField(block);
 
   if (styleVariantField.value === 'variant-2') {
     block.classList.add('text-image-variant-2');
+  } else if (styleVariantField.value === 'variant-3') {
+    block.classList.add('text-image-variant-3');
   }
   const picture = buildPicture(imageField, imageAltField);
   const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
@@ -306,7 +308,7 @@ export default async function decorate(block) {
   }
 
   const overlayHeader = buildTextElement(overlayHeaderField, 'p', 'text-image-overlay-header');
-  const overlayText = buildTextElement(overlayTextField, 'p', 'text-image-overlay-text');
+  const overlayText = buildRichTextElement(overlayTextField, 'text-image-overlay-text');
   if ((overlayHeader || overlayText) && picture) {
     const overlay = document.createElement('div');
     overlay.className = 'text-image-overlay';

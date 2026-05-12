@@ -77,7 +77,7 @@
           "label": "Image Overlay Header (Optional)"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "imageOverlayText",
           "label": "Image Overlay Text (Optional)"
@@ -96,6 +96,10 @@
             {
               "name": "Variant 2",
               "value": "variant-2"
+            },
+            {
+              "name": "Variant 3",
+              "value": "variant-3"
             }
           ]
         }
