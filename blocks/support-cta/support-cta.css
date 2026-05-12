@@ -137,10 +137,10 @@ main > .section > .support-cta-wrapper {
 }
 
 .support-cta .support-cta-helper {
-  max-width: 42ch;
+  max-width: 1228px;
   margin: 24px 0 0;
   color: #565656;
-  font-size: 1rem;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.45;
   opacity: 0;
@@ -195,10 +195,6 @@ main > .section > .support-cta-wrapper {
   .support-cta .support-cta-button {
     width: min(100%, 312px);
     min-width: 0;
-  }
-
-  .support-cta .support-cta-helper {
-    font-size: 0.95rem;
   }
 }
 
