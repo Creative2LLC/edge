@@ -1,5 +1,7 @@
 main > .section > .support-cta-wrapper {
-  max-width: 1460px;
+  max-width: 1420px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .support-cta.block {
@@ -33,18 +35,23 @@ main > .section > .support-cta-wrapper {
 }
 
 .support-cta .support-cta-content {
-  width: min(100%, 760px);
+  width: 100%;
+  max-width: 1228px;
   margin: 0 auto;
   display: grid;
   justify-items: center;
   text-align: center;
 }
 
+.support-cta .support-cta-content > * {
+  max-width: 1228px;
+}
+
 .support-cta .support-cta-heading {
-  max-width: 11ch;
+  max-width: 1228px;
   margin: 0;
   color: #002e5d;
-  font-size: clamp(3rem, 5vw, 4.3rem);
+  font-size: 48px;
   font-weight: 700;
   line-height: 1.06;
   letter-spacing: -0.04em;
@@ -55,11 +62,18 @@ main > .section > .support-cta-wrapper {
     transform 0.5s var(--support-cta-reveal-ease);
 }
 
+.support-cta .support-cta-heading > :is(p, h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
 .support-cta .support-cta-subheading {
-  max-width: 28ch;
+  max-width: 1228px;
   margin: 26px 0 0;
   color: #404041;
-  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  font-size: 24px;
   font-weight: 400;
   line-height: 1.38;
   opacity: 0;
@@ -70,13 +84,23 @@ main > .section > .support-cta-wrapper {
   transition-delay: 70ms;
 }
 
+.support-cta .support-cta-subheading > p {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.support-cta .support-cta-subheading > p + p {
+  margin-top: 0.6em;
+}
+
 .support-cta .support-cta-button {
   min-width: min(100%, 294px);
   margin-top: 40px;
   display: inline-grid;
   justify-items: center;
   gap: 4px;
-  padding: 18px 34px 14px;
+  padding: 18px 48px 14px;
   border-radius: 999px;
   background: var(--support-cta-button-color);
   color: var(--support-cta-button-text-color);
@@ -100,34 +124,23 @@ main > .section > .support-cta-wrapper {
 }
 
 .support-cta .support-cta-button-label {
-  position: relative;
-  padding-right: 1.35rem;
-  font-size: clamp(1.25rem, 1.7vw, 1.9rem);
-  font-weight: 700;
+  font-size: 18.18px;
+  font-weight: 600;
   line-height: 1.15;
 }
 
-.support-cta .support-cta-button-label::after {
-  content: '\2192';
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-51%);
-  font-size: 0.95em;
-}
-
 .support-cta .support-cta-button-subtext {
-  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   line-height: 1.1;
   opacity: 0.94;
 }
 
 .support-cta .support-cta-helper {
-  max-width: 42ch;
+  max-width: 1228px;
   margin: 24px 0 0;
   color: #565656;
-  font-size: 1rem;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.45;
   opacity: 0;
@@ -150,12 +163,10 @@ main > .section > .support-cta-wrapper {
 
   .support-cta .support-cta-subheading {
     margin-top: 22px;
-    font-size: 1.3rem;
   }
 
   .support-cta .support-cta-button {
     margin-top: 32px;
-    padding: 16px 26px 13px;
   }
 }
 
@@ -179,20 +190,11 @@ main > .section > .support-cta-wrapper {
 
   .support-cta .support-cta-heading {
     max-width: none;
-    font-size: clamp(2.4rem, 11vw, 3.2rem);
-  }
-
-  .support-cta .support-cta-subheading {
-    font-size: 1.12rem;
   }
 
   .support-cta .support-cta-button {
     width: min(100%, 312px);
     min-width: 0;
-  }
-
-  .support-cta .support-cta-helper {
-    font-size: 0.95rem;
   }
 }
 

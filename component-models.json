@@ -6869,14 +6869,14 @@
     "id": "support-cta",
     "fields": [
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Heading",
         "value": "Ready to talk? Call Team HOPE today."
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subheading",
         "label": "Subheading",
@@ -7049,10 +7049,16 @@
         "label": "Image Overlay Header (Optional)"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "imageOverlayText",
         "label": "Image Overlay Text (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageOverlaySubtext",
+        "label": "Image Overlay Subtext (Optional)"
       },
       {
         "component": "select",
@@ -7068,6 +7074,10 @@
           {
             "name": "Variant 2",
             "value": "variant-2"
+          },
+          {
+            "name": "Variant 3",
+            "value": "variant-3"
           }
         ]
       }

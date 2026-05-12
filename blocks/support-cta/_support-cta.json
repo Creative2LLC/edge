@@ -22,14 +22,14 @@
       "id": "support-cta",
       "fields": [
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "heading",
           "label": "Heading",
           "value": "Ready to talk? Call Team HOPE today."
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "subheading",
           "label": "Subheading",

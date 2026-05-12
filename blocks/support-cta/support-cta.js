@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import { readLinkField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 
 const FIELD_INDEX = {
   heading: 0,
@@ -57,8 +57,8 @@ function moveText(field, target, fallbackValue = '') {
 }
 
 export default function decorate(block) {
-  const headingField = readTextField(block, 'heading', FIELD_INDEX.heading);
-  const subheadingField = readTextField(block, 'subheading', FIELD_INDEX.subheading);
+  const headingField = readRichTextField(block, 'heading', FIELD_INDEX.heading);
+  const subheadingField = readRichTextField(block, 'subheading', FIELD_INDEX.subheading);
   const buttonTextField = readTextField(block, 'buttonText', FIELD_INDEX.buttonText);
   const buttonSubtextField = readTextField(block, 'buttonSubtext', FIELD_INDEX.buttonSubtext);
   const buttonLinkField = readLinkField(block, 'buttonLink', FIELD_INDEX.buttonLink);
@@ -91,11 +91,13 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'support-cta-content';
 
-  const heading = document.createElement('h2');
+  const heading = document.createElement('div');
   heading.className = 'support-cta-heading';
+  heading.setAttribute('role', 'heading');
+  heading.setAttribute('aria-level', '2');
   moveText(headingField, heading, DEFAULTS.heading);
 
-  const subheading = document.createElement('p');
+  const subheading = document.createElement('div');
   subheading.className = 'support-cta-subheading';
   moveText(subheadingField, subheading, DEFAULTS.subheading);
 
