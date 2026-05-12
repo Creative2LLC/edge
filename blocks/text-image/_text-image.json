@@ -83,6 +83,12 @@
           "label": "Image Overlay Text (Optional)"
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageOverlaySubtext",
+          "label": "Image Overlay Subtext (Optional)"
+        },
+        {
           "component": "select",
           "valueType": "string",
           "name": "styleVariant",

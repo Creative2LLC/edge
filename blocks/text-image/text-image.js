@@ -16,7 +16,8 @@ const LEGACY_FIELD_INDEX = {
   backgroundColor: 5,
   imageAlt: 7,
   imageOverlayText: 8,
-  styleVariant: 9,
+  imageOverlaySubtext: 9,
+  styleVariant: 10,
 };
 
 function resourcePathFromUrn(resource) {
@@ -258,6 +259,7 @@ export default async function decorate(block) {
   const imageAltField = getTextField(block, 'imageAlt');
   const overlayHeaderField = getTextField(block, 'imageOverlayHeader');
   const overlayTextField = getRichTextField(block, 'imageOverlayText');
+  const overlaySubtextField = getTextField(block, 'imageOverlaySubtext');
   const styleVariantField = getTextField(block, 'styleVariant');
   const imageField = getImageField(block);
 
@@ -309,11 +311,13 @@ export default async function decorate(block) {
 
   const overlayHeader = buildTextElement(overlayHeaderField, 'p', 'text-image-overlay-header');
   const overlayText = buildRichTextElement(overlayTextField, 'text-image-overlay-text');
-  if ((overlayHeader || overlayText) && picture) {
+  const overlaySubtext = buildTextElement(overlaySubtextField, 'p', 'text-image-overlay-subtext');
+  if ((overlayHeader || overlayText || overlaySubtext) && picture) {
     const overlay = document.createElement('div');
     overlay.className = 'text-image-overlay';
     if (overlayHeader) overlay.append(overlayHeader);
     if (overlayText) overlay.append(overlayText);
+    if (overlaySubtext) overlay.append(overlaySubtext);
     mediaSide.append(overlay);
 
     requestAnimationFrame(() => {
