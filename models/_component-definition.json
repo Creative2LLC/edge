@@ -57,6 +57,12 @@
         },
         {
           "...": "../blocks/faon-application/_faon-application.json#/definitions"
+        },
+        {
+          "...": "../blocks/event-request-form/_event-request-form.json#/definitions"
+        },
+        {
+          "...": "../blocks/community-education-partner-reporting/_community-education-partner-reporting.json#/definitions"
         }
       ]
     },

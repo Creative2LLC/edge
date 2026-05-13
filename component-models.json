@@ -1456,6 +1456,94 @@
     ]
   },
   {
+    "id": "community-education-partner-reporting",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "Program Partners"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Community Education Partner Reporting Form"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "Existing Community Education Partners can submit quarterly reporting data for the most recent quarter."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Use http://127.0.0.1:8787/cep-reporting for local mock testing. The original Formstack form uses https://formstack.io/14373 and requires Formstack session tokens/captcha, so production native submits should use a backend endpoint/proxy.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Submit Report"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "successMessage",
+        "label": "Success Message",
+        "value": "Thank you. Your Community Education Partner report has been submitted."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "errorMessage",
+        "label": "Error Message",
+        "value": "We could not submit your report. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topPadding",
+        "label": "Top Padding (Optional)",
+        "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "submissionMode",
+        "label": "Submission Mode",
+        "description": "Native Form posts the redesigned form to the backend endpoint. Original Formstack Embed renders the hosted Formstack form.",
+        "options": [
+          {
+            "name": "Native Form",
+            "value": "native"
+          },
+          {
+            "name": "Original Formstack Embed",
+            "value": "original-formstack"
+          }
+        ],
+        "value": "native"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "embedUrl",
+        "label": "Original Formstack Embed URL",
+        "description": "Used only when Submission Mode is Original Formstack Embed.",
+        "value": "https://formstack.io/14373"
+      }
+    ]
+  },
+  {
     "id": "connect-grid",
     "fields": [
       {
@@ -2092,6 +2180,94 @@
         "valueType": "string",
         "name": "url",
         "label": "Embed URL"
+      }
+    ]
+  },
+  {
+    "id": "event-request-form",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "Events and Training"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Community Event, Conference, and Training Request"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "Tell us about your event, audience, and request so NCMEC can review the opportunity."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Use http://127.0.0.1:8787/event-request for local mock testing. The original Formstack form uses https://formstack.io/CB73D and requires Formstack session tokens/captcha, so production native submits should use a backend endpoint/proxy.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Submit Request"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "successMessage",
+        "label": "Success Message",
+        "value": "Thank you. Your event request has been submitted."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "errorMessage",
+        "label": "Error Message",
+        "value": "We could not submit your request. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topPadding",
+        "label": "Top Padding (Optional)",
+        "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "submissionMode",
+        "label": "Submission Mode",
+        "description": "Native Form posts the redesigned form to the backend endpoint. Original Formstack Embed renders the hosted Formstack form.",
+        "options": [
+          {
+            "name": "Native Form",
+            "value": "native"
+          },
+          {
+            "name": "Original Formstack Embed",
+            "value": "original-formstack"
+          }
+        ],
+        "value": "native"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "embedUrl",
+        "label": "Original Formstack Embed URL",
+        "description": "Used only when Submission Mode is Original Formstack Embed.",
+        "value": "https://formstack.io/CB73D"
       }
     ]
   },
