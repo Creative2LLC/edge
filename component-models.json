@@ -2096,6 +2096,94 @@
     ]
   },
   {
+    "id": "faon-application",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "Family Advocacy"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Family Advocacy Outreach Network Membership Application"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "Apply to join FAON so NCMEC can connect families with counseling services and professional support."
+      },
+      {
+        "component": "select",
+        "name": "submissionMode",
+        "label": "Submission Mode",
+        "description": "Backend uses the Submit Endpoint URL. Jotform posts to the original Jotform endpoint in a hidden iframe.",
+        "options": [
+          {
+            "name": "Backend",
+            "value": "backend"
+          },
+          {
+            "name": "Jotform",
+            "value": "jotform"
+          }
+        ],
+        "value": "backend"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Use http://127.0.0.1:8787/faon-application for local mock testing. Replace with the backend endpoint when ready.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "jotformAction",
+        "label": "Jotform Submit URL",
+        "description": "Used only when Submission Mode is Jotform.",
+        "value": "https://submit.jotform.com/submit/233355995169168"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Apply to Join"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "successMessage",
+        "label": "Success Message",
+        "value": "Thank you. Your FAON membership application has been submitted."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "errorMessage",
+        "label": "Error Message",
+        "value": "We could not submit your application. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topPadding",
+        "label": "Top Padding (Optional)",
+        "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "faq",
     "fields": [
       {
@@ -2886,6 +2974,94 @@
         "component": "aem-content",
         "name": "linkUrl",
         "label": "Link URL"
+      }
+    ]
+  },
+  {
+    "id": "host-a-fundraiser",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "Fundraising"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Host a Fundraiser"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "Tell us how you would like to raise funds for NCMEC, and our team will follow up with more information."
+      },
+      {
+        "component": "select",
+        "name": "submissionMode",
+        "label": "Submission Mode",
+        "description": "Backend uses the Submit Endpoint URL. Jotform posts to the original Jotform endpoint in a hidden iframe.",
+        "options": [
+          {
+            "name": "Backend",
+            "value": "backend"
+          },
+          {
+            "name": "Jotform",
+            "value": "jotform"
+          }
+        ],
+        "value": "backend"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Use http://127.0.0.1:8787/host-a-fundraiser for local mock testing. Replace with the backend endpoint when ready.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "jotformAction",
+        "label": "Jotform Submit URL",
+        "description": "Used only when Submission Mode is Jotform.",
+        "value": "https://submit.jotform.com/submit/252933506907159"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Submit"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "successMessage",
+        "label": "Success Message",
+        "value": "Thank you. Your fundraiser interest form has been submitted."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "errorMessage",
+        "label": "Error Message",
+        "value": "We could not submit your request. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topPadding",
+        "label": "Top Padding (Optional)",
+        "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+        "value": ""
       }
     ]
   },

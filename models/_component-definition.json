@@ -51,6 +51,12 @@
         },
         {
           "...": "../blocks/team-hope-volunteer/_team-hope-volunteer.json#/definitions"
+        },
+        {
+          "...": "../blocks/host-a-fundraiser/_host-a-fundraiser.json#/definitions"
+        },
+        {
+          "...": "../blocks/faon-application/_faon-application.json#/definitions"
         }
       ]
     },
