@@ -45,6 +45,12 @@
         },
         {
           "...": "../blocks/code-adam-kit/_code-adam-kit.json#/definitions"
+        },
+        {
+          "...": "../blocks/ncmec-reprint-request/_ncmec-reprint-request.json#/definitions"
+        },
+        {
+          "...": "../blocks/team-hope-volunteer/_team-hope-volunteer.json#/definitions"
         }
       ]
     },

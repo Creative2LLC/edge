@@ -1357,7 +1357,7 @@
         "valueType": "string",
         "name": "formAction",
         "label": "Submit Endpoint URL",
-        "description": "Use http://127.0.0.1:8787/code-adam-kit for local mock testing. Replace with the real endpoint before publishing.",
+        "description": "Use http://127.0.0.1:8787/code-adam-kit for local mock testing. The original AEM page used Formstack at https://formstack.io/4CE0F; direct native browser submits there require Formstack session tokens and captcha, so production native submits should use a backend endpoint/proxy.",
         "value": ""
       },
       {
@@ -1388,6 +1388,31 @@
         "label": "Top Padding (Optional)",
         "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
         "value": ""
+      },
+      {
+        "component": "select",
+        "name": "submissionMode",
+        "label": "Submission Mode",
+        "description": "Native form keeps the redesigned fields. Original Formstack Embed renders the hosted form used by the current AEM page and submits directly to Formstack.",
+        "options": [
+          {
+            "name": "Native Form",
+            "value": "native"
+          },
+          {
+            "name": "Original Formstack Embed",
+            "value": "original-formstack"
+          }
+        ],
+        "value": "native"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "embedUrl",
+        "label": "Original Formstack Embed URL",
+        "description": "Used only when Submission Mode is Original Formstack Embed.",
+        "value": "https://formstack.io/4CE0F"
       }
     ]
   },
@@ -4455,6 +4480,69 @@
     ]
   },
   {
+    "id": "ncmec-reprint-request",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "Publication Permissions"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "NCMEC Reprint Request Form"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "Use this form to request permission to reprint NCMEC publication content."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Use http://127.0.0.1:8787/reprint-request for local mock testing. The legacy AEM form submitted action=reprintRequest through NCMEC.endpoint.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Submit Request"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "successMessage",
+        "label": "Success Message",
+        "value": "Thank you. Your reprint request has been submitted."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "errorMessage",
+        "label": "Error Message",
+        "value": "We could not submit your request. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topPadding",
+        "label": "Top Padding (Optional)",
+        "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "need-help",
     "fields": [
       {
@@ -7153,6 +7241,69 @@
         "name": "buttonTextColor",
         "label": "Button Text Color (Hex)",
         "value": "#ffffff"
+      }
+    ]
+  },
+  {
+    "id": "team-hope-volunteer",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "Team HOPE"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Become a Team HOPE Volunteer"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "Apply to support families of missing and exploited children through Team HOPE."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Use http://127.0.0.1:8787/team-hope-volunteer for local mock testing. The legacy AEM form submitted action=sendEmailReport to teamhope@ncmec.org.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Submit Application"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "successMessage",
+        "label": "Success Message",
+        "value": "Thank you for your interest in volunteering with Team HOPE. We will follow up with you soon."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "errorMessage",
+        "label": "Error Message",
+        "value": "We could not submit your application. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topPadding",
+        "label": "Top Padding (Optional)",
+        "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+        "value": ""
       }
     ]
   },

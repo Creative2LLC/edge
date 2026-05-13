@@ -1,37 +1,36 @@
-main > .section > .code-adam-kit-wrapper {
+main > .section > .ncmec-reprint-request-wrapper {
   max-width: 1420px;
 }
 
-.code-adam-kit {
-  --code-adam-kit-top-padding: clamp(40px, 6vw, 88px);
-  --code-adam-kit-reveal-duration: 0.58s;
-  --code-adam-kit-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+.ncmec-reprint-request {
+  --ncmec-reprint-request-top-padding: clamp(40px, 6vw, 88px);
+  --ncmec-reprint-request-reveal-duration: 0.58s;
+  --ncmec-reprint-request-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  padding: var(--code-adam-kit-top-padding) 0 clamp(52px, 7vw, 96px);
+  padding: var(--ncmec-reprint-request-top-padding) 0 clamp(52px, 7vw, 96px);
   color: #404041;
 }
 
-.code-adam-kit-shell {
+.ncmec-reprint-request-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(22px, 4vw, 40px);
-  align-items: start;
   max-width: 1040px;
   margin: 0 auto;
 }
 
-.code-adam-kit-header {
+.ncmec-reprint-request-header {
   display: grid;
   gap: 18px;
   max-width: 920px;
   opacity: 0;
   transform: translateY(24px);
   transition:
-    opacity var(--code-adam-kit-reveal-duration) var(--code-adam-kit-reveal-ease),
-    transform var(--code-adam-kit-reveal-duration) var(--code-adam-kit-reveal-ease);
+    opacity var(--ncmec-reprint-request-reveal-duration) var(--ncmec-reprint-request-reveal-ease),
+    transform var(--ncmec-reprint-request-reveal-duration) var(--ncmec-reprint-request-reveal-ease);
 }
 
-.code-adam-kit-eyebrow {
+.ncmec-reprint-request-eyebrow {
   width: fit-content;
   margin: 0;
   border-radius: 999px;
@@ -45,7 +44,7 @@ main > .section > .code-adam-kit-wrapper {
   letter-spacing: 0.06em;
 }
 
-.code-adam-kit-heading {
+.ncmec-reprint-request-heading {
   margin: 0;
   color: #00264d;
   font-size: clamp(2.15rem, 4.1vw, 3.75rem);
@@ -54,7 +53,7 @@ main > .section > .code-adam-kit-wrapper {
   letter-spacing: 0;
 }
 
-.code-adam-kit-intro {
+.ncmec-reprint-request-intro {
   max-width: 56rem;
   color: #4b4b4f;
   font-size: clamp(1.04rem, 1.25vw, 1.2rem);
@@ -62,18 +61,19 @@ main > .section > .code-adam-kit-wrapper {
   line-height: 1.5;
 }
 
-.code-adam-kit-intro > :first-child {
+.ncmec-reprint-request-intro > :first-child {
   margin-top: 0;
 }
 
-.code-adam-kit-intro > :last-child {
+.ncmec-reprint-request-intro > :last-child {
   margin-bottom: 0;
 }
 
-.code-adam-kit-form,
-.code-adam-kit-embed {
+.ncmec-reprint-request-form {
   display: grid;
+  gap: 26px;
   border-radius: 8px;
+  padding: clamp(22px, 4vw, 42px);
   background:
     radial-gradient(circle at top right, rgb(255 255 255 / 78%), transparent 36%),
     linear-gradient(180deg, #f4f5f5 0%, #ece9e5 100%);
@@ -81,26 +81,12 @@ main > .section > .code-adam-kit-wrapper {
   opacity: 0;
   transform: translateY(28px) scale(0.992);
   transition:
-    opacity var(--code-adam-kit-reveal-duration) var(--code-adam-kit-reveal-ease),
-    transform var(--code-adam-kit-reveal-duration) var(--code-adam-kit-reveal-ease);
+    opacity var(--ncmec-reprint-request-reveal-duration) var(--ncmec-reprint-request-reveal-ease),
+    transform var(--ncmec-reprint-request-reveal-duration) var(--ncmec-reprint-request-reveal-ease);
   transition-delay: 90ms;
 }
 
-.code-adam-kit-form {
-  gap: 26px;
-  padding: clamp(22px, 4vw, 42px);
-}
-
-.code-adam-kit-embed {
-  display: block;
-  width: 100%;
-  min-height: 1900px;
-  border: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-.code-adam-kit-section {
+.ncmec-reprint-request-section {
   display: grid;
   gap: 16px;
   margin: 0;
@@ -109,12 +95,12 @@ main > .section > .code-adam-kit-wrapper {
   padding: 24px 0 0;
 }
 
-.code-adam-kit-section:first-child {
+.ncmec-reprint-request-section:first-of-type {
   border-top: 0;
   padding-top: 0;
 }
 
-.code-adam-kit-section-title {
+.ncmec-reprint-request-section-title {
   margin: 0;
   padding: 0;
   color: #00264d;
@@ -124,39 +110,39 @@ main > .section > .code-adam-kit-wrapper {
   letter-spacing: 0;
 }
 
-.code-adam-kit-grid,
-.code-adam-kit-field {
+.ncmec-reprint-request-grid,
+.ncmec-reprint-request-field {
   display: grid;
   gap: 16px;
 }
 
-.code-adam-kit-field {
+.ncmec-reprint-request-field {
   gap: 8px;
   transition: transform 180ms ease;
 }
 
-.code-adam-kit-field:focus-within {
+.ncmec-reprint-request-field:focus-within {
   transform: translateY(-1px);
 }
 
-.code-adam-kit-label {
+.ncmec-reprint-request-label {
   color: #32363b;
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.25;
 }
 
-.code-adam-kit-field:focus-within .code-adam-kit-label {
+.ncmec-reprint-request-field:focus-within .ncmec-reprint-request-label {
   color: #007294;
 }
 
-.code-adam-kit-required {
+.ncmec-reprint-request-required {
   color: #b6462f;
 }
 
-.code-adam-kit-input,
-.code-adam-kit-select,
-.code-adam-kit-textarea {
+.ncmec-reprint-request-input,
+.ncmec-reprint-request-select,
+.ncmec-reprint-request-textarea {
   width: 100%;
   border: 1px solid #d9d3cd;
   border-radius: 6px;
@@ -174,7 +160,7 @@ main > .section > .code-adam-kit-wrapper {
     transform 180ms ease;
 }
 
-.code-adam-kit-select {
+.ncmec-reprint-request-select {
   appearance: none;
   background-image:
     linear-gradient(45deg, transparent 50%, #66717d 50%),
@@ -187,50 +173,99 @@ main > .section > .code-adam-kit-wrapper {
   padding-right: 42px;
 }
 
-.code-adam-kit-textarea {
+.ncmec-reprint-request-textarea {
+  min-height: 128px;
   resize: vertical;
 }
 
-.code-adam-kit-input:focus-visible,
-.code-adam-kit-select:focus-visible,
-.code-adam-kit-textarea:focus-visible {
+.ncmec-reprint-request-input:focus-visible,
+.ncmec-reprint-request-select:focus-visible,
+.ncmec-reprint-request-textarea:focus-visible {
   outline: 0;
   border-color: #de8a2a;
   box-shadow: 0 0 0 4px rgb(227 139 34 / 16%);
   transform: translateY(-1px);
 }
 
-.code-adam-kit-input:hover,
-.code-adam-kit-select:hover,
-.code-adam-kit-textarea:hover {
+.ncmec-reprint-request-input:hover,
+.ncmec-reprint-request-select:hover,
+.ncmec-reprint-request-textarea:hover {
   border-color: #c8bdb2;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 70%),
     0 8px 22px rgb(17 54 82 / 7%);
 }
 
-.code-adam-kit-input:user-invalid,
-.code-adam-kit-select:user-invalid,
-.code-adam-kit-textarea:user-invalid {
+.ncmec-reprint-request-input:user-invalid,
+.ncmec-reprint-request-select:user-invalid,
+.ncmec-reprint-request-textarea:user-invalid {
   border-color: #b6462f;
   background: #fffafa;
   box-shadow: 0 0 0 4px rgb(182 70 47 / 12%);
 }
 
-.code-adam-kit-checkbox-field {
-  display: flex;
-  align-items: center;
+.ncmec-reprint-request-radio-group {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.ncmec-reprint-request-radio-list {
+  display: grid;
   gap: 10px;
 }
 
-.code-adam-kit-checkbox {
-  width: 20px;
-  height: 20px;
+.ncmec-reprint-request-radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #32363b;
+  font-size: 0.98rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.ncmec-reprint-request-radio {
+  width: 19px;
+  height: 19px;
+  margin-top: 1px;
   accent-color: #007294;
   flex: 0 0 auto;
 }
 
-.code-adam-kit-actions {
+.ncmec-reprint-request-terms {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgb(0 38 77 / 12%);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgb(255 255 255 / 58%);
+}
+
+.ncmec-reprint-request-terms h3 {
+  margin: 0;
+  color: #00264d;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.ncmec-reprint-request-terms ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.ncmec-reprint-request-terms li {
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+
+.ncmec-reprint-request-terms li:last-child {
+  margin-bottom: 0;
+}
+
+.ncmec-reprint-request-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -241,7 +276,7 @@ main > .section > .code-adam-kit-wrapper {
   padding-top: 24px;
 }
 
-.code-adam-kit-status {
+.ncmec-reprint-request-status {
   flex: 1 1 280px;
   min-height: 1.5em;
   margin: 0;
@@ -250,19 +285,19 @@ main > .section > .code-adam-kit-wrapper {
   line-height: 1.45;
 }
 
-.code-adam-kit-status.is-info {
+.ncmec-reprint-request-status.is-info {
   color: #6f6253;
 }
 
-.code-adam-kit-status.is-success {
+.ncmec-reprint-request-status.is-success {
   color: #1f6a3a;
 }
 
-.code-adam-kit-status.is-error {
+.ncmec-reprint-request-status.is-error {
   color: #a13a31;
 }
 
-.code-adam-kit-submit {
+.ncmec-reprint-request-submit {
   margin: 0 0 0 auto;
   border: 0;
   border-radius: 999px;
@@ -280,59 +315,53 @@ main > .section > .code-adam-kit-wrapper {
     background-color 180ms ease;
 }
 
-.code-adam-kit-submit:hover,
-.code-adam-kit-submit:focus-visible {
+.ncmec-reprint-request-submit:hover,
+.ncmec-reprint-request-submit:focus-visible {
   background: #d17f1d;
   transform: translateY(-1px);
   box-shadow: 0 18px 34px rgb(209 127 29 / 30%);
 }
 
-.code-adam-kit-submit:disabled,
-.code-adam-kit.is-submitting .code-adam-kit-submit {
+.ncmec-reprint-request-submit:disabled,
+.ncmec-reprint-request.is-submitting .ncmec-reprint-request-submit {
   transform: none;
   background: #e1b984;
   box-shadow: none;
 }
 
-.code-adam-kit.is-visible .code-adam-kit-header,
-.code-adam-kit.is-visible .code-adam-kit-form,
-.code-adam-kit.is-visible .code-adam-kit-embed {
+.ncmec-reprint-request.is-visible .ncmec-reprint-request-header,
+.ncmec-reprint-request.is-visible .ncmec-reprint-request-form {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
 @media (width < 720px) {
-  .code-adam-kit {
-    --code-adam-kit-top-padding: 32px;
+  .ncmec-reprint-request {
+    --ncmec-reprint-request-top-padding: 32px;
   }
 
-  .code-adam-kit-form {
+  .ncmec-reprint-request-form {
     padding: 20px 16px;
   }
 
-  .code-adam-kit-embed {
-    min-height: 2100px;
-  }
-
-  .code-adam-kit-actions {
+  .ncmec-reprint-request-actions {
     align-items: stretch;
   }
 
-  .code-adam-kit-submit {
+  .ncmec-reprint-request-submit {
     width: 100%;
     margin-left: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .code-adam-kit-header,
-  .code-adam-kit-form,
-  .code-adam-kit-field,
-  .code-adam-kit-input,
-  .code-adam-kit-select,
-  .code-adam-kit-textarea,
-  .code-adam-kit-embed,
-  .code-adam-kit-submit {
+  .ncmec-reprint-request-header,
+  .ncmec-reprint-request-form,
+  .ncmec-reprint-request-field,
+  .ncmec-reprint-request-input,
+  .ncmec-reprint-request-select,
+  .ncmec-reprint-request-textarea,
+  .ncmec-reprint-request-submit {
     opacity: 1;
     transform: none;
     transition: none;

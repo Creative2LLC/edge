@@ -1,5 +1,6 @@
 import {
   appendFormMetadata,
+  applyPhoneValidation,
   createFormSession,
   extractApiMessage,
   isFormValid,
@@ -17,81 +18,84 @@ const FIELD_INDEX = {
   successMessage: 5,
   errorMessage: 6,
   topPadding: 7,
-  submissionMode: 8,
-  embedUrl: 9,
 };
 
 const DEFAULTS = {
-  eyebrow: 'Code Adam',
-  heading: 'Help Make Your Business a Safer Place for Children.',
-  intro: 'Order your free Code Adam kit today.',
+  eyebrow: 'Publication Permissions',
+  heading: 'NCMEC Reprint Request Form',
+  intro: 'Use this form to request permission to reprint NCMEC publication content.',
   formAction: '',
-  submissionMode: 'native',
-  embedUrl: 'https://formstack.io/4CE0F',
-  buttonText: 'Order Free Kit',
-  successMessage: 'Thank you. Your Code Adam kit request has been submitted.',
+  buttonText: 'Submit Request',
+  successMessage: 'Thank you. Your reprint request has been submitted.',
   errorMessage: 'We could not submit your request. Please try again.',
   missingEndpointMessage: 'This form is not connected yet.',
   missingEndpointAuthorMessage: 'Add a submit endpoint URL to enable this form.',
 };
 
 const US_STATES = [
-  ['Alabama', 'Alabama'],
-  ['Alaska', 'Alaska'],
-  ['American Samoa', 'American Samoa'],
-  ['Arizona', 'Arizona'],
-  ['Arkansas', 'Arkansas'],
-  ['California', 'California'],
-  ['Colorado', 'Colorado'],
-  ['Connecticut', 'Connecticut'],
-  ['Delaware', 'Delaware'],
-  ['District of Columbia', 'District of Columbia'],
-  ['Florida', 'Florida'],
-  ['Georgia', 'Georgia'],
-  ['Guam', 'Guam'],
-  ['Hawaii', 'Hawaii'],
-  ['Idaho', 'Idaho'],
-  ['Illinois', 'Illinois'],
-  ['Indiana', 'Indiana'],
-  ['Iowa', 'Iowa'],
-  ['Kansas', 'Kansas'],
-  ['Kentucky', 'Kentucky'],
-  ['Louisiana', 'Louisiana'],
-  ['Maine', 'Maine'],
-  ['Maryland', 'Maryland'],
-  ['Massachusetts', 'Massachusetts'],
-  ['Michigan', 'Michigan'],
-  ['Minnesota', 'Minnesota'],
-  ['Mississippi', 'Mississippi'],
-  ['Missouri', 'Missouri'],
-  ['Montana', 'Montana'],
-  ['Nebraska', 'Nebraska'],
-  ['Nevada', 'Nevada'],
-  ['New Hampshire', 'New Hampshire'],
-  ['New Jersey', 'New Jersey'],
-  ['New Mexico', 'New Mexico'],
-  ['New York', 'New York'],
-  ['North Carolina', 'North Carolina'],
-  ['North Dakota', 'North Dakota'],
-  ['Northern Mariana Islands', 'Northern Mariana Islands'],
-  ['Ohio', 'Ohio'],
-  ['Oklahoma', 'Oklahoma'],
-  ['Oregon', 'Oregon'],
-  ['Pennsylvania', 'Pennsylvania'],
-  ['Puerto Rico', 'Puerto Rico'],
-  ['Rhode Island', 'Rhode Island'],
-  ['South Carolina', 'South Carolina'],
-  ['South Dakota', 'South Dakota'],
-  ['Tennessee', 'Tennessee'],
-  ['Texas', 'Texas'],
-  ['U.S. Virgin Islands', 'U.S. Virgin Islands'],
-  ['Utah', 'Utah'],
-  ['Vermont', 'Vermont'],
-  ['Virginia', 'Virginia'],
-  ['Washington', 'Washington'],
-  ['West Virginia', 'West Virginia'],
-  ['Wisconsin', 'Wisconsin'],
-  ['Wyoming', 'Wyoming'],
+  ['AL', 'Alabama'],
+  ['AK', 'Alaska'],
+  ['AS', 'American Samoa'],
+  ['AZ', 'Arizona'],
+  ['AR', 'Arkansas'],
+  ['CA', 'California'],
+  ['CO', 'Colorado'],
+  ['CT', 'Connecticut'],
+  ['DE', 'Delaware'],
+  ['DC', 'District of Columbia'],
+  ['FL', 'Florida'],
+  ['GA', 'Georgia'],
+  ['GU', 'Guam'],
+  ['HI', 'Hawaii'],
+  ['ID', 'Idaho'],
+  ['IL', 'Illinois'],
+  ['IN', 'Indiana'],
+  ['IA', 'Iowa'],
+  ['KS', 'Kansas'],
+  ['KY', 'Kentucky'],
+  ['LA', 'Louisiana'],
+  ['ME', 'Maine'],
+  ['MD', 'Maryland'],
+  ['MA', 'Massachusetts'],
+  ['MI', 'Michigan'],
+  ['MN', 'Minnesota'],
+  ['MS', 'Mississippi'],
+  ['MO', 'Missouri'],
+  ['MT', 'Montana'],
+  ['NE', 'Nebraska'],
+  ['NV', 'Nevada'],
+  ['NH', 'New Hampshire'],
+  ['NJ', 'New Jersey'],
+  ['NM', 'New Mexico'],
+  ['NY', 'New York'],
+  ['NC', 'North Carolina'],
+  ['ND', 'North Dakota'],
+  ['MP', 'Northern Mariana Islands'],
+  ['OH', 'Ohio'],
+  ['OK', 'Oklahoma'],
+  ['OR', 'Oregon'],
+  ['PA', 'Pennsylvania'],
+  ['PR', 'Puerto Rico'],
+  ['RI', 'Rhode Island'],
+  ['SC', 'South Carolina'],
+  ['SD', 'South Dakota'],
+  ['TN', 'Tennessee'],
+  ['TX', 'Texas'],
+  ['VI', 'U.S. Virgin Islands'],
+  ['UT', 'Utah'],
+  ['VT', 'Vermont'],
+  ['VA', 'Virginia'],
+  ['WA', 'Washington'],
+  ['WV', 'West Virginia'],
+  ['WI', 'Wisconsin'],
+  ['WY', 'Wyoming'],
+];
+
+const ORG_TYPES = [
+  ['nonProfit', 'Non-profit'],
+  ['forProfit', 'For profit'],
+  ['gov', 'Law Enforcement/Government Agency'],
+  ['na', 'Not applicable (requestor is an individual)'],
 ];
 
 function observeReveal(block) {
@@ -171,14 +175,14 @@ function hasAuthoringContext(scope) {
 
 function buildRequiredMarker() {
   const marker = document.createElement('span');
-  marker.className = 'code-adam-kit-required';
+  marker.className = 'ncmec-reprint-request-required';
   marker.textContent = ' *';
   return marker;
 }
 
 function buildLabel(label, required) {
   const labelText = document.createElement('span');
-  labelText.className = 'code-adam-kit-label';
+  labelText.className = 'ncmec-reprint-request-label';
   labelText.textContent = label;
   if (required) labelText.append(buildRequiredMarker());
   return labelText;
@@ -191,38 +195,42 @@ function buildInput({
   required = false,
   autocomplete = '',
   inputMode = '',
+  pattern = '',
+  title = '',
 }) {
   const field = document.createElement('label');
-  field.className = 'code-adam-kit-field';
+  field.className = 'ncmec-reprint-request-field';
 
   const input = document.createElement('input');
-  input.className = 'code-adam-kit-input';
+  input.className = 'ncmec-reprint-request-input';
   input.type = type;
   input.name = name;
   if (required) input.required = true;
   if (autocomplete) input.autocomplete = autocomplete;
   if (inputMode) input.inputMode = inputMode;
+  if (pattern) input.pattern = pattern;
+  if (title) input.title = title;
 
   field.append(buildLabel(label, required), input);
   return field;
 }
 
-function buildCheckbox({
+function buildTextarea({
   label,
   name,
-  checked = false,
+  rows = 5,
+  placeholder = '',
 }) {
   const field = document.createElement('label');
-  field.className = 'code-adam-kit-field code-adam-kit-checkbox-field';
+  field.className = 'ncmec-reprint-request-field';
 
-  const input = document.createElement('input');
-  input.className = 'code-adam-kit-checkbox';
-  input.type = 'checkbox';
-  input.name = name;
-  input.value = 'true';
-  input.checked = checked;
+  const textarea = document.createElement('textarea');
+  textarea.className = 'ncmec-reprint-request-textarea';
+  textarea.name = name;
+  textarea.rows = rows;
+  if (placeholder) textarea.placeholder = placeholder;
 
-  field.append(input, buildLabel(label, false));
+  field.append(buildLabel(label, false), textarea);
   return field;
 }
 
@@ -231,13 +239,13 @@ function buildSelect({
   name,
   options,
   required = false,
-  placeholder = 'Select one',
+  placeholder = 'Select',
 }) {
   const field = document.createElement('label');
-  field.className = 'code-adam-kit-field';
+  field.className = 'ncmec-reprint-request-field';
 
   const select = document.createElement('select');
-  select.className = 'code-adam-kit-select';
+  select.className = 'ncmec-reprint-request-select';
   select.name = name;
   if (required) select.required = true;
 
@@ -259,191 +267,217 @@ function buildSelect({
   return field;
 }
 
+function buildRadioGroup({
+  legend,
+  name,
+  options,
+  required = false,
+  defaultValue = '',
+}) {
+  const fieldset = document.createElement('fieldset');
+  fieldset.className = 'ncmec-reprint-request-radio-group';
+
+  const legendElement = document.createElement('legend');
+  legendElement.className = 'ncmec-reprint-request-label';
+  legendElement.textContent = legend;
+  if (required) legendElement.append(buildRequiredMarker());
+  fieldset.append(legendElement);
+
+  const list = document.createElement('div');
+  list.className = 'ncmec-reprint-request-radio-list';
+
+  options.forEach(([value, label], index) => {
+    const item = document.createElement('label');
+    item.className = 'ncmec-reprint-request-radio-item';
+
+    const input = document.createElement('input');
+    input.className = 'ncmec-reprint-request-radio';
+    input.type = 'radio';
+    input.name = name;
+    input.value = value;
+    input.required = required;
+    input.checked = value === defaultValue || (!defaultValue && index === 0 && !required);
+
+    const text = document.createElement('span');
+    text.textContent = label;
+
+    item.append(input, text);
+    list.append(item);
+  });
+
+  fieldset.append(list);
+  return fieldset;
+}
+
 function buildSection(title) {
   const section = document.createElement('fieldset');
-  section.className = 'code-adam-kit-section';
+  section.className = 'ncmec-reprint-request-section';
 
   const legend = document.createElement('legend');
-  legend.className = 'code-adam-kit-section-title';
+  legend.className = 'ncmec-reprint-request-section-title';
   legend.textContent = title;
   section.append(legend);
 
   const grid = document.createElement('div');
-  grid.className = 'code-adam-kit-grid';
+  grid.className = 'ncmec-reprint-request-grid';
   section.append(grid);
 
   return { section, grid };
 }
 
+function buildHidden(name, value) {
+  const input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = name;
+  input.value = value;
+  return input;
+}
+
+function buildTerms() {
+  const terms = document.createElement('div');
+  terms.className = 'ncmec-reprint-request-terms';
+
+  const heading = document.createElement('h3');
+  heading.textContent = 'By submitting this form, you agree to the following terms and conditions:';
+
+  const list = document.createElement('ul');
+  [
+    'You will not modify the Content in any way unless specifically authorized in writing by NCMEC.',
+    'You will not delete or alter any copyright, trademark or other intellectual property or proprietary notices contained in the Content.',
+  ].forEach((entry) => {
+    const item = document.createElement('li');
+    item.textContent = entry;
+    list.append(item);
+  });
+
+  terms.append(heading, list);
+  return terms;
+}
+
 function buildForm() {
   const form = document.createElement('form');
-  form.className = 'code-adam-kit-form';
+  form.className = 'ncmec-reprint-request-form';
+  form.append(buildHidden('LanguageId', 'en'), buildHidden('action', 'reprintRequest'));
 
-  const country = document.createElement('input');
-  country.type = 'hidden';
-  country.name = 'CodeAdam__c.Country__c';
-  country.value = 'United States of America';
-  form.append(country);
-
-  const organization = buildSection('Organization');
-  organization.grid.append(
+  const requestor = buildSection('Requestor Information');
+  requestor.grid.append(
     buildInput({
-      label: 'Business or Organization Name',
-      name: 'CodeAdam__c.Organization_Name__c',
+      label: 'Requestor Name',
+      name: 'requestorName',
+      autocomplete: 'name',
+      required: true,
+    }),
+    buildInput({
+      label: 'Organization Name',
+      name: 'orgName',
       autocomplete: 'organization',
       required: true,
     }),
-    buildSelect({
-      label: 'Organization Type',
-      name: 'CodeAdam__c.Organization_Type__c',
-      options: [
-        ['Retail', 'Retail'],
-        ['Restaurant', 'Restaurant'],
-        ['Entertainment Venue', 'Entertainment Venue'],
-        ['Hospitality', 'Hospitality'],
-        ['Community Organization', 'Community Organization'],
-        ['Other', 'Other'],
-      ],
-      required: true,
+    buildRadioGroup({
+      legend: 'Organization Type',
+      name: 'orgType',
+      options: ORG_TYPES,
+      defaultValue: 'nonProfit',
     }),
     buildInput({
-      label: 'Store Number',
-      name: 'CodeAdam__c.Store_Number__c',
-    }),
-  );
-
-  const contact = buildSection('Contact');
-  contact.grid.append(
-    buildInput({
-      label: 'First Name',
-      name: 'CodeAdam__c.First_Name__c',
-      autocomplete: 'given-name',
-      required: true,
-    }),
-    buildInput({
-      label: 'Last Name',
-      name: 'CodeAdam__c.Name',
-      autocomplete: 'family-name',
-      required: true,
-    }),
-    buildInput({
-      label: 'Job Title',
-      name: 'CodeAdam__c.Job_Title__c',
-      autocomplete: 'organization-title',
-    }),
-    buildInput({
-      label: 'Email Address',
-      name: 'CodeAdam__c.CodeAdam_Email__c',
-      type: 'email',
-      autocomplete: 'email',
-      inputMode: 'email',
-      required: true,
-    }),
-    buildInput({
-      label: 'Re-enter Email',
-      name: 'FSGFShortAnswer390',
-      type: 'email',
-      autocomplete: 'email',
-      inputMode: 'email',
-      required: true,
-    }),
-  );
-
-  const shipping = buildSection('Shipping Address');
-  shipping.grid.append(
-    buildInput({
-      label: 'USA Street Address',
-      name: 'CodeAdam__c.Street_Address__c',
+      label: 'Address 1',
+      name: 'address1',
       autocomplete: 'address-line1',
       required: true,
     }),
     buildInput({
-      label: 'Apt/Suite',
-      name: 'CodeAdam__c.Apt_Suite__c',
+      label: 'Address 2',
+      name: 'address2',
       autocomplete: 'address-line2',
     }),
     buildInput({
       label: 'City',
-      name: 'CodeAdam__c.City__c',
+      name: 'city',
       autocomplete: 'address-level2',
       required: true,
     }),
     buildSelect({
       label: 'State',
-      name: 'CodeAdam__c.State__c',
+      name: 'state',
       options: US_STATES,
-      placeholder: 'Select a state',
       required: true,
     }),
     buildInput({
-      label: 'ZIP Code',
-      name: 'CodeAdam__c.Zipcode__c',
+      label: 'Zip Code',
+      name: 'zip',
       autocomplete: 'postal-code',
       inputMode: 'numeric',
+      pattern: '^\\d{5}(-\\d{4})?$',
+      title: 'Enter a valid ZIP code.',
+      required: true,
+    }),
+    buildInput({
+      label: 'Contact Phone',
+      name: 'contactPhone',
+      type: 'tel',
+      autocomplete: 'tel',
+      inputMode: 'tel',
+      required: true,
+    }),
+    buildInput({
+      label: 'Email',
+      name: 'email',
+      type: 'email',
+      autocomplete: 'email',
+      inputMode: 'email',
       required: true,
     }),
   );
 
-  const kit = buildSection('Kit Request');
-  kit.grid.append(
-    buildSelect({
-      label: 'Number of Kits',
-      name: 'CodeAdam__c.Number_of_Kits__c',
-      options: ['0', '1', '2', '3', '4', '5'].map((value) => [value, value]),
+  const publication = buildSection('Publication Request');
+  publication.grid.append(
+    buildInput({
+      label: 'Publication Title',
+      name: 'publicationTitle',
       required: true,
-      placeholder: 'Select number of kits',
     }),
-    buildSelect({
-      label: 'Number of Additional Window Decals',
-      name: 'CodeAdam__c.Number_of_Window_Decals__c',
-      options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-        .map((value) => [value, value]),
-      placeholder: 'Select number of decals',
+    buildInput({
+      label: 'Publication Date',
+      name: 'publicationDate',
+      inputMode: 'numeric',
+      pattern: '^(0[1-9]|1[0-2])-([0-2][0-9]|3[01])-\\d{4}$',
+      title: 'Use mm-dd-yyyy for dates.',
+      required: true,
     }),
-    buildCheckbox({
-      label: 'Sign me up for the NCMEC Newsletter',
-      name: 'CodeAdam__c.Sign_me_up_for_the_NCMEC_Newsletter__c',
-      checked: true,
+    buildInput({
+      label: 'Requestor Publication, Conference, or Event Name',
+      name: 'event',
+      required: true,
+    }),
+    buildInput({
+      label: 'Requested Format of Reprinted Publication',
+      name: 'reprintedFormat',
+      required: true,
     }),
   );
 
-  form.append(organization.section, contact.section, shipping.section, kit.section);
+  const permissions = buildSection('Permissions');
+  permissions.grid.append(
+    buildRadioGroup({
+      legend: 'How will the NCMEC publication be used?',
+      name: 'agreement',
+      required: true,
+      options: [
+        ['yes', 'I am using the NCMEC publication exactly as it appears in the original publication.'],
+        ['no', 'I would like to modify the text of the NCMEC publication.'],
+      ],
+    }),
+    buildTextarea({
+      label: 'Describe Modifications',
+      name: 'modifications',
+      placeholder: 'Describe modifications here.',
+    }),
+    buildTerms(),
+  );
+
+  form.append(requestor.section, publication.section, permissions.section);
+  applyPhoneValidation(form.querySelector('[name="contactPhone"]'));
   return form;
-}
-
-function applyEmailConfirmationValidation(form) {
-  const email = form.querySelector('[name="CodeAdam__c.CodeAdam_Email__c"]');
-  const confirmation = form.querySelector('[name="FSGFShortAnswer390"]');
-  if (!email || !confirmation) return;
-
-  const validate = () => {
-    const matches = !confirmation.value || email.value === confirmation.value;
-    confirmation.setCustomValidity(matches ? '' : 'Email and re-entered email must match.');
-  };
-
-  email.addEventListener('input', validate);
-  confirmation.addEventListener('input', validate);
-  confirmation.addEventListener('blur', validate);
-  validate();
-}
-
-function appendOriginalFormMetadata(formData, originalFormUrl) {
-  formData.set('originalFormName', 'Code Adam');
-  formData.set('originalFormUrl', originalFormUrl || DEFAULTS.embedUrl);
-  if (!formData.has('CodeAdam__c.Number_of_Window_Decals__c')) {
-    formData.set('CodeAdam__c.Number_of_Window_Decals__c', '0');
-  }
-}
-
-function buildOriginalEmbed(embedUrl) {
-  const frame = document.createElement('iframe');
-  frame.className = 'code-adam-kit-embed';
-  frame.title = 'Code Adam order form';
-  frame.src = embedUrl || DEFAULTS.embedUrl;
-  frame.loading = 'lazy';
-  frame.referrerPolicy = 'strict-origin-when-cross-origin';
-  frame.setAttribute('allow', 'clipboard-write');
-  return frame;
 }
 
 function bindSubmit(block, form, submitButton, status, config, formSession) {
@@ -462,10 +496,9 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
 
     const formData = new FormData(form);
     appendFormMetadata(formData, formSession);
-    appendOriginalFormMetadata(formData, config.originalFormUrl);
 
     block.dispatchEvent(
-      new CustomEvent('code-adam-kit:submit', {
+      new CustomEvent('ncmec-reprint-request:submit', {
         bubbles: true,
         detail: Object.fromEntries(formData.entries()),
       }),
@@ -491,7 +524,7 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
 
       form.reset();
       formSession.reset();
-      form.querySelector('[name="phone"]')?.dispatchEvent(new Event('input'));
+      form.querySelector('[name="contactPhone"]')?.dispatchEvent(new Event('input'));
       updateFormStatus(status, responseMessage || config.successMessage, 'success');
     } catch (error) {
       const message = error instanceof Error
@@ -509,67 +542,55 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
 
 export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
-  if (topPadding) block.style.setProperty('--code-adam-kit-top-padding', topPadding);
+  if (topPadding) block.style.setProperty('--ncmec-reprint-request-top-padding', topPadding);
 
   const formAction = getTextField(block, 'formAction').value || DEFAULTS.formAction;
-  const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
-  const embedUrl = getTextField(block, 'embedUrl').value || DEFAULTS.embedUrl;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;
 
   const shell = document.createElement('div');
-  shell.className = 'code-adam-kit-shell';
+  shell.className = 'ncmec-reprint-request-shell';
 
   const header = document.createElement('div');
-  header.className = 'code-adam-kit-header';
+  header.className = 'ncmec-reprint-request-header';
 
   const eyebrow = document.createElement('p');
-  eyebrow.className = 'code-adam-kit-eyebrow';
+  eyebrow.className = 'ncmec-reprint-request-eyebrow';
   moveText(getTextField(block, 'eyebrow'), eyebrow, DEFAULTS.eyebrow);
 
   const heading = document.createElement('h2');
-  heading.className = 'code-adam-kit-heading';
+  heading.className = 'ncmec-reprint-request-heading';
   moveText(getTextField(block, 'heading'), heading, DEFAULTS.heading);
 
   const intro = document.createElement('div');
-  intro.className = 'code-adam-kit-intro';
+  intro.className = 'ncmec-reprint-request-intro';
   moveHtml(getRichField(block, 'intro'), intro, DEFAULTS.intro);
   header.append(eyebrow, heading, intro);
 
-  if (submissionMode === 'original-formstack') {
-    shell.append(header, buildOriginalEmbed(embedUrl));
-    block.replaceChildren(shell);
-    observeReveal(block);
-    return;
-  }
-
   const form = buildForm();
-  applyEmailConfirmationValidation(form);
-
   const actions = document.createElement('div');
-  actions.className = 'code-adam-kit-actions';
+  actions.className = 'ncmec-reprint-request-actions';
 
   const status = document.createElement('p');
-  status.className = 'code-adam-kit-status';
+  status.className = 'ncmec-reprint-request-status';
   status.hidden = true;
   status.setAttribute('aria-live', 'polite');
 
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
-  submitButton.className = 'code-adam-kit-submit';
+  submitButton.className = 'ncmec-reprint-request-submit';
   moveText(getTextField(block, 'buttonText'), submitButton, DEFAULTS.buttonText);
 
   actions.append(status, submitButton);
   form.append(actions);
 
-  const formSession = createFormSession(form, 'code-adam-kit');
+  const formSession = createFormSession(form, 'ncmec-reprint-request');
 
   shell.append(header, form);
   block.replaceChildren(shell);
 
   bindSubmit(block, form, submitButton, status, {
     action: formAction,
-    originalFormUrl: embedUrl,
     successMessage,
     errorMessage,
     isAuthoring: hasAuthoringContext(block),
