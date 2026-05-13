@@ -3,7 +3,6 @@
   --numbered-cards-viewport-width: 100vw;
   --numbered-cards-reveal-duration: 0.52s;
   --numbered-cards-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --numbered-cards-hover-bg: #008db6;
 
   padding: 0;
   position: relative;
@@ -192,9 +191,7 @@
   transform: translateY(24px);
   transition:
     opacity var(--numbered-cards-reveal-duration) var(--numbered-cards-reveal-ease),
-    transform var(--numbered-cards-reveal-duration) var(--numbered-cards-reveal-ease),
-    box-shadow 0.28s ease,
-    background-color 0.28s ease;
+    transform var(--numbered-cards-reveal-duration) var(--numbered-cards-reveal-ease);
   transition-delay: calc(var(--numbered-card-index, 0) * 70ms + 130ms);
 }
 
@@ -266,14 +263,6 @@
 .numbered-cards.is-visible .numbered-cards-card {
   opacity: 1;
   transform: translateY(0);
-}
-
-@media (hover: hover) {
-  .numbered-cards .numbered-cards-card:hover {
-    transform: translateY(-8px);
-    background-color: var(--numbered-cards-hover-bg) !important;
-    box-shadow: 0 24px 40px rgb(0 38 77 / 18%);
-  }
 }
 
 @media (width <= 1024px) {
