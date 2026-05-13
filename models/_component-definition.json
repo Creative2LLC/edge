@@ -42,6 +42,9 @@
         },
         {
           "...": "../blocks/missing-child-poster-api-registration/_missing-child-poster-api-registration.json#/definitions"
+        },
+        {
+          "...": "../blocks/code-adam-kit/_code-adam-kit.json#/definitions"
         }
       ]
     },

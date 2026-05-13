@@ -1329,6 +1329,69 @@
     ]
   },
   {
+    "id": "code-adam-kit",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": "Code Adam"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Help Make Your Business a Safer Place for Children."
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": "Order your free Code Adam kit today."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "formAction",
+        "label": "Submit Endpoint URL",
+        "description": "Use http://127.0.0.1:8787/code-adam-kit for local mock testing. Replace with the real endpoint before publishing.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "buttonText",
+        "label": "Button Text",
+        "value": "Order Free Kit"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "successMessage",
+        "label": "Success Message",
+        "value": "Thank you. Your Code Adam kit request has been submitted."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "errorMessage",
+        "label": "Error Message",
+        "value": "We could not submit your request. Please try again."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "topPadding",
+        "label": "Top Padding (Optional)",
+        "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "columns",
     "fields": [
       {

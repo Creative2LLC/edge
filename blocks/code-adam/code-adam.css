@@ -1,0 +1,5 @@
+@import url("../code-adam-kit/code-adam-kit.css");
+
+main > .section > .code-adam-wrapper {
+  max-width: 1420px;
+}

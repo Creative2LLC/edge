@@ -4,6 +4,8 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration {
   --missing-child-poster-api-registration-top-padding: clamp(40px, 6vw, 88px);
+  --missing-child-poster-api-registration-reveal-duration: 0.58s;
+  --missing-child-poster-api-registration-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   padding: var(--missing-child-poster-api-registration-top-padding) 0 clamp(52px, 7vw, 96px);
   color: #404041;
@@ -22,6 +24,11 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   display: grid;
   gap: 18px;
   max-width: 920px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease),
+    transform var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease);
 }
 
 .missing-child-poster-api-registration-eyebrow {
@@ -71,7 +78,12 @@ main > .section > .missing-child-poster-api-registration-wrapper {
     radial-gradient(circle at top right, rgb(255 255 255 / 78%), transparent 36%),
     linear-gradient(180deg, #f4f5f5 0%, #ece9e5 100%);
   box-shadow: 0 24px 60px rgb(17 54 82 / 10%);
-  animation: missing-child-poster-api-registration-panel-in 420ms ease both;
+  opacity: 0;
+  transform: translateY(28px) scale(0.992);
+  transition:
+    opacity var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease),
+    transform var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease);
+  transition-delay: 90ms;
 }
 
 .missing-child-poster-api-registration-form {
@@ -342,16 +354,11 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   text-underline-offset: 0.16em;
 }
 
-@keyframes missing-child-poster-api-registration-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.missing-child-poster-api-registration.is-visible .missing-child-poster-api-registration-header,
+.missing-child-poster-api-registration.is-visible .missing-child-poster-api-registration-form,
+.missing-child-poster-api-registration.is-visible .missing-child-poster-api-registration-credentials {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 @media (width < 720px) {
@@ -381,6 +388,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .missing-child-poster-api-registration-header,
   .missing-child-poster-api-registration-form,
   .missing-child-poster-api-registration-credentials,
   .missing-child-poster-api-registration-field,
@@ -389,7 +397,8 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   .missing-child-poster-api-registration-textarea,
   .missing-child-poster-api-registration-token-button,
   .missing-child-poster-api-registration-submit {
-    animation: none;
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 }

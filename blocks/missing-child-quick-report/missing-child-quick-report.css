@@ -4,6 +4,8 @@ main > .section > .missing-child-quick-report-wrapper {
 
 .missing-child-quick-report {
   --missing-child-quick-report-top-padding: clamp(40px, 6vw, 88px);
+  --missing-child-quick-report-reveal-duration: 0.58s;
+  --missing-child-quick-report-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   padding: var(--missing-child-quick-report-top-padding) 0 clamp(48px, 7vw, 96px);
   color: #404041;
@@ -23,6 +25,11 @@ main > .section > .missing-child-quick-report-wrapper {
   display: grid;
   gap: 18px;
   max-width: 920px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--missing-child-quick-report-reveal-duration) var(--missing-child-quick-report-reveal-ease),
+    transform var(--missing-child-quick-report-reveal-duration) var(--missing-child-quick-report-reveal-ease);
 }
 
 .missing-child-quick-report-eyebrow {
@@ -70,7 +77,12 @@ main > .section > .missing-child-quick-report-wrapper {
   padding: 20px 22px;
   background: #fff;
   box-shadow: 0 16px 40px rgb(17 54 82 / 8%);
-  animation: missing-child-quick-report-panel-in 360ms ease both;
+  opacity: 0;
+  transform: translateY(28px) scale(0.992);
+  transition:
+    opacity var(--missing-child-quick-report-reveal-duration) var(--missing-child-quick-report-reveal-ease),
+    transform var(--missing-child-quick-report-reveal-duration) var(--missing-child-quick-report-reveal-ease);
+  transition-delay: 70ms;
 }
 
 .missing-child-quick-report-emergency-heading {
@@ -106,7 +118,12 @@ main > .section > .missing-child-quick-report-wrapper {
     radial-gradient(circle at top right, rgb(255 255 255 / 78%), transparent 36%),
     linear-gradient(180deg, #f4f5f5 0%, #ece9e5 100%);
   box-shadow: 0 24px 60px rgb(17 54 82 / 10%);
-  animation: missing-child-quick-report-panel-in 420ms ease both;
+  opacity: 0;
+  transform: translateY(28px) scale(0.992);
+  transition:
+    opacity var(--missing-child-quick-report-reveal-duration) var(--missing-child-quick-report-reveal-ease),
+    transform var(--missing-child-quick-report-reveal-duration) var(--missing-child-quick-report-reveal-ease);
+  transition-delay: 140ms;
 }
 
 .missing-child-quick-report-context {
@@ -367,16 +384,11 @@ main > .section > .missing-child-quick-report-wrapper {
   display: none;
 }
 
-@keyframes missing-child-quick-report-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.missing-child-quick-report.is-visible .missing-child-quick-report-header,
+.missing-child-quick-report.is-visible .missing-child-quick-report-emergency,
+.missing-child-quick-report.is-visible .missing-child-quick-report-form {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 @media (width < 640px) {
@@ -403,6 +415,7 @@ main > .section > .missing-child-quick-report-wrapper {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .missing-child-quick-report-header,
   .missing-child-quick-report-emergency,
   .missing-child-quick-report-form,
   .missing-child-quick-report-field,
@@ -410,7 +423,8 @@ main > .section > .missing-child-quick-report-wrapper {
   .missing-child-quick-report-textarea,
   .missing-child-quick-report-radio,
   .missing-child-quick-report-submit {
-    animation: none;
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 }
