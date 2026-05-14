@@ -231,7 +231,7 @@ main > .section > .general-inquiries-wrapper {
 .general-inquiries.general-inquiries-support-mode .general-inquiries-backdrop img {
   display: block;
   object-fit: cover;
-  opacity: 0.1;
+  opacity: 0.25;
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-support,
@@ -272,7 +272,7 @@ main > .section > .general-inquiries-wrapper {
   align-items: center;
   justify-content: center;
   text-align: center;
-  margin: 20px 0 12px;
+  margin: 36px 0 32px;
   padding: 14.55px 48px;
   border-radius: 999px;
   background: #008db6;
@@ -359,10 +359,6 @@ main > .section > .general-inquiries-wrapper {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' fill='none'%3E%3Cpath d='M1 1.5 4 4.5 7 1.5' stroke='%23404041' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-position: right 16px center;
   background-size: 8px 6px;
-}
-
-.general-inquiries.general-inquiries-support-mode .general-inquiries-select:focus {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' fill='none'%3E%3Cpath d='M1 4.5 4 1.5 7 4.5' stroke='%23404041' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-textarea {
