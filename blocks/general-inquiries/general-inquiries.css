@@ -212,8 +212,8 @@ main > .section > .general-inquiries-wrapper {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(270deg, rgba(231, 228, 225, 0.15) 0%, rgba(0, 141, 182, 0.15) 100%),
-    linear-gradient(270deg, #E7E4E1 0%, rgba(231, 228, 225, 0) 100%);
+    linear-gradient(270deg, rgb(231 228 225 / 15%) 0%, rgb(0 141 182 / 15%) 100%),
+    linear-gradient(270deg, #e7e4e1 0%, rgb(231 228 225 / 0%) 100%);
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-backdrop picture {
