@@ -563,6 +563,32 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
   });
 }
 
+function createPlaceholderOverlay(placeholder) {
+  const overlay = document.createElement('span');
+  overlay.className = 'general-inquiries-input-overlay';
+  overlay.setAttribute('aria-hidden', 'true');
+
+  const match = placeholder.match(/^(.*?)\s*\((optional)\)\s*$/i);
+  if (match) {
+    overlay.append(document.createTextNode(`${match[1].trim()} `));
+    const optional = document.createElement('span');
+    optional.className = 'general-inquiries-input-overlay-optional';
+    optional.textContent = `(${match[2]})`;
+    overlay.append(optional);
+  } else {
+    overlay.textContent = placeholder;
+  }
+
+  return overlay;
+}
+
+function addPlaceholderOverlays(form) {
+  form.querySelectorAll('.general-inquiries-input, .general-inquiries-textarea').forEach((input) => {
+    if (!input.placeholder) return;
+    input.insertAdjacentElement('afterend', createPlaceholderOverlay(input.placeholder));
+  });
+}
+
 function buildSupportIntro(
   heroHeadingField,
   heroSubheadingField,
@@ -729,6 +755,10 @@ export default async function decorate(block) {
   actions.append(submitButton);
 
   form.append(actions);
+
+  if (isSupportMode) {
+    addPlaceholderOverlays(form);
+  }
 
   const formSession = createFormSession(form, 'general-inquiries');
   applyPhoneValidation(form.querySelector('[name="phone"]'));
