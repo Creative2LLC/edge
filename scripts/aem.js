@@ -735,6 +735,65 @@ function logBlockLoadError(block, blockName, phase, error, resourceURL = '') {
   }, error);
 }
 
+const CUSTOM_REVEAL_BLOCKS = new Set([
+  'code-adam-kit',
+  'community-education-partner-reporting',
+  'connect-grid',
+  'event-request-form',
+  'faon-application',
+  'hero-footer',
+  'historical-reports-carousel',
+  'historical-trends',
+  'host-a-fundraiser',
+  'impact-donut',
+  'info-cards-grid',
+  'missing-child-poster-api-registration',
+  'missing-child-quick-report',
+  'ncmec-reprint-request',
+  'numbered-cards',
+  'regional-offices',
+  'report-breakdown',
+  'report-download',
+  'support-cta',
+  'team-hope-volunteer',
+  'text-image',
+]);
+
+let blockRevealObserver;
+
+function revealBlock(block) {
+  block.classList.add('is-visible');
+}
+
+function observeBlockReveal(block) {
+  if (!block.closest('main') || block.classList.contains('no-scroll-reveal')) return;
+
+  if (!CUSTOM_REVEAL_BLOCKS.has(block.dataset.blockName)) {
+    block.classList.add('scroll-reveal');
+  }
+
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    revealBlock(block);
+    return;
+  }
+
+  block.addEventListener('focusin', () => revealBlock(block), { once: true });
+
+  blockRevealObserver ||= new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      revealBlock(entry.target);
+      blockRevealObserver.unobserve(entry.target);
+    });
+  }, {
+    rootMargin: '0px 0px -8% 0px',
+    threshold: 0.16,
+  });
+
+  blockRevealObserver.observe(block);
+}
+
 /**
  * Loads JS and CSS for a block.
  * @param {Element} block The block element
@@ -777,6 +836,7 @@ async function loadBlock(block) {
       }
     }
     block.dataset.blockStatus = 'loaded';
+    observeBlockReveal(block);
   }
   return block;
 }
