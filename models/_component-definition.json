@@ -63,6 +63,12 @@
         },
         {
           "...": "../blocks/community-education-partner-reporting/_community-education-partner-reporting.json#/definitions"
+        },
+        {
+          "...": "../blocks/prpl-application/_prpl-application.json#/definitions"
+        },
+        {
+          "...": "../blocks/apply-for-training/_apply-for-training.json#/definitions"
         }
       ]
     },

@@ -31,6 +31,7 @@ const FIELD_LABELS = {
   issuePreset: ['issue preset', 'preset issue', 'default issue'],
   typePreset: ['type preset', 'preset type', 'default type'],
   tagPreset: ['tag preset', 'preset tag', 'default tag'],
+  detailBasePath: ['detail base path', 'article detail base path', 'article base path', 'blog base path'],
 };
 
 const FIELD_COLUMN_INDEX = {
@@ -47,6 +48,7 @@ const FIELD_COLUMN_INDEX = {
   issuePreset: 10,
   typePreset: 11,
   tagPreset: 12,
+  detailBasePath: 13,
 };
 
 function normalizeText(value) { return `${value || ''}`.trim(); }
@@ -303,11 +305,24 @@ function ensurePreconnect(url) {
   }
 }
 
-function buildCard(article, index = 0, onFacetActivate = null) {
+function normalizeContentBasePath(value) {
+  return normalizeText(value).replace(/\/+$/, '');
+}
+
+function buildArticleHref(article, config) {
+  const detailBasePath = normalizeContentBasePath(config.detailBasePath);
+  if (detailBasePath && normalizeText(article.slug)) {
+    return resolveSiteHref(`${detailBasePath}/${article.slug}`);
+  }
+
+  return resolveSiteHref(article.primary_url || article.detail_path || article.page_path);
+}
+
+function buildCard(article, index = 0, onFacetActivate = null, config = {}) {
   const card = document.createElement('article');
   card.className = 'article-list-card';
   card.style.setProperty('--article-card-index', String(index % 12));
-  const linkHref = resolveSiteHref(article.primary_url || article.detail_path || article.page_path);
+  const linkHref = buildArticleHref(article, config);
 
   if (linkHref) {
     const cover = document.createElement('a');
@@ -740,7 +755,7 @@ function renderApiList(block, config) {
       if (usePagination) cardsContainer.replaceChildren();
       const startIndex = cardsContainer.children.length;
       (payload.data || []).forEach((article, index) => {
-        cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue));
+        cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue, config));
       });
 
       state.page = payload.meta?.current_page || 1;
@@ -862,6 +877,7 @@ export default function decorate(block) {
     issuePreset: getFieldValue(block, 'issuePreset') || filters.issue.join(', '),
     typePreset: getFieldValue(block, 'typePreset') || filters.type.join(', '),
     tagPreset: getFieldValue(block, 'tagPreset') || filters.tags.join(', '),
+    detailBasePath: getFieldValue(block, 'detailBasePath'),
   };
   ensurePreconnect(config.apiBaseUrl);
 

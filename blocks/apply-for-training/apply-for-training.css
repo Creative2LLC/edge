@@ -1,0 +1,34 @@
+@import url("../event-request-form/event-request-form.css");
+
+main > .section > .apply-for-training-wrapper {
+  max-width: 1420px;
+}
+
+.apply-for-training .event-request-form-progress {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.apply-for-training .training-course-panel {
+  display: grid;
+  gap: 18px;
+  grid-column: 1 / -1;
+}
+
+.apply-for-training .training-course-panel[hidden] {
+  display: none;
+}
+
+.apply-for-training .training-affirmation {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #4b4b4f;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+@media (width <= 760px) {
+  .apply-for-training .event-request-form-progress {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

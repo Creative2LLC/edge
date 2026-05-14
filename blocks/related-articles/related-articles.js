@@ -11,6 +11,7 @@ const FIELD_LABELS = {
   slug: ['slug', 'resource slug', 'article slug', 'preview slug', 'preview resource slug', 'preview article slug'],
   heading: ['heading', 'title'],
   limit: ['limit', 'item limit', 'count'],
+  detailBasePath: ['detail base path', 'article detail base path', 'article base path', 'blog base path'],
 };
 
 const FIELD_COLUMN_INDEX = {
@@ -19,6 +20,7 @@ const FIELD_COLUMN_INDEX = {
   slug: 2,
   heading: 3,
   limit: 4,
+  detailBasePath: 5,
 };
 
 function normalizeText(value) {
@@ -50,6 +52,7 @@ function normalizeSourceType(value) {
 
 function inferSourceType(pathname = window.location.pathname) {
   const cleanPath = normalizeText(pathname).toLowerCase();
+  if (cleanPath.includes('/resources/blogs/')) return 'articles';
   if (cleanPath.includes('/resources/')) return 'resources';
   return 'articles';
 }
@@ -64,6 +67,10 @@ function getSlugFromPathname(pathname = window.location.pathname) {
 
 function normalizeEdgeContentPath(value) {
   return resolveSiteHref(value);
+}
+
+function normalizeContentBasePath(value) {
+  return normalizeText(value).replace(/\/+$/, '');
 }
 
 function findUrlLikeValue(value) {
@@ -177,11 +184,20 @@ function buildTaxonomy(item) {
   return wrap;
 }
 
-function buildCard(item) {
+function buildItemHref(item, config) {
+  const detailBasePath = normalizeContentBasePath(config.detailBasePath);
+  if (detailBasePath && normalizeText(item.slug)) {
+    return normalizeEdgeContentPath(`${detailBasePath}/${item.slug}`);
+  }
+
+  return normalizeEdgeContentPath(item.primary_url || item.detail_path || item.page_path);
+}
+
+function buildCard(item, config) {
   const card = document.createElement('article');
   card.className = 'related-articles-card';
 
-  const href = normalizeEdgeContentPath(item.primary_url || item.detail_path || item.page_path);
+  const href = buildItemHref(item, config);
   if (href) {
     const link = document.createElement('a');
     link.className = 'related-articles-card-link-cover';
@@ -250,7 +266,7 @@ function buildView(items, config) {
 
   const grid = document.createElement('div');
   grid.className = 'related-articles-grid';
-  items.forEach((item) => grid.append(buildCard(item)));
+  items.forEach((item) => grid.append(buildCard(item, config)));
   fragment.append(grid);
   return fragment;
 }
@@ -280,6 +296,7 @@ export default async function decorate(block) {
     slug: normalizeSlug(getFieldValue(block, 'slug')) || getSlugFromPathname(),
     heading: getFieldValue(block, 'heading', 'Related Articles') || 'Related Articles',
     limit: parseLimit(getFieldValue(block, 'limit', '3'), 3),
+    detailBasePath: getFieldValue(block, 'detailBasePath'),
   };
 
   block.replaceChildren(buildMessage('Loading related articles...', ''));

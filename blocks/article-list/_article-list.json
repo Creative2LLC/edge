@@ -104,6 +104,13 @@
           "valueType": "string",
           "name": "tagPreset",
           "label": "Preset Tags"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detailBasePath",
+          "label": "Detail Base Path",
+          "value": "/content/edge/resources/Blogs"
         }
       ]
     }

@@ -56,6 +56,13 @@
           "name": "limit",
           "label": "Item Limit",
           "value": "3"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detailBasePath",
+          "label": "Article Detail Base Path",
+          "value": "/content/edge/resources/Blogs"
         }
       ]
     }

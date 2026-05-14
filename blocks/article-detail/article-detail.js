@@ -21,7 +21,7 @@ const FIELD_COLUMN_INDEX = {
   listingLabel: 3,
 };
 
-const DEFAULT_ARTICLE_LISTING_PATH = '/content/edge/articles.html';
+const DEFAULT_ARTICLE_LISTING_PATH = '/content/edge/resources/Blogs.html';
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
