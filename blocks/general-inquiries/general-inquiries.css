@@ -272,10 +272,10 @@ main > .section > .general-inquiries-wrapper {
   align-items: center;
   justify-content: center;
   text-align: center;
-  margin-top: 4px;
+  margin: 20px 0 12px;
   padding: 14.55px 48px;
   border-radius: 999px;
-  background: #008DB6;
+  background: #008db6;
   color: #fff;
   text-decoration: none;
   transition:
@@ -304,7 +304,7 @@ main > .section > .general-inquiries-wrapper {
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-copy {
   width: min(100%, 689px);
-  text-align: center;
+  text-align: left;
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-form {
@@ -315,7 +315,7 @@ main > .section > .general-inquiries-wrapper {
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-heading {
   max-width: 689px;
-  margin: 0 auto;
+  margin: 0;
   color: #404041;
   font-size: 36px;
   font-weight: 700;
@@ -325,7 +325,7 @@ main > .section > .general-inquiries-wrapper {
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-subheading {
   max-width: 689px;
-  margin: 12px auto 0;
+  margin: 12px 0 0;
   color: #404041;
   font-size: 24px;
   font-weight: 500;
@@ -342,7 +342,7 @@ main > .section > .general-inquiries-wrapper {
   border: 0;
   border-radius: 8px;
   padding: 14px 16px;
-  background: #fff;
+  background-color: #fff;
   color: #404041;
   font-size: 17px;
   font-weight: 500;
@@ -388,6 +388,7 @@ main > .section > .general-inquiries-wrapper {
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-input-overlay-optional {
+  margin-left: 0.25em;
   opacity: 0.5;
 }
 
