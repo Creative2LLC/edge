@@ -1,20 +1,31 @@
+/* Full-bleed 1420px: the section's default wrapper is already capped at
+   1420px, we just drop its horizontal padding so the block reaches the
+   full edges. */
+main > .section > .split-card-detail-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* Split Card Detailed Block */
 .split-card-detail.block {
   padding: 0;
   margin-top: 40px;
 }
 
-/* Outer flex container — cards left, image right */
+/* Outer flex container — cards left, image right. The calc-based flex
+   basis + 80px gap holds the cards/image close to their previous widths
+   and lets the extra room from the wider 1420px block fall into the
+   middle gap. */
 .split-card-detail-inner {
   display: flex;
-  gap: 24px;
+  gap: 80px;
   align-items: stretch;
   min-height: 420px;
 }
 
 /* Left side — 2x2 card grid */
 .split-card-detail-grid {
-  flex: 0 0 50%;
+  flex: 0 0 calc(50% - 40px);
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
@@ -90,7 +101,7 @@
 
 /* Right side — image */
 .split-card-detail-media {
-  flex: 0 0 50%;
+  flex: 0 0 calc(50% - 40px);
   border-radius: 32px;
   overflow: hidden;
 }
