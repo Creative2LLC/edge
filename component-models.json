@@ -7322,7 +7322,7 @@
         "label": "Heading"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subheading",
         "label": "Subheading"

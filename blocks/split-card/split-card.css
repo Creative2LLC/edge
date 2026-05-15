@@ -76,6 +76,20 @@ main > .section > .split-card-wrapper {
   max-width: 540px;
 }
 
+/* Preserve the spacing authored in the rich text editor (paragraph breaks,
+   empty lines) instead of stacking default <p> margins on top. */
+.split-card .split-card-subheading p {
+  margin: 0;
+}
+
+.split-card .split-card-subheading p + p {
+  margin-top: 1em;
+}
+
+.split-card .split-card-subheading p:empty::before {
+  content: "\00a0";
+}
+
 /* Buttons container */
 .split-card .split-card-buttons {
   display: flex;

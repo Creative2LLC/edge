@@ -1,5 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  readImageField, readLinkField, readRichTextField, readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
@@ -178,7 +180,10 @@ export default async function decorate(block) {
 
   const heading = getFieldWithFallback(block, 'heading', 1)
     || normalizeJsonFieldValue(resourceData.heading);
-  const subheading = getFieldWithFallback(block, 'subheading', 2)
+  const subheadingField = readRichTextField(block, 'subheading', {
+    fallbackCell: getRowCells(block)[2],
+  });
+  const subheadingHtml = subheadingField.html
     || normalizeJsonFieldValue(resourceData.subheading);
   const buttonText = getFieldWithFallback(block, 'buttonText', 3)
     || normalizeJsonFieldValue(resourceData.buttonText);
@@ -271,12 +276,12 @@ export default async function decorate(block) {
     contentSide.append(h2);
   }
 
-  if (subheading) {
-    const p = document.createElement('p');
-    p.className = 'split-card-subheading';
-    p.textContent = subheading;
-    if (subheadingColor) p.style.setProperty('color', subheadingColor, 'important');
-    contentSide.append(p);
+  if (subheadingHtml) {
+    const sub = document.createElement('div');
+    sub.className = 'split-card-subheading';
+    sub.innerHTML = subheadingHtml;
+    if (subheadingColor) sub.style.setProperty('color', subheadingColor, 'important');
+    contentSide.append(sub);
   }
 
   const primaryButton = buildButton(buttonText, buttonLink, buttonColor, buttonStyle);
