@@ -1,3 +1,10 @@
+/* Full-bleed 1420px: section default max-width is already 1420px, we just
+   need to drop the wrapper's horizontal padding so the block fills it. */
+main > .section > .regional-offices-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .regional-offices {
   padding: 72px 0 60px;
 }
@@ -22,7 +29,7 @@
 }
 
 .regional-offices .regional-offices-header {
-  max-width: 760px;
+  max-width: 1336px;
   margin: 0 auto;
   text-align: center;
 }
@@ -61,6 +68,13 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+/* Default variant: the text wrapper is layout-transparent so title/body
+   still participate in the card's flex centering. The Boxed variant
+   overrides this with explicit dimensions and a white background. */
+.regional-offices .regional-offices-card-text {
+  display: contents;
 }
 
 .regional-offices .regional-offices-card-media {
@@ -179,6 +193,38 @@
 .regional-offices .regional-offices-button-outlined {
   background: transparent;
   color: #1491bf;
+}
+
+/* Boxed styling variant ---------------------------------------------------- */
+
+.regional-offices.regional-offices-boxed .regional-offices-grid {
+  gap: 12px;
+}
+
+.regional-offices.regional-offices-boxed .regional-offices-card-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 346px;
+  max-width: 100%;
+  height: 231px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.regional-offices.regional-offices-boxed .regional-offices-card-title {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.regional-offices.regional-offices-boxed .regional-offices-card-body {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
 }
 
 @keyframes regional-offices-float {

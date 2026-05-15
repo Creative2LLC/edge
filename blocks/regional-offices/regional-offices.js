@@ -11,6 +11,7 @@ const BLOCK_ROW_INDEX = {
   heading: 0,
   subheading: 1,
   columns: 2,
+  stylingVariant: 3,
 };
 
 function isRegionalOfficeItemRow(row) {
@@ -115,7 +116,7 @@ function buildButton(buttonTextField, buttonLinkField, buttonStyle, index) {
   return button;
 }
 
-function buildOfficeCard(item, index) {
+function buildOfficeCard(item, index, variant) {
   const card = document.createElement('article');
   card.className = 'regional-offices-card regional-offices-reveal';
   card.style.setProperty('--stagger-index', index);
@@ -128,6 +129,9 @@ function buildOfficeCard(item, index) {
   if (picture) media.append(picture);
   card.append(media);
 
+  const textWrap = document.createElement('div');
+  textWrap.className = 'regional-offices-card-text';
+
   if (item.titleField.value || item.titleField.source) {
     const title = document.createElement('h3');
     title.className = 'regional-offices-card-title';
@@ -137,19 +141,23 @@ function buildOfficeCard(item, index) {
     } else {
       title.textContent = item.titleField.value;
     }
-    card.append(title);
+    textWrap.append(title);
   }
 
   const body = buildRichContent(item.bodySource, 'regional-offices-card-body');
-  if (body) card.append(body);
+  if (body) textWrap.append(body);
 
-  const button = buildButton(
-    item.buttonTextField,
-    item.buttonLinkField,
-    item.buttonStyleField.value,
-    index,
-  );
-  if (button) card.append(button);
+  if (textWrap.childElementCount) card.append(textWrap);
+
+  if (variant !== 'boxed') {
+    const button = buildButton(
+      item.buttonTextField,
+      item.buttonLinkField,
+      item.buttonStyleField.value,
+      index,
+    );
+    if (button) card.append(button);
+  }
 
   return card;
 }
@@ -158,6 +166,8 @@ export default function decorate(block) {
   const headingField = getBlockField(block, 'heading');
   const subheadingSource = getBlockRichField(block, 'subheading');
   const columnsField = getBlockField(block, 'columns');
+  const stylingVariantField = getBlockField(block, 'stylingVariant');
+  const variant = (stylingVariantField.value || 'default').toLowerCase();
   const rows = [...block.querySelectorAll(':scope > div')];
   const offices = [];
 
@@ -216,9 +226,11 @@ export default function decorate(block) {
   grid.style.setProperty('--regional-offices-columns', columnsField.value || '3');
 
   offices.forEach((office, index) => {
-    grid.append(buildOfficeCard(office, index));
+    grid.append(buildOfficeCard(office, index, variant));
   });
 
   inner.append(grid);
   block.replaceChildren(inner);
+
+  block.classList.toggle('regional-offices-boxed', variant === 'boxed');
 }

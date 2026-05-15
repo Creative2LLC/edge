@@ -68,6 +68,23 @@
             }
           ],
           "value": "3"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "stylingVariant",
+          "label": "Styling Variant",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Boxed",
+              "value": "boxed"
+            }
+          ],
+          "value": "default"
         }
       ]
     },
