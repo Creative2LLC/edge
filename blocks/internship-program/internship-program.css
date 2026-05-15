@@ -1,3 +1,10 @@
+/* Full-bleed 1420px: section wrapper is already capped at 1420px,
+   just drop its horizontal padding so the block reaches the edges. */
+main > .section > .internship-program-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* Internship Program Block */
 .internship-program.block {
   padding: 0;

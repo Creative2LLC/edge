@@ -78,15 +78,24 @@ function appendRichContent(parent, source, className) {
   if (div.childNodes.length) parent.append(div);
 }
 
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+function resolveHex(value, fallback) {
+  const trimmed = (value || '').trim();
+  return HEX_COLOR.test(trimmed) ? trimmed : fallback;
+}
+
 function styleButton(btn, color, textColor, style) {
-  const bgColor = color || '#008db6';
-  if (style === 'outlined') {
+  const bgColor = resolveHex(color, '#008db6');
+  const fgColor = resolveHex(textColor, '#ffffff');
+  const normalizedStyle = (style || '').trim().toLowerCase();
+  if (normalizedStyle === 'outlined') {
     btn.style.setProperty('background-color', 'transparent', 'important');
     btn.style.setProperty('color', bgColor, 'important');
     btn.style.setProperty('border', `2px solid ${bgColor}`, 'important');
   } else {
     btn.style.setProperty('background-color', bgColor, 'important');
-    btn.style.setProperty('color', textColor || '#ffffff', 'important');
+    btn.style.setProperty('color', fgColor, 'important');
     btn.style.setProperty('border', 'none', 'important');
   }
 }
