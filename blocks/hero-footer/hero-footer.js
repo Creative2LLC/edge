@@ -3,25 +3,26 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
-function buildText(tag, className, field) {
-  if (!field.value && !field.source) return null;
-  const el = document.createElement(tag);
+/* Only render when the field has a real tagged source (data-aue-prop /
+   data-richtext-prop). Skipping the row-index fallback prevents content
+   from a shifted DOM row (e.g. a populated button2Text) from leaking into
+   an empty heading slot. */
+function buildRich(className, field) {
+  if (!field.source) return null;
+  const el = document.createElement('div');
   el.className = className;
-  if (field.source) {
-    moveInstrumentation(field.source, el);
-    while (field.source.firstChild) el.append(field.source.firstChild);
-    field.source.remove();
-  } else {
-    el.textContent = field.value;
-  }
+  moveInstrumentation(field.source, el);
+  while (field.source.firstChild) el.append(field.source.firstChild);
+  field.source.remove();
   return el;
 }
 
 function buildButton(className, textField, linkField) {
-  if (!linkField.value && !textField.value) return null;
+  if (!textField.source && !linkField.source) return null;
   const a = document.createElement('a');
   a.className = className;
   a.href = linkField.value || '#';
@@ -41,9 +42,9 @@ function buildButton(className, textField, linkField) {
 export default function decorate(block) {
   const imageField = readImageField(block, 'image', 0);
   const imageAltField = readTextField(block, 'imageAlt', 1);
-  const headingField = readTextField(block, 'heading_line1', 2);
-  const headingLargeField = readTextField(block, 'heading_line2', 3);
-  const headingSubtextField = readTextField(block, 'heading_subtext', 4);
+  const headingField = readRichTextField(block, 'heading_line1', 2);
+  const headingLargeField = readRichTextField(block, 'heading_line2', 3);
+  const headingSubtextField = readRichTextField(block, 'heading_subtext', 4);
   const btn1LinkField = readLinkField(block, 'button1', 5);
   const btn1TextField = readTextField(block, 'button1Text', 6);
   const btn2LinkField = readLinkField(block, 'button2', 7);
@@ -81,13 +82,13 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-footer-content';
 
-  const h1 = buildText('h2', 'hero-footer-heading-1', headingField);
+  const h1 = buildRich('hero-footer-heading-1', headingField);
   if (h1) content.append(h1);
 
-  const h2 = buildText('h2', 'hero-footer-heading-2', headingLargeField);
+  const h2 = buildRich('hero-footer-heading-2', headingLargeField);
   if (h2) content.append(h2);
 
-  const sub = buildText('p', 'hero-footer-subheading', headingSubtextField);
+  const sub = buildRich('hero-footer-subheading', headingSubtextField);
   if (sub) content.append(sub);
 
   /* buttons */

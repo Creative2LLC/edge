@@ -83,6 +83,20 @@
   transition-delay: 90ms;
 }
 
+/* Rich-text heading/subheading children may include <p> wrappers — collapse
+   the outer paragraph margins so the spacing comes from the authored RTE. */
+.hero-footer-heading-1 > :first-child,
+.hero-footer-heading-2 > :first-child,
+.hero-footer-subheading > :first-child {
+  margin-top: 0;
+}
+
+.hero-footer-heading-1 > :last-child,
+.hero-footer-heading-2 > :last-child,
+.hero-footer-subheading > :last-child {
+  margin-bottom: 0;
+}
+
 .hero-footer-subheading {
   font-family: Inter, sans-serif;
   font-size: 24px;
