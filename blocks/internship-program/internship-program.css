@@ -44,7 +44,7 @@ main > .section > .internship-program-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 40px 48px;
+  padding: 72px 56px;
   box-sizing: border-box;
 }
 
@@ -154,7 +154,7 @@ main > .section > .internship-program-wrapper {
   font-size: 24px;
   font-weight: 700;
   color: #404041;
-  margin: 0 0 8px;
+  margin: 24px 0 8px;
   line-height: 1.25;
 }
 
