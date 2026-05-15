@@ -62,20 +62,6 @@
   border-radius: 18px;
   background: var(--connect-grid-card-bg, #f4f0ec);
   box-shadow: 0 10px 24px rgb(17 58 103 / 6%);
-  transition:
-    transform 240ms ease,
-    box-shadow 240ms ease;
-}
-
-.connect-grid .connect-grid-card:hover,
-.connect-grid .connect-grid-card:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 18px 34px rgb(17 58 103 / 10%);
-}
-
-.connect-grid .connect-grid-card.has-hover-bg:hover,
-.connect-grid .connect-grid-card.has-hover-bg:focus-within {
-  background: var(--connect-grid-card-hover-bg);
 }
 
 .connect-grid .connect-grid-card.is-authoring-placeholder {
@@ -260,8 +246,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .connect-grid .connect-grid-reveal,
-  .connect-grid .connect-grid-card {
+  .connect-grid .connect-grid-reveal {
     transition: none;
     animation: none;
   }
