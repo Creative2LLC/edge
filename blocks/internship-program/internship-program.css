@@ -173,7 +173,10 @@ main > .section > .internship-program-wrapper {
   align-items: center;
   justify-content: center;
   padding: 12px 28px;
+  border: none;
   border-radius: 99px;
+  background-color: #008db6;
+  color: #fff;
   font-size: 16px;
   font-weight: 500;
   font-family: inherit;
