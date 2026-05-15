@@ -304,7 +304,7 @@ function buildCard(item, index) {
   if (item.isAuthoringPlaceholder) {
     card.classList.add('is-authoring-placeholder');
 
-    const title = document.createElement('h3');
+    const title = document.createElement('div');
     title.className = 'connect-grid-card-title';
     title.textContent = 'New connect card';
 
@@ -319,12 +319,8 @@ function buildCard(item, index) {
   const media = buildMedia(item);
   if (media) card.append(media);
 
-  if (item.titleField.value || item.titleField.source) {
-    const title = document.createElement('h3');
-    title.className = 'connect-grid-card-title';
-    moveFieldContent(item.titleField, title, item.titleField.value);
-    card.append(title);
-  }
+  const title = buildRichContent(item.titleSource, 'connect-grid-card-title');
+  if (title) card.append(title);
 
   const description = buildRichContent(item.descriptionSource, 'connect-grid-card-description');
   if (description) card.append(description);
@@ -448,7 +444,7 @@ export default function decorate(block) {
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.iconColor,
     );
-    const titleField = getField(row, 'title', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.title);
+    const titleSource = getRichField(row, 'title', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.title);
     const descriptionSource = getRichField(
       row,
       'description',
@@ -482,7 +478,7 @@ export default function decorate(block) {
     );
 
     if (
-      !titleField.value
+      !titleSource?.textContent?.trim()
       && !descriptionSource
       && !contactMethodsField.value
       && !structuredContactMethods.length
@@ -494,7 +490,7 @@ export default function decorate(block) {
       iconField,
       imageField,
       iconColor: iconColorField.value,
-      titleField,
+      titleSource,
       descriptionSource,
       contactMethodsField,
       contactMethods: structuredContactMethods.length

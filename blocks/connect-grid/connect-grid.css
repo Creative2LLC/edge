@@ -150,6 +150,16 @@
   letter-spacing: -0.04em;
 }
 
+/* Rich-text title may contain <p> children — collapse the outer margins so
+   block-level spacing is dictated by the field's authored paragraphs. */
+.connect-grid .connect-grid-card-title > :first-child {
+  margin-top: 0;
+}
+
+.connect-grid .connect-grid-card-title > :last-child {
+  margin-bottom: 0;
+}
+
 .connect-grid .connect-grid-card-description {
   color: #404041;
   font-size: 1.08rem;
