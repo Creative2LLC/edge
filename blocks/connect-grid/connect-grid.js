@@ -427,27 +427,6 @@ function setupMatchedHeights(block, grid) {
   };
 }
 
-function enableReveal(block) {
-  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-  if (reducedMotion || !('IntersectionObserver' in window)) {
-    block.classList.add('is-visible');
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    const visible = entries.some((entry) => entry.isIntersecting);
-    if (!visible) return;
-
-    block.classList.add('is-visible');
-    observer.disconnect();
-  }, {
-    threshold: 0.18,
-  });
-
-  observer.observe(block);
-}
-
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
@@ -562,5 +541,4 @@ export default function decorate(block) {
   inner.append(grid);
   block.replaceChildren(inner);
   setupMatchedHeights(block, grid);
-  enableReveal(block);
 }

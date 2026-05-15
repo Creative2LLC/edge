@@ -139,26 +139,6 @@ function buildButton(labelField, linkField) {
   return button.textContent.trim() ? button : null;
 }
 
-function enableReveal(block) {
-  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (reducedMotion || !('IntersectionObserver' in window)) {
-    block.classList.add('is-visible');
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    const isVisible = entries.some((entry) => entry.isIntersecting);
-    if (!isVisible) return;
-
-    block.classList.add('is-visible');
-    observer.disconnect();
-  }, {
-    threshold: 0.22,
-  });
-
-  observer.observe(block);
-}
-
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const backImageField = getImageField(block, 'backImage');
@@ -244,5 +224,4 @@ export default function decorate(block) {
 
   inner.append(actions);
   block.replaceChildren(inner);
-  enableReveal(block);
 }

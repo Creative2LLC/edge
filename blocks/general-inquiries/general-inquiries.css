@@ -98,14 +98,6 @@ main > .section > .general-inquiries-wrapper {
   resize: vertical;
 }
 
-.general-inquiries .general-inquiries-input:focus-visible,
-.general-inquiries .general-inquiries-select:focus-visible,
-.general-inquiries .general-inquiries-textarea:focus-visible {
-  outline: 0;
-  border-color: #de8a2a;
-  box-shadow: 0 0 0 4px rgb(227 139 34 / 16%);
-}
-
 .general-inquiries .general-inquiries-actions {
   display: flex;
   align-items: center;
@@ -451,4 +443,3 @@ main > .section > .general-inquiries-wrapper {
     font-size: 20px;
   }
 }
-

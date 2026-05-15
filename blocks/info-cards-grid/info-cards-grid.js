@@ -541,22 +541,6 @@ function setupMatchedHeights(block, grid) {
   };
 }
 
-function observeReveal(block) {
-  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-    block.classList.add('is-visible');
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    if (!entries.some((entry) => entry.isIntersecting)) return;
-    block.classList.add('is-visible');
-    observer.disconnect();
-  }, { threshold: 0.18 });
-
-  observer.observe(block);
-}
-
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
   const firstItemRowIndex = rows.findIndex((row) => {
@@ -677,5 +661,4 @@ export default function decorate(block) {
 
   block.replaceChildren(shell);
   setupMatchedHeights(block, grid);
-  observeReveal(block);
 }

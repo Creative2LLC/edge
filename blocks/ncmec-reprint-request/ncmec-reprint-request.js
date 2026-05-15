@@ -98,22 +98,6 @@ const ORG_TYPES = [
   ['na', 'Not applicable (requestor is an individual)'],
 ];
 
-function observeReveal(block) {
-  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-    block.classList.add('is-visible');
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    if (!entries.some((entry) => entry.isIntersecting)) return;
-    block.classList.add('is-visible');
-    observer.disconnect();
-  }, { threshold: 0.16 });
-
-  observer.observe(block);
-}
-
 function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
 }
@@ -595,5 +579,4 @@ export default function decorate(block) {
     errorMessage,
     isAuthoring: hasAuthoringContext(block),
   }, formSession);
-  observeReveal(block);
 }

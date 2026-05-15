@@ -402,22 +402,6 @@ function updateDots(dots, activeIndex) {
   });
 }
 
-function observeReveal(block) {
-  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-    block.classList.add('is-visible');
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    if (!entries.some((entry) => entry.isIntersecting)) return;
-    block.classList.add('is-visible');
-    observer.disconnect();
-  }, { threshold: 0.18 });
-
-  observer.observe(block);
-}
-
 export default async function decorate(block) {
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
   const subheadingField = getField(block, 'subheading', BLOCK_ROW_INDEX);
@@ -454,7 +438,6 @@ export default async function decorate(block) {
   if (!slideData.length && isAuthoring) {
     wrapper.append(buildEmptyState());
     block.replaceChildren(wrapper);
-    observeReveal(block);
     return;
   }
 
@@ -540,5 +523,4 @@ export default async function decorate(block) {
   }
 
   block.replaceChildren(wrapper);
-  observeReveal(block);
 }

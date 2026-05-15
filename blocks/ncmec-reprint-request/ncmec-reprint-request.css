@@ -121,19 +121,11 @@ main > .section > .ncmec-reprint-request-wrapper {
   transition: transform 180ms ease;
 }
 
-.ncmec-reprint-request-field:focus-within {
-  transform: translateY(-1px);
-}
-
 .ncmec-reprint-request-label {
   color: #32363b;
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.25;
-}
-
-.ncmec-reprint-request-field:focus-within .ncmec-reprint-request-label {
-  color: #007294;
 }
 
 .ncmec-reprint-request-required {
@@ -176,32 +168,6 @@ main > .section > .ncmec-reprint-request-wrapper {
 .ncmec-reprint-request-textarea {
   min-height: 128px;
   resize: vertical;
-}
-
-.ncmec-reprint-request-input:focus-visible,
-.ncmec-reprint-request-select:focus-visible,
-.ncmec-reprint-request-textarea:focus-visible {
-  outline: 0;
-  border-color: #de8a2a;
-  box-shadow: 0 0 0 4px rgb(227 139 34 / 16%);
-  transform: translateY(-1px);
-}
-
-.ncmec-reprint-request-input:hover,
-.ncmec-reprint-request-select:hover,
-.ncmec-reprint-request-textarea:hover {
-  border-color: #c8bdb2;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 70%),
-    0 8px 22px rgb(17 54 82 / 7%);
-}
-
-.ncmec-reprint-request-input:user-invalid,
-.ncmec-reprint-request-select:user-invalid,
-.ncmec-reprint-request-textarea:user-invalid {
-  border-color: #b6462f;
-  background: #fffafa;
-  box-shadow: 0 0 0 4px rgb(182 70 47 / 12%);
 }
 
 .ncmec-reprint-request-radio-group {
