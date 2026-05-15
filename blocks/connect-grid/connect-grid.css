@@ -144,7 +144,7 @@
 .connect-grid .connect-grid-card-title {
   margin: 0 0 12px;
   color: #404041;
-  font-size: clamp(2rem, 3vw, 3.05rem);
+  font-size: 36px;
   font-weight: 700;
   line-height: 1.06;
   letter-spacing: -0.04em;
