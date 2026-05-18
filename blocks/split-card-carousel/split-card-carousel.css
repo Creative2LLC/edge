@@ -269,6 +269,11 @@ main > .section > .split-card-carousel-wrapper {
 .split-card-carousel.variant-2 .split-card-carousel-content {
   flex: 1 1 auto;
   width: auto;
+  padding: 84px;
+
+  /* Force left alignment in variant 2, regardless of per-item contentAlign. */
+  text-align: left !important;
+  align-items: flex-start !important;
 }
 
 /* Responsive - tablet */
@@ -336,5 +341,9 @@ main > .section > .split-card-carousel-wrapper {
     flex: none;
     width: auto;
     height: 240px;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-content {
+    padding: 28px 24px;
   }
 }

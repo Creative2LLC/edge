@@ -56,11 +56,11 @@ function applyButtonStyle(button, backgroundColor, style) {
 }
 
 function buildButton(text, href, backgroundColor, style) {
-  if (!text || !href) return null;
-  const btn = document.createElement('a');
+  if (!text && !href) return null;
+  const btn = document.createElement(href ? 'a' : 'span');
   btn.className = 'split-card-carousel-button';
-  btn.href = href;
-  btn.textContent = text;
+  if (href) btn.href = href;
+  btn.textContent = text || 'Learn More';
   applyButtonStyle(btn, backgroundColor, style);
   return btn;
 }
