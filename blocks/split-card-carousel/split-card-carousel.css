@@ -270,10 +270,21 @@ main > .section > .split-card-carousel-wrapper {
   flex: 1 1 auto;
   width: auto;
   padding: 84px;
+  justify-content: center;
 
   /* Force left alignment in variant 2, regardless of per-item contentAlign. */
   text-align: left !important;
   align-items: flex-start !important;
+}
+
+/* Zero any top margin on the first child so the content block centers cleanly. */
+.split-card-carousel.variant-2 .split-card-carousel-content > :first-child {
+  margin-top: 0;
+}
+
+/* And bottom margin on the last child for the same reason. */
+.split-card-carousel.variant-2 .split-card-carousel-content > :last-child {
+  margin-bottom: 0;
 }
 
 /* Responsive - tablet */
