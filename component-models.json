@@ -6780,10 +6780,6 @@
             "value": "default"
           },
           {
-            "name": "Solid",
-            "value": "solid"
-          },
-          {
             "name": "Outlined",
             "value": "outlined"
           }
@@ -6816,10 +6812,6 @@
           {
             "name": "Default",
             "value": "default"
-          },
-          {
-            "name": "Solid",
-            "value": "solid"
           },
           {
             "name": "Outlined",

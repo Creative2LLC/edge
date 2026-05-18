@@ -24,7 +24,6 @@ function getImageField(row, index) {
 function normalizeButtonStyle(value) {
   const v = String(value || '').trim().toLowerCase();
   if (v.includes('outline') || v.includes('border')) return 'outlined';
-  if (['solid', 'filled', 'fill'].includes(v)) return 'solid';
   return 'default';
 }
 
@@ -41,7 +40,6 @@ function applyButtonStyle(button, backgroundColor, style) {
     return;
   }
 
-  if (normalized === 'solid') button.classList.add('is-solid');
   if (backgroundColor) {
     button.style.setProperty('background-color', backgroundColor, 'important');
   }

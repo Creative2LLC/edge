@@ -296,11 +296,6 @@ main > .section > .split-card-carousel-wrapper {
   font-size: 14px;
 }
 
-.split-card-carousel.variant-2 .split-card-carousel-button.is-link {
-  padding-left: 0;
-  padding-right: 0;
-}
-
 /* Responsive - tablet */
 @media (width <= 900px) {
   .split-card-carousel .split-card-carousel-slide {
