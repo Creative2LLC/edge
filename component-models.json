@@ -6786,10 +6786,6 @@
           {
             "name": "Outlined",
             "value": "outlined"
-          },
-          {
-            "name": "Link",
-            "value": "link"
           }
         ],
         "value": "default"
@@ -6828,10 +6824,6 @@
           {
             "name": "Outlined",
             "value": "outlined"
-          },
-          {
-            "name": "Link",
-            "value": "link"
           }
         ],
         "value": "default"

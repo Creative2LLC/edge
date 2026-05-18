@@ -23,9 +23,8 @@ function getImageField(row, index) {
 
 function normalizeButtonStyle(value) {
   const v = String(value || '').trim().toLowerCase();
-  if (['outline', 'outlined', 'border', 'bordered'].includes(v)) return 'outlined';
+  if (v.includes('outline') || v.includes('border')) return 'outlined';
   if (['solid', 'filled', 'fill'].includes(v)) return 'solid';
-  if (['link', 'text', 'plain'].includes(v)) return 'link';
   return 'default';
 }
 
@@ -34,19 +33,11 @@ function applyButtonStyle(button, backgroundColor, style) {
   const accent = backgroundColor || '#008db6';
   button.style.setProperty('--btn-accent', accent);
 
-  if (normalized === 'link') {
-    button.classList.add('is-link');
-    button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', accent, 'important');
-    button.style.setProperty('border', 'none', 'important');
-    return;
-  }
-
   if (normalized === 'outlined') {
     button.classList.add('is-outlined');
     button.style.setProperty('background-color', 'transparent', 'important');
     button.style.setProperty('color', accent, 'important');
-    button.style.setProperty('border', `2px solid ${accent}`, 'important');
+    button.style.setProperty('border', `1px solid ${accent}`, 'important');
     return;
   }
 
