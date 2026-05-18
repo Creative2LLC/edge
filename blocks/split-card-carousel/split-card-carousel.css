@@ -167,7 +167,16 @@ main > .section > .split-card-carousel-wrapper {
   text-decoration: none;
 }
 
+.split-card-carousel .split-card-carousel-button.is-outlined {
+  background-color: transparent !important;
+  color: var(--btn-accent, #008db6) !important;
+  border: 2px solid var(--btn-accent, #008db6) !important;
+}
+
 .split-card-carousel .split-card-carousel-button.is-link {
+  background-color: transparent !important;
+  color: var(--btn-accent, #008db6) !important;
+  border: none !important;
   padding-left: 0;
   padding-right: 0;
   border-radius: 0;

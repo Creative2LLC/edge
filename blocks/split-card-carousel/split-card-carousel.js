@@ -32,20 +32,15 @@ function normalizeButtonStyle(value) {
 function applyButtonStyle(button, backgroundColor, style) {
   const normalized = normalizeButtonStyle(style);
   const accent = backgroundColor || '#008db6';
+  button.style.setProperty('--btn-accent', accent);
 
   if (normalized === 'link') {
     button.classList.add('is-link');
-    button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', accent, 'important');
-    button.style.setProperty('border', 'none', 'important');
     return;
   }
 
   if (normalized === 'outlined') {
     button.classList.add('is-outlined');
-    button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', accent, 'important');
-    button.style.setProperty('border', `2px solid ${accent}`, 'important');
     return;
   }
 
