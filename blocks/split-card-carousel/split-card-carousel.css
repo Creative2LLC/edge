@@ -135,6 +135,14 @@ main > .section > .split-card-carousel-wrapper {
   max-width: 540px;
 }
 
+/* Button row — holds button 1 + optional button 2 */
+.split-card-carousel .split-card-carousel-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
 /* Button */
 .split-card-carousel .split-card-carousel-button {
   display: inline-flex;
@@ -151,11 +159,22 @@ main > .section > .split-card-carousel-wrapper {
   cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.2s ease;
+  border: none;
 }
 
 .split-card-carousel .split-card-carousel-button:hover {
   opacity: 0.9;
   text-decoration: none;
+}
+
+.split-card-carousel .split-card-carousel-button.is-link {
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: 0;
+}
+
+.split-card-carousel .split-card-carousel-button.is-link:hover {
+  text-decoration: underline;
 }
 
 /* Controls row: dots centered, nav arrows right */
@@ -225,6 +244,33 @@ main > .section > .split-card-carousel-wrapper {
   color: rgb(255 255 255 / 83%);
 }
 
+/* ============================================================
+   Variant 2 — fixed-size cards, no controls, image left 300px,
+   content fills remaining space, gentle box shadow.
+   ============================================================ */
+
+.split-card-carousel.variant-2 .split-card-carousel-slide {
+  flex: 0 0 901px;
+  max-width: 901px;
+}
+
+.split-card-carousel.variant-2 .split-card-carousel-card {
+  width: 901px;
+  height: 421px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%), 0 2px 6px rgb(0 0 0 / 6%);
+}
+
+.split-card-carousel.variant-2 .split-card-carousel-media {
+  flex: 0 0 300px;
+  width: 300px;
+  height: 421px;
+}
+
+.split-card-carousel.variant-2 .split-card-carousel-content {
+  flex: 1 1 auto;
+  width: auto;
+}
+
 /* Responsive - tablet */
 @media (width <= 900px) {
   .split-card-carousel .split-card-carousel-slide {
@@ -272,5 +318,23 @@ main > .section > .split-card-carousel-wrapper {
   .split-card-carousel .split-card-carousel-nav {
     position: static;
     margin-left: 24px;
+  }
+
+  /* Variant 2 stacks like default on mobile so the fixed 901px doesn't overflow. */
+  .split-card-carousel.variant-2 .split-card-carousel-slide {
+    flex: 0 0 95%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-card {
+    width: auto;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-media {
+    flex: none;
+    width: auto;
+    height: 240px;
   }
 }

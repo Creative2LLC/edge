@@ -48,6 +48,24 @@
           "name": "description",
           "label": "Section Description",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "variant",
+          "label": "Style Variant",
+          "description": "Switches the card styling for every item in the carousel.",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Variant 2",
+              "value": "variant-2"
+            }
+          ],
+          "value": "default"
         }
       ]
     },
@@ -95,6 +113,73 @@
           "valueType": "string",
           "name": "buttonColor",
           "label": "Button Background Color (Hex)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonStyle",
+          "label": "Button Style",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Solid",
+              "value": "solid"
+            },
+            {
+              "name": "Outlined",
+              "value": "outlined"
+            },
+            {
+              "name": "Link",
+              "value": "link"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Text",
+          "label": "Button 2 Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "button2Link",
+          "label": "Button 2 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Color",
+          "label": "Button 2 Background Color (Hex)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "button2Style",
+          "label": "Button 2 Style",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Solid",
+              "value": "solid"
+            },
+            {
+              "name": "Outlined",
+              "value": "outlined"
+            },
+            {
+              "name": "Link",
+              "value": "link"
+            }
+          ],
+          "value": "default"
         },
         {
           "component": "text",

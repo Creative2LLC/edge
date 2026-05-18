@@ -21,6 +21,50 @@ function getImageField(row, index) {
   return { picture, img };
 }
 
+function normalizeButtonStyle(value) {
+  const v = String(value || '').trim().toLowerCase();
+  if (['outline', 'outlined', 'border', 'bordered'].includes(v)) return 'outlined';
+  if (['solid', 'filled', 'fill'].includes(v)) return 'solid';
+  if (['link', 'text', 'plain'].includes(v)) return 'link';
+  return 'default';
+}
+
+function applyButtonStyle(button, backgroundColor, style) {
+  const normalized = normalizeButtonStyle(style);
+  const accent = backgroundColor || '#008db6';
+
+  if (normalized === 'link') {
+    button.classList.add('is-link');
+    button.style.setProperty('background-color', 'transparent', 'important');
+    button.style.setProperty('color', accent, 'important');
+    button.style.setProperty('border', 'none', 'important');
+    return;
+  }
+
+  if (normalized === 'outlined') {
+    button.classList.add('is-outlined');
+    button.style.setProperty('background-color', 'transparent', 'important');
+    button.style.setProperty('color', accent, 'important');
+    button.style.setProperty('border', `2px solid ${accent}`, 'important');
+    return;
+  }
+
+  if (normalized === 'solid') button.classList.add('is-solid');
+  if (backgroundColor) {
+    button.style.setProperty('background-color', backgroundColor, 'important');
+  }
+}
+
+function buildButton(text, href, backgroundColor, style) {
+  if (!text || !href) return null;
+  const btn = document.createElement('a');
+  btn.className = 'split-card-carousel-button';
+  btn.href = href;
+  btn.textContent = text;
+  applyButtonStyle(btn, backgroundColor, style);
+  return btn;
+}
+
 function buildSlide(data, row) {
   const slide = document.createElement('div');
   slide.className = 'split-card-carousel-slide';
@@ -84,15 +128,20 @@ function buildSlide(data, row) {
     contentSide.append(p);
   }
 
-  if (data.buttonText && data.buttonLink) {
-    const btn = document.createElement('a');
-    btn.className = 'split-card-carousel-button';
-    btn.href = data.buttonLink;
-    btn.textContent = data.buttonText;
-    if (data.buttonColor) {
-      btn.style.setProperty('background-color', data.buttonColor, 'important');
-    }
-    contentSide.append(btn);
+  const btn1 = buildButton(data.buttonText, data.buttonLink, data.buttonColor, data.buttonStyle);
+  const btn2 = buildButton(
+    data.button2Text,
+    data.button2Link,
+    data.button2Color,
+    data.button2Style,
+  );
+
+  if (btn1 || btn2) {
+    const buttonRow = document.createElement('div');
+    buttonRow.className = 'split-card-carousel-buttons';
+    if (btn1) buttonRow.append(btn1);
+    if (btn2) buttonRow.append(btn2);
+    contentSide.append(buttonRow);
   }
 
   card.append(contentSide);
@@ -113,6 +162,7 @@ export default function decorate(block) {
   // slide rows have multiple columns.
   let sectionTitle = '';
   let sectionDescription = '';
+  let variant = 'default';
   const slideRows = [];
 
   rows.forEach((row) => {
@@ -121,22 +171,31 @@ export default function decorate(block) {
       // Single-column row — block-level config field
       const headingEl = row.querySelector('[data-aue-prop="heading"]');
       const descEl = row.querySelector('[data-aue-prop="description"]');
+      const variantEl = row.querySelector('[data-aue-prop="variant"]');
       if (headingEl) sectionTitle = headingEl.textContent.trim();
       else if (descEl) sectionDescription = descEl.textContent.trim();
+      else if (variantEl) variant = variantEl.textContent.trim() || 'default';
       else {
-        // Fallback: first single-col row without prop = heading, second = description
+        // Fallback: first single-col row without prop = heading,
+        // second = description, third = variant.
         const text = row.textContent.trim();
         if (text && !sectionTitle) sectionTitle = text;
         else if (text && !sectionDescription) sectionDescription = text;
+        else if (text && variant === 'default') variant = text;
       }
     } else {
       slideRows.push(row);
     }
   });
 
+  const isVariant2 = variant === 'variant-2';
+  if (isVariant2) block.classList.add('variant-2');
+
   // Parse slides — each slide row has fields as columns
   // Item field order: 0:image, 1:imageAlt, 2:heading, 3:subheading,
-  // 4:buttonText, 5:buttonLink, 6:buttonColor, 7:backgroundColor, 8:contentAlign
+  // 4:buttonText, 5:buttonLink, 6:buttonColor, 7:buttonStyle,
+  // 8:button2Text, 9:button2Link, 10:button2Color, 11:button2Style,
+  // 12:backgroundColor, 13:contentAlign
   const slides = [];
   slideRows.forEach((row) => {
     const imageField = getImageField(row, 0);
@@ -146,8 +205,13 @@ export default function decorate(block) {
     const buttonTextField = getField(row, 'buttonText', 4);
     const buttonLinkField = getLinkField(row, 'buttonLink', 5);
     const buttonColorField = getField(row, 'buttonColor', 6);
-    const bgColorField = getField(row, 'backgroundColor', 7);
-    const contentAlignField = getField(row, 'contentAlign', 8);
+    const buttonStyleField = getField(row, 'buttonStyle', 7);
+    const button2TextField = getField(row, 'button2Text', 8);
+    const button2LinkField = getLinkField(row, 'button2Link', 9);
+    const button2ColorField = getField(row, 'button2Color', 10);
+    const button2StyleField = getField(row, 'button2Style', 11);
+    const bgColorField = getField(row, 'backgroundColor', 12);
+    const contentAlignField = getField(row, 'contentAlign', 13);
 
     slides.push({
       data: {
@@ -158,6 +222,11 @@ export default function decorate(block) {
         buttonText: buttonTextField.value,
         buttonLink: buttonLinkField.value,
         buttonColor: buttonColorField.value,
+        buttonStyle: buttonStyleField.value,
+        button2Text: button2TextField.value,
+        button2Link: button2LinkField.value,
+        button2Color: button2ColorField.value,
+        button2Style: button2StyleField.value,
         backgroundColor: bgColorField.value,
         contentAlign: contentAlignField.value || 'left',
       },
@@ -195,77 +264,75 @@ export default function decorate(block) {
 
   wrapper.append(track);
 
-  // Controls: dots + nav arrows
-  const controls = document.createElement('div');
-  controls.className = 'split-card-carousel-controls';
+  // Variant 2: no dots, no nav arrows — user just scrolls.
+  if (!isVariant2) {
+    const controls = document.createElement('div');
+    controls.className = 'split-card-carousel-controls';
 
-  // Dots
-  const dotsContainer = document.createElement('div');
-  dotsContainer.className = 'split-card-carousel-dots';
-  const dots = [];
-  slides.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = 'split-card-carousel-dot';
-    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-    dot.type = 'button';
-    if (i === 0) dot.classList.add('active');
-    dots.push(dot);
-    dotsContainer.append(dot);
-  });
-  controls.append(dotsContainer);
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'split-card-carousel-dots';
+    const dots = [];
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'split-card-carousel-dot';
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.type = 'button';
+      if (i === 0) dot.classList.add('active');
+      dots.push(dot);
+      dotsContainer.append(dot);
+    });
+    controls.append(dotsContainer);
 
-  // Nav arrows
-  const nav = document.createElement('div');
-  nav.className = 'split-card-carousel-nav';
+    const nav = document.createElement('div');
+    nav.className = 'split-card-carousel-nav';
 
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'split-card-carousel-nav-btn';
-  prevBtn.setAttribute('aria-label', 'Previous slide');
-  prevBtn.type = 'button';
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'split-card-carousel-nav-btn';
+    prevBtn.setAttribute('aria-label', 'Previous slide');
+    prevBtn.type = 'button';
+    prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'split-card-carousel-nav-btn';
-  nextBtn.setAttribute('aria-label', 'Next slide');
-  nextBtn.type = 'button';
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'split-card-carousel-nav-btn';
+    nextBtn.setAttribute('aria-label', 'Next slide');
+    nextBtn.type = 'button';
+    nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
 
-  nav.append(prevBtn);
-  nav.append(nextBtn);
-  controls.append(nav);
+    nav.append(prevBtn);
+    nav.append(nextBtn);
+    controls.append(nav);
 
-  wrapper.append(controls);
+    wrapper.append(controls);
 
-  // Carousel state
-  let current = 0;
+    let current = 0;
 
-  function goToSlide(index) {
-    const total = slides.length;
-    if (total === 0) return;
-    current = ((index % total) + total) % total;
-    const slideEl = track.children[current];
-    if (slideEl) {
-      track.scrollTo({ left: slideEl.offsetLeft - track.offsetLeft, behavior: 'smooth' });
-    }
-    updateDots(dots, current);
-  }
-
-  prevBtn.addEventListener('click', () => goToSlide(current - 1));
-  nextBtn.addEventListener('click', () => goToSlide(current + 1));
-  dots.forEach((dot, i) => {
-    dot.addEventListener('click', () => goToSlide(i));
-  });
-
-  // Sync dots on manual scroll
-  track.addEventListener('scroll', () => {
-    const slideWidth = track.children[0]?.offsetWidth || 1;
-    const gap = 24;
-    const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
-    if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
-      current = scrollIndex;
+    const goToSlide = (index) => {
+      const total = slides.length;
+      if (total === 0) return;
+      current = ((index % total) + total) % total;
+      const slideEl = track.children[current];
+      if (slideEl) {
+        track.scrollTo({ left: slideEl.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+      }
       updateDots(dots, current);
-    }
-  });
+    };
+
+    prevBtn.addEventListener('click', () => goToSlide(current - 1));
+    nextBtn.addEventListener('click', () => goToSlide(current + 1));
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => goToSlide(i));
+    });
+
+    track.addEventListener('scroll', () => {
+      const slideWidth = track.children[0]?.offsetWidth || 1;
+      const gap = 24;
+      const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
+      if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
+        current = scrollIndex;
+        updateDots(dots, current);
+      }
+    });
+  }
 
   block.replaceChildren(wrapper);
 }
