@@ -159,7 +159,6 @@ main > .section > .split-card-carousel-wrapper {
   cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.2s ease;
-  border: none;
 }
 
 .split-card-carousel .split-card-carousel-button:hover {
@@ -167,23 +166,25 @@ main > .section > .split-card-carousel-wrapper {
   text-decoration: none;
 }
 
+/* Outlined variant — colors set inline via JS, this is the layout hook. */
 .split-card-carousel .split-card-carousel-button.is-outlined {
-  background-color: transparent !important;
-  color: var(--btn-accent, #008db6) !important;
-  border: 2px solid var(--btn-accent, #008db6) !important;
+  box-shadow: none;
 }
 
+/* Link variant — strips the pill look, color set inline via JS. */
 .split-card-carousel .split-card-carousel-button.is-link {
-  background-color: transparent !important;
-  color: var(--btn-accent, #008db6) !important;
-  border: none !important;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
   border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-weight: 500;
+  text-decoration: none;
 }
 
-.split-card-carousel .split-card-carousel-button.is-link:hover {
+.split-card-carousel .split-card-carousel-button.is-link:hover,
+.split-card-carousel .split-card-carousel-button.is-link:focus {
   text-decoration: underline;
+  opacity: 1;
 }
 
 /* Controls row: dots centered, nav arrows right */
