@@ -85,9 +85,16 @@ function applyFallbackField(field, source, value) {
   return { source: null, cell: source, value };
 }
 
+function isFieldBoundCell(cell) {
+  if (!cell) return false;
+  if (cell.matches?.('[data-aue-prop], [data-richtext-prop]')) return true;
+  return Boolean(cell.querySelector?.('[data-aue-prop], [data-richtext-prop]'));
+}
+
 function getContentCell(block) {
   return getRowCells(block).find((cell) => {
     if (cell.querySelector('picture')) return false;
+    if (isFieldBoundCell(cell)) return false;
     const values = getParagraphValues(cell);
     if (!values.length) return false;
     return !['input', 'dropdown'].includes(values[0].toLowerCase());
