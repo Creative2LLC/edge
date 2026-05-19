@@ -25,8 +25,7 @@ const resourceDataCache = new Map();
 function isDebugEnabled() {
   try {
     return new URLSearchParams(window.location.search).has('articleDetailsDebug')
-      || window.localStorage?.getItem('articleDetailsDebug') === 'true'
-      || window.location.hostname.includes('adobeaemcloud.com');
+      || window.localStorage?.getItem('articleDetailsDebug') === 'true';
   } catch (e) {
     return false;
   }
@@ -208,6 +207,16 @@ function getHtmlField(block, name) {
   };
 }
 
+function isBodyItemRow(row) {
+  return Boolean(
+    row.querySelector?.('[data-aue-prop="bodyText"], [data-richtext-prop="bodyText"]')
+      || row.querySelector?.('[data-aue-prop="bodyImage"]')
+      || row.querySelector?.('[data-aue-prop="bodyImageCaption"], [data-richtext-prop="bodyImageCaption"]')
+      || row.getAttribute?.('data-aue-model') === 'article-body-text'
+      || row.getAttribute?.('data-aue-model') === 'article-body-image',
+  );
+}
+
 function imageFromNode(node, fallbackAlt) {
   if (!node) return null;
 
@@ -237,6 +246,84 @@ function imageFromNode(node, fallbackAlt) {
   }
 
   return null;
+}
+
+function getBodyItemImage(row, fallbackAlt) {
+  const namedImage = readImageField(row, 'bodyImage', { fallbackCell: row.children[0] });
+  const image = imageFromNode(namedImage.cell, fallbackAlt);
+  if (!image) return null;
+
+  return {
+    ...image,
+    alt: readTextField(row, 'bodyImageAlt', { fallbackCell: row.children[1] }).value
+      || image.alt
+      || fallbackAlt,
+  };
+}
+
+function getArticleBodyItems(block, pageTitle, resourceData = {}) {
+  const items = [];
+
+  getRows(block).forEach((row) => {
+    if (!isBodyItemRow(row)) return;
+
+    const text = readRichTextField(row, 'bodyText', { fallbackCell: row.children[0] });
+    if (text.html) {
+      items.push({
+        type: 'text',
+        html: text.html,
+        source: text.source || row,
+      });
+      return;
+    }
+
+    const image = getBodyItemImage(row, pageTitle || 'Article image');
+    if (!image?.src) return;
+
+    const caption = readRichTextField(row, 'bodyImageCaption', { fallbackCell: row.children[2] });
+    items.push({
+      type: 'image',
+      image,
+      caption: caption.html,
+      source: row,
+    });
+  });
+
+  if (items.length) return items;
+
+  Object.entries(resourceData).forEach(([key, value]) => {
+    if (!value || typeof value !== 'object' || key.startsWith(':')) return;
+
+    const model = normalizeText(value.model || value.aueComponentId);
+    if (model === 'article-body-text') {
+      const html = normalizeJsonHtmlValue(value.bodyText);
+      if (html) {
+        items.push({
+          type: 'text',
+          html,
+          source: null,
+        });
+      }
+      return;
+    }
+
+    if (model !== 'article-body-image') return;
+
+    const src = normalizeJsonFieldValue(value.bodyImage);
+    if (!src) return;
+
+    items.push({
+      type: 'image',
+      image: {
+        src,
+        alt: normalizeText(value.bodyImageAlt) || pageTitle || 'Article image',
+      },
+      caption: normalizeJsonHtmlValue(value.bodyImageCaption),
+      source: null,
+    });
+  });
+
+  return items;
 }
 
 function getImageField(block, name, resourceData = {}) {
@@ -393,6 +480,7 @@ function debugArticleDetails(block, resourceData, fields) {
     editableLength: editableBody.length,
     rawHasImage: hasEmbeddedImage(rawBody),
     rawLength: rawBody.length,
+    bodyItemCount: fields.articleBodyItems?.length || 0,
     chosenHasImage: hasEmbeddedImage(fields.articleBody?.html),
     chosenLength: fields.articleBody?.html?.length || 0,
     chosenSource: fields.articleBody?.html === rawBody ? 'raw' : 'articleBody',
@@ -408,7 +496,7 @@ function debugArticleDetails(block, resourceData, fields) {
 }
 
 function buildBody(fields) {
-  if (!fields.articleBody?.html) return null;
+  if (!fields.articleBodyItems?.length && !fields.articleBody?.html) return null;
 
   const section = document.createElement('article');
   section.className = 'article-details-content';
@@ -418,8 +506,43 @@ function buildBody(fields) {
 
   const body = document.createElement('div');
   body.className = 'article-details-body';
-  body.innerHTML = fields.articleBody.html;
-  if (fields.articleBody.source) moveInstrumentation(fields.articleBody.source, body);
+
+  if (fields.articleBodyItems?.length) {
+    fields.articleBodyItems.forEach((item) => {
+      if (item.type === 'text') {
+        const text = document.createElement('div');
+        text.className = 'article-details-body-text';
+        text.innerHTML = item.html;
+        if (item.source) moveInstrumentation(item.source, text);
+        body.append(text);
+        return;
+      }
+
+      const figure = document.createElement('figure');
+      figure.className = 'article-details-body-image';
+      if (item.source) moveInstrumentation(item.source, figure);
+      figure.append(
+        createOptimizedPicture(
+          item.image.src,
+          item.image.alt || fields.pageTitle || 'Article image',
+          false,
+          [{ width: '750' }, { width: '1200' }],
+        ),
+      );
+
+      if (item.caption) {
+        const caption = document.createElement('figcaption');
+        caption.innerHTML = item.caption;
+        figure.append(caption);
+      }
+
+      body.append(figure);
+    });
+  } else {
+    body.innerHTML = fields.articleBody.html;
+    if (fields.articleBody.source) moveInstrumentation(fields.articleBody.source, body);
+  }
+
   inner.append(body);
 
   section.append(inner);
@@ -438,10 +561,11 @@ export default async function decorate(block) {
     headerImage: getImageField(block, 'headerImage', resourceData),
     articleBody: chooseArticleBody(block, resourceData),
   };
+  fields.articleBodyItems = getArticleBodyItems(block, fields.pageTitle, resourceData);
 
   debugArticleDetails(block, resourceData, fields);
 
-  if (!fields.pageTitle && !fields.articleBody?.html) {
+  if (!fields.pageTitle && !fields.articleBodyItems.length && !fields.articleBody?.html) {
     block.replaceChildren(buildMessage('Article Details', 'Add article fields to this block in Universal Editor. These values can also be synced into the backend article record.'));
     return;
   }

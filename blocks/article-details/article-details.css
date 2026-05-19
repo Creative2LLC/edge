@@ -154,6 +154,35 @@
   border-radius: 18px;
 }
 
+.article-details .article-details-body-text > :first-child {
+  margin-top: 0;
+}
+
+.article-details .article-details-body-image {
+  margin: 1.75rem 0;
+  text-align: center;
+}
+
+.article-details .article-details-body-image picture,
+.article-details .article-details-body-image img {
+  display: block;
+}
+
+.article-details .article-details-body-image img {
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 18px;
+}
+
+.article-details .article-details-body-image figcaption {
+  margin: 0.75rem auto 0;
+  max-width: 42rem;
+  color: #637788;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
 .article-details .article-details-message {
   width: min(100% - 32px, 960px);
   margin: 48px auto;
