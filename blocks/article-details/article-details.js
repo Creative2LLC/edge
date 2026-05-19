@@ -76,6 +76,16 @@ function decodeBase64Utf8(value) {
   }
 }
 
+function hasEmbeddedImage(value) {
+  return /<(img|picture|source)\b/i.test(`${value || ''}`);
+}
+
+function htmlTextContent(value) {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = `${value || ''}`;
+  return normalizeText(wrapper.textContent).replace(/\s+/g, ' ');
+}
+
 function readTextValue(block, name) {
   const namedText = readTextField(block, name).value;
   if (namedText) return namedText;
@@ -324,6 +334,18 @@ function buildHero(fields) {
 function chooseArticleBody(block, resourceData) {
   const richTextBody = getHtmlField(block, 'articleBody');
   const rawBody = normalizeRawHtmlField(block, resourceData);
+
+  if (
+    rawBody
+    && hasEmbeddedImage(rawBody)
+    && !hasEmbeddedImage(richTextBody.html)
+    && htmlTextContent(rawBody) === htmlTextContent(richTextBody.html)
+  ) {
+    return {
+      html: rawBody,
+      source: richTextBody.source,
+    };
+  }
 
   return richTextBody.html ? richTextBody : {
     html: rawBody,
