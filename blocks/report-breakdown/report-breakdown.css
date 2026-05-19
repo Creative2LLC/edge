@@ -44,10 +44,10 @@
 }
 
 .report-breakdown .report-breakdown-heading {
-  max-width: 1067px;
+  max-width: 1100px;
   margin: 0;
   color: #113a67;
-  font-size: clamp(2.65rem, 4.8vw, 5.2rem);
+  font-size: 64px;
   font-weight: 700;
   line-height: 1.02;
   text-align: center;
