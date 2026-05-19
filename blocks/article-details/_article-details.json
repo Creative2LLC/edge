@@ -10,7 +10,7 @@
             "template": {
               "name": "Article Details",
               "model": "article-details",
-              "filter": "article-details-body"
+              "filter": "article-details"
             }
           }
         }
@@ -128,6 +128,13 @@
     }
   ],
   "filters": [
+    {
+      "id": "article-details",
+      "components": [
+        "article-body-text",
+        "article-body-image"
+      ]
+    },
     {
       "id": "article-details-body",
       "components": [

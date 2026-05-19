@@ -161,6 +161,13 @@
     ]
   },
   {
+    "id": "article-details",
+    "components": [
+      "article-body-text",
+      "article-body-image"
+    ]
+  },
+  {
     "id": "article-details-body",
     "components": [
       "article-body-text",

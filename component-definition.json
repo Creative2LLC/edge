@@ -370,7 +370,7 @@
                 "template": {
                   "name": "Article Details",
                   "model": "article-details",
-                  "filter": "article-details-body"
+                  "filter": "article-details"
                 }
               }
             }
