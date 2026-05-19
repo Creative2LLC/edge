@@ -3,7 +3,23 @@
   --impact-donut-track: #edf1f3;
 
   padding: 72px 0;
+  max-width: 1420px;
+  margin: 0 auto;
   background: var(--impact-donut-surface);
+}
+
+/* Break out of the section wrapper's inline padding so the block spans
+   the full 1420px outer width. */
+@media (width >= 700px) {
+  .impact-donut {
+    margin-inline: -24px;
+  }
+}
+
+@media (width >= 900px) {
+  .impact-donut {
+    margin-inline: -32px;
+  }
 }
 
 .impact-donut .impact-donut-inner {

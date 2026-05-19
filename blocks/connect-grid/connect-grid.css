@@ -1,5 +1,21 @@
 .connect-grid {
   padding: 78px 0 70px;
+  max-width: 1420px;
+  margin: 0 auto;
+}
+
+/* Break out of the section wrapper's inline padding so the block spans
+   the full 1420px outer width. */
+@media (width >= 700px) {
+  .connect-grid {
+    margin-inline: -24px;
+  }
+}
+
+@media (width >= 900px) {
+  .connect-grid {
+    margin-inline: -32px;
+  }
 }
 
 .connect-grid .connect-grid-inner {

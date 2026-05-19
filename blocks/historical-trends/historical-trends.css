@@ -3,6 +3,22 @@
 
   position: relative;
   padding: 84px 0 72px;
+  max-width: 1420px;
+  margin: 0 auto;
+}
+
+/* Break out of the section wrapper's inline padding so the block spans
+   the full 1420px outer width. */
+@media (width >= 700px) {
+  .historical-trends {
+    margin-inline: -24px;
+  }
+}
+
+@media (width >= 900px) {
+  .historical-trends {
+    margin-inline: -32px;
+  }
 }
 
 .historical-trends .historical-trends-inner {
