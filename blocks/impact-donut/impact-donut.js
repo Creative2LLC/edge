@@ -379,7 +379,7 @@ function animateChart(block, chart, chartSegments, legendEntries) {
 
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
-  const headingField = getBlockField(block, 'heading');
+  const headingSource = getBlockRichField(block, 'heading');
   const bodySource = getBlockRichField(block, 'bodyText');
   const primaryButtonTextField = getBlockField(block, 'primaryButtonText');
   const primaryButtonLinkField = getBlockLinkField(block, 'primaryButtonLink');
@@ -469,14 +469,10 @@ export default function decorate(block) {
   const copy = document.createElement('div');
   copy.className = 'impact-donut-copy impact-donut-reveal';
 
-  if (headingField.value || headingField.source) {
-    const heading = document.createElement('h2');
-    heading.className = 'impact-donut-heading';
-    if (headingField.source) {
-      moveFieldContent(headingField, heading, headingField.value);
-    } else {
-      heading.textContent = headingField.value;
-    }
+  const heading = buildRichContent(headingSource, 'impact-donut-heading');
+  if (heading) {
+    heading.setAttribute('role', 'heading');
+    heading.setAttribute('aria-level', '2');
     copy.append(heading);
   }
 

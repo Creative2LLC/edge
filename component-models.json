@@ -3725,7 +3725,7 @@
     "id": "impact-donut",
     "fields": [
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Heading"

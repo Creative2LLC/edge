@@ -56,11 +56,19 @@
   letter-spacing: -0.03em;
 }
 
+.impact-donut .impact-donut-heading > :first-child {
+  margin-top: 0;
+}
+
+.impact-donut .impact-donut-heading > :last-child {
+  margin-bottom: 0;
+}
+
 .impact-donut .impact-donut-body {
   max-width: 825px;
   margin-bottom: 40px;
   color: #404041;
-  font-size: 32px;
+  font-size: 20px;
   font-weight: 400;
   line-height: 1.35;
 }

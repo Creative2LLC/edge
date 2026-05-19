@@ -38,13 +38,13 @@
 }
 
 .connect-grid .connect-grid-header {
-  max-width: 720px;
+  max-width: 860px;
 }
 
 .connect-grid .connect-grid-heading {
   margin: 0 0 16px;
   color: #113a67;
-  font-size: clamp(2.4rem, 4vw, 4.1rem);
+  font-size: 48px;
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.035em;
@@ -52,7 +52,8 @@
 
 .connect-grid .connect-grid-subheading {
   color: #404041;
-  font-size: clamp(1.18rem, 1.85vw, 1.85rem);
+  font-size: 24px;
+  font-weight: 500;
   line-height: 1.42;
 }
 
@@ -97,8 +98,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 96px;
+  height: 96px;
   background-color: #ff8b7e;
   mask-size: contain;
   mask-repeat: no-repeat;
@@ -117,8 +118,8 @@
 .connect-grid .connect-grid-card-media.is-icon picture,
 .connect-grid .connect-grid-card-media.is-icon img {
   display: block;
-  width: 42px;
-  height: 42px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
 }
 
@@ -164,16 +165,20 @@
 
 .connect-grid .connect-grid-card-description {
   color: #404041;
-  font-size: 1.08rem;
   line-height: 1.45;
 }
 
-.connect-grid .connect-grid-card-description > :first-child {
-  margin-top: 0;
+/* Rich-text description: first paragraph small, subsequent paragraphs
+   larger with a space between (per design). */
+.connect-grid .connect-grid-card-description > * {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
 }
 
-.connect-grid .connect-grid-card-description > :last-child {
-  margin-bottom: 0;
+.connect-grid .connect-grid-card-description > * + * {
+  margin-top: 16px;
+  font-size: 24px;
 }
 
 .connect-grid .connect-grid-card-divider {
