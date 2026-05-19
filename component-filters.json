@@ -6,6 +6,59 @@
     ]
   },
   {
+    "id": "richtext",
+    "rte": {
+      "toolbar": {
+        "format": [
+          "bold",
+          "italic",
+          "underline",
+          "strike"
+        ],
+        "blocks": [
+          "paragraph",
+          "h2",
+          "h3",
+          "h4"
+        ],
+        "list": [
+          "bullet_list",
+          "ordered_list"
+        ],
+        "insert": [
+          "link",
+          "unlink",
+          "image",
+          "special_characters"
+        ],
+        "editor": [
+          "removeformat",
+          "paste_text"
+        ],
+        "sections": [
+          "blocks",
+          "format",
+          "list",
+          "insert",
+          "editor"
+        ]
+      },
+      "actions": {
+        "image": {
+          "wrapInPicture": false,
+          "shortcut": "Mod-Shift-I",
+          "label": "Insert Image"
+        },
+        "link": {
+          "hideTarget": false
+        }
+      }
+    },
+    "components": [
+      "richtext"
+    ]
+  },
+  {
     "id": "section",
     "components": [
       "text",
@@ -105,56 +158,6 @@
       "community-education-partner-reporting",
       "prpl-application",
       "apply-for-training"
-    ]
-  },
-  {
-    "id": "richtext",
-    "rte": {
-      "toolbar": {
-        "format": [
-          "bold",
-          "italic",
-          "underline",
-          "strike"
-        ],
-        "blocks": [
-          "paragraph",
-          "h2",
-          "h3",
-          "h4"
-        ],
-        "list": [
-          "bullet_list",
-          "ordered_list"
-        ],
-        "insert": [
-          "link",
-          "unlink",
-          "image"
-        ],
-        "editor": [
-          "removeformat"
-        ],
-        "sections": [
-          "blocks",
-          "format",
-          "list",
-          "insert",
-          "editor"
-        ]
-      },
-      "actions": {
-        "image": {
-          "wrapInPicture": false,
-          "label": "Insert Image"
-        },
-        "link": {
-          "hideTarget": false
-        }
-      }
-    },
-    "components": [
-      "richtext"
     ]
   },
   {
