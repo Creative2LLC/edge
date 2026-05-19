@@ -45,9 +45,7 @@
   position: absolute;
   inset: 0;
   z-index: -2;
-  background:
-    linear-gradient(180deg, rgb(247 247 247 / 74%) 0%, rgb(247 247 247 / 42%) 34%, rgb(247 247 247 / 92%) 84%, #f6f6f6 100%),
-    linear-gradient(90deg, rgb(247 247 247 / 82%) 0%, rgb(247 247 247 / 38%) 100%);
+  background: transparent;
 }
 
 .article-details .article-details-hero.is-without-image .article-details-hero-overlay {

@@ -39,8 +39,15 @@ function normalizeJsonFieldValue(value) {
   if (!value) return '';
   if (typeof value === 'string') return value.trim();
   if (typeof value === 'object') {
-    return `${value.href || value.path || value.url || value.reference || ''}`.trim();
+    return `${value.href || value.path || value.url || value.reference || value.html || ''}`.trim();
   }
+  return '';
+}
+
+function normalizeJsonHtmlValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') return `${value.html || value.value || ''}`.trim();
   return '';
 }
 
@@ -249,6 +256,17 @@ function buildHero(fields) {
   return section;
 }
 
+function chooseArticleBody(block, resourceData) {
+  const richTextBody = getHtmlField(block, 'articleBody');
+  const rawBody = normalizeJsonHtmlValue(resourceData.articleBodyRaw);
+
+  if (rawBody && (!richTextBody || (rawBody.includes('<img') && !richTextBody.includes('<img')))) {
+    return rawBody;
+  }
+
+  return richTextBody;
+}
+
 function buildBody(fields) {
   if (!fields.articleBody) return null;
 
@@ -277,7 +295,7 @@ export default async function decorate(block) {
     articleDate: getTextField(block, 'articleDate'),
     thumbnail: getImageField(block, 'thumbnail', resourceData),
     headerImage: getImageField(block, 'headerImage', resourceData),
-    articleBody: getHtmlField(block, 'articleBody'),
+    articleBody: chooseArticleBody(block, resourceData),
   };
 
   if (!fields.pageTitle && !fields.articleBody) {
