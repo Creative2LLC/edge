@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   getBlockRows,
   readImageField,
@@ -149,15 +150,28 @@ function getTextField(block, name, fallback = '') {
 
 function getHtmlField(block, name) {
   const richField = readRichTextField(block, name);
-  if (richField.source) return richField.html;
+  if (richField.source) {
+    return {
+      html: richField.html,
+      source: richField.source,
+    };
+  }
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
-  if (columnIndex === undefined) return '';
+  if (columnIndex === undefined) {
+    return {
+      html: '',
+      source: null,
+    };
+  }
 
   const value = getRows(block)
     .map((row) => readRichTextField(row, name, { fallbackCell: row.children[columnIndex] }).html)
     .find(Boolean);
-  return value || '';
+  return {
+    html: value || '',
+    source: null,
+  };
 }
 
 function imageFromNode(node, fallbackAlt) {
@@ -311,15 +325,14 @@ function chooseArticleBody(block, resourceData) {
   const richTextBody = getHtmlField(block, 'articleBody');
   const rawBody = normalizeRawHtmlField(block, resourceData);
 
-  if (rawBody && (!richTextBody || (rawBody.includes('<img') && !richTextBody.includes('<img')))) {
-    return rawBody;
-  }
-
-  return richTextBody;
+  return richTextBody.html ? richTextBody : {
+    html: rawBody,
+    source: null,
+  };
 }
 
 function buildBody(fields) {
-  if (!fields.articleBody) return null;
+  if (!fields.articleBody?.html) return null;
 
   const section = document.createElement('article');
   section.className = 'article-details-content';
@@ -329,7 +342,8 @@ function buildBody(fields) {
 
   const body = document.createElement('div');
   body.className = 'article-details-body';
-  body.innerHTML = fields.articleBody;
+  body.innerHTML = fields.articleBody.html;
+  if (fields.articleBody.source) moveInstrumentation(fields.articleBody.source, body);
   inner.append(body);
 
   section.append(inner);
@@ -349,7 +363,7 @@ export default async function decorate(block) {
     articleBody: chooseArticleBody(block, resourceData),
   };
 
-  if (!fields.pageTitle && !fields.articleBody) {
+  if (!fields.pageTitle && !fields.articleBody?.html) {
     block.replaceChildren(buildMessage('Article Details', 'Add article fields to this block in Universal Editor. These values can also be synced into the backend article record.'));
     return;
   }
