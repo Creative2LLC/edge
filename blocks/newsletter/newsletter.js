@@ -356,10 +356,14 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'newsletter-content';
 
-  const heading = buildTextElement('h2', 'newsletter-heading', headingField);
-  if (heading) content.append(heading);
+  const heading = buildTextElement('div', 'newsletter-heading', headingField);
+  if (heading) {
+    heading.setAttribute('role', 'heading');
+    heading.setAttribute('aria-level', '2');
+    content.append(heading);
+  }
 
-  const subheading = buildTextElement('p', 'newsletter-subheading', subheadingField);
+  const subheading = buildTextElement('div', 'newsletter-subheading', subheadingField);
   if (subheading) content.append(subheading);
 
   const options = parseOptions(optionsField.value);

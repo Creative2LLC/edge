@@ -59,12 +59,28 @@ main > .section > .newsletter-wrapper {
   line-height: 1.1;
 }
 
+.newsletter .newsletter-heading > :first-child {
+  margin-top: 0;
+}
+
+.newsletter .newsletter-heading > :last-child {
+  margin-bottom: 0;
+}
+
 .newsletter .newsletter-subheading {
   margin: 14px auto 0;
   max-width: 760px;
   color: #404041;
   font-size: 1.05rem;
   line-height: 1.5;
+}
+
+.newsletter .newsletter-subheading > :first-child {
+  margin-top: 0;
+}
+
+.newsletter .newsletter-subheading > :last-child {
+  margin-bottom: 0;
 }
 
 .newsletter .newsletter-form {
