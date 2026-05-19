@@ -108,7 +108,7 @@
     ]
   },
   {
-    "id": "article-details-richtext",
+    "id": "richtext",
     "rte": {
       "toolbar": {
         "format": [
