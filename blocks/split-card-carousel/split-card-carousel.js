@@ -21,6 +21,32 @@ function getImageField(row, index) {
   return { picture, img };
 }
 
+// EDS auto-links any text starting with `#` (hex colors included) into an
+// anchor whose resolved href is a full URL. textContent of the cell can come
+// back as that URL — which CSS rejects as a color, silently breaking the
+// outlined border + text color. Walk the cell to recover the hex itself.
+function extractHexColor(cell) {
+  if (!cell) return '';
+  const hexRe = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})\b/i;
+  const anchor = cell.querySelector?.('a');
+  if (anchor) {
+    const href = anchor.getAttribute('href') || '';
+    const hrefMatch = href.match(hexRe);
+    if (hrefMatch) return hrefMatch[0];
+    const anchorText = anchor.textContent?.trim() || '';
+    const anchorMatch = anchorText.match(hexRe);
+    if (anchorMatch) return anchorMatch[0];
+  }
+  const text = cell.textContent?.trim() || '';
+  const textMatch = text.match(hexRe);
+  return textMatch ? textMatch[0] : '';
+}
+
+function getColorField(row, name, index) {
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: extractHexColor(field.cell) };
+}
+
 function normalizeButtonStyle(value) {
   const v = String(value || '').trim().toLowerCase();
   if (v.includes('outline') || v.includes('border')) return 'outlined';
@@ -194,13 +220,13 @@ export default function decorate(block) {
     const subheadingField = getField(row, 'subheading', 3);
     const buttonTextField = getField(row, 'buttonText', 4);
     const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-    const buttonColorField = getField(row, 'buttonColor', 6);
+    const buttonColorField = getColorField(row, 'buttonColor', 6);
     const buttonStyleField = getField(row, 'buttonStyle', 7);
     const button2TextField = getField(row, 'button2Text', 8);
     const button2LinkField = getLinkField(row, 'button2Link', 9);
-    const button2ColorField = getField(row, 'button2Color', 10);
+    const button2ColorField = getColorField(row, 'button2Color', 10);
     const button2StyleField = getField(row, 'button2Style', 11);
-    const bgColorField = getField(row, 'backgroundColor', 12);
+    const bgColorField = getColorField(row, 'backgroundColor', 12);
     const contentAlignField = getField(row, 'contentAlign', 13);
 
     slides.push({
