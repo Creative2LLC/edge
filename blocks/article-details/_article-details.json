@@ -67,5 +67,56 @@
       ]
     }
   ],
-  "filters": []
+  "filters": [
+    {
+      "id": "article-details-richtext",
+      "rte": {
+        "toolbar": {
+          "format": [
+            "bold",
+            "italic",
+            "underline",
+            "strike"
+          ],
+          "blocks": [
+            "paragraph",
+            "h2",
+            "h3",
+            "h4"
+          ],
+          "list": [
+            "bullet_list",
+            "ordered_list"
+          ],
+          "insert": [
+            "link",
+            "unlink",
+            "image"
+          ],
+          "editor": [
+            "removeformat"
+          ],
+          "sections": [
+            "blocks",
+            "format",
+            "list",
+            "insert",
+            "editor"
+          ]
+        },
+        "actions": {
+          "image": {
+            "wrapInPicture": false,
+            "label": "Insert Image"
+          },
+          "link": {
+            "hideTarget": false
+          }
+        }
+      },
+      "components": [
+        "richtext"
+      ]
+    }
+  ]
 }

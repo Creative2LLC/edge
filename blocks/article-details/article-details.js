@@ -76,10 +76,6 @@ function decodeBase64Utf8(value) {
   }
 }
 
-function hasEmbeddedImage(value) {
-  return /<(img|picture|source)\b/i.test(`${value || ''}`);
-}
-
 function readTextValue(block, name) {
   const namedText = readTextField(block, name).value;
   if (namedText) return namedText;
@@ -328,16 +324,6 @@ function buildHero(fields) {
 function chooseArticleBody(block, resourceData) {
   const richTextBody = getHtmlField(block, 'articleBody');
   const rawBody = normalizeRawHtmlField(block, resourceData);
-
-  if (
-    rawBody
-    && (!richTextBody.html || (hasEmbeddedImage(rawBody) && !hasEmbeddedImage(richTextBody.html)))
-  ) {
-    return {
-      html: rawBody,
-      source: richTextBody.source,
-    };
-  }
 
   return richTextBody.html ? richTextBody : {
     html: rawBody,
