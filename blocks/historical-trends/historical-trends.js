@@ -334,6 +334,7 @@ function buildChart(points, highlightIndex, palette) {
   const line = createSvgElement('path', {
     class: 'historical-trends-line',
     d: linePath,
+    pathLength: '1',
   });
 
   setGradientStops(baseGradient, palette.baseFillColor);
@@ -439,31 +440,24 @@ function buildCard(item, index) {
   return card;
 }
 
-function clearLineDash(linePath) {
-  linePath.style.strokeDasharray = 'none';
-  linePath.style.strokeDashoffset = '0';
-}
-
 function enableReveal(block, linePath) {
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
   if (reducedMotion || !linePath || !('IntersectionObserver' in window)) {
     block.classList.add('is-visible');
-    if (linePath) clearLineDash(linePath);
+    if (linePath) {
+      linePath.style.strokeDasharray = 'none';
+      linePath.style.strokeDashoffset = '0';
+    }
     return;
   }
 
-  // Pad the dash length so any sub-pixel rounding in getTotalLength() can't
-  // leave the tail of the curve un-drawn at dashoffset 0.
-  const dashLength = Math.ceil(linePath.getTotalLength()) + 4;
-  linePath.style.strokeDasharray = `${dashLength}`;
-  linePath.style.strokeDashoffset = `${dashLength}`;
-  linePath.style.transition = 'stroke-dashoffset 1400ms cubic-bezier(0.2, 1, 0.22, 1) 120ms';
-
-  linePath.addEventListener('transitionend', (event) => {
-    if (event.propertyName !== 'stroke-dashoffset') return;
-    clearLineDash(linePath);
-  }, { once: true });
+  // The path uses pathLength="1", so we can treat the dash math in normalized
+  // [0..1] units without relying on getTotalLength() — that avoids browser
+  // path-length underestimation leaving the tail of the curve unrendered.
+  linePath.style.strokeDasharray = '1';
+  linePath.style.strokeDashoffset = '1';
+  linePath.style.transition = 'stroke-dashoffset 1400ms cubic-bezier(0.4, 0, 0.2, 1) 120ms';
 
   const observer = new IntersectionObserver((entries) => {
     const visible = entries.some((entry) => entry.isIntersecting);
