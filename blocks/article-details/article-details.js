@@ -80,12 +80,6 @@ function hasEmbeddedImage(value) {
   return /<(img|picture|source)\b/i.test(`${value || ''}`);
 }
 
-function htmlTextContent(value) {
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = `${value || ''}`;
-  return normalizeText(wrapper.textContent).replace(/\s+/g, ' ');
-}
-
 function readTextValue(block, name) {
   const namedText = readTextField(block, name).value;
   if (namedText) return namedText;
@@ -337,9 +331,7 @@ function chooseArticleBody(block, resourceData) {
 
   if (
     rawBody
-    && hasEmbeddedImage(rawBody)
-    && !hasEmbeddedImage(richTextBody.html)
-    && htmlTextContent(rawBody) === htmlTextContent(richTextBody.html)
+    && (!richTextBody.html || (hasEmbeddedImage(rawBody) && !hasEmbeddedImage(richTextBody.html)))
   ) {
     return {
       html: rawBody,
