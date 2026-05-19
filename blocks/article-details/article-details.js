@@ -22,6 +22,16 @@ const FIELD_COLUMN_INDEX = {
 
 const resourceDataCache = new Map();
 
+function isDebugEnabled() {
+  try {
+    return new URLSearchParams(window.location.search).has('articleDetailsDebug')
+      || window.localStorage?.getItem('articleDetailsDebug') === 'true'
+      || window.location.hostname.includes('adobeaemcloud.com');
+  } catch (e) {
+    return false;
+  }
+}
+
 function normalizeText(value) {
   return `${value || ''}`.trim();
 }
@@ -80,6 +90,17 @@ function hasEmbeddedImage(value) {
   return /<(img|picture|source)\b/i.test(`${value || ''}`);
 }
 
+function imageSourcesFromHtml(value) {
+  const html = `${value || ''}`;
+  if (!html) return [];
+
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  return [...template.content.querySelectorAll('img, source')]
+    .map((node) => node.getAttribute('src') || node.getAttribute('srcset') || '')
+    .filter(Boolean);
+}
+
 function readTextValue(block, name) {
   const namedText = readTextField(block, name).value;
   if (namedText) return namedText;
@@ -132,6 +153,15 @@ async function getResourceData(scope) {
 
   resourceDataCache.set(resourcePath, pendingData);
   return pendingData;
+}
+
+function getBlockResourcePath(scope) {
+  const resource = scope?.getAttribute('data-aue-resource')
+    || scope?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || scope?.closest?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  return resourcePathFromUrn(resource);
 }
 
 function getTextField(block, name, fallback = '') {
@@ -345,6 +375,38 @@ function chooseArticleBody(block, resourceData) {
   };
 }
 
+function debugArticleDetails(block, resourceData, fields) {
+  if (!isDebugEnabled()) return;
+
+  const editableBody = getHtmlField(block, 'articleBody').html
+    || normalizeJsonHtmlValue(resourceData.articleBody);
+  const rawBody = normalizeRawHtmlField(block, resourceData);
+
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('[article-details] body debug');
+  // eslint-disable-next-line no-console
+  console.table({
+    resourcePath: getBlockResourcePath(block),
+    filter: normalizeText(resourceData.filter),
+    hasEditableBody: Boolean(editableBody),
+    editableHasImage: hasEmbeddedImage(editableBody),
+    editableLength: editableBody.length,
+    rawHasImage: hasEmbeddedImage(rawBody),
+    rawLength: rawBody.length,
+    chosenHasImage: hasEmbeddedImage(fields.articleBody?.html),
+    chosenLength: fields.articleBody?.html?.length || 0,
+    chosenSource: fields.articleBody?.html === rawBody ? 'raw' : 'articleBody',
+  });
+  // eslint-disable-next-line no-console
+  console.log('articleBody image sources', imageSourcesFromHtml(editableBody));
+  // eslint-disable-next-line no-console
+  console.log('raw image sources', imageSourcesFromHtml(rawBody));
+  // eslint-disable-next-line no-console
+  console.log('AEM block JSON', resourceData);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
+}
+
 function buildBody(fields) {
   if (!fields.articleBody?.html) return null;
 
@@ -376,6 +438,8 @@ export default async function decorate(block) {
     headerImage: getImageField(block, 'headerImage', resourceData),
     articleBody: chooseArticleBody(block, resourceData),
   };
+
+  debugArticleDetails(block, resourceData, fields);
 
   if (!fields.pageTitle && !fields.articleBody?.html) {
     block.replaceChildren(buildMessage('Article Details', 'Add article fields to this block in Universal Editor. These values can also be synced into the backend article record.'));
