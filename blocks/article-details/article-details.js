@@ -52,16 +52,25 @@ function normalizeJsonHtmlValue(value) {
   return '';
 }
 
+function decodeHtmlEntities(value) {
+  const text = normalizeText(value);
+  if (!text.includes('&')) return text;
+
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = text;
+  return textarea.value.trim();
+}
+
 function normalizeRawHtmlField(block, resourceData) {
-  const jsonBody = normalizeJsonHtmlValue(resourceData.articleBodyRaw);
+  const jsonBody = decodeHtmlEntities(normalizeJsonHtmlValue(resourceData.articleBodyRaw));
   if (jsonBody) return jsonBody;
 
-  const namedText = readTextField(block, 'articleBodyRaw').value;
+  const namedText = decodeHtmlEntities(readTextField(block, 'articleBodyRaw').value);
   if (namedText) return namedText;
 
   const columnIndex = FIELD_COLUMN_INDEX.articleBodyRaw;
   return getBlockRows(block)
-    .map((row) => normalizeText(readTextField(row, 'articleBodyRaw', {
+    .map((row) => decodeHtmlEntities(readTextField(row, 'articleBodyRaw', {
       fallbackCell: row.children[columnIndex],
     }).value))
     .find(Boolean) || '';
