@@ -16,6 +16,7 @@ const FIELD_COLUMN_INDEX = {
   headerImage: 5,
   articleBody: 6,
   articleBodyRaw: 7,
+  articleBodyRawEncoded: 8,
 };
 
 const resourceDataCache = new Map();
@@ -61,19 +62,44 @@ function decodeHtmlEntities(value) {
   return textarea.value.trim();
 }
 
+function decodeBase64Utf8(value) {
+  const encoded = normalizeText(value);
+  if (!encoded) return '';
+
+  try {
+    const binary = atob(encoded);
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    return new TextDecoder().decode(bytes).trim();
+  } catch (e) {
+    return '';
+  }
+}
+
+function readTextValue(block, name) {
+  const namedText = readTextField(block, name).value;
+  if (namedText) return namedText;
+
+  const columnIndex = FIELD_COLUMN_INDEX[name];
+  if (columnIndex === undefined) return '';
+
+  return getBlockRows(block)
+    .map((row) => readTextField(row, name, {
+      fallbackCell: row.children[columnIndex],
+    }).value)
+    .find(Boolean) || '';
+}
+
 function normalizeRawHtmlField(block, resourceData) {
+  const encodedBody = decodeBase64Utf8(
+    normalizeJsonHtmlValue(resourceData.articleBodyRawEncoded)
+      || readTextValue(block, 'articleBodyRawEncoded'),
+  );
+  if (encodedBody) return encodedBody;
+
   const jsonBody = decodeHtmlEntities(normalizeJsonHtmlValue(resourceData.articleBodyRaw));
   if (jsonBody) return jsonBody;
 
-  const namedText = decodeHtmlEntities(readTextField(block, 'articleBodyRaw').value);
-  if (namedText) return namedText;
-
-  const columnIndex = FIELD_COLUMN_INDEX.articleBodyRaw;
-  return getBlockRows(block)
-    .map((row) => decodeHtmlEntities(readTextField(row, 'articleBodyRaw', {
-      fallbackCell: row.children[columnIndex],
-    }).value))
-    .find(Boolean) || '';
+  return decodeHtmlEntities(readTextValue(block, 'articleBodyRaw'));
 }
 
 function getRows(block) {

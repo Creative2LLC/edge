@@ -69,6 +69,12 @@
           "valueType": "string",
           "name": "articleBodyRaw",
           "label": "Article Body Raw"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "articleBodyRawEncoded",
+          "label": "Article Body Raw Encoded"
         }
       ]
     }
