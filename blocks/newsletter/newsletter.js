@@ -85,9 +85,16 @@ function applyFallbackField(field, source, value) {
   return { source: null, cell: source, value };
 }
 
+function isFieldBoundCell(cell) {
+  if (!cell) return false;
+  if (cell.matches?.('[data-aue-prop], [data-richtext-prop]')) return true;
+  return Boolean(cell.querySelector?.('[data-aue-prop], [data-richtext-prop]'));
+}
+
 function getContentCell(block) {
   return getRowCells(block).find((cell) => {
     if (cell.querySelector('picture')) return false;
+    if (isFieldBoundCell(cell)) return false;
     const values = getParagraphValues(cell);
     if (!values.length) return false;
     return !['input', 'dropdown'].includes(values[0].toLowerCase());
@@ -356,10 +363,14 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'newsletter-content';
 
-  const heading = buildTextElement('h2', 'newsletter-heading', headingField);
-  if (heading) content.append(heading);
+  const heading = buildTextElement('div', 'newsletter-heading', headingField);
+  if (heading) {
+    heading.setAttribute('role', 'heading');
+    heading.setAttribute('aria-level', '2');
+    content.append(heading);
+  }
 
-  const subheading = buildTextElement('p', 'newsletter-subheading', subheadingField);
+  const subheading = buildTextElement('div', 'newsletter-subheading', subheadingField);
   if (subheading) content.append(subheading);
 
   const options = parseOptions(optionsField.value);

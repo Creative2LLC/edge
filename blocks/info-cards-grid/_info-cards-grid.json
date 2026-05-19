@@ -145,6 +145,28 @@
             }
           ],
           "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardContentAlignment",
+          "label": "Card Content Alignment",
+          "description": "Aligns the Title, Subtitle, Body Content, and Buttons on each card.",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "left"
         }
       ]
     },

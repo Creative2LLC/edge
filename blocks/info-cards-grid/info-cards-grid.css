@@ -329,6 +329,41 @@
   justify-content: space-between;
 }
 
+/* Card content alignment (Title, Subtitle, Body, Buttons).
+   Default is left, so only center and right need overrides.
+   Center adds extra top + horizontal padding for breathing room. */
+.info-cards-grid-inner-align-center .info-cards-grid-card-content {
+  align-items: center;
+}
+
+.info-cards-grid-inner-align-right .info-cards-grid-card-content {
+  align-items: flex-end;
+}
+
+.info-cards-grid-inner-align-center .info-cards-grid-card-title,
+.info-cards-grid-inner-align-center .info-cards-grid-card-subtitle,
+.info-cards-grid-inner-align-center .info-cards-grid-card-body {
+  text-align: center;
+}
+
+.info-cards-grid-inner-align-right .info-cards-grid-card-title,
+.info-cards-grid-inner-align-right .info-cards-grid-card-subtitle,
+.info-cards-grid-inner-align-right .info-cards-grid-card-body {
+  text-align: right;
+}
+
+.info-cards-grid-inner-align-center .info-cards-grid-card-buttons {
+  justify-content: center;
+}
+
+.info-cards-grid-inner-align-right .info-cards-grid-card-buttons {
+  justify-content: flex-end;
+}
+
+.info-cards-grid-inner-align-center .info-cards-grid-card {
+  padding: 60px 52px 36px;
+}
+
 .info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:hover,
 .info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:focus-within {
   background: var(--info-card-hover-bg);
@@ -455,6 +490,10 @@
   box-shadow: 0 10px 20px rgb(0 141 182 / 16%);
 }
 
+.info-cards-grid-volunteer .info-cards-grid-inner-align-center .info-cards-grid-card {
+  padding: 52px 42px 30px;
+}
+
 .info-cards-grid-volunteer .info-cards-grid-footer {
   gap: 16px;
 }
@@ -508,6 +547,10 @@
 
     max-width: 100%;
     padding: 28px 24px;
+  }
+
+  .info-cards-grid-inner-align-center .info-cards-grid-card {
+    padding: 48px 32px 28px;
   }
 
   .info-cards-grid-card-left-icon .info-cards-grid-card-content {

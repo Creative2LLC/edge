@@ -35,14 +35,14 @@
           "value": ""
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "content_heading",
           "label": "Heading",
           "value": ""
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "content_subheading",
           "label": "Subheading",

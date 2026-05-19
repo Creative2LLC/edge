@@ -3725,7 +3725,7 @@
     "id": "impact-donut",
     "fields": [
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Heading"
@@ -3930,6 +3930,28 @@
         "name": "headerAlignment",
         "label": "Header Alignment",
         "description": "Aligns the Section Heading and Section Subheading.",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "cardContentAlignment",
+        "label": "Card Content Alignment",
+        "description": "Aligns the Title, Subtitle, Body Content, and Buttons on each card.",
         "options": [
           {
             "name": "Left",
@@ -5179,14 +5201,14 @@
         "value": ""
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "content_heading",
         "label": "Heading",
         "value": ""
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "content_subheading",
         "label": "Subheading",
