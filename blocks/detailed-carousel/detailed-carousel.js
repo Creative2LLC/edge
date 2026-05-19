@@ -109,12 +109,6 @@ function buildSlide(data, row) {
   return slide;
 }
 
-function updateDots(dots, activeIndex) {
-  dots.forEach((dot, i) => {
-    dot.classList.toggle('active', i === activeIndex);
-  });
-}
-
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
@@ -198,75 +192,6 @@ export default function decorate(block) {
   });
 
   wrapper.append(track);
-
-  // Controls
-  const controls = document.createElement('div');
-  controls.className = 'detailed-carousel-controls';
-
-  const dotsContainer = document.createElement('div');
-  dotsContainer.className = 'detailed-carousel-dots';
-  const dots = [];
-  slides.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = 'detailed-carousel-dot';
-    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-    dot.type = 'button';
-    if (i === 0) dot.classList.add('active');
-    dots.push(dot);
-    dotsContainer.append(dot);
-  });
-  controls.append(dotsContainer);
-
-  const nav = document.createElement('div');
-  nav.className = 'detailed-carousel-nav';
-
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'detailed-carousel-nav-btn';
-  prevBtn.setAttribute('aria-label', 'Previous slide');
-  prevBtn.type = 'button';
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
-
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'detailed-carousel-nav-btn';
-  nextBtn.setAttribute('aria-label', 'Next slide');
-  nextBtn.type = 'button';
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
-
-  nav.append(prevBtn);
-  nav.append(nextBtn);
-  controls.append(nav);
-
-  wrapper.append(controls);
-
-  // Carousel state
-  let current = 0;
-
-  function goToSlide(index) {
-    const total = slides.length;
-    if (total === 0) return;
-    current = ((index % total) + total) % total;
-    const slideEl = track.children[current];
-    if (slideEl) {
-      track.scrollTo({ left: slideEl.offsetLeft - track.offsetLeft, behavior: 'smooth' });
-    }
-    updateDots(dots, current);
-  }
-
-  prevBtn.addEventListener('click', () => goToSlide(current - 1));
-  nextBtn.addEventListener('click', () => goToSlide(current + 1));
-  dots.forEach((dot, i) => {
-    dot.addEventListener('click', () => goToSlide(i));
-  });
-
-  track.addEventListener('scroll', () => {
-    const slideWidth = track.children[0]?.offsetWidth || 1;
-    const gap = 24;
-    const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
-    if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
-      current = scrollIndex;
-      updateDots(dots, current);
-    }
-  });
 
   block.replaceChildren(wrapper);
 }

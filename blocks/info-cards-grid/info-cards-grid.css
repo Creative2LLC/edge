@@ -364,10 +364,6 @@
   padding: 60px 52px 36px;
 }
 
-.info-cards-grid-volunteer .info-cards-grid-inner-align-center .info-cards-grid-card {
-  padding: 52px 42px 30px;
-}
-
 .info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:hover,
 .info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:focus-within {
   background: var(--info-card-hover-bg);
@@ -492,6 +488,10 @@
   font-size: 14px;
   font-weight: 600;
   box-shadow: 0 10px 20px rgb(0 141 182 / 16%);
+}
+
+.info-cards-grid-volunteer .info-cards-grid-inner-align-center .info-cards-grid-card {
+  padding: 52px 42px 30px;
 }
 
 .info-cards-grid-volunteer .info-cards-grid-footer {
