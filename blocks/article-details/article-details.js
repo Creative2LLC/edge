@@ -217,6 +217,21 @@ function isBodyItemRow(row) {
   );
 }
 
+function bodyItemModel(row) {
+  return normalizeText(
+    row.getAttribute?.('data-aue-model')
+      || row.querySelector?.('[data-aue-prop="model"]')?.textContent
+      || row.querySelector?.('[data-aue-prop="aueComponentId"]')?.textContent,
+  );
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute?.('data-aue-resource')
+      || scope?.querySelector?.('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
 function imageFromNode(node, fallbackAlt) {
   if (!node) return null;
 
@@ -263,10 +278,12 @@ function getBodyItemImage(row, fallbackAlt) {
 
 function getArticleBodyItems(block, pageTitle, resourceData = {}) {
   const items = [];
+  const isAuthoring = hasAuthoringContext(block);
 
   getRows(block).forEach((row) => {
     if (!isBodyItemRow(row)) return;
 
+    const model = bodyItemModel(row);
     const text = readRichTextField(row, 'bodyText', { fallbackCell: row.children[0] });
     if (text.html) {
       items.push({
@@ -276,9 +293,29 @@ function getArticleBodyItems(block, pageTitle, resourceData = {}) {
       });
       return;
     }
+    if (isAuthoring && model === 'article-body-text') {
+      items.push({
+        type: 'text',
+        html: '<p>Article body text</p>',
+        source: row,
+        isPlaceholder: true,
+      });
+      return;
+    }
 
     const image = getBodyItemImage(row, pageTitle || 'Article image');
-    if (!image?.src) return;
+    if (!image?.src) {
+      if (isAuthoring && model === 'article-body-image') {
+        items.push({
+          type: 'image',
+          image: null,
+          caption: '',
+          source: row,
+          isPlaceholder: true,
+        });
+      }
+      return;
+    }
 
     const caption = readRichTextField(row, 'bodyImageCaption', { fallbackCell: row.children[2] });
     items.push({
@@ -512,6 +549,7 @@ function buildBody(fields) {
       if (item.type === 'text') {
         const text = document.createElement('div');
         text.className = 'article-details-body-text';
+        if (item.isPlaceholder) text.classList.add('article-details-body-placeholder');
         text.innerHTML = item.html;
         if (item.source) moveInstrumentation(item.source, text);
         body.append(text);
@@ -520,15 +558,23 @@ function buildBody(fields) {
 
       const figure = document.createElement('figure');
       figure.className = 'article-details-body-image';
+      if (item.isPlaceholder) figure.classList.add('article-details-body-placeholder');
       if (item.source) moveInstrumentation(item.source, figure);
-      figure.append(
-        createOptimizedPicture(
-          item.image.src,
-          item.image.alt || fields.pageTitle || 'Article image',
-          false,
-          [{ width: '750' }, { width: '1200' }],
-        ),
-      );
+      if (item.image?.src) {
+        figure.append(
+          createOptimizedPicture(
+            item.image.src,
+            item.image.alt || fields.pageTitle || 'Article image',
+            false,
+            [{ width: '750' }, { width: '1200' }],
+          ),
+        );
+      } else {
+        const imagePlaceholder = document.createElement('div');
+        imagePlaceholder.className = 'article-details-body-image-placeholder';
+        imagePlaceholder.textContent = 'Article body image';
+        figure.append(imagePlaceholder);
+      }
 
       if (item.caption) {
         const caption = document.createElement('figcaption');

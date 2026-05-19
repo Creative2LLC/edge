@@ -163,6 +163,25 @@
   text-align: center;
 }
 
+.article-details .article-details-body-placeholder {
+  border: 1px dashed #7d8ea0;
+  border-radius: 8px;
+  color: #52687d;
+  margin: 1.5rem 0;
+  padding: 18px;
+}
+
+.article-details .article-details-body-image-placeholder {
+  align-items: center;
+  aspect-ratio: 16 / 9;
+  background: #eef4f7;
+  border-radius: 8px;
+  display: flex;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 180px;
+}
+
 .article-details .article-details-body-image picture,
 .article-details .article-details-body-image img {
   display: block;
