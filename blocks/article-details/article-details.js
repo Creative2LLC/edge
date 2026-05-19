@@ -15,6 +15,7 @@ const FIELD_COLUMN_INDEX = {
   thumbnail: 4,
   headerImage: 5,
   articleBody: 6,
+  articleBodyRaw: 7,
 };
 
 const resourceDataCache = new Map();
@@ -49,6 +50,21 @@ function normalizeJsonHtmlValue(value) {
   if (typeof value === 'string') return value.trim();
   if (typeof value === 'object') return `${value.html || value.value || ''}`.trim();
   return '';
+}
+
+function normalizeRawHtmlField(block, resourceData) {
+  const jsonBody = normalizeJsonHtmlValue(resourceData.articleBodyRaw);
+  if (jsonBody) return jsonBody;
+
+  const namedText = readTextField(block, 'articleBodyRaw').value;
+  if (namedText) return namedText;
+
+  const columnIndex = FIELD_COLUMN_INDEX.articleBodyRaw;
+  return getBlockRows(block)
+    .map((row) => normalizeText(readTextField(row, 'articleBodyRaw', {
+      fallbackCell: row.children[columnIndex],
+    }).value))
+    .find(Boolean) || '';
 }
 
 function getRows(block) {
@@ -258,7 +274,7 @@ function buildHero(fields) {
 
 function chooseArticleBody(block, resourceData) {
   const richTextBody = getHtmlField(block, 'articleBody');
-  const rawBody = normalizeJsonHtmlValue(resourceData.articleBodyRaw);
+  const rawBody = normalizeRawHtmlField(block, resourceData);
 
   if (rawBody && (!richTextBody || (rawBody.includes('<img') && !richTextBody.includes('<img')))) {
     return rawBody;
