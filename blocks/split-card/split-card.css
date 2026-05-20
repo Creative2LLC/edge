@@ -96,6 +96,7 @@ main > .section > .split-card-wrapper {
   flex-wrap: wrap;
   gap: 12px;
   align-items: flex-start;
+  margin-top: 16px;
 }
 
 /* Each button + its optional subtext stacks vertically, with the subtext
