@@ -334,6 +334,7 @@ function buildChart(points, highlightIndex, palette) {
   const line = createSvgElement('path', {
     class: 'historical-trends-line',
     d: linePath,
+    pathLength: '1',
   });
 
   setGradientStops(baseGradient, palette.baseFillColor);
@@ -451,10 +452,12 @@ function enableReveal(block, linePath) {
     return;
   }
 
-  const length = linePath.getTotalLength();
-  linePath.style.strokeDasharray = `${length}`;
-  linePath.style.strokeDashoffset = `${length}`;
-  linePath.style.transition = 'stroke-dashoffset 1400ms cubic-bezier(0.2, 1, 0.22, 1) 120ms';
+  // The path uses pathLength="1", so we can treat the dash math in normalized
+  // [0..1] units without relying on getTotalLength() — that avoids browser
+  // path-length underestimation leaving the tail of the curve unrendered.
+  linePath.style.strokeDasharray = '1';
+  linePath.style.strokeDashoffset = '1';
+  linePath.style.transition = 'stroke-dashoffset 1400ms cubic-bezier(0.4, 0, 0.2, 1) 120ms';
 
   const observer = new IntersectionObserver((entries) => {
     const visible = entries.some((entry) => entry.isIntersecting);
