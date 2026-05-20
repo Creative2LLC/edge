@@ -196,11 +196,11 @@ function buildTitle(content, data) {
 function buildSubtitle(content, data) {
   if (!hasFieldContent(data.subtitleField)) return;
 
-  const p = document.createElement('p');
-  p.className = 'info-cards-grid-card-subtitle';
-  moveFieldContent(data.subtitleField, p);
-  if (!p.textContent.trim()) return;
-  content.append(p);
+  const subtitle = document.createElement('div');
+  subtitle.className = 'info-cards-grid-card-subtitle';
+  moveFieldContent(data.subtitleField, subtitle);
+  if (!subtitle.textContent.trim()) return;
+  content.append(subtitle);
 }
 
 function buildBody(content, data) {
@@ -654,6 +654,14 @@ export default function decorate(block) {
   cards.forEach((data, index) => {
     grid.append(buildCard(data, index, variant));
   });
+
+  const orphanCount = columns > 1 ? cards.length % columns : 0;
+  if (orphanCount > 0) {
+    grid.classList.add('info-cards-grid-inner-has-orphans');
+    grid.style.setProperty('--grid-orphan-start', columns - orphanCount + 1);
+    const firstOrphanCard = grid.children[cards.length - orphanCount];
+    firstOrphanCard?.classList.add('info-cards-grid-card-orphan-first');
+  }
 
   shell.append(grid);
 

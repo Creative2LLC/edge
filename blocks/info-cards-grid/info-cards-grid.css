@@ -163,6 +163,20 @@
   place-items: start stretch;
 }
 
+/* When the last row is short, switch to a 2x-resolution track so the
+   orphan card(s) can be horizontally centered on a half-column offset. */
+.info-cards-grid-inner-has-orphans {
+  grid-template-columns: repeat(calc(var(--grid-columns, 3) * 2), 1fr);
+}
+
+.info-cards-grid-inner-has-orphans > .info-cards-grid-card {
+  grid-column: span 2;
+}
+
+.info-cards-grid-inner-has-orphans > .info-cards-grid-card-orphan-first {
+  grid-column-start: var(--grid-orphan-start, auto);
+}
+
 /* Individual card */
 .info-cards-grid-card {
   --info-card-title-size: 32px;
@@ -256,6 +270,14 @@
   line-height: 1.15;
 }
 
+.info-cards-grid-card-title > p {
+  margin: 0;
+}
+
+.info-cards-grid-card-title > p + p {
+  margin-top: 0.5em;
+}
+
 /* Subtitle */
 .info-cards-grid-card-subtitle {
   font-size: var(--info-card-subtitle-size);
@@ -263,6 +285,14 @@
   color: var(--info-card-subtitle-color);
   margin: 0 0 16px;
   line-height: 1.5;
+}
+
+.info-cards-grid-card-subtitle > p {
+  margin: 0;
+}
+
+.info-cards-grid-card-subtitle > p + p {
+  margin-top: 0.5em;
 }
 
 /* Body content (text, bullet list, or numbered list) */
@@ -530,6 +560,15 @@
     gap: 20px;
   }
 
+  .info-cards-grid-inner-has-orphans {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .info-cards-grid-inner-has-orphans > .info-cards-grid-card,
+  .info-cards-grid-inner-has-orphans > .info-cards-grid-card-orphan-first {
+    grid-column: auto;
+  }
+
   .info-cards-grid-card {
     --info-card-title-size: 32px;
   }
@@ -537,7 +576,8 @@
 
 /* Responsive: Mobile */
 @media (width <= 600px) {
-  .info-cards-grid-inner {
+  .info-cards-grid-inner,
+  .info-cards-grid-inner-has-orphans {
     grid-template-columns: 1fr;
     gap: 16px;
   }
