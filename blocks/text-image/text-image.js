@@ -260,6 +260,9 @@ export default async function decorate(block) {
   const backgroundColor = normalizeColorValue(
     backgroundColorField.value || await getFieldValueFromResourceJson(block, 'backgroundColor'),
   );
+  const headingColor = normalizeColorValue(
+    headingColorField.value || await getFieldValueFromResourceJson(block, 'headingColor'),
+  );
 
   if (backgroundColor) {
     block.style.backgroundColor = backgroundColor;
@@ -280,8 +283,7 @@ export default async function decorate(block) {
 
   const heading = buildTextElement(headingField, 'h2', 'text-image-heading');
   if (heading) {
-    const headingColor = normalizeColorValue(headingColorField.value);
-    if (headingColor) heading.style.color = headingColor;
+    if (headingColor) heading.style.setProperty('color', headingColor, 'important');
     contentSide.append(heading);
   }
 
