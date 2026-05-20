@@ -292,10 +292,18 @@ export default async function decorate(block) {
   }
 
   const primaryButton = buildButton(
-    buttonText, buttonLink, buttonColor, buttonStyle, sharedTextColor,
+    buttonText,
+    buttonLink,
+    buttonColor,
+    buttonStyle,
+    sharedTextColor,
   );
   const secondaryButton = buildButton(
-    button2Text, button2Link, button2Color, button2Style, sharedTextColor,
+    button2Text,
+    button2Link,
+    button2Color,
+    button2Style,
+    sharedTextColor,
   );
 
   const wrapButtonWithSubtext = (button, subtext) => {
