@@ -3425,6 +3425,23 @@
         "valueType": "string",
         "name": "blockBackgroundColor",
         "label": "Block Background Color (Hex)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "styleVariant",
+        "label": "Style Variant",
+        "value": "default",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Thinner Cards",
+            "value": "thinner"
+          }
+        ]
       }
     ]
   },
@@ -3445,13 +3462,13 @@
         "label": "Icon Color (Hex)"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Title"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "body",
         "label": "Body Text"

@@ -2,11 +2,17 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
 function getFieldText(row, colIndex, propName) {
   return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
+}
+
+function getFieldRich(row, colIndex, propName) {
+  const field = readRichTextField(row, propName, { fallbackCell: row.children[colIndex] });
+  return { html: field.html, text: field.text };
 }
 
 function getFieldLink(row, colIndex, propName) {
@@ -28,8 +34,8 @@ function parseSlide(row) {
     iconSrc: iconData.src,
     iconAlt: iconData.alt,
     iconColor: getFieldText(row, 1, 'iconColor'),
-    heading: getFieldText(row, 2, 'heading'),
-    body: getFieldText(row, 3, 'body'),
+    heading: getFieldRich(row, 2, 'heading'),
+    body: getFieldRich(row, 3, 'body'),
     buttonText: getFieldText(row, 4, 'buttonText'),
     buttonLink: getFieldLink(row, 5, 'buttonLink'),
     buttonColor: getFieldText(row, 6, 'buttonColor'),
@@ -82,10 +88,10 @@ function buildSlide(data, row) {
   }
 
   // Title
-  if (data.heading) {
+  if (data.heading?.text) {
     const h3 = document.createElement('h3');
     h3.className = 'icon-card-carousel-heading';
-    h3.textContent = data.heading;
+    h3.innerHTML = data.heading.html;
     if (data.textColor) {
       h3.style.color = data.textColor;
     }
@@ -93,14 +99,14 @@ function buildSlide(data, row) {
   }
 
   // Body
-  if (data.body) {
-    const p = document.createElement('p');
-    p.className = 'icon-card-carousel-body';
-    p.textContent = data.body;
+  if (data.body?.text) {
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'icon-card-carousel-body';
+    bodyEl.innerHTML = data.body.html;
     if (data.textColor) {
-      p.style.color = data.textColor;
+      bodyEl.style.color = data.textColor;
     }
-    card.append(p);
+    card.append(bodyEl);
   }
 
   // Spacer to push button to bottom
@@ -156,6 +162,17 @@ export default function decorate(block) {
   if (bgColorProp.source) {
     blockBgColor = bgColorProp.value;
     bgColorProp.source.closest(':scope > div')?.remove();
+  }
+
+  // Extract style variant
+  const variantProp = readTextField(block, 'styleVariant');
+  let styleVariant = '';
+  if (variantProp.source) {
+    styleVariant = variantProp.value;
+    variantProp.source.closest(':scope > div')?.remove();
+  }
+  if (styleVariant === 'thinner') {
+    block.classList.add('icon-card-carousel-thinner');
   }
 
   // Parse slides
@@ -265,7 +282,8 @@ export default function decorate(block) {
   // Sync dots on manual scroll
   track.addEventListener('scroll', () => {
     const slideWidth = track.children[0]?.offsetWidth || 1;
-    const gap = 48;
+    const trackStyles = getComputedStyle(track);
+    const gap = parseFloat(trackStyles.columnGap || trackStyles.gap) || 48;
     const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
     if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
       current = scrollIndex;
