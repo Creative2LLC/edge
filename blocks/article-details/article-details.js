@@ -232,6 +232,14 @@ function hasAuthoringContext(scope) {
   );
 }
 
+function ensureAuthoringContainer(block) {
+  if (!hasAuthoringContext(block)) return;
+
+  if (!block.dataset.aueType) block.dataset.aueType = 'component';
+  if (!block.dataset.aueModel) block.dataset.aueModel = 'article-details';
+  if (!block.dataset.aueFilter) block.dataset.aueFilter = 'article-details';
+}
+
 function imageFromNode(node, fallbackAlt) {
   if (!node) return null;
 
@@ -533,7 +541,11 @@ function debugArticleDetails(block, resourceData, fields) {
 }
 
 function buildBody(fields) {
-  if (!fields.articleBodyItems?.length && !fields.articleBody?.html) return null;
+  if (
+    !fields.articleBodyItems?.length
+    && !fields.articleBody?.html
+    && !fields.isAuthoring
+  ) return null;
 
   const section = document.createElement('article');
   section.className = 'article-details-content';
@@ -584,9 +596,12 @@ function buildBody(fields) {
 
       body.append(figure);
     });
-  } else {
+  } else if (fields.articleBody?.html) {
     body.innerHTML = fields.articleBody.html;
     if (fields.articleBody.source) moveInstrumentation(fields.articleBody.source, body);
+  } else {
+    body.classList.add('article-details-body-placeholder');
+    body.textContent = 'Add article body text or image blocks';
   }
 
   inner.append(body);
@@ -596,6 +611,8 @@ function buildBody(fields) {
 }
 
 export default async function decorate(block) {
+  ensureAuthoringContainer(block);
+
   const resourceData = await getResourceData(block);
 
   const fields = {
@@ -606,6 +623,7 @@ export default async function decorate(block) {
     thumbnail: getImageField(block, 'thumbnail', resourceData),
     headerImage: getImageField(block, 'headerImage', resourceData),
     articleBody: chooseArticleBody(block, resourceData),
+    isAuthoring: hasAuthoringContext(block),
   };
   fields.articleBodyItems = getArticleBodyItems(block, fields.pageTitle, resourceData);
 
