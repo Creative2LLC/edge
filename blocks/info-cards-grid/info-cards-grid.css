@@ -163,20 +163,6 @@
   place-items: start stretch;
 }
 
-/* When the last row is short, switch to a 2x-resolution track so the
-   orphan card(s) can be horizontally centered on a half-column offset. */
-.info-cards-grid-inner-has-orphans {
-  grid-template-columns: repeat(calc(var(--grid-columns, 3) * 2), 1fr);
-}
-
-.info-cards-grid-inner-has-orphans > .info-cards-grid-card {
-  grid-column: span 2;
-}
-
-.info-cards-grid-inner-has-orphans > .info-cards-grid-card-orphan-first {
-  grid-column-start: var(--grid-orphan-start, auto);
-}
-
 /* Individual card */
 .info-cards-grid-card {
   --info-card-title-size: 32px;
@@ -274,10 +260,6 @@
   margin: 0;
 }
 
-.info-cards-grid-card-title > p + p {
-  margin-top: 0.5em;
-}
-
 /* Subtitle */
 .info-cards-grid-card-subtitle {
   font-size: var(--info-card-subtitle-size);
@@ -289,10 +271,6 @@
 
 .info-cards-grid-card-subtitle > p {
   margin: 0;
-}
-
-.info-cards-grid-card-subtitle > p + p {
-  margin-top: 0.5em;
 }
 
 /* Body content (text, bullet list, or numbered list) */
@@ -308,6 +286,12 @@
   margin: 0;
   color: inherit;
   white-space: pre-line;
+}
+
+/* Preserve paragraph-to-paragraph spacing in richtext title/subtitle */
+.info-cards-grid-card-title > p + p,
+.info-cards-grid-card-subtitle > p + p {
+  margin-top: 0.5em;
 }
 
 .info-cards-grid-card-body ul {
@@ -357,6 +341,20 @@
 
 .info-cards-grid-card-default {
   justify-content: space-between;
+}
+
+/* When the last row is short, switch to a 2x-resolution track so the
+   orphan card(s) can be horizontally centered on a half-column offset. */
+.info-cards-grid-inner-has-orphans {
+  grid-template-columns: repeat(calc(var(--grid-columns, 3) * 2), 1fr);
+}
+
+.info-cards-grid-inner-has-orphans > .info-cards-grid-card {
+  grid-column: span 2;
+}
+
+.info-cards-grid-inner-has-orphans > .info-cards-grid-card-orphan-first {
+  grid-column-start: var(--grid-orphan-start, auto);
 }
 
 /* Card content alignment (Title, Subtitle, Body, Buttons).
@@ -560,6 +558,10 @@
     gap: 20px;
   }
 
+  .info-cards-grid-card {
+    --info-card-title-size: 32px;
+  }
+
   .info-cards-grid-inner-has-orphans {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -567,10 +569,6 @@
   .info-cards-grid-inner-has-orphans > .info-cards-grid-card,
   .info-cards-grid-inner-has-orphans > .info-cards-grid-card-orphan-first {
     grid-column: auto;
-  }
-
-  .info-cards-grid-card {
-    --info-card-title-size: 32px;
   }
 }
 
