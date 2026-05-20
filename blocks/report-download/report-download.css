@@ -109,7 +109,7 @@
 .report-download .report-download-heading {
   margin: 0 0 18px;
   color: #113a67;
-  font-size: clamp(2rem, 3.2vw, 3.35rem);
+  font-size: 36px;
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.035em;
@@ -117,7 +117,8 @@
 
 .report-download .report-download-body {
   color: #404041;
-  font-size: clamp(1.15rem, 1.8vw, 1.95rem);
+  font-size: 24px;
+  font-weight: 500;
   line-height: 1.35;
 }
 
