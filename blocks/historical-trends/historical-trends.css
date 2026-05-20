@@ -145,6 +145,21 @@
   filter: drop-shadow(0 6px 18px rgb(10 143 188 / 16%));
 }
 
+/* The trend line's reveal animation is driven by a clipPath rect that
+   scales horizontally from 0 to 1. Using a clipPath sidesteps SVG path
+   length quirks that can leave the tail of the curve un-drawn when
+   relying on stroke-dasharray + getTotalLength(). */
+.historical-trends .historical-trends-line-draw-rect {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transform: scaleX(0);
+  transition: transform 1400ms cubic-bezier(0.4, 0, 0.2, 1) 120ms;
+}
+
+.historical-trends.is-visible .historical-trends-line-draw-rect {
+  transform: scaleX(1);
+}
+
 .historical-trends .historical-trends-axis {
   position: relative;
   display: grid;
@@ -349,5 +364,10 @@
   .historical-trends .historical-trends-card-link::after {
     transition: none;
     animation: none;
+  }
+
+  .historical-trends .historical-trends-line-draw-rect {
+    transform: scaleX(1);
+    transition: none;
   }
 }
