@@ -103,6 +103,7 @@
 
 .report-download .report-download-content {
   max-width: 620px;
+  margin-left: clamp(-54px, -4vw, -28px);
 }
 
 .report-download .report-download-heading {
@@ -217,6 +218,7 @@
   .report-download .report-download-content,
   .report-download .report-download-actions {
     max-width: none;
+    margin-left: 0;
     justify-content: flex-start;
   }
 
