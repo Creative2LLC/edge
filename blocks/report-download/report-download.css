@@ -107,6 +107,7 @@
 }
 
 .report-download .report-download-heading {
+  max-width: 516px;
   margin: 0 0 18px;
   color: #113a67;
   font-size: 36px;
@@ -116,6 +117,7 @@
 }
 
 .report-download .report-download-body {
+  max-width: 516px;
   color: #404041;
   font-size: 24px;
   font-weight: 500;
