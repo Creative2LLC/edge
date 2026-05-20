@@ -348,6 +348,18 @@
   }
 }
 
+/* ---------- Style Variant: Image Left ---------- */
+
+.text-image.block.text-image-image-left .text-image-inner {
+  flex-direction: row-reverse;
+}
+
+@media (width <= 900px) {
+  .text-image.block.text-image-image-left .text-image-inner {
+    flex-direction: column;
+  }
+}
+
 /* ---------- Style Variant 2 ---------- */
 
 .text-image.block.text-image-variant-2 {

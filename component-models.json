@@ -8119,6 +8119,13 @@
         "value": ""
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "headingColor",
+        "label": "Heading Color (Optional, hex e.g. #00264d)",
+        "value": ""
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",
@@ -8159,6 +8166,10 @@
           {
             "name": "Default",
             "value": "default"
+          },
+          {
+            "name": "Image Left",
+            "value": "image-left"
           },
           {
             "name": "Variant 2",
