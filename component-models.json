@@ -3004,26 +3004,6 @@
         "valueType": "string"
       },
       {
-        "component": "select",
-        "name": "action_style",
-        "label": "Button Style",
-        "options": [
-          {
-            "name": "Outline",
-            "value": "outline"
-          },
-          {
-            "name": "Solid",
-            "value": "solid"
-          },
-          {
-            "name": "Inverted",
-            "value": "inverted"
-          }
-        ],
-        "value": "outline"
-      },
-      {
         "component": "text",
         "name": "action_1Text",
         "value": "",
@@ -3036,6 +3016,26 @@
         "value": "",
         "label": "Button 1 Link",
         "valueType": "string"
+      },
+      {
+        "component": "select",
+        "name": "action_1Style",
+        "label": "Button 1 Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outline",
+            "value": "outline"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "solid"
       },
       {
         "component": "text",
@@ -3052,6 +3052,26 @@
         "valueType": "string"
       },
       {
+        "component": "select",
+        "name": "action_2Style",
+        "label": "Button 2 Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outline",
+            "value": "outline"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "solid"
+      },
+      {
         "component": "text",
         "name": "action_3Text",
         "value": "",
@@ -3064,6 +3084,26 @@
         "value": "",
         "label": "Button 3 Link",
         "valueType": "string"
+      },
+      {
+        "component": "select",
+        "name": "action_3Style",
+        "label": "Button 3 Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outline",
+            "value": "outline"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "solid"
       },
       {
         "component": "text",
@@ -3387,6 +3427,23 @@
         "valueType": "string",
         "name": "blockBackgroundColor",
         "label": "Block Background Color (Hex)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "styleVariant",
+        "label": "Style Variant",
+        "value": "default",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Thinner Cards",
+            "value": "thinner"
+          }
+        ]
       }
     ]
   },
@@ -3407,13 +3464,13 @@
         "label": "Icon Color (Hex)"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Title"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "body",
         "label": "Body Text"
@@ -3983,13 +4040,13 @@
         "multi": false
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "title",
         "label": "Title"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subtitle",
         "label": "Subtitle"
@@ -7512,6 +7569,13 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "buttonSubtext",
+        "label": "Button Subtext (Optional)",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "button2Text",
         "label": "Second Button Text (Optional)"
       },
@@ -7550,6 +7614,13 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "button2Subtext",
+        "label": "Second Button Subtext (Optional)",
+        "value": ""
       },
       {
         "component": "text",
@@ -8081,6 +8152,13 @@
         "value": ""
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "headingColor",
+        "label": "Heading Color (Optional, hex e.g. #00264d)",
+        "value": ""
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",
@@ -8121,6 +8199,10 @@
           {
             "name": "Default",
             "value": "default"
+          },
+          {
+            "name": "Image Left",
+            "value": "image-left"
           },
           {
             "name": "Variant 2",

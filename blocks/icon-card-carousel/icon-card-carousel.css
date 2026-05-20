@@ -142,6 +142,21 @@ main > .section > .icon-card-carousel-wrapper {
   line-height: 1.2;
 }
 
+/* Rich-text paragraphs inside heading/body should preserve authored line
+   breaks instead of stacking default <p> margins. */
+.icon-card-carousel .icon-card-carousel-heading p,
+.icon-card-carousel .icon-card-carousel-body p {
+  margin: 0;
+}
+
+.icon-card-carousel .icon-card-carousel-heading p + p {
+  margin-top: 0.25em;
+}
+
+.icon-card-carousel .icon-card-carousel-body p + p {
+  margin-top: 1em;
+}
+
 /* Body */
 .icon-card-carousel .icon-card-carousel-body {
   font-size: 17px;
@@ -315,5 +330,29 @@ main > .section > .icon-card-carousel-wrapper {
   .icon-card-carousel .icon-card-carousel-nav {
     position: static;
     margin-left: 24px;
+  }
+}
+
+/* ---------- Style Variant: Thinner Cards ----------
+   Scoped to desktop only so existing mobile rules continue to handle small
+   screens; on mobile the cards fall back to the default sizing. */
+@media (width >= 901px) {
+  .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-track {
+    gap: 32px;
+  }
+
+  .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-slide {
+    flex: 0 0 452px;
+    max-width: 452px;
+  }
+
+  .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-card {
+    min-height: 545px;
+    max-height: 545px;
+  }
+
+  .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-heading,
+  .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-body {
+    max-width: 356px;
   }
 }

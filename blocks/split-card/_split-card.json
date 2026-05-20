@@ -90,6 +90,13 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "buttonSubtext",
+          "label": "Button Subtext (Optional)",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "button2Text",
           "label": "Second Button Text (Optional)"
         },
@@ -128,6 +135,13 @@
             }
           ],
           "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Subtext",
+          "label": "Second Button Subtext (Optional)",
+          "value": ""
         },
         {
           "component": "text",

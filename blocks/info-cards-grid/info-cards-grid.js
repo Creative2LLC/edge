@@ -196,11 +196,11 @@ function buildTitle(content, data) {
 function buildSubtitle(content, data) {
   if (!hasFieldContent(data.subtitleField)) return;
 
-  const p = document.createElement('p');
-  p.className = 'info-cards-grid-card-subtitle';
-  moveFieldContent(data.subtitleField, p);
-  if (!p.textContent.trim()) return;
-  content.append(p);
+  const subtitle = document.createElement('div');
+  subtitle.className = 'info-cards-grid-card-subtitle';
+  moveFieldContent(data.subtitleField, subtitle);
+  if (!subtitle.textContent.trim()) return;
+  content.append(subtitle);
 }
 
 function buildBody(content, data) {
@@ -651,9 +651,18 @@ export default function decorate(block) {
   grid.classList.add(`info-cards-grid-inner-align-${cardContentAlignment}`);
   grid.style.setProperty('--grid-columns', columns);
 
-  cards.forEach((data, index) => {
-    grid.append(buildCard(data, index, variant));
-  });
+  const cardElements = cards.map((data, index) => buildCard(data, index, variant));
+  const orphanCount = columns > 1 ? cardElements.length % columns : 0;
+  const fullRowCount = cardElements.length - orphanCount;
+
+  cardElements.slice(0, fullRowCount).forEach((card) => grid.append(card));
+
+  if (orphanCount > 0) {
+    const orphanRow = document.createElement('div');
+    orphanRow.className = 'info-cards-grid-orphan-row';
+    cardElements.slice(fullRowCount).forEach((card) => orphanRow.append(card));
+    grid.append(orphanRow);
+  }
 
   shell.append(grid);
 

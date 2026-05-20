@@ -256,6 +256,10 @@
   line-height: 1.15;
 }
 
+.info-cards-grid-card-title > p {
+  margin: 0;
+}
+
 /* Subtitle */
 .info-cards-grid-card-subtitle {
   font-size: var(--info-card-subtitle-size);
@@ -263,6 +267,10 @@
   color: var(--info-card-subtitle-color);
   margin: 0 0 16px;
   line-height: 1.5;
+}
+
+.info-cards-grid-card-subtitle > p {
+  margin: 0;
 }
 
 /* Body content (text, bullet list, or numbered list) */
@@ -279,6 +287,7 @@
   color: inherit;
   white-space: pre-line;
 }
+
 
 .info-cards-grid-card-body ul {
   margin: 0;
@@ -327,6 +336,20 @@
 
 .info-cards-grid-card-default {
   justify-content: space-between;
+}
+
+/* Short last row: lay the orphan cards out in a flex row that spans the full
+   grid width and centers them, matching the regular card track width. */
+.info-cards-grid-orphan-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.info-cards-grid-orphan-row > .info-cards-grid-card {
+  flex: 0 0 calc((100% - (var(--grid-columns, 3) - 1) * 24px) / var(--grid-columns, 3));
+  min-width: 0;
 }
 
 /* Card content alignment (Title, Subtitle, Body, Buttons).
@@ -533,6 +556,14 @@
   .info-cards-grid-card {
     --info-card-title-size: 32px;
   }
+
+  .info-cards-grid-orphan-row {
+    gap: 20px;
+  }
+
+  .info-cards-grid-orphan-row > .info-cards-grid-card {
+    flex: 0 0 calc((100% - 20px) / 2);
+  }
 }
 
 /* Responsive: Mobile */
@@ -547,6 +578,15 @@
 
     max-width: 100%;
     padding: 28px 24px;
+  }
+
+  .info-cards-grid-orphan-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .info-cards-grid-orphan-row > .info-cards-grid-card {
+    flex: 1 1 auto;
   }
 
   .info-cards-grid-inner-align-center .info-cards-grid-card {

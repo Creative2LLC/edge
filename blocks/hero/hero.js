@@ -26,20 +26,22 @@ const HERO_FIELD_INDEX = {
   content_textColor: 13,
   content_textHtml: 14,
   content_textHtmlClass: 15,
-  action_style: 16,
-  action_1Text: 17,
-  action_1Link: 18,
+  action_1Text: 16,
+  action_1Link: 17,
+  action_1Style: 18,
   action_2Text: 19,
   action_2Link: 20,
-  action_3Text: 21,
-  action_3Link: 22,
-  panel_title: 23,
-  panel_text: 24,
-  panel_primaryText: 25,
-  panel_primaryLink: 26,
-  panel_secondaryText: 27,
-  panel_secondaryLink: 28,
-  panel_footerText: 29,
+  action_2Style: 21,
+  action_3Text: 22,
+  action_3Link: 23,
+  action_3Style: 24,
+  panel_title: 25,
+  panel_text: 26,
+  panel_primaryText: 27,
+  panel_primaryLink: 28,
+  panel_secondaryText: 29,
+  panel_secondaryLink: 30,
+  panel_footerText: 31,
 };
 
 function isVideoUrl(value) {
@@ -167,10 +169,10 @@ function getContentCell(block) {
     || null;
 }
 
-function getActionStyleCell(block) {
-  return getRowCells(block).find((cell) => (
-    isExactChoiceCell(cell, ['outline', 'solid', 'inverted'])
-  )) || null;
+function getActionStyleCellAt(block, name) {
+  const cell = getHeroFieldCell(block, name);
+  if (cell && isExactChoiceCell(cell, ['outline', 'solid', 'inverted'])) return cell;
+  return null;
 }
 
 function getMediaCell(block) {
@@ -237,8 +239,13 @@ function getFieldValue(block, nameOrNames) {
   } else if (hasName('content_showBreadcrumbs', 'showBreadcrumbs')) {
     fallbackCell = getContentCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
-  } else if (hasName('action_style', 'ctaStyle')) {
-    fallbackCell = getActionStyleCell(block);
+  } else if (hasName('action_1Style', 'action_2Style', 'action_3Style')) {
+    const styleName = names.find((candidate) => (
+      candidate === 'action_1Style'
+        || candidate === 'action_2Style'
+        || candidate === 'action_3Style'
+    ));
+    fallbackCell = getActionStyleCellAt(block, styleName);
     fallbackValue = getChoiceFromCell(fallbackCell, ['outline', 'solid', 'inverted'])
       || fallbackCell?.textContent.trim()
       || '';
@@ -665,25 +672,30 @@ function buildActionButton(textField, linkField, style) {
   return button;
 }
 
-function buildActions(block) {
-  const buttonStyle = normalizeChoice(
-    getFieldValue(block, ['action_style', 'ctaStyle']).value,
+function getButtonStyle(block, name) {
+  return normalizeChoice(
+    getFieldValue(block, [name]).value,
     ['outline', 'solid', 'inverted'],
-    'outline',
+    'solid',
   );
+}
 
+function buildActions(block) {
   const rows = [
     {
       text: getFieldValue(block, ['action_1Text', 'cta1Text']),
       link: getLinkFieldValue(block, ['action_1Link', 'cta1Link']),
+      style: getButtonStyle(block, 'action_1Style'),
     },
     {
       text: getFieldValue(block, ['action_2Text', 'cta2Text']),
       link: getLinkFieldValue(block, ['action_2Link', 'cta2Link']),
+      style: getButtonStyle(block, 'action_2Style'),
     },
     {
       text: getFieldValue(block, ['action_3Text', 'cta3Text']),
       link: getLinkFieldValue(block, ['action_3Link', 'cta3Link']),
+      style: getButtonStyle(block, 'action_3Style'),
     },
   ];
 
@@ -691,7 +703,7 @@ function buildActions(block) {
   actions.className = 'hero-actions';
 
   rows.forEach((row) => {
-    const button = buildActionButton(row.text, row.link, buttonStyle);
+    const button = buildActionButton(row.text, row.link, row.style);
     if (button) actions.append(button);
   });
 

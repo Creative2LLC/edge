@@ -95,7 +95,25 @@ main > .section > .split-card-wrapper {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  align-items: center;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+/* Each button + its optional subtext stacks vertically, with the subtext
+   left-aligned to the button's left edge. */
+.split-card .split-card-button-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.split-card .split-card-button-subtext {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #fff;
+  text-align: left;
 }
 
 /* Button */

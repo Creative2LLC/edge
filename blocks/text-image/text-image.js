@@ -240,6 +240,7 @@ export default async function decorate(block) {
   const ctaTextField = getTextField(block, 'ctaText');
   const ctaLinkField = getLinkField(block, 'ctaLink');
   const backgroundColorField = getTextField(block, 'backgroundColor');
+  const headingColorField = getTextField(block, 'headingColor');
   const imageAltField = getTextField(block, 'imageAlt');
   const overlayHeaderField = getTextField(block, 'imageOverlayHeader');
   const overlayTextField = getRichTextField(block, 'imageOverlayText');
@@ -251,11 +252,16 @@ export default async function decorate(block) {
     block.classList.add('text-image-variant-2');
   } else if (styleVariantField.value === 'variant-3') {
     block.classList.add('text-image-variant-3');
+  } else if (styleVariantField.value === 'image-left') {
+    block.classList.add('text-image-image-left');
   }
   const picture = buildPicture(imageField, imageAltField);
   const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
   const backgroundColor = normalizeColorValue(
     backgroundColorField.value || await getFieldValueFromResourceJson(block, 'backgroundColor'),
+  );
+  const headingColor = normalizeColorValue(
+    headingColorField.value || await getFieldValueFromResourceJson(block, 'headingColor'),
   );
 
   if (backgroundColor) {
@@ -276,7 +282,10 @@ export default async function decorate(block) {
   if (subhead) contentSide.append(subhead);
 
   const heading = buildTextElement(headingField, 'h2', 'text-image-heading');
-  if (heading) contentSide.append(heading);
+  if (heading) {
+    if (headingColor) heading.style.setProperty('color', headingColor, 'important');
+    contentSide.append(heading);
+  }
 
   const body = buildRichTextElement(bodyTextField, 'text-image-body');
   if (body) contentSide.append(body);
