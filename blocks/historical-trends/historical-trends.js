@@ -330,11 +330,23 @@ function buildChart(points, highlightIndex, palette) {
   const highlightClip = createSvgElement('clipPath', {
     id: `${chartId}-highlight-clip`,
   });
+  const lineDrawClipId = `${chartId}-line-draw-clip`;
+  const lineDrawClip = createSvgElement('clipPath', {
+    id: lineDrawClipId,
+  });
+  const lineDrawRect = createSvgElement('rect', {
+    class: 'historical-trends-line-draw-rect',
+    x: '0',
+    y: '0',
+    width: `${width}`,
+    height: `${height}`,
+  });
+  lineDrawClip.append(lineDrawRect);
   const clipWidth = Math.max(width - highlightPoint.x, 0);
   const line = createSvgElement('path', {
     class: 'historical-trends-line',
     d: linePath,
-    pathLength: '1',
+    'clip-path': `url(#${lineDrawClipId})`,
   });
 
   setGradientStops(baseGradient, palette.baseFillColor);
@@ -347,7 +359,7 @@ function buildChart(points, highlightIndex, palette) {
     height: `${height}`,
   }));
 
-  defs.append(baseGradient, highlightGradient, highlightClip);
+  defs.append(baseGradient, highlightGradient, highlightClip, lineDrawClip);
 
   const fillGroup = createSvgElement('g', {
     class: 'historical-trends-fill-group',
@@ -440,34 +452,17 @@ function buildCard(item, index) {
   return card;
 }
 
-function enableReveal(block, linePath) {
-  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-  if (reducedMotion || !linePath || !('IntersectionObserver' in window)) {
+function enableReveal(block) {
+  if (!('IntersectionObserver' in window)) {
     block.classList.add('is-visible');
-    if (linePath) {
-      linePath.style.strokeDasharray = 'none';
-      linePath.style.strokeDashoffset = '0';
-    }
     return;
   }
-
-  // The path uses pathLength="1", so we can treat the dash math in normalized
-  // [0..1] units without relying on getTotalLength() — that avoids browser
-  // path-length underestimation leaving the tail of the curve unrendered.
-  linePath.style.strokeDasharray = '1';
-  linePath.style.strokeDashoffset = '1';
-  linePath.style.transition = 'stroke-dashoffset 1400ms cubic-bezier(0.4, 0, 0.2, 1) 120ms';
 
   const observer = new IntersectionObserver((entries) => {
     const visible = entries.some((entry) => entry.isIntersecting);
     if (!visible) return;
 
     block.classList.add('is-visible');
-    window.requestAnimationFrame(() => {
-      linePath.style.strokeDashoffset = '0';
-    });
-
     observer.disconnect();
   }, {
     threshold: 0.24,
@@ -584,5 +579,5 @@ export default function decorate(block) {
   inner.append(cardsSection);
 
   block.replaceChildren(inner);
-  enableReveal(block, chart.line);
+  enableReveal(block);
 }
