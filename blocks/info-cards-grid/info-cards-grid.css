@@ -291,7 +291,7 @@
 /* Preserve paragraph-to-paragraph spacing in richtext title/subtitle */
 .info-cards-grid-card-title > p + p,
 .info-cards-grid-card-subtitle > p + p {
-  margin-top: 0.5em;
+  margin-top: 0.25em;
 }
 
 .info-cards-grid-card-body ul {
