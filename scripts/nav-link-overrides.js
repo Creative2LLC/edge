@@ -1,3 +1,5 @@
+import resolveSiteHref from './link-utils.js';
+
 const NAV_LINKS = [
   {
     labels: ['amber alerts', 'amber alert'],
@@ -9,7 +11,7 @@ const NAV_LINKS = [
   },
   {
     labels: ['case anniversaries'],
-    href: '/resources/for-professionals/media/case-anniversaries.html',
+    href: '/resources/for-professionals/media/case-anniversaries',
   },
 ];
 
@@ -26,7 +28,7 @@ function updateExistingLinks(root) {
   root.querySelectorAll('a').forEach((link) => {
     const config = matchingLinkConfig(link.textContent);
     if (!config) return;
-    link.href = config.href;
+    link.href = resolveSiteHref(config.href);
   });
 
   root.querySelectorAll('li').forEach((item) => {
@@ -35,7 +37,7 @@ function updateExistingLinks(root) {
     if (!config) return;
 
     const link = document.createElement('a');
-    link.href = config.href;
+    link.href = resolveSiteHref(config.href);
     while (item.firstChild) link.append(item.firstChild);
     item.append(link);
   });
@@ -45,7 +47,7 @@ function createCaseAnniversariesItem(templateItem) {
   const item = templateItem?.cloneNode(false) || document.createElement('li');
 
   const link = document.createElement('a');
-  link.href = matchingLinkConfig('Case Anniversaries').href;
+  link.href = resolveSiteHref(matchingLinkConfig('Case Anniversaries').href);
   link.textContent = 'Case Anniversaries';
   item.append(link);
   return item;

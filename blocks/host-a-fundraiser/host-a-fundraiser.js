@@ -4,6 +4,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
+  normalizeFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -479,7 +480,7 @@ export default function decorate(block) {
   if (topPadding) block.style.setProperty('--host-a-fundraiser-top-padding', topPadding);
 
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
-  const formAction = getTextField(block, 'formAction').value || DEFAULTS.formAction;
+  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const jotformAction = getTextField(block, 'jotformAction').value || DEFAULTS.jotformAction;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;

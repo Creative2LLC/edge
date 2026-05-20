@@ -3,6 +3,7 @@ import {
   applyPhoneValidation,
   createFormSession,
   extractApiMessage,
+  normalizeFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -731,7 +732,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--team-hope-volunteer-top-padding', topPadding);
 
-  const formAction = getTextField(block, 'formAction').value || DEFAULTS.formAction;
+  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;
 

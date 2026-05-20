@@ -9,23 +9,41 @@ function countPhoneDigits(value) {
   return String(value || '').replace(/\D/g, '').length;
 }
 
-export function createFormSession(form, formId) {
+function createHoneypot(name) {
   const honeypot = document.createElement('input');
   honeypot.type = 'text';
-  honeypot.name = 'company';
+  honeypot.name = name;
   honeypot.autocomplete = 'off';
   honeypot.tabIndex = -1;
-  honeypot.hidden = true;
   honeypot.setAttribute('aria-hidden', 'true');
   honeypot.className = 'form-honeypot';
-  form.append(honeypot);
+  honeypot.style.position = 'absolute';
+  honeypot.style.left = '-10000px';
+  honeypot.style.width = '1px';
+  honeypot.style.height = '1px';
+  honeypot.style.opacity = '0';
+  return honeypot;
+}
+
+function isLocalDevelopmentHost(hostname) {
+  return ['localhost', '127.0.0.1', '::1'].includes(hostname);
+}
+
+export function createFormSession(form, formId) {
+  const honeypots = [
+    createHoneypot('company'),
+    createHoneypot('website'),
+  ];
+  form.append(...honeypots);
 
   return {
     formId,
     startedAt: Date.now(),
     reset() {
       this.startedAt = Date.now();
-      honeypot.value = '';
+      honeypots.forEach((honeypot) => {
+        honeypot.value = '';
+      });
     },
   };
 }
@@ -93,7 +111,28 @@ export function applyPhoneValidation(input) {
   validate();
 }
 
+export function normalizeFormAction(action) {
+  const raw = String(action || '').trim();
+  if (!raw) return '';
+
+  try {
+    const url = new URL(raw, window.location.href);
+    if (!['http:', 'https:'].includes(url.protocol)) return '';
+    if (
+      window.location.protocol === 'https:'
+      && url.protocol !== 'https:'
+      && !isLocalDevelopmentHost(url.hostname)
+    ) return '';
+
+    return raw.startsWith('/') && !raw.startsWith('//')
+      ? `${url.pathname}${url.search}${url.hash}`
+      : url.href;
+  } catch {
+    return '';
+  }
+}
+
 export function resolveFormAction(formId, authoredAction = '') {
   const action = String(authoredAction || '').trim();
-  return action || DEFAULT_FORM_ENDPOINTS[formId] || '';
+  return normalizeFormAction(action || DEFAULT_FORM_ENDPOINTS[formId] || '');
 }

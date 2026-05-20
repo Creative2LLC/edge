@@ -667,10 +667,12 @@
         "label": "Author Name"
       },
       {
-        "component": "text",
-        "valueType": "string",
+        "component": "date-time",
+        "valueType": "date",
         "name": "articleDate",
-        "label": "Article Date"
+        "label": "Article Date",
+        "displayFormat": "MMMM D, YYYY",
+        "valueFormat": "YYYY-MM-DD"
       },
       {
         "component": "reference",

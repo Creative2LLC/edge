@@ -474,6 +474,25 @@ function buildMessage(title, description) {
   return wrapper;
 }
 
+function formatArticleDate(value) {
+  const text = normalizeText(value);
+  if (!text) return '';
+
+  const dateOnly = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const date = dateOnly
+    ? new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3])))
+    : new Date(text);
+
+  if (Number.isNaN(date.getTime())) return text;
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
 function buildMeta(authorName, articleDate) {
   const values = [authorName, articleDate].filter(Boolean);
   if (!values.length) return null;
@@ -678,7 +697,7 @@ export default async function decorate(block) {
     pageTitle: getTextField(block, 'pageTitle', normalizeJsonFieldValue(resourceData.pageTitle)),
     description: getTextField(block, 'jcr:description'),
     authorName: getTextField(block, 'authorName'),
-    articleDate: getTextField(block, 'articleDate'),
+    articleDate: formatArticleDate(getTextField(block, 'articleDate')),
     thumbnail: getImageField(block, 'thumbnail', resourceData),
     headerImage: getImageField(block, 'headerImage', resourceData),
     articleBody: chooseArticleBody(block, resourceData),

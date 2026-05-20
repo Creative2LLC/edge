@@ -1,4 +1,4 @@
-import { isFormValid, updateFormStatus } from '../../scripts/form-utils.js';
+import { isFormValid, normalizeFormAction, updateFormStatus } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 
@@ -581,10 +581,11 @@ export default function decorate(block) {
   }
 
   const config = {
-    formAction: getTextField(block, 'formAction').value || DEFAULTS.formAction,
-    clientTokensEndpoint:
+    formAction: normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction),
+    clientTokensEndpoint: normalizeFormAction(
       getTextField(block, 'clientTokensEndpoint').value
       || DEFAULTS.clientTokensEndpoint,
+    ),
     docsUrl: getTextField(block, 'docsUrl').value || DEFAULTS.docsUrl,
     successMessage:
       getTextField(block, 'successMessage').value || DEFAULTS.successMessage,

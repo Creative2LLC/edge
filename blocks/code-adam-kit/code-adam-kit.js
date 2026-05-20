@@ -3,6 +3,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
+  normalizeFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -495,7 +496,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--code-adam-kit-top-padding', topPadding);
 
-  const formAction = getTextField(block, 'formAction').value || DEFAULTS.formAction;
+  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
   const embedUrl = getTextField(block, 'embedUrl').value || DEFAULTS.embedUrl;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
