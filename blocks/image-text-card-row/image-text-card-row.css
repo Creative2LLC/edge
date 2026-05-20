@@ -40,7 +40,7 @@
 
 /* Card content area */
 .image-text-card-row .image-text-card-row-card-content {
-  padding: 20px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -121,7 +121,7 @@
    padding so the inner content area no longer wraps the bg. */
 .image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card {
   background-color: #DDD5CC52;
-  padding: 24px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

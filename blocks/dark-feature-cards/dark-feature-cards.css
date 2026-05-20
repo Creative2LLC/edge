@@ -113,6 +113,14 @@ main > .section > .dark-feature-cards-wrapper {
   line-height: 1.25;
 }
 
+.dark-feature-cards .dark-feature-cards-card-title p {
+  margin: 0;
+}
+
+.dark-feature-cards .dark-feature-cards-card-title p + p {
+  margin-top: 4px;
+}
+
 .dark-feature-cards .dark-feature-cards-card-subtitle {
   margin: 0;
   font-size: 17px;

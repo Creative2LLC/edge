@@ -82,14 +82,14 @@ function buildCard(data) {
   if (data.iconField.source) moveInstrumentation(data.iconField.source, iconEl);
   body.append(iconEl);
 
-  // Title
-  if (data.cardTitleField.value) {
+  // Title (rich text)
+  if (data.cardTitleField.value && data.cardTitleField.value.trim()) {
     const h3 = document.createElement('h3');
     h3.className = 'dark-feature-cards-card-title';
     if (data.cardTitleField.source) {
       moveInstrumentation(data.cardTitleField.source, h3);
     }
-    h3.textContent = data.cardTitleField.value;
+    h3.innerHTML = data.cardTitleField.value;
     body.append(h3);
   }
 
@@ -163,7 +163,7 @@ export default function decorate(block) {
 
     const imageField = getImageField(row, 'image', 0);
     const iconField = getImageField(row, 'icon', 1);
-    const cardTitleField = getField(row, 'cardTitle', 2);
+    const cardTitleField = getRichTextField(row, 'cardTitle', 2);
     const cardSubtitleField = getRichTextField(row, 'cardSubtitle', 3);
     const buttonTextField = getField(row, 'buttonText', 4);
     const buttonLinkField = getLinkField(row, 'buttonLink', 5);
