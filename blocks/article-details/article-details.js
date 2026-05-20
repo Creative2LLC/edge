@@ -51,7 +51,8 @@ function normalizeJsonFieldValue(value) {
   if (!value) return '';
   if (typeof value === 'string') return value.trim();
   if (typeof value === 'object') {
-    return `${value.href || value.path || value.url || value.reference || value.html || ''}`.trim();
+    const pathKey = '_path';
+    return `${value.href || value.src || value.path || value.url || value[pathKey] || value['repo:path'] || value.fileReference || value.reference || value.html || ''}`.trim();
   }
   return '';
 }
@@ -207,22 +208,85 @@ function getHtmlField(block, name) {
   };
 }
 
-function isBodyItemRow(row) {
-  return Boolean(
-    row.querySelector?.('[data-aue-prop="bodyText"], [data-richtext-prop="bodyText"]')
-      || row.querySelector?.('[data-aue-prop="bodyImage"]')
-      || row.querySelector?.('[data-aue-prop="bodyImageCaption"], [data-richtext-prop="bodyImageCaption"]')
-      || row.getAttribute?.('data-aue-model') === 'article-body-text'
-      || row.getAttribute?.('data-aue-model') === 'article-body-image',
-  );
-}
-
 function bodyItemModel(row) {
   return normalizeText(
     row.getAttribute?.('data-aue-model')
       || row.querySelector?.('[data-aue-prop="model"]')?.textContent
       || row.querySelector?.('[data-aue-prop="aueComponentId"]')?.textContent,
   );
+}
+
+function isBodyItemRow(row) {
+  const model = bodyItemModel(row);
+  if (model === 'article-body-text' || model === 'article-body-image') return true;
+
+  const field = row.querySelector?.(
+    '[data-aue-prop="bodyText"], [data-richtext-prop="bodyText"], [data-aue-prop="bodyImage"], [data-aue-prop="bodyImageCaption"], [data-richtext-prop="bodyImageCaption"]',
+  );
+  if (!field) return false;
+
+  const fieldRoot = field.closest?.('[data-aue-resource]');
+  return !fieldRoot || fieldRoot === row;
+}
+
+function getBodyItemRows(scope) {
+  return getRows(scope).flatMap((row) => (
+    isBodyItemRow(row) ? [row] : getBodyItemRows(row)
+  ));
+}
+
+function resourceBodyItemModel(key, value) {
+  const model = normalizeText(value.model || value.aueComponentId);
+  if (model === 'article-body-text' || model === 'article-body-image') return model;
+
+  const normalizedKey = normalizeText(key).toLowerCase().replace(/[^a-z0-9]+/g, '');
+  if (normalizedKey.includes('articlebodytext')) return 'article-body-text';
+  if (normalizedKey.includes('articlebodyimage')) return 'article-body-image';
+  if (Object.prototype.hasOwnProperty.call(value, 'bodyText')) return 'article-body-text';
+  if (
+    Object.prototype.hasOwnProperty.call(value, 'bodyImage')
+    || Object.prototype.hasOwnProperty.call(value, 'bodyImageAlt')
+    || Object.prototype.hasOwnProperty.call(value, 'bodyImageCaption')
+  ) return 'article-body-image';
+
+  return '';
+}
+
+function appendResourceBodyItems(data, items, pageTitle) {
+  Object.entries(data || {}).forEach(([key, value]) => {
+    if (!value || typeof value !== 'object' || key.startsWith(':')) return;
+
+    const model = resourceBodyItemModel(key, value);
+    if (model === 'article-body-text') {
+      const html = normalizeJsonHtmlValue(value.bodyText);
+      if (html) {
+        items.push({
+          type: 'text',
+          html,
+          source: null,
+        });
+      }
+      return;
+    }
+
+    if (model === 'article-body-image') {
+      const src = normalizeJsonFieldValue(value.bodyImage || value.image || value.fileReference);
+      if (src) {
+        items.push({
+          type: 'image',
+          image: {
+            src,
+            alt: normalizeText(value.bodyImageAlt) || pageTitle || 'Article image',
+          },
+          caption: normalizeJsonHtmlValue(value.bodyImageCaption),
+          source: null,
+        });
+      }
+      return;
+    }
+
+    appendResourceBodyItems(value, items, pageTitle);
+  });
 }
 
 function hasAuthoringContext(scope) {
@@ -235,22 +299,8 @@ function hasAuthoringContext(scope) {
 function ensureAuthoringContainer(block) {
   if (!hasAuthoringContext(block)) return;
 
-  if (!block.dataset.aueType) block.dataset.aueType = 'component';
   if (!block.dataset.aueModel) block.dataset.aueModel = 'article-details';
   if (!block.dataset.aueFilter) block.dataset.aueFilter = 'article-details';
-}
-
-function instrumentBodyContainer(block, body) {
-  if (!hasAuthoringContext(block)) return;
-
-  const resource = block.getAttribute('data-aue-resource')
-    || block.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
-    || '';
-
-  if (resource) body.dataset.aueResource = resource;
-  body.dataset.aueType = 'container';
-  body.dataset.aueFilter = 'article-details';
-  body.dataset.aueLabel = 'Article Body';
 }
 
 function imageFromNode(node, fallbackAlt) {
@@ -301,9 +351,7 @@ function getArticleBodyItems(block, pageTitle, resourceData = {}) {
   const items = [];
   const isAuthoring = hasAuthoringContext(block);
 
-  getRows(block).forEach((row) => {
-    if (!isBodyItemRow(row)) return;
-
+  getBodyItemRows(block).forEach((row) => {
     const model = bodyItemModel(row);
     const text = readRichTextField(row, 'bodyText', { fallbackCell: row.children[0] });
     if (text.html) {
@@ -349,37 +397,7 @@ function getArticleBodyItems(block, pageTitle, resourceData = {}) {
 
   if (items.length) return items;
 
-  Object.entries(resourceData).forEach(([key, value]) => {
-    if (!value || typeof value !== 'object' || key.startsWith(':')) return;
-
-    const model = normalizeText(value.model || value.aueComponentId);
-    if (model === 'article-body-text') {
-      const html = normalizeJsonHtmlValue(value.bodyText);
-      if (html) {
-        items.push({
-          type: 'text',
-          html,
-          source: null,
-        });
-      }
-      return;
-    }
-
-    if (model !== 'article-body-image') return;
-
-    const src = normalizeJsonFieldValue(value.bodyImage);
-    if (!src) return;
-
-    items.push({
-      type: 'image',
-      image: {
-        src,
-        alt: normalizeText(value.bodyImageAlt) || pageTitle || 'Article image',
-      },
-      caption: normalizeJsonHtmlValue(value.bodyImageCaption),
-      source: null,
-    });
-  });
+  appendResourceBodyItems(resourceData, items, pageTitle);
 
   return items;
 }
@@ -553,7 +571,7 @@ function debugArticleDetails(block, resourceData, fields) {
   console.groupEnd();
 }
 
-function buildBody(fields, block) {
+function buildBody(fields) {
   if (
     !fields.articleBodyItems?.length
     && !fields.articleBody?.html
@@ -568,7 +586,6 @@ function buildBody(fields, block) {
 
   const body = document.createElement('div');
   body.className = 'article-details-body';
-  instrumentBodyContainer(block, body);
 
   if (fields.articleBodyItems?.length) {
     fields.articleBodyItems.forEach((item) => {
@@ -651,7 +668,7 @@ export default async function decorate(block) {
   const fragment = document.createDocumentFragment();
   fragment.append(buildHero(fields));
 
-  const body = buildBody(fields, block);
+  const body = buildBody(fields);
   if (body) fragment.append(body);
 
   block.replaceChildren(fragment);
