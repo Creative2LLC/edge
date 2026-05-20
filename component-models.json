@@ -3002,26 +3002,6 @@
         "valueType": "string"
       },
       {
-        "component": "select",
-        "name": "action_style",
-        "label": "Button Style",
-        "options": [
-          {
-            "name": "Outline",
-            "value": "outline"
-          },
-          {
-            "name": "Solid",
-            "value": "solid"
-          },
-          {
-            "name": "Inverted",
-            "value": "inverted"
-          }
-        ],
-        "value": "outline"
-      },
-      {
         "component": "text",
         "name": "action_1Text",
         "value": "",
@@ -3034,6 +3014,26 @@
         "value": "",
         "label": "Button 1 Link",
         "valueType": "string"
+      },
+      {
+        "component": "select",
+        "name": "action_1Style",
+        "label": "Button 1 Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outline",
+            "value": "outline"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "solid"
       },
       {
         "component": "text",
@@ -3050,6 +3050,26 @@
         "valueType": "string"
       },
       {
+        "component": "select",
+        "name": "action_2Style",
+        "label": "Button 2 Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outline",
+            "value": "outline"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "solid"
+      },
+      {
         "component": "text",
         "name": "action_3Text",
         "value": "",
@@ -3062,6 +3082,26 @@
         "value": "",
         "label": "Button 3 Link",
         "valueType": "string"
+      },
+      {
+        "component": "select",
+        "name": "action_3Style",
+        "label": "Button 3 Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outline",
+            "value": "outline"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "solid"
       },
       {
         "component": "text",
