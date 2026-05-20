@@ -28,51 +28,6 @@
       ]
     },
     {
-      "title": "Forms",
-      "id": "forms",
-      "components": [
-        {
-          "...": "../blocks/general-inquiries/_general-inquiries.json#/definitions"
-        },
-        {
-          "...": "../blocks/newsletter/_newsletter.json#/definitions"
-        },
-        {
-          "...": "../blocks/missing-child-quick-report/_missing-child-quick-report.json#/definitions"
-        },
-        {
-          "...": "../blocks/missing-child-poster-api-registration/_missing-child-poster-api-registration.json#/definitions"
-        },
-        {
-          "...": "../blocks/code-adam-kit/_code-adam-kit.json#/definitions"
-        },
-        {
-          "...": "../blocks/ncmec-reprint-request/_ncmec-reprint-request.json#/definitions"
-        },
-        {
-          "...": "../blocks/team-hope-volunteer/_team-hope-volunteer.json#/definitions"
-        },
-        {
-          "...": "../blocks/host-a-fundraiser/_host-a-fundraiser.json#/definitions"
-        },
-        {
-          "...": "../blocks/faon-application/_faon-application.json#/definitions"
-        },
-        {
-          "...": "../blocks/event-request-form/_event-request-form.json#/definitions"
-        },
-        {
-          "...": "../blocks/community-education-partner-reporting/_community-education-partner-reporting.json#/definitions"
-        },
-        {
-          "...": "../blocks/prpl-application/_prpl-application.json#/definitions"
-        },
-        {
-          "...": "../blocks/apply-for-training/_apply-for-training.json#/definitions"
-        }
-      ]
-    },
-    {
       "title": "Blocks",
       "id": "blocks",
       "components": [

@@ -299,8 +299,10 @@ function hasAuthoringContext(scope) {
 function ensureAuthoringContainer(block) {
   if (!hasAuthoringContext(block)) return;
 
+  block.dataset.aueType = 'container';
   if (!block.dataset.aueModel) block.dataset.aueModel = 'article-details';
   if (!block.dataset.aueFilter) block.dataset.aueFilter = 'article-details';
+  if (!block.dataset.aueLabel) block.dataset.aueLabel = 'Article Details';
 }
 
 function imageFromNode(node, fallbackAlt) {
