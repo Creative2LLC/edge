@@ -197,6 +197,10 @@ export default async function decorate(block) {
     || normalizeJsonFieldValue(resourceData.buttonStyle);
   const button2Style = getFieldWithFallback(block, 'button2Style', 10)
     || normalizeJsonFieldValue(resourceData.button2Style);
+  const buttonSubtext = getField(block, 'buttonSubtext')
+    || normalizeJsonFieldValue(resourceData.buttonSubtext);
+  const button2Subtext = getField(block, 'button2Subtext')
+    || normalizeJsonFieldValue(resourceData.button2Subtext);
   const imageAlt = getField(block, 'imageAlt') || normalizeJsonFieldValue(resourceData.imageAlt);
 
   const colors = collectColorValues(block);
@@ -287,15 +291,32 @@ export default async function decorate(block) {
   const primaryButton = buildButton(buttonText, buttonLink, buttonColor, buttonStyle);
   const secondaryButton = buildButton(button2Text, button2Link, button2Color, button2Style);
 
-  if (primaryButton || secondaryButton) {
+  const wrapButtonWithSubtext = (button, subtext) => {
+    if (!button) return null;
+    const group = document.createElement('div');
+    group.className = 'split-card-button-group';
+    group.append(button);
+    if (subtext) {
+      const sub = document.createElement('span');
+      sub.className = 'split-card-button-subtext';
+      sub.textContent = subtext;
+      group.append(sub);
+    }
+    return group;
+  };
+
+  const primaryGroup = wrapButtonWithSubtext(primaryButton, buttonSubtext);
+  const secondaryGroup = wrapButtonWithSubtext(secondaryButton, button2Subtext);
+
+  if (primaryGroup || secondaryGroup) {
     const btnContainer = document.createElement('div');
     btnContainer.className = 'split-card-buttons';
     if (primaryButton && secondaryButton) {
       btnContainer.classList.add('split-card-buttons-duo');
     }
 
-    if (primaryButton) btnContainer.append(primaryButton);
-    if (secondaryButton) btnContainer.append(secondaryButton);
+    if (primaryGroup) btnContainer.append(primaryGroup);
+    if (secondaryGroup) btnContainer.append(secondaryGroup);
     contentSide.append(btnContainer);
   }
 
