@@ -355,6 +355,32 @@ function getArticleBodyItems(block, pageTitle, resourceData = {}) {
 
   getBodyItemRows(block).forEach((row) => {
     const model = bodyItemModel(row);
+
+    if (model === 'article-body-image') {
+      const image = getBodyItemImage(row, pageTitle || 'Article image');
+      if (!image?.src) {
+        if (isAuthoring) {
+          items.push({
+            type: 'image',
+            image: null,
+            caption: '',
+            source: row,
+            isPlaceholder: true,
+          });
+        }
+        return;
+      }
+
+      const caption = readRichTextField(row, 'bodyImageCaption', { fallbackCell: row.children[2] });
+      items.push({
+        type: 'image',
+        image,
+        caption: caption.html,
+        source: row,
+      });
+      return;
+    }
+
     const text = readRichTextField(row, 'bodyText', { fallbackCell: row.children[0] });
     if (text.html) {
       items.push({
