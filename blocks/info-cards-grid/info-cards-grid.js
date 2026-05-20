@@ -651,16 +651,17 @@ export default function decorate(block) {
   grid.classList.add(`info-cards-grid-inner-align-${cardContentAlignment}`);
   grid.style.setProperty('--grid-columns', columns);
 
-  cards.forEach((data, index) => {
-    grid.append(buildCard(data, index, variant));
-  });
+  const cardElements = cards.map((data, index) => buildCard(data, index, variant));
+  const orphanCount = columns > 1 ? cardElements.length % columns : 0;
+  const fullRowCount = cardElements.length - orphanCount;
 
-  const orphanCount = columns > 1 ? cards.length % columns : 0;
+  cardElements.slice(0, fullRowCount).forEach((card) => grid.append(card));
+
   if (orphanCount > 0) {
-    grid.classList.add('info-cards-grid-inner-has-orphans');
-    grid.style.setProperty('--grid-orphan-start', columns - orphanCount + 1);
-    const firstOrphanCard = grid.children[cards.length - orphanCount];
-    firstOrphanCard?.classList.add('info-cards-grid-card-orphan-first');
+    const orphanRow = document.createElement('div');
+    orphanRow.className = 'info-cards-grid-orphan-row';
+    cardElements.slice(fullRowCount).forEach((card) => orphanRow.append(card));
+    grid.append(orphanRow);
   }
 
   shell.append(grid);
