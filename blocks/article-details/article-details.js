@@ -240,6 +240,19 @@ function ensureAuthoringContainer(block) {
   if (!block.dataset.aueFilter) block.dataset.aueFilter = 'article-details';
 }
 
+function instrumentBodyContainer(block, body) {
+  if (!hasAuthoringContext(block)) return;
+
+  const resource = block.getAttribute('data-aue-resource')
+    || block.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  if (resource) body.dataset.aueResource = resource;
+  body.dataset.aueType = 'container';
+  body.dataset.aueFilter = 'article-details';
+  body.dataset.aueLabel = 'Article Body';
+}
+
 function imageFromNode(node, fallbackAlt) {
   if (!node) return null;
 
@@ -540,7 +553,7 @@ function debugArticleDetails(block, resourceData, fields) {
   console.groupEnd();
 }
 
-function buildBody(fields) {
+function buildBody(fields, block) {
   if (
     !fields.articleBodyItems?.length
     && !fields.articleBody?.html
@@ -555,6 +568,7 @@ function buildBody(fields) {
 
   const body = document.createElement('div');
   body.className = 'article-details-body';
+  instrumentBodyContainer(block, body);
 
   if (fields.articleBodyItems?.length) {
     fields.articleBodyItems.forEach((item) => {
@@ -637,7 +651,7 @@ export default async function decorate(block) {
   const fragment = document.createDocumentFragment();
   fragment.append(buildHero(fields));
 
-  const body = buildBody(fields);
+  const body = buildBody(fields, block);
   if (body) fragment.append(body);
 
   block.replaceChildren(fragment);
