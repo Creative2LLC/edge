@@ -130,14 +130,14 @@ function normalizeButtonStyle(value) {
   return 'default';
 }
 
-function applyButtonStyle(button, backgroundColor, style) {
+function applyButtonStyle(button, backgroundColor, style, textColor) {
   const normalized = normalizeButtonStyle(style);
   const accent = backgroundColor || '#008db6';
 
   if (normalized === 'link') {
     button.classList.add('is-link');
     button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', accent, 'important');
+    button.style.setProperty('color', textColor || accent, 'important');
     button.style.setProperty('border', 'none', 'important');
     return;
   }
@@ -145,7 +145,7 @@ function applyButtonStyle(button, backgroundColor, style) {
   if (normalized === 'outlined') {
     button.classList.add('is-outlined');
     button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', accent, 'important');
+    button.style.setProperty('color', textColor || accent, 'important');
     button.style.setProperty('border', `2px solid ${accent}`, 'important');
     return;
   }
@@ -155,9 +155,12 @@ function applyButtonStyle(button, backgroundColor, style) {
   if (backgroundColor) {
     button.style.setProperty('background-color', backgroundColor, 'important');
   }
+  if (textColor) {
+    button.style.setProperty('color', textColor, 'important');
+  }
 }
 
-function buildButton(text, href, backgroundColor, style) {
+function buildButton(text, href, backgroundColor, style, textColor) {
   if (!text && !href) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
@@ -168,7 +171,7 @@ function buildButton(text, href, backgroundColor, style) {
     button.href = href;
   }
 
-  applyButtonStyle(button, backgroundColor, style);
+  applyButtonStyle(button, backgroundColor, style, textColor);
 
   return button;
 }
@@ -288,8 +291,8 @@ export default async function decorate(block) {
     contentSide.append(sub);
   }
 
-  const primaryButton = buildButton(buttonText, buttonLink, buttonColor, buttonStyle);
-  const secondaryButton = buildButton(button2Text, button2Link, button2Color, button2Style);
+  const primaryButton = buildButton(buttonText, buttonLink, buttonColor, buttonStyle, sharedTextColor);
+  const secondaryButton = buildButton(button2Text, button2Link, button2Color, button2Style, sharedTextColor);
 
   const wrapButtonWithSubtext = (button, subtext) => {
     if (!button) return null;
