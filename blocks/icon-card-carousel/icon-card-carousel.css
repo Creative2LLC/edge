@@ -333,8 +333,8 @@ main > .section > .icon-card-carousel-wrapper {
   }
 }
 
-/* ---------- Style Variant: Thinner Cards ---------- */
-/* Scoped to desktop only so existing mobile rules continue to handle small
+/* ---------- Style Variant: Thinner Cards ----------
+   Scoped to desktop only so existing mobile rules continue to handle small
    screens; on mobile the cards fall back to the default sizing. */
 @media (width >= 901px) {
   .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-track {
