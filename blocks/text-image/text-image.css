@@ -608,20 +608,6 @@
   margin-top: 1em;
 }
 
-.text-image.block.text-image-variant-4 .text-image-body p,
-.text-image.block.text-image-variant-4 .text-image-body ul,
-.text-image.block.text-image-variant-4 .text-image-body ol {
-  margin: 0;
-}
-
-.text-image.block.text-image-variant-4 .text-image-body p + p {
-  margin-top: 1em;
-}
-
-.text-image.block.text-image-variant-4 .text-image-cta {
-  max-width: 662px;
-}
-
 .text-image.block.text-image-variant-4 .text-image-media {
   flex: 0 0 662px;
   max-width: 662px;
