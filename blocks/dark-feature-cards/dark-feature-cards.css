@@ -134,8 +134,7 @@ main > .section > .dark-feature-cards-wrapper {
   margin-top: 8px;
 }
 
-/* ---------- Buttons ----------
-   Compound selector beats global `button:hover` cascade in styles.css */
+/* ---------- Buttons ---------- */
 .dark-feature-cards .dark-feature-cards-card-btn {
   display: inline-flex;
   align-items: center;

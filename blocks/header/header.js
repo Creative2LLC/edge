@@ -4,7 +4,10 @@ import {
   fetchSiteSearchSuggestions,
 } from '../../scripts/search-utils.js';
 import getSiteSearchConfig from '../../scripts/site-search-config.js';
-import resolveSiteHref from '../../scripts/link-utils.js';
+import resolveSiteHref, {
+  currentSiteLocale,
+  localizedCurrentPageHref,
+} from '../../scripts/link-utils.js';
 import applyNavLinkOverrides from '../../scripts/nav-link-overrides.js';
 import { loadFragment } from '../fragment/fragment.js';
 
@@ -859,9 +862,47 @@ function decorateTopBanner(section) {
     }
   });
 
-  // Build language dropdown
-  const languageItems = [...languageList.querySelectorAll('li')];
-  const selectedText = languageItems.length > 0 ? languageItems[0].textContent.trim() : 'English';
+  const normalizedLanguageText = (text) => `${text || ''}`
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const languageLocaleForText = (text) => {
+    const normalized = normalizedLanguageText(text);
+    if (['spanish', 'espanol', 'es'].includes(normalized)) return 'es';
+    if (['english', 'en'].includes(normalized)) return 'en';
+    return '';
+  };
+
+  const languageTextForLocale = (locale, fallback) => {
+    if (locale === 'es') return 'Espa\u00f1ol';
+    if (locale === 'en') return 'English';
+    return fallback || 'English';
+  };
+
+  const languageOptions = [...languageList.querySelectorAll('li')].map((item) => {
+    const label = item.textContent.trim();
+
+    return {
+      label,
+      locale: languageLocaleForText(label),
+      href: item.querySelector('a')?.getAttribute('href') || '#',
+    };
+  });
+
+  const authoredLocales = new Set(languageOptions.map(({ locale }) => locale).filter(Boolean));
+  if (!authoredLocales.has('en')) {
+    languageOptions.unshift({ label: 'English', locale: 'en', href: '#' });
+  }
+  if (!authoredLocales.has('es')) {
+    languageOptions.push({ label: 'Espa\u00f1ol', locale: 'es', href: '#' });
+  }
+
+  const selectedText = languageTextForLocale(
+    currentSiteLocale(),
+    languageOptions.length > 0 ? languageOptions[0].label : 'English',
+  );
 
   // Find the globe icon — look for an icon in a <p> tag (outside the lists)
   const globeIcon = section.querySelector('p span.icon');
@@ -888,15 +929,20 @@ function decorateTopBanner(section) {
   panel.setAttribute('role', 'listbox');
   panel.setAttribute('aria-hidden', 'true');
 
-  languageItems.forEach((item) => {
+  languageOptions.forEach(({ label, locale, href }) => {
     const option = document.createElement('li');
     option.setAttribute('role', 'option');
-    option.textContent = item.textContent.trim();
-    option.addEventListener('click', () => {
-      langText.textContent = option.textContent;
+    const optionLink = document.createElement('a');
+    optionLink.href = locale ? localizedCurrentPageHref(locale) : resolveSiteHref(href);
+    optionLink.textContent = label;
+    option.setAttribute('aria-selected', locale === currentSiteLocale() ? 'true' : 'false');
+
+    optionLink.addEventListener('click', () => {
+      langText.textContent = languageTextForLocale(locale, optionLink.textContent);
       toggle.setAttribute('aria-expanded', 'false');
       panel.setAttribute('aria-hidden', 'true');
     });
+    option.append(optionLink);
     panel.append(option);
   });
 

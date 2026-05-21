@@ -112,8 +112,7 @@
   transition: transform 0.15s ease;
 }
 
-/* Pagination buttons (bottom-right) — compound selector beats the global
-   `button:hover` rule in styles.css that would otherwise paint these blue. */
+/* Pagination buttons (bottom-right). */
 .logo-carousel .logo-carousel-nav {
   display: flex;
   align-items: center;

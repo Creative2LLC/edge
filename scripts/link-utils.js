@@ -47,6 +47,33 @@ function currentLocalePrefix() {
   )) || '';
 }
 
+function currentSitePathWithoutLocale() {
+  let pathname = stripHtmlExtension(window.location.pathname || '/').replace(/\/+$/, '') || '/';
+
+  if (pathname === EDGE_CONTENT_PREFIX || pathname.startsWith(`${EDGE_CONTENT_PREFIX}/`)) {
+    pathname = pathname.slice(EDGE_CONTENT_PREFIX.length) || '/';
+  }
+
+  const locale = SUPPORTED_LOCALE_PREFIXES.find((prefix) => (
+    pathname === prefix || pathname.startsWith(`${prefix}/`)
+  ));
+
+  if (!locale) return pathname;
+  if (pathname === locale) return '/';
+  return pathname.slice(locale.length) || '/';
+}
+
+function hrefForSitePath(pathname, suffix = '') {
+  const normalizedPathname = pathname.replace(/\/+$/, '') || '/';
+
+  if (isAuthorHost()) {
+    const authorPath = `${EDGE_CONTENT_PREFIX}${normalizedPathname === '/' ? '' : normalizedPathname}`;
+    return `${withHtmlExtension(authorPath)}${suffix}`;
+  }
+
+  return `${normalizedPathname}${suffix}`;
+}
+
 function applyCurrentLocale(pathname) {
   const locale = currentLocalePrefix();
   if (!locale) return pathname;
@@ -62,6 +89,21 @@ function applyCurrentLocale(pathname) {
   }
 
   return `${locale}${pathname === '/' ? '' : pathname}`;
+}
+
+export function currentSiteLocale() {
+  return currentLocalePrefix().replace(/^\//, '') || 'en';
+}
+
+export function localizedCurrentPageHref(locale = 'en') {
+  const normalizedLocale = `${locale || ''}`.trim().toLowerCase();
+  const sitePath = currentSitePathWithoutLocale();
+  const suffix = `${window.location.search || ''}${window.location.hash || ''}`;
+  const localizedPath = normalizedLocale && normalizedLocale !== 'en'
+    ? `/${normalizedLocale}${sitePath === '/' ? '' : sitePath}`
+    : sitePath;
+
+  return hrefForSitePath(localizedPath, suffix);
 }
 
 export default function resolveSiteHref(value) {
