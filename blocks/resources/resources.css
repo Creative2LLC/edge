@@ -190,14 +190,6 @@ main > .section > .resources-wrapper {
   line-height: 1.2;
 }
 
-.resources .resources-card-title p {
-  margin: 0;
-}
-
-.resources .resources-card-title p + p {
-  margin-top: 0.25em;
-}
-
 /* Card subheading */
 .resources .resources-card-subheading {
   font-size: 17px;
@@ -207,8 +199,13 @@ main > .section > .resources-wrapper {
   line-height: 1.5;
 }
 
+.resources .resources-card-title p,
 .resources .resources-card-subheading p {
   margin: 0;
+}
+
+.resources .resources-card-title p + p {
+  margin-top: 0.25em;
 }
 
 .resources .resources-card-subheading p + p {
