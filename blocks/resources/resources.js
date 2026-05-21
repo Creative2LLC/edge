@@ -5,12 +5,14 @@ import {
   getFieldSelector,
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_PROPS = [
   'heading',
   'subheading',
+  'headerMaxWidth',
   'button',
   'buttonLink',
   'settings',
@@ -156,6 +158,10 @@ function parseResourceRow(row) {
     return readTextField(row, propName, { fallbackCell: cols[colIndex] }).value;
   }
 
+  function getRichField(colIndex, propName) {
+    return readRichTextField(row, propName, { fallbackCell: cols[colIndex] });
+  }
+
   if (cols.length >= 6) {
     const imageField = readImageField(row, 'image', { fallbackCell: cols[0] });
     const iconField = readImageField(row, 'icon', { fallbackCell: cols[1] });
@@ -170,6 +176,8 @@ function parseResourceRow(row) {
       alt: iconField.img?.alt || '',
     };
     const linkField = readLinkField(row, 'link', { fallbackCell: cols[5] });
+    const titleField = getRichField(3, 'title');
+    const subtitleField = getRichField(4, 'subtitle');
 
     let linkUrl;
     let linkText = getFieldText(6, 'linkText');
@@ -189,8 +197,12 @@ function parseResourceRow(row) {
       iconPicture: iconData.picture,
       iconSrc: iconData.src,
       iconColor: getFieldText(2, 'iconColor'),
-      title: getFieldText(3, 'title'),
-      subtitle: getFieldText(4, 'subtitle'),
+      title: titleField.text,
+      titleHtml: titleField.html,
+      titleSource: titleField.source,
+      subtitle: subtitleField.text,
+      subtitleHtml: subtitleField.html,
+      subtitleSource: subtitleField.source,
       linkUrl,
       linkText,
       tags: parseList(getFieldText(7, 'tags')),
@@ -226,6 +238,23 @@ function buildTag(tag) {
   pill.className = 'resources-card-tag';
   pill.textContent = tag;
   return pill;
+}
+
+function applyRichText(element, source, html, text) {
+  if (source) {
+    moveInstrumentation(source, element);
+    const hasElementChildren = [...source.childNodes]
+      .some((node) => node.nodeType === Node.ELEMENT_NODE);
+    if (hasElementChildren) {
+      while (source.firstChild) element.append(source.firstChild);
+      return;
+    }
+  }
+  if (html && /<[^>]+>/u.test(html)) {
+    element.innerHTML = html;
+    return;
+  }
+  element.textContent = text;
 }
 
 function buildResourceCard(resource, row) {
@@ -292,14 +321,14 @@ function buildResourceCard(resource, row) {
   if (resource.title) {
     const titleEl = document.createElement('h3');
     titleEl.className = 'resources-card-title';
-    titleEl.textContent = resource.title;
+    applyRichText(titleEl, resource.titleSource, resource.titleHtml, resource.title);
     content.append(titleEl);
   }
 
   if (resource.subtitle) {
-    const sub = document.createElement('p');
+    const sub = document.createElement('div');
     sub.className = 'resources-card-subheading';
-    sub.textContent = resource.subtitle;
+    applyRichText(sub, resource.subtitleSource, resource.subtitleHtml, resource.subtitle);
     content.append(sub);
   }
 
@@ -396,6 +425,7 @@ export default async function decorate(block) {
   const config = {
     heading: readConfigField(configRows, 'heading', [0]),
     subheading: readConfigField(configRows, 'subheading', [1]),
+    headerMaxWidth: readConfigField(configRows, 'headerMaxWidth'),
     backgroundColor: readConfigField(configRows, 'backgroundColor', [2])
       || getSettingValue(settings, ['backgroundcolor', 'background-color']),
     buttonText: readConfigField(configRows, 'button', [3, 2]),
@@ -446,10 +476,16 @@ export default async function decorate(block) {
   const headerLeft = document.createElement('div');
   headerLeft.className = 'resources-header-left';
 
+  const headerMaxWidthPx = parseInt(config.headerMaxWidth, 10);
+  const headerMaxWidth = Number.isFinite(headerMaxWidthPx) && headerMaxWidthPx > 0
+    ? `${headerMaxWidthPx}px`
+    : '';
+
   if (config.heading) {
     const heading = document.createElement('h2');
     heading.className = 'resources-heading';
     heading.textContent = config.heading;
+    if (headerMaxWidth) heading.style.maxWidth = headerMaxWidth;
     headerLeft.append(heading);
   }
 
@@ -457,6 +493,7 @@ export default async function decorate(block) {
     const subheading = document.createElement('p');
     subheading.className = 'resources-subheading';
     subheading.textContent = config.subheading;
+    if (headerMaxWidth) subheading.style.maxWidth = headerMaxWidth;
     headerLeft.append(subheading);
   }
 

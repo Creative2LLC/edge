@@ -51,6 +51,12 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "headerMaxWidth",
+          "label": "Header Max Width (px)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "button",
           "label": "Button Text"
         },
@@ -91,13 +97,13 @@
           "label": "Icon Color (Hex)"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "title",
           "label": "Resource Title"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "subtitle",
           "label": "Subheading"

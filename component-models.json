@@ -2096,7 +2096,7 @@
         "multi": false
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "cardTitle",
         "label": "Card Title"
@@ -6559,6 +6559,12 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "headerMaxWidth",
+        "label": "Header Max Width (px)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "button",
         "label": "Button Text"
       },
@@ -6599,13 +6605,13 @@
         "label": "Icon Color (Hex)"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "title",
         "label": "Resource Title"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subtitle",
         "label": "Subheading"
@@ -8211,6 +8217,10 @@
           {
             "name": "Variant 3",
             "value": "variant-3"
+          },
+          {
+            "name": "Variant 4",
+            "value": "variant-4"
           }
         ]
       }

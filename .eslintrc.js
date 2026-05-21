@@ -32,7 +32,7 @@ module.exports = {
       '*': 16,
       'news-article': 5,
       resources: 12,
-      'resource-item': 7,
+      'resource-item': 8,
       'resources-browser': 11,
       'resources-browser-item': 9,
       'mega-nav-row': 6,

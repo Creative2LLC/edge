@@ -365,15 +365,23 @@
 .text-image.block.text-image-variant-2 {
   border-radius: 0;
   overflow: visible;
+  height: auto;
+  min-height: 0;
+  max-height: none;
 }
 
 .text-image.block.text-image-variant-2 .text-image-inner {
   align-items: flex-start;
   height: auto;
+  min-height: 0;
+  max-height: none;
 }
 
 .text-image.block.text-image-variant-2 .text-image-content {
   padding: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
 }
 
 .text-image.block.text-image-variant-2 .text-image-subhead {
@@ -392,6 +400,35 @@
   max-width: 700px;
   font-size: 20px;
   font-weight: 500;
+}
+
+/* Prose paragraph spacing for variant 2: every paragraph / list / element
+   pair gets a consistent gap and the body grows freely with content,
+   instead of the base block's fixed 32px + first-child override which
+   produces uneven gaps between authored paragraphs. */
+.text-image.block.text-image-variant-2 .text-image-body,
+.text-image.block.text-image-variant-2 .text-image-body * {
+  max-height: none;
+  overflow: visible;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body > :first-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body > * + * {
+  margin-top: 1em;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body p,
+.text-image.block.text-image-variant-2 .text-image-body ul,
+.text-image.block.text-image-variant-2 .text-image-body ol {
+  margin: 0;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body p + p {
+  margin-top: 1em;
 }
 
 .text-image.block.text-image-variant-2 .text-image-media {
@@ -509,5 +546,96 @@
     left: 16px;
     max-width: min(280px, calc(100% - 32px));
     max-height: calc(100% - 32px);
+  }
+}
+
+/* ---------- Style Variant 4 ---------- */
+
+.text-image.block.text-image-variant-4 {
+  border-radius: 0;
+  overflow: visible;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-4 .text-image-inner {
+  align-items: flex-start;
+  gap: 48px;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-4 .text-image-content {
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-4 .text-image-subhead {
+  max-width: 662px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #404041;
+}
+
+.text-image.block.text-image-variant-4 .text-image-heading {
+  max-width: 662px;
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.text-image.block.text-image-variant-4 .text-image-body {
+  max-width: 662px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.text-image.block.text-image-variant-4 .text-image-body,
+.text-image.block.text-image-variant-4 .text-image-body * {
+  max-height: none;
+  overflow: visible;
+}
+
+.text-image.block.text-image-variant-4 .text-image-body > :first-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.text-image.block.text-image-variant-4 .text-image-body > * + * {
+  margin-top: 1em;
+}
+
+.text-image.block.text-image-variant-4 .text-image-media {
+  flex: 0 0 662px;
+  max-width: 662px;
+  height: 565px;
+}
+
+.text-image.block.text-image-variant-4 .text-image-media picture {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.text-image.block.text-image-variant-4 .text-image-media img {
+  border-radius: 14px;
+}
+
+@media (width <= 900px) {
+  .text-image.block.text-image-variant-4 .text-image-inner {
+    gap: 32px;
+  }
+
+  .text-image.block.text-image-variant-4 .text-image-content {
+    padding: 48px 24px;
+  }
+
+  .text-image.block.text-image-variant-4 .text-image-media {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
   }
 }

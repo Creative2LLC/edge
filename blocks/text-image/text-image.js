@@ -252,6 +252,8 @@ export default async function decorate(block) {
     block.classList.add('text-image-variant-2');
   } else if (styleVariantField.value === 'variant-3') {
     block.classList.add('text-image-variant-3');
+  } else if (styleVariantField.value === 'variant-4') {
+    block.classList.add('text-image-variant-4');
   } else if (styleVariantField.value === 'image-left') {
     block.classList.add('text-image-image-left');
   }
