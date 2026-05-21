@@ -12,6 +12,7 @@ import {
 const BLOCK_PROPS = [
   'heading',
   'subheading',
+  'headerMaxWidth',
   'button',
   'buttonLink',
   'settings',
@@ -424,6 +425,7 @@ export default async function decorate(block) {
   const config = {
     heading: readConfigField(configRows, 'heading', [0]),
     subheading: readConfigField(configRows, 'subheading', [1]),
+    headerMaxWidth: readConfigField(configRows, 'headerMaxWidth'),
     backgroundColor: readConfigField(configRows, 'backgroundColor', [2])
       || getSettingValue(settings, ['backgroundcolor', 'background-color']),
     buttonText: readConfigField(configRows, 'button', [3, 2]),
@@ -474,10 +476,16 @@ export default async function decorate(block) {
   const headerLeft = document.createElement('div');
   headerLeft.className = 'resources-header-left';
 
+  const headerMaxWidthPx = parseInt(config.headerMaxWidth, 10);
+  const headerMaxWidth = Number.isFinite(headerMaxWidthPx) && headerMaxWidthPx > 0
+    ? `${headerMaxWidthPx}px`
+    : '';
+
   if (config.heading) {
     const heading = document.createElement('h2');
     heading.className = 'resources-heading';
     heading.textContent = config.heading;
+    if (headerMaxWidth) heading.style.maxWidth = headerMaxWidth;
     headerLeft.append(heading);
   }
 
@@ -485,6 +493,7 @@ export default async function decorate(block) {
     const subheading = document.createElement('p');
     subheading.className = 'resources-subheading';
     subheading.textContent = config.subheading;
+    if (headerMaxWidth) subheading.style.maxWidth = headerMaxWidth;
     headerLeft.append(subheading);
   }
 

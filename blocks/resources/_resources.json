@@ -51,6 +51,12 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "headerMaxWidth",
+          "label": "Header Max Width (px)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "button",
           "label": "Button Text"
         },
