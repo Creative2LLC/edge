@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 import {
   readImageField,
   readLinkField,
@@ -122,7 +123,7 @@ function buildLeaderCard(leader) {
   if (leader.link) {
     const linkEl = document.createElement('a');
     linkEl.className = 'leadership-team-card-link';
-    linkEl.href = leader.link;
+    linkEl.href = resolveSiteHref(leader.link);
     linkEl.textContent = 'Read bio →';
     textWrap.appendChild(linkEl);
   }
