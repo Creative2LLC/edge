@@ -8211,6 +8211,10 @@
           {
             "name": "Variant 3",
             "value": "variant-3"
+          },
+          {
+            "name": "Variant 4",
+            "value": "variant-4"
           }
         ]
       }
