@@ -1,4 +1,5 @@
 const EDGE_CONTENT_PREFIX = '/content/edge';
+const SUPPORTED_LOCALE_PREFIXES = ['/es'];
 
 function isAuthorHost() {
   return window.location.hostname.includes('adobeaemcloud.com')
@@ -30,6 +31,39 @@ function withHtmlExtension(pathname) {
   return `${pathname}.html`;
 }
 
+function stripHtmlExtension(pathname) {
+  return pathname.replace(/\.html$/i, '');
+}
+
+function currentLocalePrefix() {
+  let pathname = stripHtmlExtension(window.location.pathname || '/');
+
+  if (pathname === EDGE_CONTENT_PREFIX || pathname.startsWith(`${EDGE_CONTENT_PREFIX}/`)) {
+    pathname = pathname.slice(EDGE_CONTENT_PREFIX.length) || '/';
+  }
+
+  return SUPPORTED_LOCALE_PREFIXES.find((locale) => (
+    pathname === locale || pathname.startsWith(`${locale}/`)
+  )) || '';
+}
+
+function applyCurrentLocale(pathname) {
+  const locale = currentLocalePrefix();
+  if (!locale) return pathname;
+
+  if (pathname === locale || pathname.startsWith(`${locale}/`)) return pathname;
+
+  if (pathname === EDGE_CONTENT_PREFIX) return `${EDGE_CONTENT_PREFIX}${locale}`;
+
+  if (pathname.startsWith(`${EDGE_CONTENT_PREFIX}/`)) {
+    const relativePath = pathname.slice(EDGE_CONTENT_PREFIX.length) || '/';
+    if (relativePath === locale || relativePath.startsWith(`${locale}/`)) return pathname;
+    return `${EDGE_CONTENT_PREFIX}${locale}${relativePath === '/' ? '' : relativePath}`;
+  }
+
+  return `${locale}${pathname === '/' ? '' : pathname}`;
+}
+
 export default function resolveSiteHref(value) {
   const raw = `${value || ''}`.trim();
   if (!raw || raw === '#') return raw || '#';
@@ -45,7 +79,7 @@ export default function resolveSiteHref(value) {
   if (!pathname.startsWith('/')) return raw;
   if (pathname.startsWith('/api/') || pathname.startsWith('/content/dam/')) return raw;
 
-  const cleanPath = pathname.replace(/\/+$/, '') || '/';
+  const cleanPath = applyCurrentLocale(pathname.replace(/\/+$/, '') || '/');
 
   if (isAuthorHost()) {
     if (cleanPath === EDGE_CONTENT_PREFIX || cleanPath.startsWith(`${EDGE_CONTENT_PREFIX}/`)) {
