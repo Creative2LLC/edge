@@ -131,6 +131,8 @@
   scroll-behavior: smooth;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  margin-right: -24px;
+  width: calc(100% + 24px + max(0px, (var(--numbered-cards-viewport-width) - 1420px) / 2));
   padding-right: 40px;
   box-sizing: border-box;
 }
