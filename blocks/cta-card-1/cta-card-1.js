@@ -41,9 +41,15 @@ export default function decorate(block) {
   const button2BackgroundColorField = getField(block, rows, 'button2BackgroundColor', 12);
   const button2LocationField = getField(block, rows, 'button2Location', 13);
   const belowButtonTextField = getField(block, rows, 'belowButtonText', 14);
+  const styleTypeField = getField(block, rows, 'styleType', 15);
   const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
   if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
   if (button2LocationField.source) button2LocationField.source.remove();
+
+  if (styleTypeField.value.toLowerCase() === 'variant-2') {
+    block.classList.add('cta-card-1-variant-2');
+  }
+  if (styleTypeField.source) styleTypeField.source.remove();
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';

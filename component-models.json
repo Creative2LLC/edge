@@ -2003,6 +2003,23 @@
         "valueType": "string",
         "name": "belowButtonText",
         "label": "Text Below Button"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "styleType",
+        "label": "Style Type",
+        "options": [
+          {
+            "name": "Variant 1 (default)",
+            "value": "variant-1"
+          },
+          {
+            "name": "Variant 2",
+            "value": "variant-2"
+          }
+        ],
+        "value": "variant-1"
       }
     ]
   },
