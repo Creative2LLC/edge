@@ -87,6 +87,7 @@ main > .section > .resources-wrapper {
   scrollbar-width: none;
   margin-right: -24px;
   width: calc(100% + 24px + max(0px, (var(--resources-viewport-width) - 1420px) / 2));
+  padding-bottom: 16px;
   box-sizing: border-box;
 }
 
@@ -102,6 +103,7 @@ main > .section > .resources-wrapper {
   display: flex;
   flex-direction: column;
   background: #fff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 8%);
 }
 
 /* Card image */
