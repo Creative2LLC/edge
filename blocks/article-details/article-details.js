@@ -517,8 +517,12 @@ function buildMeta(authorName, articleDate) {
   return meta;
 }
 
+function shouldTemporarilyHideHeaderImage() {
+  return typeof window !== 'undefined' && window.location.pathname.includes('/blog/');
+}
+
 function buildHero(fields) {
-  const image = fields.headerImage || fields.thumbnail;
+  const image = shouldTemporarilyHideHeaderImage() ? null : fields.headerImage || fields.thumbnail;
 
   const section = document.createElement('section');
   section.className = 'article-details-hero';

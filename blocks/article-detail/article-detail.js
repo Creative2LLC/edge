@@ -228,8 +228,12 @@ function buildMeta(article) {
   return meta;
 }
 
+function shouldTemporarilyHideHeaderImage() {
+  return typeof window !== 'undefined' && window.location.pathname.includes('/blog/');
+}
+
 function buildHero(article, config) {
-  const image = article.header_image || article.thumbnail;
+  const image = shouldTemporarilyHideHeaderImage() ? null : article.header_image || article.thumbnail;
 
   const section = document.createElement('section');
   section.className = 'article-detail-hero';
