@@ -133,6 +133,7 @@
 .cta-card-1.cta-card-1-variant-2.block {
   min-height: 0;
   height: 218px;
+  border-radius: 14px;
 }
 
 .cta-card-1.cta-card-1-variant-2 .cta-card-1-title {
