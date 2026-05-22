@@ -8,13 +8,19 @@
   margin: 0 auto;
 }
 
-/* Break out of the section wrapper's 24px inline padding so first/last cards
-   sit flush with the 1420px outer edges. Volunteer variant is a self-contained
-   framed card with its own padding, so it's excluded. Only at tablet+ widths
-   so mobile keeps breathing room from the screen edges. */
+/* Break out of the section wrapper's inline padding (24px at tablet, 32px at
+   desktop) so the block fills the full 1420px section width. Volunteer variant
+   is a self-contained framed card with its own padding, so it's excluded.
+   Mobile (<700px) keeps breathing room from the screen edges. */
 @media (width >= 700px) {
   .info-cards-grid.block:not(.info-cards-grid-volunteer) {
     margin-inline: -24px;
+  }
+}
+
+@media (width >= 900px) {
+  .info-cards-grid.block:not(.info-cards-grid-volunteer) {
+    margin-inline: -32px;
   }
 }
 

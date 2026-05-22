@@ -129,6 +129,42 @@
   margin-bottom: 0;
 }
 
+/* --- Style Type: Variant 2 --- */
+.cta-card-1.cta-card-1-variant-2.block {
+  min-height: 0;
+  height: 218px;
+  border-radius: 14px;
+}
+
+.cta-card-1.cta-card-1-variant-2 .cta-card-1-title {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  max-width: 905.36px;
+}
+
+.cta-card-1.cta-card-1-variant-2 .cta-card-1-subtitle {
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  max-width: 905.36px;
+}
+
+.cta-card-1.cta-card-1-variant-2 .cta-card-1-button {
+  width: auto;
+  height: auto;
+  padding: 14.55px 21.82px;
+  font-size: 18.18px;
+  font-weight: 600;
+}
+
+.cta-card-1.cta-card-1-variant-2 .cta-card-1-button.has-subtext {
+  padding: 14.55px 21.82px;
+}
+
+.cta-card-1.cta-card-1-variant-2 .cta-card-1-button-main {
+  font-size: 18.18px;
+  font-weight: 600;
+}
+
 /* --- Button 2 Location: Left variant --- */
 .cta-card-1.cta-card-1-button2-left.block {
   padding: 40px 64px;
