@@ -41,6 +41,12 @@
           "name": "search-placeholder",
           "label": "Search Placeholder",
           "value": "Search the site"
+        },
+        {
+          "component": "aem-content",
+          "name": "blog-newsletter-source-path",
+          "label": "Blog Newsletter Source Path",
+          "description": "Optional. Blog pages render Newsletter blocks from the first Newsletter block on this source page. Use local, none, off, or false to disable on a specific page."
         }
       ]
     }

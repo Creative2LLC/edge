@@ -1,4 +1,4 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import { createOptimizedPicture, getMetadata } from '../../scripts/aem.js';
 import {
   readImageField,
   readTextField,
@@ -27,6 +27,12 @@ const LEGACY_LABELS = {
 };
 
 const MESSAGE_KEYS = ['success', 'error'];
+const SHARED_NEWSLETTER_SOURCE_META = [
+  'blog-newsletter-source-path',
+  'newsletter-source-path',
+];
+const DISABLED_SHARED_SOURCE_VALUES = new Set(['false', 'local', 'none', 'off']);
+const sharedNewsletterCache = new Map();
 
 const DEFAULTS = {
   placeholder: 'Enter your email',
@@ -36,6 +42,105 @@ const DEFAULTS = {
   missingEndpointMessage: 'This form is not connected yet.',
   missingEndpointAuthorMessage: 'Add a submit endpoint URL to enable this form.',
 };
+
+function isBlogPage() {
+  const path = window.location.pathname;
+  const template = getMetadata('template').toLowerCase();
+  return path.includes('/blog/') || template.split(/\s*,\s*/).includes('blog');
+}
+
+function metadataValues(name) {
+  return getMetadata(name)
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function getSharedNewsletterSourcePath() {
+  if (!isBlogPage()) return '';
+
+  const values = SHARED_NEWSLETTER_SOURCE_META.flatMap((name) => metadataValues(name));
+  if (values.some((value) => DISABLED_SHARED_SOURCE_VALUES.has(value.toLowerCase()))) return '';
+
+  return values.find((value) => value) || '';
+}
+
+function normalizePagePath(value) {
+  if (!value) return '';
+  try {
+    const url = new URL(value, window.location.href);
+    return url.pathname
+      .replace(/(?:\.plain)?\.html$/i, '')
+      .replace(/\/+$/g, '');
+  } catch (e) {
+    return String(value)
+      .replace(/[?#].*$/g, '')
+      .replace(/(?:\.plain)?\.html$/i, '')
+      .replace(/\/+$/g, '');
+  }
+}
+
+function getPlainHtmlUrl(sourcePath) {
+  if (!sourcePath) return '';
+  const url = new URL(sourcePath, window.location.href);
+  url.hash = '';
+  url.search = '';
+  url.pathname = `${normalizePagePath(url.pathname)}.plain.html`;
+  return url.toString();
+}
+
+function stripAuthoringAttributes(root) {
+  [root, ...root.querySelectorAll('*')].forEach((element) => {
+    [...element.attributes].forEach(({ name }) => {
+      if (
+        name.startsWith('data-aue')
+        || name.startsWith('data-richtext')
+      ) {
+        element.removeAttribute(name);
+      }
+    });
+  });
+}
+
+async function fetchSharedNewsletterHtml(sourcePath) {
+  const sourceUrl = getPlainHtmlUrl(sourcePath);
+  if (!sourceUrl) return '';
+
+  if (!sharedNewsletterCache.has(sourceUrl)) {
+    sharedNewsletterCache.set(sourceUrl, fetch(sourceUrl, {
+      headers: { Accept: 'text/html' },
+    })
+      .then(async (response) => {
+        if (!response.ok) return '';
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const sourceBlock = doc.querySelector('.newsletter');
+        if (!sourceBlock) return '';
+
+        stripAuthoringAttributes(sourceBlock);
+        return sourceBlock.innerHTML;
+      })
+      .catch(() => ''));
+  }
+
+  return sharedNewsletterCache.get(sourceUrl);
+}
+
+async function applySharedNewsletterContent(block) {
+  const sourcePath = getSharedNewsletterSourcePath();
+  if (!sourcePath) return false;
+
+  if (normalizePagePath(sourcePath) === normalizePagePath(window.location.pathname)) {
+    return false;
+  }
+
+  const html = await fetchSharedNewsletterHtml(sourcePath);
+  if (!html) return false;
+
+  block.innerHTML = html;
+  block.dataset.newsletterSourcePath = normalizePagePath(sourcePath);
+  return true;
+}
 
 function collectLegacyFields(block) {
   const map = {};
@@ -306,7 +411,9 @@ function bindInputSubmit(block, form, submitButton, status, config) {
   });
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
+  await applySharedNewsletterContent(block);
+
   const legacyMap = collectLegacyFields(block);
   const isAuthoring = hasAuthoringContext(block);
   const contentValues = getParagraphValues(getContentCell(block));
