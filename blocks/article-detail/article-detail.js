@@ -233,7 +233,9 @@ function shouldTemporarilyHideHeaderImage() {
 }
 
 function buildHero(article, config) {
-  const image = shouldTemporarilyHideHeaderImage() ? null : article.header_image || article.thumbnail;
+  const image = shouldTemporarilyHideHeaderImage()
+    ? null
+    : article.header_image || article.thumbnail;
 
   const section = document.createElement('section');
   section.className = 'article-detail-hero';
