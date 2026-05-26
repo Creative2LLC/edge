@@ -97,6 +97,12 @@
           "label": "Button 2 Background Color (Hex)"
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Subtext",
+          "label": "Button 2 Subtext (Optional)"
+        },
+        {
           "component": "select",
           "valueType": "string",
           "name": "button2Location",
@@ -132,6 +138,10 @@
             {
               "name": "Variant 2",
               "value": "variant-2"
+            },
+            {
+              "name": "Variant 3",
+              "value": "variant-3"
             }
           ],
           "value": "variant-1"
