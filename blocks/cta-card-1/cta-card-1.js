@@ -142,7 +142,10 @@ export default function decorate(block) {
 
     const btn2Color = button2ColorField.value;
     if (btn2Color) {
-      btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
+      // Variant 3 renders this button solid (no outline); other variants keep the border.
+      if (styleType !== 'variant-3') {
+        btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
+      }
       btn2.style.setProperty('color', btn2Color, 'important');
     }
     const btn2BgColor = button2BackgroundColorField.value;
