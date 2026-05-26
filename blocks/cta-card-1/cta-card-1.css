@@ -165,40 +165,6 @@
   font-weight: 600;
 }
 
-/* --- Style Type: Variant 3 --- */
-/* Left side: title shares the same 554px cap as the subtitle. */
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-title {
-  max-width: 554px;
-}
-
-/* Right side stacking order: top button -> below-button text -> second button.
-   JS appends them as button -> button2 -> below-text, so flex order reflows. */
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) {
-  order: 1;
-}
-
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-below-button {
-  order: 2;
-}
-
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button-secondary {
-  order: 3;
-}
-
-/* Top button: larger 25px label, smaller 20px/30px padding. */
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary),
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary).has-subtext {
-  height: auto;
-  padding: 20px 30px;
-  font-size: 25px;
-  font-weight: 600;
-}
-
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) .cta-card-1-button-main {
-  font-size: 25px;
-  font-weight: 600;
-}
-
 /* --- Button 2 Location: Left variant --- */
 .cta-card-1.cta-card-1-button2-left.block {
   padding: 40px 64px;
@@ -266,6 +232,41 @@
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-right.cta-card-1-right-inline .cta-card-1-below-button {
   align-self: center;
+}
+
+/* --- Style Type: Variant 3 --- */
+
+/* Left side: title shares the same 554px cap as the subtitle. */
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-title {
+  max-width: 554px;
+}
+
+/* Right side stacking order: top button -> below-button text -> second button.
+   JS appends them as button -> button2 -> below-text, so flex order reflows. */
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) {
+  order: 1;
+}
+
+.cta-card-1.cta-card-1-variant-3.block .cta-card-1-right .cta-card-1-below-button {
+  order: 2;
+}
+
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button-secondary {
+  order: 3;
+}
+
+/* Top button: larger 25px label, smaller 20px/30px padding. */
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary),
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary).has-subtext {
+  height: auto;
+  padding: 20px 30px;
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) .cta-card-1-button-main {
+  font-size: 25px;
+  font-weight: 600;
 }
 
 /* Responsive */
