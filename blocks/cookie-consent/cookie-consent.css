@@ -11,7 +11,7 @@
 
 .cookie-consent-panel {
   box-sizing: border-box;
-  width: min(760px, 100%);
+  width: 100%;
   border: 1px solid rgb(18 41 62 / 14%);
   border-radius: 8px;
   padding: 20px;
