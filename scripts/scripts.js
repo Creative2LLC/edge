@@ -2,6 +2,7 @@ import {
   loadHeader,
   loadFooter,
   loadGetHelp,
+  loadCookieConsent,
   decorateButtons,
   decorateIcons,
   decorateSections,
@@ -546,6 +547,14 @@ async function loadLazy(doc) {
       doc.body.append(getHelpHost);
     }
     loadGetHelp(getHelpHost);
+
+    let cookieConsentHost = doc.querySelector('.cookie-consent-host');
+    if (!cookieConsentHost) {
+      cookieConsentHost = doc.createElement('div');
+      cookieConsentHost.className = 'cookie-consent-host';
+      doc.body.append(cookieConsentHost);
+    }
+    loadCookieConsent(cookieConsentHost);
   }
 
   await loadSections(main);

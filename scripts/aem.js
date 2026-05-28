@@ -946,6 +946,18 @@ async function loadGetHelp(host) {
 }
 
 /**
+ * Loads a block named 'cookie-consent' into a host element
+ * @param {Element} host host element
+ * @returns {Promise}
+ */
+async function loadCookieConsent(host) {
+  const cookieConsentBlock = buildBlock('cookie-consent', '');
+  host.append(cookieConsentBlock);
+  decorateBlock(cookieConsentBlock);
+  return loadBlock(cookieConsentBlock);
+}
+
+/**
  * Wait for Image.
  * @param {Element} section section element
  */
@@ -1011,6 +1023,7 @@ export {
   decorateTemplateAndTheme,
   getMetadata,
   loadBlock,
+  loadCookieConsent,
   loadCSS,
   loadFooter,
   loadGetHelp,
