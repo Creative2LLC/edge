@@ -309,6 +309,9 @@ function buildPlaceholder() {
 }
 
 export default async function decorate(block) {
+  block.classList.add('no-scroll-reveal', 'is-visible');
+  block.classList.remove('scroll-reveal');
+
   const originalBlock = block.cloneNode(true);
   const originalTitleField = getTextField(originalBlock, 'title');
   const originalBodyField = getRichField(originalBlock, 'body');
