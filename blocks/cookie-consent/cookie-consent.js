@@ -6,8 +6,10 @@ const DEFAULT_CONFIG = Object.freeze({
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/cookie-consent',
   policyVersion: '2026-05-28',
-  privacyPolicyUrl: 'https://www.missingkids.org/footer/privacy-policy',
+  privacyPolicyUrl: '',
 });
+const DEFAULT_PRIVACY_POLICY_AUTHOR_PATH = '/content/edge/footer/privacypolicy.html';
+const DEFAULT_PRIVACY_POLICY_LIVE_PATH = '/footer/privacypolicy';
 const DISABLED_VALUES = new Set(['0', 'false', 'no', 'off', 'disabled']);
 
 function compactConfig(config = {}) {
@@ -19,6 +21,12 @@ function compactConfig(config = {}) {
 function normalizeApiBaseUrl(value = '') {
   const normalized = `${value || ''}`.trim().replace(/\/+$/, '');
   return /^https?:\/\//i.test(normalized) ? normalized : '';
+}
+
+function getDefaultPrivacyPolicyUrl() {
+  return window.location.pathname.startsWith('/content/edge/')
+    ? DEFAULT_PRIVACY_POLICY_AUTHOR_PATH
+    : DEFAULT_PRIVACY_POLICY_LIVE_PATH;
 }
 
 function readJsonStorage(key) {
@@ -90,7 +98,7 @@ function resolveConfig() {
     apiBaseUrl: normalizeApiBaseUrl(merged.apiBaseUrl),
     endpointPath: merged.endpointPath || DEFAULT_CONFIG.endpointPath,
     policyVersion: `${merged.policyVersion || DEFAULT_CONFIG.policyVersion}`.trim(),
-    privacyPolicyUrl: `${merged.privacyPolicyUrl || DEFAULT_CONFIG.privacyPolicyUrl}`.trim(),
+    privacyPolicyUrl: `${merged.privacyPolicyUrl || getDefaultPrivacyPolicyUrl()}`.trim(),
     enabled: !DISABLED_VALUES.has(enabledValue),
   };
 }
@@ -179,8 +187,10 @@ function buildPolicyText(config) {
 
   const link = createElement('a', '', 'Privacy Policy');
   link.href = config.privacyPolicyUrl;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
+  if (/^https?:\/\//i.test(config.privacyPolicyUrl)) {
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
   text.append(link, '.');
 
   return text;
