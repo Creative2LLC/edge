@@ -24,7 +24,7 @@
 /* Right: content */
 .amber-alert-info .amber-alert-info-content {
   flex: 1;
-  background-color: #e13e30;
+  background-color: var(--amber-alert-info-bg, #e13e30);
   color: #fff;
   padding: 64px;
   display: flex;
