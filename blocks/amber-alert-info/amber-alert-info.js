@@ -2,6 +2,7 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
@@ -13,14 +14,16 @@ export default function decorate(block) {
   const iconPicture = iconField.picture || allPictures.find((p) => p !== mainPicture) || null;
 
   const mainImageAlt = readTextField(block, 'mainImageAlt', 1).value;
-  const title = readTextField(block, 'title', 3).value;
-  const subtitle = readTextField(block, 'subtitle', 4).value;
+  const titleField = readRichTextField(block, 'title', 3);
+  const subtitleField = readRichTextField(block, 'subtitle', 4);
   const buttonText = readTextField(block, 'buttonText', 5).value;
   const buttonLink = readLinkField(block, 'buttonLink', 6).value;
   const stat1Number = readTextField(block, 'stat1Number', 7).value;
   const stat1Text = readTextField(block, 'stat1Text', 8).value;
   const stat2Number = readTextField(block, 'stat2Number', 9).value;
   const stat2Text = readTextField(block, 'stat2Text', 10).value;
+  const backgroundColor = readTextField(block, 'backgroundColor', 11).value;
+  const buttonStyle = readTextField(block, 'buttonStyle', 12).value || 'solid';
 
   const container = document.createElement('div');
   container.className = 'amber-alert-info-container';
@@ -45,6 +48,9 @@ export default function decorate(block) {
   // Right: content
   const contentSection = document.createElement('div');
   contentSection.className = 'amber-alert-info-content';
+  if (backgroundColor) {
+    contentSection.style.backgroundColor = backgroundColor;
+  }
 
   // Left column of right side
   const mainCol = document.createElement('div');
@@ -54,31 +60,31 @@ export default function decorate(block) {
     const iconImg = iconPicture.querySelector('img');
     const iconSrc = iconImg?.src || '';
     if (iconSrc) {
-      const iconWrap = document.createElement('div');
-      iconWrap.className = 'amber-alert-info-icon';
-      iconWrap.style.maskImage = `url(${iconSrc})`;
-      iconWrap.style.webkitMaskImage = `url(${iconSrc})`;
-      mainCol.appendChild(iconWrap);
+      const icon = document.createElement('img');
+      icon.className = 'amber-alert-info-icon';
+      icon.src = iconSrc;
+      icon.alt = iconImg.alt || '';
+      mainCol.appendChild(icon);
     }
   }
 
-  if (title) {
+  if (titleField.html || titleField.text) {
     const h2 = document.createElement('h2');
     h2.className = 'amber-alert-info-title';
-    h2.textContent = title;
+    h2.innerHTML = titleField.html || titleField.text;
     mainCol.appendChild(h2);
   }
 
-  if (subtitle) {
-    const p = document.createElement('p');
-    p.className = 'amber-alert-info-subtitle';
-    p.textContent = subtitle;
-    mainCol.appendChild(p);
+  if (subtitleField.html || subtitleField.text) {
+    const subtitle = document.createElement('div');
+    subtitle.className = 'amber-alert-info-subtitle';
+    subtitle.innerHTML = subtitleField.html || subtitleField.text;
+    mainCol.appendChild(subtitle);
   }
 
   if (buttonText) {
     const button = document.createElement(buttonLink ? 'a' : 'span');
-    button.className = 'amber-alert-info-button';
+    button.className = `amber-alert-info-button amber-alert-info-button-${buttonStyle}`;
     if (buttonLink) button.href = buttonLink;
     button.textContent = buttonText;
     mainCol.appendChild(button);
