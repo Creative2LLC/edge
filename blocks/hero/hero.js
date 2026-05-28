@@ -2,12 +2,24 @@ import { moveAttributes } from '../../scripts/scripts.js';
 import {
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
 const IMAGE_EXT_RE = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?(#.*)?$/i;
 const AEM_PUBLISH_ASSET_ORIGIN = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+const HERO_RESOURCE_FIELD_NAMES = [
+  'content_text',
+  'text',
+  'content_textColor',
+  'text_color',
+  'content_textHtml',
+  'text_html',
+  'content_textHtmlClass',
+  'textHtmlClass',
+];
+const resourceDataCache = new Map();
 
 const HERO_FIELD_INDEX = {
   variant: 0,
@@ -75,6 +87,122 @@ function getBlockResourcePath(block) {
   return resourcePathFromUrn(resource);
 }
 
+function getParentResourcePath(resourcePath) {
+  if (!resourcePath) return '';
+  const segments = resourcePath.replace(/\/+$/g, '').split('/');
+  if (segments.length <= 1) return '';
+  segments.pop();
+  return segments.join('/');
+}
+
+function getCandidateResourcePaths(block) {
+  const pagePath = window.location.pathname
+    .replace(/\.html$/i, '')
+    .replace(/\/+$/g, '');
+  const resources = [
+    block.getAttribute('data-aue-resource') || '',
+    ...[...block.querySelectorAll('[data-aue-resource]')]
+      .map((node) => node.getAttribute('data-aue-resource') || ''),
+  ];
+  const paths = resources
+    .map(resourcePathFromUrn)
+    .filter(Boolean)
+    .flatMap((resourcePath) => [resourcePath, getParentResourcePath(resourcePath)])
+    .filter(Boolean);
+
+  if (pagePath) {
+    paths.push(pagePath, `${pagePath}.model`);
+  }
+
+  return [...new Set(paths.map((path) => path.replace(/\.html$/i, '')))];
+}
+
+async function fetchResourceData(resourcePath) {
+  if (!resourcePath) return {};
+  if (resourceDataCache.has(resourcePath)) return resourceDataCache.get(resourcePath);
+
+  const pendingData = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return {};
+      return response.json();
+    })
+    .catch(() => ({}));
+
+  resourceDataCache.set(resourcePath, pendingData);
+  return pendingData;
+}
+
+function normalizeResourceValue(value) {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'string') return value.trim();
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeResourceValue(entry)).filter(Boolean).join('\n');
+  }
+  if (typeof value === 'object') {
+    return String(
+      value.html
+        || value.value
+        || value.text
+        || value.markup
+        || value.content
+        || value.richText
+        || '',
+    ).trim();
+  }
+  return String(value).trim();
+}
+
+function findResourceFieldValue(data, names, depth = 0) {
+  if (!data || typeof data !== 'object' || depth > 4) return '';
+
+  const fieldNames = Array.isArray(names) ? names : [names];
+  for (let i = 0; i < fieldNames.length; i += 1) {
+    const direct = normalizeResourceValue(data[fieldNames[i]]);
+    if (direct) return direct;
+  }
+
+  const containers = [
+    data.properties,
+    data.fields,
+    data.model,
+    data.data,
+    data.elements,
+  ];
+
+  for (let i = 0; i < containers.length; i += 1) {
+    for (let j = 0; j < fieldNames.length; j += 1) {
+      const value = normalizeResourceValue(containers[i]?.[fieldNames[j]]);
+      if (value) return value;
+    }
+  }
+
+  const entries = Object.values(data);
+  for (let i = 0; i < entries.length; i += 1) {
+    const value = findResourceFieldValue(entries[i], fieldNames, depth + 1);
+    if (value) return value;
+  }
+
+  return '';
+}
+
+function dataHasHeroFields(data) {
+  return HERO_RESOURCE_FIELD_NAMES.some((fieldName) => findResourceFieldValue(data, fieldName));
+}
+
+async function getHeroResourceData(block) {
+  const resourcePaths = getCandidateResourcePaths(block);
+  let fallbackData = null;
+
+  for (let i = 0; i < resourcePaths.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    const data = await fetchResourceData(resourcePaths[i]);
+    if (!fallbackData && data) fallbackData = data;
+    if (dataHasHeroFields(data)) return data;
+  }
+
+  return fallbackData || {};
+}
+
 function normalizeVideoFieldValue(value) {
   if (!value) return '';
   if (typeof value === 'string') return value.trim();
@@ -117,8 +245,12 @@ function isAemPageHost(hostname = window.location.hostname) {
   return hostname.endsWith('.aem.page') || hostname.endsWith('.aem.live');
 }
 
+function isAemAuthorHost(hostname = window.location.hostname) {
+  return hostname.includes('adobeaemcloud.com');
+}
+
 function getAssetOrigin() {
-  if (window.location.hostname.includes('adobeaemcloud.com')) {
+  if (isAemAuthorHost()) {
     return window.location.origin;
   }
   return AEM_PUBLISH_ASSET_ORIGIN;
@@ -278,6 +410,64 @@ function moveFieldBinding(from, to) {
   );
 }
 
+function hasRenderableContent(element) {
+  if (!element) return false;
+  if (element.textContent.trim()) return true;
+  return Boolean(element.querySelector?.('img, picture, video, table, ul, ol, iframe, br'));
+}
+
+function hasRichFieldContent(field) {
+  return Boolean(field?.html || field?.text || hasRenderableContent(field?.source || field?.cell));
+}
+
+function getFieldHtml(field) {
+  return (field?.html || field?.cell?.innerHTML || field?.source?.innerHTML || '').trim();
+}
+
+function appendHtmlValue(value, target) {
+  const html = normalizeResourceValue(value);
+  if (!html) return;
+  target.innerHTML = html;
+}
+
+function moveRichField(field, target, fallbackHtml = '') {
+  if (field.source) {
+    moveFieldBinding(field.source, target);
+    while (field.source.firstChild) {
+      target.append(field.source.firstChild);
+    }
+    if (!hasRenderableContent(target) && fallbackHtml) {
+      appendHtmlValue(fallbackHtml, target);
+    }
+    return;
+  }
+
+  appendHtmlValue(field.html || fallbackHtml, target);
+}
+
+function normalizeMainRichTextStructure(richText) {
+  if (!richText || richText.querySelector('h1, h2, h3, h4, h5, h6')) return;
+
+  const firstContentNode = [...richText.childNodes].find((node) => (
+    node.nodeType === Node.TEXT_NODE ? node.textContent.trim() : hasRenderableContent(node)
+  ));
+  if (!firstContentNode) return;
+
+  if (firstContentNode.nodeType === Node.TEXT_NODE) {
+    const heading = document.createElement('h1');
+    heading.textContent = firstContentNode.textContent.trim();
+    firstContentNode.replaceWith(heading);
+    return;
+  }
+
+  if (firstContentNode.tagName === 'P') {
+    const heading = document.createElement('h1');
+    [...firstContentNode.attributes].forEach((attr) => heading.setAttribute(attr.name, attr.value));
+    while (firstContentNode.firstChild) heading.append(firstContentNode.firstChild);
+    firstContentNode.replaceWith(heading);
+  }
+}
+
 function getLinkFieldValue(block, name) {
   const textField = getFieldValue(block, name);
   const linkField = readLinkField(block, name);
@@ -306,21 +496,21 @@ function getDirectRow(block, element) {
   return null;
 }
 
-function buildHtmlText(block) {
-  const { source } = getFieldValue(block, ['content_textHtml', 'text_html']);
-  if (!source) return null;
+function buildHtmlText(block, fallbackHtml = '', fallbackClass = '') {
+  const field = readRichTextField(block, ['content_textHtml', 'text_html']);
+  const hasField = hasRichFieldContent(field);
+  if (!hasField && !fallbackHtml) return null;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'hero-text-html';
-  moveFieldBinding(source, wrapper);
-  while (source.firstChild) {
-    wrapper.append(source.firstChild);
-  }
-  if (!wrapper.textContent.trim()) return null;
+  if (hasField) moveRichField(field, wrapper, fallbackHtml);
+  else appendHtmlValue(fallbackHtml, wrapper);
+  if (!hasRenderableContent(wrapper)) return null;
 
   const { value: classValue } = getFieldValue(block, ['content_textHtmlClass', 'textHtmlClass']);
-  if (classValue) {
-    const classes = classValue.split(/\s+/).filter(Boolean);
+  const resolvedClassValue = classValue || fallbackClass;
+  if (resolvedClassValue) {
+    const classes = resolvedClassValue.split(/\s+/).filter(Boolean);
     if (classes.length) wrapper.classList.add(...classes);
   }
   return wrapper;
@@ -335,9 +525,9 @@ function normalizeHexColor(value) {
   return null;
 }
 
-function readTextColor(block) {
+function readTextColor(block, fallbackValue = '') {
   const rowsToRemove = [];
-  let rawValue = null;
+  let rawValue = fallbackValue || null;
 
   const textColorField = getFieldValue(block, ['content_textColor', 'text_color']);
   const instrumented = textColorField.source;
@@ -362,7 +552,7 @@ function readTextColor(block) {
   }
 
   rowsToRemove.forEach((row) => row.remove());
-  return normalizeHexColor(rawValue);
+  return normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue);
 }
 
 function readHeight(block) {
@@ -612,16 +802,16 @@ function applyAccentBrackets(richText) {
   if (replaced !== original) richText.innerHTML = replaced;
 }
 
-function buildMainRichText(block) {
-  const { source } = readTextField(block, ['content_text', 'text']);
-  if (source) {
+function buildMainRichText(block, fallbackHtml = '') {
+  const field = readRichTextField(block, ['content_text', 'text']);
+  const hasField = hasRichFieldContent(field);
+  if (hasField || fallbackHtml) {
     const richText = document.createElement('div');
     richText.className = 'hero-richtext';
-    moveFieldBinding(source, richText);
-    while (source.firstChild) {
-      richText.append(source.firstChild);
-    }
-    if (!richText.textContent.trim()) return null;
+    if (hasField) moveRichField(field, richText, fallbackHtml);
+    else appendHtmlValue(fallbackHtml, richText);
+    normalizeMainRichTextStructure(richText);
+    if (!hasRenderableContent(richText)) return null;
     return richText;
   }
 
@@ -649,7 +839,8 @@ function buildMainRichText(block) {
       return true;
     });
   fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
-  if (!fallback.textContent.trim()) return null;
+  normalizeMainRichTextStructure(fallback);
+  if (!hasRenderableContent(fallback)) return null;
   return fallback;
 }
 
@@ -1009,6 +1200,21 @@ function readOverlayOpacity(block) {
 }
 
 export default async function decorate(block) {
+  block.classList.add('no-scroll-reveal', 'is-visible');
+  block.classList.remove('scroll-reveal');
+  if (isAemAuthorHost()) block.classList.add('hero-authoring');
+
+  const originalBlock = block.cloneNode(true);
+  const originalRichText = getFieldHtml(readRichTextField(originalBlock, ['content_text', 'text']));
+  const originalHtmlText = getFieldHtml(readRichTextField(originalBlock, ['content_textHtml', 'text_html']));
+  const resourceData = await getHeroResourceData(block);
+  const resourceRichText = findResourceFieldValue(resourceData, ['content_text', 'text']) || originalRichText;
+  const resourceHtmlText = findResourceFieldValue(resourceData, ['content_textHtml', 'text_html']) || originalHtmlText;
+  const resourceHtmlTextClass = findResourceFieldValue(
+    resourceData,
+    ['content_textHtmlClass', 'textHtmlClass'],
+  );
+
   const variant = normalizeChoice(
     getFieldValue(block, ['variant']).value,
     ['default', 'homepage'],
@@ -1044,7 +1250,10 @@ export default async function decorate(block) {
   block.classList.remove('hero-pos-left', 'hero-pos-center', 'hero-pos-right');
   block.classList.add(`hero-pos-${contentPosition}`);
 
-  const textColor = readTextColor(block);
+  const textColor = readTextColor(
+    block,
+    findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
+  );
   const picture = extractPicture(block);
   const featuredImage = extractFeaturedPicture(block, picture ? [picture] : []);
   const { url: videoUrl, source: videoSource } = await extractVideoUrl(block);
@@ -1066,11 +1275,11 @@ export default async function decorate(block) {
     );
   }
   const breadcrumb = await buildBreadcrumbs(block);
-  const richText = buildMainRichText(block);
+  const richText = buildMainRichText(block, resourceRichText);
   if (richText) {
     applyAccentBrackets(richText);
   }
-  const htmlText = buildHtmlText(block);
+  const htmlText = buildHtmlText(block, resourceHtmlText, resourceHtmlTextClass);
   const actions = buildActions(block);
   const sidePanel = buildSidePanel(block);
 

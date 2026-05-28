@@ -433,6 +433,12 @@
   padding-bottom: clamp(160px, 18vw, 240px);
 }
 
+.hero.hero-authoring.hero-variant-homepage {
+  align-items: center;
+  min-height: min(var(--hero-height, 760px), 760px);
+  padding-bottom: clamp(64px, 8vw, 96px);
+}
+
 .hero .hero-richtext .hero-accent {
   color: #008eb7;
 }
@@ -634,6 +640,5 @@
     font-size: 12px;
   }
 }
-
 
 
