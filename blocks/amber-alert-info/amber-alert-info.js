@@ -22,7 +22,7 @@ export default function decorate(block) {
   const stat1Text = readTextField(block, 'stat1Text', 8).value;
   const stat2Number = readTextField(block, 'stat2Number', 9).value;
   const stat2Text = readTextField(block, 'stat2Text', 10).value;
-  const backgroundColor = readTextField(block, 'backgroundColor', 11).value;
+  const backgroundColor = readTextField(block, 'backgroundColor', 11).value.trim();
   const buttonStyle = readTextField(block, 'buttonStyle', 12).value || 'solid';
 
   const container = document.createElement('div');
@@ -49,7 +49,7 @@ export default function decorate(block) {
   const contentSection = document.createElement('div');
   contentSection.className = 'amber-alert-info-content';
   if (backgroundColor) {
-    contentSection.style.backgroundColor = backgroundColor;
+    contentSection.style.setProperty('background-color', backgroundColor, 'important');
   }
 
   // Left column of right side
