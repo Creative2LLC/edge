@@ -1,10 +1,25 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
+  getBlockRows,
   readImageField,
   readLinkField,
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+
+const HEX_RE = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+
+function findHexAcrossRows(block) {
+  const rows = getBlockRows(block);
+  for (let i = rows.length - 1; i >= 0; i -= 1) {
+    const cell = rows[i]?.children?.[0];
+    if (!cell) continue;
+    if (cell.querySelector?.('picture, img, a')) continue;
+    const text = cell.textContent?.trim() || '';
+    if (HEX_RE.test(text)) return text.startsWith('#') ? text : `#${text}`;
+  }
+  return '';
+}
 
 export default function decorate(block) {
   const allPictures = [...block.querySelectorAll('picture')];
@@ -23,8 +38,8 @@ export default function decorate(block) {
   const stat2Number = readTextField(block, 'stat2Number', 9).value;
   const stat2Text = readTextField(block, 'stat2Text', 10).value;
   const rawBg = readTextField(block, 'backgroundColor', 11).value.trim();
-  const hexMatch = rawBg.match(/#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/);
-  const backgroundColor = hexMatch ? `#${hexMatch[1]}` : '';
+  const directHex = HEX_RE.test(rawBg) ? (rawBg.startsWith('#') ? rawBg : `#${rawBg}`) : '';
+  const backgroundColor = directHex || findHexAcrossRows(block);
   const buttonStyle = readTextField(block, 'buttonStyle', 12).value || 'solid';
 
   const container = document.createElement('div');
@@ -50,8 +65,10 @@ export default function decorate(block) {
   // Right: content
   const contentSection = document.createElement('div');
   contentSection.className = 'amber-alert-info-content';
+  block.dataset.bgRead = rawBg || '(empty)';
+  block.dataset.bgApplied = backgroundColor || '(none)';
   if (backgroundColor) {
-    block.style.setProperty('--amber-alert-info-bg', backgroundColor);
+    contentSection.style.setProperty('--amber-alert-info-bg', backgroundColor);
     contentSection.style.setProperty('background-color', backgroundColor, 'important');
   }
 
