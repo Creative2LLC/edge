@@ -9,14 +9,19 @@ import {
 
 const HEX_RE = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 
+function normalizeHex(text) {
+  if (!HEX_RE.test(text)) return '';
+  return text.startsWith('#') ? text : `#${text}`;
+}
+
 function findHexAcrossRows(block) {
   const rows = getBlockRows(block);
   for (let i = rows.length - 1; i >= 0; i -= 1) {
     const cell = rows[i]?.children?.[0];
-    if (!cell) continue;
-    if (cell.querySelector?.('picture, img, a')) continue;
-    const text = cell.textContent?.trim() || '';
-    if (HEX_RE.test(text)) return text.startsWith('#') ? text : `#${text}`;
+    if (cell && !cell.querySelector?.('picture, img, a')) {
+      const hex = normalizeHex(cell.textContent?.trim() || '');
+      if (hex) return hex;
+    }
   }
   return '';
 }
@@ -38,8 +43,7 @@ export default function decorate(block) {
   const stat2Number = readTextField(block, 'stat2Number', 9).value;
   const stat2Text = readTextField(block, 'stat2Text', 10).value;
   const rawBg = readTextField(block, 'backgroundColor', 11).value.trim();
-  const directHex = HEX_RE.test(rawBg) ? (rawBg.startsWith('#') ? rawBg : `#${rawBg}`) : '';
-  const backgroundColor = directHex || findHexAcrossRows(block);
+  const backgroundColor = normalizeHex(rawBg) || findHexAcrossRows(block);
   const buttonStyle = readTextField(block, 'buttonStyle', 12).value || 'solid';
 
   const container = document.createElement('div');
