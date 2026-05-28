@@ -10,6 +10,14 @@ const FIELD_INDEX = {
   contentWidth: 5,
 };
 
+const RESOURCE_FIELD_NAMES = [
+  'title',
+  'body',
+  'topMargin',
+  'topPadding',
+  'bottomPadding',
+  'contentWidth',
+];
 const resourceDataCache = new Map();
 
 function getRows(block) {
@@ -64,16 +72,30 @@ function resourcePathFromUrn(resource) {
   return match ? match[1] : '';
 }
 
-function getBlockResourcePath(block) {
-  const resource = block.getAttribute('data-aue-resource')
-    || block.querySelector('[data-aue-resource]')?.getAttribute('data-aue-resource')
-    || '';
-
-  return resourcePathFromUrn(resource);
+function getParentResourcePath(resourcePath) {
+  if (!resourcePath) return '';
+  const segments = resourcePath.replace(/\/+$/g, '').split('/');
+  if (segments.length <= 1) return '';
+  segments.pop();
+  return segments.join('/');
 }
 
-async function getResourceData(block) {
-  const resourcePath = getBlockResourcePath(block);
+function getCandidateResourcePaths(block) {
+  const resources = [
+    block.getAttribute('data-aue-resource') || '',
+    ...[...block.querySelectorAll('[data-aue-resource]')]
+      .map((node) => node.getAttribute('data-aue-resource') || ''),
+  ];
+  const paths = resources
+    .map(resourcePathFromUrn)
+    .filter(Boolean)
+    .flatMap((resourcePath) => [resourcePath, getParentResourcePath(resourcePath)])
+    .filter(Boolean);
+
+  return [...new Set(paths)];
+}
+
+async function fetchResourceData(resourcePath) {
   if (!resourcePath) return {};
   if (resourceDataCache.has(resourcePath)) return resourceDataCache.get(resourcePath);
 
@@ -91,10 +113,77 @@ async function getResourceData(block) {
 function normalizeResourceValue(value) {
   if (value === undefined || value === null) return '';
   if (typeof value === 'string') return value.trim();
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeResourceValue(entry)).filter(Boolean).join('\n');
+  }
   if (typeof value === 'object') {
-    return String(value.html || value.value || value.text || '').trim();
+    return String(
+      value.html
+        || value.value
+        || value.text
+        || value.markup
+        || value.content
+        || value.richText
+        || '',
+    ).trim();
   }
   return String(value).trim();
+}
+
+function findResourceFieldValue(data, name, depth = 0) {
+  if (!data || typeof data !== 'object' || depth > 4) return '';
+
+  const direct = normalizeResourceValue(data[name]);
+  if (direct) return direct;
+
+  const containers = [
+    data.properties,
+    data.fields,
+    data.model,
+    data.data,
+    data.elements,
+  ];
+
+  for (let i = 0; i < containers.length; i += 1) {
+    const value = normalizeResourceValue(containers[i]?.[name]);
+    if (value) return value;
+  }
+
+  const entries = Object.values(data);
+  for (let i = 0; i < entries.length; i += 1) {
+    const value = findResourceFieldValue(entries[i], name, depth + 1);
+    if (value) return value;
+  }
+
+  return '';
+}
+
+function dataHasTermsFields(data) {
+  return RESOURCE_FIELD_NAMES.some((fieldName) => findResourceFieldValue(data, fieldName));
+}
+
+async function getResourceData(block) {
+  const resourcePaths = getCandidateResourcePaths(block);
+  let fallbackData = null;
+
+  for (let i = 0; i < resourcePaths.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    const data = await fetchResourceData(resourcePaths[i]);
+    if (!fallbackData && data) fallbackData = data;
+    if (dataHasTermsFields(data)) return data;
+  }
+
+  return fallbackData || {};
+}
+
+function hasRenderableContent(element) {
+  if (!element) return false;
+  if (element.textContent.trim()) return true;
+  return Boolean(element.querySelector('img, picture, video, table, ul, ol, iframe, br'));
+}
+
+function hasFieldContent(field) {
+  return Boolean(field?.html || field?.text || hasRenderableContent(field?.source || field?.cell));
 }
 
 function hasAuthoringContext(scope) {
@@ -104,14 +193,15 @@ function hasAuthoringContext(scope) {
   );
 }
 
-function moveText(field, target) {
+function moveText(field, target, fallbackText = '') {
   if (field.source) {
     moveInstrumentation(field.source, target);
     while (field.source.firstChild) target.append(field.source.firstChild);
+    if (!hasRenderableContent(target) && fallbackText) target.textContent = fallbackText;
     return;
   }
 
-  target.textContent = field.value || '';
+  target.textContent = field.value || fallbackText || '';
 }
 
 function appendHtmlValue(value, target) {
@@ -125,6 +215,7 @@ function moveHtml(field, target, fallbackHtml = '') {
   if (field.source) {
     moveInstrumentation(field.source, target);
     while (field.source.firstChild) target.append(field.source.firstChild);
+    if (!hasRenderableContent(target) && fallbackHtml) target.innerHTML = fallbackHtml;
     return;
   }
 
@@ -133,16 +224,16 @@ function moveHtml(field, target, fallbackHtml = '') {
 
 function applySpacing(block, resourceData = {}) {
   const topMargin = normalizeLengthValue(
-    getTextField(block, 'topMargin').value || normalizeResourceValue(resourceData.topMargin),
+    getTextField(block, 'topMargin').value || findResourceFieldValue(resourceData, 'topMargin'),
   );
   const topPadding = normalizeLengthValue(
-    getTextField(block, 'topPadding').value || normalizeResourceValue(resourceData.topPadding),
+    getTextField(block, 'topPadding').value || findResourceFieldValue(resourceData, 'topPadding'),
   );
   const bottomPadding = normalizeLengthValue(
-    getTextField(block, 'bottomPadding').value || normalizeResourceValue(resourceData.bottomPadding),
+    getTextField(block, 'bottomPadding').value || findResourceFieldValue(resourceData, 'bottomPadding'),
   );
   const contentWidth = normalizeLengthValue(
-    getTextField(block, 'contentWidth').value || normalizeResourceValue(resourceData.contentWidth),
+    getTextField(block, 'contentWidth').value || findResourceFieldValue(resourceData, 'contentWidth'),
   );
 
   if (topMargin) block.style.setProperty('--terms-content-top-margin', topMargin);
@@ -174,8 +265,8 @@ export default async function decorate(block) {
   const titleField = getTextField(block, 'title');
   const bodyField = getRichField(block, 'body');
   const isAuthoring = hasAuthoringContext(block);
-  const resourceTitle = normalizeResourceValue(resourceData.title);
-  const resourceBody = normalizeResourceValue(resourceData.body);
+  const resourceTitle = findResourceFieldValue(resourceData, 'title');
+  const resourceBody = findResourceFieldValue(resourceData, 'body');
 
   const inner = document.createElement('div');
   inner.className = 'terms-content-inner';
@@ -183,17 +274,17 @@ export default async function decorate(block) {
   if (titleField.value || titleField.source || resourceTitle) {
     const title = document.createElement('h1');
     title.className = 'terms-content-title';
-    if (titleField.source || titleField.value) moveText(titleField, title);
+    if (titleField.source || titleField.value) moveText(titleField, title, resourceTitle);
     else title.textContent = resourceTitle;
     inner.append(title);
   }
 
-  if (bodyField.html || bodyField.text || bodyField.source || resourceBody) {
+  if (hasFieldContent(bodyField) || resourceBody) {
     const body = document.createElement('div');
     body.className = 'terms-content-body';
-    if (bodyField.source || bodyField.html || bodyField.text) moveHtml(bodyField, body);
+    if (hasFieldContent(bodyField)) moveHtml(bodyField, body, resourceBody);
     else appendHtmlValue(resourceBody, body);
-    inner.append(body);
+    if (hasRenderableContent(body)) inner.append(body);
   }
 
   if (!inner.childElementCount && isAuthoring) {
