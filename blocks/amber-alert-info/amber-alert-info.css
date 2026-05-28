@@ -70,10 +70,6 @@
   line-height: inherit;
 }
 
-.amber-alert-info .amber-alert-info-title p:last-child {
-  margin-bottom: 0;
-}
-
 .amber-alert-info .amber-alert-info-subtitle {
   font-size: 17px;
   font-weight: 500;
@@ -91,6 +87,7 @@
   line-height: inherit;
 }
 
+.amber-alert-info .amber-alert-info-title p:last-child,
 .amber-alert-info .amber-alert-info-subtitle p:last-child {
   margin-bottom: 0;
 }
