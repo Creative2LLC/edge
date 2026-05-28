@@ -224,6 +224,18 @@ function hasFieldContent(field) {
   return Boolean(field?.html || field?.text || hasRenderableContent(field?.source || field?.cell));
 }
 
+function hasTextFieldContent(field) {
+  return Boolean(field?.value || hasRenderableContent(field?.source || field?.cell));
+}
+
+function getFieldHtml(field) {
+  return (field?.html || field?.cell?.innerHTML || field?.source?.innerHTML || '').trim();
+}
+
+function getFieldText(field) {
+  return (field?.value || field?.text || field?.cell?.textContent || field?.source?.textContent || '').trim();
+}
+
 function hasAuthoringContext(scope) {
   return Boolean(
     scope?.getAttribute('data-aue-resource')
@@ -297,39 +309,47 @@ function buildPlaceholder() {
 }
 
 export default async function decorate(block) {
-  const hadAuthoringContent = hasBasicContent(block);
+  const originalBlock = block.cloneNode(true);
+  const originalTitleField = getTextField(originalBlock, 'title');
+  const originalBodyField = getRichField(originalBlock, 'body');
+  const originalTitle = getFieldText(originalTitleField);
+  const originalBody = getFieldHtml(originalBodyField);
   const titleField = getTextField(block, 'title');
   const bodyField = getRichField(block, 'body');
   const resourceData = await getResourceData(block);
   applySpacing(block, resourceData);
 
   const isAuthoring = hasAuthoringContext(block);
-  const resourceTitle = findResourceFieldValue(resourceData, 'title');
-  const resourceBody = findResourceFieldValue(resourceData, 'body');
+  const resourceTitle = findResourceFieldValue(resourceData, 'title') || originalTitle;
+  const resourceBody = findResourceFieldValue(resourceData, 'body') || originalBody;
+  const hasTitle = hasTextFieldContent(titleField);
+  const hasBody = hasFieldContent(bodyField);
 
   const inner = document.createElement('div');
   inner.className = 'terms-content-inner';
 
-  if (titleField.value || titleField.source || resourceTitle) {
+  if (hasTitle || resourceTitle) {
     const title = document.createElement('h1');
     title.className = 'terms-content-title';
-    if (titleField.source || titleField.value) moveText(titleField, title, resourceTitle);
+    if (hasTitle) moveText(titleField, title, resourceTitle);
     else title.textContent = resourceTitle;
-    inner.append(title);
+    if (hasRenderableContent(title)) inner.append(title);
   }
 
-  if (hasFieldContent(bodyField) || resourceBody) {
+  if (hasBody || resourceBody) {
     const body = document.createElement('div');
     body.className = 'terms-content-body';
-    if (hasFieldContent(bodyField)) moveHtml(bodyField, body, resourceBody);
+    if (hasBody) moveHtml(bodyField, body, resourceBody);
     else appendHtmlValue(resourceBody, body);
     if (hasRenderableContent(body)) inner.append(body);
   }
 
   if (!inner.childElementCount && isAuthoring) {
-    if (hadAuthoringContent) return;
+    if (hasBasicContent(originalBlock)) return;
     inner.append(buildPlaceholder());
   }
+
+  if (!inner.childElementCount) return;
 
   block.replaceChildren(inner);
 }
