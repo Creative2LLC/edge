@@ -234,6 +234,46 @@
   align-self: center;
 }
 
+/* --- Style Type: Variant 3 --- */
+
+/* Left side: title shares the same 554px cap as the subtitle. */
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-title {
+  max-width: 554px;
+}
+
+/* Right side stacking order: top button -> below-button text -> second button.
+   JS appends them as button -> button2 -> below-text, so flex order reflows. */
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) {
+  order: 1;
+}
+
+.cta-card-1.cta-card-1-variant-3.block .cta-card-1-right .cta-card-1-below-button {
+  order: 2;
+}
+
+/* Second button is solid here (no outline), unlike the other variants. */
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button-secondary {
+  order: 3;
+  border: none;
+}
+
+/* Top button: larger 25px label, smaller 20px/30px padding. Sizes to its
+   content (overriding the shared 550px width) so the reduced padding shows. */
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary),
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary).has-subtext {
+  width: auto;
+  height: auto;
+  align-self: flex-start;
+  padding: 20px 30px;
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) .cta-card-1-button-main {
+  font-size: 25px;
+  font-weight: 600;
+}
+
 /* Responsive */
 @media (width <= 900px) {
   .cta-card-1.block {

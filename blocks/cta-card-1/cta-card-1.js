@@ -39,15 +39,19 @@ export default function decorate(block) {
   const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
   const button2ColorField = getField(block, rows, 'button2Color', 11);
   const button2BackgroundColorField = getField(block, rows, 'button2BackgroundColor', 12);
-  const button2LocationField = getField(block, rows, 'button2Location', 13);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 14);
-  const styleTypeField = getField(block, rows, 'styleType', 15);
+  const button2SubtextField = getField(block, rows, 'button2Subtext', 13);
+  const button2LocationField = getField(block, rows, 'button2Location', 14);
+  const belowButtonTextField = getField(block, rows, 'belowButtonText', 15);
+  const styleTypeField = getField(block, rows, 'styleType', 16);
   const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
   if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
   if (button2LocationField.source) button2LocationField.source.remove();
 
-  if (styleTypeField.value.toLowerCase() === 'variant-2') {
+  const styleType = styleTypeField.value.toLowerCase();
+  if (styleType === 'variant-2') {
     block.classList.add('cta-card-1-variant-2');
+  } else if (styleType === 'variant-3') {
+    block.classList.add('cta-card-1-variant-3');
   }
   if (styleTypeField.source) styleTypeField.source.remove();
 
@@ -111,7 +115,6 @@ export default function decorate(block) {
   if (btn2Label) {
     const btn2 = document.createElement(btn2Href ? 'a' : 'button');
     btn2.className = 'cta-card-1-button cta-card-1-button-secondary';
-    btn2.textContent = btn2Label;
     if (btn2Href) btn2.href = btn2Href;
     if (!btn2Href) btn2.type = 'button';
     if (button2TextField.source) {
@@ -119,9 +122,30 @@ export default function decorate(block) {
       button2TextField.source.remove();
     }
 
+    const btn2Subtext = button2SubtextField.value;
+    if (btn2Subtext) {
+      btn2.classList.add('has-subtext');
+      const mainSpan = document.createElement('span');
+      mainSpan.className = 'cta-card-1-button-main';
+      mainSpan.textContent = btn2Label;
+      const subSpan = document.createElement('span');
+      subSpan.className = 'cta-card-1-button-subtext';
+      subSpan.textContent = btn2Subtext;
+      if (button2SubtextField.source) {
+        moveInstrumentation(button2SubtextField.source, subSpan);
+        button2SubtextField.source.remove();
+      }
+      btn2.append(mainSpan, subSpan);
+    } else {
+      btn2.textContent = btn2Label;
+    }
+
     const btn2Color = button2ColorField.value;
     if (btn2Color) {
-      btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
+      // Variant 3 renders this button solid (no outline); other variants keep the border.
+      if (styleType !== 'variant-3') {
+        btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
+      }
       btn2.style.setProperty('color', btn2Color, 'important');
     }
     const btn2BgColor = button2BackgroundColorField.value;

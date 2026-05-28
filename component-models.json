@@ -354,18 +354,18 @@
         "component": "reference",
         "valueType": "string",
         "name": "icon",
-        "label": "Icon (rendered white, ~116x64)",
+        "label": "Icon (max-width ~227px, height auto)",
         "multi": false
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "title",
         "label": "Title",
         "value": ""
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subtitle",
         "label": "Subtitle",
@@ -410,6 +410,30 @@
         "name": "stat2Text",
         "label": "Stat 2 Text",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Right Side Background Color (Hex)",
+        "description": "Any valid hex color, e.g. #e13e30. Leave empty to use the default red."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          }
+        ],
+        "value": "solid"
       }
     ]
   },
@@ -1988,6 +2012,12 @@
         "label": "Button 2 Background Color (Hex)"
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "button2Subtext",
+        "label": "Button 2 Subtext (Optional)"
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "button2Location",
@@ -2023,6 +2053,10 @@
           {
             "name": "Variant 2",
             "value": "variant-2"
+          },
+          {
+            "name": "Variant 3",
+            "value": "variant-3"
           }
         ],
         "value": "variant-1"
