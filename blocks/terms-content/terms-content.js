@@ -24,6 +24,17 @@ function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
 }
 
+function getRowCell(row) {
+  if (!row) return null;
+  return row.children.length === 2 ? row.children[1] : row.children[0] || row;
+}
+
+function hasBasicContent(element) {
+  if (!element) return false;
+  if (element.textContent.trim()) return true;
+  return Boolean(element.querySelector?.('img, picture, video, table, ul, ol, iframe, br'));
+}
+
 function getExplicitFieldProp(cell) {
   return cell?.matches?.('[data-aue-prop], [data-richtext-prop]')
     ? cell
@@ -33,28 +44,50 @@ function getExplicitFieldProp(cell) {
 function getIndexedFallbackCell(block, name) {
   const row = getRows(block)[FIELD_INDEX[name]];
   if (!row) return null;
-  const cell = row.children.length === 2 ? row.children[1] : row.children[0] || row;
+  const cell = getRowCell(row);
   const explicitField = getExplicitFieldProp(cell);
   const explicitName = explicitField?.getAttribute('data-aue-prop')
     || explicitField?.getAttribute('data-richtext-prop')
     || '';
 
   if (explicitName && explicitName !== name) return null;
+  if (name === 'title' && getRows(block).length === 1 && !explicitName) return null;
 
   return cell;
+}
+
+function getBodyFallbackCell(block) {
+  const indexedCell = getIndexedFallbackCell(block, 'body');
+  if (indexedCell) return indexedCell;
+
+  return getRows(block)
+    .map(getRowCell)
+    .find((cell) => {
+      const explicitField = getExplicitFieldProp(cell);
+      const explicitName = explicitField?.getAttribute('data-aue-prop')
+        || explicitField?.getAttribute('data-richtext-prop')
+        || '';
+
+      return (!explicitName || explicitName === 'body') && hasBasicContent(cell);
+    }) || null;
+}
+
+function getFallbackCell(block, name) {
+  if (name === 'body') return getBodyFallbackCell(block);
+  return getIndexedFallbackCell(block, name);
 }
 
 function getTextField(block, name) {
   return readTextField(block, name, {
     labels: name,
-    fallbackCell: getIndexedFallbackCell(block, name),
+    fallbackCell: getFallbackCell(block, name),
   });
 }
 
 function getRichField(block, name) {
   return readRichTextField(block, name, {
     labels: name,
-    fallbackCell: getIndexedFallbackCell(block, name),
+    fallbackCell: getFallbackCell(block, name),
   });
 }
 
@@ -69,7 +102,7 @@ function resourcePathFromUrn(resource) {
   if (!resource) return '';
   if (resource.startsWith('/')) return resource;
   const match = resource.match(/(\/content\/[^?]+)/);
-  return match ? match[1] : '';
+  return match ? match[1].replace(/\.html$/i, '') : '';
 }
 
 function getParentResourcePath(resourcePath) {
@@ -81,6 +114,9 @@ function getParentResourcePath(resourcePath) {
 }
 
 function getCandidateResourcePaths(block) {
+  const pagePath = window.location.pathname
+    .replace(/\.html$/i, '')
+    .replace(/\/+$/g, '');
   const resources = [
     block.getAttribute('data-aue-resource') || '',
     ...[...block.querySelectorAll('[data-aue-resource]')]
@@ -92,7 +128,11 @@ function getCandidateResourcePaths(block) {
     .flatMap((resourcePath) => [resourcePath, getParentResourcePath(resourcePath)])
     .filter(Boolean);
 
-  return [...new Set(paths)];
+  if (pagePath) {
+    paths.push(pagePath, `${pagePath}.model`);
+  }
+
+  return [...new Set(paths.map((path) => path.replace(/\.html$/i, '')))];
 }
 
 async function fetchResourceData(resourcePath) {
@@ -177,9 +217,7 @@ async function getResourceData(block) {
 }
 
 function hasRenderableContent(element) {
-  if (!element) return false;
-  if (element.textContent.trim()) return true;
-  return Boolean(element.querySelector('img, picture, video, table, ul, ol, iframe, br'));
+  return hasBasicContent(element);
 }
 
 function hasFieldContent(field) {
@@ -259,11 +297,12 @@ function buildPlaceholder() {
 }
 
 export default async function decorate(block) {
+  const hadAuthoringContent = hasBasicContent(block);
+  const titleField = getTextField(block, 'title');
+  const bodyField = getRichField(block, 'body');
   const resourceData = await getResourceData(block);
   applySpacing(block, resourceData);
 
-  const titleField = getTextField(block, 'title');
-  const bodyField = getRichField(block, 'body');
   const isAuthoring = hasAuthoringContext(block);
   const resourceTitle = findResourceFieldValue(resourceData, 'title');
   const resourceBody = findResourceFieldValue(resourceData, 'body');
@@ -288,6 +327,7 @@ export default async function decorate(block) {
   }
 
   if (!inner.childElementCount && isAuthoring) {
+    if (hadAuthoringContent) return;
     inner.append(buildPlaceholder());
   }
 
