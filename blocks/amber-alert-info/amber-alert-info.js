@@ -17,10 +17,12 @@ function normalizeHex(text) {
 function findHexAcrossRows(block) {
   const rows = getBlockRows(block);
   for (let i = rows.length - 1; i >= 0; i -= 1) {
-    const cell = rows[i]?.children?.[0];
-    if (cell && !cell.querySelector?.('picture, img, a')) {
-      const hex = normalizeHex(cell.textContent?.trim() || '');
-      if (hex) return hex;
+    const row = rows[i];
+    if (row) {
+      for (let j = 0; j < row.children.length; j += 1) {
+        const hex = normalizeHex(row.children[j].textContent?.trim() || '');
+        if (hex) return hex;
+      }
     }
   }
   return '';
