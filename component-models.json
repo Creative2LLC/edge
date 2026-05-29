@@ -4006,19 +4006,23 @@
           {
             "name": "Volunteer Section",
             "value": "volunteer"
+          },
+          {
+            "name": "Button Top",
+            "value": "button-top"
           }
         ],
         "value": "default"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "sectionHeading",
         "label": "Section Heading",
         "value": ""
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "sectionSubheading",
         "label": "Section Subheading",

@@ -573,6 +573,7 @@ export default function decorate(block) {
     : 'left';
 
   block.classList.toggle('info-cards-grid-volunteer', variant === 'volunteer');
+  block.classList.toggle('info-cards-grid-button-top', styleVariantField.value === 'button-top');
 
   const cards = [];
   itemRows.forEach((row) => {
