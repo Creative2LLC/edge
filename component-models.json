@@ -4102,6 +4102,24 @@
           }
         ],
         "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "iconSize",
+        "label": "Icon Size",
+        "description": "Sets the icon size for all cards in this block. Per-card icon-size overrides set in Card Styles still take precedence.",
+        "options": [
+          {
+            "name": "Default (48px)",
+            "value": "default"
+          },
+          {
+            "name": "Large (96px)",
+            "value": "large"
+          }
+        ],
+        "value": "default"
       }
     ]
   },

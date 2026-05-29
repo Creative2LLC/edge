@@ -540,6 +540,13 @@
   font-size: 0.98rem;
 }
 
+/* --- Icon Size: Large ---
+   Block-level icon size override. Per-card icon-size set via the Card Styles
+   field is applied as an inline style and still takes precedence. */
+.info-cards-grid.info-cards-grid-icon-large .info-cards-grid-card {
+  --info-card-icon-size: 96px;
+}
+
 /* --- Optional Style: Button Top ---
    Larger heading/subheading and a recolored intro button at the top right. */
 .info-cards-grid-button-top .info-cards-grid-intro-content {
