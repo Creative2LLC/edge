@@ -289,8 +289,8 @@
 }
 
 /* Right-side buttons size to content with the requested padding. */
-.cta-card-1.cta-card-1-variant-4 .cta-card-1-right .cta-card-1-button,
-.cta-card-1.cta-card-1-variant-4 .cta-card-1-right .cta-card-1-button.has-subtext {
+.cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button,
+.cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button.has-subtext {
   width: auto;
   height: auto;
   padding: 14.55px 21.82px;
