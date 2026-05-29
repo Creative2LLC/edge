@@ -277,10 +277,11 @@
 /* --- Style Type: Variant 4 --- */
 
 /* Reset the base min-height so the block sizes to its content (same trick
-   Variant 2 uses). Keeps the inherited 48px / 88px padding from the base
-   block rule. */
+   Variant 2 uses), with a touch more vertical padding than the base 48px. */
 .cta-card-1.cta-card-1-variant-4.block {
   min-height: 0;
+  padding-top: 60px;
+  padding-bottom: 60px;
 }
 
 /* Title and subtitle share a narrower max width. */
