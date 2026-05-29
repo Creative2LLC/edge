@@ -126,6 +126,17 @@
           "label": "Text Below Button"
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "button3Text",
+          "label": "Button 3 Text (Variant 4 only)"
+        },
+        {
+          "component": "aem-content",
+          "name": "button3Link",
+          "label": "Button 3 Link (Variant 4 only)"
+        },
+        {
           "component": "select",
           "valueType": "string",
           "name": "styleType",
@@ -142,6 +153,10 @@
             {
               "name": "Variant 3",
               "value": "variant-3"
+            },
+            {
+              "name": "Variant 4",
+              "value": "variant-4"
             }
           ],
           "value": "variant-1"

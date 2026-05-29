@@ -42,7 +42,9 @@ export default function decorate(block) {
   const button2SubtextField = getField(block, rows, 'button2Subtext', 13);
   const button2LocationField = getField(block, rows, 'button2Location', 14);
   const belowButtonTextField = getField(block, rows, 'belowButtonText', 15);
-  const styleTypeField = getField(block, rows, 'styleType', 16);
+  const button3TextField = getField(block, rows, 'button3Text', 16);
+  const button3LinkField = getLinkField(block, rows, 'button3Link', 17);
+  const styleTypeField = getField(block, rows, 'styleType', 18);
   const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
   if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
   if (button2LocationField.source) button2LocationField.source.remove();
@@ -52,6 +54,8 @@ export default function decorate(block) {
     block.classList.add('cta-card-1-variant-2');
   } else if (styleType === 'variant-3') {
     block.classList.add('cta-card-1-variant-3');
+  } else if (styleType === 'variant-4') {
+    block.classList.add('cta-card-1-variant-4');
   }
   if (styleTypeField.source) styleTypeField.source.remove();
 
@@ -69,6 +73,29 @@ export default function decorate(block) {
 
   const subtitle = buildTextElement('div', 'cta-card-1-subtitle', subtitleField);
   if (subtitle) left.append(subtitle);
+
+  // Third button (Variant 4 only) — outlined, sits under the subtitle on the left.
+  const btn3Label = button3TextField.value;
+  const btn3Href = button3LinkField.value;
+  if (styleType === 'variant-4' && btn3Label) {
+    const btn3 = document.createElement(btn3Href ? 'a' : 'button');
+    btn3.className = 'cta-card-1-button cta-card-1-button-tertiary';
+    if (btn3Href) btn3.href = btn3Href;
+    if (!btn3Href) btn3.type = 'button';
+    if (button3TextField.source) {
+      moveInstrumentation(button3TextField.source, btn3);
+      button3TextField.source.remove();
+    }
+    btn3.textContent = btn3Label;
+    left.append(btn3);
+  } else if (button3TextField.source) {
+    button3TextField.source.remove();
+  }
+  if (button3LinkField.source) {
+    const row = button3LinkField.source.closest('.cta-card-1 > div');
+    if (row) row.remove();
+    else button3LinkField.source.remove();
+  }
 
   // Right side
   const right = document.createElement('div');
