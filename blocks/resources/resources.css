@@ -149,15 +149,10 @@ main > .section > .resources-wrapper {
   object-fit: contain;
 }
 
-/* Card image - no-icon variant (image only, no icon).
-   Keeps the default 300px container height so titles stay aligned across
-   the row. Smaller images are pinned to the bottom of the container so they
-   sit flush above the title — any extra space appears above the image,
-   not between the image and the title. */
+/* Card image - no-icon variant (image only, no icon) */
 .resources .resources-card-no-icon .resources-card-image {
+  height: auto;
   padding: 20px 20px 0;
-  display: grid;
-  place-content: end center;
 }
 
 .resources .resources-card-no-icon .resources-card-image picture {
