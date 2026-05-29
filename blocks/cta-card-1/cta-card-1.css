@@ -282,6 +282,11 @@
   max-width: 567.73px;
 }
 
+.cta-card-1.cta-card-1-variant-4 .cta-card-1-title {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+}
+
 /* Right side: two buttons sit side-by-side. */
 .cta-card-1.cta-card-1-variant-4 .cta-card-1-right {
   flex-direction: row;
