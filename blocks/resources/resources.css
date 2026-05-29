@@ -149,9 +149,10 @@ main > .section > .resources-wrapper {
   object-fit: contain;
 }
 
-/* Card image - no-icon variant (image only, no icon) */
+/* Card image - no-icon variant (image only, no icon).
+   Keeps the default 300px container height so cards with shorter images
+   leave an empty gap below, keeping titles aligned across the row. */
 .resources .resources-card-no-icon .resources-card-image {
-  height: auto;
   padding: 20px 20px 0;
 }
 
@@ -200,7 +201,7 @@ main > .section > .resources-wrapper {
   font-weight: 700;
   color: #404041;
   margin: 0 0 8px;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 /* Card subheading */
@@ -208,8 +209,8 @@ main > .section > .resources-wrapper {
   font-size: 17px;
   font-weight: 500;
   color: #404041;
-  margin: 0 0 16px;
-  line-height: 1.5;
+  margin: 0 0 20px;
+  line-height: 1.15;
 }
 
 .resources .resources-card-title p,
