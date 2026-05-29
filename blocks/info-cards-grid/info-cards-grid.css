@@ -557,8 +557,14 @@
 .info-cards-grid-button-top .info-cards-grid-section-subheading {
   font-size: 32px;
   font-weight: 400;
+  line-height: 1.25;
   max-width: 1055px;
   white-space: pre-wrap;
+}
+
+/* Extra breathing room between the subheading and the cards below. */
+.info-cards-grid-button-top .info-cards-grid-inner {
+  margin-top: 20px;
 }
 
 .info-cards-grid-button-top .info-cards-grid-intro-button {
