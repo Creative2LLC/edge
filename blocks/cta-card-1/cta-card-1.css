@@ -276,6 +276,13 @@
 
 /* --- Style Type: Variant 4 --- */
 
+/* Halve the block's vertical padding so the title hugs the top and
+   button 3 hugs the bottom. */
+.cta-card-1.cta-card-1-variant-4.block {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
 /* Title and subtitle share a narrower max width. */
 .cta-card-1.cta-card-1-variant-4 .cta-card-1-title,
 .cta-card-1.cta-card-1-variant-4 .cta-card-1-subtitle {
