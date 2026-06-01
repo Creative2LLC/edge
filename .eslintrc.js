@@ -58,7 +58,7 @@ module.exports = {
       'detailed-carousel-item': 11,
       'connect-grid-item': 21,
       'split-card-offices': 16,
-      'split-card-gap': 11,
+      'split-card-gap': 12,
       'split-card-list-item': 10,
       'split-thin-carousel-item': 13,
     }],

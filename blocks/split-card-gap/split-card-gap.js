@@ -22,6 +22,7 @@ const BLOCK_FIELD_NAMES = [
   'secondaryButtonText',
   'secondaryButtonLink',
   'maxWidth',
+  'stylingType',
 ];
 
 function getField(scope, name, index) {
@@ -86,6 +87,7 @@ function getFallbackCell(scope, index) {
     9: plainTextCells[3],
     10: linkCells[1],
     11: parentCells.find((cell) => /^\d+(\.\d+)?(px|rem|%)?$/.test(cell.textContent.trim())),
+    12: parentCells.find((cell) => /^(default|variant[\s-]?2)$/i.test(cell.textContent.trim())),
   };
 
   return fallbackMap[index] || parentCells[index] || null;
@@ -161,6 +163,33 @@ function moveFieldContent(field, target, fallbackValue = '') {
   if (!target.childNodes.length && fallbackValue) {
     target.textContent = fallbackValue;
   }
+}
+
+function buildHeading(headingSource, textColor) {
+  if (!headingSource) return null;
+
+  const headingEl = document.createElement('h2');
+  headingEl.className = 'split-card-gap-heading';
+  if (textColor) headingEl.style.color = textColor;
+
+  moveInstrumentation(headingSource, headingEl);
+
+  // Flatten rich text block wrappers (p/div) into a single heading, keeping
+  // each authored paragraph on its own line via <br> and preserving any
+  // inline formatting.
+  const blocks = [...headingSource.children]
+    .filter((node) => node.tagName === 'P' || node.tagName === 'DIV');
+
+  if (blocks.length) {
+    blocks.forEach((blockEl, index) => {
+      if (index > 0) headingEl.append(document.createElement('br'));
+      while (blockEl.firstChild) headingEl.append(blockEl.firstChild);
+    });
+  } else {
+    while (headingSource.firstChild) headingEl.append(headingSource.firstChild);
+  }
+
+  return headingEl.textContent.trim() ? headingEl : null;
 }
 
 function buildBody(bodySource, textColor) {
@@ -318,7 +347,7 @@ export default function decorate(block) {
   const wrapper = block.closest('.split-card-gap-wrapper') || block.parentElement;
   const imageField = getImageField(block, 'image', 0);
   const imageAltField = getField(block, 'imageAlt', 1);
-  const headingField = getField(block, 'heading', 2);
+  const headingSource = getRichField(block, 'heading', 2);
   const imageWidthField = getField(block, 'imageWidth', 3);
   const bodySource = getRichField(block, 'bodyText', 4);
   const contentBackgroundColorField = getField(block, 'contentBackgroundColor', 5);
@@ -328,13 +357,17 @@ export default function decorate(block) {
   const secondaryButtonTextField = getField(block, 'secondaryButtonText', 9);
   const secondaryButtonLinkField = getLinkField(block, 'secondaryButtonLink', 10);
   const maxWidthField = getField(block, 'maxWidth', 11);
+  const stylingTypeField = getField(block, 'stylingType', 12);
 
   const imageAlt = imageAltField.value;
-  const heading = headingField.value;
   const contentBackgroundColor = contentBackgroundColorField.value || '#ffffff';
   const textColor = textColorField.value || '';
   const imageWidth = normalizeSplitPercent(imageWidthField.value) || '52.5%';
   const maxWidth = normalizeSizeValue(maxWidthField.value);
+  const stylingType = (stylingTypeField.value || 'default').trim().toLowerCase();
+  const isVariant2 = /^variant[\s-]?2$/.test(stylingType);
+
+  block.classList.toggle('split-card-gap-variant-2', isVariant2);
 
   block.style.setProperty('--split-card-gap-media-width', imageWidth);
   block.style.setProperty('--split-card-gap-content-width', `calc(100% - ${imageWidth})`);
@@ -383,16 +416,14 @@ export default function decorate(block) {
 
   const content = document.createElement('div');
   content.className = 'split-card-gap-content';
-  content.style.backgroundColor = contentBackgroundColor;
-
-  if (heading) {
-    const headingEl = document.createElement('h2');
-    headingEl.className = 'split-card-gap-heading';
-    headingEl.textContent = heading;
-    if (textColor) headingEl.style.color = textColor;
-    if (headingField.source) moveInstrumentation(headingField.source, headingEl);
-    content.append(headingEl);
+  // Variant 2 uses a transparent content panel (handled in CSS); keep the
+  // authored background color for the default styling type.
+  if (!isVariant2) {
+    content.style.backgroundColor = contentBackgroundColor;
   }
+
+  const headingEl = buildHeading(headingSource, textColor);
+  if (headingEl) content.append(headingEl);
 
   const body = buildBody(bodySource, textColor);
   if (body) content.append(body);

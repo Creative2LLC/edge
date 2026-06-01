@@ -30,6 +30,23 @@
   line-height: 1.4;
 }
 
+/* Normalize rich text wrappers so multi-line content keeps its breaks
+   without inheriting default paragraph margins. */
+.card-testimonies-title > :first-child,
+.card-testimonies-subtitle > :first-child {
+  margin-top: 0;
+}
+
+.card-testimonies-title > :last-child,
+.card-testimonies-subtitle > :last-child {
+  margin-bottom: 0;
+}
+
+.card-testimonies-title p,
+.card-testimonies-subtitle p {
+  margin: 0;
+}
+
 /* ===== MAIN TESTIMONIAL CARD ===== */
 .card-testimonies-main {
   display: flex;
@@ -117,6 +134,24 @@
   margin: 0;
   line-height: 1.4;
   text-align: left;
+}
+
+/* ===== VARIANT 2 ===== */
+.card-testimonies.block.card-testimonies--variant-2 {
+  border-radius: 12px;
+  padding: 64px;
+}
+
+.card-testimonies--variant-2 .card-testimonies-title {
+  font-size: 36px;
+  font-weight: 500;
+  color: #404041;
+}
+
+.card-testimonies--variant-2 .card-testimonies-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #404041;
 }
 
 /* ===== RESPONSIVE ===== */

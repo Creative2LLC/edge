@@ -1,6 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readImageField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
@@ -9,12 +10,18 @@ const BLOCK_FIELD_INDEX = {
   subtitle: 1,
   titleAlign: 2,
   backgroundColor: 3,
+  stylingType: 4,
 };
 
 function getBlockFieldValue(block, rows, name, index, fallbackValue = '') {
   const row = rows[index];
   return readTextField(block, name, { fallbackCell: row?.children[0] || row }).value
     || fallbackValue;
+}
+
+function getBlockFieldHTML(block, rows, name, index) {
+  const row = rows[index];
+  return readRichTextField(block, name, { fallbackCell: row?.children[0] || row }).html;
 }
 
 function getFieldText(row, colIndex, propName) {
@@ -91,8 +98,8 @@ function buildSmallCard(data, row) {
 
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
-  const heading = getBlockFieldValue(block, rows, 'heading', BLOCK_FIELD_INDEX.heading);
-  const subtitle = getBlockFieldValue(block, rows, 'subtitle', BLOCK_FIELD_INDEX.subtitle);
+  const heading = getBlockFieldHTML(block, rows, 'heading', BLOCK_FIELD_INDEX.heading);
+  const subtitle = getBlockFieldHTML(block, rows, 'subtitle', BLOCK_FIELD_INDEX.subtitle);
   const align = getBlockFieldValue(block, rows, 'titleAlign', BLOCK_FIELD_INDEX.titleAlign, 'center') || 'center';
   const backgroundColor = getBlockFieldValue(
     block,
@@ -100,6 +107,16 @@ export default function decorate(block) {
     'backgroundColor',
     BLOCK_FIELD_INDEX.backgroundColor,
   );
+  const stylingType = (getBlockFieldValue(
+    block,
+    rows,
+    'stylingType',
+    BLOCK_FIELD_INDEX.stylingType,
+    'default',
+  ) || 'default').trim().toLowerCase();
+  const isVariant2 = /^variant[\s-]?2$/.test(stylingType);
+
+  block.classList.toggle('card-testimonies--variant-2', isVariant2);
 
   if (backgroundColor) {
     block.style.setProperty('background-color', backgroundColor, 'important');
@@ -123,15 +140,15 @@ export default function decorate(block) {
     if (heading) {
       const h2 = document.createElement('h2');
       h2.className = 'card-testimonies-title';
-      h2.textContent = heading;
+      h2.innerHTML = heading;
       header.append(h2);
     }
 
     if (subtitle) {
-      const sub = document.createElement('p');
+      const sub = document.createElement('div');
       sub.className = 'card-testimonies-subtitle';
       if (align === 'center') sub.style.margin = '0 auto';
-      sub.textContent = subtitle;
+      sub.innerHTML = subtitle;
       header.append(sub);
     }
 
