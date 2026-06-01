@@ -9,6 +9,22 @@
   margin-right: auto;
 }
 
+/* Let the block span the full 1420px with no section side padding, so the
+   image + content edges reach the full width. Side padding is restored on
+   smaller screens so content doesn't touch the viewport edges. */
+main > .section > .split-card-gap-wrapper {
+  max-width: 1420px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (width <= 900px) {
+  main > .section > .split-card-gap-wrapper {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
 .split-card-gap .split-card-gap-inner {
   display: grid;
   grid-template-columns:
@@ -242,6 +258,7 @@
 
 .split-card-gap-variant-2 .split-card-gap-inner {
   grid-template-columns: minmax(0, 904px) minmax(0, 1fr);
+  gap: 44px;
   align-items: center;
 }
 

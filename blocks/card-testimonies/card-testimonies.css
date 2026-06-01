@@ -3,7 +3,7 @@
   --card-testimonies-surface-bg: #fff;
   --card-testimonies-secondary-surface-bg: #ddd5cc52;
 
-  padding: 60px 24px;
+  padding: 60px 0;
   margin: 0 auto;
   max-width: 1420px;
 }
@@ -11,6 +11,12 @@
 /* ===== HEADER ===== */
 .card-testimonies-header {
   margin-bottom: 40px;
+}
+
+/* When the header is the only/last content, drop the trailing margin so the
+   title + subtitle sit vertically centered within the block. */
+.card-testimonies-header:last-child {
+  margin-bottom: 0;
 }
 
 .card-testimonies-title {
@@ -139,7 +145,7 @@
 /* ===== VARIANT 2 ===== */
 .card-testimonies.block.card-testimonies-variant-2 {
   border-radius: 12px;
-  padding: 64px;
+  padding: 64px 0;
 }
 
 .card-testimonies-variant-2 .card-testimonies-title {
