@@ -87,6 +87,34 @@
   color: #9aa9b5;
 }
 
+.resource-details .resource-details-taxonomy,
+.resource-details .resource-details-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  max-width: 58rem;
+}
+
+.resource-details .resource-details-pill {
+  display: inline-flex;
+  min-height: 30px;
+  padding: 0.42rem 0.7rem;
+  border: 1px solid rgb(22 50 74 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 72%);
+  color: #16324a;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.resource-details .resource-details-tags .resource-details-pill {
+  border-color: rgb(31 141 184 / 28%);
+  background: rgb(31 141 184 / 12%);
+  color: #0f5f78;
+}
+
 .resource-details .resource-details-excerpt {
   margin: 0;
   color: #516272;

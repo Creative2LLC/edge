@@ -6542,6 +6542,67 @@
         "valueType": "string",
         "name": "resourceBody",
         "label": "Resource Body"
+      },
+      {
+        "component": "select",
+        "name": "language",
+        "label": "Language",
+        "options": [
+          {
+            "name": "English",
+            "value": "en"
+          },
+          {
+            "name": "Spanish",
+            "value": "es"
+          }
+        ],
+        "value": "en"
+      },
+      {
+        "component": "multiselect",
+        "name": "programs",
+        "label": "Programs",
+        "options": [
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
+          },
+          {
+            "name": "NetSmartz",
+            "value": "netsmartz"
+          }
+        ]
+      },
+      {
+        "component": "multiselect",
+        "name": "gradeAges",
+        "label": "Grade / Age",
+        "options": [
+          {
+            "name": "K-2",
+            "value": "k-2"
+          },
+          {
+            "name": "3-5",
+            "value": "3-5"
+          },
+          {
+            "name": "Middle School",
+            "value": "middle-school"
+          },
+          {
+            "name": "High School",
+            "value": "high-school"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tags",
+        "label": "Universal Tags",
+        "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
       }
     ]
   },
@@ -6677,25 +6738,72 @@
         "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages)"
       },
       {
-        "component": "text",
-        "valueType": "string",
+        "component": "multiselect",
         "name": "visibleFilters",
-        "label": "Visible Filters",
-        "description": "Comma-separated: audience, issue, type, tags, language, programs, grade_ages"
+        "label": "Filter Groups to Show",
+        "description": "Leave empty to show all filter groups.",
+        "options": [
+          {
+            "name": "Audience",
+            "value": "audience"
+          },
+          {
+            "name": "Topic",
+            "value": "issue"
+          },
+          {
+            "name": "Content Type",
+            "value": "type"
+          },
+          {
+            "name": "Universal Tags",
+            "value": "tags"
+          },
+          {
+            "name": "Language",
+            "value": "language"
+          },
+          {
+            "name": "Program",
+            "value": "programs"
+          },
+          {
+            "name": "Grade / Age",
+            "value": "grade_ages"
+          }
+        ]
       },
       {
-        "component": "text",
-        "valueType": "string",
+        "component": "multiselect",
         "name": "filterTags",
         "label": "Visible Tag Options",
-        "description": "Optional comma-separated tag slugs. Leave empty to show all tag options."
+        "description": "Optional shortcuts for common universal tag options. Leave empty to show all tag options.",
+        "options": [
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
+          },
+          {
+            "name": "NetSmartz",
+            "value": "netsmartz"
+          }
+        ]
       },
       {
-        "component": "text",
-        "valueType": "string",
+        "component": "multiselect",
         "name": "hiddenFilterTags",
         "label": "Hidden Tag Options",
-        "description": "Optional comma-separated tag slugs to hide from the tag filter."
+        "description": "Optional shortcuts for common universal tag options to hide from the tag filter.",
+        "options": [
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
+          },
+          {
+            "name": "NetSmartz",
+            "value": "netsmartz"
+          }
+        ]
       },
       {
         "component": "text",

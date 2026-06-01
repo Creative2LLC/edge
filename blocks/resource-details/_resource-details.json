@@ -63,6 +63,67 @@
           "valueType": "string",
           "name": "resourceBody",
           "label": "Resource Body"
+        },
+        {
+          "component": "select",
+          "name": "language",
+          "label": "Language",
+          "options": [
+            {
+              "name": "English",
+              "value": "en"
+            },
+            {
+              "name": "Spanish",
+              "value": "es"
+            }
+          ],
+          "value": "en"
+        },
+        {
+          "component": "multiselect",
+          "name": "programs",
+          "label": "Programs",
+          "options": [
+            {
+              "name": "KidSmartz",
+              "value": "kidsmartz"
+            },
+            {
+              "name": "NetSmartz",
+              "value": "netsmartz"
+            }
+          ]
+        },
+        {
+          "component": "multiselect",
+          "name": "gradeAges",
+          "label": "Grade / Age",
+          "options": [
+            {
+              "name": "K-2",
+              "value": "k-2"
+            },
+            {
+              "name": "3-5",
+              "value": "3-5"
+            },
+            {
+              "name": "Middle School",
+              "value": "middle-school"
+            },
+            {
+              "name": "High School",
+              "value": "high-school"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tags",
+          "label": "Universal Tags",
+          "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
         }
       ]
     }

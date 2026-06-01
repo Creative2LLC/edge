@@ -61,25 +61,72 @@
           "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages)"
         },
         {
-          "component": "text",
-          "valueType": "string",
+          "component": "multiselect",
           "name": "visibleFilters",
-          "label": "Visible Filters",
-          "description": "Comma-separated: audience, issue, type, tags, language, programs, grade_ages"
+          "label": "Filter Groups to Show",
+          "description": "Leave empty to show all filter groups.",
+          "options": [
+            {
+              "name": "Audience",
+              "value": "audience"
+            },
+            {
+              "name": "Topic",
+              "value": "issue"
+            },
+            {
+              "name": "Content Type",
+              "value": "type"
+            },
+            {
+              "name": "Universal Tags",
+              "value": "tags"
+            },
+            {
+              "name": "Language",
+              "value": "language"
+            },
+            {
+              "name": "Program",
+              "value": "programs"
+            },
+            {
+              "name": "Grade / Age",
+              "value": "grade_ages"
+            }
+          ]
         },
         {
-          "component": "text",
-          "valueType": "string",
+          "component": "multiselect",
           "name": "filterTags",
           "label": "Visible Tag Options",
-          "description": "Optional comma-separated tag slugs. Leave empty to show all tag options."
+          "description": "Optional shortcuts for common universal tag options. Leave empty to show all tag options.",
+          "options": [
+            {
+              "name": "KidSmartz",
+              "value": "kidsmartz"
+            },
+            {
+              "name": "NetSmartz",
+              "value": "netsmartz"
+            }
+          ]
         },
         {
-          "component": "text",
-          "valueType": "string",
+          "component": "multiselect",
           "name": "hiddenFilterTags",
           "label": "Hidden Tag Options",
-          "description": "Optional comma-separated tag slugs to hide from the tag filter."
+          "description": "Optional shortcuts for common universal tag options to hide from the tag filter.",
+          "options": [
+            {
+              "name": "KidSmartz",
+              "value": "kidsmartz"
+            },
+            {
+              "name": "NetSmartz",
+              "value": "netsmartz"
+            }
+          ]
         },
         {
           "component": "text",

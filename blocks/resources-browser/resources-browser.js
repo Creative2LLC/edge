@@ -240,12 +240,16 @@ function parseList(value) {
 }
 
 function normalizeFilterFacet(value) {
-  const key = normalizeToken(value).replace(/[\s-]+/g, '_');
+  const key = normalizeToken(value).replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
   const aliases = {
     audiences: 'audience',
     issues: 'issue',
     types: 'type',
+    content_type: 'type',
+    contenttype: 'type',
     tag: 'tags',
+    universal_tag: 'tags',
+    universal_tags: 'tags',
     language: 'language',
     languages: 'language',
     program: 'programs',
@@ -258,6 +262,19 @@ function normalizeFilterFacet(value) {
   };
   const facet = aliases[key] || key;
   return FILTER_FACETS.includes(facet) ? facet : '';
+}
+
+function normalizeTagOption(value) {
+  return normalizeToken(value)
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function parseTagOptions(value) {
+  return parseList(value)
+    .map(normalizeTagOption)
+    .filter(Boolean);
 }
 
 function parseVisibleFilters(value) {
@@ -1542,10 +1559,10 @@ function renderApiBrowser(block, config) {
     config.visibleFilters.forEach((facet) => {
       url.searchParams.append('filter_groups[]', filterGroupName(facet));
     });
-    parseList(config.filterTags).forEach((value) => {
+    parseTagOptions(config.filterTags).forEach((value) => {
       url.searchParams.append('filter_tags[]', value);
     });
-    parseList(config.hiddenFilterTags).forEach((value) => {
+    parseTagOptions(config.hiddenFilterTags).forEach((value) => {
       url.searchParams.append('exclude_filter_tags[]', value);
     });
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));

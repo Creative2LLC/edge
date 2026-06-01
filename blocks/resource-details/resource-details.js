@@ -15,12 +15,65 @@ const FIELD_COLUMN_INDEX = {
   thumbnail: 4,
   headerImage: 5,
   resourceBody: 6,
+  language: 7,
+  programs: 8,
+  gradeAges: 9,
+  tags: 10,
 };
 
 const resourceDataCache = new Map();
+const TAXONOMY_LABELS = {
+  language: {
+    en: 'English',
+    es: 'Spanish',
+  },
+  programs: {
+    kidsmartz: 'KidSmartz',
+    netsmartz: 'NetSmartz',
+  },
+  gradeAges: {
+    'k-2': 'K-2',
+    '3-5': '3-5',
+    'middle-school': 'Middle School',
+    'high-school': 'High School',
+  },
+};
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
+}
+
+function normalizeKey(value) {
+  return normalizeText(value)
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function splitList(value) {
+  const seen = new Set();
+  return normalizeText(value)
+    .split(/[\n,;]+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .filter((entry) => {
+      const key = normalizeKey(entry);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function labelFor(group, value) {
+  const key = normalizeKey(value);
+  return TAXONOMY_LABELS[group]?.[key] || normalizeText(value);
+}
+
+function parseTagEntries(value) {
+  return splitList(value)
+    .map((entry) => entry.split('|')[0].trim())
+    .filter(Boolean);
 }
 
 function findUrlLikeValue(value) {
@@ -37,6 +90,9 @@ function resourcePathFromUrn(resource) {
 
 function normalizeJsonFieldValue(value) {
   if (!value) return '';
+  if (Array.isArray(value)) {
+    return value.map(normalizeJsonFieldValue).filter(Boolean).join(', ');
+  }
   if (typeof value === 'string') return value.trim();
   if (typeof value === 'object') {
     return `${value.href || value.path || value.url || value.reference || ''}`.trim();
@@ -202,6 +258,36 @@ function buildMeta(authorName, articleDate) {
   return meta;
 }
 
+function buildPillGroup(entries, className) {
+  if (!entries.length) return null;
+
+  const wrap = document.createElement('div');
+  wrap.className = className;
+
+  entries.forEach((label) => {
+    const pill = document.createElement('span');
+    pill.className = 'resource-details-pill';
+    pill.textContent = label;
+    wrap.append(pill);
+  });
+
+  return wrap;
+}
+
+function buildTaxonomy(fields) {
+  const entries = [
+    fields.language ? labelFor('language', fields.language) : '',
+    ...splitList(fields.programs).map((program) => labelFor('programs', program)),
+    ...splitList(fields.gradeAges).map((gradeAge) => labelFor('gradeAges', gradeAge)),
+  ].filter(Boolean);
+
+  return buildPillGroup(entries, 'resource-details-taxonomy');
+}
+
+function buildTags(fields) {
+  return buildPillGroup(parseTagEntries(fields.tags), 'resource-details-tags');
+}
+
 function buildHero(fields) {
   const image = fields.headerImage || fields.thumbnail;
 
@@ -231,6 +317,9 @@ function buildHero(fields) {
   const inner = document.createElement('div');
   inner.className = 'resource-details-hero-content';
 
+  const taxonomy = buildTaxonomy(fields);
+  if (taxonomy) inner.append(taxonomy);
+
   const title = document.createElement('h1');
   title.className = 'resource-details-title';
   title.textContent = fields.pageTitle;
@@ -245,6 +334,9 @@ function buildHero(fields) {
     excerpt.textContent = fields.description;
     inner.append(excerpt);
   }
+
+  const tags = buildTags(fields);
+  if (tags) inner.append(tags);
 
   section.append(inner);
   return section;
@@ -279,6 +371,14 @@ export default async function decorate(block) {
     thumbnail: getImageField(block, 'thumbnail', resourceData),
     headerImage: getImageField(block, 'headerImage', resourceData),
     resourceBody: getHtmlField(block, 'resourceBody'),
+    language: getTextField(block, 'language', normalizeJsonFieldValue(resourceData.language)),
+    programs: getTextField(block, 'programs', normalizeJsonFieldValue(resourceData.programs)),
+    gradeAges: getTextField(
+      block,
+      'gradeAges',
+      normalizeJsonFieldValue(resourceData.gradeAges || resourceData.grade_ages),
+    ),
+    tags: getTextField(block, 'tags', normalizeJsonFieldValue(resourceData.tags)),
   };
 
   if (!fields.pageTitle && !fields.resourceBody) {
