@@ -37,13 +37,13 @@
       "id": "card-testimonies",
       "fields": [
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "heading",
           "label": "Title"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "subtitle",
           "label": "Subtitle (Optional)"
@@ -76,6 +76,18 @@
           "name": "backgroundColor",
           "label": "Background Color (Hex)",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "stylingType",
+          "label": "Styling Type",
+          "description": "Choose the visual treatment for this block. Default keeps the current styling; Variant 2 applies the alternate styling.",
+          "options": [
+            { "name": "Default", "value": "default" },
+            { "name": "Variant 2", "value": "variant-2" }
+          ],
+          "value": "default"
         }
       ]
     },

@@ -4,14 +4,15 @@ import { readLinkField, readRichTextField, readTextField } from '../../scripts/b
 const FIELD_INDEX = {
   title: 0,
   subtitle: 1,
-  textAlign: 2,
-  buttonText: 3,
-  buttonLink: 4,
-  buttonStyle: 5,
-  buttonColor: 6,
-  buttonTextColor: 7,
-  marginTop: 8,
-  marginBottom: 9,
+  subtitleMaxWidth: 2,
+  textAlign: 3,
+  buttonText: 4,
+  buttonLink: 5,
+  buttonStyle: 6,
+  buttonColor: 7,
+  buttonTextColor: 8,
+  marginTop: 9,
+  marginBottom: 10,
 };
 
 function getRows(block) {
@@ -58,6 +59,17 @@ function normalizeLengthValue(value) {
   if (!trimmed) return '';
   if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
   return trimmed;
+}
+
+/**
+ * Subtitle max width: blank keeps the CSS default, 0 means no max width,
+ * any other number is treated as a pixel value (e.g. 900 -> 900px).
+ */
+function normalizeSubtitleMaxWidth(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (parseFloat(trimmed) === 0) return 'none';
+  return normalizeLengthValue(trimmed);
 }
 
 function normalizeColorValue(value) {
@@ -108,8 +120,9 @@ function buildButton(block) {
 }
 
 export default function decorate(block) {
-  const titleField = getField(block, 'title');
+  const titleField = getRichField(block, 'title');
   const subtitleField = getRichField(block, 'subtitle');
+  const subtitleMaxWidth = normalizeSubtitleMaxWidth(getField(block, 'subtitleMaxWidth').value);
   const alignField = getField(block, 'textAlign');
 
   const alignment = alignField.value || 'left';
@@ -137,13 +150,24 @@ export default function decorate(block) {
     textWrap.style.textAlign = alignment;
   }
 
-  // title
+  // title (richtext)
   if (titleField.value || titleField.source) {
     const titleEl = document.createElement('h2');
     titleEl.className = 'section-title-heading';
     if (titleField.source) {
       moveInstrumentation(titleField.source, titleEl);
-      while (titleField.source.firstChild) titleEl.append(titleField.source.firstChild);
+      // Flatten rich text block wrappers (p/div) into the heading, keeping each
+      // authored paragraph on its own line via <br> and preserving inline formatting.
+      const titleBlocks = [...titleField.source.children]
+        .filter((node) => node.tagName === 'P' || node.tagName === 'DIV');
+      if (titleBlocks.length) {
+        titleBlocks.forEach((blockEl, index) => {
+          if (index > 0) titleEl.append(document.createElement('br'));
+          while (blockEl.firstChild) titleEl.append(blockEl.firstChild);
+        });
+      } else {
+        while (titleField.source.firstChild) titleEl.append(titleField.source.firstChild);
+      }
       titleField.source.remove();
     } else {
       titleEl.textContent = titleField.value;
@@ -155,6 +179,7 @@ export default function decorate(block) {
   if (subtitleField.value || subtitleField.source) {
     const subtitleEl = document.createElement('div');
     subtitleEl.className = 'section-title-subtitle';
+    if (subtitleMaxWidth) subtitleEl.style.setProperty('max-width', subtitleMaxWidth);
     if (subtitleField.source) {
       moveInstrumentation(subtitleField.source, subtitleEl);
       while (subtitleField.source.firstChild) subtitleEl.append(subtitleField.source.firstChild);

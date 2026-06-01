@@ -50,10 +50,11 @@
           "label": "Image Alt Text"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "heading",
-          "label": "Heading"
+          "label": "Heading",
+          "description": "Supports multiple lines / rich text. Each paragraph renders on its own line within the heading."
         },
         {
           "component": "text",
@@ -113,6 +114,18 @@
           "name": "maxWidth",
           "label": "Max Width (e.g. 1200px or 72rem)",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "stylingType",
+          "label": "Styling Type",
+          "description": "Choose the visual treatment for this block. Default keeps the current styling; Variant 2 applies the alternate layout.",
+          "options": [
+            { "name": "Default", "value": "default" },
+            { "name": "Variant 2", "value": "variant-2" }
+          ],
+          "value": "default"
         }
       ]
     },

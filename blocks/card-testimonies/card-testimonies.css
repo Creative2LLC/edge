@@ -1,9 +1,16 @@
+/* Cancel the global section-wrapper side padding (24px / 32px in styles.css)
+   so the block background extends to the full 1420px content width. */
+main > .section > .card-testimonies-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* Card Testimonies Block */
 .card-testimonies.block {
   --card-testimonies-surface-bg: #fff;
   --card-testimonies-secondary-surface-bg: #ddd5cc52;
 
-  padding: 60px 24px;
+  padding: 60px 0;
   margin: 0 auto;
   max-width: 1420px;
 }
@@ -11,6 +18,12 @@
 /* ===== HEADER ===== */
 .card-testimonies-header {
   margin-bottom: 40px;
+}
+
+/* When the header is the only/last content, drop the trailing margin so the
+   title + subtitle sit vertically centered within the block. */
+.card-testimonies-header:last-child {
+  margin-bottom: 0;
 }
 
 .card-testimonies-title {
@@ -28,6 +41,23 @@
   margin: 0;
   max-width: 886px;
   line-height: 1.4;
+}
+
+/* Normalize rich text wrappers so multi-line content keeps its breaks
+   without inheriting default paragraph margins. */
+.card-testimonies-title > :first-child,
+.card-testimonies-subtitle > :first-child {
+  margin-top: 0;
+}
+
+.card-testimonies-title > :last-child,
+.card-testimonies-subtitle > :last-child {
+  margin-bottom: 0;
+}
+
+.card-testimonies-title p,
+.card-testimonies-subtitle p {
+  margin: 0;
 }
 
 /* ===== MAIN TESTIMONIAL CARD ===== */
@@ -117,6 +147,24 @@
   margin: 0;
   line-height: 1.4;
   text-align: left;
+}
+
+/* ===== VARIANT 2 ===== */
+.card-testimonies.block.card-testimonies-variant-2 {
+  border-radius: 12px;
+  padding: 64px 0;
+}
+
+.card-testimonies-variant-2 .card-testimonies-title {
+  font-size: 36px;
+  font-weight: 500;
+  color: #404041;
+}
+
+.card-testimonies-variant-2 .card-testimonies-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #404041;
 }
 
 /* ===== RESPONSIVE ===== */

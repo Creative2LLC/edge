@@ -58,6 +58,14 @@
   line-height: 1.55;
 }
 
+/* The section heading and subheading are richtext fields, so AEM wraps the
+   content in <p> tags. Reset their margins so the spacing matches the plain
+   text rendering. */
+.info-cards-grid-section-heading > p,
+.info-cards-grid-section-subheading > p {
+  margin: 0;
+}
+
 /* Header alignment (Section Heading + Section Subheading).
    Center and right collapse the intro to a single column so the content
    can actually span / be aligned across the full block width. */
@@ -530,6 +538,53 @@
 .info-cards-grid-volunteer .info-cards-grid-footer-text {
   max-width: 860px;
   font-size: 0.98rem;
+}
+
+/* --- Icon Size: Large ---
+   Block-level icon size override. Per-card icon-size set via the Card Styles
+   field is applied as an inline style and still takes precedence. */
+.info-cards-grid.info-cards-grid-icon-large .info-cards-grid-card {
+  --info-card-icon-size: 96px;
+}
+
+/* --- Optional Style: Button Top ---
+   Larger heading/subheading and a recolored intro button at the top right. */
+.info-cards-grid-button-top .info-cards-grid-intro-content {
+  max-width: 1055px;
+}
+
+.info-cards-grid-button-top .info-cards-grid-section-heading {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: normal;
+  max-width: 1055px;
+  white-space: pre-wrap;
+}
+
+.info-cards-grid-button-top .info-cards-grid-section-subheading {
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.25;
+  max-width: 1055px;
+  white-space: pre-wrap;
+}
+
+/* Extra breathing room between the subheading and the cards below. */
+.info-cards-grid-button-top .info-cards-grid-inner {
+  margin-top: 20px;
+}
+
+.info-cards-grid-button-top .info-cards-grid-intro-button {
+  background: #008db6;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  border-color: transparent;
+}
+
+.info-cards-grid-button-top .info-cards-grid-intro-button:hover,
+.info-cards-grid-button-top .info-cards-grid-intro-button:focus {
+  background: #007ca1;
 }
 
 .info-cards-grid.is-visible .info-cards-grid-card {

@@ -274,6 +274,55 @@
   font-weight: 600;
 }
 
+/* --- Style Type: Variant 4 --- */
+
+/* Reset the base min-height so the block sizes to its content (same trick
+   Variant 2 uses), with a touch more vertical padding than the base 48px. */
+.cta-card-1.cta-card-1-variant-4.block {
+  min-height: 0;
+  padding-top: 60px;
+  padding-bottom: 60px;
+  border-radius: 14px;
+}
+
+/* Title and subtitle share a narrower max width. */
+.cta-card-1.cta-card-1-variant-4 .cta-card-1-title,
+.cta-card-1.cta-card-1-variant-4 .cta-card-1-subtitle {
+  max-width: 567.73px;
+}
+
+.cta-card-1.cta-card-1-variant-4 .cta-card-1-title {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+}
+
+/* Right side: two buttons sit side-by-side. */
+.cta-card-1.cta-card-1-variant-4 .cta-card-1-right {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* Right-side buttons size to content with the requested padding. */
+.cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button,
+.cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button.has-subtext {
+  width: auto;
+  height: auto;
+  padding: 14.55px 21.82px;
+}
+
+/* Button 3: outlined red, left-aligned under the subtitle. */
+.cta-card-1.cta-card-1-variant-4 .cta-card-1-left .cta-card-1-button-tertiary {
+  display: inline-flex;
+  align-self: flex-start;
+  width: auto;
+  height: auto;
+  margin-top: 24px;
+  padding: 14px 16px;
+  background-color: transparent;
+  color: #e13e30;
+  border: 1px solid #e13e30;
+}
+
 /* Responsive */
 @media (width <= 900px) {
   .cta-card-1.block {

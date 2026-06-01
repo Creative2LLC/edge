@@ -1314,13 +1314,13 @@
     "id": "card-testimonies",
     "fields": [
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Title"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subtitle",
         "label": "Subtitle (Optional)"
@@ -1353,6 +1353,24 @@
         "name": "backgroundColor",
         "label": "Background Color (Hex)",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "stylingType",
+        "label": "Styling Type",
+        "description": "Choose the visual treatment for this block. Default keeps the current styling; Variant 2 applies the alternate styling.",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Variant 2",
+            "value": "variant-2"
+          }
+        ],
+        "value": "default"
       }
     ]
   },
@@ -2041,6 +2059,17 @@
         "label": "Text Below Button"
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "button3Text",
+        "label": "Button 3 Text (Variant 4 only)"
+      },
+      {
+        "component": "aem-content",
+        "name": "button3Link",
+        "label": "Button 3 Link (Variant 4 only)"
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "styleType",
@@ -2057,6 +2086,10 @@
           {
             "name": "Variant 3",
             "value": "variant-3"
+          },
+          {
+            "name": "Variant 4",
+            "value": "variant-4"
           }
         ],
         "value": "variant-1"
@@ -3991,19 +4024,23 @@
           {
             "name": "Volunteer Section",
             "value": "volunteer"
+          },
+          {
+            "name": "Button Top",
+            "value": "button-top"
           }
         ],
         "value": "default"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "sectionHeading",
         "label": "Section Heading",
         "value": ""
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "sectionSubheading",
         "label": "Section Subheading",
@@ -4083,6 +4120,24 @@
           }
         ],
         "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "iconSize",
+        "label": "Icon Size",
+        "description": "Sets the icon size for all cards in this block. Per-card icon-size overrides set in Card Styles still take precedence.",
+        "options": [
+          {
+            "name": "Default (48px)",
+            "value": "default"
+          },
+          {
+            "name": "Large (96px)",
+            "value": "large"
+          }
+        ],
+        "value": "default"
       }
     ]
   },
@@ -6841,16 +6896,25 @@
     "id": "section-title",
     "fields": [
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "title",
-        "label": "Title"
+        "label": "Title",
+        "description": "Supports multiple lines / rich text. Each paragraph renders on its own line within the title."
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "subtitle",
         "label": "Subtitle (Optional)",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitleMaxWidth",
+        "label": "Subtitle Max Width (Optional)",
+        "description": "Overrides the subtitle's default max width. Enter a number in pixels (e.g. 900). Use 0 for no max width. Leave blank to keep the default.",
         "value": ""
       },
       {
@@ -7230,10 +7294,11 @@
         "label": "Image Alt Text"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
-        "label": "Heading"
+        "label": "Heading",
+        "description": "Supports multiple lines / rich text. Each paragraph renders on its own line within the heading."
       },
       {
         "component": "text",
@@ -7293,6 +7358,24 @@
         "name": "maxWidth",
         "label": "Max Width (e.g. 1200px or 72rem)",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "stylingType",
+        "label": "Styling Type",
+        "description": "Choose the visual treatment for this block. Default keeps the current styling; Variant 2 applies the alternate layout.",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Variant 2",
+            "value": "variant-2"
+          }
+        ],
+        "value": "default"
       }
     ]
   },

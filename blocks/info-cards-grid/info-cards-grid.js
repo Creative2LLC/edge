@@ -19,6 +19,7 @@ const BLOCK_FIELD_INDEX = {
   introButtonLink: 8,
   headerAlignment: 9,
   cardContentAlignment: 10,
+  iconSize: 11,
 };
 
 const ITEM_FIELD_NAMES = [
@@ -562,6 +563,7 @@ export default function decorate(block) {
   const sectionButtonLinkField = getBlockLinkField(block, blockRows, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink);
   const headerAlignmentField = getBlockField(block, blockRows, 'headerAlignment', BLOCK_FIELD_INDEX.headerAlignment);
   const cardContentAlignmentField = getBlockField(block, blockRows, 'cardContentAlignment', BLOCK_FIELD_INDEX.cardContentAlignment);
+  const iconSizeField = getBlockField(block, blockRows, 'iconSize', BLOCK_FIELD_INDEX.iconSize);
 
   const columns = parseInt(columnsField.value, 10) || 3;
   const variant = styleVariantField.value === 'volunteer' ? 'volunteer' : 'default';
@@ -573,6 +575,8 @@ export default function decorate(block) {
     : 'left';
 
   block.classList.toggle('info-cards-grid-volunteer', variant === 'volunteer');
+  block.classList.toggle('info-cards-grid-button-top', styleVariantField.value === 'button-top');
+  block.classList.toggle('info-cards-grid-icon-large', iconSizeField.value === 'large');
 
   const cards = [];
   itemRows.forEach((row) => {
