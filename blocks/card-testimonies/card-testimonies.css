@@ -1,3 +1,10 @@
+/* Cancel the global section-wrapper side padding (24px / 32px in styles.css)
+   so the block background extends to the full 1420px content width. */
+main > .section > .card-testimonies-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* Card Testimonies Block */
 .card-testimonies.block {
   --card-testimonies-surface-bg: #fff;

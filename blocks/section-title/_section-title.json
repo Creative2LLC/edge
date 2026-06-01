@@ -18,16 +18,25 @@
     "id": "section-title",
     "fields": [
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "title",
-        "label": "Title"
+        "label": "Title",
+        "description": "Supports multiple lines / rich text. Each paragraph renders on its own line within the title."
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "subtitle",
         "label": "Subtitle (Optional)",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitleMaxWidth",
+        "label": "Subtitle Max Width (Optional)",
+        "description": "Overrides the subtitle's default max width. Enter a number in pixels (e.g. 900). Use 0 for no max width. Leave blank to keep the default.",
         "value": ""
       },
       {
