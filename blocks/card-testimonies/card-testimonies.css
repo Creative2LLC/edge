@@ -137,18 +137,18 @@
 }
 
 /* ===== VARIANT 2 ===== */
-.card-testimonies.block.card-testimonies--variant-2 {
+.card-testimonies.block.card-testimonies-variant-2 {
   border-radius: 12px;
   padding: 64px;
 }
 
-.card-testimonies--variant-2 .card-testimonies-title {
+.card-testimonies-variant-2 .card-testimonies-title {
   font-size: 36px;
   font-weight: 500;
   color: #404041;
 }
 
-.card-testimonies--variant-2 .card-testimonies-subtitle {
+.card-testimonies-variant-2 .card-testimonies-subtitle {
   font-size: 14px;
   font-weight: 600;
   color: #404041;

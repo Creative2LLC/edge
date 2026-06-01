@@ -116,7 +116,7 @@ export default function decorate(block) {
   ) || 'default').trim().toLowerCase();
   const isVariant2 = /^variant[\s-]?2$/.test(stylingType);
 
-  block.classList.toggle('card-testimonies--variant-2', isVariant2);
+  block.classList.toggle('card-testimonies-variant-2', isVariant2);
 
   if (backgroundColor) {
     block.style.setProperty('background-color', backgroundColor, 'important');
