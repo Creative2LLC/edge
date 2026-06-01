@@ -1,0 +1,122 @@
+.resource-video-hero-container .resource-video-hero-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.resource-video-hero {
+  background: #fff;
+  color: #122f4a;
+}
+
+.resource-video-hero .resource-video-hero-shell,
+.resource-video-hero .resource-video-hero-message {
+  width: min(980px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: clamp(72px, 10vw, 126px) 0 clamp(48px, 8vw, 88px);
+}
+
+.resource-video-hero .resource-video-hero-message h2 {
+  margin: 0;
+  color: #122f4a;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.resource-video-hero .resource-video-hero-message p {
+  max-width: 46rem;
+  margin: 0.75rem 0 0;
+  color: #34495a;
+  line-height: 1.55;
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  color: #5c6f7d;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb a {
+  color: #526a78;
+  text-decoration: none;
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb a:hover {
+  color: #008db6;
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb > * + *::before {
+  content: '/';
+  margin-right: 0.45rem;
+  color: #9aa9b2;
+}
+
+.resource-video-hero .resource-video-hero-title {
+  max-width: 13ch;
+  margin: 0;
+  color: #00264d;
+  font-size: clamp(2.4rem, 6vw, 4.25rem);
+  font-weight: 800;
+  line-height: 0.98;
+}
+
+.resource-video-hero .resource-video-hero-description {
+  max-width: 52rem;
+  margin: 1rem 0 0;
+  color: #243846;
+  font-size: clamp(1rem, 2vw, 1.14rem);
+  line-height: 1.65;
+}
+
+.resource-video-hero .resource-video-hero-taxonomy,
+.resource-video-hero .resource-video-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.resource-video-hero .resource-video-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #ecf6fa;
+  color: #0d6e8c;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.resource-video-hero .resource-video-hero-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.resource-video-hero .resource-video-hero-action.is-primary {
+  background: #008db6;
+  color: #fff;
+}
+
+.resource-video-hero .resource-video-hero-action.is-secondary {
+  background: #eef5f8;
+  color: #0d6e8c;
+}
+
+@media (width <= 700px) {
+  .resource-video-hero .resource-video-hero-shell,
+  .resource-video-hero .resource-video-hero-message {
+    width: min(100% - 32px, 980px);
+  }
+}

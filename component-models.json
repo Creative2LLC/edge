@@ -6491,6 +6491,110 @@
     ]
   },
   {
+    "id": "resource-video-hero",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "slug",
+        "label": "Preview Resource Slug (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "listingPath",
+        "label": "Resources Listing URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "listingLabel",
+        "label": "Resources Listing Label",
+        "value": "Resources"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "watchLabel",
+        "label": "Watch Button Label",
+        "value": "Watch Video"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "downloadLabel",
+        "label": "Download Button Label",
+        "value": "Download Resource"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "watchTarget",
+        "label": "Watch Button Target",
+        "value": "#resource-video-player"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Fallback Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Fallback Description"
+      }
+    ]
+  },
+  {
+    "id": "resource-video-player",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "slug",
+        "label": "Preview Resource Slug (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "videoUrl",
+        "label": "Video URL Override"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "posterImage",
+        "label": "Poster Image Override",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Poster Alt Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Video Title Override"
+      }
+    ]
+  },
+  {
     "id": "resources-browser",
     "fields": [
       {
@@ -6515,7 +6619,28 @@
         "component": "text",
         "valueType": "string",
         "name": "filters",
-        "label": "Preset Filters (audiences/issues/types/tags)"
+        "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "visibleFilters",
+        "label": "Visible Filters",
+        "description": "Comma-separated: audience, issue, type, tags, language, programs, grade_ages"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "filterTags",
+        "label": "Visible Tag Options",
+        "description": "Optional comma-separated tag slugs. Leave empty to show all tag options."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "hiddenFilterTags",
+        "label": "Hidden Tag Options",
+        "description": "Optional comma-separated tag slugs to hide from the tag filter."
       },
       {
         "component": "text",
@@ -6594,7 +6719,7 @@
         "component": "text",
         "valueType": "string",
         "name": "filters",
-        "label": "Audience/Issue/Type/Tags"
+        "label": "Audience/Issue/Type/Tags/Language/Program/Grade"
       }
     ]
   },
@@ -6634,7 +6759,26 @@
         "component": "text",
         "valueType": "string",
         "name": "settings",
-        "label": "Settings (background/api/selected/limit/filters)"
+        "label": "Settings (background/api/selected/limit/presets)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "selected",
+        "label": "Selected Resource Slugs or IDs (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "limit",
+        "label": "Resource Limit",
+        "value": "6"
       }
     ]
   },

@@ -69,7 +69,26 @@
           "component": "text",
           "valueType": "string",
           "name": "settings",
-          "label": "Settings (background/api/selected/limit/filters)"
+          "label": "Settings (background/api/selected/limit/presets)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "selected",
+          "label": "Selected Resource Slugs or IDs (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "limit",
+          "label": "Resource Limit",
+          "value": "6"
         }
       ]
     },

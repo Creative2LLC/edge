@@ -45,6 +45,9 @@ export function readListFilterState(search = window.location.search) {
     issues: readFacetState(params, ['issues', 'issues[]', 'issue']),
     types: readFacetState(params, ['types', 'types[]', 'type']),
     tags: readFacetState(params, ['tags', 'tags[]', 'tag']),
+    languages: readFacetState(params, ['languages', 'languages[]', 'language']),
+    programs: readFacetState(params, ['programs', 'programs[]', 'program']),
+    gradeAges: readFacetState(params, ['grade_ages', 'grade_ages[]', 'grade_age', 'grades']),
     view: view === 'list' ? 'list' : 'grid',
     sort,
     hasSort: params.has('sort'),
@@ -57,6 +60,9 @@ export function writeListFilterState({
   issues = [],
   types = [],
   tags = [],
+  languages = [],
+  programs = [],
+  gradeAges = [],
   view = '',
   sort = '',
 }, replace = true) {
@@ -73,6 +79,9 @@ export function writeListFilterState({
   writeFacetState(url.searchParams, 'issues', ['issues[]', 'issue'], issues);
   writeFacetState(url.searchParams, 'types', ['types[]', 'type'], types);
   writeFacetState(url.searchParams, 'tags', ['tags[]', 'tag'], tags);
+  writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
+  writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
+  writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);
   if (normalizedView === 'list') url.searchParams.set('view', 'list');
   else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
   else url.searchParams.delete('view');
@@ -89,6 +98,9 @@ export function buildListFilterHref(basePath, {
   issues = [],
   types = [],
   tags = [],
+  languages = [],
+  programs = [],
+  gradeAges = [],
   view = '',
   sort = '',
 } = {}) {
@@ -102,6 +114,9 @@ export function buildListFilterHref(basePath, {
   writeFacetState(url.searchParams, 'issues', ['issues[]', 'issue'], issues);
   writeFacetState(url.searchParams, 'types', ['types[]', 'type'], types);
   writeFacetState(url.searchParams, 'tags', ['tags[]', 'tag'], tags);
+  writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
+  writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
+  writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);
   if (normalizedView === 'list') url.searchParams.set('view', 'list');
   else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
   if (normalizedSort) url.searchParams.set('sort', normalizedSort);

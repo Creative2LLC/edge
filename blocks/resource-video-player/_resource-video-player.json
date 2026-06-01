@@ -1,0 +1,64 @@
+{
+  "definitions": [
+    {
+      "title": "Resource Video Player",
+      "id": "resource-video-player",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Resource Video Player",
+              "model": "resource-video-player"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "resource-video-player",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "slug",
+          "label": "Preview Resource Slug (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "videoUrl",
+          "label": "Video URL Override"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "posterImage",
+          "label": "Poster Image Override",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Poster Alt Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Video Title Override"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

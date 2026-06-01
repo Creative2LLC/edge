@@ -58,7 +58,28 @@
           "component": "text",
           "valueType": "string",
           "name": "filters",
-          "label": "Preset Filters (audiences/issues/types/tags)"
+          "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "visibleFilters",
+          "label": "Visible Filters",
+          "description": "Comma-separated: audience, issue, type, tags, language, programs, grade_ages"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "filterTags",
+          "label": "Visible Tag Options",
+          "description": "Optional comma-separated tag slugs. Leave empty to show all tag options."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "hiddenFilterTags",
+          "label": "Hidden Tag Options",
+          "description": "Optional comma-separated tag slugs to hide from the tag filter."
         },
         {
           "component": "text",
@@ -137,7 +158,7 @@
           "component": "text",
           "valueType": "string",
           "name": "filters",
-          "label": "Audience/Issue/Type/Tags"
+          "label": "Audience/Issue/Type/Tags/Language/Program/Grade"
         }
       ]
     }

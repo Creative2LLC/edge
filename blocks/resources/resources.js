@@ -1,6 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import resolveSiteHref from '../../scripts/link-utils.js';
+import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import {
   getFieldSelector,
   readImageField,
@@ -24,7 +24,25 @@ const BLOCK_PROPS = [
   'issuePreset',
   'typePreset',
   'tagPreset',
+  'languagePreset',
+  'programPreset',
+  'gradeAgePreset',
 ];
+
+const RESOURCE_ACTION_LABELS = {
+  en: {
+    learnMore: 'Learn More',
+    downloadPdf: 'Download PDF',
+  },
+  es: {
+    learnMore: 'Mas informacion',
+    downloadPdf: 'Descargar PDF',
+  },
+};
+
+function resourceActionLabels() {
+  return RESOURCE_ACTION_LABELS[currentSiteLocale()] || RESOURCE_ACTION_LABELS.en;
+}
 
 function extractConfigRows(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -213,6 +231,8 @@ function parseResourceRow(row) {
 }
 
 function mapApiResource(resource) {
+  const labels = resourceActionLabels();
+
   return {
     imagePicture: null,
     imgSrc: resource.thumbnail || '',
@@ -225,11 +245,15 @@ function mapApiResource(resource) {
     linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
     detailUrl: resource.detail_path || '',
     downloadUrl: resource.download_url || resource.resource_url || '',
-    linkText: resource.primary_action === 'download' ? 'Download PDF' : 'Learn More',
+    linkText: resource.primary_action === 'download' ? labels.downloadPdf : labels.learnMore,
     linkAction: resource.primary_action || '',
     hasDetailPage: Boolean(resource.has_detail_page),
     hasDownload: Boolean(resource.has_download),
-    tags: (resource.tags || []).map((tag) => tag.name).slice(0, 4),
+    tags: [
+      ...(resource.program_labels || []),
+      ...(resource.grade_age_labels || []),
+      ...((resource.tags || []).map((tag) => tag.name)),
+    ].filter(Boolean).slice(0, 4),
   };
 }
 
@@ -258,6 +282,7 @@ function applyRichText(element, source, html, text) {
 }
 
 function buildResourceCard(resource, row) {
+  const labels = resourceActionLabels();
   const card = document.createElement('div');
   card.className = 'resources-card';
   if (row) moveInstrumentation(row, card);
@@ -334,17 +359,21 @@ function buildResourceCard(resource, row) {
 
   const actions = [
     resource.hasDetailPage && resource.detailUrl
-      ? { href: resource.detailUrl, label: resource.linkText || 'Learn More', isDownload: false }
+      ? {
+        href: resource.detailUrl,
+        label: resource.linkText || labels.learnMore,
+        isDownload: false,
+      }
       : null,
     resource.hasDownload && resource.downloadUrl
-      ? { href: resource.downloadUrl, label: 'Download PDF', isDownload: true }
+      ? { href: resource.downloadUrl, label: labels.downloadPdf, isDownload: true }
       : null,
   ].filter(Boolean);
 
   if (!actions.length && resource.linkUrl) {
     actions.push({
       href: resource.linkUrl,
-      label: resource.linkText || 'Learn More',
+      label: resource.linkText || labels.learnMore,
       isDownload: resource.linkAction === 'download',
     });
   }
@@ -390,6 +419,7 @@ async function loadApiResources(config) {
   const requestSize = Math.max(limit, selectionCount || limit);
   const url = new URL('/api/resources', `${apiRoot}/`);
   url.searchParams.set('per_page', String(requestSize));
+  url.searchParams.set('locale', currentSiteLocale());
 
   parseList(config.audiencePreset).forEach((value) => {
     url.searchParams.append('audiences[]', value.toLowerCase());
@@ -402,6 +432,15 @@ async function loadApiResources(config) {
   });
   parseList(config.tagPreset).forEach((value) => {
     url.searchParams.append('tags[]', value.toLowerCase());
+  });
+  parseList(config.languagePreset).forEach((value) => {
+    url.searchParams.append('languages[]', value.toLowerCase());
+  });
+  parseList(config.programPreset).forEach((value) => {
+    url.searchParams.append('programs[]', value.toLowerCase());
+  });
+  parseList(config.gradeAgePreset).forEach((value) => {
+    url.searchParams.append('grade_ages[]', value.toLowerCase());
   });
   selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
   selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
@@ -421,7 +460,7 @@ async function loadApiResources(config) {
 
 export default async function decorate(block) {
   const configRows = extractConfigRows(block);
-  const settings = parseKeyValueLines(readConfigField(configRows, 'settings', [4]));
+  const settings = parseKeyValueLines(readConfigField(configRows, 'settings', [5, 4]));
   const config = {
     heading: readConfigField(configRows, 'heading', [0]),
     subheading: readConfigField(configRows, 'subheading', [1]),
@@ -431,21 +470,27 @@ export default async function decorate(block) {
     buttonText: readConfigField(configRows, 'button', [3, 2]),
     buttonLink: readConfigLinkField(configRows, 'buttonLink', [4, 3])
       || getSettingValue(settings, ['buttonlink', 'button-link']),
-    apiBaseUrl: readConfigField(configRows, 'apiBaseUrl', [5])
+    apiBaseUrl: readConfigField(configRows, 'apiBaseUrl', [6, 5])
       || getSettingValue(settings, ['apibaseurl', 'api-base-url']),
-    selected: readConfigField(configRows, 'selected', [6])
+    selected: readConfigField(configRows, 'selected', [7, 6])
       || getSettingValue(settings, ['selected']),
-    limit: readConfigField(configRows, 'limit', [7])
+    limit: readConfigField(configRows, 'limit', [8, 7])
       || getSettingValue(settings, ['limit'])
       || '6',
-    audiencePreset: readConfigField(configRows, 'audiencePreset', [8])
+    audiencePreset: readConfigField(configRows, 'audiencePreset', [9, 8])
       || getSettingValue(settings, ['audiencepreset', 'audiences', 'audience']),
-    issuePreset: readConfigField(configRows, 'issuePreset', [9])
+    issuePreset: readConfigField(configRows, 'issuePreset', [10, 9])
       || getSettingValue(settings, ['issuepreset', 'issues', 'issue']),
-    typePreset: readConfigField(configRows, 'typePreset', [10])
+    typePreset: readConfigField(configRows, 'typePreset', [11, 10])
       || getSettingValue(settings, ['typepreset', 'types', 'type']),
-    tagPreset: readConfigField(configRows, 'tagPreset', [11])
+    tagPreset: readConfigField(configRows, 'tagPreset', [12, 11])
       || getSettingValue(settings, ['tagpreset', 'tags', 'tag']),
+    languagePreset: readConfigField(configRows, 'languagePreset', [13, 12])
+      || getSettingValue(settings, ['languagepreset', 'languages', 'language']),
+    programPreset: readConfigField(configRows, 'programPreset', [14, 13])
+      || getSettingValue(settings, ['programpreset', 'programs', 'program']),
+    gradeAgePreset: readConfigField(configRows, 'gradeAgePreset', [15, 14])
+      || getSettingValue(settings, ['gradeagepreset', 'gradeages', 'grade_ages', 'grades']),
   };
 
   configRows.forEach((row) => row.remove());

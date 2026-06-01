@@ -1,5 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import resolveSiteHref from '../../scripts/link-utils.js';
+import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import { buildListFilterHref } from '../../scripts/list-filter-state.js';
 import {
   getBlockRows,
@@ -132,13 +132,6 @@ function getSlugFromPathname(pathname = window.location.pathname) {
   return normalizeSlug(segments[segments.length - 1] || '');
 }
 
-function buildPill(label, className = '') {
-  const pill = document.createElement('span');
-  pill.className = `resource-detail-pill ${className}`.trim();
-  pill.textContent = label;
-  return pill;
-}
-
 function buildLinkedPill(label, href, className = '') {
   const pill = document.createElement('a');
   pill.className = `resource-detail-pill is-linked ${className}`.trim();
@@ -186,6 +179,24 @@ function buildTaxonomy(resource, listingPath) {
         issues: [resource.issue],
       }),
     }] : []),
+    ...(resource.language && resource.language_label ? [{
+      label: resource.language_label,
+      href: buildListFilterHref(listingPath, {
+        languages: [resource.language],
+      }),
+    }] : []),
+    ...((resource.program_labels || []).map((label, index) => ({
+      label,
+      href: buildListFilterHref(listingPath, {
+        programs: [resource.program_values?.[index] || label],
+      }),
+    }))),
+    ...((resource.grade_age_labels || []).map((label, index) => ({
+      label,
+      href: buildListFilterHref(listingPath, {
+        gradeAges: [resource.grade_age_values?.[index] || label],
+      }),
+    }))),
   ].filter((entry) => normalizeText(entry.label));
 
   if (!values.length) return null;
@@ -196,16 +207,23 @@ function buildTaxonomy(resource, listingPath) {
   return wrap;
 }
 
-function buildTags(resource) {
+function buildTags(resource, listingPath) {
   const tags = (resource.tags || [])
-    .map((tag) => normalizeText(tag.name))
-    .filter(Boolean);
+    .map((tag) => ({
+      label: normalizeText(tag.name),
+      value: normalizeText(tag.slug || tag.name),
+    }))
+    .filter((tag) => tag.label);
 
   if (!tags.length) return null;
 
   const wrap = document.createElement('div');
   wrap.className = 'resource-detail-tags';
-  tags.forEach((tag) => wrap.append(buildPill(tag)));
+  tags.forEach((tag) => {
+    wrap.append(buildLinkedPill(tag.label, buildListFilterHref(listingPath, {
+      tags: [tag.value],
+    })));
+  });
   return wrap;
 }
 
@@ -307,14 +325,14 @@ function buildHero(resource, config) {
   return hero;
 }
 
-function buildBody(resource) {
+function buildBody(resource, config) {
   const article = document.createElement('article');
   article.className = 'resource-detail-article';
 
   const inner = document.createElement('div');
   inner.className = 'resource-detail-prose';
 
-  const tags = buildTags(resource);
+  const tags = buildTags(resource, config.listingPath);
   if (tags) inner.append(tags);
 
   if (normalizeText(resource.body)) {
@@ -342,7 +360,7 @@ function buildResourceView(resource, config) {
   const fragment = document.createDocumentFragment();
   fragment.append(buildHero(resource, config));
 
-  const body = buildBody(resource);
+  const body = buildBody(resource, config);
   if (body) fragment.append(body);
 
   return fragment;
@@ -350,6 +368,7 @@ function buildResourceView(resource, config) {
 
 async function fetchResource(apiBaseUrl, slug) {
   const endpoint = new URL(`/api/resources/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
+  endpoint.searchParams.set('locale', currentSiteLocale());
   const response = await fetch(endpoint.toString(), {
     headers: { Accept: 'application/json' },
   });

@@ -1,6 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import resolveSiteHref from '../../scripts/link-utils.js';
+import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 import {
   DEFAULT_LIST_SORT,
@@ -32,6 +32,12 @@ const LEGACY_BLOCK_LABELS = {
   issuePreset: ['issue preset', 'preset issue', 'default issue'],
   typePreset: ['type preset', 'preset type', 'default type'],
   tagPreset: ['tag preset', 'preset tag', 'default tag'],
+  languagePreset: ['language preset', 'preset language', 'default language'],
+  programPreset: ['program preset', 'programs preset', 'preset program', 'default program'],
+  gradeAgePreset: ['grade age preset', 'grade preset', 'grades preset', 'default grade'],
+  visibleFilters: ['visible filters', 'filter visibility', 'shown filters', 'display filters'],
+  filterTags: ['filter tags', 'visible tag options', 'shown tag options'],
+  hiddenFilterTags: ['hidden filter tags', 'excluded tag options', 'exclude tag options'],
   filters: ['filters', 'preset filters'],
 };
 
@@ -48,7 +54,40 @@ const BLOCK_PROPS = [
   'issuePreset',
   'typePreset',
   'tagPreset',
+  'languagePreset',
+  'programPreset',
+  'gradeAgePreset',
+  'visibleFilters',
+  'filterTags',
+  'hiddenFilterTags',
 ];
+
+const FILTER_FACETS = [
+  'audience',
+  'issue',
+  'type',
+  'tags',
+  'language',
+  'programs',
+  'grade_ages',
+];
+
+const DEFAULT_VISIBLE_FILTERS = [...FILTER_FACETS];
+
+const RESOURCE_BROWSER_ACTION_LABELS = {
+  en: {
+    learnMore: 'Learn more ->',
+    downloadPdf: 'Download PDF ->',
+  },
+  es: {
+    learnMore: 'Mas informacion ->',
+    downloadPdf: 'Descargar PDF ->',
+  },
+};
+
+function resourceBrowserActionLabels() {
+  return RESOURCE_BROWSER_ACTION_LABELS[currentSiteLocale()] || RESOURCE_BROWSER_ACTION_LABELS.en;
+}
 
 function extractConfigRow(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -144,6 +183,12 @@ const TAG_COLORS = {
   policymakers: { bg: '#9ca3af', color: '#fff' },
   training: { bg: '#b15b21', color: '#fff' },
   'fact-sheet': { bg: '#2eb6d8', color: '#fff' },
+  kidsmartz: { bg: '#008db6', color: '#fff' },
+  netsmartz: { bg: '#f28c28', color: '#102536' },
+  'k-2': { bg: '#c7e8d1', color: '#143423' },
+  '3-5': { bg: '#d8ecf7', color: '#123244' },
+  'middle-school': { bg: '#6b7fca', color: '#fff' },
+  'high-school': { bg: '#243846', color: '#fff' },
 };
 
 function collectLegacyBlockFields(block) {
@@ -194,6 +239,46 @@ function parseList(value) {
   });
 }
 
+function normalizeFilterFacet(value) {
+  const key = normalizeToken(value).replace(/[\s-]+/g, '_');
+  const aliases = {
+    audiences: 'audience',
+    issues: 'issue',
+    types: 'type',
+    tag: 'tags',
+    language: 'language',
+    languages: 'language',
+    program: 'programs',
+    program_tags: 'programs',
+    grade: 'grade_ages',
+    grades: 'grade_ages',
+    grade_age: 'grade_ages',
+    grade_ages: 'grade_ages',
+    gradeages: 'grade_ages',
+  };
+  const facet = aliases[key] || key;
+  return FILTER_FACETS.includes(facet) ? facet : '';
+}
+
+function parseVisibleFilters(value) {
+  const filters = parseList(value)
+    .map(normalizeFilterFacet)
+    .filter(Boolean);
+  return filters.length ? [...new Set(filters)] : DEFAULT_VISIBLE_FILTERS;
+}
+
+function isFilterVisible(config, facet) {
+  return (config.visibleFilters || DEFAULT_VISIBLE_FILTERS).includes(facet);
+}
+
+function filterGroupName(facet) {
+  return {
+    audience: 'audiences',
+    issue: 'issues',
+    type: 'types',
+  }[facet] || facet;
+}
+
 function parseKeyValueLines(value) {
   return `${value || ''}`
     .split(/[\n,]+/)
@@ -214,6 +299,16 @@ function parseFilterLists(value) {
     issue: parseList(map.issue || map.issues),
     type: parseList(map.type || map.types),
     tags: parseList(map.tag || map.tags),
+    language: parseList(map.language || map.languages),
+    programs: parseList(map.program || map.programs || map.programtags || map.program_tags),
+    gradeAges: parseList(
+      map.grade
+        || map.grades
+        || map.gradeage
+        || map.gradeages
+        || map.grade_age
+        || map.grade_ages,
+    ),
   };
 }
 
@@ -268,6 +363,9 @@ function mapResource(resource) {
   const audience = parseList(resource.audience);
   const issue = parseList(resource.issue);
   const type = parseList(resource.type);
+  const language = parseList(resource.language);
+  const programs = parseList(resource.programs);
+  const gradeAges = parseList(resource.gradeAges);
   const customTags = parseList(resource.tags);
   return {
     imagePicture: resource.imagePicture || null,
@@ -280,9 +378,15 @@ function mapResource(resource) {
     audience,
     issue,
     type,
+    language,
+    programs,
+    gradeAges,
     tags: customTags,
     tagEntries: [
       ...type.map((label) => ({ facet: 'type', value: normalizeToken(label), label })),
+      ...programs.map((label) => ({ facet: 'programs', value: normalizeToken(label), label })),
+      ...gradeAges.map((label) => ({ facet: 'grade_ages', value: normalizeToken(label), label })),
+      ...language.map((label) => ({ facet: 'language', value: normalizeToken(label), label })),
       ...audience.map((label) => ({ facet: 'audience', value: normalizeToken(label), label })),
       ...issue.map((label) => ({ facet: 'issue', value: normalizeToken(label), label })),
       ...customTags.map((label) => ({ facet: 'tags', value: normalizeToken(label), label })),
@@ -304,12 +408,30 @@ function mapApiResource(resource) {
     audience: resource.audience_values || [],
     issue: resource.issue ? [resource.issue] : [],
     type: resource.resource_type ? [resource.resource_type] : [],
+    language: resource.language ? [resource.language] : [],
+    programs: resource.program_values || [],
+    gradeAges: resource.grade_age_values || [],
     tags: (resource.tags || []).map((tag) => tag.name).filter(Boolean),
     tagEntries: [
       ...(resource.resource_type && resource.resource_type_label ? [{
         facet: 'type',
         value: normalizeToken(resource.resource_type),
         label: resource.resource_type_label,
+      }] : []),
+      ...((resource.program_labels || []).map((label, index) => ({
+        facet: 'programs',
+        value: normalizeToken(resource.program_values?.[index] || label),
+        label,
+      }))),
+      ...((resource.grade_age_labels || []).map((label, index) => ({
+        facet: 'grade_ages',
+        value: normalizeToken(resource.grade_age_values?.[index] || label),
+        label,
+      }))),
+      ...(resource.language && resource.language_label ? [{
+        facet: 'language',
+        value: normalizeToken(resource.language),
+        label: resource.language_label,
       }] : []),
       ...((resource.audience_labels || []).map((label, index) => ({
         facet: 'audience',
@@ -367,6 +489,9 @@ function parseResourceRow(row) {
       audience: getPropText(row, 'audience') || filters.audience.join(', '),
       issue: getPropText(row, 'issue') || filters.issue.join(', '),
       type: getPropText(row, 'type') || filters.type.join(', '),
+      language: getPropText(row, 'language') || filters.language.join(', '),
+      programs: getPropText(row, 'programs') || filters.programs.join(', '),
+      gradeAges: getPropText(row, 'gradeAges') || filters.gradeAges.join(', '),
       tags: getPropText(row, 'tags') || filters.tags.join(', '),
     });
   }
@@ -409,6 +534,7 @@ function buildTag(tagEntry, onActivate = null) {
 }
 
 function buildResourceCard(resource, row = null, onFacetActivate = null) {
+  const labels = resourceBrowserActionLabels();
   const card = document.createElement('article');
   card.className = 'resources-browser-card';
   if (row) moveInstrumentation(row, card);
@@ -459,17 +585,17 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
 
   const actions = [
     resource.hasDetailPage && resource.detailUrl
-      ? { href: resource.detailUrl, label: 'Learn more ->', isDownload: false }
+      ? { href: resource.detailUrl, label: labels.learnMore, isDownload: false }
       : null,
     resource.hasDownload && resource.downloadUrl
-      ? { href: resource.downloadUrl, label: 'Download PDF ->', isDownload: true }
+      ? { href: resource.downloadUrl, label: labels.downloadPdf, isDownload: true }
       : null,
   ].filter(Boolean);
 
   if (!actions.length && resource.linkUrl) {
     actions.push({
       href: resource.linkUrl,
-      label: resource.linkAction === 'download' ? 'Download PDF ->' : 'Learn more ->',
+      label: resource.linkAction === 'download' ? labels.downloadPdf : labels.learnMore,
       isDownload: resource.linkAction === 'download',
     });
   }
@@ -626,7 +752,8 @@ function buildDebugPanel(title, lines = []) {
   return details;
 }
 
-function buildShell({ heading, searchPlaceholder, loadMoreText }) {
+function buildShell(config) {
+  const { heading, searchPlaceholder, loadMoreText } = config;
   const inner = document.createElement('div');
   inner.className = 'resources-browser-inner';
 
@@ -666,13 +793,27 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
   const issueSelect = createFilterSelect('Issue');
   const typeSelect = createFilterSelect('Type');
   const tagSelect = createFilterSelect('Tag');
+  const languageSelect = createFilterSelect('Language');
+  const programSelect = createFilterSelect('Program');
+  const gradeAgeSelect = createFilterSelect('Grade / Age');
   const sortSelect = createSortSelect('Sort resources');
   primaryRow.append(sortSelect);
   controls.append(primaryRow);
 
   const filterRow = document.createElement('div');
   filterRow.className = 'resources-browser-filter-row';
-  filterRow.append(audienceSelect, issueSelect, typeSelect, tagSelect);
+  [
+    ['audience', audienceSelect],
+    ['issue', issueSelect],
+    ['type', typeSelect],
+    ['tags', tagSelect],
+    ['language', languageSelect],
+    ['programs', programSelect],
+    ['grade_ages', gradeAgeSelect],
+  ].forEach(([facet, select]) => {
+    if (isFilterVisible(config, facet)) filterRow.append(select);
+  });
+  filterRow.hidden = filterRow.children.length === 0;
   controls.append(filterRow);
   header.append(controls);
   inner.append(header);
@@ -716,6 +857,9 @@ function buildShell({ heading, searchPlaceholder, loadMoreText }) {
     issueSelect,
     typeSelect,
     tagSelect,
+    languageSelect,
+    programSelect,
+    gradeAgeSelect,
     sortSelect,
     viewButtons: [gridButton, listButton],
     activeFilters,
@@ -737,6 +881,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     issueSelect,
     typeSelect,
     tagSelect,
+    languageSelect,
+    programSelect,
+    gradeAgeSelect,
     sortSelect,
     viewButtons,
     activeFilters,
@@ -764,6 +911,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     selectedIssue: new Set(),
     selectedType: new Set(),
     selectedTags: new Set(),
+    selectedLanguage: new Set(),
+    selectedProgram: new Set(),
+    selectedGradeAge: new Set(),
     sort: DEFAULT_LIST_SORT,
     hasExplicitSort: false,
     view: 'grid',
@@ -774,6 +924,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     selectedIssue: parseList(config.issuePreset).map(normalizeToken),
     selectedType: parseList(config.typePreset).map(normalizeToken),
     selectedTags: parseList(config.tagPreset).map(normalizeToken),
+    selectedLanguage: parseList(config.languagePreset).map(normalizeToken),
+    selectedProgram: parseList(config.programPreset).map(normalizeToken),
+    selectedGradeAge: parseList(config.gradeAgePreset).map(normalizeToken),
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
@@ -800,6 +953,21 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   state.selectedTags = new Set(
     locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
   );
+  state.selectedLanguage = new Set(
+    locationState.languages.present
+      ? locationState.languages.values
+      : defaultState.selectedLanguage,
+  );
+  state.selectedProgram = new Set(
+    locationState.programs.present
+      ? locationState.programs.values
+      : defaultState.selectedProgram,
+  );
+  state.selectedGradeAge = new Set(
+    locationState.gradeAges.present
+      ? locationState.gradeAges.values
+      : defaultState.selectedGradeAge,
+  );
   const syncUrlState = (replace = true) => {
     writeListFilterState({
       query: state.query,
@@ -807,6 +975,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
       tags: [...state.selectedTags],
+      languages: [...state.selectedLanguage],
+      programs: [...state.selectedProgram],
+      gradeAges: [...state.selectedGradeAge],
       sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
@@ -816,6 +987,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     syncSelectValue(issueSelect, state.selectedIssue);
     syncSelectValue(typeSelect, state.selectedType);
     syncSelectValue(tagSelect, state.selectedTags);
+    syncSelectValue(languageSelect, state.selectedLanguage);
+    syncSelectValue(programSelect, state.selectedProgram);
+    syncSelectValue(gradeAgeSelect, state.selectedGradeAge);
   };
   const syncSortControl = () => {
     sortSelect.value = state.sort || DEFAULT_LIST_SORT;
@@ -828,6 +1002,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     issue: new Map(),
     type: new Map(),
     tags: new Map(),
+    language: new Map(),
+    programs: new Map(),
+    grade_ages: new Map(),
   };
 
   function applyFilters() {
@@ -849,8 +1026,15 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         || data.type.some((value) => state.selectedType.has(normalizeToken(value)));
       const tagMatch = !state.selectedTags.size
         || data.tags.some((value) => state.selectedTags.has(normalizeToken(value)));
+      const languageMatch = !state.selectedLanguage.size
+        || data.language.some((value) => state.selectedLanguage.has(normalizeToken(value)));
+      const programMatch = !state.selectedProgram.size
+        || data.programs.some((value) => state.selectedProgram.has(normalizeToken(value)));
+      const gradeAgeMatch = !state.selectedGradeAge.size
+        || data.gradeAges.some((value) => state.selectedGradeAge.has(normalizeToken(value)));
 
-      return audienceMatch && issueMatch && typeMatch && tagMatch;
+      return audienceMatch && issueMatch && typeMatch && tagMatch
+        && languageMatch && programMatch && gradeAgeMatch;
     });
 
     const sorted = sortListItems(filtered, state.sort, ({ data, originalIndex }) => ({
@@ -904,6 +1088,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     if (facet === 'audience') state.selectedAudience.add(value);
     if (facet === 'issue') state.selectedIssue.add(value);
     if (facet === 'tags') state.selectedTags.add(value);
+    if (facet === 'language') state.selectedLanguage.add(value);
+    if (facet === 'programs') state.selectedProgram.add(value);
+    if (facet === 'grade_ages') state.selectedGradeAge.add(value);
 
     state.visibleCount = config.pageSize;
     state.page = 1;
@@ -926,10 +1113,16 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   const issues = collectOptions('issue');
   const types = collectOptions('type');
   const tags = collectOptions('tags');
+  const languages = collectOptions('language');
+  const programs = collectOptions('programs');
+  const gradeAges = collectOptions('gradeAges');
   setFilterOptions(audienceSelect, 'Audience', audiences);
   setFilterOptions(issueSelect, 'Issue', issues);
   setFilterOptions(typeSelect, 'Type', types);
   setFilterOptions(tagSelect, 'Tag', tags);
+  setFilterOptions(languageSelect, 'Language', languages);
+  setFilterOptions(programSelect, 'Program', programs);
+  setFilterOptions(gradeAgeSelect, 'Grade / Age', gradeAges);
   setFilterOptions(sortSelect, 'Sort', getListSortOptions());
 
   optionLabels = {
@@ -937,6 +1130,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     issue: new Map(issues.map((option) => [normalizeToken(option.value), option.label])),
     type: new Map(types.map((option) => [normalizeToken(option.value), option.label])),
     tags: new Map(tags.map((option) => [normalizeToken(option.value), option.label])),
+    language: new Map(languages.map((option) => [normalizeToken(option.value), option.label])),
+    programs: new Map(programs.map((option) => [normalizeToken(option.value), option.label])),
+    grade_ages: new Map(gradeAges.map((option) => [normalizeToken(option.value), option.label])),
   };
   syncFilterControls();
   syncSortControl();
@@ -948,6 +1144,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
       ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
+      ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
+      ...[...state.selectedProgram].map((value) => ({ facet: 'programs', value })),
+      ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -957,6 +1156,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
         if (facet === 'tags') state.selectedTags.delete(value);
+        if (facet === 'language') state.selectedLanguage.delete(value);
+        if (facet === 'programs') state.selectedProgram.delete(value);
+        if (facet === 'grade_ages') state.selectedGradeAge.delete(value);
         state.visibleCount = config.pageSize;
         state.page = 1;
         syncFilterControls();
@@ -997,6 +1199,15 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   tagSelect.addEventListener('change', () => {
     applyFacet(tagSelect, state.selectedTags);
   });
+  languageSelect.addEventListener('change', () => {
+    applyFacet(languageSelect, state.selectedLanguage);
+  });
+  programSelect.addEventListener('change', () => {
+    applyFacet(programSelect, state.selectedProgram);
+  });
+  gradeAgeSelect.addEventListener('change', () => {
+    applyFacet(gradeAgeSelect, state.selectedGradeAge);
+  });
   sortSelect.addEventListener('change', () => {
     state.sort = normalizeListSort(sortSelect.value);
     state.hasExplicitSort = true;
@@ -1015,6 +1226,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     state.selectedIssue.clear();
     state.selectedType.clear();
     state.selectedTags.clear();
+    state.selectedLanguage.clear();
+    state.selectedProgram.clear();
+    state.selectedGradeAge.clear();
     state.visibleCount = config.pageSize;
     state.page = 1;
     searchInput.value = '';
@@ -1046,6 +1260,9 @@ function renderApiBrowser(block, config) {
     issueSelect,
     typeSelect,
     tagSelect,
+    languageSelect,
+    programSelect,
+    gradeAgeSelect,
     sortSelect,
     viewButtons,
     activeFilters,
@@ -1066,6 +1283,9 @@ function renderApiBrowser(block, config) {
     selectedIssue: new Set(),
     selectedType: new Set(),
     selectedTags: new Set(),
+    selectedLanguage: new Set(),
+    selectedProgram: new Set(),
+    selectedGradeAge: new Set(),
     sort: '',
     hasExplicitSort: false,
     view: 'grid',
@@ -1080,6 +1300,9 @@ function renderApiBrowser(block, config) {
     selectedIssue: parseList(config.issuePreset).map(normalizeToken),
     selectedType: parseList(config.typePreset).map(normalizeToken),
     selectedTags: parseList(config.tagPreset).map(normalizeToken),
+    selectedLanguage: parseList(config.languagePreset).map(normalizeToken),
+    selectedProgram: parseList(config.programPreset).map(normalizeToken),
+    selectedGradeAge: parseList(config.gradeAgePreset).map(normalizeToken),
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
@@ -1104,12 +1327,30 @@ function renderApiBrowser(block, config) {
   state.selectedTags = new Set(
     locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
   );
+  state.selectedLanguage = new Set(
+    locationState.languages.present
+      ? locationState.languages.values
+      : defaultState.selectedLanguage,
+  );
+  state.selectedProgram = new Set(
+    locationState.programs.present
+      ? locationState.programs.values
+      : defaultState.selectedProgram,
+  );
+  state.selectedGradeAge = new Set(
+    locationState.gradeAges.present
+      ? locationState.gradeAges.values
+      : defaultState.selectedGradeAge,
+  );
 
   const optionLabels = {
     audience: new Map(),
     issue: new Map(),
     type: new Map(),
     tags: new Map(),
+    language: new Map(),
+    programs: new Map(),
+    grade_ages: new Map(),
   };
   const syncUrlState = (replace = true) => {
     writeListFilterState({
@@ -1118,6 +1359,9 @@ function renderApiBrowser(block, config) {
       issues: [...state.selectedIssue],
       types: [...state.selectedType],
       tags: [...state.selectedTags],
+      languages: [...state.selectedLanguage],
+      programs: [...state.selectedProgram],
+      gradeAges: [...state.selectedGradeAge],
       sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
@@ -1127,6 +1371,9 @@ function renderApiBrowser(block, config) {
     syncSelectValue(issueSelect, state.selectedIssue);
     syncSelectValue(typeSelect, state.selectedType);
     syncSelectValue(tagSelect, state.selectedTags);
+    syncSelectValue(languageSelect, state.selectedLanguage);
+    syncSelectValue(programSelect, state.selectedProgram);
+    syncSelectValue(gradeAgeSelect, state.selectedGradeAge);
   };
   const syncSortControl = () => {
     sortSelect.value = state.sort || '';
@@ -1144,6 +1391,9 @@ function renderApiBrowser(block, config) {
     if (facet === 'audience') state.selectedAudience.add(value);
     if (facet === 'issue') state.selectedIssue.add(value);
     if (facet === 'tags') state.selectedTags.add(value);
+    if (facet === 'language') state.selectedLanguage.add(value);
+    if (facet === 'programs') state.selectedProgram.add(value);
+    if (facet === 'grade_ages') state.selectedGradeAge.add(value);
 
     syncFilterControls();
     syncUrlState();
@@ -1157,6 +1407,9 @@ function renderApiBrowser(block, config) {
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
       ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
+      ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
+      ...[...state.selectedProgram].map((value) => ({ facet: 'programs', value })),
+      ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -1166,6 +1419,9 @@ function renderApiBrowser(block, config) {
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
         if (facet === 'tags') state.selectedTags.delete(value);
+        if (facet === 'language') state.selectedLanguage.delete(value);
+        if (facet === 'programs') state.selectedProgram.delete(value);
+        if (facet === 'grade_ages') state.selectedGradeAge.delete(value);
         syncFilterControls();
         syncUrlState();
         loadResources(true);
@@ -1178,6 +1434,9 @@ function renderApiBrowser(block, config) {
     const audiences = filters.audiences || [];
     const issues = filters.issues || [];
     const types = filters.types || [];
+    const languages = filters.languages || [];
+    const programs = filters.programs || [];
+    const gradeAges = filters.grade_ages || [];
     const tags = (filters.tags || []).map((option) => ({
       value: option.slug,
       label: option.name,
@@ -1187,6 +1446,9 @@ function renderApiBrowser(block, config) {
     setFilterOptions(issueSelect, 'Issue', issues);
     setFilterOptions(typeSelect, 'Type', types);
     setFilterOptions(tagSelect, 'Tag', tags);
+    setFilterOptions(languageSelect, 'Language', languages);
+    setFilterOptions(programSelect, 'Program', programs);
+    setFilterOptions(gradeAgeSelect, 'Grade / Age', gradeAges);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
@@ -1198,6 +1460,15 @@ function renderApiBrowser(block, config) {
     );
     optionLabels.tags = new Map(
       tags.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    optionLabels.language = new Map(
+      languages.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    optionLabels.programs = new Map(
+      programs.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    optionLabels.grade_ages = new Map(
+      gradeAges.map((option) => [normalizeToken(option.value), option.label]),
     );
     syncFilterControls();
   }
@@ -1254,6 +1525,7 @@ function renderApiBrowser(block, config) {
     const url = new URL('/api/resources', `${apiRoot}/`);
     url.searchParams.set('per_page', String(config.pageSize));
     url.searchParams.set('page', String(targetPage || (reset ? 1 : state.page + 1)));
+    url.searchParams.set('locale', currentSiteLocale());
     if (state.query.trim()) {
       url.searchParams.set('search', state.query.trim());
     }
@@ -1264,6 +1536,18 @@ function renderApiBrowser(block, config) {
     state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
     state.selectedType.forEach((value) => url.searchParams.append('types[]', value));
     state.selectedTags.forEach((value) => url.searchParams.append('tags[]', value));
+    state.selectedLanguage.forEach((value) => url.searchParams.append('languages[]', value));
+    state.selectedProgram.forEach((value) => url.searchParams.append('programs[]', value));
+    state.selectedGradeAge.forEach((value) => url.searchParams.append('grade_ages[]', value));
+    config.visibleFilters.forEach((facet) => {
+      url.searchParams.append('filter_groups[]', filterGroupName(facet));
+    });
+    parseList(config.filterTags).forEach((value) => {
+      url.searchParams.append('filter_tags[]', value);
+    });
+    parseList(config.hiddenFilterTags).forEach((value) => {
+      url.searchParams.append('exclude_filter_tags[]', value);
+    });
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
 
@@ -1344,6 +1628,15 @@ function renderApiBrowser(block, config) {
   tagSelect.addEventListener('change', () => {
     applyFacet(tagSelect, state.selectedTags);
   });
+  languageSelect.addEventListener('change', () => {
+    applyFacet(languageSelect, state.selectedLanguage);
+  });
+  programSelect.addEventListener('change', () => {
+    applyFacet(programSelect, state.selectedProgram);
+  });
+  gradeAgeSelect.addEventListener('change', () => {
+    applyFacet(gradeAgeSelect, state.selectedGradeAge);
+  });
   sortSelect.addEventListener('change', () => {
     state.sort = normalizeListSort(sortSelect.value);
     state.hasExplicitSort = true;
@@ -1357,6 +1650,9 @@ function renderApiBrowser(block, config) {
     state.selectedIssue.clear();
     state.selectedType.clear();
     state.selectedTags.clear();
+    state.selectedLanguage.clear();
+    state.selectedProgram.clear();
+    state.selectedGradeAge.clear();
     searchInput.value = '';
     syncFilterControls();
     syncUrlState();
@@ -1403,17 +1699,20 @@ export default function decorate(block) {
       || readConfigField(configRow, 'selected', 2),
     pageSize: parseIntSafe(
       getBlockField(block, legacyMap, 'pageSize', '')
+        || readConfigValue(configRows, 'pageSize', 7)
         || readConfigValue(configRows, 'pageSize', 4, '8')
         || readConfigField(configRow, 'pageSize', 4, '8'),
       8,
     ),
     searchPlaceholder: getBlockField(block, legacyMap, 'searchPlaceholder', '')
+      || readConfigValue(configRows, 'searchPlaceholder', 8)
       || readConfigValue(configRows, 'searchPlaceholder', 5, 'Search')
       || readConfigField(configRow, 'searchPlaceholder', 5, 'Search')
       || 'Search',
     loadMoreText: getBlockField(block, legacyMap, 'loadMoreText', 'Load More'),
     paginationMode: normalizePaginationMode(
       getBlockField(block, legacyMap, 'paginationMode', '')
+        || readConfigValue(configRows, 'paginationMode', 10)
         || readConfigValue(configRows, 'paginationMode', 7, 'load-more')
         || readConfigField(configRow, 'paginationMode', 7, 'load-more'),
     ),
@@ -1425,6 +1724,26 @@ export default function decorate(block) {
       || filterConfig.type.join(', '),
     tagPreset: getBlockField(block, legacyMap, 'tagPreset')
       || filterConfig.tags.join(', '),
+    languagePreset: getBlockField(block, legacyMap, 'languagePreset')
+      || readConfigValue(configRows, 'languagePreset', 11)
+      || filterConfig.language.join(', '),
+    programPreset: getBlockField(block, legacyMap, 'programPreset')
+      || readConfigValue(configRows, 'programPreset', 12)
+      || filterConfig.programs.join(', '),
+    gradeAgePreset: getBlockField(block, legacyMap, 'gradeAgePreset')
+      || readConfigValue(configRows, 'gradeAgePreset', 13)
+      || filterConfig.gradeAges.join(', '),
+    visibleFilters: parseVisibleFilters(
+      getBlockField(block, legacyMap, 'visibleFilters')
+        || readConfigValue(configRows, 'visibleFilters', 4)
+        || readConfigField(configRow, 'visibleFilters', 4),
+    ),
+    filterTags: getBlockField(block, legacyMap, 'filterTags')
+      || readConfigValue(configRows, 'filterTags', 5)
+      || readConfigField(configRow, 'filterTags', 5),
+    hiddenFilterTags: getBlockField(block, legacyMap, 'hiddenFilterTags')
+      || readConfigValue(configRows, 'hiddenFilterTags', 6)
+      || readConfigField(configRow, 'hiddenFilterTags', 6),
   };
 
   configRows.forEach((row) => row.remove());
