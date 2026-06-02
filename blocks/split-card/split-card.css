@@ -218,10 +218,27 @@ main > .section > .split-card-wrapper {
    - Content flush to the block's left edge (no left padding), left aligned.
    - Image fixed at 459 x 226 with a 14px radius on all corners, vertically
      centered in its column. */
+.split-card.split-card-variant-2 .split-card-inner {
+  background: transparent;
+}
+
 .split-card.split-card-variant-2 .split-card-content {
   padding-left: 0;
   align-items: flex-start !important;
   text-align: left !important;
+}
+
+.split-card.split-card-variant-2 .split-card-heading {
+  font-size: 36px;
+  font-weight: 700;
+  color: #404041;
+}
+
+.split-card.split-card-variant-2 .split-card-subheading {
+  font-size: 20px;
+  font-weight: 500;
+  color: #404041;
+  max-width: 820px;
 }
 
 .split-card.split-card-variant-2 .split-card-media {
