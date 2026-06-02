@@ -6544,9 +6544,186 @@
         "label": "Resource Body"
       },
       {
+        "component": "multiselect",
+        "name": "audience",
+        "label": "Resource Tags - Audience",
+        "options": [
+          {
+            "name": "Families",
+            "value": "families"
+          },
+          {
+            "name": "Law Enforcement",
+            "value": "law-enforcement"
+          },
+          {
+            "name": "Educators",
+            "value": "educators"
+          },
+          {
+            "name": "Child Welfare Professionals",
+            "value": "child-welfare-professionals"
+          },
+          {
+            "name": "Mental Health Professionals",
+            "value": "mental-health-professionals"
+          },
+          {
+            "name": "Legal Professionals",
+            "value": "legal-professionals"
+          },
+          {
+            "name": "Electronic Service Providers",
+            "value": "electronic-service-providers"
+          },
+          {
+            "name": "Policymakers",
+            "value": "policymakers"
+          },
+          {
+            "name": "Media",
+            "value": "media"
+          },
+          {
+            "name": "Native, Indigenous & Tribal",
+            "value": "native-indigenous-tribal"
+          },
+          {
+            "name": "Teens (13+)",
+            "value": "teens-13-plus"
+          },
+          {
+            "name": "Children (up to 12)",
+            "value": "children-up-to-12"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "issue",
+        "label": "Resource Tags - Topic",
+        "options": [
+          {
+            "name": "Missing Children",
+            "value": "missing-children"
+          },
+          {
+            "name": "Autism & Wandering",
+            "value": "autism-wandering"
+          },
+          {
+            "name": "Children Missing from Care",
+            "value": "children-missing-from-care"
+          },
+          {
+            "name": "Infant Abductions",
+            "value": "infant-abductions"
+          },
+          {
+            "name": "Long-Term Missing Children",
+            "value": "long-term-missing-children"
+          },
+          {
+            "name": "Family Abduction",
+            "value": "family-abduction"
+          },
+          {
+            "name": "Help ID Me",
+            "value": "help-id-me"
+          },
+          {
+            "name": "CSAM",
+            "value": "csam"
+          },
+          {
+            "name": "Child Sex Trafficking",
+            "value": "child-sex-trafficking"
+          },
+          {
+            "name": "Online Enticement",
+            "value": "online-enticement"
+          },
+          {
+            "name": "Sextortion",
+            "value": "sextortion"
+          },
+          {
+            "name": "Generative AI",
+            "value": "generative-ai"
+          },
+          {
+            "name": "End-to-End Encryption",
+            "value": "end-to-end-encryption"
+          },
+          {
+            "name": "Disaster Response",
+            "value": "disaster-response"
+          },
+          {
+            "name": "NCMEC Data",
+            "value": "ncmec-data"
+          },
+          {
+            "name": "NCMEC Analysis",
+            "value": "ncmec-analysis"
+          },
+          {
+            "name": "Child Safety Advocacy",
+            "value": "child-safety-advocacy"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "resourceType",
+        "label": "Resource Tags - Resource Type",
+        "options": [
+          {
+            "name": "Tip Sheet",
+            "value": "tip-sheet"
+          },
+          {
+            "name": "Educator Kit / Curriculum",
+            "value": "educator-kit-curriculum"
+          },
+          {
+            "name": "Discussion Guide",
+            "value": "discussion-guide"
+          },
+          {
+            "name": "Professional Guide",
+            "value": "professional-guide"
+          },
+          {
+            "name": "Data Report",
+            "value": "data-report"
+          },
+          {
+            "name": "Video",
+            "value": "video"
+          },
+          {
+            "name": "Presentation",
+            "value": "presentation"
+          },
+          {
+            "name": "Activity Sheet",
+            "value": "activity-sheet"
+          },
+          {
+            "name": "eBook",
+            "value": "ebook"
+          },
+          {
+            "name": "Blog Post",
+            "value": "blog-post"
+          }
+        ]
+      },
+      {
         "component": "select",
         "name": "language",
-        "label": "Language",
+        "label": "Resource Tags - Language",
         "options": [
           {
             "name": "English",
@@ -6562,7 +6739,7 @@
       {
         "component": "multiselect",
         "name": "programs",
-        "label": "Programs",
+        "label": "Resource Tags - Programs",
         "options": [
           {
             "name": "KidSmartz",
@@ -6577,7 +6754,7 @@
       {
         "component": "multiselect",
         "name": "gradeAges",
-        "label": "Grade / Age",
+        "label": "Resource Tags - Grade / Age",
         "options": [
           {
             "name": "K-2",
@@ -6601,7 +6778,7 @@
         "component": "text",
         "valueType": "string",
         "name": "tags",
-        "label": "Universal Tags",
+        "label": "Resource Tags - Universal Tags",
         "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
       }
     ]
