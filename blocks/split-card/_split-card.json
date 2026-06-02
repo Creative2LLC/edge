@@ -244,6 +244,23 @@
           "name": "maxWidth",
           "label": "Max Width Override (e.g. 1200px or 72rem)",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "stylingVariant",
+          "label": "Styling Variant",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Variant 2",
+              "value": "variant-2"
+            }
+          ],
+          "value": "default"
         }
       ]
     }

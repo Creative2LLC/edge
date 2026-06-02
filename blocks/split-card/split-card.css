@@ -214,6 +214,37 @@ main > .section > .split-card-wrapper {
   font-weight: 500;
 }
 
+/* Styling Variant 2:
+   - Content flush to the block's left edge (no left padding), left aligned.
+   - Image fixed at 459 x 226 with a 14px radius on all corners, vertically
+     centered in its column. */
+.split-card.split-card-variant-2 .split-card-content {
+  padding-left: 0;
+  align-items: flex-start !important;
+  text-align: left !important;
+}
+
+.split-card.split-card-variant-2 .split-card-media {
+  flex: 0 0 459px;
+  max-width: 459px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.split-card.split-card-variant-2 .split-card-media picture {
+  width: 459px;
+  height: 226px;
+  flex: none;
+}
+
+.split-card.split-card-variant-2 .split-card-media img {
+  width: 459px;
+  height: 226px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
 /* Responsive */
 @media (width <= 700px) {
   .split-card .split-card-inner {

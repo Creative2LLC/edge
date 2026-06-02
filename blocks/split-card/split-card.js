@@ -229,6 +229,8 @@ export default async function decorate(block) {
     || normalizeJsonFieldValue(resourceData.blockSize) || 'normal').toLowerCase();
   const imageSize = (getFieldWithFallback(block, 'imageSize', 17)
     || normalizeJsonFieldValue(resourceData.imageSize) || 'even').toLowerCase();
+  const stylingVariant = (getFieldWithFallback(block, 'stylingVariant', 20)
+    || normalizeJsonFieldValue(resourceData.stylingVariant) || 'default').toLowerCase();
 
   if (picture) {
     const img = picture.querySelector('img');
@@ -237,6 +239,7 @@ export default async function decorate(block) {
 
   block.classList.toggle('split-card-size-smaller', blockSize === 'smaller');
   block.classList.toggle('split-card-image-smaller', imageSize === 'smaller');
+  block.classList.toggle('split-card-variant-2', stylingVariant === 'variant-2');
 
   if (maxWidth) {
     block.style.setProperty('--split-card-max-width', maxWidth);
