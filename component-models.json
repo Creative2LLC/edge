@@ -1725,14 +1725,14 @@
         "valueType": "string",
         "name": "heading",
         "label": "Heading",
-        "value": "Additional Ways to Connect"
+        "value": ""
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "subheading",
         "label": "Subheading",
-        "value": "You can access additional ways to connect with NCMEC and find the support and resources that you need."
+        "value": ""
       },
       {
         "component": "select",
@@ -8298,6 +8298,23 @@
         "name": "maxWidth",
         "label": "Max Width Override (e.g. 1200px or 72rem)",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "stylingVariant",
+        "label": "Styling Variant",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Variant 2",
+            "value": "variant-2"
+          }
+        ],
+        "value": "default"
       }
     ]
   },
