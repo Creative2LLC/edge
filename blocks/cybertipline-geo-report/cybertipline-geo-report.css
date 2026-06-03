@@ -157,6 +157,40 @@
   stroke-width: 2;
 }
 
+.cybertipline-geo-report .cybertipline-geo-report-world-country,
+.cybertipline-geo-report .cybertipline-geo-report-world-country path {
+  color: #174a80;
+  fill: currentcolor;
+  stroke: #fff;
+  stroke-width: 0.6;
+  transition:
+    color 180ms ease,
+    filter 180ms ease,
+    stroke 180ms ease;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-country.has-data {
+  color: var(--geo-fill, #174a80);
+  cursor: pointer;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-country.has-data:hover,
+.cybertipline-geo-report .cybertipline-geo-report-world-country.has-data:focus-visible,
+.cybertipline-geo-report .cybertipline-geo-report-world-country.has-data.is-selected {
+  color: #ff9814;
+  filter: drop-shadow(0 8px 12px rgb(17 58 103 / 20%));
+  outline: none;
+  stroke: #08233e;
+  stroke-width: 1.2;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-country.has-data:hover path,
+.cybertipline-geo-report .cybertipline-geo-report-world-country.has-data:focus-visible path,
+.cybertipline-geo-report .cybertipline-geo-report-world-country.has-data.is-selected path {
+  stroke: #08233e;
+  stroke-width: 1.2;
+}
+
 .cybertipline-geo-report .cybertipline-geo-report-world-marker {
   cursor: pointer;
   outline: none;

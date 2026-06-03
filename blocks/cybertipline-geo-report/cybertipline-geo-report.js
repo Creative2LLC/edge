@@ -96,6 +96,8 @@ const COUNTRY_POINTS = {
   ZA: [523, 390],
 };
 
+const WORLD_MAP_ASSET = '/blocks/cybertipline-geo-report/world-map.svg';
+
 function normalizeText(value) {
   return String(value || '').trim();
 }
@@ -709,7 +711,7 @@ function svgElement(tagName, attributes = {}) {
   return element;
 }
 
-function buildWorldBaseMap() {
+function buildFallbackWorldBaseMap() {
   const svg = svgElement('svg', {
     viewBox: '0 0 960 500',
     role: 'img',
@@ -740,21 +742,117 @@ function buildWorldBaseMap() {
   return svg;
 }
 
+async function loadWorldBaseMap() {
+  try {
+    const response = await fetch(`${window.hlx.codeBasePath}${WORLD_MAP_ASSET}`);
+    if (!response.ok) throw new Error(`World map SVG returned ${response.status}`);
+
+    const svgText = await response.text();
+    const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    const svg = doc.querySelector('svg');
+    if (!svg || svg.querySelector('parsererror')) {
+      throw new Error('World map SVG could not be parsed.');
+    }
+
+    svg.removeAttribute('id');
+    svg.removeAttribute('class');
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin'].forEach((attribute) => {
+      svg.removeAttribute(attribute);
+    });
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'World map');
+    svg.classList.add('cybertipline-geo-report-map', 'cybertipline-geo-report-world-map');
+    svg.querySelectorAll('[data-tippy-content]').forEach((element) => {
+      element.removeAttribute('data-tippy-content');
+    });
+
+    return document.importNode(svg, true);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn('[cybertipline-geo-report] Falling back to simplified world map.', error);
+    return buildFallbackWorldBaseMap();
+  }
+}
+
 function countryRowsWithPoints(rows) {
   return rows.filter((row) => COUNTRY_POINTS[row.geoCode]);
 }
 
-function buildWorldMapPanel(rows, dataset, onPreview, onSelect) {
-  const mapRows = countryRowsWithPoints(rows);
-  const maxValue = Math.max(...mapRows.map((row) => row.value), 1);
+function countryElementSelector(code) {
+  return /^[a-z]{2}$/i.test(code) ? `#${code.toUpperCase()}` : '';
+}
+
+function dataRowsWithCountryElements(svg, rows) {
+  return rows
+    .map((row) => ({
+      row,
+      element: svg.querySelector(countryElementSelector(row.geoCode)),
+    }))
+    .filter((entry) => entry.element);
+}
+
+function makeSelectableCountry(element, row, svg, hoverCard, wrap, onPreview, onSelect) {
+  element.classList.add('has-data');
+  element.setAttribute('tabindex', '0');
+  element.setAttribute('role', 'button');
+  element.setAttribute('aria-label', `${row.label}: ${row.displayValue}`);
+
+  element.addEventListener('mouseenter', (event) => {
+    onPreview(row, true);
+    renderMapCard(hoverCard, row, event, wrap);
+  });
+  element.addEventListener('mousemove', (event) => positionMapCard(hoverCard, event, wrap));
+  element.addEventListener('mouseleave', () => {
+    renderMapCard(hoverCard, null);
+    onPreview(null, false);
+  });
+  element.addEventListener('focus', () => {
+    onPreview(row, true);
+    renderMapCard(hoverCard, row, null, wrap);
+  });
+  element.addEventListener('blur', () => renderMapCard(hoverCard, null));
+  element.addEventListener('click', () => {
+    onSelect(row);
+    svg.querySelectorAll('.is-selected').forEach((selected) => {
+      selected.classList.remove('is-selected');
+    });
+    element.classList.add('is-selected');
+  });
+  element.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  });
+}
+
+async function buildWorldMapPanel(rows, dataset, onPreview, onSelect) {
   const wrap = document.createElement('div');
   wrap.className = 'cybertipline-geo-report-map-wrap';
-  const svg = buildWorldBaseMap();
+  const svg = await loadWorldBaseMap();
   const hoverCard = document.createElement('div');
   hoverCard.className = 'cybertipline-geo-report-map-card';
   hoverCard.hidden = true;
+  const dataCountryEntries = dataRowsWithCountryElements(svg, rows);
 
-  mapRows.forEach((row) => {
+  svg.querySelectorAll('[id]').forEach((element) => {
+    element.classList.add('cybertipline-geo-report-world-country');
+    element.setAttribute('aria-disabled', 'true');
+  });
+
+  if (dataCountryEntries.length) {
+    const maxValue = Math.max(...dataCountryEntries.map(({ row }) => row.value), 1);
+    dataCountryEntries.forEach(({ row, element }) => {
+      element.style.setProperty('--geo-fill', row.color || colorForRatio(row.value / maxValue));
+      element.setAttribute('aria-disabled', 'false');
+      makeSelectableCountry(element, row, svg, hoverCard, wrap, onPreview, onSelect);
+    });
+  }
+
+  const markerRows = dataCountryEntries.length ? [] : countryRowsWithPoints(rows);
+  const maxValue = Math.max(...markerRows.map((row) => row.value), 1);
+  markerRows.forEach((row) => {
     const [x, y] = COUNTRY_POINTS[row.geoCode];
     const ratio = Math.max(0.14, row.value / maxValue);
     const dotRadius = Math.round(7 + (ratio * 11));
@@ -951,7 +1049,7 @@ function shouldRenderMap(rows, requestedGeoType, dataset) {
 
 function shouldRenderWorldMap(rows, requestedGeoType, dataset) {
   if (requestedGeoType !== 'country' && dataset.geoScope !== 'global') return false;
-  return countryRowsWithPoints(rows).length > 0;
+  return rows.some((row) => /^[a-z]{2}$/i.test(row.geoCode));
 }
 
 function buildEmpty(message) {
@@ -1030,7 +1128,7 @@ export default async function decorate(block) {
   if (shouldRenderMap(rows, config.geoType, dataset)) {
     body.append(buildMapPanel(mapRows, dataset, onPreview, onSelect));
   } else if (shouldRenderWorldMap(rows, config.geoType, dataset)) {
-    body.append(buildWorldMapPanel(rows, dataset, onPreview, onSelect));
+    body.append(await buildWorldMapPanel(rows, dataset, onPreview, onSelect));
   } else {
     body.classList.add('cybertipline-geo-report-body-list-only');
   }
