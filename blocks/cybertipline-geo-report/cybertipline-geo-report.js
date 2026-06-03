@@ -324,7 +324,9 @@ function sampleDatasetForConfig(config) {
         display_value: formatNumber(total),
       },
       metadata: {
-        map_caption: 'Sample data. Hover or select a state to test the interaction model.',
+        map_caption: isCountry
+          ? 'Sample data. Hover or select a country marker to test the interaction model.'
+          : 'Sample data. Hover or select a state to test the interaction model.',
       },
       rows,
     },
@@ -716,12 +718,18 @@ function buildWorldBaseMap() {
   svg.classList.add('cybertipline-geo-report-map', 'cybertipline-geo-report-world-map');
 
   [
-    'M74 130 145 90 236 108 294 156 275 226 198 235 130 206 83 172Z',
-    'M245 248 318 240 373 287 380 363 329 432 272 388 252 315Z',
-    'M412 116 504 92 622 108 690 168 642 238 520 226 456 188Z',
-    'M493 236 575 248 610 320 570 421 510 398 476 318Z',
-    'M625 170 756 147 872 194 838 284 730 288 656 248Z',
-    'M710 332 810 324 878 374 834 430 738 414Z',
+    'M74 144 106 113 160 92 223 103 267 126 317 139 349 174 335 211 296 222 276 252 229 250 199 226 158 213 118 185 83 174Z',
+    'M290 72 356 43 429 58 415 109 358 127 304 111Z',
+    'M278 254 318 260 351 279 381 277 401 296 376 313 338 299 299 283Z',
+    'M346 298 386 329 399 377 382 431 352 470 322 441 309 386 321 342Z',
+    'M430 165 469 135 520 138 555 166 541 199 490 201 448 184Z',
+    'M501 205 557 218 596 275 579 352 538 421 494 389 467 317 476 254Z',
+    'M546 141 630 116 719 130 812 157 892 205 864 264 767 254 708 282 643 252 586 219 571 178Z',
+    'M603 260 635 285 642 333 616 353 596 318Z',
+    'M725 335 805 320 879 364 837 419 745 400Z',
+    'M762 213 783 197 806 211 795 232 773 234Z',
+    'M719 267 740 258 753 278 736 295Z',
+    'M820 237 842 225 861 240 849 260Z',
   ].forEach((pathData) => {
     svg.append(svgElement('path', {
       class: 'cybertipline-geo-report-world-land',

@@ -148,10 +148,11 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-world-map {
   min-height: 420px;
+  padding: 8px;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-world-land {
-  fill: #d7e8ee;
+  fill: #174a80;
   stroke: #fff;
   stroke-width: 2;
 }
@@ -162,16 +163,16 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-world-marker-halo {
-  fill: var(--geo-fill, var(--cybertipline-geo-blue));
-  opacity: 0.18;
+  fill: #8fc8df;
+  opacity: 0.35;
   transition:
     opacity 180ms ease,
     transform 180ms ease;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-world-marker-dot {
-  fill: var(--geo-fill, var(--cybertipline-geo-blue));
-  stroke: #fff;
+  fill: #fff;
+  stroke: #8fc8df;
   stroke-width: 3;
   transition:
     fill 180ms ease,
