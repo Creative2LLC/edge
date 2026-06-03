@@ -55,17 +55,46 @@ const SAMPLE_STATE_ROWS = [
 ];
 
 const SAMPLE_COUNTRY_ROWS = [
-  ['United States', 'US', 512480],
-  ['Philippines', 'PH', 145230],
-  ['India', 'IN', 118620],
-  ['United Kingdom', 'GB', 92440],
-  ['Brazil', 'BR', 87310],
-  ['Canada', 'CA', 64180],
-  ['Mexico', 'MX', 58290],
-  ['Australia', 'AU', 41950],
-  ['Germany', 'DE', 33210],
-  ['France', 'FR', 28760],
+  ['United States', 'US', 411240, 101240],
+  ['Philippines', 'PH', 116180, 29050],
+  ['India', 'IN', 94890, 23730],
+  ['United Kingdom', 'GB', 73950, 18490],
+  ['Brazil', 'BR', 69850, 17460],
+  ['Canada', 'CA', 51340, 12840],
+  ['Mexico', 'MX', 46630, 11660],
+  ['Australia', 'AU', 33560, 8390],
+  ['Germany', 'DE', 26570, 6640],
+  ['France', 'FR', 23010, 5750],
 ];
+
+const COUNTRY_POINTS = {
+  AR: [292, 390],
+  AU: [760, 372],
+  BR: [340, 330],
+  CA: [215, 132],
+  CN: [685, 220],
+  CO: [285, 295],
+  DE: [480, 178],
+  ES: [448, 214],
+  FR: [463, 201],
+  GB: [444, 168],
+  ID: [700, 318],
+  IN: [626, 257],
+  IT: [486, 225],
+  JP: [766, 214],
+  KR: [739, 219],
+  MX: [205, 245],
+  NG: [494, 283],
+  NL: [472, 176],
+  PH: [720, 275],
+  PL: [504, 178],
+  RU: [625, 125],
+  TH: [682, 283],
+  TR: [535, 220],
+  US: [228, 205],
+  VN: [699, 287],
+  ZA: [523, 390],
+};
 
 function normalizeText(value) {
   return String(value || '').trim();
@@ -670,6 +699,114 @@ function buildMapPanel(rows, dataset, onPreview, onSelect) {
   return wrap;
 }
 
+function svgElement(tagName, attributes = {}) {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', tagName);
+  Object.entries(attributes).forEach(([name, value]) => {
+    element.setAttribute(name, String(value));
+  });
+  return element;
+}
+
+function buildWorldBaseMap() {
+  const svg = svgElement('svg', {
+    viewBox: '0 0 960 500',
+    role: 'img',
+    'aria-label': 'World map',
+  });
+  svg.classList.add('cybertipline-geo-report-map', 'cybertipline-geo-report-world-map');
+
+  [
+    'M74 130 145 90 236 108 294 156 275 226 198 235 130 206 83 172Z',
+    'M245 248 318 240 373 287 380 363 329 432 272 388 252 315Z',
+    'M412 116 504 92 622 108 690 168 642 238 520 226 456 188Z',
+    'M493 236 575 248 610 320 570 421 510 398 476 318Z',
+    'M625 170 756 147 872 194 838 284 730 288 656 248Z',
+    'M710 332 810 324 878 374 834 430 738 414Z',
+  ].forEach((pathData) => {
+    svg.append(svgElement('path', {
+      class: 'cybertipline-geo-report-world-land',
+      d: pathData,
+    }));
+  });
+
+  return svg;
+}
+
+function countryRowsWithPoints(rows) {
+  return rows.filter((row) => COUNTRY_POINTS[row.geoCode]);
+}
+
+function buildWorldMapPanel(rows, dataset, onPreview, onSelect) {
+  const mapRows = countryRowsWithPoints(rows);
+  const maxValue = Math.max(...mapRows.map((row) => row.value), 1);
+  const wrap = document.createElement('div');
+  wrap.className = 'cybertipline-geo-report-map-wrap';
+  const svg = buildWorldBaseMap();
+  const hoverCard = document.createElement('div');
+  hoverCard.className = 'cybertipline-geo-report-map-card';
+  hoverCard.hidden = true;
+
+  mapRows.forEach((row) => {
+    const [x, y] = COUNTRY_POINTS[row.geoCode];
+    const ratio = Math.max(0.14, row.value / maxValue);
+    const dotRadius = Math.round(7 + (ratio * 11));
+    const marker = svgElement('g', {
+      class: 'cybertipline-geo-report-world-marker',
+      tabindex: '0',
+      role: 'button',
+      'aria-label': `${row.label}: ${row.displayValue}`,
+      transform: `translate(${x} ${y})`,
+    });
+    marker.style.setProperty('--geo-fill', row.color || colorForRatio(ratio));
+
+    marker.append(svgElement('circle', {
+      class: 'cybertipline-geo-report-world-marker-halo',
+      r: dotRadius + 9,
+    }));
+    marker.append(svgElement('circle', {
+      class: 'cybertipline-geo-report-world-marker-dot',
+      r: dotRadius,
+    }));
+
+    marker.addEventListener('mouseenter', (event) => {
+      onPreview(row, true);
+      renderMapCard(hoverCard, row, event, wrap);
+    });
+    marker.addEventListener('mousemove', (event) => positionMapCard(hoverCard, event, wrap));
+    marker.addEventListener('mouseleave', () => {
+      renderMapCard(hoverCard, null);
+      onPreview(null, false);
+    });
+    marker.addEventListener('focus', () => {
+      onPreview(row, true);
+      renderMapCard(hoverCard, row, null, wrap);
+    });
+    marker.addEventListener('blur', () => renderMapCard(hoverCard, null));
+    marker.addEventListener('click', () => {
+      onSelect(row);
+      svg.querySelectorAll('.is-selected').forEach((selected) => {
+        selected.classList.remove('is-selected');
+      });
+      marker.classList.add('is-selected');
+    });
+    marker.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      marker.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    svg.append(marker);
+  });
+
+  const caption = document.createElement('p');
+  caption.className = 'cybertipline-geo-report-map-caption';
+  caption.textContent = dataset.metadata?.map_caption
+    || 'Hover or select a country marker to view report details.';
+
+  wrap.append(svg, hoverCard, caption);
+  return wrap;
+}
+
 function buildRowCell(text, className) {
   const cell = document.createElement('span');
   cell.className = className;
@@ -717,6 +854,7 @@ function buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown)
 
     button.classList.add('is-tabular');
     button.append(
+      rank,
       label,
       buildRowCell(referrals, 'cybertipline-geo-report-row-referrals'),
       buildRowCell(informational, 'cybertipline-geo-report-row-informational'),
@@ -752,20 +890,29 @@ function enableBarReveal(list) {
   observer.observe(list);
 }
 
-function buildRowsPanel(rows, onPreview, onSelect) {
+function geographyLabelForDataset(dataset) {
+  return dataset?.geoScope === 'global' ? 'Country' : 'US State';
+}
+
+function tableTitleForDataset(dataset) {
+  return dataset?.geoScope === 'global' ? 'Reports by Country' : 'Reports by State';
+}
+
+function buildRowsPanel(rows, dataset, onPreview, onSelect) {
   const shell = document.createElement('div');
   shell.className = 'cybertipline-geo-report-table';
   const hasBreakdown = rows.some((row) => rowBreakdownEntries(row).length);
 
   if (hasBreakdown) {
     const title = document.createElement('h3');
-    title.textContent = 'Reports by State';
+    title.textContent = tableTitleForDataset(dataset);
     title.className = 'cybertipline-geo-report-table-title';
 
     const header = document.createElement('div');
     header.className = 'cybertipline-geo-report-table-header';
     header.append(
-      buildRowCell('US State', 'cybertipline-geo-report-table-heading'),
+      buildRowCell('', 'cybertipline-geo-report-table-heading is-rank'),
+      buildRowCell(geographyLabelForDataset(dataset), 'cybertipline-geo-report-table-heading'),
       buildRowCell('Referrals', 'cybertipline-geo-report-table-heading is-numeric'),
       buildRowCell('Informational', 'cybertipline-geo-report-table-heading is-numeric'),
       buildRowCell('Total', 'cybertipline-geo-report-table-heading is-numeric'),
@@ -792,6 +939,11 @@ function shouldRenderMap(rows, requestedGeoType, dataset) {
 
   const stateRows = rows.filter((row) => STATE_CODES.has(row.geoCode));
   return stateRows.length >= Math.min(rows.length, 8);
+}
+
+function shouldRenderWorldMap(rows, requestedGeoType, dataset) {
+  if (requestedGeoType !== 'country' && dataset.geoScope !== 'global') return false;
+  return countryRowsWithPoints(rows).length > 0;
 }
 
 function buildEmpty(message) {
@@ -869,13 +1021,15 @@ export default async function decorate(block) {
   const mapRows = rows.filter((row) => STATE_CODES.has(row.geoCode));
   if (shouldRenderMap(rows, config.geoType, dataset)) {
     body.append(buildMapPanel(mapRows, dataset, onPreview, onSelect));
+  } else if (shouldRenderWorldMap(rows, config.geoType, dataset)) {
+    body.append(buildWorldMapPanel(rows, dataset, onPreview, onSelect));
   } else {
     body.classList.add('cybertipline-geo-report-body-list-only');
   }
 
   const side = document.createElement('div');
   side.className = 'cybertipline-geo-report-side';
-  side.append(detail, buildRowsPanel(rows, onPreview, onSelect));
+  side.append(detail, buildRowsPanel(rows, dataset, onPreview, onSelect));
   body.append(side);
   inner.append(body);
   block.replaceChildren(inner);

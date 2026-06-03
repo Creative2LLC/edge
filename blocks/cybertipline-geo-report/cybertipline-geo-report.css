@@ -146,6 +146,55 @@
   pointer-events: none;
 }
 
+.cybertipline-geo-report .cybertipline-geo-report-world-map {
+  min-height: 420px;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-land {
+  fill: #d7e8ee;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-marker {
+  cursor: pointer;
+  outline: none;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-marker-halo {
+  fill: var(--geo-fill, var(--cybertipline-geo-blue));
+  opacity: 0.18;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-marker-dot {
+  fill: var(--geo-fill, var(--cybertipline-geo-blue));
+  stroke: #fff;
+  stroke-width: 3;
+  transition:
+    fill 180ms ease,
+    stroke 180ms ease,
+    transform 180ms ease;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-marker:hover .cybertipline-geo-report-world-marker-halo,
+.cybertipline-geo-report .cybertipline-geo-report-world-marker:focus-visible .cybertipline-geo-report-world-marker-halo,
+.cybertipline-geo-report .cybertipline-geo-report-world-marker.is-selected .cybertipline-geo-report-world-marker-halo {
+  fill: #ff9814;
+  opacity: 0.28;
+  transform: scale(1.2);
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-world-marker:hover .cybertipline-geo-report-world-marker-dot,
+.cybertipline-geo-report .cybertipline-geo-report-world-marker:focus-visible .cybertipline-geo-report-world-marker-dot,
+.cybertipline-geo-report .cybertipline-geo-report-world-marker.is-selected .cybertipline-geo-report-world-marker-dot {
+  fill: #ff9814;
+  stroke: #08233e;
+  transform: scale(1.08);
+}
+
 .cybertipline-geo-report .cybertipline-geo-report-map-caption {
   max-width: 680px;
   margin: 0;
@@ -396,14 +445,18 @@
 .cybertipline-geo-report .cybertipline-geo-report-table {
   overflow: auto;
   border-radius: 8px;
-  background: #092b50;
-  box-shadow: 0 14px 32px rgb(17 58 103 / 10%);
+  background: transparent;
+  box-shadow: 0 18px 36px rgb(17 58 103 / 10%);
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-table-title {
   margin: 0;
-  padding: 22px 26px;
-  color: #fff;
+  padding: 18px 22px;
+  border: 1px solid rgb(17 58 103 / 18%);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: #fff;
+  color: var(--cybertipline-geo-ink);
   font-size: 1.45rem;
   font-weight: 800;
   line-height: 1.15;
@@ -412,11 +465,13 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-table-header {
   display: grid;
-  grid-template-columns: minmax(128px, 1.25fr) repeat(3, minmax(86px, 0.75fr));
-  min-width: 520px;
+  grid-template-columns: 46px minmax(150px, 1.25fr) repeat(3, minmax(92px, 0.75fr));
+  min-width: 720px;
   padding: 9px 18px;
-  background: #113f73;
-  color: #8ec8ee;
+  border: 1px solid rgb(17 58 103 / 18%);
+  border-bottom: 0;
+  background: #f4f8fb;
+  color: #147da8;
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1.2;
@@ -431,7 +486,7 @@
 .cybertipline-geo-report .cybertipline-geo-report-table .cybertipline-geo-report-rows {
   gap: 0;
   max-height: 440px;
-  background: #092b50;
+  background: #fff;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-row {
@@ -462,25 +517,24 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular {
-  grid-template-columns: minmax(128px, 1.25fr) repeat(3, minmax(86px, 0.75fr));
+  grid-template-columns: 46px minmax(150px, 1.25fr) repeat(3, minmax(92px, 0.75fr));
   gap: 12px;
-  min-width: 520px;
-  min-height: 50px;
-  padding: 13px 18px;
-  border: 0;
-  border-top: 1px solid rgb(142 200 238 / 18%);
+  min-width: 720px;
+  min-height: 58px;
+  padding: 15px 18px;
+  border: 1px solid rgb(17 58 103 / 18%);
   border-radius: 0;
-  background: transparent;
+  background: #fff;
   box-shadow: none;
-  color: #fff;
+  color: var(--cybertipline-geo-text);
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular:hover,
 .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular:focus-visible,
 .cybertipline-geo-report .cybertipline-geo-report-row.is-selected .cybertipline-geo-report-row-button.is-tabular {
-  border-color: rgb(142 200 238 / 24%);
-  background: rgb(255 152 20 / 14%);
-  box-shadow: none;
+  border-color: rgb(20 145 191 / 56%);
+  background: #fff;
+  box-shadow: inset 3px 0 0 #ff9814;
   transform: none;
 }
 
@@ -509,7 +563,7 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular .cybertipline-geo-report-row-label {
-  color: #fff;
+  color: var(--cybertipline-geo-ink);
   font-size: 0.95rem;
 }
 
@@ -527,7 +581,7 @@
 .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular .cybertipline-geo-report-row-value {
   position: relative;
   z-index: 1;
-  color: #fff;
+  color: #1f2e3a;
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.2;
@@ -551,7 +605,7 @@
 .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular .cybertipline-geo-report-row-bar {
   height: 3px;
   border-radius: 0;
-  background: linear-gradient(90deg, #ff9814, #f5b51b);
+  background: linear-gradient(90deg, var(--cybertipline-geo-blue), #ff9814);
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-rows.is-visible .cybertipline-geo-report-row-bar {
@@ -647,7 +701,7 @@
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular {
-    grid-template-columns: minmax(128px, 1.25fr) repeat(3, minmax(86px, 0.75fr));
+    grid-template-columns: 46px minmax(150px, 1.25fr) repeat(3, minmax(92px, 0.75fr));
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular .cybertipline-geo-report-row-value {
