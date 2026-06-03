@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readTextField } from '../../scripts/block-field-utils.js';
+import { animateCountUpOnVisible } from '../../scripts/count-up.js';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -144,6 +145,7 @@ export default function decorate(block) {
       const valueEl = document.createElement('div');
       valueEl.className = 'statistics-value';
       valueEl.textContent = values[i];
+      valueEl.dataset.finalValue = values[i];
       item.append(valueEl);
     }
 
@@ -159,4 +161,11 @@ export default function decorate(block) {
   if (list.childElementCount) wrapper.append(list);
 
   block.replaceChildren(wrapper);
+
+  block.querySelectorAll('.statistics-value').forEach((valueEl, index) => {
+    animateCountUpOnVisible(valueEl, {
+      displayValue: valueEl.dataset.finalValue,
+      duration: 950 + (index * 120),
+    });
+  });
 }

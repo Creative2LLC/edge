@@ -3,6 +3,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { animateCountUp } from '../../scripts/count-up.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
@@ -566,6 +567,7 @@ function buildTableRow(entry, index) {
   } else {
     count.textContent = formatNumber(entry.reportCount);
   }
+  count.dataset.countUpValue = count.textContent;
 
   row.append(type, count, swatch);
   return row;
@@ -621,6 +623,7 @@ function buildPanel(dataset, state) {
   const totalValue = document.createElement('strong');
   totalValue.className = 'report-breakdown-total-value';
   totalValue.textContent = formatNumber(dataset.total);
+  totalValue.dataset.countUpValue = totalValue.textContent;
 
   totalRow.append(totalLabel, totalValue);
   tableShell.append(tableHead, rows, totalRow);
@@ -707,6 +710,13 @@ function animateActivePanel(panel, reducedMotion) {
       delay: 140 + (index * 45),
       easing: 'ease',
       fill: 'both',
+    });
+  });
+
+  panel.querySelectorAll('[data-count-up-value]').forEach((element, index) => {
+    animateCountUp(element, {
+      displayValue: element.dataset.countUpValue,
+      duration: 700 + (index * 45),
     });
   });
 }

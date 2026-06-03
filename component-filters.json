@@ -119,8 +119,10 @@
       "leadership-overview",
       "historical-trends",
       "historical-reports-carousel",
+      "report-section-nav",
       "report-breakdown",
       "report-download",
+      "cybertipline-geo-report",
       "connect-grid",
       "partners-showcase",
       "card-testimonies",
@@ -244,6 +246,12 @@
     "id": "connect-grid",
     "components": [
       "connect-grid-item"
+    ]
+  },
+  {
+    "id": "cybertipline-geo-report",
+    "components": [
+      "cybertipline-geo-report-row"
     ]
   },
   {
