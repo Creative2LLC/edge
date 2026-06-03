@@ -293,6 +293,7 @@ function normalizeSectionFieldName(value) {
 
 const SECTION_FIELD_LABELS = {
   name: ['name', 'sectionname'],
+  anchorId: ['anchorid', 'anchor', 'sectionid', 'sectionanchor'],
   style: ['style', 'styles'],
   backgroundColor: ['backgroundcolor', 'sectionbackgroundcolor'],
   topSpacing: ['topspacing', 'margintop', 'sectiontopspacing'],
@@ -651,6 +652,9 @@ function decorateSections(main) {
           .filter((style) => style)
           .map((style) => toClassName(style.trim()));
         styles.forEach((style) => section.classList.add(style));
+      } else if (camelKey === 'anchorId') {
+        const value = toClassName(String(meta[key] || '').replace(/^#/, ''));
+        if (value) section.id = value;
       } else if (camelKey === 'backgroundColor') {
         const value = normalizeColorValue(meta[key]);
         if (value) {

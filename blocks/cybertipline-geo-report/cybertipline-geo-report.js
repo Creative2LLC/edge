@@ -202,6 +202,23 @@ function datasetFromPayload(payload, datasetSlug) {
 async function fetchDataset(config) {
   if (!config.apiBaseUrl || !config.datasetSlug) return null;
 
+  const requestFailed = async (response, endpoint) => {
+    let body = '';
+    try {
+      body = await response.text();
+    } catch (e) {
+      body = '';
+    }
+
+    return {
+      error: {
+        status: response.status,
+        endpoint: endpoint.toString(),
+        body: body.slice(0, 500),
+      },
+    };
+  };
+
   try {
     if (config.year) {
       const endpointPath = [
@@ -221,7 +238,7 @@ async function fetchDataset(config) {
       const response = await fetch(endpoint.toString(), {
         headers: { Accept: 'application/json' },
       });
-      if (!response.ok) return null;
+      if (!response.ok) return requestFailed(response, endpoint);
 
       return datasetFromPayload(await response.json(), config.datasetSlug);
     }
@@ -230,12 +247,30 @@ async function fetchDataset(config) {
     const response = await fetch(endpoint.toString(), {
       headers: { Accept: 'application/json' },
     });
-    if (!response.ok) return null;
+    if (!response.ok) return requestFailed(response, endpoint);
 
     return datasetFromPayload(await response.json(), config.datasetSlug);
-  } catch (e) {
-    return null;
+  } catch (error) {
+    return {
+      error: {
+        status: 0,
+        endpoint: config.apiBaseUrl,
+        body: error?.message || 'CyberTipline data request failed.',
+      },
+    };
   }
+}
+
+function exposeFetchError(block, error) {
+  if (!error) return;
+
+  block.dataset.cybertiplineGeoReportError = [
+    error.status ? `status=${error.status}` : '',
+    error.endpoint ? `url=${error.endpoint}` : '',
+  ].filter(Boolean).join(' ');
+
+  // eslint-disable-next-line no-console
+  console.warn('[cybertipline-geo-report] API request failed.', error);
 }
 
 function buildHeader(headingField, introField, dataset, report) {
@@ -523,7 +558,9 @@ export default async function decorate(block) {
     datasetSlug: normalizeToken(datasetSlugField.value) || DEFAULTS.datasetSlug,
     geoType: normalizeToken(geoTypeField.value) || DEFAULTS.geoType,
   };
-  const apiDataset = await fetchDataset(config);
+  const apiResult = await fetchDataset(config);
+  exposeFetchError(block, apiResult?.error);
+  const apiDataset = apiResult?.dataset ? apiResult : null;
   const fallbackRows = authoredRows(block);
   const dataset = apiDataset?.dataset || {
     slug: config.datasetSlug,

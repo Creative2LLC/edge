@@ -26,6 +26,14 @@
                                           "description":  "The label shown for this section in the Content Tree"
                                       },
                                       {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "anchorId",
+                                          "label":  "Anchor ID",
+                                          "description":  "Optional page anchor for sticky nav links. Example: geography. Links should use #geography.",
+                                          "value":  ""
+                                      },
+                                      {
                                           "component":  "multiselect",
                                           "name":  "style",
                                           "label":  "Style",
