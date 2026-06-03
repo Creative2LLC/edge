@@ -98,6 +98,28 @@
           "name": "emptyMessage",
           "label": "Empty State Message",
           "value": "No CyberTipline geography data is available."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "sampleDataMode",
+          "label": "Sample Data Mode",
+          "description": "For testing only. Use Off for real CyberTipline API data.",
+          "options": [
+            {
+              "name": "Off",
+              "value": "off"
+            },
+            {
+              "name": "Use When Empty",
+              "value": "when-empty"
+            },
+            {
+              "name": "Always Use Sample",
+              "value": "always"
+            }
+          ],
+          "value": "off"
         }
       ]
     },

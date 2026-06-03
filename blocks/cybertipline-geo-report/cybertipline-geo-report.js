@@ -14,6 +14,7 @@ const BLOCK_ROW_INDEX = {
   datasetSlug: 4,
   geoType: 5,
   emptyMessage: 6,
+  sampleDataMode: 7,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -33,6 +34,34 @@ const DEFAULTS = {
 
 const STATE_CODES = new Set(Object.keys(STATE_NAMES));
 
+const SAMPLE_STATE_ROWS = [
+  ['California', 'CA', 186420],
+  ['Texas', 'TX', 142760],
+  ['Florida', 'FL', 119880],
+  ['New York', 'NY', 84250],
+  ['Illinois', 'IL', 63790],
+  ['Pennsylvania', 'PA', 57930],
+  ['Ohio', 'OH', 51240],
+  ['Georgia', 'GA', 48780],
+  ['North Carolina', 'NC', 45120],
+  ['Michigan', 'MI', 39840],
+  ['Arizona', 'AZ', 36510],
+  ['Washington', 'WA', 33280],
+];
+
+const SAMPLE_COUNTRY_ROWS = [
+  ['United States', 'US', 512480],
+  ['Philippines', 'PH', 145230],
+  ['India', 'IN', 118620],
+  ['United Kingdom', 'GB', 92440],
+  ['Brazil', 'BR', 87310],
+  ['Canada', 'CA', 64180],
+  ['Mexico', 'MX', 58290],
+  ['Australia', 'AU', 41950],
+  ['Germany', 'DE', 33210],
+  ['France', 'FR', 28760],
+];
+
 function normalizeText(value) {
   return String(value || '').trim();
 }
@@ -43,6 +72,20 @@ function normalizeApiBaseUrl(value) {
 
 function normalizeToken(value) {
   return normalizeText(value).toLowerCase().replace(/[^a-z0-9_-]/g, '');
+}
+
+function normalizeSampleDataMode(value) {
+  const normalized = normalizeToken(value);
+  if (['always', 'alwaysusesample', 'force', 'forced', 'on'].includes(normalized)) return 'always';
+  if (['when-empty', 'whenempty', 'usewhenempty', 'fallback', 'fallback-only'].includes(normalized)) return 'when-empty';
+  return 'off';
+}
+
+function normalizeGeoType(value) {
+  const normalized = normalizeToken(value);
+  if (['country', 'countryglobal', 'global', 'world'].includes(normalized)) return 'country';
+  if (['auto'].includes(normalized)) return 'auto';
+  return normalized || DEFAULTS.geoType;
 }
 
 function parseNumber(value) {
@@ -195,6 +238,50 @@ function datasetFromPayload(payload, datasetSlug) {
       totals: dataset?.totals || {},
       metadata: dataset?.metadata || {},
       rows: normalizeRows(dataset?.rows || dataset?.data || []),
+    },
+  };
+}
+
+function sampleRows(entries, geoType) {
+  return normalizeRows(entries.map(([label, code, value], index) => ({
+    label,
+    code,
+    geo_code: code,
+    geo_type: geoType,
+    value,
+    display_value: formatNumber(value),
+    description: 'Sample data for map and chart testing. Replace with published CyberTipline report data before launch.',
+    sort_order: index,
+  })));
+}
+
+function sampleDatasetForConfig(config) {
+  const isCountry = config.geoType === 'country'
+    || config.datasetSlug.includes('country')
+    || config.datasetSlug.includes('global');
+  const rows = sampleRows(isCountry ? SAMPLE_COUNTRY_ROWS : SAMPLE_STATE_ROWS, isCountry ? 'country' : 'state');
+  const total = rows.reduce((sum, row) => sum + row.value, 0);
+
+  return {
+    report: {
+      year: config.year || 'Sample',
+      title: 'Sample CyberTipline Report',
+    },
+    dataset: {
+      slug: config.datasetSlug,
+      title: isCountry ? 'Sample Global Reports by Country' : 'Sample Domestic Reports by State',
+      description: 'Sample data is enabled for block testing while the CyberTipline API has no published dataset.',
+      type: isCountry ? 'bar' : 'map',
+      geoScope: isCountry ? 'global' : 'us',
+      columns: [],
+      totals: {
+        value: total,
+        display_value: formatNumber(total),
+      },
+      metadata: {
+        map_caption: 'Sample data. Hover or select a state to test the interaction model.',
+      },
+      rows,
     },
   };
 }
@@ -551,18 +638,23 @@ export default async function decorate(block) {
   const datasetSlugField = fieldValue(block, 'datasetSlug', BLOCK_ROW_INDEX.datasetSlug, ['dataset slug']);
   const geoTypeField = fieldValue(block, 'geoType', BLOCK_ROW_INDEX.geoType, ['geo type']);
   const emptyMessageField = fieldValue(block, 'emptyMessage', BLOCK_ROW_INDEX.emptyMessage, ['empty message']);
+  const sampleDataModeField = fieldValue(block, 'sampleDataMode', BLOCK_ROW_INDEX.sampleDataMode, ['sample data mode']);
 
   const config = {
     apiBaseUrl: normalizeApiBaseUrl(apiBaseUrlField.value),
     year: normalizeToken(yearField.value),
     datasetSlug: normalizeToken(datasetSlugField.value) || DEFAULTS.datasetSlug,
-    geoType: normalizeToken(geoTypeField.value) || DEFAULTS.geoType,
+    geoType: normalizeGeoType(geoTypeField.value),
+    sampleDataMode: normalizeSampleDataMode(sampleDataModeField.value),
   };
-  const apiResult = await fetchDataset(config);
+  const apiResult = config.sampleDataMode === 'always' ? null : await fetchDataset(config);
   exposeFetchError(block, apiResult?.error);
   const apiDataset = apiResult?.dataset ? apiResult : null;
   const fallbackRows = authoredRows(block);
-  const dataset = apiDataset?.dataset || {
+  const shouldUseSampleData = config.sampleDataMode === 'always'
+    || (config.sampleDataMode === 'when-empty' && !apiDataset?.dataset?.rows?.length && !fallbackRows.length);
+  const sampleDataset = shouldUseSampleData ? sampleDatasetForConfig(config) : null;
+  const dataset = sampleDataset?.dataset || apiDataset?.dataset || {
     slug: config.datasetSlug,
     title: headingField.value || DEFAULTS.heading,
     description: introField.text,
@@ -571,11 +663,16 @@ export default async function decorate(block) {
     metadata: {},
     rows: fallbackRows,
   };
+  const report = sampleDataset?.report || apiDataset?.report;
   const rows = dataset.rows?.length ? dataset.rows : fallbackRows;
+
+  block.classList.toggle('is-sample-data', Boolean(sampleDataset));
+  if (sampleDataset) block.dataset.cybertiplineGeoReportSource = 'sample';
+  else block.removeAttribute('data-cybertipline-geo-report-source');
 
   const inner = document.createElement('div');
   inner.className = 'cybertipline-geo-report-inner';
-  inner.append(buildHeader(headingField, introField, dataset, apiDataset?.report));
+  inner.append(buildHeader(headingField, introField, dataset, report));
 
   if (!rows.length) {
     inner.append(buildEmpty(emptyMessageField.value));
