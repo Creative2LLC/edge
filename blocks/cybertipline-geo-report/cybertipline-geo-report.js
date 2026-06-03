@@ -35,18 +35,23 @@ const DEFAULTS = {
 const STATE_CODES = new Set(Object.keys(STATE_NAMES));
 
 const SAMPLE_STATE_ROWS = [
-  ['California', 'CA', 186420],
-  ['Texas', 'TX', 142760],
-  ['Florida', 'FL', 119880],
-  ['New York', 'NY', 84250],
-  ['Illinois', 'IL', 63790],
-  ['Pennsylvania', 'PA', 57930],
-  ['Ohio', 'OH', 51240],
-  ['Georgia', 'GA', 48780],
-  ['North Carolina', 'NC', 45120],
-  ['Michigan', 'MI', 39840],
-  ['Arizona', 'AZ', 36510],
-  ['Washington', 'WA', 33280],
+  ['California', 'CA', 189278, 49294],
+  ['Texas', 'TX', 114980, 27780],
+  ['Florida', 'FL', 94320, 25560],
+  ['New York', 'NY', 67580, 16670],
+  ['Pennsylvania', 'PA', 36164, 29775],
+  ['Illinois', 'IL', 51420, 12370],
+  ['Arizona', 'AZ', 39016, 9657],
+  ['Ohio', 'OH', 42180, 9060],
+  ['Georgia', 'GA', 39260, 9520],
+  ['North Carolina', 'NC', 36240, 8880],
+  ['Michigan', 'MI', 30940, 8900],
+  ['Washington', 'WA', 27180, 6100],
+  ['Alabama', 'AL', 14358, 16839],
+  ['Colorado', 'CO', 22409, 7584],
+  ['Connecticut', 'CT', 12719, 2655],
+  ['Delaware', 'DE', 3849, 2088],
+  ['District of Columbia', 'DC', 147, 0],
 ];
 
 const SAMPLE_COUNTRY_ROWS = [
@@ -243,16 +248,27 @@ function datasetFromPayload(payload, datasetSlug) {
 }
 
 function sampleRows(entries, geoType) {
-  return normalizeRows(entries.map(([label, code, value], index) => ({
-    label,
-    code,
-    geo_code: code,
-    geo_type: geoType,
-    value,
-    display_value: formatNumber(value),
-    description: 'Sample data for map and chart testing. Replace with published CyberTipline report data before launch.',
-    sort_order: index,
-  })));
+  return normalizeRows(entries.map(([label, code, firstValue, secondValue], index) => {
+    const hasBreakdown = Number.isFinite(Number(secondValue));
+    const referrals = hasBreakdown ? Number(firstValue) : null;
+    const informational = hasBreakdown ? Number(secondValue) : null;
+    const value = hasBreakdown ? referrals + informational : Number(firstValue);
+
+    return {
+      label,
+      code,
+      geo_code: code,
+      geo_type: geoType,
+      value,
+      display_value: formatNumber(value),
+      values: hasBreakdown ? {
+        referrals,
+        informational,
+      } : {},
+      description: 'Sample data for map and chart testing. Replace with published CyberTipline report data before launch.',
+      sort_order: index,
+    };
+  }));
 }
 
 function sampleDatasetForConfig(config) {
@@ -382,13 +398,62 @@ function buildHeader(headingField, introField, dataset, report) {
   return header;
 }
 
+const BREAKDOWN_METRICS = [
+  {
+    key: 'referrals',
+    label: 'Referrals',
+    aliases: ['referrals', 'referral', 'referralreports'],
+  },
+  {
+    key: 'informational',
+    label: 'Informational',
+    aliases: ['informational', 'information', 'informationalreports', 'informationreports'],
+  },
+];
+
+function labelFromMetricKey(key) {
+  return key.replace(/[_-]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function metricValue(row, metric) {
+  const values = row?.values || {};
+  const aliases = new Set(metric.aliases.map(normalizeToken));
+  const entry = Object.entries(values).find(([key]) => aliases.has(normalizeToken(key)));
+  if (!entry) return null;
+
+  const numericValue = parseNumber(entry[1]);
+  return {
+    key: metric.key,
+    label: metric.label,
+    value: numericValue,
+    displayValue: Number.isFinite(numericValue)
+      ? formatNumber(numericValue)
+      : normalizeText(entry[1]),
+  };
+}
+
+function rowBreakdownEntries(row) {
+  return BREAKDOWN_METRICS
+    .map((metric) => metricValue(row, metric))
+    .filter((entry) => entry && entry.displayValue !== '');
+}
+
+function rowTotalEntry(row) {
+  return {
+    key: 'total',
+    label: 'Total',
+    value: row?.value,
+    displayValue: row?.displayValue || formatNumber(row?.value),
+  };
+}
+
 function rowMetaEntries(row) {
   return Object.entries(row.values || {})
     .filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== '')
     .slice(0, 4)
     .map(([key, value]) => ({
-      label: key.replace(/[_-]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
-      value: String(value),
+      label: labelFromMetricKey(key),
+      value: Number.isFinite(parseNumber(value)) ? formatNumber(parseNumber(value)) : String(value),
     }));
 }
 
@@ -475,24 +540,76 @@ function colorForRatio(ratio) {
   return `rgb(${channels.join(' ')})`;
 }
 
-function renderTooltip(tooltip, row, event) {
-  if (!row) {
-    tooltip.hidden = true;
+function buildMapCardMetric(entry) {
+  const metric = document.createElement('div');
+  metric.className = `cybertipline-geo-report-map-card-metric is-${entry.key}`;
+
+  const icon = document.createElement('span');
+  icon.className = 'cybertipline-geo-report-map-card-icon';
+  icon.setAttribute('aria-hidden', 'true');
+
+  const value = document.createElement('strong');
+  value.textContent = entry.displayValue;
+
+  const label = document.createElement('span');
+  label.textContent = entry.label;
+
+  metric.append(icon, value, label);
+  return metric;
+}
+
+function positionMapCard(card, event, wrap) {
+  if (!event) {
+    card.style.left = '24px';
+    card.style.top = '24px';
+    card.classList.remove('is-flipped');
     return;
   }
 
-  tooltip.innerHTML = '';
-  const label = document.createElement('strong');
-  label.textContent = row.label;
-  const value = document.createElement('span');
-  value.textContent = row.displayValue;
-  tooltip.append(label, value);
-  tooltip.hidden = false;
+  const wrapRect = wrap.getBoundingClientRect();
+  const cardWidth = Math.min(430, wrapRect.width - 32);
+  const rawLeft = event.clientX - wrapRect.left + 22;
+  const rawTop = event.clientY - wrapRect.top - 28;
+  const maxLeft = Math.max(wrapRect.width - cardWidth - 16, 16);
+  const left = Math.max(16, Math.min(rawLeft, maxLeft));
+  const top = Math.max(16, Math.min(rawTop, Math.max(wrapRect.height - 250, 16)));
 
-  if (event) {
-    tooltip.style.left = `${event.clientX}px`;
-    tooltip.style.top = `${event.clientY}px`;
+  card.style.left = `${left}px`;
+  card.style.top = `${top}px`;
+  card.style.setProperty('--map-card-width', `${cardWidth}px`);
+  card.classList.toggle('is-flipped', left < rawLeft);
+}
+
+function renderMapCard(card, row, event, wrap) {
+  if (!row) {
+    card.hidden = true;
+    return;
   }
+
+  card.replaceChildren();
+
+  const title = document.createElement('h3');
+  title.textContent = row.label;
+
+  const metrics = document.createElement('div');
+  metrics.className = 'cybertipline-geo-report-map-card-metrics';
+  rowBreakdownEntries(row).forEach((entry) => metrics.append(buildMapCardMetric(entry)));
+
+  const total = document.createElement('div');
+  total.className = 'cybertipline-geo-report-map-card-total';
+  const totalLabel = document.createElement('span');
+  totalLabel.textContent = 'Total';
+  const totalValue = document.createElement('strong');
+  totalValue.textContent = rowTotalEntry(row).displayValue;
+  total.append(totalLabel, totalValue);
+
+  card.append(title);
+  if (metrics.childElementCount) {
+    card.append(metrics);
+  }
+  card.append(total);
+  card.hidden = false;
+  positionMapCard(card, event, wrap);
 }
 
 function buildMapPanel(rows, dataset, onPreview, onSelect) {
@@ -501,9 +618,9 @@ function buildMapPanel(rows, dataset, onPreview, onSelect) {
   const wrap = document.createElement('div');
   wrap.className = 'cybertipline-geo-report-map-wrap';
   const svg = buildMap();
-  const tooltip = document.createElement('div');
-  tooltip.className = 'cybertipline-geo-report-tooltip';
-  tooltip.hidden = true;
+  const hoverCard = document.createElement('div');
+  hoverCard.className = 'cybertipline-geo-report-map-card';
+  hoverCard.hidden = true;
 
   svg.classList.add('cybertipline-geo-report-map');
   svg.querySelectorAll('path[data-state]').forEach((path) => {
@@ -518,14 +635,18 @@ function buildMapPanel(rows, dataset, onPreview, onSelect) {
       path.setAttribute('aria-label', `${row.label}: ${row.displayValue}`);
       path.addEventListener('mouseenter', (event) => {
         onPreview(row, true);
-        renderTooltip(tooltip, row, event);
+        renderMapCard(hoverCard, row, event, wrap);
       });
-      path.addEventListener('mousemove', (event) => renderTooltip(tooltip, row, event));
+      path.addEventListener('mousemove', (event) => positionMapCard(hoverCard, event, wrap));
       path.addEventListener('mouseleave', () => {
-        renderTooltip(tooltip, null);
+        renderMapCard(hoverCard, null);
         onPreview(null, false);
       });
-      path.addEventListener('focus', () => onPreview(row, true));
+      path.addEventListener('focus', () => {
+        onPreview(row, true);
+        renderMapCard(hoverCard, row, null, wrap);
+      });
+      path.addEventListener('blur', () => renderMapCard(hoverCard, null));
       path.addEventListener('click', () => {
         onSelect(row);
         svg.querySelectorAll('path.is-selected').forEach((selected) => {
@@ -545,11 +666,18 @@ function buildMapPanel(rows, dataset, onPreview, onSelect) {
   caption.className = 'cybertipline-geo-report-map-caption';
   caption.textContent = dataset.metadata?.map_caption || 'Hover or select a state to view report details.';
 
-  wrap.append(svg, tooltip, caption);
+  wrap.append(svg, hoverCard, caption);
   return wrap;
 }
 
-function buildRowButton(row, maxValue, index, onPreview, onSelect) {
+function buildRowCell(text, className) {
+  const cell = document.createElement('span');
+  cell.className = className;
+  cell.textContent = text;
+  return cell;
+}
+
+function buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown) {
   const item = document.createElement('li');
   item.className = 'cybertipline-geo-report-row';
   item.style.setProperty('--bar-width', `${Math.max((row.value / maxValue) * 100, 2)}%`);
@@ -562,7 +690,13 @@ function buildRowButton(row, maxValue, index, onPreview, onSelect) {
   button.addEventListener('mouseenter', () => onPreview(row, true));
   button.addEventListener('mouseleave', () => onPreview(null, false));
   button.addEventListener('focus', () => onPreview(row, true));
-  button.addEventListener('click', () => onSelect(row));
+  button.addEventListener('click', () => {
+    onSelect(row);
+    item.parentElement?.querySelectorAll('.cybertipline-geo-report-row.is-selected').forEach((selected) => {
+      selected.classList.remove('is-selected');
+    });
+    item.classList.add('is-selected');
+  });
 
   const rank = document.createElement('span');
   rank.className = 'cybertipline-geo-report-row-rank';
@@ -576,11 +710,27 @@ function buildRowButton(row, maxValue, index, onPreview, onSelect) {
   value.className = 'cybertipline-geo-report-row-value';
   value.textContent = row.displayValue;
 
+  if (hasBreakdown) {
+    const metricMap = new Map(rowBreakdownEntries(row).map((entry) => [entry.key, entry]));
+    const referrals = metricMap.get('referrals')?.displayValue || '-';
+    const informational = metricMap.get('informational')?.displayValue || '-';
+
+    button.classList.add('is-tabular');
+    button.append(
+      label,
+      buildRowCell(referrals, 'cybertipline-geo-report-row-referrals'),
+      buildRowCell(informational, 'cybertipline-geo-report-row-informational'),
+      value,
+    );
+  } else {
+    button.append(rank, label, value);
+  }
+
   const bar = document.createElement('span');
   bar.className = 'cybertipline-geo-report-row-bar';
   bar.setAttribute('aria-hidden', 'true');
 
-  button.append(rank, label, value, bar);
+  button.append(bar);
   item.append(button);
   return item;
 }
@@ -603,16 +753,37 @@ function enableBarReveal(list) {
 }
 
 function buildRowsPanel(rows, onPreview, onSelect) {
+  const shell = document.createElement('div');
+  shell.className = 'cybertipline-geo-report-table';
+  const hasBreakdown = rows.some((row) => rowBreakdownEntries(row).length);
+
+  if (hasBreakdown) {
+    const title = document.createElement('h3');
+    title.textContent = 'Reports by State';
+    title.className = 'cybertipline-geo-report-table-title';
+
+    const header = document.createElement('div');
+    header.className = 'cybertipline-geo-report-table-header';
+    header.append(
+      buildRowCell('US State', 'cybertipline-geo-report-table-heading'),
+      buildRowCell('Referrals', 'cybertipline-geo-report-table-heading is-numeric'),
+      buildRowCell('Informational', 'cybertipline-geo-report-table-heading is-numeric'),
+      buildRowCell('Total', 'cybertipline-geo-report-table-heading is-numeric'),
+    );
+    shell.append(title, header);
+  }
+
   const list = document.createElement('ol');
   list.className = 'cybertipline-geo-report-rows';
   const maxValue = Math.max(...rows.map((row) => row.value), 1);
 
   rows.forEach((row, index) => {
-    list.append(buildRowButton(row, maxValue, index, onPreview, onSelect));
+    list.append(buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown));
   });
 
   enableBarReveal(list);
-  return list;
+  shell.append(list);
+  return shell;
 }
 
 function shouldRenderMap(rows, requestedGeoType, dataset) {
