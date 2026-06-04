@@ -415,11 +415,40 @@ async function fetchApiEntries(apiEndpoint, context = {}) {
       },
     });
 
-    if (!response.ok) return [];
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+
+      // eslint-disable-next-line no-console
+      console.warn('[report-breakdown] API request failed.', {
+        status: response.status,
+        endpoint: apiEndpoint,
+        body,
+      });
+
+      return [];
+    }
 
     const payload = await response.json();
-    return normalizeApiEntries(payload, context);
+    const entries = normalizeApiEntries(payload, context);
+
+    if (!entries.length) {
+      // eslint-disable-next-line no-console
+      console.warn('[report-breakdown] API response did not contain usable rows.', {
+        endpoint: apiEndpoint,
+        datasetSlug: context.datasetSlug,
+        year: context.year,
+        payload,
+      });
+    }
+
+    return entries;
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[report-breakdown] API request failed.', {
+      endpoint: apiEndpoint,
+      error: e?.message || e,
+    });
+
     return [];
   }
 }
@@ -852,12 +881,13 @@ function enableReveal(block, state) {
 }
 
 async function resolveEntries(apiConfig, authoredEntries, isAuthoring, authoredPlaceholders) {
-  if (isAuthoring && (authoredEntries.length || authoredPlaceholders.length)) {
+  const apiEndpoint = apiConfig.apiEndpoint
+    || buildCybertiplineDatasetEndpoint(apiConfig);
+
+  if (!apiEndpoint && isAuthoring && (authoredEntries.length || authoredPlaceholders.length)) {
     return authoredEntries;
   }
 
-  const apiEndpoint = apiConfig.apiEndpoint
-    || buildCybertiplineDatasetEndpoint(apiConfig);
   const apiEntries = await fetchApiEntries(apiEndpoint, apiConfig);
   if (apiEntries.length) return apiEntries;
 

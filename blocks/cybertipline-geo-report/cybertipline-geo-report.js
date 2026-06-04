@@ -879,10 +879,14 @@ function countryElementSelector(code) {
 
 function dataRowsWithCountryElements(svg, rows) {
   return rows
-    .map((row) => ({
-      row,
-      element: svg.querySelector(countryElementSelector(row.geoCode)),
-    }))
+    .map((row) => {
+      const selector = countryElementSelector(row.geoCode);
+
+      return {
+        row,
+        element: selector ? svg.querySelector(selector) : null,
+      };
+    })
     .filter((entry) => entry.element);
 }
 
