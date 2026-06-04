@@ -1,3 +1,13 @@
+function normalizeAlignment(value, allowedValues, fallback = '') {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return allowedValues.find((allowedValue) => normalized.includes(allowedValue)) || fallback;
+}
+
 function readAlignment(block) {
   let verticalAlign = 'top';
   let horizontalAlign = '';
@@ -8,13 +18,13 @@ function readAlignment(block) {
 
     const vField = row.querySelector('[data-aue-prop="verticalAlign"]');
     if (vField) {
-      verticalAlign = vField.textContent.trim().toLowerCase() || verticalAlign;
+      verticalAlign = normalizeAlignment(vField.textContent, ['top', 'middle', 'bottom'], verticalAlign);
       isConfigRow = true;
     }
 
     const hField = row.querySelector('[data-aue-prop="horizontalAlign"]');
     if (hField) {
-      horizontalAlign = hField.textContent.trim().toLowerCase();
+      horizontalAlign = normalizeAlignment(hField.textContent, ['left', 'center', 'right']);
       isConfigRow = true;
     }
 
@@ -26,10 +36,10 @@ function readAlignment(block) {
     if (row.children.length >= 2) {
       const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
       if (['verticalalignment', 'alignment', 'align', 'verticalalign'].includes(key)) {
-        verticalAlign = row.children[1].textContent.trim().toLowerCase() || verticalAlign;
+        verticalAlign = normalizeAlignment(row.children[1].textContent, ['top', 'middle', 'bottom'], verticalAlign);
         rowsToRemove.push(row);
       } else if (['horizontalalignment', 'horizontalalign', 'halign'].includes(key)) {
-        horizontalAlign = row.children[1].textContent.trim().toLowerCase();
+        horizontalAlign = normalizeAlignment(row.children[1].textContent, ['left', 'center', 'right']);
         rowsToRemove.push(row);
       }
     }

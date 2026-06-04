@@ -56,6 +56,22 @@
             }
           ],
           "value": "_self"
+        },
+        {
+          "component": "select",
+          "name": "imageStyle",
+          "label": "Image Style",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Fit Container (Width 100%, Height Auto)",
+              "value": "full-width"
+            }
+          ],
+          "value": ""
         }
       ]
     }

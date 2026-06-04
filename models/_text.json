@@ -56,6 +56,13 @@
           "name": "textColor",
           "label": "Text Color",
           "description": "Any valid CSS color value, for example #404041"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "fontSize",
+          "label": "Font Size",
+          "description": "Any valid CSS font-size value. Plain numbers are treated as px, for example 18, 18px, 1rem, or clamp(1rem, 2vw, 1.25rem)."
         }
       ]
     }

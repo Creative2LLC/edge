@@ -90,6 +90,9 @@ function decoratePdfLinks(scope) {
     link.removeAttribute('download');
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
+    if (link.classList.contains('button')) {
+      link.classList.add('pdf');
+    }
   });
 }
 
@@ -150,6 +153,13 @@ function normalizeTextColor(value) {
   const hexMatch = normalizedValue.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
   if (/^https?:/i.test(normalizedValue) && hexMatch) return hexMatch[0];
 
+  return normalizedValue;
+}
+
+function normalizeFontSizeValue(value) {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) return '';
+  if (/^\d+(\.\d+)?$/.test(normalizedValue)) return `${normalizedValue}px`;
   return normalizedValue;
 }
 
@@ -231,7 +241,7 @@ function applyDefaultContentStyle(target, styles) {
   if (!target || !styles) return;
   if (styles.alignment) target.style.textAlign = styles.alignment;
   if (styles.color) target.style.setProperty('color', styles.color, 'important');
-  if (styles.fontSize) target.style.fontSize = styles.fontSize;
+  if (styles.fontSize) target.style.fontSize = normalizeFontSizeValue(styles.fontSize);
 }
 
 const defaultContentStyleCache = new Map();
@@ -248,10 +258,10 @@ async function getDefaultContentStylesFromResource(resource) {
       return {
         alignment: normalizeTextAlignment(data.alignment),
         color: normalizeTextColor(data.textColor),
-        fontSize: String(data.fontSize || '').trim(),
+        fontSize: normalizeFontSizeValue(data.fontSize),
       };
     })
-    .catch(() => ({ alignment: '', color: '' }));
+    .catch(() => ({ alignment: '', color: '', fontSize: '' }));
 
   defaultContentStyleCache.set(resourcePath, pendingStyles);
   return pendingStyles;
@@ -267,7 +277,7 @@ function applyDefaultContentStyles(main, propName) {
     const styles = {
       alignment: normalizeTextAlignment(rawAlignment),
       color: normalizeTextColor(rawColor),
-      fontSize: String(rawFontSize || '').trim(),
+      fontSize: normalizeFontSizeValue(rawFontSize),
     };
 
     applyDefaultContentStyle(target, styles);
@@ -287,11 +297,106 @@ function applyDefaultContentStyles(main, propName) {
   });
 }
 
+function normalizeButtonType(value) {
+  const normalizedValue = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  if (['primary', 'secondary'].includes(normalizedValue)) return normalizedValue;
+  if (['download', 'pdf', 'download-pdf', 'pdf-download'].includes(normalizedValue)) return 'download';
+  return '';
+}
+
+function applyButtonType(button, type) {
+  const normalizedType = normalizeButtonType(type);
+  if (!button || !normalizedType) return;
+
+  button.classList.remove('primary', 'secondary', 'download', 'pdf');
+  button.classList.add(normalizedType);
+}
+
+const buttonTypeCache = new Map();
+
+async function getButtonTypeFromResource(resource) {
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+  if (buttonTypeCache.has(resourcePath)) return buttonTypeCache.get(resourcePath);
+
+  const pendingType = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return '';
+      const data = await response.json();
+      return normalizeButtonType(data.linkType);
+    })
+    .catch(() => '');
+
+  buttonTypeCache.set(resourcePath, pendingType);
+  return pendingType;
+}
+
+function applyDefaultContentButtonStyles(main) {
+  main.querySelectorAll('a.button').forEach((button) => {
+    const resource = button.getAttribute('data-aue-resource')
+      || button.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+      || '';
+    if (!resource) return;
+
+    const { node: typeNode, value: rawType } = getFieldValue(main, 'linkType', resource);
+    const type = normalizeButtonType(rawType);
+    if (typeNode) cleanupFieldNode(typeNode);
+    if (type) {
+      applyButtonType(button, type);
+      return;
+    }
+
+    getButtonTypeFromResource(resource).then((resourceType) => {
+      applyButtonType(button, resourceType);
+    });
+  });
+}
+
 export function applyDefaultContentAuthorStyles(main) {
   instrumentDefaultContentComponents(main);
   applyDefaultContentStyles(main, 'title');
   applyDefaultContentStyles(main, 'text');
+  applyDefaultContentButtonStyles(main);
 }
+
+function normalizeImageStyle(value) {
+  const normalizedValue = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  if ([
+    'full',
+    'full-width',
+    'fullwidth',
+    'fit',
+    'fit-container',
+    'fitcontainer',
+    'width-100',
+    'width100',
+  ].includes(normalizedValue)) return 'full-width';
+
+  return '';
+}
+
+function applyImageStyle(imageElement, style) {
+  const normalizedStyle = normalizeImageStyle(style);
+  if (!imageElement || normalizedStyle !== 'full-width') return;
+
+  const frame = imageElement.closest('picture') || imageElement;
+  frame.classList.add('image-fit-container');
+  const anchor = frame.closest('a');
+  if (anchor && anchor.children.length === 1) {
+    anchor.classList.add('image-fit-container-link');
+  }
+}
+
 function applyAnchorToImage(imageElement, href, rawTarget = '_self') {
   if (!imageElement || !href) return;
   const target = ['_self', '_blank', '_parent', '_top'].includes(rawTarget) ? rawTarget : '_self';
@@ -309,25 +414,30 @@ function applyAnchorToImage(imageElement, href, rawTarget = '_self') {
     imageElement.replaceWith(anchor);
     anchor.append(imageElement);
   }
+
+  if (imageElement.classList.contains('image-fit-container')) {
+    anchor.classList.add('image-fit-container-link');
+  }
 }
 
-const imageLinkCache = new Map();
+const imageConfigCache = new Map();
 
-async function resolveImageLinkFromResource(resourcePath) {
-  if (!resourcePath) return { href: '', target: '_self' };
-  if (imageLinkCache.has(resourcePath)) return imageLinkCache.get(resourcePath);
+async function resolveImageConfigFromResource(resourcePath) {
+  if (!resourcePath) return { href: '', target: '_self', style: '' };
+  if (imageConfigCache.has(resourcePath)) return imageConfigCache.get(resourcePath);
 
   const promise = fetch(`${resourcePath}.json`)
     .then(async (response) => {
-      if (!response.ok) return { href: '', target: '_self' };
+      if (!response.ok) return { href: '', target: '_self', style: '' };
       const data = await response.json();
       const href = normalizeLinkValue(data.imageLink);
       const target = normalizeLinkValue(data.imageTarget) || '_self';
-      return { href, target };
+      const style = normalizeImageStyle(data.imageStyle);
+      return { href, target, style };
     })
-    .catch(() => ({ href: '', target: '_self' }));
+    .catch(() => ({ href: '', target: '_self', style: '' }));
 
-  imageLinkCache.set(resourcePath, promise);
+  imageConfigCache.set(resourcePath, promise);
   return promise;
 }
 
@@ -339,20 +449,29 @@ function applyImageLinksFromAue(main) {
       || '';
     const { node: linkNode, value: href } = getFieldValue(main, 'imageLink', resource);
     const { node: targetNode, value: rawTarget } = getFieldValue(main, 'imageTarget', resource);
+    const { node: styleNode, value: rawStyle } = getFieldValue(main, 'imageStyle', resource);
     const image = node.tagName === 'IMG' ? node : node.querySelector('img');
     if (!image) return;
     const imageElement = image.closest('picture') || image;
+    const imageStyle = normalizeImageStyle(rawStyle);
+    if (styleNode) {
+      cleanupFieldNode(styleNode);
+    }
+    if (imageStyle) {
+      applyImageStyle(imageElement, imageStyle);
+    }
+
     if (href) {
       cleanupFieldNode(linkNode);
       cleanupFieldNode(targetNode);
       applyAnchorToImage(imageElement, href, rawTarget);
-      return;
     }
 
     const resourcePath = resourcePathFromUrn(resource);
     if (!resourcePath) return;
-    resolveImageLinkFromResource(resourcePath).then(({ href: resolvedHref, target }) => {
-      if (!resolvedHref) return;
+    resolveImageConfigFromResource(resourcePath).then(({ href: resolvedHref, target, style }) => {
+      if (style && !imageStyle) applyImageStyle(imageElement, style);
+      if (href || !resolvedHref) return;
       applyAnchorToImage(imageElement, resolvedHref, target);
     });
   });
@@ -365,6 +484,7 @@ function applyImageLinksFromRows(main) {
 
     let href = '';
     let target = '_self';
+    let imageStyle = '';
     const rowsToRemove = [];
     rows.forEach((row) => {
       if (row.children.length !== 2) return;
@@ -378,14 +498,17 @@ function applyImageLinksFromRows(main) {
       } else if (key === 'open link in' || key === 'image target') {
         target = valueText || '_self';
         rowsToRemove.push(row);
+      } else if (['image style', 'image size', 'image display', 'image fit'].includes(key)) {
+        imageStyle = normalizeImageStyle(valueText);
+        rowsToRemove.push(row);
       }
     });
 
-    if (!href) return;
     const image = wrapper.querySelector('img');
     if (!image) return;
     const imageElement = image.closest('picture') || image;
-    applyAnchorToImage(imageElement, href, target);
+    if (imageStyle) applyImageStyle(imageElement, imageStyle);
+    if (href) applyAnchorToImage(imageElement, href, target);
     rowsToRemove.forEach((row) => row.remove());
   });
 }

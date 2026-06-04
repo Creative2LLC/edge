@@ -502,8 +502,8 @@ a.button.pdf {
   white-space: normal;
 }
 
-a.button.download::after,
-a.button.pdf::after {
+a.button.download::before,
+a.button.pdf::before {
   content: '';
   flex-shrink: 0;
   width: 20px;
@@ -533,6 +533,20 @@ main > .section.image-full-width img {
   width: 100%;
   height: auto;
   display: block;
+}
+
+main .default-content-wrapper .image-fit-container-link,
+main .default-content-wrapper picture.image-fit-container {
+  display: block;
+  width: 100%;
+}
+
+main .default-content-wrapper img.image-fit-container,
+main .default-content-wrapper picture.image-fit-container img,
+main .default-content-wrapper .image-fit-container-link > picture img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* sections */
