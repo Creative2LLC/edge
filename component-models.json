@@ -6570,9 +6570,24 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches /api/cybertipline-reports/{year}/datasets/{datasetSlug}."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "datasetSlug",
+        "label": "Dataset Slug",
+        "description": "Use reported-incident-types for the CyberTipline incident type chart.",
+        "value": "reported-incident-types"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "apiEndpoint",
         "label": "API Endpoint URL",
-        "description": "Optional. On the live site the block can fetch JSON from this endpoint and fall back to authored items if it fails.",
+        "description": "Optional override for custom JSON. Leave blank to use API Base URL + Default Active Year + Dataset Slug.",
         "value": ""
       },
       {

@@ -11,8 +11,10 @@ const BLOCK_ROW_INDEX = {
   defaultYear: 1,
   tableLabels: 2,
   totalLabel: 3,
-  apiEndpoint: 4,
-  emptyStateMessage: 5,
+  apiBaseUrl: 4,
+  datasetSlug: 5,
+  apiEndpoint: 6,
+  emptyStateMessage: 7,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -30,6 +32,7 @@ const DEFAULTS = {
     count: 'Reports',
   },
   totalLabel: 'Total',
+  datasetSlug: 'reported-incident-types',
   emptyStateMessage: 'No report data available.',
   authorMessage: 'Add report-breakdown items in Universal Editor or connect an API endpoint.',
 };
@@ -148,9 +151,23 @@ function normalizeYear(value) {
   return String(value || '').trim();
 }
 
+function normalizeToken(value) {
+  return String(value || '')
+    .trim()
+    .replace(/[^a-z0-9_-]/gi, '');
+}
+
+function normalizeApiBaseUrl(value) {
+  return String(value || '').trim().replace(/\/+$/, '');
+}
+
 function normalizeColor(value, index) {
   const normalized = String(value || '').trim();
   return normalized || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+}
+
+function firstPresent(...values) {
+  return values.find((value) => value !== undefined && value !== null && String(value).trim() !== '');
 }
 
 function parseTableLabels(value) {
@@ -241,6 +258,25 @@ function normalizeBlockEntries(rows, fallbackYear = DEFAULTS.defaultYear) {
   };
 }
 
+function getReportCountValue(rawEntry) {
+  const values = rawEntry?.values || {};
+
+  return firstPresent(
+    rawEntry?.reportCount,
+    rawEntry?.report_count,
+    rawEntry?.reports,
+    rawEntry?.count,
+    rawEntry?.value,
+    rawEntry?.total,
+    values.reportCount,
+    values.report_count,
+    values.reports,
+    values.count,
+    values.value,
+    values.total,
+  );
+}
+
 function normalizeApiEntry(rawEntry, index) {
   const year = normalizeYear(
     rawEntry?.year
@@ -256,13 +292,7 @@ function normalizeApiEntry(rawEntry, index) {
       || rawEntry?.label
       || '',
   ).trim();
-  const reportCount = parseNumber(
-    rawEntry?.reportCount
-      || rawEntry?.reports
-      || rawEntry?.count
-      || rawEntry?.value
-      || rawEntry?.total,
-  );
+  const reportCount = parseNumber(getReportCountValue(rawEntry));
 
   if (!year || !reportType || !Number.isFinite(reportCount)) return null;
 
@@ -275,8 +305,46 @@ function normalizeApiEntry(rawEntry, index) {
   };
 }
 
-function normalizeApiEntries(payload) {
+function getCybertiplineDataset(payload, datasetSlug = '') {
+  const data = payload?.data || payload;
+  const normalizedSlug = normalizeToken(datasetSlug);
+
+  if (Array.isArray(data?.dataset?.rows)) return data.dataset;
+
+  const datasets = data?.datasets || data?.report?.datasets || payload?.datasets;
+  if (!Array.isArray(datasets)) return null;
+
+  if (!normalizedSlug) {
+    return datasets.find((dataset) => Array.isArray(dataset?.rows)) || null;
+  }
+
+  return datasets.find((dataset) => normalizeToken(dataset?.slug) === normalizedSlug) || null;
+}
+
+function normalizeCybertiplineDatasetEntries(payload, context = {}) {
+  const dataset = getCybertiplineDataset(payload, context.datasetSlug);
+  if (!dataset) return [];
+
+  const data = payload?.data || payload;
+  const year = normalizeYear(data?.report?.year || data?.year || payload?.year || context.year);
+  const rows = Array.isArray(dataset?.rows) ? dataset.rows : [];
+
+  return rows
+    .map((row, index) => normalizeApiEntry({
+      ...row,
+      year: row?.year || year,
+      reportType: row?.reportType || row?.type || row?.name || row?.label,
+      reportCount: getReportCountValue(row),
+      order: row?.sort_order ?? row?.order ?? index,
+    }, index))
+    .filter(Boolean);
+}
+
+function normalizeApiEntries(payload, context = {}) {
   if (!payload) return [];
+
+  const cybertiplineEntries = normalizeCybertiplineDatasetEntries(payload, context);
+  if (cybertiplineEntries.length) return cybertiplineEntries;
 
   if (Array.isArray(payload)) {
     return payload.flatMap((entry, index) => {
@@ -319,7 +387,25 @@ function normalizeApiEntries(payload) {
   return [];
 }
 
-async function fetchApiEntries(apiEndpoint) {
+function buildCybertiplineDatasetEndpoint(config = {}) {
+  const apiBaseUrl = normalizeApiBaseUrl(config.apiBaseUrl);
+  const datasetSlug = normalizeToken(config.datasetSlug || DEFAULTS.datasetSlug);
+  const year = normalizeYear(config.year);
+
+  if (!apiBaseUrl || !datasetSlug) return '';
+
+  const endpoint = year
+    ? `/api/cybertipline-reports/${encodeURIComponent(year)}/datasets/${encodeURIComponent(datasetSlug)}`
+    : '/api/cybertipline-reports/current';
+
+  try {
+    return new URL(endpoint, `${apiBaseUrl}/`).toString();
+  } catch (e) {
+    return '';
+  }
+}
+
+async function fetchApiEntries(apiEndpoint, context = {}) {
   if (!apiEndpoint) return [];
 
   try {
@@ -332,7 +418,7 @@ async function fetchApiEntries(apiEndpoint) {
     if (!response.ok) return [];
 
     const payload = await response.json();
-    return normalizeApiEntries(payload);
+    return normalizeApiEntries(payload, context);
   } catch (e) {
     return [];
   }
@@ -765,12 +851,14 @@ function enableReveal(block, state) {
   observer.observe(block);
 }
 
-async function resolveEntries(apiEndpoint, authoredEntries, isAuthoring, authoredPlaceholders) {
+async function resolveEntries(apiConfig, authoredEntries, isAuthoring, authoredPlaceholders) {
   if (isAuthoring && (authoredEntries.length || authoredPlaceholders.length)) {
     return authoredEntries;
   }
 
-  const apiEntries = await fetchApiEntries(apiEndpoint);
+  const apiEndpoint = apiConfig.apiEndpoint
+    || buildCybertiplineDatasetEndpoint(apiConfig);
+  const apiEntries = await fetchApiEntries(apiEndpoint, apiConfig);
   if (apiEntries.length) return apiEntries;
 
   return authoredEntries;
@@ -785,6 +873,8 @@ export default async function decorate(block) {
   const defaultYearField = getField(block, 'defaultYear', BLOCK_ROW_INDEX);
   const tableLabelsField = getField(block, 'tableLabels', BLOCK_ROW_INDEX);
   const totalLabelField = getField(block, 'totalLabel', BLOCK_ROW_INDEX);
+  const apiBaseUrlField = getField(block, 'apiBaseUrl', BLOCK_ROW_INDEX);
+  const datasetSlugField = getField(block, 'datasetSlug', BLOCK_ROW_INDEX);
   const apiEndpointField = getField(block, 'apiEndpoint', BLOCK_ROW_INDEX);
   const emptyStateField = getField(block, 'emptyStateMessage', BLOCK_ROW_INDEX);
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -794,7 +884,12 @@ export default async function decorate(block) {
     placeholders: authoredPlaceholders,
   } = normalizeBlockEntries(rows, requestedYear);
   const resolvedEntries = await resolveEntries(
-    apiEndpointField.value,
+    {
+      apiBaseUrl: apiBaseUrlField.value,
+      datasetSlug: datasetSlugField.value || DEFAULTS.datasetSlug,
+      year: requestedYear,
+      apiEndpoint: apiEndpointField.value,
+    },
     authoredEntries,
     isAuthoring,
     authoredPlaceholders,
