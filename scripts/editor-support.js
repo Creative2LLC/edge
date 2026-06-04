@@ -9,7 +9,13 @@ import {
   loadSections,
 } from './aem.js';
 import { decorateRichtext } from './editor-support-rte.js';
-import { applyDefaultContentAuthorStyles, applySectionSpacing, decorateMain } from './scripts.js';
+import {
+  applyDefaultContentAuthorStyles,
+  applyImageLinks,
+  applySectionSpacing,
+  decorateMain,
+  decoratePdfLinks,
+} from './scripts.js';
 
 const SECTION_BACKGROUND_FALLBACKS = {
   'leadership-overview': '#f4f1ec',
@@ -193,6 +199,8 @@ async function applyChanges(event) {
           applySectionSpacing(parentElement);
           decorateBlocks(parentElement);
           applyDefaultContentAuthorStyles(newSection);
+          applyImageLinks(newSection);
+          decoratePdfLinks(newSection);
           await loadSections(parentElement);
           await syncSectionBackgrounds(newSection);
           element.remove();
@@ -203,6 +211,8 @@ async function applyChanges(event) {
           decorateIcons(parentElement);
           decorateRichtext(parentElement);
           applyDefaultContentAuthorStyles(parentElement);
+          applyImageLinks(parentElement);
+          decoratePdfLinks(parentElement);
           const section = parentElement?.closest('.section');
           if (section) await syncSectionBackgrounds(section);
         }

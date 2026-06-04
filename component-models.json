@@ -223,11 +223,41 @@
         "description": "Any valid CSS color value, for example #404041"
       },
       {
-        "component": "text",
+        "component": "select",
         "valueType": "string",
         "name": "fontSize",
         "label": "Font Size",
-        "description": "Any valid CSS font-size value. Plain numbers are treated as px, for example 18, 18px, 1rem, or clamp(1rem, 2vw, 1.25rem)."
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Small",
+            "value": "0.875rem"
+          },
+          {
+            "name": "Base",
+            "value": "1rem"
+          },
+          {
+            "name": "Medium",
+            "value": "1.125rem"
+          },
+          {
+            "name": "Large",
+            "value": "1.25rem"
+          },
+          {
+            "name": "X Large",
+            "value": "1.5rem"
+          },
+          {
+            "name": "2X Large",
+            "value": "2rem"
+          }
+        ],
+        "value": ""
       }
     ]
   },

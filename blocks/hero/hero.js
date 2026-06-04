@@ -111,7 +111,7 @@ function getCandidateResourcePaths(block) {
     .filter(Boolean);
 
   if (pagePath) {
-    paths.push(pagePath, `${pagePath}.model`);
+    paths.push(pagePath);
   }
 
   return [...new Set(paths.map((path) => path.replace(/\.html$/i, '')))];

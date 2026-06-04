@@ -83,7 +83,7 @@ function isPdfHref(href) {
   }
 }
 
-function decoratePdfLinks(scope) {
+export function decoratePdfLinks(scope) {
   scope.querySelectorAll('a[href]').forEach((link) => {
     if (!isPdfHref(link.getAttribute('href'))) return;
 
@@ -111,13 +111,41 @@ function getResourceRoot(scope, resource) {
   return scope.querySelector(selector) || document.querySelector(selector);
 }
 
+function normalizeFieldLabel(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function getLabeledFieldValue(scope, labels) {
+  if (!scope) return { node: null, value: '' };
+
+  const acceptedLabels = new Set(labels.map(normalizeFieldLabel));
+  const row = [...scope.querySelectorAll(':scope > div, :scope > div > div')]
+    .filter((candidate) => !candidate.closest('.block'))
+    .find((candidate) => (
+      candidate.children?.length === 2
+        && acceptedLabels.has(normalizeFieldLabel(candidate.children[0].textContent))
+    ));
+
+  if (!row) return { node: null, value: '' };
+  const valueNode = row.children[1];
+  const anchor = valueNode.querySelector('a');
+  return {
+    node: valueNode,
+    row,
+    value: anchor?.getAttribute('href') || valueNode.textContent.trim(),
+  };
+}
+
 function getFieldValue(scope, name, resource) {
   const propSelector = `[data-aue-prop="${name}"]`;
   const resourceRoot = getResourceRoot(scope, resource);
   const node = (resourceRoot?.matches(propSelector) ? resourceRoot : null)
     || resourceRoot?.querySelector(propSelector)
     || (resource && document.querySelector(`[data-aue-resource="${resource}"]${propSelector}`))
-    || scope.querySelector(propSelector);
+    || (!resource ? scope.querySelector(propSelector) : null);
   if (!node) return { node: null, value: '', resource };
   const anchor = node.tagName === 'A' ? node : node.querySelector('a');
   const value = anchor?.getAttribute('href') || node.textContent.trim();
@@ -141,13 +169,32 @@ function normalizeLinkValue(value) {
   return '';
 }
 
+function normalizeConfigValue(value) {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return String(
+      value.value
+        || value.name
+        || value.label
+        || value.text
+        || '',
+    ).trim();
+  }
+  return String(value).trim();
+}
+
 function normalizeTextAlignment(value) {
-  const normalizedValue = String(value || '').trim().toLowerCase();
-  return ['left', 'center', 'right', 'justify'].includes(normalizedValue) ? normalizedValue : '';
+  const normalizedValue = normalizeConfigValue(value)
+    .toLowerCase()
+    .replace(/[^a-z]+/g, '-');
+
+  return ['left', 'center', 'right', 'justify']
+    .find((alignment) => normalizedValue.includes(alignment)) || '';
 }
 
 function normalizeTextColor(value) {
-  const normalizedValue = String(value || '').trim();
+  const normalizedValue = normalizeConfigValue(value);
   if (!normalizedValue) return '';
 
   const hexMatch = normalizedValue.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
@@ -157,9 +204,34 @@ function normalizeTextColor(value) {
 }
 
 function normalizeFontSizeValue(value) {
-  const normalizedValue = String(value || '').trim();
+  const normalizedValue = normalizeConfigValue(value);
   if (!normalizedValue) return '';
+
+  const functionMatch = normalizedValue.match(/(?:clamp|calc|min|max)\([^)]+\)/i);
+  if (functionMatch) return functionMatch[0];
+
+  const lengthMatch = normalizedValue.match(/\b\d+(\.\d+)?(px|rem|em|%|vw|vh|vmin|vmax|ch|ex)\b/i);
+  if (lengthMatch) return lengthMatch[0];
+
   if (/^\d+(\.\d+)?$/.test(normalizedValue)) return `${normalizedValue}px`;
+
+  const normalizedToken = normalizedValue
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const tokenSizes = {
+    small: '0.875rem',
+    base: '1rem',
+    medium: '1.125rem',
+    large: '1.25rem',
+    xlarge: '1.5rem',
+    'x-large': '1.5rem',
+    xxlarge: '2rem',
+    'xx-large': '2rem',
+    '2x-large': '2rem',
+  };
+  if (tokenSizes[normalizedToken]) return tokenSizes[normalizedToken];
+
   return normalizedValue;
 }
 
@@ -270,20 +342,33 @@ async function getDefaultContentStylesFromResource(resource) {
 function applyDefaultContentStyles(main, propName) {
   getAuthorableTextRoots(main, propName).forEach((node) => {
     const resource = node.getAttribute('data-aue-resource') || '';
-    const { node: alignmentNode, value: rawAlignment } = getFieldValue(main, 'alignment', resource);
-    const { node: colorNode, value: rawColor } = getFieldValue(main, 'textColor', resource);
-    const { node: fontSizeNode, value: rawFontSize } = getFieldValue(main, 'fontSize', resource);
+    const fallbackScope = node.closest('.default-content-wrapper') || node.parentElement || main;
+    const alignmentField = getFieldValue(main, 'alignment', resource);
+    const colorField = getFieldValue(main, 'textColor', resource);
+    const fontSizeField = getFieldValue(main, 'fontSize', resource);
+    const fallbackAlignment = alignmentField.value ? { node: null, value: '' } : getLabeledFieldValue(
+      fallbackScope,
+      ['alignment', 'text alignment'],
+    );
+    const fallbackColor = colorField.value ? { node: null, value: '' } : getLabeledFieldValue(
+      fallbackScope,
+      ['text color', 'text colour', 'color', 'colour'],
+    );
+    const fallbackFontSize = fontSizeField.value ? { node: null, value: '' } : getLabeledFieldValue(
+      fallbackScope,
+      ['font size', 'fontsize', 'text size'],
+    );
     const target = getDefaultContentStyleTarget(node, propName);
     const styles = {
-      alignment: normalizeTextAlignment(rawAlignment),
-      color: normalizeTextColor(rawColor),
-      fontSize: normalizeFontSizeValue(rawFontSize),
+      alignment: normalizeTextAlignment(alignmentField.value || fallbackAlignment.value),
+      color: normalizeTextColor(colorField.value || fallbackColor.value),
+      fontSize: normalizeFontSizeValue(fontSizeField.value || fallbackFontSize.value),
     };
 
     applyDefaultContentStyle(target, styles);
-    cleanupFieldNode(alignmentNode);
-    cleanupFieldNode(colorNode);
-    cleanupFieldNode(fontSizeNode);
+    cleanupFieldNode(alignmentField.node || fallbackAlignment.node);
+    cleanupFieldNode(colorField.node || fallbackColor.node);
+    cleanupFieldNode(fontSizeField.node || fallbackFontSize.node);
 
     if ((styles.alignment && styles.color && styles.fontSize) || !resource) return;
 
@@ -298,8 +383,7 @@ function applyDefaultContentStyles(main, propName) {
 }
 
 function normalizeButtonType(value) {
-  const normalizedValue = String(value || '')
-    .trim()
+  const normalizedValue = normalizeConfigValue(value)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
@@ -341,16 +425,23 @@ function applyDefaultContentButtonStyles(main) {
     const resource = button.getAttribute('data-aue-resource')
       || button.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
       || '';
-    if (!resource) return;
-
-    const { node: typeNode, value: rawType } = getFieldValue(main, 'linkType', resource);
-    const type = normalizeButtonType(rawType);
-    if (typeNode) cleanupFieldNode(typeNode);
+    const fallbackScope = button.closest('.button-container')?.parentElement
+      || button.closest('.default-content-wrapper')
+      || button.parentElement
+      || main;
+    const typeField = getFieldValue(main, 'linkType', resource);
+    const fallbackType = typeField.value ? { node: null, value: '' } : getLabeledFieldValue(
+      fallbackScope,
+      ['type', 'link type', 'button type', 'button style'],
+    );
+    const type = normalizeButtonType(typeField.value || fallbackType.value);
+    cleanupFieldNode(typeField.node || fallbackType.node);
     if (type) {
       applyButtonType(button, type);
       return;
     }
 
+    if (!resource) return;
     getButtonTypeFromResource(resource).then((resourceType) => {
       applyButtonType(button, resourceType);
     });
@@ -365,22 +456,21 @@ export function applyDefaultContentAuthorStyles(main) {
 }
 
 function normalizeImageStyle(value) {
-  const normalizedValue = String(value || '')
-    .trim()
+  const normalizedValue = normalizeConfigValue(value)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
-  if ([
-    'full',
-    'full-width',
-    'fullwidth',
-    'fit',
-    'fit-container',
-    'fitcontainer',
-    'width-100',
-    'width100',
-  ].includes(normalizedValue)) return 'full-width';
+  if (
+    normalizedValue === 'full'
+      || normalizedValue.includes('full-width')
+      || normalizedValue.includes('fullwidth')
+      || normalizedValue === 'fit'
+      || normalizedValue.includes('fit-container')
+      || normalizedValue.includes('fitcontainer')
+      || normalizedValue.includes('width-100')
+      || normalizedValue.includes('width100')
+  ) return 'full-width';
 
   return '';
 }
@@ -447,16 +537,19 @@ function applyImageLinksFromAue(main) {
     const resource = node.getAttribute('data-aue-resource')
       || node.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
       || '';
+    const fallbackScope = node.closest('.default-content-wrapper') || node.parentElement || main;
     const { node: linkNode, value: href } = getFieldValue(main, 'imageLink', resource);
     const { node: targetNode, value: rawTarget } = getFieldValue(main, 'imageTarget', resource);
     const { node: styleNode, value: rawStyle } = getFieldValue(main, 'imageStyle', resource);
+    const fallbackStyle = rawStyle ? { node: null, value: '' } : getLabeledFieldValue(
+      fallbackScope,
+      ['image style', 'image size', 'image display', 'image fit'],
+    );
     const image = node.tagName === 'IMG' ? node : node.querySelector('img');
     if (!image) return;
     const imageElement = image.closest('picture') || image;
-    const imageStyle = normalizeImageStyle(rawStyle);
-    if (styleNode) {
-      cleanupFieldNode(styleNode);
-    }
+    const imageStyle = normalizeImageStyle(rawStyle || fallbackStyle.value);
+    cleanupFieldNode(styleNode || fallbackStyle.node);
     if (imageStyle) {
       applyImageStyle(imageElement, imageStyle);
     }
@@ -513,7 +606,7 @@ function applyImageLinksFromRows(main) {
   });
 }
 
-function applyImageLinks(main) {
+export function applyImageLinks(main) {
   applyImageLinksFromAue(main);
   applyImageLinksFromRows(main);
 }
