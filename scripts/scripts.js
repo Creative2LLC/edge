@@ -231,22 +231,24 @@ function applyDefaultContentStyle(target, styles) {
   if (!target || !styles) return;
   if (styles.alignment) target.style.textAlign = styles.alignment;
   if (styles.color) target.style.setProperty('color', styles.color, 'important');
+  if (styles.fontSize) target.style.fontSize = styles.fontSize;
 }
 
 const defaultContentStyleCache = new Map();
 
 async function getDefaultContentStylesFromResource(resource) {
   const resourcePath = resourcePathFromUrn(resource);
-  if (!resourcePath) return { alignment: '', color: '' };
+  if (!resourcePath) return { alignment: '', color: '', fontSize: '' };
   if (defaultContentStyleCache.has(resourcePath)) return defaultContentStyleCache.get(resourcePath);
 
   const pendingStyles = fetch(`${resourcePath}.json`)
     .then(async (response) => {
-      if (!response.ok) return { alignment: '', color: '' };
+      if (!response.ok) return { alignment: '', color: '', fontSize: '' };
       const data = await response.json();
       return {
         alignment: normalizeTextAlignment(data.alignment),
         color: normalizeTextColor(data.textColor),
+        fontSize: String(data.fontSize || '').trim(),
       };
     })
     .catch(() => ({ alignment: '', color: '' }));
@@ -260,22 +262,26 @@ function applyDefaultContentStyles(main, propName) {
     const resource = node.getAttribute('data-aue-resource') || '';
     const { node: alignmentNode, value: rawAlignment } = getFieldValue(main, 'alignment', resource);
     const { node: colorNode, value: rawColor } = getFieldValue(main, 'textColor', resource);
+    const { node: fontSizeNode, value: rawFontSize } = getFieldValue(main, 'fontSize', resource);
     const target = getDefaultContentStyleTarget(node, propName);
     const styles = {
       alignment: normalizeTextAlignment(rawAlignment),
       color: normalizeTextColor(rawColor),
+      fontSize: String(rawFontSize || '').trim(),
     };
 
     applyDefaultContentStyle(target, styles);
     cleanupFieldNode(alignmentNode);
     cleanupFieldNode(colorNode);
+    cleanupFieldNode(fontSizeNode);
 
-    if ((styles.alignment && styles.color) || !resource) return;
+    if ((styles.alignment && styles.color && styles.fontSize) || !resource) return;
 
     getDefaultContentStylesFromResource(resource).then((resourceStyles) => {
       applyDefaultContentStyle(target, {
         alignment: styles.alignment || resourceStyles.alignment,
         color: styles.color || resourceStyles.color,
+        fontSize: styles.fontSize || resourceStyles.fontSize,
       });
     });
   });

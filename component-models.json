@@ -205,6 +205,13 @@
         "name": "textColor",
         "label": "Text Color",
         "description": "Any valid CSS color value, for example #404041"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "fontSize",
+        "label": "Font Size",
+        "description": "Any valid CSS font-size value, for example 14px, 1rem, or 1.25em"
       }
     ]
   },
@@ -242,6 +249,10 @@
           {
             "name": "secondary",
             "value": "secondary"
+          },
+          {
+            "name": "download / pdf",
+            "value": "download"
           }
         ]
       }
