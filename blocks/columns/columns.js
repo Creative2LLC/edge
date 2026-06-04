@@ -1,11 +1,19 @@
 function readAlignment(block) {
   let verticalAlign = 'top';
+  let horizontalAlign = '';
   const rowsToRemove = [];
 
   [...block.children].forEach((row) => {
-    const alignField = row.querySelector('[data-aue-prop="verticalAlign"]');
-    if (alignField) {
-      verticalAlign = alignField.textContent.trim().toLowerCase() || verticalAlign;
+    const vField = row.querySelector('[data-aue-prop="verticalAlign"]');
+    if (vField) {
+      verticalAlign = vField.textContent.trim().toLowerCase() || verticalAlign;
+      rowsToRemove.push(row);
+      return;
+    }
+
+    const hField = row.querySelector('[data-aue-prop="horizontalAlign"]');
+    if (hField) {
+      horizontalAlign = hField.textContent.trim().toLowerCase();
       rowsToRemove.push(row);
       return;
     }
@@ -15,16 +23,19 @@ function readAlignment(block) {
       if (['verticalalignment', 'alignment', 'align', 'verticalalign'].includes(key)) {
         verticalAlign = row.children[1].textContent.trim().toLowerCase() || verticalAlign;
         rowsToRemove.push(row);
+      } else if (['horizontalalignment', 'horizontalalign', 'halign'].includes(key)) {
+        horizontalAlign = row.children[1].textContent.trim().toLowerCase();
+        rowsToRemove.push(row);
       }
     }
   });
 
   rowsToRemove.forEach((row) => row.remove());
-  return verticalAlign;
+  return { verticalAlign, horizontalAlign };
 }
 
 export default function decorate(block) {
-  const verticalAlign = readAlignment(block);
+  const { verticalAlign, horizontalAlign } = readAlignment(block);
 
   const contentRow = [...block.children].find((row) => row.children.length);
   const cols = contentRow ? [...contentRow.children] : [];
@@ -34,6 +45,10 @@ export default function decorate(block) {
 
   if (['top', 'middle', 'bottom'].includes(verticalAlign)) {
     block.classList.add(`columns-align-${verticalAlign}`);
+  }
+
+  if (['left', 'center', 'right'].includes(horizontalAlign)) {
+    block.classList.add(`columns-halign-${horizontalAlign}`);
   }
 
   // setup image columns

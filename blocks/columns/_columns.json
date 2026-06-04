@@ -49,6 +49,25 @@
           }
         ],
         "value": "top"
+      },
+      {
+        "component": "select",
+        "name": "horizontalAlign",
+        "label": "Horizontal Alignment",
+        "options": [{
+            "name": "Left (default)",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
       }
     ]
   }],

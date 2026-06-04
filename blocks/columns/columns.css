@@ -43,3 +43,15 @@
     align-items: center;
   }
 }
+
+.columns.columns-halign-left > div > div {
+  text-align: left;
+}
+
+.columns.columns-halign-center > div > div {
+  text-align: center;
+}
+
+.columns.columns-halign-right > div > div {
+  text-align: right;
+}

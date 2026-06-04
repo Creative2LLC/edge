@@ -494,6 +494,24 @@ button.secondary {
   color: var(--text-color);
 }
 
+a.button.download,
+a.button.pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: normal;
+}
+
+a.button.download::after,
+a.button.pdf::after {
+  content: '';
+  flex-shrink: 0;
+  width: 20px;
+  height: 21px;
+  background-color: currentcolor;
+  mask: url('/icons/download.svg') no-repeat center / contain;
+}
+
 main img {
   max-width: 100%;
   width: auto;
@@ -509,6 +527,12 @@ main img {
 .icon img {
   height: 100%;
   width: 100%;
+}
+
+main > .section.image-full-width img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* sections */
