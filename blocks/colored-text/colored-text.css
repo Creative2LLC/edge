@@ -1,0 +1,62 @@
+.colored-text {
+  --colored-text-color: #404041;
+  --colored-text-size: 1.125rem;
+  --colored-text-weight: inherit;
+  --colored-text-min-height: 0;
+
+  padding: 12px 0;
+}
+
+.colored-text .colored-text-inner {
+  display: flex;
+  min-height: var(--colored-text-min-height);
+}
+
+.colored-text.colored-text-v-top .colored-text-inner {
+  align-items: flex-start;
+}
+
+.colored-text.colored-text-v-middle .colored-text-inner {
+  align-items: center;
+}
+
+.colored-text.colored-text-v-bottom .colored-text-inner {
+  align-items: flex-end;
+}
+
+.colored-text .colored-text-content {
+  width: 100%;
+  color: var(--colored-text-color);
+  font-size: var(--colored-text-size);
+  font-weight: var(--colored-text-weight);
+  line-height: 1.5;
+}
+
+.colored-text.colored-text-h-left .colored-text-content {
+  text-align: left;
+}
+
+.colored-text.colored-text-h-center .colored-text-content {
+  text-align: center;
+}
+
+.colored-text.colored-text-h-right .colored-text-content {
+  text-align: right;
+}
+
+.colored-text.colored-text-h-justify .colored-text-content {
+  text-align: justify;
+}
+
+.colored-text .colored-text-content > :first-child {
+  margin-top: 0;
+}
+
+.colored-text .colored-text-content > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-text .colored-text-content.is-authoring-placeholder {
+  color: #6b6b6b;
+  font-style: italic;
+}

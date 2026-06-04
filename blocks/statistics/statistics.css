@@ -1,8 +1,10 @@
 .statistics {
   --statistics-heading-color: #00264d;
+  --statistics-body-color: #404041;
   --statistics-subheading-color: #404041;
   --statistics-value-color: #00264d;
   --statistics-label-color: #6b6b6b;
+  --statistics-body-size: 1.25rem;
   --statistics-value-size: clamp(2.5rem, 6vw, 4.5rem);
   --statistics-label-size: 1.1rem;
 
@@ -27,6 +29,24 @@
   text-align: center;
 }
 
+.statistics .statistics-body {
+  font-size: var(--statistics-body-size);
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--statistics-body-color);
+  max-width: 860px;
+  margin: -16px auto 32px;
+  text-align: center;
+}
+
+.statistics .statistics-body > :first-child {
+  margin-top: 0;
+}
+
+.statistics .statistics-body > :last-child {
+  margin-bottom: 0;
+}
+
 .statistics .statistics-subheading {
   font-size: 32px;
   font-weight: 400;
@@ -37,8 +57,16 @@
   text-align: center;
 }
 
+.statistics.statistics-align-left .statistics-body {
+  margin-left: 0;
+}
+
 .statistics.statistics-align-left .statistics-subheading {
   margin-left: 0;
+}
+
+.statistics.statistics-align-right .statistics-body {
+  margin-right: 0;
 }
 
 .statistics.statistics-align-right .statistics-subheading {
@@ -62,6 +90,26 @@
 .statistics .statistics-item {
   text-align: center;
   padding: 12px 24px;
+}
+
+.statistics .statistics-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 84px;
+  margin-bottom: 18px;
+}
+
+.statistics .statistics-image picture {
+  display: block;
+}
+
+.statistics .statistics-image img {
+  display: block;
+  width: auto;
+  max-width: 136px;
+  max-height: 96px;
+  object-fit: contain;
 }
 
 .statistics .statistics-item + .statistics-item {
@@ -92,15 +140,25 @@
 }
 
 .statistics.statistics-align-left .statistics-heading,
+.statistics.statistics-align-left .statistics-body,
 .statistics.statistics-align-left .statistics-subheading,
 .statistics.statistics-align-left .statistics-item {
   text-align: left;
 }
 
 .statistics.statistics-align-right .statistics-heading,
+.statistics.statistics-align-right .statistics-body,
 .statistics.statistics-align-right .statistics-subheading,
 .statistics.statistics-align-right .statistics-item {
   text-align: right;
+}
+
+.statistics.statistics-align-left .statistics-image {
+  justify-content: flex-start;
+}
+
+.statistics.statistics-align-right .statistics-image {
+  justify-content: flex-end;
 }
 
 /* Strip the outside edge padding so first/last item content

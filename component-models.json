@@ -1656,6 +1656,575 @@
     ]
   },
   {
+    "id": "colored-button",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Button Text",
+        "value": "Learn More"
+      },
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "backgroundColor",
+        "label": "Background Color (Hex)",
+        "value": "#008DB6",
+        "validation": {
+          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "textColor",
+        "label": "Text Color (Hex)",
+        "value": "#FFFFFF",
+        "validation": {
+          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #FFFFFF."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "borderColor",
+        "label": "Border Color (Hex, Optional)",
+        "description": "Leave empty to match the background color.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "appearance",
+        "label": "Appearance",
+        "options": [
+          {
+            "name": "Solid",
+            "value": "solid"
+          },
+          {
+            "name": "Outlined",
+            "value": "outlined"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": "solid"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "invertOnHover",
+        "label": "Invert On Hover",
+        "options": [
+          {
+            "name": "No",
+            "value": "no"
+          },
+          {
+            "name": "Yes",
+            "value": "yes"
+          }
+        ],
+        "value": "no"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "horizontalAlign",
+        "label": "Horizontal Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "Stretch",
+            "value": "stretch"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalAlign",
+        "label": "Vertical Alignment",
+        "options": [
+          {
+            "name": "Top",
+            "value": "top"
+          },
+          {
+            "name": "Middle",
+            "value": "middle"
+          },
+          {
+            "name": "Bottom",
+            "value": "bottom"
+          }
+        ],
+        "value": "top"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "fontSize",
+        "label": "Font Size",
+        "description": "Optional CSS length such as 16px, 1rem, or clamp(1rem, 2vw, 1.25rem).",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "fontWeight",
+        "label": "Font Weight",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Regular",
+            "value": "400"
+          },
+          {
+            "name": "Medium",
+            "value": "500"
+          },
+          {
+            "name": "Semi Bold",
+            "value": "600"
+          },
+          {
+            "name": "Bold",
+            "value": "700"
+          },
+          {
+            "name": "Extra Bold",
+            "value": "800"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon Image (Optional)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconName",
+        "label": "Icon Name (Optional)",
+        "description": "Optional fallback icon name from /icons, for example search or download.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconAlt",
+        "label": "Icon Alt Text",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "iconPosition",
+        "label": "Icon Position",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconSize",
+        "label": "Icon Size",
+        "description": "Optional CSS length. Defaults to 1em.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeight",
+        "label": "Minimum Height",
+        "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "colored-list",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "listStyle",
+        "label": "List Style",
+        "options": [
+          {
+            "name": "Bullets",
+            "value": "bullet"
+          },
+          {
+            "name": "Numbers",
+            "value": "number"
+          },
+          {
+            "name": "Circled Numbers",
+            "value": "circle-number"
+          },
+          {
+            "name": "Circled Bullets",
+            "value": "circle-bullet"
+          }
+        ],
+        "value": "bullet"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "textColor",
+        "label": "Text Color (Hex)",
+        "value": "#404041",
+        "validation": {
+          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #404041."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "markerColor",
+        "label": "Marker Color (Hex)",
+        "value": "#008DB6",
+        "validation": {
+          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "markerTextColor",
+        "label": "Marker Text Color (Hex)",
+        "value": "#FFFFFF",
+        "validation": {
+          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #FFFFFF."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "horizontalAlign",
+        "label": "Horizontal Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalAlign",
+        "label": "Vertical Alignment",
+        "options": [
+          {
+            "name": "Top",
+            "value": "top"
+          },
+          {
+            "name": "Middle",
+            "value": "middle"
+          },
+          {
+            "name": "Bottom",
+            "value": "bottom"
+          }
+        ],
+        "value": "top"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "fontSize",
+        "label": "Font Size",
+        "description": "Optional CSS length such as 18px, 1.125rem, or clamp(1rem, 2vw, 1.25rem).",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "fontWeight",
+        "label": "Font Weight",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Regular",
+            "value": "400"
+          },
+          {
+            "name": "Medium",
+            "value": "500"
+          },
+          {
+            "name": "Semi Bold",
+            "value": "600"
+          },
+          {
+            "name": "Bold",
+            "value": "700"
+          },
+          {
+            "name": "Extra Bold",
+            "value": "800"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeight",
+        "label": "Minimum Height",
+        "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "colored-list-item",
+    "fields": [
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "itemText",
+        "label": "Item Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "markerText",
+        "label": "Custom Marker Text",
+        "description": "Optional. Overrides the automatic number or bullet for this item.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "itemTextColor",
+        "label": "Item Text Color (Hex, Optional)",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #404041."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "itemMarkerColor",
+        "label": "Item Marker Color (Hex, Optional)",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "itemMarkerTextColor",
+        "label": "Item Marker Text Color (Hex, Optional)",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #FFFFFF."
+        }
+      }
+    ]
+  },
+  {
+    "id": "colored-text",
+    "fields": [
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "text",
+        "label": "Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "textColor",
+        "label": "Text Color (Hex)",
+        "description": "Enter a hex color, for example #00264D.",
+        "value": "#404041",
+        "validation": {
+          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #00264D."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "horizontalAlign",
+        "label": "Horizontal Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "Justify",
+            "value": "justify"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalAlign",
+        "label": "Vertical Alignment",
+        "options": [
+          {
+            "name": "Top",
+            "value": "top"
+          },
+          {
+            "name": "Middle",
+            "value": "middle"
+          },
+          {
+            "name": "Bottom",
+            "value": "bottom"
+          }
+        ],
+        "value": "top"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "fontSize",
+        "label": "Font Size",
+        "description": "Optional CSS length such as 20px, 1.5rem, or clamp(1.25rem, 3vw, 2rem).",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "fontWeight",
+        "label": "Font Weight",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Regular",
+            "value": "400"
+          },
+          {
+            "name": "Medium",
+            "value": "500"
+          },
+          {
+            "name": "Semi Bold",
+            "value": "600"
+          },
+          {
+            "name": "Bold",
+            "value": "700"
+          },
+          {
+            "name": "Extra Bold",
+            "value": "800"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeight",
+        "label": "Minimum Height",
+        "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "columns",
     "fields": [
       {
@@ -8715,8 +9284,9 @@
       {
         "component": "richtext",
         "valueType": "string",
-        "name": "subheading",
-        "label": "Subheading (Optional)",
+        "name": "bodyText",
+        "label": "Body Text / Subheading (Optional)",
+        "description": "Optional body text displayed below the heading.",
         "value": ""
       },
       {
@@ -8742,14 +9312,16 @@
         "valueType": "string",
         "value": "",
         "name": "statValues",
-        "label": "Stat Values (one per line)"
+        "label": "Legacy Stat Values (one per line)",
+        "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
       },
       {
         "component": "text",
         "valueType": "string",
         "value": "",
         "name": "statLabels",
-        "label": "Stat Labels (one per line)"
+        "label": "Legacy Stat Labels (one per line)",
+        "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
       },
       {
         "component": "text",
@@ -8757,7 +9329,38 @@
         "value": "",
         "name": "textColors",
         "label": "Text Styles",
-        "description": "Optional. One per line: heading|#00264d, subheading|#404041, value|#1491bf, label|#6b6b6b, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem"
+        "description": "Optional. One per line: heading|#00264d, body|#404041, value|#1491bf, label|#6b6b6b, body-size|1.25rem, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem"
+      }
+    ]
+  },
+  {
+    "id": "statistics-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image (Optional)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "statValue",
+        "label": "Stat Value"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "statLabel",
+        "label": "Stat Label"
       }
     ]
   },

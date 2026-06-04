@@ -83,7 +83,10 @@
         "text",
         "image",
         "button",
-        "title"
+        "title",
+        "colored-text",
+        "colored-button",
+        "colored-list"
       ]
     }
   ]

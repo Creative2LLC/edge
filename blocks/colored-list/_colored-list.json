@@ -1,0 +1,209 @@
+{
+  "definitions": [
+    {
+      "title": "Colored List",
+      "id": "colored-list",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Colored List",
+              "model": "colored-list",
+              "filter": "colored-list"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Colored List Item",
+      "id": "colored-list-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Colored List Item",
+              "model": "colored-list-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "colored-list",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "listStyle",
+          "label": "List Style",
+          "options": [
+            { "name": "Bullets", "value": "bullet" },
+            { "name": "Numbers", "value": "number" },
+            { "name": "Circled Numbers", "value": "circle-number" },
+            { "name": "Circled Bullets", "value": "circle-bullet" }
+          ],
+          "value": "bullet"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "textColor",
+          "label": "Text Color (Hex)",
+          "value": "#404041",
+          "validation": {
+            "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #404041."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "markerColor",
+          "label": "Marker Color (Hex)",
+          "value": "#008DB6",
+          "validation": {
+            "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "markerTextColor",
+          "label": "Marker Text Color (Hex)",
+          "value": "#FFFFFF",
+          "validation": {
+            "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #FFFFFF."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "horizontalAlign",
+          "label": "Horizontal Alignment",
+          "options": [
+            { "name": "Left", "value": "left" },
+            { "name": "Center", "value": "center" },
+            { "name": "Right", "value": "right" }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalAlign",
+          "label": "Vertical Alignment",
+          "options": [
+            { "name": "Top", "value": "top" },
+            { "name": "Middle", "value": "middle" },
+            { "name": "Bottom", "value": "bottom" }
+          ],
+          "value": "top"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "fontSize",
+          "label": "Font Size",
+          "description": "Optional CSS length such as 18px, 1.125rem, or clamp(1rem, 2vw, 1.25rem).",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "fontWeight",
+          "label": "Font Weight",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "Regular", "value": "400" },
+            { "name": "Medium", "value": "500" },
+            { "name": "Semi Bold", "value": "600" },
+            { "name": "Bold", "value": "700" },
+            { "name": "Extra Bold", "value": "800" }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeight",
+          "label": "Minimum Height",
+          "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "colored-list-item",
+      "fields": [
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "itemText",
+          "label": "Item Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "markerText",
+          "label": "Custom Marker Text",
+          "description": "Optional. Overrides the automatic number or bullet for this item.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "itemTextColor",
+          "label": "Item Text Color (Hex, Optional)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #404041."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "itemMarkerColor",
+          "label": "Item Marker Color (Hex, Optional)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "itemMarkerTextColor",
+          "label": "Item Marker Text Color (Hex, Optional)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #FFFFFF."
+          }
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "colored-list",
+      "components": [
+        "colored-list-item"
+      ]
+    }
+  ]
+}

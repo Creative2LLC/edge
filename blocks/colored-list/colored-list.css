@@ -1,0 +1,129 @@
+.colored-list {
+  --colored-list-text-color: #404041;
+  --colored-list-marker-color: #008db6;
+  --colored-list-marker-text-color: #fff;
+  --colored-list-font-size: 1.125rem;
+  --colored-list-font-weight: inherit;
+  --colored-list-min-height: 0;
+
+  padding: 12px 0;
+}
+
+.colored-list .colored-list-inner {
+  display: flex;
+  min-height: var(--colored-list-min-height);
+}
+
+.colored-list.colored-list-v-top .colored-list-inner {
+  align-items: flex-start;
+}
+
+.colored-list.colored-list-v-middle .colored-list-inner {
+  align-items: center;
+}
+
+.colored-list.colored-list-v-bottom .colored-list-inner {
+  align-items: flex-end;
+}
+
+.colored-list.colored-list-h-left .colored-list-inner {
+  justify-content: flex-start;
+}
+
+.colored-list.colored-list-h-center .colored-list-inner {
+  justify-content: center;
+}
+
+.colored-list.colored-list-h-right .colored-list-inner {
+  justify-content: flex-end;
+}
+
+.colored-list .colored-list-items {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  color: var(--colored-list-text-color);
+  font-size: var(--colored-list-font-size);
+  font-weight: var(--colored-list-font-weight);
+  line-height: 1.5;
+  list-style: none;
+}
+
+.colored-list.colored-list-h-left .colored-list-items {
+  text-align: left;
+}
+
+.colored-list.colored-list-h-center .colored-list-items {
+  text-align: center;
+}
+
+.colored-list.colored-list-h-right .colored-list-items {
+  text-align: right;
+}
+
+.colored-list .colored-list-item {
+  --colored-list-item-text-color: var(--colored-list-text-color);
+  --colored-list-item-marker-color: var(--colored-list-marker-color);
+  --colored-list-item-marker-text-color: var(--colored-list-marker-text-color);
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8em;
+  align-items: flex-start;
+  color: var(--colored-list-item-text-color);
+}
+
+.colored-list .colored-list-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--colored-list-item-marker-color);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.colored-list.colored-list-style-bullet .colored-list-marker {
+  width: 1em;
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+.colored-list.colored-list-style-number .colored-list-marker {
+  min-width: 1.4em;
+}
+
+.colored-list.colored-list-style-circle-number .colored-list-marker,
+.colored-list.colored-list-style-circle-bullet .colored-list-marker {
+  width: 2em;
+  height: 2em;
+  border-radius: 999px;
+  background-color: var(--colored-list-item-marker-color);
+  color: var(--colored-list-item-marker-text-color);
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.colored-list.colored-list-style-circle-bullet .colored-list-marker::before {
+  content: "";
+  display: block;
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 999px;
+  background-color: currentcolor;
+}
+
+.colored-list .colored-list-item-content > :first-child {
+  margin-top: 0;
+}
+
+.colored-list .colored-list-item-content > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-list .is-authoring-placeholder,
+.colored-list .colored-list-item-content.is-authoring-placeholder {
+  color: #6b6b6b;
+  font-style: italic;
+}

@@ -68,6 +68,9 @@
       "hero",
       "cards",
       "statistics",
+      "colored-text",
+      "colored-button",
+      "colored-list",
       "support-cta",
       "columns",
       "giving",
@@ -228,6 +231,12 @@
     ]
   },
   {
+    "id": "colored-list",
+    "components": [
+      "colored-list-item"
+    ]
+  },
+  {
     "id": "columns",
     "components": [
       "column"
@@ -239,7 +248,10 @@
       "text",
       "image",
       "button",
-      "title"
+      "title",
+      "colored-text",
+      "colored-button",
+      "colored-list"
     ]
   },
   {
@@ -438,6 +450,12 @@
     "id": "split-thin-carousel",
     "components": [
       "split-thin-carousel-item"
+    ]
+  },
+  {
+    "id": "statistics",
+    "components": [
+      "statistics-item"
     ]
   },
   {

@@ -9,7 +9,23 @@
             "resourceType": "core/franklin/components/block/v1/block",
             "template": {
               "name": "Statistics",
-              "model": "statistics"
+              "model": "statistics",
+              "filter": "statistics"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Statistics Item",
+      "id": "statistics-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Statistics Item",
+              "model": "statistics-item"
             }
           }
         }
@@ -51,8 +67,9 @@
         {
           "component": "richtext",
           "valueType": "string",
-          "name": "subheading",
-          "label": "Subheading (Optional)",
+          "name": "bodyText",
+          "label": "Body Text / Subheading (Optional)",
+          "description": "Optional body text displayed below the heading.",
           "value": ""
         },
         {
@@ -78,14 +95,16 @@
           "valueType": "string",
           "value": "",
           "name": "statValues",
-          "label": "Stat Values (one per line)"
+          "label": "Legacy Stat Values (one per line)",
+          "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
         },
         {
           "component": "text",
           "valueType": "string",
           "value": "",
           "name": "statLabels",
-          "label": "Stat Labels (one per line)"
+          "label": "Legacy Stat Labels (one per line)",
+          "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
         },
         {
           "component": "text",
@@ -93,10 +112,48 @@
           "value": "",
           "name": "textColors",
           "label": "Text Styles",
-          "description": "Optional. One per line: heading|#00264d, subheading|#404041, value|#1491bf, label|#6b6b6b, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem"
+          "description": "Optional. One per line: heading|#00264d, body|#404041, value|#1491bf, label|#6b6b6b, body-size|1.25rem, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem"
+        }
+      ]
+    },
+    {
+      "id": "statistics-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image (Optional)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "statValue",
+          "label": "Stat Value"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "statLabel",
+          "label": "Stat Label"
         }
       ]
     }
   ],
-  "filters": []
+  "filters": [
+    {
+      "id": "statistics",
+      "components": [
+        "statistics-item"
+      ]
+    }
+  ]
 }
