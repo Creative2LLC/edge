@@ -711,6 +711,99 @@ function svgElement(tagName, attributes = {}) {
   return element;
 }
 
+function buildViewToggleIcon(type) {
+  const icon = svgElement('svg', {
+    class: 'cybertipline-geo-report-view-toggle-icon',
+    viewBox: '0 0 24 24',
+    'aria-hidden': 'true',
+    focusable: 'false',
+  });
+
+  if (type === 'map') {
+    icon.append(
+      svgElement('path', {
+        d: 'M14.1 5.55a2 2 0 0 0 1.8 0l3.65-1.83A1 1 0 0 1 21 4.62v12.76a1 1 0 0 1-.55.9l-4.55 2.27a2 2 0 0 1-1.8 0l-4.2-2.1a2 2 0 0 0-1.8 0l-3.65 1.83A1 1 0 0 1 3 19.38V6.62a1 1 0 0 1 .55-.9L8.1 3.45a2 2 0 0 1 1.8 0z',
+      }),
+      svgElement('path', { d: 'M15 5.75v15' }),
+      svgElement('path', { d: 'M9 3.25v15' }),
+    );
+    return icon;
+  }
+
+  icon.append(
+    svgElement('path', { d: 'M4 6h16' }),
+    svgElement('path', { d: 'M4 12h16' }),
+    svgElement('path', { d: 'M4 18h16' }),
+  );
+
+  return icon;
+}
+
+function setActiveGeoView(shell, view) {
+  const activeView = view === 'table' ? 'table' : 'map';
+  shell.dataset.activeView = activeView;
+
+  shell.querySelectorAll('.cybertipline-geo-report-view-toggle-button').forEach((button) => {
+    const isActive = button.dataset.view === activeView;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+
+  shell.querySelectorAll('.cybertipline-geo-report-view-panel').forEach((panel) => {
+    const isActive = panel.dataset.view === activeView;
+    panel.hidden = !isActive;
+
+    if (isActive && activeView === 'table') {
+      panel.querySelector('.cybertipline-geo-report-rows')?.classList.add('is-visible');
+    }
+  });
+}
+
+function buildViewToggle(shell) {
+  const toggle = document.createElement('div');
+  toggle.className = 'cybertipline-geo-report-view-toggle';
+  toggle.setAttribute('role', 'group');
+  toggle.setAttribute('aria-label', 'Choose geography view');
+
+  [
+    ['map', 'Show map view'],
+    ['table', 'Show table view'],
+  ].forEach(([view, label]) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'cybertipline-geo-report-view-toggle-button';
+    button.dataset.view = view;
+    button.setAttribute('aria-label', label);
+    button.setAttribute('aria-pressed', 'false');
+    button.append(buildViewToggleIcon(view));
+    button.addEventListener('click', () => setActiveGeoView(shell, view));
+    toggle.append(button);
+  });
+
+  return toggle;
+}
+
+function buildViewPanel(view, content) {
+  const panel = document.createElement('div');
+  panel.className = `cybertipline-geo-report-view-panel is-${view}`;
+  panel.dataset.view = view;
+  panel.append(content);
+  return panel;
+}
+
+function buildViewShell(mapPanel, rowsPanel) {
+  const shell = document.createElement('div');
+  shell.className = 'cybertipline-geo-report-view-shell';
+  shell.append(
+    buildViewToggle(shell),
+    buildViewPanel('map', mapPanel),
+    buildViewPanel('table', rowsPanel),
+  );
+
+  setActiveGeoView(shell, 'map');
+  return shell;
+}
+
 function buildFallbackWorldBaseMap() {
   const svg = svgElement('svg', {
     viewBox: '0 0 960 500',
@@ -1009,11 +1102,12 @@ function buildRowsPanel(rows, dataset, onPreview, onSelect) {
   shell.className = 'cybertipline-geo-report-table';
   const hasBreakdown = rows.some((row) => rowBreakdownEntries(row).length);
 
-  if (hasBreakdown) {
-    const title = document.createElement('h3');
-    title.textContent = tableTitleForDataset(dataset);
-    title.className = 'cybertipline-geo-report-table-title';
+  const title = document.createElement('h3');
+  title.textContent = tableTitleForDataset(dataset);
+  title.className = 'cybertipline-geo-report-table-title';
+  shell.append(title);
 
+  if (hasBreakdown) {
     const header = document.createElement('div');
     header.className = 'cybertipline-geo-report-table-header';
     header.append(
@@ -1023,7 +1117,7 @@ function buildRowsPanel(rows, dataset, onPreview, onSelect) {
       buildRowCell('Informational', 'cybertipline-geo-report-table-heading is-numeric'),
       buildRowCell('Total', 'cybertipline-geo-report-table-heading is-numeric'),
     );
-    shell.append(title, header);
+    shell.append(header);
   }
 
   const list = document.createElement('ol');
@@ -1125,18 +1219,27 @@ export default async function decorate(block) {
   const body = document.createElement('div');
   body.className = 'cybertipline-geo-report-body';
   const mapRows = rows.filter((row) => STATE_CODES.has(row.geoCode));
+  const main = document.createElement('div');
+  main.className = 'cybertipline-geo-report-main';
+  const rowsPanel = buildRowsPanel(rows, dataset, onPreview, onSelect);
+  let mapPanel = null;
+
   if (shouldRenderMap(rows, config.geoType, dataset)) {
-    body.append(buildMapPanel(mapRows, dataset, onPreview, onSelect));
+    mapPanel = buildMapPanel(mapRows, dataset, onPreview, onSelect);
   } else if (shouldRenderWorldMap(rows, config.geoType, dataset)) {
-    body.append(await buildWorldMapPanel(rows, dataset, onPreview, onSelect));
+    mapPanel = await buildWorldMapPanel(rows, dataset, onPreview, onSelect);
+  }
+
+  if (mapPanel) {
+    main.append(buildViewShell(mapPanel, rowsPanel));
   } else {
-    body.classList.add('cybertipline-geo-report-body-list-only');
+    main.append(rowsPanel);
   }
 
   const side = document.createElement('div');
   side.className = 'cybertipline-geo-report-side';
-  side.append(detail, buildRowsPanel(rows, dataset, onPreview, onSelect));
-  body.append(side);
+  side.append(detail);
+  body.append(main, side);
   inner.append(body);
   block.replaceChildren(inner);
 
