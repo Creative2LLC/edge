@@ -4,16 +4,21 @@ function readAlignment(block) {
   const rowsToRemove = [];
 
   [...block.children].forEach((row) => {
+    let isConfigRow = false;
+
     const vField = row.querySelector('[data-aue-prop="verticalAlign"]');
     if (vField) {
       verticalAlign = vField.textContent.trim().toLowerCase() || verticalAlign;
-      rowsToRemove.push(row);
-      return;
+      isConfigRow = true;
     }
 
     const hField = row.querySelector('[data-aue-prop="horizontalAlign"]');
     if (hField) {
       horizontalAlign = hField.textContent.trim().toLowerCase();
+      isConfigRow = true;
+    }
+
+    if (isConfigRow) {
       rowsToRemove.push(row);
       return;
     }

@@ -52,6 +52,14 @@
   text-align: center;
 }
 
+.columns.columns-halign-center > div > .columns-img-col img {
+  margin-inline: auto;
+}
+
 .columns.columns-halign-right > div > div {
   text-align: right;
+}
+
+.columns.columns-halign-right > div > .columns-img-col img {
+  margin-inline-start: auto;
 }
