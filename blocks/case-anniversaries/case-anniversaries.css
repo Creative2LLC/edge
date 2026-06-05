@@ -482,7 +482,9 @@
 .case-anniversaries-pagination {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .case-anniversaries-pagination[hidden] {
@@ -490,9 +492,20 @@
 }
 
 .case-anniversaries-pagination-label {
-  color: #243846;
-  font-size: 14px;
-  font-weight: 800;
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.case-anniversaries-pagination-pages {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .case-anniversaries-pagination-button {
@@ -507,6 +520,24 @@
   font-size: 14px;
   font-weight: 800;
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.case-anniversaries-pagination-page {
+  min-width: 38px;
+  padding-inline: 12px;
+}
+
+.case-anniversaries-pagination-page.is-active {
+  border-color: #007294;
+  background: #007294;
+  color: #fff;
+}
+
+.case-anniversaries-pagination-ellipsis {
+  min-width: 20px;
+  color: #64788a;
+  font-weight: 800;
+  text-align: center;
 }
 
 .case-anniversaries-pagination-button:disabled {
@@ -526,7 +557,7 @@
   outline-offset: 2px;
 }
 
-.case-anniversaries-pagination-button:hover:not(:disabled) {
+.case-anniversaries-pagination-button:hover:not(:disabled, .is-active) {
   background: #eef3f6;
 }
 

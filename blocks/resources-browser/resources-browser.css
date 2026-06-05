@@ -373,7 +373,9 @@
 .resources-browser .resources-browser-pagination {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .resources-browser .resources-browser-pagination[hidden] {
@@ -381,9 +383,20 @@
 }
 
 .resources-browser .resources-browser-pagination-label {
-  color: #243846;
-  font-size: 15px;
-  font-weight: 700;
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.resources-browser .resources-browser-pagination-pages {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .resources-browser .resources-browser-pagination-button {
@@ -396,6 +409,24 @@
   font: inherit;
   font-weight: 700;
   padding: 0 18px;
+}
+
+.resources-browser .resources-browser-pagination-page {
+  min-width: 42px;
+  padding-inline: 12px;
+}
+
+.resources-browser .resources-browser-pagination-page.is-active {
+  border-color: #007294;
+  background: #007294;
+  color: #fff;
+}
+
+.resources-browser .resources-browser-pagination-ellipsis {
+  min-width: 20px;
+  color: #64788a;
+  font-weight: 700;
+  text-align: center;
 }
 
 .resources-browser .resources-browser-pagination-button:disabled {
@@ -415,7 +446,7 @@
   outline-offset: 2px;
 }
 
-.resources-browser .resources-browser-pagination-button:hover:not(:disabled) {
+.resources-browser .resources-browser-pagination-button:hover:not(:disabled, .is-active) {
   background: #eef3f6;
 }
 

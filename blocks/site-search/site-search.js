@@ -237,6 +237,42 @@ function createViewToggleButton(label, view, activeView) {
   return button;
 }
 
+function syncTypeOptions(select, options = [], selectedType = '') {
+  const normalizedSelected = normalizeText(selectedType).toLowerCase();
+  select.replaceChildren();
+
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'All Types';
+  select.append(defaultOption);
+
+  options.forEach((option) => {
+    const value = normalizeText(option.value).toLowerCase();
+    const label = normalizeText(option.label);
+    if (!value || !label) return;
+
+    const entry = document.createElement('option');
+    entry.value = value;
+    entry.textContent = label;
+    select.append(entry);
+  });
+
+  const hasSelected = [...select.options].some((option) => option.value === normalizedSelected);
+  select.value = hasSelected ? normalizedSelected : '';
+  select.disabled = options.length === 0;
+
+  return select.value;
+}
+
+function createTypeFilter() {
+  const select = document.createElement('select');
+  select.className = 'site-search-type-filter';
+  select.setAttribute('aria-label', 'Result type');
+  syncTypeOptions(select, [], '');
+
+  return select;
+}
+
 function applyResultView(cardsContainer, buttons, view) {
   cardsContainer.dataset.view = view;
   buttons.forEach((button) => {
@@ -261,12 +297,19 @@ function buildShell(config) {
     headerTop.append(heading);
   }
 
+  const headerActions = document.createElement('div');
+  headerActions.className = 'site-search-header-actions';
+
+  const typeSelect = createTypeFilter();
+  headerActions.append(typeSelect);
+
   const viewToggle = document.createElement('div');
   viewToggle.className = 'site-search-view-toggle';
   const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
   const listButton = createViewToggleButton('List', 'list', config.defaultView);
   viewToggle.append(gridButton, listButton);
-  headerTop.append(viewToggle);
+  headerActions.append(viewToggle);
+  headerTop.append(headerActions);
   header.append(headerTop);
 
   const controls = document.createElement('div');
@@ -315,6 +358,7 @@ function buildShell(config) {
   return {
     inner,
     searchInput,
+    typeSelect,
     viewButtons: [gridButton, listButton],
     count,
     cardsContainer,
@@ -331,6 +375,7 @@ async function renderSearch(block, config) {
   const {
     inner,
     searchInput,
+    typeSelect,
     viewButtons,
     count,
     cardsContainer,
@@ -345,6 +390,7 @@ async function renderSearch(block, config) {
   const initialState = readSearchState();
   const state = {
     query: initialState.query,
+    type: initialState.types[0] || '',
     view: initialState.view || config.defaultView,
     page: 0,
     lastPage: 1,
@@ -362,7 +408,7 @@ async function renderSearch(block, config) {
   const syncUrl = () => {
     writeSearchState({
       query: state.query,
-      types: [],
+      types: state.type ? [state.type] : [],
       view: state.view,
     });
   };
@@ -382,15 +428,6 @@ async function renderSearch(block, config) {
   loadResults = async (reset = false, targetPage = null) => {
     if (state.loading) return;
 
-    if (!state.query.trim()) {
-      cardsContainer.replaceChildren();
-      count.textContent = '';
-      loadMoreButton.hidden = true;
-      pagination.nav.hidden = true;
-      updateMessage('Start searching', 'Enter a keyword above to search the site.');
-      return;
-    }
-
     if (reset) {
       state.page = 0;
       state.lastPage = 1;
@@ -402,13 +439,14 @@ async function renderSearch(block, config) {
     pagination.nav.querySelectorAll('button').forEach((button) => {
       button.disabled = true;
     });
-    if (!cardsContainer.children.length) updateMessage('Searching...', '');
+    if (!cardsContainer.children.length) updateMessage('Loading results...', '');
 
     try {
       const nextPage = targetPage || (reset ? 1 : state.page + 1);
       const payload = await fetchSiteSearch({
         apiBaseUrl: config.apiBaseUrl,
         query: state.query,
+        types: state.type ? [state.type] : [],
         locale: config.locale,
         page: nextPage,
         perPage: config.pageSize,
@@ -423,6 +461,11 @@ async function renderSearch(block, config) {
       state.page = payload.meta?.current_page || 1;
       state.lastPage = payload.meta?.last_page || 1;
       state.total = payload.meta?.total ?? cardsContainer.children.length;
+      const syncedType = syncTypeOptions(typeSelect, payload.filters?.types || [], state.type);
+      if (state.type !== syncedType) {
+        state.type = syncedType;
+        syncUrl();
+      }
       let shownStart = state.total ? 1 : 0;
       if (state.total && usePagination) {
         shownStart = ((state.page - 1) * config.pageSize) + 1;
@@ -459,11 +502,17 @@ async function renderSearch(block, config) {
   };
 
   searchInput.value = state.query;
+  typeSelect.value = state.type;
   searchInput.addEventListener('input', debounce(() => {
     state.query = searchInput.value;
     syncUrl();
     loadResults(true);
   }));
+  typeSelect.addEventListener('change', () => {
+    state.type = typeSelect.value;
+    syncUrl();
+    loadResults(true);
+  });
 
   loadMoreButton.addEventListener('click', () => {
     loadResults(false);
@@ -482,8 +531,10 @@ async function renderSearch(block, config) {
   window.addEventListener('popstate', () => {
     const urlState = readSearchState();
     state.query = urlState.query;
+    state.type = urlState.types[0] || '';
     state.view = urlState.view || config.defaultView;
     searchInput.value = state.query;
+    typeSelect.value = state.type;
     applyResultView(cardsContainer, viewButtons, state.view);
     loadResults(true);
   });

@@ -381,7 +381,9 @@
 .article-list .article-list-pagination {
   display: inline-flex;
   align-items: center;
-  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .article-list .article-list-pagination[hidden] {
@@ -389,9 +391,20 @@
 }
 
 .article-list .article-list-pagination-label {
-  color: #16324a;
-  font-size: 0.95rem;
-  font-weight: 700;
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.article-list .article-list-pagination-pages {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .article-list .article-list-pagination-button {
@@ -404,6 +417,24 @@
   font: inherit;
   font-weight: 700;
   padding: 0 1.1rem;
+}
+
+.article-list .article-list-pagination-page {
+  min-width: 42px;
+  padding-inline: 0.85rem;
+}
+
+.article-list .article-list-pagination-page.is-active {
+  border-color: #0d6e8c;
+  background: #0d6e8c;
+  color: #fff;
+}
+
+.article-list .article-list-pagination-ellipsis {
+  min-width: 20px;
+  color: #64788a;
+  font-weight: 700;
+  text-align: center;
 }
 
 .article-list .article-list-pagination-button:disabled {
@@ -423,7 +454,7 @@
   outline-offset: 3px;
 }
 
-.article-list .article-list-pagination-button:hover:not(:disabled) {
+.article-list .article-list-pagination-button:hover:not(:disabled, .is-active) {
   background: #eef7fb;
 }
 
