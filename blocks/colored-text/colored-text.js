@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { injectColorPickers } from '../../scripts/block-color-picker.js';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -140,4 +141,8 @@ export default function decorate(block) {
 
   if (content.textContent.trim() || content.children.length) inner.append(content);
   block.replaceChildren(inner);
+
+  injectColorPickers(block, [
+    { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041' },
+  ]);
 }

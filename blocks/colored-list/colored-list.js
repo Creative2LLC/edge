@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { injectColorPickers } from '../../scripts/block-color-picker.js';
 
 const BLOCK_FIELD_NAMES = [
   'listStyle',
@@ -221,4 +222,10 @@ export default function decorate(block) {
 
   inner.append(list);
   block.replaceChildren(inner);
+
+  injectColorPickers(block, [
+    { label: 'Text', cssVar: '--colored-list-text-color', value: textColor },
+    { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor },
+    { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor },
+  ]);
 }
