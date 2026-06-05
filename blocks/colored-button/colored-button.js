@@ -19,16 +19,30 @@ function readField(block, name, labels = []) {
   return field;
 }
 
-// Like readField but keeps the row hidden in editor context so the source
-// element stays in the DOM and color picker changes can write back through it.
-// Reads a color field and captures the AEM resource URN before removing the row,
+const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
+
+// In editor context, hides the row instead of removing it so the data-aue-prop
+// source element stays in the DOM. It gets moved into a hidden archive inside
+// inner before replaceChildren, then a MutationObserver keeps the CSS variable
+// in sync when UE writes a new value to that element via the Properties panel.
 function readColorField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
+  if (row) {
+    if (IS_EDITOR && field.source) row.hidden = true;
+    else row.remove();
+  }
   return field;
+}
+
+function watchColorField(source, cssVar, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    const color = normalizeColorValue(source.textContent.trim());
+    if (color) block.style.setProperty(cssVar, color);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
 function readLink(block, name, labels = []) {
@@ -217,7 +231,21 @@ export default function decorate(block) {
   if (icon && iconPosition === 'right') button.append(icon);
 
   inner.append(button);
+
+  if (IS_EDITOR) {
+    const archive = document.createElement('span');
+    archive.hidden = true;
+    [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
+    if (archive.children.length) inner.append(archive);
+  }
+
   block.replaceChildren(inner);
+
+  if (IS_EDITOR) {
+    watchColorField(bgField.source, '--colored-button-bg', block);
+    watchColorField(txtField.source, '--colored-button-text', block);
+    watchColorField(bdrField.source, '--colored-button-border', block);
+  }
 
   injectColorPickers(block, [
     { label: 'Background', cssVar: '--colored-button-bg', value: backgroundColor },

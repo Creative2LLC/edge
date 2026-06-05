@@ -31,13 +31,26 @@ function readBlockField(block, name, labels = []) {
   return field;
 }
 
+const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
+
 function readColorField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
+  if (row) {
+    if (IS_EDITOR && field.source) row.hidden = true;
+    else row.remove();
+  }
   return field;
+}
+
+function watchColorField(source, cssVar, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    const color = normalizeColorValue(source.textContent.trim());
+    if (color) block.style.setProperty(cssVar, color);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
 function readItemText(row, name, index) {
@@ -233,7 +246,21 @@ export default function decorate(block) {
   }
 
   inner.append(list);
+
+  if (IS_EDITOR) {
+    const archive = document.createElement('span');
+    archive.hidden = true;
+    [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
+    if (archive.children.length) inner.append(archive);
+  }
+
   block.replaceChildren(inner);
+
+  if (IS_EDITOR) {
+    watchColorField(txtField.source, '--colored-list-text-color', block);
+    watchColorField(mrkField.source, '--colored-list-marker-color', block);
+    watchColorField(mrkTxtField.source, '--colored-list-marker-text-color', block);
+  }
 
   injectColorPickers(block, [
     { label: 'Text', cssVar: '--colored-list-text-color', value: textColor },
