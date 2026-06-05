@@ -10,8 +10,6 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
-const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
-
 function readField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
@@ -26,14 +24,8 @@ function readColorField(block, name, labels = []) {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  const resource = IS_EDITOR
-    ? (field.source?.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-      || block.getAttribute('data-aue-resource')
-      || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-      || '')
-    : '';
   if (row) row.remove();
-  return { ...field, resource };
+  return field;
 }
 
 function readRichField(block, name, labels = []) {
@@ -161,12 +153,6 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    {
-      label: 'Text Color',
-      cssVar: '--colored-text-color',
-      value: textColor || '#404041',
-      resource: txtField.resource,
-      prop: 'textColor',
-    },
+    { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041' },
   ]);
 }

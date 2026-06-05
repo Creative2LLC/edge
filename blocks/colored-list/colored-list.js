@@ -22,8 +22,6 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
-const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
-
 function readBlockField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
@@ -38,14 +36,8 @@ function readColorField(block, name, labels = []) {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  const resource = IS_EDITOR
-    ? (field.source?.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-      || block.getAttribute('data-aue-resource')
-      || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-      || '')
-    : '';
   if (row) row.remove();
-  return { ...field, resource };
+  return field;
 }
 
 function readItemText(row, name, index) {
@@ -244,26 +236,8 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    {
-      label: 'Text',
-      cssVar: '--colored-list-text-color',
-      value: textColor,
-      resource: txtField.resource,
-      prop: 'textColor',
-    },
-    {
-      label: 'Marker',
-      cssVar: '--colored-list-marker-color',
-      value: markerColor,
-      resource: mrkField.resource,
-      prop: 'markerColor',
-    },
-    {
-      label: 'Marker Text',
-      cssVar: '--colored-list-marker-text-color',
-      value: markerTextColor,
-      resource: mrkTxtField.resource,
-      prop: 'markerTextColor',
-    },
+    { label: 'Text', cssVar: '--colored-list-text-color', value: textColor },
+    { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor },
+    { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor },
   ]);
 }

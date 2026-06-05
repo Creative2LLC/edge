@@ -7,7 +7,7 @@ import {
   writeSearchState,
 } from '../../scripts/search-utils.js';
 import getSiteSearchConfig from '../../scripts/site-search-config.js';
-import resolveSiteHref from '../../scripts/link-utils.js';
+import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import {
   createPaginationControls,
   isPaginationMode,
@@ -409,6 +409,7 @@ async function renderSearch(block, config) {
       const payload = await fetchSiteSearch({
         apiBaseUrl: config.apiBaseUrl,
         query: state.query,
+        locale: config.locale,
         page: nextPage,
         perPage: config.pageSize,
       });
@@ -502,6 +503,7 @@ export default async function decorate(block) {
       || getMetadata('search-api-base-url'),
     ),
     pageSize: parseIntSafe(getFieldValue(block, 'pageSize', '12'), 12),
+    locale: currentSiteLocale(),
     defaultView: 'grid',
     searchPlaceholder: getFieldValue(
       block,

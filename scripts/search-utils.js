@@ -78,6 +78,7 @@ export async function fetchSiteSearch({
   apiBaseUrl,
   query,
   types = [],
+  locale = '',
   page = 1,
   perPage = 12,
 }) {
@@ -90,6 +91,7 @@ export async function fetchSiteSearch({
 
   if (`${query || ''}`.trim()) url.searchParams.set('q', `${query}`.trim());
   if (types.length) url.searchParams.set('types', types.join(','));
+  if (`${locale || ''}`.trim()) url.searchParams.set('locale', `${locale}`.trim());
   url.searchParams.set('page', String(page));
   url.searchParams.set('per_page', String(perPage));
 
@@ -100,6 +102,7 @@ export async function fetchSiteSearchSuggestions({
   apiBaseUrl,
   query,
   types = [],
+  locale = '',
   perPage = 6,
 }) {
   const apiRoot = normalizeApiBaseUrl(apiBaseUrl);
@@ -111,6 +114,7 @@ export async function fetchSiteSearchSuggestions({
 
   if (`${query || ''}`.trim()) url.searchParams.set('q', `${query}`.trim());
   if (types.length) url.searchParams.set('types', types.join(','));
+  if (`${locale || ''}`.trim()) url.searchParams.set('locale', `${locale}`.trim());
   url.searchParams.set('per_page', String(perPage));
 
   return fetchJson(url);

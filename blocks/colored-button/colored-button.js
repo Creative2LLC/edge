@@ -10,8 +10,6 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
-const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
-
 function readField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
@@ -24,20 +22,13 @@ function readField(block, name, labels = []) {
 // Like readField but keeps the row hidden in editor context so the source
 // element stays in the DOM and color picker changes can write back through it.
 // Reads a color field and captures the AEM resource URN before removing the row,
-// so the UE content-patch event can be dispatched even after block.replaceChildren().
 function readColorField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  const resource = IS_EDITOR
-    ? (field.source?.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-      || block.getAttribute('data-aue-resource')
-      || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
-      || '')
-    : '';
   if (row) row.remove();
-  return { ...field, resource };
+  return field;
 }
 
 function readLink(block, name, labels = []) {
@@ -229,26 +220,8 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    {
-      label: 'Background',
-      cssVar: '--colored-button-bg',
-      value: backgroundColor,
-      resource: bgField.resource,
-      prop: 'backgroundColor',
-    },
-    {
-      label: 'Text',
-      cssVar: '--colored-button-text',
-      value: textColor,
-      resource: txtField.resource,
-      prop: 'textColor',
-    },
-    {
-      label: 'Border',
-      cssVar: '--colored-button-border',
-      value: borderColor,
-      resource: bdrField.resource,
-      prop: 'borderColor',
-    },
+    { label: 'Background', cssVar: '--colored-button-bg', value: backgroundColor },
+    { label: 'Text', cssVar: '--colored-button-text', value: textColor },
+    { label: 'Border', cssVar: '--colored-button-border', value: borderColor },
   ]);
 }

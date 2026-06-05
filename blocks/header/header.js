@@ -561,6 +561,7 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
       const payload = await fetchSiteSearchSuggestions({
         apiBaseUrl,
         query,
+        locale: currentSiteLocale(),
         perPage: 6,
       });
 
