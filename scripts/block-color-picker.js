@@ -47,6 +47,9 @@ function injectStyles() {
       pointer-events: none;
       animation: cptoast-in 0.15s ease;
     }
+    .color-picker-toast.is-saved {
+      background: #1a6e3c;
+    }
     @keyframes cptoast-in {
       from { opacity: 0; transform: translateX(-50%) translateY(6px); }
       to   { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -65,20 +68,51 @@ function to6DigitHex(value) {
   return /^#[0-9a-f]{6}$/i.test(hex) ? hex.toLowerCase() : '#000000';
 }
 
-function showCopiedToast(hex) {
+function showToast(message, saved = false) {
   document.querySelector('.color-picker-toast')?.remove();
   const toast = document.createElement('div');
-  toast.className = 'color-picker-toast';
-  toast.textContent = `${hex} copied`;
+  toast.className = `color-picker-toast${saved ? ' is-saved' : ''}`;
+  toast.textContent = message;
   document.body.append(toast);
-  setTimeout(() => toast.remove(), 1800);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+function saveViaUE(source, prop, hex) {
+  if (!source || !prop) return false;
+
+  // Update the hidden source element — this is UE's in-DOM field value
+  source.textContent = hex;
+
+  // Walk up to find the data-aue-resource owner
+  const resource = source.getAttribute('data-aue-resource')
+    || source.closest('[data-aue-resource]')?.getAttribute('data-aue-resource');
+
+  if (!resource) return false;
+
+  // Dispatch the UE content-patch event — the CORS bridge forwards this to the editor shell
+  source.dispatchEvent(new CustomEvent('aue:content-patch', {
+    bubbles: true,
+    detail: {
+      resource,
+      prop,
+      value: hex,
+      type: 'text',
+    },
+  }));
+
+  // Also fire native events in case UE's mutation observer is watching
+  source.dispatchEvent(new Event('input', { bubbles: true }));
+  source.dispatchEvent(new Event('change', { bubbles: true }));
+
+  return true;
 }
 
 /**
  * @param {HTMLElement} block
- * @param {Array<{label: string, cssVar: string, value: string}>} colorProps
+ * @param {Array<{label: string, cssVar: string, value: string, source?: Element, prop?: string}>} colorProps
  */
 export function injectColorPickers(block, colorProps) {
+  // Never runs on the live site — data-aue-resource is only present inside Universal Editor
   if (!document.querySelector('[data-aue-resource]')) return;
 
   injectStyles();
@@ -86,7 +120,7 @@ export function injectColorPickers(block, colorProps) {
   const bar = document.createElement('div');
   bar.className = 'color-picker-bar';
 
-  colorProps.forEach(({ label, cssVar, value }) => {
+  colorProps.forEach(({ label, cssVar, value, source, prop }) => {
     const swatch = document.createElement('label');
     swatch.className = 'color-picker-swatch';
     swatch.title = label;
@@ -98,13 +132,23 @@ export function injectColorPickers(block, colorProps) {
     const span = document.createElement('span');
     span.textContent = label;
 
+    // Live preview while dragging the picker
     input.addEventListener('input', () => {
       block.style.setProperty(cssVar, input.value);
     });
 
+    // On commit — attempt to save through UE, fall back to clipboard
     input.addEventListener('change', () => {
-      navigator.clipboard?.writeText(input.value).catch(() => {});
-      showCopiedToast(input.value);
+      const hex = input.value;
+      block.style.setProperty(cssVar, hex);
+
+      const saved = saveViaUE(source, prop, hex);
+      if (saved) {
+        showToast(`${hex} saved`, true);
+      } else {
+        navigator.clipboard?.writeText(hex).catch(() => {});
+        showToast(`${hex} copied — paste into panel`);
+      }
     });
 
     swatch.append(input, span);

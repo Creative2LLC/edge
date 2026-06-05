@@ -22,12 +22,29 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
+const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
+
 function readBlockField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
+  return field;
+}
+
+function readColorField(block, name, labels = []) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) {
+    if (IS_EDITOR && field.source) {
+      row.style.cssText = 'display:none!important';
+    } else {
+      row.remove();
+    }
+  }
   return field;
 }
 
@@ -171,9 +188,12 @@ export default function decorate(block) {
     ['bullet', 'number', 'circle-number', 'circle-bullet'],
     'bullet',
   );
-  const textColor = normalizeColorValue(readBlockField(block, 'textColor', ['text color', 'color']).value) || '#404041';
-  const markerColor = normalizeColorValue(readBlockField(block, 'markerColor', ['marker color', 'bullet color']).value) || '#008DB6';
-  const markerTextColor = normalizeColorValue(readBlockField(block, 'markerTextColor', ['marker text color']).value) || '#FFFFFF';
+  const txtField = readColorField(block, 'textColor', ['text color', 'color']);
+  const textColor = normalizeColorValue(txtField.value) || '#404041';
+  const mrkField = readColorField(block, 'markerColor', ['marker color', 'bullet color']);
+  const markerColor = normalizeColorValue(mrkField.value) || '#008DB6';
+  const mrkTxtField = readColorField(block, 'markerTextColor', ['marker text color']);
+  const markerTextColor = normalizeColorValue(mrkTxtField.value) || '#FFFFFF';
   const horizontalAlign = normalizeOption(
     readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment']).value,
     ['left', 'center', 'right'],
@@ -224,8 +244,8 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    { label: 'Text', cssVar: '--colored-list-text-color', value: textColor },
-    { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor },
-    { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor },
+    { label: 'Text', cssVar: '--colored-list-text-color', value: textColor, source: txtField.source, prop: 'textColor' },
+    { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor, source: mrkField.source, prop: 'markerColor' },
+    { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor, source: mrkTxtField.source, prop: 'markerTextColor' },
   ]);
 }

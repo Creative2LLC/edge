@@ -10,12 +10,29 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
+const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
+
 function readField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
+  return field;
+}
+
+function readColorField(block, name, labels = []) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) {
+    if (IS_EDITOR && field.source) {
+      row.style.cssText = 'display:none!important';
+    } else {
+      row.remove();
+    }
+  }
   return field;
 }
 
@@ -105,7 +122,8 @@ function hasAuthoringContext(block) {
 
 export default function decorate(block) {
   const textField = readRichField(block, 'text', ['body', 'copy']);
-  const textColor = normalizeColorValue(readField(block, 'textColor', ['text color', 'color']).value);
+  const txtField = readColorField(block, 'textColor', ['text color', 'color']);
+  const textColor = normalizeColorValue(txtField.value);
   const horizontalAlign = normalizeOption(
     readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment']).value,
     ['left', 'center', 'right', 'justify'],
@@ -143,6 +161,6 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041' },
+    { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041', source: txtField.source, prop: 'textColor' },
   ]);
 }

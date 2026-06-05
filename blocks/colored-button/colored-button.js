@@ -10,12 +10,31 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
+const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
+
 function readField(block, name, labels = []) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
+  return field;
+}
+
+// Like readField but keeps the row hidden in editor context so the source
+// element stays in the DOM and color picker changes can write back through it.
+function readColorField(block, name, labels = []) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) {
+    if (IS_EDITOR && field.source) {
+      row.style.cssText = 'display:none!important';
+    } else {
+      row.remove();
+    }
+  }
   return field;
 }
 
@@ -141,9 +160,12 @@ function appendLabel(labelField, label, fallbackLabel) {
 export default function decorate(block) {
   const labelField = readField(block, 'label', ['button text', 'text', 'label']);
   const linkField = readLink(block, 'link', ['button link', 'url', 'href']);
-  const backgroundColor = normalizeColorValue(readField(block, 'backgroundColor', ['background color', 'button color']).value) || '#008DB6';
-  const textColor = normalizeColorValue(readField(block, 'textColor', ['text color']).value) || '#FFFFFF';
-  const borderColor = normalizeColorValue(readField(block, 'borderColor', ['border color']).value) || backgroundColor;
+  const bgField = readColorField(block, 'backgroundColor', ['background color', 'button color']);
+  const backgroundColor = normalizeColorValue(bgField.value) || '#008DB6';
+  const txtField = readColorField(block, 'textColor', ['text color']);
+  const textColor = normalizeColorValue(txtField.value) || '#FFFFFF';
+  const bdrField = readColorField(block, 'borderColor', ['border color']);
+  const borderColor = normalizeColorValue(bdrField.value) || backgroundColor;
   const appearance = normalizeOption(readField(block, 'appearance', ['style', 'button style']).value, ['solid', 'outlined', 'inverted'], 'solid');
   const invertOnHover = normalizeOption(readField(block, 'invertOnHover', ['invert on hover']).value, ['yes', 'no'], 'no');
   const horizontalAlign = normalizeOption(
@@ -205,8 +227,8 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    { label: 'Background', cssVar: '--colored-button-bg', value: backgroundColor },
-    { label: 'Text', cssVar: '--colored-button-text', value: textColor },
-    { label: 'Border', cssVar: '--colored-button-border', value: borderColor },
+    { label: 'Background', cssVar: '--colored-button-bg', value: backgroundColor, source: bgField.source, prop: 'backgroundColor' },
+    { label: 'Text', cssVar: '--colored-button-text', value: textColor, source: txtField.source, prop: 'textColor' },
+    { label: 'Border', cssVar: '--colored-button-border', value: borderColor, source: bdrField.source, prop: 'borderColor' },
   ]);
 }
