@@ -33,7 +33,11 @@ function normalizeOptions(options) {
 }
 
 function normalizeLabel(value) {
-  return `${value || ''}`.trim().toLowerCase().replace(/[\s_-]+/g, '');
+  return `${value || ''}`
+    .replace(/\([^)]*\)/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
 }
 
 export function getFallbackCell(scope, options = {}) {
