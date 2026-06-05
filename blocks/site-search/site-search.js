@@ -41,6 +41,8 @@ const FIELD_COLUMN_INDEX = {
   emptyStateCopy: 7,
 };
 
+const EXCLUDED_SEARCH_TYPES = new Set(['case_anniversary']);
+
 function normalizeText(value) {
   return `${value || ''}`.trim();
 }
@@ -249,7 +251,7 @@ function syncTypeOptions(select, options = [], selectedType = '') {
   options.forEach((option) => {
     const value = normalizeText(option.value).toLowerCase();
     const label = normalizeText(option.label);
-    if (!value || !label) return;
+    if (!value || !label || EXCLUDED_SEARCH_TYPES.has(value)) return;
 
     const entry = document.createElement('option');
     entry.value = value;
