@@ -26,14 +26,14 @@ function readColorField(block, name, labels = []) {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) {
-    if (IS_EDITOR && field.source) {
-      row.style.cssText = 'display:none!important';
-    } else {
-      row.remove();
-    }
-  }
-  return field;
+  const resource = IS_EDITOR
+    ? (field.source?.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+      || block.getAttribute('data-aue-resource')
+      || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+      || '')
+    : '';
+  if (row) row.remove();
+  return { ...field, resource };
 }
 
 function readRichField(block, name, labels = []) {
@@ -165,7 +165,7 @@ export default function decorate(block) {
       label: 'Text Color',
       cssVar: '--colored-text-color',
       value: textColor || '#404041',
-      source: txtField.source,
+      resource: txtField.resource,
       prop: 'textColor',
     },
   ]);

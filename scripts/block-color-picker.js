@@ -77,20 +77,11 @@ function showToast(message, saved = false) {
   setTimeout(() => toast.remove(), 2000);
 }
 
-function saveViaUE(source, prop, hex) {
-  if (!source || !prop) return false;
-
-  // Update the hidden source element — this is UE's in-DOM field value
-  source.textContent = hex;
-
-  // Walk up to find the data-aue-resource owner
-  const resource = source.getAttribute('data-aue-resource')
-    || source.closest('[data-aue-resource]')?.getAttribute('data-aue-resource');
-
-  if (!resource) return false;
-
-  // Dispatch the UE content-patch event — the CORS bridge forwards this to the editor shell
-  source.dispatchEvent(new CustomEvent('aue:content-patch', {
+// Dispatches the UE content-patch event that the CORS bridge forwards to the editor shell,
+// which then calls the AEM Content API to persist the new value.
+function saveViaUE(resource, prop, hex) {
+  if (!resource || !prop) return false;
+  document.dispatchEvent(new CustomEvent('aue:content-patch', {
     bubbles: true,
     detail: {
       resource,
@@ -99,17 +90,12 @@ function saveViaUE(source, prop, hex) {
       type: 'text',
     },
   }));
-
-  // Also fire native events in case UE's mutation observer is watching
-  source.dispatchEvent(new Event('input', { bubbles: true }));
-  source.dispatchEvent(new Event('change', { bubbles: true }));
-
   return true;
 }
 
 /**
  * @param {HTMLElement} block
- * @param {Array<Object>} props - each entry: label, cssVar, value, optional source element and prop
+ * @param {Array<Object>} props - each entry: label, cssVar, value, resource URN, prop name
  * @returns {void}
  */
 export default function injectColorPickers(block, props) {
@@ -122,7 +108,7 @@ export default function injectColorPickers(block, props) {
   bar.className = 'color-picker-bar';
 
   props.forEach(({
-    label, cssVar, value, source, prop,
+    label, cssVar, value, resource, prop,
   }) => {
     const swatch = document.createElement('label');
     swatch.className = 'color-picker-swatch';
@@ -140,12 +126,11 @@ export default function injectColorPickers(block, props) {
       block.style.setProperty(cssVar, input.value);
     });
 
-    // On commit — attempt to save through UE, fall back to clipboard
+    // On commit — dispatch UE save event, fall back to clipboard if no resource
     input.addEventListener('change', () => {
       const hex = input.value;
       block.style.setProperty(cssVar, hex);
-
-      const saved = saveViaUE(source, prop, hex);
+      const saved = saveViaUE(resource, prop, hex);
       if (saved) {
         showToast(`${hex} saved`, true);
       } else {
