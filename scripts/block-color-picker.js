@@ -109,9 +109,10 @@ function saveViaUE(source, prop, hex) {
 
 /**
  * @param {HTMLElement} block
- * @param {Array<{label: string, cssVar: string, value: string, source?: Element, prop?: string}>} colorProps
+ * @param {Array<Object>} props - each entry: label, cssVar, value, optional source element and prop
+ * @returns {void}
  */
-export function injectColorPickers(block, colorProps) {
+export default function injectColorPickers(block, props) {
   // Never runs on the live site — data-aue-resource is only present inside Universal Editor
   if (!document.querySelector('[data-aue-resource]')) return;
 
@@ -120,7 +121,9 @@ export function injectColorPickers(block, colorProps) {
   const bar = document.createElement('div');
   bar.className = 'color-picker-bar';
 
-  colorProps.forEach(({ label, cssVar, value, source, prop }) => {
+  props.forEach(({
+    label, cssVar, value, source, prop,
+  }) => {
     const swatch = document.createElement('label');
     swatch.className = 'color-picker-swatch';
     swatch.title = label;

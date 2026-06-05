@@ -1,6 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
-import { injectColorPickers } from '../../scripts/block-color-picker.js';
+import injectColorPickers from '../../scripts/block-color-picker.js';
 
 const BLOCK_FIELD_NAMES = [
   'listStyle',
@@ -244,8 +244,26 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    { label: 'Text', cssVar: '--colored-list-text-color', value: textColor, source: txtField.source, prop: 'textColor' },
-    { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor, source: mrkField.source, prop: 'markerColor' },
-    { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor, source: mrkTxtField.source, prop: 'markerTextColor' },
+    {
+      label: 'Text',
+      cssVar: '--colored-list-text-color',
+      value: textColor,
+      source: txtField.source,
+      prop: 'textColor',
+    },
+    {
+      label: 'Marker',
+      cssVar: '--colored-list-marker-color',
+      value: markerColor,
+      source: mrkField.source,
+      prop: 'markerColor',
+    },
+    {
+      label: 'Marker Text',
+      cssVar: '--colored-list-marker-text-color',
+      value: markerTextColor,
+      source: mrkTxtField.source,
+      prop: 'markerTextColor',
+    },
   ]);
 }

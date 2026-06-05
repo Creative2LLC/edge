@@ -1,6 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
-import { injectColorPickers } from '../../scripts/block-color-picker.js';
+import injectColorPickers from '../../scripts/block-color-picker.js';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -227,8 +227,26 @@ export default function decorate(block) {
   block.replaceChildren(inner);
 
   injectColorPickers(block, [
-    { label: 'Background', cssVar: '--colored-button-bg', value: backgroundColor, source: bgField.source, prop: 'backgroundColor' },
-    { label: 'Text', cssVar: '--colored-button-text', value: textColor, source: txtField.source, prop: 'textColor' },
-    { label: 'Border', cssVar: '--colored-button-border', value: borderColor, source: bdrField.source, prop: 'borderColor' },
+    {
+      label: 'Background',
+      cssVar: '--colored-button-bg',
+      value: backgroundColor,
+      source: bgField.source,
+      prop: 'backgroundColor',
+    },
+    {
+      label: 'Text',
+      cssVar: '--colored-button-text',
+      value: textColor,
+      source: txtField.source,
+      prop: 'textColor',
+    },
+    {
+      label: 'Border',
+      cssVar: '--colored-button-border',
+      value: borderColor,
+      source: bdrField.source,
+      prop: 'borderColor',
+    },
   ]);
 }
