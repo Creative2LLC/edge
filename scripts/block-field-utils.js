@@ -67,6 +67,43 @@ function textFrom(node) {
   return node?.textContent?.trim() || '';
 }
 
+export function resourcePathFromAueResource(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+export function getAueResourcePath(scope) {
+  const resource = scope?.getAttribute?.('data-aue-resource')
+    || scope?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  return resourcePathFromAueResource(resource);
+}
+
+export async function readAueResourceFields(resourcePath, names = []) {
+  if (!resourcePath || typeof fetch !== 'function') return {};
+
+  try {
+    const response = await fetch(`${resourcePath}.json`, { cache: 'no-store' });
+    if (!response.ok) return {};
+
+    const data = await response.json();
+    if (!data || typeof data !== 'object') return {};
+
+    return normalizeNames(names)
+      .reduce((fields, name) => {
+        if (data[name] !== undefined && data[name] !== null) {
+          fields[name] = data[name];
+        }
+        return fields;
+      }, {});
+  } catch {
+    return {};
+  }
+}
+
 export function readTextField(scope, name, options = {}) {
   const source = scope.querySelector(getFieldSelector(name));
   const fallbackCell = source ? null : getFallbackCell(scope, options);

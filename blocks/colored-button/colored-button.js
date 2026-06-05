@@ -1,5 +1,11 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
 
 function directRowOf(block, element) {
@@ -49,6 +55,20 @@ function watchColorField(source, cssVar, block) {
     const color = normalizeColorValue(source.textContent.trim());
     if (color) block.style.setProperty(cssVar, color);
   }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function syncResourceColorFields(resourcePath, block) {
+  readAueResourceFields(resourcePath, ['backgroundColor', 'textColor', 'borderColor'])
+    .then((fields) => {
+      const backgroundColor = normalizeColorValue(fields.backgroundColor);
+      const textColor = normalizeColorValue(fields.textColor);
+      const borderColor = normalizeColorValue(fields.borderColor);
+
+      if (backgroundColor) block.style.setProperty('--colored-button-bg', backgroundColor);
+      if (textColor) block.style.setProperty('--colored-button-text', textColor);
+      if (borderColor) block.style.setProperty('--colored-button-border', borderColor);
+      else if (backgroundColor) block.style.setProperty('--colored-button-border', backgroundColor);
+    });
 }
 
 function readLink(block, name, labels = []) {
@@ -164,6 +184,7 @@ function appendLabel(labelField, label, fallbackLabel) {
 
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const resourcePath = getAueResourcePath(block);
 
   const labelField = readField(block, 'label', ['button text', 'text', 'label']);
   const linkField = readLink(block, 'link', ['button link', 'url', 'href']);
@@ -252,4 +273,6 @@ export default function decorate(block) {
     { label: 'Text', cssVar: '--colored-button-text', value: textColor },
     { label: 'Border', cssVar: '--colored-button-border', value: borderColor },
   ]);
+
+  syncResourceColorFields(resourcePath, block);
 }

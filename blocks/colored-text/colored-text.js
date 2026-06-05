@@ -1,5 +1,10 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
 
 function directRowOf(block, element) {
@@ -45,6 +50,14 @@ function watchColorField(source, cssVar, block) {
     const color = normalizeColorValue(source.textContent.trim());
     if (color) block.style.setProperty(cssVar, color);
   }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function syncResourceColorField(resourcePath, block) {
+  readAueResourceFields(resourcePath, ['textColor'])
+    .then((fields) => {
+      const color = normalizeColorValue(fields.textColor);
+      if (color) block.style.setProperty('--colored-text-color', color);
+    });
 }
 
 function readRichField(block, name, labels = []) {
@@ -125,6 +138,7 @@ function hasAuthoringContext(block) {
 
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const resourcePath = getAueResourcePath(block);
 
   const textField = readRichField(block, 'text', ['body', 'copy']);
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor);
@@ -180,4 +194,6 @@ export default function decorate(block) {
   injectColorPickers(block, [
     { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041' },
   ]);
+
+  syncResourceColorField(resourcePath, block);
 }

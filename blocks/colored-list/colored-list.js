@@ -1,5 +1,10 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
 
 const BLOCK_FIELD_NAMES = [
@@ -57,6 +62,19 @@ function watchColorField(source, cssVar, block) {
     const color = normalizeColorValue(source.textContent.trim());
     if (color) block.style.setProperty(cssVar, color);
   }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function syncResourceColorFields(resourcePath, block) {
+  readAueResourceFields(resourcePath, ['textColor', 'markerColor', 'markerTextColor'])
+    .then((fields) => {
+      const textColor = normalizeColorValue(fields.textColor);
+      const markerColor = normalizeColorValue(fields.markerColor);
+      const markerTextColor = normalizeColorValue(fields.markerTextColor);
+
+      if (textColor) block.style.setProperty('--colored-list-text-color', textColor);
+      if (markerColor) block.style.setProperty('--colored-list-marker-color', markerColor);
+      if (markerTextColor) block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
+    });
 }
 
 function readItemText(row, name, index) {
@@ -187,6 +205,7 @@ function buildItem(row, listStyle, index) {
 
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const resourcePath = getAueResourcePath(block);
 
   const listStyle = normalizeOption(
     readBlockField(block, 'listStyle', ['list style', 'type']).value,
@@ -267,4 +286,6 @@ export default function decorate(block) {
     { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor },
     { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor },
   ]);
+
+  syncResourceColorFields(resourcePath, block);
 }
