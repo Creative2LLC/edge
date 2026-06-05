@@ -19,15 +19,13 @@ function readField(block, name, labels = []) {
   return field;
 }
 
-const IS_EDITOR = window.self !== window.top;
-
-function readColorField(block, name, labels = []) {
+function readColorField(block, name, labels = [], isEditor = false) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
-    if (IS_EDITOR && field.source) row.hidden = true;
+    if (isEditor && field.source) row.hidden = true;
     else row.remove();
   }
   return field;
@@ -126,8 +124,10 @@ function hasAuthoringContext(block) {
 }
 
 export default function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+
   const textField = readRichField(block, 'text', ['body', 'copy']);
-  const txtField = readColorField(block, 'textColor', ['text color', 'color']);
+  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor);
   const textColor = normalizeColorValue(txtField.value);
   const horizontalAlign = normalizeOption(
     readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment']).value,
@@ -164,7 +164,7 @@ export default function decorate(block) {
 
   if (content.textContent.trim() || content.children.length) inner.append(content);
 
-  if (IS_EDITOR) {
+  if (isEditor) {
     const archive = document.createElement('span');
     archive.hidden = true;
     [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
@@ -173,7 +173,7 @@ export default function decorate(block) {
 
   block.replaceChildren(inner);
 
-  if (IS_EDITOR) {
+  if (isEditor) {
     watchColorField(txtField.source, '--colored-text-color', block);
   }
 

@@ -19,19 +19,17 @@ function readField(block, name, labels = []) {
   return field;
 }
 
-const IS_EDITOR = window.self !== window.top;
-
 // In editor context, hides the row instead of removing it so the data-aue-prop
 // source element stays in the DOM. It gets moved into a hidden archive inside
 // inner before replaceChildren, then a MutationObserver keeps the CSS variable
 // in sync when UE writes a new value to that element via the Properties panel.
-function readColorField(block, name, labels = []) {
+function readColorField(block, name, labels = [], isEditor = false) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
-    if (IS_EDITOR && field.source) row.hidden = true;
+    if (isEditor && field.source) row.hidden = true;
     else row.remove();
   }
   return field;
@@ -165,13 +163,15 @@ function appendLabel(labelField, label, fallbackLabel) {
 }
 
 export default function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+
   const labelField = readField(block, 'label', ['button text', 'text', 'label']);
   const linkField = readLink(block, 'link', ['button link', 'url', 'href']);
-  const bgField = readColorField(block, 'backgroundColor', ['background color', 'button color']);
+  const bgField = readColorField(block, 'backgroundColor', ['background color', 'button color'], isEditor);
   const backgroundColor = normalizeColorValue(bgField.value) || '#008DB6';
-  const txtField = readColorField(block, 'textColor', ['text color']);
+  const txtField = readColorField(block, 'textColor', ['text color'], isEditor);
   const textColor = normalizeColorValue(txtField.value) || '#FFFFFF';
-  const bdrField = readColorField(block, 'borderColor', ['border color']);
+  const bdrField = readColorField(block, 'borderColor', ['border color'], isEditor);
   const borderColor = normalizeColorValue(bdrField.value) || backgroundColor;
   const appearance = normalizeOption(readField(block, 'appearance', ['style', 'button style']).value, ['solid', 'outlined', 'inverted'], 'solid');
   const invertOnHover = normalizeOption(readField(block, 'invertOnHover', ['invert on hover']).value, ['yes', 'no'], 'no');
@@ -232,7 +232,7 @@ export default function decorate(block) {
 
   inner.append(button);
 
-  if (IS_EDITOR) {
+  if (isEditor) {
     const archive = document.createElement('span');
     archive.hidden = true;
     [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
@@ -241,7 +241,7 @@ export default function decorate(block) {
 
   block.replaceChildren(inner);
 
-  if (IS_EDITOR) {
+  if (isEditor) {
     watchColorField(bgField.source, '--colored-button-bg', block);
     watchColorField(txtField.source, '--colored-button-text', block);
     watchColorField(bdrField.source, '--colored-button-border', block);

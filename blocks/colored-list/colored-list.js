@@ -31,15 +31,13 @@ function readBlockField(block, name, labels = []) {
   return field;
 }
 
-const IS_EDITOR = window.self !== window.top;
-
-function readColorField(block, name, labels = []) {
+function readColorField(block, name, labels = [], isEditor = false) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
-    if (IS_EDITOR && field.source) row.hidden = true;
+    if (isEditor && field.source) row.hidden = true;
     else row.remove();
   }
   return field;
@@ -188,16 +186,18 @@ function buildItem(row, listStyle, index) {
 }
 
 export default function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+
   const listStyle = normalizeOption(
     readBlockField(block, 'listStyle', ['list style', 'type']).value,
     ['bullet', 'number', 'circle-number', 'circle-bullet'],
     'bullet',
   );
-  const txtField = readColorField(block, 'textColor', ['text color', 'color']);
+  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor);
   const textColor = normalizeColorValue(txtField.value) || '#404041';
-  const mrkField = readColorField(block, 'markerColor', ['marker color', 'bullet color']);
+  const mrkField = readColorField(block, 'markerColor', ['marker color', 'bullet color'], isEditor);
   const markerColor = normalizeColorValue(mrkField.value) || '#008DB6';
-  const mrkTxtField = readColorField(block, 'markerTextColor', ['marker text color']);
+  const mrkTxtField = readColorField(block, 'markerTextColor', ['marker text color'], isEditor);
   const markerTextColor = normalizeColorValue(mrkTxtField.value) || '#FFFFFF';
   const horizontalAlign = normalizeOption(
     readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment']).value,
@@ -247,7 +247,7 @@ export default function decorate(block) {
 
   inner.append(list);
 
-  if (IS_EDITOR) {
+  if (isEditor) {
     const archive = document.createElement('span');
     archive.hidden = true;
     [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
@@ -256,7 +256,7 @@ export default function decorate(block) {
 
   block.replaceChildren(inner);
 
-  if (IS_EDITOR) {
+  if (isEditor) {
     watchColorField(txtField.source, '--colored-list-text-color', block);
     watchColorField(mrkField.source, '--colored-list-marker-color', block);
     watchColorField(mrkTxtField.source, '--colored-list-marker-text-color', block);
