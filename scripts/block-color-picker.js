@@ -80,8 +80,8 @@ function showToast(message) {
  * @returns {void}
  */
 export default function injectColorPickers(block, props) {
-  // Never runs on the live site — data-aue-resource only exists inside Universal Editor
-  if (!document.querySelector('[data-aue-resource]')) return;
+  // Never runs on the live site — UE always loads the page inside an iframe
+  if (window.self === window.top) return;
 
   injectStyles();
 

@@ -19,7 +19,7 @@ function readField(block, name, labels = []) {
   return field;
 }
 
-const IS_EDITOR = Boolean(document.querySelector('[data-aue-resource]'));
+const IS_EDITOR = window.self !== window.top;
 
 function readColorField(block, name, labels = []) {
   const field = readTextField(block, name, {
@@ -31,6 +31,14 @@ function readColorField(block, name, labels = []) {
     else row.remove();
   }
   return field;
+}
+
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  return hexMatch ? hexMatch[0] : '';
 }
 
 function watchColorField(source, cssVar, block) {
@@ -48,14 +56,6 @@ function readRichField(block, name, labels = []) {
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
   return field;
-}
-
-function normalizeColorValue(value) {
-  const normalized = String(value || '').trim();
-  if (!normalized) return '';
-
-  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
-  return hexMatch ? hexMatch[0] : '';
 }
 
 function normalizeCssLength(value, propertyName) {
