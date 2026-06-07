@@ -102,7 +102,7 @@
             "value": ""
           },
           {
-            "name": "Fit Container (Width 100%, Height Auto)",
+            "name": "Responsive (Max Width 100%, Height Auto)",
             "value": "full-width"
           }
         ],

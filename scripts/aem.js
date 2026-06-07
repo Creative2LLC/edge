@@ -763,6 +763,12 @@ const CUSTOM_REVEAL_BLOCKS = new Set([
   'text-image',
 ]);
 
+const COLUMN_NESTED_BLOCK_NAMES = new Set([
+  'colored-button',
+  'colored-list',
+  'colored-text',
+]);
+
 let blockRevealObserver;
 
 function revealBlock(block) {
@@ -841,44 +847,45 @@ async function loadBlock(block) {
     }
     block.dataset.blockStatus = 'loaded';
     observeBlockReveal(block);
+    // eslint-disable-next-line no-use-before-define
+    await loadNestedBlocks(block);
   }
   return block;
 }
 
-/**
- * Decorates a block.
- * @param {Element} block The block element
- */
-function decorateBlock(block) {
-  const normalizeBlockNameCandidate = (value) => toClassName(value).replace(/-\d{4,}$/u, '');
+function normalizeBlockNameCandidate(value) {
+  return toClassName(value).replace(/-\d{4,}$/u, '');
+}
 
-  const getResourceSegments = (resource) => {
-    if (!resource) return [];
-    const match = resource.match(/(\/content\/[^?#]+)/);
-    const normalizedPath = (match ? match[1] : resource).replace(/\/+$/g, '');
-    return normalizedPath.split('/').filter(Boolean);
-  };
+function getResourceSegments(resource) {
+  if (!resource) return [];
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  const normalizedPath = (match ? match[1] : resource).replace(/\/+$/g, '');
+  return normalizedPath.split('/').filter(Boolean);
+}
 
-  const getResourceBlockName = (element) => {
-    if (!element) return '';
-    const resource = element.getAttribute('data-aue-resource') || '';
-    const propName = normalizeBlockNameCandidate(element.getAttribute('data-aue-prop') || '');
-    const segments = getResourceSegments(resource);
-    if (!segments.length) return '';
-    const lastSegment = normalizeBlockNameCandidate(segments[segments.length - 1]);
-    if (propName && lastSegment === propName && segments.length > 1) {
-      return normalizeBlockNameCandidate(segments[segments.length - 2]);
-    }
-    return lastSegment;
-  };
+function getResourceBlockName(element) {
+  if (!element) return '';
+  const resource = element.getAttribute('data-aue-resource') || '';
+  const propName = normalizeBlockNameCandidate(element.getAttribute('data-aue-prop') || '');
+  const segments = getResourceSegments(resource);
+  if (!segments.length) return '';
+  const lastSegment = normalizeBlockNameCandidate(segments[segments.length - 1]);
+  if (propName && lastSegment === propName && segments.length > 1) {
+    return normalizeBlockNameCandidate(segments[segments.length - 2]);
+  }
+  return lastSegment;
+}
 
+function getBlockName(block) {
   const modelValue = block.querySelector('[data-aue-prop="model"]')?.textContent.trim() || '';
   const componentIdValue = block.querySelector('[data-aue-prop="aueComponentId"]')?.textContent.trim() || '';
   const resourceField = block.querySelector('[data-aue-resource]');
   const classCandidates = [...block.classList]
     .map((className) => normalizeBlockNameCandidate(className))
     .filter((className) => className && className !== 'block');
-  const shortBlockName = normalizeBlockNameCandidate(
+
+  return normalizeBlockNameCandidate(
     modelValue
     || getResourceBlockName(block)
     || getResourceBlockName(resourceField)
@@ -887,6 +894,43 @@ function decorateBlock(block) {
     || classCandidates[0]
     || '',
   );
+}
+
+function decorateNestedBlocks(root) {
+  const columnsBlocks = root.matches?.('.columns.block') ? [root] : [...root.querySelectorAll('.columns.block')];
+
+  columnsBlocks.forEach((columnsBlock) => {
+    columnsBlock.querySelectorAll(':scope > div > div > div').forEach((candidate) => {
+      if (candidate.classList.contains('block')) return;
+      if (candidate.hasAttribute('data-aue-prop') || candidate.hasAttribute('data-richtext-prop')) return;
+
+      const nestedBlockName = getBlockName(candidate);
+      if (!COLUMN_NESTED_BLOCK_NAMES.has(nestedBlockName)) return;
+
+      // eslint-disable-next-line no-use-before-define
+      decorateBlock(candidate);
+    });
+  });
+}
+
+async function loadNestedBlocks(root) {
+  decorateNestedBlocks(root);
+
+  const nestedBlocks = [...root.querySelectorAll(':scope .block')]
+    .filter((nestedBlock) => nestedBlock.dataset.blockStatus === 'initialized');
+
+  for (let i = 0; i < nestedBlocks.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await loadBlock(nestedBlocks[i]);
+  }
+}
+
+/**
+ * Decorates a block.
+ * @param {Element} block The block element
+ */
+function decorateBlock(block) {
+  const shortBlockName = getBlockName(block);
 
   if (shortBlockName && !block.dataset.blockStatus) {
     if (!block.classList.contains(shortBlockName)) {
@@ -911,6 +955,7 @@ function decorateBlock(block) {
  */
 function decorateBlocks(main) {
   main.querySelectorAll('div.section > div > div').forEach(decorateBlock);
+  decorateNestedBlocks(main);
 }
 
 /**

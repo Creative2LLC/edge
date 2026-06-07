@@ -539,15 +539,17 @@ main > .section.image-full-width img {
 
 main .default-content-wrapper .image-fit-container-link,
 main .default-content-wrapper picture.image-fit-container {
-  display: block;
-  width: 100%;
+  display: inline-block;
+  max-width: 100%;
+  width: auto;
 }
 
 main .default-content-wrapper img.image-fit-container,
 main .default-content-wrapper picture.image-fit-container img,
 main .default-content-wrapper .image-fit-container-link > picture img {
   display: block;
-  width: 100%;
+  max-width: 100%;
+  width: auto;
   height: auto;
 }
 
