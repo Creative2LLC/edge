@@ -498,6 +498,15 @@ function decorateTemplateAndTheme() {
   if (theme) addClasses(document.body, theme);
 }
 
+const COLUMN_NESTED_BLOCK_SELECTOR = [
+  '[data-aue-model]',
+  '[data-aue-resource][data-aue-type="component"]',
+  '[data-aue-resource][data-aue-behavior="component"]',
+  '.colored-button',
+  '.colored-list',
+  '.colored-text',
+].join(', ');
+
 /**
  * Wrap inline text content of block cells within a <p> tag.
  * @param {Element} block the block element
@@ -519,6 +528,15 @@ function wrapTextNodes(block) {
     'HR',
   ];
 
+  const hasComponentContent = (element) => element.matches?.(COLUMN_NESTED_BLOCK_SELECTOR)
+    || element.querySelector?.(COLUMN_NESTED_BLOCK_SELECTOR);
+
+  const isColumnsAuthoringCell = (element) => block.dataset.blockName === 'columns'
+    && (
+      element.matches('[data-aue-filter="column"], [data-aue-label="Column"]')
+      || element.querySelector(':scope > [data-aue-filter="column"], :scope > [data-aue-label="Column"]')
+    );
+
   const wrap = (el) => {
     const wrapper = document.createElement('p');
     wrapper.append(...el.childNodes);
@@ -537,6 +555,8 @@ function wrapTextNodes(block) {
 
   block.querySelectorAll(':scope > div > div').forEach((blockColumn) => {
     if (blockColumn.hasChildNodes()) {
+      if (hasComponentContent(blockColumn) || isColumnsAuthoringCell(blockColumn)) return;
+
       const hasWrapper = !!blockColumn.firstElementChild
         && validWrappers.some((tagName) => blockColumn.firstElementChild.tagName === tagName);
       if (!hasWrapper) {
@@ -887,28 +907,59 @@ function getBlockName(block) {
 
   return normalizeBlockNameCandidate(
     modelValue
+    || block.getAttribute('data-aue-model')
     || getResourceBlockName(block)
     || getResourceBlockName(resourceField)
     || componentIdValue
+    || block.getAttribute('data-aue-component-id')
     || block.getAttribute('data-block-name')
     || classCandidates[0]
     || '',
   );
 }
 
+function isNestedBlockCandidate(candidate, columnsBlock) {
+  if (candidate === columnsBlock) return false;
+  if (candidate.classList.contains('block')) return false;
+  if (candidate.hasAttribute('data-aue-prop') || candidate.hasAttribute('data-richtext-prop')) return false;
+
+  const parentBlock = candidate.parentElement?.closest('.block');
+  return !parentBlock || parentBlock === columnsBlock;
+}
+
+function replaceTag(element, tagName) {
+  const replacement = document.createElement(tagName);
+  [...element.attributes].forEach(({ name, value }) => replacement.setAttribute(name, value));
+  replacement.append(...element.childNodes);
+  element.replaceWith(replacement);
+  return replacement;
+}
+
+function normalizeColumnAuthoringContainers(columnsBlock) {
+  columnsBlock
+    .querySelectorAll(':scope > div > div > p[data-aue-filter="column"], :scope > div > div > p[data-aue-label="Column"]')
+    .forEach((columnContainer) => {
+      if (!columnContainer.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return;
+      replaceTag(columnContainer, 'div');
+    });
+}
+
 function decorateNestedBlocks(root) {
   const columnsBlocks = root.matches?.('.columns.block') ? [root] : [...root.querySelectorAll('.columns.block')];
 
   columnsBlocks.forEach((columnsBlock) => {
-    columnsBlock.querySelectorAll(':scope > div > div > div').forEach((candidate) => {
-      if (candidate.classList.contains('block')) return;
-      if (candidate.hasAttribute('data-aue-prop') || candidate.hasAttribute('data-richtext-prop')) return;
+    normalizeColumnAuthoringContainers(columnsBlock);
 
-      const nestedBlockName = getBlockName(candidate);
-      if (!COLUMN_NESTED_BLOCK_NAMES.has(nestedBlockName)) return;
+    columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
+      column.querySelectorAll(COLUMN_NESTED_BLOCK_SELECTOR).forEach((candidate) => {
+        if (!isNestedBlockCandidate(candidate, columnsBlock)) return;
 
-      // eslint-disable-next-line no-use-before-define
-      decorateBlock(candidate);
+        const nestedBlockName = getBlockName(candidate);
+        if (!COLUMN_NESTED_BLOCK_NAMES.has(nestedBlockName)) return;
+
+        // eslint-disable-next-line no-use-before-define
+        decorateBlock(candidate);
+      });
     });
   });
 }
