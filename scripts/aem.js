@@ -528,10 +528,11 @@ function wrapTextNodes(block) {
     'HR',
   ];
 
+  const isColumnsBlock = block.dataset.blockName === 'columns';
   const hasComponentContent = (element) => element.matches?.(COLUMN_NESTED_BLOCK_SELECTOR)
     || element.querySelector?.(COLUMN_NESTED_BLOCK_SELECTOR);
 
-  const isColumnsAuthoringCell = (element) => block.dataset.blockName === 'columns'
+  const isColumnsAuthoringCell = (element) => isColumnsBlock
     && (
       element.matches('[data-aue-filter="column"], [data-aue-label="Column"]')
       || element.querySelector(':scope > [data-aue-filter="column"], :scope > [data-aue-label="Column"]')
@@ -555,7 +556,10 @@ function wrapTextNodes(block) {
 
   block.querySelectorAll(':scope > div > div').forEach((blockColumn) => {
     if (blockColumn.hasChildNodes()) {
-      if (hasComponentContent(blockColumn) || isColumnsAuthoringCell(blockColumn)) return;
+      if (
+        isColumnsBlock
+        && (hasComponentContent(blockColumn) || isColumnsAuthoringCell(blockColumn))
+      ) return;
 
       const hasWrapper = !!blockColumn.firstElementChild
         && validWrappers.some((tagName) => blockColumn.firstElementChild.tagName === tagName);
@@ -907,11 +911,9 @@ function getBlockName(block) {
 
   return normalizeBlockNameCandidate(
     modelValue
-    || block.getAttribute('data-aue-model')
     || getResourceBlockName(block)
     || getResourceBlockName(resourceField)
     || componentIdValue
-    || block.getAttribute('data-aue-component-id')
     || block.getAttribute('data-block-name')
     || classCandidates[0]
     || '',
