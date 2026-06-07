@@ -1072,6 +1072,7 @@ export {
   decorateTemplateAndTheme,
   getMetadata,
   loadBlock,
+  loadNestedBlocks,
   loadCookieConsent,
   loadCSS,
   loadFooter,

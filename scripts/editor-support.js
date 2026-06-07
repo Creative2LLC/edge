@@ -5,6 +5,7 @@ import {
   decorateIcons,
   decorateSections,
   loadBlock,
+  loadNestedBlocks,
   loadScript,
   loadSections,
 } from './aem.js';
@@ -126,6 +127,32 @@ async function syncSectionBackgrounds(scope) {
   }
 }
 
+function isAuthoringFieldElement(element) {
+  return Boolean(element?.hasAttribute?.('data-aue-prop') || element?.hasAttribute?.('data-richtext-prop'));
+}
+
+function authoringFieldName(element) {
+  return element?.getAttribute?.('data-aue-prop')
+    || element?.getAttribute?.('data-richtext-prop')
+    || '';
+}
+
+function copyAuthoringAttributes(target, source) {
+  [...target.attributes]
+    .filter(({ name }) => name.startsWith('data-aue') || name.startsWith('data-richtext'))
+    .forEach(({ name }) => target.removeAttribute(name));
+
+  [...source.attributes]
+    .filter(({ name }) => name.startsWith('data-aue') || name.startsWith('data-richtext'))
+    .forEach(({ name, value }) => target.setAttribute(name, value));
+}
+
+function replaceFieldContent(target, replacement) {
+  copyAuthoringAttributes(target, replacement);
+  target.replaceChildren(...replacement.childNodes);
+  decorateRichtext(target);
+}
+
 async function applyChanges(event) {
   // redecorate default content and blocks on patches (in the properties rail)
   const { detail } = event;
@@ -171,11 +198,13 @@ async function applyChanges(event) {
       let blockToReplace = block;
       let blockResource = block.getAttribute('data-aue-resource');
       let newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
+      if (isAuthoringFieldElement(newBlock)) newBlock = null;
       const parentColumnsBlock = block.closest('.columns.block[data-aue-resource]');
 
       if (!newBlock && parentColumnsBlock && parentColumnsBlock !== block) {
         blockResource = parentColumnsBlock.getAttribute('data-aue-resource');
         newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
+        if (isAuthoringFieldElement(newBlock)) newBlock = null;
         blockToReplace = parentColumnsBlock;
       }
 
@@ -193,41 +222,54 @@ async function applyChanges(event) {
         newBlock.style.display = null;
         return true;
       }
-    } else {
-      // sections and default content, may be multiple in the case of richtext
-      const newElements = parsedUpdate.querySelectorAll(`[data-aue-resource="${resource}"],[data-richtext-resource="${resource}"]`);
-      if (newElements.length) {
-        const { parentElement } = element;
-        if (element.matches('.section')) {
-          const [newSection] = newElements;
-          newSection.style.display = 'none';
-          element.insertAdjacentElement('afterend', newSection);
-          decorateButtons(newSection);
-          decorateIcons(newSection);
-          decorateRichtext(newSection);
-          decorateSections(parentElement);
-          applySectionSpacing(parentElement);
-          decorateBlocks(parentElement);
-          applyDefaultContentAuthorStyles(newSection);
-          applyImageLinks(newSection);
-          decoratePdfLinks(newSection);
-          await loadSections(parentElement);
-          await syncSectionBackgrounds(newSection);
-          element.remove();
-          newSection.style.display = null;
-        } else {
-          element.replaceWith(...newElements);
-          decorateButtons(parentElement);
-          decorateIcons(parentElement);
-          decorateRichtext(parentElement);
-          applyDefaultContentAuthorStyles(parentElement);
-          applyImageLinks(parentElement);
-          decoratePdfLinks(parentElement);
-          const section = parentElement?.closest('.section');
-          if (section) await syncSectionBackgrounds(section);
-        }
+    }
+
+    // sections and default content, may be multiple in the case of richtext
+    const newElements = parsedUpdate.querySelectorAll(`[data-aue-resource="${resource}"],[data-richtext-resource="${resource}"]`);
+    if (newElements.length) {
+      const { parentElement } = element;
+      const [replacement] = newElements;
+      const fieldName = authoringFieldName(replacement);
+      const fieldTarget = block && fieldName
+        ? block.querySelector(`[data-aue-prop="${fieldName}"], [data-richtext-prop="${fieldName}"]`)
+        : null;
+
+      if (block && fieldTarget && newElements.length === 1) {
+        replaceFieldContent(fieldTarget, replacement);
         return true;
       }
+
+      if (element.matches('.section')) {
+        const [newSection] = newElements;
+        newSection.style.display = 'none';
+        element.insertAdjacentElement('afterend', newSection);
+        decorateButtons(newSection);
+        decorateIcons(newSection);
+        decorateRichtext(newSection);
+        decorateSections(parentElement);
+        applySectionSpacing(parentElement);
+        decorateBlocks(parentElement);
+        applyDefaultContentAuthorStyles(newSection);
+        applyImageLinks(newSection);
+        decoratePdfLinks(newSection);
+        await loadSections(parentElement);
+        await syncSectionBackgrounds(newSection);
+        element.remove();
+        newSection.style.display = null;
+      } else {
+        element.replaceWith(...newElements);
+        decorateButtons(parentElement);
+        decorateIcons(parentElement);
+        decorateRichtext(parentElement);
+        applyDefaultContentAuthorStyles(parentElement);
+        applyImageLinks(parentElement);
+        decoratePdfLinks(parentElement);
+        const columnsBlock = parentElement?.closest('.columns.block');
+        if (columnsBlock) await loadNestedBlocks(columnsBlock);
+        const section = parentElement?.closest('.section');
+        if (section) await syncSectionBackgrounds(section);
+      }
+      return true;
     }
   }
 
