@@ -8,6 +8,36 @@ function normalizeAlignment(value, allowedValues, fallback = '') {
   return allowedValues.find((allowedValue) => normalized.includes(allowedValue)) || fallback;
 }
 
+function isNestedComponentField(block, field) {
+  const blockResource = block.getAttribute('data-aue-resource') || '';
+  const fieldResource = field.getAttribute('data-aue-resource') || '';
+
+  if (blockResource && fieldResource && fieldResource !== blockResource) {
+    return true;
+  }
+
+  const owningComponent = field.parentElement?.closest(
+    '[data-aue-resource][data-aue-type="component"], [data-aue-resource][data-aue-behavior="component"]',
+  );
+
+  return Boolean(
+    owningComponent
+      && owningComponent !== block
+      && (!blockResource || owningComponent.getAttribute('data-aue-resource') !== blockResource),
+  );
+}
+
+function findOwnField(block, row, name) {
+  const selector = `[data-aue-prop="${name}"]`;
+  const candidates = [
+    ...(row.matches(selector) ? [row] : []),
+    ...row.querySelectorAll(selector),
+  ];
+
+  return candidates
+    .find((field) => !isNestedComponentField(block, field)) || null;
+}
+
 function readAlignment(block) {
   let verticalAlign = 'top';
   let horizontalAlign = '';
@@ -16,13 +46,13 @@ function readAlignment(block) {
   [...block.children].forEach((row) => {
     let isConfigRow = false;
 
-    const vField = row.querySelector('[data-aue-prop="verticalAlign"]');
+    const vField = findOwnField(block, row, 'verticalAlign');
     if (vField) {
       verticalAlign = normalizeAlignment(vField.textContent, ['top', 'middle', 'bottom'], verticalAlign);
       isConfigRow = true;
     }
 
-    const hField = row.querySelector('[data-aue-prop="horizontalAlign"]');
+    const hField = findOwnField(block, row, 'horizontalAlign');
     if (hField) {
       horizontalAlign = normalizeAlignment(hField.textContent, ['left', 'center', 'right']);
       isConfigRow = true;
