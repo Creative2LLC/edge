@@ -7,6 +7,21 @@
   width: 100%;
 }
 
+.columns picture.image-fit-container,
+.columns .image-fit-container-link {
+  display: inline-block;
+  max-width: 100%;
+  width: auto;
+}
+
+.columns img.image-fit-container,
+.columns picture.image-fit-container img,
+.columns .image-fit-container-link > picture img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
 .columns > div > div {
   min-width: 0;
   order: 1;

@@ -165,13 +165,23 @@ async function applyChanges(event) {
       return true;
     }
 
-    const block = element.parentElement?.closest('.block[data-aue-resource]') || element?.closest('.block[data-aue-resource]');
+    const block = element?.closest('.block[data-aue-resource]')
+      || element.parentElement?.closest('.block[data-aue-resource]');
     if (block) {
-      const blockResource = block.getAttribute('data-aue-resource');
-      const newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
+      let blockToReplace = block;
+      let blockResource = block.getAttribute('data-aue-resource');
+      let newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
+      const parentColumnsBlock = block.closest('.columns.block[data-aue-resource]');
+
+      if (!newBlock && parentColumnsBlock && parentColumnsBlock !== block) {
+        blockResource = parentColumnsBlock.getAttribute('data-aue-resource');
+        newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
+        blockToReplace = parentColumnsBlock;
+      }
+
       if (newBlock) {
         newBlock.style.display = 'none';
-        block.insertAdjacentElement('afterend', newBlock);
+        blockToReplace.insertAdjacentElement('afterend', newBlock);
         decorateButtons(newBlock);
         decorateIcons(newBlock);
         decorateBlock(newBlock);
@@ -179,7 +189,7 @@ async function applyChanges(event) {
         await loadBlock(newBlock);
         const section = newBlock.closest('.section');
         if (section) await syncSectionBackgrounds(section);
-        block.remove();
+        blockToReplace.remove();
         newBlock.style.display = null;
         return true;
       }
