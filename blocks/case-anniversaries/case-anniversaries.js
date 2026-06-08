@@ -158,6 +158,15 @@ function posterHref(item, posterPagePath = DEFAULTS.posterPagePath) {
     caseNumber: parts.caseNumber,
     sequenceNumber: parts.sequenceNumber,
     posterPagePath,
+    details: {
+      name: normalizeText(item.name || item.fullName),
+      image_url: normalizeText(item.image_url || item.thumbnail_url),
+      missing_location: normalizeText(item.missing_location),
+      missing_date: normalizeText(
+        item.missing_date || item.missing_date_label || item.anniversary_date_label,
+      ),
+      age: normalizeText(item.age_now || item.age || item.ageNow),
+    },
   });
 }
 

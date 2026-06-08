@@ -95,6 +95,11 @@ function posterHref(row, posterPagePath = DEFAULTS.posterPagePath) {
     caseNumber,
     sequenceNumber,
     posterPagePath,
+    details: {
+      name: normalizeText(firstValue(row, ['name', 'fullName'])),
+      missing_state: normalizeText(firstValue(row, ['missing_state', 'missingState', 'lastSeenState', 'state'])),
+      missing_date: normalizeText(firstValue(row, ['missing_date', 'missingDate', 'dateMissing', 'missingSince'])),
+    },
   });
 }
 

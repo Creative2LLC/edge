@@ -322,6 +322,17 @@ function posterDetailUrl(person) {
     caseNumber,
     sequenceNumber: seqNumber,
     posterPagePath: currentPosterPagePath(),
+    details: {
+      name: displayName(person, ''),
+      image_url: normalizeText(person.image_url || person.imageUrl),
+      thumbnail_url: normalizeText(person.thumbnail_url || person.thumbnailUrl),
+      missing_city: normalizeText(person.missingCity || person.city),
+      missing_state: normalizeText(person.missingState || person.state),
+      missing_country: normalizeText(person.missingCountry || person.country),
+      missing_date: normalizeText(person.missingDate || person.dateMissing || person.missingSince),
+      age: normalizeText(person.age || person.ageNow),
+      org_name: normalizeText(person.orgName),
+    },
   });
 }
 
@@ -351,6 +362,96 @@ function replaceWithCanonicalPosterUrl(directRequest) {
   if (`${window.location.pathname}${window.location.hash}` !== canonicalUrl || window.location.search) {
     window.history.replaceState(null, '', canonicalUrl);
   }
+}
+
+function hasRenderablePosterPayload(payload) {
+  const children = Array.isArray(payload?.children) ? payload.children : [];
+  const child = children[0] || payload || {};
+  const hasPhoto = normalizeText(
+    child.image_url
+      || child.thumbnail_url
+      || child.imageUrl
+      || child.thumbnailUrl
+      || child.image?.image_url,
+  ) || (Array.isArray(child.photos) && child.photos.length > 0);
+  const hasLocation = normalizeText(
+    child.missingCity
+      || child.city
+      || child.missingState
+      || child.state
+      || child.missingCountry
+      || child.country,
+  );
+  const hasMissingDate = normalizeText(
+    payload?.missingDate
+      || payload?.dateMissing
+      || payload?.missingSince
+      || child.missingDate
+      || child.dateMissing
+      || child.missingSince,
+  );
+  return Boolean(
+    normalizeText(payload?.caseNumber || child.caseNumber)
+      || displayName(child, '')
+      || hasPhoto
+      || hasLocation
+      || hasMissingDate,
+  );
+}
+
+function computedPosterImageUrl(provider, caseNumber, seqNumber, size = '') {
+  if (!provider || !caseNumber) return '';
+  const suffix = size === 'thumbnail' ? 't' : '';
+  return `https://api.missingkids.org/photographs/${provider}${caseNumber}c${seqNumber}${suffix}.jpg`;
+}
+
+function fallbackPosterPayload(directRequest) {
+  if (!directRequest || directRequest.type !== 'poster') return {};
+
+  const params = new URLSearchParams(window.location.search);
+  const provider = normalizeText(directRequest.provider).toUpperCase();
+  const caseNumber = normalizeText(directRequest.caseNumber);
+  const seqNumber = normalizeText(directRequest.num) || '1';
+  const imageUrl = normalizeText(params.get('image_url'))
+    || computedPosterImageUrl(provider, caseNumber, seqNumber);
+  const thumbnailUrl = normalizeText(params.get('thumbnail_url'))
+    || computedPosterImageUrl(provider, caseNumber, seqNumber, 'thumbnail');
+  const missingLocation = normalizeText(params.get('missing_location'));
+
+  return {
+    success: 1,
+    version: 2,
+    caseNumber,
+    children: [{
+      caseNumber,
+      orgPrefix: provider,
+      orgName: normalizeText(params.get('org_name')),
+      seqNumber,
+      name: normalizeText(params.get('name')),
+      fullName: normalizeText(params.get('name')),
+      image_url: imageUrl,
+      imageUrl,
+      thumbnail_url: thumbnailUrl,
+      thumbnailUrl,
+      missingCity: normalizeText(params.get('missing_city') || missingLocation),
+      missingState: normalizeText(params.get('missing_state')),
+      missingCountry: normalizeText(params.get('missing_country')),
+      missingDate: normalizeText(params.get('missing_date')),
+      age: normalizeText(params.get('age')),
+    }],
+  };
+}
+
+function posterPayloadForRender(payload, directRequest) {
+  if (hasRenderablePosterPayload(payload)) return payload;
+
+  // eslint-disable-next-line no-console
+  console.warn('[poster-results] Poster detail API returned no renderable data; using fallback.', {
+    directRequest,
+    payload,
+  });
+
+  return fallbackPosterPayload(directRequest);
 }
 
 function sequenceNumber(person) {
@@ -1166,9 +1267,10 @@ export default async function decorate(block) {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
+      const renderPayload = posterPayloadForRender(payload, directRequest);
       setStatus(status, '', '');
       replaceWithCanonicalPosterUrl(directRequest);
-      renderPosterDetail(results, meta, payload, config, () => window.history.back());
+      renderPosterDetail(results, meta, renderPayload, config, () => window.history.back());
       return;
     } catch (error) {
       setStatus(status, 'Poster details are unavailable.', 'error');

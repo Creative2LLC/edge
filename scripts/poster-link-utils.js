@@ -14,11 +14,19 @@ function sameOriginHref(url) {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
+function appendOptionalParams(url, values = {}) {
+  Object.entries(values).forEach(([key, value]) => {
+    const normalizedValue = normalizeText(value);
+    if (normalizedValue) url.searchParams.set(key, normalizedValue);
+  });
+}
+
 export function buildPosterDetailHref({
   provider,
   caseNumber,
   sequenceNumber = '1',
   posterPagePath = DEFAULT_POSTER_PAGE_PATH,
+  details = {},
 } = {}) {
   const normalizedProvider = normalizeText(provider).toUpperCase();
   const normalizedCaseNumber = normalizeText(caseNumber);
@@ -31,6 +39,7 @@ export function buildPosterDetailHref({
     normalizedCaseNumber,
     normalizedSequence,
   ].join('/'));
+  appendOptionalParams(url, details);
   return sameOriginHref(url);
 }
 
