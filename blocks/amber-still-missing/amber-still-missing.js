@@ -3,6 +3,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { buildPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   intro: 'AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below.',
@@ -78,15 +79,7 @@ function posterPartsFromUrl(url) {
   };
 }
 
-function cleanPosterPath(provider, caseNumber, sequenceNumber = '1') {
-  if (!provider || !caseNumber) return '';
-
-  return `/poster/${[provider, caseNumber, sequenceNumber]
-    .map((segment) => encodeURIComponent(normalizeText(segment)))
-    .join('/')}`;
-}
-
-function posterHref(row) {
+function posterHref(row, posterPagePath = DEFAULTS.posterPagePath) {
   const posterUrl = firstValue(row, ['poster_url', 'posterUrl', 'posterLink', 'poster']);
   const parts = posterPartsFromUrl(posterUrl);
   const orgPrefix = normalizeText(firstValue(row, ['org_prefix', 'orgPrefix', 'provider']) || parts.orgPrefix || 'NCMC').toUpperCase();
@@ -97,11 +90,16 @@ function posterHref(row) {
 
   if (!caseNumber) return '';
 
-  return cleanPosterPath(orgPrefix, caseNumber, sequenceNumber);
+  return buildPosterDetailHref({
+    provider: orgPrefix,
+    caseNumber,
+    sequenceNumber,
+    posterPagePath,
+  });
 }
 
-function normalizeRow(row) {
-  const href = posterHref(row);
+function normalizeRow(row, posterPagePath) {
+  const href = posterHref(row, posterPagePath);
   return {
     name: normalizeText(firstValue(row, ['name', 'fullName']) || [
       row.firstName,
@@ -114,13 +112,13 @@ function normalizeRow(row) {
   };
 }
 
-function rowsFromPayload(payload) {
+function rowsFromPayload(payload, posterPagePath) {
   const source = Array.isArray(payload?.data) ? payload.data : payload?.children;
   if (!Array.isArray(source)) return [];
 
   return source
     .filter((row) => row && typeof row === 'object')
-    .map((row) => normalizeRow(row))
+    .map((row) => normalizeRow(row, posterPagePath))
     .filter((row) => row.name || row.missingState || row.missingDate || row.posterHref);
 }
 
@@ -164,7 +162,7 @@ function renderTable(container, rows, config) {
       link.href = row.posterHref;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-      link.textContent = row.posterHref;
+      link.textContent = 'View poster';
       linkCell.append(link);
     }
     tr.append(linkCell);
@@ -224,7 +222,7 @@ export default async function decorate(block) {
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
-    const rows = rowsFromPayload(payload);
+    const rows = rowsFromPayload(payload, config.posterPagePath);
     setStatus(status, '', '');
     renderTable(panel, rows, config);
   } catch (error) {

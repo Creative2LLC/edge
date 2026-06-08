@@ -3,6 +3,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { buildAmberPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
@@ -201,16 +202,14 @@ function appendDetailRows(list, rows) {
   });
 }
 
-function cleanPosterPath(provider, caseNumberValue, sequenceNumberValue = '1') {
-  if (!provider || !caseNumberValue) return '';
-
-  return `/poster/${[provider, caseNumberValue, sequenceNumberValue]
-    .map((segment) => encodeURIComponent(normalizeText(segment)))
-    .join('/')}`;
-}
-
-function posterPageUrl(alert) {
-  return cleanPosterPath('AMBER', caseNumber(alert), sequenceNumber(alert) || '1');
+function posterPageUrl(alert, posterPagePath = DEFAULTS.posterPagePath) {
+  return buildAmberPosterDetailHref({
+    caseNumber: caseNumber(alert),
+    sequenceNumber: sequenceNumber(alert) || '1',
+    personId: personId(alert),
+    name: alertName(alert),
+    posterPagePath,
+  });
 }
 
 function createAlertCard(alert, config, onSelect) {
@@ -260,7 +259,7 @@ function createAlertCard(alert, config, onSelect) {
 
   if (caseNumber(alert)) {
     const poster = document.createElement('a');
-    poster.href = posterPageUrl(alert);
+    poster.href = posterPageUrl(alert, config.posterPagePath);
     poster.target = '_blank';
     poster.rel = 'noopener noreferrer';
     poster.className = 'amber-alerts-card-secondary';

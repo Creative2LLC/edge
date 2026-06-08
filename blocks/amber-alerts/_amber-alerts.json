@@ -76,7 +76,7 @@
           "valueType": "string",
           "name": "posterPagePath",
           "label": "Poster Page Path",
-          "description": "Legacy fallback page containing the Poster Results block. Live poster links use /poster/AMBER/{case}/{sequence}.",
+          "description": "Page containing the Poster Results block. Poster links open this page with AMBER case query parameters.",
           "value": "/missing-children-posters"
         },
         {

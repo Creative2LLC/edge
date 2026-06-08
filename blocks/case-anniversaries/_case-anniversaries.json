@@ -46,7 +46,8 @@
           "component": "text",
           "valueType": "string",
           "name": "posterPagePath",
-          "label": "Legacy Poster Detail Page Path",
+          "label": "Poster Detail Page Path",
+          "description": "Page containing the Poster Results block. Case links open this page with poster query parameters.",
           "value": "/missing-children-posters"
         },
         {

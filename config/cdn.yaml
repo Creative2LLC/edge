@@ -8,10 +8,6 @@ data:
       - name: route-amber-poster-with-sequence
         when:
           allOf:
-            - reqProperty: tier
-              equals: publish
-            - reqProperty: domain
-              equals: "test--edge--creative2llc.aem.page"
             - reqProperty: originalPath
               matches: "^/poster/AMBER/[^/]+/[0-9]+/?$"
         action:
@@ -28,10 +24,6 @@ data:
       - name: route-amber-poster-default-sequence
         when:
           allOf:
-            - reqProperty: tier
-              equals: publish
-            - reqProperty: domain
-              equals: "test--edge--creative2llc.aem.page"
             - reqProperty: originalPath
               matches: "^/poster/AMBER/[^/]+/?$"
         action:
@@ -48,10 +40,6 @@ data:
       - name: route-poster-with-sequence
         when:
           allOf:
-            - reqProperty: tier
-              equals: publish
-            - reqProperty: domain
-              equals: "test--edge--creative2llc.aem.page"
             - reqProperty: originalPath
               matches: "^/poster/[A-Za-z0-9]{4}/[^/]+/[0-9]+/?$"
         action:
@@ -68,10 +56,6 @@ data:
       - name: route-poster-default-sequence
         when:
           allOf:
-            - reqProperty: tier
-              equals: publish
-            - reqProperty: domain
-              equals: "test--edge--creative2llc.aem.page"
             - reqProperty: originalPath
               matches: "^/poster/[A-Za-z0-9]{4}/[^/]+/?$"
         action:

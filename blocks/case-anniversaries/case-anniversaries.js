@@ -10,6 +10,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { buildPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   findHeading: 'Find Cases',
@@ -148,19 +149,16 @@ function posterParts(item) {
   };
 }
 
-function cleanPosterPath(provider, caseNumber, sequenceNumber = '1') {
-  if (!provider || !caseNumber) return '';
-
-  return `/poster/${[provider, caseNumber, sequenceNumber]
-    .map((segment) => encodeURIComponent(normalizeText(segment)))
-    .join('/')}`;
-}
-
-function posterHref(item) {
+function posterHref(item, posterPagePath = DEFAULTS.posterPagePath) {
   const parts = posterParts(item);
   if (!parts.caseNumber) return '';
 
-  return cleanPosterPath(parts.orgPrefix.toUpperCase(), parts.caseNumber, parts.sequenceNumber);
+  return buildPosterDetailHref({
+    provider: parts.orgPrefix,
+    caseNumber: parts.caseNumber,
+    sequenceNumber: parts.sequenceNumber,
+    posterPagePath,
+  });
 }
 
 function isExternalUrl(src) {
@@ -301,13 +299,13 @@ function createChip(label, onRemove) {
   return chip;
 }
 
-function buildCard(item) {
+function buildCard(item, config) {
   const card = document.createElement('article');
   card.className = 'case-anniversaries-card';
 
   const imageUrl = normalizeText(item.image_url || item.thumbnail_url);
   const name = normalizeText(item.name || item.fullName) || 'Missing Child';
-  const href = posterHref(item);
+  const href = posterHref(item, config.posterPagePath);
 
   const media = document.createElement('div');
   media.className = 'case-anniversaries-card-media';
@@ -635,7 +633,7 @@ export default function decorate(block) {
       if (currentToken !== requestToken) return;
 
       if (usePagination) layout.grid.replaceChildren();
-      (payload.data || []).forEach((item) => layout.grid.append(buildCard(item)));
+      (payload.data || []).forEach((item) => layout.grid.append(buildCard(item, config)));
       state.page = payload.meta?.current_page || 1;
       state.lastPage = payload.meta?.last_page || 1;
       state.total = payload.meta?.total ?? payload.total_records ?? layout.grid.children.length;

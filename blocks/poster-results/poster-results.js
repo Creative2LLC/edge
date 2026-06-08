@@ -1,3 +1,9 @@
+import {
+  buildCleanPosterPath,
+  buildPosterDetailHref,
+  currentPosterPagePath,
+} from '../../scripts/poster-link-utils.js';
+
 const DEFAULTS = {
   heading: 'Search Missing Children Posters',
   eyebrow: 'Poster Search',
@@ -309,31 +315,32 @@ function posterReference(person) {
     .join('/');
 }
 
-function cleanPosterPath(provider, caseNumber, seqNumber = '1') {
-  if (!provider || !caseNumber) return '';
-
-  return `/poster/${[provider, caseNumber, seqNumber]
-    .map((segment) => encodeURIComponent(normalizeText(segment)))
-    .join('/')}`;
-}
-
 function posterDetailUrl(person) {
   const [provider, caseNumber, seqNumber = '1'] = posterReference(person).split('/');
-  return cleanPosterPath(provider?.toUpperCase(), caseNumber, seqNumber);
+  return buildPosterDetailHref({
+    provider,
+    caseNumber,
+    sequenceNumber: seqNumber,
+    posterPagePath: currentPosterPagePath(),
+  });
 }
 
 function canonicalPosterPath(directRequest) {
   if (!directRequest) return '';
 
   if (directRequest.type === 'amber') {
-    return cleanPosterPath('AMBER', directRequest.caseNumber, directRequest.seqNumber || '1');
+    return buildCleanPosterPath({
+      provider: 'AMBER',
+      caseNumber: directRequest.caseNumber,
+      sequenceNumber: directRequest.seqNumber || '1',
+    });
   }
 
-  return cleanPosterPath(
-    directRequest.provider?.toUpperCase(),
-    directRequest.caseNumber,
-    directRequest.num || '1',
-  );
+  return buildCleanPosterPath({
+    provider: directRequest.provider,
+    caseNumber: directRequest.caseNumber,
+    sequenceNumber: directRequest.num || '1',
+  });
 }
 
 function replaceWithCanonicalPosterUrl(directRequest) {
