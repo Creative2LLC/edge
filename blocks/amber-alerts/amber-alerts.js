@@ -173,7 +173,9 @@ function matchingDetailAlert(payload, sourceAlert) {
 
   const sourceSequence = sequenceNumber(sourceAlert);
   if (sourceSequence) {
-    const match = people.find((person) => sequenceNumber(person) === sourceSequence);
+    const match = people.find((person) => (
+      sequenceNumber(person) === sourceSequence || personId(person) === sourceSequence
+    ));
     if (match) return match;
   }
 
@@ -205,7 +207,7 @@ function appendDetailRows(list, rows) {
 function posterPageUrl(alert, posterPagePath = DEFAULTS.posterPagePath) {
   return buildAmberPosterDetailHref({
     caseNumber: caseNumber(alert),
-    sequenceNumber: sequenceNumber(alert) || '1',
+    sequenceNumber: personId(alert) || sequenceNumber(alert) || '1',
     personId: personId(alert),
     name: alertName(alert),
     posterPagePath,
@@ -321,6 +323,162 @@ function appendImageGallery(container, alert) {
   container.append(gallery);
 }
 
+function arrayItems(value) {
+  return Array.isArray(value) ? value.filter((item) => item && typeof item === 'object') : [];
+}
+
+function uniqueItems(items, keyForItem) {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = keyForItem(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function readablePersonType(person) {
+  const rawType = firstValue(person, ['person_type', 'personType', 'type']);
+  const normalized = rawType.toLowerCase().replace(/[^a-z]/g, '');
+  if (normalized.includes('suspect')) return 'Suspect';
+  if (normalized.includes('abductor')) return 'Abductor';
+  if (normalized.includes('companion')) return 'Companion';
+  if (normalized === 'child' || normalized.includes('missingchild')) return 'Missing Child';
+  return rawType.replace(/([a-z])([A-Z])/g, '$1 $2') || 'Related Person';
+}
+
+function samePerson(a, b) {
+  const aId = personId(a);
+  const bId = personId(b);
+  if (aId && bId && aId === bId) return true;
+
+  const aSequence = sequenceNumber(a);
+  const bSequence = sequenceNumber(b);
+  if (aId && bSequence && aId === bSequence) return true;
+  if (bId && aSequence && bId === aSequence) return true;
+  if (aSequence && bSequence && aSequence === bSequence) return true;
+
+  const aName = normalizedName(a);
+  const bName = normalizedName(b);
+  return Boolean(aName && bName && aName === bName);
+}
+
+function relatedPeople(payload, selectedAlert) {
+  const people = [
+    ...arrayItems(payload?.related_people),
+    ...arrayItems(payload?.companions),
+    ...arrayItems(payload?.data),
+    ...arrayItems(payload?.childBean?.personList),
+  ].filter((person) => !samePerson(person, selectedAlert));
+
+  return uniqueItems(people, (person) => (
+    personId(person) || `${readablePersonType(person)}:${normalizedName(person)}`
+  ));
+}
+
+function vehicleItems(payload, selectedAlert) {
+  const people = relatedPeople(payload, selectedAlert);
+  const vehicles = [
+    ...arrayItems(payload?.vehicles),
+    ...arrayItems(payload?.childBean?.vehicleList),
+    ...arrayItems(selectedAlert?.vehicles),
+    ...arrayItems(selectedAlert?.vehicleList),
+    ...people.flatMap((person) => [
+      ...arrayItems(person?.vehicles),
+      ...arrayItems(person?.vehicleList),
+    ]),
+  ];
+
+  return uniqueItems(vehicles, (vehicle) => (
+    normalizeText(vehicle.vehicle_id || vehicle.vehicleId)
+    || [vehicle.license_plate, vehicle.licensePlateText, vehicle.summary].map(normalizeText).join(':')
+  ));
+}
+
+function vehicleSummary(vehicle) {
+  return firstValue(vehicle, ['summary'])
+    || joinValues([
+      firstValue(vehicle, ['year', 'modelYear']),
+      firstValue(vehicle, ['color', 'colorPrimary', 'primaryColor']),
+      firstValue(vehicle, ['make']),
+      firstValue(vehicle, ['model']),
+      firstValue(vehicle, ['style', 'bodyStyle']),
+    ]);
+}
+
+function appendRelatedPeople(container, payload, selectedAlert) {
+  const people = relatedPeople(payload, selectedAlert);
+  if (!people.length) return;
+
+  const section = document.createElement('section');
+  section.className = 'amber-alerts-related';
+  const heading = document.createElement('h4');
+  heading.textContent = 'Related People';
+  const list = document.createElement('div');
+  list.className = 'amber-alerts-related-list';
+
+  people.forEach((person) => {
+    const row = document.createElement('article');
+    row.className = 'amber-alerts-related-person';
+    const image = detailImage({ data: [person] }, person);
+    if (image) {
+      const img = document.createElement('img');
+      img.src = image;
+      img.alt = alertName(person);
+      img.loading = 'lazy';
+      row.append(img);
+    }
+
+    const content = document.createElement('div');
+    const title = document.createElement('h5');
+    title.textContent = alertName(person);
+    const type = document.createElement('p');
+    type.textContent = readablePersonType(person);
+    const details = document.createElement('dl');
+    appendDetailRows(details, [
+      ['Age', firstValue(person, ['age', 'ageNow'])],
+      ['Gender', firstValue(person, ['sex', 'gender'])],
+      ['Race', firstValue(person, ['race', 'skinColor'])],
+      ['Hair Color', firstValue(person, ['hairColor'])],
+      ['Eye Color', firstValue(person, ['eyeColor'])],
+      ['Height', firstValue(person, ['height'])],
+      ['Weight', firstValue(person, ['weight'])],
+    ]);
+    content.append(title, type, details);
+    row.append(content);
+    list.append(row);
+  });
+
+  section.append(heading, list);
+  container.append(section);
+}
+
+function appendVehicles(container, payload, selectedAlert) {
+  const vehicles = vehicleItems(payload, selectedAlert);
+  if (!vehicles.length) return;
+
+  const section = document.createElement('section');
+  section.className = 'amber-alerts-related';
+  const heading = document.createElement('h4');
+  heading.textContent = vehicles.length > 1 ? 'Vehicles' : 'Vehicle';
+  const list = document.createElement('div');
+  list.className = 'amber-alerts-vehicle-list';
+
+  vehicles.forEach((vehicle) => {
+    const details = document.createElement('dl');
+    appendDetailRows(details, [
+      ['Vehicle', vehicleSummary(vehicle)],
+      ['License Plate', firstValue(vehicle, ['license_plate', 'licensePlateText', 'licensePlate'])],
+      ['License State', firstValue(vehicle, ['license_state', 'licensePlateState', 'plateState'])],
+      ['Description', firstValue(vehicle, ['description', 'vehicleDescription'])],
+    ]);
+    list.append(details);
+  });
+
+  section.append(heading, list);
+  container.append(section);
+}
+
 function renderDetail(container, payload, sourceAlert, onBack) {
   container.replaceChildren();
   const alert = matchingDetailAlert(payload, sourceAlert);
@@ -382,6 +540,8 @@ function renderDetail(container, payload, sourceAlert, onBack) {
     copy.textContent = narrative;
     content.append(copy);
   }
+  appendRelatedPeople(content, payload, alert);
+  appendVehicles(content, payload, alert);
   appendImageGallery(content, alert);
   body.append(content);
   detail.append(back, body);

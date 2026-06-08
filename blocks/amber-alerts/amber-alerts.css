@@ -275,6 +275,56 @@
   line-height: 1.5;
 }
 
+.amber-alerts-related {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #d9e1e6;
+}
+
+.amber-alerts-related h4 {
+  margin: 0 0 14px;
+  color: #243846;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.amber-alerts-related-list,
+.amber-alerts-vehicle-list {
+  display: grid;
+  gap: 14px;
+}
+
+.amber-alerts-related-person {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.amber-alerts-related-person img {
+  display: block;
+  width: 86px;
+  height: 108px;
+  border-radius: 6px;
+  background: #dfe5e9;
+  object-fit: cover;
+}
+
+.amber-alerts-related-person h5 {
+  margin: 0 0 4px;
+  color: #243846;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.amber-alerts-related-person p {
+  margin: 0 0 10px;
+  color: #b42318;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .amber-alerts-detail-gallery {
   display: flex;
   flex-wrap: wrap;
@@ -339,5 +389,14 @@
   .amber-alerts-card dl,
   .amber-alerts-detail dl {
     grid-template-columns: 1fr;
+  }
+
+  .amber-alerts-related-person {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .amber-alerts-related-person img {
+    width: 72px;
+    height: 92px;
   }
 }
