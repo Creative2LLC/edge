@@ -110,7 +110,7 @@ function getCandidateResourcePaths(block) {
     .flatMap((resourcePath) => [resourcePath, getParentResourcePath(resourcePath)])
     .filter(Boolean);
 
-  if (pagePath) {
+  if (pagePath.startsWith('/content/')) {
     paths.push(pagePath);
   }
 
@@ -118,7 +118,7 @@ function getCandidateResourcePaths(block) {
 }
 
 async function fetchResourceData(resourcePath) {
-  if (!resourcePath) return {};
+  if (!resourcePath || !resourcePath.startsWith('/content/')) return {};
   if (resourceDataCache.has(resourcePath)) return resourceDataCache.get(resourcePath);
 
   const pendingData = fetch(`${resourcePath}.json`)
