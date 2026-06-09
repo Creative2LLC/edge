@@ -324,6 +324,20 @@ function cardsForTab(tab, allCards, flatCards) {
   ]);
 }
 
+function renderPanelCards(panelState, cards) {
+  panelState.grid.replaceChildren();
+
+  if (!cards.length) {
+    panelState.empty.hidden = false;
+    panelState.grid.hidden = true;
+    return;
+  }
+
+  panelState.empty.hidden = true;
+  panelState.grid.hidden = false;
+  cards.forEach((card) => panelState.grid.append(card.element));
+}
+
 function setActiveTab(state, index) {
   state.activeIndex = index;
   const activeTab = state.tabs[index];
@@ -336,19 +350,12 @@ function setActiveTab(state, index) {
     button.tabIndex = isActive ? 0 : -1;
   });
 
-  state.panel.setAttribute('aria-labelledby', state.buttons[index].id);
-  state.panel.hidden = false;
-  state.grid.replaceChildren();
-
-  if (!activeCards.length) {
-    state.empty.hidden = false;
-    state.grid.hidden = true;
-    return;
-  }
-
-  state.empty.hidden = true;
-  state.grid.hidden = false;
-  activeCards.forEach((card) => state.grid.append(card.element));
+  state.panels.forEach((panelState, panelIndex) => {
+    const isActive = panelIndex === index;
+    panelState.panel.hidden = !isActive;
+    panelState.panel.classList.toggle('is-active', isActive);
+    if (isActive) renderPanelCards(panelState, activeCards);
+  });
 }
 
 function bindKeyboard(state, tablist) {
@@ -381,8 +388,55 @@ function isColumnsValue(value) {
   return /^[1-4]$/u.test(String(value || '').trim());
 }
 
+function resourcePath(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource.replace(/\/$/u, '');
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return (match ? match[1] : '').replace(/\/$/u, '');
+}
+
+function isSpecificChildResource(resource, parentResource) {
+  const path = resourcePath(resource);
+  const parentPath = resourcePath(parentResource);
+  if (!path || ['/content', '/content/edge'].includes(path)) return false;
+  if (parentPath && path === parentPath) return false;
+  if (!parentPath) return true;
+  return path.startsWith(`${parentPath}/`);
+}
+
+function createTabPanel(tab, index, instanceId, isAuthoring, blockResource) {
+  const panel = tab.row || document.createElement('div');
+  panel.classList.add('tabs-panel');
+  panel.id = `${instanceId}-panel-${tab.key || index}`;
+  panel.setAttribute('role', 'tabpanel');
+  panel.tabIndex = 0;
+
+  if (isAuthoring && isSpecificChildResource(panel.getAttribute('data-aue-resource'), blockResource)) {
+    panel.setAttribute('data-aue-type', 'container');
+    panel.setAttribute('data-aue-filter', 'tabs-tab');
+    panel.setAttribute('data-aue-label', tab.label);
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'tabs-card-grid';
+
+  const empty = document.createElement('p');
+  empty.className = 'tabs-empty';
+  empty.hidden = true;
+  empty.textContent = 'Add card items inside this tab.';
+
+  panel.replaceChildren(grid, empty);
+
+  return {
+    empty,
+    grid,
+    panel,
+  };
+}
+
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
+  const blockResource = block.getAttribute('data-aue-resource') || '';
   const tabRows = firstDirectRowsByType(block, isTabRow);
   const flatCardRows = firstDirectRowsByType(
     block,
@@ -444,38 +498,29 @@ export default function decorate(block) {
   tablist.setAttribute('role', 'tablist');
   tablist.setAttribute('aria-label', 'Card categories');
 
-  const panel = document.createElement('div');
-  panel.className = 'tabs-panel';
-  panel.id = `${instanceId}-panel`;
-  panel.setAttribute('role', 'tabpanel');
-  panel.tabIndex = 0;
-
-  const grid = document.createElement('div');
-  grid.className = 'tabs-card-grid';
-
-  const empty = document.createElement('p');
-  empty.className = 'tabs-empty';
-  empty.hidden = true;
-  empty.textContent = 'Add card items inside this tab.';
+  const panels = document.createElement('div');
+  panels.className = 'tabs-panels';
 
   const state = {
     activeIndex: 0,
     allCards,
     buttons: [],
-    empty,
     flatCards,
-    grid,
-    panel,
+    panels: [],
     tabs,
   };
 
   tabs.forEach((tab, index) => {
+    const panelState = createTabPanel(tab, index, instanceId, isAuthoring, blockResource);
+    state.panels.push(panelState);
+    panels.append(panelState.panel);
+
     const button = document.createElement('button');
     button.className = 'tabs-tab';
     button.type = 'button';
     button.id = `${instanceId}-tab-${tab.key || index}`;
     button.setAttribute('role', 'tab');
-    button.setAttribute('aria-controls', panel.id);
+    button.setAttribute('aria-controls', panelState.panel.id);
     button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
     button.tabIndex = index === 0 ? 0 : -1;
     if (tab.labelField?.source) moveInstrumentation(tab.labelField.source, button);
@@ -486,8 +531,7 @@ export default function decorate(block) {
   });
 
   bindKeyboard(state, tablist);
-  panel.append(grid, empty);
-  shell.append(tablist, panel);
+  shell.append(tablist, panels);
   block.replaceChildren(shell);
   setActiveTab(state, 0);
 }
