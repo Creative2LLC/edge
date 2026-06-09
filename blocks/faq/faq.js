@@ -6,6 +6,10 @@ import {
 } from '../../scripts/block-field-utils.js';
 
 const FAQ_BLOCK_FIELD_NAMES = ['heading', 'preset'];
+const FAQ_BLOCK_FIELD_LABELS = {
+  heading: ['heading', 'heading-optional'],
+  preset: ['preset', 'content-preset'],
+};
 
 const AMBER_CONTACTS = [
   ['Alabama', 'Alabama State Bureau of Investigations', ['1-800-228-7688']],
@@ -153,8 +157,31 @@ function normalizePreset(value) {
     .replace(/^-|-$/g, '');
 }
 
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function rowLabel(row) {
+  return normalizePreset(row?.children?.[0]?.textContent);
+}
+
+function isLabeledBlockFieldRow(row) {
+  const label = rowLabel(row);
+  return Object.values(FAQ_BLOCK_FIELD_LABELS).some((labels) => labels.includes(label));
+}
+
 function isBlockFieldRow(row) {
-  return FAQ_BLOCK_FIELD_NAMES.some((name) => row.querySelector(getFieldSelector(name)));
+  return FAQ_BLOCK_FIELD_NAMES.some((name) => row.querySelector(getFieldSelector(name)))
+    || isLabeledBlockFieldRow(row);
+}
+
+function findBlockFieldRow(rows, name, fallbackIndex) {
+  const acceptedLabels = FAQ_BLOCK_FIELD_LABELS[name] || [name];
+  return rows.find((row) => row.querySelector(getFieldSelector(name))
+    || acceptedLabels.includes(rowLabel(row)))
+    || rows[fallbackIndex]
+    || null;
 }
 
 function appendParagraph(parent, text) {
@@ -511,8 +538,16 @@ function buildAmberAdditionalInfoItems(items) {
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const headingField = readTextField(block, 'heading');
-  const presetField = readTextField(block, 'preset');
+  const headingRow = findBlockFieldRow(rows, 'heading', 0);
+  const presetRow = findBlockFieldRow(rows, 'preset', 1);
+  const headingField = readTextField(block, 'heading', {
+    fallbackCell: fieldCell(headingRow),
+    labels: ['heading', 'heading optional'],
+  });
+  const presetField = readTextField(block, 'preset', {
+    fallbackCell: fieldCell(presetRow),
+    labels: ['preset', 'content preset'],
+  });
   const preset = normalizePreset(presetField.value);
   const isAmberAdditionalInfo = preset === 'amber-additional-info';
   const headingText = headingField.value || (isAmberAdditionalInfo ? 'Additional Information' : '');

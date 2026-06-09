@@ -176,7 +176,7 @@ export default function decorate(block) {
   inner.className = 'colored-text-inner';
 
   const content = document.createElement('div');
-  content.className = 'colored-text-content richtext-preserve-spaces';
+  content.className = 'colored-text-content';
 
   if (textField.text.trim() || textField.html.trim() || textField.source) {
     appendRichText(textField, content);

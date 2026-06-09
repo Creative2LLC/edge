@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readTextField } from '../../scripts/block-field-utils.js';
+import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 
 const FIELD_INDEX = {
   heading: 0,
@@ -12,10 +12,18 @@ const FIELD_INDEX = {
   itemThreeCopy: 7,
 };
 
+function rows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
 function getField(block, name) {
   const field = readTextField(block, name, {
-    rowIndex: 0,
-    columnIndex: FIELD_INDEX[name],
+    fallbackCell: fieldCell(rows(block)[FIELD_INDEX[name]]),
   });
   return {
     source: field.source || field.cell,
@@ -23,14 +31,27 @@ function getField(block, name) {
   };
 }
 
+function getRichField(block, name) {
+  const field = readRichTextField(block, name, {
+    fallbackCell: fieldCell(rows(block)[FIELD_INDEX[name]]),
+  });
+  return {
+    html: field.html,
+    source: field.source || field.cell,
+    value: field.text,
+  };
+}
+
 function appendField(parent, field, tagName, className) {
-  if (!field.source && !field.value) return null;
+  if (!field.source && !field.value && !field.html) return null;
 
   const element = document.createElement(tagName);
   element.className = className;
   if (field.source) {
     moveInstrumentation(field.source, element);
     while (field.source.firstChild) element.append(field.source.firstChild);
+  } else if (field.html) {
+    element.innerHTML = field.html;
   } else {
     element.textContent = field.value;
   }
@@ -52,9 +73,9 @@ export default function decorate(block) {
   const headingField = getField(block, 'heading');
   const introField = getField(block, 'intro');
   const items = [
-    buildItem(getField(block, 'itemOneHeading'), getField(block, 'itemOneCopy')),
-    buildItem(getField(block, 'itemTwoHeading'), getField(block, 'itemTwoCopy')),
-    buildItem(getField(block, 'itemThreeHeading'), getField(block, 'itemThreeCopy')),
+    buildItem(getField(block, 'itemOneHeading'), getRichField(block, 'itemOneCopy')),
+    buildItem(getField(block, 'itemTwoHeading'), getRichField(block, 'itemTwoCopy')),
+    buildItem(getField(block, 'itemThreeHeading'), getRichField(block, 'itemThreeCopy')),
   ].filter(Boolean);
 
   const inner = document.createElement('div');

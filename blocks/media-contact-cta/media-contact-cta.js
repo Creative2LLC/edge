@@ -13,9 +13,26 @@ function normalizeText(value) {
   return `${value || ''}`.trim();
 }
 
+function rows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
 function getImageField(block) {
-  const field = readImageField(block, 'image', { rowIndex: 0, columnIndex: FIELD_INDEX.image });
+  const field = readImageField(block, 'image', {
+    fallbackCell: fieldCell(rows(block)[FIELD_INDEX.image]),
+  });
   return { source: field.source || field.cell, img: field.img };
+}
+
+function getTextField(block, name) {
+  return readTextField(block, name, {
+    fallbackCell: fieldCell(rows(block)[FIELD_INDEX[name]]),
+  });
 }
 
 function mailTo(email) {
@@ -62,10 +79,10 @@ function buildVisual(imageField, href) {
 
 export default function decorate(block) {
   const imageField = getImageField(block);
-  const headingField = readTextField(block, 'heading', { rowIndex: 0, columnIndex: FIELD_INDEX.heading });
-  const copyField = readTextField(block, 'copy', { rowIndex: 0, columnIndex: FIELD_INDEX.copy });
-  const emailField = readTextField(block, 'email', { rowIndex: 0, columnIndex: FIELD_INDEX.email });
-  const noteField = readTextField(block, 'note', { rowIndex: 0, columnIndex: FIELD_INDEX.note });
+  const headingField = getTextField(block, 'heading');
+  const copyField = getTextField(block, 'copy');
+  const emailField = getTextField(block, 'email');
+  const noteField = getTextField(block, 'note');
   const email = normalizeText(emailField.value);
   const href = mailTo(email);
 
