@@ -208,6 +208,13 @@ async function applyChanges(event) {
         blockToReplace = parentColumnsBlock;
       }
 
+      // The tabs block AEM update response omits nested card content, so
+      // in-place re-decoration would silently lose newly added cards.
+      // Always force a full page reload for tabs to get the complete JCR state.
+      if (blockToReplace.matches('.tabs.block')) {
+        return false;
+      }
+
       if (newBlock) {
         newBlock.style.display = 'none';
         blockToReplace.insertAdjacentElement('afterend', newBlock);
@@ -221,10 +228,6 @@ async function applyChanges(event) {
         blockToReplace.remove();
         newBlock.style.display = null;
         return true;
-      }
-
-      if (blockToReplace.matches('.tabs.block')) {
-        return false;
       }
     }
 
