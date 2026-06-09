@@ -325,6 +325,36 @@ function deriveFlatTabs(tabRows, cards, isAuthoring) {
   return derived;
 }
 
+function buildFlatTabs(allRows, isAuthoring) {
+  const tabs = [];
+  let currentTab = null;
+
+  allRows.forEach((row) => {
+    if (isTabLabelRow(row)) {
+      const labelElement = componentElement(row, 'tabs-tab-label') || row;
+      const labelRows = directRows(labelElement);
+      const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
+      const label = labelField.value || `Tab ${tabs.length + 1}`;
+      currentTab = {
+        cards: [],
+        key: normalizeKey(label),
+        label,
+        labelField,
+        labelRow: row,
+        row: null,
+      };
+      tabs.push(currentTab);
+    } else if (isCardRow(row) && currentTab) {
+      const card = readCard(row, currentTab.cards.length);
+      if (card.hasContent || isAuthoring) {
+        currentTab.cards.push({ ...card, element: buildCard(card, { inPlace: isAuthoring }) });
+      }
+    }
+  });
+
+  return tabs;
+}
+
 function uniqueCards(cards) {
   const seen = new Set();
   return cards.filter((card) => {
@@ -425,47 +455,60 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   const empty = document.createElement('p');
   empty.className = 'tabs-empty';
   empty.hidden = true;
-  empty.textContent = 'Add card items inside this tab.';
+  empty.textContent = 'Add Tabs Info Card items after this tab label.';
 
-  if (isAuthoring) {
+  if (isAuthoring && tab.row) {
     panel.classList.add('tabs-card-grid');
     findTabLabelRow(panel)?.setAttribute('hidden', '');
     panel.append(empty);
-  } else {
-    const grid = document.createElement('div');
-    grid.className = 'tabs-card-grid';
-    panel.replaceChildren(grid, empty);
-
     return {
       empty,
-      grid,
+      grid: panel,
       panel,
-      preserveChildren: false,
+      preserveChildren: true,
     };
   }
 
+  const grid = document.createElement('div');
+  grid.className = 'tabs-card-grid';
+  panel.replaceChildren(grid, empty);
+
   return {
     empty,
-    grid: panel,
+    grid,
     panel,
-    preserveChildren: true,
+    preserveChildren: false,
   };
 }
 
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
-  const tabRows = firstDirectRowsByType(block, isTabRow);
-  const flatCardRows = firstDirectRowsByType(
-    block,
-    (row) => isCardRow(row) && !tabRows.includes(row),
-  );
-  const flatCards = flatCardRows
-    .map((row, index) => readCard(row, index))
-    .filter((card) => card.hasContent || isAuthoring)
-    .map((card) => ({ ...card, element: buildCard(card) }));
-  const tabs = deriveFlatTabs(tabRows, flatCards, isAuthoring);
+  const allBlockRows = directRows(block);
+  const hasFlatLabels = allBlockRows.some(isTabLabelRow);
+
+  let tabs;
+  let flatCards;
+
+  if (hasFlatLabels) {
+    tabs = buildFlatTabs(allBlockRows, isAuthoring);
+    flatCards = [];
+  } else {
+    const tabRows = firstDirectRowsByType(block, isTabRow);
+    const flatCardRows = firstDirectRowsByType(
+      block,
+      (row) => isCardRow(row) && !tabRows.includes(row),
+    );
+    flatCards = flatCardRows
+      .map((row, index) => readCard(row, index))
+      .filter((card) => card.hasContent || isAuthoring)
+      .map((card) => ({ ...card, element: buildCard(card) }));
+    tabs = deriveFlatTabs(tabRows, flatCards, isAuthoring);
+  }
+
   const allCards = allCardsForTabs(tabs, flatCards);
-  const fieldRows = directRows(block).filter((row) => !isTabRow(row) && !isCardRow(row));
+  const fieldRows = allBlockRows.filter(
+    (row) => !isTabLabelRow(row) && !isTabRow(row) && !isCardRow(row),
+  );
   const columnsFallbackRow = [...fieldRows].reverse().find((row) => isColumnsValue(fieldText(row)));
   const contentFallbackRows = fieldRows.filter((row) => row !== columnsFallbackRow);
   const headingField = getBlockRichField(block, 'heading', [], contentFallbackRows[0]);
@@ -503,7 +546,7 @@ export default function decorate(block) {
     const placeholder = document.createElement('p');
     placeholder.className = 'tabs-empty';
     placeholder.textContent = isAuthoring
-      ? 'Add Tab items under this block, then add Tabs Info Card items inside each Tab.'
+      ? 'Add a Tabs Tab Label, then add Tabs Info Card items after it.'
       : '';
     block.replaceChildren(shell, placeholder);
     return;
@@ -540,12 +583,23 @@ export default function decorate(block) {
     button.setAttribute('aria-controls', panelState.panel.id);
     button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
     button.tabIndex = index === 0 ? 0 : -1;
-    if (!isAuthoring && tab.labelField?.source) moveInstrumentation(tab.labelField.source, button);
+    if (tab.labelRow) {
+      moveInstrumentation(tab.labelRow, button);
+    } else if (!isAuthoring && tab.labelField?.source) {
+      moveInstrumentation(tab.labelField.source, button);
+    }
     button.textContent = tab.label;
     button.addEventListener('click', () => setActiveTab(state, index));
     state.buttons.push(button);
     tablist.append(button);
   });
+
+  if (hasFlatLabels && isAuthoring) {
+    state.panels.forEach((panelState, index) => {
+      renderPanelCards(panelState, cardsForTab(tabs[index], allCards, flatCards));
+      panelState.preserveChildren = true;
+    });
+  }
 
   bindKeyboard(state, tablist);
   shell.append(tablist, panels);

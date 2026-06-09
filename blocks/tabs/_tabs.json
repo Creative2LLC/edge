@@ -17,21 +17,6 @@
       }
     },
     {
-      "title": "Tabs Tab",
-      "id": "tabs-tab",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Tabs Tab",
-              "filter": "tabs-tab"
-            }
-          }
-        }
-      }
-    },
-    {
       "title": "Tabs Tab Label",
       "id": "tabs-tab-label",
       "plugins": {
@@ -140,12 +125,6 @@
   "filters": [
     {
       "id": "tabs",
-      "components": [
-        "tabs-tab"
-      ]
-    },
-    {
-      "id": "tabs-tab",
       "components": [
         "tabs-tab-label",
         "tabs-info-card"
