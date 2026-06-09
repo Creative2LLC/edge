@@ -409,23 +409,7 @@ function isColumnsValue(value) {
   return /^[1-4]$/u.test(String(value || '').trim());
 }
 
-function resourcePath(resource) {
-  if (!resource) return '';
-  if (resource.startsWith('/')) return resource.replace(/\/$/u, '');
-  const match = resource.match(/(\/content\/[^?#]+)/);
-  return (match ? match[1] : '').replace(/\/$/u, '');
-}
-
-function isSpecificChildResource(resource, parentResource) {
-  const path = resourcePath(resource);
-  const parentPath = resourcePath(parentResource);
-  if (!path || ['/content', '/content/edge'].includes(path)) return false;
-  if (parentPath && path === parentPath) return false;
-  if (!parentPath) return true;
-  return path.startsWith(`${parentPath}/`);
-}
-
-function createTabPanel(tab, index, instanceId, isAuthoring, blockResource) {
+function createTabPanel(tab, index, instanceId, isAuthoring) {
   const panel = tab.row || document.createElement('div');
   panel.classList.add('tabs-panel');
   panel.id = `${instanceId}-panel-${tab.key || index}`;
@@ -457,7 +441,6 @@ function createTabPanel(tab, index, instanceId, isAuthoring, blockResource) {
 
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
-  const blockResource = block.getAttribute('data-aue-resource') || '';
   const tabRows = firstDirectRowsByType(block, isTabRow);
   const flatCardRows = firstDirectRowsByType(
     block,
@@ -532,7 +515,7 @@ export default function decorate(block) {
   };
 
   tabs.forEach((tab, index) => {
-    const panelState = createTabPanel(tab, index, instanceId, isAuthoring, blockResource);
+    const panelState = createTabPanel(tab, index, instanceId, isAuthoring);
     state.panels.push(panelState);
     panels.append(panelState.panel);
 
