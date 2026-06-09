@@ -432,7 +432,7 @@ function createTabPanel(tab, index, instanceId, isAuthoring, blockResource) {
   panel.setAttribute('role', 'tabpanel');
   panel.tabIndex = 0;
 
-  if (isAuthoring && isSpecificChildResource(panel.getAttribute('data-aue-resource'), blockResource)) {
+  if (isAuthoring) {
     panel.setAttribute('data-aue-type', 'container');
     panel.setAttribute('data-aue-filter', 'tabs-tab');
     panel.setAttribute('data-aue-label', tab.label);
