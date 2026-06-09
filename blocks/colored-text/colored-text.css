@@ -62,3 +62,7 @@
   color: #6b6b6b;
   font-style: italic;
 }
+
+.colored-text-content p{
+    margin-bottom: 20px;
+}

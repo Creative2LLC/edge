@@ -107,7 +107,7 @@ function appendHeadingText(field, heading, fallbackText) {
   }
 
   if (!heading.textContent.trim()) {
-    heading.textContent = fallbackText;
+    heading.textContent = field?.value || fallbackText;
   }
 }
 
@@ -166,7 +166,7 @@ export default function decorate(block) {
   inner.className = 'colored-heading-inner';
 
   const heading = document.createElement(headingLevel);
-  heading.className = 'colored-heading-title richtext-preserve-spaces';
+  heading.className = 'colored-heading-title';
   appendHeadingText(
     headingField,
     heading,
