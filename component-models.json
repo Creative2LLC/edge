@@ -9674,14 +9674,6 @@
     "id": "tabs-info-card",
     "fields": [
       {
-        "component": "text",
-        "valueType": "string",
-        "name": "tabLabels",
-        "label": "Tab Labels",
-        "description": "Comma-separated tab labels this card belongs to. A tab named All Services shows every card.",
-        "value": ""
-      },
-      {
         "component": "richtext",
         "valueType": "string",
         "name": "title",

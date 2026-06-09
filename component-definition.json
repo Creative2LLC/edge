@@ -2287,7 +2287,8 @@
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
                   "name": "Tabs Tab",
-                  "model": "tabs-tab"
+                  "model": "tabs-tab",
+                  "filter": "tabs-tab"
                 }
               }
             }
