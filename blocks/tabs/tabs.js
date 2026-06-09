@@ -228,11 +228,12 @@ function readCard(row, index) {
   };
 }
 
-function buildCard(card) {
-  const article = document.createElement('article');
-  article.className = 'tabs-card';
+function buildCard(card, options = {}) {
+  const article = options.inPlace && card.row ? card.row : document.createElement('article');
+  article.classList.add('tabs-card');
   article.style.setProperty('--tabs-card-index', card.index);
-  if (card.row) moveInstrumentation(card.row, article);
+  if (!options.inPlace && card.row) moveInstrumentation(card.row, article);
+  if (options.inPlace) article.replaceChildren();
 
   const content = document.createElement('div');
   content.className = 'tabs-card-content';
@@ -283,7 +284,7 @@ function readTab(row, index, isAuthoring) {
   const cards = findNestedCardRows(tabElement)
     .map((cardRow, cardIndex) => readCard(cardRow, cardIndex))
     .filter((card) => card.hasContent || isAuthoring)
-    .map((card) => ({ ...card, element: buildCard(card) }));
+    .map((card) => ({ ...card, element: buildCard(card, { inPlace: isAuthoring }) }));
 
   return {
     cards,
@@ -346,6 +347,11 @@ function cardsForTab(tab, allCards, flatCards) {
 }
 
 function renderPanelCards(panelState, cards) {
+  if (panelState.preserveChildren) {
+    panelState.empty.hidden = Boolean(cards.length);
+    return;
+  }
+
   panelState.grid.replaceChildren();
 
   if (!cards.length) {
@@ -416,31 +422,33 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   panel.setAttribute('role', 'tabpanel');
   panel.tabIndex = 0;
 
-  const grid = document.createElement('div');
-  grid.className = 'tabs-card-grid';
-
   const empty = document.createElement('p');
   empty.className = 'tabs-empty';
   empty.hidden = true;
   empty.textContent = 'Add card items inside this tab.';
 
   if (isAuthoring) {
-    panel.setAttribute('data-aue-type', 'container');
-    panel.setAttribute('data-aue-behavior', 'component');
-    panel.setAttribute('data-aue-filter', 'tabs-tab');
-    panel.setAttribute('data-aue-label', tab.label);
-    // Keep original instrumented children in the DOM so the UE can find and
-    // manage them, but hide them so the card grid is the only visible output.
-    [...panel.children].forEach((child) => { child.hidden = true; });
-    panel.append(grid, empty);
+    panel.classList.add('tabs-card-grid');
+    findTabLabelRow(panel)?.setAttribute('hidden', '');
+    panel.append(empty);
   } else {
+    const grid = document.createElement('div');
+    grid.className = 'tabs-card-grid';
     panel.replaceChildren(grid, empty);
+
+    return {
+      empty,
+      grid,
+      panel,
+      preserveChildren: false,
+    };
   }
 
   return {
     empty,
-    grid,
+    grid: panel,
     panel,
+    preserveChildren: true,
   };
 }
 
@@ -532,7 +540,7 @@ export default function decorate(block) {
     button.setAttribute('aria-controls', panelState.panel.id);
     button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
     button.tabIndex = index === 0 ? 0 : -1;
-    if (tab.labelField?.source) moveInstrumentation(tab.labelField.source, button);
+    if (!isAuthoring && tab.labelField?.source) moveInstrumentation(tab.labelField.source, button);
     button.textContent = tab.label;
     button.addEventListener('click', () => setActiveTab(state, index));
     state.buttons.push(button);
