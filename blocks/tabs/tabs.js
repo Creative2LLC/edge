@@ -7,8 +7,9 @@ import {
 } from '../../scripts/block-field-utils.js';
 
 const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
+const TAB_LABEL_FIELD_NAMES = ['label', 'tabLabel'];
 const CARD_FIELD_NAMES = ['tabLabels', 'title', 'bodyContent', 'linkText', 'link'];
-const COMPONENT_NAMES = ['tabs-tab', 'tabs-info-card'];
+const COMPONENT_NAMES = ['tabs-tab', 'tabs-tab-label', 'tabs-info-card'];
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -38,6 +39,9 @@ function ownComponentName(element) {
     || element.getAttribute('data-block-name')
     || '';
   if (model) return normalizeKey(model);
+
+  const label = normalizeKey(element.getAttribute('data-aue-label') || '');
+  if (COMPONENT_NAMES.includes(label)) return label;
 
   const resource = element.getAttribute('data-aue-resource') || '';
   const match = resource.match(/(\/content\/[^?#]+)/);
@@ -89,6 +93,10 @@ function hasOwnField(row, names) {
 
 function isTabRow(row) {
   return componentName(row) === 'tabs-tab' || hasOwnField(row, TAB_FIELD_NAMES);
+}
+
+function isTabLabelRow(row) {
+  return componentName(row) === 'tabs-tab-label' || hasOwnField(row, TAB_LABEL_FIELD_NAMES);
 }
 
 function isCardRow(row) {
@@ -161,6 +169,14 @@ function appendTextField(field, target, fallback = '') {
 function tabOwnRows(tabRow) {
   const tabElement = componentElement(tabRow, 'tabs-tab') || tabRow;
   return directRows(tabElement).filter((row) => !isCardRow(row));
+}
+
+function findTabLabelRow(tabRow) {
+  const tabElement = componentElement(tabRow, 'tabs-tab') || tabRow;
+  return directRows(tabElement).find(isTabLabelRow)
+    || [...tabElement.querySelectorAll('[data-aue-model], [data-block-name], [data-aue-resource]')]
+      .find((candidate) => candidate !== tabElement && isTabLabelRow(candidate))
+    || null;
 }
 
 function findNestedCardRows(tabRow) {
@@ -255,7 +271,12 @@ function buildCard(card) {
 function readTab(row, index, isAuthoring) {
   const tabElement = componentElement(row, 'tabs-tab') || row;
   const rows = tabOwnRows(tabElement);
-  const labelField = getRowTextField(tabElement, 'tabLabel', rows[0]);
+  const labelRow = findTabLabelRow(tabElement);
+  const labelElement = componentElement(labelRow, 'tabs-tab-label') || labelRow;
+  const labelRows = directRows(labelElement);
+  const labelField = labelElement
+    ? getRowTextField(labelElement, 'label', labelRows[0])
+    : getRowTextField(tabElement, 'tabLabel', rows[0]);
   const label = labelField.value || `Tab ${index + 1}`;
   const idField = getRowTextField(tabElement, 'tabId', rows[1]);
   const key = normalizeKey(idField.value || label);

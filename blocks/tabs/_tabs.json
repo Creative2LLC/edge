@@ -25,8 +25,22 @@
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
               "name": "Tabs Tab",
-              "model": "tabs-tab",
               "filter": "tabs-tab"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Tabs Tab Label",
+      "id": "tabs-tab-label",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Tabs Tab Label",
+              "model": "tabs-tab-label"
             }
           }
         }
@@ -81,23 +95,15 @@
       ]
     },
     {
-      "id": "tabs-tab",
+      "id": "tabs-tab-label",
       "fields": [
         {
           "component": "text",
           "valueType": "string",
-          "name": "tabLabel",
+          "name": "label",
           "label": "Tab Label",
-          "description": "Use a label such as All Services, Missing Children, or CyberTipline.",
-          "value": "All Services"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "tabId",
-          "label": "Tab ID (Optional)",
-          "description": "Optional stable ID. Cards can still match by Tab Label.",
-          "value": ""
+          "description": "Text shown in the tab button.",
+          "value": "Tab"
         }
       ]
     },
@@ -141,6 +147,7 @@
     {
       "id": "tabs-tab",
       "components": [
+        "tabs-tab-label",
         "tabs-info-card"
       ]
     }
