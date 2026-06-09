@@ -68,6 +68,7 @@
       "hero",
       "cards",
       "statistics",
+      "colored-heading",
       "colored-text",
       "colored-button",
       "colored-list",
@@ -249,6 +250,7 @@
       "image",
       "button",
       "title",
+      "colored-heading",
       "colored-text",
       "colored-button",
       "colored-list"

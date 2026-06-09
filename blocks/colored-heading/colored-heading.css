@@ -1,0 +1,64 @@
+.colored-heading {
+  --colored-heading-color: #00264d;
+  --colored-heading-size: inherit;
+  --colored-heading-weight: inherit;
+  --colored-heading-min-height: 0;
+
+  padding: 12px 0;
+}
+
+.colored-heading .colored-heading-inner {
+  display: flex;
+  min-height: var(--colored-heading-min-height);
+}
+
+.colored-heading.colored-heading-v-top .colored-heading-inner {
+  align-items: flex-start;
+}
+
+.colored-heading.colored-heading-v-middle .colored-heading-inner {
+  align-items: center;
+}
+
+.colored-heading.colored-heading-v-bottom .colored-heading-inner {
+  align-items: flex-end;
+}
+
+.colored-heading .colored-heading-title {
+  width: 100%;
+  margin: 0;
+  color: var(--colored-heading-color);
+  line-height: 1.15;
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+}
+
+.colored-heading.has-custom-size .colored-heading-title {
+  font-size: var(--colored-heading-size);
+}
+
+.colored-heading.has-custom-weight .colored-heading-title {
+  font-weight: var(--colored-heading-weight);
+}
+
+.colored-heading.colored-heading-h-left .colored-heading-title {
+  text-align: left;
+}
+
+.colored-heading.colored-heading-h-center .colored-heading-title {
+  text-align: center;
+}
+
+.colored-heading.colored-heading-h-right .colored-heading-title {
+  text-align: right;
+}
+
+.colored-heading.colored-heading-h-justify .colored-heading-title {
+  text-align: justify;
+}
+
+.colored-heading .colored-heading-title.is-authoring-placeholder {
+  color: #6b6b6b;
+  font-style: italic;
+  font-weight: 400;
+}

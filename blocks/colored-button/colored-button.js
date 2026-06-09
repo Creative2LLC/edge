@@ -16,9 +16,15 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
-function readField(block, name, labels = []) {
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function readField(block, name, labels = [], fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
@@ -29,9 +35,10 @@ function readField(block, name, labels = []) {
 // source element stays in the DOM. It gets moved into a hidden archive inside
 // inner before replaceChildren, then a MutationObserver keeps the CSS variable
 // in sync when UE writes a new value to that element via the Properties panel.
-function readColorField(block, name, labels = [], isEditor = false) {
+function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -71,17 +78,18 @@ function syncResourceColorFields(resourcePath, block) {
     });
 }
 
-function readLink(block, name, labels = []) {
+function readLink(block, name, labels = [], fallbackCell = null) {
   const field = readLinkField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
   return field;
 }
 
-function readImage(block, name, labels = []) {
-  const field = readImageField(block, name, { labels });
+function readImage(block, name, labels = [], fallbackCell = null) {
+  const field = readImageField(block, name, { labels, fallbackCell });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
   return field;
@@ -185,35 +193,54 @@ function appendLabel(labelField, label, fallbackLabel) {
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
+  const rows = [...block.querySelectorAll(':scope > div')];
 
-  const labelField = readField(block, 'label', ['button text', 'text', 'label']);
-  const linkField = readLink(block, 'link', ['button link', 'url', 'href']);
-  const bgField = readColorField(block, 'backgroundColor', ['background color', 'button color'], isEditor);
+  const labelField = readField(block, 'label', ['button text', 'text', 'label'], fieldCell(rows[0]));
+  const linkField = readLink(block, 'link', ['button link', 'url', 'href'], fieldCell(rows[1]));
+  const bgField = readColorField(
+    block,
+    'backgroundColor',
+    ['background color', 'button color'],
+    isEditor,
+    fieldCell(rows[2]),
+  );
   const backgroundColor = normalizeColorValue(bgField.value) || '#008DB6';
-  const txtField = readColorField(block, 'textColor', ['text color'], isEditor);
+  const txtField = readColorField(block, 'textColor', ['text color'], isEditor, fieldCell(rows[3]));
   const textColor = normalizeColorValue(txtField.value) || '#FFFFFF';
-  const bdrField = readColorField(block, 'borderColor', ['border color'], isEditor);
+  const bdrField = readColorField(block, 'borderColor', ['border color'], isEditor, fieldCell(rows[4]));
   const borderColor = normalizeColorValue(bdrField.value) || backgroundColor;
-  const appearance = normalizeOption(readField(block, 'appearance', ['style', 'button style']).value, ['solid', 'outlined', 'inverted'], 'solid');
-  const invertOnHover = normalizeOption(readField(block, 'invertOnHover', ['invert on hover']).value, ['yes', 'no'], 'no');
+  const appearance = normalizeOption(
+    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[5])).value,
+    ['solid', 'outlined', 'inverted'],
+    'solid',
+  );
+  const invertOnHover = normalizeOption(
+    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[6])).value,
+    ['yes', 'no'],
+    'no',
+  );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment']).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[7])).value,
     ['left', 'center', 'right', 'stretch'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment']).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[8])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size']).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight']).value);
-  const iconField = readImage(block, 'icon', ['icon', 'icon image']);
-  const iconName = readField(block, 'iconName', ['icon name']).value;
-  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text']).value;
-  const iconPosition = normalizeOption(readField(block, 'iconPosition', ['icon position']).value, ['left', 'right', 'none'], 'left');
-  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size']).value, 'width');
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height']).value, 'min-height');
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[9])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[10])).value);
+  const iconField = readImage(block, 'icon', ['icon', 'icon image'], fieldCell(rows[11]));
+  const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[12])).value;
+  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[13])).value;
+  const iconPosition = normalizeOption(
+    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[14])).value,
+    ['left', 'right', 'none'],
+    'left',
+  );
+  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size'], fieldCell(rows[15])).value, 'width');
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[16])).value, 'min-height');
 
   block.classList.add(
     `colored-button-h-${horizontalAlign}`,

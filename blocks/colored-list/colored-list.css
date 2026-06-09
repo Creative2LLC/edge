@@ -118,6 +118,11 @@
   margin-top: 0;
 }
 
+.colored-list .colored-list-item-content {
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+}
+
 .colored-list .colored-list-item-content > :last-child {
   margin-bottom: 0;
 }

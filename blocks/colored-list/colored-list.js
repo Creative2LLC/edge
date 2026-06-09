@@ -27,18 +27,25 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
-function readBlockField(block, name, labels = []) {
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function readBlockField(block, name, labels = [], fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
   return field;
 }
 
-function readColorField(block, name, labels = [], isEditor = false) {
+function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -120,14 +127,14 @@ function normalizeFontWeight(value) {
 }
 
 function appendPlainText(wrapper, text) {
-  const normalized = String(text || '').replace(/\r\n?/gu, '\n').trim();
-  if (!normalized) return;
+  const normalized = String(text || '').replace(/\r\n?/gu, '\n');
+  if (!normalized.trim()) return;
 
-  normalized.split(/\n{2,}/u).forEach((chunk) => {
+  normalized.replace(/^\n+|\n+$/gu, '').split(/\n{2,}/u).forEach((chunk) => {
     const paragraph = document.createElement('p');
     chunk.split('\n').forEach((line, index) => {
       if (index > 0) paragraph.append(document.createElement('br'));
-      paragraph.append(document.createTextNode(line.trim()));
+      paragraph.append(document.createTextNode(line));
     });
     wrapper.append(paragraph);
   });
@@ -172,9 +179,11 @@ function buildItem(row, listStyle, index) {
   const itemTextColor = normalizeColorValue(readItemText(row, 'itemTextColor', 2).value);
   const itemMarkerColor = normalizeColorValue(readItemText(row, 'itemMarkerColor', 3).value);
   const itemMarkerTextColor = normalizeColorValue(readItemText(row, 'itemMarkerTextColor', 4).value);
-  const isPlaceholder = hasAuthoringContext(row) && !itemTextField.text && !itemTextField.html;
+  const isPlaceholder = hasAuthoringContext(row)
+    && !itemTextField.text.trim()
+    && !itemTextField.html.trim();
 
-  if (!itemTextField.text && !itemTextField.html && !isPlaceholder) return null;
+  if (!itemTextField.text.trim() && !itemTextField.html.trim() && !isPlaceholder) return null;
 
   const item = document.createElement('li');
   item.className = 'colored-list-item';
@@ -191,7 +200,7 @@ function buildItem(row, listStyle, index) {
   item.append(marker);
 
   const content = document.createElement('div');
-  content.className = 'colored-list-item-content';
+  content.className = 'colored-list-item-content richtext-preserve-spaces';
   if (isPlaceholder) {
     content.classList.add('is-authoring-placeholder');
     content.textContent = 'Add list item text in the editor.';
@@ -206,31 +215,44 @@ function buildItem(row, listStyle, index) {
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
+  const rows = [...block.querySelectorAll(':scope > div')];
 
   const listStyle = normalizeOption(
-    readBlockField(block, 'listStyle', ['list style', 'type']).value,
+    readBlockField(block, 'listStyle', ['list style', 'type'], fieldCell(rows[0])).value,
     ['bullet', 'number', 'circle-number', 'circle-bullet'],
     'bullet',
   );
-  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor);
+  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
   const textColor = normalizeColorValue(txtField.value) || '#404041';
-  const mrkField = readColorField(block, 'markerColor', ['marker color', 'bullet color'], isEditor);
+  const mrkField = readColorField(
+    block,
+    'markerColor',
+    ['marker color', 'bullet color'],
+    isEditor,
+    fieldCell(rows[2]),
+  );
   const markerColor = normalizeColorValue(mrkField.value) || '#008DB6';
-  const mrkTxtField = readColorField(block, 'markerTextColor', ['marker text color'], isEditor);
+  const mrkTxtField = readColorField(
+    block,
+    'markerTextColor',
+    ['marker text color'],
+    isEditor,
+    fieldCell(rows[3]),
+  );
   const markerTextColor = normalizeColorValue(mrkTxtField.value) || '#FFFFFF';
   const horizontalAlign = normalizeOption(
-    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment']).value,
+    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4])).value,
     ['left', 'center', 'right'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readBlockField(block, 'verticalAlign', ['vertical alignment']).value,
+    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size']).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight']).value);
-  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height']).value, 'min-height');
+  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7])).value);
+  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8])).value, 'min-height');
 
   block.classList.add(
     `colored-list-style-${listStyle}`,

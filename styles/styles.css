@@ -279,6 +279,20 @@ main .default-content-wrapper p + p {
   margin-top: 1.1em;
 }
 
+:where(
+  [data-aue-type="richtext"],
+  [data-richtext-prop],
+  .richtext-preserve-spaces
+) :where(p, li, h1, h2, h3, h4, h5, h6),
+:where(
+  [data-aue-type="richtext"],
+  [data-richtext-prop],
+  .richtext-preserve-spaces
+):where(p, li, h1, h2, h3, h4, h5, h6) {
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+}
+
 code,
 pre {
   font-size: var(--body-font-size-s);

@@ -15,18 +15,25 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
-function readField(block, name, labels = []) {
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function readField(block, name, labels = [], fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
   return field;
 }
 
-function readColorField(block, name, labels = [], isEditor = false) {
+function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -60,9 +67,10 @@ function syncResourceColorField(resourcePath, block) {
     });
 }
 
-function readRichField(block, name, labels = []) {
+function readRichField(block, name, labels = [], fallbackCell = null) {
   const field = readRichTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
@@ -104,14 +112,14 @@ function normalizeFontWeight(value) {
 }
 
 function appendPlainText(wrapper, text) {
-  const normalized = String(text || '').replace(/\r\n?/gu, '\n').trim();
-  if (!normalized) return;
+  const normalized = String(text || '').replace(/\r\n?/gu, '\n');
+  if (!normalized.trim()) return;
 
-  normalized.split(/\n{2,}/u).forEach((chunk) => {
+  normalized.replace(/^\n+|\n+$/gu, '').split(/\n{2,}/u).forEach((chunk) => {
     const paragraph = document.createElement('p');
     chunk.split('\n').forEach((line, index) => {
       if (index > 0) paragraph.append(document.createElement('br'));
-      paragraph.append(document.createTextNode(line.trim()));
+      paragraph.append(document.createTextNode(line));
     });
     wrapper.append(paragraph);
   });
@@ -139,23 +147,24 @@ function hasAuthoringContext(block) {
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
+  const rows = [...block.querySelectorAll(':scope > div')];
 
-  const textField = readRichField(block, 'text', ['body', 'copy']);
-  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor);
+  const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[0]));
+  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
   const textColor = normalizeColorValue(txtField.value);
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment']).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[2])).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment']).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[3])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size']).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight']).value);
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height']).value, 'min-height');
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[4])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[5])).value);
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[6])).value, 'min-height');
 
   block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
   if (textColor) block.style.setProperty('--colored-text-color', textColor);
@@ -167,9 +176,9 @@ export default function decorate(block) {
   inner.className = 'colored-text-inner';
 
   const content = document.createElement('div');
-  content.className = 'colored-text-content';
+  content.className = 'colored-text-content richtext-preserve-spaces';
 
-  if (textField.text || textField.html || textField.source) {
+  if (textField.text.trim() || textField.html.trim() || textField.source) {
     appendRichText(textField, content);
   } else if (hasAuthoringContext(block)) {
     content.classList.add('is-authoring-placeholder');

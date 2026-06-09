@@ -84,6 +84,7 @@
         "image",
         "button",
         "title",
+        "colored-heading",
         "colored-text",
         "colored-button",
         "colored-list"

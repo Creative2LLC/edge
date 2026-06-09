@@ -503,6 +503,7 @@ const COLUMN_NESTED_BLOCK_SELECTOR = [
   '[data-aue-resource][data-aue-type="component"]',
   '[data-aue-resource][data-aue-behavior="component"]',
   '.colored-button',
+  '.colored-heading',
   '.colored-list',
   '.colored-text',
 ].join(', ');
@@ -789,6 +790,7 @@ const CUSTOM_REVEAL_BLOCKS = new Set([
 
 const COLUMN_NESTED_BLOCK_NAMES = new Set([
   'colored-button',
+  'colored-heading',
   'colored-list',
   'colored-text',
 ]);

@@ -30,6 +30,8 @@
   font-size: var(--colored-text-size);
   font-weight: var(--colored-text-weight);
   line-height: 1.5;
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
 }
 
 .colored-text.colored-text-h-left .colored-text-content {
