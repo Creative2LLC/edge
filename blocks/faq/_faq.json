@@ -41,6 +41,24 @@
           "valueType": "string",
           "name": "heading",
           "label": "Heading (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "preset",
+          "label": "Content Preset",
+          "description": "Use Manual for normal FAQ items. AMBER Additional Information renders the migrated AMBER accordion content.",
+          "options": [
+            {
+              "name": "Manual",
+              "value": "manual"
+            },
+            {
+              "name": "AMBER Additional Information",
+              "value": "amber-additional-info"
+            }
+          ],
+          "value": "manual"
         }
       ]
     },

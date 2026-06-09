@@ -3516,6 +3516,24 @@
         "valueType": "string",
         "name": "heading",
         "label": "Heading (Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "preset",
+        "label": "Content Preset",
+        "description": "Use Manual for normal FAQ items. AMBER Additional Information renders the migrated AMBER accordion content.",
+        "options": [
+          {
+            "name": "Manual",
+            "value": "manual"
+          },
+          {
+            "name": "AMBER Additional Information",
+            "value": "amber-additional-info"
+          }
+        ],
+        "value": "manual"
       }
     ]
   },
@@ -9588,6 +9606,104 @@
         "name": "buttonTextColor",
         "label": "Button Text Color (Hex)",
         "value": "#ffffff"
+      }
+    ]
+  },
+  {
+    "id": "tabs",
+    "fields": [
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Cards Per Row",
+        "options": [
+          {
+            "name": "2 Cards",
+            "value": "2"
+          },
+          {
+            "name": "3 Cards",
+            "value": "3"
+          },
+          {
+            "name": "4 Cards",
+            "value": "4"
+          }
+        ],
+        "value": "3"
+      }
+    ]
+  },
+  {
+    "id": "tabs-tab",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tabLabel",
+        "label": "Tab Label",
+        "description": "Use a label such as All Services, Missing Children, or CyberTipline.",
+        "value": "All Services"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tabId",
+        "label": "Tab ID (Optional)",
+        "description": "Optional stable ID. Cards can still match by Tab Label.",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "tabs-info-card",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tabLabels",
+        "label": "Tab Labels",
+        "description": "Comma-separated tab labels this card belongs to. A tab named All Services shows every card.",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyContent",
+        "label": "Body Content"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "linkText",
+        "label": "Link Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Link"
       }
     ]
   },

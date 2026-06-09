@@ -74,6 +74,7 @@
       "colored-list",
       "support-cta",
       "columns",
+      "tabs",
       "giving",
       "fragment",
       "carousel",
@@ -458,6 +459,13 @@
     "id": "statistics",
     "components": [
       "statistics-item"
+    ]
+  },
+  {
+    "id": "tabs",
+    "components": [
+      "tabs-tab",
+      "tabs-info-card"
     ]
   },
   {

@@ -190,6 +190,68 @@ main > .section > .faq-wrapper {
   color: #005d78;
 }
 
+.faq .faq-amber-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.faq .faq-amber-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.faq .faq-amber-table th,
+.faq .faq-amber-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgb(64 64 65 / 14%);
+  vertical-align: top;
+  text-align: left;
+}
+
+.faq .faq-amber-table thead th {
+  color: #00264d;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.faq .faq-amber-table tbody th {
+  width: 22%;
+  color: #00264d;
+  font-weight: 800;
+}
+
+.faq .faq-amber-report-list {
+  columns: 2;
+  column-gap: 36px;
+}
+
+.faq .faq-amber-faq-list {
+  display: grid;
+  gap: 22px;
+}
+
+.faq .faq-amber-faq {
+  display: grid;
+  gap: 8px;
+}
+
+.faq .faq-amber-faq h3,
+.faq .faq-item-answer > h3 {
+  margin: 0;
+  color: #00264d;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.faq .faq-amber-faq p {
+  margin: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .faq .faq-item-panel {
     transition: none;
@@ -215,6 +277,10 @@ main > .section > .faq-wrapper {
 
   .faq .faq-item-answer {
     padding: 0 24px 24px;
+  }
+
+  .faq .faq-amber-report-list {
+    columns: 1;
   }
 }
 
@@ -242,5 +308,10 @@ main > .section > .faq-wrapper {
   .faq .faq-item-answer {
     padding: 0 20px 20px;
     font-size: 0.98rem;
+  }
+
+  .faq .faq-amber-table {
+    min-width: 620px;
+    font-size: 0.9rem;
   }
 }

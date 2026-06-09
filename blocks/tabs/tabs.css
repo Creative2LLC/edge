@@ -1,0 +1,230 @@
+.tabs {
+  --tabs-columns: 3;
+  --tabs-navy: #00264d;
+  --tabs-text: #404041;
+  --tabs-muted: #5b6570;
+  --tabs-accent: #008db6;
+  --tabs-active: #3b4e5e;
+
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(44px, 6vw, 76px) 0;
+}
+
+.tabs .tabs-shell {
+  display: grid;
+  gap: 32px;
+}
+
+.tabs .tabs-header {
+  display: grid;
+  gap: 8px;
+}
+
+.tabs .tabs-heading {
+  margin: 0;
+  color: var(--tabs-navy);
+  font-size: clamp(2.25rem, 4.6vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.tabs .tabs-heading > :first-child,
+.tabs .tabs-subheading > :first-child {
+  margin-top: 0;
+}
+
+.tabs .tabs-heading > :last-child,
+.tabs .tabs-subheading > :last-child {
+  margin-bottom: 0;
+}
+
+.tabs .tabs-subheading {
+  max-width: 82ch;
+  color: var(--tabs-text);
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.tabs .tabs-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tabs .tabs-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 16px;
+  border: 1.5px solid #718497;
+  border-radius: 999px;
+  background: transparent;
+  color: #3b4e5e;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.tabs .tabs-tab:hover,
+.tabs .tabs-tab:focus-visible {
+  border-color: var(--tabs-active);
+  transform: translateY(-1px);
+}
+
+.tabs .tabs-tab.is-active {
+  border-color: var(--tabs-active);
+  background: var(--tabs-active);
+  color: #fff;
+}
+
+.tabs .tabs-tab:focus-visible {
+  outline: 2px solid var(--tabs-accent);
+  outline-offset: 3px;
+}
+
+.tabs .tabs-panel {
+  min-width: 0;
+}
+
+.tabs .tabs-card-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--tabs-columns), minmax(0, 1fr));
+  gap: 32px;
+}
+
+.tabs .tabs-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  padding: 28px 26px;
+  border: 1px solid rgb(0 38 77 / 7%);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgb(20 45 67 / 14%);
+  color: var(--tabs-text);
+}
+
+.tabs .tabs-card-content {
+  display: grid;
+  gap: 14px;
+}
+
+.tabs .tabs-card-title {
+  margin: 0;
+  color: var(--tabs-navy);
+  font-size: clamp(1.55rem, 2.2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.tabs .tabs-card-title > :first-child,
+.tabs .tabs-card-body > :first-child {
+  margin-top: 0;
+}
+
+.tabs .tabs-card-title > :last-child,
+.tabs .tabs-card-body > :last-child {
+  margin-bottom: 0;
+}
+
+.tabs .tabs-card-body {
+  color: var(--tabs-text);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.tabs .tabs-card-body ul,
+.tabs .tabs-card-body ol {
+  margin: 0.75em 0 0;
+  padding-left: 1.2em;
+}
+
+.tabs .tabs-card-body li + li {
+  margin-top: 0.25em;
+}
+
+.tabs .tabs-card-link {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 24px 0 0;
+  border: 0;
+  background: transparent;
+  color: #007294;
+  font: inherit;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  text-decoration: none;
+  white-space: normal;
+}
+
+.tabs .tabs-card-link::after {
+  content: " ->";
+}
+
+.tabs .tabs-card-link:hover,
+.tabs .tabs-card-link:focus-visible {
+  color: #005d78;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.tabs .tabs-empty {
+  margin: 0;
+  color: var(--tabs-muted);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+@media (width <= 950px) {
+  .tabs .tabs-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+}
+
+@media (width <= 640px) {
+  .tabs {
+    padding: 36px 0 52px;
+  }
+
+  .tabs .tabs-shell {
+    gap: 24px;
+  }
+
+  .tabs .tabs-tablist {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+
+  .tabs .tabs-tab {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .tabs .tabs-card-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .tabs .tabs-card {
+    min-height: 240px;
+    padding: 24px 22px;
+  }
+}
