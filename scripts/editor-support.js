@@ -222,6 +222,10 @@ async function applyChanges(event) {
         newBlock.style.display = null;
         return true;
       }
+
+      if (blockToReplace.matches('.tabs.block')) {
+        return false;
+      }
     }
 
     // sections and default content, may be multiple in the case of richtext
