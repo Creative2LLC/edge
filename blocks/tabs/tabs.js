@@ -417,7 +417,7 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   panel.tabIndex = 0;
 
   if (isAuthoring) {
-    panel.setAttribute('data-aue-type', 'container');
+    panel.setAttribute('data-aue-type', 'component');
     panel.setAttribute('data-aue-filter', 'tabs-tab');
     panel.setAttribute('data-aue-label', tab.label);
   }
