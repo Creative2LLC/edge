@@ -275,10 +275,26 @@
   line-height: 1.5;
 }
 
-.amber-alerts-related {
+.amber-alerts-related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid #d9e1e6;
+}
+
+.amber-alerts-related-grid.is-single {
+  grid-template-columns: 1fr;
+}
+
+.amber-alerts-related {
+  min-width: 0;
+}
+
+.amber-alerts-related + .amber-alerts-related {
+  padding-left: 28px;
+  border-left: 1px solid #d9e1e6;
 }
 
 .amber-alerts-related h4 {
@@ -389,6 +405,18 @@
   .amber-alerts-card dl,
   .amber-alerts-detail dl {
     grid-template-columns: 1fr;
+  }
+
+  .amber-alerts-related-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .amber-alerts-related + .amber-alerts-related {
+    padding-top: 22px;
+    padding-left: 0;
+    border-top: 1px solid #d9e1e6;
+    border-left: 0;
   }
 
   .amber-alerts-related-person {

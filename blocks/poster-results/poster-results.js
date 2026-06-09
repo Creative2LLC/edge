@@ -668,9 +668,9 @@ function vehicleSummary(vehicle) {
     ], ' ');
 }
 
-function appendAmberRelatedPeople(body, payload, selectedPerson) {
+function createAmberRelatedPeopleSection(payload, selectedPerson) {
   const people = relatedAmberPeople(payload, selectedPerson);
-  if (!people.length) return;
+  if (!people.length) return null;
 
   const section = document.createElement('section');
   section.className = 'poster-results-related';
@@ -712,12 +712,12 @@ function appendAmberRelatedPeople(body, payload, selectedPerson) {
   });
 
   section.append(heading, list);
-  body.append(section);
+  return section;
 }
 
-function appendAmberVehicles(body, payload, selectedPerson) {
+function createAmberVehicleSection(payload, selectedPerson) {
   const vehicles = vehicleItems(payload, selectedPerson);
-  if (!vehicles.length) return;
+  if (!vehicles.length) return null;
 
   const section = document.createElement('section');
   section.className = 'poster-results-related';
@@ -738,7 +738,21 @@ function appendAmberVehicles(body, payload, selectedPerson) {
   });
 
   section.append(heading, list);
-  body.append(section);
+  return section;
+}
+
+function appendAmberRelatedGrid(body, payload, selectedPerson) {
+  const sections = [
+    createAmberRelatedPeopleSection(payload, selectedPerson),
+    createAmberVehicleSection(payload, selectedPerson),
+  ].filter(Boolean);
+
+  if (!sections.length) return;
+
+  const grid = document.createElement('div');
+  grid.className = `poster-results-related-grid${sections.length === 1 ? ' is-single' : ''}`;
+  grid.append(...sections);
+  body.append(grid);
 }
 
 function appendPhotoGallery(container, child, name) {
@@ -1091,8 +1105,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     copy.textContent = narrative;
     body.append(copy);
   }
-  appendAmberRelatedPeople(body, payload, alert);
-  appendAmberVehicles(body, payload, alert);
+  appendAmberRelatedGrid(body, payload, alert);
 
   layout.append(body);
   detail.append(layout, createDetailFooter(config, payload, alert));

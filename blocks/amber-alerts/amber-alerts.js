@@ -406,9 +406,9 @@ function vehicleSummary(vehicle) {
     ]);
 }
 
-function appendRelatedPeople(container, payload, selectedAlert) {
+function createRelatedPeopleSection(payload, selectedAlert) {
   const people = relatedPeople(payload, selectedAlert);
-  if (!people.length) return;
+  if (!people.length) return null;
 
   const section = document.createElement('section');
   section.className = 'amber-alerts-related';
@@ -450,12 +450,12 @@ function appendRelatedPeople(container, payload, selectedAlert) {
   });
 
   section.append(heading, list);
-  container.append(section);
+  return section;
 }
 
-function appendVehicles(container, payload, selectedAlert) {
+function createVehicleSection(payload, selectedAlert) {
   const vehicles = vehicleItems(payload, selectedAlert);
-  if (!vehicles.length) return;
+  if (!vehicles.length) return null;
 
   const section = document.createElement('section');
   section.className = 'amber-alerts-related';
@@ -476,7 +476,21 @@ function appendVehicles(container, payload, selectedAlert) {
   });
 
   section.append(heading, list);
-  container.append(section);
+  return section;
+}
+
+function appendRelatedGrid(container, payload, selectedAlert) {
+  const sections = [
+    createRelatedPeopleSection(payload, selectedAlert),
+    createVehicleSection(payload, selectedAlert),
+  ].filter(Boolean);
+
+  if (!sections.length) return;
+
+  const grid = document.createElement('div');
+  grid.className = `amber-alerts-related-grid${sections.length === 1 ? ' is-single' : ''}`;
+  grid.append(...sections);
+  container.append(grid);
 }
 
 function renderDetail(container, payload, sourceAlert, onBack) {
@@ -540,8 +554,7 @@ function renderDetail(container, payload, sourceAlert, onBack) {
     copy.textContent = narrative;
     content.append(copy);
   }
-  appendRelatedPeople(content, payload, alert);
-  appendVehicles(content, payload, alert);
+  appendRelatedGrid(content, payload, alert);
   appendImageGallery(content, alert);
   body.append(content);
   detail.append(back, body);
