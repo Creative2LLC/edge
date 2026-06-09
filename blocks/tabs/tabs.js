@@ -416,12 +416,6 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   panel.setAttribute('role', 'tabpanel');
   panel.tabIndex = 0;
 
-  if (isAuthoring) {
-    panel.setAttribute('data-aue-type', 'component');
-    panel.setAttribute('data-aue-filter', 'tabs-tab');
-    panel.setAttribute('data-aue-label', tab.label);
-  }
-
   const grid = document.createElement('div');
   grid.className = 'tabs-card-grid';
 
@@ -430,7 +424,17 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   empty.hidden = true;
   empty.textContent = 'Add card items inside this tab.';
 
-  panel.replaceChildren(grid, empty);
+  if (isAuthoring) {
+    panel.setAttribute('data-aue-type', 'container');
+    panel.setAttribute('data-aue-filter', 'tabs-tab');
+    panel.setAttribute('data-aue-label', tab.label);
+    // Keep original instrumented children in the DOM so the UE can find and
+    // manage them, but hide them so the card grid is the only visible output.
+    [...panel.children].forEach((child) => { child.hidden = true; });
+    panel.append(grid, empty);
+  } else {
+    panel.replaceChildren(grid, empty);
+  }
 
   return {
     empty,
