@@ -323,20 +323,113 @@
   border: 1px solid #e13e30;
 }
 
-/* Responsive */
+/* ===========================================================================
+   Mobile (≤ 900px) — the layout collapses to a single column here. Everything
+   in this query is mobile-only and must not affect desktop/larger screens.
+   Goal: no horizontal overflow (the card is overflow:hidden, so anything wider
+   than it gets clipped) and let all text wrap instead of running off the edge.
+   =========================================================================== */
 @media (width <= 900px) {
   .cta-card-1.block {
     flex-direction: column !important;
-    align-items: flex-start;
-    padding: 40px 32px;
-    gap: 32px;
+    align-items: stretch;
+    padding: 36px 24px;
+    gap: 28px;
+  }
+
+  /* Both columns span the full card width so their children have room to wrap
+     instead of shrink-wrapping to their narrowest content. */
+  .cta-card-1 .cta-card-1-left,
+  .cta-card-1 .cta-card-1-right {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* Wrap long words/headlines rather than spilling past the clipped right edge. */
+  .cta-card-1 .cta-card-1-title,
+  .cta-card-1 .cta-card-1-subtitle,
+  .cta-card-1 .cta-card-1-below-button {
+    max-width: 100%;
+    overflow-wrap: break-word;
   }
 
   .cta-card-1 .cta-card-1-title {
-    font-size: 36px !important;
+    font-size: 30px !important;
+    line-height: 1.2;
   }
 
   .cta-card-1 .cta-card-1-subtitle {
-    font-size: 18px !important;
+    font-size: 16px !important;
+  }
+
+  /* Buttons stretch to fill the column and wrap their label, instead of holding
+     a fixed 550px width on a single nowrap line. */
+  .cta-card-1 .cta-card-1-right {
+    align-items: stretch;
+  }
+
+  .cta-card-1 .cta-card-1-button {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 56px;
+    white-space: normal;
+    padding: 14px 20px;
+  }
+
+  /* below-button text: full width + left-aligned so it wraps normally
+     (it was shrink-to-content, which forced one word per line). */
+  .cta-card-1 .cta-card-1-below-button {
+    align-self: stretch;
+    text-align: left;
+  }
+
+  /* --- Variant 2: drop the fixed 218px height so stacked content can grow. --- */
+  .cta-card-1.cta-card-1-variant-2.block {
+    height: auto;
+  }
+
+  /* --- Variant 4: stack the two side-by-side right buttons vertically. --- */
+  .cta-card-1.cta-card-1-variant-4 .cta-card-1-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button,
+  .cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button.has-subtext {
+    width: 100%;
+  }
+
+  /* --- Variant 3: let the content-sized top button fill the column too. --- */
+  .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary),
+  .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary).has-subtext {
+    width: 100%;
+    align-self: stretch;
+  }
+
+  /* --- Button 2 Location: Left --- undo the fixed subtitle width and the
+     desktop right offset, and stack the inline button + below-text row. --- */
+  .cta-card-1.cta-card-1-button2-left .cta-card-1-title {
+    font-size: 28px !important;
+  }
+
+  .cta-card-1.cta-card-1-button2-left .cta-card-1-subtitle {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .cta-card-1.cta-card-1-button2-left .cta-card-1-right {
+    margin-right: 0;
+  }
+
+  .cta-card-1.cta-card-1-button2-left .cta-card-1-right.cta-card-1-right-inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .cta-card-1.cta-card-1-button2-left .cta-card-1-right.cta-card-1-right-inline .cta-card-1-below-button {
+    align-self: stretch;
   }
 }
