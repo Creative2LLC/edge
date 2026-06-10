@@ -464,12 +464,7 @@
   {
     "id": "tabs",
     "components": [
-      "tabs-tab"
-    ]
-  },
-  {
-    "id": "tabs-tab",
-    "components": [
+      "tabs-tab-label",
       "tabs-info-card"
     ]
   },

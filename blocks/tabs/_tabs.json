@@ -17,16 +17,15 @@
       }
     },
     {
-      "title": "Tabs Tab",
-      "id": "tabs-tab",
+      "title": "Tabs Tab Label",
+      "id": "tabs-tab-label",
       "plugins": {
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
-              "name": "Tabs Tab",
-              "model": "tabs-tab",
-              "filter": "tabs-tab"
+              "name": "Tabs Tab Label",
+              "model": "tabs-tab-label"
             }
           }
         }
@@ -81,7 +80,7 @@
       ]
     },
     {
-      "id": "tabs-tab",
+      "id": "tabs-tab-label",
       "fields": [
         {
           "component": "text",
@@ -96,6 +95,14 @@
     {
       "id": "tabs-info-card",
       "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tabName",
+          "label": "Tab Name",
+          "description": "Must match the Tab Label above. Determines which tab this card appears under.",
+          "value": ""
+        },
         {
           "component": "richtext",
           "valueType": "string",
@@ -127,12 +134,7 @@
     {
       "id": "tabs",
       "components": [
-        "tabs-tab"
-      ]
-    },
-    {
-      "id": "tabs-tab",
-      "components": [
+        "tabs-tab-label",
         "tabs-info-card"
       ]
     }

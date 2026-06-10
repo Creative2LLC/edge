@@ -8,7 +8,7 @@ import {
 
 const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
 const TAB_LABEL_FIELD_NAMES = ['label', 'tabLabel'];
-const CARD_FIELD_NAMES = ['tabLabels', 'title', 'bodyContent', 'linkText', 'link'];
+const CARD_FIELD_NAMES = ['tabLabels', 'tabName', 'title', 'bodyContent', 'linkText', 'link'];
 const COMPONENT_NAMES = ['tabs-tab', 'tabs-tab-label', 'tabs-info-card'];
 
 function hasAuthoringContext(scope) {
@@ -202,18 +202,24 @@ function findNestedCardRows(tabRow) {
 function readCard(row, index) {
   const cardElement = componentElement(row, 'tabs-info-card') || row;
   const rows = directRows(cardElement);
-  const hasTabLabels = (
+  const hasTabName = hasOwnField(cardElement, ['tabName']) || rowLabel(rows[0]) === 'tab-name';
+  const hasTabLabels = !hasTabName && (
     hasOwnField(cardElement, ['tabLabels'])
       || rowLabel(rows[0]) === 'tab-labels'
       || rows.length >= 5
   );
-  const offset = hasTabLabels ? 1 : 0;
-  const tabField = hasTabLabels ? getRowTextField(cardElement, 'tabLabels', rows[0]) : { value: '' };
+  const offset = (hasTabName || hasTabLabels) ? 1 : 0;
+  // eslint-disable-next-line no-nested-ternary
+  const assignmentField = hasTabName
+    ? getRowTextField(cardElement, 'tabName', rows[0])
+    : hasTabLabels
+      ? getRowTextField(cardElement, 'tabLabels', rows[0])
+      : { value: '' };
   const titleField = getRowRichField(cardElement, 'title', rows[offset]);
   const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
   const linkTextField = getRowTextField(cardElement, 'linkText', rows[offset + 2]);
   const linkField = getRowLinkField(cardElement, 'link', rows[offset + 3]);
-  const tabLabels = splitLabels(tabField.value);
+  const tabLabels = splitLabels(assignmentField.value);
 
   return {
     index,
@@ -327,27 +333,38 @@ function deriveFlatTabs(tabRows, cards, isAuthoring) {
 
 function buildFlatTabs(allRows, isAuthoring) {
   const tabs = [];
-  let currentTab = null;
+  const tabByKey = new Map();
 
+  // First pass: collect tab label rows in order
+  allRows.forEach((row) => {
+    if (!isTabLabelRow(row)) return;
+    const labelElement = componentElement(row, 'tabs-tab-label') || row;
+    const labelRows = directRows(labelElement);
+    const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
+    const label = labelField.value || `Tab ${tabs.length + 1}`;
+    const key = normalizeKey(label);
+    const tab = {
+      cards: [], key, label, labelField, labelRow: row, row: null,
+    };
+    tabs.push(tab);
+    tabByKey.set(key, tab);
+  });
+
+  // Second pass: assign cards — explicit tabName wins, positional is fallback
+  let currentTab = null;
   allRows.forEach((row) => {
     if (isTabLabelRow(row)) {
       const labelElement = componentElement(row, 'tabs-tab-label') || row;
       const labelRows = directRows(labelElement);
       const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
-      const label = labelField.value || `Tab ${tabs.length + 1}`;
-      currentTab = {
-        cards: [],
-        key: normalizeKey(label),
-        label,
-        labelField,
-        labelRow: row,
-        row: null,
-      };
-      tabs.push(currentTab);
-    } else if (isCardRow(row) && currentTab) {
-      const card = readCard(row, currentTab.cards.length);
-      if (card.hasContent || isAuthoring) {
-        currentTab.cards.push({ ...card, element: buildCard(card, { inPlace: isAuthoring }) });
+      currentTab = tabByKey.get(normalizeKey(labelField.value || '')) || null;
+    } else if (isCardRow(row)) {
+      const card = readCard(row, 0);
+      const explicitTab = card.tabKeys.length > 0 ? (tabByKey.get(card.tabKeys[0]) || null) : null;
+      const targetTab = explicitTab || currentTab;
+      if (targetTab && (card.hasContent || isAuthoring)) {
+        card.index = targetTab.cards.length;
+        targetTab.cards.push({ ...card, element: buildCard(card, { inPlace: isAuthoring }) });
       }
     }
   });
