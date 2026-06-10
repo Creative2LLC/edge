@@ -8,7 +8,7 @@ import {
 
 const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
 const TAB_LABEL_FIELD_NAMES = ['label', 'tabLabel'];
-const CARD_FIELD_NAMES = ['tabLabels', 'tabName', 'title', 'bodyContent', 'linkText', 'link'];
+const CARD_FIELD_NAMES = ['tabLabels', 'title', 'bodyContent', 'linkText', 'link'];
 const COMPONENT_NAMES = ['tabs-tab', 'tabs-tab-label', 'tabs-info-card'];
 
 function hasAuthoringContext(scope) {
@@ -202,30 +202,23 @@ function findNestedCardRows(tabRow) {
 function readCard(row, index) {
   const cardElement = componentElement(row, 'tabs-info-card') || row;
   const rows = directRows(cardElement);
-  const hasTabName = hasOwnField(cardElement, ['tabName']) || rowLabel(rows[0]) === 'tab-name';
-  const hasTabLabels = !hasTabName && (
-    hasOwnField(cardElement, ['tabLabels'])
+  // Skip legacy assignment field row (tabLabels or tabName) if present
+  const hasLegacyField = (
+    hasOwnField(cardElement, ['tabLabels', 'tabName'])
       || rowLabel(rows[0]) === 'tab-labels'
-      || rows.length >= 5
+      || rowLabel(rows[0]) === 'tab-name'
   );
-  const offset = (hasTabName || hasTabLabels) ? 1 : 0;
-  // eslint-disable-next-line no-nested-ternary
-  const assignmentField = hasTabName
-    ? getRowTextField(cardElement, 'tabName', rows[0])
-    : hasTabLabels
-      ? getRowTextField(cardElement, 'tabLabels', rows[0])
-      : { value: '' };
+  const offset = hasLegacyField ? 1 : 0;
   const titleField = getRowRichField(cardElement, 'title', rows[offset]);
   const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
   const linkTextField = getRowTextField(cardElement, 'linkText', rows[offset + 2]);
   const linkField = getRowLinkField(cardElement, 'link', rows[offset + 3]);
-  const tabLabels = splitLabels(assignmentField.value);
 
   return {
     index,
     row: cardElement,
-    tabLabels,
-    tabKeys: tabLabels.map(normalizeKey),
+    tabLabels: [],
+    tabKeys: [],
     titleField,
     bodyField,
     linkTextField,
@@ -350,8 +343,8 @@ function buildFlatTabs(allRows) {
     tabByKey.set(key, tabs[tabs.length - 1]);
   });
 
-  // Second pass: assign tabKeys to cards (explicit wins, position is fallback)
-  let positionalKey = tabs.length > 0 ? tabs[0].key : null;
+  // Second pass: assign cards by position — card belongs to the last label seen above it
+  let positionalKey = null;
   allRows.forEach((row) => {
     if (isTabLabelRow(row)) {
       const labelElement = componentElement(row, 'tabs-tab-label') || row;
@@ -360,9 +353,8 @@ function buildFlatTabs(allRows) {
       positionalKey = normalizeKey(labelField.value || '') || positionalKey;
     } else if (isCardRow(row)) {
       const card = readCard(row, flatCards.length);
-      const validKeys = card.tabKeys.filter((k) => tabByKey.has(k));
-      const effectiveKeys = validKeys.length > 0 ? validKeys : (positionalKey ? [positionalKey] : []);
-      flatCards.push({ ...card, tabKeys: effectiveKeys });
+      const key = positionalKey || (tabs.length > 0 ? tabs[0].key : null);
+      if (key) flatCards.push({ ...card, tabKeys: [key] });
     }
   });
 

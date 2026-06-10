@@ -9666,14 +9666,6 @@
     "id": "tabs-info-card",
     "fields": [
       {
-        "component": "text",
-        "valueType": "string",
-        "name": "tabName",
-        "label": "Tab Name",
-        "description": "Tab label this card belongs to. Separate with commas to show in multiple tabs (e.g. 'Services, Programs').",
-        "value": ""
-      },
-      {
         "component": "richtext",
         "valueType": "string",
         "name": "title",
