@@ -17,30 +17,15 @@
       }
     },
     {
-      "title": "Tabs Tab Label",
-      "id": "tabs-tab-label",
+      "title": "Tabs Item",
+      "id": "tabs-item",
       "plugins": {
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
-              "name": "Tabs Tab Label",
-              "model": "tabs-tab-label"
-            }
-          }
-        }
-      }
-    },
-    {
-      "title": "Tabs Info Card",
-      "id": "tabs-info-card",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block/item",
-            "template": {
-              "name": "Tabs Info Card",
-              "model": "tabs-info-card"
+              "name": "Tabs Item",
+              "model": "tabs-item"
             }
           }
         }
@@ -80,44 +65,53 @@
       ]
     },
     {
-      "id": "tabs-tab-label",
+      "id": "tabs-item",
       "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "itemType",
+          "label": "Item Type",
+          "description": "Choose 'Tab Label' to create a new tab, or 'Card' to add a card to the tab above it.",
+          "options": [
+            { "name": "Tab Label", "value": "label" },
+            { "name": "Card", "value": "card" }
+          ],
+          "value": "label"
+        },
         {
           "component": "text",
           "valueType": "string",
           "name": "label",
           "label": "Tab Label",
-          "description": "Text shown in the tab button.",
+          "description": "Text shown on the tab button. Only used when Item Type is 'Tab Label'.",
           "value": "Tab"
-        }
-      ]
-    },
-    {
-      "id": "tabs-info-card",
-      "fields": [
+        },
         {
           "component": "richtext",
           "valueType": "string",
           "name": "title",
-          "label": "Title"
+          "label": "Card Title",
+          "description": "Only used when Item Type is 'Card'."
         },
         {
           "component": "richtext",
           "valueType": "string",
           "name": "bodyContent",
-          "label": "Body Content"
+          "label": "Card Body",
+          "description": "Only used when Item Type is 'Card'."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "linkText",
-          "label": "Link Text",
+          "label": "Card Link Text",
           "value": ""
         },
         {
           "component": "aem-content",
           "name": "link",
-          "label": "Link"
+          "label": "Card Link"
         }
       ]
     }
@@ -126,8 +120,7 @@
     {
       "id": "tabs",
       "components": [
-        "tabs-tab-label",
-        "tabs-info-card"
+        "tabs-item"
       ]
     }
   ]
