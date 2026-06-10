@@ -8,8 +8,8 @@ import {
 
 const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
 const TAB_LABEL_FIELD_NAMES = ['label', 'tabLabel'];
-const CARD_FIELD_NAMES = ['tabLabels', 'title', 'bodyContent', 'linkText', 'link'];
-const COMPONENT_NAMES = ['tabs-tab', 'tabs-tab-label', 'tabs-info-card', 'tabs-item'];
+const CARD_FIELD_NAMES = ['tabIndex', 'tabLabels', 'title', 'bodyContent', 'linkText', 'link'];
+const COMPONENT_NAMES = ['tabs-tab', 'tabs-tab-label', 'tabs-info-card'];
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -95,30 +95,12 @@ function isTabRow(row) {
   return componentName(row) === 'tabs-tab' || hasOwnField(row, TAB_FIELD_NAMES);
 }
 
-function getItemTypeValue(element) {
-  const rows = directRows(element);
-  const field = readTextField(element, 'itemType', { fallbackCell: fieldCell(rows[0]) });
-  return (field?.value || '').trim().toLowerCase();
-}
-
 function isTabLabelRow(row) {
-  const cn = componentName(row);
-  if (cn === 'tabs-item') {
-    const itemEl = componentElement(row, 'tabs-item') || row;
-    const type = getItemTypeValue(itemEl);
-    return !type || type === 'label';
-  }
-  return cn === 'tabs-tab-label' || hasOwnField(row, TAB_LABEL_FIELD_NAMES);
+  return componentName(row) === 'tabs-tab-label' || hasOwnField(row, TAB_LABEL_FIELD_NAMES);
 }
 
 function isCardRow(row) {
-  const cn = componentName(row);
-  if (cn === 'tabs-item') {
-    const itemEl = componentElement(row, 'tabs-item') || row;
-    const type = getItemTypeValue(itemEl);
-    return type === 'card';
-  }
-  return cn === 'tabs-info-card' || hasOwnField(row, CARD_FIELD_NAMES);
+  return componentName(row) === 'tabs-info-card' || hasOwnField(row, CARD_FIELD_NAMES);
 }
 
 function isAllTab(tab) {
@@ -211,25 +193,21 @@ function findNestedCardRows(tabRow) {
 }
 
 function readCard(row, index) {
-  const cardElement = componentElement(row, 'tabs-info-card')
-    || componentElement(row, 'tabs-item')
-    || row;
+  const cardElement = componentElement(row, 'tabs-info-card') || row;
   const rows = directRows(cardElement);
 
-  // tabs-item: rows[0]=itemType, rows[1]=label, rows[2]=title, rows[3]=body, rows[4]=linkText, rows[5]=link
-  const isTabsItem = ownComponentName(cardElement) === 'tabs-item' || componentName(row) === 'tabs-item';
-  let offset;
-  if (isTabsItem) {
-    offset = 2;
-  } else {
-    // Legacy: skip tabLabels/tabName row if present
-    const hasLegacyField = (
-      hasOwnField(cardElement, ['tabLabels', 'tabName'])
-        || rowLabel(rows[0]) === 'tab-labels'
-        || rowLabel(rows[0]) === 'tab-name'
-    );
-    offset = hasLegacyField ? 1 : 0;
-  }
+  // rows[0] may be a legacy assignment field (tabLabels/tabName) or the new tabIndex field
+  const firstLabel = rowLabel(rows[0]);
+  const hasLeadField = (
+    hasOwnField(cardElement, ['tabIndex', 'tabLabels', 'tabName'])
+      || firstLabel === 'tab-index'
+      || firstLabel === 'tab-labels'
+      || firstLabel === 'tab-name'
+  );
+  const offset = hasLeadField ? 1 : 0;
+
+  const tabIndexField = getRowTextField(cardElement, 'tabIndex', hasLeadField ? rows[0] : null);
+  const tabIndex = Math.max(1, Math.min(5, parseInt(tabIndexField?.value || '1', 10) || 1));
 
   const titleField = getRowRichField(cardElement, 'title', rows[offset]);
   const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
@@ -239,6 +217,7 @@ function readCard(row, index) {
   return {
     index,
     row: cardElement,
+    tabIndex,
     tabLabels: [],
     tabKeys: [],
     titleField,
@@ -349,31 +328,28 @@ function deriveFlatTabs(tabRows, cards, isAuthoring) {
 function buildFlatTabs(allRows) {
   const tabs = [];
   const flatCards = [];
-  let currentTabKey = null;
 
-  // Single pass — works because all items are the same component type (tabs-item),
-  // so AEM preserves their insertion order (no type-based reordering).
+  // First pass: collect tab labels in DOM order (AEM groups all labels first)
   allRows.forEach((row) => {
-    if (isTabLabelRow(row)) {
-      const labelElement = componentElement(row, 'tabs-tab-label')
-        || componentElement(row, 'tabs-item')
-        || row;
-      const labelRows = directRows(labelElement);
-      // tabs-item: rows[0]=itemType, rows[1]=label; tabs-tab-label: rows[0]=label
-      const isTabsItem = componentName(row) === 'tabs-item';
-      const labelFallbackRow = isTabsItem ? labelRows[1] : labelRows[0];
-      const labelField = getRowTextField(labelElement, 'label', labelFallbackRow);
-      const label = labelField.value || `Tab ${tabs.length + 1}`;
-      const key = normalizeKey(label);
-      tabs.push({
-        cards: [], key, label, labelField, labelRow: row, row: null,
-      });
-      currentTabKey = key;
-    } else if (isCardRow(row)) {
-      const card = readCard(row, flatCards.length);
-      const key = currentTabKey || (tabs.length > 0 ? tabs[0].key : null);
-      if (key) flatCards.push({ ...card, tabKeys: [key] });
-    }
+    if (!isTabLabelRow(row)) return;
+    const labelElement = componentElement(row, 'tabs-tab-label') || row;
+    const labelRows = directRows(labelElement);
+    const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
+    const label = labelField.value || `Tab ${tabs.length + 1}`;
+    const key = normalizeKey(label);
+    tabs.push({
+      cards: [], key, label, labelField, labelRow: row, row: null,
+    });
+  });
+
+  // Second pass: assign cards by tabIndex field — order-independent, works even when
+  // AEM groups all cards at the bottom after all label items.
+  allRows.forEach((row) => {
+    if (!isCardRow(row)) return;
+    const card = readCard(row, flatCards.length);
+    // tabIndex is 1-based; fall back to first tab if out of range
+    const tab = tabs[card.tabIndex - 1] || tabs[0];
+    if (tab) flatCards.push({ ...card, tabKeys: [tab.key] });
   });
 
   return { tabs, flatCards };
@@ -479,7 +455,7 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   const empty = document.createElement('p');
   empty.className = 'tabs-empty';
   empty.hidden = true;
-  empty.textContent = 'No cards yet. Add a Tabs Item below this label and set Item Type to “Card”.';
+  empty.textContent = 'No cards assigned to this tab. Add a Tabs Info Card and set its Tab Number to match this tab’s position.';
 
   if (isAuthoring && tab.row) {
     panel.classList.add('tabs-card-grid');
@@ -508,10 +484,7 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const allBlockRows = directRows(block);
-  const hasFlatLabels = allBlockRows.some((row) => {
-    const cn = componentName(row);
-    return cn === 'tabs-tab-label' || cn === 'tabs-item';
-  });
+  const hasFlatLabels = allBlockRows.some((row) => componentName(row) === 'tabs-tab-label');
 
   let tabs;
   let flatCards;
@@ -522,7 +495,7 @@ export default function decorate(block) {
     flatCards = flatResult.flatCards
       .filter((card) => card.hasContent || isAuthoring)
       .map((card) => ({ ...card, element: buildCard(card, { inPlace: isAuthoring }) }));
-    if (!isAuthoring && tabs.length > 1) {
+    if (tabs.length > 1) {
       tabs = [
         {
           cards: [], key: 'all', label: 'All', labelField: { value: 'All' }, labelRow: null, row: null,
@@ -584,7 +557,7 @@ export default function decorate(block) {
     const placeholder = document.createElement('p');
     placeholder.className = 'tabs-empty';
     placeholder.textContent = isAuthoring
-      ? 'Add a Tabs Item with Item Type set to "Tab Label", then add more items as "Card".'
+      ? 'Add Tabs Tab Label items (one per tab), then add Tabs Info Card items and set each card\'s Tab Number.'
       : '';
     block.replaceChildren(shell, placeholder);
     return;
@@ -635,7 +608,10 @@ export default function decorate(block) {
   if (hasFlatLabels && isAuthoring) {
     const usedElements = new Set();
     state.panels.forEach((panelState, index) => {
-      const tabCards = cardsForTab(tabs[index], allCards, flatCards)
+      const tab = tabs[index];
+      // Skip synthetic tabs (All) — they have no original DOM row to preserve
+      if (isAllTab(tab)) return;
+      const tabCards = cardsForTab(tab, allCards, flatCards)
         .filter((card) => !usedElements.has(card.element));
       tabCards.forEach((card) => usedElements.add(card.element));
       renderPanelCards(panelState, tabCards);

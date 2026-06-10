@@ -9650,59 +9650,74 @@
     ]
   },
   {
-    "id": "tabs-item",
+    "id": "tabs-tab-label",
     "fields": [
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "itemType",
-        "label": "Item Type",
-        "description": "Choose 'Tab Label' to create a new tab, or 'Card' to add a card to the tab above it.",
-        "options": [
-          {
-            "name": "Tab Label",
-            "value": "label"
-          },
-          {
-            "name": "Card",
-            "value": "card"
-          }
-        ],
-        "value": "label"
-      },
       {
         "component": "text",
         "valueType": "string",
         "name": "label",
         "label": "Tab Label",
-        "description": "Text shown on the tab button. Only used when Item Type is 'Tab Label'.",
+        "description": "Text shown in the tab button.",
         "value": "Tab"
+      }
+    ]
+  },
+  {
+    "id": "tabs-info-card",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "tabIndex",
+        "label": "Tab Number",
+        "description": "Which tab this card appears under. Tab 1 = first tab label, Tab 2 = second, etc.",
+        "options": [
+          {
+            "name": "Tab 1",
+            "value": "1"
+          },
+          {
+            "name": "Tab 2",
+            "value": "2"
+          },
+          {
+            "name": "Tab 3",
+            "value": "3"
+          },
+          {
+            "name": "Tab 4",
+            "value": "4"
+          },
+          {
+            "name": "Tab 5",
+            "value": "5"
+          }
+        ],
+        "value": "1"
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "title",
-        "label": "Card Title",
-        "description": "Only used when Item Type is 'Card'."
+        "label": "Title"
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "bodyContent",
-        "label": "Card Body",
-        "description": "Only used when Item Type is 'Card'."
+        "label": "Body Content"
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "linkText",
-        "label": "Card Link Text",
+        "label": "Link Text",
         "value": ""
       },
       {
         "component": "aem-content",
         "name": "link",
-        "label": "Card Link"
+        "label": "Link"
       }
     ]
   },

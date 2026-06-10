@@ -2279,15 +2279,30 @@
           }
         },
         {
-          "title": "Tabs Item",
-          "id": "tabs-item",
+          "title": "Tabs Tab Label",
+          "id": "tabs-tab-label",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
-                  "name": "Tabs Item",
-                  "model": "tabs-item"
+                  "name": "Tabs Tab Label",
+                  "model": "tabs-tab-label"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Tabs Info Card",
+          "id": "tabs-info-card",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Tabs Info Card",
+                  "model": "tabs-info-card"
                 }
               }
             }
