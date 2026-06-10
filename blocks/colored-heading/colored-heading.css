@@ -3,6 +3,7 @@
   --colored-heading-size: inherit;
   --colored-heading-weight: inherit;
   --colored-heading-min-height: 0;
+  --colored-heading-min-height-mobile: var(--colored-heading-min-height);
 
   padding: 12px 0;
 }
@@ -61,4 +62,10 @@
   color: #6b6b6b;
   font-style: italic;
   font-weight: 400;
+}
+
+@media (width <= 640px) {
+  .colored-heading .colored-heading-inner {
+    min-height: var(--colored-heading-min-height-mobile);
+  }
 }

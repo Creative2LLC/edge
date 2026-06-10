@@ -54,6 +54,24 @@
   letter-spacing: -0.04em;
 }
 
+.report-breakdown .report-breakdown-body-text {
+  max-width: 760px;
+  margin-top: 18px;
+  color: #404041;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.report-breakdown .report-breakdown-body-text > :first-child {
+  margin-top: 0;
+}
+
+.report-breakdown .report-breakdown-body-text > :last-child {
+  margin-bottom: 0;
+}
+
 .report-breakdown .report-breakdown-tabs-shell {
   display: flex;
   justify-content: center;

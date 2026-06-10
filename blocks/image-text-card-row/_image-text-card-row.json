@@ -75,6 +75,28 @@
             }
           ],
           "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "imageAlign",
+          "label": "Image Alignment",
+          "description": "Controls which part of the image is shown when cropped (object-position). Center is the default.",
+          "options": [
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "center"
         }
       ]
     },

@@ -149,6 +149,10 @@ export default function decorate(block) {
     readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[7])).value,
     'min-height',
   );
+  const minHeightMobile = normalizeCssLength(
+    readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[8])).value,
+    'min-height',
+  );
 
   block.classList.add(`colored-heading-h-${horizontalAlign}`, `colored-heading-v-${verticalAlign}`);
   block.style.setProperty('--colored-heading-color', textColor);
@@ -161,6 +165,7 @@ export default function decorate(block) {
     block.style.setProperty('--colored-heading-weight', fontWeight);
   }
   if (minHeight) block.style.setProperty('--colored-heading-min-height', minHeight);
+  if (minHeightMobile) block.style.setProperty('--colored-heading-min-height-mobile', minHeightMobile);
 
   const inner = document.createElement('div');
   inner.className = 'colored-heading-inner';

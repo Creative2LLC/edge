@@ -1,6 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { animateCountUp } from '../../scripts/count-up.js';
@@ -8,13 +9,14 @@ import { animateCountUp } from '../../scripts/count-up.js';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
   heading: 0,
-  defaultYear: 1,
-  tableLabels: 2,
-  totalLabel: 3,
-  apiBaseUrl: 4,
-  datasetSlug: 5,
-  apiEndpoint: 6,
-  emptyStateMessage: 7,
+  bodyText: 1,
+  defaultYear: 2,
+  tableLabels: 3,
+  totalLabel: 4,
+  apiBaseUrl: 5,
+  datasetSlug: 6,
+  apiEndpoint: 7,
+  emptyStateMessage: 8,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -107,6 +109,15 @@ function getField(scope, name, rowIndexMap, columnIndex = 0) {
     source: linkField.cell || textField.cell,
     value: linkField.value || textField.value,
   };
+}
+
+function getRichField(scope, name, rowIndexMap) {
+  const rowIndex = rowIndexMap?.[name];
+  const options = {
+    rowIndex,
+    fallbackCell: getParentFallbackCell(scope, rowIndex),
+  };
+  return readRichTextField(scope, name, options);
 }
 
 function moveFieldContent(field, target, fallbackValue = '') {
@@ -705,23 +716,6 @@ function buildPanel(dataset, state) {
   const tableShell = document.createElement('div');
   tableShell.className = 'report-breakdown-table-shell';
 
-  const tableHead = document.createElement('div');
-  tableHead.className = 'report-breakdown-table-head';
-
-  const typeHead = document.createElement('span');
-  typeHead.className = 'report-breakdown-table-label';
-  typeHead.textContent = state.tableLabels.type;
-
-  const countHead = document.createElement('span');
-  countHead.className = 'report-breakdown-table-label';
-  countHead.textContent = state.tableLabels.count;
-
-  const markerHead = document.createElement('span');
-  markerHead.className = 'report-breakdown-table-marker';
-  markerHead.setAttribute('aria-hidden', 'true');
-
-  tableHead.append(typeHead, countHead, markerHead);
-
   const rows = document.createElement('div');
   rows.className = 'report-breakdown-table-body';
   (dataset.tableEntries || dataset.entries).forEach((entry, index) => {
@@ -741,7 +735,28 @@ function buildPanel(dataset, state) {
   totalValue.dataset.countUpValue = totalValue.textContent;
 
   totalRow.append(totalLabel, totalValue);
-  tableShell.append(tableHead, rows, totalRow);
+
+  if (state.showTableLabels) {
+    const tableHead = document.createElement('div');
+    tableHead.className = 'report-breakdown-table-head';
+
+    const typeHead = document.createElement('span');
+    typeHead.className = 'report-breakdown-table-label';
+    typeHead.textContent = state.tableLabels.type;
+
+    const countHead = document.createElement('span');
+    countHead.className = 'report-breakdown-table-label';
+    countHead.textContent = state.tableLabels.count;
+
+    const markerHead = document.createElement('span');
+    markerHead.className = 'report-breakdown-table-marker';
+    markerHead.setAttribute('aria-hidden', 'true');
+
+    tableHead.append(typeHead, countHead, markerHead);
+    tableShell.append(tableHead, rows, totalRow);
+  } else {
+    tableShell.append(rows, totalRow);
+  }
   panel.append(chartShell, tableShell);
 
   return panel;
@@ -900,6 +915,7 @@ export default async function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
+  const bodyTextField = getRichField(block, 'bodyText', BLOCK_ROW_INDEX);
   const defaultYearField = getField(block, 'defaultYear', BLOCK_ROW_INDEX);
   const tableLabelsField = getField(block, 'tableLabels', BLOCK_ROW_INDEX);
   const totalLabelField = getField(block, 'totalLabel', BLOCK_ROW_INDEX);
@@ -936,6 +952,7 @@ export default async function decorate(block) {
     instanceId: `report-breakdown-${blockSequence}`,
     reducedMotion,
     tableLabels: parseTableLabels(tableLabelsField.value),
+    showTableLabels: Boolean(tableLabelsField.value?.trim()),
     totalLabel: totalLabelField.value || DEFAULTS.totalLabel,
     activeYear,
     isVisible: false,
@@ -953,6 +970,17 @@ export default async function decorate(block) {
     heading.className = 'report-breakdown-heading';
     moveFieldContent(headingField, heading, headingField.value || DEFAULTS.heading);
     header.append(heading);
+  }
+  if (bodyTextField.text?.trim() || bodyTextField.html?.trim() || bodyTextField.source) {
+    const body = document.createElement('div');
+    body.className = 'report-breakdown-body-text';
+    if (bodyTextField.source) {
+      moveInstrumentation(bodyTextField.source, body);
+      while (bodyTextField.source.firstChild) body.append(bodyTextField.source.firstChild);
+    } else {
+      body.innerHTML = bodyTextField.html || bodyTextField.text || '';
+    }
+    header.append(body);
   }
   inner.append(header);
 

@@ -186,6 +186,15 @@ export default function decorate(block) {
     directRowOf(block, imageStyleProp)?.remove();
   }
 
+  // Read image alignment setting (left / center / right — controls object-position)
+  const imageAlignProp = block.querySelector('[data-aue-prop="imageAlign"]');
+  let imageAlign = 'center';
+  if (imageAlignProp) {
+    const val = imageAlignProp.textContent.trim().toLowerCase();
+    if (val === 'left' || val === 'right' || val === 'center') imageAlign = val;
+    directRowOf(block, imageAlignProp)?.remove();
+  }
+
   // Parse card rows
   const rows = [...block.querySelectorAll(':scope > div')];
   const cards = [];
@@ -195,7 +204,7 @@ export default function decorate(block) {
   });
 
   const grid = document.createElement('div');
-  grid.className = `image-text-card-row-grid image-text-card-row-grid-${imageStyle}`;
+  grid.className = `image-text-card-row-grid image-text-card-row-grid-${imageStyle} image-text-card-row-img-${imageAlign}`;
   grid.style.setProperty('--grid-columns', columns);
 
   cards.forEach(({ data, row }) => {

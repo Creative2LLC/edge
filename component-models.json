@@ -2044,6 +2044,14 @@
         "label": "Minimum Height",
         "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeightMobile",
+        "label": "Minimum Height (Mobile)",
+        "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
+        "value": ""
       }
     ]
   },
@@ -2200,6 +2208,14 @@
         "name": "minHeight",
         "label": "Minimum Height",
         "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeightMobile",
+        "label": "Minimum Height (Mobile)",
+        "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
         "value": ""
       }
     ]
@@ -2374,6 +2390,14 @@
         "name": "minHeight",
         "label": "Minimum Height",
         "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeightMobile",
+        "label": "Minimum Height (Mobile)",
+        "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
         "value": ""
       }
     ]
@@ -4708,6 +4732,28 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "imageAlign",
+        "label": "Image Alignment",
+        "description": "Controls which part of the image is shown when cropped (object-position). Center is the default.",
+        "options": [
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "center"
       }
     ]
   },
@@ -7288,6 +7334,14 @@
         "value": "2024 CyberTipline Reports by Type"
       },
       {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text (Optional)",
+        "description": "Optional paragraph displayed below the heading.",
+        "value": ""
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "defaultYear",
@@ -7299,6 +7353,7 @@
         "valueType": "string",
         "name": "tableLabels",
         "label": "Table Labels (Type|Reports)",
+        "description": "Leave blank to hide the table header row.",
         "value": "Report Type|Reports"
       },
       {

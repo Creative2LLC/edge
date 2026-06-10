@@ -3,6 +3,7 @@
   --colored-text-size: 1.125rem;
   --colored-text-weight: inherit;
   --colored-text-min-height: 0;
+  --colored-text-min-height-mobile: var(--colored-text-min-height);
 
   padding: 12px 0;
 }
@@ -65,4 +66,10 @@
 
 .colored-text-content p{
     margin-bottom: 20px;
+}
+
+@media (width <= 640px) {
+  .colored-text .colored-text-inner {
+    min-height: var(--colored-text-min-height-mobile);
+  }
 }

@@ -253,6 +253,7 @@ export default function decorate(block) {
   const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6])).value, 'font-size');
   const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7])).value);
   const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9])).value, 'min-height');
 
   block.classList.add(
     `colored-list-style-${listStyle}`,
@@ -265,6 +266,7 @@ export default function decorate(block) {
   if (fontSize) block.style.setProperty('--colored-list-font-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-list-font-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-list-min-height', minHeight);
+  if (minHeightMobile) block.style.setProperty('--colored-list-min-height-mobile', minHeightMobile);
 
   const inner = document.createElement('div');
   inner.className = 'colored-list-inner';

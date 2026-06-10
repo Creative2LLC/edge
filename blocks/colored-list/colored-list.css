@@ -5,6 +5,7 @@
   --colored-list-font-size: 1.125rem;
   --colored-list-font-weight: inherit;
   --colored-list-min-height: 0;
+  --colored-list-min-height-mobile: var(--colored-list-min-height);
 
   padding: 12px 0;
 }
@@ -131,4 +132,10 @@
 .colored-list .colored-list-item-content.is-authoring-placeholder {
   color: #6b6b6b;
   font-style: italic;
+}
+
+@media (width <= 640px) {
+  .colored-list .colored-list-inner {
+    min-height: var(--colored-list-min-height-mobile);
+  }
 }

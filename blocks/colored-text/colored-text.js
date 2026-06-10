@@ -165,12 +165,14 @@ export default function decorate(block) {
   const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[4])).value, 'font-size');
   const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[5])).value);
   const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[6])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[7])).value, 'min-height');
 
   block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
   if (textColor) block.style.setProperty('--colored-text-color', textColor);
   if (fontSize) block.style.setProperty('--colored-text-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-text-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-text-min-height', minHeight);
+  if (minHeightMobile) block.style.setProperty('--colored-text-min-height-mobile', minHeightMobile);
 
   const inner = document.createElement('div');
   inner.className = 'colored-text-inner';

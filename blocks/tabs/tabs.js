@@ -196,7 +196,7 @@ function parseTabIndices(rawValue) {
   if (!rawValue) return [1];
   const nums = String(rawValue)
     .replace(/[\[\]"']/g, '')
-    .split(/[\n,]+/)
+    .split(/[\n, ]+/)
     .map((s) => parseInt(s.replace(/\D+/g, '') || '0', 10))
     .filter((n) => n >= 1 && n <= 5);
   const unique = [...new Set(nums)];
@@ -217,8 +217,11 @@ function readCard(row, index) {
   );
   const offset = hasLeadField ? 1 : 0;
 
-  const tabIndexField = getRowTextField(cardElement, 'tabIndex', hasLeadField ? rows[0] : null);
-  const tabIndices = parseTabIndices(tabIndexField?.value);
+  const tabIndexSources = [...(cardElement.querySelectorAll?.('[data-aue-prop="tabIndex"], [data-richtext-prop="tabIndex"]') || [])];
+  const tabIndexRaw = tabIndexSources.length > 1
+    ? tabIndexSources.map((el) => el.textContent.trim()).filter(Boolean).join(',')
+    : getRowTextField(cardElement, 'tabIndex', hasLeadField ? rows[0] : null).value;
+  const tabIndices = parseTabIndices(tabIndexRaw);
 
   const titleField = getRowRichField(cardElement, 'title', rows[offset]);
   const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
@@ -632,15 +635,27 @@ export default function decorate(block) {
   });
 
   if (hasFlatLabels && isAuthoring) {
-    const usedElements = new Set();
+    const primaryElements = new Set();
     state.panels.forEach((panelState, index) => {
       const tab = tabs[index];
       // Skip synthetic tabs (All) — they have no original DOM row to preserve
       if (isAllTab(tab)) return;
-      const tabCards = cardsForTab(tab, allCards, flatCards)
-        .filter((card) => !usedElements.has(card.element));
-      tabCards.forEach((card) => usedElements.add(card.element));
-      renderPanelCards(panelState, tabCards);
+      const tabCards = cardsForTab(tab, allCards, flatCards);
+
+      // Cards that appear in multiple tabs: use the instrumented element on first
+      // occurrence and a visual clone on subsequent ones.
+      panelState.grid.replaceChildren();
+      panelState.empty.hidden = Boolean(tabCards.length);
+      panelState.grid.hidden = !tabCards.length;
+      tabCards.forEach((card) => {
+        if (primaryElements.has(card.element)) {
+          panelState.grid.append(card.element.cloneNode(true));
+        } else {
+          primaryElements.add(card.element);
+          panelState.grid.append(card.element);
+        }
+      });
+
       panelState.preserveChildren = true;
     });
   }

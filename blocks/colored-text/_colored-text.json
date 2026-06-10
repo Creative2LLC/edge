@@ -94,6 +94,14 @@
           "label": "Minimum Height",
           "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
           "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeightMobile",
+          "label": "Minimum Height (Mobile)",
+          "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
+          "value": ""
         }
       ]
     }

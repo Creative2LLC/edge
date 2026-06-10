@@ -123,6 +123,19 @@
   text-decoration: underline;
 }
 
+/* ---------- Image alignment (object-position) ---------- */
+.image-text-card-row .image-text-card-row-img-left .image-text-card-row-card-image img {
+  object-position: left center;
+}
+
+.image-text-card-row .image-text-card-row-img-center .image-text-card-row-card-image img {
+  object-position: center center;
+}
+
+.image-text-card-row .image-text-card-row-img-right .image-text-card-row-card-image img {
+  object-position: right center;
+}
+
 /* ---------- Small image variant ----------
    Image becomes 141x183 (max), positioned at the top-left of the card with
    padding around it. The card itself takes on the background color and

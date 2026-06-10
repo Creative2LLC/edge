@@ -44,6 +44,14 @@
           "value": "2024 CyberTipline Reports by Type"
         },
         {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text (Optional)",
+          "description": "Optional paragraph displayed below the heading.",
+          "value": ""
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "defaultYear",
@@ -55,6 +63,7 @@
           "valueType": "string",
           "name": "tableLabels",
           "label": "Table Labels (Type|Reports)",
+          "description": "Leave blank to hide the table header row.",
           "value": "Report Type|Reports"
         },
         {
