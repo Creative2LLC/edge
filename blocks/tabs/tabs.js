@@ -484,7 +484,7 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const allBlockRows = directRows(block);
-  const hasFlatLabels = allBlockRows.some(isTabLabelRow);
+  const hasFlatLabels = allBlockRows.some((row) => componentName(row) === 'tabs-tab-label');
 
   let tabs;
   let flatCards;

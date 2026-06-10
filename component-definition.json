@@ -2279,15 +2279,16 @@
           }
         },
         {
-          "title": "Tabs Tab Label",
-          "id": "tabs-tab-label",
+          "title": "Tabs Tab",
+          "id": "tabs-tab",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
-                  "name": "Tabs Tab Label",
-                  "model": "tabs-tab-label"
+                  "name": "Tabs Tab",
+                  "model": "tabs-tab",
+                  "filter": "tabs-tab"
                 }
               }
             }

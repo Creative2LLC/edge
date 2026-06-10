@@ -9650,7 +9650,7 @@
     ]
   },
   {
-    "id": "tabs-tab-label",
+    "id": "tabs-tab",
     "fields": [
       {
         "component": "text",
