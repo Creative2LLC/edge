@@ -378,11 +378,11 @@
     padding: 14px 20px;
   }
 
-  /* below-button text: full width + left-aligned so it wraps normally
+  /* below-button text: full width + centered to match the centered buttons
      (it was shrink-to-content, which forced one word per line). */
   .cta-card-1 .cta-card-1-below-button {
     align-self: stretch;
-    text-align: left;
+    text-align: center;
   }
 
   /* --- Variant 2: drop the fixed 218px height so stacked content can grow. --- */
