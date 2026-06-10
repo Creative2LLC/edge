@@ -158,3 +158,55 @@
   margin: 24px 0;
   width: 100%;
 }
+
+/* ===========================================================================
+   Mobile (≤ 900px) — the desktop layout forces a fixed 1420px-wide row plus
+   fixed inner column widths, so it runs off the right edge on phones. Stack
+   everything into a single column and let widths flow. Mobile-only; the
+   desktop layout above is untouched.
+   =========================================================================== */
+@media (width <= 900px) {
+  .amber-alert-info .amber-alert-info-container {
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Image becomes a full-width banner across the top. */
+  .amber-alert-info .amber-alert-info-media {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 220px;
+  }
+
+  /* Content stacks under the image with lighter padding and a smaller gap. */
+  .amber-alert-info .amber-alert-info-content {
+    flex-direction: column;
+    padding: 32px 24px;
+    gap: 32px;
+  }
+
+  /* Both inner columns span full width (drop the fixed 471px / 231px). */
+  .amber-alert-info .amber-alert-info-main,
+  .amber-alert-info .amber-alert-info-stats {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Wrap long words/headlines instead of overflowing. */
+  .amber-alert-info .amber-alert-info-title,
+  .amber-alert-info .amber-alert-info-subtitle {
+    overflow-wrap: break-word;
+  }
+
+  .amber-alert-info .amber-alert-info-title {
+    font-size: 30px;
+  }
+
+  /* Let the button label wrap rather than forcing a single nowrap line. */
+  .amber-alert-info .amber-alert-info-button {
+    white-space: normal;
+    text-align: center;
+  }
+}
