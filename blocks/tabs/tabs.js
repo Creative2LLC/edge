@@ -192,6 +192,17 @@ function findNestedCardRows(tabRow) {
   });
 }
 
+function parseTabIndices(rawValue) {
+  if (!rawValue) return [1];
+  const nums = String(rawValue)
+    .replace(/[\[\]"']/g, '')
+    .split(/[\n,]+/)
+    .map((s) => parseInt(s.replace(/\D+/g, '') || '0', 10))
+    .filter((n) => n >= 1 && n <= 5);
+  const unique = [...new Set(nums)];
+  return unique.length ? unique : [1];
+}
+
 function readCard(row, index) {
   const cardElement = componentElement(row, 'tabs-info-card') || row;
   const rows = directRows(cardElement);
@@ -207,7 +218,7 @@ function readCard(row, index) {
   const offset = hasLeadField ? 1 : 0;
 
   const tabIndexField = getRowTextField(cardElement, 'tabIndex', hasLeadField ? rows[0] : null);
-  const tabIndex = Math.max(1, Math.min(5, parseInt(tabIndexField?.value || '1', 10) || 1));
+  const tabIndices = parseTabIndices(tabIndexField?.value);
 
   const titleField = getRowRichField(cardElement, 'title', rows[offset]);
   const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
@@ -217,7 +228,7 @@ function readCard(row, index) {
   return {
     index,
     row: cardElement,
-    tabIndex,
+    tabIndices,
     tabLabels: [],
     tabKeys: [],
     titleField,
@@ -342,14 +353,18 @@ function buildFlatTabs(allRows) {
     });
   });
 
-  // Second pass: assign cards by tabIndex field — order-independent, works even when
-  // AEM groups all cards at the bottom after all label items.
+  // Second pass: assign cards by tabIndices field — order-independent, works even when
+  // AEM groups all cards at the bottom after all label items. Each card may belong to
+  // multiple tabs (multiselect).
   allRows.forEach((row) => {
     if (!isCardRow(row)) return;
     const card = readCard(row, flatCards.length);
-    // tabIndex is 1-based; fall back to first tab if out of range
-    const tab = tabs[card.tabIndex - 1] || tabs[0];
-    if (tab) flatCards.push({ ...card, tabKeys: [tab.key] });
+    const tabKeys = card.tabIndices
+      .map((i) => (tabs[i - 1] ? tabs[i - 1].key : null))
+      .filter(Boolean);
+    // Fall back to first tab if no valid indices
+    const keys = tabKeys.length ? tabKeys : (tabs.length ? [tabs[0].key] : []);
+    if (keys.length) flatCards.push({ ...card, tabKeys: keys });
   });
 
   return { tabs, flatCards };
@@ -392,7 +407,13 @@ function renderPanelCards(panelState, cards) {
 
   panelState.empty.hidden = true;
   panelState.grid.hidden = false;
-  cards.forEach((card) => panelState.grid.append(card.element));
+  // All-tab panels clone card elements so originals stay in their individual panels
+  // (important in authoring mode where elements carry AUE instrumentation).
+  if (panelState.cloneCards) {
+    cards.forEach((card) => panelState.grid.append(card.element.cloneNode(true)));
+  } else {
+    cards.forEach((card) => panelState.grid.append(card.element));
+  }
 }
 
 function setActiveTab(state, index) {
@@ -446,31 +467,34 @@ function isColumnsValue(value) {
 }
 
 function createTabPanel(tab, index, instanceId, isAuthoring) {
-  const panel = tab.row || document.createElement('div');
-  panel.classList.add('tabs-panel');
+  const panel = tab.row || document.createElement(‘div’);
+  panel.classList.add(‘tabs-panel’);
   panel.id = `${instanceId}-panel-${tab.key || index}`;
-  panel.setAttribute('role', 'tabpanel');
+  panel.setAttribute(‘role’, ‘tabpanel’);
   panel.tabIndex = 0;
 
-  const empty = document.createElement('p');
-  empty.className = 'tabs-empty';
+  const allTab = isAllTab(tab);
+
+  const empty = document.createElement(‘p’);
+  empty.className = ‘tabs-empty’;
   empty.hidden = true;
-  empty.textContent = 'No cards assigned to this tab. Add a Tabs Info Card and set its Tab Number to match this tab’s position.';
+  empty.textContent = ‘No cards assigned to this tab. Add a Tabs Info Card and set its Tab(s) field to include this tab\’s number.’;
 
   if (isAuthoring && tab.row) {
-    panel.classList.add('tabs-card-grid');
-    findTabLabelRow(panel)?.setAttribute('hidden', '');
+    panel.classList.add(‘tabs-card-grid’);
+    findTabLabelRow(panel)?.setAttribute(‘hidden’, ‘’);
     panel.append(empty);
     return {
       empty,
       grid: panel,
       panel,
       preserveChildren: true,
+      cloneCards: false,
     };
   }
 
-  const grid = document.createElement('div');
-  grid.className = 'tabs-card-grid';
+  const grid = document.createElement(‘div’);
+  grid.className = ‘tabs-card-grid’;
   panel.replaceChildren(grid, empty);
 
   return {
@@ -478,6 +502,8 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
     grid,
     panel,
     preserveChildren: false,
+    // All-tab always clones so originals stay in individual panels (critical in authoring mode)
+    cloneCards: allTab,
   };
 }
 
