@@ -467,22 +467,22 @@ function isColumnsValue(value) {
 }
 
 function createTabPanel(tab, index, instanceId, isAuthoring) {
-  const panel = tab.row || document.createElement(‘div’);
-  panel.classList.add(‘tabs-panel’);
+  const panel = tab.row || document.createElement('div');
+  panel.classList.add('tabs-panel');
   panel.id = `${instanceId}-panel-${tab.key || index}`;
-  panel.setAttribute(‘role’, ‘tabpanel’);
+  panel.setAttribute('role', 'tabpanel');
   panel.tabIndex = 0;
 
   const allTab = isAllTab(tab);
 
-  const empty = document.createElement(‘p’);
-  empty.className = ‘tabs-empty’;
+  const empty = document.createElement('p');
+  empty.className = 'tabs-empty';
   empty.hidden = true;
-  empty.textContent = ‘No cards assigned to this tab. Add a Tabs Info Card and set its Tab(s) field to include this tab\’s number.’;
+  empty.textContent = 'No cards assigned to this tab. Add a Tabs Info Card and set its Tab(s) field to include this tab\'s number.';
 
   if (isAuthoring && tab.row) {
-    panel.classList.add(‘tabs-card-grid’);
-    findTabLabelRow(panel)?.setAttribute(‘hidden’, ‘’);
+    panel.classList.add('tabs-card-grid');
+    findTabLabelRow(panel)?.setAttribute('hidden', '');
     panel.append(empty);
     return {
       empty,
@@ -493,8 +493,8 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
     };
   }
 
-  const grid = document.createElement(‘div’);
-  grid.className = ‘tabs-card-grid’;
+  const grid = document.createElement('div');
+  grid.className = 'tabs-card-grid';
   panel.replaceChildren(grid, empty);
 
   return {
