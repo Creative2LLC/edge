@@ -331,11 +331,12 @@ function deriveFlatTabs(tabRows, cards, isAuthoring) {
   return derived;
 }
 
-function buildFlatTabs(allRows, isAuthoring) {
+function buildFlatTabs(allRows) {
   const tabs = [];
   const tabByKey = new Map();
+  const flatCards = [];
 
-  // First pass: collect tab label rows in order
+  // First pass: collect tab labels
   allRows.forEach((row) => {
     if (!isTabLabelRow(row)) return;
     const labelElement = componentElement(row, 'tabs-tab-label') || row;
@@ -343,33 +344,29 @@ function buildFlatTabs(allRows, isAuthoring) {
     const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
     const label = labelField.value || `Tab ${tabs.length + 1}`;
     const key = normalizeKey(label);
-    const tab = {
+    tabs.push({
       cards: [], key, label, labelField, labelRow: row, row: null,
-    };
-    tabs.push(tab);
-    tabByKey.set(key, tab);
+    });
+    tabByKey.set(key, tabs[tabs.length - 1]);
   });
 
-  // Second pass: assign cards — explicit tabName wins, positional is fallback
-  let currentTab = null;
+  // Second pass: assign tabKeys to cards (explicit wins, position is fallback)
+  let positionalKey = tabs.length > 0 ? tabs[0].key : null;
   allRows.forEach((row) => {
     if (isTabLabelRow(row)) {
       const labelElement = componentElement(row, 'tabs-tab-label') || row;
       const labelRows = directRows(labelElement);
       const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
-      currentTab = tabByKey.get(normalizeKey(labelField.value || '')) || null;
+      positionalKey = normalizeKey(labelField.value || '') || positionalKey;
     } else if (isCardRow(row)) {
-      const card = readCard(row, 0);
-      const explicitTab = card.tabKeys.length > 0 ? (tabByKey.get(card.tabKeys[0]) || null) : null;
-      const targetTab = explicitTab || currentTab;
-      if (targetTab && (card.hasContent || isAuthoring)) {
-        card.index = targetTab.cards.length;
-        targetTab.cards.push({ ...card, element: buildCard(card, { inPlace: isAuthoring }) });
-      }
+      const card = readCard(row, flatCards.length);
+      const validKeys = card.tabKeys.filter((k) => tabByKey.has(k));
+      const effectiveKeys = validKeys.length > 0 ? validKeys : (positionalKey ? [positionalKey] : []);
+      flatCards.push({ ...card, tabKeys: effectiveKeys });
     }
   });
 
-  return tabs;
+  return { tabs, flatCards };
 }
 
 function uniqueCards(cards) {
@@ -472,7 +469,7 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   const empty = document.createElement('p');
   empty.className = 'tabs-empty';
   empty.hidden = true;
-  empty.textContent = 'Add Tabs Info Card items after this tab label.';
+  empty.textContent = 'No cards assigned. Add a Tabs Info Card and set its Tab Name to this tab’s label.';
 
   if (isAuthoring && tab.row) {
     panel.classList.add('tabs-card-grid');
@@ -507,8 +504,19 @@ export default function decorate(block) {
   let flatCards;
 
   if (hasFlatLabels) {
-    tabs = buildFlatTabs(allBlockRows, isAuthoring);
-    flatCards = [];
+    const flatResult = buildFlatTabs(allBlockRows);
+    tabs = flatResult.tabs;
+    flatCards = flatResult.flatCards
+      .filter((card) => card.hasContent || isAuthoring)
+      .map((card) => ({ ...card, element: buildCard(card, { inPlace: isAuthoring }) }));
+    if (!isAuthoring && tabs.length > 1) {
+      tabs = [
+        {
+          cards: [], key: 'all', label: 'All', labelField: { value: 'All' }, labelRow: null, row: null,
+        },
+        ...tabs,
+      ];
+    }
   } else {
     const tabRows = firstDirectRowsByType(block, isTabRow);
     const flatCardRows = firstDirectRowsByType(
@@ -612,8 +620,12 @@ export default function decorate(block) {
   });
 
   if (hasFlatLabels && isAuthoring) {
+    const usedElements = new Set();
     state.panels.forEach((panelState, index) => {
-      renderPanelCards(panelState, cardsForTab(tabs[index], allCards, flatCards));
+      const tabCards = cardsForTab(tabs[index], allCards, flatCards)
+        .filter((card) => !usedElements.has(card.element));
+      tabCards.forEach((card) => usedElements.add(card.element));
+      renderPanelCards(panelState, tabCards);
       panelState.preserveChildren = true;
     });
   }
