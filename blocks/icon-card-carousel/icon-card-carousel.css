@@ -293,14 +293,16 @@ main > .section > .icon-card-carousel-wrapper {
 
 /* Responsive - mobile */
 @media (width <= 700px) {
+  /* Keep the horizontal padding on the wrapper so the title, subtitle and the
+     card track all share the same left inset instead of jamming the edge.
+     The track still bleeds off the right for the "peek next card" affordance. */
   .icon-card-carousel .icon-card-carousel-wrapper {
-    padding: 48px 0;
+    padding: 48px 16px;
   }
 
   .icon-card-carousel .icon-card-carousel-title {
     font-size: 32px;
     margin-bottom: 24px;
-    padding: 0 16px;
   }
 
   .icon-card-carousel .icon-card-carousel-slide {
