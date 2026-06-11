@@ -16,6 +16,27 @@
   margin: 16px;
 }
 
+.cards.cards-text-align-left .cards-card-body {
+  text-align: left;
+}
+
+.cards.cards-text-align-center .cards-card-body {
+  text-align: center;
+}
+
+.cards.cards-text-align-right .cards-card-body {
+  text-align: right;
+}
+
+.cards.cards-text-align-justify .cards-card-body {
+  text-align: justify;
+}
+
+.cards.cards-hide-buttons .cards-card-body .button-container,
+.cards.cards-hide-buttons .cards-card-body a.button {
+  display: none;
+}
+
 .cards .cards-card-image {
   line-height: 0;
 }

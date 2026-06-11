@@ -41,8 +41,16 @@
 }
 
 .columns .statistics {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
   margin-inline: 0;
   padding: 12px 0;
+}
+
+.columns .statistics .statistics-inner {
+  flex: 1 1 auto;
 }
 
 /* Break out of the section wrapper's 24px inline padding so first/last items

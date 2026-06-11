@@ -82,18 +82,20 @@
 
 @media (width >= 900px) {
   .columns > div {
-    align-items: center;
+    align-items: stretch;
     flex-direction: unset;
     gap: 24px;
   }
 
   .columns > div > div {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     order: unset;
   }
 
   .columns.columns-align-top > div {
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .columns.columns-align-bottom > div {

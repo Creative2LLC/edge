@@ -1489,6 +1489,54 @@
     ]
   },
   {
+    "id": "cards",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "textAlignment",
+        "label": "Text Alignment",
+        "options": [
+          {
+            "name": "Left (default)",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "Justify",
+            "value": "justify"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonDisplay",
+        "label": "Card Buttons",
+        "description": "Show or hide button-style links in each card.",
+        "options": [
+          {
+            "name": "Show (default)",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ],
+        "value": "show"
+      }
+    ]
+  },
+  {
     "id": "card",
     "fields": [
       {
