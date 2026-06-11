@@ -557,11 +557,25 @@
     gap: 6px;
     padding: 7px 10px;
     border-radius: 12px;
+    align-items: center;
   }
 
+  .hero .hero-breadcrumbs li {
+    display: flex;
+    align-items: center;
+  }
+
+  .hero .hero-breadcrumbs li a,
+  .hero .hero-breadcrumbs li a:any-link,
   .hero .hero-breadcrumbs li span,
   .hero .hero-breadcrumbs li.separator {
     font-size: 13px;
+    line-height: 1;
+  }
+
+  /* The ">" glyph optically centers higher than text; nudge it down to align. */
+  .hero .hero-breadcrumbs li.separator {
+    transform: translateY(1px);
   }
 
   .hero .hero-actions {

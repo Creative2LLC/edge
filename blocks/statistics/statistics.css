@@ -176,6 +176,14 @@
 }
 
 @media (width <= 700px) {
+  /* Single column on mobile: drop the items' side padding so every stat
+     lines up. (On desktop the first/last item strips one side's padding to
+     sit flush with the row edge; in one column that left only the first item
+     flush and indented the rest.) */
+  .statistics .statistics-item {
+    padding-inline: 0;
+  }
+
   .statistics .statistics-item + .statistics-item {
     border-left: none;
     border-top: 1px solid #e6e0da;
