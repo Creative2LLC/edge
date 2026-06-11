@@ -751,6 +751,9 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 @media (width < 1260px) {
   /* stylelint-disable no-descending-specificity */
   header nav {
+    --nav-mobile-reveal-duration: 0.92s;
+    --nav-mobile-reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
     position: relative;
     gap: 0 16px;
     padding: 0 16px;
@@ -773,8 +776,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
       linear-gradient(180deg, #fff 0%, #f8fbfe 100%);
     clip-path: circle(var(--nav-morph-radius, 34px) at var(--nav-morph-x, 40px) var(--nav-morph-y, 40px));
     transition:
-      clip-path 4.4s cubic-bezier(0.19, 1, 0.22, 1),
-      opacity 0.36s ease;
+      clip-path var(--nav-mobile-reveal-duration) var(--nav-mobile-reveal-ease),
+      opacity 0.28s ease;
     will-change: clip-path;
   }
 
@@ -786,7 +789,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
       radial-gradient(circle at 84% 16%, rgb(0 141 182 / 10%) 0 18%, transparent 19%),
       linear-gradient(145deg, #86b9af 0%, #67929b 52%, #506f86 100%);
     opacity: 0;
-    transition: opacity 0.42s ease;
+    transition: opacity 0.5s ease;
   }
 
   header nav[aria-expanded='true'] {
@@ -853,8 +856,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     transform: translateY(30px);
     transition:
       opacity 0.3s ease,
-      transform 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-      max-height 0.01s linear 0.48s;
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      max-height 0.01s linear 0.42s;
   }
 
   header nav .nav-mobile-meta {
@@ -945,8 +948,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     pointer-events: auto;
     transform: translateY(0);
     transition:
-      opacity 0.16s ease 0.24s,
-      transform 0.26s cubic-bezier(0.22, 1, 0.36, 1) 0.2s,
+      opacity 0.18s ease 0.08s,
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.06s,
       max-height 0s linear;
   }
 
@@ -995,14 +998,14 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     opacity: 0;
     transform: translateY(22px);
     transition:
-      opacity 0.22s ease,
-      transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.24s ease,
+      transform 0.44s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   header nav[aria-expanded='true'] .nav-mobile-stack {
     opacity: 1;
     transform: translateY(0);
-    transition-delay: 0.34s;
+    transition-delay: 0.12s;
   }
 
   header nav .nav-mobile-stack-viewport {
@@ -1290,9 +1293,18 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   }
 
   header nav .nav-mobile-root-list > li {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.34s ease,
+      transform 0.52s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  header nav[aria-expanded='true'] .nav-mobile-root-list > li {
     opacity: 1;
-    transform: none;
-    transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s ease;
+    transform: translateY(0);
+    transition-delay: var(--nav-mobile-item-delay, 220ms);
   }
 
   header nav[aria-expanded='true'] .nav-mobile-meta {
@@ -1460,6 +1472,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   header nav .nav-mobile-screen-trigger,
   header nav .nav-tools {
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
     animation-duration: 0.01ms !important;
   }
 }

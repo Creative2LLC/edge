@@ -395,6 +395,11 @@ function buildMobileNavStack(navSectionsList) {
 
   const navigator = createMobileStackNavigator();
   const rootScreen = navigator.createScreen({ root: true });
+  const appendRootItem = (item) => {
+    const index = rootScreen.list.children.length;
+    item.style.setProperty('--nav-mobile-item-delay', `${220 + (index * 72)}ms`);
+    rootScreen.list.append(item);
+  };
   const appendRootLink = (label, href = '') => {
     if (!label) return;
     const item = document.createElement('li');
@@ -408,7 +413,7 @@ function buildMobileNavStack(navSectionsList) {
       link.type = 'button';
     }
     item.append(link);
-    rootScreen.list.append(item);
+    appendRootItem(item);
   };
 
   navSectionsList.forEach((navSection) => {
@@ -429,7 +434,7 @@ function buildMobileNavStack(navSectionsList) {
         trigger.className = 'nav-mobile-screen-link nav-mobile-screen-trigger';
         trigger.textContent = label;
         item.append(trigger);
-        rootScreen.list.append(item);
+        appendRootItem(item);
 
         const childScreen = buildMobileScreenFromList(navigator, subNav, {
           title: label,
@@ -452,7 +457,7 @@ function buildMobileNavStack(navSectionsList) {
         link.href = topLink.href;
         link.textContent = label;
         item.append(link);
-        rootScreen.list.append(item);
+        appendRootItem(item);
       }
     } catch (error) {
       appendRootLink(label, topLink?.href || '');
