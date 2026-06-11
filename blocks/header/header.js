@@ -397,7 +397,7 @@ function buildMobileNavStack(navSectionsList) {
   const rootScreen = navigator.createScreen({ root: true });
   const appendRootItem = (item) => {
     const index = rootScreen.list.children.length;
-    item.style.setProperty('--nav-mobile-item-delay', `${220 + (index * 72)}ms`);
+    item.style.setProperty('--nav-mobile-item-delay', `${280 + (index * 88)}ms`);
     rootScreen.list.append(item);
   };
   const appendRootLink = (label, href = '') => {
