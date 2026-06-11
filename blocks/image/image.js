@@ -1,6 +1,12 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 
 const POSITION_VALUES = ['align-left', 'align-center', 'align-right'];
 const STYLE_VALUES = ['full-width'];
@@ -10,16 +16,24 @@ function normalizeOption(value, allowed) {
   return allowed.includes(normalized) ? normalized : null;
 }
 
-export default function decorate(block) {
-  const imageField = readImageField(block, 'image', { fallbackCell: block.querySelector('picture')?.closest('div') });
+export default async function decorate(block) {
+  const imageField = readImageField(block, 'image', {
+    fallbackCell: block.querySelector('picture')?.closest('div'),
+  });
   const altField = readTextField(block, 'imageAlt');
   const linkField = readLinkField(block, 'imageLink');
   const targetField = readTextField(block, 'imageTarget');
   const styleField = readTextField(block, 'imageStyle');
   const positionField = readTextField(block, 'imagePosition');
+  const resourceFields = (!styleField.value || !positionField.value)
+    ? await readAueResourceFields(getAueResourcePath(block), ['imageStyle', 'imagePosition'])
+    : {};
 
-  const styleClass = normalizeOption(styleField.value, STYLE_VALUES);
-  const positionClass = normalizeOption(positionField.value, POSITION_VALUES);
+  const styleClass = normalizeOption(styleField.value || resourceFields.imageStyle, STYLE_VALUES);
+  const positionClass = normalizeOption(
+    positionField.value || resourceFields.imagePosition,
+    POSITION_VALUES,
+  );
 
   if (styleClass) block.classList.add(styleClass);
   if (positionClass) block.classList.add(positionClass);

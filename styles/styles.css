@@ -567,6 +567,47 @@ main .default-content-wrapper .image-fit-container-link > picture img {
   height: auto;
 }
 
+main .default-content-wrapper .image-positioned.align-left {
+  text-align: left;
+}
+
+main .default-content-wrapper .image-positioned.align-center {
+  text-align: center;
+}
+
+main .default-content-wrapper .image-positioned.align-right {
+  text-align: right;
+}
+
+main .default-content-wrapper .image-positioned > picture,
+main .default-content-wrapper .image-positioned > a,
+main .default-content-wrapper picture.image-positioned {
+  display: block;
+  max-width: 100%;
+  width: fit-content;
+}
+
+main .default-content-wrapper .image-positioned.align-left > picture,
+main .default-content-wrapper .image-positioned.align-left > a,
+main .default-content-wrapper picture.image-positioned.align-left,
+main .default-content-wrapper img.image-positioned.align-left {
+  margin-inline: 0 auto;
+}
+
+main .default-content-wrapper .image-positioned.align-center > picture,
+main .default-content-wrapper .image-positioned.align-center > a,
+main .default-content-wrapper picture.image-positioned.align-center,
+main .default-content-wrapper img.image-positioned.align-center {
+  margin-inline: auto;
+}
+
+main .default-content-wrapper .image-positioned.align-right > picture,
+main .default-content-wrapper .image-positioned.align-right > a,
+main .default-content-wrapper picture.image-positioned.align-right,
+main .default-content-wrapper img.image-positioned.align-right {
+  margin-inline: auto 0;
+}
+
 /* sections */
 main > .section {
   margin: 40px 0;

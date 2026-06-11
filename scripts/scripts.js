@@ -475,6 +475,22 @@ function normalizeImageStyle(value) {
   return '';
 }
 
+const IMAGE_POSITION_CLASSES = ['align-left', 'align-center', 'align-right'];
+
+function normalizeImagePosition(value) {
+  const normalizedValue = normalizeConfigValue(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  if (IMAGE_POSITION_CLASSES.includes(normalizedValue)) return normalizedValue;
+
+  const position = ['left', 'center', 'right']
+    .find((candidate) => normalizedValue.split('-').includes(candidate));
+
+  return position ? `align-${position}` : '';
+}
+
 function applyImageStyle(imageElement, style) {
   const normalizedStyle = normalizeImageStyle(style);
   if (!imageElement || normalizedStyle !== 'full-width') return;
@@ -510,22 +526,59 @@ function applyAnchorToImage(imageElement, href, rawTarget = '_self') {
   }
 }
 
+function applyImagePosition(imageElement, position, root) {
+  if (!imageElement) return;
+
+  const normalizedPosition = normalizeImagePosition(position);
+  const frame = imageElement.closest('picture') || imageElement;
+  const anchor = frame.closest('a');
+  const rootTarget = root && (root === frame || root.contains?.(frame))
+    ? root
+    : frame.parentElement;
+  const targets = new Set([rootTarget, frame, anchor].filter(Boolean));
+
+  targets.forEach((target) => {
+    target.classList.remove('image-positioned', ...IMAGE_POSITION_CLASSES);
+  });
+
+  if (!normalizedPosition) {
+    return;
+  }
+
+  targets.forEach((target) => {
+    target.classList.add('image-positioned', normalizedPosition);
+  });
+}
+
 const imageConfigCache = new Map();
 
 async function resolveImageConfigFromResource(resourcePath) {
-  if (!resourcePath) return { href: '', target: '_self', style: '' };
+  if (!resourcePath) {
+    return {
+      href: '', target: '_self', style: '', position: '',
+    };
+  }
   if (imageConfigCache.has(resourcePath)) return imageConfigCache.get(resourcePath);
 
   const promise = fetch(`${resourcePath}.json`)
     .then(async (response) => {
-      if (!response.ok) return { href: '', target: '_self', style: '' };
+      if (!response.ok) {
+        return {
+          href: '', target: '_self', style: '', position: '',
+        };
+      }
       const data = await response.json();
       const href = normalizeLinkValue(data.imageLink);
       const target = normalizeLinkValue(data.imageTarget) || '_self';
       const style = normalizeImageStyle(data.imageStyle);
-      return { href, target, style };
+      const position = normalizeImagePosition(data.imagePosition);
+      return {
+        href, target, style, position,
+      };
     })
-    .catch(() => ({ href: '', target: '_self', style: '' }));
+    .catch(() => ({
+      href: '', target: '_self', style: '', position: '',
+    }));
 
   imageConfigCache.set(resourcePath, promise);
   return promise;
@@ -541,15 +594,23 @@ function applyImageLinksFromAue(main) {
     const { node: linkNode, value: href } = getFieldValue(main, 'imageLink', resource);
     const { node: targetNode, value: rawTarget } = getFieldValue(main, 'imageTarget', resource);
     const { node: styleNode, value: rawStyle } = getFieldValue(main, 'imageStyle', resource);
+    const { node: positionNode, value: rawPosition } = getFieldValue(main, 'imagePosition', resource);
     const fallbackStyle = rawStyle ? { node: null, value: '' } : getLabeledFieldValue(
       fallbackScope,
       ['image style', 'image size', 'image display', 'image fit'],
+    );
+    const fallbackPosition = rawPosition ? { node: null, value: '' } : getLabeledFieldValue(
+      fallbackScope,
+      ['image position', 'image alignment', 'horizontal alignment', 'position'],
     );
     const image = node.tagName === 'IMG' ? node : node.querySelector('img');
     if (!image) return;
     const imageElement = image.closest('picture') || image;
     const imageStyle = normalizeImageStyle(rawStyle || fallbackStyle.value);
+    const imagePosition = normalizeImagePosition(rawPosition || fallbackPosition.value);
     cleanupFieldNode(styleNode || fallbackStyle.node);
+    cleanupFieldNode(positionNode || fallbackPosition.node);
+    applyImagePosition(imageElement, imagePosition, node);
     if (imageStyle) {
       applyImageStyle(imageElement, imageStyle);
     }
@@ -562,8 +623,14 @@ function applyImageLinksFromAue(main) {
 
     const resourcePath = resourcePathFromUrn(resource);
     if (!resourcePath) return;
-    resolveImageConfigFromResource(resourcePath).then(({ href: resolvedHref, target, style }) => {
+    resolveImageConfigFromResource(resourcePath).then(({
+      href: resolvedHref,
+      target,
+      style,
+      position,
+    }) => {
       if (style && !imageStyle) applyImageStyle(imageElement, style);
+      if (position && !imagePosition) applyImagePosition(imageElement, position, node);
       if (href || !resolvedHref) return;
       applyAnchorToImage(imageElement, resolvedHref, target);
     });
@@ -578,6 +645,7 @@ function applyImageLinksFromRows(main) {
     let href = '';
     let target = '_self';
     let imageStyle = '';
+    let imagePosition = '';
     const rowsToRemove = [];
     rows.forEach((row) => {
       if (row.children.length !== 2) return;
@@ -594,12 +662,16 @@ function applyImageLinksFromRows(main) {
       } else if (['image style', 'image size', 'image display', 'image fit'].includes(key)) {
         imageStyle = normalizeImageStyle(valueText);
         rowsToRemove.push(row);
+      } else if (['image position', 'image alignment', 'horizontal alignment', 'position'].includes(key)) {
+        imagePosition = normalizeImagePosition(valueText);
+        rowsToRemove.push(row);
       }
     });
 
     const image = wrapper.querySelector('img');
     if (!image) return;
     const imageElement = image.closest('picture') || image;
+    if (imagePosition) applyImagePosition(imageElement, imagePosition, wrapper);
     if (imageStyle) applyImageStyle(imageElement, imageStyle);
     if (href) applyAnchorToImage(imageElement, href, target);
     rowsToRemove.forEach((row) => row.remove());

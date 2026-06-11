@@ -22,6 +22,47 @@
   height: auto;
 }
 
+.columns .image-positioned.align-left {
+  text-align: left;
+}
+
+.columns .image-positioned.align-center {
+  text-align: center;
+}
+
+.columns .image-positioned.align-right {
+  text-align: right;
+}
+
+.columns .image-positioned > picture,
+.columns .image-positioned > a,
+.columns picture.image-positioned {
+  display: block;
+  max-width: 100%;
+  width: fit-content;
+}
+
+.columns .image-positioned.align-left > picture,
+.columns .image-positioned.align-left > a,
+.columns picture.image-positioned.align-left,
+.columns img.image-positioned.align-left {
+  margin-inline: 0 auto;
+}
+
+.columns .image-positioned.align-center > picture,
+.columns .image-positioned.align-center > a,
+.columns picture.image-positioned.align-center,
+.columns img.image-positioned.align-center {
+  margin-inline: auto;
+}
+
+.columns .image-positioned.align-right > picture,
+.columns .image-positioned.align-right > a,
+.columns picture.image-positioned.align-right,
+.columns img.image-positioned.align-right {
+  margin-inline: auto 0;
+}
+
 .columns > div > div {
   min-width: 0;
   order: 1;

@@ -1,15 +1,19 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   getFieldSelector,
+  readAueResourceFields,
   readLinkField,
   readRichTextField,
   readTextField,
+  resourcePathFromAueResource,
 } from '../../scripts/block-field-utils.js';
 
 const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
 const TAB_LABEL_FIELD_NAMES = ['label', 'tabLabel'];
 const CARD_FIELD_NAMES = ['tabIndex', 'tabLabels', 'title', 'bodyContent', 'linkText', 'link'];
 const COMPONENT_NAMES = ['tabs-tab', 'tabs-tab-label', 'tabs-info-card'];
+const CARD_RESOURCE_FIELDS = ['tabIndex', 'linkText', 'link'];
+const cardResourceCache = new Map();
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -159,6 +163,50 @@ function appendTextField(field, target, fallback = '') {
   }
 }
 
+function resourcePathForCard(cardElement, fields = []) {
+  const resource = cardElement?.getAttribute?.('data-aue-resource')
+    || fields.find((field) => field?.source?.getAttribute?.('data-aue-resource'))
+      ?.source?.getAttribute('data-aue-resource')
+    || cardElement?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  return resourcePathFromAueResource(resource);
+}
+
+async function readCardResourceFields(cardElement, fields = []) {
+  const resourcePath = resourcePathForCard(cardElement, fields);
+  if (!resourcePath) return {};
+  if (cardResourceCache.has(resourcePath)) return cardResourceCache.get(resourcePath);
+
+  const pendingFields = readAueResourceFields(resourcePath, CARD_RESOURCE_FIELDS);
+  cardResourceCache.set(resourcePath, pendingFields);
+  return pendingFields;
+}
+
+function normalizeResourceText(value) {
+  if (value === undefined || value === null) return '';
+  if (Array.isArray(value)) return value.map(normalizeResourceText).filter(Boolean).join(', ');
+  if (typeof value === 'object') {
+    return String(value.value || value.text || value.label || value.name || '').trim();
+  }
+  return String(value).trim();
+}
+
+function normalizeResourceLink(value) {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'object') {
+    return String(value.href || value.path || value.url || value.value || '').trim();
+  }
+  return String(value).trim();
+}
+
+function flattenRawValues(value) {
+  if (value === undefined || value === null) return [];
+  if (Array.isArray(value)) return value.flatMap(flattenRawValues);
+  if (typeof value === 'object') return Object.values(value).flatMap(flattenRawValues);
+  return [value];
+}
+
 function tabOwnRows(tabRow) {
   const tabElement = componentElement(tabRow, 'tabs-tab') || tabRow;
   return directRows(tabElement).filter((row) => !isCardRow(row));
@@ -193,24 +241,25 @@ function findNestedCardRows(tabRow) {
 }
 
 function parseTabIndices(rawValue, sourceEl) {
-  // AEM may render string[] values as child list/block elements — read each child first
+  // AEM may render string[] values as child list/block elements; read each child first.
+  const childValues = [];
   if (sourceEl) {
     const childEls = [...(sourceEl.querySelectorAll?.('li, p') || [])];
     if (childEls.length) {
-      rawValue = childEls.map((el) => el.textContent.trim()).filter(Boolean).join(',');
+      childValues.push(...childEls.map((el) => el.textContent.trim()).filter(Boolean));
     }
   }
-  if (!rawValue) return [1];
-  const nums = String(rawValue)
-    .replace(/[\[\]"']/g, '')
-    .split(/[\n,; ]+/)
-    .map((s) => parseInt(s.replace(/\D+/g, '') || '0', 10))
+
+  const values = childValues.length ? childValues : flattenRawValues(rawValue);
+  const nums = values
+    .flatMap((value) => String(value || '').replace(/[[\]"']/g, '').match(/\d+/gu) || [])
+    .map((value) => parseInt(value, 10))
     .filter((n) => n >= 1 && n <= 5);
   const unique = [...new Set(nums)];
   return unique.length ? unique : [1];
 }
 
-function readCard(row, index) {
+async function readCard(row, index) {
   const cardElement = componentElement(row, 'tabs-info-card') || row;
   const rows = directRows(cardElement);
 
@@ -229,12 +278,19 @@ function readCard(row, index) {
   const tabIndexRaw = tabIndexSources.length > 1
     ? tabIndexSources.map((el) => el.textContent.trim()).filter(Boolean).join(',')
     : getRowTextField(cardElement, 'tabIndex', hasLeadField ? rows[0] : null).value;
-  const tabIndices = parseTabIndices(tabIndexRaw, tabIndexSource);
 
   const titleField = getRowRichField(cardElement, 'title', rows[offset]);
   const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
   const linkTextField = getRowTextField(cardElement, 'linkText', rows[offset + 2]);
   const linkField = getRowLinkField(cardElement, 'link', rows[offset + 3]);
+  const resourceFields = await readCardResourceFields(cardElement, [
+    tabIndexSource ? { source: tabIndexSource } : null,
+    linkTextField,
+    linkField,
+  ]);
+  const tabIndices = parseTabIndices(resourceFields.tabIndex || tabIndexRaw, tabIndexSource);
+  const linkTextValue = linkTextField.value || normalizeResourceText(resourceFields.linkText);
+  const linkValue = linkField.value || normalizeResourceLink(resourceFields.link);
 
   return {
     index,
@@ -244,10 +300,28 @@ function readCard(row, index) {
     tabKeys: [],
     titleField,
     bodyField,
-    linkTextField,
-    linkField,
+    linkTextField: { ...linkTextField, value: linkTextValue },
+    linkField: { ...linkField, value: linkValue },
     hasContent: richFieldHasContent(titleField) || richFieldHasContent(bodyField),
   };
+}
+
+function buildCardLink(card) {
+  const href = card.linkField.value;
+  const label = card.linkTextField.value;
+  if (!href && !label && !card.linkTextField.source && !card.linkField.source) return null;
+
+  const link = document.createElement(href ? 'a' : 'span');
+  link.className = 'tabs-card-link';
+  if (href) link.href = href;
+  if (card.linkField.source) moveInstrumentation(card.linkField.source, link);
+
+  const labelElement = document.createElement('span');
+  labelElement.className = 'tabs-card-link-text';
+  appendTextField(card.linkTextField, labelElement, label || 'Learn more');
+  link.append(labelElement);
+
+  return link;
 }
 
 function buildCard(card, options = {}) {
@@ -276,23 +350,15 @@ function buildCard(card, options = {}) {
 
   article.append(content);
 
-  const href = card.linkField.value;
-  const label = card.linkTextField.value;
-  // Also create the link element when source is set (UE mode) so AEM always has
-  // a data-aue-prop="linkText" DOM target to bind to, even on empty cards.
-  if (href || label || card.linkTextField.source) {
-    const link = document.createElement(href ? 'a' : 'span');
-    link.className = 'tabs-card-link';
-    if (href) link.href = href;
-    appendTextField(card.linkTextField, link, card.linkTextField.source ? '' : 'Learn more');
-    if (card.linkField.source) moveInstrumentation(card.linkField.source, link);
+  const link = buildCardLink(card);
+  if (link) {
     article.append(link);
   }
 
   return article;
 }
 
-function readTab(row, index, isAuthoring) {
+async function readTab(row, index, isAuthoring) {
   const tabElement = componentElement(row, 'tabs-tab') || row;
   const rows = tabOwnRows(tabElement);
   const labelRow = findTabLabelRow(tabElement);
@@ -304,8 +370,11 @@ function readTab(row, index, isAuthoring) {
   const label = labelField.value || `Tab ${index + 1}`;
   const idField = getRowTextField(tabElement, 'tabId', rows[1]);
   const key = normalizeKey(idField.value || label);
-  const cards = findNestedCardRows(tabElement)
-    .map((cardRow, cardIndex) => readCard(cardRow, cardIndex))
+  const readCards = await Promise.all(
+    findNestedCardRows(tabElement)
+      .map((cardRow, cardIndex) => readCard(cardRow, cardIndex)),
+  );
+  const cards = readCards
     .filter((card) => card.hasContent || isAuthoring)
     .map((card) => ({ ...card, element: buildCard(card, { inPlace: isAuthoring }) }));
 
@@ -318,8 +387,8 @@ function readTab(row, index, isAuthoring) {
   };
 }
 
-function deriveFlatTabs(tabRows, cards, isAuthoring) {
-  const tabs = tabRows.map((row, index) => readTab(row, index, isAuthoring));
+async function deriveFlatTabs(tabRows, cards, isAuthoring) {
+  const tabs = await Promise.all(tabRows.map((row, index) => readTab(row, index, isAuthoring)));
   if (tabs.length) return tabs;
 
   const seen = new Set();
@@ -348,9 +417,8 @@ function deriveFlatTabs(tabRows, cards, isAuthoring) {
   return derived;
 }
 
-function buildFlatTabs(allRows) {
+async function buildFlatTabs(allRows) {
   const tabs = [];
-  const flatCards = [];
 
   // First pass: collect tab labels in DOM order (AEM groups all labels first)
   allRows.forEach((row) => {
@@ -368,16 +436,20 @@ function buildFlatTabs(allRows) {
   // Second pass: assign cards by tabIndices field — order-independent, works even when
   // AEM groups all cards at the bottom after all label items. Each card may belong to
   // multiple tabs (multiselect).
-  allRows.forEach((row) => {
-    if (!isCardRow(row)) return;
-    const card = readCard(row, flatCards.length);
+  const cardRows = allRows.filter(isCardRow);
+  const readCards = await Promise.all(cardRows.map((row, index) => readCard(row, index)));
+  const flatCards = readCards.reduce((cards, card) => {
     const tabKeys = card.tabIndices
       .map((i) => (tabs[i - 1] ? tabs[i - 1].key : null))
       .filter(Boolean);
     // Fall back to first tab if no valid indices
-    const keys = tabKeys.length ? tabKeys : (tabs.length ? [tabs[0].key] : []);
-    if (keys.length) flatCards.push({ ...card, tabKeys: keys });
-  });
+    let keys = tabKeys;
+    if (!keys.length && tabs.length) {
+      keys = [tabs[0].key];
+    }
+    if (keys.length) cards.push({ ...card, tabKeys: keys });
+    return cards;
+  }, []);
 
   return { tabs, flatCards };
 }
@@ -519,7 +591,7 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
   };
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const allBlockRows = directRows(block);
   const hasFlatLabels = allBlockRows.some((row) => componentName(row) === 'tabs-tab-label');
@@ -528,7 +600,7 @@ export default function decorate(block) {
   let flatCards;
 
   if (hasFlatLabels) {
-    const flatResult = buildFlatTabs(allBlockRows);
+    const flatResult = await buildFlatTabs(allBlockRows);
     tabs = flatResult.tabs;
     flatCards = flatResult.flatCards
       .filter((card) => card.hasContent || isAuthoring)
@@ -547,11 +619,11 @@ export default function decorate(block) {
       block,
       (row) => isCardRow(row) && !tabRows.includes(row),
     );
-    flatCards = flatCardRows
-      .map((row, index) => readCard(row, index))
+    const readCards = await Promise.all(flatCardRows.map((row, index) => readCard(row, index)));
+    flatCards = readCards
       .filter((card) => card.hasContent || isAuthoring)
       .map((card) => ({ ...card, element: buildCard(card) }));
-    tabs = deriveFlatTabs(tabRows, flatCards, isAuthoring);
+    tabs = await deriveFlatTabs(tabRows, flatCards, isAuthoring);
   }
 
   const allCards = allCardsForTabs(tabs, flatCards);
