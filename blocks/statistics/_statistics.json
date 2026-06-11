@@ -47,7 +47,7 @@
           "component": "select",
           "valueType": "string",
           "name": "contentAlignment",
-          "label": "Content Alignment",
+          "label": "Horizontal Alignment",
           "options": [
             {
               "name": "Center (default)",
@@ -63,6 +63,27 @@
             }
           ],
           "value": "center"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalAlignment",
+          "label": "Vertical Alignment",
+          "options": [
+            {
+              "name": "Top (default)",
+              "value": "top"
+            },
+            {
+              "name": "Middle",
+              "value": "middle"
+            },
+            {
+              "name": "Bottom",
+              "value": "bottom"
+            }
+          ],
+          "value": "top"
         },
         {
           "component": "richtext",
@@ -93,6 +114,175 @@
         {
           "component": "text",
           "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "blockBackgroundColor",
+          "label": "Block Background Color (Hex, Optional)",
+          "description": "Leave empty for a transparent block background.",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "headingTextColor",
+          "label": "Heading Text Color (Hex, Optional)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #00264D."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "headingFontSize",
+          "label": "Heading Font Size",
+          "description": "Optional CSS length such as 42px, 2.5rem, or clamp(2rem, 5vw, 4rem).",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingFontWeight",
+          "label": "Heading Font Weight",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "Regular", "value": "400" },
+            { "name": "Medium", "value": "500" },
+            { "name": "Semi Bold", "value": "600" },
+            { "name": "Bold", "value": "700" },
+            { "name": "Extra Bold", "value": "800" }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "bodyTextColor",
+          "label": "Body Text Color (Hex, Optional)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #404041."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bodyFontSize",
+          "label": "Body Font Size",
+          "description": "Optional CSS length such as 20px, 1.25rem, or clamp(1rem, 2vw, 1.5rem).",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "bodyFontWeight",
+          "label": "Body Font Weight",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "Regular", "value": "400" },
+            { "name": "Medium", "value": "500" },
+            { "name": "Semi Bold", "value": "600" },
+            { "name": "Bold", "value": "700" },
+            { "name": "Extra Bold", "value": "800" }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "valueTextColor",
+          "label": "Stat Value Text Color (Hex, Optional)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "valueFontSize",
+          "label": "Stat Value Font Size",
+          "description": "Optional CSS length such as 64px, 4rem, or clamp(3rem, 8vw, 6rem).",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "valueFontWeight",
+          "label": "Stat Value Font Weight",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "Regular", "value": "400" },
+            { "name": "Medium", "value": "500" },
+            { "name": "Semi Bold", "value": "600" },
+            { "name": "Bold", "value": "700" },
+            { "name": "Extra Bold", "value": "800" }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "labelTextColor",
+          "label": "Stat Label Text Color (Hex, Optional)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #6B6B6B."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "labelFontSize",
+          "label": "Stat Label Font Size",
+          "description": "Optional CSS length such as 18px, 1.125rem, or clamp(1rem, 2vw, 1.25rem).",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "labelFontWeight",
+          "label": "Stat Label Font Weight",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "Regular", "value": "400" },
+            { "name": "Medium", "value": "500" },
+            { "name": "Semi Bold", "value": "600" },
+            { "name": "Bold", "value": "700" },
+            { "name": "Extra Bold", "value": "800" }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeight",
+          "label": "Minimum Height",
+          "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeightMobile",
+          "label": "Minimum Height (Mobile)",
+          "description": "Optional CSS length override for screens up to 700px. Leave blank to use the same value as Minimum Height.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "value": "",
           "name": "statValues",
           "label": "Legacy Stat Values (one per line)",
@@ -111,8 +301,8 @@
           "valueType": "string",
           "value": "",
           "name": "textColors",
-          "label": "Text Styles",
-          "description": "Optional. One per line: heading|#00264d, body|#404041, value|#1491bf, label|#6b6b6b, body-size|1.25rem, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem"
+          "label": "Legacy Text Styles",
+          "description": "Optional fallback. One per line: heading|#00264d, body|#404041, value|#1491bf, label|#6b6b6b, heading-size|2.6rem, body-size|1.25rem, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem, heading-weight|700, body-weight|400, value-weight|700, label-weight|400"
         }
       ]
     },

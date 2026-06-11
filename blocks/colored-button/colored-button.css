@@ -8,13 +8,18 @@
   --colored-button-min-height: 0;
   --colored-button-block-bg: transparent;
 
-  background-color: var(--colored-button-block-bg);
   padding: 12px 0;
 }
 
 .colored-button .colored-button-inner {
   display: flex;
+  width: 100%;
   min-height: var(--colored-button-min-height);
+  background-color: var(--colored-button-block-bg);
+}
+
+.colored-button.has-block-background .colored-button-inner {
+  padding: 15px;
 }
 
 .colored-button.colored-button-v-top .colored-button-inner {

@@ -1,7 +1,13 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readImageField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
 import { animateCountUpOnVisible } from '../../scripts/count-up.js';
+import injectColorPickers from '../../scripts/block-color-picker.js';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -90,6 +96,65 @@ function normalizeColorKey(value) {
   return String(value || '').trim().toLowerCase().replace(/[^a-z]+/g, ' ');
 }
 
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) return hexMatch[0];
+  return normalized;
+}
+
+function normalizeCssLength(value, propertyName) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^-?\d+(\.\d+)?$/u.test(normalized)) return `${normalized}px`;
+  if (!window.CSS?.supports || window.CSS.supports(propertyName, normalized)) return normalized;
+  return '';
+}
+
+function normalizeOption(value, allowedValues, fallback) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function normalizeFontWeight(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  const namedWeights = {
+    regular: '400',
+    normal: '400',
+    medium: '500',
+    semibold: '600',
+    'semi-bold': '600',
+    bold: '700',
+    extrabold: '800',
+    'extra-bold': '800',
+  };
+  if (namedWeights[normalized]) return namedWeights[normalized];
+  return /^(?:[1-9]00)$/u.test(normalized) ? normalized : '';
+}
+
+function setCssVar(block, name, value) {
+  if (value) block.style.setProperty(name, value);
+}
+
+function applyBlockBackground(block, value) {
+  const color = normalizeColorValue(value);
+  if (!color) {
+    block.classList.remove('has-block-background');
+    block.style.removeProperty('--statistics-block-bg');
+    return;
+  }
+
+  block.classList.add('has-block-background');
+  block.style.setProperty('--statistics-block-bg', color);
+}
+
 function parseTextColors(value) {
   return normalizeLines(value).reduce((colors, line) => {
     const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
@@ -99,10 +164,10 @@ function parseTextColors(value) {
     const color = line.slice(separatorIndex + 1).trim();
     if (!color) return colors;
 
-    if (['heading', 'title'].includes(key)) colors.heading = color;
-    else if (['body', 'body text', 'copy', 'subheading', 'subtitle'].includes(key)) colors.body = color;
-    else if (['value', 'stat value', 'stat values'].includes(key)) colors.value = color;
-    else if (['label', 'stat label', 'stat labels'].includes(key)) colors.label = color;
+    if (['heading', 'heading color', 'title'].includes(key)) colors.heading = color;
+    else if (['body', 'body color', 'body text', 'copy', 'subheading', 'subtitle'].includes(key)) colors.body = color;
+    else if (['value', 'value color', 'stat value', 'stat values'].includes(key)) colors.value = color;
+    else if (['label', 'label color', 'stat label', 'stat labels'].includes(key)) colors.label = color;
 
     return colors;
   }, {});
@@ -117,7 +182,9 @@ function parseTextSizes(value) {
     const size = line.slice(separatorIndex + 1).trim();
     if (!size) return sizes;
 
-    if (['body size', 'body text size', 'copy size'].includes(key)) {
+    if (['heading size', 'heading text size', 'title size'].includes(key)) {
+      sizes.heading = size;
+    } else if (['body size', 'body text size', 'copy size'].includes(key)) {
       sizes.body = size;
     } else if (['value size', 'stat value size', 'stat values size'].includes(key)) {
       sizes.value = size;
@@ -127,6 +194,69 @@ function parseTextSizes(value) {
 
     return sizes;
   }, {});
+}
+
+function parseTextWeights(value) {
+  return normalizeLines(value).reduce((weights, line) => {
+    const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
+    if (separatorIndex <= 0) return weights;
+
+    const key = normalizeColorKey(line.slice(0, separatorIndex));
+    const weight = normalizeFontWeight(line.slice(separatorIndex + 1).trim());
+    if (!weight) return weights;
+
+    if (['heading weight', 'heading font weight', 'title weight'].includes(key)) {
+      weights.heading = weight;
+    } else if (['body weight', 'body font weight', 'body text weight', 'copy weight'].includes(key)) {
+      weights.body = weight;
+    } else if (['value weight', 'value font weight', 'stat value weight'].includes(key)) {
+      weights.value = weight;
+    } else if (['label weight', 'label font weight', 'stat label weight'].includes(key)) {
+      weights.label = weight;
+    }
+
+    return weights;
+  }, {});
+}
+
+function applyStatisticsStyles(block, fields = {}) {
+  if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
+    applyBlockBackground(block, fields.blockBackgroundColor);
+  }
+  setCssVar(block, '--statistics-heading-color', normalizeColorValue(fields.headingTextColor));
+  setCssVar(block, '--statistics-body-color', normalizeColorValue(fields.bodyTextColor));
+  setCssVar(block, '--statistics-value-color', normalizeColorValue(fields.valueTextColor));
+  setCssVar(block, '--statistics-label-color', normalizeColorValue(fields.labelTextColor));
+  setCssVar(block, '--statistics-heading-size', normalizeCssLength(fields.headingFontSize, 'font-size'));
+  setCssVar(block, '--statistics-body-size', normalizeCssLength(fields.bodyFontSize, 'font-size'));
+  setCssVar(block, '--statistics-value-size', normalizeCssLength(fields.valueFontSize, 'font-size'));
+  setCssVar(block, '--statistics-label-size', normalizeCssLength(fields.labelFontSize, 'font-size'));
+  setCssVar(block, '--statistics-heading-weight', normalizeFontWeight(fields.headingFontWeight));
+  setCssVar(block, '--statistics-body-weight', normalizeFontWeight(fields.bodyFontWeight));
+  setCssVar(block, '--statistics-value-weight', normalizeFontWeight(fields.valueFontWeight));
+  setCssVar(block, '--statistics-label-weight', normalizeFontWeight(fields.labelFontWeight));
+  setCssVar(block, '--statistics-min-height', normalizeCssLength(fields.minHeight, 'min-height'));
+  setCssVar(block, '--statistics-min-height-mobile', normalizeCssLength(fields.minHeightMobile, 'min-height'));
+}
+
+function syncResourceStyles(resourcePath, block) {
+  readAueResourceFields(resourcePath, [
+    'blockBackgroundColor',
+    'headingTextColor',
+    'headingFontSize',
+    'headingFontWeight',
+    'bodyTextColor',
+    'bodyFontSize',
+    'bodyFontWeight',
+    'valueTextColor',
+    'valueFontSize',
+    'valueFontWeight',
+    'labelTextColor',
+    'labelFontSize',
+    'labelFontWeight',
+    'minHeight',
+    'minHeightMobile',
+  ]).then((fields) => applyStatisticsStyles(block, fields));
 }
 
 function hasAuthoringContext(scope) {
@@ -161,8 +291,24 @@ function readItemRows(block) {
             '[data-aue-prop="heading"]',
             '[data-aue-prop="bodyText"]',
             '[data-aue-prop="contentAlignment"]',
+            '[data-aue-prop="verticalAlignment"]',
             '[data-aue-prop="subheading"]',
             '[data-aue-prop="verticalDividers"]',
+            '[data-aue-prop="blockBackgroundColor"]',
+            '[data-aue-prop="headingTextColor"]',
+            '[data-aue-prop="headingFontSize"]',
+            '[data-aue-prop="headingFontWeight"]',
+            '[data-aue-prop="bodyTextColor"]',
+            '[data-aue-prop="bodyFontSize"]',
+            '[data-aue-prop="bodyFontWeight"]',
+            '[data-aue-prop="valueTextColor"]',
+            '[data-aue-prop="valueFontSize"]',
+            '[data-aue-prop="valueFontWeight"]',
+            '[data-aue-prop="labelTextColor"]',
+            '[data-aue-prop="labelFontSize"]',
+            '[data-aue-prop="labelFontWeight"]',
+            '[data-aue-prop="minHeight"]',
+            '[data-aue-prop="minHeightMobile"]',
             '[data-aue-prop="statValues"]',
             '[data-aue-prop="statLabels"]',
             '[data-aue-prop="textColors"]',
@@ -250,10 +396,27 @@ function buildItem(itemData) {
 }
 
 export default function decorate(block) {
+  const resourcePath = getAueResourcePath(block);
   const headingField = readField(block, 'heading', ['heading', 'title']);
-  const contentAlignmentField = readField(block, 'contentAlignment', ['content alignment', 'heading alignment']);
+  const contentAlignmentField = readField(block, 'contentAlignment', ['content alignment', 'horizontal alignment', 'heading alignment']);
+  const verticalAlignmentField = readField(block, 'verticalAlignment', ['vertical alignment']);
   const bodyTextField = readField(block, 'bodyText', ['body text', 'body', 'copy', 'subheading']);
   const verticalDividersField = readField(block, 'verticalDividers', ['vertical dividers', 'dividers']);
+  const blockBackgroundField = readField(block, 'blockBackgroundColor', ['block background color', 'background color']);
+  const headingColorField = readField(block, 'headingTextColor', ['heading text color', 'heading color']);
+  const headingSizeField = readField(block, 'headingFontSize', ['heading font size', 'heading size']);
+  const headingWeightField = readField(block, 'headingFontWeight', ['heading font weight', 'heading weight']);
+  const bodyColorField = readField(block, 'bodyTextColor', ['body text color', 'body color']);
+  const bodySizeField = readField(block, 'bodyFontSize', ['body font size', 'body size']);
+  const bodyWeightField = readField(block, 'bodyFontWeight', ['body font weight', 'body weight']);
+  const valueColorField = readField(block, 'valueTextColor', ['stat value text color', 'value text color', 'value color']);
+  const valueSizeField = readField(block, 'valueFontSize', ['stat value font size', 'value font size', 'value size']);
+  const valueWeightField = readField(block, 'valueFontWeight', ['stat value font weight', 'value font weight', 'value weight']);
+  const labelColorField = readField(block, 'labelTextColor', ['stat label text color', 'label text color', 'label color']);
+  const labelSizeField = readField(block, 'labelFontSize', ['stat label font size', 'label font size', 'label size']);
+  const labelWeightField = readField(block, 'labelFontWeight', ['stat label font weight', 'label font weight', 'label weight']);
+  const minHeightField = readField(block, 'minHeight', ['minimum height', 'min height']);
+  const minHeightMobileField = readField(block, 'minHeightMobile', ['mobile min height', 'minimum height mobile']);
   const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
   const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
   const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors']);
@@ -262,19 +425,47 @@ export default function decorate(block) {
   const labels = normalizeLines(statLabelsField.value);
   const textColors = parseTextColors(textStylesField.value);
   const textSizes = parseTextSizes(textStylesField.value);
+  const textWeights = parseTextWeights(textStylesField.value);
+  const headingColor = normalizeColorValue(headingColorField.value) || textColors.heading || '#00264d';
+  const bodyColor = normalizeColorValue(bodyColorField.value) || textColors.body || '#404041';
+  const valueColor = normalizeColorValue(valueColorField.value) || textColors.value || '#00264d';
+  const labelColor = normalizeColorValue(labelColorField.value) || textColors.label || '#6b6b6b';
+  const blockBackgroundColor = normalizeColorValue(blockBackgroundField.value);
 
   if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
   if (textColors.body) block.style.setProperty('--statistics-body-color', textColors.body);
   if (textColors.value) block.style.setProperty('--statistics-value-color', textColors.value);
   if (textColors.label) block.style.setProperty('--statistics-label-color', textColors.label);
+  if (textSizes.heading) block.style.setProperty('--statistics-heading-size', textSizes.heading);
   if (textSizes.body) block.style.setProperty('--statistics-body-size', textSizes.body);
   if (textSizes.value) block.style.setProperty('--statistics-value-size', textSizes.value);
   if (textSizes.label) block.style.setProperty('--statistics-label-size', textSizes.label);
+  if (textWeights.heading) block.style.setProperty('--statistics-heading-weight', textWeights.heading);
+  if (textWeights.body) block.style.setProperty('--statistics-body-weight', textWeights.body);
+  if (textWeights.value) block.style.setProperty('--statistics-value-weight', textWeights.value);
+  if (textWeights.label) block.style.setProperty('--statistics-label-weight', textWeights.label);
 
-  const alignment = contentAlignmentField.value.toLowerCase();
-  if (alignment === 'left' || alignment === 'right') {
-    block.classList.add(`statistics-align-${alignment}`);
-  }
+  applyStatisticsStyles(block, {
+    blockBackgroundColor: blockBackgroundField.value,
+    headingTextColor: headingColorField.value,
+    headingFontSize: headingSizeField.value,
+    headingFontWeight: headingWeightField.value,
+    bodyTextColor: bodyColorField.value,
+    bodyFontSize: bodySizeField.value,
+    bodyFontWeight: bodyWeightField.value,
+    valueTextColor: valueColorField.value,
+    valueFontSize: valueSizeField.value,
+    valueFontWeight: valueWeightField.value,
+    labelTextColor: labelColorField.value,
+    labelFontSize: labelSizeField.value,
+    labelFontWeight: labelWeightField.value,
+    minHeight: minHeightField.value,
+    minHeightMobile: minHeightMobileField.value,
+  });
+
+  const alignment = normalizeOption(contentAlignmentField.value, ['left', 'center', 'right'], 'center');
+  const verticalAlignment = normalizeOption(verticalAlignmentField.value, ['top', 'middle', 'bottom'], 'top');
+  block.classList.add(`statistics-align-${alignment}`, `statistics-v-${verticalAlignment}`);
 
   if (verticalDividersField.value.toLowerCase() === 'hide') {
     block.classList.add('statistics-no-dividers');
@@ -301,10 +492,25 @@ export default function decorate(block) {
 
   block.replaceChildren(wrapper);
 
+  injectColorPickers(block, [
+    { label: 'Heading', cssVar: '--statistics-heading-color', value: headingColor },
+    { label: 'Body', cssVar: '--statistics-body-color', value: bodyColor },
+    { label: 'Value', cssVar: '--statistics-value-color', value: valueColor },
+    { label: 'Label', cssVar: '--statistics-label-color', value: labelColor },
+    {
+      label: 'Block Background',
+      cssVar: '--statistics-block-bg',
+      value: blockBackgroundColor || '#ffffff',
+      className: 'has-block-background',
+    },
+  ]);
+
   block.querySelectorAll('.statistics-value').forEach((valueEl, index) => {
     animateCountUpOnVisible(valueEl, {
       displayValue: valueEl.dataset.finalValue,
       duration: 950 + (index * 120),
     });
   });
+
+  syncResourceStyles(resourcePath, block);
 }

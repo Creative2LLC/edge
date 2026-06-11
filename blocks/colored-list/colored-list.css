@@ -8,13 +8,18 @@
   --colored-list-min-height-mobile: var(--colored-list-min-height);
   --colored-list-block-bg: transparent;
 
-  background-color: var(--colored-list-block-bg);
   padding: 12px 0;
 }
 
 .colored-list .colored-list-inner {
   display: flex;
+  width: 100%;
   min-height: var(--colored-list-min-height);
+  background-color: var(--colored-list-block-bg);
+}
+
+.colored-list.has-block-background .colored-list-inner {
+  padding: 15px;
 }
 
 .colored-list.colored-list-v-top .colored-list-inner {

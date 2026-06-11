@@ -6,13 +6,18 @@
   --colored-text-min-height-mobile: var(--colored-text-min-height);
   --colored-text-block-bg: transparent;
 
-  background-color: var(--colored-text-block-bg);
   padding: 12px 0;
 }
 
 .colored-text .colored-text-inner {
   display: flex;
+  width: 100%;
   min-height: var(--colored-text-min-height);
+  background-color: var(--colored-text-block-bg);
+}
+
+.colored-text.has-block-background .colored-text-inner {
+  padding: 15px;
 }
 
 .colored-text.colored-text-v-top .colored-text-inner {

@@ -89,7 +89,7 @@ export default function injectColorPickers(block, props) {
   bar.className = 'color-picker-bar';
 
   props.forEach(({
-    label, cssVar, value,
+    label, cssVar, value, className,
   }) => {
     const swatch = document.createElement('label');
     swatch.className = 'color-picker-swatch';
@@ -105,12 +105,14 @@ export default function injectColorPickers(block, props) {
     // Live preview while dragging
     input.addEventListener('input', () => {
       block.style.setProperty(cssVar, input.value);
+      if (className) block.classList.add(className);
     });
 
     // On commit — copy hex to clipboard and guide author to paste into the panel field
     input.addEventListener('change', () => {
       const hex = input.value;
       block.style.setProperty(cssVar, hex);
+      if (className) block.classList.add(className);
       navigator.clipboard?.writeText(hex).catch(() => {});
       showToast(`${hex} copied — paste into the ${label} field`);
     });

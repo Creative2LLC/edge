@@ -51,6 +51,18 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function applyBlockBackground(block, value) {
+  const color = normalizeColorValue(value);
+  if (!color) {
+    block.classList.remove('has-block-background');
+    block.style.removeProperty('--colored-text-block-bg');
+    return;
+  }
+
+  block.classList.add('has-block-background');
+  block.style.setProperty('--colored-text-block-bg', color);
+}
+
 function watchColorField(source, cssVar, block) {
   if (!source) return;
   new MutationObserver(() => {
@@ -59,13 +71,19 @@ function watchColorField(source, cssVar, block) {
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
+function watchBlockBackgroundField(source, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    applyBlockBackground(block, source.textContent);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
 function syncResourceColorFields(resourcePath, block) {
   readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor'])
     .then((fields) => {
       const color = normalizeColorValue(fields.textColor);
-      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
       if (color) block.style.setProperty('--colored-text-color', color);
-      if (blockBackgroundColor) block.style.setProperty('--colored-text-block-bg', blockBackgroundColor);
+      applyBlockBackground(block, fields.blockBackgroundColor);
     });
 }
 
@@ -178,7 +196,7 @@ export default function decorate(block) {
 
   block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
   if (textColor) block.style.setProperty('--colored-text-color', textColor);
-  if (blockBackgroundColor) block.style.setProperty('--colored-text-block-bg', blockBackgroundColor);
+  applyBlockBackground(block, blockBackgroundColor);
   if (fontSize) block.style.setProperty('--colored-text-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-text-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-text-min-height', minHeight);
@@ -210,12 +228,17 @@ export default function decorate(block) {
 
   if (isEditor) {
     watchColorField(txtField.source, '--colored-text-color', block);
-    watchColorField(blockBgField.source, '--colored-text-block-bg', block);
+    watchBlockBackgroundField(blockBgField.source, block);
   }
 
   injectColorPickers(block, [
     { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041' },
-    { label: 'Block Background', cssVar: '--colored-text-block-bg', value: blockBackgroundColor || '#ffffff' },
+    {
+      label: 'Block Background',
+      cssVar: '--colored-text-block-bg',
+      value: blockBackgroundColor || '#ffffff',
+      className: 'has-block-background',
+    },
   ]);
 
   syncResourceColorFields(resourcePath, block);

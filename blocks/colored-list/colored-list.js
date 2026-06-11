@@ -64,11 +64,30 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function applyBlockBackground(block, value) {
+  const color = normalizeColorValue(value);
+  if (!color) {
+    block.classList.remove('has-block-background');
+    block.style.removeProperty('--colored-list-block-bg');
+    return;
+  }
+
+  block.classList.add('has-block-background');
+  block.style.setProperty('--colored-list-block-bg', color);
+}
+
 function watchColorField(source, cssVar, block) {
   if (!source) return;
   new MutationObserver(() => {
     const color = normalizeColorValue(source.textContent.trim());
     if (color) block.style.setProperty(cssVar, color);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function watchBlockBackgroundField(source, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    applyBlockBackground(block, source.textContent);
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
@@ -78,12 +97,11 @@ function syncResourceColorFields(resourcePath, block) {
       const textColor = normalizeColorValue(fields.textColor);
       const markerColor = normalizeColorValue(fields.markerColor);
       const markerTextColor = normalizeColorValue(fields.markerTextColor);
-      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
 
       if (textColor) block.style.setProperty('--colored-list-text-color', textColor);
       if (markerColor) block.style.setProperty('--colored-list-marker-color', markerColor);
       if (markerTextColor) block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
-      if (blockBackgroundColor) block.style.setProperty('--colored-list-block-bg', blockBackgroundColor);
+      applyBlockBackground(block, fields.blockBackgroundColor);
     });
 }
 
@@ -273,7 +291,7 @@ export default function decorate(block) {
   block.style.setProperty('--colored-list-text-color', textColor);
   block.style.setProperty('--colored-list-marker-color', markerColor);
   block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
-  if (blockBackgroundColor) block.style.setProperty('--colored-list-block-bg', blockBackgroundColor);
+  applyBlockBackground(block, blockBackgroundColor);
   if (fontSize) block.style.setProperty('--colored-list-font-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-list-font-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-list-min-height', minHeight);
@@ -314,14 +332,19 @@ export default function decorate(block) {
     watchColorField(txtField.source, '--colored-list-text-color', block);
     watchColorField(mrkField.source, '--colored-list-marker-color', block);
     watchColorField(mrkTxtField.source, '--colored-list-marker-text-color', block);
-    watchColorField(blockBgField.source, '--colored-list-block-bg', block);
+    watchBlockBackgroundField(blockBgField.source, block);
   }
 
   injectColorPickers(block, [
     { label: 'Text', cssVar: '--colored-list-text-color', value: textColor },
     { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor },
     { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor },
-    { label: 'Block Background', cssVar: '--colored-list-block-bg', value: blockBackgroundColor || '#ffffff' },
+    {
+      label: 'Block Background',
+      cssVar: '--colored-list-block-bg',
+      value: blockBackgroundColor || '#ffffff',
+      className: 'has-block-background',
+    },
   ]);
 
   syncResourceColorFields(resourcePath, block);

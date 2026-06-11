@@ -56,11 +56,30 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function applyBlockBackground(block, value) {
+  const color = normalizeColorValue(value);
+  if (!color) {
+    block.classList.remove('has-block-background');
+    block.style.removeProperty('--colored-button-block-bg');
+    return;
+  }
+
+  block.classList.add('has-block-background');
+  block.style.setProperty('--colored-button-block-bg', color);
+}
+
 function watchColorField(source, cssVar, block) {
   if (!source) return;
   new MutationObserver(() => {
     const color = normalizeColorValue(source.textContent.trim());
     if (color) block.style.setProperty(cssVar, color);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function watchBlockBackgroundField(source, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    applyBlockBackground(block, source.textContent);
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
@@ -70,13 +89,12 @@ function syncResourceColorFields(resourcePath, block) {
       const backgroundColor = normalizeColorValue(fields.backgroundColor);
       const textColor = normalizeColorValue(fields.textColor);
       const borderColor = normalizeColorValue(fields.borderColor);
-      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
 
       if (backgroundColor) block.style.setProperty('--colored-button-bg', backgroundColor);
       if (textColor) block.style.setProperty('--colored-button-text', textColor);
       if (borderColor) block.style.setProperty('--colored-button-border', borderColor);
       else if (backgroundColor) block.style.setProperty('--colored-button-border', backgroundColor);
-      if (blockBackgroundColor) block.style.setProperty('--colored-button-block-bg', blockBackgroundColor);
+      applyBlockBackground(block, fields.blockBackgroundColor);
     });
 }
 
@@ -264,7 +282,7 @@ export default function decorate(block) {
   block.style.setProperty('--colored-button-bg', backgroundColor);
   block.style.setProperty('--colored-button-text', textColor);
   block.style.setProperty('--colored-button-border', borderColor);
-  if (blockBackgroundColor) block.style.setProperty('--colored-button-block-bg', blockBackgroundColor);
+  applyBlockBackground(block, blockBackgroundColor);
 
   const inner = document.createElement('div');
   inner.className = 'colored-button-inner';
@@ -303,14 +321,19 @@ export default function decorate(block) {
     watchColorField(bgField.source, '--colored-button-bg', block);
     watchColorField(txtField.source, '--colored-button-text', block);
     watchColorField(bdrField.source, '--colored-button-border', block);
-    watchColorField(blockBgField.source, '--colored-button-block-bg', block);
+    watchBlockBackgroundField(blockBgField.source, block);
   }
 
   injectColorPickers(block, [
     { label: 'Button Background', cssVar: '--colored-button-bg', value: backgroundColor },
     { label: 'Text', cssVar: '--colored-button-text', value: textColor },
     { label: 'Border', cssVar: '--colored-button-border', value: borderColor },
-    { label: 'Block Background', cssVar: '--colored-button-block-bg', value: blockBackgroundColor || '#ffffff' },
+    {
+      label: 'Block Background',
+      cssVar: '--colored-button-block-bg',
+      value: blockBackgroundColor || '#ffffff',
+      className: 'has-block-background',
+    },
   ]);
 
   syncResourceColorFields(resourcePath, block);

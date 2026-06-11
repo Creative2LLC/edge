@@ -50,6 +50,18 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function applyBlockBackground(block, value) {
+  const color = normalizeColorValue(value);
+  if (!color) {
+    block.classList.remove('has-block-background');
+    block.style.removeProperty('--colored-heading-block-bg');
+    return;
+  }
+
+  block.classList.add('has-block-background');
+  block.style.setProperty('--colored-heading-block-bg', color);
+}
+
 function normalizeCssLength(value, propertyName) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -92,13 +104,19 @@ function watchColorField(source, cssVar, block) {
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
+function watchBlockBackgroundField(source, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    applyBlockBackground(block, source.textContent);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
 function syncResourceColorFields(resourcePath, block) {
   readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor'])
     .then((fields) => {
       const color = normalizeColorValue(fields.textColor);
-      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
       if (color) block.style.setProperty('--colored-heading-color', color);
-      if (blockBackgroundColor) block.style.setProperty('--colored-heading-block-bg', blockBackgroundColor);
+      applyBlockBackground(block, fields.blockBackgroundColor);
     });
 }
 
@@ -165,7 +183,7 @@ export default function decorate(block) {
 
   block.classList.add(`colored-heading-h-${horizontalAlign}`, `colored-heading-v-${verticalAlign}`);
   block.style.setProperty('--colored-heading-color', textColor);
-  if (blockBackgroundColor) block.style.setProperty('--colored-heading-block-bg', blockBackgroundColor);
+  applyBlockBackground(block, blockBackgroundColor);
   if (fontSize) {
     block.classList.add('has-custom-size');
     block.style.setProperty('--colored-heading-size', fontSize);
@@ -210,12 +228,17 @@ export default function decorate(block) {
 
   if (isEditor) {
     watchColorField(txtField.source, '--colored-heading-color', block);
-    watchColorField(blockBgField.source, '--colored-heading-block-bg', block);
+    watchBlockBackgroundField(blockBgField.source, block);
   }
 
   injectColorPickers(block, [
     { label: 'Text Color', cssVar: '--colored-heading-color', value: textColor },
-    { label: 'Block Background', cssVar: '--colored-heading-block-bg', value: blockBackgroundColor || '#ffffff' },
+    {
+      label: 'Block Background',
+      cssVar: '--colored-heading-block-bg',
+      value: blockBackgroundColor || '#ffffff',
+      className: 'has-block-background',
+    },
   ]);
 
   syncResourceColorFields(resourcePath, block);

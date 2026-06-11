@@ -6,13 +6,18 @@
   --colored-heading-min-height-mobile: var(--colored-heading-min-height);
   --colored-heading-block-bg: transparent;
 
-  background-color: var(--colored-heading-block-bg);
   padding: 12px 0;
 }
 
 .colored-heading .colored-heading-inner {
   display: flex;
+  width: 100%;
   min-height: var(--colored-heading-min-height);
+  background-color: var(--colored-heading-block-bg);
+}
+
+.colored-heading.has-block-background .colored-heading-inner {
+  padding: 15px;
 }
 
 .colored-heading.colored-heading-v-top .colored-heading-inner {
