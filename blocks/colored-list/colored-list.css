@@ -6,7 +6,9 @@
   --colored-list-font-weight: inherit;
   --colored-list-min-height: 0;
   --colored-list-min-height-mobile: var(--colored-list-min-height);
+  --colored-list-block-bg: transparent;
 
+  background-color: var(--colored-list-block-bg);
   padding: 12px 0;
 }
 

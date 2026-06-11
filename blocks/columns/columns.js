@@ -1,3 +1,15 @@
+import {
+  readAueResourceFields,
+  resourcePathFromAueResource,
+} from '../../scripts/block-field-utils.js';
+
+const COLUMN_SCOPE_SELECTOR = '[data-aue-filter="column"], [data-aue-label="Column"], [data-aue-model="column"]';
+const DIRECT_COLUMN_SCOPE_SELECTOR = [
+  ':scope > [data-aue-filter="column"]',
+  ':scope > [data-aue-label="Column"]',
+  ':scope > [data-aue-model="column"]',
+].join(', ');
+
 function normalizeAlignment(value, allowedValues, fallback = '') {
   const normalized = String(value || '')
     .trim()
@@ -6,6 +18,18 @@ function normalizeAlignment(value, allowedValues, fallback = '') {
     .replace(/^-|-$/g, '');
 
   return allowedValues.find((allowedValue) => normalized.includes(allowedValue)) || fallback;
+}
+
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) {
+    return hexMatch[0];
+  }
+
+  return normalized;
 }
 
 function isNestedComponentField(block, field) {
@@ -27,6 +51,19 @@ function isNestedComponentField(block, field) {
   );
 }
 
+function getColumnAuthoringScope(column) {
+  if (column.matches(COLUMN_SCOPE_SELECTOR)) return column;
+  return column.querySelector(DIRECT_COLUMN_SCOPE_SELECTOR);
+}
+
+function directChildOf(scope, element) {
+  let row = element;
+  while (row && row.parentElement !== scope) {
+    row = row.parentElement;
+  }
+  return row && row.parentElement === scope ? row : null;
+}
+
 function findOwnField(block, row, name) {
   const selector = `[data-aue-prop="${name}"]`;
   const candidates = [
@@ -36,6 +73,96 @@ function findOwnField(block, row, name) {
 
   return candidates
     .find((field) => !isNestedComponentField(block, field)) || null;
+}
+
+function isNestedColumnField(column, scope, field) {
+  if (isNestedComponentField(scope, field)) return true;
+
+  const columnsBlock = column.closest('.columns.block') || column.closest('.block');
+  const owningBlock = field.closest('.block');
+  if (owningBlock && owningBlock !== columnsBlock) return true;
+
+  const owningModel = field.closest('[data-aue-model]');
+  return Boolean(
+    owningModel
+      && owningModel !== scope
+      && owningModel !== column
+      && !owningModel.matches(COLUMN_SCOPE_SELECTOR),
+  );
+}
+
+function cleanupColumnBackgroundField(column, source) {
+  if (!source) return;
+
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const scope = getColumnAuthoringScope(column) || column;
+  const row = directChildOf(scope, source);
+  const target = row && row !== scope ? row : source;
+
+  if (target === column || target === scope) return;
+
+  if (isEditor) {
+    target.hidden = true;
+    return;
+  }
+
+  target.remove();
+}
+
+function findColumnBackgroundField(column) {
+  const scope = getColumnAuthoringScope(column) || column;
+  const selector = '[data-aue-prop="backgroundColor"]';
+  const candidates = [
+    ...(scope.matches(selector) ? [scope] : []),
+    ...scope.querySelectorAll(selector),
+  ];
+
+  return candidates
+    .find((field) => !isNestedColumnField(column, scope, field)) || null;
+}
+
+function getColumnResourcePath(column, source = null) {
+  const scope = getColumnAuthoringScope(column);
+  return resourcePathFromAueResource(
+    source?.getAttribute('data-aue-resource')
+      || scope?.getAttribute('data-aue-resource')
+      || column.getAttribute('data-aue-resource')
+      || '',
+  );
+}
+
+function applyColumnBackground(column, value) {
+  const color = normalizeColorValue(value);
+  if (!color) return;
+
+  column.classList.add('has-column-background');
+  column.style.setProperty('--columns-column-background-color', color);
+  column.setAttribute('data-background-color', color);
+  column.setAttribute('data-backgroundcolor', color);
+}
+
+function watchColumnBackgroundField(source, column) {
+  if (!source) return;
+
+  new MutationObserver(() => {
+    applyColumnBackground(column, source.textContent);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function decorateColumnBackground(column) {
+  const source = findColumnBackgroundField(column);
+  const authoredValue = source?.textContent
+    || column.getAttribute('data-background-color')
+    || column.getAttribute('data-backgroundcolor')
+    || '';
+
+  applyColumnBackground(column, authoredValue);
+  cleanupColumnBackgroundField(column, source);
+  watchColumnBackgroundField(source, column);
+
+  const resourcePath = getColumnResourcePath(column, source);
+  readAueResourceFields(resourcePath, ['backgroundColor'])
+    .then((fields) => applyColumnBackground(column, fields.backgroundColor));
 }
 
 function readAlignment(block) {
@@ -95,6 +222,12 @@ export default function decorate(block) {
   if (['left', 'center', 'right'].includes(horizontalAlign)) {
     block.classList.add(`columns-halign-${horizontalAlign}`);
   }
+
+  [...block.children].forEach((row) => {
+    [...row.children].forEach((col) => {
+      decorateColumnBackground(col);
+    });
+  });
 
   // setup image columns
   [...block.children].forEach((row) => {

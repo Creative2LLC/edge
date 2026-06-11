@@ -506,6 +506,7 @@ const COLUMN_NESTED_BLOCK_SELECTOR = [
   '.colored-heading',
   '.colored-list',
   '.colored-text',
+  '.statistics',
 ].join(', ');
 
 /**
@@ -793,6 +794,7 @@ const COLUMN_NESTED_BLOCK_NAMES = new Set([
   'colored-heading',
   'colored-list',
   'colored-text',
+  'statistics',
 ]);
 
 let blockRevealObserver;

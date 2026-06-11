@@ -68,6 +68,10 @@
   order: 1;
 }
 
+.columns > div > div.has-column-background {
+  background-color: var(--columns-column-background-color);
+}
+
 .columns > div > .columns-img-col {
   order: 0;
 }

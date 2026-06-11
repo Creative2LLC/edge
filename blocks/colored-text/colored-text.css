@@ -4,7 +4,9 @@
   --colored-text-weight: inherit;
   --colored-text-min-height: 0;
   --colored-text-min-height-mobile: var(--colored-text-min-height);
+  --colored-text-block-bg: transparent;
 
+  background-color: var(--colored-text-block-bg);
   padding: 12px 0;
 }
 

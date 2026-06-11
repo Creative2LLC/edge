@@ -70,6 +70,19 @@
         "value": "left"
       }
     ]
+  },
+  {
+    "id": "column",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color",
+        "description": "Optional CSS color value for this column, for example #f4f1ec.",
+        "value": ""
+      }
+    ]
   }],
   "filters": [{
       "id": "columns",
@@ -87,7 +100,8 @@
         "colored-heading",
         "colored-text",
         "colored-button",
-        "colored-list"
+        "colored-list",
+        "statistics"
       ]
     }
   ]

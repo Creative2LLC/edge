@@ -12,6 +12,7 @@ const BLOCK_FIELD_NAMES = [
   'textColor',
   'markerColor',
   'markerTextColor',
+  'blockBackgroundColor',
   'horizontalAlign',
   'verticalAlign',
   'fontSize',
@@ -72,15 +73,17 @@ function watchColorField(source, cssVar, block) {
 }
 
 function syncResourceColorFields(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['textColor', 'markerColor', 'markerTextColor'])
+  readAueResourceFields(resourcePath, ['textColor', 'markerColor', 'markerTextColor', 'blockBackgroundColor'])
     .then((fields) => {
       const textColor = normalizeColorValue(fields.textColor);
       const markerColor = normalizeColorValue(fields.markerColor);
       const markerTextColor = normalizeColorValue(fields.markerTextColor);
+      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
 
       if (textColor) block.style.setProperty('--colored-list-text-color', textColor);
       if (markerColor) block.style.setProperty('--colored-list-marker-color', markerColor);
       if (markerTextColor) block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
+      if (blockBackgroundColor) block.style.setProperty('--colored-list-block-bg', blockBackgroundColor);
     });
 }
 
@@ -240,20 +243,28 @@ export default function decorate(block) {
     fieldCell(rows[3]),
   );
   const markerTextColor = normalizeColorValue(mrkTxtField.value) || '#FFFFFF';
+  const blockBgField = readColorField(
+    block,
+    'blockBackgroundColor',
+    ['block background color', 'background color'],
+    isEditor,
+    fieldCell(rows[4]),
+  );
+  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
-    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4])).value,
+    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[5])).value,
     ['left', 'center', 'right'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5])).value,
+    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[6])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7])).value);
-  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8])).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9])).value, 'min-height');
+  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[7])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[8])).value);
+  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[9])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[10])).value, 'min-height');
 
   block.classList.add(
     `colored-list-style-${listStyle}`,
@@ -263,6 +274,7 @@ export default function decorate(block) {
   block.style.setProperty('--colored-list-text-color', textColor);
   block.style.setProperty('--colored-list-marker-color', markerColor);
   block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
+  if (blockBackgroundColor) block.style.setProperty('--colored-list-block-bg', blockBackgroundColor);
   if (fontSize) block.style.setProperty('--colored-list-font-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-list-font-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-list-min-height', minHeight);
@@ -303,12 +315,14 @@ export default function decorate(block) {
     watchColorField(txtField.source, '--colored-list-text-color', block);
     watchColorField(mrkField.source, '--colored-list-marker-color', block);
     watchColorField(mrkTxtField.source, '--colored-list-marker-text-color', block);
+    watchColorField(blockBgField.source, '--colored-list-block-bg', block);
   }
 
   injectColorPickers(block, [
     { label: 'Text', cssVar: '--colored-list-text-color', value: textColor },
     { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor },
     { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor },
+    { label: 'Block Background', cssVar: '--colored-list-block-bg', value: blockBackgroundColor || '#ffffff' },
   ]);
 
   syncResourceColorFields(resourcePath, block);

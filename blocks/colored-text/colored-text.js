@@ -59,11 +59,13 @@ function watchColorField(source, cssVar, block) {
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
-function syncResourceColorField(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['textColor'])
+function syncResourceColorFields(resourcePath, block) {
+  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor'])
     .then((fields) => {
       const color = normalizeColorValue(fields.textColor);
+      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
       if (color) block.style.setProperty('--colored-text-color', color);
+      if (blockBackgroundColor) block.style.setProperty('--colored-text-block-bg', blockBackgroundColor);
     });
 }
 
@@ -152,23 +154,32 @@ export default function decorate(block) {
   const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[0]));
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
   const textColor = normalizeColorValue(txtField.value);
+  const blockBgField = readColorField(
+    block,
+    'blockBackgroundColor',
+    ['block background color', 'background color'],
+    isEditor,
+    fieldCell(rows[2]),
+  );
+  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[2])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[3])).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[3])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[4])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[4])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[5])).value);
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[6])).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[7])).value, 'min-height');
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[5])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[6])).value);
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[7])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[8])).value, 'min-height');
 
   block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
   if (textColor) block.style.setProperty('--colored-text-color', textColor);
+  if (blockBackgroundColor) block.style.setProperty('--colored-text-block-bg', blockBackgroundColor);
   if (fontSize) block.style.setProperty('--colored-text-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-text-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-text-min-height', minHeight);
@@ -200,11 +211,13 @@ export default function decorate(block) {
 
   if (isEditor) {
     watchColorField(txtField.source, '--colored-text-color', block);
+    watchColorField(blockBgField.source, '--colored-text-block-bg', block);
   }
 
   injectColorPickers(block, [
     { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041' },
+    { label: 'Block Background', cssVar: '--colored-text-block-bg', value: blockBackgroundColor || '#ffffff' },
   ]);
 
-  syncResourceColorField(resourcePath, block);
+  syncResourceColorFields(resourcePath, block);
 }

@@ -6,7 +6,9 @@
   --colored-button-font-weight: 700;
   --colored-button-icon-size: 1em;
   --colored-button-min-height: 0;
+  --colored-button-block-bg: transparent;
 
+  background-color: var(--colored-button-block-bg);
   padding: 12px 0;
 }
 

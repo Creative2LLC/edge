@@ -4,7 +4,9 @@
   --colored-heading-weight: inherit;
   --colored-heading-min-height: 0;
   --colored-heading-min-height-mobile: var(--colored-heading-min-height);
+  --colored-heading-block-bg: transparent;
 
+  background-color: var(--colored-heading-block-bg);
   padding: 12px 0;
 }
 

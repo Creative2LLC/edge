@@ -92,11 +92,13 @@ function watchColorField(source, cssVar, block) {
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
-function syncResourceColorField(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['textColor'])
+function syncResourceColorFields(resourcePath, block) {
+  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor'])
     .then((fields) => {
       const color = normalizeColorValue(fields.textColor);
+      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
       if (color) block.style.setProperty('--colored-heading-color', color);
+      if (blockBackgroundColor) block.style.setProperty('--colored-heading-block-bg', blockBackgroundColor);
     });
 }
 
@@ -128,34 +130,43 @@ export default function decorate(block) {
   );
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[2]));
   const textColor = normalizeColorValue(txtField.value) || '#00264D';
+  const blockBgField = readColorField(
+    block,
+    'blockBackgroundColor',
+    ['block background color', 'background color'],
+    isEditor,
+    fieldCell(rows[3]),
+  );
+  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[3])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4])).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[4])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
   const fontSize = normalizeCssLength(
-    readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[5])).value,
+    readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6])).value,
     'font-size',
   );
   const fontWeight = normalizeFontWeight(
-    readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[6])).value,
+    readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7])).value,
   );
   const minHeight = normalizeCssLength(
-    readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[7])).value,
+    readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8])).value,
     'min-height',
   );
   const minHeightMobile = normalizeCssLength(
-    readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[8])).value,
+    readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9])).value,
     'min-height',
   );
 
   block.classList.add(`colored-heading-h-${horizontalAlign}`, `colored-heading-v-${verticalAlign}`);
   block.style.setProperty('--colored-heading-color', textColor);
+  if (blockBackgroundColor) block.style.setProperty('--colored-heading-block-bg', blockBackgroundColor);
   if (fontSize) {
     block.classList.add('has-custom-size');
     block.style.setProperty('--colored-heading-size', fontSize);
@@ -200,11 +211,13 @@ export default function decorate(block) {
 
   if (isEditor) {
     watchColorField(txtField.source, '--colored-heading-color', block);
+    watchColorField(blockBgField.source, '--colored-heading-block-bg', block);
   }
 
   injectColorPickers(block, [
     { label: 'Text Color', cssVar: '--colored-heading-color', value: textColor },
+    { label: 'Block Background', cssVar: '--colored-heading-block-bg', value: blockBackgroundColor || '#ffffff' },
   ]);
 
-  syncResourceColorField(resourcePath, block);
+  syncResourceColorFields(resourcePath, block);
 }

@@ -65,16 +65,18 @@ function watchColorField(source, cssVar, block) {
 }
 
 function syncResourceColorFields(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['backgroundColor', 'textColor', 'borderColor'])
+  readAueResourceFields(resourcePath, ['backgroundColor', 'textColor', 'borderColor', 'blockBackgroundColor'])
     .then((fields) => {
       const backgroundColor = normalizeColorValue(fields.backgroundColor);
       const textColor = normalizeColorValue(fields.textColor);
       const borderColor = normalizeColorValue(fields.borderColor);
+      const blockBackgroundColor = normalizeColorValue(fields.blockBackgroundColor);
 
       if (backgroundColor) block.style.setProperty('--colored-button-bg', backgroundColor);
       if (textColor) block.style.setProperty('--colored-button-text', textColor);
       if (borderColor) block.style.setProperty('--colored-button-border', borderColor);
       else if (backgroundColor) block.style.setProperty('--colored-button-border', backgroundColor);
+      if (blockBackgroundColor) block.style.setProperty('--colored-button-block-bg', blockBackgroundColor);
     });
 }
 
@@ -209,38 +211,46 @@ export default function decorate(block) {
   const textColor = normalizeColorValue(txtField.value) || '#FFFFFF';
   const bdrField = readColorField(block, 'borderColor', ['border color'], isEditor, fieldCell(rows[4]));
   const borderColor = normalizeColorValue(bdrField.value) || backgroundColor;
+  const blockBgField = readColorField(
+    block,
+    'blockBackgroundColor',
+    ['block background color'],
+    isEditor,
+    fieldCell(rows[5]),
+  );
+  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const appearance = normalizeOption(
-    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[5])).value,
+    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[6])).value,
     ['solid', 'outlined', 'inverted'],
     'solid',
   );
   const invertOnHover = normalizeOption(
-    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[6])).value,
+    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[7])).value,
     ['yes', 'no'],
     'no',
   );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[7])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[8])).value,
     ['left', 'center', 'right', 'stretch'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[8])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[9])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[9])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[10])).value);
-  const iconField = readImage(block, 'icon', ['icon', 'icon image'], fieldCell(rows[11]));
-  const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[12])).value;
-  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[13])).value;
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[10])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[11])).value);
+  const iconField = readImage(block, 'icon', ['icon', 'icon image'], fieldCell(rows[12]));
+  const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[13])).value;
+  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[14])).value;
   const iconPosition = normalizeOption(
-    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[14])).value,
+    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[15])).value,
     ['left', 'right', 'none'],
     'left',
   );
-  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size'], fieldCell(rows[15])).value, 'width');
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[16])).value, 'min-height');
+  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size'], fieldCell(rows[16])).value, 'width');
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[17])).value, 'min-height');
 
   block.classList.add(
     `colored-button-h-${horizontalAlign}`,
@@ -255,6 +265,7 @@ export default function decorate(block) {
   block.style.setProperty('--colored-button-bg', backgroundColor);
   block.style.setProperty('--colored-button-text', textColor);
   block.style.setProperty('--colored-button-border', borderColor);
+  if (blockBackgroundColor) block.style.setProperty('--colored-button-block-bg', blockBackgroundColor);
 
   const inner = document.createElement('div');
   inner.className = 'colored-button-inner';
@@ -293,12 +304,14 @@ export default function decorate(block) {
     watchColorField(bgField.source, '--colored-button-bg', block);
     watchColorField(txtField.source, '--colored-button-text', block);
     watchColorField(bdrField.source, '--colored-button-border', block);
+    watchColorField(blockBgField.source, '--colored-button-block-bg', block);
   }
 
   injectColorPickers(block, [
-    { label: 'Background', cssVar: '--colored-button-bg', value: backgroundColor },
+    { label: 'Button Background', cssVar: '--colored-button-bg', value: backgroundColor },
     { label: 'Text', cssVar: '--colored-button-text', value: textColor },
     { label: 'Border', cssVar: '--colored-button-border', value: borderColor },
+    { label: 'Block Background', cssVar: '--colored-button-block-bg', value: blockBackgroundColor || '#ffffff' },
   ]);
 
   syncResourceColorFields(resourcePath, block);

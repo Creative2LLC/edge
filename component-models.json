@@ -1734,6 +1734,19 @@
         }
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Hex, Optional)",
+        "description": "Leave empty for a transparent block background.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+        }
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "appearance",
@@ -1976,6 +1989,19 @@
         }
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Hex, Optional)",
+        "description": "Leave empty for a transparent block background.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+        }
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "horizontalAlign",
@@ -2142,6 +2168,19 @@
         "validation": {
           "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
           "customErrorMsg": "Enter a valid hex color, for example #FFFFFF."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Hex, Optional)",
+        "description": "Leave empty for a transparent block background.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
         }
       },
       {
@@ -2323,6 +2362,19 @@
         }
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Hex, Optional)",
+        "description": "Leave empty for a transparent block background.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+        }
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "horizontalAlign",
@@ -2483,6 +2535,19 @@
           }
         ],
         "value": "left"
+      }
+    ]
+  },
+  {
+    "id": "column",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color",
+        "description": "Optional CSS color value for this column, for example #f4f1ec.",
+        "value": ""
       }
     ]
   },
