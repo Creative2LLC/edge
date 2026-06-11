@@ -59,7 +59,7 @@
   max-width: 760px;
   margin-inline: auto;
   color: #404041;
-  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  font-size: var(--report-breakdown-body-font-size, clamp(1rem, 1.3vw, 1.15rem));
   font-weight: 400;
   line-height: 1.6;
   text-align: center;
@@ -208,11 +208,12 @@
 }
 
 .report-breakdown .report-breakdown-table-head {
-  padding: 0 var(--report-breakdown-table-side-padding) 12px;
+  padding: 0 var(--report-breakdown-table-side-padding) 10px;
   color: #113a67;
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 700;
   line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .report-breakdown .report-breakdown-table-marker {
@@ -221,18 +222,18 @@
 
 .report-breakdown .report-breakdown-table-body {
   overflow: hidden;
-  border-radius: 10px;
-  border: 1px solid rgb(255 255 255 / 60%);
-  background: rgb(242 237 232 / 96%);
-  box-shadow: 0 16px 28px rgb(17 58 103 / 8%);
+  border: 1px solid rgb(17 58 103 / 12%);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 16px 34px rgb(17 58 103 / 10%);
   backdrop-filter: blur(10px);
 }
 
 .report-breakdown .report-breakdown-row {
-  min-height: 49px;
-  padding: 13px var(--report-breakdown-table-side-padding);
-  border-bottom: 1px solid rgb(17 58 103 / 10%);
-  background: linear-gradient(180deg, rgb(247 244 241 / 98%) 0%, rgb(241 236 231 / 98%) 100%);
+  min-height: 52px;
+  padding: 14px var(--report-breakdown-table-side-padding);
+  border-bottom: 1px solid rgb(17 58 103 / 9%);
+  background: #fff;
 }
 
 .report-breakdown .report-breakdown-row:last-child {
@@ -259,7 +260,8 @@
 .report-breakdown .report-breakdown-swatch {
   width: 15px;
   height: 15px;
-  border-radius: 4px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 86%);
 }
 
 .report-breakdown .report-breakdown-row.is-authoring-placeholder {
@@ -280,10 +282,11 @@
 .report-breakdown .report-breakdown-total {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 18px;
-  margin-top: 14px;
+  margin-top: 12px;
   padding: 20px var(--report-breakdown-table-side-padding);
-  border-radius: 10px;
-  background: rgb(242 237 232 / 98%);
+  border: 1px solid rgb(17 58 103 / 12%);
+  border-radius: 12px;
+  background: #f7f9fb;
   box-shadow: 0 12px 24px rgb(17 58 103 / 8%);
 }
 
@@ -301,6 +304,53 @@
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.03em;
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-table-head {
+  color: rgb(255 255 255 / 78%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-table-body {
+  border-color: rgb(255 255 255 / 14%);
+  background: #12395d;
+  box-shadow: 0 18px 38px rgb(17 58 103 / 20%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row {
+  border-bottom-color: rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 6%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row:nth-child(even) {
+  background: rgb(255 255 255 / 9%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-type,
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-count,
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-total-label,
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-total-value {
+  color: #fff;
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-swatch {
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 18%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-total {
+  border-color: rgb(255 255 255 / 16%);
+  background: #0b2a48;
+  box-shadow: 0 14px 30px rgb(17 58 103 / 20%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row.is-authoring-placeholder {
+  background: rgb(20 145 191 / 18%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted
+.report-breakdown-row.is-authoring-placeholder .report-breakdown-type,
+.report-breakdown .report-breakdown-table-shell.is-inverted
+.report-breakdown-row.is-authoring-placeholder .report-breakdown-count {
+  color: rgb(255 255 255 / 76%);
 }
 
 .report-breakdown .report-breakdown-empty {

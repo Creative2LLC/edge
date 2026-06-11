@@ -17,6 +17,8 @@ const BLOCK_ROW_INDEX = {
   datasetSlug: 6,
   apiEndpoint: 7,
   emptyStateMessage: 8,
+  bodyTextSize: 9,
+  tableStyle: 10,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -29,10 +31,6 @@ const ITEM_COLUMN_INDEX = {
 const DEFAULTS = {
   heading: '2024 CyberTipline Reports by Type',
   defaultYear: '2024',
-  tableLabels: {
-    type: 'Report Type',
-    count: 'Reports',
-  },
   totalLabel: 'Total',
   datasetSlug: 'reported-incident-types',
   emptyStateMessage: 'No report data available.',
@@ -178,9 +176,36 @@ function parseTableLabels(value) {
     .map((part) => part.trim());
 
   return {
-    type: typeLabel || DEFAULTS.tableLabels.type,
-    count: countLabel || DEFAULTS.tableLabels.count,
+    type: typeLabel || '',
+    count: countLabel || '',
   };
+}
+
+function hasTableLabels(value) {
+  return String(value || '').split('|').some((part) => part.trim());
+}
+
+function normalizeCssLength(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^-?\d+(\.\d+)?$/u.test(normalized)) return `${normalized}px`;
+  if (/^-?\d+(\.\d+)?(px|rem|em|%|vw|vh|vmin|vmax|ch|ex)$/iu.test(normalized)) {
+    return normalized;
+  }
+  if (/^(clamp|calc|min|max)\(.+\)$/iu.test(normalized)) return normalized;
+  return '';
+}
+
+function normalizeTableStyle(value) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return normalized === 'inverted' || normalized === 'inverse' || normalized === 'dark'
+    ? 'inverted'
+    : '';
 }
 
 function normalizeBlockEntries(rows, fallbackYear = DEFAULTS.defaultYear) {
@@ -706,6 +731,7 @@ function buildPanel(dataset, state) {
 
   const tableShell = document.createElement('div');
   tableShell.className = 'report-breakdown-table-shell';
+  if (state.tableStyle) tableShell.classList.add(`is-${state.tableStyle}`);
 
   const rows = document.createElement('div');
   rows.className = 'report-breakdown-table-body';
@@ -917,8 +943,12 @@ export default async function decorate(block) {
   const datasetSlugField = getField(block, 'datasetSlug', BLOCK_ROW_INDEX);
   const apiEndpointField = getField(block, 'apiEndpoint', BLOCK_ROW_INDEX);
   const emptyStateField = getField(block, 'emptyStateMessage', BLOCK_ROW_INDEX);
+  const bodyTextSizeField = getField(block, 'bodyTextSize', BLOCK_ROW_INDEX);
+  const tableStyleField = getField(block, 'tableStyle', BLOCK_ROW_INDEX);
   const rows = [...block.querySelectorAll(':scope > div')];
   const requestedYear = defaultYearField.value || DEFAULTS.defaultYear;
+  const bodyTextSize = normalizeCssLength(bodyTextSizeField.value);
+  const tableStyle = normalizeTableStyle(tableStyleField.value);
   const {
     entries: authoredEntries,
     placeholders: authoredPlaceholders,
@@ -946,7 +976,8 @@ export default async function decorate(block) {
     instanceId: `report-breakdown-${blockSequence}`,
     reducedMotion,
     tableLabels: parseTableLabels(tableLabelsField.value),
-    showTableLabels: Boolean(tableLabelsField.value?.trim()),
+    showTableLabels: hasTableLabels(tableLabelsField.value),
+    tableStyle,
     totalLabel: totalLabelField.value || DEFAULTS.totalLabel,
     activeYear,
     isVisible: false,
@@ -956,6 +987,12 @@ export default async function decorate(block) {
 
   const inner = document.createElement('div');
   inner.className = 'report-breakdown-inner';
+  block.classList.toggle('report-breakdown-table-inverted', tableStyle === 'inverted');
+  if (bodyTextSize) {
+    block.style.setProperty('--report-breakdown-body-font-size', bodyTextSize);
+  } else {
+    block.style.removeProperty('--report-breakdown-body-font-size');
+  }
 
   const header = document.createElement('div');
   header.className = 'report-breakdown-header report-breakdown-reveal';

@@ -7379,7 +7379,7 @@
         "name": "tableLabels",
         "label": "Table Labels (Type|Reports)",
         "description": "Leave blank to hide the table header row.",
-        "value": "Report Type|Reports"
+        "value": ""
       },
       {
         "component": "text",
@@ -7417,6 +7417,30 @@
         "name": "emptyStateMessage",
         "label": "Empty State Message",
         "value": "No report data available."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bodyTextSize",
+        "label": "Body Text Font Size",
+        "description": "Optional CSS length for the body text, such as 1.25rem, 20px, or 125%. Leave blank for the default."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "tableStyle",
+        "label": "Table Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": ""
       }
     ]
   },
