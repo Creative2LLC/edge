@@ -12,7 +12,7 @@ const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
 const TAB_LABEL_FIELD_NAMES = ['label', 'tabLabel'];
 const CARD_FIELD_NAMES = ['tabIndex', 'tabLabels', 'title', 'bodyContent', 'linkText', 'link'];
 const COMPONENT_NAMES = ['tabs-tab', 'tabs-tab-label', 'tabs-info-card'];
-const CARD_RESOURCE_FIELDS = ['tabIndex', 'linkText', 'link'];
+const CARD_RESOURCE_FIELDS = ['tabIndex', 'title', 'bodyContent', 'linkText', 'link'];
 const cardResourceCache = new Map();
 
 function hasAuthoringContext(scope) {
@@ -142,6 +142,29 @@ function richFieldHasContent(field) {
   return Boolean(field?.text?.trim() || field?.html?.trim() || field?.source);
 }
 
+function stripHtml(value) {
+  return String(value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeResourceRichText(value) {
+  if (value === undefined || value === null) return '';
+  if (Array.isArray(value)) return value.map(normalizeResourceRichText).filter(Boolean).join('');
+  if (typeof value === 'object') {
+    return String(value.html || value.value || value.text || value.label || value.name || '').trim();
+  }
+  return String(value).trim();
+}
+
+function applyRichResourceFallback(field, resourceValue) {
+  const html = normalizeResourceRichText(resourceValue);
+  if (richFieldHasContent(field) || !html) return field;
+  return {
+    ...field,
+    html,
+    text: stripHtml(html),
+  };
+}
+
 function appendRichField(field, target) {
   if (field?.source) {
     moveInstrumentation(field.source, target);
@@ -205,6 +228,14 @@ function flattenRawValues(value) {
   if (Array.isArray(value)) return value.flatMap(flattenRawValues);
   if (typeof value === 'object') return Object.values(value).flatMap(flattenRawValues);
   return [value];
+}
+
+function useLegacyRowFallbacks(cardElement) {
+  return !hasAuthoringContext(cardElement);
+}
+
+function legacyRow(row, useLegacyRows) {
+  return useLegacyRows ? row : null;
 }
 
 function tabOwnRows(tabRow) {
@@ -275,20 +306,33 @@ async function readCard(row, index) {
 
   const tabIndexSources = [...(cardElement.querySelectorAll?.('[data-aue-prop="tabIndex"], [data-richtext-prop="tabIndex"]') || [])];
   const tabIndexSource = tabIndexSources[0] || null;
+  const useLegacyRows = useLegacyRowFallbacks(cardElement);
   const tabIndexRaw = tabIndexSources.length > 1
     ? tabIndexSources.map((el) => el.textContent.trim()).filter(Boolean).join(',')
-    : getRowTextField(cardElement, 'tabIndex', hasLeadField ? rows[0] : null).value;
+    : getRowTextField(
+      cardElement,
+      'tabIndex',
+      legacyRow(hasLeadField ? rows[0] : null, useLegacyRows),
+    ).value;
 
-  const titleField = getRowRichField(cardElement, 'title', rows[offset]);
-  const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
-  const linkTextField = getRowTextField(cardElement, 'linkText', rows[offset + 2]);
-  const linkField = getRowLinkField(cardElement, 'link', rows[offset + 3]);
+  const titleField = getRowRichField(cardElement, 'title', legacyRow(rows[offset], useLegacyRows));
+  const bodyField = getRowRichField(cardElement, 'bodyContent', legacyRow(rows[offset + 1], useLegacyRows));
+  const linkTextField = getRowTextField(
+    cardElement,
+    'linkText',
+    legacyRow(rows[offset + 2], useLegacyRows),
+  );
+  const linkField = getRowLinkField(cardElement, 'link', legacyRow(rows[offset + 3], useLegacyRows));
   const resourceFields = await readCardResourceFields(cardElement, [
     tabIndexSource ? { source: tabIndexSource } : null,
+    titleField,
+    bodyField,
     linkTextField,
     linkField,
   ]);
   const tabIndices = parseTabIndices(resourceFields.tabIndex || tabIndexRaw, tabIndexSource);
+  const resolvedTitleField = applyRichResourceFallback(titleField, resourceFields.title);
+  const resolvedBodyField = applyRichResourceFallback(bodyField, resourceFields.bodyContent);
   const linkTextValue = linkTextField.value || normalizeResourceText(resourceFields.linkText);
   const linkValue = linkField.value || normalizeResourceLink(resourceFields.link);
 
@@ -298,12 +342,23 @@ async function readCard(row, index) {
     tabIndices,
     tabLabels: [],
     tabKeys: [],
-    titleField,
-    bodyField,
+    titleField: resolvedTitleField,
+    bodyField: resolvedBodyField,
+    tabIndexField: { source: tabIndexSource, value: tabIndexRaw },
     linkTextField: { ...linkTextField, value: linkTextValue },
     linkField: { ...linkField, value: linkValue },
-    hasContent: richFieldHasContent(titleField) || richFieldHasContent(bodyField),
+    hasContent: richFieldHasContent(resolvedTitleField) || richFieldHasContent(resolvedBodyField),
   };
+}
+
+function buildHiddenField(field, className) {
+  if (!field?.source) return null;
+
+  const hidden = document.createElement('span');
+  hidden.className = className;
+  hidden.hidden = true;
+  appendTextField(field, hidden, field.value);
+  return hidden;
 }
 
 function buildCardLink(card) {
@@ -330,6 +385,9 @@ function buildCard(card, options = {}) {
   article.style.setProperty('--tabs-card-index', card.index);
   if (!options.inPlace && card.row) moveInstrumentation(card.row, article);
   if (options.inPlace) article.replaceChildren();
+
+  const tabIndexTarget = buildHiddenField(card.tabIndexField, 'tabs-card-tab-index');
+  if (tabIndexTarget) article.append(tabIndexTarget);
 
   const content = document.createElement('div');
   content.className = 'tabs-card-content';

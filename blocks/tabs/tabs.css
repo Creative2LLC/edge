@@ -152,6 +152,14 @@
   padding-left: 1.2em;
 }
 
+.tabs .tabs-card-body ul {
+  list-style: disc;
+}
+
+.tabs .tabs-card-body ol {
+  list-style: decimal;
+}
+
 .tabs .tabs-card-body li + li {
   margin-top: 0.25em;
 }
