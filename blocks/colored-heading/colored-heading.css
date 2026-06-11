@@ -64,7 +64,7 @@
   font-weight: 400;
 }
 
-@media (width <= 640px) {
+@media (width <= 900px) {
   .colored-heading .colored-heading-inner {
     min-height: var(--colored-heading-min-height-mobile);
   }

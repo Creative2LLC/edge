@@ -134,7 +134,7 @@
   font-style: italic;
 }
 
-@media (width <= 640px) {
+@media (width <= 900px) {
   .colored-list .colored-list-inner {
     min-height: var(--colored-list-min-height-mobile);
   }

@@ -68,7 +68,7 @@
     margin-bottom: 20px;
 }
 
-@media (width <= 640px) {
+@media (width <= 900px) {
   .colored-text .colored-text-inner {
     min-height: var(--colored-text-min-height-mobile);
   }

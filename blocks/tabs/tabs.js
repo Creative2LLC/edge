@@ -270,12 +270,14 @@ function buildCard(card, options = {}) {
 
   const href = card.linkField.value;
   const label = card.linkTextField.value;
-  if (href || label) {
+  // Also create the link element when source is set (UE mode) so AEM always has
+  // a data-aue-prop="linkText" DOM target to bind to, even on empty cards.
+  if (href || label || card.linkTextField.source) {
     const link = document.createElement(href ? 'a' : 'button');
     link.className = 'tabs-card-link';
     if (href) link.href = href;
     if (!href) link.type = 'button';
-    appendTextField(card.linkTextField, link, 'Learn more');
+    appendTextField(card.linkTextField, link, card.linkTextField.source ? '' : 'Learn more');
     if (card.linkField.source) moveInstrumentation(card.linkField.source, link);
     article.append(link);
   }

@@ -9722,6 +9722,7 @@
     "fields": [
       {
         "component": "multiselect",
+        "valueType": "string[]",
         "name": "tabIndex",
         "label": "Tab(s)",
         "description": "Which tab(s) this card appears under. Tab 1 = first label, Tab 2 = second, etc. Select multiple to show the card in more than one tab.",

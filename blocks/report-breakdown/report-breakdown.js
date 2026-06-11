@@ -9,14 +9,13 @@ import { animateCountUp } from '../../scripts/count-up.js';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
   heading: 0,
-  bodyText: 1,
-  defaultYear: 2,
-  tableLabels: 3,
-  totalLabel: 4,
-  apiBaseUrl: 5,
-  datasetSlug: 6,
-  apiEndpoint: 7,
-  emptyStateMessage: 8,
+  defaultYear: 1,
+  tableLabels: 2,
+  totalLabel: 3,
+  apiBaseUrl: 4,
+  datasetSlug: 5,
+  apiEndpoint: 6,
+  emptyStateMessage: 7,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -109,15 +108,6 @@ function getField(scope, name, rowIndexMap, columnIndex = 0) {
     source: linkField.cell || textField.cell,
     value: linkField.value || textField.value,
   };
-}
-
-function getRichField(scope, name, rowIndexMap) {
-  const rowIndex = rowIndexMap?.[name];
-  const options = {
-    rowIndex,
-    fallbackCell: getParentFallbackCell(scope, rowIndex),
-  };
-  return readRichTextField(scope, name, options);
 }
 
 function moveFieldContent(field, target, fallbackValue = '') {
@@ -915,7 +905,10 @@ export default async function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
-  const bodyTextField = getRichField(block, 'bodyText', BLOCK_ROW_INDEX);
+  // bodyText is a new optional field — read by named element only so old documents
+  // (which have no bodyText row) are never touched by the fallback index logic.
+  const bodyTextEl = block.querySelector('[data-richtext-prop="bodyText"], [data-aue-prop="bodyText"]');
+  const bodyTextField = bodyTextEl ? readRichTextField(block, 'bodyText', {}) : null;
   const defaultYearField = getField(block, 'defaultYear', BLOCK_ROW_INDEX);
   const tableLabelsField = getField(block, 'tableLabels', BLOCK_ROW_INDEX);
   const totalLabelField = getField(block, 'totalLabel', BLOCK_ROW_INDEX);
@@ -971,7 +964,7 @@ export default async function decorate(block) {
     moveFieldContent(headingField, heading, headingField.value || DEFAULTS.heading);
     header.append(heading);
   }
-  if (bodyTextField.text?.trim() || bodyTextField.html?.trim() || bodyTextField.source) {
+  if (bodyTextField) {
     const body = document.createElement('div');
     body.className = 'report-breakdown-body-text';
     if (bodyTextField.source) {
@@ -980,7 +973,9 @@ export default async function decorate(block) {
     } else {
       body.innerHTML = bodyTextField.html || bodyTextField.text || '';
     }
-    header.append(body);
+    if (body.textContent?.trim() || body.innerHTML?.trim() || isAuthoring) {
+      header.append(body);
+    }
   }
   inner.append(header);
 
