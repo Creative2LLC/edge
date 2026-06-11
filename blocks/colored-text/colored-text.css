@@ -12,7 +12,7 @@
 .colored-text .colored-text-inner {
   display: flex;
   width: 100%;
-  /*min-height: var(--colored-text-min-height);*/
+  min-height: var(--colored-text-min-height);
   background-color: var(--colored-text-block-bg);
 }
 
