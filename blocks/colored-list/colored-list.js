@@ -101,7 +101,9 @@ function syncResourceColorFields(resourcePath, block) {
       if (textColor) block.style.setProperty('--colored-list-text-color', textColor);
       if (markerColor) block.style.setProperty('--colored-list-marker-color', markerColor);
       if (markerTextColor) block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
-      applyBlockBackground(block, fields.blockBackgroundColor);
+      if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
+        applyBlockBackground(block, fields.blockBackgroundColor);
+      }
     });
 }
 
@@ -129,6 +131,15 @@ function normalizeOption(value, allowedValues, fallback) {
     .replace(/^-|-$/g, '');
 
   return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function hasInsertedBlockBackgroundRow(block, rows) {
+  if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
+  const currentValue = fieldCell(rows[4])?.textContent || '';
+  const nextValue = fieldCell(rows[5])?.textContent || '';
+  if (normalizeColorValue(currentValue)) return true;
+  return !normalizeOption(currentValue, ['left', 'center', 'right'], '')
+    && Boolean(normalizeOption(nextValue, ['left', 'center', 'right'], ''));
 }
 
 function normalizeFontWeight(value) {
@@ -237,6 +248,7 @@ export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
+  const rowOffset = hasInsertedBlockBackgroundRow(block, rows) ? 1 : 0;
 
   const listStyle = normalizeOption(
     readBlockField(block, 'listStyle', ['list style', 'type'], fieldCell(rows[0])).value,
@@ -266,22 +278,23 @@ export default function decorate(block) {
     'blockBackgroundColor',
     ['block background color', 'background color'],
     isEditor,
+    rowOffset ? fieldCell(rows[4]) : null,
   );
   const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
-    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4])).value,
+    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4 + rowOffset])).value,
     ['left', 'center', 'right'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5])).value,
+    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5 + rowOffset])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7])).value);
-  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8])).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9])).value, 'min-height');
+  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6 + rowOffset])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7 + rowOffset])).value);
+  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8 + rowOffset])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9 + rowOffset])).value, 'min-height');
 
   block.classList.add(
     `colored-list-style-${listStyle}`,

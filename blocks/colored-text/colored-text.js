@@ -51,6 +51,12 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function hasInsertedBlockBackgroundRow(block, rows, rowIndex, legacyFieldCount) {
+  if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
+  if (normalizeColorValue(fieldCell(rows[rowIndex])?.textContent)) return true;
+  return rows.length > legacyFieldCount;
+}
+
 function applyBlockBackground(block, value) {
   const color = normalizeColorValue(value);
   if (!color) {
@@ -83,7 +89,9 @@ function syncResourceColorFields(resourcePath, block) {
     .then((fields) => {
       const color = normalizeColorValue(fields.textColor);
       if (color) block.style.setProperty('--colored-text-color', color);
-      applyBlockBackground(block, fields.blockBackgroundColor);
+      if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
+        applyBlockBackground(block, fields.blockBackgroundColor);
+      }
     });
 }
 
@@ -168,6 +176,7 @@ export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
+  const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 2, 8) ? 1 : 0;
 
   const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[0]));
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
@@ -177,22 +186,23 @@ export default function decorate(block) {
     'blockBackgroundColor',
     ['block background color', 'background color'],
     isEditor,
+    rowOffset ? fieldCell(rows[2]) : null,
   );
   const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[2])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[2 + rowOffset])).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[3])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[3 + rowOffset])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[4])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[5])).value);
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[6])).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[7])).value, 'min-height');
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[4 + rowOffset])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[5 + rowOffset])).value);
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[6 + rowOffset])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[7 + rowOffset])).value, 'min-height');
 
   block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
   if (textColor) block.style.setProperty('--colored-text-color', textColor);
