@@ -192,11 +192,18 @@ function findNestedCardRows(tabRow) {
   });
 }
 
-function parseTabIndices(rawValue) {
+function parseTabIndices(rawValue, sourceEl) {
+  // AEM may render string[] values as child list/block elements — read each child first
+  if (sourceEl) {
+    const childEls = [...(sourceEl.querySelectorAll?.('li, p') || [])];
+    if (childEls.length) {
+      rawValue = childEls.map((el) => el.textContent.trim()).filter(Boolean).join(',');
+    }
+  }
   if (!rawValue) return [1];
   const nums = String(rawValue)
     .replace(/[\[\]"']/g, '')
-    .split(/[\n, ]+/)
+    .split(/[\n,; ]+/)
     .map((s) => parseInt(s.replace(/\D+/g, '') || '0', 10))
     .filter((n) => n >= 1 && n <= 5);
   const unique = [...new Set(nums)];
@@ -218,10 +225,11 @@ function readCard(row, index) {
   const offset = hasLeadField ? 1 : 0;
 
   const tabIndexSources = [...(cardElement.querySelectorAll?.('[data-aue-prop="tabIndex"], [data-richtext-prop="tabIndex"]') || [])];
+  const tabIndexSource = tabIndexSources[0] || null;
   const tabIndexRaw = tabIndexSources.length > 1
     ? tabIndexSources.map((el) => el.textContent.trim()).filter(Boolean).join(',')
     : getRowTextField(cardElement, 'tabIndex', hasLeadField ? rows[0] : null).value;
-  const tabIndices = parseTabIndices(tabIndexRaw);
+  const tabIndices = parseTabIndices(tabIndexRaw, tabIndexSource);
 
   const titleField = getRowRichField(cardElement, 'title', rows[offset]);
   const bodyField = getRowRichField(cardElement, 'bodyContent', rows[offset + 1]);
@@ -273,10 +281,9 @@ function buildCard(card, options = {}) {
   // Also create the link element when source is set (UE mode) so AEM always has
   // a data-aue-prop="linkText" DOM target to bind to, even on empty cards.
   if (href || label || card.linkTextField.source) {
-    const link = document.createElement(href ? 'a' : 'button');
+    const link = document.createElement(href ? 'a' : 'span');
     link.className = 'tabs-card-link';
     if (href) link.href = href;
-    if (!href) link.type = 'button';
     appendTextField(card.linkTextField, link, card.linkTextField.source ? '' : 'Learn more');
     if (card.linkField.source) moveInstrumentation(card.linkField.source, link);
     article.append(link);

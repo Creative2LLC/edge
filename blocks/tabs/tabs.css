@@ -157,27 +157,25 @@
 }
 
 .tabs .tabs-card-link {
+  display: block;
   align-self: flex-start;
   margin-top: auto;
-  padding: 24px 0 0;
-  border: 0;
-  background: transparent;
+  padding-top: 24px;
   color: #007294;
-  font: inherit;
   font-size: 0.98rem;
   font-weight: 600;
   line-height: 1.2;
-  text-align: left;
   text-decoration: none;
   white-space: normal;
+  cursor: pointer;
 }
 
 .tabs .tabs-card-link::after {
-  content: " ->";
+  content: " \2192";
 }
 
-.tabs .tabs-card-link:hover,
-.tabs .tabs-card-link:focus-visible {
+.tabs a.tabs-card-link:hover,
+.tabs a.tabs-card-link:focus-visible {
   color: #005d78;
   text-decoration: underline;
   text-underline-offset: 0.18em;

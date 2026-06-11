@@ -1,0 +1,54 @@
+.image {
+  line-height: 0;
+}
+
+.image picture,
+.image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive / full-width */
+.image.full-width picture,
+.image.full-width img {
+  width: 100%;
+}
+
+/* Horizontal position */
+.image.align-left {
+  text-align: left;
+}
+
+.image.align-center {
+  text-align: center;
+}
+
+.image.align-right {
+  text-align: right;
+}
+
+.image.align-left picture,
+.image.align-left img {
+  margin-right: auto;
+}
+
+.image.align-center picture,
+.image.align-center img {
+  margin-inline: auto;
+}
+
+.image.align-right picture,
+.image.align-right img {
+  margin-left: auto;
+}
+
+.image a {
+  display: inline-block;
+  line-height: 0;
+}
+
+.image.full-width a {
+  display: block;
+  width: 100%;
+}

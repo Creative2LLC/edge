@@ -9,13 +9,14 @@ import { animateCountUp } from '../../scripts/count-up.js';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
   heading: 0,
-  defaultYear: 1,
-  tableLabels: 2,
-  totalLabel: 3,
-  apiBaseUrl: 4,
-  datasetSlug: 5,
-  apiEndpoint: 6,
-  emptyStateMessage: 7,
+  // bodyText is at JSON position 1 but read by named element only — no row index fallback
+  defaultYear: 2,
+  tableLabels: 3,
+  totalLabel: 4,
+  apiBaseUrl: 5,
+  datasetSlug: 6,
+  apiEndpoint: 7,
+  emptyStateMessage: 8,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -964,9 +965,11 @@ export default async function decorate(block) {
     moveFieldContent(headingField, heading, headingField.value || DEFAULTS.heading);
     header.append(heading);
   }
+  inner.append(header);
+
   if (bodyTextField) {
     const body = document.createElement('div');
-    body.className = 'report-breakdown-body-text';
+    body.className = 'report-breakdown-body-text report-breakdown-reveal';
     if (bodyTextField.source) {
       moveInstrumentation(bodyTextField.source, body);
       while (bodyTextField.source.firstChild) body.append(bodyTextField.source.firstChild);
@@ -974,10 +977,9 @@ export default async function decorate(block) {
       body.innerHTML = bodyTextField.html || bodyTextField.text || '';
     }
     if (body.textContent?.trim() || body.innerHTML?.trim() || isAuthoring) {
-      header.append(body);
+      inner.append(body);
     }
   }
-  inner.append(header);
 
   if (!datasets.length) {
     const empty = buildEmptyState(emptyStateField.value, isAuthoring);
