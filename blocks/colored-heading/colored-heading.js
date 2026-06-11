@@ -135,32 +135,31 @@ export default function decorate(block) {
     'blockBackgroundColor',
     ['block background color', 'background color'],
     isEditor,
-    fieldCell(rows[3]),
   );
   const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[3])).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[4])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
   const fontSize = normalizeCssLength(
-    readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6])).value,
+    readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[5])).value,
     'font-size',
   );
   const fontWeight = normalizeFontWeight(
-    readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7])).value,
+    readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[6])).value,
   );
   const minHeight = normalizeCssLength(
-    readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8])).value,
+    readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[7])).value,
     'min-height',
   );
   const minHeightMobile = normalizeCssLength(
-    readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9])).value,
+    readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[8])).value,
     'min-height',
   );
 

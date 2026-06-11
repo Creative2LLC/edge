@@ -248,23 +248,22 @@ export default function decorate(block) {
     'blockBackgroundColor',
     ['block background color', 'background color'],
     isEditor,
-    fieldCell(rows[4]),
   );
   const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
-    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[5])).value,
+    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4])).value,
     ['left', 'center', 'right'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[6])).value,
+    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[7])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[8])).value);
-  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[9])).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[10])).value, 'min-height');
+  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7])).value);
+  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9])).value, 'min-height');
 
   block.classList.add(
     `colored-list-style-${listStyle}`,

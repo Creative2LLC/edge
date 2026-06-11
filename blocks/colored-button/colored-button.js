@@ -216,41 +216,40 @@ export default function decorate(block) {
     'blockBackgroundColor',
     ['block background color'],
     isEditor,
-    fieldCell(rows[5]),
   );
   const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const appearance = normalizeOption(
-    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[6])).value,
+    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[5])).value,
     ['solid', 'outlined', 'inverted'],
     'solid',
   );
   const invertOnHover = normalizeOption(
-    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[7])).value,
+    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[6])).value,
     ['yes', 'no'],
     'no',
   );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[8])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[7])).value,
     ['left', 'center', 'right', 'stretch'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[9])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[8])).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[10])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[11])).value);
-  const iconField = readImage(block, 'icon', ['icon', 'icon image'], fieldCell(rows[12]));
-  const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[13])).value;
-  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[14])).value;
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[9])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[10])).value);
+  const iconField = readImage(block, 'icon', ['icon', 'icon image'], fieldCell(rows[11]));
+  const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[12])).value;
+  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[13])).value;
   const iconPosition = normalizeOption(
-    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[15])).value,
+    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[14])).value,
     ['left', 'right', 'none'],
     'left',
   );
-  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size'], fieldCell(rows[16])).value, 'width');
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[17])).value, 'min-height');
+  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size'], fieldCell(rows[15])).value, 'width');
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[16])).value, 'min-height');
 
   block.classList.add(
     `colored-button-h-${horizontalAlign}`,
