@@ -460,7 +460,6 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
   menu.className = 'general-inquiries-dropdown-menu';
   menu.id = `${uid}-menu`;
   menu.tabIndex = -1;
-  menu.hidden = true;
   menu.setAttribute('role', 'listbox');
   menu.setAttribute('aria-label', accessibleLabel);
 
@@ -501,10 +500,9 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
   };
 
   const close = () => {
-    if (menu.hidden) return;
-    menu.hidden = true;
-    trigger.setAttribute('aria-expanded', 'false');
+    if (!dropdown.classList.contains('is-open')) return;
     dropdown.classList.remove('is-open');
+    trigger.setAttribute('aria-expanded', 'false');
     if (onDocPointer) {
       document.removeEventListener('pointerdown', onDocPointer, true);
       onDocPointer = null;
@@ -512,10 +510,9 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
   };
 
   const open = () => {
-    if (!menu.hidden) return;
-    menu.hidden = false;
-    trigger.setAttribute('aria-expanded', 'true');
+    if (dropdown.classList.contains('is-open')) return;
     dropdown.classList.add('is-open');
+    trigger.setAttribute('aria-expanded', 'true');
     const selectedIndex = optionEls.findIndex((el) => el.getAttribute('aria-selected') === 'true');
     setActive(selectedIndex >= 0 ? selectedIndex : 0);
     menu.focus();
@@ -536,8 +533,8 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
   };
 
   trigger.addEventListener('click', () => {
-    if (menu.hidden) open();
-    else close();
+    if (dropdown.classList.contains('is-open')) close();
+    else open();
   });
 
   trigger.addEventListener('keydown', (event) => {

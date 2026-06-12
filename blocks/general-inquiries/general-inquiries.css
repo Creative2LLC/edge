@@ -105,6 +105,12 @@ main > .section > .general-inquiries-wrapper {
   position: relative;
 }
 
+/* Raise the whole dropdown above the fields that follow it while open, so the
+   menu can never be painted behind the message box below. */
+.general-inquiries .general-inquiries-dropdown.is-open {
+  z-index: 5;
+}
+
 .general-inquiries .general-inquiries-dropdown-trigger {
   display: flex;
   align-items: center;
@@ -169,10 +175,21 @@ main > .section > .general-inquiries-wrapper {
   border: 1px solid #e4ddd6;
   border-radius: 14px;
   box-shadow: 0 18px 44px rgb(64 64 65 / 18%);
+
+  /* Stay in the render tree (no display toggle) and show/hide via visibility +
+     opacity. Toggling `display` inside the form's nested stacking contexts left
+     the menu mis-painted behind the field below until a repaint. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 120ms ease, visibility 0s linear 120ms;
 }
 
-.general-inquiries .general-inquiries-dropdown-menu[hidden] {
-  display: none;
+.general-inquiries .general-inquiries-dropdown.is-open .general-inquiries-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 120ms ease;
 }
 
 .general-inquiries .general-inquiries-dropdown-option {
@@ -454,6 +471,7 @@ main > .section > .general-inquiries-wrapper {
   box-shadow: none;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .general-inquiries.general-inquiries-support-mode .general-inquiries-dropdown-menu {
   border: 0;
   border-radius: 8px;
