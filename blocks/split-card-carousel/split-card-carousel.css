@@ -342,6 +342,14 @@ main > .section > .split-card-carousel-wrapper {
     font-size: 28px;
   }
 
+  /* Stack multiple buttons one per line on mobile (all style variants).
+     variant-2 is named too since it forces nowrap on desktop. */
+  .split-card-carousel .split-card-carousel-buttons,
+  .split-card-carousel.variant-2 .split-card-carousel-buttons {
+    flex-flow: column nowrap;
+    align-items: flex-start;
+  }
+
   .split-card-carousel .split-card-carousel-nav {
     position: static;
     margin-left: 24px;
