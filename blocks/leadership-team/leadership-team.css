@@ -252,6 +252,12 @@
    Responsive: Mobile (<=600px) — 2 columns
    ------------------------------------------------------- */
 @media (width <= 600px) {
+  /* Drop the full-bleed negative margin so the section's 24px gutter is
+     restored — gives the outer photos left/right padding from the screen edge. */
+  .leadership-team {
+    margin-inline: 0;
+  }
+
   .leadership-team-section-heading {
     font-size: 28px;
   }
