@@ -105,12 +105,6 @@ main > .section > .general-inquiries-wrapper {
   position: relative;
 }
 
-/* Raise the whole dropdown above the fields that follow it while open, so the
-   menu can never be painted behind the message box below. */
-.general-inquiries .general-inquiries-dropdown.is-open {
-  z-index: 5;
-}
-
 .general-inquiries .general-inquiries-dropdown-trigger {
   display: flex;
   align-items: center;
@@ -160,33 +154,25 @@ main > .section > .general-inquiries-wrapper {
   transform: rotate(180deg);
 }
 
-.general-inquiries .general-inquiries-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  left: 0;
-  z-index: 30;
+/* Menu is portaled to <body> (see JS), so it is styled with standalone
+   selectors and positioned with fixed coordinates set inline by the JS. Living
+   at the document root keeps it out of the block's isolated/clipped stacking
+   context, which is what caused the incomplete-paint glitch. */
+.general-inquiries-dropdown-menu {
+  position: fixed;
+  z-index: 1000;
   margin: 0;
   padding: 6px;
   list-style: none;
   background: #fff;
   border: 1px solid #e4ddd6;
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 18px 44px rgb(64 64 65 / 18%);
-
-  /* Show/hide with visibility only — no opacity transition and no overflow
-     scroll container. Both promote the menu to its own GPU layer, which inside
-     this block's isolated stacking context rasterized incompletely (the field
-     below showed through) until a window/recomposite repaint. A plain,
-     non-composited block paints correctly on open. */
-  visibility: hidden;
+  font-family: var(--body-font-family);
+  outline: none;
 }
 
-.general-inquiries .general-inquiries-dropdown.is-open .general-inquiries-dropdown-menu {
-  visibility: visible;
-}
-
-.general-inquiries .general-inquiries-dropdown-option {
+.general-inquiries-dropdown-option {
   padding: 12px 14px;
   border-radius: 9px;
   color: #404041;
@@ -196,11 +182,11 @@ main > .section > .general-inquiries-wrapper {
   cursor: pointer;
 }
 
-.general-inquiries .general-inquiries-dropdown-option.is-active {
+.general-inquiries-dropdown-option.is-active {
   background: #f3ede6;
 }
 
-.general-inquiries .general-inquiries-dropdown-option[aria-selected="true"] {
+.general-inquiries-dropdown-option[aria-selected="true"] {
   color: #008db6;
   font-weight: 600;
 }
@@ -463,12 +449,6 @@ main > .section > .general-inquiries-wrapper {
   border-radius: 8px;
   padding: 14px 16px;
   box-shadow: none;
-}
-
-/* stylelint-disable-next-line no-descending-specificity */
-.general-inquiries.general-inquiries-support-mode .general-inquiries-dropdown-menu {
-  border: 0;
-  border-radius: 8px;
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-textarea {

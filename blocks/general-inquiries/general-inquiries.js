@@ -445,6 +445,7 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
   trigger.id = `${uid}-trigger`;
   trigger.setAttribute('aria-haspopup', 'listbox');
   trigger.setAttribute('aria-expanded', 'false');
+  trigger.setAttribute('aria-controls', `${uid}-menu`);
   trigger.setAttribute('aria-label', accessibleLabel);
 
   const valueEl = document.createElement('span');
@@ -481,7 +482,10 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
     return item;
   });
 
-  dropdown.append(trigger, menu, select);
+  // The menu is appended to <body> on open (see open()), not here — keeping it
+  // inside the block trapped it in an isolated/overflow-clipped stacking context
+  // where it rasterized incompletely.
+  dropdown.append(trigger, select);
   label.append(dropdown);
 
   let activeIndex = -1;
@@ -499,27 +503,43 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
     });
   };
 
+  const positionMenu = () => {
+    const rect = trigger.getBoundingClientRect();
+    menu.style.left = `${Math.round(rect.left)}px`;
+    menu.style.top = `${Math.round(rect.bottom + 6)}px`;
+    menu.style.width = `${Math.round(rect.width)}px`;
+  };
+
   const close = () => {
     if (!dropdown.classList.contains('is-open')) return;
     dropdown.classList.remove('is-open');
     trigger.setAttribute('aria-expanded', 'false');
+    menu.remove();
     if (onDocPointer) {
       document.removeEventListener('pointerdown', onDocPointer, true);
       onDocPointer = null;
     }
+    window.removeEventListener('scroll', positionMenu, true);
+    window.removeEventListener('resize', positionMenu);
   };
 
   const open = () => {
     if (dropdown.classList.contains('is-open')) return;
     dropdown.classList.add('is-open');
     trigger.setAttribute('aria-expanded', 'true');
+    // Portal the menu to <body> so it leaves the block's isolated, clipped
+    // stacking context. Positioned with fixed coordinates under the trigger.
+    positionMenu();
+    document.body.append(menu);
     const selectedIndex = optionEls.findIndex((el) => el.getAttribute('aria-selected') === 'true');
     setActive(selectedIndex >= 0 ? selectedIndex : 0);
     menu.focus();
     onDocPointer = (event) => {
-      if (!dropdown.contains(event.target)) close();
+      if (!dropdown.contains(event.target) && !menu.contains(event.target)) close();
     };
     document.addEventListener('pointerdown', onDocPointer, true);
+    window.addEventListener('scroll', positionMenu, true);
+    window.addEventListener('resize', positionMenu);
   };
 
   const choose = (item) => {
