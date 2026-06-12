@@ -30,6 +30,7 @@ module.exports = {
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', {
       '*': 16,
+      'colored-button': 17,
       'news-article': 5,
       resources: 12,
       'resource-item': 8,
@@ -51,7 +52,7 @@ module.exports = {
       'split-card-carousel-item': 13,
       'icon-card-carousel-item': 10,
       'card-row-compact-item': 10,
-      statistics: 7,
+      statistics: 23,
       'job-posting-item': 10,
       'job-postings': 8,
       'internship-program': 18,
