@@ -404,31 +404,176 @@ function buildTextareaField(field, config) {
   return label;
 }
 
+let dropdownIdSeq = 0;
+
+/* Custom Topic dropdown. A native <select> opens an OS/browser popup we can't
+   style or position (it mis-anchors to the page corner with tiny text under a
+   transformed ancestor). So the visible control is a custom button + listbox we
+   fully control, and a hidden native <select> is kept solely to carry the value
+   into FormData and provide `required` validation. The hidden select never
+   opens — all interaction goes through the custom UI. */
 function buildSelectField(placeholderField, optionsField, isAuthoring) {
   const placeholder = placeholderField.value || DEFAULTS.topicPlaceholder;
   const accessibleLabel = normalizeAccessibleLabel(placeholder, 'Topic');
   const label = createLabelShell(accessibleLabel);
-  const select = document.createElement('select');
   const parsedOptions = parseOptions(optionsField.value);
   const optionEntries = parsedOptions.length ? parsedOptions : DEFAULTS.topicOptions;
 
+  dropdownIdSeq += 1;
+  const uid = `general-inquiries-topic-${dropdownIdSeq}`;
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'general-inquiries-dropdown';
+
+  const select = document.createElement('select');
   select.className = 'general-inquiries-select';
   select.name = 'topic';
   select.required = true;
-  select.setAttribute('aria-label', accessibleLabel);
+  select.tabIndex = -1;
+  select.setAttribute('aria-hidden', 'true');
 
   const placeholderOption = document.createElement('option');
-  placeholderOption.textContent = placeholder;
   placeholderOption.value = '';
+  placeholderOption.textContent = placeholder;
   placeholderOption.disabled = true;
   placeholderOption.selected = true;
   select.append(placeholderOption);
 
-  optionEntries.forEach((entry) => {
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'general-inquiries-dropdown-trigger';
+  trigger.id = `${uid}-trigger`;
+  trigger.setAttribute('aria-haspopup', 'listbox');
+  trigger.setAttribute('aria-expanded', 'false');
+  trigger.setAttribute('aria-label', accessibleLabel);
+
+  const valueEl = document.createElement('span');
+  valueEl.className = 'general-inquiries-dropdown-value is-placeholder';
+  valueEl.textContent = placeholder;
+
+  const arrow = document.createElement('span');
+  arrow.className = 'general-inquiries-dropdown-arrow';
+  arrow.setAttribute('aria-hidden', 'true');
+  trigger.append(valueEl, arrow);
+
+  const menu = document.createElement('ul');
+  menu.className = 'general-inquiries-dropdown-menu';
+  menu.id = `${uid}-menu`;
+  menu.tabIndex = -1;
+  menu.hidden = true;
+  menu.setAttribute('role', 'listbox');
+  menu.setAttribute('aria-label', accessibleLabel);
+
+  const optionEls = optionEntries.map((entry, index) => {
+    const item = document.createElement('li');
+    item.className = 'general-inquiries-dropdown-option';
+    item.id = `${uid}-option-${index}`;
+    item.dataset.value = entry.value;
+    item.textContent = entry.label;
+    item.setAttribute('role', 'option');
+    item.setAttribute('aria-selected', 'false');
+    menu.append(item);
+
     const option = document.createElement('option');
     option.value = entry.value;
     option.textContent = entry.label;
     select.append(option);
+
+    return item;
+  });
+
+  dropdown.append(trigger, menu, select);
+  label.append(dropdown);
+
+  let activeIndex = -1;
+  let onDocPointer = null;
+
+  const setActive = (index) => {
+    activeIndex = Math.max(0, Math.min(optionEls.length - 1, index));
+    optionEls.forEach((el, i) => {
+      const isActive = i === activeIndex;
+      el.classList.toggle('is-active', isActive);
+      if (isActive) {
+        menu.setAttribute('aria-activedescendant', el.id);
+        el.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  };
+
+  const close = () => {
+    if (menu.hidden) return;
+    menu.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    dropdown.classList.remove('is-open');
+    if (onDocPointer) {
+      document.removeEventListener('pointerdown', onDocPointer, true);
+      onDocPointer = null;
+    }
+  };
+
+  const open = () => {
+    if (!menu.hidden) return;
+    menu.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    dropdown.classList.add('is-open');
+    const selectedIndex = optionEls.findIndex((el) => el.getAttribute('aria-selected') === 'true');
+    setActive(selectedIndex >= 0 ? selectedIndex : 0);
+    menu.focus();
+    onDocPointer = (event) => {
+      if (!dropdown.contains(event.target)) close();
+    };
+    document.addEventListener('pointerdown', onDocPointer, true);
+  };
+
+  const choose = (item) => {
+    optionEls.forEach((el) => el.setAttribute('aria-selected', el === item ? 'true' : 'false'));
+    select.value = item.dataset.value;
+    valueEl.textContent = item.textContent;
+    valueEl.classList.remove('is-placeholder');
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    close();
+    trigger.focus();
+  };
+
+  trigger.addEventListener('click', () => {
+    if (menu.hidden) open();
+    else close();
+  });
+
+  trigger.addEventListener('keydown', (event) => {
+    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+      event.preventDefault();
+      open();
+    }
+  });
+
+  optionEls.forEach((item, index) => {
+    item.addEventListener('click', () => choose(item));
+    item.addEventListener('mousemove', () => setActive(index));
+  });
+
+  menu.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setActive(activeIndex + 1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActive(activeIndex - 1);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      setActive(0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      setActive(optionEls.length - 1);
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (optionEls[activeIndex]) choose(optionEls[activeIndex]);
+    } else if (event.key === 'Escape') {
+      close();
+      trigger.focus();
+    } else if (event.key === 'Tab') {
+      close();
+    }
   });
 
   if (!parsedOptions.length && isAuthoring && optionsField.source && !optionsField.value) {
@@ -439,8 +584,23 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
     select.append(helperOption);
   }
 
-  moveFieldBinding(placeholderField.source, select);
-  label.append(select);
+  moveFieldBinding(placeholderField.source, valueEl);
+
+  // Restore the placeholder when the form is reset (after a successful submit).
+  // Deferred so the dropdown is attached to its form before we look it up.
+  window.requestAnimationFrame(() => {
+    const form = dropdown.closest('form');
+    if (!form) return;
+    form.addEventListener('reset', () => {
+      window.requestAnimationFrame(() => {
+        optionEls.forEach((el) => el.setAttribute('aria-selected', 'false'));
+        valueEl.textContent = placeholder;
+        valueEl.classList.add('is-placeholder');
+        activeIndex = -1;
+        close();
+      });
+    });
+  });
 
   return label;
 }
