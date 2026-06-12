@@ -166,8 +166,6 @@ main > .section > .general-inquiries-wrapper {
   right: 0;
   left: 0;
   z-index: 30;
-  max-height: 280px;
-  overflow-y: auto;
   margin: 0;
   padding: 6px;
   list-style: none;
@@ -176,20 +174,16 @@ main > .section > .general-inquiries-wrapper {
   border-radius: 14px;
   box-shadow: 0 18px 44px rgb(64 64 65 / 18%);
 
-  /* Stay in the render tree (no display toggle) and show/hide via visibility +
-     opacity. Toggling `display` inside the form's nested stacking contexts left
-     the menu mis-painted behind the field below until a repaint. */
-  opacity: 0;
+  /* Show/hide with visibility only — no opacity transition and no overflow
+     scroll container. Both promote the menu to its own GPU layer, which inside
+     this block's isolated stacking context rasterized incompletely (the field
+     below showed through) until a window/recomposite repaint. A plain,
+     non-composited block paints correctly on open. */
   visibility: hidden;
-  pointer-events: none;
-  transition: opacity 120ms ease, visibility 0s linear 120ms;
 }
 
 .general-inquiries .general-inquiries-dropdown.is-open .general-inquiries-dropdown-menu {
-  opacity: 1;
   visibility: visible;
-  pointer-events: auto;
-  transition: opacity 120ms ease;
 }
 
 .general-inquiries .general-inquiries-dropdown-option {
