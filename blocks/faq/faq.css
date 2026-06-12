@@ -47,6 +47,11 @@ main > .section > .faq-wrapper {
   border-radius: 8px;
   background-color: #ddd5cc52;
   overflow: hidden;
+
+  /* Give the rounded, overflow-clipped card its own compositor layer. Without
+     this, animating the panel's grid-template-rows leaves a faint 1px seam at
+     the clip edge that lingers until the next repaint (e.g. clicking the page). */
+  transform: translateZ(0);
 }
 
 .faq .faq-item.is-authoring-placeholder {
