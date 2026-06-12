@@ -11,6 +11,10 @@
   flex-direction: column;
   gap: 32px;
   width: 100%;
+
+  /* Allow children to shrink below their content so the track below can become
+     a horizontal scroll container instead of pushing the page wider. */
+  min-width: 0;
 }
 
 /* Track — horizontally scrollable list of logos */
@@ -22,6 +26,13 @@
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   padding: 8px 4px;
+
+  /* Stay within the parent width and scroll horizontally rather than expanding
+     to the combined logo width (which pushed the block off the screen edge). */
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 
   /* Hide native scrollbar — we render our own bar */
   scrollbar-width: none;
@@ -177,22 +188,6 @@
 
   .logo-carousel-bar {
     max-width: none;
-  }
-}
-
-/* Mobile: the JS runs a continuous auto-scroll marquee, so hide the manual
-   controls and turn off scroll-snap (it would fight the smooth auto-scroll). */
-@media (width <= 700px) {
-  .logo-carousel-track {
-    scroll-snap-type: none;
-  }
-
-  .logo-carousel-slide {
-    scroll-snap-align: none;
-  }
-
-  .logo-carousel-controls {
-    display: none;
   }
 }
 
