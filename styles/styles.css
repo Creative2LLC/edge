@@ -126,7 +126,11 @@ main .block.scroll-reveal {
 
 main .block.scroll-reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+
+  /* Use `none` (not translateY(0)) once revealed: a lingering transform creates
+     a containing block that makes native <select> popups mis-anchor to the
+     page's top-left and render with tiny text. `none` is visually identical. */
+  transform: none;
   will-change: auto;
 }
 
