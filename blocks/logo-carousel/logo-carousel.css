@@ -180,6 +180,22 @@
   }
 }
 
+/* Mobile: the JS runs a continuous auto-scroll marquee, so hide the manual
+   controls and turn off scroll-snap (it would fight the smooth auto-scroll). */
+@media (width <= 700px) {
+  .logo-carousel-track {
+    scroll-snap-type: none;
+  }
+
+  .logo-carousel-slide {
+    scroll-snap-align: none;
+  }
+
+  .logo-carousel-controls {
+    display: none;
+  }
+}
+
 @media (width <= 600px) {
   .logo-carousel-track {
     gap: 32px;

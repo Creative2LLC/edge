@@ -123,6 +123,96 @@ function getStepDistance(track) {
   return Math.max(slideWidth + gapPx, track.clientWidth * 0.8);
 }
 
+/* Mobile continuous auto-scroll (marquee). Clones the slides once for a
+   seamless loop and advances the scroll position each frame. Pauses while the
+   user is interacting, respects reduced-motion, and tears itself down (removing
+   the clones) when the viewport grows back to desktop. */
+function setupMobileAutoScroll(block, track) {
+  if (block.closest('[data-aue-resource]') || block.querySelector('[data-aue-prop]')) return undefined;
+
+  const mq = window.matchMedia('(width <= 700px)');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const SPEED = 0.5; // px per frame ≈ 30px/s at 60fps
+
+  let rafId = null;
+  let active = false;
+  let paused = false;
+  let resumeTimer = null;
+  let firstClone = null;
+  let loopWidth = 0;
+
+  const measure = () => { loopWidth = firstClone ? firstClone.offsetLeft : 0; };
+
+  const step = () => {
+    if (!paused && loopWidth > 0) {
+      track.scrollLeft += SPEED;
+      if (track.scrollLeft >= loopWidth) track.scrollLeft -= loopWidth;
+    }
+    rafId = window.requestAnimationFrame(step);
+  };
+
+  const pause = () => {
+    paused = true;
+    if (resumeTimer) { window.clearTimeout(resumeTimer); resumeTimer = null; }
+  };
+  const resumeSoon = () => {
+    if (resumeTimer) window.clearTimeout(resumeTimer);
+    resumeTimer = window.setTimeout(() => { paused = false; }, 1200);
+  };
+
+  const enable = () => {
+    if (active) return;
+    active = true;
+
+    [...track.children].forEach((node) => {
+      const clone = node.cloneNode(true);
+      clone.classList.add('is-clone');
+      clone.setAttribute('aria-hidden', 'true');
+      clone.querySelectorAll('a').forEach((a) => a.setAttribute('tabindex', '-1'));
+      track.append(clone);
+    });
+    firstClone = track.querySelector('.is-clone');
+    measure();
+
+    paused = false;
+    track.addEventListener('pointerdown', pause);
+    track.addEventListener('pointerup', resumeSoon);
+    track.addEventListener('pointercancel', resumeSoon);
+    track.addEventListener('touchstart', pause, { passive: true });
+    track.addEventListener('touchend', resumeSoon, { passive: true });
+    window.addEventListener('resize', measure);
+    rafId = window.requestAnimationFrame(step);
+  };
+
+  const disable = () => {
+    if (!active) return;
+    active = false;
+    if (rafId) { window.cancelAnimationFrame(rafId); rafId = null; }
+    if (resumeTimer) { window.clearTimeout(resumeTimer); resumeTimer = null; }
+    track.querySelectorAll('.is-clone').forEach((node) => node.remove());
+    firstClone = null;
+    loopWidth = 0;
+    paused = false;
+    track.scrollLeft = 0;
+    track.removeEventListener('pointerdown', pause);
+    track.removeEventListener('pointerup', resumeSoon);
+    track.removeEventListener('pointercancel', resumeSoon);
+    track.removeEventListener('touchstart', pause);
+    track.removeEventListener('touchend', resumeSoon);
+    window.removeEventListener('resize', measure);
+  };
+
+  const apply = () => {
+    if (mq.matches && !reduce.matches) enable();
+    else disable();
+  };
+
+  apply();
+  mq.addEventListener('change', apply);
+  reduce.addEventListener('change', apply);
+  return measure;
+}
+
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
@@ -183,15 +273,23 @@ export default function decorate(block) {
   track.addEventListener('scroll', refreshBar, { passive: true });
   window.addEventListener('resize', refreshBar);
 
+  // Mobile-only continuous auto-scroll. Returns a measure() so we can recompute
+  // the loop point once images have loaded.
+  const remeasureAutoScroll = setupMobileAutoScroll(block, track);
+
   // Wait for images so the scrollWidth is accurate.
   const imgs = [...track.querySelectorAll('img')];
   if (imgs.length === 0) {
     refreshBar();
+    remeasureAutoScroll?.();
   } else {
     let pending = imgs.length;
     const done = () => {
       pending -= 1;
-      if (pending <= 0) refreshBar();
+      if (pending <= 0) {
+        refreshBar();
+        remeasureAutoScroll?.();
+      }
     };
     imgs.forEach((img) => {
       if (img.complete) done();
