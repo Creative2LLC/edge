@@ -431,9 +431,11 @@
     gap: 22px;
   }
 
+  /* Let the pill shrink to its tabs and stay centered by the shell (instead of
+     spanning full width and left-aligning a lone year badge); cap + scroll when
+     there are many years. */
   .report-breakdown .report-breakdown-tabs {
-    width: 100%;
-    justify-content: space-between;
+    max-width: 100%;
     overflow-x: auto;
   }
 
