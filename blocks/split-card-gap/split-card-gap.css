@@ -324,7 +324,13 @@ main > .section > .split-card-gap-wrapper {
     min-height: 320px;
   }
 
+  /* Stacked layout: let the card grow to fit its content. The desktop
+     max-height + vertical centering (used to match the two columns' heights)
+     otherwise makes tall content overflow the white card and spill over the
+     image above it. */
   .split-card-gap .split-card-gap-content {
+    max-height: none;
+    justify-content: flex-start;
     padding: 36px 32px;
   }
 }
