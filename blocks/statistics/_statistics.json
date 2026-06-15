@@ -94,6 +94,51 @@
           "value": ""
         },
         {
+          "component": "reference",
+          "valueType": "string",
+          "name": "iconImage",
+          "label": "Icon Image (Optional)",
+          "description": "Default icon for a single stat. For multiple stats, use Statistics Item icon fields.",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconImageAlt",
+          "label": "Icon Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "defaultButtonText",
+          "label": "Button Text (Optional)",
+          "description": "Default button for a single stat. For multiple stats, use Statistics Item button fields.",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "defaultButtonLink",
+          "label": "Button Link (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "defaultButtonTarget",
+          "label": "Button Target",
+          "options": [
+            {
+              "name": "Same Tab",
+              "value": "_self"
+            },
+            {
+              "name": "New Tab",
+              "value": "_blank"
+            }
+          ],
+          "value": "_self"
+        },
+        {
           "component": "select",
           "valueType": "string",
           "name": "verticalDividers",

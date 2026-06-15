@@ -48,6 +48,28 @@ function readField(block, name, altKeys) {
   return field;
 }
 
+function readImageBlockField(block, name, altKeys) {
+  const labels = [
+    name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
+    ...(altKeys || []),
+  ];
+  const field = readImageField(block, name, { labels });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) row.remove();
+  return field;
+}
+
+function readLinkBlockField(block, name, altKeys) {
+  const labels = [
+    name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
+    ...(altKeys || []),
+  ];
+  const field = readLinkField(block, name, { labels });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) row.remove();
+  return field;
+}
+
 function buildTextElement(tag, className, field) {
   if (!field?.value && !field?.source?.childNodes?.length) return null;
   const el = document.createElement(tag);
@@ -387,6 +409,31 @@ function normalizeTarget(value) {
   return String(value || '').trim() === '_blank' ? '_blank' : '_self';
 }
 
+function fieldHasContent(field) {
+  return Boolean(field?.value || field?.source);
+}
+
+function applySingleItemDefaults(items, defaults) {
+  if (items.length !== 1) return items;
+
+  const item = items[0];
+
+  return [{
+    ...item,
+    imageField: item.imageField?.img || !defaults.imageField?.img
+      ? item.imageField
+      : defaults.imageField,
+    imageAlt: item.imageAlt || defaults.imageAlt || '',
+    buttonTextField: fieldHasContent(item.buttonTextField)
+      ? item.buttonTextField
+      : defaults.buttonTextField,
+    buttonLinkField: fieldHasContent(item.buttonLinkField)
+      ? item.buttonLinkField
+      : defaults.buttonLinkField,
+    buttonTarget: item.buttonTarget || defaults.buttonTarget || '',
+  }];
+}
+
 function buildItem(itemData) {
   const item = document.createElement('li');
   item.className = 'statistics-item';
@@ -454,6 +501,11 @@ export default function decorate(block) {
   const contentAlignmentField = readField(block, 'contentAlignment', ['content alignment', 'horizontal alignment', 'heading alignment']);
   const verticalAlignmentField = readField(block, 'verticalAlignment', ['vertical alignment']);
   const bodyTextField = readField(block, 'bodyText', ['body text', 'body', 'copy', 'subheading']);
+  const iconImageField = readImageBlockField(block, 'iconImage', ['icon image', 'image', 'icon']);
+  const iconImageAltField = readField(block, 'iconImageAlt', ['icon image alt text', 'image alt text', 'icon alt text']);
+  const defaultButtonTextField = readField(block, 'defaultButtonText', ['button text', 'cta text']);
+  const defaultButtonLinkField = readLinkBlockField(block, 'defaultButtonLink', ['button link', 'cta link']);
+  const defaultButtonTargetField = readField(block, 'defaultButtonTarget', ['button target', 'open link in']);
   const verticalDividersField = readField(block, 'verticalDividers', ['vertical dividers', 'dividers']);
   const blockBackgroundField = readField(block, 'blockBackgroundColor', ['block background color', 'background color']);
   const headingColorField = readField(block, 'headingTextColor', ['heading text color', 'heading color']);
@@ -536,7 +588,16 @@ export default function decorate(block) {
   const list = document.createElement('ul');
   list.className = 'statistics-list';
   const authoredItems = getAuthoredItems(block);
-  const items = authoredItems.length ? authoredItems : getLegacyItems(values, labels);
+  const items = applySingleItemDefaults(
+    authoredItems.length ? authoredItems : getLegacyItems(values, labels),
+    {
+      imageField: iconImageField,
+      imageAlt: iconImageAltField.value,
+      buttonTextField: defaultButtonTextField,
+      buttonLinkField: defaultButtonLinkField,
+      buttonTarget: defaultButtonTargetField.value,
+    },
+  );
   items.forEach((itemData) => {
     const item = buildItem(itemData);
     if (item) list.append(item);
