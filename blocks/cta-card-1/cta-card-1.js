@@ -188,6 +188,13 @@ export default function decorate(block) {
     else button2LinkField.source.remove();
   }
 
+  // On the published page (no field instrumentation) the styleType select value
+  // can leak into this slot via positional fallback — never render a bare
+  // "variant-N" keyword as the below-button caption.
+  if (/^variant-\d+$/i.test((belowButtonTextField.value || '').trim())) {
+    belowButtonTextField.value = '';
+    belowButtonTextField.source = null;
+  }
   const belowText = buildTextElement('div', 'cta-card-1-below-button', belowButtonTextField);
   if (belowText) {
     if (button2Location === 'left') {

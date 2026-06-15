@@ -179,6 +179,23 @@
 }
 
 @media (width <= 900px) {
+  .hero-footer {
+    min-height: 620px;
+  }
+
+  .hero-footer-content {
+    width: 100%;
+    padding: 40px 20px;
+    box-sizing: border-box;
+  }
+
+  /* Let long words wrap instead of spilling past the clipped block edges. */
+  .hero-footer-heading-1,
+  .hero-footer-heading-2,
+  .hero-footer-subheading {
+    overflow-wrap: break-word;
+  }
+
   .hero-footer-heading-1 {
     font-size: 36px;
   }
@@ -188,6 +205,7 @@
   }
 
   .hero-footer-subheading {
+    width: 100%;
     font-size: 18px;
   }
 
@@ -199,6 +217,43 @@
   .hero-footer-bg picture {
     width: 100%;
     height: 100%;
+  }
+}
+
+@media (width <= 600px) {
+  .hero-footer {
+    min-height: 520px;
+  }
+
+  .hero-footer-content {
+    padding: 32px 18px;
+  }
+
+  /* Scale headings with the viewport so they never overrun small screens.
+     Variant-2 selectors are repeated here to beat their higher specificity. */
+  .hero-footer-heading-1 {
+    font-size: clamp(20px, 7.5vw, 30px);
+  }
+
+  .hero-footer-heading-2,
+  .hero-footer.hero-footer-variant-2 .hero-footer-heading-2 {
+    font-size: clamp(32px, 11vw, 46px);
+  }
+
+  .hero-footer-subheading,
+  .hero-footer.hero-footer-variant-2 .hero-footer-subheading {
+    margin-top: 18px;
+    font-size: 16px;
+  }
+
+  .hero-footer-buttons {
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .hero-footer-btn {
+    font-size: 18px;
+    padding: 12px 26px;
   }
 }
 

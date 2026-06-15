@@ -192,7 +192,10 @@
 }
 
 @media (width <= 600px) {
+  /* Stack the CTA buttons one per line so their labels aren't squeezed/clipped
+     by sharing a single row. */
   .split-card-offices .split-card-offices-buttons {
+    flex-direction: column;
     gap: 12px;
   }
 

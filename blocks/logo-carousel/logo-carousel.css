@@ -2,6 +2,13 @@
 .logo-carousel {
   margin: 64px auto;
   padding: 0 32px;
+
+  /* The EDS section wrapper shares the `logo-carousel-wrapper` class with the
+     inner div, so it picks up `display: flex` and treats this block as a flex
+     item. Combined with the auto side margins above, that would size the block
+     to its content (all logos) and push it off-screen. An explicit width keeps
+     it bounded to the viewport so the track below can scroll horizontally. */
+  width: 100%;
   max-width: 1420px;
   box-sizing: border-box;
 }
@@ -11,6 +18,10 @@
   flex-direction: column;
   gap: 32px;
   width: 100%;
+
+  /* Allow children to shrink below their content so the track below can become
+     a horizontal scroll container instead of pushing the page wider. */
+  min-width: 0;
 }
 
 /* Track — horizontally scrollable list of logos */
@@ -22,6 +33,13 @@
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   padding: 8px 4px;
+
+  /* Stay within the parent width and scroll horizontally rather than expanding
+     to the combined logo width (which pushed the block off the screen edge). */
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 
   /* Hide native scrollbar — we render our own bar */
   scrollbar-width: none;

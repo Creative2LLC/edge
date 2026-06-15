@@ -304,8 +304,10 @@ main > .section > .split-thin-carousel-wrapper {
 
 /* Responsive — mobile */
 @media (width <= 700px) {
+  /* Keep a left gutter so the first card doesn't touch the screen edge;
+     right stays 0 so the track can still bleed/scroll off the right. */
   .split-thin-carousel .stc-wrapper {
-    padding: 48px 0;
+    padding: 48px 0 48px 24px;
   }
 
   .split-thin-carousel .stc-title {
@@ -327,7 +329,11 @@ main > .section > .split-thin-carousel-wrapper {
     height: 240px;
   }
 
+  /* Grow the content area to fill the synced card height (cards are forced to
+     the tallest card's height by JS). Without this, the #edebe9 content stops
+     where the text ends and the card's white background shows as a gap. */
   .split-thin-carousel .stc-content {
+    flex: 1 1 auto;
     padding: 28px 24px;
   }
 

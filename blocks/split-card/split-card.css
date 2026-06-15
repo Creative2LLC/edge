@@ -264,38 +264,51 @@ main > .section > .split-card-wrapper {
 
 /* Responsive */
 @media (width <= 700px) {
-  .split-card .split-card-inner {
+  /* Every variant stacks vertically on mobile (image on top, content below).
+     image-right is listed explicitly because its row-reverse rule outranks the
+     base selector and would otherwise stay side-by-side. */
+  .split-card .split-card-inner,
+  .split-card .split-card-inner.split-card-image-right {
     flex-direction: column;
     height: auto;
-  }
-
-  .split-card .split-card-media {
-    flex: none;
-    height: 240px;
-  }
-
-  .split-card .split-card-content {
-    padding: 28px 24px;
-  }
-
-  .split-card .split-card-heading {
-    font-size: 28px;
-  }
-
-  .split-card.split-card-size-smaller .split-card-inner {
+    min-height: 0;
     max-height: none;
   }
 
-  /* Mobile: image-smaller variant falls back to the stacked layout */
-  .split-card.split-card-image-smaller .split-card-inner {
-    min-height: auto;
-    max-height: none;
-  }
-
-  .split-card.split-card-image-smaller .split-card-media {
+  /* Media spans the full width at a fixed height across every variant, including
+     the ones that pin a fixed media width on desktop (image-smaller, variant-2). */
+  .split-card .split-card-media,
+  .split-card.split-card-image-smaller .split-card-media,
+  .split-card.split-card-variant-2 .split-card-media {
     flex: none;
     width: 100%;
     max-width: none;
     height: 240px;
+  }
+
+  /* variant-2 pins its picture/img to 459×226 on desktop — let them fill the
+     stacked, full-width media instead of overflowing the screen. */
+  .split-card.split-card-variant-2 .split-card-media picture,
+  .split-card.split-card-variant-2 .split-card-media img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Restore symmetric padding (variant-2 zeroes the left padding on desktop). */
+  .split-card .split-card-content,
+  .split-card.split-card-variant-2 .split-card-content {
+    padding: 28px 24px;
+  }
+
+  /* Shrink headings for every variant (size-smaller/variant-2 set larger sizes
+     at higher specificity, so they're named here too). */
+  .split-card .split-card-heading,
+  .split-card.split-card-size-smaller .split-card-heading,
+  .split-card.split-card-variant-2 .split-card-heading {
+    font-size: 28px;
+  }
+
+  .split-card.split-card-variant-2 .split-card-subheading {
+    font-size: 16px;
   }
 }

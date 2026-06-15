@@ -363,6 +363,15 @@
     border-top: 1px solid #e5e1db;
   }
 
+  /* Three-up segment-source variant keeps per-column left padding + dividers on
+     desktop; flush every stat left on the stacked mobile layout so they all
+     align with the first item. */
+  .impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat,
+  .impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:not(:first-child) {
+    padding-left: 0;
+    border-left: none;
+  }
+
   .impact-donut .impact-donut-stat.is-authoring-placeholder,
   .impact-donut .impact-donut-stat.is-authoring-placeholder:nth-child(2n),
   .impact-donut .impact-donut-stat.is-authoring-placeholder:nth-child(n + 3) {

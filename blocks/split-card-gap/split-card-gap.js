@@ -60,16 +60,22 @@ function getParentCells(block) {
     .filter(Boolean);
 }
 
+const COLOR_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const SIZE_PATTERN = /^\d+(\.\d+)?(px|rem|%)?$/;
+const STYLING_PATTERN = /^(default|variant[\s-]?2)$/i;
+
 function getFallbackCell(scope, index) {
   if (!scope?.matches?.('.split-card-gap')) return scope?.children?.[index] || null;
   const parentCells = getParentCells(scope);
+  // Only genuine text belongs here. Cells that fill a dedicated typed slot
+  // (styling type, color, size/number) must be excluded — otherwise e.g. the
+  // styling-type value "default" gets positionally picked up as a button label.
   const plainTextCells = parentCells.filter((cell) => {
     const text = cell.textContent.trim();
-    return text && !cell.querySelector('picture') && !cell.querySelector('a[href]');
+    if (!text || cell.querySelector('picture') || cell.querySelector('a[href]')) return false;
+    return !COLOR_PATTERN.test(text) && !SIZE_PATTERN.test(text) && !STYLING_PATTERN.test(text);
   });
-  const colorCells = parentCells.filter((cell) => /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(
-    cell.textContent.trim(),
-  ));
+  const colorCells = parentCells.filter((cell) => COLOR_PATTERN.test(cell.textContent.trim()));
   const linkCells = parentCells.filter((cell) => {
     const anchor = cell.querySelector('a[href]');
     return anchor && !/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(anchor.textContent.trim());
@@ -86,8 +92,8 @@ function getFallbackCell(scope, index) {
     8: linkCells[0],
     9: plainTextCells[3],
     10: linkCells[1],
-    11: parentCells.find((cell) => /^\d+(\.\d+)?(px|rem|%)?$/.test(cell.textContent.trim())),
-    12: parentCells.find((cell) => /^(default|variant[\s-]?2)$/i.test(cell.textContent.trim())),
+    11: parentCells.find((cell) => SIZE_PATTERN.test(cell.textContent.trim())),
+    12: parentCells.find((cell) => STYLING_PATTERN.test(cell.textContent.trim())),
   };
 
   return fallbackMap[index] || parentCells[index] || null;

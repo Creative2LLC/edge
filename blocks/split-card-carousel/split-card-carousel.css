@@ -309,8 +309,10 @@ main > .section > .split-card-carousel-wrapper {
 
 /* Responsive - mobile */
 @media (width <= 700px) {
+  /* Keep a left gutter so the first card doesn't touch the screen edge;
+     right stays 0 so the track can still bleed/scroll off the right. */
   .split-card-carousel .split-card-carousel-wrapper {
-    padding: 48px 0;
+    padding: 48px 0 48px 24px;
   }
 
   .split-card-carousel .split-card-carousel-title {
@@ -338,6 +340,14 @@ main > .section > .split-card-carousel-wrapper {
 
   .split-card-carousel .split-card-carousel-heading {
     font-size: 28px;
+  }
+
+  /* Stack multiple buttons one per line on mobile (all style variants).
+     variant-2 is named too since it forces nowrap on desktop. */
+  .split-card-carousel .split-card-carousel-buttons,
+  .split-card-carousel.variant-2 .split-card-carousel-buttons {
+    flex-flow: column nowrap;
+    align-items: flex-start;
   }
 
   .split-card-carousel .split-card-carousel-nav {

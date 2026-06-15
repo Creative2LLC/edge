@@ -104,6 +104,14 @@ main > .section > .faq-wrapper {
   text-decoration: none;
 }
 
+/* The global `button:focus` rule (styles.css) draws a 2px currentcolor
+   (near-black) outline on mouse click, which the overflow:hidden card clips
+   into a thin line. Suppress it for pointer focus; keyboard users still get the
+   orange :focus-visible ring below. */
+.faq .faq-item-header:focus {
+  outline: none;
+}
+
 .faq .faq-item-header:focus-visible {
   outline: 2px solid #e38b22;
   outline-offset: -2px;
