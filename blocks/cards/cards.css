@@ -1,6 +1,7 @@
 .cards {
   --cards-card-bg-default: var(--background-color);
   --cards-card-text-default: inherit;
+  --cards-card-highlight-default: var(--cards-card-text, var(--cards-card-text-default));
 }
 
 .cards > ul {
@@ -31,7 +32,7 @@
 }
 
 .cards .cards-card-highlight {
-  color: inherit;
+  color: var(--cards-card-highlight, var(--cards-card-highlight-default));
   font-size: clamp(2rem, 5vw, 3.625rem);
   font-weight: 700;
   line-height: 1.05;

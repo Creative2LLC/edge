@@ -12,7 +12,18 @@ const SETTING_NAMES = [
   'textAlignment',
   'defaultCardBackgroundColor',
   'defaultCardTextColor',
+  'defaultHighlightTextColor',
   'buttonDisplay',
+];
+
+const CARD_FIELD_NAMES = [
+  'image',
+  'text',
+  'highlightText',
+  'cardBackgroundColor',
+  'cardTextColor',
+  'highlightTextColor',
+  'cardAlignment',
 ];
 
 function directRowOf(block, element) {
@@ -67,6 +78,7 @@ function applySettings(block, settings = {}) {
   );
   const defaultCardBackground = normalizeColorValue(settings.defaultCardBackgroundColor);
   const defaultCardTextColor = normalizeColorValue(settings.defaultCardTextColor);
+  const defaultHighlightTextColor = normalizeColorValue(settings.defaultHighlightTextColor);
 
   block.classList.remove(
     'cards-text-align-left',
@@ -92,6 +104,12 @@ function applySettings(block, settings = {}) {
   } else {
     block.style.removeProperty('--cards-card-text-default');
   }
+
+  if (defaultHighlightTextColor) {
+    block.style.setProperty('--cards-card-highlight-default', defaultHighlightTextColor);
+  } else {
+    block.style.removeProperty('--cards-card-highlight-default');
+  }
 }
 
 function syncResourceSettings(resourcePath, block) {
@@ -102,7 +120,29 @@ function syncResourceSettings(resourcePath, block) {
 }
 
 function hasAuthoringContext(scope) {
-  return Boolean(scope.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'));
+  return Boolean(
+    scope.getAttribute?.('data-aue-resource')
+      || scope.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function hasCardField(row) {
+  return CARD_FIELD_NAMES.some((name) => (
+    row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`)
+  ));
+}
+
+function hasVisibleContent(row) {
+  return Boolean(
+    row.textContent.trim()
+      || row.querySelector('img, picture, video, iframe, svg, ul, ol, li, a, button'),
+  );
+}
+
+function shouldRenderCardRow(row) {
+  return row.getAttribute('data-aue-model') === 'card'
+    || hasCardField(row)
+    || hasVisibleContent(row);
 }
 
 function hasRenderableContent(field) {
@@ -164,9 +204,13 @@ function buildCard(row) {
   const highlightField = readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
   const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: row.children[3] });
   const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: row.children[4] });
-  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: row.children[5] });
+  const highlightTextColorField = readTextField(row, 'highlightTextColor', {
+    fallbackCell: row.children[5],
+  });
+  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: row.children[6] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
+  const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
   const cardAlignment = normalizeOption(
     cardAlignmentField.value,
     ['left', 'center', 'right', 'justify'],
@@ -179,6 +223,7 @@ function buildCard(row) {
   }
 
   if (cardTextColor) li.style.setProperty('--cards-card-text', cardTextColor);
+  if (highlightTextColor) li.style.setProperty('--cards-card-highlight', highlightTextColor);
   if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
 
   const image = buildImage(imageField);
@@ -210,12 +255,22 @@ export default function decorate(block) {
       'default card text color',
       'card text color',
     ]),
+    defaultHighlightTextColor: readSetting(block, 'defaultHighlightTextColor', [
+      'default highlighted text color',
+      'highlighted text color',
+      'highlight text color',
+    ]),
     buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons']),
   });
 
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
     if (isSettingRow(row)) {
+      row.remove();
+      return;
+    }
+
+    if (!shouldRenderCardRow(row)) {
       row.remove();
       return;
     }

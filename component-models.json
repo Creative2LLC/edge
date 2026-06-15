@@ -1543,6 +1543,19 @@
         }
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "defaultHighlightTextColor",
+        "label": "Default Highlighted Text Color (Hex, Optional)",
+        "description": "Leave empty to use the default card text color.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #1491BF."
+        }
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "buttonDisplay",
@@ -1611,6 +1624,19 @@
         "validation": {
           "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
           "customErrorMsg": "Enter a valid hex color, for example #00264D."
+        }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "highlightTextColor",
+        "label": "Highlighted Text Color (Hex, Optional)",
+        "description": "Overrides the highlighted text color for this card.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #1491BF."
         }
       },
       {
