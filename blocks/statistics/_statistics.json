@@ -313,7 +313,7 @@
           "component": "reference",
           "valueType": "string",
           "name": "image",
-          "label": "Image (Optional)",
+          "label": "Icon Image (Optional)",
           "multi": false
         },
         {
@@ -334,6 +334,35 @@
           "valueType": "string",
           "name": "statLabel",
           "label": "Stat Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonTarget",
+          "label": "Button Target",
+          "options": [
+            {
+              "name": "Same Tab",
+              "value": "_self"
+            },
+            {
+              "name": "New Tab",
+              "value": "_blank"
+            }
+          ],
+          "value": "_self"
         }
       ]
     }

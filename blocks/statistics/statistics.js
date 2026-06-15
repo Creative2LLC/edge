@@ -4,6 +4,7 @@ import {
   getAueResourcePath,
   readAueResourceFields,
   readImageField,
+  readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { animateCountUpOnVisible } from '../../scripts/count-up.js';
@@ -268,8 +269,16 @@ function hasAuthoringContext(scope) {
 
 function isItemRow(row) {
   if (!row?.children?.length) return false;
+  const itemFieldSelector = [
+    '[data-aue-prop="statValue"]',
+    '[data-aue-prop="statLabel"]',
+    '[data-aue-prop="image"]',
+    '[data-aue-prop="buttonText"]',
+    '[data-aue-prop="buttonLink"]',
+  ].join(', ');
+
   return Boolean(
-    row.querySelector('[data-aue-prop="statValue"], [data-aue-prop="statLabel"], [data-aue-prop="image"]')
+    row.querySelector(itemFieldSelector)
       || row.querySelector('picture'),
   );
 }
@@ -280,6 +289,10 @@ function readItemTextField(row, name, index) {
 
 function readItemImageField(row, name, index) {
   return readImageField(row, name, { fallbackCell: row.children[index] });
+}
+
+function readItemLinkField(row, name, index) {
+  return readLinkField(row, name, { fallbackCell: row.children[index] });
 }
 
 function readItemRows(block) {
@@ -323,6 +336,9 @@ function getAuthoredItems(block) {
     const imageAltField = readItemTextField(row, 'imageAlt', 1);
     const valueField = readItemTextField(row, 'statValue', 2);
     const labelField = readItemTextField(row, 'statLabel', 3);
+    const buttonTextField = readItemTextField(row, 'buttonText', 4);
+    const buttonLinkField = readItemLinkField(row, 'buttonLink', 5);
+    const buttonTargetField = readItemTextField(row, 'buttonTarget', 6);
 
     return {
       row,
@@ -330,10 +346,15 @@ function getAuthoredItems(block) {
       imageAlt: imageAltField.value,
       valueField,
       labelField,
+      buttonTextField,
+      buttonLinkField,
+      buttonTarget: buttonTargetField.value,
       isAuthoringPlaceholder: hasAuthoringContext(row)
         && !imageField.img
         && !valueField.value
-        && !labelField.value,
+        && !labelField.value
+        && !buttonTextField.value
+        && !buttonLinkField.value,
     };
   });
 }
@@ -346,6 +367,9 @@ function getLegacyItems(values, labels) {
     imageAlt: '',
     valueField: { source: null, value: values[index] || '' },
     labelField: { source: null, value: labels[index] || '' },
+    buttonTextField: { source: null, value: '' },
+    buttonLinkField: { source: null, value: '' },
+    buttonTarget: '',
     isAuthoringPlaceholder: false,
   }));
 }
@@ -357,6 +381,10 @@ function appendFieldContent(field, element, fallbackValue = '') {
   } else if (fallbackValue) {
     element.textContent = fallbackValue;
   }
+}
+
+function normalizeTarget(value) {
+  return String(value || '').trim() === '_blank' ? '_blank' : '_self';
 }
 
 function buildItem(itemData) {
@@ -385,6 +413,31 @@ function buildItem(itemData) {
     labelEl.className = 'statistics-label';
     appendFieldContent(itemData.labelField, labelEl, itemData.labelField.value);
     item.append(labelEl);
+  }
+
+  const hasButton = itemData.buttonTextField.value
+    || itemData.buttonTextField.source
+    || itemData.buttonLinkField.value;
+
+  if (hasButton) {
+    const button = document.createElement(itemData.buttonLinkField.value ? 'a' : 'span');
+    button.className = 'statistics-button';
+    appendFieldContent(
+      itemData.buttonTextField,
+      button,
+      itemData.buttonTextField.value || 'Learn more here.',
+    );
+
+    if (itemData.buttonLinkField.value) {
+      button.href = itemData.buttonLinkField.value;
+      button.target = normalizeTarget(itemData.buttonTarget);
+      if (button.target === '_blank') button.rel = 'noopener noreferrer';
+    }
+
+    if (itemData.buttonLinkField.source) {
+      moveInstrumentation(itemData.buttonLinkField.source, button);
+    }
+    item.append(button);
   }
 
   if (!item.children.length && itemData.isAuthoringPlaceholder) {

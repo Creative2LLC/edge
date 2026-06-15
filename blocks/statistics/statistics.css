@@ -12,6 +12,9 @@
   --statistics-value-weight: 700;
   --statistics-label-size: 1.1rem;
   --statistics-label-weight: 400;
+  --statistics-button-bg: #00264d;
+  --statistics-button-color: #fff;
+  --statistics-button-icon-color: #14b4cf;
   --statistics-block-bg: transparent;
   --statistics-min-height: 0;
   --statistics-min-height-mobile: var(--statistics-min-height);
@@ -177,6 +180,45 @@
   color: var(--statistics-label-color);
 }
 
+.statistics .statistics-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-width: min(292px, 100%);
+  min-height: 60px;
+  margin-top: 28px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  background: var(--statistics-button-bg);
+  color: var(--statistics-button-color);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+}
+
+.statistics .statistics-button::after {
+  content: "";
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  background: var(--statistics-button-icon-color);
+  mask: url("../../icons/external-link.svg") center / contain no-repeat;
+}
+
+.statistics .statistics-button:hover,
+.statistics .statistics-button:focus {
+  color: var(--statistics-button-color);
+  text-decoration: none;
+}
+
+.statistics .statistics-button:focus-visible {
+  outline: 3px solid #14b4cf;
+  outline-offset: 3px;
+}
+
 /* Content Alignment: Left / Right variants
    Constrains the inner content to 1200px (matching the hero's .hero-content)
    so left/right-aligned text lines up with the hero title's edge. */
@@ -204,8 +246,16 @@
   justify-content: flex-start;
 }
 
+.statistics.statistics-align-left .statistics-button {
+  margin-right: auto;
+}
+
 .statistics.statistics-align-right .statistics-image {
   justify-content: flex-end;
+}
+
+.statistics.statistics-align-right .statistics-button {
+  margin-left: auto;
 }
 
 /* Strip the outside edge padding so first/last item content

@@ -1,3 +1,8 @@
+.cards {
+  --cards-card-bg-default: var(--background-color);
+  --cards-card-text-default: inherit;
+}
+
 .cards > ul {
   list-style: none;
   margin: 0;
@@ -9,27 +14,81 @@
 
 .cards > ul > li {
   border: 1px solid #dadada;
-  background-color: var(--background-color);
+  background-color: var(--cards-card-bg, var(--cards-card-bg-default));
+  color: var(--cards-card-text, var(--cards-card-text-default));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .cards .cards-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+  color: inherit;
   margin: 16px;
+}
+
+.cards .cards-card-highlight {
+  color: inherit;
+  font-size: clamp(2rem, 5vw, 3.625rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.cards .cards-card-highlight > :first-child,
+.cards .cards-card-text > :first-child {
+  margin-top: 0;
+}
+
+.cards .cards-card-highlight > :last-child,
+.cards .cards-card-text > :last-child {
+  margin-bottom: 0;
+}
+
+.cards .cards-card-text {
+  color: inherit;
 }
 
 .cards.cards-text-align-left .cards-card-body {
   text-align: left;
+  align-items: flex-start;
 }
 
 .cards.cards-text-align-center .cards-card-body {
   text-align: center;
+  align-items: center;
 }
 
 .cards.cards-text-align-right .cards-card-body {
   text-align: right;
+  align-items: flex-end;
 }
 
 .cards.cards-text-align-justify .cards-card-body {
   text-align: justify;
+  align-items: stretch;
+}
+
+.cards .cards-card.cards-card-align-left .cards-card-body {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.cards .cards-card.cards-card-align-center .cards-card-body {
+  text-align: center;
+  align-items: center;
+}
+
+.cards .cards-card.cards-card-align-right .cards-card-body {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.cards .cards-card.cards-card-align-justify .cards-card-body {
+  text-align: justify;
+  align-items: stretch;
 }
 
 .cards.cards-hide-buttons .cards-card-body .button-container,
@@ -38,7 +97,25 @@
 }
 
 .cards .cards-card-image {
+  display: flex;
+  justify-content: flex-start;
   line-height: 0;
+}
+
+.cards.cards-text-align-center .cards-card-image {
+  justify-content: center;
+}
+
+.cards.cards-text-align-right .cards-card-image {
+  justify-content: flex-end;
+}
+
+.cards .cards-card.cards-card-align-center .cards-card-image {
+  justify-content: center;
+}
+
+.cards .cards-card.cards-card-align-right .cards-card-image {
+  justify-content: flex-end;
 }
 
 .cards > ul > li img {
