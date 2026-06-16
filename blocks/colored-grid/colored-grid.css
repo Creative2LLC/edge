@@ -102,6 +102,14 @@
   font-style: italic;
 }
 
+.colored-grid .colored-grid-row-empty {
+  grid-column: 1 / -1;
+}
+
+.colored-grid .colored-grid-field-archive {
+  display: none !important;
+}
+
 .colored-grid .statistics,
 .colored-grid .cards,
 .colored-grid .colored-heading,

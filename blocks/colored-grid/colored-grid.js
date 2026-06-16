@@ -21,6 +21,20 @@ const ROW_FIELD_NAMES = [
   'verticalAlign',
 ];
 
+const AUTHORING_BOUNDARY_SELECTOR = [
+  '[data-aue-model]',
+  '[data-aue-filter]',
+  '[data-aue-label]',
+  '[data-aue-type="component"]',
+  '[data-aue-behavior="component"]',
+].join(', ');
+
+const COLORED_GRID_ROW_SELECTOR = [
+  '[data-aue-model="colored-grid-row"]',
+  '[data-aue-filter="colored-grid-row"]',
+  '[data-aue-label="Colored Grid Row"]',
+].join(', ');
+
 function fieldSelector(names) {
   return (Array.isArray(names) ? names : [names])
     .map((name) => `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`)
@@ -51,19 +65,23 @@ function isNestedComponentField(scope, field) {
     return true;
   }
 
-  const owningComponent = field.parentElement?.closest(
-    '[data-aue-resource][data-aue-type="component"], [data-aue-resource][data-aue-behavior="component"]',
-  );
+  const owningComponent = field.parentElement?.closest(AUTHORING_BOUNDARY_SELECTOR);
 
   return Boolean(
     owningComponent
       && owningComponent !== scope
-      && (!scopeResource || owningComponent.getAttribute('data-aue-resource') !== scopeResource),
+      && scope.contains(owningComponent),
   );
 }
 
 function findOwnField(scope, name) {
-  return [...scope.querySelectorAll(fieldSelector(name))]
+  const selector = fieldSelector(name);
+  const candidates = [
+    ...(scope.matches?.(selector) ? [scope] : []),
+    ...scope.querySelectorAll(selector),
+  ];
+
+  return candidates
     .find((field) => !isNestedComponentField(scope, field)) || null;
 }
 
@@ -80,22 +98,33 @@ function findFallbackCell(scope, labels = []) {
   return row?.children?.[1] || null;
 }
 
-function readOwnField(scope, name, labels = []) {
+function cleanupFieldRow(scope, field, isEditor) {
+  const row = field?.cell ? directChildOf(scope, field.cell) : null;
+  if (!row || row === scope) return;
+
+  if (isEditor && field.source) {
+    row.hidden = true;
+    return;
+  }
+
+  row.remove();
+}
+
+function readOwnField(scope, name, labels = [], isEditor = false) {
   const generatedLabel = name.replace(/([a-z])([A-Z])/g, '$1 $2');
   const source = findOwnField(scope, name);
   const cell = source || findFallbackCell(scope, [generatedLabel, ...labels]);
-  const row = cell ? directChildOf(scope, cell) : null;
-
-  if (row && row !== scope) row.remove();
-
-  return {
+  const field = {
     source,
     cell,
     value: cell?.textContent?.trim() || '',
   };
+
+  cleanupFieldRow(scope, field, isEditor);
+  return field;
 }
 
-function removeOwnFieldRows(scope, names) {
+function cleanupOwnFieldRows(scope, names, isEditor) {
   const rows = new Set();
 
   names.forEach((name) => {
@@ -107,7 +136,14 @@ function removeOwnFieldRows(scope, names) {
       });
   });
 
-  rows.forEach((row) => row.remove());
+  rows.forEach((row) => {
+    if (isEditor && row.querySelector(fieldSelector(names))) {
+      row.hidden = true;
+      return;
+    }
+
+    row.remove();
+  });
 }
 
 function normalizeColorValue(value) {
@@ -143,75 +179,164 @@ function normalizeColumns(value) {
 }
 
 function setCssVar(element, name, value) {
-  if (value) element.style.setProperty(name, value);
+  if (value) {
+    element.style.setProperty(name, value);
+    return;
+  }
+
+  element.style.removeProperty(name);
 }
 
-function applyBlockStyles(block) {
+function setPrefixedClass(element, prefix, value) {
+  [...element.classList]
+    .filter((className) => className.startsWith(prefix))
+    .forEach((className) => element.classList.remove(className));
+
+  if (value) element.classList.add(`${prefix}${value}`);
+}
+
+function setBlockBackground(block, value) {
+  const backgroundColor = normalizeColorValue(value);
+  block.classList.toggle('has-colored-grid-background', Boolean(backgroundColor));
+  setCssVar(block, '--colored-grid-bg', backgroundColor);
+}
+
+function setRowBackground(row, value) {
+  const backgroundColor = normalizeColorValue(value);
+  row.classList.toggle('has-colored-grid-row-background', Boolean(backgroundColor));
+  setCssVar(row, '--colored-grid-row-bg', backgroundColor);
+}
+
+function watchField(source, callback) {
+  if (!source) return;
+
+  new MutationObserver(() => callback(source.textContent?.trim() || ''))
+    .observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function applyBlockStyles(block, isEditor) {
+  const fields = {
+    backgroundColor: readOwnField(
+      block,
+      'backgroundColor',
+      ['background color', 'block background color'],
+      isEditor,
+    ),
+    textColor: readOwnField(block, 'textColor', ['text color'], isEditor),
+    padding: readOwnField(block, 'padding', ['block padding'], isEditor),
+    rowGap: readOwnField(block, 'rowGap', ['row gap'], isEditor),
+    borderRadius: readOwnField(block, 'borderRadius', ['border radius'], isEditor),
+    maxWidth: readOwnField(block, 'maxWidth', ['max width'], isEditor),
+    minHeight: readOwnField(block, 'minHeight', ['minimum height'], isEditor),
+    verticalAlign: readOwnField(block, 'verticalAlign', ['vertical alignment'], isEditor),
+  };
   const backgroundColor = normalizeColorValue(
-    readOwnField(block, 'backgroundColor', ['background color', 'block background color']).value,
+    fields.backgroundColor.value,
   );
-  const textColor = normalizeColorValue(readOwnField(block, 'textColor', ['text color']).value);
-  const padding = normalizeCssValue(readOwnField(block, 'padding', ['block padding']).value, 'padding');
-  const rowGap = normalizeCssValue(readOwnField(block, 'rowGap', ['row gap']).value, 'gap');
+  const textColor = normalizeColorValue(fields.textColor.value);
+  const padding = normalizeCssValue(fields.padding.value, 'padding');
+  const rowGap = normalizeCssValue(fields.rowGap.value, 'gap');
   const borderRadius = normalizeCssValue(
-    readOwnField(block, 'borderRadius', ['border radius']).value,
+    fields.borderRadius.value,
     'border-radius',
   );
-  const maxWidth = normalizeCssValue(readOwnField(block, 'maxWidth', ['max width']).value, 'max-width');
-  const minHeight = normalizeCssValue(readOwnField(block, 'minHeight', ['minimum height']).value, 'min-height');
+  const maxWidth = normalizeCssValue(fields.maxWidth.value, 'max-width');
+  const minHeight = normalizeCssValue(fields.minHeight.value, 'min-height');
   const verticalAlign = normalizeOption(
-    readOwnField(block, 'verticalAlign', ['vertical alignment']).value,
+    fields.verticalAlign.value,
     ['top', 'middle', 'bottom'],
     'top',
   );
 
-  block.classList.add(`colored-grid-v-${verticalAlign}`);
-  if (backgroundColor) block.classList.add('has-colored-grid-background');
-  setCssVar(block, '--colored-grid-bg', backgroundColor);
+  setPrefixedClass(block, 'colored-grid-v-', verticalAlign);
+  setBlockBackground(block, backgroundColor);
   setCssVar(block, '--colored-grid-text', textColor);
   setCssVar(block, '--colored-grid-padding', padding);
   setCssVar(block, '--colored-grid-rows-gap', rowGap);
   setCssVar(block, '--colored-grid-radius', borderRadius);
   setCssVar(block, '--colored-grid-max-width', maxWidth);
   setCssVar(block, '--colored-grid-min-height', minHeight);
+
+  if (isEditor) {
+    watchField(fields.backgroundColor.source, (value) => setBlockBackground(block, value));
+    watchField(fields.textColor.source, (value) => setCssVar(block, '--colored-grid-text', normalizeColorValue(value)));
+    watchField(fields.padding.source, (value) => setCssVar(block, '--colored-grid-padding', normalizeCssValue(value, 'padding')));
+    watchField(fields.rowGap.source, (value) => setCssVar(block, '--colored-grid-rows-gap', normalizeCssValue(value, 'gap')));
+    watchField(fields.borderRadius.source, (value) => setCssVar(block, '--colored-grid-radius', normalizeCssValue(value, 'border-radius')));
+    watchField(fields.maxWidth.source, (value) => setCssVar(block, '--colored-grid-max-width', normalizeCssValue(value, 'max-width')));
+    watchField(fields.minHeight.source, (value) => setCssVar(block, '--colored-grid-min-height', normalizeCssValue(value, 'min-height')));
+    watchField(fields.verticalAlign.source, (value) => setPrefixedClass(
+      block,
+      'colored-grid-v-',
+      normalizeOption(value, ['top', 'middle', 'bottom'], 'top'),
+    ));
+  }
 }
 
-function applyRowStyles(row) {
-  const columns = normalizeColumns(readOwnField(row, 'columns').value);
-  const backgroundColor = normalizeColorValue(readOwnField(row, 'backgroundColor', ['row background color']).value);
-  const textColor = normalizeColorValue(readOwnField(row, 'textColor', ['row text color']).value);
-  const padding = normalizeCssValue(readOwnField(row, 'padding', ['row padding']).value, 'padding');
-  const gap = normalizeCssValue(readOwnField(row, 'gap', ['column gap']).value, 'gap');
+function applyRowStyles(row, isEditor) {
+  const fields = {
+    columns: readOwnField(row, 'columns', [], isEditor),
+    backgroundColor: readOwnField(row, 'backgroundColor', ['row background color'], isEditor),
+    textColor: readOwnField(row, 'textColor', ['row text color'], isEditor),
+    padding: readOwnField(row, 'padding', ['row padding'], isEditor),
+    gap: readOwnField(row, 'gap', ['column gap'], isEditor),
+    borderRadius: readOwnField(row, 'borderRadius', ['row border radius'], isEditor),
+    minHeight: readOwnField(row, 'minHeight', ['row minimum height'], isEditor),
+    horizontalAlign: readOwnField(row, 'horizontalAlign', ['row horizontal alignment'], isEditor),
+    verticalAlign: readOwnField(row, 'verticalAlign', ['row vertical alignment'], isEditor),
+  };
+  const columns = normalizeColumns(fields.columns.value);
+  const backgroundColor = normalizeColorValue(fields.backgroundColor.value);
+  const textColor = normalizeColorValue(fields.textColor.value);
+  const padding = normalizeCssValue(fields.padding.value, 'padding');
+  const gap = normalizeCssValue(fields.gap.value, 'gap');
   const borderRadius = normalizeCssValue(
-    readOwnField(row, 'borderRadius', ['row border radius']).value,
+    fields.borderRadius.value,
     'border-radius',
   );
-  const minHeight = normalizeCssValue(readOwnField(row, 'minHeight', ['row minimum height']).value, 'min-height');
+  const minHeight = normalizeCssValue(fields.minHeight.value, 'min-height');
   const horizontalAlign = normalizeOption(
-    readOwnField(row, 'horizontalAlign', ['row horizontal alignment']).value,
+    fields.horizontalAlign.value,
     ['stretch', 'left', 'center', 'right'],
     'stretch',
   );
   const verticalAlign = normalizeOption(
-    readOwnField(row, 'verticalAlign', ['row vertical alignment']).value,
+    fields.verticalAlign.value,
     ['stretch', 'top', 'middle', 'bottom'],
     'stretch',
   );
 
-  row.classList.add(
-    'colored-grid-row',
-    `colored-grid-row-h-${horizontalAlign}`,
-    `colored-grid-row-v-${verticalAlign}`,
-  );
+  row.classList.add('colored-grid-row');
+  setPrefixedClass(row, 'colored-grid-row-h-', horizontalAlign);
+  setPrefixedClass(row, 'colored-grid-row-v-', verticalAlign);
 
   row.style.setProperty('--colored-grid-row-columns', columns);
-  if (backgroundColor) row.classList.add('has-colored-grid-row-background');
-  setCssVar(row, '--colored-grid-row-bg', backgroundColor);
+  setRowBackground(row, backgroundColor);
   setCssVar(row, '--colored-grid-row-text', textColor);
   setCssVar(row, '--colored-grid-row-padding', padding);
   setCssVar(row, '--colored-grid-row-gap', gap);
   setCssVar(row, '--colored-grid-row-radius', borderRadius);
   setCssVar(row, '--colored-grid-row-min-height', minHeight);
+
+  if (isEditor) {
+    watchField(fields.columns.source, (value) => row.style.setProperty('--colored-grid-row-columns', normalizeColumns(value)));
+    watchField(fields.backgroundColor.source, (value) => setRowBackground(row, value));
+    watchField(fields.textColor.source, (value) => setCssVar(row, '--colored-grid-row-text', normalizeColorValue(value)));
+    watchField(fields.padding.source, (value) => setCssVar(row, '--colored-grid-row-padding', normalizeCssValue(value, 'padding')));
+    watchField(fields.gap.source, (value) => setCssVar(row, '--colored-grid-row-gap', normalizeCssValue(value, 'gap')));
+    watchField(fields.borderRadius.source, (value) => setCssVar(row, '--colored-grid-row-radius', normalizeCssValue(value, 'border-radius')));
+    watchField(fields.minHeight.source, (value) => setCssVar(row, '--colored-grid-row-min-height', normalizeCssValue(value, 'min-height')));
+    watchField(fields.horizontalAlign.source, (value) => setPrefixedClass(
+      row,
+      'colored-grid-row-h-',
+      normalizeOption(value, ['stretch', 'left', 'center', 'right'], 'stretch'),
+    ));
+    watchField(fields.verticalAlign.source, (value) => setPrefixedClass(
+      row,
+      'colored-grid-row-v-',
+      normalizeOption(value, ['stretch', 'top', 'middle', 'bottom'], 'stretch'),
+    ));
+  }
 }
 
 function hasAuthoringContext(scope) {
@@ -223,21 +348,63 @@ function hasAuthoringContext(scope) {
 
 function visibleChildCount(element) {
   return [...element.children]
-    .filter((child) => !child.hidden && child.style.display !== 'none')
+    .filter((child) => (
+      !child.hidden
+        && child.style.display !== 'none'
+        && !child.classList.contains('colored-grid-row-empty')
+    ))
     .length;
 }
 
+function isColoredGridRow(row) {
+  if (!row || row.hidden || row.classList?.contains('colored-grid-field-archive')) return false;
+  if (row.matches?.(COLORED_GRID_ROW_SELECTOR) || row.classList?.contains('colored-grid-row')) return true;
+  return row.children.length > 0;
+}
+
+function preserveRowAddTarget(row) {
+  if (!hasAuthoringContext(row)) return;
+  if (!row.getAttribute('data-aue-filter')) row.setAttribute('data-aue-filter', 'colored-grid-row');
+  if (!row.getAttribute('data-aue-label')) row.setAttribute('data-aue-label', 'Colored Grid Row');
+}
+
+function removeGeneratedPlaceholders(scope) {
+  scope.querySelectorAll(':scope > .colored-grid-row-empty, :scope > .colored-grid-empty')
+    .forEach((placeholder) => placeholder.remove());
+}
+
+function archiveHiddenFieldRows(block, inner, isEditor) {
+  if (!isEditor) return;
+
+  const archive = document.createElement('span');
+  archive.className = 'colored-grid-field-archive';
+  archive.hidden = true;
+
+  [...block.querySelectorAll(':scope > div[hidden]')]
+    .forEach((row) => archive.append(row));
+
+  if (archive.children.length) inner.append(archive);
+}
+
 export default function decorate(block) {
-  applyBlockStyles(block);
-  removeOwnFieldRows(block, BLOCK_FIELD_NAMES);
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+
+  removeGeneratedPlaceholders(block);
+  applyBlockStyles(block, isEditor);
+  cleanupOwnFieldRows(block, BLOCK_FIELD_NAMES, isEditor);
 
   const inner = document.createElement('div');
   inner.className = 'colored-grid-inner';
 
+  let appendedRows = 0;
+
   [...block.children]
+    .filter(isColoredGridRow)
     .forEach((row) => {
-      applyRowStyles(row);
-      removeOwnFieldRows(row, ROW_FIELD_NAMES);
+      removeGeneratedPlaceholders(row);
+      preserveRowAddTarget(row);
+      applyRowStyles(row, isEditor);
+      cleanupOwnFieldRows(row, ROW_FIELD_NAMES, isEditor);
 
       if (!visibleChildCount(row) && hasAuthoringContext(row)) {
         const placeholder = document.createElement('div');
@@ -248,10 +415,13 @@ export default function decorate(block) {
 
       if (visibleChildCount(row)) {
         inner.append(row);
+        appendedRows += 1;
       }
     });
 
-  if (!inner.children.length && hasAuthoringContext(block)) {
+  archiveHiddenFieldRows(block, inner, isEditor);
+
+  if (!appendedRows && hasAuthoringContext(block)) {
     const placeholder = document.createElement('div');
     placeholder.className = 'colored-grid-empty';
     placeholder.textContent = 'Add colored grid rows in the editor.';
