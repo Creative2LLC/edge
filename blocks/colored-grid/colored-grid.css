@@ -75,7 +75,7 @@
 }
 
 .colored-grid .colored-grid-row-start {
-  grid-column-start: 1;
+  grid-column: 1 / span var(--colored-grid-item-column-span, 60);
 }
 
 .colored-grid .colored-grid-row {
