@@ -184,6 +184,22 @@
   display: none !important;
 }
 
+.colored-grid .color-picker-bar {
+  display: none;
+}
+
+.colored-grid .colored-grid-child-empty {
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  border: 1px dashed rgb(0 38 77 / 20%);
+  border-radius: 6px;
+  color: #6b6b6b;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
 .colored-grid .statistics,
 .colored-grid .cards,
 .colored-grid .colored-heading,

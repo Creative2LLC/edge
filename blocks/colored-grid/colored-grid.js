@@ -134,6 +134,53 @@ function getContentBlockName(element) {
   );
 }
 
+function cleanupNestedAuthoringChrome(element) {
+  if (!isEditorContext()) return;
+  element.querySelectorAll(':scope > .color-picker-bar')
+    .forEach((bar) => bar.remove());
+}
+
+function hasRenderableContent(element) {
+  return [...element.children].some((child) => {
+    if (
+      child.hidden
+        || child.classList.contains('color-picker-bar')
+        || child.classList.contains('colored-grid-child-empty')
+        || child.classList.contains('colored-grid-field-archive')
+    ) return false;
+
+    if (child.querySelector('img, picture, svg, video, canvas, iframe, a, button, li')) {
+      return true;
+    }
+
+    return Boolean(child.textContent.trim());
+  });
+}
+
+function getPlaceholderTarget(element) {
+  return element.querySelector(
+    [
+      ':scope > .statistics-inner',
+      ':scope > .colored-heading-inner',
+      ':scope > .colored-text-inner',
+      ':scope > .colored-list-inner',
+      ':scope > .colored-button-inner',
+    ].join(', '),
+  ) || element;
+}
+
+function ensureNestedBlockPlaceholder(element) {
+  if (!isEditorContext() || hasRenderableContent(element)) return;
+
+  const target = getPlaceholderTarget(element);
+  if (hasRenderableContent(target)) return;
+
+  const placeholder = document.createElement('div');
+  placeholder.className = 'colored-grid-child-empty';
+  placeholder.textContent = `Add ${element.getAttribute('data-aue-label') || 'content'} in the editor.`;
+  target.append(placeholder);
+}
+
 async function loadContentBlock(element) {
   const blockName = getContentBlockName(element);
   if (!LOADABLE_CONTENT_BLOCKS.has(blockName)) return;
@@ -147,6 +194,8 @@ async function loadContentBlock(element) {
   }
 
   await loadBlock(element);
+  cleanupNestedAuthoringChrome(element);
+  ensureNestedBlockPlaceholder(element);
 }
 
 function textFromRow(row, name) {
