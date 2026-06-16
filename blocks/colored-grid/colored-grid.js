@@ -189,11 +189,13 @@ async function loadContentBlock(element) {
     element.classList.add(blockName, 'block');
     element.dataset.blockName = blockName;
     element.dataset.blockStatus = 'initialized';
+    element.classList.add('no-scroll-reveal');
     wrapTextNodes(element);
     decorateButtons(element);
   }
 
   await loadBlock(element);
+  element.classList.add('is-visible');
   cleanupNestedAuthoringChrome(element);
   ensureNestedBlockPlaceholder(element);
 }
