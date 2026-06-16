@@ -1,3 +1,26 @@
+const BLOCK_FIELD_NAMES = [
+  'backgroundColor',
+  'textColor',
+  'padding',
+  'rowGap',
+  'borderRadius',
+  'maxWidth',
+  'minHeight',
+  'verticalAlign',
+];
+
+const ROW_FIELD_NAMES = [
+  'columns',
+  'backgroundColor',
+  'textColor',
+  'padding',
+  'gap',
+  'borderRadius',
+  'minHeight',
+  'horizontalAlign',
+  'verticalAlign',
+];
+
 function fieldSelector(names) {
   return (Array.isArray(names) ? names : [names])
     .map((name) => `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`)
@@ -70,6 +93,21 @@ function readOwnField(scope, name, labels = []) {
     cell,
     value: cell?.textContent?.trim() || '',
   };
+}
+
+function removeOwnFieldRows(scope, names) {
+  const rows = new Set();
+
+  names.forEach((name) => {
+    [...scope.querySelectorAll(fieldSelector(name))]
+      .filter((field) => !isNestedComponentField(scope, field))
+      .forEach((field) => {
+        const row = directChildOf(scope, field);
+        if (row && row !== scope) rows.add(row);
+      });
+  });
+
+  rows.forEach((row) => row.remove());
 }
 
 function normalizeColorValue(value) {
@@ -183,8 +221,15 @@ function hasAuthoringContext(scope) {
   );
 }
 
+function visibleChildCount(element) {
+  return [...element.children]
+    .filter((child) => !child.hidden && child.style.display !== 'none')
+    .length;
+}
+
 export default function decorate(block) {
   applyBlockStyles(block);
+  removeOwnFieldRows(block, BLOCK_FIELD_NAMES);
 
   const inner = document.createElement('div');
   inner.className = 'colored-grid-inner';
@@ -192,15 +237,16 @@ export default function decorate(block) {
   [...block.children]
     .forEach((row) => {
       applyRowStyles(row);
+      removeOwnFieldRows(row, ROW_FIELD_NAMES);
 
-      if (!row.children.length && hasAuthoringContext(row)) {
+      if (!visibleChildCount(row) && hasAuthoringContext(row)) {
         const placeholder = document.createElement('div');
         placeholder.className = 'colored-grid-row-empty';
         placeholder.textContent = 'Add content blocks to this row.';
         row.append(placeholder);
       }
 
-      if (row.children.length) {
+      if (visibleChildCount(row)) {
         inner.append(row);
       }
     });
