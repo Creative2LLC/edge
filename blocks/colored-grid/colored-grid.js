@@ -1,4 +1,9 @@
 import {
+  decorateButtons,
+  loadBlock,
+  wrapTextNodes,
+} from '../../scripts/aem.js';
+import {
   readAueResourceFields,
   resourcePathFromAueResource,
 } from '../../scripts/block-field-utils.js';
@@ -52,6 +57,19 @@ const ROW_ITEM_STYLE_PROPS = [
   ...ROW_RUNTIME_STYLE_PROPS,
 ];
 
+const LOADABLE_CONTENT_BLOCKS = new Set([
+  'cards',
+  'colored-button',
+  'colored-heading',
+  'colored-list',
+  'colored-text',
+  'columns',
+  'image',
+  'impact-donut',
+  'info-cards-grid',
+  'statistics',
+]);
+
 function fieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
@@ -90,6 +108,45 @@ function normalizeResourceValue(value) {
     return String(value.value || value.text || value.label || value.name || '').trim();
   }
   return String(value).trim();
+}
+
+function normalizeBlockName(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/-\d{4,}$/u, '')
+    .replace(/^-|-$/g, '');
+}
+
+function getResourceBlockName(element) {
+  const resource = element?.getAttribute?.('data-aue-resource') || '';
+  const segments = resource.split('/').filter(Boolean);
+  return normalizeBlockName(segments[segments.length - 1] || '');
+}
+
+function getContentBlockName(element) {
+  return normalizeBlockName(
+    element?.getAttribute?.('data-aue-model')
+      || element?.dataset?.blockName
+      || getResourceBlockName(element),
+  );
+}
+
+async function loadContentBlock(element) {
+  const blockName = getContentBlockName(element);
+  if (!LOADABLE_CONTENT_BLOCKS.has(blockName)) return;
+
+  if (!element.dataset.blockStatus) {
+    element.classList.add(blockName, 'block');
+    element.dataset.blockName = blockName;
+    element.dataset.blockStatus = 'initialized';
+    wrapTextNodes(element);
+    decorateButtons(element);
+  }
+
+  await loadBlock(element);
 }
 
 function textFromRow(row, name) {
@@ -155,16 +212,38 @@ function isExplicitRowItem(row) {
   return resource.includes('/colored_grid/colored_grid_row');
 }
 
+function hasAueResource(row) {
+  return Boolean(row?.getAttribute?.('data-aue-resource'));
+}
+
+function isNonResourceConfigRow(row) {
+  return Boolean(row && !hasAueResource(row) && !isExplicitRowItem(row));
+}
+
 function getBlockConfigRows(rows) {
   const firstRowIndex = rows.findIndex(isExplicitRowItem);
+
+  if (firstRowIndex > 0) {
+    const leadingRows = rows.slice(0, firstRowIndex);
+    if (leadingRows.every(isNonResourceConfigRow)) {
+      return leadingRows.slice(0, BLOCK_FIELD_NAMES.length);
+    }
+  }
+
   const candidateRows = firstRowIndex >= 0 ? rows.slice(0, firstRowIndex) : rows;
   const namedFieldRows = candidateRows.filter((row) => (
-    !row.getAttribute?.('data-aue-resource') && hasNamedField(row, BLOCK_FIELD_NAMES)
+    !hasAueResource(row) && hasNamedField(row, BLOCK_FIELD_NAMES)
   ));
 
   if (namedFieldRows.length) return namedFieldRows;
 
-  if (rows.some((row) => row.getAttribute?.('data-aue-resource'))) {
+  const firstResourceIndex = rows.findIndex(hasAueResource);
+  if (firstResourceIndex > 0) {
+    const leadingRows = rows.slice(0, Math.min(firstResourceIndex, BLOCK_FIELD_NAMES.length));
+    if (leadingRows.every(isNonResourceConfigRow)) return leadingRows;
+  }
+
+  if (firstResourceIndex >= 0) {
     return [];
   }
 
@@ -424,6 +503,18 @@ function preserveRowMarker(row, isEditor) {
   row.classList.add('colored-grid-row-marker');
 }
 
+function cleanupRowMarkerFields(row) {
+  directRows(row).forEach((child) => {
+    if (hasAueResource(child)) return;
+    if (hasFieldSource(child)) {
+      child.hidden = true;
+      return;
+    }
+
+    child.remove();
+  });
+}
+
 function removeGeneratedPlaceholders(scope) {
   scope.querySelectorAll(':scope > .colored-grid-row-empty, :scope > .colored-grid-empty')
     .forEach((placeholder) => placeholder.remove());
@@ -461,6 +552,7 @@ async function decorateRow(row, items, isEditor) {
   const rendered = [];
 
   cleanupConfigRows(configRows, isEditor);
+  cleanupRowMarkerFields(row);
 
   const isAuthoringRow = isEditor && hasAuthoringContext(row);
 
@@ -472,10 +564,12 @@ async function decorateRow(row, items, isEditor) {
 
   if (!rowItems.length) return rendered;
 
-  rowItems.forEach((item, index) => {
+  const loadedItems = await Promise.all(rowItems.map(async (item, index) => {
     applyRowItemStyles(item, fields, isEditor, index === 0);
-    rendered.push(item);
-  });
+    await loadContentBlock(item);
+    return item;
+  }));
+  rendered.push(...loadedItems);
 
   return rendered;
 }
@@ -499,6 +593,7 @@ export default async function decorate(block) {
   const renderedSegments = await Promise.all(rowSegments.map(async (segment) => {
     if (segment.type === 'row') return decorateRow(segment.row, segment.items, isEditor);
     resetRowItemRuntime(segment.item);
+    await loadContentBlock(segment.item);
     return segment.item;
   }));
 
