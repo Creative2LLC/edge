@@ -16,6 +16,8 @@
   --statistics-button-color: #fff;
   --statistics-button-icon-color: #14b4cf;
   --statistics-block-bg: transparent;
+  --statistics-icon-max-width: 136px;
+  --statistics-icon-max-height: 96px;
   --statistics-min-height: 0;
   --statistics-min-height-mobile: var(--statistics-min-height);
 
@@ -156,9 +158,30 @@
 .statistics .statistics-image img {
   display: block;
   width: auto;
-  max-width: 136px;
-  max-height: 96px;
+  max-width: var(--statistics-icon-max-width);
+  max-height: var(--statistics-icon-max-height);
   object-fit: contain;
+}
+
+.statistics .statistics-image-fluid {
+  min-height: 0;
+}
+
+.statistics .statistics-image-fluid,
+.statistics.statistics-align-left .statistics-image-fluid,
+.statistics.statistics-align-right .statistics-image-fluid {
+  justify-content: center;
+}
+
+.statistics .statistics-image-fluid picture,
+.statistics .statistics-image-fluid img {
+  width: 100%;
+}
+
+.statistics .statistics-image-fluid img {
+  height: auto;
+  max-width: 100%;
+  max-height: none;
 }
 
 .statistics .statistics-item + .statistics-item {

@@ -2,6 +2,7 @@
   --cards-card-bg-default: var(--background-color);
   --cards-card-text-default: inherit;
   --cards-card-highlight-default: var(--cards-card-text, var(--cards-card-text-default));
+  --cards-card-max-width: 432px;
 }
 
 .cards > ul {
@@ -9,7 +10,8 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(257px, 100%), var(--cards-card-max-width)));
+  justify-content: center;
   gap: 24px;
 }
 

@@ -83,15 +83,16 @@ function buildTextElement(tag, className, field) {
   return el;
 }
 
-function buildOptimizedPicture(imageField, altText) {
+function buildOptimizedPicture(imageField, altText, imageMode = 'icon') {
   const sourceImg = imageField?.img;
   if (!sourceImg) return null;
 
+  const width = imageMode === 'fluid' ? '1200' : '192';
   const picture = createOptimizedPicture(
     sourceImg.src,
     altText || sourceImg.alt || '',
     false,
-    [{ width: '192' }],
+    [{ width }],
   );
   const img = picture.querySelector('img');
 
@@ -164,6 +165,10 @@ function normalizeFontWeight(value) {
 
 function setCssVar(block, name, value) {
   if (value) block.style.setProperty(name, value);
+}
+
+function setCssVarOnElement(element, name, value) {
+  if (value) element.style.setProperty(name, value);
 }
 
 function applyBlockBackground(block, value) {
@@ -260,6 +265,8 @@ function applyStatisticsStyles(block, fields = {}) {
   setCssVar(block, '--statistics-label-weight', normalizeFontWeight(fields.labelFontWeight));
   setCssVar(block, '--statistics-min-height', normalizeCssLength(fields.minHeight, 'min-height'));
   setCssVar(block, '--statistics-min-height-mobile', normalizeCssLength(fields.minHeightMobile, 'min-height'));
+  setCssVar(block, '--statistics-icon-max-width', normalizeCssLength(fields.iconMaxWidth, 'max-width'));
+  setCssVar(block, '--statistics-icon-max-height', normalizeCssLength(fields.iconMaxHeight, 'max-height'));
 }
 
 function syncResourceStyles(resourcePath, block) {
@@ -279,6 +286,8 @@ function syncResourceStyles(resourcePath, block) {
     'labelFontWeight',
     'minHeight',
     'minHeightMobile',
+    'iconMaxWidth',
+    'iconMaxHeight',
   ]).then((fields) => applyStatisticsStyles(block, fields));
 }
 
@@ -356,16 +365,22 @@ function getAuthoredItems(block) {
   return readItemRows(block).map((row) => {
     const imageField = readItemImageField(row, 'image', 0);
     const imageAltField = readItemTextField(row, 'imageAlt', 1);
-    const valueField = readItemTextField(row, 'statValue', 2);
-    const labelField = readItemTextField(row, 'statLabel', 3);
-    const buttonTextField = readItemTextField(row, 'buttonText', 4);
-    const buttonLinkField = readItemLinkField(row, 'buttonLink', 5);
-    const buttonTargetField = readItemTextField(row, 'buttonTarget', 6);
+    const imageModeField = readItemTextField(row, 'imageMode', 2);
+    const iconMaxWidthField = readItemTextField(row, 'iconMaxWidth', 3);
+    const iconMaxHeightField = readItemTextField(row, 'iconMaxHeight', 4);
+    const valueField = readItemTextField(row, 'statValue', 5);
+    const labelField = readItemTextField(row, 'statLabel', 6);
+    const buttonTextField = readItemTextField(row, 'buttonText', 7);
+    const buttonLinkField = readItemLinkField(row, 'buttonLink', 8);
+    const buttonTargetField = readItemTextField(row, 'buttonTarget', 9);
 
     return {
       row,
       imageField,
       imageAlt: imageAltField.value,
+      imageMode: imageModeField.value,
+      iconMaxWidth: iconMaxWidthField.value,
+      iconMaxHeight: iconMaxHeightField.value,
       valueField,
       labelField,
       buttonTextField,
@@ -387,6 +402,9 @@ function getLegacyItems(values, labels) {
     row: null,
     imageField: null,
     imageAlt: '',
+    imageMode: '',
+    iconMaxWidth: '',
+    iconMaxHeight: '',
     valueField: { source: null, value: values[index] || '' },
     labelField: { source: null, value: labels[index] || '' },
     buttonTextField: { source: null, value: '' },
@@ -413,10 +431,17 @@ function fieldHasContent(field) {
   return Boolean(field?.value || field?.source);
 }
 
-function applySingleItemDefaults(items, defaults) {
-  if (items.length !== 1) return items;
+function applyItemDefaults(items, defaults) {
+  const styledItems = items.map((item) => ({
+    ...item,
+    imageMode: item.imageMode || defaults.imageMode || 'icon',
+    iconMaxWidth: item.iconMaxWidth || defaults.iconMaxWidth || '',
+    iconMaxHeight: item.iconMaxHeight || defaults.iconMaxHeight || '',
+  }));
 
-  const item = items[0];
+  if (styledItems.length !== 1) return styledItems;
+
+  const item = styledItems[0];
 
   return [{
     ...item,
@@ -439,10 +464,13 @@ function buildItem(itemData) {
   item.className = 'statistics-item';
   if (itemData.row) moveInstrumentation(itemData.row, item);
 
-  const picture = buildOptimizedPicture(itemData.imageField, itemData.imageAlt);
+  const imageMode = normalizeOption(itemData.imageMode, ['icon', 'fluid'], 'icon');
+  const picture = buildOptimizedPicture(itemData.imageField, itemData.imageAlt, imageMode);
   if (picture) {
     const media = document.createElement('div');
-    media.className = 'statistics-image';
+    media.className = `statistics-image statistics-image-${imageMode}`;
+    setCssVarOnElement(media, '--statistics-icon-max-width', normalizeCssLength(itemData.iconMaxWidth, 'max-width'));
+    setCssVarOnElement(media, '--statistics-icon-max-height', normalizeCssLength(itemData.iconMaxHeight, 'max-height'));
     media.append(picture);
     item.append(media);
   }
@@ -503,6 +531,9 @@ export default function decorate(block) {
   const bodyTextField = readField(block, 'bodyText', ['body text', 'body', 'copy', 'subheading']);
   const iconImageField = readImageBlockField(block, 'iconImage', ['icon image', 'image', 'icon']);
   const iconImageAltField = readField(block, 'iconImageAlt', ['icon image alt text', 'image alt text', 'icon alt text']);
+  const imageModeField = readField(block, 'imageMode', ['image display mode', 'image mode', 'image sizing']);
+  const iconMaxWidthField = readField(block, 'iconMaxWidth', ['icon max width', 'icon width', 'image max width']);
+  const iconMaxHeightField = readField(block, 'iconMaxHeight', ['icon max height', 'icon height', 'image max height']);
   const defaultButtonTextField = readField(block, 'defaultButtonText', ['button text', 'cta text']);
   const defaultButtonLinkField = readLinkBlockField(block, 'defaultButtonLink', ['button link', 'cta link']);
   const defaultButtonTargetField = readField(block, 'defaultButtonTarget', ['button target', 'open link in']);
@@ -566,6 +597,8 @@ export default function decorate(block) {
     labelFontWeight: labelWeightField.value,
     minHeight: minHeightField.value,
     minHeightMobile: minHeightMobileField.value,
+    iconMaxWidth: iconMaxWidthField.value,
+    iconMaxHeight: iconMaxHeightField.value,
   });
 
   const alignment = normalizeOption(contentAlignmentField.value, ['left', 'center', 'right'], 'center');
@@ -588,11 +621,14 @@ export default function decorate(block) {
   const list = document.createElement('ul');
   list.className = 'statistics-list';
   const authoredItems = getAuthoredItems(block);
-  const items = applySingleItemDefaults(
+  const items = applyItemDefaults(
     authoredItems.length ? authoredItems : getLegacyItems(values, labels),
     {
       imageField: iconImageField,
       imageAlt: iconImageAltField.value,
+      imageMode: imageModeField.value,
+      iconMaxWidth: iconMaxWidthField.value,
+      iconMaxHeight: iconMaxHeightField.value,
       buttonTextField: defaultButtonTextField,
       buttonLinkField: defaultButtonLinkField,
       buttonTarget: defaultButtonTargetField.value,

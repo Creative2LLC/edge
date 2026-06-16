@@ -109,6 +109,40 @@
           "value": ""
         },
         {
+          "component": "select",
+          "valueType": "string",
+          "name": "imageMode",
+          "label": "Image Display Mode",
+          "description": "Icon constrains the image. Fluid lets larger images flow at full available width.",
+          "options": [
+            {
+              "name": "Icon (default)",
+              "value": "icon"
+            },
+            {
+              "name": "Fluid Image",
+              "value": "fluid"
+            }
+          ],
+          "value": "icon"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconMaxWidth",
+          "label": "Icon Max Width",
+          "description": "Icon mode only. Optional CSS length such as 136px, 8rem, or clamp(80px, 10vw, 160px).",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconMaxHeight",
+          "label": "Icon Max Height",
+          "description": "Icon mode only. Optional CSS length such as 96px or 6rem.",
+          "value": ""
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "defaultButtonText",
@@ -366,6 +400,44 @@
           "valueType": "string",
           "name": "imageAlt",
           "label": "Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "imageMode",
+          "label": "Image Display Mode",
+          "description": "Leave as default to use the parent Statistics setting.",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Icon",
+              "value": "icon"
+            },
+            {
+              "name": "Fluid Image",
+              "value": "fluid"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconMaxWidth",
+          "label": "Icon Max Width",
+          "description": "Icon mode only. Overrides the parent Statistics icon max width.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconMaxHeight",
+          "label": "Icon Max Height",
+          "description": "Icon mode only. Overrides the parent Statistics icon max height.",
           "value": ""
         },
         {

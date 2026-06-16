@@ -5,6 +5,7 @@
   --colored-text-min-height: 100%;
   --colored-text-min-height-mobile: var(--colored-text-min-height);
   --colored-text-block-bg: transparent;
+  --colored-text-list-marker-color: #ff8a00;
 
   height: 100%;
   padding: 12px 0;
@@ -73,8 +74,52 @@
   font-style: italic;
 }
 
-.colored-text-content p{
-    margin-bottom: 20px;
+.colored-text-content p {
+  margin-bottom: 20px;
+}
+
+.colored-text .colored-text-content ol {
+  counter-reset: colored-text-ordered-list;
+  list-style: none;
+  margin: 0 0 1.35em;
+  padding-left: 0;
+}
+
+.colored-text .colored-text-content ol > li {
+  counter-increment: colored-text-ordered-list;
+  position: relative;
+  margin: 0 0 1.45em;
+  padding-left: 2.45em;
+}
+
+.colored-text .colored-text-content ol > li::before {
+  content: counter(colored-text-ordered-list);
+  position: absolute;
+  top: 0.22em;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  border: 2px solid var(--colored-text-list-marker-color);
+  border-radius: 50%;
+  color: var(--colored-text-list-marker-color);
+  font-size: 0.58em;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.colored-text .colored-text-content ol > li > :first-child {
+  margin-top: 0;
+}
+
+.colored-text .colored-text-content ol > li > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-text .colored-text-content ol ol {
+  margin-top: 1em;
 }
 
 @media (width <= 900px) {
