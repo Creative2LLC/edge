@@ -25,8 +25,7 @@
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
               "name": "Colored Grid Row",
-              "model": "colored-grid-row",
-              "filter": "colored-grid-row"
+              "model": "colored-grid-row"
             }
           }
         }
@@ -207,12 +206,7 @@
     {
       "id": "colored-grid",
       "components": [
-        "colored-grid-row"
-      ]
-    },
-    {
-      "id": "colored-grid-row",
-      "components": [
+        "colored-grid-row",
         "text",
         "image",
         "button",

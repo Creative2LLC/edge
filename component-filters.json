@@ -236,12 +236,7 @@
   {
     "id": "colored-grid",
     "components": [
-      "colored-grid-row"
-    ]
-  },
-  {
-    "id": "colored-grid-row",
-    "components": [
+      "colored-grid-row",
       "text",
       "image",
       "button",

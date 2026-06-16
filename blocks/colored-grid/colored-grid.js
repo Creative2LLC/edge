@@ -140,6 +140,42 @@ function getRowCandidates(rows) {
   return rows.slice(BLOCK_FIELD_NAMES.length).filter((row) => row.children.length);
 }
 
+function isContentItem(row) {
+  return Boolean(
+    row
+      && !row.hidden
+      && !row.classList?.contains('colored-grid-field-archive')
+      && !isExplicitRowItem(row),
+  );
+}
+
+function groupRows(rows, blockConfigRows) {
+  const blockConfigSet = new Set(blockConfigRows);
+  const contentRows = rows.filter((row) => !blockConfigSet.has(row));
+  const explicitRows = contentRows.filter(isExplicitRowItem);
+
+  if (!explicitRows.length) {
+    return getRowCandidates(rows).map((row) => ({ row, items: [] }));
+  }
+
+  const groups = [];
+  let currentGroup = null;
+
+  contentRows.forEach((row) => {
+    if (isExplicitRowItem(row)) {
+      currentGroup = { row, items: [] };
+      groups.push(currentGroup);
+      return;
+    }
+
+    if (currentGroup && isContentItem(row)) {
+      currentGroup.items.push(row);
+    }
+  });
+
+  return groups;
+}
+
 function isNestedContentComponent(row) {
   return Boolean(
     row?.getAttribute?.('data-aue-resource')
@@ -304,12 +340,12 @@ function applyRowStyles(row, fields, isEditor) {
   ));
 }
 
-function preserveRowAddTarget(row) {
+function preserveRowMarker(row) {
   if (!hasAuthoringContext(row)) return;
 
-  row.setAttribute('data-aue-type', 'container');
+  row.setAttribute('data-aue-type', 'component');
   row.setAttribute('data-aue-behavior', 'component');
-  if (!row.getAttribute('data-aue-filter')) row.setAttribute('data-aue-filter', 'colored-grid-row');
+  row.removeAttribute('data-aue-filter');
   if (!row.getAttribute('data-aue-label')) row.setAttribute('data-aue-label', 'Colored Grid Row');
 }
 
@@ -347,9 +383,9 @@ function appendEmptyRowPlaceholder(row) {
   row.append(placeholder);
 }
 
-async function decorateRow(row, isEditor) {
+async function decorateRow(row, items, isEditor) {
   removeGeneratedPlaceholders(row);
-  preserveRowAddTarget(row);
+  preserveRowMarker(row);
 
   const configRows = getRowConfigRows(row);
   const resourceFields = await readResourceFields(row, ROW_FIELD_NAMES);
@@ -357,6 +393,7 @@ async function decorateRow(row, isEditor) {
 
   applyRowStyles(row, fields, isEditor);
   cleanupConfigRows(configRows, isEditor);
+  items.forEach((item) => row.append(item));
 
   if (!hasVisibleContent(row) && hasAuthoringContext(row)) {
     appendEmptyRowPlaceholder(row);
@@ -367,7 +404,7 @@ export default async function decorate(block) {
   const isEditor = isEditorContext();
   const rows = directRows(block);
   const blockConfigRows = getBlockConfigRows(rows);
-  const rowCandidates = getRowCandidates(rows);
+  const rowGroups = groupRows(rows, blockConfigRows);
   const blockResourceFields = await readResourceFields(block, BLOCK_FIELD_NAMES);
   const blockFields = readConfigFields(BLOCK_FIELD_NAMES, blockConfigRows, blockResourceFields);
 
@@ -378,9 +415,9 @@ export default async function decorate(block) {
   const inner = document.createElement('div');
   inner.className = 'colored-grid-inner';
 
-  const decoratedRows = await Promise.all(rowCandidates.map(async (row) => {
-    await decorateRow(row, isEditor);
-    return row;
+  const decoratedRows = await Promise.all(rowGroups.map(async (group) => {
+    await decorateRow(group.row, group.items, isEditor);
+    return group.row;
   }));
 
   decoratedRows.forEach((row) => {
@@ -391,7 +428,7 @@ export default async function decorate(block) {
 
   archiveHiddenFieldRows(block, inner, isEditor);
 
-  if (!rowCandidates.length && hasAuthoringContext(block)) {
+  if (!rowGroups.length && hasAuthoringContext(block)) {
     const placeholder = document.createElement('div');
     placeholder.className = 'colored-grid-empty';
     placeholder.textContent = 'Add colored grid rows in the editor.';
