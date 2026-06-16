@@ -47,6 +47,11 @@ const ROW_RUNTIME_STYLE_PROPS = [
   '--colored-grid-row-min-height',
 ];
 
+const ROW_ITEM_STYLE_PROPS = [
+  '--colored-grid-item-column-span',
+  ...ROW_RUNTIME_STYLE_PROPS,
+];
+
 function fieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
@@ -336,7 +341,18 @@ function applyBlockStyles(block, fields, isEditor) {
   ));
 }
 
-function applyRowStyles(row, fields, isEditor) {
+function resetRowItemRuntime(item) {
+  item.classList.remove('colored-grid-row-item', 'colored-grid-row-start', 'has-colored-grid-row-background');
+  ROW_RUNTIME_CLASS_PREFIXES.forEach((prefix) => {
+    [...item.classList]
+      .filter((className) => className.startsWith(prefix))
+      .forEach((className) => item.classList.remove(className));
+  });
+  ROW_ITEM_STYLE_PROPS.forEach((property) => item.style.removeProperty(property));
+}
+
+function applyRowItemStyles(item, fields, isEditor, isFirstItem) {
+  const columns = normalizeColumns(fields.columns.value);
   const horizontalAlign = normalizeOption(
     fields.horizontalAlign.value,
     ['stretch', 'left', 'center', 'right'],
@@ -348,33 +364,40 @@ function applyRowStyles(row, fields, isEditor) {
     'stretch',
   );
 
-  row.classList.add('colored-grid-row');
-  setPrefixedClass(row, 'colored-grid-row-h-', horizontalAlign);
-  setPrefixedClass(row, 'colored-grid-row-v-', verticalAlign);
-  row.style.setProperty('--colored-grid-row-columns', normalizeColumns(fields.columns.value));
-  setRowBackground(row, fields.backgroundColor.value);
-  setCssVar(row, '--colored-grid-row-text', normalizeColorValue(fields.textColor.value));
-  setCssVar(row, '--colored-grid-row-padding', normalizeCssValue(fields.padding.value, 'padding'));
-  setCssVar(row, '--colored-grid-row-gap', normalizeCssValue(fields.gap.value, 'gap'));
-  setCssVar(row, '--colored-grid-row-radius', normalizeCssValue(fields.borderRadius.value, 'border-radius'));
-  setCssVar(row, '--colored-grid-row-min-height', normalizeCssValue(fields.minHeight.value, 'min-height'));
+  resetRowItemRuntime(item);
+  item.classList.add('colored-grid-row-item');
+  item.classList.toggle('colored-grid-row-start', isFirstItem);
+  setPrefixedClass(item, 'colored-grid-row-h-', horizontalAlign);
+  setPrefixedClass(item, 'colored-grid-row-v-', verticalAlign);
+  item.style.setProperty('--colored-grid-item-column-span', 60 / columns);
+  item.style.setProperty('--colored-grid-row-columns', columns);
+  setRowBackground(item, fields.backgroundColor.value);
+  setCssVar(item, '--colored-grid-row-text', normalizeColorValue(fields.textColor.value));
+  setCssVar(item, '--colored-grid-row-padding', normalizeCssValue(fields.padding.value, 'padding'));
+  setCssVar(item, '--colored-grid-row-gap', normalizeCssValue(fields.gap.value, 'gap'));
+  setCssVar(item, '--colored-grid-row-radius', normalizeCssValue(fields.borderRadius.value, 'border-radius'));
+  setCssVar(item, '--colored-grid-row-min-height', normalizeCssValue(fields.minHeight.value, 'min-height'));
 
   if (!isEditor) return;
 
-  watchField(fields.columns.source, (value) => row.style.setProperty('--colored-grid-row-columns', normalizeColumns(value)));
-  watchField(fields.backgroundColor.source, (value) => setRowBackground(row, value));
-  watchField(fields.textColor.source, (value) => setCssVar(row, '--colored-grid-row-text', normalizeColorValue(value)));
-  watchField(fields.padding.source, (value) => setCssVar(row, '--colored-grid-row-padding', normalizeCssValue(value, 'padding')));
-  watchField(fields.gap.source, (value) => setCssVar(row, '--colored-grid-row-gap', normalizeCssValue(value, 'gap')));
-  watchField(fields.borderRadius.source, (value) => setCssVar(row, '--colored-grid-row-radius', normalizeCssValue(value, 'border-radius')));
-  watchField(fields.minHeight.source, (value) => setCssVar(row, '--colored-grid-row-min-height', normalizeCssValue(value, 'min-height')));
+  watchField(fields.columns.source, (value) => {
+    const nextColumns = normalizeColumns(value);
+    item.style.setProperty('--colored-grid-item-column-span', 60 / nextColumns);
+    item.style.setProperty('--colored-grid-row-columns', nextColumns);
+  });
+  watchField(fields.backgroundColor.source, (value) => setRowBackground(item, value));
+  watchField(fields.textColor.source, (value) => setCssVar(item, '--colored-grid-row-text', normalizeColorValue(value)));
+  watchField(fields.padding.source, (value) => setCssVar(item, '--colored-grid-row-padding', normalizeCssValue(value, 'padding')));
+  watchField(fields.gap.source, (value) => setCssVar(item, '--colored-grid-row-gap', normalizeCssValue(value, 'gap')));
+  watchField(fields.borderRadius.source, (value) => setCssVar(item, '--colored-grid-row-radius', normalizeCssValue(value, 'border-radius')));
+  watchField(fields.minHeight.source, (value) => setCssVar(item, '--colored-grid-row-min-height', normalizeCssValue(value, 'min-height')));
   watchField(fields.horizontalAlign.source, (value) => setPrefixedClass(
-    row,
+    item,
     'colored-grid-row-h-',
     normalizeOption(value, ['stretch', 'left', 'center', 'right'], 'stretch'),
   ));
   watchField(fields.verticalAlign.source, (value) => setPrefixedClass(
-    row,
+    item,
     'colored-grid-row-v-',
     normalizeOption(value, ['stretch', 'top', 'middle', 'bottom'], 'stretch'),
   ));
@@ -406,15 +429,6 @@ function removeGeneratedPlaceholders(scope) {
     .forEach((placeholder) => placeholder.remove());
 }
 
-function hasVisibleContent(row) {
-  return [...row.children].some((child) => (
-    !child.hidden
-      && child.style.display !== 'none'
-      && !child.classList.contains('colored-grid-row-empty')
-      && !child.classList.contains('colored-grid-field-archive')
-  ));
-}
-
 function archiveHiddenFieldRows(block, inner, isEditor) {
   if (!isEditor) return;
 
@@ -428,11 +442,11 @@ function archiveHiddenFieldRows(block, inner, isEditor) {
   if (archive.children.length) inner.append(archive);
 }
 
-function appendEmptyRowPlaceholder(row) {
+function createEmptyRowPlaceholder() {
   const placeholder = document.createElement('div');
   placeholder.className = 'colored-grid-row-empty';
   placeholder.textContent = 'Add content blocks to this row.';
-  row.append(placeholder);
+  return placeholder;
 }
 
 async function decorateRow(row, items, isEditor) {
@@ -443,28 +457,27 @@ async function decorateRow(row, items, isEditor) {
   const nestedItems = getNestedRowItems(row, configRows);
   const resourceFields = await readResourceFields(row, ROW_FIELD_NAMES);
   const fields = readConfigFields(ROW_FIELD_NAMES, configRows, resourceFields);
-  const layout = document.createElement('div');
-  const shell = document.createElement('div');
+  const rowItems = [...nestedItems, ...items];
+  const rendered = [];
 
-  shell.className = 'colored-grid-row-shell';
-  applyRowStyles(layout, fields, isEditor);
   cleanupConfigRows(configRows, isEditor);
-  nestedItems.forEach((item) => layout.append(item));
-  items.forEach((item) => layout.append(item));
 
   const isAuthoringRow = isEditor && hasAuthoringContext(row);
-  const hasRowContent = hasVisibleContent(layout);
 
-  if (!hasRowContent && isAuthoringRow) {
-    appendEmptyRowPlaceholder(layout);
+  if (isAuthoringRow) rendered.push(row);
+
+  if (!rowItems.length && isAuthoringRow) {
+    rowItems.push(createEmptyRowPlaceholder());
   }
 
-  if (!hasRowContent && !isAuthoringRow) return null;
+  if (!rowItems.length) return rendered;
 
-  if (isAuthoringRow) shell.append(row);
-  shell.append(layout);
+  rowItems.forEach((item, index) => {
+    applyRowItemStyles(item, fields, isEditor, index === 0);
+    rendered.push(item);
+  });
 
-  return shell;
+  return rendered;
 }
 
 export default async function decorate(block) {
@@ -485,10 +498,12 @@ export default async function decorate(block) {
 
   const renderedSegments = await Promise.all(rowSegments.map(async (segment) => {
     if (segment.type === 'row') return decorateRow(segment.row, segment.items, isEditor);
+    resetRowItemRuntime(segment.item);
     return segment.item;
   }));
 
   renderedSegments
+    .flat()
     .filter(Boolean)
     .forEach((element) => inner.append(element));
 
