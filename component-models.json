@@ -2097,6 +2097,225 @@
     ]
   },
   {
+    "id": "colored-grid",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color",
+        "description": "Optional CSS color value for the grid surface, for example #08294D.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "textColor",
+        "label": "Text Color",
+        "description": "Optional CSS color inherited by content inside the grid.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "padding",
+        "label": "Padding",
+        "description": "Optional CSS padding, for example 80px 64px or clamp(32px, 6vw, 96px).",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "rowGap",
+        "label": "Row Gap",
+        "description": "Optional CSS length between rows.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "borderRadius",
+        "label": "Border Radius",
+        "description": "Optional CSS border radius, for example 8px.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "maxWidth",
+        "label": "Max Width",
+        "description": "Optional CSS max width for the grid surface. Leave blank for full width.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeight",
+        "label": "Minimum Height",
+        "description": "Optional CSS minimum height.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalAlign",
+        "label": "Vertical Alignment",
+        "options": [
+          {
+            "name": "Top",
+            "value": "top"
+          },
+          {
+            "name": "Middle",
+            "value": "middle"
+          },
+          {
+            "name": "Bottom",
+            "value": "bottom"
+          }
+        ],
+        "value": "top"
+      }
+    ]
+  },
+  {
+    "id": "colored-grid-row",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Columns",
+        "description": "Number of columns to use for this row on desktop.",
+        "options": [
+          {
+            "name": "1 Column",
+            "value": "1"
+          },
+          {
+            "name": "2 Columns",
+            "value": "2"
+          },
+          {
+            "name": "3 Columns",
+            "value": "3"
+          },
+          {
+            "name": "4 Columns",
+            "value": "4"
+          },
+          {
+            "name": "5 Columns",
+            "value": "5"
+          },
+          {
+            "name": "6 Columns",
+            "value": "6"
+          }
+        ],
+        "value": "2"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Row Background Color",
+        "description": "Optional CSS color value for this row.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "textColor",
+        "label": "Row Text Color",
+        "description": "Optional CSS color inherited by content in this row.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "padding",
+        "label": "Row Padding",
+        "description": "Optional CSS padding for this row.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "gap",
+        "label": "Column Gap",
+        "description": "Optional CSS length between columns in this row.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "borderRadius",
+        "label": "Row Border Radius",
+        "description": "Optional CSS border radius for this row.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "minHeight",
+        "label": "Row Minimum Height",
+        "description": "Optional CSS minimum height for this row.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "horizontalAlign",
+        "label": "Row Horizontal Alignment",
+        "options": [
+          {
+            "name": "Stretch",
+            "value": "stretch"
+          },
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "stretch"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalAlign",
+        "label": "Row Vertical Alignment",
+        "options": [
+          {
+            "name": "Stretch",
+            "value": "stretch"
+          },
+          {
+            "name": "Top",
+            "value": "top"
+          },
+          {
+            "name": "Middle",
+            "value": "middle"
+          },
+          {
+            "name": "Bottom",
+            "value": "bottom"
+          }
+        ],
+        "value": "stretch"
+      }
+    ]
+  },
+  {
     "id": "colored-heading",
     "fields": [
       {

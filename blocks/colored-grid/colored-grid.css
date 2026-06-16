@@ -1,0 +1,131 @@
+.colored-grid {
+  --colored-grid-bg: transparent;
+  --colored-grid-text: inherit;
+  --colored-grid-padding: 0;
+  --colored-grid-rows-gap: 24px;
+  --colored-grid-radius: 0;
+  --colored-grid-max-width: 100%;
+  --colored-grid-min-height: 0;
+  --colored-grid-row-bg: transparent;
+  --colored-grid-row-text: inherit;
+  --colored-grid-row-padding: 0;
+  --colored-grid-row-gap: 24px;
+  --colored-grid-row-radius: 0;
+  --colored-grid-row-min-height: 0;
+
+  color: var(--colored-grid-text);
+}
+
+.colored-grid .colored-grid-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--colored-grid-rows-gap);
+  width: 100%;
+  max-width: var(--colored-grid-max-width);
+  min-height: var(--colored-grid-min-height);
+  margin-inline: auto;
+  padding: var(--colored-grid-padding);
+  border-radius: var(--colored-grid-radius);
+  background: var(--colored-grid-bg);
+  color: inherit;
+  overflow: hidden;
+}
+
+.colored-grid.colored-grid-v-middle .colored-grid-inner {
+  justify-content: center;
+}
+
+.colored-grid.colored-grid-v-bottom .colored-grid-inner {
+  justify-content: flex-end;
+}
+
+.colored-grid .colored-grid-row {
+  display: grid;
+  grid-template-columns: repeat(var(--colored-grid-row-columns, 2), minmax(0, 1fr));
+  gap: var(--colored-grid-row-gap);
+  min-height: var(--colored-grid-row-min-height);
+  padding: var(--colored-grid-row-padding);
+  border-radius: var(--colored-grid-row-radius);
+  background: var(--colored-grid-row-bg);
+  color: var(--colored-grid-row-text);
+}
+
+.colored-grid .colored-grid-row > * {
+  min-width: 0;
+}
+
+.colored-grid .colored-grid-row-h-left {
+  justify-items: start;
+  text-align: left;
+}
+
+.colored-grid .colored-grid-row-h-center {
+  justify-items: center;
+  text-align: center;
+}
+
+.colored-grid .colored-grid-row-h-right {
+  justify-items: end;
+  text-align: right;
+}
+
+.colored-grid .colored-grid-row-h-stretch {
+  justify-items: stretch;
+}
+
+.colored-grid .colored-grid-row-v-top {
+  align-items: start;
+}
+
+.colored-grid .colored-grid-row-v-middle {
+  align-items: center;
+}
+
+.colored-grid .colored-grid-row-v-bottom {
+  align-items: end;
+}
+
+.colored-grid .colored-grid-row-v-stretch {
+  align-items: stretch;
+}
+
+.colored-grid .colored-grid-empty,
+.colored-grid .colored-grid-row-empty {
+  width: 100%;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgb(0 38 77 / 24%);
+  border-radius: 8px;
+  color: #6b6b6b;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.colored-grid .statistics,
+.colored-grid .cards,
+.colored-grid .colored-heading,
+.colored-grid .colored-text,
+.colored-grid .colored-button,
+.colored-grid .colored-list,
+.colored-grid .columns {
+  width: 100%;
+  margin-inline: 0;
+}
+
+.colored-grid .statistics {
+  padding: 0;
+}
+
+.colored-grid .statistics .statistics-inner,
+.colored-grid .colored-heading .colored-heading-inner,
+.colored-grid .colored-text .colored-text-inner,
+.colored-grid .colored-list .colored-list-inner {
+  max-width: 100%;
+}
+
+@media (width <= 700px) {
+  .colored-grid .colored-grid-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

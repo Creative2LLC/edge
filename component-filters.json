@@ -72,6 +72,7 @@
       "colored-text",
       "colored-button",
       "colored-list",
+      "colored-grid",
       "support-cta",
       "columns",
       "tabs",
@@ -230,6 +231,30 @@
       "image",
       "button",
       "title"
+    ]
+  },
+  {
+    "id": "colored-grid",
+    "components": [
+      "colored-grid-row"
+    ]
+  },
+  {
+    "id": "colored-grid-row",
+    "components": [
+      "text",
+      "image",
+      "button",
+      "title",
+      "columns",
+      "statistics",
+      "cards",
+      "colored-heading",
+      "colored-text",
+      "colored-button",
+      "colored-list",
+      "info-cards-grid",
+      "impact-donut"
     ]
   },
   {
