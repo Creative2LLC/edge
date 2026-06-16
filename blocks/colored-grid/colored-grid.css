@@ -39,6 +39,33 @@
   justify-content: flex-end;
 }
 
+.colored-grid .colored-grid-row-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.colored-grid .colored-grid-row-marker {
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgb(0 38 77 / 24%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 64%);
+  color: #6b6b6b;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.colored-grid .colored-grid-row-marker::before {
+  content: attr(data-aue-label);
+}
+
+.colored-grid .colored-grid-row-marker > :not([hidden]) {
+  display: none;
+}
+
 .colored-grid .colored-grid-row {
   display: grid;
   grid-template-columns: repeat(var(--colored-grid-row-columns, 2), minmax(0, 1fr));

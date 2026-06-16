@@ -32,8 +32,35 @@ const COLORED_GRID_ROW_SELECTOR = [
   '[data-aue-label="Colored Grid Row"]',
 ].join(', ');
 
+const ROW_RUNTIME_CLASS_PREFIXES = [
+  'colored-grid-row-h-',
+  'colored-grid-row-v-',
+];
+
+const ROW_RUNTIME_STYLE_PROPS = [
+  '--colored-grid-row-columns',
+  '--colored-grid-row-bg',
+  '--colored-grid-row-text',
+  '--colored-grid-row-padding',
+  '--colored-grid-row-gap',
+  '--colored-grid-row-radius',
+  '--colored-grid-row-min-height',
+];
+
 function fieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
+}
+
+function fieldSource(row, name) {
+  if (!row) return null;
+
+  return row.matches?.(fieldSelector(name))
+    ? row
+    : row.querySelector?.(fieldSelector(name)) || null;
+}
+
+function hasNamedField(row, names) {
+  return names.some((name) => fieldSource(row, name));
 }
 
 function directRows(scope) {
@@ -63,9 +90,7 @@ function normalizeResourceValue(value) {
 function textFromRow(row, name) {
   if (!row) return '';
 
-  const field = row.matches?.(fieldSelector(name))
-    ? row
-    : row.querySelector?.(fieldSelector(name));
+  const field = fieldSource(row, name);
 
   return (field?.textContent || row.textContent || '').trim();
 }
@@ -99,15 +124,17 @@ async function readResourceFields(scope, names) {
 }
 
 function readConfigFields(names, rows, resourceFields = {}) {
+  const hasAnyNamedRows = rows.some(hasFieldSource);
+
   return names.reduce((fields, name, index) => {
+    const namedRow = rows.find((candidate) => fieldSource(candidate, name));
+    const row = namedRow || (!hasAnyNamedRows ? rows[index] || null : null);
     const resourceValue = normalizeResourceValue(resourceFields[name]);
-    const domValue = textFromRow(rows[index], name);
+    const domValue = textFromRow(row, name);
 
     fields[name] = {
-      row: rows[index] || null,
-      source: rows[index]?.matches?.(fieldSelector(name))
-        ? rows[index]
-        : rows[index]?.querySelector?.(fieldSelector(name)) || null,
+      row,
+      source: fieldSource(row, name),
       value: resourceValue || domValue,
     };
 
@@ -125,6 +152,16 @@ function isExplicitRowItem(row) {
 
 function getBlockConfigRows(rows) {
   const firstRowIndex = rows.findIndex(isExplicitRowItem);
+  const candidateRows = firstRowIndex >= 0 ? rows.slice(0, firstRowIndex) : rows;
+  const namedFieldRows = candidateRows.filter((row) => (
+    !row.getAttribute?.('data-aue-resource') && hasNamedField(row, BLOCK_FIELD_NAMES)
+  ));
+
+  if (namedFieldRows.length) return namedFieldRows;
+
+  if (rows.some((row) => row.getAttribute?.('data-aue-resource'))) {
+    return [];
+  }
 
   if (firstRowIndex >= 0) {
     return rows.slice(0, firstRowIndex);
@@ -133,53 +170,50 @@ function getBlockConfigRows(rows) {
   return rows.slice(0, BLOCK_FIELD_NAMES.length);
 }
 
-function getRowCandidates(rows) {
-  const explicitRows = rows.filter(isExplicitRowItem);
-  if (explicitRows.length) return explicitRows;
-
-  return rows.slice(BLOCK_FIELD_NAMES.length).filter((row) => row.children.length);
-}
-
 function isContentItem(row) {
   return Boolean(
     row
       && !row.hidden
       && !row.classList?.contains('colored-grid-field-archive')
-      && !isExplicitRowItem(row),
+      && !isExplicitRowItem(row)
+      && (
+        row.getAttribute?.('data-aue-resource')
+          || row.children.length
+          || row.textContent.trim()
+      ),
   );
 }
 
-function groupRows(rows, blockConfigRows) {
+function getRowSegments(rows, blockConfigRows) {
   const blockConfigSet = new Set(blockConfigRows);
-  const contentRows = rows.filter((row) => !blockConfigSet.has(row));
-  const explicitRows = contentRows.filter(isExplicitRowItem);
-
-  if (!explicitRows.length) {
-    return getRowCandidates(rows).map((row) => ({ row, items: [] }));
-  }
-
-  const groups = [];
+  const segments = [];
   let currentGroup = null;
 
-  contentRows.forEach((row) => {
+  rows.forEach((row) => {
+    if (blockConfigSet.has(row)) return;
+
     if (isExplicitRowItem(row)) {
-      currentGroup = { row, items: [] };
-      groups.push(currentGroup);
+      currentGroup = { type: 'row', row, items: [] };
+      segments.push(currentGroup);
       return;
     }
 
     if (currentGroup && isContentItem(row)) {
       currentGroup.items.push(row);
+      return;
+    }
+
+    if (isContentItem(row)) {
+      segments.push({ type: 'item', item: row });
     }
   });
 
-  return groups;
+  return segments;
 }
 
-function isNestedContentComponent(row) {
+function isAueContentComponent(row) {
   return Boolean(
     row?.getAttribute?.('data-aue-resource')
-      && !hasFieldSource(row)
       && !isExplicitRowItem(row),
   );
 }
@@ -187,13 +221,19 @@ function isNestedContentComponent(row) {
 function getRowConfigRows(row) {
   const rows = directRows(row);
   const firstContentIndex = rows.findIndex((child, index) => (
-    index >= ROW_FIELD_NAMES.length || isNestedContentComponent(child)
+    index >= ROW_FIELD_NAMES.length || isAueContentComponent(child)
   ));
   const rowFieldCount = firstContentIndex >= 0
     ? firstContentIndex
     : Math.min(rows.length, ROW_FIELD_NAMES.length);
 
   return rows.slice(0, rowFieldCount);
+}
+
+function getNestedRowItems(row, configRows) {
+  const configSet = new Set(configRows);
+
+  return directRows(row).filter((child) => !configSet.has(child) && isContentItem(child));
 }
 
 function normalizeColorValue(value) {
@@ -340,13 +380,25 @@ function applyRowStyles(row, fields, isEditor) {
   ));
 }
 
-function preserveRowMarker(row) {
-  if (!hasAuthoringContext(row)) return;
+function resetRowMarkerRuntime(row) {
+  row.classList.remove('colored-grid-row', 'has-colored-grid-row-background');
+  ROW_RUNTIME_CLASS_PREFIXES.forEach((prefix) => {
+    [...row.classList]
+      .filter((className) => className.startsWith(prefix))
+      .forEach((className) => row.classList.remove(className));
+  });
+  ROW_RUNTIME_STYLE_PROPS.forEach((property) => row.style.removeProperty(property));
+}
+
+function preserveRowMarker(row, isEditor) {
+  resetRowMarkerRuntime(row);
+  if (!isEditor || !hasAuthoringContext(row)) return;
 
   row.setAttribute('data-aue-type', 'component');
   row.setAttribute('data-aue-behavior', 'component');
   row.removeAttribute('data-aue-filter');
   if (!row.getAttribute('data-aue-label')) row.setAttribute('data-aue-label', 'Colored Grid Row');
+  row.classList.add('colored-grid-row-marker');
 }
 
 function removeGeneratedPlaceholders(scope) {
@@ -385,26 +437,42 @@ function appendEmptyRowPlaceholder(row) {
 
 async function decorateRow(row, items, isEditor) {
   removeGeneratedPlaceholders(row);
-  preserveRowMarker(row);
+  preserveRowMarker(row, isEditor);
 
   const configRows = getRowConfigRows(row);
+  const nestedItems = getNestedRowItems(row, configRows);
   const resourceFields = await readResourceFields(row, ROW_FIELD_NAMES);
   const fields = readConfigFields(ROW_FIELD_NAMES, configRows, resourceFields);
+  const layout = document.createElement('div');
+  const shell = document.createElement('div');
 
-  applyRowStyles(row, fields, isEditor);
+  shell.className = 'colored-grid-row-shell';
+  applyRowStyles(layout, fields, isEditor);
   cleanupConfigRows(configRows, isEditor);
-  items.forEach((item) => row.append(item));
+  nestedItems.forEach((item) => layout.append(item));
+  items.forEach((item) => layout.append(item));
 
-  if (!hasVisibleContent(row) && hasAuthoringContext(row)) {
-    appendEmptyRowPlaceholder(row);
+  const isAuthoringRow = isEditor && hasAuthoringContext(row);
+  const hasRowContent = hasVisibleContent(layout);
+
+  if (!hasRowContent && isAuthoringRow) {
+    appendEmptyRowPlaceholder(layout);
   }
+
+  if (!hasRowContent && !isAuthoringRow) return null;
+
+  if (isAuthoringRow) shell.append(row);
+  shell.append(layout);
+
+  return shell;
 }
 
 export default async function decorate(block) {
   const isEditor = isEditorContext();
   const rows = directRows(block);
   const blockConfigRows = getBlockConfigRows(rows);
-  const rowGroups = groupRows(rows, blockConfigRows);
+  const rowSegments = getRowSegments(rows, blockConfigRows);
+  const hasRowMarkers = rowSegments.some((segment) => segment.type === 'row');
   const blockResourceFields = await readResourceFields(block, BLOCK_FIELD_NAMES);
   const blockFields = readConfigFields(BLOCK_FIELD_NAMES, blockConfigRows, blockResourceFields);
 
@@ -415,24 +483,22 @@ export default async function decorate(block) {
   const inner = document.createElement('div');
   inner.className = 'colored-grid-inner';
 
-  const decoratedRows = await Promise.all(rowGroups.map(async (group) => {
-    await decorateRow(group.row, group.items, isEditor);
-    return group.row;
+  const renderedSegments = await Promise.all(rowSegments.map(async (segment) => {
+    if (segment.type === 'row') return decorateRow(segment.row, segment.items, isEditor);
+    return segment.item;
   }));
 
-  decoratedRows.forEach((row) => {
-    if (hasVisibleContent(row) || hasAuthoringContext(row)) {
-      inner.append(row);
-    }
-  });
+  renderedSegments
+    .filter(Boolean)
+    .forEach((element) => inner.append(element));
 
   archiveHiddenFieldRows(block, inner, isEditor);
 
-  if (!rowGroups.length && hasAuthoringContext(block)) {
+  if (!hasRowMarkers && hasAuthoringContext(block)) {
     const placeholder = document.createElement('div');
     placeholder.className = 'colored-grid-empty';
-    placeholder.textContent = 'Add colored grid rows in the editor.';
-    inner.append(placeholder);
+    placeholder.textContent = 'Add a Colored Grid Row before adding content blocks.';
+    inner.prepend(placeholder);
   }
 
   block.replaceChildren(inner);
