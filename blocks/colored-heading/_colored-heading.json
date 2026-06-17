@@ -131,6 +131,71 @@
           "label": "Minimum Height (Mobile)",
           "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "paddingStyle",
+          "label": "Padding",
+          "options": [
+            { "name": "Default", "value": "default" },
+            { "name": "None", "value": "none" },
+            { "name": "All Small", "value": "all-sm" },
+            { "name": "All Medium", "value": "all-md" },
+            { "name": "All Large", "value": "all-lg" },
+            { "name": "Vertical Small", "value": "vertical-sm" },
+            { "name": "Vertical Medium", "value": "vertical-md" },
+            { "name": "Vertical Large", "value": "vertical-lg" },
+            { "name": "Sides Small", "value": "horizontal-sm" },
+            { "name": "Sides Medium", "value": "horizontal-md" },
+            { "name": "Sides Large", "value": "horizontal-lg" },
+            { "name": "Top Small", "value": "top-sm" },
+            { "name": "Top Medium", "value": "top-md" },
+            { "name": "Top Large", "value": "top-lg" },
+            { "name": "Bottom Small", "value": "bottom-sm" },
+            { "name": "Bottom Medium", "value": "bottom-md" },
+            { "name": "Bottom Large", "value": "bottom-lg" }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "marginStyle",
+          "label": "Margin",
+          "options": [
+            { "name": "Default", "value": "default" },
+            { "name": "None", "value": "none" },
+            { "name": "All Small", "value": "all-sm" },
+            { "name": "All Medium", "value": "all-md" },
+            { "name": "All Large", "value": "all-lg" },
+            { "name": "Vertical Small", "value": "vertical-sm" },
+            { "name": "Vertical Medium", "value": "vertical-md" },
+            { "name": "Vertical Large", "value": "vertical-lg" },
+            { "name": "Sides Small", "value": "horizontal-sm" },
+            { "name": "Sides Medium", "value": "horizontal-md" },
+            { "name": "Sides Large", "value": "horizontal-lg" },
+            { "name": "Top Small", "value": "top-sm" },
+            { "name": "Top Medium", "value": "top-md" },
+            { "name": "Top Large", "value": "top-lg" },
+            { "name": "Bottom Small", "value": "bottom-sm" },
+            { "name": "Bottom Medium", "value": "bottom-md" },
+            { "name": "Bottom Large", "value": "bottom-lg" }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "dropShadow",
+          "label": "Drop Shadow",
+          "options": [
+            { "name": "None", "value": "none" },
+            { "name": "Small", "value": "small" },
+            { "name": "Medium", "value": "medium" },
+            { "name": "Large", "value": "large" }
+          ],
+          "value": "none"
         }
       ]
     }

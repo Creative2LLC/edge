@@ -7,6 +7,10 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
+import {
+  applyColoredFieldLayoutOptions,
+  syncColoredFieldLayoutOptions,
+} from '../../scripts/colored-field-options.js';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -279,14 +283,23 @@ export default function decorate(block) {
     ['left', 'right', 'none'],
     'left',
   );
-  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size'], fieldCell(rows[15 + rowOffset])).value, 'width');
+  const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size']).value, 'width');
   const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[16 + rowOffset])).value, 'min-height');
+  const layoutOptionsField = readField(
+    block,
+    'layoutOptions',
+    ['layout options', 'spacing and shadow'],
+    fieldCell(rows[17 + rowOffset]),
+  );
 
   block.classList.add(
     `colored-button-h-${horizontalAlign}`,
     `colored-button-v-${verticalAlign}`,
     `colored-button-appearance-${appearance}`,
   );
+  applyColoredFieldLayoutOptions(block, 'colored-button', {
+    layoutOptions: layoutOptionsField.value,
+  });
   if (invertOnHover === 'yes') block.classList.add('colored-button-invert-hover');
   if (fontSize) block.style.setProperty('--colored-button-font-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-button-font-weight', fontWeight);
@@ -350,4 +363,5 @@ export default function decorate(block) {
   ]);
 
   syncResourceColorFields(resourcePath, block);
+  syncColoredFieldLayoutOptions(resourcePath, block, 'colored-button');
 }

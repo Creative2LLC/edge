@@ -8,7 +8,16 @@
   --colored-button-min-height: 0;
   --colored-button-block-bg: transparent;
 
-  padding: 12px 0;
+  margin:
+    var(--colored-field-margin-top, 0)
+    var(--colored-field-margin-right, 0)
+    var(--colored-field-margin-bottom, 0)
+    var(--colored-field-margin-left, 0);
+  padding:
+    var(--colored-field-padding-top, 12px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 12px)
+    var(--colored-field-padding-left, 0);
 }
 
 .colored-button .colored-button-inner {

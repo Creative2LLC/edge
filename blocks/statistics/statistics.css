@@ -196,6 +196,14 @@
   margin-bottom: 10px;
 }
 
+.statistics .statistics-top-label {
+  font-size: var(--statistics-label-size);
+  font-weight: var(--statistics-label-weight);
+  line-height: 1.4;
+  color: var(--statistics-label-color);
+  margin-bottom: 8px;
+}
+
 .statistics .statistics-label {
   font-size: var(--statistics-label-size);
   font-weight: var(--statistics-label-weight);

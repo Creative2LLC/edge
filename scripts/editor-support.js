@@ -38,6 +38,13 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
+function normalizeBackgroundGradientValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized || !/gradient\(/i.test(normalized)) return '';
+  if (window.CSS?.supports && !window.CSS.supports('background-image', normalized)) return '';
+  return normalized;
+}
+
 function getSectionBackgroundColor(section) {
   if (!section) return '';
 
@@ -47,7 +54,16 @@ function getSectionBackgroundColor(section) {
   );
 }
 
-function applySectionBackground(section, backgroundColor) {
+function getSectionBackgroundGradient(section) {
+  if (!section) return '';
+
+  return normalizeBackgroundGradientValue(
+    section.getAttribute('data-background-gradient')
+      || section.getAttribute('data-backgroundgradient'),
+  );
+}
+
+function applySectionBackground(section, backgroundColor, hasGradient = false) {
   if (!section) return;
 
   const value = normalizeColorValue(backgroundColor);
@@ -61,10 +77,34 @@ function applySectionBackground(section, backgroundColor) {
 
   section.style.backgroundColor = value;
   wrappers.forEach((wrapper) => {
-    wrapper.style.backgroundColor = value;
+    wrapper.style.backgroundColor = hasGradient ? 'transparent' : value;
   });
   section.setAttribute('data-background-color', value);
   section.setAttribute('data-backgroundcolor', value);
+}
+
+function applySectionBackgroundGradient(section, backgroundGradient) {
+  if (!section) return;
+
+  const value = normalizeBackgroundGradientValue(backgroundGradient);
+  const wrappers = [...section.querySelectorAll(':scope > div')];
+
+  if (!value) {
+    section.style.removeProperty('background-image');
+    wrappers.forEach((wrapper) => wrapper.style.removeProperty('background-image'));
+    return;
+  }
+
+  section.style.backgroundImage = value;
+  section.style.backgroundPosition = 'center';
+  section.style.backgroundRepeat = 'no-repeat';
+  section.style.backgroundSize = 'cover';
+  wrappers.forEach((wrapper) => {
+    wrapper.style.removeProperty('background-image');
+    wrapper.style.backgroundColor = 'transparent';
+  });
+  section.setAttribute('data-background-gradient', value);
+  section.setAttribute('data-backgroundgradient', value);
 }
 
 function getSectionBackgroundFallback(block) {
@@ -117,7 +157,9 @@ async function syncSectionBackgrounds(scope) {
   for (let i = 0; i < sections.length; i += 1) {
     const section = sections[i];
     const backgroundColor = getSectionBackgroundColor(section);
-    applySectionBackground(section, backgroundColor);
+    const backgroundGradient = getSectionBackgroundGradient(section);
+    applySectionBackground(section, backgroundColor, Boolean(backgroundGradient));
+    applySectionBackgroundGradient(section, backgroundGradient);
 
     const blocks = [...section.querySelectorAll(':scope > div > .block')];
     for (let j = 0; j < blocks.length; j += 1) {

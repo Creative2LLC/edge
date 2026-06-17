@@ -132,6 +132,33 @@
           }
         ],
         "value": ""
+      },
+      {
+        "component": "richtext",
+        "name": "captionText",
+        "label": "Caption Text",
+        "valueType": "string",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "captionAlignment",
+        "label": "Caption Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
       }
     ]
   },
@@ -403,6 +430,14 @@
         "name": "backgroundColor",
         "label": "Background Color",
         "description": "Any valid CSS color value, for example #f4f1ec",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundGradient",
+        "label": "Background Gradient",
+        "description": "Optional CSS gradient, for example linear-gradient(135deg, #00264d 0%, #008db6 100%).",
         "value": ""
       },
       {
@@ -1572,6 +1607,56 @@
           }
         ],
         "value": "show"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "cardBorderRadius",
+        "label": "Card Border Radius",
+        "options": [
+          {
+            "name": "None (default)",
+            "value": "none"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ],
+        "value": "none"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "cardShadow",
+        "label": "Card Drop Shadow",
+        "options": [
+          {
+            "name": "None (default)",
+            "value": "none"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ],
+        "value": "none"
       }
     ]
   },
@@ -2081,18 +2166,158 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "iconSize",
-        "label": "Icon Size",
-        "description": "Optional CSS length. Defaults to 1em.",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "minHeight",
         "label": "Minimum Height",
         "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
         "value": ""
+      },
+      {
+        "component": "multiselect",
+        "name": "layoutOptions",
+        "label": "Layout Options",
+        "description": "Optional padding, margin, and drop-shadow classes.",
+        "options": [
+          {
+            "name": "Padding None",
+            "value": "padding-none"
+          },
+          {
+            "name": "Padding All Small",
+            "value": "padding-all-sm"
+          },
+          {
+            "name": "Padding All Medium",
+            "value": "padding-all-md"
+          },
+          {
+            "name": "Padding All Large",
+            "value": "padding-all-lg"
+          },
+          {
+            "name": "Padding Vertical Small",
+            "value": "padding-vertical-sm"
+          },
+          {
+            "name": "Padding Vertical Medium",
+            "value": "padding-vertical-md"
+          },
+          {
+            "name": "Padding Vertical Large",
+            "value": "padding-vertical-lg"
+          },
+          {
+            "name": "Padding Sides Small",
+            "value": "padding-horizontal-sm"
+          },
+          {
+            "name": "Padding Sides Medium",
+            "value": "padding-horizontal-md"
+          },
+          {
+            "name": "Padding Sides Large",
+            "value": "padding-horizontal-lg"
+          },
+          {
+            "name": "Padding Top Small",
+            "value": "padding-top-sm"
+          },
+          {
+            "name": "Padding Top Medium",
+            "value": "padding-top-md"
+          },
+          {
+            "name": "Padding Top Large",
+            "value": "padding-top-lg"
+          },
+          {
+            "name": "Padding Bottom Small",
+            "value": "padding-bottom-sm"
+          },
+          {
+            "name": "Padding Bottom Medium",
+            "value": "padding-bottom-md"
+          },
+          {
+            "name": "Padding Bottom Large",
+            "value": "padding-bottom-lg"
+          },
+          {
+            "name": "Margin None",
+            "value": "margin-none"
+          },
+          {
+            "name": "Margin All Small",
+            "value": "margin-all-sm"
+          },
+          {
+            "name": "Margin All Medium",
+            "value": "margin-all-md"
+          },
+          {
+            "name": "Margin All Large",
+            "value": "margin-all-lg"
+          },
+          {
+            "name": "Margin Vertical Small",
+            "value": "margin-vertical-sm"
+          },
+          {
+            "name": "Margin Vertical Medium",
+            "value": "margin-vertical-md"
+          },
+          {
+            "name": "Margin Vertical Large",
+            "value": "margin-vertical-lg"
+          },
+          {
+            "name": "Margin Sides Small",
+            "value": "margin-horizontal-sm"
+          },
+          {
+            "name": "Margin Sides Medium",
+            "value": "margin-horizontal-md"
+          },
+          {
+            "name": "Margin Sides Large",
+            "value": "margin-horizontal-lg"
+          },
+          {
+            "name": "Margin Top Small",
+            "value": "margin-top-sm"
+          },
+          {
+            "name": "Margin Top Medium",
+            "value": "margin-top-md"
+          },
+          {
+            "name": "Margin Top Large",
+            "value": "margin-top-lg"
+          },
+          {
+            "name": "Margin Bottom Small",
+            "value": "margin-bottom-sm"
+          },
+          {
+            "name": "Margin Bottom Medium",
+            "value": "margin-bottom-md"
+          },
+          {
+            "name": "Margin Bottom Large",
+            "value": "margin-bottom-lg"
+          },
+          {
+            "name": "Shadow Small",
+            "value": "shadow-small"
+          },
+          {
+            "name": "Shadow Medium",
+            "value": "shadow-medium"
+          },
+          {
+            "name": "Shadow Large",
+            "value": "shadow-large"
+          }
+        ]
       }
     ]
   },
@@ -2486,6 +2711,185 @@
         "label": "Minimum Height (Mobile)",
         "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "paddingStyle",
+        "label": "Padding",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "All Small",
+            "value": "all-sm"
+          },
+          {
+            "name": "All Medium",
+            "value": "all-md"
+          },
+          {
+            "name": "All Large",
+            "value": "all-lg"
+          },
+          {
+            "name": "Vertical Small",
+            "value": "vertical-sm"
+          },
+          {
+            "name": "Vertical Medium",
+            "value": "vertical-md"
+          },
+          {
+            "name": "Vertical Large",
+            "value": "vertical-lg"
+          },
+          {
+            "name": "Sides Small",
+            "value": "horizontal-sm"
+          },
+          {
+            "name": "Sides Medium",
+            "value": "horizontal-md"
+          },
+          {
+            "name": "Sides Large",
+            "value": "horizontal-lg"
+          },
+          {
+            "name": "Top Small",
+            "value": "top-sm"
+          },
+          {
+            "name": "Top Medium",
+            "value": "top-md"
+          },
+          {
+            "name": "Top Large",
+            "value": "top-lg"
+          },
+          {
+            "name": "Bottom Small",
+            "value": "bottom-sm"
+          },
+          {
+            "name": "Bottom Medium",
+            "value": "bottom-md"
+          },
+          {
+            "name": "Bottom Large",
+            "value": "bottom-lg"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "marginStyle",
+        "label": "Margin",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "All Small",
+            "value": "all-sm"
+          },
+          {
+            "name": "All Medium",
+            "value": "all-md"
+          },
+          {
+            "name": "All Large",
+            "value": "all-lg"
+          },
+          {
+            "name": "Vertical Small",
+            "value": "vertical-sm"
+          },
+          {
+            "name": "Vertical Medium",
+            "value": "vertical-md"
+          },
+          {
+            "name": "Vertical Large",
+            "value": "vertical-lg"
+          },
+          {
+            "name": "Sides Small",
+            "value": "horizontal-sm"
+          },
+          {
+            "name": "Sides Medium",
+            "value": "horizontal-md"
+          },
+          {
+            "name": "Sides Large",
+            "value": "horizontal-lg"
+          },
+          {
+            "name": "Top Small",
+            "value": "top-sm"
+          },
+          {
+            "name": "Top Medium",
+            "value": "top-md"
+          },
+          {
+            "name": "Top Large",
+            "value": "top-lg"
+          },
+          {
+            "name": "Bottom Small",
+            "value": "bottom-sm"
+          },
+          {
+            "name": "Bottom Medium",
+            "value": "bottom-md"
+          },
+          {
+            "name": "Bottom Large",
+            "value": "bottom-lg"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "dropShadow",
+        "label": "Drop Shadow",
+        "options": [
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ],
+        "value": "none"
       }
     ]
   },
@@ -2664,6 +3068,185 @@
         "label": "Minimum Height (Mobile)",
         "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "paddingStyle",
+        "label": "Padding",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "All Small",
+            "value": "all-sm"
+          },
+          {
+            "name": "All Medium",
+            "value": "all-md"
+          },
+          {
+            "name": "All Large",
+            "value": "all-lg"
+          },
+          {
+            "name": "Vertical Small",
+            "value": "vertical-sm"
+          },
+          {
+            "name": "Vertical Medium",
+            "value": "vertical-md"
+          },
+          {
+            "name": "Vertical Large",
+            "value": "vertical-lg"
+          },
+          {
+            "name": "Sides Small",
+            "value": "horizontal-sm"
+          },
+          {
+            "name": "Sides Medium",
+            "value": "horizontal-md"
+          },
+          {
+            "name": "Sides Large",
+            "value": "horizontal-lg"
+          },
+          {
+            "name": "Top Small",
+            "value": "top-sm"
+          },
+          {
+            "name": "Top Medium",
+            "value": "top-md"
+          },
+          {
+            "name": "Top Large",
+            "value": "top-lg"
+          },
+          {
+            "name": "Bottom Small",
+            "value": "bottom-sm"
+          },
+          {
+            "name": "Bottom Medium",
+            "value": "bottom-md"
+          },
+          {
+            "name": "Bottom Large",
+            "value": "bottom-lg"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "marginStyle",
+        "label": "Margin",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "All Small",
+            "value": "all-sm"
+          },
+          {
+            "name": "All Medium",
+            "value": "all-md"
+          },
+          {
+            "name": "All Large",
+            "value": "all-lg"
+          },
+          {
+            "name": "Vertical Small",
+            "value": "vertical-sm"
+          },
+          {
+            "name": "Vertical Medium",
+            "value": "vertical-md"
+          },
+          {
+            "name": "Vertical Large",
+            "value": "vertical-lg"
+          },
+          {
+            "name": "Sides Small",
+            "value": "horizontal-sm"
+          },
+          {
+            "name": "Sides Medium",
+            "value": "horizontal-md"
+          },
+          {
+            "name": "Sides Large",
+            "value": "horizontal-lg"
+          },
+          {
+            "name": "Top Small",
+            "value": "top-sm"
+          },
+          {
+            "name": "Top Medium",
+            "value": "top-md"
+          },
+          {
+            "name": "Top Large",
+            "value": "top-lg"
+          },
+          {
+            "name": "Bottom Small",
+            "value": "bottom-sm"
+          },
+          {
+            "name": "Bottom Medium",
+            "value": "bottom-md"
+          },
+          {
+            "name": "Bottom Large",
+            "value": "bottom-lg"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "dropShadow",
+        "label": "Drop Shadow",
+        "options": [
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ],
+        "value": "none"
       }
     ]
   },
@@ -2859,6 +3442,185 @@
         "label": "Minimum Height (Mobile)",
         "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "paddingStyle",
+        "label": "Padding",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "All Small",
+            "value": "all-sm"
+          },
+          {
+            "name": "All Medium",
+            "value": "all-md"
+          },
+          {
+            "name": "All Large",
+            "value": "all-lg"
+          },
+          {
+            "name": "Vertical Small",
+            "value": "vertical-sm"
+          },
+          {
+            "name": "Vertical Medium",
+            "value": "vertical-md"
+          },
+          {
+            "name": "Vertical Large",
+            "value": "vertical-lg"
+          },
+          {
+            "name": "Sides Small",
+            "value": "horizontal-sm"
+          },
+          {
+            "name": "Sides Medium",
+            "value": "horizontal-md"
+          },
+          {
+            "name": "Sides Large",
+            "value": "horizontal-lg"
+          },
+          {
+            "name": "Top Small",
+            "value": "top-sm"
+          },
+          {
+            "name": "Top Medium",
+            "value": "top-md"
+          },
+          {
+            "name": "Top Large",
+            "value": "top-lg"
+          },
+          {
+            "name": "Bottom Small",
+            "value": "bottom-sm"
+          },
+          {
+            "name": "Bottom Medium",
+            "value": "bottom-md"
+          },
+          {
+            "name": "Bottom Large",
+            "value": "bottom-lg"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "marginStyle",
+        "label": "Margin",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "All Small",
+            "value": "all-sm"
+          },
+          {
+            "name": "All Medium",
+            "value": "all-md"
+          },
+          {
+            "name": "All Large",
+            "value": "all-lg"
+          },
+          {
+            "name": "Vertical Small",
+            "value": "vertical-sm"
+          },
+          {
+            "name": "Vertical Medium",
+            "value": "vertical-md"
+          },
+          {
+            "name": "Vertical Large",
+            "value": "vertical-lg"
+          },
+          {
+            "name": "Sides Small",
+            "value": "horizontal-sm"
+          },
+          {
+            "name": "Sides Medium",
+            "value": "horizontal-md"
+          },
+          {
+            "name": "Sides Large",
+            "value": "horizontal-lg"
+          },
+          {
+            "name": "Top Small",
+            "value": "top-sm"
+          },
+          {
+            "name": "Top Medium",
+            "value": "top-md"
+          },
+          {
+            "name": "Top Large",
+            "value": "top-lg"
+          },
+          {
+            "name": "Bottom Small",
+            "value": "bottom-sm"
+          },
+          {
+            "name": "Bottom Medium",
+            "value": "bottom-md"
+          },
+          {
+            "name": "Bottom Large",
+            "value": "bottom-lg"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "dropShadow",
+        "label": "Drop Shadow",
+        "options": [
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ],
+        "value": "none"
       }
     ]
   },
@@ -10493,6 +11255,14 @@
           }
         ],
         "value": "_self"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "statTopLabel",
+        "label": "Stat Top Label (Optional)",
+        "description": "Optional label displayed above the stat value.",
+        "value": ""
       }
     ]
   },

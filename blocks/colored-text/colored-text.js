@@ -6,6 +6,10 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
+import {
+  applyColoredFieldLayoutOptions,
+  syncColoredFieldLayoutOptions,
+} from '../../scripts/colored-field-options.js';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -203,8 +207,31 @@ export default function decorate(block) {
   const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[5 + rowOffset])).value);
   const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[6 + rowOffset])).value, 'min-height');
   const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[7 + rowOffset])).value, 'min-height');
+  const paddingStyleField = readField(
+    block,
+    'paddingStyle',
+    ['padding style', 'padding'],
+    fieldCell(rows[8 + rowOffset]),
+  );
+  const marginStyleField = readField(
+    block,
+    'marginStyle',
+    ['margin style', 'margin'],
+    fieldCell(rows[9 + rowOffset]),
+  );
+  const dropShadowField = readField(
+    block,
+    'dropShadow',
+    ['drop shadow', 'shadow'],
+    fieldCell(rows[10 + rowOffset]),
+  );
 
   block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
+  applyColoredFieldLayoutOptions(block, 'colored-text', {
+    paddingStyle: paddingStyleField.value,
+    marginStyle: marginStyleField.value,
+    dropShadow: dropShadowField.value,
+  });
   if (textColor) block.style.setProperty('--colored-text-color', textColor);
   applyBlockBackground(block, blockBackgroundColor);
   if (fontSize) block.style.setProperty('--colored-text-size', fontSize);
@@ -252,4 +279,5 @@ export default function decorate(block) {
   ]);
 
   syncResourceColorFields(resourcePath, block);
+  syncColoredFieldLayoutOptions(resourcePath, block, 'colored-text');
 }

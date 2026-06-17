@@ -8,7 +8,16 @@
   --colored-text-list-marker-color: #ff8a00;
 
   height: 100%;
-  padding: 12px 0;
+  margin:
+    var(--colored-field-margin-top, 0)
+    var(--colored-field-margin-right, 0)
+    var(--colored-field-margin-bottom, 0)
+    var(--colored-field-margin-left, 0);
+  padding:
+    var(--colored-field-padding-top, 12px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 12px)
+    var(--colored-field-padding-left, 0);
 }
 
 .colored-text .colored-text-inner {
@@ -120,6 +129,29 @@
 
 .colored-text .colored-text-content ol ol {
   margin-top: 1em;
+}
+
+.colored-text .colored-text-content ul {
+  list-style: disc;
+  margin: 0 0 1.35em;
+  padding-left: 1.4em;
+}
+
+.colored-text .colored-text-content ul > li {
+  margin: 0 0 0.65em;
+  padding-left: 0.2em;
+}
+
+.colored-text .colored-text-content ul > li::marker {
+  color: var(--colored-text-list-marker-color);
+}
+
+.colored-text .colored-text-content ul > li > :first-child {
+  margin-top: 0;
+}
+
+.colored-text .colored-text-content ul > li > :last-child {
+  margin-bottom: 0;
 }
 
 @media (width <= 900px) {

@@ -6,6 +6,10 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
+import {
+  applyColoredFieldLayoutOptions,
+  syncColoredFieldLayoutOptions,
+} from '../../scripts/colored-field-options.js';
 
 const BLOCK_FIELD_NAMES = [
   'listStyle',
@@ -18,6 +22,10 @@ const BLOCK_FIELD_NAMES = [
   'fontSize',
   'fontWeight',
   'minHeight',
+  'minHeightMobile',
+  'paddingStyle',
+  'marginStyle',
+  'dropShadow',
 ];
 
 function directRowOf(block, element) {
@@ -201,7 +209,7 @@ function isBlockFieldRow(row) {
 function getMarkerText(listStyle, customMarker, index) {
   if (customMarker) return customMarker;
   if (listStyle === 'number' || listStyle === 'circle-number') return `${index + 1}`;
-  if (listStyle === 'bullet') return '•';
+  if (listStyle === 'bullet') return '\u2022';
   return '';
 }
 
@@ -295,12 +303,35 @@ export default function decorate(block) {
   const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7 + rowOffset])).value);
   const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8 + rowOffset])).value, 'min-height');
   const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9 + rowOffset])).value, 'min-height');
+  const paddingStyleField = readBlockField(
+    block,
+    'paddingStyle',
+    ['padding style', 'padding'],
+    fieldCell(rows[10 + rowOffset]),
+  );
+  const marginStyleField = readBlockField(
+    block,
+    'marginStyle',
+    ['margin style', 'margin'],
+    fieldCell(rows[11 + rowOffset]),
+  );
+  const dropShadowField = readBlockField(
+    block,
+    'dropShadow',
+    ['drop shadow', 'shadow'],
+    fieldCell(rows[12 + rowOffset]),
+  );
 
   block.classList.add(
     `colored-list-style-${listStyle}`,
     `colored-list-h-${horizontalAlign}`,
     `colored-list-v-${verticalAlign}`,
   );
+  applyColoredFieldLayoutOptions(block, 'colored-list', {
+    paddingStyle: paddingStyleField.value,
+    marginStyle: marginStyleField.value,
+    dropShadow: dropShadowField.value,
+  });
   block.style.setProperty('--colored-list-text-color', textColor);
   block.style.setProperty('--colored-list-marker-color', markerColor);
   block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
@@ -361,4 +392,5 @@ export default function decorate(block) {
   ]);
 
   syncResourceColorFields(resourcePath, block);
+  syncColoredFieldLayoutOptions(resourcePath, block, 'colored-list');
 }

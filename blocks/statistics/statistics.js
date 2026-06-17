@@ -302,6 +302,7 @@ function isItemRow(row) {
   if (!row?.children?.length) return false;
   const itemFieldSelector = [
     '[data-aue-prop="statValue"]',
+    '[data-aue-prop="statTopLabel"]',
     '[data-aue-prop="statLabel"]',
     '[data-aue-prop="image"]',
     '[data-aue-prop="buttonText"]',
@@ -373,6 +374,7 @@ function getAuthoredItems(block) {
     const buttonTextField = readItemTextField(row, 'buttonText', 7);
     const buttonLinkField = readItemLinkField(row, 'buttonLink', 8);
     const buttonTargetField = readItemTextField(row, 'buttonTarget', 9);
+    const topLabelField = readItemTextField(row, 'statTopLabel', 10);
 
     return {
       row,
@@ -382,6 +384,7 @@ function getAuthoredItems(block) {
       iconMaxWidth: iconMaxWidthField.value,
       iconMaxHeight: iconMaxHeightField.value,
       valueField,
+      topLabelField,
       labelField,
       buttonTextField,
       buttonLinkField,
@@ -389,6 +392,7 @@ function getAuthoredItems(block) {
       isAuthoringPlaceholder: hasAuthoringContext(row)
         && !imageField.img
         && !valueField.value
+        && !topLabelField.value
         && !labelField.value
         && !buttonTextField.value
         && !buttonLinkField.value,
@@ -406,6 +410,7 @@ function getLegacyItems(values, labels) {
     iconMaxWidth: '',
     iconMaxHeight: '',
     valueField: { source: null, value: values[index] || '' },
+    topLabelField: { source: null, value: '' },
     labelField: { source: null, value: labels[index] || '' },
     buttonTextField: { source: null, value: '' },
     buttonLinkField: { source: null, value: '' },
@@ -473,6 +478,13 @@ function buildItem(itemData) {
     setCssVarOnElement(media, '--statistics-icon-max-height', normalizeCssLength(itemData.iconMaxHeight, 'max-height'));
     media.append(picture);
     item.append(media);
+  }
+
+  if (itemData.topLabelField.value || itemData.topLabelField.source) {
+    const topLabelEl = document.createElement('div');
+    topLabelEl.className = 'statistics-top-label';
+    appendFieldContent(itemData.topLabelField, topLabelEl, itemData.topLabelField.value);
+    item.append(topLabelEl);
   }
 
   if (itemData.valueField.value || itemData.valueField.source) {

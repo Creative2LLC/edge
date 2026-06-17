@@ -97,6 +97,33 @@
             }
           ],
           "value": ""
+        },
+        {
+          "component": "richtext",
+          "name": "captionText",
+          "label": "Caption Text",
+          "valueType": "string",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "name": "captionAlignment",
+          "label": "Caption Alignment",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "left"
         }
       ]
     }

@@ -480,6 +480,14 @@
             }
           ],
           "value": "_self"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "statTopLabel",
+          "label": "Stat Top Label (Optional)",
+          "description": "Optional label displayed above the stat value.",
+          "value": ""
         }
       ]
     }

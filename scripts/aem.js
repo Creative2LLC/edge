@@ -284,6 +284,13 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
+function normalizeBackgroundGradientValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized || !/gradient\(/i.test(normalized)) return '';
+  if (window.CSS?.supports && !window.CSS.supports('background-image', normalized)) return '';
+  return normalized;
+}
+
 function normalizeSectionFieldName(value) {
   return String(value || '')
     .trim()
@@ -296,11 +303,18 @@ const SECTION_FIELD_LABELS = {
   anchorId: ['anchorid', 'anchor', 'sectionid', 'sectionanchor'],
   style: ['style', 'styles'],
   backgroundColor: ['backgroundcolor', 'sectionbackgroundcolor'],
+  backgroundGradient: ['backgroundgradient', 'sectionbackgroundgradient', 'gradientbackground'],
   topSpacing: ['topspacing', 'margintop', 'sectiontopspacing'],
   bottomSpacing: ['bottomspacing', 'marginbottom', 'sectionbottomspacing'],
 };
 
 const SECTION_FIELDS = Object.keys(SECTION_FIELD_LABELS);
+
+function normalizeSectionMetaValue(name, value) {
+  if (name === 'backgroundColor') return normalizeColorValue(value);
+  if (name === 'backgroundGradient') return normalizeBackgroundGradientValue(value);
+  return value;
+}
 
 function findSectionLabeledField(section, name) {
   const acceptedLabels = SECTION_FIELD_LABELS[name] || [];
@@ -334,7 +348,7 @@ function getSectionMetadata(section) {
 
       const value = readSectionFieldValue(node);
       if (value) {
-        meta[name] = name === 'backgroundColor' ? normalizeColorValue(value) : value;
+        meta[name] = normalizeSectionMetaValue(name, value);
       }
 
       cleanupFieldNode(node);
@@ -348,7 +362,7 @@ function getSectionMetadata(section) {
 
     const value = readSectionFieldValue(row.children[1]);
     if (value) {
-      meta[name] = name === 'backgroundColor' ? normalizeColorValue(value) : value;
+      meta[name] = normalizeSectionMetaValue(name, value);
     }
     row.remove();
   });
@@ -359,6 +373,14 @@ function getSectionMetadata(section) {
   );
   if (existingBackgroundColor && !meta.backgroundColor) {
     meta.backgroundColor = existingBackgroundColor;
+  }
+
+  const existingBackgroundGradient = normalizeBackgroundGradientValue(
+    section.getAttribute('data-background-gradient')
+    || section.getAttribute('data-backgroundgradient'),
+  );
+  if (existingBackgroundGradient && !meta.backgroundGradient) {
+    meta.backgroundGradient = existingBackgroundGradient;
   }
 
   [
@@ -684,12 +706,29 @@ function decorateSections(main) {
       } else if (camelKey === 'backgroundColor') {
         const value = normalizeColorValue(meta[key]);
         if (value) {
+          const hasGradient = normalizeBackgroundGradientValue(
+            meta.backgroundGradient || meta['background-gradient'],
+          );
           section.style.backgroundColor = value;
           [...section.querySelectorAll(':scope > div')].forEach((wrapper) => {
-            wrapper.style.backgroundColor = value;
+            wrapper.style.backgroundColor = hasGradient ? 'transparent' : value;
           });
           section.setAttribute('data-background-color', value);
           section.setAttribute('data-backgroundcolor', value);
+        }
+      } else if (camelKey === 'backgroundGradient') {
+        const value = normalizeBackgroundGradientValue(meta[key]);
+        if (value) {
+          section.style.backgroundImage = value;
+          section.style.backgroundPosition = 'center';
+          section.style.backgroundRepeat = 'no-repeat';
+          section.style.backgroundSize = 'cover';
+          [...section.querySelectorAll(':scope > div')].forEach((wrapper) => {
+            wrapper.style.removeProperty('background-image');
+            wrapper.style.backgroundColor = 'transparent';
+          });
+          section.setAttribute('data-background-gradient', value);
+          section.setAttribute('data-backgroundgradient', value);
         }
       } else {
         section.dataset[camelKey] = meta[key];

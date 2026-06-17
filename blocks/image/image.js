@@ -5,15 +5,38 @@ import {
   readAueResourceFields,
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
 const POSITION_VALUES = ['align-left', 'align-center', 'align-right'];
 const STYLE_VALUES = ['full-width'];
+const CAPTION_ALIGNMENT_VALUES = ['left', 'center', 'right'];
 
 function normalizeOption(value, allowed) {
   const normalized = String(value || '').trim().toLowerCase().replace(/\s+/g, '-');
   return allowed.includes(normalized) ? normalized : null;
+}
+
+function hasCaptionContent(field, fallbackValue) {
+  return Boolean(
+    field?.text
+      || field?.html
+      || field?.source?.textContent?.trim()
+      || String(fallbackValue || '').trim(),
+  );
+}
+
+function appendCaptionContent(field, caption, fallbackValue) {
+  if (field?.source) {
+    moveInstrumentation(field.source, caption);
+    while (field.source.firstChild) caption.append(field.source.firstChild);
+    return;
+  }
+
+  const value = field?.html || fallbackValue || field?.text || '';
+  if (/<[^>]+>/u.test(value)) caption.innerHTML = value;
+  else caption.textContent = value;
 }
 
 export default async function decorate(block) {
@@ -25,8 +48,20 @@ export default async function decorate(block) {
   const targetField = readTextField(block, 'imageTarget');
   const styleField = readTextField(block, 'imageStyle');
   const positionField = readTextField(block, 'imagePosition');
-  const resourceFields = (!styleField.value || !positionField.value)
-    ? await readAueResourceFields(getAueResourcePath(block), ['imageStyle', 'imagePosition'])
+  const captionField = readRichTextField(block, 'captionText');
+  const captionAlignmentField = readTextField(block, 'captionAlignment');
+  const resourceFields = (
+    !styleField.value
+      || !positionField.value
+      || !captionField.text
+      || !captionAlignmentField.value
+  )
+    ? await readAueResourceFields(getAueResourcePath(block), [
+      'imageStyle',
+      'imagePosition',
+      'captionText',
+      'captionAlignment',
+    ])
     : {};
 
   const styleClass = normalizeOption(styleField.value || resourceFields.imageStyle, STYLE_VALUES);
@@ -34,9 +69,14 @@ export default async function decorate(block) {
     positionField.value || resourceFields.imagePosition,
     POSITION_VALUES,
   );
+  const captionAlignment = normalizeOption(
+    captionAlignmentField.value || resourceFields.captionAlignment,
+    CAPTION_ALIGNMENT_VALUES,
+  );
 
   if (styleClass) block.classList.add(styleClass);
   if (positionClass) block.classList.add(positionClass);
+  if (captionAlignment) block.classList.add(`caption-align-${captionAlignment}`);
 
   const picture = imageField.picture || block.querySelector('picture');
   if (!picture) return;
@@ -71,12 +111,20 @@ export default async function decorate(block) {
     media = anchor;
   }
 
-  picture.replaceWith(media);
+  const figure = document.createElement('figure');
+  figure.className = 'image-figure';
 
-  // Remove leftover empty rows from field reading
-  block.querySelectorAll(':scope > div').forEach((row) => {
-    if (!row.querySelector('picture, img, a[href]') && !row.querySelector('[data-aue-prop], [data-richtext-prop]')) {
-      row.remove();
-    }
-  });
+  const mediaWrapper = document.createElement('div');
+  mediaWrapper.className = 'image-media';
+  mediaWrapper.append(media);
+  figure.append(mediaWrapper);
+
+  if (hasCaptionContent(captionField, resourceFields.captionText)) {
+    const caption = document.createElement('figcaption');
+    caption.className = 'image-caption';
+    appendCaptionContent(captionField, caption, resourceFields.captionText);
+    if (caption.textContent.trim() || caption.children.length) figure.append(caption);
+  }
+
+  block.replaceChildren(figure);
 }

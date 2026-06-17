@@ -14,6 +14,8 @@ const SETTING_NAMES = [
   'defaultCardTextColor',
   'defaultHighlightTextColor',
   'buttonDisplay',
+  'cardBorderRadius',
+  'cardShadow',
 ];
 
 const CARD_FIELD_NAMES = [
@@ -79,6 +81,16 @@ function applySettings(block, settings = {}) {
   const defaultCardBackground = normalizeColorValue(settings.defaultCardBackgroundColor);
   const defaultCardTextColor = normalizeColorValue(settings.defaultCardTextColor);
   const defaultHighlightTextColor = normalizeColorValue(settings.defaultHighlightTextColor);
+  const cardBorderRadius = normalizeOption(
+    settings.cardBorderRadius,
+    ['none', 'small', 'medium', 'large'],
+    'none',
+  );
+  const cardShadow = normalizeOption(
+    settings.cardShadow,
+    ['none', 'small', 'medium', 'large'],
+    'none',
+  );
 
   block.classList.remove(
     'cards-text-align-left',
@@ -87,8 +99,20 @@ function applySettings(block, settings = {}) {
     'cards-text-align-justify',
     'cards-hide-buttons',
     'cards-has-default-card-background',
+    'cards-radius-none',
+    'cards-radius-small',
+    'cards-radius-medium',
+    'cards-radius-large',
+    'cards-shadow-none',
+    'cards-shadow-small',
+    'cards-shadow-medium',
+    'cards-shadow-large',
   );
-  block.classList.add(`cards-text-align-${textAlignment}`);
+  block.classList.add(
+    `cards-text-align-${textAlignment}`,
+    `cards-radius-${cardBorderRadius}`,
+    `cards-shadow-${cardShadow}`,
+  );
 
   if (buttonDisplay === 'hide') block.classList.add('cards-hide-buttons');
 
@@ -261,6 +285,8 @@ export default function decorate(block) {
       'highlight text color',
     ]),
     buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons']),
+    cardBorderRadius: readSetting(block, 'cardBorderRadius', ['card border radius', 'border radius']),
+    cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow']),
   });
 
   const ul = document.createElement('ul');

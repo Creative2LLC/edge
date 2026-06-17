@@ -1,4 +1,15 @@
 .image {
+  line-height: normal;
+}
+
+.image .image-figure {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+}
+
+.image .image-media {
+  max-width: 100%;
   line-height: 0;
 }
 
@@ -11,7 +22,9 @@
 
 /* Responsive / full-width */
 .image.full-width picture,
-.image.full-width img {
+.image.full-width img,
+.image.full-width .image-figure,
+.image.full-width .image-media {
   width: 100%;
 }
 
@@ -46,9 +59,29 @@
 .image a {
   display: inline-block;
   line-height: 0;
+  max-width: 100%;
 }
 
 .image.full-width a {
   display: block;
   width: 100%;
+}
+
+.image .image-caption {
+  margin-top: 10px;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.image.caption-align-left .image-caption {
+  text-align: left;
+}
+
+.image.caption-align-center .image-caption {
+  text-align: center;
+}
+
+.image.caption-align-right .image-caption {
+  text-align: right;
 }

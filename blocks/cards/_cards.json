@@ -117,6 +117,56 @@
             }
           ],
           "value": "show"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardBorderRadius",
+          "label": "Card Border Radius",
+          "options": [
+            {
+              "name": "None (default)",
+              "value": "none"
+            },
+            {
+              "name": "Small",
+              "value": "small"
+            },
+            {
+              "name": "Medium",
+              "value": "medium"
+            },
+            {
+              "name": "Large",
+              "value": "large"
+            }
+          ],
+          "value": "none"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardShadow",
+          "label": "Card Drop Shadow",
+          "options": [
+            {
+              "name": "None (default)",
+              "value": "none"
+            },
+            {
+              "name": "Small",
+              "value": "small"
+            },
+            {
+              "name": "Medium",
+              "value": "medium"
+            },
+            {
+              "name": "Large",
+              "value": "large"
+            }
+          ],
+          "value": "none"
         }
       ]
     },

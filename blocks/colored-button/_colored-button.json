@@ -190,18 +190,53 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "iconSize",
-          "label": "Icon Size",
-          "description": "Optional CSS length. Defaults to 1em.",
-          "value": ""
-        },
-        {
-          "component": "text",
-          "valueType": "string",
           "name": "minHeight",
           "label": "Minimum Height",
           "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
           "value": ""
+        },
+        {
+          "component": "multiselect",
+          "name": "layoutOptions",
+          "label": "Layout Options",
+          "description": "Optional padding, margin, and drop-shadow classes.",
+          "options": [
+            { "name": "Padding None", "value": "padding-none" },
+            { "name": "Padding All Small", "value": "padding-all-sm" },
+            { "name": "Padding All Medium", "value": "padding-all-md" },
+            { "name": "Padding All Large", "value": "padding-all-lg" },
+            { "name": "Padding Vertical Small", "value": "padding-vertical-sm" },
+            { "name": "Padding Vertical Medium", "value": "padding-vertical-md" },
+            { "name": "Padding Vertical Large", "value": "padding-vertical-lg" },
+            { "name": "Padding Sides Small", "value": "padding-horizontal-sm" },
+            { "name": "Padding Sides Medium", "value": "padding-horizontal-md" },
+            { "name": "Padding Sides Large", "value": "padding-horizontal-lg" },
+            { "name": "Padding Top Small", "value": "padding-top-sm" },
+            { "name": "Padding Top Medium", "value": "padding-top-md" },
+            { "name": "Padding Top Large", "value": "padding-top-lg" },
+            { "name": "Padding Bottom Small", "value": "padding-bottom-sm" },
+            { "name": "Padding Bottom Medium", "value": "padding-bottom-md" },
+            { "name": "Padding Bottom Large", "value": "padding-bottom-lg" },
+            { "name": "Margin None", "value": "margin-none" },
+            { "name": "Margin All Small", "value": "margin-all-sm" },
+            { "name": "Margin All Medium", "value": "margin-all-md" },
+            { "name": "Margin All Large", "value": "margin-all-lg" },
+            { "name": "Margin Vertical Small", "value": "margin-vertical-sm" },
+            { "name": "Margin Vertical Medium", "value": "margin-vertical-md" },
+            { "name": "Margin Vertical Large", "value": "margin-vertical-lg" },
+            { "name": "Margin Sides Small", "value": "margin-horizontal-sm" },
+            { "name": "Margin Sides Medium", "value": "margin-horizontal-md" },
+            { "name": "Margin Sides Large", "value": "margin-horizontal-lg" },
+            { "name": "Margin Top Small", "value": "margin-top-sm" },
+            { "name": "Margin Top Medium", "value": "margin-top-md" },
+            { "name": "Margin Top Large", "value": "margin-top-lg" },
+            { "name": "Margin Bottom Small", "value": "margin-bottom-sm" },
+            { "name": "Margin Bottom Medium", "value": "margin-bottom-md" },
+            { "name": "Margin Bottom Large", "value": "margin-bottom-lg" },
+            { "name": "Shadow Small", "value": "shadow-small" },
+            { "name": "Shadow Medium", "value": "shadow-medium" },
+            { "name": "Shadow Large", "value": "shadow-large" }
+          ]
         }
       ]
     }
