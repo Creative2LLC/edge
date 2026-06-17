@@ -1611,6 +1611,32 @@
       {
         "component": "select",
         "valueType": "string",
+        "name": "imageDisplay",
+        "label": "Image Display Mode",
+        "description": "Auto treats icon/logo assets as contained artwork and other images as cover crops.",
+        "options": [
+          {
+            "name": "Auto (default)",
+            "value": "auto"
+          },
+          {
+            "name": "Cover",
+            "value": "cover"
+          },
+          {
+            "name": "Contain",
+            "value": "contain"
+          },
+          {
+            "name": "Logo / Icon",
+            "value": "logo"
+          }
+        ],
+        "value": "auto"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
         "name": "cardBorderRadius",
         "label": "Card Border Radius",
         "options": [
@@ -8730,55 +8756,6 @@
         "name": "color",
         "label": "Color (Hex)",
         "description": "Optional. Defaults to the block palette if left empty."
-      }
-    ]
-  },
-  {
-    "id": "report-archive",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "heading",
-        "label": "Heading"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "backgroundColor",
-        "label": "Background Color (Hex, Optional)"
-      }
-    ]
-  },
-  {
-    "id": "report-archive-item",
-    "fields": [
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "year",
-        "label": "Year Label",
-        "description": "e.g. 2024 CyberTipline Reports"
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "coverImage",
-        "label": "Cover Image",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "coverImageAlt",
-        "label": "Cover Image Alt Text"
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "links",
-        "label": "PDF Links",
-        "description": "Add a bulleted list of download links for this year."
       }
     ]
   },

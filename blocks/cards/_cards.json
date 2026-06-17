@@ -121,6 +121,32 @@
         {
           "component": "select",
           "valueType": "string",
+          "name": "imageDisplay",
+          "label": "Image Display Mode",
+          "description": "Auto treats icon/logo assets as contained artwork and other images as cover crops.",
+          "options": [
+            {
+              "name": "Auto (default)",
+              "value": "auto"
+            },
+            {
+              "name": "Cover",
+              "value": "cover"
+            },
+            {
+              "name": "Contain",
+              "value": "contain"
+            },
+            {
+              "name": "Logo / Icon",
+              "value": "logo"
+            }
+          ],
+          "value": "auto"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
           "name": "cardBorderRadius",
           "label": "Card Border Radius",
           "options": [

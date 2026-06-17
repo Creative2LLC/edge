@@ -14,6 +14,7 @@ const SETTING_NAMES = [
   'defaultCardTextColor',
   'defaultHighlightTextColor',
   'buttonDisplay',
+  'imageDisplay',
   'cardBorderRadius',
   'cardShadow',
 ];
@@ -34,6 +35,7 @@ const DEFAULT_SETTINGS = {
   defaultCardTextColor: '',
   defaultHighlightTextColor: '',
   buttonDisplay: 'show',
+  imageDisplay: 'auto',
   cardBorderRadius: 'none',
   cardShadow: 'none',
 };
@@ -103,6 +105,11 @@ function applySettings(block, settings = {}) {
   const defaultCardBackground = normalizeColorValue(nextSettings.defaultCardBackgroundColor);
   const defaultCardTextColor = normalizeColorValue(nextSettings.defaultCardTextColor);
   const defaultHighlightTextColor = normalizeColorValue(nextSettings.defaultHighlightTextColor);
+  const imageDisplay = normalizeOption(
+    nextSettings.imageDisplay,
+    ['auto', 'cover', 'contain', 'logo'],
+    'auto',
+  );
   const cardBorderRadius = normalizeOption(
     nextSettings.cardBorderRadius,
     ['none', 'small', 'medium', 'large'],
@@ -121,6 +128,10 @@ function applySettings(block, settings = {}) {
     'cards-text-align-justify',
     'cards-hide-buttons',
     'cards-has-default-card-background',
+    'cards-image-auto',
+    'cards-image-cover',
+    'cards-image-contain',
+    'cards-image-logo',
     'cards-radius-none',
     'cards-radius-small',
     'cards-radius-medium',
@@ -132,6 +143,7 @@ function applySettings(block, settings = {}) {
   );
   block.classList.add(
     `cards-text-align-${textAlignment}`,
+    `cards-image-${imageDisplay}`,
     `cards-radius-${cardBorderRadius}`,
     `cards-shadow-${cardShadow}`,
   );
@@ -185,6 +197,10 @@ function hasVisibleContent(row) {
   );
 }
 
+function hasActionContent(cell) {
+  return Boolean(cell?.querySelector?.('a[href], button, .button-container'));
+}
+
 function htmlHasRenderableContent(html) {
   if (!html) return false;
 
@@ -211,11 +227,14 @@ function hasRenderableCardContent(row) {
   const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
   const textField = readRichTextField(row, 'text', { fallbackCell: row.children[1] });
   const highlightField = readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
+  const hasLegacyAction = !hasCardField(row)
+    && [...row.children].slice(2).some((cell) => hasActionContent(cell));
 
   return Boolean(
     imageField.img
       || fieldHasRenderableContent(textField)
-      || fieldHasRenderableContent(highlightField),
+      || fieldHasRenderableContent(highlightField)
+      || hasLegacyAction,
   );
 }
 
@@ -255,13 +274,26 @@ function appendRichText(field, className, parent) {
   }
 }
 
+function isIconLikeImage(src) {
+  try {
+    const url = new URL(src, window.location.href);
+    const path = url.pathname.toLowerCase();
+    return /\.(?:svg)$/u.test(path)
+      || /(?:^|[-_/])(icon|logo)(?:[-_. /]|$)/u.test(path);
+  } catch {
+    const path = String(src || '').toLowerCase();
+    return /\.(?:svg)(?:[?#]|$)/u.test(path)
+      || /(?:^|[-_/])(icon|logo)(?:[-_. /]|$)/u.test(path);
+  }
+}
+
 function buildImage(imageField) {
   const sourceImg = imageField?.img;
   if (!sourceImg) return null;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'cards-card-image';
-  if (/\.svg(?:[?#]|$)/i.test(sourceImg.src)) wrapper.classList.add('cards-card-image-svg');
+  if (isIconLikeImage(sourceImg.src)) wrapper.classList.add('cards-card-image-icon');
 
   const optimizedPic = createOptimizedPicture(sourceImg.src, sourceImg.alt, false, [{ width: '750' }]);
   const optimizedImg = optimizedPic.querySelector('img');
@@ -275,6 +307,23 @@ function buildImage(imageField) {
   return wrapper;
 }
 
+function appendLegacyActions(row, body, startIndex) {
+  if (hasCardField(row)) return;
+
+  [...row.children].slice(startIndex).forEach((cell) => {
+    if (!hasActionContent(cell)) return;
+
+    const actions = document.createElement('div');
+    actions.className = 'cards-card-actions';
+    moveInstrumentation(cell, actions);
+    while (cell.firstChild) actions.append(cell.firstChild);
+
+    if (actions.textContent.trim() || actions.querySelector('a[href], button')) {
+      body.append(actions);
+    }
+  });
+}
+
 function buildCard(row) {
   const li = document.createElement('li');
   li.className = 'cards-card';
@@ -282,7 +331,15 @@ function buildCard(row) {
 
   const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
   const textField = readRichTextField(row, 'text', { fallbackCell: row.children[1] });
-  const highlightField = readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
+  const legacyActionStartIndex = !hasCardField(row) && hasActionContent(row.children[2]) ? 2 : 3;
+  const highlightField = legacyActionStartIndex === 2
+    ? {
+      source: null,
+      cell: null,
+      html: '',
+      text: '',
+    }
+    : readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
   const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: row.children[3] });
   const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: row.children[4] });
   const highlightTextColorField = readTextField(row, 'highlightTextColor', {
@@ -314,6 +371,7 @@ function buildCard(row) {
   body.className = 'cards-card-body';
   appendRichText(highlightField, 'cards-card-highlight', body);
   appendRichText(textField, 'cards-card-text', body);
+  appendLegacyActions(row, body, legacyActionStartIndex);
 
   if (!body.childElementCount && hasAuthoringContext(row)) {
     body.classList.add('is-authoring-placeholder');
@@ -342,6 +400,7 @@ export default function decorate(block) {
       'highlight text color',
     ]),
     buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons']),
+    imageDisplay: readSetting(block, 'imageDisplay', ['image display', 'image display mode', 'image style']),
     cardBorderRadius: readSetting(block, 'cardBorderRadius', ['card border radius', 'border radius']),
     cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow']),
   });
