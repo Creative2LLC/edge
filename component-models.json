@@ -8734,6 +8734,55 @@
     ]
   },
   {
+    "id": "report-archive",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color (Hex, Optional)"
+      }
+    ]
+  },
+  {
+    "id": "report-archive-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "year",
+        "label": "Year Label",
+        "description": "e.g. 2024 CyberTipline Reports"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "coverImage",
+        "label": "Cover Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "coverImageAlt",
+        "label": "Cover Image Alt Text"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "links",
+        "label": "PDF Links",
+        "description": "Add a bulleted list of download links for this year."
+      }
+    ]
+  },
+  {
     "id": "report-download",
     "fields": [
       {

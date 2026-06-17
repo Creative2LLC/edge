@@ -127,6 +127,7 @@
       "historical-reports-carousel",
       "report-section-nav",
       "report-breakdown",
+      "report-archive",
       "report-download",
       "cybertipline-geo-report",
       "connect-grid",
@@ -318,6 +319,12 @@
     "id": "historical-reports-carousel",
     "components": [
       "historical-reports-carousel-item"
+    ]
+  },
+  {
+    "id": "report-archive",
+    "components": [
+      "report-archive-item"
     ]
   },
   {
