@@ -122,9 +122,8 @@
   align-items: stretch;
 }
 
-.cards.cards-hide-buttons .cards-card-body .button-container,
-.cards.cards-hide-buttons .cards-card-body a.button {
-  display: none;
+.cards.cards-hide-buttons :is(.button-container, a.button) {
+  display: none !important;
 }
 
 .cards .cards-card-image {
@@ -140,6 +139,13 @@
   display: block;
   width: 100%;
   max-width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.cards .cards-card-image-svg picture {
+  box-sizing: border-box;
+  padding: 24px;
 }
 
 .cards.cards-text-align-center .cards-card-image {
@@ -162,7 +168,10 @@
   display: block;
   width: 100%;
   max-width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
+  height: 100%;
   object-fit: cover;
+}
+
+.cards .cards-card-image-svg img {
+  object-fit: contain;
 }

@@ -429,6 +429,12 @@
     ]
   },
   {
+    "id": "report-archive",
+    "components": [
+      "report-archive-item"
+    ]
+  },
+  {
     "id": "report-breakdown",
     "components": [
       "report-breakdown-item"

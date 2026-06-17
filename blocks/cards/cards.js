@@ -28,6 +28,16 @@ const CARD_FIELD_NAMES = [
   'cardAlignment',
 ];
 
+const DEFAULT_SETTINGS = {
+  textAlignment: 'left',
+  defaultCardBackgroundColor: '',
+  defaultCardTextColor: '',
+  defaultHighlightTextColor: '',
+  buttonDisplay: 'show',
+  cardBorderRadius: 'none',
+  cardShadow: 'none',
+};
+
 function directRowOf(block, element) {
   let row = element;
   while (row && row.parentElement !== block) {
@@ -44,6 +54,15 @@ function normalizeOption(value, allowedValues, fallback) {
     .replace(/^-|-$/g, '');
 
   return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function normalizeButtonDisplay(value) {
+  const normalized = normalizeOption(
+    value,
+    ['show', 'hide', 'hidden', 'no', 'false', 'off'],
+    'show',
+  );
+  return normalized === 'show' ? 'show' : 'hide';
 }
 
 function normalizeColorValue(value) {
@@ -68,26 +87,29 @@ function isSettingRow(row) {
 }
 
 function applySettings(block, settings = {}) {
+  const nextSettings = {
+    ...DEFAULT_SETTINGS,
+    ...(block.cardsSettings || {}),
+    ...settings,
+  };
+  block.cardsSettings = nextSettings;
+
   const textAlignment = normalizeOption(
-    settings.textAlignment,
+    nextSettings.textAlignment,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
-  const buttonDisplay = normalizeOption(
-    settings.buttonDisplay,
-    ['show', 'hide'],
-    'show',
-  );
-  const defaultCardBackground = normalizeColorValue(settings.defaultCardBackgroundColor);
-  const defaultCardTextColor = normalizeColorValue(settings.defaultCardTextColor);
-  const defaultHighlightTextColor = normalizeColorValue(settings.defaultHighlightTextColor);
+  const buttonDisplay = normalizeButtonDisplay(nextSettings.buttonDisplay);
+  const defaultCardBackground = normalizeColorValue(nextSettings.defaultCardBackgroundColor);
+  const defaultCardTextColor = normalizeColorValue(nextSettings.defaultCardTextColor);
+  const defaultHighlightTextColor = normalizeColorValue(nextSettings.defaultHighlightTextColor);
   const cardBorderRadius = normalizeOption(
-    settings.cardBorderRadius,
+    nextSettings.cardBorderRadius,
     ['none', 'small', 'medium', 'large'],
     'none',
   );
   const cardShadow = normalizeOption(
-    settings.cardShadow,
+    nextSettings.cardShadow,
     ['none', 'small', 'medium', 'large'],
     'none',
   );
@@ -163,16 +185,50 @@ function hasVisibleContent(row) {
   );
 }
 
+function htmlHasRenderableContent(html) {
+  if (!html) return false;
+
+  const template = document.createElement('template');
+  template.innerHTML = html;
+
+  return Boolean(
+    template.content.textContent.trim()
+      || template.content.querySelector('img, picture, video, iframe, svg, ul, ol, li, a[href], button'),
+  );
+}
+
+function fieldHasRenderableContent(field) {
+  if (!field) return false;
+  return Boolean(
+    field.text?.trim()
+      || htmlHasRenderableContent(field.html)
+      || field.source?.textContent?.trim()
+      || field.source?.querySelector?.('img, picture, video, iframe, svg, ul, ol, li, a[href], button'),
+  );
+}
+
+function hasRenderableCardContent(row) {
+  const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
+  const textField = readRichTextField(row, 'text', { fallbackCell: row.children[1] });
+  const highlightField = readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
+
+  return Boolean(
+    imageField.img
+      || fieldHasRenderableContent(textField)
+      || fieldHasRenderableContent(highlightField),
+  );
+}
+
 function shouldRenderCardRow(row) {
-  return row.getAttribute('data-aue-model') === 'card'
-    || hasCardField(row)
-    || hasVisibleContent(row);
+  if (row.getAttribute('data-aue-model') === 'card' || hasCardField(row)) {
+    return hasRenderableCardContent(row);
+  }
+
+  return hasVisibleContent(row);
 }
 
 function hasRenderableContent(field) {
-  if (!field) return false;
-  if (field.text || field.html) return true;
-  return Boolean(field.source?.textContent?.trim() || field.source?.querySelector?.('img, picture, a, ul, ol, li'));
+  return fieldHasRenderableContent(field);
 }
 
 function moveRichText(field, target) {
@@ -205,6 +261,7 @@ function buildImage(imageField) {
 
   const wrapper = document.createElement('div');
   wrapper.className = 'cards-card-image';
+  if (/\.svg(?:[?#]|$)/i.test(sourceImg.src)) wrapper.classList.add('cards-card-image-svg');
 
   const optimizedPic = createOptimizedPicture(sourceImg.src, sourceImg.alt, false, [{ width: '750' }]);
   const optimizedImg = optimizedPic.querySelector('img');
