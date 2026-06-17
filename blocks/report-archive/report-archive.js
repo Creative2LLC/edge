@@ -3,6 +3,18 @@ import { moveInstrumentation, decoratePdfLinks } from '../../scripts/scripts.js'
 const IMAGE_PATH_RE = /\.(avif|bmp|gif|jfif|jpe?g|png|svg|webp)(\?.*)?$/i;
 const DAM_PATH_RE = /\/content\/dam\//;
 
+function resolveImageSrc(value) {
+  const str = String(value || '').trim();
+  if (!str) return '';
+  // Extract /content/... path from AEM URNs (urn:aemconnection:/content/...)
+  const match = str.match(/(\/content\/[^?#\s]+)/);
+  const resolved = match ? match[1] : str;
+  if (/^data:image\//i.test(resolved)) return resolved;
+  if (/^https?:\/\//i.test(resolved)) return resolved;
+  if (IMAGE_PATH_RE.test(resolved) || DAM_PATH_RE.test(resolved)) return resolved;
+  return '';
+}
+
 function hasAuthoringContext(scope) {
   return Boolean(
     scope?.getAttribute('data-aue-resource')
@@ -21,15 +33,6 @@ function isItemRow(row) {
 function getBlockConfigRows(rows) {
   const firstItemIdx = rows.findIndex(isItemRow);
   return firstItemIdx > 0 ? rows.slice(0, firstItemIdx) : [];
-}
-
-function parseSrc(value) {
-  const str = String(value || '').trim();
-  if (!str) return '';
-  if (/^data:image\//i.test(str)) return str;
-  if (IMAGE_PATH_RE.test(str)) return str;
-  if (DAM_PATH_RE.test(str)) return str;
-  return '';
 }
 
 function buildCoverImage(imageCell, altText) {
@@ -53,7 +56,7 @@ function buildCoverImage(imageCell, altText) {
   }
 
   const anchor = imageCell.querySelector('a');
-  const src = parseSrc(anchor?.getAttribute('href') || imageCell.textContent);
+  const src = resolveImageSrc(anchor?.getAttribute('href') || imageCell.textContent);
   if (src) {
     const newImg = document.createElement('img');
     newImg.src = src;

@@ -104,6 +104,7 @@
 }
 
 .report-archive .report-archive-panel-inner {
+  min-height: 0; /* required: lets grid-template-rows: 0fr fully collapse */
   overflow: hidden;
   display: flex;
   gap: 28px;
