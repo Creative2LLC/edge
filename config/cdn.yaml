@@ -2,6 +2,18 @@ kind: "CDN"
 version: "1"
 
 data:
+  headers:
+    rules:
+      - name: pdf-inline-content-disposition
+        when:
+          allOf:
+            - reqProperty: path
+              matches: ".*\\.pdf(\\?.*)?$"
+        action:
+          type: set
+          name: Content-Disposition
+          value: inline
+
   redirects:
     rules:
       # /poster/AMBER/31656/1 -> /missing-children-posters?amber_case=31656&seq=1

@@ -94,6 +94,12 @@
     order: unset;
   }
 
+  /* When a column has multiple blocks, prevent any single block from filling
+     the full column height (e.g. colored-text uses height:100% by default) */
+  .columns > div > div > *:not(:only-child) {
+    height: auto;
+  }
+
   .columns.columns-align-top > div {
     align-items: stretch;
   }
@@ -108,11 +114,6 @@
 
   .columns.columns-align-middle > div > div {
     justify-content: center;
-  }
-
-  /* Prevent blocks from stretching to fill column height (e.g. colored-text's height:100%) */
-  .columns.columns-align-middle > div > div > * {
-    height: auto;
   }
 }
 
