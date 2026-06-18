@@ -156,10 +156,24 @@
 }
 
 .report-archive .report-archive-links a::after {
-  content: '\2192';
+  content: '';
   flex-shrink: 0;
-  font-size: 0.9em;
-  transition: transform 0.18s ease;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: #006fa6;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='5' y1='20' x2='19' y2='20'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='5' y1='20' x2='19' y2='20'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+  vertical-align: middle;
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease;
 }
 
 .report-archive .report-archive-links a:hover,
@@ -170,7 +184,8 @@
 
 .report-archive .report-archive-links a:hover::after,
 .report-archive .report-archive-links a:focus-visible::after {
-  transform: translateX(3px);
+  background-color: #004d75;
+  transform: translateY(2px);
 }
 
 /* Authoring placeholders */
@@ -221,6 +236,7 @@
 @media (prefers-reduced-motion: reduce) {
   .report-archive .report-archive-panel,
   .report-archive .report-archive-icon,
+  .report-archive .report-archive-links a,
   .report-archive .report-archive-links a::after {
     transition: none;
   }

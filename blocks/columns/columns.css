@@ -103,7 +103,11 @@
   }
 
   .columns.columns-align-middle > div {
-    align-items: center;
+    align-items: stretch;
+  }
+
+  .columns.columns-align-middle > div > div {
+    justify-content: center;
   }
 }
 

@@ -56,6 +56,21 @@ function sectionForHref(href) {
   }
 }
 
+function getScrollOffset() {
+  const navHeight = parseInt(
+    getComputedStyle(document.documentElement).getPropertyValue('--nav-height') || '64',
+    10,
+  );
+  const sectionNav = document.querySelector('.report-section-nav');
+  const sectionNavHeight = sectionNav ? sectionNav.offsetHeight : 0;
+  return navHeight + sectionNavHeight + 24;
+}
+
+function smoothScrollTo(target) {
+  const top = target.getBoundingClientRect().top + window.scrollY - getScrollOffset();
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
 function syncActiveLink(nav, links) {
   const sectionEntries = links
     .map((link) => ({
@@ -105,6 +120,17 @@ export default function decorate(block) {
     link.href = entry.href;
     link.textContent = entry.label;
     link.className = 'report-section-nav-link';
+
+    if (entry.href.startsWith('#')) {
+      link.addEventListener('click', (e) => {
+        const target = sectionForHref(entry.href);
+        if (!target) return;
+        e.preventDefault();
+        smoothScrollTo(target);
+        history.pushState(null, '', entry.href);
+      });
+    }
+
     item.append(link);
     list.append(item);
   });
