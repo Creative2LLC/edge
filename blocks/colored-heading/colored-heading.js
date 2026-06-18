@@ -5,6 +5,7 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
+import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 import {
   applyColoredFieldLayoutOptions,
   syncColoredFieldLayoutOptions,
@@ -212,6 +213,25 @@ export default function decorate(block) {
     ['drop shadow', 'shadow'],
     fieldCell(rows[11 + rowOffset]),
   );
+  const markerTermsField = readField(
+    block,
+    'markerTerms',
+    ['marker text', 'marker terms', 'highlight text'],
+    fieldCell(rows[12 + rowOffset]),
+  );
+  const markerColorField = readColorField(
+    block,
+    'markerColor',
+    ['marker color', 'highlight marker color'],
+    isEditor,
+    fieldCell(rows[13 + rowOffset]),
+  );
+  const markerStyleField = readField(
+    block,
+    'markerStyle',
+    ['marker style', 'highlight marker style'],
+    fieldCell(rows[14 + rowOffset]),
+  );
 
   block.classList.add(`colored-heading-h-${horizontalAlign}`, `colored-heading-v-${verticalAlign}`);
   applyColoredFieldLayoutOptions(block, 'colored-heading', {
@@ -262,6 +282,11 @@ export default function decorate(block) {
   }
 
   block.replaceChildren(inner);
+  applyAnimatedMarkers(heading, {
+    terms: markerTermsField.value,
+    color: markerColorField.value,
+    style: markerStyleField.value,
+  });
 
   if (isEditor) {
     watchColorField(txtField.source, '--colored-heading-color', block);

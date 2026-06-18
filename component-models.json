@@ -2916,6 +2916,44 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "markerTerms",
+        "label": "Animated Marker Text",
+        "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in the heading gets a drawn marker on scroll.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "markerColor",
+        "label": "Animated Marker Color (Hex)",
+        "description": "Defaults to yellow if left empty.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "markerStyle",
+        "label": "Animated Marker Style",
+        "options": [
+          {
+            "name": "Circle",
+            "value": "circle"
+          },
+          {
+            "name": "Underline",
+            "value": "underline"
+          }
+        ],
+        "value": "circle"
       }
     ]
   },
@@ -3647,6 +3685,44 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "markerTerms",
+        "label": "Animated Marker Text",
+        "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in this block gets a drawn marker on scroll.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "markerColor",
+        "label": "Animated Marker Color (Hex)",
+        "description": "Defaults to yellow if left empty.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "markerStyle",
+        "label": "Animated Marker Style",
+        "options": [
+          {
+            "name": "Circle",
+            "value": "circle"
+          },
+          {
+            "name": "Underline",
+            "value": "underline"
+          }
+        ],
+        "value": "circle"
       }
     ]
   },
@@ -6081,6 +6157,175 @@
     ]
   },
   {
+    "id": "impact-bar-chart",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches /api/impact-reports/{year}/datasets/{datasetSlug}.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "year",
+        "label": "Report Year",
+        "description": "Leave blank to request the current impact report when API Base URL is set.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "datasetSlug",
+        "label": "Dataset Slug",
+        "description": "Example: reports-by-type or offender-relationship.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiEndpoint",
+        "label": "API Endpoint URL",
+        "description": "Optional override for custom JSON. Leave blank to use API Base URL + Report Year + Dataset Slug.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "valueKey",
+        "label": "Value Key",
+        "description": "Defaults to value. Use another key when charting a value from Additional Values or API row data.",
+        "value": "value"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "metricKeys",
+        "label": "Stacked Metrics",
+        "description": "Optional. One per line as Label|key|#color. Use for stacked/grouped data like Images|images|#1491BF.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "chartStyle",
+        "label": "Chart Style",
+        "options": [
+          {
+            "name": "Standard",
+            "value": ""
+          },
+          {
+            "name": "Skinny",
+            "value": "skinny"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "showValues",
+        "label": "Show Values",
+        "options": [
+          {
+            "name": "Show",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ],
+        "value": "show"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "showTable",
+        "label": "Show Data Table",
+        "options": [
+          {
+            "name": "Hide",
+            "value": "hide"
+          },
+          {
+            "name": "Show",
+            "value": "show"
+          }
+        ],
+        "value": "hide"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyMessage",
+        "label": "Empty State Message",
+        "value": "No impact chart data is available."
+      }
+    ]
+  },
+  {
+    "id": "impact-bar-chart-row",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "value",
+        "label": "Value"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "values",
+        "label": "Additional Values",
+        "description": "Optional key/value pairs separated by line breaks or |, for example images=17829552|videos=4160030.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Description",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "color",
+        "label": "Color (Hex)",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #1491BF."
+        }
+      }
+    ]
+  },
+  {
     "id": "impact-chain",
     "fields": [
       {
@@ -6125,6 +6370,137 @@
         "valueType": "string",
         "name": "description",
         "label": "Description"
+      }
+    ]
+  },
+  {
+    "id": "impact-data-table",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches /api/impact-reports/{year}/datasets/{datasetSlug}.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "year",
+        "label": "Report Year",
+        "description": "Leave blank to request the current impact report when API Base URL is set.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "datasetSlug",
+        "label": "Dataset Slug",
+        "description": "Example: law-enforcement-requests or actively-traded-imagery-age-gender.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiEndpoint",
+        "label": "API Endpoint URL",
+        "description": "Optional override for custom JSON. Leave blank to use API Base URL + Report Year + Dataset Slug.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Columns",
+        "description": "Optional. One per line as Label|key|align. If blank, columns are derived from the data.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "tableStyle",
+        "label": "Table Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Compact",
+            "value": "compact"
+          },
+          {
+            "name": "Inverted",
+            "value": "inverted"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyMessage",
+        "label": "Empty State Message",
+        "value": "No impact data is available."
+      }
+    ]
+  },
+  {
+    "id": "impact-data-table-row",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "value",
+        "label": "Value"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "values",
+        "label": "Additional Values",
+        "description": "Optional key/value pairs separated by line breaks or |, for example images=17829552|videos=4160030.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Description",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "color",
+        "label": "Color (Hex)",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #1491BF."
+        }
       }
     ]
   },
@@ -6237,6 +6613,131 @@
         "label": "Display Value Color (Hex)",
         "description": "Optional. Controls the left-side stat value color. For segments, donut fill still uses Color.",
         "value": ""
+      }
+    ]
+  },
+  {
+    "id": "impact-geo-report",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Missing Children by State"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "intro",
+        "label": "Intro Copy",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches /api/impact-reports/{year}/datasets/{datasetSlug}."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "year",
+        "label": "Report Year",
+        "description": "Leave blank to use /api/impact-reports/current."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "datasetSlug",
+        "label": "Dataset Slug",
+        "value": "missing-children-by-state"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "geoType",
+        "label": "Geography Type",
+        "options": [
+          {
+            "name": "State",
+            "value": "state"
+          },
+          {
+            "name": "Country / Global",
+            "value": "country"
+          },
+          {
+            "name": "Auto",
+            "value": "auto"
+          }
+        ],
+        "value": "state"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyMessage",
+        "label": "Empty State Message",
+        "value": "No Impact geography data is available."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "sampleDataMode",
+        "label": "Sample Data Mode",
+        "description": "For testing only. Use Off for real Impact Report API data.",
+        "options": [
+          {
+            "name": "Off",
+            "value": "off"
+          },
+          {
+            "name": "Use When Empty",
+            "value": "when-empty"
+          },
+          {
+            "name": "Always Use Sample",
+            "value": "always"
+          }
+        ],
+        "value": "off"
+      }
+    ]
+  },
+  {
+    "id": "impact-geo-report-row",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Location Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "code",
+        "label": "State/Country Code"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "value",
+        "label": "Total Count"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Detail Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "color",
+        "label": "Map Color (Optional Hex)"
       }
     ]
   },
@@ -11232,6 +11733,44 @@
         "name": "textColors",
         "label": "Legacy Text Styles",
         "description": "Optional fallback. One per line: heading|#00264d, body|#404041, value|#1491bf, label|#6b6b6b, heading-size|2.6rem, body-size|1.25rem, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem, heading-weight|700, body-weight|400, value-weight|700, label-weight|400"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "markerTerms",
+        "label": "Animated Marker Text",
+        "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in headings, body, stat values, and labels gets a drawn marker on scroll.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "valueFormat": "regexp",
+        "name": "markerColor",
+        "label": "Animated Marker Color (Hex)",
+        "description": "Defaults to yellow if left empty.",
+        "value": "",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "markerStyle",
+        "label": "Animated Marker Style",
+        "options": [
+          {
+            "name": "Circle",
+            "value": "circle"
+          },
+          {
+            "name": "Underline",
+            "value": "underline"
+          }
+        ],
+        "value": "circle"
       }
     ]
   },

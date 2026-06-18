@@ -223,6 +223,26 @@ export default function decorate(block) {
     block.classList.add(`columns-halign-${horizontalAlign}`);
   }
 
+  // In UE, alignment values live in JCR not in DOM rows — fetch and apply them
+  const blockResourcePath = resourcePathFromAueResource(
+    block.getAttribute('data-aue-resource') || '',
+  );
+  if (blockResourcePath) {
+    readAueResourceFields(blockResourcePath, ['verticalAlign', 'horizontalAlign'])
+      .then((fields) => {
+        const va = normalizeAlignment(fields.verticalAlign || '', ['top', 'middle', 'bottom'], '');
+        const ha = normalizeAlignment(fields.horizontalAlign || '', ['left', 'center', 'right'], '');
+        if (va) {
+          ['top', 'middle', 'bottom'].forEach((v) => block.classList.remove(`columns-align-${v}`));
+          block.classList.add(`columns-align-${va}`);
+        }
+        if (ha) {
+          ['left', 'center', 'right'].forEach((v) => block.classList.remove(`columns-halign-${v}`));
+          block.classList.add(`columns-halign-${ha}`);
+        }
+      });
+  }
+
   [...block.children].forEach((row) => {
     [...row.children].forEach((col) => {
       decorateColumnBackground(col);

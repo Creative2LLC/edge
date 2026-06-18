@@ -32,6 +32,36 @@ const DEFAULTS = {
   emptyMessage: 'No CyberTipline geography data is available.',
 };
 
+const REPORT_TYPES = {
+  cybertipline: {
+    ...DEFAULTS,
+    endpointRoot: 'cybertipline-reports',
+    dataLabel: 'CyberTipline data',
+    errorMessage: 'CyberTipline data request failed.',
+    errorDataAttribute: 'cybertiplineGeoReportError',
+    logName: 'cybertipline-geo-report',
+    sampleBreakdownKeys: ['referrals', 'informational'],
+    sampleDescription: 'Sample data is enabled for block testing while the CyberTipline API has no published dataset.',
+    sampleReportTitle: 'Sample CyberTipline Report',
+    sourceDataAttribute: 'cybertiplineGeoReportSource',
+  },
+  impact: {
+    heading: 'Missing Children by State',
+    datasetSlug: 'missing-children-by-state',
+    geoType: 'state',
+    emptyMessage: 'No Impact geography data is available.',
+    endpointRoot: 'impact-reports',
+    dataLabel: 'Impact data',
+    errorMessage: 'Impact Report data request failed.',
+    errorDataAttribute: 'impactGeoReportError',
+    logName: 'impact-geo-report',
+    sampleBreakdownKeys: ['active', 'resolved'],
+    sampleDescription: 'Sample data is enabled for block testing while the Impact Report API has no published dataset.',
+    sampleReportTitle: 'Sample Impact Report',
+    sourceDataAttribute: 'impactGeoReportSource',
+  },
+};
+
 const STATE_CODES = new Set(Object.keys(STATE_NAMES));
 
 const SAMPLE_STATE_ROWS = [
@@ -117,11 +147,11 @@ function normalizeSampleDataMode(value) {
   return 'off';
 }
 
-function normalizeGeoType(value) {
+function normalizeGeoType(value, fallback = DEFAULTS.geoType) {
   const normalized = normalizeToken(value);
   if (['country', 'countryglobal', 'global', 'world'].includes(normalized)) return 'country';
   if (['auto'].includes(normalized)) return 'auto';
-  return normalized || DEFAULTS.geoType;
+  return normalized || fallback;
 }
 
 function parseNumber(value) {
@@ -172,6 +202,12 @@ function moveField(field, target, fallback = '') {
   if (!target.childNodes.length && fallback) {
     target.textContent = fallback;
   }
+}
+
+function reportConfigForBlock(block) {
+  return block.classList.contains('impact-geo-report')
+    ? REPORT_TYPES.impact
+    : REPORT_TYPES.cybertipline;
 }
 
 function isItemRow(row) {
@@ -278,12 +314,12 @@ function datasetFromPayload(payload, datasetSlug) {
   };
 }
 
-function sampleRows(entries, geoType) {
+function sampleRows(entries, geoType, metricKeys = REPORT_TYPES.cybertipline.sampleBreakdownKeys) {
   return normalizeRows(entries.map(([label, code, firstValue, secondValue], index) => {
     const hasBreakdown = Number.isFinite(Number(secondValue));
-    const referrals = hasBreakdown ? Number(firstValue) : null;
-    const informational = hasBreakdown ? Number(secondValue) : null;
-    const value = hasBreakdown ? referrals + informational : Number(firstValue);
+    const firstMetric = hasBreakdown ? Number(firstValue) : null;
+    const secondMetric = hasBreakdown ? Number(secondValue) : null;
+    const value = hasBreakdown ? firstMetric + secondMetric : Number(firstValue);
 
     return {
       label,
@@ -293,31 +329,36 @@ function sampleRows(entries, geoType) {
       value,
       display_value: formatNumber(value),
       values: hasBreakdown ? {
-        referrals,
-        informational,
+        [metricKeys[0]]: firstMetric,
+        [metricKeys[1]]: secondMetric,
       } : {},
-      description: 'Sample data for map and chart testing. Replace with published CyberTipline report data before launch.',
+      description: 'Sample data for map and chart testing. Replace with published report data before launch.',
       sort_order: index,
     };
   }));
 }
 
 function sampleDatasetForConfig(config) {
+  const reportConfig = config.reportType || REPORT_TYPES.cybertipline;
   const isCountry = config.geoType === 'country'
     || config.datasetSlug.includes('country')
     || config.datasetSlug.includes('global');
-  const rows = sampleRows(isCountry ? SAMPLE_COUNTRY_ROWS : SAMPLE_STATE_ROWS, isCountry ? 'country' : 'state');
+  const rows = sampleRows(
+    isCountry ? SAMPLE_COUNTRY_ROWS : SAMPLE_STATE_ROWS,
+    isCountry ? 'country' : 'state',
+    reportConfig.sampleBreakdownKeys,
+  );
   const total = rows.reduce((sum, row) => sum + row.value, 0);
 
   return {
     report: {
       year: config.year || 'Sample',
-      title: 'Sample CyberTipline Report',
+      title: reportConfig.sampleReportTitle,
     },
     dataset: {
       slug: config.datasetSlug,
       title: isCountry ? 'Sample Global Reports by Country' : 'Sample Domestic Reports by State',
-      description: 'Sample data is enabled for block testing while the CyberTipline API has no published dataset.',
+      description: reportConfig.sampleDescription,
       type: isCountry ? 'bar' : 'map',
       geoScope: isCountry ? 'global' : 'us',
       columns: [],
@@ -358,7 +399,8 @@ async function fetchDataset(config) {
   try {
     if (config.year) {
       const endpointPath = [
-        '/api/cybertipline-reports',
+        '/api',
+        config.endpointRoot,
         encodeURIComponent(config.year),
         'datasets',
         encodeURIComponent(config.datasetSlug),
@@ -379,7 +421,7 @@ async function fetchDataset(config) {
       return datasetFromPayload(await response.json(), config.datasetSlug);
     }
 
-    const endpoint = new URL('/api/cybertipline-reports/current', `${config.apiBaseUrl}/`);
+    const endpoint = new URL(`/api/${config.endpointRoot}/current`, `${config.apiBaseUrl}/`);
     const response = await fetch(endpoint.toString(), {
       headers: { Accept: 'application/json' },
     });
@@ -391,35 +433,43 @@ async function fetchDataset(config) {
       error: {
         status: 0,
         endpoint: config.apiBaseUrl,
-        body: error?.message || 'CyberTipline data request failed.',
+        body: error?.message || config.errorMessage,
       },
     };
   }
 }
 
-function exposeFetchError(block, error) {
+function exposeFetchError(block, error, config) {
   if (!error) return;
 
-  block.dataset.cybertiplineGeoReportError = [
+  block.dataset[config.errorDataAttribute] = [
     error.status ? `status=${error.status}` : '',
     error.endpoint ? `url=${error.endpoint}` : '',
   ].filter(Boolean).join(' ');
 
   // eslint-disable-next-line no-console
-  console.warn('[cybertipline-geo-report] API request failed.', error);
+  console.warn(`[${config.logName}] API request failed.`, error);
 }
 
-function buildHeader(headingField, introField, dataset, report) {
+function buildHeader(
+  headingField,
+  introField,
+  dataset,
+  report,
+  reportConfig = REPORT_TYPES.cybertipline,
+) {
   const header = document.createElement('div');
   header.className = 'cybertipline-geo-report-header';
 
   const kicker = document.createElement('p');
   kicker.className = 'cybertipline-geo-report-kicker';
-  kicker.textContent = report?.year ? `${report.year} CyberTipline data` : 'CyberTipline data';
+  kicker.textContent = report?.year
+    ? `${report.year} ${reportConfig.dataLabel}`
+    : reportConfig.dataLabel;
 
   const heading = document.createElement('h2');
   heading.className = 'cybertipline-geo-report-heading';
-  moveField(headingField, heading, headingField.value || dataset.title || DEFAULTS.heading);
+  moveField(headingField, heading, headingField.value || dataset.title || reportConfig.heading);
 
   const intro = document.createElement('div');
   intro.className = 'cybertipline-geo-report-intro';
@@ -441,6 +491,26 @@ const BREAKDOWN_METRICS = [
     key: 'informational',
     label: 'Informational',
     aliases: ['informational', 'information', 'informationalreports', 'informationreports'],
+  },
+  {
+    key: 'active',
+    label: 'Active',
+    aliases: [
+      'active',
+      'activecases',
+      'activechildren',
+      'active_missing_children',
+    ],
+  },
+  {
+    key: 'resolved',
+    label: 'Resolved',
+    aliases: [
+      'resolved',
+      'resolvedcases',
+      'resolvedchildren',
+      'resolved_missing_children',
+    ],
   },
 ];
 
@@ -1051,16 +1121,16 @@ function buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown)
   value.textContent = row.displayValue;
 
   if (hasBreakdown) {
-    const metricMap = new Map(rowBreakdownEntries(row).map((entry) => [entry.key, entry]));
-    const referrals = metricMap.get('referrals')?.displayValue || '-';
-    const informational = metricMap.get('informational')?.displayValue || '-';
+    const breakdownEntries = rowBreakdownEntries(row);
+    const firstMetric = breakdownEntries[0]?.displayValue || '-';
+    const secondMetric = breakdownEntries[1]?.displayValue || '-';
 
     button.classList.add('is-tabular');
     button.append(
       rank,
       label,
-      buildRowCell(referrals, 'cybertipline-geo-report-row-referrals'),
-      buildRowCell(informational, 'cybertipline-geo-report-row-informational'),
+      buildRowCell(firstMetric, 'cybertipline-geo-report-row-referrals'),
+      buildRowCell(secondMetric, 'cybertipline-geo-report-row-informational'),
       value,
     );
   } else {
@@ -1105,6 +1175,10 @@ function buildRowsPanel(rows, dataset, onPreview, onSelect) {
   const shell = document.createElement('div');
   shell.className = 'cybertipline-geo-report-table';
   const hasBreakdown = rows.some((row) => rowBreakdownEntries(row).length);
+  const breakdownHeaders = rows
+    .map((row) => rowBreakdownEntries(row))
+    .find((entries) => entries.length)
+    ?.slice(0, 2) || [];
 
   const title = document.createElement('h3');
   title.textContent = tableTitleForDataset(dataset);
@@ -1117,8 +1191,14 @@ function buildRowsPanel(rows, dataset, onPreview, onSelect) {
     header.append(
       buildRowCell('', 'cybertipline-geo-report-table-heading is-rank'),
       buildRowCell(geographyLabelForDataset(dataset), 'cybertipline-geo-report-table-heading'),
-      buildRowCell('Referrals', 'cybertipline-geo-report-table-heading is-numeric'),
-      buildRowCell('Informational', 'cybertipline-geo-report-table-heading is-numeric'),
+      buildRowCell(
+        breakdownHeaders[0]?.label || 'Metric 1',
+        'cybertipline-geo-report-table-heading is-numeric',
+      ),
+      buildRowCell(
+        breakdownHeaders[1]?.label || 'Metric 2',
+        'cybertipline-geo-report-table-heading is-numeric',
+      ),
       buildRowCell('Total', 'cybertipline-geo-report-table-heading is-numeric'),
     );
     shell.append(header);
@@ -1150,14 +1230,15 @@ function shouldRenderWorldMap(rows, requestedGeoType, dataset) {
   return rows.some((row) => /^[a-z]{2}$/i.test(row.geoCode));
 }
 
-function buildEmpty(message) {
+function buildEmpty(message, fallback = DEFAULTS.emptyMessage) {
   const empty = document.createElement('div');
   empty.className = 'cybertipline-geo-report-empty';
-  empty.textContent = message || DEFAULTS.emptyMessage;
+  empty.textContent = message || fallback;
   return empty;
 }
 
 export default async function decorate(block) {
+  const reportConfig = reportConfigForBlock(block);
   const headingField = fieldValue(block, 'heading', BLOCK_ROW_INDEX.heading, ['heading', 'title']);
   const introField = richField(block, 'intro', BLOCK_ROW_INDEX.intro, ['intro', 'description']);
   const apiBaseUrlField = fieldValue(block, 'apiBaseUrl', BLOCK_ROW_INDEX.apiBaseUrl, ['api base url', 'backend url']);
@@ -1168,14 +1249,16 @@ export default async function decorate(block) {
   const sampleDataModeField = fieldValue(block, 'sampleDataMode', BLOCK_ROW_INDEX.sampleDataMode, ['sample data mode']);
 
   const config = {
+    ...reportConfig,
+    reportType: reportConfig,
     apiBaseUrl: normalizeApiBaseUrl(apiBaseUrlField.value),
     year: normalizeToken(yearField.value),
-    datasetSlug: normalizeToken(datasetSlugField.value) || DEFAULTS.datasetSlug,
-    geoType: normalizeGeoType(geoTypeField.value),
+    datasetSlug: normalizeToken(datasetSlugField.value) || reportConfig.datasetSlug,
+    geoType: normalizeGeoType(geoTypeField.value, reportConfig.geoType),
     sampleDataMode: normalizeSampleDataMode(sampleDataModeField.value),
   };
   const apiResult = config.sampleDataMode === 'always' ? null : await fetchDataset(config);
-  exposeFetchError(block, apiResult?.error);
+  exposeFetchError(block, apiResult?.error, config);
   const apiDataset = apiResult?.dataset ? apiResult : null;
   const fallbackRows = authoredRows(block);
   const shouldUseSampleData = config.sampleDataMode === 'always'
@@ -1183,7 +1266,7 @@ export default async function decorate(block) {
   const sampleDataset = shouldUseSampleData ? sampleDatasetForConfig(config) : null;
   const dataset = sampleDataset?.dataset || apiDataset?.dataset || {
     slug: config.datasetSlug,
-    title: headingField.value || DEFAULTS.heading,
+    title: headingField.value || reportConfig.heading,
     description: introField.text,
     geoScope: config.geoType === 'country' ? 'global' : 'us',
     totals: {},
@@ -1194,15 +1277,15 @@ export default async function decorate(block) {
   const rows = dataset.rows?.length ? dataset.rows : fallbackRows;
 
   block.classList.toggle('is-sample-data', Boolean(sampleDataset));
-  if (sampleDataset) block.dataset.cybertiplineGeoReportSource = 'sample';
-  else block.removeAttribute('data-cybertipline-geo-report-source');
+  if (sampleDataset) block.dataset[config.sourceDataAttribute] = 'sample';
+  else delete block.dataset[config.sourceDataAttribute];
 
   const inner = document.createElement('div');
   inner.className = 'cybertipline-geo-report-inner';
-  inner.append(buildHeader(headingField, introField, dataset, report));
+  inner.append(buildHeader(headingField, introField, dataset, report, reportConfig));
 
   if (!rows.length) {
-    inner.append(buildEmpty(emptyMessageField.value));
+    inner.append(buildEmpty(emptyMessageField.value, reportConfig.emptyMessage));
     block.replaceChildren(inner);
     return;
   }

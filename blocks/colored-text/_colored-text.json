@@ -180,6 +180,38 @@
             { "name": "Large", "value": "large" }
           ],
           "value": "none"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "markerTerms",
+          "label": "Animated Marker Text",
+          "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in this block gets a drawn marker on scroll.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "markerColor",
+          "label": "Animated Marker Color (Hex)",
+          "description": "Defaults to yellow if left empty.",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "markerStyle",
+          "label": "Animated Marker Style",
+          "options": [
+            { "name": "Circle", "value": "circle" },
+            { "name": "Underline", "value": "underline" }
+          ],
+          "value": "circle"
         }
       ]
     }

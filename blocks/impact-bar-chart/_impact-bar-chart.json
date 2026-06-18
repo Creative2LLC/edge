@@ -1,0 +1,214 @@
+{
+  "definitions": [
+    {
+      "title": "Impact Bar Chart",
+      "id": "impact-bar-chart",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Impact Bar Chart",
+              "model": "impact-bar-chart",
+              "filter": "impact-bar-chart"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Impact Bar Chart Row",
+      "id": "impact-bar-chart-row",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Impact Bar Chart Row",
+              "model": "impact-bar-chart-row"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "impact-bar-chart",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "description": "Laravel backend base URL. The block fetches /api/impact-reports/{year}/datasets/{datasetSlug}.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "year",
+          "label": "Report Year",
+          "description": "Leave blank to request the current impact report when API Base URL is set.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "datasetSlug",
+          "label": "Dataset Slug",
+          "description": "Example: reports-by-type or offender-relationship.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiEndpoint",
+          "label": "API Endpoint URL",
+          "description": "Optional override for custom JSON. Leave blank to use API Base URL + Report Year + Dataset Slug.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "valueKey",
+          "label": "Value Key",
+          "description": "Defaults to value. Use another key when charting a value from Additional Values or API row data.",
+          "value": "value"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "metricKeys",
+          "label": "Stacked Metrics",
+          "description": "Optional. One per line as Label|key|#color. Use for stacked/grouped data like Images|images|#1491BF.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "chartStyle",
+          "label": "Chart Style",
+          "options": [
+            {
+              "name": "Standard",
+              "value": ""
+            },
+            {
+              "name": "Skinny",
+              "value": "skinny"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "showValues",
+          "label": "Show Values",
+          "options": [
+            {
+              "name": "Show",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ],
+          "value": "show"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "showTable",
+          "label": "Show Data Table",
+          "options": [
+            {
+              "name": "Hide",
+              "value": "hide"
+            },
+            {
+              "name": "Show",
+              "value": "show"
+            }
+          ],
+          "value": "hide"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emptyMessage",
+          "label": "Empty State Message",
+          "value": "No impact chart data is available."
+        }
+      ]
+    },
+    {
+      "id": "impact-bar-chart-row",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "label",
+          "label": "Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "value",
+          "label": "Value"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "values",
+          "label": "Additional Values",
+          "description": "Optional key/value pairs separated by line breaks or |, for example images=17829552|videos=4160030.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "description",
+          "label": "Description",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "color",
+          "label": "Color (Hex)",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #1491BF."
+          }
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "impact-bar-chart",
+      "components": [
+        "impact-bar-chart-row"
+      ]
+    }
+  ]
+}

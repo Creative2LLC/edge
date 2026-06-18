@@ -1,0 +1,170 @@
+{
+  "definitions": [
+    {
+      "title": "Impact Geo Report",
+      "id": "impact-geo-report",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Impact Geo Report",
+              "model": "impact-geo-report",
+              "filter": "impact-geo-report"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Impact Geo Report Row",
+      "id": "impact-geo-report-row",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Impact Geo Report Row",
+              "model": "impact-geo-report-row"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "impact-geo-report",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Missing Children by State"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro Copy",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "description": "Laravel backend base URL. The block fetches /api/impact-reports/{year}/datasets/{datasetSlug}."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "year",
+          "label": "Report Year",
+          "description": "Leave blank to use /api/impact-reports/current."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "datasetSlug",
+          "label": "Dataset Slug",
+          "value": "missing-children-by-state"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "geoType",
+          "label": "Geography Type",
+          "options": [
+            {
+              "name": "State",
+              "value": "state"
+            },
+            {
+              "name": "Country / Global",
+              "value": "country"
+            },
+            {
+              "name": "Auto",
+              "value": "auto"
+            }
+          ],
+          "value": "state"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emptyMessage",
+          "label": "Empty State Message",
+          "value": "No Impact geography data is available."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "sampleDataMode",
+          "label": "Sample Data Mode",
+          "description": "For testing only. Use Off for real Impact Report API data.",
+          "options": [
+            {
+              "name": "Off",
+              "value": "off"
+            },
+            {
+              "name": "Use When Empty",
+              "value": "when-empty"
+            },
+            {
+              "name": "Always Use Sample",
+              "value": "always"
+            }
+          ],
+          "value": "off"
+        }
+      ]
+    },
+    {
+      "id": "impact-geo-report-row",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "label",
+          "label": "Location Name"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "code",
+          "label": "State/Country Code"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "value",
+          "label": "Total Count"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "description",
+          "label": "Detail Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "color",
+          "label": "Map Color (Optional Hex)"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "impact-geo-report",
+      "components": [
+        "impact-geo-report-row"
+      ]
+    }
+  ]
+}

@@ -84,10 +84,12 @@ function isPdfHref(href) {
 }
 
 export function decoratePdfLinks(scope) {
+  // Never auto-download anything — strip the attribute globally
+  scope.querySelectorAll('a[download]').forEach((link) => link.removeAttribute('download'));
+
   scope.querySelectorAll('a[href]').forEach((link) => {
     if (!isPdfHref(link.getAttribute('href'))) return;
 
-    link.removeAttribute('download');
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     if (link.classList.contains('button')) {

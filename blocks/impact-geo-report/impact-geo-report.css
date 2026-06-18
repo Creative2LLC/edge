@@ -1,0 +1,7 @@
+@import url("../cybertipline-geo-report/cybertipline-geo-report.css");
+
+.impact-geo-report {
+  --cybertipline-geo-blue: #2aa7c9;
+  --cybertipline-geo-orange: #de8a2a;
+  --cybertipline-geo-gold: #f5b51b;
+}

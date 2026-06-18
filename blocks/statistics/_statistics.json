@@ -382,6 +382,44 @@
           "name": "textColors",
           "label": "Legacy Text Styles",
           "description": "Optional fallback. One per line: heading|#00264d, body|#404041, value|#1491bf, label|#6b6b6b, heading-size|2.6rem, body-size|1.25rem, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem, heading-weight|700, body-weight|400, value-weight|700, label-weight|400"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "markerTerms",
+          "label": "Animated Marker Text",
+          "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in headings, body, stat values, and labels gets a drawn marker on scroll.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "valueFormat": "regexp",
+          "name": "markerColor",
+          "label": "Animated Marker Color (Hex)",
+          "description": "Defaults to yellow if left empty.",
+          "value": "",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "markerStyle",
+          "label": "Animated Marker Style",
+          "options": [
+            {
+              "name": "Circle",
+              "value": "circle"
+            },
+            {
+              "name": "Underline",
+              "value": "underline"
+            }
+          ],
+          "value": "circle"
         }
       ]
     },

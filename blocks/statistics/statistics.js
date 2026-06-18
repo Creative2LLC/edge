@@ -9,6 +9,7 @@ import {
 } from '../../scripts/block-field-utils.js';
 import { animateCountUpOnVisible } from '../../scripts/count-up.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
+import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -568,6 +569,9 @@ export default function decorate(block) {
   const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
   const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
   const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors']);
+  const markerTermsField = readField(block, 'markerTerms', ['marker text', 'marker terms', 'highlight text']);
+  const markerColorField = readField(block, 'markerColor', ['marker color', 'highlight marker color']);
+  const markerStyleField = readField(block, 'markerStyle', ['marker style', 'highlight marker style']);
 
   const values = normalizeLines(statValuesField.value);
   const labels = normalizeLines(statLabelsField.value);
@@ -653,6 +657,11 @@ export default function decorate(block) {
   if (list.childElementCount) wrapper.append(list);
 
   block.replaceChildren(wrapper);
+  applyAnimatedMarkers(wrapper, {
+    terms: markerTermsField.value,
+    color: markerColorField.value,
+    style: markerStyleField.value,
+  });
 
   injectColorPickers(block, [
     { label: 'Heading', cssVar: '--statistics-heading-color', value: headingColor },

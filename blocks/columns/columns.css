@@ -95,9 +95,10 @@
   }
 
   /* When a column has multiple blocks, prevent any single block from filling
-     the full column height (e.g. colored-text uses height:100% by default) */
+     the full column height (e.g. colored-text uses height:100% / min-height:100% by default) */
   .columns > div > div > *:not(:only-child) {
     height: auto;
+    --colored-text-min-height: 0;
   }
 
   .columns.columns-align-top > div {

@@ -110,6 +110,8 @@
       "split-card",
       "split-card-gap",
       "impact-donut",
+      "impact-data-table",
+      "impact-bar-chart",
       "regional-offices",
       "image-text-card-row",
       "split-card-carousel",
@@ -129,6 +131,7 @@
       "report-breakdown",
       "report-download",
       "cybertipline-geo-report",
+      "impact-geo-report",
       "connect-grid",
       "partners-showcase",
       "card-testimonies",
@@ -345,15 +348,33 @@
     ]
   },
   {
+    "id": "impact-bar-chart",
+    "components": [
+      "impact-bar-chart-row"
+    ]
+  },
+  {
     "id": "impact-chain",
     "components": [
       "impact-chain-item"
     ]
   },
   {
+    "id": "impact-data-table",
+    "components": [
+      "impact-data-table-row"
+    ]
+  },
+  {
     "id": "impact-donut",
     "components": [
       "impact-donut-item"
+    ]
+  },
+  {
+    "id": "impact-geo-report",
+    "components": [
+      "impact-geo-report-row"
     ]
   },
   {

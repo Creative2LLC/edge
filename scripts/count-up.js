@@ -2,6 +2,12 @@ function reducedMotionPreferred() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
+function dispatchCountUpComplete(element) {
+  element.dispatchEvent(new CustomEvent('count-up:complete', {
+    bubbles: true,
+  }));
+}
+
 function easeOutCubic(progress) {
   return 1 - ((1 - progress) ** 3);
 }
@@ -60,6 +66,7 @@ export function animateCountUp(element, options = {}) {
 
   if (!Number.isFinite(target)) {
     if (finalText) element.textContent = finalText;
+    dispatchCountUpComplete(element);
     return;
   }
 
@@ -75,6 +82,7 @@ export function animateCountUp(element, options = {}) {
 
   if (reducedMotionPreferred() || duration <= 0) {
     element.textContent = finalText || formatCountValue(target, formatOptions);
+    dispatchCountUpComplete(element);
     return;
   }
 
@@ -87,7 +95,11 @@ export function animateCountUp(element, options = {}) {
       ? (finalText || formatCountValue(target, formatOptions))
       : formatCountValue(target * eased, formatOptions);
 
-    if (progress < 1) window.requestAnimationFrame(tick);
+    if (progress < 1) {
+      window.requestAnimationFrame(tick);
+    } else {
+      dispatchCountUpComplete(element);
+    }
   }
 
   window.requestAnimationFrame(tick);
