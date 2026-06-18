@@ -407,12 +407,13 @@ async function renderSearch(block, config) {
     message.hidden = false;
   };
 
-  const syncUrl = () => {
+  const syncUrl = (replace = true) => {
     writeSearchState({
       query: state.query,
       types: state.type ? [state.type] : [],
       view: state.view,
-    });
+      page: state.page,
+    }, replace);
   };
 
   const updatePagination = () => {
@@ -423,7 +424,7 @@ async function renderSearch(block, config) {
     pagination.update({
       page: state.page,
       lastPage: state.lastPage,
-      onPage: (page) => loadResults(true, page),
+      onPage: (page) => loadResults(false, page),
     });
   };
 
@@ -463,6 +464,7 @@ async function renderSearch(block, config) {
       state.page = payload.meta?.current_page || 1;
       state.lastPage = payload.meta?.last_page || 1;
       state.total = payload.meta?.total ?? cardsContainer.children.length;
+      if (usePagination) syncUrl(reset);
       const syncedType = syncTypeOptions(typeSelect, payload.filters?.types || [], state.type);
       if (state.type !== syncedType) {
         state.type = syncedType;
@@ -538,12 +540,12 @@ async function renderSearch(block, config) {
     searchInput.value = state.query;
     typeSelect.value = state.type;
     applyResultView(cardsContainer, viewButtons, state.view);
-    loadResults(true);
+    loadResults(true, urlState.page > 1 ? urlState.page : null);
   });
 
   applyResultView(cardsContainer, viewButtons, state.view);
   block.replaceChildren(inner);
-  await loadResults(true);
+  await loadResults(true, initialState.page > 1 ? initialState.page : null);
 }
 
 export default async function decorate(block) {

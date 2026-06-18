@@ -31,19 +31,22 @@ export function readSearchState(search = window.location.search) {
   const directTypes = params.getAll('types');
   const fallbackTypes = params.getAll('type');
   const view = `${params.get('view') || ''}`.trim().toLowerCase();
+  const pageRaw = parseInt(params.get('page') || '', 10);
 
   return {
     query: (params.get('q') || params.get('search') || '').trim(),
     types: parseCsvList(directTypes.join(',') || fallbackTypes.join(',')),
     view: view === 'list' ? 'list' : 'grid',
+    page: Number.isNaN(pageRaw) || pageRaw < 1 ? 1 : pageRaw,
   };
 }
 
-export function writeSearchState({ query, types = [], view = '' }, replace = true) {
+export function writeSearchState({ query, types = [], view = '', page = 1 }, replace = true) {
   const url = new URL(window.location.href);
   const normalizedQuery = `${query || ''}`.trim();
   const normalizedTypes = [...new Set(types.map((entry) => `${entry || ''}`.trim().toLowerCase()).filter(Boolean))];
   const normalizedView = `${view || ''}`.trim().toLowerCase();
+  const normalizedPage = parseInt(page, 10);
 
   if (normalizedQuery) url.searchParams.set('q', normalizedQuery);
   else url.searchParams.delete('q');
@@ -57,6 +60,9 @@ export function writeSearchState({ query, types = [], view = '' }, replace = tru
   if (normalizedView === 'list') url.searchParams.set('view', 'list');
   else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
   else url.searchParams.delete('view');
+
+  if (!Number.isNaN(normalizedPage) && normalizedPage > 1) url.searchParams.set('page', String(normalizedPage));
+  else url.searchParams.delete('page');
 
   if (replace) window.history.replaceState({}, '', url);
   else window.history.pushState({}, '', url);

@@ -19,7 +19,12 @@ function directRowOf(block, element) {
   return rowEl && rowEl.parentElement === block ? rowEl : null;
 }
 
-function getFieldValue(block, name, altKeys) {
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function getFieldValue(block, name, altKeys, fallbackCell = null) {
   const propNames = [
     name,
     ...(altKeys || []).filter((key) => /^[a-z][a-z0-9-]*$/i.test(key)),
@@ -28,7 +33,7 @@ function getFieldValue(block, name, altKeys) {
     name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
     ...(altKeys || []),
   ];
-  const field = readTextField(block, propNames, { labels });
+  const field = readTextField(block, propNames, { labels, fallbackCell });
   return {
     source: field.source || field.cell,
     value: field.value,
@@ -36,8 +41,8 @@ function getFieldValue(block, name, altKeys) {
   };
 }
 
-function readField(block, name, altKeys) {
-  const field = getFieldValue(block, name, altKeys);
+function readField(block, name, altKeys, fallbackCell = null) {
+  const field = getFieldValue(block, name, altKeys, fallbackCell);
   if (field.row) field.row.remove();
   else if (field.source) {
     let rowEl = field.source;
@@ -49,23 +54,23 @@ function readField(block, name, altKeys) {
   return field;
 }
 
-function readImageBlockField(block, name, altKeys) {
+function readImageBlockField(block, name, altKeys, fallbackCell = null) {
   const labels = [
     name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
     ...(altKeys || []),
   ];
-  const field = readImageField(block, name, { labels });
+  const field = readImageField(block, name, { labels, fallbackCell });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
   return field;
 }
 
-function readLinkBlockField(block, name, altKeys) {
+function readLinkBlockField(block, name, altKeys, fallbackCell = null) {
   const labels = [
     name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
     ...(altKeys || []),
   ];
-  const field = readLinkField(block, name, { labels });
+  const field = readLinkField(block, name, { labels, fallbackCell });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
   return field;
@@ -146,6 +151,17 @@ function normalizeOption(value, allowedValues, fallback) {
     .replace(/^-|-$/g, '');
 
   return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function hasLegacyConfigRows(rows) {
+  return Boolean(
+    normalizeOption(fieldCell(rows[1])?.textContent, ['left', 'center', 'right'], '')
+      && normalizeOption(fieldCell(rows[2])?.textContent, ['top', 'middle', 'bottom'], '')
+      && (
+        normalizeOption(fieldCell(rows[5])?.textContent, ['icon', 'fluid'], '')
+          || normalizeOption(fieldCell(rows[6])?.textContent, ['icon', 'fluid'], '')
+      ),
+  );
 }
 
 function normalizeFontWeight(value) {
@@ -538,40 +554,135 @@ function buildItem(itemData) {
 
 export default function decorate(block) {
   const resourcePath = getAueResourcePath(block);
-  const headingField = readField(block, 'heading', ['heading', 'title']);
-  const contentAlignmentField = readField(block, 'contentAlignment', ['content alignment', 'horizontal alignment', 'heading alignment']);
-  const verticalAlignmentField = readField(block, 'verticalAlignment', ['vertical alignment']);
-  const bodyTextField = readField(block, 'bodyText', ['body text', 'body', 'copy', 'subheading']);
-  const iconImageField = readImageBlockField(block, 'iconImage', ['icon image', 'image', 'icon']);
-  const iconImageAltField = readField(block, 'iconImageAlt', ['icon image alt text', 'image alt text', 'icon alt text']);
-  const imageModeField = readField(block, 'imageMode', ['image display mode', 'image mode', 'image sizing']);
-  const iconMaxWidthField = readField(block, 'iconMaxWidth', ['icon max width', 'icon width', 'image max width']);
-  const iconMaxHeightField = readField(block, 'iconMaxHeight', ['icon max height', 'icon height', 'image max height']);
-  const defaultButtonTextField = readField(block, 'defaultButtonText', ['button text', 'cta text']);
-  const defaultButtonLinkField = readLinkBlockField(block, 'defaultButtonLink', ['button link', 'cta link']);
-  const defaultButtonTargetField = readField(block, 'defaultButtonTarget', ['button target', 'open link in']);
-  const verticalDividersField = readField(block, 'verticalDividers', ['vertical dividers', 'dividers']);
-  const blockBackgroundField = readField(block, 'blockBackgroundColor', ['block background color', 'background color']);
-  const headingColorField = readField(block, 'headingTextColor', ['heading text color', 'heading color']);
-  const headingSizeField = readField(block, 'headingFontSize', ['heading font size', 'heading size']);
-  const headingWeightField = readField(block, 'headingFontWeight', ['heading font weight', 'heading weight']);
-  const bodyColorField = readField(block, 'bodyTextColor', ['body text color', 'body color']);
-  const bodySizeField = readField(block, 'bodyFontSize', ['body font size', 'body size']);
-  const bodyWeightField = readField(block, 'bodyFontWeight', ['body font weight', 'body weight']);
-  const valueColorField = readField(block, 'valueTextColor', ['stat value text color', 'value text color', 'value color']);
-  const valueSizeField = readField(block, 'valueFontSize', ['stat value font size', 'value font size', 'value size']);
-  const valueWeightField = readField(block, 'valueFontWeight', ['stat value font weight', 'value font weight', 'value weight']);
-  const labelColorField = readField(block, 'labelTextColor', ['stat label text color', 'label text color', 'label color']);
-  const labelSizeField = readField(block, 'labelFontSize', ['stat label font size', 'label font size', 'label size']);
-  const labelWeightField = readField(block, 'labelFontWeight', ['stat label font weight', 'label font weight', 'label weight']);
-  const minHeightField = readField(block, 'minHeight', ['minimum height', 'min height']);
-  const minHeightMobileField = readField(block, 'minHeightMobile', ['mobile min height', 'minimum height mobile']);
-  const statValuesField = readField(block, 'statValues', ['stat values', 'values']);
-  const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels']);
-  const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors']);
-  const markerTermsField = readField(block, 'markerTerms', ['marker text', 'marker terms', 'highlight text']);
-  const markerColorField = readField(block, 'markerColor', ['marker color', 'highlight marker color']);
-  const markerStyleField = readField(block, 'markerStyle', ['marker style', 'highlight marker style']);
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const legacyConfigRows = hasLegacyConfigRows(rows);
+  const legacyImageModeIndex = legacyConfigRows && normalizeOption(
+    fieldCell(rows[5])?.textContent,
+    ['icon', 'fluid'],
+    '',
+  ) ? 5 : 6;
+  const configCell = (index) => (legacyConfigRows ? fieldCell(rows[index]) : null);
+  const legacyIconAltCell = legacyConfigRows && legacyImageModeIndex === 6
+    ? fieldCell(rows[5])
+    : null;
+  const legacyCell = (imageModeOffset) => (
+    legacyConfigRows ? fieldCell(rows[legacyImageModeIndex + imageModeOffset]) : null
+  );
+
+  const headingField = readField(block, 'heading', ['heading', 'title'], configCell(0));
+  const contentAlignmentField = readField(
+    block,
+    'contentAlignment',
+    ['content alignment', 'horizontal alignment', 'heading alignment'],
+    configCell(1),
+  );
+  const verticalAlignmentField = readField(block, 'verticalAlignment', ['vertical alignment'], configCell(2));
+  const bodyTextField = readField(block, 'bodyText', ['body text', 'body', 'copy', 'subheading'], configCell(3));
+  const iconImageField = readImageBlockField(block, 'iconImage', ['icon image', 'image', 'icon'], configCell(4));
+  const iconImageAltField = readField(
+    block,
+    'iconImageAlt',
+    ['icon image alt text', 'image alt text', 'icon alt text'],
+    legacyIconAltCell,
+  );
+  const imageModeField = readField(
+    block,
+    'imageMode',
+    ['image display mode', 'image mode', 'image sizing'],
+    legacyCell(0),
+  );
+  const iconMaxWidthField = readField(
+    block,
+    'iconMaxWidth',
+    ['icon max width', 'icon width', 'image max width'],
+    legacyCell(1),
+  );
+  const iconMaxHeightField = readField(
+    block,
+    'iconMaxHeight',
+    ['icon max height', 'icon height', 'image max height'],
+    legacyCell(2),
+  );
+  const defaultButtonTextField = readField(block, 'defaultButtonText', ['button text', 'cta text'], legacyCell(3));
+  const defaultButtonLinkField = readLinkBlockField(block, 'defaultButtonLink', ['button link', 'cta link'], legacyCell(4));
+  const defaultButtonTargetField = readField(block, 'defaultButtonTarget', ['button target', 'open link in'], legacyCell(5));
+  const verticalDividersField = readField(block, 'verticalDividers', ['vertical dividers', 'dividers'], legacyCell(6));
+  const blockBackgroundField = readField(
+    block,
+    'blockBackgroundColor',
+    ['block background color', 'background color'],
+    legacyCell(7),
+  );
+  const headingColorField = readField(block, 'headingTextColor', ['heading text color', 'heading color'], legacyCell(8));
+  const headingSizeField = readField(block, 'headingFontSize', ['heading font size', 'heading size'], legacyCell(9));
+  const headingWeightField = readField(block, 'headingFontWeight', ['heading font weight', 'heading weight'], legacyCell(10));
+  const bodyColorField = readField(block, 'bodyTextColor', ['body text color', 'body color'], legacyCell(11));
+  const bodySizeField = readField(block, 'bodyFontSize', ['body font size', 'body size'], legacyCell(12));
+  const bodyWeightField = readField(block, 'bodyFontWeight', ['body font weight', 'body weight'], legacyCell(13));
+  const valueColorField = readField(
+    block,
+    'valueTextColor',
+    ['stat value text color', 'value text color', 'value color'],
+    legacyCell(14),
+  );
+  const valueSizeField = readField(
+    block,
+    'valueFontSize',
+    ['stat value font size', 'value font size', 'value size'],
+    legacyCell(15),
+  );
+  const valueWeightField = readField(
+    block,
+    'valueFontWeight',
+    ['stat value font weight', 'value font weight', 'value weight'],
+    legacyCell(16),
+  );
+  const labelColorField = readField(
+    block,
+    'labelTextColor',
+    ['stat label text color', 'label text color', 'label color'],
+    legacyCell(17),
+  );
+  const labelSizeField = readField(
+    block,
+    'labelFontSize',
+    ['stat label font size', 'label font size', 'label size'],
+    legacyCell(18),
+  );
+  const labelWeightField = readField(
+    block,
+    'labelFontWeight',
+    ['stat label font weight', 'label font weight', 'label weight'],
+    legacyCell(19),
+  );
+  const minHeightField = readField(block, 'minHeight', ['minimum height', 'min height'], legacyCell(20));
+  const minHeightMobileField = readField(
+    block,
+    'minHeightMobile',
+    ['mobile min height', 'minimum height mobile'],
+    legacyCell(21),
+  );
+  const statValuesField = readField(block, 'statValues', ['stat values', 'values'], legacyCell(22));
+  const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels'], legacyCell(23));
+  const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors'], legacyCell(24));
+  const markerTermsField = readField(
+    block,
+    'markerTerms',
+    ['marker text', 'marker terms', 'highlight text'],
+    legacyCell(25),
+  );
+  const markerColorField = readField(
+    block,
+    'markerColor',
+    ['marker color', 'highlight marker color'],
+    legacyCell(26),
+  );
+  const markerStyleField = readField(
+    block,
+    'markerStyle',
+    ['marker style', 'highlight marker style'],
+    legacyCell(27),
+  );
 
   const values = normalizeLines(statValuesField.value);
   const labels = normalizeLines(statLabelsField.value);

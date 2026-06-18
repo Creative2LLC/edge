@@ -48,6 +48,11 @@ function directRowOf(block, element) {
   return row && row.parentElement === block ? row : null;
 }
 
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
 function normalizeOption(value, allowedValues, fallback) {
   const normalized = String(value || '')
     .trim()
@@ -75,9 +80,20 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
-function readSetting(block, name, labels = []) {
+function hasLegacySettingRows(rows) {
+  return Boolean(
+    normalizeOption(fieldCell(rows[0])?.textContent, ['left', 'center', 'right', 'justify'], '')
+      && normalizeOption(fieldCell(rows[4])?.textContent, ['show', 'hide'], '')
+      && normalizeOption(fieldCell(rows[5])?.textContent, ['auto', 'cover', 'contain', 'logo'], '')
+      && normalizeOption(fieldCell(rows[6])?.textContent, ['none', 'small', 'medium', 'large'], '')
+      && normalizeOption(fieldCell(rows[7])?.textContent, ['none', 'small', 'medium', 'large'], ''),
+  );
+}
+
+function readSetting(block, name, labels = [], fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) row.remove();
@@ -384,25 +400,43 @@ function buildCard(row) {
 
 export default function decorate(block) {
   const resourcePath = getAueResourcePath(block);
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const legacySettings = hasLegacySettingRows(rows);
+  const settingCell = (index) => (legacySettings ? fieldCell(rows[index]) : null);
   applySettings(block, {
-    textAlignment: readSetting(block, 'textAlignment', ['text alignment', 'alignment', 'horizontal alignment']),
+    textAlignment: readSetting(
+      block,
+      'textAlignment',
+      ['text alignment', 'alignment', 'horizontal alignment'],
+      settingCell(0),
+    ),
     defaultCardBackgroundColor: readSetting(block, 'defaultCardBackgroundColor', [
       'default card background color',
       'card background color',
-    ]),
+    ], settingCell(1)),
     defaultCardTextColor: readSetting(block, 'defaultCardTextColor', [
       'default card text color',
       'card text color',
-    ]),
+    ], settingCell(2)),
     defaultHighlightTextColor: readSetting(block, 'defaultHighlightTextColor', [
       'default highlighted text color',
       'highlighted text color',
       'highlight text color',
-    ]),
-    buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons']),
-    imageDisplay: readSetting(block, 'imageDisplay', ['image display', 'image display mode', 'image style']),
-    cardBorderRadius: readSetting(block, 'cardBorderRadius', ['card border radius', 'border radius']),
-    cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow']),
+    ], settingCell(3)),
+    buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons'], settingCell(4)),
+    imageDisplay: readSetting(
+      block,
+      'imageDisplay',
+      ['image display', 'image display mode', 'image style'],
+      settingCell(5),
+    ),
+    cardBorderRadius: readSetting(
+      block,
+      'cardBorderRadius',
+      ['card border radius', 'border radius'],
+      settingCell(6),
+    ),
+    cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow'], settingCell(7)),
   });
 
   const ul = document.createElement('ul');
