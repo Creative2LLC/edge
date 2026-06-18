@@ -316,6 +316,11 @@ header nav .nav-tools {
   grid-area: tools;
 }
 
+/* Hide empty column divs in nav-tools (e.g. placeholder col1 with no content) */
+header nav .nav-tools .columns > div > div:empty {
+  display: none;
+}
+
 header nav .nav-search {
   position: relative;
 }
@@ -716,6 +721,11 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     flex-direction: row;
     align-items: center;
     gap: 12px;
+  }
+
+  /* Prevent column divs from splitting nav-tools width equally — size to content */
+  header nav .nav-tools .columns > div > div {
+    flex: 0 0 auto;
   }
 
   header nav .nav-tools a.button {

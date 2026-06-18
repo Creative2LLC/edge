@@ -9,10 +9,10 @@ data:
           allOf:
             - reqProperty: path
               matches: ".*\\.pdf(\\?.*)?$"
-        action:
-          type: set
-          name: Content-Disposition
-          value: inline
+        actions:
+          - type: set
+            name: Content-Disposition
+            value: inline
 
   redirects:
     rules:

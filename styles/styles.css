@@ -300,9 +300,9 @@ main .default-content-wrapper p + p {
 .text-marker .text-marker-svg {
   position: absolute;
   z-index: 0;
-  inset: -0.24em -0.42em -0.18em;
-  width: calc(100% + 0.84em);
-  height: calc(100% + 0.42em);
+  inset: -0.36em -0.56em -0.24em;
+  width: calc(100% + 1.12em);
+  height: calc(100% + 0.6em);
   overflow: visible;
   pointer-events: none;
 }
@@ -310,7 +310,6 @@ main .default-content-wrapper p + p {
 .text-marker .text-marker-path {
   fill: none;
   stroke: var(--text-marker-color);
-  stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 1;
@@ -319,24 +318,87 @@ main .default-content-wrapper p + p {
   transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.text-marker-underline .text-marker-svg {
-  inset: auto -0.18em -0.18em;
-  width: calc(100% + 0.36em);
-  height: 0.42em;
+.text-marker .text-marker-path-shadow {
+  opacity: 0.28;
+  stroke-width: 11;
 }
 
-.text-marker-underline .text-marker-path {
-  stroke-width: 5;
+.text-marker .text-marker-path-main {
+  opacity: 0.96;
+  stroke-width: 7.6;
+}
+
+.text-marker .text-marker-path-grain {
+  opacity: 0;
+  stroke-width: 1.45;
+  stroke-linecap: butt;
+  stroke-dasharray: 0.024 0.014 0.065 0.026 0.018 0.021;
+  stroke-dashoffset: 0;
+  transition:
+    opacity 460ms ease 420ms,
+    stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.text-marker .text-marker-path-grain.is-grain-a {
+  opacity: 0;
+  stroke-width: 1.8;
+  stroke-dasharray: 0.035 0.018 0.02 0.028 0.075 0.024;
+}
+
+.text-marker .text-marker-path-grain.is-grain-b {
+  stroke-width: 1.15;
+  stroke-dasharray: 0.018 0.02 0.045 0.024 0.028 0.032;
+  transition-delay: 520ms, 0ms;
+}
+
+.text-marker .text-marker-path-grain.is-grain-c {
+  stroke-width: 1.1;
+  stroke-dasharray: 0.055 0.018 0.016 0.024;
+  transition-delay: 620ms, 0ms;
+}
+
+.text-marker-underline .text-marker-svg {
+  inset: auto -0.24em -0.22em;
+  width: calc(100% + 0.48em);
+  height: 0.58em;
+}
+
+.text-marker-underline .text-marker-path-shadow {
+  stroke-width: 8;
+}
+
+.text-marker-underline .text-marker-path-main {
+  stroke-width: 5.4;
 }
 
 .text-marker.is-visible .text-marker-path {
   stroke-dashoffset: 0;
 }
 
+.text-marker.is-visible .text-marker-path-grain {
+  opacity: 0.56;
+}
+
+.text-marker.is-visible .text-marker-path-grain.is-grain-a {
+  opacity: 0.64;
+}
+
+.text-marker.is-visible .text-marker-path-grain.is-grain-b {
+  opacity: 0.42;
+}
+
+.text-marker.is-visible .text-marker-path-grain.is-grain-c {
+  opacity: 0.5;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .text-marker .text-marker-path {
     transition: none;
     stroke-dashoffset: 0;
+  }
+
+  .text-marker .text-marker-path-grain {
+    opacity: 0.56;
   }
 }
 

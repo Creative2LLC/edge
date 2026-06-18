@@ -1,5 +1,6 @@
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const DEFAULT_MARKER_COLOR = '#f5c84b';
+let markerId = 0;
 
 function normalizeMarkerTerms(value) {
   return String(value || '')
@@ -45,6 +46,139 @@ function isSkippableElement(element) {
   ].join(',')));
 }
 
+function svgElement(tagName, attributes = {}) {
+  const element = document.createElementNS(SVG_NS, tagName);
+
+  Object.entries(attributes).forEach(([name, value]) => {
+    element.setAttribute(name, String(value));
+  });
+
+  return element;
+}
+
+function appendBrushDefs(svg, id, style) {
+  const defs = svgElement('defs');
+  const filter = svgElement('filter', {
+    id: `${id}-roughen`,
+    x: '-8%',
+    y: '-18%',
+    width: '116%',
+    height: '136%',
+  });
+  const turbulence = svgElement('feTurbulence', {
+    type: 'fractalNoise',
+    baseFrequency: style === 'underline' ? '0.72 0.22' : '0.62 0.18',
+    numOctaves: '2',
+    seed: (markerId % 97) + 11,
+    result: 'noise',
+  });
+  const displacement = svgElement('feDisplacementMap', {
+    in: 'SourceGraphic',
+    in2: 'noise',
+    scale: style === 'underline' ? '1.1' : '1.7',
+    xChannelSelector: 'R',
+    yChannelSelector: 'G',
+  });
+  const mask = svgElement('mask', {
+    id: `${id}-dry-brush`,
+    maskUnits: 'userSpaceOnUse',
+  });
+  const maskBase = svgElement('rect', {
+    x: '-8',
+    y: '-8',
+    width: '144',
+    height: '76',
+    fill: '#fff',
+  });
+  const scratchGroup = svgElement('g', {
+    fill: 'none',
+    stroke: '#000',
+    'stroke-linecap': 'round',
+  });
+  const scratches = style === 'underline'
+    ? [
+      ['M6 17 C34 11 79 22 117 13', '0.026 0.016 0.06 0.032', 0.92],
+      ['M4 21 C38 14 78 24 116 17', '0.018 0.022 0.04 0.026', 0.72],
+      ['M18 12 C46 10 80 16 108 11', '0.035 0.018 0.02 0.03', 0.48],
+    ]
+    : [
+      ['M25 10 C53 5 97 7 117 18', '0.028 0.017 0.07 0.028', 0.9],
+      ['M9 33 C15 18 43 10 76 9 C104 9 121 18 120 29', '0.018 0.02 0.05 0.032', 0.76],
+      ['M7 37 C22 50 55 53 86 47 C111 42 123 31 119 22', '0.034 0.016 0.04 0.024', 0.78],
+      ['M18 45 C43 51 77 50 102 39', '0.02 0.018 0.03 0.026', 0.54],
+      ['M38 7 C63 4 98 6 116 15', '0.045 0.021 0.018 0.024', 0.46],
+    ];
+
+  scratches.forEach(([pathData, dashArray, opacity], index) => {
+    scratchGroup.append(svgElement('path', {
+      d: pathData,
+      pathLength: '1',
+      'stroke-width': index === 0 ? '1.25' : '0.82',
+      'stroke-dasharray': dashArray,
+      opacity,
+    }));
+  });
+
+  filter.append(turbulence, displacement);
+  mask.append(maskBase, scratchGroup);
+  defs.append(filter, mask);
+  svg.append(defs);
+
+  return {
+    filter: `url(#${id}-roughen)`,
+    mask: `url(#${id}-dry-brush)`,
+  };
+}
+
+function markerPath(className, pathData, attributes = {}) {
+  return svgElement('path', {
+    class: `text-marker-path ${className}`,
+    pathLength: '1',
+    d: pathData,
+    ...attributes,
+  });
+}
+
+function appendMarkerPaths(svg, style, id) {
+  const urls = appendBrushDefs(svg, id, style);
+  const brush = svgElement('g', {
+    class: 'text-marker-brush',
+    filter: urls.filter,
+    mask: urls.mask,
+  });
+
+  if (style === 'underline') {
+    const underline = 'M4 20 C29 11 70 24 116 13';
+    const underlineJitter = 'M5 22 C34 15 76 25 116 17';
+
+    brush.append(
+      markerPath('text-marker-path-shadow', underlineJitter),
+      markerPath('text-marker-path-main', underline),
+    );
+    svg.append(
+      brush,
+      markerPath('text-marker-path-grain is-grain-a', 'M6 18 C31 11 73 22 115 14'),
+      markerPath('text-marker-path-grain is-grain-b', underlineJitter),
+    );
+    return;
+  }
+
+  const loop = 'M25 9 C55 2 101 4 117 17 C129 29 115 43 84 49 C47 56 10 48 5 34 C1 22 21 13 54 9 C84 6 111 11 119 25';
+  const outerLoop = 'M22 11 C51 4 98 5 116 17 C130 30 114 45 82 51 C46 57 9 49 4 35 C0 23 19 14 52 10 C83 7 110 12 121 25';
+  const innerSkip = 'M8 35 C14 20 41 12 72 11 C101 11 119 19 119 30 C117 42 88 48 54 48 C26 48 8 42 8 35';
+
+  brush.append(
+    markerPath('text-marker-path-shadow', outerLoop),
+    markerPath('text-marker-path-main', loop),
+  );
+  svg.append(
+    brush,
+    markerPath('text-marker-path-grain is-grain-a', innerSkip),
+    markerPath('text-marker-path-grain is-grain-b', 'M18 45 C42 52 77 51 104 39'),
+    markerPath('text-marker-path-grain is-grain-c', 'M36 8 C65 4 99 7 117 16'),
+  );
+}
+
 function getMatchAt(text, lowerText, lowerTerms, index) {
   return lowerTerms.find((entry) => (
     entry.term.length && lowerText.slice(index, index + entry.term.length) === entry.lower
@@ -63,6 +197,8 @@ function getNextMatchIndex(lowerText, lowerTerms, startIndex) {
 }
 
 function createMarker(text, style) {
+  markerId += 1;
+
   const marker = document.createElement('span');
   marker.className = `text-marker text-marker-${style}`;
 
@@ -72,21 +208,14 @@ function createMarker(text, style) {
   marker.append(content);
 
   const svg = document.createElementNS(SVG_NS, 'svg');
+  const id = `text-marker-${markerId}`;
+
   svg.setAttribute('class', 'text-marker-svg');
-  svg.setAttribute('viewBox', '0 0 120 52');
+  svg.setAttribute('viewBox', style === 'underline' ? '0 0 120 32' : '0 0 124 58');
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
 
-  const path = document.createElementNS(SVG_NS, 'path');
-  path.setAttribute('class', 'text-marker-path');
-  path.setAttribute('pathLength', '1');
-  path.setAttribute(
-    'd',
-    style === 'underline'
-      ? 'M4 29 C30 23 70 36 116 25'
-      : 'M15 29 C10 15 27 6 57 5 C91 4 113 15 111 29 C109 43 82 49 49 46 C24 44 8 37 15 20',
-  );
-  svg.append(path);
+  appendMarkerPaths(svg, style, id);
   marker.append(svg);
 
   return marker;
