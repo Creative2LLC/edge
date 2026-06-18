@@ -99,7 +99,7 @@ export function decoratePdfLinks(scope) {
 }
 
 const AEM_HEX_HREF = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
-const AEM_CONFIG_VALUE = /^(?:left|right|center|justify|top|middle|bottom|default|none|small|medium|large|solid|outlined|inverted|yes|no|circle|underline|[1-9]00|\d+(?:\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)|(?:all|vertical|horizontal|top|bottom)-(?:sm|md|lg))$/i;
+const AEM_CONFIG_VALUE = /^(?:left|right|center|justify|top|middle|bottom|stretch|default|auto|none|show|hide|small|medium|large|solid|outlined|inverted|yes|no|circle|underline|icon|fluid|fixed|_self|_blank|_parent|_top|h[1-6]|[1-9]00|\d+(?:\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)|(?:all|vertical|horizontal|top|bottom)-(?:sm|md|lg))$/i;
 
 function isHexArtifactParagraph(el) {
   if (el.tagName !== 'P' || !el.classList.contains('button-container')) return false;
@@ -130,8 +130,19 @@ function removeAemBlockFieldArtifacts(scope) {
     if (!p || removed.has(p)) return;
 
     const toRemove = [p];
+
+    // Scan backwards — catch config values that appear before the hex color (e.g. h3, icon, _self)
+    const preceding = [];
+    let prev = p.previousElementSibling;
+    while (prev && !removed.has(prev) && isConfigValueParagraph(prev)) {
+      preceding.unshift(prev);
+      prev = prev.previousElementSibling;
+    }
+    toRemove.unshift(...preceding);
+
+    // Scan forwards — catch config values that follow the hex color
     let next = p.nextElementSibling;
-    while (next && isConfigValueParagraph(next)) {
+    while (next && !removed.has(next) && isConfigValueParagraph(next)) {
       toRemove.push(next);
       next = next.nextElementSibling;
     }
