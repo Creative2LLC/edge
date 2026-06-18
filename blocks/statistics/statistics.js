@@ -11,6 +11,8 @@ import { animateCountUpOnVisible } from '../../scripts/count-up.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 
+const HEX_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
 function directRowOf(block, element) {
   let rowEl = element;
   while (rowEl && rowEl.parentElement !== block) {
@@ -519,21 +521,24 @@ function buildItem(itemData) {
     item.append(labelEl);
   }
 
-  const hasButton = itemData.buttonTextField.value
-    || itemData.buttonTextField.source
-    || itemData.buttonLinkField.value;
+  const rawButtonText = itemData.buttonTextField.value;
+  const rawButtonLink = itemData.buttonLinkField.value;
+  const buttonText = rawButtonText && !HEX_COLOR_RE.test(rawButtonText.trim()) ? rawButtonText : '';
+  const buttonLink = rawButtonLink && !HEX_COLOR_RE.test(rawButtonLink.trim()) ? rawButtonLink : '';
+
+  const hasButton = buttonText || itemData.buttonTextField.source || buttonLink;
 
   if (hasButton) {
-    const button = document.createElement(itemData.buttonLinkField.value ? 'a' : 'span');
+    const button = document.createElement(buttonLink ? 'a' : 'span');
     button.className = 'statistics-button';
     appendFieldContent(
       itemData.buttonTextField,
       button,
-      itemData.buttonTextField.value || 'Learn more here.',
+      buttonText || 'Learn more here.',
     );
 
-    if (itemData.buttonLinkField.value) {
-      button.href = itemData.buttonLinkField.value;
+    if (buttonLink) {
+      button.href = buttonLink;
       button.target = normalizeTarget(itemData.buttonTarget);
       if (button.target === '_blank') button.rel = 'noopener noreferrer';
     }
