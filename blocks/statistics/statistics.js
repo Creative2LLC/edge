@@ -526,7 +526,7 @@ function buildItem(itemData) {
   const buttonText = rawButtonText && !HEX_COLOR_RE.test(rawButtonText.trim()) ? rawButtonText : '';
   const buttonLink = rawButtonLink && !HEX_COLOR_RE.test(rawButtonLink.trim()) ? rawButtonLink : '';
 
-  const hasButton = buttonText || itemData.buttonTextField.source || buttonLink;
+  const hasButton = buttonText || buttonLink;
 
   if (hasButton) {
     const button = document.createElement(buttonLink ? 'a' : 'span');
