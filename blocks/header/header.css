@@ -510,6 +510,7 @@ header .top-banner-links {
   margin: 0;
   padding: 0;
   color: rgb(255 255 255 / 83%);
+  align-items: center;
 }
 
 header .nav-top-banner .top-banner-links a {

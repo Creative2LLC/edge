@@ -98,6 +98,51 @@ export function decoratePdfLinks(scope) {
   });
 }
 
+const AEM_HEX_HREF = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const AEM_CONFIG_VALUE = /^(?:left|right|center|justify|top|middle|bottom|default|none|small|medium|large|solid|outlined|inverted|yes|no|circle|underline|[1-9]00|\d+(?:\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)|(?:all|vertical|horizontal|top|bottom)-(?:sm|md|lg))$/i;
+
+function isHexArtifactParagraph(el) {
+  if (el.tagName !== 'P' || !el.classList.contains('button-container')) return false;
+  const a = el.querySelector('a.button[href]');
+  return a && AEM_HEX_HREF.test(a.getAttribute('href'));
+}
+
+function isConfigValueParagraph(el) {
+  if (el.tagName !== 'P') return false;
+  if (el.classList.contains('button-container')) return isHexArtifactParagraph(el);
+  if (el.querySelector('a, picture, img, strong, em, code')) return false;
+  return AEM_CONFIG_VALUE.test(el.textContent.trim());
+}
+
+/**
+ * Removes AEM field artifacts that appear as raw paragraphs on delivery when nested blocks
+ * (colored-text, colored-button, etc.) inside columns are flattened by the AEM serializer.
+ * Hex color field values become anchor links (#xxxxxx) which EDS decorates as buttons.
+ * This runs only on delivery — never in the Universal Editor (author) context.
+ */
+function removeAemBlockFieldArtifacts(scope) {
+  if (document.querySelector('[data-aue-resource]')) return;
+
+  const removed = new Set();
+  scope.querySelectorAll('p.button-container > a.button[href]').forEach((a) => {
+    if (!AEM_HEX_HREF.test(a.getAttribute('href'))) return;
+    const p = a.closest('p');
+    if (!p || removed.has(p)) return;
+
+    const toRemove = [p];
+    let next = p.nextElementSibling;
+    while (next && isConfigValueParagraph(next)) {
+      toRemove.push(next);
+      next = next.nextElementSibling;
+    }
+
+    toRemove.forEach((el) => {
+      removed.add(el);
+      el.remove();
+    });
+  });
+}
+
 function cleanupFieldNode(node) {
   const row = node?.parentElement;
   if (row && row.children?.length === 2 && row.children[1] === node) {
@@ -814,6 +859,7 @@ async function loadEager(doc) {
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
     decoratePdfLinks(main);
+    removeAemBlockFieldArtifacts(main);
   }
 
   try {
@@ -855,6 +901,7 @@ async function loadLazy(doc) {
 
   await loadSections(main);
   if (main) decoratePdfLinks(main);
+  if (main) removeAemBlockFieldArtifacts(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
