@@ -109,6 +109,11 @@
   .columns.columns-align-middle > div > div {
     justify-content: center;
   }
+
+  /* Prevent blocks from stretching to fill column height (e.g. colored-text's height:100%) */
+  .columns.columns-align-middle > div > div > * {
+    height: auto;
+  }
 }
 
 .columns.columns-halign-left > div > div {
