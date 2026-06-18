@@ -603,8 +603,19 @@ function wrapTextNodes(block) {
  * Decorates paragraphs containing a single link as buttons.
  * @param {Element} element container element
  */
+const AEM_HEX_HREF = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+function isAemColorValueLink(link) {
+  return Boolean(
+    AEM_HEX_HREF.test(link.getAttribute('href') || '')
+      && AEM_HEX_HREF.test(link.textContent.trim()),
+  );
+}
+
 function decorateButtons(element) {
   element.querySelectorAll('a').forEach((a) => {
+    if (isAemColorValueLink(a)) return;
+
     a.title = a.title || a.textContent;
     if (a.href !== a.textContent) {
       const up = a.parentElement;

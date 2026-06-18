@@ -101,15 +101,25 @@ export function decoratePdfLinks(scope) {
 const AEM_HEX_HREF = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const AEM_CONFIG_VALUE = /^(?:left|right|center|justify|top|middle|bottom|stretch|default|auto|none|show|hide|small|medium|large|solid|outlined|inverted|yes|no|circle|underline|icon|fluid|fixed|_self|_blank|_parent|_top|h[1-6]|[1-9]00|\d+(?:\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)|(?:all|vertical|horizontal|top|bottom)-(?:sm|md|lg))$/i;
 
+function isHexArtifactAnchor(a) {
+  return Boolean(
+    a
+      && AEM_HEX_HREF.test(a.getAttribute('href') || '')
+      && AEM_HEX_HREF.test(a.textContent.trim()),
+  );
+}
+
 function isHexArtifactParagraph(el) {
-  if (el.tagName !== 'P' || !el.classList.contains('button-container')) return false;
-  const a = el.querySelector('a.button[href]');
-  return a && AEM_HEX_HREF.test(a.getAttribute('href'));
+  if (el.tagName !== 'P') return false;
+  const links = [...el.querySelectorAll(':scope > a[href]')];
+  return links.length === 1
+    && isHexArtifactAnchor(links[0])
+    && el.textContent.trim() === links[0].textContent.trim();
 }
 
 function isConfigValueParagraph(el) {
   if (el.tagName !== 'P') return false;
-  if (el.classList.contains('button-container')) return isHexArtifactParagraph(el);
+  if (isHexArtifactParagraph(el)) return true;
   if (el.querySelector('a, picture, img, strong, em, code')) return false;
   return AEM_CONFIG_VALUE.test(el.textContent.trim());
 }
@@ -124,10 +134,10 @@ function removeAemBlockFieldArtifacts(scope) {
   if (document.querySelector('[data-aue-resource]')) return;
 
   const removed = new Set();
-  scope.querySelectorAll('p.button-container > a.button[href]').forEach((a) => {
-    if (!AEM_HEX_HREF.test(a.getAttribute('href'))) return;
+  scope.querySelectorAll('p > a[href]').forEach((a) => {
+    if (!isHexArtifactAnchor(a)) return;
     const p = a.closest('p');
-    if (!p || removed.has(p)) return;
+    if (!p || removed.has(p) || !isHexArtifactParagraph(p)) return;
 
     const toRemove = [p];
 

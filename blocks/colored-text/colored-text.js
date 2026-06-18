@@ -56,10 +56,13 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
-function hasInsertedBlockBackgroundRow(block, rows, rowIndex, legacyFieldCount) {
+function hasInsertedBlockBackgroundRow(block, rows, rowIndex) {
   if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
-  if (normalizeColorValue(fieldCell(rows[rowIndex])?.textContent)) return true;
-  return rows.length > legacyFieldCount;
+  const currentValue = fieldCell(rows[rowIndex])?.textContent?.trim() || '';
+  const nextValue = fieldCell(rows[rowIndex + 1])?.textContent?.trim() || '';
+  if (normalizeColorValue(currentValue)) return true;
+  if (!currentValue && /^(?:left|center|right|justify)$/i.test(nextValue)) return true;
+  return false;
 }
 
 function applyBlockBackground(block, value) {
@@ -181,7 +184,7 @@ export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 2, 8) ? 1 : 0;
+  const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 2) ? 1 : 0;
 
   const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[0]));
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));

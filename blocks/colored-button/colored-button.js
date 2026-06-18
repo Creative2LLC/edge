@@ -139,13 +139,13 @@ function normalizeOption(value, allowedValues, fallback) {
   return allowedValues.includes(normalized) ? normalized : fallback;
 }
 
-function hasInsertedBlockBackgroundRow(block, rows) {
+function hasInsertedBlockBackgroundRow(block, rows, rowIndex) {
   if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
-  const currentValue = fieldCell(rows[5])?.textContent || '';
-  const nextValue = fieldCell(rows[6])?.textContent || '';
+  const currentValue = fieldCell(rows[rowIndex])?.textContent?.trim() || '';
+  const nextValue = fieldCell(rows[rowIndex + 1])?.textContent?.trim() || '';
   if (normalizeColorValue(currentValue)) return true;
-  return !normalizeOption(currentValue, ['solid', 'outlined', 'inverted'], '')
-    && Boolean(normalizeOption(nextValue, ['solid', 'outlined', 'inverted'], ''));
+  if (!currentValue && /^(?:solid|outlined|inverted)$/i.test(nextValue)) return true;
+  return false;
 }
 
 function normalizeFontWeight(value) {
@@ -229,7 +229,7 @@ export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const rowOffset = hasInsertedBlockBackgroundRow(block, rows) ? 1 : 0;
+  const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 5) ? 1 : 0;
 
   const labelField = readField(block, 'label', ['button text', 'text', 'label'], fieldCell(rows[0]));
   const linkField = readLink(block, 'link', ['button link', 'url', 'href'], fieldCell(rows[1]));
