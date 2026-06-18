@@ -1,19 +1,5 @@
 import { moveInstrumentation, decoratePdfLinks } from '../../scripts/scripts.js';
-
-const IMAGE_PATH_RE = /\.(avif|bmp|gif|jfif|jpe?g|png|svg|webp)(\?.*)?$/i;
-const DAM_PATH_RE = /\/content\/dam\//;
-
-function resolveImageSrc(value) {
-  const str = String(value || '').trim();
-  if (!str) return '';
-  // Extract /content/... path from AEM URNs (urn:aemconnection:/content/...)
-  const match = str.match(/(\/content\/[^?#\s]+)/);
-  const resolved = match ? match[1] : str;
-  if (/^data:image\//i.test(resolved)) return resolved;
-  if (/^https?:\/\//i.test(resolved)) return resolved;
-  if (IMAGE_PATH_RE.test(resolved) || DAM_PATH_RE.test(resolved)) return resolved;
-  return '';
-}
+import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -35,60 +21,65 @@ function getBlockConfigRows(rows) {
   return firstItemIdx > 0 ? rows.slice(0, firstItemIdx) : [];
 }
 
-function buildCoverImage(imageCell, altText) {
-  if (!imageCell) return null;
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#\s]+)/);
+  return match ? match[1] : '';
+}
 
-  const picture = imageCell.querySelector('picture');
-  if (picture) {
-    const clone = picture.cloneNode(true);
-    const cloneImg = clone.querySelector('img');
-    if (cloneImg && altText) cloneImg.alt = altText;
-    moveInstrumentation(imageCell, clone);
-    return clone;
-  }
+async function resolveImageSrc(imageCell) {
+  if (!imageCell) return '';
 
+  // EDS: picture or img already in DOM
   const img = imageCell.querySelector('img');
-  if (img) {
-    const clone = img.cloneNode(true);
-    if (altText) clone.alt = altText;
-    moveInstrumentation(imageCell, clone);
-    return clone;
+  if (img?.src) return img.src;
+
+  // UE reference field: path or URN in text content or value attribute
+  const raw = imageCell.getAttribute('value')
+    || imageCell.getAttribute('src')
+    || imageCell.textContent?.trim()
+    || '';
+  const path = resourcePathFromUrn(raw);
+  if (path && (path.includes('/content/dam/') || /\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(path))) {
+    return path;
   }
 
-  const anchor = imageCell.querySelector('a');
-  const src = resolveImageSrc(anchor?.getAttribute('href') || imageCell.textContent);
-  if (src) {
-    const newImg = document.createElement('img');
-    newImg.src = src;
-    newImg.alt = altText || '';
-    newImg.loading = 'lazy';
-    moveInstrumentation(imageCell, newImg);
-    return newImg;
+  // Fallback: fetch resource JSON (matches pattern used by other blocks)
+  const resource = imageCell.closest('[data-aue-resource]')?.getAttribute('data-aue-resource') || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    const value = data?.coverImage;
+    if (!value) return '';
+    const resolved = Array.isArray(value) ? value[0] : (typeof value === 'object' ? value?.path || value?.url || '' : String(value));
+    return resourcePathFromUrn(String(resolved || '')) || '';
+  } catch {
+    return '';
   }
-
-  return null;
 }
 
-function parseItemRow(row, isAuthoring) {
-  const yearCell = row.querySelector('[data-aue-prop="year"]') || row.children[0] || null;
-  const imageCell = row.querySelector('[data-aue-prop="coverImage"]') || row.children[1] || null;
-  const altCell = row.querySelector('[data-aue-prop="coverImageAlt"]') || null;
-  const linksSource = row.querySelector('[data-richtext-prop="links"], [data-aue-prop="links"]')
-    || (!isAuthoring ? row.children[row.children.length - 1] || null : null);
-
-  const altText = altCell?.textContent?.trim() || imageCell?.querySelector('img')?.alt || '';
-  const coverImage = buildCoverImage(imageCell, altText);
-  const year = yearCell?.textContent?.trim() || '';
-
-  return {
-    year,
-    yearCell,
-    coverImage,
-    linksSource,
-  };
+function openPanel(panel, panelInner) {
+  const targetH = panelInner.scrollHeight;
+  panel.style.height = `${targetH}px`;
+  panel.addEventListener('transitionend', () => {
+    if (!panel.classList.contains('is-collapsed')) panel.style.height = 'auto';
+  }, { once: true });
 }
 
-function buildAccordionItem(data, row, index, isAuthoring) {
+function closePanel(panel) {
+  // Snapshot current rendered height before transition to 0
+  panel.style.height = `${panel.offsetHeight}px`;
+  requestAnimationFrame(() => {
+    panel.style.height = '0';
+  });
+}
+
+async function buildAccordionItem(data, row, index, isAuthoring) {
   const item = document.createElement('div');
   item.className = index === 0 ? 'report-archive-item is-open' : 'report-archive-item';
   moveInstrumentation(row, item);
@@ -111,15 +102,31 @@ function buildAccordionItem(data, row, index, isAuthoring) {
 
   const panel = document.createElement('div');
   panel.className = 'report-archive-panel';
-  if (index !== 0) panel.classList.add('is-collapsed');
+  panel.style.height = index === 0 ? 'auto' : '0';
 
   const panelInner = document.createElement('div');
   panelInner.className = 'report-archive-panel-inner';
 
-  if (data.coverImage) {
+  // Cover image
+  const imageSrc = await resolveImageSrc(data.imageCell);
+  if (imageSrc) {
     const figure = document.createElement('figure');
     figure.className = 'report-archive-cover';
-    figure.append(data.coverImage);
+    if (data.imageCell) moveInstrumentation(data.imageCell, figure);
+
+    const existingPicture = data.imageCell?.querySelector('picture');
+    if (existingPicture) {
+      const clone = existingPicture.cloneNode(true);
+      const cloneImg = clone.querySelector('img');
+      if (cloneImg && data.alt) cloneImg.alt = data.alt;
+      figure.append(clone);
+    } else {
+      const img = document.createElement('img');
+      img.src = imageSrc;
+      img.alt = data.alt || '';
+      img.loading = 'lazy';
+      figure.append(img);
+    }
     panelInner.append(figure);
   } else if (isAuthoring) {
     const placeholder = document.createElement('div');
@@ -128,6 +135,7 @@ function buildAccordionItem(data, row, index, isAuthoring) {
     panelInner.append(placeholder);
   }
 
+  // Links
   if (data.linksSource) {
     const links = document.createElement('div');
     links.className = 'report-archive-links';
@@ -149,25 +157,54 @@ function buildAccordionItem(data, row, index, isAuthoring) {
     const open = item.classList.toggle('is-open');
     trigger.setAttribute('aria-expanded', String(open));
     panel.classList.toggle('is-collapsed', !open);
+    if (open) {
+      openPanel(panel, panelInner);
+    } else {
+      closePanel(panel);
+    }
   });
 
   return item;
 }
 
-export default function decorate(block) {
+async function parseItemRow(row, isAuthoring) {
+  const yearField = readTextField(row, 'year', { fallbackCell: row.children[0] });
+  const imageField = readImageField(row, 'coverImage', { fallbackCell: row.children[1] });
+  const altField = readTextField(row, 'coverImageAlt', { fallbackCell: null });
+
+  const yearCell = yearField.source || yearField.cell;
+  const imageCell = imageField.source || imageField.cell;
+
+  const year = yearField.value || '';
+  const alt = altField.value || imageField.img?.alt || '';
+  const linksSource = row.querySelector('[data-richtext-prop="links"], [data-aue-prop="links"]')
+    || (!isAuthoring ? row.children[row.children.length - 1] || null : null);
+
+  return {
+    year,
+    yearCell,
+    imageCell,
+    alt,
+    linksSource,
+  };
+}
+
+export default async function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const rows = [...block.querySelectorAll(':scope > div')];
   const configRows = getBlockConfigRows(rows);
   const itemRows = rows.filter(isItemRow);
 
-  const headingCell = block.querySelector('[data-aue-prop="heading"]')
-    || (configRows[0]?.children.length >= 2 ? configRows[0].children[1] : null);
-  const headingText = headingCell?.textContent?.trim() || '';
+  const headingField = readTextField(block, 'heading', {
+    fallbackCell: configRows[0]?.children.length >= 2 ? configRows[0].children[1] : null,
+  });
+  const bgField = readTextField(block, 'backgroundColor', {
+    fallbackCell: configRows[1]?.children.length >= 2 ? configRows[1].children[1] : null,
+  });
 
-  const bgCell = block.querySelector('[data-aue-prop="backgroundColor"]')
-    || configRows.find((r) => /background|color/i.test(r.children[0]?.textContent || ''))?.children[1]
-    || null;
-  const bgColor = bgCell?.textContent?.trim() || '';
+  const headingText = headingField.value || '';
+  const headingSource = headingField.source || headingField.cell;
+  const bgColor = bgField.value || '';
 
   configRows.forEach((r) => r.remove());
 
@@ -179,7 +216,7 @@ export default function decorate(block) {
   if (headingText) {
     const heading = document.createElement('h2');
     heading.className = 'report-archive-heading';
-    if (headingCell) moveInstrumentation(headingCell, heading);
+    if (headingSource) moveInstrumentation(headingSource, heading);
     heading.textContent = headingText;
     wrapper.append(heading);
   }
@@ -198,11 +235,14 @@ export default function decorate(block) {
   const accordion = document.createElement('div');
   accordion.className = 'report-archive-accordion';
 
-  itemRows.forEach((row, index) => {
-    const data = parseItemRow(row, isAuthoring);
-    const item = buildAccordionItem(data, row, index, isAuthoring);
-    accordion.append(item);
-  });
+  const items = await Promise.all(
+    itemRows.map(async (row, index) => {
+      const data = await parseItemRow(row, isAuthoring);
+      return buildAccordionItem(data, row, index, isAuthoring);
+    }),
+  );
+
+  (await Promise.all(items)).forEach((item) => accordion.append(item));
 
   wrapper.append(accordion);
   block.replaceChildren(wrapper);

@@ -91,21 +91,14 @@
   transform: rotate(-135deg) translate(-2px, -2px);
 }
 
-/* Panel — CSS grid height animation */
+/* Panel — JS sets height explicitly; CSS only provides the transition */
 
 .report-archive .report-archive-panel {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition: grid-template-rows 0.35s ease;
-}
-
-.report-archive .report-archive-panel.is-collapsed {
-  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: height 0.35s ease;
 }
 
 .report-archive .report-archive-panel-inner {
-  min-height: 0; /* required: lets grid-template-rows: 0fr fully collapse */
-  overflow: hidden;
   display: flex;
   gap: 28px;
   align-items: flex-start;
@@ -226,14 +219,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .report-archive .report-archive-panel {
-    transition: none;
-  }
-
-  .report-archive .report-archive-icon {
-    transition: none;
-  }
-
+  .report-archive .report-archive-panel,
+  .report-archive .report-archive-icon,
   .report-archive .report-archive-links a::after {
     transition: none;
   }
