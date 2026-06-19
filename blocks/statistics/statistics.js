@@ -44,6 +44,8 @@ const CONFIG_OPTION_VALUES = [
   'h4',
   'h5',
   'h6',
+  'circle',
+  'underline',
 ];
 
 function directRowOf(block, element) {
@@ -205,7 +207,7 @@ function isHexColorText(value) {
 }
 
 function isCssLengthText(value) {
-  return /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)$/i.test(String(value || '').trim());
+  return /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(String(value || '').trim());
 }
 
 function isFontWeightText(value) {
@@ -226,7 +228,12 @@ function isConfigOnlyText(value) {
 }
 
 function isLikelyStatValue(value) {
-  return /\d/u.test(String(value || ''));
+  return /^\s*[-+$]?\d/u.test(String(value || ''));
+}
+
+function isLikelyButtonText(value) {
+  return /^(?:download(?:\s+\w+)*|learn more(?: here\.?)?|read more|view report)$/iu
+    .test(String(value || '').trim());
 }
 
 function findLegacyAlignmentIndex(rows) {
@@ -258,14 +265,23 @@ function getLegacyConfig(rows) {
   const compactIconIndex = active
     ? rows.findIndex((row, index) => index >= alignmentIndex + 2 && rowHasMedia(row))
     : -1;
-  const compactStartIndex = compactIconIndex >= 0 ? compactIconIndex : imageModeIndex;
   const compactTextRows = (
-    compactStartIndex >= 0
-      ? rows.slice(compactStartIndex + 1).filter((row) => rowText(row) || rowHasMedia(row))
+    active
+      ? rows.slice(alignmentIndex + 2).filter((row) => rowText(row) || rowHasMedia(row))
       : []
   );
   const compactImageModeRow = compactTextRows.find((row) => hasOptionValue(row, ['icon', 'fluid'])) || null;
+  const compactMarkerStyleRow = compactTextRows
+    .find((row) => hasOptionValue(row, ['circle', 'underline'])) || null;
   const compactColorRows = compactTextRows.filter((row) => isHexColorText(rowText(row)));
+  const compactMarkerStyleIndex = compactMarkerStyleRow
+    ? compactTextRows.indexOf(compactMarkerStyleRow)
+    : -1;
+  const compactMarkerColorRow = compactMarkerStyleIndex > 0
+    && isHexColorText(rowText(compactTextRows[compactMarkerStyleIndex - 1]))
+    ? compactTextRows[compactMarkerStyleIndex - 1]
+    : null;
+  const compactStyleColorRows = compactColorRows.filter((row) => row !== compactMarkerColorRow);
   const compactLengthRows = compactTextRows.filter((row) => isCssLengthText(rowText(row)));
   const compactWeightRows = compactTextRows.filter((row) => isFontWeightText(rowText(row)));
   const compactTargetRow = compactTextRows
@@ -276,36 +292,67 @@ function getLegacyConfig(rows) {
     return text && !isConfigOnlyText(text);
   });
   const statValueRow = compactContentRows.find((row) => isLikelyStatValue(rowText(row)))
-    || compactContentRows[0]
+    || compactContentRows.find((row) => !isLikelyButtonText(rowText(row)))
     || null;
   const statValueIndex = compactContentRows.indexOf(statValueRow);
+  const bodyTextRow = statValueIndex > 0 ? compactContentRows[0] : null;
   const statLabelRow = statValueIndex >= 0
-    ? compactContentRows.slice(statValueIndex + 1).find((row) => rowText(row))
+    ? compactContentRows.slice(statValueIndex + 1).find((row) => (
+      rowText(row) && !isLikelyButtonText(rowText(row))
+    ))
     : null;
   const compactButtonRows = compactContentRows.filter((row) => (
-    row !== statValueRow && row !== statLabelRow
+    row !== bodyTextRow
+      && row !== statValueRow
+      && row !== statLabelRow
+      && isLikelyButtonText(rowText(row))
   ));
   const labelSizeRow = compactLengthRows
     .find((row) => Number.parseFloat(rowText(row)) <= 80) || null;
-  const minHeightRows = compactLengthRows.filter((row) => row !== labelSizeRow);
+  const minHeightRows = compactLengthRows.filter((row) => (
+    row !== labelSizeRow && Number.parseFloat(rowText(row)) > 80
+  ));
+  const colorCount = compactStyleColorRows.length;
+  const blockBackgroundColorRow = colorCount >= 5 ? compactStyleColorRows[0] : null;
+  let headingColorRow = null;
+  let bodyColorRow = null;
+
+  if (colorCount >= 5) {
+    [, headingColorRow, bodyColorRow] = compactStyleColorRows;
+  } else if (colorCount === 4) {
+    [headingColorRow, bodyColorRow] = compactStyleColorRows;
+  } else if (colorCount === 3) {
+    [bodyColorRow] = compactStyleColorRows;
+  }
+
+  const valueColorRow = colorCount >= 2
+    ? compactStyleColorRows[colorCount - 2]
+    : compactStyleColorRows[0] || null;
+  const labelColorRow = colorCount >= 2 ? compactStyleColorRows[colorCount - 1] : null;
   const compactFields = {
+    bodyText: bodyTextRow,
     imageMode: compactImageModeRow,
     defaultButtonText: compactButtonRows[0],
     defaultButtonTarget: compactTargetRow,
     verticalDividers: compactDividerRow,
-    valueTextColor: compactColorRows[0],
-    labelTextColor: compactColorRows[1],
+    blockBackgroundColor: blockBackgroundColorRow,
+    headingTextColor: headingColorRow,
+    bodyTextColor: bodyColorRow,
+    valueTextColor: valueColorRow,
+    labelTextColor: labelColorRow,
     labelFontSize: labelSizeRow,
     labelFontWeight: compactWeightRows[0],
     minHeight: minHeightRows[0],
     minHeightMobile: minHeightRows[1],
     statValues: statValueRow,
     statLabels: statLabelRow,
+    markerColor: compactMarkerColorRow,
+    markerStyle: compactMarkerStyleRow,
   };
 
   return {
     active,
-    isCompact: compactStartIndex >= 0 && Boolean(statValueRow && statLabelRow),
+    isCompact: active && Boolean(statValueRow),
     compactCell(name) {
       return fieldCell(compactFields[name]);
     },
@@ -315,10 +362,7 @@ function getLegacyConfig(rows) {
       return fieldCell(rows[alignmentIndex + modelIndex - 1]);
     },
     bodyTextCell() {
-      if (!active) return null;
-      const row = rows[alignmentIndex + 2];
-      if (!row || rowHasMedia(row) || hasOptionValue(row, ['icon', 'fluid'])) return null;
-      return fieldCell(row);
+      return fieldCell(compactFields.bodyText);
     },
     imageModeCell(offset) {
       if (!active || imageModeIndex < 0) return null;
@@ -329,6 +373,8 @@ function getLegacyConfig(rows) {
 
       const expected = rows[alignmentIndex + 3];
       if (rowHasMedia(expected)) return fieldCell(expected);
+
+      if (compactIconIndex >= 0) return fieldCell(rows[compactIconIndex]);
 
       const end = imageModeIndex >= 0 ? imageModeIndex : Math.min(rows.length, alignmentIndex + 8);
       const row = rows.slice(alignmentIndex + 2, end).find(rowHasMedia);
@@ -834,12 +880,22 @@ export default function decorate(block) {
     block,
     'blockBackgroundColor',
     ['block background color', 'background color'],
-    legacyCell(7),
+    legacyConfig.compactCell('blockBackgroundColor') || legacyCell(7),
   );
-  const headingColorField = readField(block, 'headingTextColor', ['heading text color', 'heading color'], legacyCell(8));
+  const headingColorField = readField(
+    block,
+    'headingTextColor',
+    ['heading text color', 'heading color'],
+    legacyConfig.compactCell('headingTextColor') || legacyCell(8),
+  );
   const headingSizeField = readField(block, 'headingFontSize', ['heading font size', 'heading size'], legacyCell(9));
   const headingWeightField = readField(block, 'headingFontWeight', ['heading font weight', 'heading weight'], legacyCell(10));
-  const bodyColorField = readField(block, 'bodyTextColor', ['body text color', 'body color'], legacyCell(11));
+  const bodyColorField = readField(
+    block,
+    'bodyTextColor',
+    ['body text color', 'body color'],
+    legacyConfig.compactCell('bodyTextColor') || legacyCell(11),
+  );
   const bodySizeField = readField(block, 'bodyFontSize', ['body font size', 'body size'], legacyCell(12));
   const bodyWeightField = readField(block, 'bodyFontWeight', ['body font weight', 'body weight'], legacyCell(13));
   const valueColorField = readField(
@@ -913,13 +969,13 @@ export default function decorate(block) {
     block,
     'markerColor',
     ['marker color', 'highlight marker color'],
-    legacyCell(26),
+    legacyConfig.compactCell('markerColor') || legacyCell(26),
   );
   const markerStyleField = readField(
     block,
     'markerStyle',
     ['marker style', 'highlight marker style'],
-    legacyCell(27),
+    legacyConfig.compactCell('markerStyle') || legacyCell(27),
   );
   legacyConfig.cleanupCompactRows();
 

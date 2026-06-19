@@ -1080,7 +1080,7 @@ function isFlattenedConfigText(value) {
     'h6',
   ].includes(normalized)
     || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
-    || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)$/i.test(String(value || '').trim())
+    || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(String(value || '').trim())
     || /^(?:[1-9]00)$/u.test(String(value || '').trim());
 }
 
@@ -1094,42 +1094,149 @@ function isDownloadButtonText(element) {
     .test(childTextRaw(element));
 }
 
-function isFlattenedHeadingTextColumn(column) {
-  if (document.querySelector('[data-aue-resource]')) return false;
-  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
+function parseColorChannels(value) {
+  const normalized = String(value || '').trim();
+  const hex = normalizeColorValue(normalized);
+
+  if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) {
+    const digits = hex.slice(1);
+    const parts = digits.length === 3
+      ? [...digits].map((digit) => `${digit}${digit}`)
+      : [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 6)];
+    return parts.map((part) => Number.parseInt(part, 16));
+  }
+
+  const rgb = normalized.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  return rgb ? rgb.slice(1, 4).map((part) => Number.parseInt(part, 10)) : null;
+}
+
+function isDarkColor(value) {
+  const channels = parseColorChannels(value);
+  if (!channels) return false;
+
+  const [red, green, blue] = channels.map((channel) => {
+    const normalized = channel / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+
+  return ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) < 0.3;
+}
+
+function getSectionBackgroundValue(element) {
+  const section = element.closest('.section');
+  return section?.getAttribute('data-background-color')
+    || section?.getAttribute('data-backgroundcolor')
+    || section?.style?.backgroundColor
+    || '';
+}
+
+function defaultTextColorForBackground(element, fallback) {
+  return isDarkColor(getSectionBackgroundValue(element)) ? '#FFF' : fallback;
+}
+
+function normalizeFlattenedOption(value, allowedValues, fallback) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function findFlattenedOptionValue(children, allowedValues, fallback = '') {
+  const match = children.find((child) => normalizeFlattenedOption(childTextRaw(child), allowedValues, ''));
+  return match ? normalizeFlattenedOption(childTextRaw(match), allowedValues, fallback) : fallback;
+}
+
+function findFlattenedHexValue(children, fallback = '') {
+  const match = children.find((child) => normalizeColorValue(childTextRaw(child)));
+  return match ? normalizeColorValue(childTextRaw(match)) : fallback;
+}
+
+function findFlattenedLengthValue(children, fallback = '') {
+  const match = children.find((child) => (
+    /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(childTextRaw(child))
+  ));
+  return match ? childTextRaw(match) : fallback;
+}
+
+function findFlattenedWeightValue(children, fallback = '') {
+  const match = children.find((child) => /^(?:[1-9]00)$/u.test(childTextRaw(child)));
+  return match ? childTextRaw(match) : fallback;
+}
+
+function getFlattenedHeadingTextColumnParts(column) {
+  if (document.querySelector('[data-aue-resource]')) return null;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
 
   const children = directContentChildren(column);
-  if (children.length !== 2 || !children.every(isPlainParagraph)) return false;
+  const contentChildren = children.filter((child) => (
+    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
 
-  const headingText = children[0].textContent.trim();
-  const bodyText = children[1].textContent.trim();
+  if (contentChildren.length < 2) return null;
 
-  return headingText.length > 0
-    && headingText.length <= 80
-    && bodyText.length > 120;
+  const heading = contentChildren[0];
+  const textChildren = contentChildren.slice(1);
+  const headingText = childTextRaw(heading);
+  const bodyText = textChildren.map(childTextRaw).join(' ');
+
+  if (!headingText || headingText.length > 90 || bodyText.length <= 120) return null;
+
+  return {
+    children,
+    heading,
+    textChildren,
+  };
 }
 
 function normalizeFlattenedHeadingTextColumn(column) {
-  if (!isFlattenedHeadingTextColumn(column)) return;
+  const parts = getFlattenedHeadingTextColumnParts(column);
+  if (!parts) return;
 
-  const [heading, text] = directContentChildren(column);
+  const {
+    children,
+    heading,
+    textChildren,
+  } = parts;
+  const headingIndex = children.indexOf(heading);
+  const firstTextIndex = children.indexOf(textChildren[0]);
+  const lastTextIndex = children.indexOf(textChildren[textChildren.length - 1]);
+  const headingConfigChildren = children.slice(headingIndex + 1, firstTextIndex);
+  const textConfigChildren = children.slice(lastTextIndex + 1);
+  const textValue = document.createDocumentFragment();
+
+  textChildren.forEach((child) => textValue.append(child));
+
   const headingBlock = createFlattenedBlock('colored-heading', [
     createBlockFieldRow('heading', heading),
-    createBlockFieldRow('heading level', 'h3'),
-    createBlockFieldRow('text color', '#00264D'),
-    createBlockFieldRow('horizontal alignment', 'left'),
-    createBlockFieldRow('vertical alignment', 'top'),
-    createBlockFieldRow('font size', '45px'),
-    createBlockFieldRow('font weight', '700'),
+    createBlockFieldRow('heading level', findFlattenedOptionValue(headingConfigChildren, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 'h3')),
+    createBlockFieldRow('text color', findFlattenedHexValue(headingConfigChildren, defaultTextColorForBackground(column, '#00264D'))),
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(headingConfigChildren, ['left', 'center', 'right', 'justify'], 'left')),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(headingConfigChildren, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('font size', findFlattenedLengthValue(headingConfigChildren, '45px')),
+    createBlockFieldRow('font weight', findFlattenedWeightValue(headingConfigChildren, '700')),
   ]);
   const textBlock = createFlattenedBlock('colored-text', [
-    createBlockFieldRow('text', text),
-    createBlockFieldRow('text color', '#404041'),
-    createBlockFieldRow('horizontal alignment', 'left'),
-    createBlockFieldRow('vertical alignment', 'top'),
-    createBlockFieldRow('font size', '27px'),
+    createBlockFieldRow('text', textValue),
+    createBlockFieldRow('text color', findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041'))),
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left')),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('font size', findFlattenedLengthValue(textConfigChildren, '27px')),
   ]);
 
+  children.forEach((child) => {
+    if (
+      child.isConnected
+      && isPlainParagraph(child)
+      && isFlattenedConfigText(childTextRaw(child))
+    ) {
+      child.remove();
+    }
+  });
   column.append(headingBlock, textBlock);
 }
 

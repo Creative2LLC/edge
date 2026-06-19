@@ -56,6 +56,41 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function parseColorChannels(value) {
+  const normalized = String(value || '').trim();
+  const hex = normalizeColorValue(normalized);
+
+  if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) {
+    const digits = hex.slice(1);
+    const parts = digits.length === 3
+      ? [...digits].map((digit) => `${digit}${digit}`)
+      : [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 6)];
+    return parts.map((part) => Number.parseInt(part, 16));
+  }
+
+  const rgb = normalized.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  return rgb ? rgb.slice(1, 4).map((part) => Number.parseInt(part, 10)) : null;
+}
+
+function hasDarkSectionBackground(block) {
+  const section = block.closest('.section');
+  const color = section?.getAttribute('data-background-color')
+    || section?.getAttribute('data-backgroundcolor')
+    || section?.style?.backgroundColor
+    || '';
+  const channels = parseColorChannels(color);
+  if (!channels) return false;
+
+  const [red, green, blue] = channels.map((channel) => {
+    const normalized = channel / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+
+  return ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) < 0.3;
+}
+
 function hasInsertedBlockBackgroundRow(block, rows, rowIndex) {
   if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
   const currentValue = fieldCell(rows[rowIndex])?.textContent?.trim() || '';
@@ -188,7 +223,8 @@ export default function decorate(block) {
 
   const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[0]));
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
-  const textColor = normalizeColorValue(txtField.value);
+  const textColor = normalizeColorValue(txtField.value)
+    || (hasDarkSectionBackground(block) ? '#FFF' : '');
   const blockBgField = readColorField(
     block,
     'blockBackgroundColor',

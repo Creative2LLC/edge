@@ -80,14 +80,83 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
-function hasLegacySettingRows(rows) {
+function rowText(row) {
+  return fieldCell(row)?.textContent?.trim() || '';
+}
+
+function hasOptionText(row, allowedValues) {
+  return Boolean(normalizeOption(rowText(row), allowedValues, ''));
+}
+
+function isConfigOnlyText(value) {
+  const text = String(value || '').trim();
+  if (!text) return true;
+
   return Boolean(
-    normalizeOption(fieldCell(rows[0])?.textContent, ['left', 'center', 'right', 'justify'], '')
-      && normalizeOption(fieldCell(rows[4])?.textContent, ['show', 'hide'], '')
-      && normalizeOption(fieldCell(rows[5])?.textContent, ['auto', 'cover', 'contain', 'logo'], '')
-      && normalizeOption(fieldCell(rows[6])?.textContent, ['none', 'small', 'medium', 'large'], '')
-      && normalizeOption(fieldCell(rows[7])?.textContent, ['none', 'small', 'medium', 'large'], ''),
+    normalizeColorValue(text)
+      || normalizeOption(text, [
+        'left',
+        'center',
+        'right',
+        'justify',
+        'show',
+        'hide',
+        'hidden',
+        'no',
+        'false',
+        'off',
+        'auto',
+        'cover',
+        'contain',
+        'logo',
+        'none',
+        'small',
+        'medium',
+        'large',
+      ], ''),
   );
+}
+
+function getLegacySettingCells(rows) {
+  const scanRows = rows.slice(0, Math.min(rows.length, 14));
+  const textAlignmentIndex = scanRows.findIndex((row) => (
+    hasOptionText(row, ['left', 'center', 'right', 'justify'])
+  ));
+
+  if (textAlignmentIndex < 0) return {};
+
+  const buttonDisplayIndex = scanRows.findIndex((row, index) => (
+    index > textAlignmentIndex && hasOptionText(row, ['show', 'hide'])
+  ));
+  const imageDisplayIndex = scanRows.findIndex((row, index) => (
+    index > textAlignmentIndex && hasOptionText(row, ['auto', 'cover', 'contain', 'logo'])
+  ));
+  const radiusShadowRows = scanRows
+    .map((row, index) => ({ row, index }))
+    .filter(({ index }) => index > Math.max(textAlignmentIndex, imageDisplayIndex))
+    .filter(({ row }) => hasOptionText(row, ['none', 'small', 'medium', 'large']));
+  const colorEndIndex = [
+    buttonDisplayIndex,
+    imageDisplayIndex,
+    ...radiusShadowRows.map(({ index }) => index),
+    scanRows.length,
+  ].filter((index) => index > textAlignmentIndex).sort((a, b) => a - b)[0];
+  const colorRows = scanRows
+    .slice(textAlignmentIndex + 1, colorEndIndex)
+    .filter((row) => normalizeColorValue(rowText(row)));
+
+  return {
+    textAlignment: fieldCell(scanRows[textAlignmentIndex]),
+    defaultCardBackgroundColor: fieldCell(colorRows[0]),
+    defaultCardTextColor: colorRows.length >= 3 ? fieldCell(colorRows[1]) : null,
+    defaultHighlightTextColor: colorRows.length >= 2
+      ? fieldCell(colorRows[colorRows.length - 1])
+      : null,
+    buttonDisplay: fieldCell(scanRows[buttonDisplayIndex]),
+    imageDisplay: fieldCell(scanRows[imageDisplayIndex]),
+    cardBorderRadius: fieldCell(radiusShadowRows[0]?.row),
+    cardShadow: fieldCell(radiusShadowRows[1]?.row),
+  };
 }
 
 function readSetting(block, name, labels = [], fallbackCell = null) {
@@ -213,6 +282,17 @@ function hasVisibleContent(row) {
   );
 }
 
+function isLegacyConfigOnlyRow(row) {
+  if (!row?.children?.length) return true;
+  if (row.querySelector('img, picture, video, iframe, svg, a[href], button')) return false;
+
+  const values = [...row.children]
+    .map((cell) => cell.textContent.trim())
+    .filter(Boolean);
+
+  return values.length > 0 && values.every(isConfigOnlyText);
+}
+
 function hasActionContent(cell) {
   return Boolean(cell?.querySelector?.('a[href], button, .button-container'));
 }
@@ -259,7 +339,8 @@ function shouldRenderCardRow(row) {
     return hasRenderableCardContent(row);
   }
 
-  return hasVisibleContent(row);
+  if (!hasVisibleContent(row) || isLegacyConfigOnlyRow(row)) return false;
+  return hasRenderableCardContent(row);
 }
 
 function hasRenderableContent(field) {
@@ -401,42 +482,41 @@ function buildCard(row) {
 export default function decorate(block) {
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const legacySettings = hasLegacySettingRows(rows);
-  const settingCell = (index) => (legacySettings ? fieldCell(rows[index]) : null);
+  const legacySettings = getLegacySettingCells(rows);
   applySettings(block, {
     textAlignment: readSetting(
       block,
       'textAlignment',
       ['text alignment', 'alignment', 'horizontal alignment'],
-      settingCell(0),
+      legacySettings.textAlignment,
     ),
     defaultCardBackgroundColor: readSetting(block, 'defaultCardBackgroundColor', [
       'default card background color',
       'card background color',
-    ], settingCell(1)),
+    ], legacySettings.defaultCardBackgroundColor),
     defaultCardTextColor: readSetting(block, 'defaultCardTextColor', [
       'default card text color',
       'card text color',
-    ], settingCell(2)),
+    ], legacySettings.defaultCardTextColor),
     defaultHighlightTextColor: readSetting(block, 'defaultHighlightTextColor', [
       'default highlighted text color',
       'highlighted text color',
       'highlight text color',
-    ], settingCell(3)),
-    buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons'], settingCell(4)),
+    ], legacySettings.defaultHighlightTextColor),
+    buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons'], legacySettings.buttonDisplay),
     imageDisplay: readSetting(
       block,
       'imageDisplay',
       ['image display', 'image display mode', 'image style'],
-      settingCell(5),
+      legacySettings.imageDisplay,
     ),
     cardBorderRadius: readSetting(
       block,
       'cardBorderRadius',
       ['card border radius', 'border radius'],
-      settingCell(6),
+      legacySettings.cardBorderRadius,
     ),
-    cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow'], settingCell(7)),
+    cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow'], legacySettings.cardShadow),
   });
 
   const ul = document.createElement('ul');
