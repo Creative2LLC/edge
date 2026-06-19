@@ -1275,6 +1275,10 @@ function isStrongOnlyParagraph(element) {
   return Boolean(text && strongText && strongText === text);
 }
 
+function isLikelyStatisticValueText(value) {
+  return /^\s*[-+$]?\d/u.test(String(value || ''));
+}
+
 function isFlattenedStatisticsColumn(column) {
   if (document.querySelector('[data-aue-resource]')) return false;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
@@ -1291,13 +1295,18 @@ function isFlattenedStatisticsColumn(column) {
   ));
 
   const contentChildren = children
-    .filter((child) => isPlainParagraph(child) && isLikelyContentText(child));
+    .filter((child) => (
+      isPlainParagraph(child)
+      && isLikelyContentText(child)
+      && !isDownloadButtonText(child)
+    ));
+  const hasStatisticValue = contentChildren.some((child) => (
+    isLikelyStatisticValueText(childTextRaw(child))
+  ));
 
   return (hasAlignmentRows || hasMarkerStyle)
-    && (
-      children.some((child) => child.querySelector('picture, img'))
-      || (contentChildren.length >= 2 && contentChildren.some((child) => /\d/u.test(childTextRaw(child))))
-    );
+    && hasStatisticValue
+    && contentChildren.length >= 2;
 }
 
 function getFlattenedMultiTextColumnParts(column) {
@@ -1472,10 +1481,6 @@ function getFlattenedStatisticsEndIndex(children) {
   return children.length;
 }
 
-function isLikelyStatisticValueText(value) {
-  return /^\s*[-+$]?\d/u.test(String(value || ''));
-}
-
 function createLabeledFlattenedStatisticsRows(children) {
   const markerStyleChild = [...children].reverse()
     .find((child) => normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], ''));
@@ -1524,6 +1529,7 @@ function createLabeledFlattenedStatisticsRows(children) {
   return [
     createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(children, ['left', 'center', 'right'], 'center')),
     createBlockFieldRow('vertical alignment', findFlattenedOptionValue(children, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('body text', ''),
     createBlockFieldRow('value text color', childTextRaw(valueColorChild)),
     createBlockFieldRow('label text color', childTextRaw(labelColorChild)),
     createBlockFieldRow('label font size', childTextRaw(labelSizeChild)),

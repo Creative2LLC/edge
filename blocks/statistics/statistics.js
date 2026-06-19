@@ -163,6 +163,89 @@ function normalizeColorKey(value) {
   return String(value || '').trim().toLowerCase().replace(/[^a-z]+/g, ' ');
 }
 
+const LABELED_CONFIG_FIELDS = new Set([
+  'heading',
+  'title',
+  'content alignment',
+  'horizontal alignment',
+  'heading alignment',
+  'vertical alignment',
+  'body text',
+  'body',
+  'copy',
+  'subheading',
+  'icon image',
+  'image',
+  'icon',
+  'icon image alt text',
+  'image alt text',
+  'icon alt text',
+  'image mode',
+  'default button text',
+  'button text',
+  'default button link',
+  'button link',
+  'default button target',
+  'button target',
+  'vertical dividers',
+  'dividers',
+  'block background color',
+  'background color',
+  'heading text color',
+  'heading color',
+  'heading font size',
+  'heading size',
+  'heading font weight',
+  'heading weight',
+  'body text color',
+  'body color',
+  'body font size',
+  'body size',
+  'body font weight',
+  'body weight',
+  'value text color',
+  'stat value color',
+  'value color',
+  'value font size',
+  'stat value font size',
+  'value size',
+  'value font weight',
+  'stat value font weight',
+  'value weight',
+  'label text color',
+  'stat label color',
+  'label color',
+  'label font size',
+  'stat label font size',
+  'label size',
+  'label font weight',
+  'stat label font weight',
+  'label weight',
+  'minimum height',
+  'min height',
+  'mobile min height',
+  'minimum height mobile',
+  'stat values',
+  'values',
+  'stat labels',
+  'labels',
+  'text styles',
+  'text colors',
+  'colors',
+  'marker text',
+  'marker terms',
+  'highlight text',
+  'marker color',
+  'highlight color',
+  'marker style',
+]);
+
+function hasLabeledConfigRows(rows) {
+  return rows.some((row) => LABELED_CONFIG_FIELDS.has(
+    normalizeColorKey(row?.children?.[0]?.textContent),
+  ));
+}
+
 function normalizeColorValue(value) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -259,6 +342,32 @@ function findLegacyImageModeIndex(rows, alignmentIndex) {
 }
 
 function getLegacyConfig(rows) {
+  if (hasLabeledConfigRows(rows)) {
+    return {
+      active: false,
+      isCompact: false,
+      compactCell() {
+        return null;
+      },
+      cell() {
+        return null;
+      },
+      bodyTextCell() {
+        return null;
+      },
+      imageModeCell() {
+        return null;
+      },
+      iconImageCell() {
+        return null;
+      },
+      iconAltCell() {
+        return null;
+      },
+      cleanupCompactRows() {},
+    };
+  }
+
   const alignmentIndex = findLegacyAlignmentIndex(rows);
   const active = alignmentIndex >= 0;
   const imageModeIndex = active ? findLegacyImageModeIndex(rows, alignmentIndex) : -1;
