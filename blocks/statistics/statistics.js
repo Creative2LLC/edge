@@ -335,6 +335,19 @@ function normalizeOption(value, allowedValues, fallback) {
   return allowedValues.includes(normalized) ? normalized : fallback;
 }
 
+function normalizeImageMode(value, fallback = 'icon') {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  if (!normalized) return fallback;
+  if (normalized.includes('fluid') || normalized.includes('responsive') || normalized.includes('full')) return 'fluid';
+  if (normalized.includes('icon')) return 'icon';
+  return fallback;
+}
+
 function rowText(row) {
   return fieldCell(row)?.textContent?.trim() || '';
 }
@@ -398,7 +411,7 @@ function findLegacyImageModeIndex(rows, alignmentIndex) {
   const start = Math.max(0, alignmentIndex + 2);
   const end = Math.min(rows.length, alignmentIndex + 8);
   for (let index = start; index < end; index += 1) {
-    if (hasOptionValue(rows[index], ['icon', 'fluid'])) return index;
+    if (normalizeImageMode(rowText(rows[index]), '')) return index;
   }
   return -1;
 }
@@ -441,7 +454,7 @@ function getLegacyConfig(rows) {
       ? rows.slice(alignmentIndex + 2).filter((row) => rowText(row) || rowHasMedia(row))
       : []
   );
-  const compactImageModeRow = compactTextRows.find((row) => hasOptionValue(row, ['icon', 'fluid'])) || null;
+  const compactImageModeRow = compactTextRows.find((row) => normalizeImageMode(rowText(row), '')) || null;
   const compactMarkerStyleRow = compactTextRows
     .find((row) => hasOptionValue(row, ['circle', 'underline'])) || null;
   const compactColorRows = compactTextRows.filter((row) => isHexColorText(rowText(row)));
@@ -844,6 +857,32 @@ function getLegacyItems(values, labels) {
   }));
 }
 
+function getLooseLegacyStatContent(rows) {
+  const imageMode = rows
+    .map((row) => normalizeImageMode(rowText(row), ''))
+    .find(Boolean) || '';
+  const contentRows = rows.filter((row) => {
+    const text = rowText(row);
+    return text
+      && !isConfigOnlyText(text)
+      && !isLikelyButtonText(text)
+      && !normalizeImageMode(text, '');
+  });
+  const valueRow = contentRows.find((row) => isLikelyStatValue(rowText(row))) || null;
+  const valueIndex = contentRows.indexOf(valueRow);
+  const labelRow = valueIndex >= 0
+    ? contentRows.slice(valueIndex + 1).find((row) => !isLikelyStatValue(rowText(row))) || null
+    : null;
+  const bodyTextRow = valueIndex > 0 ? contentRows[0] : null;
+
+  return {
+    bodyText: bodyTextRow ? rowText(bodyTextRow) : '',
+    imageMode,
+    values: valueRow ? [rowText(valueRow)] : [],
+    labels: labelRow ? [rowText(labelRow)] : [],
+  };
+}
+
 function appendFieldContent(field, element, fallbackValue = '') {
   if (field?.source) {
     moveInstrumentation(field.source, element);
@@ -900,7 +939,7 @@ function buildItem(itemData) {
   item.className = 'statistics-item';
   if (itemData.row) moveInstrumentation(itemData.row, item);
 
-  const imageMode = normalizeOption(itemData.imageMode, ['icon', 'fluid'], 'icon');
+  const imageMode = normalizeImageMode(itemData.imageMode, 'icon');
   const picture = buildOptimizedPicture(itemData.imageField, itemData.imageAlt, imageMode);
   if (picture) {
     const media = document.createElement('div');
@@ -973,6 +1012,7 @@ export default function decorate(block) {
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
   const legacyConfig = getLegacyConfig(rows);
+  const looseLegacy = getLooseLegacyStatContent(rows);
   const configCell = (index) => legacyConfig.cell(index);
   const legacyCell = (imageModeOffset) => (
     legacyConfig.isCompact ? null : legacyConfig.imageModeCell(imageModeOffset)
@@ -1152,6 +1192,11 @@ export default function decorate(block) {
 
   const values = normalizeLines(statValuesField.value);
   const labels = normalizeLines(statLabelsField.value);
+  const effectiveValues = values.length ? values : looseLegacy.values;
+  const effectiveLabels = labels.length ? labels : looseLegacy.labels;
+  const effectiveBodyTextField = fieldHasContent(bodyTextField) || !looseLegacy.bodyText
+    ? bodyTextField
+    : { source: null, value: looseLegacy.bodyText };
   const textColors = parseTextColors(textStylesField.value);
   const textSizes = parseTextSizes(textStylesField.value);
   const textWeights = parseTextWeights(textStylesField.value);
@@ -1216,18 +1261,18 @@ export default function decorate(block) {
   const heading = buildTextElement('h2', 'statistics-heading', headingField);
   if (heading) wrapper.append(heading);
 
-  const bodyText = buildTextElement('div', 'statistics-body', bodyTextField);
+  const bodyText = buildTextElement('div', 'statistics-body', effectiveBodyTextField);
   if (bodyText) wrapper.append(bodyText);
 
   const list = document.createElement('ul');
   list.className = 'statistics-list';
   const authoredItems = getAuthoredItems(block);
   const items = applyItemDefaults(
-    authoredItems.length ? authoredItems : getLegacyItems(values, labels),
+    authoredItems.length ? authoredItems : getLegacyItems(effectiveValues, effectiveLabels),
     {
       imageField: iconImageField,
       imageAlt: iconImageAltField.value,
-      imageMode: imageModeField.value,
+      imageMode: imageModeField.value || looseLegacy.imageMode,
       iconMaxWidth: iconMaxWidthField.value,
       iconMaxHeight: iconMaxHeightField.value,
       buttonTextField: defaultButtonTextField,
