@@ -12,6 +12,39 @@ import injectColorPickers from '../../scripts/block-color-picker.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 
 const HEX_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const TARGET_OPTION_VALUES = ['self', 'blank', 'same-tab', 'new-tab'];
+const CONFIG_OPTION_VALUES = [
+  'left',
+  'center',
+  'right',
+  'justify',
+  'stretch',
+  'top',
+  'middle',
+  'bottom',
+  'show',
+  'hide',
+  'icon',
+  'fluid',
+  'self',
+  'blank',
+  'same-tab',
+  'new-tab',
+  'solid',
+  'outlined',
+  'inverted',
+  'none',
+  'yes',
+  'no',
+  'true',
+  'false',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+];
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -179,6 +212,23 @@ function isFontWeightText(value) {
   return /^(?:[1-9]00)$/u.test(String(value || '').trim());
 }
 
+function isTargetText(value) {
+  return Boolean(normalizeOption(value, TARGET_OPTION_VALUES, ''));
+}
+
+function isConfigOnlyText(value) {
+  const text = String(value || '').trim();
+  if (!text) return true;
+  return isHexColorText(text)
+    || isCssLengthText(text)
+    || isFontWeightText(text)
+    || Boolean(normalizeOption(text, CONFIG_OPTION_VALUES, ''));
+}
+
+function isLikelyStatValue(value) {
+  return /\d/u.test(String(value || ''));
+}
+
 function findLegacyAlignmentIndex(rows) {
   const maxStart = Math.min(rows.length - 1, 3);
   for (let index = 0; index < maxStart; index += 1) {
@@ -193,7 +243,7 @@ function findLegacyAlignmentIndex(rows) {
 }
 
 function findLegacyImageModeIndex(rows, alignmentIndex) {
-  const start = Math.max(0, alignmentIndex + 3);
+  const start = Math.max(0, alignmentIndex + 2);
   const end = Math.min(rows.length, alignmentIndex + 8);
   for (let index = start; index < end; index += 1) {
     if (hasOptionValue(rows[index], ['icon', 'fluid'])) return index;
@@ -208,30 +258,33 @@ function getLegacyConfig(rows) {
   const compactIconIndex = active
     ? rows.findIndex((row, index) => index >= alignmentIndex + 2 && rowHasMedia(row))
     : -1;
+  const compactStartIndex = compactIconIndex >= 0 ? compactIconIndex : imageModeIndex;
   const compactTextRows = (
-    compactIconIndex >= 0
-      ? rows.slice(compactIconIndex + 1).filter((row) => rowText(row) || rowHasMedia(row))
+    compactStartIndex >= 0
+      ? rows.slice(compactStartIndex + 1).filter((row) => rowText(row) || rowHasMedia(row))
       : []
   );
-  const compactStatRows = compactTextRows.slice(-2);
-  const compactConfigRows = compactTextRows.slice(0, -2);
-  const compactImageModeRow = compactConfigRows.find((row) => hasOptionValue(row, ['icon', 'fluid'])) || null;
-  const compactColorRows = compactConfigRows.filter((row) => isHexColorText(rowText(row)));
-  const compactLengthRows = compactConfigRows.filter((row) => isCssLengthText(rowText(row)));
-  const compactWeightRows = compactConfigRows.filter((row) => isFontWeightText(rowText(row)));
-  const compactTargetRow = compactConfigRows
-    .find((row) => hasOptionValue(row, ['_self', '_blank'])) || null;
-  const compactDividerRow = compactConfigRows.find((row) => hasOptionValue(row, ['show', 'hide'])) || null;
-  const compactButtonRows = compactConfigRows.filter((row) => {
+  const compactImageModeRow = compactTextRows.find((row) => hasOptionValue(row, ['icon', 'fluid'])) || null;
+  const compactColorRows = compactTextRows.filter((row) => isHexColorText(rowText(row)));
+  const compactLengthRows = compactTextRows.filter((row) => isCssLengthText(rowText(row)));
+  const compactWeightRows = compactTextRows.filter((row) => isFontWeightText(rowText(row)));
+  const compactTargetRow = compactTextRows
+    .find((row) => isTargetText(rowText(row))) || null;
+  const compactDividerRow = compactTextRows.find((row) => hasOptionValue(row, ['show', 'hide'])) || null;
+  const compactContentRows = compactTextRows.filter((row) => {
     const text = rowText(row);
-    return text
-      && row !== compactImageModeRow
-      && row !== compactTargetRow
-      && row !== compactDividerRow
-      && !isHexColorText(text)
-      && !isCssLengthText(text)
-      && !isFontWeightText(text);
+    return text && !isConfigOnlyText(text);
   });
+  const statValueRow = compactContentRows.find((row) => isLikelyStatValue(rowText(row)))
+    || compactContentRows[0]
+    || null;
+  const statValueIndex = compactContentRows.indexOf(statValueRow);
+  const statLabelRow = statValueIndex >= 0
+    ? compactContentRows.slice(statValueIndex + 1).find((row) => rowText(row))
+    : null;
+  const compactButtonRows = compactContentRows.filter((row) => (
+    row !== statValueRow && row !== statLabelRow
+  ));
   const labelSizeRow = compactLengthRows
     .find((row) => Number.parseFloat(rowText(row)) <= 80) || null;
   const minHeightRows = compactLengthRows.filter((row) => row !== labelSizeRow);
@@ -246,13 +299,13 @@ function getLegacyConfig(rows) {
     labelFontWeight: compactWeightRows[0],
     minHeight: minHeightRows[0],
     minHeightMobile: minHeightRows[1],
-    statValues: compactStatRows[0],
-    statLabels: compactStatRows[1],
+    statValues: statValueRow,
+    statLabels: statLabelRow,
   };
 
   return {
     active,
-    isCompact: compactIconIndex >= 0 && compactStatRows.length === 2,
+    isCompact: compactStartIndex >= 0 && Boolean(statValueRow && statLabelRow),
     compactCell(name) {
       return fieldCell(compactFields[name]);
     },
@@ -297,24 +350,7 @@ function getLegacyConfig(rows) {
 function isCompactItemValue(value) {
   const normalized = String(value || '').trim();
   if (!normalized || HEX_COLOR_RE.test(normalized)) return false;
-  return !normalizeOption(
-    normalized,
-    [
-      'left',
-      'center',
-      'right',
-      'top',
-      'middle',
-      'bottom',
-      'show',
-      'hide',
-      'icon',
-      'fluid',
-      '_self',
-      '_blank',
-    ],
-    '',
-  );
+  return !isConfigOnlyText(normalized);
 }
 
 function normalizeFontWeight(value) {
@@ -601,7 +637,13 @@ function appendFieldContent(field, element, fallbackValue = '') {
 }
 
 function normalizeTarget(value) {
-  return String(value || '').trim() === '_blank' ? '_blank' : '_self';
+  const target = normalizeOption(value, TARGET_OPTION_VALUES, 'self');
+  return ['blank', 'new-tab'].includes(target) ? '_blank' : '_self';
+}
+
+function normalizeButtonValue(value) {
+  const normalized = String(value || '').trim();
+  return normalized && !isConfigOnlyText(normalized) ? normalized : '';
 }
 
 function fieldHasContent(field) {
@@ -676,8 +718,8 @@ function buildItem(itemData) {
 
   const rawButtonText = itemData.buttonTextField.value;
   const rawButtonLink = itemData.buttonLinkField.value;
-  const buttonText = rawButtonText && !HEX_COLOR_RE.test(rawButtonText.trim()) ? rawButtonText : '';
-  const buttonLink = rawButtonLink && !HEX_COLOR_RE.test(rawButtonLink.trim()) ? rawButtonLink : '';
+  const buttonText = normalizeButtonValue(rawButtonText);
+  const buttonLink = normalizeButtonValue(rawButtonLink);
 
   const hasButton = buttonText || buttonLink;
 

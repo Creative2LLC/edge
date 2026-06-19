@@ -208,6 +208,87 @@ function textFromRow(row, name) {
   return (field?.textContent || row.textContent || '').trim();
 }
 
+function directRowText(row, index) {
+  const child = directRows(row)[index];
+  return (child?.textContent || '').trim();
+}
+
+function isOptionAt(row, index, allowedValues) {
+  return allowedValues.includes(normalizeBlockName(directRowText(row, index)));
+}
+
+function isConfigOnlyText(value) {
+  const normalized = normalizeBlockName(value);
+  return [
+    'left',
+    'center',
+    'right',
+    'justify',
+    'stretch',
+    'top',
+    'middle',
+    'bottom',
+    'show',
+    'hide',
+    'icon',
+    'fluid',
+    'self',
+    'blank',
+    'same-tab',
+    'new-tab',
+    'solid',
+    'outlined',
+    'inverted',
+    'none',
+    'yes',
+    'no',
+    'true',
+    'false',
+  ].includes(normalized)
+    || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
+    || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)$/i.test(String(value || '').trim())
+    || /^(?:[1-9]00)$/u.test(String(value || '').trim());
+}
+
+function flattenedContentTexts(row) {
+  return directRows(row)
+    .map((child) => (child.textContent || '').trim())
+    .filter((text) => text && !isConfigOnlyText(text));
+}
+
+function isFlattenedStatisticsItem(row) {
+  const rows = directRows(row);
+  const texts = flattenedContentTexts(row);
+
+  return rows.length >= 12
+    && isOptionAt(row, 1, ['left', 'center', 'right'])
+    && isOptionAt(row, 2, ['top', 'middle', 'bottom'])
+    && texts.length >= 2
+    && texts.some((text) => /\d/u.test(text));
+}
+
+function isFlattenedColoredTextItem(row) {
+  const rows = directRows(row);
+  return rows.length >= 5
+    && Boolean(directRowText(row, 0))
+    && isOptionAt(row, 3, ['left', 'center', 'right', 'justify'])
+    && isOptionAt(row, 4, ['top', 'middle', 'bottom']);
+}
+
+function normalizeFlattenedRowItem(item) {
+  if (
+    item.dataset.blockName
+    || item.getAttribute('data-aue-model')
+    || getResourceBlockName(item)
+  ) return;
+
+  if (isFlattenedStatisticsItem(item)) {
+    item.dataset.blockName = 'statistics';
+  } else if (isFlattenedColoredTextItem(item)) {
+    item.dataset.blockName = 'colored-text';
+  }
+}
+
 function hasFieldSource(row) {
   return Boolean(
     row?.matches?.('[data-aue-prop], [data-richtext-prop]')
@@ -260,7 +341,20 @@ function isExplicitRowItem(row) {
   if (row.matches?.(COLORED_GRID_ROW_SELECTOR)) return true;
 
   const resource = row.getAttribute?.('data-aue-resource') || '';
-  return resource.includes('/colored_grid/colored_grid_row');
+  if (resource.includes('/colored_grid/colored_grid_row')) return true;
+
+  const rows = directRows(row);
+  if (rows.length < ROW_FIELD_NAMES.length) return false;
+
+  const columns = Number.parseInt(directRowText(row, 0), 10);
+  const horizontalAlign = normalizeBlockName(directRowText(row, 7));
+  const verticalAlign = normalizeBlockName(directRowText(row, 8));
+
+  return Number.isInteger(columns)
+    && columns >= 1
+    && columns <= 6
+    && ['stretch', 'left', 'center', 'right'].includes(horizontalAlign)
+    && ['stretch', 'top', 'middle', 'bottom'].includes(verticalAlign);
 }
 
 function hasAueResource(row) {
@@ -616,6 +710,7 @@ async function decorateRow(row, items, isEditor) {
   if (!rowItems.length) return rendered;
 
   const loadedItems = await Promise.all(rowItems.map(async (item, index) => {
+    normalizeFlattenedRowItem(item);
     applyRowItemStyles(item, fields, isEditor, index === 0);
     await loadContentBlock(item);
     return item;
@@ -643,6 +738,7 @@ export default async function decorate(block) {
 
   const renderedSegments = await Promise.all(rowSegments.map(async (segment) => {
     if (segment.type === 'row') return decorateRow(segment.row, segment.items, isEditor);
+    normalizeFlattenedRowItem(segment.item);
     resetRowItemRuntime(segment.item);
     await loadContentBlock(segment.item);
     return segment.item;

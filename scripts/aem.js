@@ -1011,6 +1011,10 @@ function childText(element) {
   return element?.textContent?.trim().toLowerCase() || '';
 }
 
+function childTextRaw(element) {
+  return element?.textContent?.trim() || '';
+}
+
 function createBlockFieldRow(label, value) {
   const row = document.createElement('div');
   const labelCell = document.createElement('div');
@@ -1034,6 +1038,60 @@ function createFlattenedBlock(blockName, rows) {
 function isPlainParagraph(element) {
   return element?.tagName === 'P'
     && !element.querySelector('picture, img, a, button, iframe, video');
+}
+
+function isFlattenedConfigText(value) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return [
+    'left',
+    'center',
+    'right',
+    'justify',
+    'stretch',
+    'top',
+    'middle',
+    'bottom',
+    'show',
+    'hide',
+    'icon',
+    'fluid',
+    'self',
+    'blank',
+    'same-tab',
+    'new-tab',
+    'solid',
+    'outlined',
+    'inverted',
+    'none',
+    'yes',
+    'no',
+    'true',
+    'false',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+  ].includes(normalized)
+    || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
+    || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)$/i.test(String(value || '').trim())
+    || /^(?:[1-9]00)$/u.test(String(value || '').trim());
+}
+
+function isLikelyContentText(element) {
+  const text = childTextRaw(element);
+  return text && !isFlattenedConfigText(text);
+}
+
+function isDownloadButtonText(element) {
+  return /^(?:download(?:\s+\w+)*|learn more(?: here\.?)?|read more|view report)$/iu
+    .test(childTextRaw(element));
 }
 
 function isFlattenedHeadingTextColumn(column) {
@@ -1085,9 +1143,30 @@ function isFlattenedStatisticsColumn(column) {
   const horizontalAlign = childText(children[0]);
   const verticalAlign = childText(children[1]);
 
+  const contentChildren = children.slice(2).filter(isLikelyContentText);
+
   return ['left', 'center', 'right'].includes(horizontalAlign)
     && ['top', 'middle', 'bottom'].includes(verticalAlign)
-    && children.some((child) => child.querySelector('picture, img'));
+    && (
+      children.some((child) => child.querySelector('picture, img'))
+      || (contentChildren.length >= 2 && contentChildren.some((child) => /\d/u.test(childTextRaw(child))))
+    );
+}
+
+function getFlattenedStatisticsEndIndex(children) {
+  let contentCount = 0;
+
+  for (let index = 2; index < children.length; index += 1) {
+    const child = children[index];
+
+    if (child.querySelector('picture, img')) {
+      if (contentCount >= 2) return index;
+    } else if (isLikelyContentText(child)) {
+      contentCount += 1;
+    }
+  }
+
+  return children.length;
 }
 
 function normalizeFlattenedStatisticsColumn(column) {
@@ -1095,19 +1174,61 @@ function normalizeFlattenedStatisticsColumn(column) {
 
   const block = document.createElement('div');
   block.className = 'statistics';
+  const children = directContentChildren(column);
+  const statsEndIndex = getFlattenedStatisticsEndIndex(children);
+  const statsChildren = children.slice(0, statsEndIndex);
 
-  while (column.firstChild) {
-    const child = column.firstChild;
-    if (child.nodeType === Node.TEXT_NODE && !child.textContent.trim()) {
-      child.remove();
-    } else {
-      const row = document.createElement('div');
-      row.append(child);
-      block.append(row);
-    }
+  statsChildren.forEach((child) => {
+    const row = document.createElement('div');
+    row.append(child);
+    block.append(row);
+  });
+
+  [...column.childNodes]
+    .filter((child) => child.nodeType === Node.TEXT_NODE && !child.textContent.trim())
+    .forEach((child) => child.remove());
+  column.prepend(block);
+}
+
+function normalizeFlattenedPromoColumn(column) {
+  if (document.querySelector('[data-aue-resource]')) return;
+
+  const children = directContentChildren(column);
+  const imageIndex = children.findIndex((child) => child.querySelector('picture, img'));
+  if (imageIndex < 0) return;
+
+  const title = children.slice(imageIndex + 1).find((child) => (
+    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+  const button = children.slice(imageIndex + 1).find((child) => (
+    isPlainParagraph(child) && isDownloadButtonText(child)
+  ));
+
+  if (title && !title.closest('.colored-text, .colored-button')) {
+    const textBlock = createFlattenedBlock('colored-text', [
+      createBlockFieldRow('text', title),
+      createBlockFieldRow('text color', '#404041'),
+      createBlockFieldRow('horizontal alignment', 'center'),
+      createBlockFieldRow('vertical alignment', 'middle'),
+      createBlockFieldRow('font size', '27px'),
+    ]);
+    column.insertBefore(textBlock, button || null);
   }
 
-  column.append(block);
+  if (button && !button.closest('.colored-button')) {
+    const buttonBlock = createFlattenedBlock('colored-button', [
+      createBlockFieldRow('label', button),
+      createBlockFieldRow('link', ''),
+      createBlockFieldRow('background color', '#008DB6'),
+      createBlockFieldRow('text color', '#FFFFFF'),
+      createBlockFieldRow('border color', '#008DB6'),
+      createBlockFieldRow('appearance', 'solid'),
+      createBlockFieldRow('invert on hover', 'no'),
+      createBlockFieldRow('horizontal alignment', 'center'),
+      createBlockFieldRow('vertical alignment', 'top'),
+    ]);
+    column.append(buttonBlock);
+  }
 }
 
 function decorateNestedBlocks(root) {
@@ -1119,6 +1240,7 @@ function decorateNestedBlocks(root) {
     columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
       normalizeFlattenedHeadingTextColumn(column);
       normalizeFlattenedStatisticsColumn(column);
+      normalizeFlattenedPromoColumn(column);
 
       column.querySelectorAll(COLUMN_NESTED_BLOCK_SELECTOR).forEach((candidate) => {
         if (!isNestedBlockCandidate(candidate, columnsBlock)) return;
