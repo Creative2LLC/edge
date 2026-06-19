@@ -193,6 +193,15 @@ function getLegacyConfig(rows) {
   const alignmentIndex = findLegacyAlignmentIndex(rows);
   const active = alignmentIndex >= 0;
   const imageModeIndex = active ? findLegacyImageModeIndex(rows, alignmentIndex) : -1;
+  const compactIconIndex = active && imageModeIndex < 0
+    ? rows.findIndex((row, index) => index >= alignmentIndex + 2 && rowHasMedia(row))
+    : -1;
+  const compactRows = () => (
+    compactIconIndex >= 0
+      ? rows.slice(compactIconIndex + 1).filter((row) => rowText(row) || rowHasMedia(row))
+      : []
+  );
+  const compactStatRows = () => compactRows().slice(-2);
 
   return {
     active,
@@ -224,6 +233,20 @@ function getLegacyConfig(rows) {
     iconAltCell() {
       if (!active || imageModeIndex !== alignmentIndex + 5) return null;
       return fieldCell(rows[alignmentIndex + 4]);
+    },
+    statValuesCell() {
+      const [valueRow] = compactStatRows();
+      return fieldCell(valueRow);
+    },
+    statLabelsCell() {
+      const [, labelRow] = compactStatRows();
+      return fieldCell(labelRow);
+    },
+    cleanupCompactRows() {
+      const statRows = new Set(compactStatRows());
+      compactRows().forEach((row) => {
+        if (!statRows.has(row)) row.remove();
+      });
     },
   };
 }
@@ -755,8 +778,18 @@ export default function decorate(block) {
     ['mobile min height', 'minimum height mobile'],
     legacyCell(21),
   );
-  const statValuesField = readField(block, 'statValues', ['stat values', 'values'], legacyCell(22));
-  const statLabelsField = readField(block, 'statLabels', ['stat labels', 'labels'], legacyCell(23));
+  const statValuesField = readField(
+    block,
+    'statValues',
+    ['stat values', 'values'],
+    legacyConfig.statValuesCell() || legacyCell(22),
+  );
+  const statLabelsField = readField(
+    block,
+    'statLabels',
+    ['stat labels', 'labels'],
+    legacyConfig.statLabelsCell() || legacyCell(23),
+  );
   const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors'], legacyCell(24));
   const markerTermsField = readField(
     block,
@@ -776,6 +809,7 @@ export default function decorate(block) {
     ['marker style', 'highlight marker style'],
     legacyCell(27),
   );
+  legacyConfig.cleanupCompactRows();
 
   const values = normalizeLines(statValuesField.value);
   const labels = normalizeLines(statLabelsField.value);

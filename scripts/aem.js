@@ -1000,6 +1000,50 @@ function normalizeColumnAuthoringContainers(columnsBlock) {
     });
 }
 
+function directContentChildren(element) {
+  return [...element.children]
+    .filter((child) => child.textContent.trim() || child.querySelector('picture, img'));
+}
+
+function childText(element) {
+  return element?.textContent?.trim().toLowerCase() || '';
+}
+
+function isFlattenedStatisticsColumn(column) {
+  if (document.querySelector('[data-aue-resource]')) return false;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
+
+  const children = directContentChildren(column);
+  if (children.length < 5) return false;
+
+  const horizontalAlign = childText(children[0]);
+  const verticalAlign = childText(children[1]);
+
+  return ['left', 'center', 'right'].includes(horizontalAlign)
+    && ['top', 'middle', 'bottom'].includes(verticalAlign)
+    && children.some((child) => child.querySelector('picture, img'));
+}
+
+function normalizeFlattenedStatisticsColumn(column) {
+  if (!isFlattenedStatisticsColumn(column)) return;
+
+  const block = document.createElement('div');
+  block.className = 'statistics';
+
+  while (column.firstChild) {
+    const child = column.firstChild;
+    if (child.nodeType === Node.TEXT_NODE && !child.textContent.trim()) {
+      child.remove();
+    } else {
+      const row = document.createElement('div');
+      row.append(child);
+      block.append(row);
+    }
+  }
+
+  column.append(block);
+}
+
 function decorateNestedBlocks(root) {
   const columnsBlocks = root.matches?.('.columns.block') ? [root] : [...root.querySelectorAll('.columns.block')];
 
@@ -1007,6 +1051,8 @@ function decorateNestedBlocks(root) {
     normalizeColumnAuthoringContainers(columnsBlock);
 
     columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
+      normalizeFlattenedStatisticsColumn(column);
+
       column.querySelectorAll(COLUMN_NESTED_BLOCK_SELECTOR).forEach((candidate) => {
         if (!isNestedBlockCandidate(candidate, columnsBlock)) return;
 
