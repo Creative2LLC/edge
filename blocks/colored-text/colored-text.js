@@ -224,7 +224,7 @@ export default function decorate(block) {
   const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[0]));
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
   const textColor = normalizeColorValue(txtField.value)
-    || (hasDarkSectionBackground(block) ? '#FFF' : '');
+    || (hasDarkSectionBackground(block) ? '#FFF' : '#404041');
   const blockBgField = readColorField(
     block,
     'blockBackgroundColor',

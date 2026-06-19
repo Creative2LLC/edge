@@ -1240,6 +1240,78 @@ function normalizeFlattenedHeadingTextColumn(column) {
   column.append(headingBlock, textBlock);
 }
 
+function getFlattenedSingleTextColumnParts(column) {
+  if (document.querySelector('[data-aue-resource]')) return null;
+  if (!column.closest('.section')?.classList.contains('colored-text-container')) return null;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
+
+  const children = directContentChildren(column);
+  const contentChildren = children.filter((child) => (
+    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+
+  if (contentChildren.length !== 1) return null;
+
+  return {
+    children,
+    text: contentChildren[0],
+  };
+}
+
+function isFlattenedCalloutText(element) {
+  const text = childTextRaw(element);
+  return text.length <= 120 && /\d+%/u.test(text);
+}
+
+function normalizeFlattenedSingleTextColumn(column) {
+  const parts = getFlattenedSingleTextColumnParts(column);
+  if (!parts) return;
+
+  const { children, text } = parts;
+  const textIndex = children.indexOf(text);
+  const textConfigChildren = children.slice(textIndex + 1);
+  const isCallout = isFlattenedCalloutText(text);
+  const textColor = isCallout ? '#F7941D' : defaultTextColorForBackground(column, '#404041');
+  const horizontalAlign = isCallout ? 'center' : 'left';
+  const verticalAlign = isCallout ? 'middle' : 'top';
+
+  const textBlock = createFlattenedBlock('colored-text', [
+    createBlockFieldRow('text', text),
+    createBlockFieldRow('text color', findFlattenedHexValue(textConfigChildren, textColor)),
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
+      textConfigChildren,
+      ['left', 'center', 'right', 'justify'],
+      horizontalAlign,
+    )),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(
+      textConfigChildren,
+      ['top', 'middle', 'bottom'],
+      verticalAlign,
+    )),
+    createBlockFieldRow('font size', findFlattenedLengthValue(
+      textConfigChildren,
+      isCallout ? '54px' : '27px',
+    )),
+    createBlockFieldRow('font weight', findFlattenedWeightValue(
+      textConfigChildren,
+      isCallout ? '700' : '',
+    )),
+    createBlockFieldRow('minimum height', isCallout ? '550px' : ''),
+    createBlockFieldRow('mobile min height', isCallout ? '100px' : ''),
+  ]);
+
+  children.forEach((child) => {
+    if (
+      child.isConnected
+      && isPlainParagraph(child)
+      && isFlattenedConfigText(childTextRaw(child))
+    ) {
+      child.remove();
+    }
+  });
+  column.append(textBlock);
+}
+
 function isFlattenedStatisticsColumn(column) {
   if (document.querySelector('[data-aue-resource]')) return false;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
@@ -1346,6 +1418,7 @@ function decorateNestedBlocks(root) {
 
     columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
       normalizeFlattenedHeadingTextColumn(column);
+      normalizeFlattenedSingleTextColumn(column);
       normalizeFlattenedStatisticsColumn(column);
       normalizeFlattenedPromoColumn(column);
 
