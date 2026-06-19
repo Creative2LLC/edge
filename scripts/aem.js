@@ -1087,6 +1087,8 @@ function isFlattenedConfigText(value) {
     'h4',
     'h5',
     'h6',
+    'circle',
+    'underline',
   ].includes(normalized)
     || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
     || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(String(value || '').trim())
@@ -1249,9 +1251,33 @@ function normalizeFlattenedHeadingTextColumn(column) {
   column.append(headingBlock, textBlock);
 }
 
+function shouldNormalizeFlattenedTextColumn(column) {
+  const section = column.closest('.section');
+  if (!section) return false;
+  if (section.classList.contains('colored-text-container')) return true;
+
+  return section.classList.contains('columns-container')
+    && (
+      section.classList.contains('colored-heading-container')
+      || section.classList.contains('statistics-container')
+    );
+}
+
+function isStrongOnlyParagraph(element) {
+  if (!isPlainParagraph(element)) return false;
+
+  const text = childTextRaw(element);
+  const strongText = [...element.querySelectorAll('strong, b')]
+    .map((child) => child.textContent.trim())
+    .filter(Boolean)
+    .join(' ');
+
+  return Boolean(text && strongText && strongText === text);
+}
+
 function getFlattenedMultiTextColumnParts(column) {
   if (document.querySelector('[data-aue-resource]')) return null;
-  if (!column.closest('.section')?.classList.contains('colored-text-container')) return null;
+  if (!shouldNormalizeFlattenedTextColumn(column)) return null;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
   if (hasDirectImageContent(column)) return null;
 
@@ -1275,17 +1301,42 @@ function normalizeFlattenedMultiTextColumn(column) {
   const { children, textChildren } = parts;
   const lastTextIndex = children.indexOf(textChildren[textChildren.length - 1]);
   const textConfigChildren = children.slice(lastTextIndex + 1);
-  const textValue = document.createDocumentFragment();
+  const textColor = findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041'));
+  const horizontalAlign = findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left');
+  const verticalAlign = findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top');
+  const fontSize = findFlattenedLengthValue(textConfigChildren, '27px');
+  const textBlocks = [];
 
-  textChildren.forEach((child) => textValue.append(child));
+  if (textChildren.some(isStrongOnlyParagraph)) {
+    textChildren.forEach((textChild) => {
+      const rows = [
+        createBlockFieldRow('text', textChild),
+        createBlockFieldRow('text color', textColor),
+        createBlockFieldRow('horizontal alignment', horizontalAlign),
+        createBlockFieldRow('vertical alignment', verticalAlign),
+        createBlockFieldRow('font size', fontSize),
+      ];
 
-  const textBlock = createFlattenedBlock('colored-text', [
-    createBlockFieldRow('text', textValue),
-    createBlockFieldRow('text color', findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041'))),
-    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left')),
-    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top')),
-    createBlockFieldRow('font size', findFlattenedLengthValue(textConfigChildren, '27px')),
-  ]);
+      if (isStrongOnlyParagraph(textChild)) {
+        rows.push(createBlockFieldRow('block background color', '#fff'));
+        rows.push(createBlockFieldRow('font weight', '700'));
+      }
+
+      textBlocks.push(createFlattenedBlock('colored-text', rows));
+    });
+  } else {
+    const textValue = document.createDocumentFragment();
+
+    textChildren.forEach((child) => textValue.append(child));
+
+    textBlocks.push(createFlattenedBlock('colored-text', [
+      createBlockFieldRow('text', textValue),
+      createBlockFieldRow('text color', textColor),
+      createBlockFieldRow('horizontal alignment', horizontalAlign),
+      createBlockFieldRow('vertical alignment', verticalAlign),
+      createBlockFieldRow('font size', fontSize),
+    ]));
+  }
 
   children.forEach((child) => {
     if (
@@ -1296,12 +1347,12 @@ function normalizeFlattenedMultiTextColumn(column) {
       child.remove();
     }
   });
-  column.append(textBlock);
+  column.append(...textBlocks);
 }
 
 function getFlattenedSingleTextColumnParts(column) {
   if (document.querySelector('[data-aue-resource]')) return null;
-  if (!column.closest('.section')?.classList.contains('colored-text-container')) return null;
+  if (!shouldNormalizeFlattenedTextColumn(column)) return null;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
   if (hasDirectImageContent(column)) return null;
 
@@ -1408,6 +1459,70 @@ function getFlattenedStatisticsEndIndex(children) {
   return children.length;
 }
 
+function isLikelyStatisticValueText(value) {
+  return /^\s*[-+$]?\d/u.test(String(value || ''));
+}
+
+function createLabeledFlattenedStatisticsRows(children) {
+  const markerStyleChild = [...children].reverse()
+    .find((child) => normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], ''));
+  const markerStyleIndex = markerStyleChild ? children.indexOf(markerStyleChild) : -1;
+  const markerColorChild = markerStyleIndex > 0
+    && normalizeColorValue(childTextRaw(children[markerStyleIndex - 1]))
+    ? children[markerStyleIndex - 1]
+    : null;
+  const colorChildren = children.filter((child) => (
+    child !== markerColorChild && normalizeColorValue(childTextRaw(child))
+  ));
+  const lengthChildren = children.filter((child) => (
+    /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(childTextRaw(child))
+  ));
+  const weightChildren = children.filter((child) => /^(?:[1-9]00)$/u.test(childTextRaw(child)));
+  const contentChildren = children.filter((child) => (
+    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+  const statValueChild = contentChildren.find((child) => (
+    isLikelyStatisticValueText(childTextRaw(child))
+  ))
+    || contentChildren[0]
+    || null;
+  const statValueIndex = contentChildren.indexOf(statValueChild);
+  const statLabelChild = statValueIndex >= 0
+    ? contentChildren.slice(statValueIndex + 1).find((child) => (
+      !isLikelyStatisticValueText(childTextRaw(child))
+    ))
+    : null;
+  const markerTextChild = markerStyleChild
+    ? contentChildren.slice(statValueIndex + 1).find((child) => (
+      child !== statLabelChild && childTextRaw(child)
+    ))
+    : null;
+  const valueColorChild = colorChildren.length >= 2
+    ? colorChildren[colorChildren.length - 2]
+    : colorChildren[0] || null;
+  const labelColorChild = colorChildren.length >= 2
+    ? colorChildren[colorChildren.length - 1]
+    : null;
+  const labelSizeChild = lengthChildren
+    .find((child) => Number.parseFloat(childTextRaw(child)) <= 80) || null;
+
+  if (!statValueChild) return [];
+
+  return [
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(children, ['left', 'center', 'right'], 'center')),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(children, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('value text color', childTextRaw(valueColorChild)),
+    createBlockFieldRow('label text color', childTextRaw(labelColorChild)),
+    createBlockFieldRow('label font size', childTextRaw(labelSizeChild)),
+    createBlockFieldRow('label font weight', childTextRaw(weightChildren[0])),
+    createBlockFieldRow('stat values', statValueChild),
+    createBlockFieldRow('stat labels', statLabelChild),
+    createBlockFieldRow('marker text', childTextRaw(markerTextChild)),
+    createBlockFieldRow('marker color', childTextRaw(markerColorChild)),
+    createBlockFieldRow('marker style', childTextRaw(markerStyleChild)),
+  ];
+}
+
 function normalizeFlattenedStatisticsColumn(column) {
   if (!isFlattenedStatisticsColumn(column)) return;
 
@@ -1416,12 +1531,20 @@ function normalizeFlattenedStatisticsColumn(column) {
   const children = directContentChildren(column);
   const statsEndIndex = getFlattenedStatisticsEndIndex(children);
   const statsChildren = children.slice(0, statsEndIndex);
+  const labeledRows = createLabeledFlattenedStatisticsRows(statsChildren);
 
-  statsChildren.forEach((child) => {
-    const row = document.createElement('div');
-    row.append(child);
-    block.append(row);
-  });
+  if (labeledRows.length) {
+    labeledRows.forEach((row) => block.append(row));
+    statsChildren.forEach((child) => {
+      if (child.parentElement === column) child.remove();
+    });
+  } else {
+    statsChildren.forEach((child) => {
+      const row = document.createElement('div');
+      row.append(child);
+      block.append(row);
+    });
+  }
 
   [...column.childNodes]
     .filter((child) => child.nodeType === Node.TEXT_NODE && !child.textContent.trim())
