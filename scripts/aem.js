@@ -1275,11 +1275,37 @@ function isStrongOnlyParagraph(element) {
   return Boolean(text && strongText && strongText === text);
 }
 
+function isFlattenedStatisticsColumn(column) {
+  if (document.querySelector('[data-aue-resource]')) return false;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
+
+  const children = directContentChildren(column);
+  if (children.length < 5) return false;
+
+  const horizontalAlign = childText(children[0]);
+  const verticalAlign = childText(children[1]);
+  const hasAlignmentRows = ['left', 'center', 'right'].includes(horizontalAlign)
+    && ['top', 'middle', 'bottom'].includes(verticalAlign);
+  const hasMarkerStyle = children.some((child) => (
+    normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], '')
+  ));
+
+  const contentChildren = children
+    .filter((child) => isPlainParagraph(child) && isLikelyContentText(child));
+
+  return (hasAlignmentRows || hasMarkerStyle)
+    && (
+      children.some((child) => child.querySelector('picture, img'))
+      || (contentChildren.length >= 2 && contentChildren.some((child) => /\d/u.test(childTextRaw(child))))
+    );
+}
+
 function getFlattenedMultiTextColumnParts(column) {
   if (document.querySelector('[data-aue-resource]')) return null;
   if (!shouldNormalizeFlattenedTextColumn(column)) return null;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
   if (hasDirectImageContent(column)) return null;
+  if (isFlattenedStatisticsColumn(column)) return null;
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
@@ -1312,13 +1338,19 @@ function normalizeFlattenedMultiTextColumn(column) {
       const rows = [
         createBlockFieldRow('text', textChild),
         createBlockFieldRow('text color', textColor),
-        createBlockFieldRow('horizontal alignment', horizontalAlign),
-        createBlockFieldRow('vertical alignment', verticalAlign),
-        createBlockFieldRow('font size', fontSize),
       ];
 
       if (isStrongOnlyParagraph(textChild)) {
         rows.push(createBlockFieldRow('block background color', '#fff'));
+      }
+
+      rows.push(
+        createBlockFieldRow('horizontal alignment', horizontalAlign),
+        createBlockFieldRow('vertical alignment', verticalAlign),
+        createBlockFieldRow('font size', fontSize),
+      );
+
+      if (isStrongOnlyParagraph(textChild)) {
         rows.push(createBlockFieldRow('font weight', '700'));
       }
 
@@ -1355,6 +1387,7 @@ function getFlattenedSingleTextColumnParts(column) {
   if (!shouldNormalizeFlattenedTextColumn(column)) return null;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
   if (hasDirectImageContent(column)) return null;
+  if (isFlattenedStatisticsColumn(column)) return null;
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
@@ -1421,26 +1454,6 @@ function normalizeFlattenedSingleTextColumn(column) {
     }
   });
   column.append(textBlock);
-}
-
-function isFlattenedStatisticsColumn(column) {
-  if (document.querySelector('[data-aue-resource]')) return false;
-  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
-
-  const children = directContentChildren(column);
-  if (children.length < 5) return false;
-
-  const horizontalAlign = childText(children[0]);
-  const verticalAlign = childText(children[1]);
-
-  const contentChildren = children.slice(2).filter(isLikelyContentText);
-
-  return ['left', 'center', 'right'].includes(horizontalAlign)
-    && ['top', 'middle', 'bottom'].includes(verticalAlign)
-    && (
-      children.some((child) => child.querySelector('picture, img'))
-      || (contentChildren.length >= 2 && contentChildren.some((child) => /\d/u.test(childTextRaw(child))))
-    );
 }
 
 function getFlattenedStatisticsEndIndex(children) {
@@ -1617,9 +1630,9 @@ function decorateNestedBlocks(root) {
     columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
       normalizeFlattenedColumnImages(column);
       normalizeFlattenedHeadingTextColumn(column);
+      normalizeFlattenedStatisticsColumn(column);
       normalizeFlattenedMultiTextColumn(column);
       normalizeFlattenedSingleTextColumn(column);
-      normalizeFlattenedStatisticsColumn(column);
       normalizeFlattenedPromoColumn(column);
 
       column.querySelectorAll(COLUMN_NESTED_BLOCK_SELECTOR).forEach((candidate) => {
