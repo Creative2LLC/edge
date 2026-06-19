@@ -1007,6 +1007,15 @@ function directContentChildren(element) {
     .filter((child) => child.textContent.trim() || child.querySelector('picture, img'));
 }
 
+function getAlignmentClass(element) {
+  return [...(element?.classList || [])]
+    .find((className) => /^align-(?:left|center|right)$/u.test(className));
+}
+
+function hasDirectImageContent(element) {
+  return Boolean(element.querySelector(':scope > p picture, :scope > p img, :scope > picture, :scope > img'));
+}
+
 function childText(element) {
   return element?.textContent?.trim().toLowerCase() || '';
 }
@@ -1240,10 +1249,61 @@ function normalizeFlattenedHeadingTextColumn(column) {
   column.append(headingBlock, textBlock);
 }
 
+function getFlattenedMultiTextColumnParts(column) {
+  if (document.querySelector('[data-aue-resource]')) return null;
+  if (!column.closest('.section')?.classList.contains('colored-text-container')) return null;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
+  if (hasDirectImageContent(column)) return null;
+
+  const children = directContentChildren(column);
+  const contentChildren = children.filter((child) => (
+    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+
+  if (contentChildren.length < 2) return null;
+
+  return {
+    children,
+    textChildren: contentChildren,
+  };
+}
+
+function normalizeFlattenedMultiTextColumn(column) {
+  const parts = getFlattenedMultiTextColumnParts(column);
+  if (!parts) return;
+
+  const { children, textChildren } = parts;
+  const lastTextIndex = children.indexOf(textChildren[textChildren.length - 1]);
+  const textConfigChildren = children.slice(lastTextIndex + 1);
+  const textValue = document.createDocumentFragment();
+
+  textChildren.forEach((child) => textValue.append(child));
+
+  const textBlock = createFlattenedBlock('colored-text', [
+    createBlockFieldRow('text', textValue),
+    createBlockFieldRow('text color', findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041'))),
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left')),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('font size', findFlattenedLengthValue(textConfigChildren, '27px')),
+  ]);
+
+  children.forEach((child) => {
+    if (
+      child.isConnected
+      && isPlainParagraph(child)
+      && isFlattenedConfigText(childTextRaw(child))
+    ) {
+      child.remove();
+    }
+  });
+  column.append(textBlock);
+}
+
 function getFlattenedSingleTextColumnParts(column) {
   if (document.querySelector('[data-aue-resource]')) return null;
   if (!column.closest('.section')?.classList.contains('colored-text-container')) return null;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
+  if (hasDirectImageContent(column)) return null;
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
@@ -1369,6 +1429,20 @@ function normalizeFlattenedStatisticsColumn(column) {
   column.prepend(block);
 }
 
+function normalizeFlattenedColumnImages(column) {
+  if (document.querySelector('[data-aue-resource]')) return;
+
+  column.querySelectorAll(':scope > p').forEach((paragraph) => {
+    const imageElement = paragraph.querySelector(':scope > picture, :scope > img');
+    if (!imageElement) return;
+
+    const alignment = getAlignmentClass(paragraph) || getAlignmentClass(imageElement) || 'align-center';
+
+    paragraph.classList.add('image-positioned', alignment);
+    imageElement.classList.add('image-fit-container', 'image-positioned', alignment);
+  });
+}
+
 function normalizeFlattenedPromoColumn(column) {
   if (document.querySelector('[data-aue-resource]')) return;
 
@@ -1382,14 +1456,15 @@ function normalizeFlattenedPromoColumn(column) {
   const button = children.slice(imageIndex + 1).find((child) => (
     isPlainParagraph(child) && isDownloadButtonText(child)
   ));
+  const titleFontSize = isDarkColor(getSectionBackgroundValue(column)) ? '27px' : '';
 
   if (title && !title.closest('.colored-text, .colored-button')) {
     const textBlock = createFlattenedBlock('colored-text', [
       createBlockFieldRow('text', title),
-      createBlockFieldRow('text color', '#404041'),
+      createBlockFieldRow('text color', defaultTextColorForBackground(column, '#404041')),
       createBlockFieldRow('horizontal alignment', 'center'),
-      createBlockFieldRow('vertical alignment', 'middle'),
-      createBlockFieldRow('font size', '27px'),
+      createBlockFieldRow('vertical alignment', 'top'),
+      createBlockFieldRow('font size', titleFontSize),
     ]);
     column.insertBefore(textBlock, button || null);
   }
@@ -1417,7 +1492,9 @@ function decorateNestedBlocks(root) {
     normalizeColumnAuthoringContainers(columnsBlock);
 
     columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
+      normalizeFlattenedColumnImages(column);
       normalizeFlattenedHeadingTextColumn(column);
+      normalizeFlattenedMultiTextColumn(column);
       normalizeFlattenedSingleTextColumn(column);
       normalizeFlattenedStatisticsColumn(column);
       normalizeFlattenedPromoColumn(column);
