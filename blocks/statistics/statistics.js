@@ -155,14 +155,99 @@ function normalizeOption(value, allowedValues, fallback) {
   return allowedValues.includes(normalized) ? normalized : fallback;
 }
 
-function hasLegacyConfigRows(rows) {
-  return Boolean(
-    normalizeOption(fieldCell(rows[1])?.textContent, ['left', 'center', 'right'], '')
-      && normalizeOption(fieldCell(rows[2])?.textContent, ['top', 'middle', 'bottom'], '')
-      && (
-        normalizeOption(fieldCell(rows[5])?.textContent, ['icon', 'fluid'], '')
-          || normalizeOption(fieldCell(rows[6])?.textContent, ['icon', 'fluid'], '')
-      ),
+function rowText(row) {
+  return fieldCell(row)?.textContent?.trim() || '';
+}
+
+function rowHasMedia(row) {
+  return Boolean(row?.querySelector?.('picture, img'));
+}
+
+function hasOptionValue(row, allowedValues) {
+  return Boolean(normalizeOption(rowText(row), allowedValues, ''));
+}
+
+function findLegacyAlignmentIndex(rows) {
+  const maxStart = Math.min(rows.length - 1, 3);
+  for (let index = 0; index < maxStart; index += 1) {
+    if (
+      hasOptionValue(rows[index], ['left', 'center', 'right'])
+      && hasOptionValue(rows[index + 1], ['top', 'middle', 'bottom'])
+    ) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+function findLegacyImageModeIndex(rows, alignmentIndex) {
+  const start = Math.max(0, alignmentIndex + 3);
+  const end = Math.min(rows.length, alignmentIndex + 8);
+  for (let index = start; index < end; index += 1) {
+    if (hasOptionValue(rows[index], ['icon', 'fluid'])) return index;
+  }
+  return -1;
+}
+
+function getLegacyConfig(rows) {
+  const alignmentIndex = findLegacyAlignmentIndex(rows);
+  const active = alignmentIndex >= 0;
+  const imageModeIndex = active ? findLegacyImageModeIndex(rows, alignmentIndex) : -1;
+
+  return {
+    active,
+    cell(modelIndex) {
+      if (!active) return null;
+      if (modelIndex === 0 && alignmentIndex === 0) return null;
+      return fieldCell(rows[alignmentIndex + modelIndex - 1]);
+    },
+    bodyTextCell() {
+      if (!active) return null;
+      const row = rows[alignmentIndex + 2];
+      if (!row || rowHasMedia(row) || hasOptionValue(row, ['icon', 'fluid'])) return null;
+      return fieldCell(row);
+    },
+    imageModeCell(offset) {
+      if (!active || imageModeIndex < 0) return null;
+      return fieldCell(rows[imageModeIndex + offset]);
+    },
+    iconImageCell() {
+      if (!active) return null;
+
+      const expected = rows[alignmentIndex + 3];
+      if (rowHasMedia(expected)) return fieldCell(expected);
+
+      const end = imageModeIndex >= 0 ? imageModeIndex : Math.min(rows.length, alignmentIndex + 8);
+      const row = rows.slice(alignmentIndex + 2, end).find(rowHasMedia);
+      return fieldCell(row);
+    },
+    iconAltCell() {
+      if (!active || imageModeIndex !== alignmentIndex + 5) return null;
+      return fieldCell(rows[alignmentIndex + 4]);
+    },
+  };
+}
+
+function isCompactItemValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized || HEX_COLOR_RE.test(normalized)) return false;
+  return !normalizeOption(
+    normalized,
+    [
+      'left',
+      'center',
+      'right',
+      'top',
+      'middle',
+      'bottom',
+      'show',
+      'hide',
+      'icon',
+      'fluid',
+      '_self',
+      '_blank',
+    ],
+    '',
   );
 }
 
@@ -328,10 +413,12 @@ function isItemRow(row) {
     '[data-aue-prop="buttonLink"]',
   ].join(', ');
 
-  return Boolean(
-    row.querySelector(itemFieldSelector)
-      || row.querySelector('picture'),
-  );
+  if (row.querySelector(itemFieldSelector)) return true;
+  if (!row.querySelector('picture')) return false;
+
+  return [...row.children].some((cell, index) => (
+    index > 0 && isCompactItemValue(cell.textContent)
+  ));
 }
 
 function readItemTextField(row, name, index) {
@@ -560,19 +647,9 @@ function buildItem(itemData) {
 export default function decorate(block) {
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const legacyConfigRows = hasLegacyConfigRows(rows);
-  const legacyImageModeIndex = legacyConfigRows && normalizeOption(
-    fieldCell(rows[5])?.textContent,
-    ['icon', 'fluid'],
-    '',
-  ) ? 5 : 6;
-  const configCell = (index) => (legacyConfigRows ? fieldCell(rows[index]) : null);
-  const legacyIconAltCell = legacyConfigRows && legacyImageModeIndex === 6
-    ? fieldCell(rows[5])
-    : null;
-  const legacyCell = (imageModeOffset) => (
-    legacyConfigRows ? fieldCell(rows[legacyImageModeIndex + imageModeOffset]) : null
-  );
+  const legacyConfig = getLegacyConfig(rows);
+  const configCell = (index) => legacyConfig.cell(index);
+  const legacyCell = (imageModeOffset) => legacyConfig.imageModeCell(imageModeOffset);
 
   const headingField = readField(block, 'heading', ['heading', 'title'], configCell(0));
   const contentAlignmentField = readField(
@@ -582,13 +659,24 @@ export default function decorate(block) {
     configCell(1),
   );
   const verticalAlignmentField = readField(block, 'verticalAlignment', ['vertical alignment'], configCell(2));
-  const bodyTextField = readField(block, 'bodyText', ['body text', 'body', 'copy', 'subheading'], configCell(3));
-  const iconImageField = readImageBlockField(block, 'iconImage', ['icon image', 'image', 'icon'], configCell(4));
+  const bodyTextCell = legacyConfig.active ? legacyConfig.bodyTextCell() : configCell(3);
+  const bodyTextField = readField(
+    block,
+    'bodyText',
+    ['body text', 'body', 'copy', 'subheading'],
+    bodyTextCell,
+  );
+  const iconImageField = readImageBlockField(
+    block,
+    'iconImage',
+    ['icon image', 'image', 'icon'],
+    legacyConfig.iconImageCell() || configCell(4),
+  );
   const iconImageAltField = readField(
     block,
     'iconImageAlt',
     ['icon image alt text', 'image alt text', 'icon alt text'],
-    legacyIconAltCell,
+    legacyConfig.iconAltCell(),
   );
   const imageModeField = readField(
     block,

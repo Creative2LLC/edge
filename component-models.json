@@ -4694,6 +4694,35 @@
     ]
   },
   {
+    "id": "event-calendar",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "description": "Optional section heading displayed above the calendar.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL",
+        "description": "Laravel backend base URL. The block fetches events from /api/events?year=&month=.",
+        "value": "https://stunning-dust-ntqeawud3dqy.on-vapor.com"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "emptyMessage",
+        "label": "Empty Month Message",
+        "description": "Shown when there are no events in the displayed month.",
+        "value": "No events this month."
+      }
+    ]
+  },
+  {
     "id": "event-request-form",
     "fields": [
       {

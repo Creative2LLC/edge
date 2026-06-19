@@ -1,4 +1,5 @@
 let stylesInjected = false;
+const COLOR_PICKERS_ENABLED = false;
 
 function injectStyles() {
   if (stylesInjected) return;
@@ -80,6 +81,8 @@ function showToast(message) {
  * @returns {void}
  */
 export default function injectColorPickers(block, props) {
+  if (!COLOR_PICKERS_ENABLED) return;
+
   // Never runs on the live site — data-aue-resource only exists inside Universal Editor
   if (!document.querySelector('[data-aue-resource]')) return;
 
