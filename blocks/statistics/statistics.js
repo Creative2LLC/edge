@@ -251,8 +251,9 @@ function normalizeColorValue(value) {
   if (!normalized) return '';
 
   const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
-  if (/^https?:/i.test(normalized) && hexMatch) return hexMatch[0];
-  return normalized;
+  if (hexMatch) return hexMatch[0];
+  if (window.CSS?.supports?.('color', normalized)) return normalized;
+  return '';
 }
 
 function normalizeCssLength(value, propertyName) {

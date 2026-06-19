@@ -284,6 +284,14 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
+function normalizeHexColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  return hexMatch ? hexMatch[0] : '';
+}
+
 function normalizeBackgroundGradientValue(value) {
   const normalized = String(value || '').trim();
   if (!normalized || !/gradient\(/i.test(normalized)) return '';
@@ -1163,8 +1171,8 @@ function findFlattenedOptionValue(children, allowedValues, fallback = '') {
 }
 
 function findFlattenedHexValue(children, fallback = '') {
-  const match = children.find((child) => normalizeColorValue(childTextRaw(child)));
-  return match ? normalizeColorValue(childTextRaw(match)) : fallback;
+  const match = children.find((child) => normalizeHexColorValue(childTextRaw(child)));
+  return match ? normalizeHexColorValue(childTextRaw(match)) : fallback;
 }
 
 function findFlattenedLengthValue(children, fallback = '') {
@@ -1482,15 +1490,16 @@ function getFlattenedStatisticsEndIndex(children) {
 }
 
 function createLabeledFlattenedStatisticsRows(children) {
+  const iconImageChild = children.find((child) => child.querySelector('picture, img')) || null;
   const markerStyleChild = [...children].reverse()
     .find((child) => normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], ''));
   const markerStyleIndex = markerStyleChild ? children.indexOf(markerStyleChild) : -1;
   const markerColorChild = markerStyleIndex > 0
-    && normalizeColorValue(childTextRaw(children[markerStyleIndex - 1]))
+    && normalizeHexColorValue(childTextRaw(children[markerStyleIndex - 1]))
     ? children[markerStyleIndex - 1]
     : null;
   const colorChildren = children.filter((child) => (
-    child !== markerColorChild && normalizeColorValue(childTextRaw(child))
+    child !== markerColorChild && normalizeHexColorValue(childTextRaw(child))
   ));
   const lengthChildren = children.filter((child) => (
     /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(childTextRaw(child))
@@ -1530,14 +1539,17 @@ function createLabeledFlattenedStatisticsRows(children) {
     createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(children, ['left', 'center', 'right'], 'center')),
     createBlockFieldRow('vertical alignment', findFlattenedOptionValue(children, ['top', 'middle', 'bottom'], 'top')),
     createBlockFieldRow('body text', ''),
-    createBlockFieldRow('value text color', childTextRaw(valueColorChild)),
-    createBlockFieldRow('label text color', childTextRaw(labelColorChild)),
+    createBlockFieldRow('icon image', iconImageChild),
+    createBlockFieldRow('icon image alt text', iconImageChild?.querySelector('img')?.alt || ''),
+    createBlockFieldRow('image mode', iconImageChild ? 'icon' : ''),
+    createBlockFieldRow('value text color', normalizeHexColorValue(childTextRaw(valueColorChild))),
+    createBlockFieldRow('label text color', normalizeHexColorValue(childTextRaw(labelColorChild))),
     createBlockFieldRow('label font size', childTextRaw(labelSizeChild)),
     createBlockFieldRow('label font weight', childTextRaw(weightChildren[0])),
     createBlockFieldRow('stat values', statValueChild),
     createBlockFieldRow('stat labels', statLabelChild),
     createBlockFieldRow('marker text', childTextRaw(markerTextChild)),
-    createBlockFieldRow('marker color', childTextRaw(markerColorChild)),
+    createBlockFieldRow('marker color', normalizeHexColorValue(childTextRaw(markerColorChild))),
     createBlockFieldRow('marker style', childTextRaw(markerStyleChild)),
   ];
 }

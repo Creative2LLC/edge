@@ -371,6 +371,27 @@ function appendRichText(field, className, parent) {
   }
 }
 
+function fieldText(field) {
+  return field?.text?.trim()
+    || field?.source?.textContent?.trim()
+    || '';
+}
+
+function isStatLikeCardText(value) {
+  const text = String(value || '').trim();
+  return text.length <= 48 && /^\s*[-+$]?\d/u.test(text);
+}
+
+function isShortIconCardLabel(value) {
+  const text = String(value || '').trim();
+  return Boolean(text && text.length <= 80 && !/[.!?]\s*$/u.test(text));
+}
+
+function isStatIconCard(textField, highlightField) {
+  return isStatLikeCardText(fieldText(highlightField))
+    && isShortIconCardLabel(fieldText(textField));
+}
+
 function isIconLikeImage(src) {
   try {
     const url = new URL(src, window.location.href);
@@ -384,13 +405,13 @@ function isIconLikeImage(src) {
   }
 }
 
-function buildImage(imageField) {
+function buildImage(imageField, forceIcon = false) {
   const sourceImg = imageField?.img;
   if (!sourceImg) return null;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'cards-card-image';
-  if (isIconLikeImage(sourceImg.src)) wrapper.classList.add('cards-card-image-icon');
+  if (forceIcon || isIconLikeImage(sourceImg.src)) wrapper.classList.add('cards-card-image-icon');
 
   const optimizedPic = createOptimizedPicture(sourceImg.src, sourceImg.alt, false, [{ width: '750' }]);
   const optimizedImg = optimizedPic.querySelector('img');
@@ -461,7 +482,7 @@ function buildCard(row) {
   if (highlightTextColor) li.style.setProperty('--cards-card-highlight', highlightTextColor);
   if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
 
-  const image = buildImage(imageField);
+  const image = buildImage(imageField, isStatIconCard(textField, highlightField));
   if (image) li.append(image);
 
   const body = document.createElement('div');
