@@ -473,6 +473,12 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : normalized;
 }
 
+function normalizeHexColorValue(value) {
+  const normalized = String(value || '').trim();
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  return hexMatch ? hexMatch[0] : '';
+}
+
 function normalizeCssValue(value, propertyName) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -563,6 +569,20 @@ function applyBlockStyles(block, fields, isEditor) {
     'colored-grid-v-',
     normalizeOption(value, ['top', 'middle', 'bottom'], 'top'),
   ));
+}
+
+function recoverFlattenedBlockColors(block, blockConfigRows) {
+  const colors = blockConfigRows
+    .map((row) => normalizeHexColorValue(row?.textContent))
+    .filter(Boolean);
+
+  if (!block.style.getPropertyValue('--colored-grid-bg') && colors[0]) {
+    setBlockBackground(block, colors[0]);
+  }
+
+  if (!block.style.getPropertyValue('--colored-grid-text') && colors[1]) {
+    setCssVar(block, '--colored-grid-text', colors[1]);
+  }
 }
 
 function resetRowItemRuntime(item) {
@@ -731,6 +751,7 @@ export default async function decorate(block) {
 
   removeGeneratedPlaceholders(block);
   applyBlockStyles(block, blockFields, isEditor);
+  recoverFlattenedBlockColors(block, blockConfigRows);
   cleanupConfigRows(blockConfigRows, isEditor);
 
   const inner = document.createElement('div');

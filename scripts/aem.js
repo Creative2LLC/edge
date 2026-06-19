@@ -1057,6 +1057,24 @@ function isPlainParagraph(element) {
     && !element.querySelector('picture, img, a, button, iframe, video');
 }
 
+function isStandaloneLinkParagraph(element) {
+  if (element?.tagName !== 'P') return false;
+
+  const text = childTextRaw(element);
+  const linkText = [...element.querySelectorAll('a')]
+    .map((link) => link.textContent.trim())
+    .filter(Boolean)
+    .join(' ');
+
+  return Boolean(text && linkText && text === linkText);
+}
+
+function isTextContentParagraph(element) {
+  return element?.tagName === 'P'
+    && !element.querySelector('picture, img, button, iframe, video')
+    && !isStandaloneLinkParagraph(element);
+}
+
 function isFlattenedConfigText(value) {
   const normalized = String(value || '')
     .trim()
@@ -1193,7 +1211,7 @@ function getFlattenedHeadingTextColumnParts(column) {
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
-    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
 
   if (contentChildren.length < 2) return null;
@@ -1304,7 +1322,7 @@ function isFlattenedStatisticsColumn(column) {
 
   const contentChildren = children
     .filter((child) => (
-      isPlainParagraph(child)
+      isTextContentParagraph(child)
       && isLikelyContentText(child)
       && !isDownloadButtonText(child)
     ));
@@ -1326,7 +1344,7 @@ function getFlattenedMultiTextColumnParts(column) {
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
-    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
 
   if (contentChildren.length < 2) return null;
@@ -1408,7 +1426,7 @@ function getFlattenedSingleTextColumnParts(column) {
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
-    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
 
   if (contentChildren.length !== 1) return null;
@@ -1489,6 +1507,25 @@ function getFlattenedStatisticsEndIndex(children) {
   return children.length;
 }
 
+function inferFlattenedStatisticImageMode(imageChild) {
+  if (!imageChild) return '';
+
+  const img = imageChild.querySelector('img');
+  const sourceText = [
+    img?.getAttribute('src'),
+    img?.getAttribute('alt'),
+    ...[...imageChild.querySelectorAll('source')]
+      .map((source) => source.getAttribute('srcset')),
+  ].filter(Boolean).join(' ');
+  const width = Number.parseFloat(img?.getAttribute('width') || '');
+  const height = Number.parseFloat(img?.getAttribute('height') || '');
+
+  if (/(?:chart|graph|diagram|infographic|figure)/iu.test(sourceText)) return 'fluid';
+  if (Number.isFinite(width) && width >= 300) return 'fluid';
+  if (Number.isFinite(height) && height >= 180) return 'fluid';
+  return 'icon';
+}
+
 function createLabeledFlattenedStatisticsRows(children) {
   const iconImageChild = children.find((child) => child.querySelector('picture, img')) || null;
   const markerStyleChild = [...children].reverse()
@@ -1506,7 +1543,7 @@ function createLabeledFlattenedStatisticsRows(children) {
   ));
   const weightChildren = children.filter((child) => /^(?:[1-9]00)$/u.test(childTextRaw(child)));
   const contentChildren = children.filter((child) => (
-    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
   const statValueChild = contentChildren.find((child) => (
     isLikelyStatisticValueText(childTextRaw(child))
@@ -1532,6 +1569,9 @@ function createLabeledFlattenedStatisticsRows(children) {
     : null;
   const labelSizeChild = lengthChildren
     .find((child) => Number.parseFloat(childTextRaw(child)) <= 80) || null;
+  const minHeightChildren = lengthChildren.filter((child) => (
+    child !== labelSizeChild && Number.parseFloat(childTextRaw(child)) > 80
+  ));
 
   if (!statValueChild) return [];
 
@@ -1541,11 +1581,17 @@ function createLabeledFlattenedStatisticsRows(children) {
     createBlockFieldRow('body text', ''),
     createBlockFieldRow('icon image', iconImageChild),
     createBlockFieldRow('icon image alt text', iconImageChild?.querySelector('img')?.alt || ''),
-    createBlockFieldRow('image mode', iconImageChild ? 'icon' : ''),
+    createBlockFieldRow('image mode', findFlattenedOptionValue(
+      children,
+      ['icon', 'fluid'],
+      inferFlattenedStatisticImageMode(iconImageChild),
+    )),
     createBlockFieldRow('value text color', normalizeHexColorValue(childTextRaw(valueColorChild))),
     createBlockFieldRow('label text color', normalizeHexColorValue(childTextRaw(labelColorChild))),
     createBlockFieldRow('label font size', childTextRaw(labelSizeChild)),
     createBlockFieldRow('label font weight', childTextRaw(weightChildren[0])),
+    createBlockFieldRow('minimum height', childTextRaw(minHeightChildren[0])),
+    createBlockFieldRow('mobile min height', childTextRaw(minHeightChildren[1])),
     createBlockFieldRow('stat values', statValueChild),
     createBlockFieldRow('stat labels', statLabelChild),
     createBlockFieldRow('marker text', childTextRaw(markerTextChild)),
@@ -1605,7 +1651,7 @@ function normalizeFlattenedPromoColumn(column) {
   if (imageIndex < 0) return;
 
   const title = children.slice(imageIndex + 1).find((child) => (
-    isPlainParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
   const button = children.slice(imageIndex + 1).find((child) => (
     isPlainParagraph(child) && isDownloadButtonText(child)

@@ -256,6 +256,67 @@ function normalizeColorValue(value) {
   return '';
 }
 
+function normalizeUsableColor(value) {
+  const color = normalizeColorValue(value);
+  return color && !['inherit', 'initial', 'unset', 'transparent'].includes(color.toLowerCase())
+    ? color
+    : '';
+}
+
+function parseColorChannels(value) {
+  const normalized = String(value || '').trim();
+  const hex = normalizeColorValue(normalized);
+
+  if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) {
+    const digits = hex.slice(1);
+    const parts = digits.length === 3
+      ? [...digits].map((digit) => `${digit}${digit}`)
+      : [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 6)];
+    return parts.map((part) => Number.parseInt(part, 16));
+  }
+
+  const rgb = normalized.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  return rgb ? rgb.slice(1, 4).map((part) => Number.parseInt(part, 10)) : null;
+}
+
+function isDarkColor(value) {
+  const channels = parseColorChannels(value);
+  if (!channels) return false;
+
+  const [red, green, blue] = channels.map((channel) => {
+    const normalized = channel / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+
+  return ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) < 0.3;
+}
+
+function getInheritedTextColor(block) {
+  const gridItem = block.closest('.colored-grid-row-item');
+  const grid = block.closest('.colored-grid');
+  return normalizeUsableColor(gridItem?.style?.getPropertyValue('--colored-grid-row-text'))
+    || normalizeUsableColor(grid?.style?.getPropertyValue('--colored-grid-text'));
+}
+
+function getNearestBackgroundColor(block) {
+  const gridItem = block.closest('.colored-grid-row-item');
+  const grid = block.closest('.colored-grid');
+  const section = block.closest('.section');
+  return gridItem?.style?.getPropertyValue('--colored-grid-row-bg')
+    || grid?.style?.getPropertyValue('--colored-grid-bg')
+    || section?.getAttribute('data-background-color')
+    || section?.getAttribute('data-backgroundcolor')
+    || section?.style?.backgroundColor
+    || '';
+}
+
+function defaultColorForContext(block, fallback) {
+  return getInheritedTextColor(block)
+    || (isDarkColor(getNearestBackgroundColor(block)) ? '#FFF' : fallback);
+}
+
 function normalizeCssLength(value, propertyName) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -1094,10 +1155,18 @@ export default function decorate(block) {
   const textColors = parseTextColors(textStylesField.value);
   const textSizes = parseTextSizes(textStylesField.value);
   const textWeights = parseTextWeights(textStylesField.value);
-  const headingColor = normalizeColorValue(headingColorField.value) || textColors.heading || '#00264d';
-  const bodyColor = normalizeColorValue(bodyColorField.value) || textColors.body || '#404041';
-  const valueColor = normalizeColorValue(valueColorField.value) || textColors.value || '#00264d';
-  const labelColor = normalizeColorValue(labelColorField.value) || textColors.label || '#6b6b6b';
+  const headingColor = normalizeColorValue(headingColorField.value)
+    || textColors.heading
+    || defaultColorForContext(block, '#00264d');
+  const bodyColor = normalizeColorValue(bodyColorField.value)
+    || textColors.body
+    || defaultColorForContext(block, '#404041');
+  const valueColor = normalizeColorValue(valueColorField.value)
+    || textColors.value
+    || defaultColorForContext(block, '#00264d');
+  const labelColor = normalizeColorValue(labelColorField.value)
+    || textColors.label
+    || defaultColorForContext(block, '#6b6b6b');
   const blockBackgroundColor = normalizeColorValue(blockBackgroundField.value);
 
   if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
@@ -1115,16 +1184,16 @@ export default function decorate(block) {
 
   applyStatisticsStyles(block, {
     blockBackgroundColor: blockBackgroundField.value,
-    headingTextColor: headingColorField.value,
+    headingTextColor: headingColor,
     headingFontSize: headingSizeField.value,
     headingFontWeight: headingWeightField.value,
-    bodyTextColor: bodyColorField.value,
+    bodyTextColor: bodyColor,
     bodyFontSize: bodySizeField.value,
     bodyFontWeight: bodyWeightField.value,
-    valueTextColor: valueColorField.value,
+    valueTextColor: valueColor,
     valueFontSize: valueSizeField.value,
     valueFontWeight: valueWeightField.value,
-    labelTextColor: labelColorField.value,
+    labelTextColor: labelColor,
     labelFontSize: labelSizeField.value,
     labelFontWeight: labelWeightField.value,
     minHeight: minHeightField.value,

@@ -56,6 +56,13 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function normalizeUsableColor(value) {
+  const color = normalizeColorValue(value);
+  return color && !['inherit', 'initial', 'unset', 'transparent'].includes(color.toLowerCase())
+    ? color
+    : '';
+}
+
 function parseColorChannels(value) {
   const normalized = String(value || '').trim();
   const hex = normalizeColorValue(normalized);
@@ -73,8 +80,12 @@ function parseColorChannels(value) {
 }
 
 function hasDarkSectionBackground(block) {
+  const gridItem = block.closest('.colored-grid-row-item');
+  const grid = block.closest('.colored-grid');
   const section = block.closest('.section');
-  const color = section?.getAttribute('data-background-color')
+  const color = gridItem?.style?.getPropertyValue('--colored-grid-row-bg')
+    || grid?.style?.getPropertyValue('--colored-grid-bg')
+    || section?.getAttribute('data-background-color')
     || section?.getAttribute('data-backgroundcolor')
     || section?.style?.backgroundColor
     || '';
@@ -89,6 +100,13 @@ function hasDarkSectionBackground(block) {
   });
 
   return ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) < 0.3;
+}
+
+function getInheritedTextColor(block) {
+  const gridItem = block.closest('.colored-grid-row-item');
+  const grid = block.closest('.colored-grid');
+  return normalizeUsableColor(gridItem?.style?.getPropertyValue('--colored-grid-row-text'))
+    || normalizeUsableColor(grid?.style?.getPropertyValue('--colored-grid-text'));
 }
 
 function hasInsertedBlockBackgroundRow(block, rows, rowIndex) {
@@ -215,6 +233,19 @@ function hasAuthoringContext(block) {
   return Boolean(block.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'));
 }
 
+function richFieldHasList(field) {
+  if (!field) return false;
+  if (field.source?.querySelector?.('ol, ul')) return true;
+  return /<(?:ol|ul)\b/i.test(field.html || '');
+}
+
+function shouldRestoreMissingListBackground(block, textField, fontSize) {
+  if (hasAuthoringContext(block)) return false;
+  if (block.closest('.columns')) return false;
+  if (!block.closest('.colored-text-container')) return false;
+  return fontSize === '28px' && richFieldHasList(textField);
+}
+
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
@@ -224,6 +255,7 @@ export default function decorate(block) {
   const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[0]));
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
   const textColor = normalizeColorValue(txtField.value)
+    || getInheritedTextColor(block)
     || (hasDarkSectionBackground(block) ? '#FFF' : '#404041');
   const blockBgField = readColorField(
     block,
@@ -232,7 +264,7 @@ export default function decorate(block) {
     isEditor,
     rowOffset ? fieldCell(rows[2]) : null,
   );
-  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
+  let blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const horizontalAlign = normalizeOption(
     readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[2 + rowOffset])).value,
     ['left', 'center', 'right', 'justify'],
@@ -284,6 +316,10 @@ export default function decorate(block) {
     ['marker style', 'highlight marker style'],
     fieldCell(rows[13 + rowOffset]),
   );
+
+  if (!blockBackgroundColor && shouldRestoreMissingListBackground(block, textField, fontSize)) {
+    blockBackgroundColor = '#FFF';
+  }
 
   block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
   applyColoredFieldLayoutOptions(block, 'colored-text', {
