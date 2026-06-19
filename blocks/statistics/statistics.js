@@ -167,6 +167,18 @@ function hasOptionValue(row, allowedValues) {
   return Boolean(normalizeOption(rowText(row), allowedValues, ''));
 }
 
+function isHexColorText(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
+}
+
+function isCssLengthText(value) {
+  return /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax|%)$/i.test(String(value || '').trim());
+}
+
+function isFontWeightText(value) {
+  return /^(?:[1-9]00)$/u.test(String(value || '').trim());
+}
+
 function findLegacyAlignmentIndex(rows) {
   const maxStart = Math.min(rows.length - 1, 3);
   for (let index = 0; index < maxStart; index += 1) {
@@ -193,18 +205,57 @@ function getLegacyConfig(rows) {
   const alignmentIndex = findLegacyAlignmentIndex(rows);
   const active = alignmentIndex >= 0;
   const imageModeIndex = active ? findLegacyImageModeIndex(rows, alignmentIndex) : -1;
-  const compactIconIndex = active && imageModeIndex < 0
+  const compactIconIndex = active
     ? rows.findIndex((row, index) => index >= alignmentIndex + 2 && rowHasMedia(row))
     : -1;
-  const compactRows = () => (
+  const compactTextRows = (
     compactIconIndex >= 0
       ? rows.slice(compactIconIndex + 1).filter((row) => rowText(row) || rowHasMedia(row))
       : []
   );
-  const compactStatRows = () => compactRows().slice(-2);
+  const compactStatRows = compactTextRows.slice(-2);
+  const compactConfigRows = compactTextRows.slice(0, -2);
+  const compactImageModeRow = compactConfigRows.find((row) => hasOptionValue(row, ['icon', 'fluid'])) || null;
+  const compactColorRows = compactConfigRows.filter((row) => isHexColorText(rowText(row)));
+  const compactLengthRows = compactConfigRows.filter((row) => isCssLengthText(rowText(row)));
+  const compactWeightRows = compactConfigRows.filter((row) => isFontWeightText(rowText(row)));
+  const compactTargetRow = compactConfigRows
+    .find((row) => hasOptionValue(row, ['_self', '_blank'])) || null;
+  const compactDividerRow = compactConfigRows.find((row) => hasOptionValue(row, ['show', 'hide'])) || null;
+  const compactButtonRows = compactConfigRows.filter((row) => {
+    const text = rowText(row);
+    return text
+      && row !== compactImageModeRow
+      && row !== compactTargetRow
+      && row !== compactDividerRow
+      && !isHexColorText(text)
+      && !isCssLengthText(text)
+      && !isFontWeightText(text);
+  });
+  const labelSizeRow = compactLengthRows
+    .find((row) => Number.parseFloat(rowText(row)) <= 80) || null;
+  const minHeightRows = compactLengthRows.filter((row) => row !== labelSizeRow);
+  const compactFields = {
+    imageMode: compactImageModeRow,
+    defaultButtonText: compactButtonRows[0],
+    defaultButtonTarget: compactTargetRow,
+    verticalDividers: compactDividerRow,
+    valueTextColor: compactColorRows[0],
+    labelTextColor: compactColorRows[1],
+    labelFontSize: labelSizeRow,
+    labelFontWeight: compactWeightRows[0],
+    minHeight: minHeightRows[0],
+    minHeightMobile: minHeightRows[1],
+    statValues: compactStatRows[0],
+    statLabels: compactStatRows[1],
+  };
 
   return {
     active,
+    isCompact: compactIconIndex >= 0 && compactStatRows.length === 2,
+    compactCell(name) {
+      return fieldCell(compactFields[name]);
+    },
     cell(modelIndex) {
       if (!active) return null;
       if (modelIndex === 0 && alignmentIndex === 0) return null;
@@ -234,18 +285,10 @@ function getLegacyConfig(rows) {
       if (!active || imageModeIndex !== alignmentIndex + 5) return null;
       return fieldCell(rows[alignmentIndex + 4]);
     },
-    statValuesCell() {
-      const [valueRow] = compactStatRows();
-      return fieldCell(valueRow);
-    },
-    statLabelsCell() {
-      const [, labelRow] = compactStatRows();
-      return fieldCell(labelRow);
-    },
     cleanupCompactRows() {
-      const statRows = new Set(compactStatRows());
-      compactRows().forEach((row) => {
-        if (!statRows.has(row)) row.remove();
+      const keepRows = new Set(Object.values(compactFields).filter(Boolean));
+      compactTextRows.forEach((row) => {
+        if (!keepRows.has(row)) row.remove();
       });
     },
   };
@@ -672,7 +715,9 @@ export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
   const legacyConfig = getLegacyConfig(rows);
   const configCell = (index) => legacyConfig.cell(index);
-  const legacyCell = (imageModeOffset) => legacyConfig.imageModeCell(imageModeOffset);
+  const legacyCell = (imageModeOffset) => (
+    legacyConfig.isCompact ? null : legacyConfig.imageModeCell(imageModeOffset)
+  );
 
   const headingField = readField(block, 'heading', ['heading', 'title'], configCell(0));
   const contentAlignmentField = readField(
@@ -705,7 +750,7 @@ export default function decorate(block) {
     block,
     'imageMode',
     ['image display mode', 'image mode', 'image sizing'],
-    legacyCell(0),
+    legacyConfig.compactCell('imageMode') || legacyCell(0),
   );
   const iconMaxWidthField = readField(
     block,
@@ -719,10 +764,30 @@ export default function decorate(block) {
     ['icon max height', 'icon height', 'image max height'],
     legacyCell(2),
   );
-  const defaultButtonTextField = readField(block, 'defaultButtonText', ['button text', 'cta text'], legacyCell(3));
-  const defaultButtonLinkField = readLinkBlockField(block, 'defaultButtonLink', ['button link', 'cta link'], legacyCell(4));
-  const defaultButtonTargetField = readField(block, 'defaultButtonTarget', ['button target', 'open link in'], legacyCell(5));
-  const verticalDividersField = readField(block, 'verticalDividers', ['vertical dividers', 'dividers'], legacyCell(6));
+  const defaultButtonTextField = readField(
+    block,
+    'defaultButtonText',
+    ['button text', 'cta text'],
+    legacyConfig.compactCell('defaultButtonText') || legacyCell(3),
+  );
+  const defaultButtonLinkField = readLinkBlockField(
+    block,
+    'defaultButtonLink',
+    ['button link', 'cta link'],
+    legacyCell(4),
+  );
+  const defaultButtonTargetField = readField(
+    block,
+    'defaultButtonTarget',
+    ['button target', 'open link in'],
+    legacyConfig.compactCell('defaultButtonTarget') || legacyCell(5),
+  );
+  const verticalDividersField = readField(
+    block,
+    'verticalDividers',
+    ['vertical dividers', 'dividers'],
+    legacyConfig.compactCell('verticalDividers') || legacyCell(6),
+  );
   const blockBackgroundField = readField(
     block,
     'blockBackgroundColor',
@@ -739,7 +804,7 @@ export default function decorate(block) {
     block,
     'valueTextColor',
     ['stat value text color', 'value text color', 'value color'],
-    legacyCell(14),
+    legacyConfig.compactCell('valueTextColor') || legacyCell(14),
   );
   const valueSizeField = readField(
     block,
@@ -757,38 +822,43 @@ export default function decorate(block) {
     block,
     'labelTextColor',
     ['stat label text color', 'label text color', 'label color'],
-    legacyCell(17),
+    legacyConfig.compactCell('labelTextColor') || legacyCell(17),
   );
   const labelSizeField = readField(
     block,
     'labelFontSize',
     ['stat label font size', 'label font size', 'label size'],
-    legacyCell(18),
+    legacyConfig.compactCell('labelFontSize') || legacyCell(18),
   );
   const labelWeightField = readField(
     block,
     'labelFontWeight',
     ['stat label font weight', 'label font weight', 'label weight'],
-    legacyCell(19),
+    legacyConfig.compactCell('labelFontWeight') || legacyCell(19),
   );
-  const minHeightField = readField(block, 'minHeight', ['minimum height', 'min height'], legacyCell(20));
+  const minHeightField = readField(
+    block,
+    'minHeight',
+    ['minimum height', 'min height'],
+    legacyConfig.compactCell('minHeight') || legacyCell(20),
+  );
   const minHeightMobileField = readField(
     block,
     'minHeightMobile',
     ['mobile min height', 'minimum height mobile'],
-    legacyCell(21),
+    legacyConfig.compactCell('minHeightMobile') || legacyCell(21),
   );
   const statValuesField = readField(
     block,
     'statValues',
     ['stat values', 'values'],
-    legacyConfig.statValuesCell() || legacyCell(22),
+    legacyConfig.compactCell('statValues') || legacyCell(22),
   );
   const statLabelsField = readField(
     block,
     'statLabels',
     ['stat labels', 'labels'],
-    legacyConfig.statLabelsCell() || legacyCell(23),
+    legacyConfig.compactCell('statLabels') || legacyCell(23),
   );
   const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors'], legacyCell(24));
   const markerTermsField = readField(

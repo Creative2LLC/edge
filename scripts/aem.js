@@ -525,6 +525,7 @@ const COLUMN_NESTED_BLOCK_SELECTOR = [
   '[data-aue-resource][data-aue-type="component"]',
   '[data-aue-resource][data-aue-behavior="component"]',
   '.colored-button',
+  '.colored-grid',
   '.colored-heading',
   '.colored-list',
   '.colored-text',
@@ -841,6 +842,7 @@ const CUSTOM_REVEAL_BLOCKS = new Set([
 
 const COLUMN_NESTED_BLOCK_NAMES = new Set([
   'colored-button',
+  'colored-grid',
   'colored-heading',
   'colored-list',
   'colored-text',
@@ -1009,6 +1011,70 @@ function childText(element) {
   return element?.textContent?.trim().toLowerCase() || '';
 }
 
+function createBlockFieldRow(label, value) {
+  const row = document.createElement('div');
+  const labelCell = document.createElement('div');
+  const valueCell = document.createElement('div');
+
+  labelCell.textContent = label;
+  if (value instanceof Node) valueCell.append(value);
+  else valueCell.textContent = value || '';
+
+  row.append(labelCell, valueCell);
+  return row;
+}
+
+function createFlattenedBlock(blockName, rows) {
+  const block = document.createElement('div');
+  block.className = blockName;
+  rows.forEach((row) => block.append(row));
+  return block;
+}
+
+function isPlainParagraph(element) {
+  return element?.tagName === 'P'
+    && !element.querySelector('picture, img, a, button, iframe, video');
+}
+
+function isFlattenedHeadingTextColumn(column) {
+  if (document.querySelector('[data-aue-resource]')) return false;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
+
+  const children = directContentChildren(column);
+  if (children.length !== 2 || !children.every(isPlainParagraph)) return false;
+
+  const headingText = children[0].textContent.trim();
+  const bodyText = children[1].textContent.trim();
+
+  return headingText.length > 0
+    && headingText.length <= 80
+    && bodyText.length > 120;
+}
+
+function normalizeFlattenedHeadingTextColumn(column) {
+  if (!isFlattenedHeadingTextColumn(column)) return;
+
+  const [heading, text] = directContentChildren(column);
+  const headingBlock = createFlattenedBlock('colored-heading', [
+    createBlockFieldRow('heading', heading),
+    createBlockFieldRow('heading level', 'h3'),
+    createBlockFieldRow('text color', '#00264D'),
+    createBlockFieldRow('horizontal alignment', 'left'),
+    createBlockFieldRow('vertical alignment', 'top'),
+    createBlockFieldRow('font size', '45px'),
+    createBlockFieldRow('font weight', '700'),
+  ]);
+  const textBlock = createFlattenedBlock('colored-text', [
+    createBlockFieldRow('text', text),
+    createBlockFieldRow('text color', '#404041'),
+    createBlockFieldRow('horizontal alignment', 'left'),
+    createBlockFieldRow('vertical alignment', 'top'),
+    createBlockFieldRow('font size', '27px'),
+  ]);
+
+  column.append(headingBlock, textBlock);
+}
+
 function isFlattenedStatisticsColumn(column) {
   if (document.querySelector('[data-aue-resource]')) return false;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
@@ -1051,6 +1117,7 @@ function decorateNestedBlocks(root) {
     normalizeColumnAuthoringContainers(columnsBlock);
 
     columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
+      normalizeFlattenedHeadingTextColumn(column);
       normalizeFlattenedStatisticsColumn(column);
 
       column.querySelectorAll(COLUMN_NESTED_BLOCK_SELECTOR).forEach((candidate) => {
