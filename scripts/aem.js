@@ -1088,6 +1088,8 @@ function isFlattenedConfigText(value) {
     'right',
     'justify',
     'stretch',
+    'default',
+    'auto',
     'top',
     'middle',
     'bottom',
@@ -1095,6 +1097,11 @@ function isFlattenedConfigText(value) {
     'hide',
     'icon',
     'fluid',
+    'fixed',
+    '_self',
+    '_blank',
+    '_parent',
+    '_top',
     'self',
     'blank',
     'same-tab',
@@ -1129,6 +1136,12 @@ function isLikelyContentText(element) {
 function isDownloadButtonText(element) {
   return /^(?:download(?:\s+\w+)*|learn more(?: here\.?)?|read more|view report)$/iu
     .test(childTextRaw(element));
+}
+
+function findFlattenedHexValues(children) {
+  return children
+    .map((child) => normalizeHexColorValue(childTextRaw(child)))
+    .filter(Boolean);
 }
 
 function parseColorChannels(value) {
@@ -1656,15 +1669,35 @@ function normalizeFlattenedPromoColumn(column) {
   const button = children.slice(imageIndex + 1).find((child) => (
     isPlainParagraph(child) && isDownloadButtonText(child)
   ));
+  const titleIndex = children.indexOf(title);
+  const buttonIndex = children.indexOf(button);
+  const titleConfigChildren = titleIndex >= 0 && buttonIndex > titleIndex
+    ? children.slice(titleIndex + 1, buttonIndex)
+    : [];
+  const buttonConfigChildren = buttonIndex >= 0 ? children.slice(buttonIndex + 1) : [];
   const titleFontSize = isDarkColor(getSectionBackgroundValue(column)) ? '27px' : '';
+  const buttonColors = findFlattenedHexValues(buttonConfigChildren);
+  const buttonIcon = buttonConfigChildren.find((child) => child.querySelector('picture, img'));
 
   if (title && !title.closest('.colored-text, .colored-button')) {
     const textBlock = createFlattenedBlock('colored-text', [
       createBlockFieldRow('text', title),
-      createBlockFieldRow('text color', defaultTextColorForBackground(column, '#404041')),
-      createBlockFieldRow('horizontal alignment', 'center'),
-      createBlockFieldRow('vertical alignment', 'top'),
-      createBlockFieldRow('font size', titleFontSize),
+      createBlockFieldRow('text color', findFlattenedHexValue(
+        titleConfigChildren,
+        defaultTextColorForBackground(column, '#404041'),
+      )),
+      createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
+        titleConfigChildren,
+        ['left', 'center', 'right', 'justify'],
+        'center',
+      )),
+      createBlockFieldRow('vertical alignment', findFlattenedOptionValue(
+        titleConfigChildren,
+        ['top', 'middle', 'bottom'],
+        'top',
+      )),
+      createBlockFieldRow('font size', findFlattenedLengthValue(titleConfigChildren, titleFontSize)),
+      createBlockFieldRow('font weight', findFlattenedWeightValue(titleConfigChildren, '')),
     ]);
     column.insertBefore(textBlock, button || null);
   }
@@ -1673,16 +1706,57 @@ function normalizeFlattenedPromoColumn(column) {
     const buttonBlock = createFlattenedBlock('colored-button', [
       createBlockFieldRow('label', button),
       createBlockFieldRow('link', ''),
-      createBlockFieldRow('background color', '#008DB6'),
-      createBlockFieldRow('text color', '#FFFFFF'),
-      createBlockFieldRow('border color', '#008DB6'),
-      createBlockFieldRow('appearance', 'solid'),
-      createBlockFieldRow('invert on hover', 'no'),
-      createBlockFieldRow('horizontal alignment', 'center'),
-      createBlockFieldRow('vertical alignment', 'top'),
+      createBlockFieldRow('background color', buttonColors[0] || '#008DB6'),
+      createBlockFieldRow('text color', buttonColors[1] || '#FFFFFF'),
+      createBlockFieldRow('border color', buttonColors[2] || buttonColors[0] || '#008DB6'),
+      createBlockFieldRow('block background color', ''),
+      createBlockFieldRow('appearance', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['solid', 'outlined', 'inverted'],
+        'solid',
+      )),
+      createBlockFieldRow('invert on hover', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['yes', 'no'],
+        'no',
+      )),
+      createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['left', 'center', 'right', 'stretch'],
+        'center',
+      )),
+      createBlockFieldRow('vertical alignment', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['top', 'middle', 'bottom'],
+        'top',
+      )),
+      createBlockFieldRow('font size', findFlattenedLengthValue(buttonConfigChildren, '')),
+      createBlockFieldRow('font weight', findFlattenedWeightValue(buttonConfigChildren, '')),
+      createBlockFieldRow('icon', buttonIcon),
+      createBlockFieldRow('icon name', ''),
+      createBlockFieldRow('icon alt', buttonIcon?.querySelector('img')?.alt || ''),
+      createBlockFieldRow('icon position', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['left', 'right', 'none'],
+        'left',
+      )),
+      createBlockFieldRow('icon size', ''),
+      createBlockFieldRow('minimum height', ''),
+      createBlockFieldRow('layout options', ''),
     ]);
     column.append(buttonBlock);
   }
+}
+
+function cleanupFlattenedColumnConfigArtifacts(column) {
+  if (document.querySelector('[data-aue-resource]')) return;
+
+  directContentChildren(column).forEach((child) => {
+    if (child.closest('.block')) return;
+    if (isPlainParagraph(child) && isFlattenedConfigText(childTextRaw(child))) {
+      child.remove();
+    }
+  });
 }
 
 function decorateNestedBlocks(root) {
@@ -1698,6 +1772,7 @@ function decorateNestedBlocks(root) {
       normalizeFlattenedMultiTextColumn(column);
       normalizeFlattenedSingleTextColumn(column);
       normalizeFlattenedPromoColumn(column);
+      cleanupFlattenedColumnConfigArtifacts(column);
 
       column.querySelectorAll(COLUMN_NESTED_BLOCK_SELECTOR).forEach((candidate) => {
         if (!isNestedBlockCandidate(candidate, columnsBlock)) return;

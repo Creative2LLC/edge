@@ -20,22 +20,37 @@ function normalizeLines(value) {
     .filter(Boolean);
 }
 
+function createLinkEntry(label, href) {
+  const normalizedLabel = normalizeText(label);
+  const normalizedHref = normalizeText(href);
+  if (!normalizedLabel || !normalizedHref) return null;
+
+  return { label: normalizedLabel, href: normalizedHref };
+}
+
+function parseLinkPairs(value) {
+  const normalized = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return [];
+
+  const entries = [];
+  const linkPattern = /(.+?)[|,]([^\s|,]+)(?=\s+[^|,]+[|,]|$)/g;
+  let match = linkPattern.exec(normalized);
+
+  while (match) {
+    const entry = createLinkEntry(match[1], match[2]);
+    if (entry) entries.push(entry);
+    match = linkPattern.exec(normalized);
+  }
+
+  return entries;
+}
+
 function parseLinks(value) {
   const lines = normalizeLines(value);
   const source = lines.length ? lines : DEFAULT_LINKS;
+  const links = source.flatMap(parseLinkPairs);
 
-  return source
-    .map((line) => {
-      const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(',');
-      if (separatorIndex < 0) return null;
-
-      const label = normalizeText(line.slice(0, separatorIndex));
-      const href = normalizeText(line.slice(separatorIndex + 1));
-      if (!label || !href) return null;
-
-      return { label, href };
-    })
-    .filter(Boolean);
+  return links.length ? links : DEFAULT_LINKS.flatMap(parseLinkPairs);
 }
 
 function readField(block, name, rowIndex, labels = []) {
@@ -127,7 +142,7 @@ export default function decorate(block) {
         if (!target) return;
         e.preventDefault();
         smoothScrollTo(target);
-        history.pushState(null, '', entry.href);
+        window.history.pushState(null, '', entry.href);
       });
     }
 
