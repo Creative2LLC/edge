@@ -491,10 +491,13 @@ function getLegacyConfig(rows) {
       && row !== statLabelRow
       && isLikelyButtonText(rowText(row))
   ));
+  const bodySizeRow = bodyTextRow && compactLengthRows.length > 1
+    ? compactLengthRows[0]
+    : null;
   const labelSizeRow = compactLengthRows
-    .find((row) => Number.parseFloat(rowText(row)) <= 80) || null;
+    .find((row) => row !== bodySizeRow && Number.parseFloat(rowText(row)) <= 80) || null;
   const minHeightRows = compactLengthRows.filter((row) => (
-    row !== labelSizeRow && Number.parseFloat(rowText(row)) > 80
+    row !== bodySizeRow && row !== labelSizeRow && Number.parseFloat(rowText(row)) > 80
   ));
   const colorCount = compactStyleColorRows.length;
   const blockBackgroundColorRow = colorCount >= 5 ? compactStyleColorRows[0] : null;
@@ -522,6 +525,7 @@ function getLegacyConfig(rows) {
     blockBackgroundColor: blockBackgroundColorRow,
     headingTextColor: headingColorRow,
     bodyTextColor: bodyColorRow,
+    bodyFontSize: bodySizeRow,
     valueTextColor: valueColorRow,
     labelTextColor: labelColorRow,
     labelFontSize: labelSizeRow,

@@ -124,6 +124,11 @@ function isConfigValueParagraph(el) {
   return AEM_CONFIG_VALUE.test(el.textContent.trim());
 }
 
+function isInsideUnloadedBlock(el) {
+  const block = el.closest('.block[data-block-status]');
+  return Boolean(block && block.dataset.blockStatus !== 'loaded');
+}
+
 /**
  * Removes AEM field artifacts that appear as raw paragraphs on delivery when nested blocks
  * (colored-text, colored-button, etc.) inside columns are flattened by the AEM serializer.
@@ -136,6 +141,7 @@ function removeAemBlockFieldArtifacts(scope) {
   const removed = new Set();
   scope.querySelectorAll('p > a[href]').forEach((a) => {
     if (!isHexArtifactAnchor(a)) return;
+    if (isInsideUnloadedBlock(a)) return;
     const p = a.closest('p');
     if (!p || removed.has(p) || !isHexArtifactParagraph(p)) return;
 

@@ -215,6 +215,15 @@
   padding: 0;
 }
 
+.colored-grid .statistics .statistics-body {
+  margin-top: 0;
+}
+
+.colored-grid .statistics .statistics-value,
+.colored-grid .statistics .statistics-label {
+  overflow-wrap: anywhere;
+}
+
 .colored-grid .statistics .statistics-inner,
 .colored-grid .colored-heading .colored-heading-inner,
 .colored-grid .colored-text .colored-text-inner,
