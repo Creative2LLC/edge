@@ -571,18 +571,49 @@ function applyBlockStyles(block, fields, isEditor) {
   ));
 }
 
-function recoverFlattenedBlockColors(block, blockConfigRows) {
+function recoverFlattenedBlockStyles(block, blockConfigRows) {
+  const valueAt = (index, name) => textFromRow(blockConfigRows[index], name);
   const colors = blockConfigRows
     .map((row) => normalizeHexColorValue(row?.textContent))
     .filter(Boolean);
+  const backgroundColor = normalizeHexColorValue(valueAt(0, 'backgroundColor')) || colors[0];
+  const textColor = normalizeHexColorValue(valueAt(1, 'textColor')) || colors[1];
+  const padding = normalizeCssValue(valueAt(2, 'padding'), 'padding');
+  const rowGap = normalizeCssValue(valueAt(3, 'rowGap'), 'gap');
+  const borderRadius = normalizeCssValue(valueAt(4, 'borderRadius'), 'border-radius');
+  const maxWidth = normalizeCssValue(valueAt(5, 'maxWidth'), 'max-width');
+  const minHeight = normalizeCssValue(valueAt(6, 'minHeight'), 'min-height');
+  const verticalAlign = normalizeOption(valueAt(7, 'verticalAlign'), ['top', 'middle', 'bottom'], '');
 
-  if (!block.style.getPropertyValue('--colored-grid-bg') && colors[0]) {
-    setBlockBackground(block, colors[0]);
+  if (!block.style.getPropertyValue('--colored-grid-bg') && backgroundColor) {
+    setBlockBackground(block, backgroundColor);
   }
 
-  if (!block.style.getPropertyValue('--colored-grid-text') && colors[1]) {
-    setCssVar(block, '--colored-grid-text', colors[1]);
+  if (!block.style.getPropertyValue('--colored-grid-text') && textColor) {
+    setCssVar(block, '--colored-grid-text', textColor);
   }
+
+  if (!block.style.getPropertyValue('--colored-grid-padding') && padding) {
+    setCssVar(block, '--colored-grid-padding', padding);
+  }
+
+  if (!block.style.getPropertyValue('--colored-grid-rows-gap') && rowGap) {
+    setCssVar(block, '--colored-grid-rows-gap', rowGap);
+  }
+
+  if (!block.style.getPropertyValue('--colored-grid-radius') && borderRadius) {
+    setCssVar(block, '--colored-grid-radius', borderRadius);
+  }
+
+  if (!block.style.getPropertyValue('--colored-grid-max-width') && maxWidth) {
+    setCssVar(block, '--colored-grid-max-width', maxWidth);
+  }
+
+  if (!block.style.getPropertyValue('--colored-grid-min-height') && minHeight) {
+    setCssVar(block, '--colored-grid-min-height', minHeight);
+  }
+
+  if (verticalAlign) setPrefixedClass(block, 'colored-grid-v-', verticalAlign);
 }
 
 function resetRowItemRuntime(item) {
@@ -751,7 +782,7 @@ export default async function decorate(block) {
 
   removeGeneratedPlaceholders(block);
   applyBlockStyles(block, blockFields, isEditor);
-  recoverFlattenedBlockColors(block, blockConfigRows);
+  recoverFlattenedBlockStyles(block, blockConfigRows);
   cleanupConfigRows(blockConfigRows, isEditor);
 
   const inner = document.createElement('div');

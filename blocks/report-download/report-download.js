@@ -25,23 +25,118 @@ function hasAuthoringContext(scope) {
   );
 }
 
-function getTextField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const field = readTextField(block, name, { rowIndex, columnIndex });
+function directRows(scope) {
+  return [...(scope?.querySelectorAll?.(':scope > div') || [])];
+}
+
+function rowCell(row) {
+  if (!row) return null;
+  return row.children?.[1] || row.children?.[0] || row;
+}
+
+function textFrom(node) {
+  return node?.textContent?.trim() || '';
+}
+
+function rowText(row) {
+  return textFrom(rowCell(row));
+}
+
+function rowHasImage(row) {
+  return Boolean(row?.querySelector?.('picture, img'));
+}
+
+function indexedRowHasImage(block, name) {
+  return rowHasImage(directRows(block)[FIELD_ROW_INDEX[name]]);
+}
+
+function isLikelyButtonText(value) {
+  return /^(download|learn more|read more|view|open|visit|explore)\b/i.test(String(value || '').trim());
+}
+
+function isHexAnchor(anchor) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
+    .test(anchor?.getAttribute?.('href') || '');
+}
+
+function hasUsableLink(row) {
+  const anchor = row?.querySelector?.('a[href]');
+  return Boolean(anchor && !isHexAnchor(anchor));
+}
+
+function getFlattenedFields(block) {
+  const rows = directRows(block);
+  const imageRows = rows.filter(rowHasImage);
+  const textRows = rows.filter((row) => !rowHasImage(row) && rowText(row));
+  const headingRow = textRows.find((row) => {
+    const text = rowText(row);
+    return !isLikelyButtonText(text) && !row.querySelector?.('ul, ol') && text.length <= 140;
+  }) || textRows.find((row) => !isLikelyButtonText(rowText(row))) || null;
+  const bodyRow = textRows.find((row) => row !== headingRow && row.querySelector?.('ul, ol'))
+    || textRows.find((row) => row !== headingRow && !isLikelyButtonText(rowText(row)))
+    || null;
+  const buttonRow = textRows.find((row) => (
+    row !== headingRow && row !== bodyRow && isLikelyButtonText(rowText(row))
+  )) || null;
+  const buttonIndex = rows.indexOf(buttonRow);
+  const linkCandidates = buttonIndex >= 0 ? rows.slice(buttonIndex + 1) : [];
+  const linkRow = linkCandidates.find(hasUsableLink) || null;
+
+  return {
+    backImageCell: imageRows.length > 1 ? rowCell(imageRows[0]) : null,
+    frontImageCell: imageRows.length > 1 ? rowCell(imageRows[1]) : rowCell(imageRows[0]),
+    headingCell: rowCell(headingRow),
+    bodyTextCell: rowCell(bodyRow),
+    buttonTextCell: rowCell(buttonRow),
+    buttonLinkCell: rowCell(linkRow),
+  };
+}
+
+function fieldOptions(rowIndex, columnIndex, fallbackCell) {
+  return fallbackCell ? { fallbackCell } : { rowIndex, columnIndex };
+}
+
+function getTextField(
+  block,
+  name,
+  rowIndex = FIELD_ROW_INDEX[name],
+  columnIndex = 0,
+  fallbackCell = null,
+) {
+  const field = readTextField(block, name, fieldOptions(rowIndex, columnIndex, fallbackCell));
   return { source: field.source || field.cell, value: field.value };
 }
 
-function getRichField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const field = readRichTextField(block, name, { rowIndex, columnIndex });
+function getRichField(
+  block,
+  name,
+  rowIndex = FIELD_ROW_INDEX[name],
+  columnIndex = 0,
+  fallbackCell = null,
+) {
+  const field = readRichTextField(block, name, fieldOptions(rowIndex, columnIndex, fallbackCell));
   return field.source || field.cell;
 }
 
-function getLinkField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const field = readLinkField(block, name, { rowIndex, columnIndex });
+function getLinkField(
+  block,
+  name,
+  rowIndex = FIELD_ROW_INDEX[name],
+  columnIndex = 0,
+  fallbackCell = null,
+) {
+  const field = readLinkField(block, name, fieldOptions(rowIndex, columnIndex, fallbackCell));
   return { source: field.source || field.cell, value: field.value };
 }
 
-function getImageField(block, name, rowIndex = FIELD_ROW_INDEX[name], columnIndex = 0) {
-  const field = readImageField(block, name, { rowIndex, columnIndex });
+function getImageField(
+  block,
+  name,
+  rowIndex = FIELD_ROW_INDEX[name],
+  columnIndex = 0,
+  fallbackCell = null,
+) {
+  const field = readImageField(block, name, fieldOptions(rowIndex, columnIndex, fallbackCell));
   return {
     source: field.source || field.cell,
     picture: field.picture,
@@ -141,14 +236,18 @@ function buildButton(labelField, linkField) {
 
 export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
-  const backImageField = getImageField(block, 'backImage');
+  const flattenedFields = getFlattenedFields(block);
+  const backImageField = getImageField(block, 'backImage', FIELD_ROW_INDEX.backImage, 0, flattenedFields.backImageCell);
   const backImageAltField = getTextField(block, 'backImageAlt');
-  const frontImageField = getImageField(block, 'frontImage');
-  const frontImageAltField = getTextField(block, 'frontImageAlt');
-  const headingField = getTextField(block, 'heading');
-  const bodyTextSource = getRichField(block, 'bodyText');
-  const buttonTextField = getTextField(block, 'buttonText');
-  const buttonLinkField = getLinkField(block, 'buttonLink');
+  const frontImageField = getImageField(block, 'frontImage', FIELD_ROW_INDEX.frontImage, 0, flattenedFields.frontImageCell);
+  const frontImageAltIndex = flattenedFields.frontImageCell && !indexedRowHasImage(block, 'frontImage')
+    ? null
+    : FIELD_ROW_INDEX.frontImageAlt;
+  const frontImageAltField = getTextField(block, 'frontImageAlt', frontImageAltIndex);
+  const headingField = getTextField(block, 'heading', FIELD_ROW_INDEX.heading, 0, flattenedFields.headingCell);
+  const bodyTextSource = getRichField(block, 'bodyText', FIELD_ROW_INDEX.bodyText, 0, flattenedFields.bodyTextCell);
+  const buttonTextField = getTextField(block, 'buttonText', FIELD_ROW_INDEX.buttonText, 0, flattenedFields.buttonTextCell);
+  const buttonLinkField = getLinkField(block, 'buttonLink', FIELD_ROW_INDEX.buttonLink, 0, flattenedFields.buttonLinkCell);
 
   const backPicture = buildPicture(backImageField, backImageAltField, 620);
   const frontPicture = buildPicture(frontImageField, frontImageAltField, 440);
