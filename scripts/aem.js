@@ -1075,6 +1075,16 @@ function isTextContentParagraph(element) {
     && !isStandaloneLinkParagraph(element);
 }
 
+function isTextContentList(element) {
+  return ['UL', 'OL'].includes(element?.tagName)
+    && !element.querySelector('picture, img, button, iframe, video')
+    && [...element.children].some((child) => child.tagName === 'LI' && child.textContent.trim());
+}
+
+function isRichTextContentElement(element) {
+  return isTextContentParagraph(element) || isTextContentList(element);
+}
+
 function isFlattenedConfigText(value) {
   const normalized = String(value || '')
     .trim()
@@ -1357,7 +1367,7 @@ function getFlattenedMultiTextColumnParts(column) {
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
-    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isRichTextContentElement(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
 
   if (contentChildren.length < 2) return null;
@@ -1439,7 +1449,7 @@ function getFlattenedSingleTextColumnParts(column) {
 
   const children = directContentChildren(column);
   const contentChildren = children.filter((child) => (
-    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isRichTextContentElement(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
 
   if (contentChildren.length !== 1) return null;

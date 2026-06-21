@@ -424,6 +424,9 @@ function getLegacyConfig(rows) {
       compactCell() {
         return null;
       },
+      compactValue() {
+        return '';
+      },
       cell() {
         return null;
       },
@@ -560,6 +563,9 @@ function getLegacyConfig(rows) {
     isCompact: active && Boolean(statValueRow),
     compactCell(name) {
       return fieldCell(compactFields[name]);
+    },
+    compactValue(name) {
+      return rowText(compactFields[name]);
     },
     cell(modelIndex) {
       if (!active) return null;
@@ -1229,10 +1235,11 @@ export default function decorate(block) {
     ['marker style', 'highlight marker style'],
     legacyConfig.compactCell('markerStyle') || legacyCell(27),
   );
+  const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
   legacyConfig.cleanupCompactRows();
 
-  const values = normalizeLines(statValuesField.value);
-  const labels = normalizeLines(statLabelsField.value);
+  const values = normalizeLines(statValuesField.value || compactValue('statValues'));
+  const labels = normalizeLines(statLabelsField.value || compactValue('statLabels'));
   const effectiveValues = values.length ? values : looseLegacy.values;
   const effectiveLabels = labels.length ? labels : looseLegacy.labels;
   const effectiveBodyTextField = fieldHasContent(bodyTextField) || !looseLegacy.bodyText
@@ -1242,18 +1249,23 @@ export default function decorate(block) {
   const textSizes = parseTextSizes(textStylesField.value);
   const textWeights = parseTextWeights(textStylesField.value);
   const headingColor = normalizeColorValue(headingColorField.value)
+    || normalizeColorValue(compactValue('headingTextColor'))
     || textColors.heading
     || defaultColorForContext(block, '#00264d');
   const bodyColor = normalizeColorValue(bodyColorField.value)
+    || normalizeColorValue(compactValue('bodyTextColor'))
     || textColors.body
     || defaultColorForContext(block, '#404041');
   const valueColor = normalizeColorValue(valueColorField.value)
+    || normalizeColorValue(compactValue('valueTextColor'))
     || textColors.value
     || defaultColorForContext(block, '#00264d');
   const labelColor = normalizeColorValue(labelColorField.value)
+    || normalizeColorValue(compactValue('labelTextColor'))
     || textColors.label
     || defaultColorForContext(block, '#6b6b6b');
-  const blockBackgroundColor = normalizeColorValue(blockBackgroundField.value);
+  const blockBackgroundColor = normalizeColorValue(blockBackgroundField.value)
+    || normalizeColorValue(compactValue('blockBackgroundColor'));
 
   if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
   if (textColors.body) block.style.setProperty('--statistics-body-color', textColors.body);
@@ -1269,21 +1281,21 @@ export default function decorate(block) {
   if (textWeights.label) block.style.setProperty('--statistics-label-weight', textWeights.label);
 
   applyStatisticsStyles(block, {
-    blockBackgroundColor: blockBackgroundField.value,
+    blockBackgroundColor,
     headingTextColor: headingColor,
-    headingFontSize: headingSizeField.value,
-    headingFontWeight: headingWeightField.value,
+    headingFontSize: headingSizeField.value || compactValue('headingFontSize'),
+    headingFontWeight: headingWeightField.value || compactValue('headingFontWeight'),
     bodyTextColor: bodyColor,
-    bodyFontSize: bodySizeField.value,
-    bodyFontWeight: bodyWeightField.value,
+    bodyFontSize: bodySizeField.value || compactValue('bodyFontSize'),
+    bodyFontWeight: bodyWeightField.value || compactValue('bodyFontWeight'),
     valueTextColor: valueColor,
-    valueFontSize: valueSizeField.value,
-    valueFontWeight: valueWeightField.value,
+    valueFontSize: valueSizeField.value || compactValue('valueFontSize'),
+    valueFontWeight: valueWeightField.value || compactValue('valueFontWeight'),
     labelTextColor: labelColor,
-    labelFontSize: labelSizeField.value,
-    labelFontWeight: labelWeightField.value,
-    minHeight: minHeightField.value,
-    minHeightMobile: minHeightMobileField.value,
+    labelFontSize: labelSizeField.value || compactValue('labelFontSize'),
+    labelFontWeight: labelWeightField.value || compactValue('labelFontWeight'),
+    minHeight: minHeightField.value || compactValue('minHeight'),
+    minHeightMobile: minHeightMobileField.value || compactValue('minHeightMobile'),
     iconMaxWidth: iconMaxWidthField.value,
     iconMaxHeight: iconMaxHeightField.value,
   });

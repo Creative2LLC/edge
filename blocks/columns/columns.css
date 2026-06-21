@@ -94,11 +94,20 @@
     order: unset;
   }
 
-  /* When a column has multiple blocks, prevent any single block from filling
-     the full column height (e.g. colored-text uses height:100% / min-height:100% by default) */
-  .columns > div > div > *:not(:only-child) {
+  /* When a column has multiple blocks, let normal blocks size to content while
+     preserving explicit middle/bottom alignment on colored text blocks. */
+  .columns > div > div > *:not(:only-child, .colored-text-v-middle, .colored-text-v-bottom) {
     height: auto;
+
     --colored-text-min-height: 0;
+  }
+
+  .columns > div > div > .colored-text.colored-text-v-middle:not(:only-child),
+  .columns > div > div > .colored-text.colored-text-v-bottom:not(:only-child) {
+    flex: 1 1 auto;
+    height: auto;
+
+    --colored-text-min-height: 100%;
   }
 
   .columns.columns-align-top > div {
