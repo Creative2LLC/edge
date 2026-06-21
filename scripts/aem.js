@@ -1528,12 +1528,18 @@ function inferFlattenedStatisticImageMode(imageChild) {
     img?.getAttribute('src'),
     img?.getAttribute('alt'),
     ...[...imageChild.querySelectorAll('source')]
-      .map((source) => source.getAttribute('srcset')),
+      .flatMap((source) => [
+        source.getAttribute('srcset'),
+        source.getAttribute('type'),
+      ]),
   ].filter(Boolean).join(' ');
   const width = Number.parseFloat(img?.getAttribute('width') || '');
   const height = Number.parseFloat(img?.getAttribute('height') || '');
+  const isSvg = /\.svg(?:[?#]|$)/iu.test(sourceText)
+    || /(?:format=svg|image\/svg)/iu.test(sourceText);
 
   if (/(?:chart|graph|diagram|infographic|figure)/iu.test(sourceText)) return 'fluid';
+  if (isSvg) return 'icon';
   if (Number.isFinite(width) && width >= 300) return 'fluid';
   if (Number.isFinite(height) && height >= 180) return 'fluid';
   return 'icon';
@@ -1564,6 +1570,7 @@ function createLabeledFlattenedStatisticsRows(children) {
     || contentChildren[0]
     || null;
   const statValueIndex = contentChildren.indexOf(statValueChild);
+  const bodyTextChild = statValueIndex > 0 ? contentChildren[0] : null;
   const statLabelChild = statValueIndex >= 0
     ? contentChildren.slice(statValueIndex + 1).find((child) => (
       !isLikelyStatisticValueText(childTextRaw(child))
@@ -1580,10 +1587,21 @@ function createLabeledFlattenedStatisticsRows(children) {
   const labelColorChild = colorChildren.length >= 2
     ? colorChildren[colorChildren.length - 1]
     : null;
+  const bodyColorChild = colorChildren.length >= 3
+    ? colorChildren[colorChildren.length - 3]
+    : null;
+  const bodySizeChild = bodyTextChild && lengthChildren.length > 1
+    ? lengthChildren[0]
+    : null;
   const labelSizeChild = lengthChildren
-    .find((child) => Number.parseFloat(childTextRaw(child)) <= 80) || null;
+    .find((child) => (
+      child !== bodySizeChild
+        && Number.parseFloat(childTextRaw(child)) <= 80
+    )) || null;
   const minHeightChildren = lengthChildren.filter((child) => (
-    child !== labelSizeChild && Number.parseFloat(childTextRaw(child)) > 80
+    child !== bodySizeChild
+      && child !== labelSizeChild
+      && Number.parseFloat(childTextRaw(child)) > 80
   ));
 
   if (!statValueChild) return [];
@@ -1591,7 +1609,7 @@ function createLabeledFlattenedStatisticsRows(children) {
   return [
     createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(children, ['left', 'center', 'right'], 'center')),
     createBlockFieldRow('vertical alignment', findFlattenedOptionValue(children, ['top', 'middle', 'bottom'], 'top')),
-    createBlockFieldRow('body text', ''),
+    createBlockFieldRow('body text', bodyTextChild),
     createBlockFieldRow('icon image', iconImageChild),
     createBlockFieldRow('icon image alt text', iconImageChild?.querySelector('img')?.alt || ''),
     createBlockFieldRow('image mode', findFlattenedOptionValue(
@@ -1599,7 +1617,12 @@ function createLabeledFlattenedStatisticsRows(children) {
       ['icon', 'fluid'],
       inferFlattenedStatisticImageMode(iconImageChild),
     )),
+    createBlockFieldRow('body text color', normalizeHexColorValue(childTextRaw(bodyColorChild))),
+    createBlockFieldRow('body font size', childTextRaw(bodySizeChild)),
+    createBlockFieldRow('body font weight', ''),
     createBlockFieldRow('value text color', normalizeHexColorValue(childTextRaw(valueColorChild))),
+    createBlockFieldRow('value font size', ''),
+    createBlockFieldRow('value font weight', ''),
     createBlockFieldRow('label text color', normalizeHexColorValue(childTextRaw(labelColorChild))),
     createBlockFieldRow('label font size', childTextRaw(labelSizeChild)),
     createBlockFieldRow('label font weight', childTextRaw(weightChildren[0])),

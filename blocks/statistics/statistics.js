@@ -495,7 +495,11 @@ function getLegacyConfig(rows) {
     ? compactLengthRows[0]
     : null;
   const labelSizeRow = compactLengthRows
-    .find((row) => row !== bodySizeRow && Number.parseFloat(rowText(row)) <= 80) || null;
+    .find((row) => (
+      row !== bodySizeRow
+        && Number.parseFloat(rowText(row)) <= 80
+    )) || null;
+  const labelWeightRow = compactWeightRows[0] || null;
   const minHeightRows = compactLengthRows.filter((row) => (
     row !== bodySizeRow && row !== labelSizeRow && Number.parseFloat(rowText(row)) > 80
   ));
@@ -516,24 +520,37 @@ function getLegacyConfig(rows) {
     ? compactStyleColorRows[colorCount - 2]
     : compactStyleColorRows[0] || null;
   const labelColorRow = colorCount >= 2 ? compactStyleColorRows[colorCount - 1] : null;
+  const legacyOffsetRow = (offset, predicate) => {
+    if (imageModeIndex < 0) return null;
+    const row = rows[imageModeIndex + offset];
+    return row && predicate(rowText(row)) ? row : null;
+  };
+  const isContentRow = (value) => Boolean(
+    value && !isConfigOnlyText(value) && !isLikelyButtonText(value),
+  );
   const compactFields = {
     bodyText: bodyTextRow,
     imageMode: compactImageModeRow,
     defaultButtonText: compactButtonRows[0],
     defaultButtonTarget: compactTargetRow,
     verticalDividers: compactDividerRow,
-    blockBackgroundColor: blockBackgroundColorRow,
-    headingTextColor: headingColorRow,
-    bodyTextColor: bodyColorRow,
-    bodyFontSize: bodySizeRow,
-    valueTextColor: valueColorRow,
-    labelTextColor: labelColorRow,
-    labelFontSize: labelSizeRow,
-    labelFontWeight: compactWeightRows[0],
-    minHeight: minHeightRows[0],
-    minHeightMobile: minHeightRows[1],
-    statValues: statValueRow,
-    statLabels: statLabelRow,
+    blockBackgroundColor: legacyOffsetRow(7, isHexColorText) || blockBackgroundColorRow,
+    headingTextColor: legacyOffsetRow(8, isHexColorText) || headingColorRow,
+    headingFontSize: legacyOffsetRow(9, isCssLengthText),
+    headingFontWeight: legacyOffsetRow(10, isFontWeightText),
+    bodyTextColor: legacyOffsetRow(11, isHexColorText) || bodyColorRow,
+    bodyFontSize: legacyOffsetRow(12, isCssLengthText) || bodySizeRow,
+    bodyFontWeight: legacyOffsetRow(13, isFontWeightText),
+    valueTextColor: legacyOffsetRow(14, isHexColorText) || valueColorRow,
+    valueFontSize: legacyOffsetRow(15, isCssLengthText),
+    valueFontWeight: legacyOffsetRow(16, isFontWeightText),
+    labelTextColor: legacyOffsetRow(17, isHexColorText) || labelColorRow,
+    labelFontSize: legacyOffsetRow(18, isCssLengthText) || labelSizeRow,
+    labelFontWeight: legacyOffsetRow(19, isFontWeightText) || labelWeightRow,
+    minHeight: legacyOffsetRow(20, isCssLengthText) || minHeightRows[0],
+    minHeightMobile: legacyOffsetRow(21, isCssLengthText) || minHeightRows[1],
+    statValues: legacyOffsetRow(22, isContentRow) || statValueRow,
+    statLabels: legacyOffsetRow(23, isContentRow) || statLabelRow,
     markerColor: compactMarkerColorRow,
     markerStyle: compactMarkerStyleRow,
   };
@@ -1103,16 +1120,36 @@ export default function decorate(block) {
     ['heading text color', 'heading color'],
     legacyConfig.compactCell('headingTextColor') || legacyCell(8),
   );
-  const headingSizeField = readField(block, 'headingFontSize', ['heading font size', 'heading size'], legacyCell(9));
-  const headingWeightField = readField(block, 'headingFontWeight', ['heading font weight', 'heading weight'], legacyCell(10));
+  const headingSizeField = readField(
+    block,
+    'headingFontSize',
+    ['heading font size', 'heading size'],
+    legacyConfig.compactCell('headingFontSize') || legacyCell(9),
+  );
+  const headingWeightField = readField(
+    block,
+    'headingFontWeight',
+    ['heading font weight', 'heading weight'],
+    legacyConfig.compactCell('headingFontWeight') || legacyCell(10),
+  );
   const bodyColorField = readField(
     block,
     'bodyTextColor',
     ['body text color', 'body color'],
     legacyConfig.compactCell('bodyTextColor') || legacyCell(11),
   );
-  const bodySizeField = readField(block, 'bodyFontSize', ['body font size', 'body size'], legacyCell(12));
-  const bodyWeightField = readField(block, 'bodyFontWeight', ['body font weight', 'body weight'], legacyCell(13));
+  const bodySizeField = readField(
+    block,
+    'bodyFontSize',
+    ['body font size', 'body size'],
+    legacyConfig.compactCell('bodyFontSize') || legacyCell(12),
+  );
+  const bodyWeightField = readField(
+    block,
+    'bodyFontWeight',
+    ['body font weight', 'body weight'],
+    legacyConfig.compactCell('bodyFontWeight') || legacyCell(13),
+  );
   const valueColorField = readField(
     block,
     'valueTextColor',
@@ -1123,13 +1160,13 @@ export default function decorate(block) {
     block,
     'valueFontSize',
     ['stat value font size', 'value font size', 'value size'],
-    legacyCell(15),
+    legacyConfig.compactCell('valueFontSize') || legacyCell(15),
   );
   const valueWeightField = readField(
     block,
     'valueFontWeight',
     ['stat value font weight', 'value font weight', 'value weight'],
-    legacyCell(16),
+    legacyConfig.compactCell('valueFontWeight') || legacyCell(16),
   );
   const labelColorField = readField(
     block,
