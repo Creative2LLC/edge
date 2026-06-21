@@ -113,6 +113,18 @@ function readLinkBlockField(block, name, altKeys, fallbackCell = null) {
   return field;
 }
 
+function snapshotAuthoredFieldValues(block) {
+  return [...block.querySelectorAll('[data-aue-prop], [data-richtext-prop]')]
+    .reduce((values, source) => {
+      const name = source.getAttribute('data-aue-prop')
+        || source.getAttribute('data-richtext-prop');
+      if (!name || values[name] !== undefined || !directRowOf(block, source)) return values;
+
+      values[name] = source.textContent?.trim() || '';
+      return values;
+    }, {});
+}
+
 function buildTextElement(tag, className, field) {
   if (!field?.value && !field?.source?.childNodes?.length) return null;
   const el = document.createElement(tag);
@@ -1038,6 +1050,7 @@ function buildItem(itemData) {
 export default function decorate(block) {
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
+  const authoredFieldValues = snapshotAuthoredFieldValues(block);
   const legacyConfig = getLegacyConfig(rows);
   const looseLegacy = getLooseLegacyStatContent(rows);
   const configCell = (index) => legacyConfig.cell(index);
@@ -1236,10 +1249,11 @@ export default function decorate(block) {
     legacyConfig.compactCell('markerStyle') || legacyCell(27),
   );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
+  const fieldFallback = (name) => authoredFieldValues[name] || compactValue(name);
   legacyConfig.cleanupCompactRows();
 
-  const values = normalizeLines(statValuesField.value || compactValue('statValues'));
-  const labels = normalizeLines(statLabelsField.value || compactValue('statLabels'));
+  const values = normalizeLines(statValuesField.value || fieldFallback('statValues'));
+  const labels = normalizeLines(statLabelsField.value || fieldFallback('statLabels'));
   const effectiveValues = values.length ? values : looseLegacy.values;
   const effectiveLabels = labels.length ? labels : looseLegacy.labels;
   const effectiveBodyTextField = fieldHasContent(bodyTextField) || !looseLegacy.bodyText
@@ -1249,23 +1263,23 @@ export default function decorate(block) {
   const textSizes = parseTextSizes(textStylesField.value);
   const textWeights = parseTextWeights(textStylesField.value);
   const headingColor = normalizeColorValue(headingColorField.value)
-    || normalizeColorValue(compactValue('headingTextColor'))
+    || normalizeColorValue(fieldFallback('headingTextColor'))
     || textColors.heading
     || defaultColorForContext(block, '#00264d');
   const bodyColor = normalizeColorValue(bodyColorField.value)
-    || normalizeColorValue(compactValue('bodyTextColor'))
+    || normalizeColorValue(fieldFallback('bodyTextColor'))
     || textColors.body
     || defaultColorForContext(block, '#404041');
   const valueColor = normalizeColorValue(valueColorField.value)
-    || normalizeColorValue(compactValue('valueTextColor'))
+    || normalizeColorValue(fieldFallback('valueTextColor'))
     || textColors.value
     || defaultColorForContext(block, '#00264d');
   const labelColor = normalizeColorValue(labelColorField.value)
-    || normalizeColorValue(compactValue('labelTextColor'))
+    || normalizeColorValue(fieldFallback('labelTextColor'))
     || textColors.label
     || defaultColorForContext(block, '#6b6b6b');
   const blockBackgroundColor = normalizeColorValue(blockBackgroundField.value)
-    || normalizeColorValue(compactValue('blockBackgroundColor'));
+    || normalizeColorValue(fieldFallback('blockBackgroundColor'));
 
   if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
   if (textColors.body) block.style.setProperty('--statistics-body-color', textColors.body);
@@ -1283,19 +1297,19 @@ export default function decorate(block) {
   applyStatisticsStyles(block, {
     blockBackgroundColor,
     headingTextColor: headingColor,
-    headingFontSize: headingSizeField.value || compactValue('headingFontSize'),
-    headingFontWeight: headingWeightField.value || compactValue('headingFontWeight'),
+    headingFontSize: headingSizeField.value || fieldFallback('headingFontSize'),
+    headingFontWeight: headingWeightField.value || fieldFallback('headingFontWeight'),
     bodyTextColor: bodyColor,
-    bodyFontSize: bodySizeField.value || compactValue('bodyFontSize'),
-    bodyFontWeight: bodyWeightField.value || compactValue('bodyFontWeight'),
+    bodyFontSize: bodySizeField.value || fieldFallback('bodyFontSize'),
+    bodyFontWeight: bodyWeightField.value || fieldFallback('bodyFontWeight'),
     valueTextColor: valueColor,
-    valueFontSize: valueSizeField.value || compactValue('valueFontSize'),
-    valueFontWeight: valueWeightField.value || compactValue('valueFontWeight'),
+    valueFontSize: valueSizeField.value || fieldFallback('valueFontSize'),
+    valueFontWeight: valueWeightField.value || fieldFallback('valueFontWeight'),
     labelTextColor: labelColor,
-    labelFontSize: labelSizeField.value || compactValue('labelFontSize'),
-    labelFontWeight: labelWeightField.value || compactValue('labelFontWeight'),
-    minHeight: minHeightField.value || compactValue('minHeight'),
-    minHeightMobile: minHeightMobileField.value || compactValue('minHeightMobile'),
+    labelFontSize: labelSizeField.value || fieldFallback('labelFontSize'),
+    labelFontWeight: labelWeightField.value || fieldFallback('labelFontWeight'),
+    minHeight: minHeightField.value || fieldFallback('minHeight'),
+    minHeightMobile: minHeightMobileField.value || fieldFallback('minHeightMobile'),
     iconMaxWidth: iconMaxWidthField.value,
     iconMaxHeight: iconMaxHeightField.value,
   });
