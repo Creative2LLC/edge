@@ -9,6 +9,8 @@ const DIRECT_COLUMN_SCOPE_SELECTOR = [
   ':scope > [data-aue-label="Column"]',
   ':scope > [data-aue-model="column"]',
 ].join(', ');
+const VERTICAL_ALIGNMENTS = ['top', 'middle', 'bottom'];
+const HORIZONTAL_ALIGNMENTS = ['left', 'center', 'right'];
 
 function normalizeAlignment(value, allowedValues, fallback = '') {
   const normalized = String(value || '')
@@ -73,6 +75,32 @@ function findOwnField(block, row, name) {
 
   return candidates
     .find((field) => !isNestedComponentField(block, field)) || null;
+}
+
+function rowText(row) {
+  return String(row?.textContent || '').trim();
+}
+
+function rowHasNestedContent(row) {
+  return Boolean(row?.querySelector(
+    'picture, img, ul, ol, a, button, .block, [data-aue-resource], [data-richtext-prop]',
+  ));
+}
+
+function isSimpleAlignmentRow(row) {
+  const text = rowText(row);
+  if (!text || text.length > 32 || rowHasNestedContent(row)) return false;
+
+  return Boolean(
+    normalizeAlignment(text, VERTICAL_ALIGNMENTS, '')
+      || normalizeAlignment(text, HORIZONTAL_ALIGNMENTS, ''),
+  );
+}
+
+function isColumnsContentRow(row) {
+  if (!row?.children?.length || isSimpleAlignmentRow(row)) return false;
+  if (row.children.length >= 2) return true;
+  return rowHasNestedContent(row);
 }
 
 function isNestedColumnField(column, scope, field) {
@@ -169,20 +197,37 @@ function readAlignment(block) {
   let verticalAlign = 'top';
   let horizontalAlign = '';
   const rowsToRemove = [];
+  const hasContentRow = [...block.children].some(isColumnsContentRow);
 
   [...block.children].forEach((row) => {
     let isConfigRow = false;
 
     const vField = findOwnField(block, row, 'verticalAlign');
     if (vField) {
-      verticalAlign = normalizeAlignment(vField.textContent, ['top', 'middle', 'bottom'], verticalAlign);
+      verticalAlign = normalizeAlignment(vField.textContent, VERTICAL_ALIGNMENTS, verticalAlign);
       isConfigRow = true;
     }
 
     const hField = findOwnField(block, row, 'horizontalAlign');
     if (hField) {
-      horizontalAlign = normalizeAlignment(hField.textContent, ['left', 'center', 'right']);
+      horizontalAlign = normalizeAlignment(hField.textContent, HORIZONTAL_ALIGNMENTS);
       isConfigRow = true;
+    }
+
+    if (hasContentRow && isSimpleAlignmentRow(row)) {
+      const text = rowText(row);
+      const nextVerticalAlign = normalizeAlignment(text, VERTICAL_ALIGNMENTS, '');
+      const nextHorizontalAlign = normalizeAlignment(text, HORIZONTAL_ALIGNMENTS, '');
+
+      if (nextVerticalAlign) {
+        verticalAlign = nextVerticalAlign;
+        isConfigRow = true;
+      }
+
+      if (nextHorizontalAlign) {
+        horizontalAlign = nextHorizontalAlign;
+        isConfigRow = true;
+      }
     }
 
     if (isConfigRow) {
@@ -193,10 +238,14 @@ function readAlignment(block) {
     if (row.children.length >= 2) {
       const key = row.children[0].textContent.trim().toLowerCase().replace(/[\s_-]+/g, '');
       if (['verticalalignment', 'alignment', 'align', 'verticalalign'].includes(key)) {
-        verticalAlign = normalizeAlignment(row.children[1].textContent, ['top', 'middle', 'bottom'], verticalAlign);
+        verticalAlign = normalizeAlignment(
+          row.children[1].textContent,
+          VERTICAL_ALIGNMENTS,
+          verticalAlign,
+        );
         rowsToRemove.push(row);
       } else if (['horizontalalignment', 'horizontalalign', 'halign'].includes(key)) {
-        horizontalAlign = normalizeAlignment(row.children[1].textContent, ['left', 'center', 'right']);
+        horizontalAlign = normalizeAlignment(row.children[1].textContent, HORIZONTAL_ALIGNMENTS);
         rowsToRemove.push(row);
       }
     }
@@ -209,17 +258,18 @@ function readAlignment(block) {
 export default function decorate(block) {
   const { verticalAlign, horizontalAlign } = readAlignment(block);
 
-  const contentRow = [...block.children].find((row) => row.children.length);
+  const contentRow = [...block.children].find(isColumnsContentRow)
+    || [...block.children].find((row) => row.children.length);
   const cols = contentRow ? [...contentRow.children] : [];
   if (cols.length) {
     block.classList.add(`columns-${cols.length}-cols`);
   }
 
-  if (['top', 'middle', 'bottom'].includes(verticalAlign)) {
+  if (VERTICAL_ALIGNMENTS.includes(verticalAlign)) {
     block.classList.add(`columns-align-${verticalAlign}`);
   }
 
-  if (['left', 'center', 'right'].includes(horizontalAlign)) {
+  if (HORIZONTAL_ALIGNMENTS.includes(horizontalAlign)) {
     block.classList.add(`columns-halign-${horizontalAlign}`);
   }
 
@@ -230,14 +280,14 @@ export default function decorate(block) {
   if (blockResourcePath) {
     readAueResourceFields(blockResourcePath, ['verticalAlign', 'horizontalAlign'])
       .then((fields) => {
-        const va = normalizeAlignment(fields.verticalAlign || '', ['top', 'middle', 'bottom'], '');
-        const ha = normalizeAlignment(fields.horizontalAlign || '', ['left', 'center', 'right'], '');
+        const va = normalizeAlignment(fields.verticalAlign || '', VERTICAL_ALIGNMENTS, '');
+        const ha = normalizeAlignment(fields.horizontalAlign || '', HORIZONTAL_ALIGNMENTS, '');
         if (va) {
-          ['top', 'middle', 'bottom'].forEach((v) => block.classList.remove(`columns-align-${v}`));
+          VERTICAL_ALIGNMENTS.forEach((v) => block.classList.remove(`columns-align-${v}`));
           block.classList.add(`columns-align-${va}`);
         }
         if (ha) {
-          ['left', 'center', 'right'].forEach((v) => block.classList.remove(`columns-halign-${v}`));
+          HORIZONTAL_ALIGNMENTS.forEach((v) => block.classList.remove(`columns-halign-${v}`));
           block.classList.add(`columns-halign-${ha}`);
         }
       });

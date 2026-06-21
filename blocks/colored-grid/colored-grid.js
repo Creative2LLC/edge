@@ -487,6 +487,11 @@ function normalizeCssValue(value, propertyName) {
   return '';
 }
 
+function normalizeFontWeight(value) {
+  const normalized = String(value || '').trim();
+  return /^(?:[1-9]00)$/u.test(normalized) ? normalized : '';
+}
+
 function normalizeOption(value, allowedValues, fallback) {
   const normalized = String(value || '')
     .trim()
@@ -510,6 +515,12 @@ function setCssVar(element, name, value) {
   }
 
   element.style.removeProperty(name);
+}
+
+function setCssVarIfMissing(element, name, value) {
+  if (value && !element.style.getPropertyValue(name)) {
+    element.style.setProperty(name, value);
+  }
 }
 
 function setPrefixedClass(element, prefix, value) {
@@ -678,6 +689,36 @@ function applyRowItemStyles(item, fields, isEditor, isFirstItem) {
   ));
 }
 
+function applyFlattenedStatisticsStyles(item) {
+  if (getContentBlockName(item) !== 'statistics') return;
+
+  const rows = directRows(item);
+  const imageModeIndex = rows.findIndex((row, index) => (
+    index >= 3 && ['icon', 'fluid'].includes(normalizeBlockName(row.textContent || ''))
+  ));
+  if (imageModeIndex < 0) return;
+
+  const valueAt = (offset) => directRowText(item, imageModeIndex + offset);
+  const colorAt = (offset) => normalizeHexColorValue(valueAt(offset));
+  const lengthAt = (offset) => normalizeCssValue(valueAt(offset), 'font-size');
+  const weightAt = (offset) => normalizeFontWeight(valueAt(offset));
+
+  setCssVarIfMissing(item, '--statistics-heading-color', colorAt(8));
+  setCssVarIfMissing(item, '--statistics-heading-size', lengthAt(9));
+  setCssVarIfMissing(item, '--statistics-heading-weight', weightAt(10));
+  setCssVarIfMissing(item, '--statistics-body-color', colorAt(11));
+  setCssVarIfMissing(item, '--statistics-body-size', lengthAt(12));
+  setCssVarIfMissing(item, '--statistics-body-weight', weightAt(13));
+  setCssVarIfMissing(item, '--statistics-value-color', colorAt(14));
+  setCssVarIfMissing(item, '--statistics-value-size', lengthAt(15));
+  setCssVarIfMissing(item, '--statistics-value-weight', weightAt(16));
+  setCssVarIfMissing(item, '--statistics-label-color', colorAt(17));
+  setCssVarIfMissing(item, '--statistics-label-size', lengthAt(18));
+  setCssVarIfMissing(item, '--statistics-label-weight', weightAt(19));
+  setCssVarIfMissing(item, '--statistics-min-height', normalizeCssValue(valueAt(20), 'min-height'));
+  setCssVarIfMissing(item, '--statistics-min-height-mobile', normalizeCssValue(valueAt(21), 'min-height'));
+}
+
 function resetRowMarkerRuntime(row) {
   row.classList.remove('colored-grid-row', 'has-colored-grid-row-background');
   ROW_RUNTIME_CLASS_PREFIXES.forEach((prefix) => {
@@ -763,6 +804,7 @@ async function decorateRow(row, items, isEditor) {
   const loadedItems = await Promise.all(rowItems.map(async (item, index) => {
     normalizeFlattenedRowItem(item);
     applyRowItemStyles(item, fields, isEditor, index === 0);
+    applyFlattenedStatisticsStyles(item);
     await loadContentBlock(item);
     return item;
   }));
@@ -792,6 +834,7 @@ export default async function decorate(block) {
     if (segment.type === 'row') return decorateRow(segment.row, segment.items, isEditor);
     normalizeFlattenedRowItem(segment.item);
     resetRowItemRuntime(segment.item);
+    applyFlattenedStatisticsStyles(segment.item);
     await loadContentBlock(segment.item);
     return segment.item;
   }));

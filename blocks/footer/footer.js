@@ -109,7 +109,7 @@ function decorateSocialLinks(element) {
 }
 
 function buildFooterLinkItem({ text, href }) {
-  const item = document.createElement('p');
+  const item = document.createElement('span');
   const link = document.createElement('a');
   link.href = href;
   link.textContent = text;
@@ -117,34 +117,91 @@ function buildFooterLinkItem({ text, href }) {
   return item;
 }
 
-function getOrCreateBrandGroup(brandColumn, className, fallbackSelector) {
+function replaceBrandGroup(brandColumn, className, links, fallbackSelector) {
   const existing = brandColumn.querySelector(`:scope > .${className}`);
-  if (existing) return existing;
-
   const group = document.createElement('div');
   group.className = className;
+  group.replaceChildren(...links.map(buildFooterLinkItem));
 
-  const fallback = fallbackSelector ? brandColumn.querySelector(fallbackSelector) : null;
-  if (fallback) {
-    fallback.before(group);
+  if (existing) {
+    existing.replaceWith(group);
   } else {
-    brandColumn.append(group);
+    const fallback = fallbackSelector ? brandColumn.querySelector(fallbackSelector) : null;
+    if (fallback) {
+      fallback.before(group);
+    } else {
+      brandColumn.append(group);
+    }
   }
 
   return group;
 }
 
+function hasFooterLegalLinks(element) {
+  const links = [...element.querySelectorAll('a')];
+  if (links.length < 2) return false;
+
+  const legalHrefs = FOOTER_LEGAL_LINKS.map((link) => link.href);
+  return links.every((link) => legalHrefs.some((href) => {
+    try {
+      return new URL(link.getAttribute('href') || '', window.location).pathname === href;
+    } catch {
+      return (link.getAttribute('href') || '').includes(href);
+    }
+  }));
+}
+
+function removeDuplicateBrandGroups(brandColumn, keepGroups) {
+  const keep = new Set(keepGroups);
+
+  [...brandColumn.children].forEach((child) => {
+    if (keep.has(child)) return;
+
+    const isGeneratedGroup = child.classList.contains('footer-social')
+      || child.classList.contains('footer-legal-links');
+    const isDuplicateGroup = isSocialGroup(child) || hasFooterLegalLinks(child);
+
+    if (isGeneratedGroup || isDuplicateGroup) child.remove();
+  });
+
+  brandColumn.querySelectorAll('.footer-social, .footer-legal-links')
+    .forEach((nestedGroup) => {
+      if (!keep.has(nestedGroup) && nestedGroup.closest('.footer-brand') === brandColumn) {
+        const directChild = [...brandColumn.children].find((child) => child.contains(nestedGroup));
+        if (directChild && !keep.has(directChild)) directChild.remove();
+      }
+    });
+}
+
+function ensureBrandGroupOrder(brandColumn, social, legal) {
+  const copyright = brandColumn.querySelector(':scope > .footer-copyright');
+
+  if (copyright) {
+    copyright.before(social);
+    copyright.after(legal);
+  } else if (social.parentElement === brandColumn) {
+    social.after(legal);
+  }
+}
+
 function normalizeBrandFooterLinks(brandColumn) {
-  const social = getOrCreateBrandGroup(
+  const social = replaceBrandGroup(
     brandColumn,
     'footer-social',
+    FOOTER_SOCIAL_LINKS,
     ':scope > .footer-legal-links, :scope > .footer-copyright',
   );
-  social.replaceChildren(...FOOTER_SOCIAL_LINKS.map(buildFooterLinkItem));
   decorateSocialLinks(social);
 
-  const legal = getOrCreateBrandGroup(brandColumn, 'footer-legal-links', ':scope > .footer-copyright');
-  legal.replaceChildren(...FOOTER_LEGAL_LINKS.map(buildFooterLinkItem));
+  const legal = replaceBrandGroup(
+    brandColumn,
+    'footer-legal-links',
+    FOOTER_LEGAL_LINKS,
+    ':scope > .footer-copyright',
+  );
+
+  removeDuplicateBrandGroups(brandColumn, [social, legal]);
+  ensureBrandGroupOrder(brandColumn, social, legal);
 }
 
 function collectSingleLinkRows(brandColumn, predicate) {
