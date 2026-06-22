@@ -5,6 +5,7 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
 const IMAGE_EXT_RE = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?(#.*)?$/i;
@@ -18,6 +19,9 @@ const HERO_RESOURCE_FIELD_NAMES = [
   'text_html',
   'content_textHtmlClass',
   'textHtmlClass',
+  'markerTerms',
+  'markerColor',
+  'markerStyle',
 ];
 const resourceDataCache = new Map();
 
@@ -54,6 +58,9 @@ const HERO_FIELD_INDEX = {
   panel_secondaryText: 29,
   panel_secondaryLink: 30,
   panel_footerText: 31,
+  markerTerms: 32,
+  markerColor: 33,
+  markerStyle: 34,
 };
 
 function isVideoUrl(value) {
@@ -396,6 +403,18 @@ function getFieldValue(block, nameOrNames) {
   };
 }
 
+function getHeroTextFieldValue(block, nameOrNames, fallbackFieldName, fallbackValue = '') {
+  const field = readTextField(block, nameOrNames, {
+    fallbackCell: getHeroFieldCell(block, fallbackFieldName),
+  });
+
+  return {
+    source: field.source,
+    cell: field.cell,
+    value: field.value || fallbackValue || '',
+  };
+}
+
 function moveFieldBinding(from, to) {
   if (!from || !to) return;
   moveAttributes(
@@ -553,6 +572,29 @@ function readTextColor(block, fallbackValue = '') {
 
   rowsToRemove.forEach((row) => row.remove());
   return normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue);
+}
+
+function readMarkerConfig(block, resourceData) {
+  return {
+    terms: getHeroTextFieldValue(
+      block,
+      ['markerTerms', 'marker_terms', 'highlightText'],
+      'markerTerms',
+      findResourceFieldValue(resourceData, ['markerTerms', 'marker_terms', 'highlightText']),
+    ).value,
+    color: getHeroTextFieldValue(
+      block,
+      ['markerColor', 'marker_color', 'highlightMarkerColor'],
+      'markerColor',
+      findResourceFieldValue(resourceData, ['markerColor', 'marker_color', 'highlightMarkerColor']),
+    ).value,
+    style: getHeroTextFieldValue(
+      block,
+      ['markerStyle', 'marker_style', 'highlightMarkerStyle'],
+      'markerStyle',
+      findResourceFieldValue(resourceData, ['markerStyle', 'marker_style', 'highlightMarkerStyle']),
+    ).value,
+  };
 }
 
 function readHeight(block) {
@@ -1254,6 +1296,7 @@ export default async function decorate(block) {
     block,
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
+  const markerConfig = readMarkerConfig(block, resourceData);
   const picture = extractPicture(block);
   const featuredImage = extractFeaturedPicture(block, picture ? [picture] : []);
   const { url: videoUrl, source: videoSource } = await extractVideoUrl(block);
@@ -1278,8 +1321,10 @@ export default async function decorate(block) {
   const richText = buildMainRichText(block, resourceRichText);
   if (richText) {
     applyAccentBrackets(richText);
+    applyAnimatedMarkers(richText, markerConfig);
   }
   const htmlText = buildHtmlText(block, resourceHtmlText, resourceHtmlTextClass);
+  if (htmlText) applyAnimatedMarkers(htmlText, markerConfig);
   const actions = buildActions(block);
   const sidePanel = buildSidePanel(block);
 
