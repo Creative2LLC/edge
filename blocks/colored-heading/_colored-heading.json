@@ -33,36 +33,194 @@
           "name": "headingLevel",
           "label": "Heading Tag",
           "options": [
-            { "name": "H1", "value": "h1" },
-            { "name": "H2", "value": "h2" },
-            { "name": "H3", "value": "h3" },
-            { "name": "H4", "value": "h4" },
-            { "name": "H5", "value": "h5" },
-            { "name": "H6", "value": "h6" }
+            {
+              "name": "H1",
+              "value": "h1"
+            },
+            {
+              "name": "H2",
+              "value": "h2"
+            },
+            {
+              "name": "H3",
+              "value": "h3"
+            },
+            {
+              "name": "H4",
+              "value": "h4"
+            },
+            {
+              "name": "H5",
+              "value": "h5"
+            },
+            {
+              "name": "H6",
+              "value": "h6"
+            }
           ],
           "value": "h2"
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
-          "valueFormat": "regexp",
           "name": "textColor",
-          "label": "Text Color (Hex)",
+          "label": "Text Color",
           "description": "Enter a hex color, for example #00264D.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
           "value": "#00264D",
+          "valueFormat": "regexp",
           "validation": {
             "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
             "customErrorMsg": "Enter a valid hex color, for example #00264D."
           }
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
-          "valueFormat": "regexp",
           "name": "blockBackgroundColor",
-          "label": "Block Background Color (Hex, Optional)",
+          "label": "Block Background Color (Optional)",
           "description": "Leave empty for a transparent block background.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
           "value": "",
+          "valueFormat": "regexp",
           "validation": {
             "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
             "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
@@ -74,10 +232,22 @@
           "name": "horizontalAlign",
           "label": "Horizontal Alignment",
           "options": [
-            { "name": "Left", "value": "left" },
-            { "name": "Center", "value": "center" },
-            { "name": "Right", "value": "right" },
-            { "name": "Justify", "value": "justify" }
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            },
+            {
+              "name": "Justify",
+              "value": "justify"
+            }
           ],
           "value": "left"
         },
@@ -87,9 +257,18 @@
           "name": "verticalAlign",
           "label": "Vertical Alignment",
           "options": [
-            { "name": "Top", "value": "top" },
-            { "name": "Middle", "value": "middle" },
-            { "name": "Bottom", "value": "bottom" }
+            {
+              "name": "Top",
+              "value": "top"
+            },
+            {
+              "name": "Middle",
+              "value": "middle"
+            },
+            {
+              "name": "Bottom",
+              "value": "bottom"
+            }
           ],
           "value": "top"
         },
@@ -107,12 +286,30 @@
           "name": "fontWeight",
           "label": "Font Weight",
           "options": [
-            { "name": "Default", "value": "" },
-            { "name": "Regular", "value": "400" },
-            { "name": "Medium", "value": "500" },
-            { "name": "Semi Bold", "value": "600" },
-            { "name": "Bold", "value": "700" },
-            { "name": "Extra Bold", "value": "800" }
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Regular",
+              "value": "400"
+            },
+            {
+              "name": "Medium",
+              "value": "500"
+            },
+            {
+              "name": "Semi Bold",
+              "value": "600"
+            },
+            {
+              "name": "Bold",
+              "value": "700"
+            },
+            {
+              "name": "Extra Bold",
+              "value": "800"
+            }
           ],
           "value": ""
         },
@@ -138,23 +335,74 @@
           "name": "paddingStyle",
           "label": "Padding",
           "options": [
-            { "name": "Default", "value": "default" },
-            { "name": "None", "value": "none" },
-            { "name": "All Small", "value": "all-sm" },
-            { "name": "All Medium", "value": "all-md" },
-            { "name": "All Large", "value": "all-lg" },
-            { "name": "Vertical Small", "value": "vertical-sm" },
-            { "name": "Vertical Medium", "value": "vertical-md" },
-            { "name": "Vertical Large", "value": "vertical-lg" },
-            { "name": "Sides Small", "value": "horizontal-sm" },
-            { "name": "Sides Medium", "value": "horizontal-md" },
-            { "name": "Sides Large", "value": "horizontal-lg" },
-            { "name": "Top Small", "value": "top-sm" },
-            { "name": "Top Medium", "value": "top-md" },
-            { "name": "Top Large", "value": "top-lg" },
-            { "name": "Bottom Small", "value": "bottom-sm" },
-            { "name": "Bottom Medium", "value": "bottom-md" },
-            { "name": "Bottom Large", "value": "bottom-lg" }
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "All Small",
+              "value": "all-sm"
+            },
+            {
+              "name": "All Medium",
+              "value": "all-md"
+            },
+            {
+              "name": "All Large",
+              "value": "all-lg"
+            },
+            {
+              "name": "Vertical Small",
+              "value": "vertical-sm"
+            },
+            {
+              "name": "Vertical Medium",
+              "value": "vertical-md"
+            },
+            {
+              "name": "Vertical Large",
+              "value": "vertical-lg"
+            },
+            {
+              "name": "Sides Small",
+              "value": "horizontal-sm"
+            },
+            {
+              "name": "Sides Medium",
+              "value": "horizontal-md"
+            },
+            {
+              "name": "Sides Large",
+              "value": "horizontal-lg"
+            },
+            {
+              "name": "Top Small",
+              "value": "top-sm"
+            },
+            {
+              "name": "Top Medium",
+              "value": "top-md"
+            },
+            {
+              "name": "Top Large",
+              "value": "top-lg"
+            },
+            {
+              "name": "Bottom Small",
+              "value": "bottom-sm"
+            },
+            {
+              "name": "Bottom Medium",
+              "value": "bottom-md"
+            },
+            {
+              "name": "Bottom Large",
+              "value": "bottom-lg"
+            }
           ],
           "value": "default"
         },
@@ -164,23 +412,74 @@
           "name": "marginStyle",
           "label": "Margin",
           "options": [
-            { "name": "Default", "value": "default" },
-            { "name": "None", "value": "none" },
-            { "name": "All Small", "value": "all-sm" },
-            { "name": "All Medium", "value": "all-md" },
-            { "name": "All Large", "value": "all-lg" },
-            { "name": "Vertical Small", "value": "vertical-sm" },
-            { "name": "Vertical Medium", "value": "vertical-md" },
-            { "name": "Vertical Large", "value": "vertical-lg" },
-            { "name": "Sides Small", "value": "horizontal-sm" },
-            { "name": "Sides Medium", "value": "horizontal-md" },
-            { "name": "Sides Large", "value": "horizontal-lg" },
-            { "name": "Top Small", "value": "top-sm" },
-            { "name": "Top Medium", "value": "top-md" },
-            { "name": "Top Large", "value": "top-lg" },
-            { "name": "Bottom Small", "value": "bottom-sm" },
-            { "name": "Bottom Medium", "value": "bottom-md" },
-            { "name": "Bottom Large", "value": "bottom-lg" }
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "All Small",
+              "value": "all-sm"
+            },
+            {
+              "name": "All Medium",
+              "value": "all-md"
+            },
+            {
+              "name": "All Large",
+              "value": "all-lg"
+            },
+            {
+              "name": "Vertical Small",
+              "value": "vertical-sm"
+            },
+            {
+              "name": "Vertical Medium",
+              "value": "vertical-md"
+            },
+            {
+              "name": "Vertical Large",
+              "value": "vertical-lg"
+            },
+            {
+              "name": "Sides Small",
+              "value": "horizontal-sm"
+            },
+            {
+              "name": "Sides Medium",
+              "value": "horizontal-md"
+            },
+            {
+              "name": "Sides Large",
+              "value": "horizontal-lg"
+            },
+            {
+              "name": "Top Small",
+              "value": "top-sm"
+            },
+            {
+              "name": "Top Medium",
+              "value": "top-md"
+            },
+            {
+              "name": "Top Large",
+              "value": "top-lg"
+            },
+            {
+              "name": "Bottom Small",
+              "value": "bottom-sm"
+            },
+            {
+              "name": "Bottom Medium",
+              "value": "bottom-md"
+            },
+            {
+              "name": "Bottom Large",
+              "value": "bottom-lg"
+            }
           ],
           "value": "default"
         },
@@ -190,10 +489,22 @@
           "name": "dropShadow",
           "label": "Drop Shadow",
           "options": [
-            { "name": "None", "value": "none" },
-            { "name": "Small", "value": "small" },
-            { "name": "Medium", "value": "medium" },
-            { "name": "Large", "value": "large" }
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "Small",
+              "value": "small"
+            },
+            {
+              "name": "Medium",
+              "value": "medium"
+            },
+            {
+              "name": "Large",
+              "value": "large"
+            }
           ],
           "value": "none"
         },
@@ -206,13 +517,83 @@
           "value": ""
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
-          "valueFormat": "regexp",
           "name": "markerColor",
-          "label": "Animated Marker Color (Hex)",
+          "label": "Animated Marker Color",
           "description": "Defaults to yellow if left empty.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
           "value": "",
+          "valueFormat": "regexp",
           "validation": {
             "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
             "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
@@ -224,8 +605,14 @@
           "name": "markerStyle",
           "label": "Animated Marker Style",
           "options": [
-            { "name": "Circle", "value": "circle" },
-            { "name": "Underline", "value": "underline" }
+            {
+              "name": "Circle",
+              "value": "circle"
+            },
+            {
+              "name": "Underline",
+              "value": "underline"
+            }
           ],
           "value": "circle"
         }

@@ -71,10 +71,80 @@
           "value": "center"
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "backgroundColor",
-          "label": "Background Color (Hex)",
+          "label": "Background Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
           "value": ""
         },
         {
@@ -84,8 +154,14 @@
           "label": "Styling Type",
           "description": "Choose the visual treatment for this block. Default keeps the current styling; Variant 2 applies the alternate styling.",
           "options": [
-            { "name": "Default", "value": "default" },
-            { "name": "Variant 2", "value": "variant-2" }
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Variant 2",
+              "value": "variant-2"
+            }
           ],
           "value": "default"
         }

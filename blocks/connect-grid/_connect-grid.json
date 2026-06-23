@@ -91,11 +91,82 @@
           "multi": false
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "iconColor",
-          "label": "Icon Color (Hex)",
-          "description": "Defaults to #ff8b7e if left empty. Used for icons only."
+          "label": "Icon Color",
+          "description": "Defaults to #ff8b7e if left empty. Used for icons only.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "value": ""
         },
         {
           "component": "richtext",
@@ -189,11 +260,82 @@
           "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "cardBackgroundColor",
-          "label": "Card Background Color (Hex)",
-          "description": "Defaults to #f4f0ec if left empty."
+          "label": "Card Background Color",
+          "description": "Defaults to #f4f0ec if left empty.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "value": ""
         },
         {
           "component": "select",
@@ -213,11 +355,82 @@
           "value": "show"
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "cardHoverBackgroundColor",
-          "label": "Card Hover Background Color (Hex)",
-          "description": "Optional. Applies only when provided."
+          "label": "Card Hover Background Color",
+          "description": "Optional. Applies only when provided.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "value": ""
         }
       ]
     }
