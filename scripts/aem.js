@@ -1228,6 +1228,46 @@ function findFlattenedWeightValue(children, fallback = '') {
   return match ? childTextRaw(match) : fallback;
 }
 
+function isStrongOnlyParagraph(element) {
+  if (!isPlainParagraph(element)) return false;
+
+  const text = childTextRaw(element);
+  const strongText = [...element.querySelectorAll('strong, b')]
+    .map((child) => child.textContent.trim())
+    .filter(Boolean)
+    .join(' ');
+
+  return Boolean(text && strongText && strongText === text);
+}
+
+function findFlattenedBackgroundColor(children, fallback = '') {
+  const colors = findFlattenedHexValues(children);
+  return colors.length > 1 ? colors[1] : fallback;
+}
+
+function shouldRestoreFlattenedCardBackground(column, textChildren, configChildren) {
+  const explicitBackground = findFlattenedBackgroundColor(configChildren);
+  if (explicitBackground) return explicitBackground;
+  if (isDarkColor(getSectionBackgroundValue(column))) return '';
+
+  const section = column.closest('.section');
+  const text = textChildren.map(childTextRaw).join(' ');
+  const isSectionCardLayout = section?.classList.contains('columns-container')
+    && section.classList.contains('colored-heading-container')
+    && section.classList.contains('colored-text-container')
+    && section.classList.contains('colored-button-container');
+
+  if (
+    isSectionCardLayout
+    && text.length > 220
+    && !textChildren.some(isStrongOnlyParagraph)
+  ) {
+    return '#FFF';
+  }
+
+  return '';
+}
+
 function getFlattenedHeadingTextColumnParts(column) {
   if (document.querySelector('[data-aue-resource]')) return null;
   if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
@@ -1280,13 +1320,29 @@ function normalizeFlattenedHeadingTextColumn(column) {
     createBlockFieldRow('font size', findFlattenedLengthValue(headingConfigChildren, '45px')),
     createBlockFieldRow('font weight', findFlattenedWeightValue(headingConfigChildren, '700')),
   ]);
-  const textBlock = createFlattenedBlock('colored-text', [
+  const textRows = [
     createBlockFieldRow('text', textValue),
-    createBlockFieldRow('text color', findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041'))),
+    createBlockFieldRow(
+      'text color',
+      findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041')),
+    ),
+  ];
+  const textBackgroundColor = shouldRestoreFlattenedCardBackground(
+    column,
+    textChildren,
+    textConfigChildren,
+  );
+
+  if (textBackgroundColor) {
+    textRows.push(createBlockFieldRow('block background color', textBackgroundColor));
+  }
+
+  textRows.push(
     createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left')),
     createBlockFieldRow('vertical alignment', findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top')),
     createBlockFieldRow('font size', findFlattenedLengthValue(textConfigChildren, '27px')),
-  ]);
+  );
+  const textBlock = createFlattenedBlock('colored-text', textRows);
 
   children.forEach((child) => {
     if (
@@ -1310,18 +1366,6 @@ function shouldNormalizeFlattenedTextColumn(column) {
       section.classList.contains('colored-heading-container')
       || section.classList.contains('statistics-container')
     );
-}
-
-function isStrongOnlyParagraph(element) {
-  if (!isPlainParagraph(element)) return false;
-
-  const text = childTextRaw(element);
-  const strongText = [...element.querySelectorAll('strong, b')]
-    .map((child) => child.textContent.trim())
-    .filter(Boolean)
-    .join(' ');
-
-  return Boolean(text && strongText && strongText === text);
 }
 
 function isLikelyStatisticValueText(value) {
@@ -1419,13 +1463,26 @@ function normalizeFlattenedMultiTextColumn(column) {
 
     textChildren.forEach((child) => textValue.append(child));
 
-    textBlocks.push(createFlattenedBlock('colored-text', [
+    const rows = [
       createBlockFieldRow('text', textValue),
       createBlockFieldRow('text color', textColor),
+    ];
+    const textBackgroundColor = shouldRestoreFlattenedCardBackground(
+      column,
+      textChildren,
+      textConfigChildren,
+    );
+
+    if (textBackgroundColor) {
+      rows.push(createBlockFieldRow('block background color', textBackgroundColor));
+    }
+
+    rows.push(
       createBlockFieldRow('horizontal alignment', horizontalAlign),
       createBlockFieldRow('vertical alignment', verticalAlign),
       createBlockFieldRow('font size', fontSize),
-    ]));
+    );
+    textBlocks.push(createFlattenedBlock('colored-text', rows));
   }
 
   children.forEach((child) => {
@@ -1473,13 +1530,31 @@ function normalizeFlattenedSingleTextColumn(column) {
   const textIndex = children.indexOf(text);
   const textConfigChildren = children.slice(textIndex + 1);
   const isCallout = isFlattenedCalloutText(text);
-  const textColor = isCallout ? '#F7941D' : defaultTextColorForBackground(column, '#404041');
+  const textConfigColors = findFlattenedHexValues(textConfigChildren);
+  const loneCalloutBackground = isCallout
+    && textConfigColors.length === 1
+    && textConfigColors[0].toLowerCase() === '#c5eaf2';
+  let textColor = textConfigColors[0] || defaultTextColorForBackground(column, '#404041');
+  let blockBackgroundColor = findFlattenedBackgroundColor(textConfigChildren);
+
+  if (isCallout) {
+    textColor = loneCalloutBackground ? '#404041' : textConfigColors[0] || '#404041';
+    blockBackgroundColor = loneCalloutBackground
+      ? textConfigColors[0]
+      : textConfigColors[1] || '#c5eaf2';
+  }
   const horizontalAlign = isCallout ? 'center' : 'left';
   const verticalAlign = isCallout ? 'middle' : 'top';
-
-  const textBlock = createFlattenedBlock('colored-text', [
+  const rows = [
     createBlockFieldRow('text', text),
-    createBlockFieldRow('text color', findFlattenedHexValue(textConfigChildren, textColor)),
+    createBlockFieldRow('text color', textColor),
+  ];
+
+  if (blockBackgroundColor) {
+    rows.push(createBlockFieldRow('block background color', blockBackgroundColor));
+  }
+
+  rows.push(
     createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
       textConfigChildren,
       ['left', 'center', 'right', 'justify'],
@@ -1500,7 +1575,8 @@ function normalizeFlattenedSingleTextColumn(column) {
     )),
     createBlockFieldRow('minimum height', isCallout ? '550px' : ''),
     createBlockFieldRow('mobile min height', isCallout ? '100px' : ''),
-  ]);
+  );
+  const textBlock = createFlattenedBlock('colored-text', rows);
 
   children.forEach((child) => {
     if (

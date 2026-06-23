@@ -48,6 +48,62 @@ const CONFIG_OPTION_VALUES = [
   'underline',
 ];
 
+const CURRENT_IMAGE_MODE_OFFSETS = {
+  iconMaxWidth: 1,
+  iconMaxHeight: 2,
+  statValues: 3,
+  statLabels: 4,
+  defaultButtonText: 5,
+  defaultButtonLink: 6,
+  defaultButtonTarget: 7,
+  verticalDividers: 8,
+  blockBackgroundColor: 9,
+  headingTextColor: 10,
+  headingFontSize: 11,
+  headingFontWeight: 12,
+  bodyTextColor: 13,
+  bodyFontSize: 14,
+  bodyFontWeight: 15,
+  valueTextColor: 16,
+  valueFontSize: 17,
+  valueFontWeight: 18,
+  labelTextColor: 19,
+  labelFontSize: 20,
+  labelFontWeight: 21,
+  minHeight: 22,
+  minHeightMobile: 23,
+  markerTerms: 24,
+  markerColor: 25,
+  markerStyle: 26,
+};
+
+const LEGACY_IMAGE_MODE_OFFSETS = {
+  defaultButtonText: 3,
+  defaultButtonLink: 4,
+  defaultButtonTarget: 5,
+  verticalDividers: 6,
+  blockBackgroundColor: 7,
+  headingTextColor: 8,
+  headingFontSize: 9,
+  headingFontWeight: 10,
+  bodyTextColor: 11,
+  bodyFontSize: 12,
+  bodyFontWeight: 13,
+  valueTextColor: 14,
+  valueFontSize: 15,
+  valueFontWeight: 16,
+  labelTextColor: 17,
+  labelFontSize: 18,
+  labelFontWeight: 19,
+  minHeight: 20,
+  minHeightMobile: 21,
+  statValues: 22,
+  statLabels: 23,
+  markerTerms: 25,
+  markerColor: 26,
+  markerStyle: 27,
+};
+
 function directRowOf(block, element) {
   let rowEl = element;
   while (rowEl && rowEl.parentElement !== block) {
@@ -329,6 +385,14 @@ function defaultColorForContext(block, fallback) {
     || (isDarkColor(getNearestBackgroundColor(block)) ? '#FFF' : fallback);
 }
 
+function defaultValueColorForContext(block, hasBodyText) {
+  if (!hasBodyText && block.closest('.colored-grid') && isDarkColor(getNearestBackgroundColor(block))) {
+    return '#039ab5';
+  }
+
+  return defaultColorForContext(block, '#00264d');
+}
+
 function normalizeCssLength(value, propertyName) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -564,11 +628,20 @@ function getLegacyConfig(rows) {
     ? compactStyleColorRows[colorCount - 2]
     : compactStyleColorRows[0] || null;
   const labelColorRow = colorCount >= 2 ? compactStyleColorRows[colorCount - 1] : null;
-  const legacyOffsetRow = (offset, predicate) => {
-    if (imageModeIndex < 0) return null;
+  const offsetRow = (offset, predicate) => {
+    if (imageModeIndex < 0 || !Number.isInteger(offset)) return null;
     const row = rows[imageModeIndex + offset];
     return row && predicate(rowText(row)) ? row : null;
   };
+  const legacyOffsetRow = (name, predicate) => [
+    CURRENT_IMAGE_MODE_OFFSETS[name],
+    LEGACY_IMAGE_MODE_OFFSETS[name],
+  ]
+    .filter((offset, index, offsets) => (
+      Number.isInteger(offset) && offsets.indexOf(offset) === index
+    ))
+    .map((offset) => offsetRow(offset, predicate))
+    .find(Boolean) || null;
   const isContentRow = (value) => Boolean(
     value && !isConfigOnlyText(value) && !isLikelyButtonText(value),
   );
@@ -579,23 +652,23 @@ function getLegacyConfig(rows) {
     defaultButtonLink: compactButtonLinkRow,
     defaultButtonTarget: compactTargetRow,
     verticalDividers: compactDividerRow,
-    blockBackgroundColor: legacyOffsetRow(7, isHexColorText) || blockBackgroundColorRow,
-    headingTextColor: legacyOffsetRow(8, isHexColorText) || headingColorRow,
-    headingFontSize: legacyOffsetRow(9, isCssLengthText),
-    headingFontWeight: legacyOffsetRow(10, isFontWeightText),
-    bodyTextColor: legacyOffsetRow(11, isHexColorText) || bodyColorRow,
-    bodyFontSize: legacyOffsetRow(12, isCssLengthText) || bodySizeRow,
-    bodyFontWeight: legacyOffsetRow(13, isFontWeightText),
-    valueTextColor: legacyOffsetRow(14, isHexColorText) || valueColorRow,
-    valueFontSize: legacyOffsetRow(15, isCssLengthText),
-    valueFontWeight: legacyOffsetRow(16, isFontWeightText),
-    labelTextColor: legacyOffsetRow(17, isHexColorText) || labelColorRow,
-    labelFontSize: legacyOffsetRow(18, isCssLengthText) || labelSizeRow,
-    labelFontWeight: legacyOffsetRow(19, isFontWeightText) || labelWeightRow,
-    minHeight: legacyOffsetRow(20, isCssLengthText) || minHeightRows[0],
-    minHeightMobile: legacyOffsetRow(21, isCssLengthText) || minHeightRows[1],
-    statValues: legacyOffsetRow(22, isContentRow) || statValueRow,
-    statLabels: legacyOffsetRow(23, isContentRow) || statLabelRow,
+    blockBackgroundColor: legacyOffsetRow('blockBackgroundColor', isHexColorText) || blockBackgroundColorRow,
+    headingTextColor: legacyOffsetRow('headingTextColor', isHexColorText) || headingColorRow,
+    headingFontSize: legacyOffsetRow('headingFontSize', isCssLengthText),
+    headingFontWeight: legacyOffsetRow('headingFontWeight', isFontWeightText),
+    bodyTextColor: legacyOffsetRow('bodyTextColor', isHexColorText) || bodyColorRow,
+    bodyFontSize: legacyOffsetRow('bodyFontSize', isCssLengthText) || bodySizeRow,
+    bodyFontWeight: legacyOffsetRow('bodyFontWeight', isFontWeightText),
+    valueTextColor: legacyOffsetRow('valueTextColor', isHexColorText) || valueColorRow,
+    valueFontSize: legacyOffsetRow('valueFontSize', isCssLengthText),
+    valueFontWeight: legacyOffsetRow('valueFontWeight', isFontWeightText),
+    labelTextColor: legacyOffsetRow('labelTextColor', isHexColorText) || labelColorRow,
+    labelFontSize: legacyOffsetRow('labelFontSize', isCssLengthText) || labelSizeRow,
+    labelFontWeight: legacyOffsetRow('labelFontWeight', isFontWeightText) || labelWeightRow,
+    minHeight: legacyOffsetRow('minHeight', isCssLengthText) || minHeightRows[0],
+    minHeightMobile: legacyOffsetRow('minHeightMobile', isCssLengthText) || minHeightRows[1],
+    statValues: legacyOffsetRow('statValues', isContentRow) || statValueRow,
+    statLabels: legacyOffsetRow('statLabels', isContentRow) || statLabelRow,
     markerColor: compactMarkerColorRow,
     markerStyle: compactMarkerStyleRow,
   };
@@ -1338,7 +1411,7 @@ export default function decorate(block) {
   const valueColor = normalizeColorValue(valueColorField.value)
     || normalizeColorValue(fieldFallback('valueTextColor'))
     || textColors.value
-    || defaultColorForContext(block, '#00264d');
+    || defaultValueColorForContext(block, fieldHasContent(effectiveBodyTextField));
   const labelColor = normalizeColorValue(labelColorField.value)
     || normalizeColorValue(fieldFallback('labelTextColor'))
     || textColors.label

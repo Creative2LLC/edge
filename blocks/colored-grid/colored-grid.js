@@ -70,6 +70,40 @@ const LOADABLE_CONTENT_BLOCKS = new Set([
   'statistics',
 ]);
 
+const STAT_CURRENT_IMAGE_MODE_OFFSETS = {
+  headingTextColor: 10,
+  headingFontSize: 11,
+  headingFontWeight: 12,
+  bodyTextColor: 13,
+  bodyFontSize: 14,
+  bodyFontWeight: 15,
+  valueTextColor: 16,
+  valueFontSize: 17,
+  valueFontWeight: 18,
+  labelTextColor: 19,
+  labelFontSize: 20,
+  labelFontWeight: 21,
+  minHeight: 22,
+  minHeightMobile: 23,
+};
+
+const STAT_LEGACY_IMAGE_MODE_OFFSETS = {
+  headingTextColor: 8,
+  headingFontSize: 9,
+  headingFontWeight: 10,
+  bodyTextColor: 11,
+  bodyFontSize: 12,
+  bodyFontWeight: 13,
+  valueTextColor: 14,
+  valueFontSize: 15,
+  valueFontWeight: 16,
+  labelTextColor: 17,
+  labelFontSize: 18,
+  labelFontWeight: 19,
+  minHeight: 20,
+  minHeightMobile: 21,
+};
+
 function fieldSelector(name) {
   return `[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`;
 }
@@ -698,25 +732,34 @@ function applyFlattenedStatisticsStyles(item) {
   ));
   if (imageModeIndex < 0) return;
 
-  const valueAt = (offset) => directRowText(item, imageModeIndex + offset);
-  const colorAt = (offset) => normalizeHexColorValue(valueAt(offset));
-  const lengthAt = (offset) => normalizeCssValue(valueAt(offset), 'font-size');
-  const weightAt = (offset) => normalizeFontWeight(valueAt(offset));
+  const valueForField = (fieldName, normalizer) => [
+    STAT_CURRENT_IMAGE_MODE_OFFSETS[fieldName],
+    STAT_LEGACY_IMAGE_MODE_OFFSETS[fieldName],
+  ]
+    .filter((offset, index, offsets) => (
+      Number.isInteger(offset) && offsets.indexOf(offset) === index
+    ))
+    .map((offset) => normalizer(directRowText(item, imageModeIndex + offset)))
+    .find(Boolean) || '';
+  const colorField = (fieldName) => valueForField(fieldName, normalizeHexColorValue);
+  const sizeField = (fieldName) => valueForField(fieldName, (value) => normalizeCssValue(value, 'font-size'));
+  const weightField = (fieldName) => valueForField(fieldName, normalizeFontWeight);
+  const minHeightField = (fieldName) => valueForField(fieldName, (value) => normalizeCssValue(value, 'min-height'));
 
-  setCssVarIfMissing(item, '--statistics-heading-color', colorAt(8));
-  setCssVarIfMissing(item, '--statistics-heading-size', lengthAt(9));
-  setCssVarIfMissing(item, '--statistics-heading-weight', weightAt(10));
-  setCssVarIfMissing(item, '--statistics-body-color', colorAt(11));
-  setCssVarIfMissing(item, '--statistics-body-size', lengthAt(12));
-  setCssVarIfMissing(item, '--statistics-body-weight', weightAt(13));
-  setCssVarIfMissing(item, '--statistics-value-color', colorAt(14));
-  setCssVarIfMissing(item, '--statistics-value-size', lengthAt(15));
-  setCssVarIfMissing(item, '--statistics-value-weight', weightAt(16));
-  setCssVarIfMissing(item, '--statistics-label-color', colorAt(17));
-  setCssVarIfMissing(item, '--statistics-label-size', lengthAt(18));
-  setCssVarIfMissing(item, '--statistics-label-weight', weightAt(19));
-  setCssVarIfMissing(item, '--statistics-min-height', normalizeCssValue(valueAt(20), 'min-height'));
-  setCssVarIfMissing(item, '--statistics-min-height-mobile', normalizeCssValue(valueAt(21), 'min-height'));
+  setCssVarIfMissing(item, '--statistics-heading-color', colorField('headingTextColor'));
+  setCssVarIfMissing(item, '--statistics-heading-size', sizeField('headingFontSize'));
+  setCssVarIfMissing(item, '--statistics-heading-weight', weightField('headingFontWeight'));
+  setCssVarIfMissing(item, '--statistics-body-color', colorField('bodyTextColor'));
+  setCssVarIfMissing(item, '--statistics-body-size', sizeField('bodyFontSize'));
+  setCssVarIfMissing(item, '--statistics-body-weight', weightField('bodyFontWeight'));
+  setCssVarIfMissing(item, '--statistics-value-color', colorField('valueTextColor'));
+  setCssVarIfMissing(item, '--statistics-value-size', sizeField('valueFontSize'));
+  setCssVarIfMissing(item, '--statistics-value-weight', weightField('valueFontWeight'));
+  setCssVarIfMissing(item, '--statistics-label-color', colorField('labelTextColor'));
+  setCssVarIfMissing(item, '--statistics-label-size', sizeField('labelFontSize'));
+  setCssVarIfMissing(item, '--statistics-label-weight', weightField('labelFontWeight'));
+  setCssVarIfMissing(item, '--statistics-min-height', minHeightField('minHeight'));
+  setCssVarIfMissing(item, '--statistics-min-height-mobile', minHeightField('minHeightMobile'));
 }
 
 function resetRowMarkerRuntime(row) {
