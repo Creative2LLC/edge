@@ -41,7 +41,12 @@ export function readSearchState(search = window.location.search) {
   };
 }
 
-export function writeSearchState({ query, types = [], view = '', page = 1 }, replace = true) {
+export function writeSearchState({
+  query,
+  types = [],
+  view = '',
+  page = 1,
+}, replace = true) {
   const url = new URL(window.location.href);
   const normalizedQuery = `${query || ''}`.trim();
   const normalizedTypes = [...new Set(types.map((entry) => `${entry || ''}`.trim().toLowerCase()).filter(Boolean))];

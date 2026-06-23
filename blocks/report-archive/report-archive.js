@@ -28,6 +28,12 @@ function resourcePathFromUrn(resource) {
   return match ? match[1] : '';
 }
 
+function resolveCoverImageValue(value) {
+  if (Array.isArray(value)) return value[0];
+  if (value && typeof value === 'object') return value.path || value.url || '';
+  return String(value || '');
+}
+
 async function resolveImageSrc(imageCell) {
   if (!imageCell) return '';
 
@@ -56,7 +62,7 @@ async function resolveImageSrc(imageCell) {
     const data = await response.json();
     const value = data?.coverImage;
     if (!value) return '';
-    const resolved = Array.isArray(value) ? value[0] : (typeof value === 'object' ? value?.path || value?.url || '' : String(value));
+    const resolved = resolveCoverImageValue(value);
     return resourcePathFromUrn(String(resolved || '')) || '';
   } catch {
     return '';

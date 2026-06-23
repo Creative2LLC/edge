@@ -177,12 +177,35 @@
 }
 
 /* Named color variants via data-color attribute */
-.event-calendar-pill[data-color="blue"] { background: #007294; color: #fff; }
-.event-calendar-pill[data-color="teal"] { background: #0d9488; color: #fff; }
-.event-calendar-pill[data-color="red"] { background: #b42318; color: #fff; }
-.event-calendar-pill[data-color="gold"] { background: #b45309; color: #fff; }
-.event-calendar-pill[data-color="green"] { background: #166534; color: #fff; }
-.event-calendar-pill[data-color="purple"] { background: #6b21a8; color: #fff; }
+.event-calendar-pill[data-color="blue"] {
+  background: #007294;
+  color: #fff;
+}
+
+.event-calendar-pill[data-color="teal"] {
+  background: #0d9488;
+  color: #fff;
+}
+
+.event-calendar-pill[data-color="red"] {
+  background: #b42318;
+  color: #fff;
+}
+
+.event-calendar-pill[data-color="gold"] {
+  background: #b45309;
+  color: #fff;
+}
+
+.event-calendar-pill[data-color="green"] {
+  background: #166534;
+  color: #fff;
+}
+
+.event-calendar-pill[data-color="purple"] {
+  background: #6b21a8;
+  color: #fff;
+}
 
 /* ─── Native <dialog> modal ─── */
 .event-calendar-modal {

@@ -11779,30 +11779,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "value": "",
-        "name": "statValues",
-        "label": "Legacy Stat Values (one per line)",
-        "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "value": "",
-        "name": "statLabels",
-        "label": "Legacy Stat Labels (one per line)",
-        "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "value": "",
-        "name": "textColors",
-        "label": "Legacy Text Styles",
-        "description": "Optional fallback. One per line: heading|#00264d, body|#404041, value|#1491bf, label|#6b6b6b, heading-size|2.6rem, body-size|1.25rem, value-size|clamp(3rem, 8vw, 6rem), label-size|1.25rem, heading-weight|700, body-weight|400, value-weight|700, label-weight|400"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "markerTerms",
         "label": "Animated Marker Text",
         "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in headings, body, stat values, and labels gets a drawn marker on scroll.",

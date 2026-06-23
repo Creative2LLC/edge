@@ -815,6 +815,11 @@ function readItemRows(block) {
             '[data-aue-prop="contentAlignment"]',
             '[data-aue-prop="verticalAlignment"]',
             '[data-aue-prop="subheading"]',
+            '[data-aue-prop="iconImage"]',
+            '[data-aue-prop="iconImageAlt"]',
+            '[data-aue-prop="defaultButtonText"]',
+            '[data-aue-prop="defaultButtonLink"]',
+            '[data-aue-prop="defaultButtonTarget"]',
             '[data-aue-prop="verticalDividers"]',
             '[data-aue-prop="blockBackgroundColor"]',
             '[data-aue-prop="headingTextColor"]',
@@ -942,7 +947,11 @@ function normalizeButtonValue(value) {
 }
 
 function fieldHasContent(field) {
-  return Boolean(field?.value || field?.source);
+  return Boolean(
+    String(field?.value || '').trim()
+      || field?.source?.textContent?.trim()
+      || field?.source?.querySelector?.('a[href], button'),
+  );
 }
 
 function applyItemDefaults(items, defaults) {

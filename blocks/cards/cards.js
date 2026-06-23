@@ -294,6 +294,14 @@ function isLegacyConfigOnlyRow(row) {
 }
 
 function hasActionContent(cell) {
+  if (!cell) return false;
+  if (
+    isConfigOnlyText(cell.textContent)
+      && !cell.querySelector('button, .button-container')
+  ) {
+    return false;
+  }
+
   return Boolean(cell?.querySelector?.('a[href], button, .button-container'));
 }
 
