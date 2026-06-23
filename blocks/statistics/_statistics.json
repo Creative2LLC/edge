@@ -145,6 +145,22 @@
         {
           "component": "text",
           "valueType": "string",
+          "value": "",
+          "name": "statValues",
+          "label": "Legacy Stat Values (one per line)",
+          "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "value": "",
+          "name": "statLabels",
+          "label": "Legacy Stat Labels (one per line)",
+          "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "defaultButtonText",
           "label": "Button Text (Optional)",
           "description": "Default button for a single stat. For multiple stats, use Statistics Item button fields.",
