@@ -406,6 +406,23 @@ function isLikelyButtonText(value) {
     .test(String(value || '').trim());
 }
 
+function isHexAnchor(anchor) {
+  return HEX_COLOR_RE.test(anchor?.getAttribute?.('href') || '');
+}
+
+function isLikelyHrefText(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized || HEX_COLOR_RE.test(normalized)) return false;
+  return /^(?:https?:\/\/|mailto:|tel:|\/(?!\/)|\.{1,2}\/|#(?![0-9a-f]{3,8}$))/i.test(normalized)
+    || /\.(?:html?|pdf)(?:[?#]|$)/i.test(normalized);
+}
+
+function hasUsableLink(row) {
+  const anchors = [...(row?.querySelectorAll?.('a[href]') || [])];
+  if (anchors.some((anchor) => !isHexAnchor(anchor))) return true;
+  return isLikelyHrefText(rowText(row));
+}
+
 function findLegacyAlignmentIndex(rows) {
   const maxStart = Math.min(rows.length - 1, 3);
   for (let index = 0; index < maxStart; index += 1) {
@@ -486,9 +503,10 @@ function getLegacyConfig(rows) {
   const compactTargetRow = compactTextRows
     .find((row) => isTargetText(rowText(row))) || null;
   const compactDividerRow = compactTextRows.find((row) => hasOptionValue(row, ['show', 'hide'])) || null;
+  const compactLinkRows = compactTextRows.filter(hasUsableLink);
   const compactContentRows = compactTextRows.filter((row) => {
     const text = rowText(row);
-    return text && !isConfigOnlyText(text);
+    return text && !isConfigOnlyText(text) && !hasUsableLink(row);
   });
   const statValueRow = compactContentRows.find((row) => isLikelyStatValue(rowText(row)))
     || compactContentRows.find((row) => !isLikelyButtonText(rowText(row)))
@@ -506,6 +524,17 @@ function getLegacyConfig(rows) {
       && row !== statLabelRow
       && isLikelyButtonText(rowText(row))
   ));
+  const compactButtonTextRow = compactButtonRows[0]
+    || compactLinkRows.find((row) => isLikelyButtonText(rowText(row)))
+    || null;
+  const compactButtonTextIndex = compactButtonTextRow
+    ? compactTextRows.indexOf(compactButtonTextRow)
+    : -1;
+  const compactButtonLinkRow = compactButtonTextRow && hasUsableLink(compactButtonTextRow)
+    ? compactButtonTextRow
+    : compactLinkRows.find((row) => (
+      compactButtonTextIndex < 0 || compactTextRows.indexOf(row) > compactButtonTextIndex
+    )) || null;
   const bodySizeRow = bodyTextRow && compactLengthRows.length > 1
     ? compactLengthRows[0]
     : null;
@@ -546,7 +575,8 @@ function getLegacyConfig(rows) {
   const compactFields = {
     bodyText: bodyTextRow,
     imageMode: compactImageModeRow,
-    defaultButtonText: compactButtonRows[0],
+    defaultButtonText: compactButtonTextRow,
+    defaultButtonLink: compactButtonLinkRow,
     defaultButtonTarget: compactTargetRow,
     verticalDividers: compactDividerRow,
     blockBackgroundColor: legacyOffsetRow(7, isHexColorText) || blockBackgroundColorRow,
@@ -773,6 +803,15 @@ function hasAuthoringContext(scope) {
   );
 }
 
+function isStatisticsItemContainer(row) {
+  return row?.getAttribute?.('data-aue-model') === 'statistics-item'
+    || row?.getAttribute?.('data-aue-label') === 'Statistics Item';
+}
+
+function itemFieldCount(row, selector) {
+  return row?.querySelectorAll?.(selector).length || 0;
+}
+
 function isItemRow(row) {
   if (!row?.children?.length) return false;
   const itemFieldSelector = [
@@ -784,7 +823,12 @@ function isItemRow(row) {
     '[data-aue-prop="buttonLink"]',
   ].join(', ');
 
-  if (row.querySelector(itemFieldSelector)) return true;
+  if (row.querySelector(itemFieldSelector)) {
+    return isStatisticsItemContainer(row)
+      || itemFieldCount(row, itemFieldSelector) > 1
+      || row.querySelector('picture');
+  }
+
   if (!row.querySelector('picture')) return false;
 
   return [...row.children].some((cell, index) => (
@@ -936,6 +980,16 @@ function appendFieldContent(field, element, fallbackValue = '') {
   }
 }
 
+function appendButtonText(field, element, fallbackValue = '') {
+  if (field?.source?.querySelector?.('a[href]')) {
+    moveInstrumentation(field.source, element);
+    element.textContent = fallbackValue;
+    return;
+  }
+
+  appendFieldContent(field, element, fallbackValue);
+}
+
 function normalizeTarget(value) {
   const target = normalizeOption(value, TARGET_OPTION_VALUES, 'self');
   return ['blank', 'new-tab'].includes(target) ? '_blank' : '_self';
@@ -1030,7 +1084,7 @@ function buildItem(itemData) {
   if (hasButton) {
     const button = document.createElement(buttonLink ? 'a' : 'span');
     button.className = 'statistics-button';
-    appendFieldContent(
+    appendButtonText(
       itemData.buttonTextField,
       button,
       buttonText || 'Learn more here.',
@@ -1057,6 +1111,8 @@ function buildItem(itemData) {
 }
 
 export default function decorate(block) {
+  if (block.querySelector(':scope > .statistics-inner')) return;
+
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
   const authoredFieldValues = snapshotAuthoredFieldValues(block);
@@ -1122,7 +1178,7 @@ export default function decorate(block) {
     block,
     'defaultButtonLink',
     ['button link', 'cta link'],
-    legacyCell(4),
+    legacyConfig.compactCell('defaultButtonLink') || legacyCell(4),
   );
   const defaultButtonTargetField = readField(
     block,
