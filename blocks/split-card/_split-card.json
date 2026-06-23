@@ -57,10 +57,81 @@
           "label": "Button Link"
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "buttonColor",
-          "label": "Button Background Color (Hex)"
+          "label": "Button Background Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#ffffff"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264d"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008eb7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0d273b"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#a1a1a1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#e07e27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#fcbc7e"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7bc581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#e13e30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#f58a80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92d6e3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#f6f6f6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#e7e4e1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#ddd5cc"
+            }
+          ],
+          "value": ""
         },
         {
           "component": "select",
@@ -106,10 +177,81 @@
           "label": "Second Button Link (Optional)"
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "button2Color",
-          "label": "Second Button Color (Hex, Optional)"
+          "label": "Second Button Color (Optional)",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#ffffff"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264d"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008eb7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0d273b"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#a1a1a1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#e07e27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#fcbc7e"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7bc581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#e13e30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#f58a80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92d6e3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#f6f6f6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#e7e4e1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#ddd5cc"
+            }
+          ],
+          "value": ""
         },
         {
           "component": "select",
@@ -144,30 +286,311 @@
           "value": ""
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "backgroundColor",
-          "label": "Content Background Color (Hex)"
+          "label": "Content Background Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#ffffff"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264d"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008eb7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0d273b"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#a1a1a1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#e07e27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#fcbc7e"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7bc581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#e13e30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#f58a80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92d6e3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#f6f6f6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#e7e4e1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#ddd5cc"
+            }
+          ],
+          "value": ""
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "headingColor",
-          "label": "Heading Color (Hex, Optional)",
+          "label": "Heading Color (Optional)",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#ffffff"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264d"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008eb7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0d273b"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#a1a1a1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#e07e27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#fcbc7e"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7bc581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#e13e30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#f58a80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92d6e3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#f6f6f6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#e7e4e1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#ddd5cc"
+            }
+          ],
           "value": ""
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "subheadingColor",
-          "label": "Subheading Color (Hex, Optional)",
+          "label": "Subheading Color (Optional)",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#ffffff"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264d"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008eb7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0d273b"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#a1a1a1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#e07e27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#fcbc7e"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7bc581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#e13e30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#f58a80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92d6e3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#f6f6f6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#e7e4e1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#ddd5cc"
+            }
+          ],
           "value": ""
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "textColor",
-          "label": "Shared Text Color (Hex, Optional)",
+          "label": "Shared Text Color (Optional)",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#ffffff"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264d"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008eb7"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0d273b"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#a1a1a1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#e07e27"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#fcbc7e"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7bc581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#e13e30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#f58a80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92d6e3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#f6f6f6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#e7e4e1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#ddd5cc"
+            }
+          ],
           "value": ""
         },
         {
