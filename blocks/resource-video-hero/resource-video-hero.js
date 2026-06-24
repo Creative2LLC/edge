@@ -18,7 +18,8 @@ const FIELD_COLUMN_INDEX = {
   title: 7,
   description: 8,
   videoFile: 9,
-  videoUrl: 10,
+  videoFilePath: 10,
+  videoUrl: 11,
 };
 
 const DEFAULT_LISTING_PATH = '/content/edge/resources.html';
@@ -355,6 +356,33 @@ function buildHero(resource, config) {
   return section;
 }
 
+// ── Video file field reading ─────────────────────────────────────────────────
+
+function getVideoFileValue(block) {
+  // 1. Manual text field always wins (most reliable)
+  const manual = getFieldValue(block, 'videoFilePath');
+  if (manual) return manual;
+
+  // 2. Link href from the reference picker cell
+  const rows = getRows(block);
+  const colIndex = FIELD_COLUMN_INDEX.videoFile;
+  for (const row of rows) {
+    const cell = row.children[colIndex];
+    if (!cell) continue;
+    const anchor = cell.querySelector('a');
+    if (anchor) {
+      const href = normalizeText(anchor.getAttribute('href') || '');
+      if (href) return href;
+    }
+    // 3. DAM path or absolute URL anywhere in the cell text
+    const damPath = findUrlLikeValue(cell.textContent);
+    if (damPath) return damPath;
+  }
+
+  // 4. Named prop (data-aue-prop="videoFile") on the block itself
+  return getFieldValue(block, 'videoFile');
+}
+
 // ── API fetch ────────────────────────────────────────────────────────────────
 
 async function fetchResource(apiBaseUrl, slug) {
@@ -379,8 +407,7 @@ export default async function decorate(block) {
     downloadLabel: getFieldValue(block, 'downloadLabel', 'Download Resource'),
     title: getFieldValue(block, 'title'),
     description: getFieldValue(block, 'description'),
-    videoFile: getImageFieldValue(block, 'videoFile', '')?.src
-      || getFieldValue(block, 'videoFile'),
+    videoFile: getVideoFileValue(block),
     videoUrl: getFieldValue(block, 'videoUrl'),
   };
 

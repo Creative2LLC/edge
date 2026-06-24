@@ -19191,15 +19191,22 @@
         "valueType": "string",
         "name": "videoFile",
         "label": "Video File (DAM MP4)",
-        "description": "Upload an MP4 to the DAM and reference it here. Used for the modal player and as the download file. If Video URL is also set, that takes priority for playback.",
+        "description": "Pick the MP4 from the DAM asset browser. Used for the modal player and as the download file.",
         "multi": false
       },
       {
         "component": "text",
         "valueType": "string",
+        "name": "videoFilePath",
+        "label": "Video File Path (Manual)",
+        "description": "Paste the DAM path here if the picker above does not render correctly (e.g. /content/dam/edge/videos/my-video.mp4). Overrides the picker value."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "videoUrl",
-        "label": "Video URL (Override)",
-        "description": "Optional. YouTube, Vimeo, or direct video URL. Overrides the DAM file for playback only; download still uses the DAM file."
+        "label": "Video URL (YouTube / Vimeo override)",
+        "description": "Optional. YouTube or Vimeo URL. Overrides the DAM file for playback only; download still uses the DAM file."
       }
     ]
   },
