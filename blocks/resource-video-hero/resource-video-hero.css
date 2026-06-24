@@ -120,3 +120,77 @@
     width: min(100% - 32px, 980px);
   }
 }
+
+/* Watch Video modal */
+.resource-video-hero-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.resource-video-hero-modal[hidden] {
+  display: none;
+}
+
+.resource-video-hero-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 88%);
+}
+
+.resource-video-hero-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(960px, 100%);
+}
+
+.resource-video-hero-modal-close {
+  position: absolute;
+  top: -2.75rem;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  border: 2px solid rgb(255 255 255 / 40%);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.resource-video-hero-modal-close:hover {
+  border-color: #fff;
+}
+
+.resource-video-hero-modal-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.resource-video-hero-modal-frame iframe,
+.resource-video-hero-modal-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.resource-video-hero .resource-video-hero-action[type="button"] {
+  border: none;
+  cursor: pointer;
+}
