@@ -1,7 +1,9 @@
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import { buildListFilterHref } from '../../scripts/list-filter-state.js';
 import {
+  getAueResourcePath,
   getBlockRows,
+  readAueResourceFields,
   readImageField,
   readLinkField,
   readTextField,
@@ -82,7 +84,8 @@ function getImageFieldValue(block, name, fallbackAlt = '') {
     const cellImg = cell?.querySelector?.('img');
     if (cellImg?.src) return { src: cellImg.src, alt: cellImg.alt || fallbackAlt };
     const anchor = cell?.querySelector?.('a');
-    const url = normalizeText(anchor?.getAttribute('href') || findUrlLikeValue(cell?.textContent || ''));
+    const urlRaw = anchor?.getAttribute('href') || findUrlLikeValue(cell?.textContent || '');
+    const url = normalizeText(urlRaw);
     return url ? { src: url, alt: fallbackAlt } : null;
   }).find(Boolean) || null;
 }
@@ -398,6 +401,13 @@ async function fetchResource(apiBaseUrl, slug) {
 // ── Block entry ──────────────────────────────────────────────────────────────
 
 export default async function decorate(block) {
+  // Read video-specific fields from AEM's block JSON — bypasses any HTML
+  // rendering quirks for reference/text fields in the author environment.
+  const blockPath = getAueResourcePath(block);
+  const aemFields = blockPath
+    ? await readAueResourceFields(blockPath, ['videoFilePath', 'videoFile', 'videoUrl'])
+    : {};
+
   const config = {
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl')),
     slug: normalizeSlug(getFieldValue(block, 'slug')) || getSlugFromPathname(),
@@ -407,8 +417,8 @@ export default async function decorate(block) {
     downloadLabel: getFieldValue(block, 'downloadLabel', 'Download Resource'),
     title: getFieldValue(block, 'title'),
     description: getFieldValue(block, 'description'),
-    videoFile: getVideoFileValue(block),
-    videoUrl: getFieldValue(block, 'videoUrl'),
+    videoFile: aemFields.videoFilePath || aemFields.videoFile || getVideoFileValue(block),
+    videoUrl: aemFields.videoUrl || getFieldValue(block, 'videoUrl'),
   };
 
   block.replaceChildren(buildMessage('Loading resource...', ''));
@@ -419,20 +429,29 @@ export default async function decorate(block) {
   }
 
   if (!config.slug) {
-    block.replaceChildren(buildMessage('Missing resource slug', 'Set a slug for preview or open the published resource URL.'));
+    block.replaceChildren(buildMessage(
+      'Missing resource slug',
+      'Set a slug for preview or open the published resource URL.',
+    ));
     return;
   }
 
   try {
     const resource = await fetchResource(config.apiBaseUrl, config.slug);
     if (!resource) {
-      block.replaceChildren(buildMessage('Resource not found', `No published resource was found for "${config.slug}".`));
+      block.replaceChildren(buildMessage(
+        'Resource not found',
+        `No published resource was found for "${config.slug}".`,
+      ));
       return;
     }
 
     block.replaceChildren(buildHero(resource, config));
     if (normalizeText(resource.title)) document.title = `${resource.title} | NCMEC`;
   } catch (error) {
-    block.replaceChildren(buildMessage('Resource unavailable', error?.message || 'The resource API request failed.'));
+    block.replaceChildren(buildMessage(
+      'Resource unavailable',
+      error?.message || 'The resource API request failed.',
+    ));
   }
 }
