@@ -12,6 +12,11 @@ import {
   syncColoredFieldLayoutOptions,
 } from '../../scripts/colored-field-options.js';
 
+const DEFAULT_BUTTON_BACKGROUND = '#f7941d1a';
+const DEFAULT_BUTTON_TEXT = '#3c4654';
+const DEFAULT_BUTTON_BORDER = '#f7941d';
+const DEFAULT_BUTTON_ICON_NAME = 'download';
+
 function directRowOf(block, element) {
   let rowEl = element;
   while (rowEl && rowEl.parentElement !== block) {
@@ -202,9 +207,22 @@ function buildNamedIcon(iconName, altText) {
 
   const icon = document.createElement('span');
   icon.className = 'colored-button-icon';
+  const iconUrl = `${window.hlx?.codeBasePath || ''}/icons/${normalizedName}.svg`;
+
+  if (normalizedName === DEFAULT_BUTTON_ICON_NAME) {
+    icon.classList.add('colored-button-icon-mask');
+    icon.style.setProperty('--colored-button-icon-url', `url("${iconUrl}")`);
+    if (altText) {
+      icon.setAttribute('role', 'img');
+      icon.setAttribute('aria-label', altText);
+    } else {
+      icon.setAttribute('aria-hidden', 'true');
+    }
+    return icon;
+  }
 
   const img = document.createElement('img');
-  img.src = `${window.hlx?.codeBasePath || ''}/icons/${normalizedName}.svg`;
+  img.src = iconUrl;
   img.alt = altText || '';
   img.loading = 'lazy';
   img.width = 20;
@@ -240,11 +258,14 @@ export default function decorate(block) {
     isEditor,
     fieldCell(rows[2]),
   );
-  const backgroundColor = normalizeColorValue(bgField.value) || '#008DB6';
+  const authoredBackgroundColor = normalizeColorValue(bgField.value);
+  const backgroundColor = authoredBackgroundColor || DEFAULT_BUTTON_BACKGROUND;
   const txtField = readColorField(block, 'textColor', ['text color'], isEditor, fieldCell(rows[3]));
-  const textColor = normalizeColorValue(txtField.value) || '#FFFFFF';
+  const textColor = normalizeColorValue(txtField.value) || DEFAULT_BUTTON_TEXT;
   const bdrField = readColorField(block, 'borderColor', ['border color'], isEditor, fieldCell(rows[4]));
-  const borderColor = normalizeColorValue(bdrField.value) || backgroundColor;
+  const borderColor = normalizeColorValue(bdrField.value)
+    || authoredBackgroundColor
+    || DEFAULT_BUTTON_BORDER;
   const blockBgField = readColorField(
     block,
     'blockBackgroundColor',
@@ -281,7 +302,7 @@ export default function decorate(block) {
   const iconPosition = normalizeOption(
     readField(block, 'iconPosition', ['icon position'], fieldCell(rows[14 + rowOffset])).value,
     ['left', 'right', 'none'],
-    'left',
+    'right',
   );
   const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size']).value, 'width');
   const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[16 + rowOffset])).value, 'min-height');
@@ -326,7 +347,8 @@ export default function decorate(block) {
 
   const icon = iconPosition === 'none'
     ? null
-    : buildImageIcon(iconField, iconAlt) || buildNamedIcon(iconName, iconAlt);
+    : buildImageIcon(iconField, iconAlt)
+      || buildNamedIcon(iconName || DEFAULT_BUTTON_ICON_NAME, iconAlt);
 
   if (icon && iconPosition === 'left') button.append(icon);
   button.append(label);

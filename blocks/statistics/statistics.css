@@ -12,9 +12,11 @@
   --statistics-value-weight: 700;
   --statistics-label-size: 1.1rem;
   --statistics-label-weight: 400;
-  --statistics-button-bg: #00264d;
+  --statistics-button-bg: #092348;
   --statistics-button-color: #fff;
   --statistics-button-icon-color: #14b4cf;
+  --statistics-button-ring-color: #f7941d;
+  --statistics-button-ring-offset: #fff;
   --statistics-block-bg: transparent;
   --statistics-icon-max-width: 136px;
   --statistics-icon-max-height: 96px;
@@ -228,6 +230,11 @@
   line-height: 1.2;
   text-align: center;
   text-decoration: none;
+  box-shadow: none;
+  transition:
+    background-color 150ms linear,
+    box-shadow 150ms linear,
+    color 150ms linear;
 }
 
 .statistics .statistics-button::after {
@@ -241,13 +248,17 @@
 
 .statistics .statistics-button:hover,
 .statistics .statistics-button:focus {
+  cursor: pointer;
+  background-color: rgb(9 35 72 / 90%);
   color: var(--statistics-button-color);
   text-decoration: none;
+  box-shadow:
+    0 0 0 2px var(--statistics-button-ring-offset),
+    0 0 0 4px var(--statistics-button-ring-color);
 }
 
 .statistics .statistics-button:focus-visible {
-  outline: 3px solid #14b4cf;
-  outline-offset: 3px;
+  outline: none;
 }
 
 /* Content Alignment: Left / Right variants

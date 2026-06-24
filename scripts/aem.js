@@ -1148,6 +1148,38 @@ function isDownloadButtonText(element) {
     .test(childTextRaw(element));
 }
 
+function getFlattenedLinkHref(element) {
+  const anchor = element?.matches?.('a[href]')
+    ? element
+    : element?.querySelector?.('a[href]');
+  const href = anchor?.getAttribute('href') || childTextRaw(element);
+  const normalized = String(href || '').trim();
+
+  if (!normalized || AEM_HEX_HREF.test(normalized)) return '';
+
+  return /^(?:https?:\/\/|mailto:|tel:|\/(?!\/)|\.{1,2}\/|#(?![0-9a-f]{3,8}$))/i.test(normalized)
+    || /\.(?:html?|pdf)(?:[?#]|$)/i.test(normalized)
+    ? normalized
+    : '';
+}
+
+function getFlattenedLinkTarget(element) {
+  const anchor = element?.matches?.('a[href]')
+    ? element
+    : element?.querySelector?.('a[href]');
+  const target = anchor?.getAttribute('target') || '';
+
+  if (target === '_blank') return 'blank';
+  if (target === '_self') return 'self';
+
+  const normalized = childTextRaw(element)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return ['self', 'blank', 'same-tab', 'new-tab'].includes(normalized) ? normalized : '';
+}
+
 function findFlattenedHexValues(children) {
   return children
     .map((child) => normalizeHexColorValue(childTextRaw(child)))
@@ -1538,10 +1570,10 @@ function normalizeFlattenedSingleTextColumn(column) {
   let blockBackgroundColor = findFlattenedBackgroundColor(textConfigChildren);
 
   if (isCallout) {
-    textColor = loneCalloutBackground ? '#404041' : textConfigColors[0] || '#404041';
+    textColor = loneCalloutBackground ? '#404041' : textConfigColors[0] || '#F7941D';
     blockBackgroundColor = loneCalloutBackground
       ? textConfigColors[0]
-      : textConfigColors[1] || '#c5eaf2';
+      : textConfigColors[1] || '';
   }
   const horizontalAlign = isCallout ? 'center' : 'left';
   const verticalAlign = isCallout ? 'middle' : 'top';
@@ -1647,8 +1679,19 @@ function createLabeledFlattenedStatisticsRows(children) {
     /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(childTextRaw(child))
   ));
   const weightChildren = children.filter((child) => /^(?:[1-9]00)$/u.test(childTextRaw(child)));
+  const buttonChild = children.find((child) => isDownloadButtonText(child)) || null;
+  const buttonIndex = buttonChild ? children.indexOf(buttonChild) : -1;
+  const buttonLinkChild = buttonIndex >= 0
+    ? children.slice(buttonIndex + 1).find((child) => getFlattenedLinkHref(child)) || null
+    : null;
+  const buttonTargetChild = buttonIndex >= 0
+    ? children.slice(buttonIndex + 1).find((child) => getFlattenedLinkTarget(child)) || null
+    : null;
   const contentChildren = children.filter((child) => (
-    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+    isTextContentParagraph(child)
+      && isLikelyContentText(child)
+      && !isDownloadButtonText(child)
+      && !getFlattenedLinkHref(child)
   ));
   const statValueChild = contentChildren.find((child) => (
     isLikelyStatisticValueText(childTextRaw(child))
@@ -1716,6 +1759,9 @@ function createLabeledFlattenedStatisticsRows(children) {
     createBlockFieldRow('mobile min height', childTextRaw(minHeightChildren[1])),
     createBlockFieldRow('stat values', statValueChild),
     createBlockFieldRow('stat labels', statLabelChild),
+    createBlockFieldRow('button text', childTextRaw(buttonChild)),
+    createBlockFieldRow('button link', getFlattenedLinkHref(buttonChild) || getFlattenedLinkHref(buttonLinkChild)),
+    createBlockFieldRow('button target', getFlattenedLinkTarget(buttonChild) || getFlattenedLinkTarget(buttonTargetChild)),
     createBlockFieldRow('marker text', childTextRaw(markerTextChild)),
     createBlockFieldRow('marker color', normalizeHexColorValue(childTextRaw(markerColorChild))),
     createBlockFieldRow('marker style', childTextRaw(markerStyleChild)),

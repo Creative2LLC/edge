@@ -3843,11 +3843,11 @@
             "value": "#DDD5CC"
           }
         ],
-        "value": "#008DB6",
+        "value": "",
         "valueFormat": "regexp",
         "validation": {
-          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
-          "customErrorMsg": "Enter a valid hex color, for example #008DB6."
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F7941D."
         }
       },
       {
@@ -3929,11 +3929,11 @@
             "value": "#DDD5CC"
           }
         ],
-        "value": "#FFFFFF",
+        "value": "",
         "valueFormat": "regexp",
         "validation": {
-          "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
-          "customErrorMsg": "Enter a valid hex color, for example #FFFFFF."
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #3C4654."
         }
       },
       {
@@ -4248,7 +4248,7 @@
         "name": "iconName",
         "label": "Icon Name (Optional)",
         "description": "Optional fallback icon name from /icons, for example search or download.",
-        "value": ""
+        "value": "download"
       },
       {
         "component": "text",
@@ -4276,7 +4276,7 @@
             "value": "none"
           }
         ],
-        "value": "left"
+        "value": "right"
       },
       {
         "component": "text",
