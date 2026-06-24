@@ -15,6 +15,8 @@ const BLOCK_ROW_INDEX = {
   geoType: 5,
   emptyMessage: 6,
   sampleDataMode: 7,
+  textMode: 8,
+  disclaimerText: 9,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -145,6 +147,10 @@ function normalizeSampleDataMode(value) {
   if (['always', 'alwaysusesample', 'force', 'forced', 'on'].includes(normalized)) return 'always';
   if (['when-empty', 'whenempty', 'usewhenempty', 'fallback', 'fallback-only'].includes(normalized)) return 'when-empty';
   return 'off';
+}
+
+function normalizeTextMode(value) {
+  return normalizeToken(value) === 'light' ? 'light' : 'dark';
 }
 
 function normalizeGeoType(value, fallback = DEFAULTS.geoType) {
@@ -1237,6 +1243,26 @@ function buildEmpty(message, fallback = DEFAULTS.emptyMessage) {
   return empty;
 }
 
+function buildDisclaimer(field) {
+  if (!field?.text && !field?.html && !field?.source) return null;
+
+  const disclaimer = document.createElement('div');
+  disclaimer.className = 'cybertipline-geo-report-disclaimer';
+
+  if (field.source) {
+    moveInstrumentation(field.source, disclaimer);
+    while (field.source.firstChild) disclaimer.append(field.source.firstChild);
+  } else if (field.html && /<[^>]+>/u.test(field.html)) {
+    disclaimer.innerHTML = field.html;
+  } else if (field.text) {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = field.text;
+    disclaimer.append(paragraph);
+  }
+
+  return disclaimer.childNodes.length ? disclaimer : null;
+}
+
 export default async function decorate(block) {
   const reportConfig = reportConfigForBlock(block);
   const headingField = fieldValue(block, 'heading', BLOCK_ROW_INDEX.heading, ['heading', 'title']);
@@ -1247,6 +1273,8 @@ export default async function decorate(block) {
   const geoTypeField = fieldValue(block, 'geoType', BLOCK_ROW_INDEX.geoType, ['geo type']);
   const emptyMessageField = fieldValue(block, 'emptyMessage', BLOCK_ROW_INDEX.emptyMessage, ['empty message']);
   const sampleDataModeField = fieldValue(block, 'sampleDataMode', BLOCK_ROW_INDEX.sampleDataMode, ['sample data mode']);
+  const textModeField = fieldValue(block, 'textMode', BLOCK_ROW_INDEX.textMode, ['text mode']);
+  const disclaimerField = richField(block, 'disclaimerText', BLOCK_ROW_INDEX.disclaimerText, ['disclaimer text', 'disclaimer']);
 
   const config = {
     ...reportConfig,
@@ -1277,6 +1305,7 @@ export default async function decorate(block) {
   const rows = dataset.rows?.length ? dataset.rows : fallbackRows;
 
   block.classList.toggle('is-sample-data', Boolean(sampleDataset));
+  block.classList.toggle('cybertipline-geo-report-text-light', normalizeTextMode(textModeField.value) === 'light');
   if (sampleDataset) block.dataset[config.sourceDataAttribute] = 'sample';
   else delete block.dataset[config.sourceDataAttribute];
 
@@ -1322,6 +1351,9 @@ export default async function decorate(block) {
   } else {
     main.append(rowsPanel);
   }
+
+  const disclaimer = buildDisclaimer(disclaimerField);
+  if (disclaimer) main.append(disclaimer);
 
   const side = document.createElement('div');
   side.className = 'cybertipline-geo-report-side';

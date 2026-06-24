@@ -15,6 +15,7 @@ const BLOCK_ROW_INDEX = {
   secondaryButtonLink: 5,
   surfaceColor: 6,
   chartTrackColor: 7,
+  textMode: 8,
 };
 
 const DEFAULT_SEGMENT_COLOR = '#008DB6';
@@ -22,6 +23,11 @@ const DEFAULT_STAT_COLOR = '#1491bf';
 const DEFAULT_SURFACE_COLOR = '#ffffff';
 const DEFAULT_TRACK_COLOR = '#edf1f3';
 const ANIMATION_DURATION = 1400;
+
+function normalizeTextMode(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === 'light' ? 'light' : 'dark';
+}
 
 function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
   const field = readTextField(block, name, {
@@ -387,6 +393,9 @@ export default function decorate(block) {
   const secondaryButtonLinkField = getBlockLinkField(block, 'secondaryButtonLink');
   const surfaceColorField = getBlockField(block, 'surfaceColor');
   const chartTrackColorField = getBlockField(block, 'chartTrackColor');
+  const textModeField = getBlockField(block, 'textMode');
+
+  block.classList.toggle('impact-donut-text-light', normalizeTextMode(textModeField.value) === 'light');
 
   const rows = [...block.querySelectorAll(':scope > div')];
   const statItems = [];

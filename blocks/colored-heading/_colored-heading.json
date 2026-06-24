@@ -512,6 +512,22 @@
             {
               "name": "Large",
               "value": "large"
+            },
+            {
+              "name": "Highlighter Blue",
+              "value": "highlight-blue"
+            },
+            {
+              "name": "Highlighter Navy",
+              "value": "highlight-navy"
+            },
+            {
+              "name": "Highlighter Orange",
+              "value": "highlight-orange"
+            },
+            {
+              "name": "Highlighter Gold",
+              "value": "highlight-gold"
             }
           ],
           "value": "none"

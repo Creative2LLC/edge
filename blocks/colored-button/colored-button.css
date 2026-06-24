@@ -86,6 +86,41 @@
     transform 150ms linear;
 }
 
+
+.colored-button.colored-button-shadow-small .colored-button-link {
+  box-shadow: 0 8px 20px rgb(9 35 72 / 12%);
+}
+
+.colored-button.colored-button-shadow-medium .colored-button-link {
+  box-shadow: 0 16px 36px rgb(9 35 72 / 16%);
+}
+
+.colored-button.colored-button-shadow-large .colored-button-link {
+  box-shadow: 0 24px 58px rgb(9 35 72 / 20%);
+}
+
+.colored-button.colored-button-shadow-highlight-blue {
+  --colored-field-highlight-shadow-color: 20 145 191;
+}
+
+.colored-button.colored-button-shadow-highlight-navy {
+  --colored-field-highlight-shadow-color: 9 35 72;
+}
+
+.colored-button.colored-button-shadow-highlight-orange {
+  --colored-field-highlight-shadow-color: 247 148 29;
+}
+
+.colored-button.colored-button-shadow-highlight-gold {
+  --colored-field-highlight-shadow-color: 245 181 27;
+}
+
+.colored-button[class*="colored-button-shadow-highlight-"] .colored-button-link {
+  box-shadow:
+    -26px 42px 46px rgb(var(--colored-field-highlight-shadow-color) / 34%),
+    0 34px 72px rgb(var(--colored-field-highlight-shadow-color) / 24%);
+}
+
 .colored-button.colored-button-h-stretch .colored-button-link {
   width: 100%;
 }

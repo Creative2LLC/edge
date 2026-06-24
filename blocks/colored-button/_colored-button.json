@@ -699,6 +699,22 @@
             {
               "name": "Shadow Large",
               "value": "shadow-large"
+            },
+            {
+              "name": "Highlighter Blue",
+              "value": "shadow-highlight-blue"
+            },
+            {
+              "name": "Highlighter Navy",
+              "value": "shadow-highlight-navy"
+            },
+            {
+              "name": "Highlighter Orange",
+              "value": "shadow-highlight-orange"
+            },
+            {
+              "name": "Highlighter Gold",
+              "value": "shadow-highlight-gold"
             }
           ]
         }

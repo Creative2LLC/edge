@@ -344,7 +344,7 @@ function hasRenderableCardContent(row) {
 
 function shouldRenderCardRow(row) {
   if (row.getAttribute('data-aue-model') === 'card' || hasCardField(row)) {
-    return hasRenderableCardContent(row);
+    return hasAuthoringContext(row) || hasRenderableCardContent(row);
   }
 
   if (!hasVisibleContent(row) || isLegacyConfigOnlyRow(row)) return false;

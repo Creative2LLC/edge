@@ -20,7 +20,16 @@ const SPACING_OPTIONS = [
   'bottom-lg',
 ];
 
-const SHADOW_OPTIONS = ['none', 'small', 'medium', 'large'];
+const SHADOW_OPTIONS = [
+  'none',
+  'small',
+  'medium',
+  'large',
+  'highlight-blue',
+  'highlight-navy',
+  'highlight-orange',
+  'highlight-gold',
+];
 const LAYOUT_FIELD_NAMES = ['paddingStyle', 'marginStyle', 'dropShadow', 'layoutOptions'];
 const LAYOUT_OPTION_PATTERN = new RegExp(
   [

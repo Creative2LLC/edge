@@ -30,6 +30,7 @@ const BLOCK_ROW_INDEX = {
   showValues: 9,
   showTable: 10,
   emptyMessage: 11,
+  textMode: 12,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -195,6 +196,10 @@ function parseMetricKeys(value) {
 
 function chartStyleClass(value) {
   return normalizeText(value).toLowerCase() === 'skinny' ? 'skinny' : 'standard';
+}
+
+function textModeClass(value) {
+  return normalizeText(value).toLowerCase() === 'light' ? 'light' : 'dark';
 }
 
 function booleanSelect(value, defaultValue) {
@@ -432,6 +437,7 @@ export default async function decorate(block) {
   const showValuesField = readText(block, 'showValues', BLOCK_ROW_INDEX.showValues, ['show values']);
   const showTableField = readText(block, 'showTable', BLOCK_ROW_INDEX.showTable, ['show table']);
   const emptyMessageField = readText(block, 'emptyMessage', BLOCK_ROW_INDEX.emptyMessage, ['empty message']);
+  const textModeField = readText(block, 'textMode', BLOCK_ROW_INDEX.textMode, ['text mode']);
   const rows = authoredRows(block);
   const authoredDataset = {
     dataset: {
@@ -461,6 +467,7 @@ export default async function decorate(block) {
   const legend = buildLegend(metrics);
 
   block.classList.add(`impact-bar-chart-style-${chartStyleClass(chartStyleField.value)}`);
+  block.classList.toggle('impact-bar-chart-text-light', textModeClass(textModeField.value) === 'light');
   inner.className = 'impact-bar-chart-inner';
 
   if (header.childElementCount) inner.append(header);

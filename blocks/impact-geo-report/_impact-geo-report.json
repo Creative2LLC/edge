@@ -120,6 +120,32 @@
             }
           ],
           "value": "off"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textMode",
+          "label": "Text Mode",
+          "description": "Light mode uses white heading/body text. Dark mode uses the default colors.",
+          "options": [
+            {
+              "name": "Dark (default)",
+              "value": "dark"
+            },
+            {
+              "name": "Light",
+              "value": "light"
+            }
+          ],
+          "value": "dark"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "disclaimerText",
+          "label": "Disclaimer Text",
+          "description": "Optional text displayed under the map/list area.",
+          "value": ""
         }
       ]
     },

@@ -181,6 +181,7 @@
         "title",
         "colored-heading",
         "colored-text",
+        "colored-icon-text",
         "colored-button",
         "colored-list",
         "statistics"

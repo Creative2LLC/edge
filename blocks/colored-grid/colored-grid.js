@@ -61,6 +61,7 @@ const LOADABLE_CONTENT_BLOCKS = new Set([
   'cards',
   'colored-button',
   'colored-heading',
+  'colored-icon-text',
   'colored-list',
   'colored-text',
   'columns',
@@ -196,6 +197,7 @@ function getPlaceholderTarget(element) {
     [
       ':scope > .statistics-inner',
       ':scope > .colored-heading-inner',
+      ':scope > .colored-icon-text-inner',
       ':scope > .colored-text-inner',
       ':scope > .colored-list-inner',
       ':scope > .colored-button-inner',

@@ -155,6 +155,24 @@
           "name": "emptyMessage",
           "label": "Empty State Message",
           "value": "No impact chart data is available."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textMode",
+          "label": "Text Mode",
+          "description": "Light mode uses white heading/body text. Dark mode uses the default colors.",
+          "options": [
+            {
+              "name": "Dark (default)",
+              "value": "dark"
+            },
+            {
+              "name": "Light",
+              "value": "light"
+            }
+          ],
+          "value": "dark"
         }
       ]
     },

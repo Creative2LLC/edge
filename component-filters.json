@@ -70,6 +70,7 @@
       "statistics",
       "colored-heading",
       "colored-text",
+      "colored-icon-text",
       "colored-button",
       "colored-list",
       "colored-grid",
@@ -252,6 +253,7 @@
       "cards",
       "colored-heading",
       "colored-text",
+      "colored-icon-text",
       "colored-button",
       "colored-list",
       "info-cards-grid",
@@ -279,6 +281,7 @@
       "title",
       "colored-heading",
       "colored-text",
+      "colored-icon-text",
       "colored-button",
       "colored-list",
       "statistics"

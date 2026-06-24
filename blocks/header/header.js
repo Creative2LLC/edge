@@ -14,8 +14,86 @@ import { loadFragment } from '../fragment/fragment.js';
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 260;
-const CYBERTIPLINE_DATA_PATH = '/content/edge/data-and-impact/cybertipline-data.html';
 const FALLBACK_BRAND_LOGO = new URL('./ncmec-brand-mark.svg', import.meta.url).href;
+const TOP_BANNER_LINK_CONFIGS = [
+  {
+    labels: ['cybertipline'],
+    href: 'https://report.cybertip.org/',
+    target: '_blank',
+  },
+  {
+    labels: [
+      '24 hr-hotline',
+      '24 hr hotline',
+      '24-hour hotline',
+      '24 hour hotline',
+      '24hr hotline',
+      'hotline',
+    ],
+    href: 'tel:+1-800-843-5678',
+    target: '_blank',
+  },
+  {
+    labels: ['case anniversaries'],
+    icon: 'clock',
+  },
+];
+
+function normalizeTopBannerLabel(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function topBannerLinkConfig(text) {
+  const normalized = normalizeTopBannerLabel(text);
+  return TOP_BANNER_LINK_CONFIGS.find(({ labels }) => labels.includes(normalized)) || null;
+}
+
+function applyTopBannerLinkConfig(link, config) {
+  if (config.href) link.href = resolveSiteHref(config.href);
+  if (config.target) {
+    link.target = config.target;
+    link.rel = 'noopener noreferrer';
+  }
+}
+
+function ensureTopBannerLinkIcon(link, config) {
+  if (!config.icon || link.querySelector(':scope > .icon')) return;
+
+  const icon = document.createElement('span');
+  icon.className = `icon icon-${config.icon}`;
+
+  const img = document.createElement('img');
+  img.src = `${window.hlx.codeBasePath}/icons/${config.icon}.svg`;
+  img.alt = '';
+  img.loading = 'lazy';
+
+  icon.append(img);
+  link.prepend(icon);
+}
+
+function decorateTopBannerLink(link) {
+  const config = topBannerLinkConfig(link.textContent);
+  if (!config) return;
+
+  applyTopBannerLinkConfig(link, config);
+  ensureTopBannerLinkIcon(link, config);
+}
+
+function decorateTopBannerLinks(list) {
+  list.querySelectorAll('a').forEach(decorateTopBannerLink);
+
+  list.querySelectorAll('li').forEach((item) => {
+    if (item.querySelector('a')) return;
+    const config = topBannerLinkConfig(item.textContent);
+    if (!config) return;
+
+    const link = document.createElement('a');
+    while (item.firstChild) link.append(item.firstChild);
+    item.append(link);
+    applyTopBannerLinkConfig(link, config);
+    ensureTopBannerLinkIcon(link, config);
+  });
+}
 
 function clearTransitionTimer(element, key) {
   if (element?.[key]) {
@@ -861,12 +939,7 @@ function decorateTopBanner(section) {
 
   linksList.classList.add('top-banner-links');
   applyNavLinkOverrides(linksList);
-  linksList.querySelectorAll('a').forEach((link) => {
-    const label = link.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
-    if (label === 'cybertipline') {
-      link.href = resolveSiteHref(CYBERTIPLINE_DATA_PATH);
-    }
-  });
+  decorateTopBannerLinks(linksList);
 
   const normalizedLanguageText = (text) => `${text || ''}`
     .trim()
