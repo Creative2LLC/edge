@@ -38,6 +38,7 @@ const LEGACY_BLOCK_LABELS = {
   visibleFilters: ['visible filters', 'filter visibility', 'shown filters', 'display filters'],
   filterTags: ['filter tags', 'visible tag options', 'shown tag options'],
   hiddenFilterTags: ['hidden filter tags', 'excluded tag options', 'exclude tag options'],
+  lockedPrograms: ['locked programs', 'locked program', 'restrict programs', 'program lock'],
   filters: ['filters', 'preset filters'],
 };
 
@@ -60,6 +61,7 @@ const BLOCK_PROPS = [
   'visibleFilters',
   'filterTags',
   'hiddenFilterTags',
+  'lockedPrograms',
 ];
 
 const FILTER_FACETS = [
@@ -285,6 +287,7 @@ function parseVisibleFilters(value) {
 }
 
 function isFilterVisible(config, facet) {
+  if (facet === 'programs' && config.lockedPrograms?.length) return false;
   return (config.visibleFilters || DEFAULT_VISIBLE_FILTERS).includes(facet);
 }
 
@@ -976,9 +979,11 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       : defaultState.selectedLanguage,
   );
   state.selectedProgram = new Set(
-    locationState.programs.present
-      ? locationState.programs.values
-      : defaultState.selectedProgram,
+    config.lockedPrograms?.length
+      ? config.lockedPrograms
+      : locationState.programs.present
+        ? locationState.programs.values
+        : defaultState.selectedProgram,
   );
   state.selectedGradeAge = new Set(
     locationState.gradeAges.present
@@ -1156,13 +1161,16 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
 
   renderActiveFilters = () => {
     activeFilters.replaceChildren();
+    const visiblePrograms = config.lockedPrograms?.length
+      ? []
+      : [...state.selectedProgram].map((value) => ({ facet: 'programs', value }));
     const facets = [
       ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
       ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
       ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
-      ...[...state.selectedProgram].map((value) => ({ facet: 'programs', value })),
+      ...visiblePrograms,
       ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
     ];
 
@@ -1350,9 +1358,11 @@ function renderApiBrowser(block, config) {
       : defaultState.selectedLanguage,
   );
   state.selectedProgram = new Set(
-    locationState.programs.present
-      ? locationState.programs.values
-      : defaultState.selectedProgram,
+    config.lockedPrograms?.length
+      ? config.lockedPrograms
+      : locationState.programs.present
+        ? locationState.programs.values
+        : defaultState.selectedProgram,
   );
   state.selectedGradeAge = new Set(
     locationState.gradeAges.present
@@ -1419,13 +1429,16 @@ function renderApiBrowser(block, config) {
 
   renderActiveFilters = () => {
     activeFilters.replaceChildren();
+    const visiblePrograms = config.lockedPrograms?.length
+      ? []
+      : [...state.selectedProgram].map((value) => ({ facet: 'programs', value }));
     const facets = [
       ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
       ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
       ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
-      ...[...state.selectedProgram].map((value) => ({ facet: 'programs', value })),
+      ...visiblePrograms,
       ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
     ];
 
@@ -1761,6 +1774,9 @@ export default function decorate(block) {
     hiddenFilterTags: getBlockField(block, legacyMap, 'hiddenFilterTags')
       || readConfigValue(configRows, 'hiddenFilterTags', 6)
       || readConfigField(configRow, 'hiddenFilterTags', 6),
+    lockedPrograms: parseTagOptions(
+      getBlockField(block, legacyMap, 'lockedPrograms') || '',
+    ),
   };
 
   configRows.forEach((row) => row.remove());

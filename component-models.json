@@ -19348,6 +19348,22 @@
         ]
       },
       {
+        "component": "multiselect",
+        "name": "lockedPrograms",
+        "label": "Lock to Program(s)",
+        "description": "Always filters this browser to these programs. Users cannot override this. The Program filter is automatically hidden.",
+        "options": [
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
+          },
+          {
+            "name": "NetSmartz",
+            "value": "netsmartz"
+          }
+        ]
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "pageSize",
