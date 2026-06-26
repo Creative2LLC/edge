@@ -100,7 +100,15 @@ export default function decorate(block) {
 
   const grid = document.createElement('div');
   grid.className = 'picture-cards-grid';
-  itemRows.forEach((row) => grid.append(buildCard(row)));
+  itemRows.forEach((row) => {
+    const card = buildCard(row);
+    [...row.attributes].forEach(({ name, value }) => {
+      if (name.startsWith('data-aue-') || name.startsWith('data-richtext')) {
+        card.setAttribute(name, value);
+      }
+    });
+    grid.append(card);
+  });
   shell.append(grid);
 
   block.replaceChildren(shell);
