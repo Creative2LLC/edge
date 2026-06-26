@@ -120,15 +120,28 @@ function parseArticleRow(row) {
   return null;
 }
 
+const TAG_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const FLATTENED_TAG_SEPARATOR_RE = /(#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8}))\s+(?=[^:\n]+(?::#|$))/gi;
+
+function normalizeTagLines(tagsStr) {
+  return String(tagsStr || '')
+    .replace(FLATTENED_TAG_SEPARATOR_RE, '$1\n')
+    .split(/\r?\n|[,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function parseTags(tagsStr) {
-  if (!tagsStr) return [];
-  const lines = tagsStr.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-  return lines.map((line) => {
+  return normalizeTagLines(tagsStr).map((line) => {
     const sep = line.lastIndexOf(':');
     if (sep > 0) {
-      return { name: line.slice(0, sep).trim(), color: line.slice(sep + 1).trim() };
+      const color = line.slice(sep + 1).trim();
+      return {
+        name: line.slice(0, sep).trim(),
+        color: TAG_COLOR_RE.test(color) ? color : '#a1a1a1',
+      };
     }
-    return { name: line, color: '#666' };
+    return { name: line, color: '#a1a1a1' };
   });
 }
 

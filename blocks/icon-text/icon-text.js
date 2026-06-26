@@ -27,21 +27,45 @@ function collectLegacyFields(block) {
   return map;
 }
 
-function getField(block, legacyMap, name) {
-  const field = readTextField(block, name);
-  if (field.source) return field;
+function getRowCells(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => row.children[0] || row)
+    .filter(Boolean);
+}
+
+function getFallbackCell(block, index) {
+  return getRowCells(block)[index] || null;
+}
+
+function hasMedia(cell) {
+  return Boolean(cell?.querySelector?.('picture, img'));
+}
+
+function getTextFallbackCell(block, index) {
+  const cell = getFallbackCell(block, index);
+  return cell && !hasMedia(cell) ? cell : null;
+}
+
+function getField(block, legacyMap, name, fallbackCell = null) {
+  const field = readTextField(block, name, { fallbackCell });
+  if (field.source || field.cell) return field;
   return legacyMap[name] || { source: null, value: '' };
 }
 
-function getImageField(block, legacyMap, name) {
-  const field = readImageField(block, name);
+function getImageField(block, legacyMap, name, fallbackCell = null) {
+  const field = readImageField(block, name, { fallbackCell });
   if (field.img || field.picture || field.source) return field;
   const legacyField = legacyMap[name] || { source: null };
-  const picture = legacyField.source?.querySelector('picture') || block.querySelector('picture');
-  const img = legacyField.source?.querySelector('img') || picture?.querySelector('img') || null;
+  const picture = legacyField.source?.querySelector('picture')
+    || fallbackCell?.querySelector?.('picture')
+    || block.querySelector('picture');
+  const img = legacyField.source?.querySelector('img')
+    || fallbackCell?.querySelector?.('img')
+    || picture?.querySelector('img')
+    || null;
   return {
-    source: legacyField.source,
-    cell: legacyField.source,
+    source: legacyField.source || fallbackCell,
+    cell: legacyField.source || fallbackCell,
     picture,
     img,
   };
@@ -64,10 +88,10 @@ function buildTextElement(tag, className, field) {
 export default function decorate(block) {
   const legacyMap = collectLegacyFields(block);
 
-  const headingField = getField(block, legacyMap, 'heading');
-  const iconField = getImageField(block, legacyMap, 'icon');
-  const redTextField = getField(block, legacyMap, 'redText');
-  const blueTextField = getField(block, legacyMap, 'blueText');
+  const headingField = getField(block, legacyMap, 'heading', getTextFallbackCell(block, 0));
+  const iconField = getImageField(block, legacyMap, 'icon', getFallbackCell(block, 1));
+  const redTextField = getField(block, legacyMap, 'redText', getTextFallbackCell(block, 2));
+  const blueTextField = getField(block, legacyMap, 'blueText', getTextFallbackCell(block, 3));
 
   const wrapper = document.createElement('div');
   wrapper.className = 'icon-text-inner';

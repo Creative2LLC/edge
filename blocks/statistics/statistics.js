@@ -169,6 +169,35 @@ function readLinkBlockField(block, name, altKeys, fallbackCell = null) {
   return field;
 }
 
+function normalizeLines(value) {
+  if (!value) return [];
+  return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+}
+
+function normalizeElementLines(element) {
+  if (!element) return [];
+
+  const lineNodes = [...element.querySelectorAll(':scope > p, :scope > div, :scope > li')]
+    .filter((node) => node.textContent.trim());
+  if (lineNodes.length > 1) {
+    return lineNodes.map((node) => node.textContent.trim()).filter(Boolean);
+  }
+
+  const html = element.innerHTML || '';
+  if (/<br\s*\/?>(?:\s*)/i.test(html)) {
+    const clone = element.cloneNode(true);
+    clone.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+    return normalizeLines(clone.textContent || '');
+  }
+
+  return [];
+}
+
+function normalizeFieldLines(field, fallbackValue = '') {
+  const elementLines = normalizeElementLines(field?.source);
+  if (elementLines.length > 1) return elementLines;
+  return normalizeLines(field?.value || fallbackValue);
+}
 function snapshotAuthoredFieldValues(block) {
   return [...block.querySelectorAll('[data-aue-prop], [data-richtext-prop]')]
     .reduce((values, source) => {
@@ -176,7 +205,8 @@ function snapshotAuthoredFieldValues(block) {
         || source.getAttribute('data-richtext-prop');
       if (!name || values[name] !== undefined || !directRowOf(block, source)) return values;
 
-      values[name] = source.textContent?.trim() || '';
+      const lines = normalizeElementLines(source);
+      values[name] = lines.length ? lines.join('\n') : source.textContent?.trim() || '';
       return values;
     }, {});
 }
@@ -220,11 +250,6 @@ function buildOptimizedPicture(imageField, altText, imageMode = 'icon') {
   if (img) moveInstrumentation(sourceImg, img);
 
   return picture;
-}
-
-function normalizeLines(value) {
-  if (!value) return [];
-  return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 }
 
 function normalizeColorKey(value) {
@@ -1390,8 +1415,8 @@ export default function decorate(block) {
   const fieldFallback = (name) => authoredFieldValues[name] || compactValue(name);
   legacyConfig.cleanupCompactRows();
 
-  const values = normalizeLines(statValuesField.value || fieldFallback('statValues'));
-  const labels = normalizeLines(statLabelsField.value || fieldFallback('statLabels'));
+  const values = normalizeFieldLines(statValuesField, fieldFallback('statValues'));
+  const labels = normalizeFieldLines(statLabelsField, fieldFallback('statLabels'));
   const effectiveValues = values.length ? values : looseLegacy.values;
   const effectiveLabels = labels.length ? labels : looseLegacy.labels;
   const effectiveBodyTextField = fieldHasContent(bodyTextField) || !looseLegacy.bodyText

@@ -515,15 +515,77 @@ function getDirectRow(block, element) {
   return null;
 }
 
+function isIgnoredFallbackText(text) {
+  const normalized = String(text || '').trim();
+  if (!normalized) return true;
+
+  const ignoredTextValues = new Set([
+    'default',
+    'homepage',
+    'show',
+    'hide',
+    'left',
+    'center',
+    'right',
+  ]);
+  if (ignoredTextValues.has(normalized.toLowerCase())) return true;
+  if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(normalized)) return true;
+  if (/^\d+(\.\d+)?(rem|px|%)?$/.test(normalized)) return true;
+
+  return false;
+}
+
+function getFallbackTextNodes(block) {
+  const contentCell = getContentCell(block) || block;
+  return [...contentCell.querySelectorAll('h1, h2, h3, h4, h5, h6, p')]
+    .filter((node) => {
+      if (node.hasAttribute('data-aue-prop') || node.hasAttribute('data-richtext-prop')) return false;
+      if (node.closest('[data-aue-prop], [data-richtext-prop], picture, video')) return false;
+      return !isIgnoredFallbackText(node.textContent);
+    });
+}
+
+function isHeadingNode(node) {
+  return /^H[1-6]$/i.test(node?.tagName || '');
+}
+
+function isClassArtifactNode(node, followingNodes) {
+  const text = node?.textContent?.trim() || '';
+  return /^h\d{2,}$/i.test(text) && followingNodes.some((candidate) => (
+    candidate.tagName === 'P' && !isIgnoredFallbackText(candidate.textContent)
+  ));
+}
+
+function getFallbackHtmlText(block) {
+  const nodes = getFallbackTextNodes(block);
+  if (!nodes.some(isHeadingNode)) return '';
+
+  let hasSeenHeading = false;
+  const bodyNodes = nodes.filter((node) => {
+    if (isHeadingNode(node)) {
+      hasSeenHeading = true;
+      return false;
+    }
+
+    return hasSeenHeading && node.tagName === 'P';
+  });
+
+  const filteredBodyNodes = bodyNodes.filter((node, index) => (
+    !isClassArtifactNode(node, bodyNodes.slice(index + 1))
+  ));
+
+  return filteredBodyNodes.map((node) => node.outerHTML).join('');
+}
 function buildHtmlText(block, fallbackHtml = '', fallbackClass = '') {
   const field = readRichTextField(block, ['content_textHtml', 'text_html']);
   const hasField = hasRichFieldContent(field);
-  if (!hasField && !fallbackHtml) return null;
+  const resolvedFallbackHtml = fallbackHtml || getFallbackHtmlText(block);
+  if (!hasField && !resolvedFallbackHtml) return null;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'hero-text-html';
-  if (hasField) moveRichField(field, wrapper, fallbackHtml);
-  else appendHtmlValue(fallbackHtml, wrapper);
+  if (hasField) moveRichField(field, wrapper, resolvedFallbackHtml);
+  else appendHtmlValue(resolvedFallbackHtml, wrapper);
   if (!hasRenderableContent(wrapper)) return null;
 
   const { value: classValue } = getFieldValue(block, ['content_textHtmlClass', 'textHtmlClass']);
@@ -859,28 +921,10 @@ function buildMainRichText(block, fallbackHtml = '') {
 
   const fallback = document.createElement('div');
   fallback.className = 'hero-richtext';
-  const ignoredTextValues = new Set([
-    'default',
-    'homepage',
-    'show',
-    'hide',
-    'left',
-    'center',
-    'right',
-  ]);
-  const contentCell = getContentCell(block) || block;
-  const fallbackNodes = [...contentCell.querySelectorAll('h1, h2, h3, h4, h5, h6, p')]
-    .filter((node) => {
-      if (node.hasAttribute('data-aue-prop') || node.hasAttribute('data-richtext-prop')) return false;
-      if (node.closest('[data-aue-prop], [data-richtext-prop], picture, video')) return false;
-      const text = node.textContent.trim();
-      if (!text) return false;
-      if (ignoredTextValues.has(text.toLowerCase())) return false;
-      if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text)) return false;
-      if (/^\d+(\.\d+)?(rem|px|%)?$/.test(text)) return false;
-      return true;
-    });
-  fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
+  const fallbackNodes = getFallbackTextNodes(block);
+  const headingNodes = fallbackNodes.filter(isHeadingNode);
+  const richTextNodes = headingNodes.length ? headingNodes : fallbackNodes;
+  richTextNodes.forEach((node) => fallback.append(node.cloneNode(true)));
   normalizeMainRichTextStructure(fallback);
   if (!hasRenderableContent(fallback)) return null;
   return fallback;
