@@ -231,6 +231,16 @@ function splitCollapsedStatLabels(value, expectedCount = 0) {
     .filter(Boolean);
   if (separatorParts.length === expectedCount) return separatorParts;
 
+  const yearParts = normalized
+    .replace(/\((\d{4})\)\s+/g, '($1)|')
+    .split('|')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (
+    yearParts.length === expectedCount
+    && yearParts.every((part) => /\(\d{4}\)/u.test(part))
+  ) return yearParts;
+
   const boundaryParts = normalized
     .split(/\s+(?=(?:exploitation reports analyzed|people reached annually|public\b|esp\b)\b)/iu)
     .map((part) => part.trim())
@@ -274,17 +284,62 @@ function expandCollapsedStatItems(items) {
   });
 }
 
+function isLikelyRenderedHeading(value) {
+  const text = String(value || '').trim();
+  return Boolean(text && text.length <= 80 && !/[.!?]$/u.test(text));
+}
+
+function restoreRenderedHeading(inner, removeBody = false) {
+  const bodyEl = inner?.querySelector(':scope > .statistics-body');
+  const hasHeading = Boolean(inner?.querySelector(':scope > .statistics-heading'));
+  const bodyText = bodyEl?.textContent?.trim() || '';
+  if (hasHeading || !isLikelyRenderedHeading(bodyText)) return;
+
+  const heading = document.createElement('h2');
+  heading.className = 'statistics-heading';
+  heading.textContent = bodyText;
+  inner.insertBefore(heading, bodyEl);
+
+  if (removeBody) bodyEl.remove();
+}
+
+function ensureRenderedLabel(item) {
+  const existing = item.querySelector(':scope > .statistics-label');
+  if (existing) return existing;
+
+  const label = document.createElement('div');
+  label.className = 'statistics-label';
+  item.append(label);
+  return label;
+}
+
+function redistributeRenderedLabels(items) {
+  if (items.length < 2) return;
+
+  const firstLabel = items[0].querySelector(':scope > .statistics-label');
+  const labels = splitCollapsedStatLabels(firstLabel?.textContent, items.length);
+  if (labels.length !== items.length) return;
+
+  items.forEach((item, index) => {
+    ensureRenderedLabel(item).textContent = labels[index] || '';
+  });
+}
+
 function normalizeRenderedStatistics(block) {
   const inner = block.querySelector(':scope > .statistics-inner');
   const list = inner?.querySelector?.(':scope > .statistics-list');
   const items = [...(list?.children || [])].filter((item) => item.classList.contains('statistics-item'));
-  if (items.length !== 1) return;
 
   const [item] = items;
-  const valueEl = item.querySelector(':scope > .statistics-value');
-  const labelEl = item.querySelector(':scope > .statistics-label');
-  const values = splitCollapsedStatValues(valueEl?.textContent);
-  if (values.length <= 1) return;
+  const valueEl = item?.querySelector(':scope > .statistics-value');
+  const labelEl = item?.querySelector(':scope > .statistics-label');
+  const values = items.length === 1 ? splitCollapsedStatValues(valueEl?.textContent) : [];
+  const willSplitSingleItem = values.length > 1;
+
+  restoreRenderedHeading(inner, items.length > 1 || willSplitSingleItem);
+  redistributeRenderedLabels(items);
+
+  if (!willSplitSingleItem) return;
 
   const labels = splitCollapsedStatLabels(labelEl?.textContent, values.length);
   const renderedItems = values.map((value, index) => {
@@ -307,16 +362,6 @@ function normalizeRenderedStatistics(block) {
   });
 
   list.replaceChildren(...renderedItems);
-
-  const bodyEl = inner.querySelector(':scope > .statistics-body');
-  const hasHeading = Boolean(inner.querySelector(':scope > .statistics-heading'));
-  const bodyText = bodyEl?.textContent?.trim() || '';
-  if (!hasHeading && bodyText) {
-    const heading = document.createElement('h2');
-    heading.className = 'statistics-heading';
-    heading.textContent = bodyText;
-    inner.insertBefore(heading, bodyEl);
-  }
 }
 function snapshotAuthoredFieldValues(block) {
   return [...block.querySelectorAll('[data-aue-prop], [data-richtext-prop]')]
