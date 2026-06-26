@@ -247,6 +247,77 @@ function normalizeStatLabelLines(field, fallbackValue = '', expectedCount = 0) {
   const lines = normalizeFieldLines(field, fallbackValue);
   return lines.length === 1 ? splitCollapsedStatLabels(lines[0], expectedCount) : lines;
 }
+
+function createStatField(value = '') {
+  return { source: null, value };
+}
+
+function expandCollapsedStatItems(items) {
+  return items.flatMap((item) => {
+    const values = splitCollapsedStatValues(item?.valueField?.value);
+    if (values.length <= 1) return [item];
+
+    const labels = splitCollapsedStatLabels(item?.labelField?.value, values.length);
+
+    return values.map((value, index) => ({
+      ...item,
+      row: null,
+      imageField: index === 0 ? item.imageField : null,
+      topLabelField: index === 0 ? item.topLabelField : createStatField(),
+      valueField: createStatField(value),
+      labelField: createStatField(labels[index] || ''),
+      buttonTextField: index === 0 ? item.buttonTextField : createStatField(),
+      buttonLinkField: index === 0 ? item.buttonLinkField : createStatField(),
+      buttonTarget: index === 0 ? item.buttonTarget : '',
+      isAuthoringPlaceholder: false,
+    }));
+  });
+}
+
+function normalizeRenderedStatistics(block) {
+  const inner = block.querySelector(':scope > .statistics-inner');
+  const list = inner?.querySelector?.(':scope > .statistics-list');
+  const items = [...(list?.children || [])].filter((item) => item.classList.contains('statistics-item'));
+  if (items.length !== 1) return;
+
+  const [item] = items;
+  const valueEl = item.querySelector(':scope > .statistics-value');
+  const labelEl = item.querySelector(':scope > .statistics-label');
+  const values = splitCollapsedStatValues(valueEl?.textContent);
+  if (values.length <= 1) return;
+
+  const labels = splitCollapsedStatLabels(labelEl?.textContent, values.length);
+  const renderedItems = values.map((value, index) => {
+    const renderedItem = document.createElement('li');
+    renderedItem.className = item.className;
+
+    const renderedValue = document.createElement('div');
+    renderedValue.className = valueEl?.className || 'statistics-value';
+    renderedValue.textContent = value;
+    renderedValue.dataset.finalValue = value;
+    renderedValue.setAttribute('aria-label', value);
+    renderedItem.append(renderedValue);
+
+    const renderedLabel = document.createElement('div');
+    renderedLabel.className = labelEl?.className || 'statistics-label';
+    renderedLabel.textContent = labels[index] || '';
+    renderedItem.append(renderedLabel);
+
+    return renderedItem;
+  });
+
+  list.replaceChildren(...renderedItems);
+
+  const bodyEl = inner.querySelector(':scope > .statistics-body');
+  const hasHeading = Boolean(inner.querySelector(':scope > .statistics-heading'));
+  const bodyText = bodyEl?.textContent?.trim() || '';
+  if (!hasHeading && bodyText) {
+    const heading = document.createElement('h2');
+    heading.className = 'statistics-heading';
+    heading.textContent = bodyText;
+    inner.insertBefore(heading, bodyEl);
+  }
+}
 function snapshotAuthoredFieldValues(block) {
   return [...block.querySelectorAll('[data-aue-prop], [data-richtext-prop]')]
     .reduce((values, source) => {
@@ -1258,7 +1329,10 @@ function buildItem(itemData) {
 }
 
 export default function decorate(block) {
-  if (block.querySelector(':scope > .statistics-inner')) return;
+  if (block.querySelector(':scope > .statistics-inner')) {
+    normalizeRenderedStatistics(block);
+    return;
+  }
 
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -1547,7 +1621,9 @@ export default function decorate(block) {
   list.className = 'statistics-list';
   const authoredItems = getAuthoredItems(block);
   const items = applyItemDefaults(
-    authoredItems.length ? authoredItems : getLegacyItems(effectiveValues, effectiveLabels),
+    expandCollapsedStatItems(
+      authoredItems.length ? authoredItems : getLegacyItems(effectiveValues, effectiveLabels),
+    ),
     {
       imageField: iconImageField,
       imageAlt: iconImageAltField.value,

@@ -72,7 +72,13 @@ function isVariantCell(cell) {
 
 function hasLinkCell(cell) {
   const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a[href]');
-  return Boolean(anchor?.getAttribute?.('href') || HREF_TEXT_RE.test(textFrom(cell)));
+  const href = anchor?.getAttribute?.('href') || '';
+  const text = textFrom(cell);
+
+  if (href === '#' && text && text !== '#') return false;
+  if (href && text && !HREF_TEXT_RE.test(text) && text !== href) return false;
+
+  return Boolean(href || HREF_TEXT_RE.test(text));
 }
 
 function getLiveFallbacks(block) {
@@ -118,13 +124,19 @@ function buildRich(className, field) {
   return el;
 }
 
+function fieldHref(field) {
+  const cell = field?.cell || field?.source;
+  const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a[href]');
+  return anchor?.getAttribute?.('href') || '';
+}
+
 function buildButton(className, textField, linkField) {
   const label = textField?.value || textField?.text || textFrom(textField?.cell);
   if (!label) return null;
 
   const a = document.createElement('a');
   a.className = className;
-  a.href = linkField?.value || '#';
+  a.href = linkField?.value || fieldHref(textField) || '#';
   a.target = '_blank';
   a.rel = 'noopener noreferrer';
 
