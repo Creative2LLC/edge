@@ -24,6 +24,48 @@ function hasMedia(cell) {
   return Boolean(cell?.querySelector?.('picture, img'));
 }
 
+function createTextCell(text) {
+  const cell = document.createElement('div');
+  cell.textContent = text;
+  return cell;
+}
+
+function createHtmlCell(source) {
+  const cell = document.createElement('div');
+  cell.innerHTML = source.innerHTML.trim();
+  return cell;
+}
+
+function splitTextLines(value) {
+  return String(value || '')
+    .replace(/\u00a0/g, ' ')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function splitCellContent(cell) {
+  const directBlocks = [...(cell?.querySelectorAll?.(':scope > p, :scope > div, :scope > li') || [])]
+    .filter((node) => textFrom(node));
+  if (directBlocks.length > 1) return directBlocks.map(createHtmlCell);
+
+  const nestedBlocks = directBlocks.length === 1
+    ? [...directBlocks[0].querySelectorAll(':scope > p, :scope > div, :scope > li')]
+      .filter((node) => textFrom(node))
+    : [];
+  if (nestedBlocks.length > 1) return nestedBlocks.map(createHtmlCell);
+
+  if (/<br\s*\/?>(?:\s*)/i.test(cell?.innerHTML || '')) {
+    const clone = cell.cloneNode(true);
+    clone.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+    const lines = splitTextLines(clone.textContent);
+    if (lines.length > 1) return lines.map(createTextCell);
+  }
+
+  const lines = splitTextLines(cell?.textContent);
+  return lines.length > 1 ? lines.map(createTextCell) : [cell];
+}
+
 function isVariantCell(cell) {
   return VARIANT_VALUES.includes(textFrom(cell).toLowerCase());
 }
@@ -35,7 +77,9 @@ function hasLinkCell(cell) {
 
 function getLiveFallbacks(block) {
   const rowCells = getRowCells(block);
-  const textCells = rowCells.filter((cell) => textFrom(cell) && !hasMedia(cell));
+  const textCells = rowCells
+    .filter((cell) => textFrom(cell) && !hasMedia(cell))
+    .flatMap(splitCellContent);
   const variantCell = textCells.find(isVariantCell) || null;
   const linkCells = textCells.filter((cell) => !isVariantCell(cell) && hasLinkCell(cell));
   const contentCells = textCells.filter((cell) => (

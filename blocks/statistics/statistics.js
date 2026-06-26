@@ -198,6 +198,55 @@ function normalizeFieldLines(field, fallbackValue = '') {
   if (elementLines.length > 1) return elementLines;
   return normalizeLines(field?.value || fallbackValue);
 }
+
+function splitCollapsedStatValues(value) {
+  const normalized = String(value || '').replace(/\u00a0/g, ' ').trim();
+  if (!normalized) return [];
+
+  const statValueRe = /(?:^|\s)([-+$]?\d[\d,]*(?:\.\d+)?(?:\s*(?:million|billion|trillion|thousand)|[kmb])?[%+]?)/giu;
+  const values = [...normalized.matchAll(statValueRe)]
+    .map((match) => match[1].trim())
+    .filter(Boolean);
+
+  const remainder = values.reduce(
+    (remaining, valuePart) => remaining.replace(valuePart, ''),
+    normalized,
+  ).replace(/\s+/g, '');
+
+  return values.length > 1 && !remainder ? values : [normalized];
+}
+
+function normalizeStatValueLines(field, fallbackValue = '') {
+  const lines = normalizeFieldLines(field, fallbackValue);
+  return lines.length === 1 ? splitCollapsedStatValues(lines[0]) : lines;
+}
+
+function splitCollapsedStatLabels(value, expectedCount = 0) {
+  const normalized = String(value || '').replace(/\u00a0/g, ' ').trim();
+  if (!normalized || expectedCount < 2) return normalized ? [normalized] : [];
+
+  const separatorParts = normalized
+    .split(/\s*(?:\||;|•)\s*/u)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (separatorParts.length === expectedCount) return separatorParts;
+
+  const boundaryParts = normalized
+    .split(/\s+(?=(?:exploitation reports analyzed|people reached annually|public\b|esp\b)\b)/iu)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (boundaryParts.length === expectedCount) return boundaryParts;
+
+  const words = normalized.split(/\s+/u).filter(Boolean);
+  if (words.length === expectedCount) return words;
+
+  return [normalized];
+}
+
+function normalizeStatLabelLines(field, fallbackValue = '', expectedCount = 0) {
+  const lines = normalizeFieldLines(field, fallbackValue);
+  return lines.length === 1 ? splitCollapsedStatLabels(lines[0], expectedCount) : lines;
+}
 function snapshotAuthoredFieldValues(block) {
   return [...block.querySelectorAll('[data-aue-prop], [data-richtext-prop]')]
     .reduce((values, source) => {
@@ -1415,8 +1464,8 @@ export default function decorate(block) {
   const fieldFallback = (name) => authoredFieldValues[name] || compactValue(name);
   legacyConfig.cleanupCompactRows();
 
-  const values = normalizeFieldLines(statValuesField, fieldFallback('statValues'));
-  const labels = normalizeFieldLines(statLabelsField, fieldFallback('statLabels'));
+  const values = normalizeStatValueLines(statValuesField, fieldFallback('statValues'));
+  const labels = normalizeStatLabelLines(statLabelsField, fieldFallback('statLabels'), values.length);
   const effectiveValues = values.length ? values : looseLegacy.values;
   const effectiveLabels = labels.length ? labels : looseLegacy.labels;
   const effectiveBodyTextField = fieldHasContent(bodyTextField) || !looseLegacy.bodyText
