@@ -5,6 +5,8 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
+// Row index for each field in the published AEM delivery
+// (each field is one row with a single cell when data-aue-prop is stripped).
 const FIELD_COLUMN_INDEX = {
   heading: 0,
   apiBaseUrl: 1,
@@ -47,34 +49,41 @@ function getSlugFromPathname() {
 function readConfig(block) {
   const rows = getBlockRows(block);
 
-  function fieldValue(name) {
-    const prop = readTextField(block, name).value || readLinkField(block, name).value;
-    if (normalizeText(prop)) return normalizeText(prop);
-    const colIndex = FIELD_COLUMN_INDEX[name];
-    if (colIndex === undefined) return '';
-    const cellValue = rows.map((row) => {
-      const cell = row.children[colIndex];
-      if (!cell) return '';
-      const anchor = cell.querySelector('a');
-      if (anchor) {
-        const href = normalizeText(anchor.getAttribute('href') || '');
-        if (href) return href;
-      }
-      return normalizeText(cell.textContent) || '';
-    }).find(Boolean);
-    return cellValue || '';
+  // Read a plain text field — checks data-aue-prop first, then falls back to
+  // a specific row index (single-column row per field in published delivery).
+  function textFieldValue(name) {
+    const textVal = readTextField(block, name).value;
+    if (textVal) return textVal;
+    const rowIndex = FIELD_COLUMN_INDEX[name];
+    if (rowIndex === undefined) return '';
+    const row = rows[rowIndex];
+    const cell = row?.children[0];
+    return normalizeText(cell?.textContent) || '';
+  }
+
+  // Read a link field (aem-content) — must resolve href, not the link label.
+  function linkFieldValue(name) {
+    const linked = readLinkField(block, name);
+    if (linked.source) return linked.value; // href if anchor, else text
+    // Published fallback: find anchor in the row at this field's index
+    const rowIndex = FIELD_COLUMN_INDEX[name];
+    if (rowIndex === undefined) return '';
+    const row = rows[rowIndex];
+    const cell = row?.children[0];
+    const anchor = cell?.querySelector('a');
+    return anchor?.getAttribute('href') || normalizeText(cell?.textContent) || '';
   }
 
   return {
-    heading: fieldValue('heading') || 'Related Resources',
-    apiBaseUrl: normalizeApiBaseUrl(fieldValue('apiBaseUrl')),
-    sourceType: normalizeSourceType(fieldValue('sourceType')),
-    slug: normalizeSlug(fieldValue('slug')) || getSlugFromPathname(),
-    findAllLabel: fieldValue('findAllLabel') || 'Find other resources',
-    findAllHref: fieldValue('findAllHref'),
-    learnMoreLabel: fieldValue('learnMoreLabel') || 'Learn more',
-    limit: Math.max(1, Math.min(20, parseInt(fieldValue('limit'), 10) || 8)),
-    programs: fieldValue('programs'),
+    heading: textFieldValue('heading') || 'Related Resources',
+    apiBaseUrl: normalizeApiBaseUrl(textFieldValue('apiBaseUrl')),
+    sourceType: normalizeSourceType(textFieldValue('sourceType')),
+    slug: normalizeSlug(textFieldValue('slug')) || getSlugFromPathname(),
+    findAllLabel: textFieldValue('findAllLabel') || 'Find other resources',
+    findAllHref: linkFieldValue('findAllHref'),
+    learnMoreLabel: textFieldValue('learnMoreLabel') || 'Learn more',
+    limit: Math.max(1, Math.min(20, parseInt(textFieldValue('limit'), 10) || 8)),
+    programs: textFieldValue('programs'),
   };
 }
 
