@@ -203,7 +203,7 @@ function wireCarousel(track, prevBtn, nextBtn, progressBar) {
   const slideWidth = () => {
     const slide = track.querySelector('.resources-carousel-slide');
     if (!slide) return 0;
-    const gap = parseFloat(getComputedStyle(track).gap) || 0;
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
     return slide.offsetWidth + gap;
   };
 
@@ -212,7 +212,7 @@ function wireCarousel(track, prevBtn, nextBtn, progressBar) {
     const pct = max > 0 ? (track.scrollLeft / max) * 100 : 0;
     if (progressBar) progressBar.style.width = `${Math.min(100, pct)}%`;
     if (prevBtn) prevBtn.disabled = track.scrollLeft <= 1;
-    if (nextBtn) nextBtn.disabled = track.scrollLeft >= max - 1;
+    if (nextBtn) nextBtn.disabled = max > 0 && track.scrollLeft >= max - 1;
   };
 
   prevBtn?.addEventListener('click', () => {
@@ -224,7 +224,8 @@ function wireCarousel(track, prevBtn, nextBtn, progressBar) {
   });
 
   track.addEventListener('scroll', updateProgress, { passive: true });
-  updateProgress();
+  // Defer initial state update until browser has finished layout.
+  window.requestAnimationFrame(updateProgress);
 }
 
 // ── Block entry ───────────────────────────────────────────────────────────────
