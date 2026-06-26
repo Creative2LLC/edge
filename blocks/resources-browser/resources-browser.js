@@ -978,13 +978,10 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       ? locationState.languages.values
       : defaultState.selectedLanguage,
   );
-  state.selectedProgram = new Set(
-    config.lockedPrograms?.length
-      ? config.lockedPrograms
-      : locationState.programs.present
-        ? locationState.programs.values
-        : defaultState.selectedProgram,
-  );
+  let resolvedPrograms = defaultState.selectedProgram;
+  if (config.lockedPrograms?.length) resolvedPrograms = config.lockedPrograms;
+  else if (locationState.programs.present) resolvedPrograms = locationState.programs.values;
+  state.selectedProgram = new Set(resolvedPrograms);
   state.selectedGradeAge = new Set(
     locationState.gradeAges.present
       ? locationState.gradeAges.values
@@ -1357,13 +1354,10 @@ function renderApiBrowser(block, config) {
       ? locationState.languages.values
       : defaultState.selectedLanguage,
   );
-  state.selectedProgram = new Set(
-    config.lockedPrograms?.length
-      ? config.lockedPrograms
-      : locationState.programs.present
-        ? locationState.programs.values
-        : defaultState.selectedProgram,
-  );
+  let resolvedPrograms = defaultState.selectedProgram;
+  if (config.lockedPrograms?.length) resolvedPrograms = config.lockedPrograms;
+  else if (locationState.programs.present) resolvedPrograms = locationState.programs.values;
+  state.selectedProgram = new Set(resolvedPrograms);
   state.selectedGradeAge = new Set(
     locationState.gradeAges.present
       ? locationState.gradeAges.values

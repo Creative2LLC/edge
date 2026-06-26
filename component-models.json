@@ -17965,6 +17965,52 @@
     ]
   },
   {
+    "id": "picture-cards",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Section Heading"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Section Subheading"
+      }
+    ]
+  },
+  {
+    "id": "picture-cards-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Background Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "description",
+        "label": "Description"
+      },
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Card Link (Optional)"
+      }
+    ]
+  },
+  {
     "id": "poster-map",
     "fields": [
       {
@@ -19127,6 +19173,249 @@
     ]
   },
   {
+    "id": "resource-tags",
+    "fields": [
+      {
+        "component": "multiselect",
+        "name": "audience",
+        "label": "Audience",
+        "options": [
+          {
+            "name": "Families",
+            "value": "families"
+          },
+          {
+            "name": "Law Enforcement",
+            "value": "law-enforcement"
+          },
+          {
+            "name": "Educators",
+            "value": "educators"
+          },
+          {
+            "name": "Child Welfare Professionals",
+            "value": "child-welfare-professionals"
+          },
+          {
+            "name": "Mental Health Professionals",
+            "value": "mental-health-professionals"
+          },
+          {
+            "name": "Legal Professionals",
+            "value": "legal-professionals"
+          },
+          {
+            "name": "Electronic Service Providers",
+            "value": "electronic-service-providers"
+          },
+          {
+            "name": "Policymakers",
+            "value": "policymakers"
+          },
+          {
+            "name": "Media",
+            "value": "media"
+          },
+          {
+            "name": "Native, Indigenous & Tribal",
+            "value": "native-indigenous-tribal"
+          },
+          {
+            "name": "Teens (13+)",
+            "value": "teens-13-plus"
+          },
+          {
+            "name": "Children (up to 12)",
+            "value": "children-up-to-12"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "issue",
+        "label": "Topic",
+        "options": [
+          {
+            "name": "Missing Children",
+            "value": "missing-children"
+          },
+          {
+            "name": "Autism & Wandering",
+            "value": "autism-wandering"
+          },
+          {
+            "name": "Children Missing from Care",
+            "value": "children-missing-from-care"
+          },
+          {
+            "name": "Infant Abductions",
+            "value": "infant-abductions"
+          },
+          {
+            "name": "Long-Term Missing Children",
+            "value": "long-term-missing-children"
+          },
+          {
+            "name": "Family Abduction",
+            "value": "family-abduction"
+          },
+          {
+            "name": "Help ID Me",
+            "value": "help-id-me"
+          },
+          {
+            "name": "CSAM",
+            "value": "csam"
+          },
+          {
+            "name": "Child Sex Trafficking",
+            "value": "child-sex-trafficking"
+          },
+          {
+            "name": "Online Enticement",
+            "value": "online-enticement"
+          },
+          {
+            "name": "Sextortion",
+            "value": "sextortion"
+          },
+          {
+            "name": "Generative AI",
+            "value": "generative-ai"
+          },
+          {
+            "name": "End-to-End Encryption",
+            "value": "end-to-end-encryption"
+          },
+          {
+            "name": "Disaster Response",
+            "value": "disaster-response"
+          },
+          {
+            "name": "NCMEC Data",
+            "value": "ncmec-data"
+          },
+          {
+            "name": "NCMEC Analysis",
+            "value": "ncmec-analysis"
+          },
+          {
+            "name": "Child Safety Advocacy",
+            "value": "child-safety-advocacy"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "resourceType",
+        "label": "Resource Type",
+        "options": [
+          {
+            "name": "Tip Sheet",
+            "value": "tip-sheet"
+          },
+          {
+            "name": "Educator Kit / Curriculum",
+            "value": "educator-kit-curriculum"
+          },
+          {
+            "name": "Discussion Guide",
+            "value": "discussion-guide"
+          },
+          {
+            "name": "Professional Guide",
+            "value": "professional-guide"
+          },
+          {
+            "name": "Data Report",
+            "value": "data-report"
+          },
+          {
+            "name": "Video",
+            "value": "video"
+          },
+          {
+            "name": "Presentation",
+            "value": "presentation"
+          },
+          {
+            "name": "Activity Sheet",
+            "value": "activity-sheet"
+          },
+          {
+            "name": "eBook",
+            "value": "ebook"
+          },
+          {
+            "name": "Blog Post",
+            "value": "blog-post"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "language",
+        "label": "Language",
+        "options": [
+          {
+            "name": "English",
+            "value": "en"
+          },
+          {
+            "name": "Spanish",
+            "value": "es"
+          }
+        ],
+        "value": "en"
+      },
+      {
+        "component": "multiselect",
+        "name": "programs",
+        "label": "Program",
+        "options": [
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
+          },
+          {
+            "name": "NetSmartz",
+            "value": "netsmartz"
+          }
+        ]
+      },
+      {
+        "component": "multiselect",
+        "name": "gradeAges",
+        "label": "Grade / Age",
+        "options": [
+          {
+            "name": "K-2",
+            "value": "k-2"
+          },
+          {
+            "name": "3-5",
+            "value": "3-5"
+          },
+          {
+            "name": "Middle School",
+            "value": "middle-school"
+          },
+          {
+            "name": "High School",
+            "value": "high-school"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tags",
+        "label": "Universal Tags",
+        "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
+      }
+    ]
+  },
+  {
     "id": "resource-video-hero",
     "fields": [
       {
@@ -19441,6 +19730,80 @@
         "valueType": "string",
         "name": "filters",
         "label": "Audience/Issue/Type/Tags/Language/Program/Grade"
+      }
+    ]
+  },
+  {
+    "id": "resources-carousel",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "Related Resources"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "apiBaseUrl",
+        "label": "API Base URL"
+      },
+      {
+        "component": "select",
+        "name": "sourceType",
+        "label": "Source Type",
+        "value": "resources",
+        "options": [
+          {
+            "name": "Resources",
+            "value": "resources"
+          },
+          {
+            "name": "Articles",
+            "value": "articles"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "slug",
+        "label": "Preview Slug (Optional)",
+        "description": "Slug of the current resource/article — used to fetch related items. Leave empty to use the current page URL."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "findAllLabel",
+        "label": "Find All Button Label",
+        "value": "Find other resources"
+      },
+      {
+        "component": "aem-content",
+        "name": "findAllHref",
+        "label": "Find All Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "learnMoreLabel",
+        "label": "Card CTA Label",
+        "value": "Learn more"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "limit",
+        "label": "Item Limit",
+        "value": "8"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "programs",
+        "label": "Preset Programs Filter",
+        "description": "Comma-separated program values to pre-filter results, e.g. kidsmartz or netsmartz"
       }
     ]
   },

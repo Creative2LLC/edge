@@ -35,7 +35,7 @@ module.exports = {
       'news-article': 5,
       resources: 12,
       'resource-item': 8,
-      'resources-browser': 11,
+      'resources-browser': 12,
       'resources-browser-item': 9,
       'mega-nav-row': 6,
       'mega-nav-top-link': 5,

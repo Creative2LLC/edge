@@ -1,0 +1,210 @@
+.resources-carousel {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem);
+}
+
+/* Header: heading left, find-all right */
+.resources-carousel .resources-carousel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.resources-carousel .resources-carousel-heading {
+  margin: 0;
+  color: #00264d;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.resources-carousel .resources-carousel-find-all {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  background: #00264d;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+
+.resources-carousel .resources-carousel-find-all:hover {
+  opacity: 0.85;
+}
+
+/* Scrollable track */
+.resources-carousel .resources-carousel-track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.resources-carousel .resources-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each slide */
+.resources-carousel .resources-carousel-slide {
+  flex: 0 0 clamp(260px, 30vw, 320px);
+  scroll-snap-align: start;
+  display: flex;
+}
+
+/* Card */
+.resources-carousel .resources-carousel-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgb(0 38 77 / 9%);
+  border: 1px solid rgb(0 38 77 / 6%);
+}
+
+/* Full-card cover link */
+.resources-carousel .resources-carousel-card-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.resources-carousel .resources-carousel-card:hover {
+  box-shadow: 0 8px 28px rgb(0 38 77 / 14%);
+}
+
+.resources-carousel .resources-carousel-card-title {
+  margin: 0 0 0.6rem;
+  color: #00264d;
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  font-weight: 800;
+  line-height: 1.22;
+}
+
+.resources-carousel .resources-carousel-card-subtitle {
+  margin: 0;
+  color: #516272;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.resources-carousel .resources-carousel-spacer {
+  flex: 1;
+  min-height: 1rem;
+}
+
+.resources-carousel .resources-carousel-card-link {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  color: #0d6e8c;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.resources-carousel .resources-carousel-card-link::after {
+  content: '\2192';
+}
+
+.resources-carousel .resources-carousel-card-link:hover {
+  text-decoration: underline;
+}
+
+/* Controls row */
+.resources-carousel .resources-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+/* Progress bar */
+.resources-carousel .resources-carousel-progress {
+  flex: 1;
+  height: 4px;
+  background: rgb(0 38 77 / 12%);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.resources-carousel .resources-carousel-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #008db6;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+/* Nav arrows */
+.resources-carousel .resources-carousel-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.resources-carousel .resources-carousel-nav-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: #00264d;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #fff;
+  transition: opacity 0.15s ease;
+}
+
+.resources-carousel .resources-carousel-nav-btn:hover {
+  opacity: 0.8;
+}
+
+.resources-carousel .resources-carousel-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.resources-carousel .resources-carousel-nav-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  stroke: currentcolor;
+}
+
+.resources-carousel .resources-carousel-message {
+  padding: 1.5rem;
+  color: #516272;
+  font-size: 0.95rem;
+}
+
+@media (width <= 700px) {
+  .resources-carousel .resources-carousel-slide {
+    flex: 0 0 min(85vw, 280px);
+  }
+
+  .resources-carousel .resources-carousel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

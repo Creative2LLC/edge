@@ -4,7 +4,6 @@ import {
   getAueResourcePath,
   getBlockRows,
   readAueResourceFields,
-  readImageField,
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
@@ -68,26 +67,6 @@ function readConfigValue(rows, name, fallback = '') {
 function getFieldValue(block, name, fallback = '') {
   const rows = getRows(block);
   return getPropValue(block, name) || readConfigValue(rows, name) || fallback;
-}
-
-function getImageFieldValue(block, name, fallbackAlt = '') {
-  const field = readImageField(block, name);
-  const img = field.img || field.cell?.querySelector?.('img');
-  if (img?.src) return { src: img.src, alt: img.alt || fallbackAlt };
-
-  const rows = getRows(block);
-  const columnIndex = FIELD_COLUMN_INDEX[name];
-  if (columnIndex === undefined) return null;
-
-  return rows.map((row) => {
-    const cell = row.children[columnIndex];
-    const cellImg = cell?.querySelector?.('img');
-    if (cellImg?.src) return { src: cellImg.src, alt: cellImg.alt || fallbackAlt };
-    const anchor = cell?.querySelector?.('a');
-    const urlRaw = anchor?.getAttribute('href') || findUrlLikeValue(cell?.textContent || '');
-    const url = normalizeText(urlRaw);
-    return url ? { src: url, alt: fallbackAlt } : null;
-  }).find(Boolean) || null;
 }
 
 function normalizeApiBaseUrl(value) {
@@ -366,21 +345,20 @@ function getVideoFileValue(block) {
   const manual = getFieldValue(block, 'videoFilePath');
   if (manual) return manual;
 
-  // 2. Link href from the reference picker cell
+  // 2. Link href from the reference picker cell, or DAM path in cell text
   const rows = getRows(block);
   const colIndex = FIELD_COLUMN_INDEX.videoFile;
-  for (const row of rows) {
+  const found = rows.map((row) => {
     const cell = row.children[colIndex];
-    if (!cell) continue;
+    if (!cell) return '';
     const anchor = cell.querySelector('a');
     if (anchor) {
       const href = normalizeText(anchor.getAttribute('href') || '');
       if (href) return href;
     }
-    // 3. DAM path or absolute URL anywhere in the cell text
-    const damPath = findUrlLikeValue(cell.textContent);
-    if (damPath) return damPath;
-  }
+    return findUrlLikeValue(cell.textContent) || '';
+  }).find(Boolean);
+  if (found) return found;
 
   // 4. Named prop (data-aue-prop="videoFile") on the block itself
   return getFieldValue(block, 'videoFile');

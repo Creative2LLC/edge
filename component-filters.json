@@ -444,6 +444,12 @@
     ]
   },
   {
+    "id": "picture-cards",
+    "components": [
+      "picture-cards-item"
+    ]
+  },
+  {
     "id": "product-list",
     "components": [
       "product-list-item"
