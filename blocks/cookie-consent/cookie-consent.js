@@ -344,7 +344,9 @@ function addFooterPreferenceLink(block, config) {
   const footer = document.querySelector('footer .footer');
   if (!footer) return false;
 
-  const target = footer.querySelector('.footer-legal-links') || footer;
+  const target = footer.querySelector('.footer-legal-links');
+  if (!target) return false;
+
   const wrapper = createElement(target.matches('ul, ol') ? 'li' : 'span', 'cookie-consent-footer-link');
   const button = createButton('Cookie Preferences', 'cookie-consent-footer-button', () => {
     renderConsentBanner(block, config, readStoredConsent(), true);
@@ -356,6 +358,12 @@ function addFooterPreferenceLink(block, config) {
 }
 
 function retryFooterPreferenceLink(block, config) {
+  document.addEventListener(
+    'ncmec:footer-ready',
+    () => addFooterPreferenceLink(block, config),
+    { once: true },
+  );
+
   if (addFooterPreferenceLink(block, config)) return;
 
   window.setTimeout(() => addFooterPreferenceLink(block, config), 1000);

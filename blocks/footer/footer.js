@@ -59,6 +59,14 @@ const FOOTER_SOCIAL_LINKS = [
   },
 ];
 
+const FOOTER_IMAGE_LAYOUT_CLASSES = [
+  'image-positioned',
+  'image-fit-container',
+  'align-left',
+  'align-center',
+  'align-right',
+];
+
 function normalizeLabel(value) {
   return value.trim().toLowerCase().replace(/[\s_-]+/g, '');
 }
@@ -340,6 +348,12 @@ function unwrapColoredTextBlocks(column) {
   });
 
   column.classList.remove('colored-text-wrapper');
+
+  column.querySelectorAll(
+    'p.image-positioned, picture.image-positioned, img.image-positioned, a.image-positioned',
+  ).forEach((element) => {
+    element.classList.remove(...FOOTER_IMAGE_LAYOUT_CLASSES);
+  });
 }
 
 function classifyBrandContent(brandColumn) {
@@ -446,4 +460,5 @@ export default async function decorate(block) {
   decorateIcons(footer);
 
   block.append(footer);
+  document.dispatchEvent(new CustomEvent('ncmec:footer-ready'));
 }
