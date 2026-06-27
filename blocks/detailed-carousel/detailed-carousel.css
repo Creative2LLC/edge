@@ -162,6 +162,79 @@
   text-decoration: none;
 }
 
+/* Track — grab cursor hints draggability */
+.detailed-carousel .detailed-carousel-track {
+  cursor: grab;
+}
+
+/* Controls row: dots centered, arrows absolute right */
+.detailed-carousel .detailed-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  position: relative;
+}
+
+/* Dots — pill-segment progress bar */
+.detailed-carousel .detailed-carousel-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.detailed-carousel .detailed-carousel-dot {
+  width: 8px;
+  height: 4px;
+  border-radius: 999px;
+  border: none;
+  background: rgb(0 38 77 / 20%);
+  cursor: pointer;
+  padding: 0;
+  transition: width 0.3s ease, background-color 0.2s ease;
+}
+
+.detailed-carousel .detailed-carousel-dot.active {
+  width: 28px;
+  background: #00264d;
+}
+
+.detailed-carousel .detailed-carousel-dot:hover:not(.active) {
+  background: rgb(0 38 77 / 40%);
+}
+
+/* Nav arrows */
+.detailed-carousel .detailed-carousel-nav {
+  display: flex;
+  gap: 12px;
+  position: absolute;
+  right: 0;
+}
+
+.detailed-carousel .detailed-carousel-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #a1a1a1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.detailed-carousel .detailed-carousel-nav-btn:hover {
+  opacity: 0.85;
+}
+
+.detailed-carousel .detailed-carousel-nav-btn svg {
+  width: 16px;
+  height: 16px;
+  color: rgb(255 255 255 / 83%);
+}
+
 /* Tablet */
 @media (width <= 900px) {
   .detailed-carousel .detailed-carousel-slide {

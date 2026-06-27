@@ -8,6 +8,7 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import attachDragScroll from '../../scripts/carousel-utils.js';
 
 const BLOCK_PROPS = [
   'heading',
@@ -594,6 +595,8 @@ export default async function decorate(block) {
   nav.append(prevBtn, nextBtn);
   footer.append(nav);
   inner.append(footer);
+
+  attachDragScroll(cardsContainer);
 
   prevBtn.addEventListener('click', () => {
     cardsContainer.scrollBy({ left: -370, behavior: 'smooth' });

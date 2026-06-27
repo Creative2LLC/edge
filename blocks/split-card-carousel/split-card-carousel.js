@@ -282,75 +282,72 @@ export default function decorate(block) {
   wrapper.append(track);
   attachDragScroll(track);
 
-  // Variant 2: no dots, no nav arrows — user just scrolls.
-  if (!isVariant2) {
-    const controls = document.createElement('div');
-    controls.className = 'split-card-carousel-controls';
+  const controls = document.createElement('div');
+  controls.className = 'split-card-carousel-controls';
 
-    const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'split-card-carousel-dots';
-    const dots = [];
-    slides.forEach((_, i) => {
-      const dot = document.createElement('button');
-      dot.className = 'split-card-carousel-dot';
-      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-      dot.type = 'button';
-      if (i === 0) dot.classList.add('active');
-      dots.push(dot);
-      dotsContainer.append(dot);
-    });
-    controls.append(dotsContainer);
+  const dotsContainer = document.createElement('div');
+  dotsContainer.className = 'split-card-carousel-dots';
+  const dots = [];
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'split-card-carousel-dot';
+    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+    dot.type = 'button';
+    if (i === 0) dot.classList.add('active');
+    dots.push(dot);
+    dotsContainer.append(dot);
+  });
+  controls.append(dotsContainer);
 
-    const nav = document.createElement('div');
-    nav.className = 'split-card-carousel-nav';
+  const nav = document.createElement('div');
+  nav.className = 'split-card-carousel-nav';
 
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'split-card-carousel-nav-btn';
-    prevBtn.setAttribute('aria-label', 'Previous slide');
-    prevBtn.type = 'button';
-    prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'split-card-carousel-nav-btn';
+  prevBtn.setAttribute('aria-label', 'Previous slide');
+  prevBtn.type = 'button';
+  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'split-card-carousel-nav-btn';
-    nextBtn.setAttribute('aria-label', 'Next slide');
-    nextBtn.type = 'button';
-    nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'split-card-carousel-nav-btn';
+  nextBtn.setAttribute('aria-label', 'Next slide');
+  nextBtn.type = 'button';
+  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
 
-    nav.append(prevBtn);
-    nav.append(nextBtn);
-    controls.append(nav);
+  nav.append(prevBtn);
+  nav.append(nextBtn);
+  controls.append(nav);
 
-    wrapper.append(controls);
+  wrapper.append(controls);
 
-    let current = 0;
+  let current = 0;
 
-    const goToSlide = (index) => {
-      const total = slides.length;
-      if (total === 0) return;
-      current = ((index % total) + total) % total;
-      const slideEl = track.children[current];
-      if (slideEl) {
-        track.scrollTo({ left: slideEl.offsetLeft - track.offsetLeft, behavior: 'smooth' });
-      }
+  const goToSlide = (index) => {
+    const total = slides.length;
+    if (total === 0) return;
+    current = ((index % total) + total) % total;
+    const slideEl = track.children[current];
+    if (slideEl) {
+      track.scrollTo({ left: slideEl.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+    }
+    updateDots(dots, current);
+  };
+
+  prevBtn.addEventListener('click', () => goToSlide(current - 1));
+  nextBtn.addEventListener('click', () => goToSlide(current + 1));
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => goToSlide(i));
+  });
+
+  track.addEventListener('scroll', () => {
+    const slideWidth = track.children[0]?.offsetWidth || 1;
+    const gap = isVariant2 ? 0 : 24;
+    const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
+    if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
+      current = scrollIndex;
       updateDots(dots, current);
-    };
-
-    prevBtn.addEventListener('click', () => goToSlide(current - 1));
-    nextBtn.addEventListener('click', () => goToSlide(current + 1));
-    dots.forEach((dot, i) => {
-      dot.addEventListener('click', () => goToSlide(i));
-    });
-
-    track.addEventListener('scroll', () => {
-      const slideWidth = track.children[0]?.offsetWidth || 1;
-      const gap = 24;
-      const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
-      if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
-        current = scrollIndex;
-        updateDots(dots, current);
-      }
-    });
-  }
+    }
+  });
 
   block.replaceChildren(wrapper);
 }

@@ -261,6 +261,17 @@ function splitCollapsedStatLabels(value, expectedCount = 0) {
     .filter(Boolean);
   if (sentenceBoundaryParts.length === expectedCount) return sentenceBoundaryParts;
 
+  // Combined: apply year-boundary then sentence-boundary in one pass.
+  // Handles labels like "...in 2024 Recovery rate Years..." where each heuristic
+  // alone only finds one of the two split points.
+  const combinedParts = normalized
+    .replace(/(\d{4})\s+(?=[A-Z])/gu, '$1|')
+    .replace(/([a-z])\s+(?=[A-Z][a-z])/gu, '$1|')
+    .split('|')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (combinedParts.length === expectedCount) return combinedParts;
+
   const boundaryParts = normalized
     .split(/\s+(?=(?:exploitation reports analyzed|people reached annually|public\b|esp\b)\b)/iu)
     .map((part) => part.trim())

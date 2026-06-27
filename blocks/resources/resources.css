@@ -83,6 +83,7 @@ main > .section > .resources-wrapper {
   gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
@@ -263,9 +264,9 @@ main > .section > .resources-wrapper {
 /* Custom scrollbar */
 .resources .resources-scrollbar {
   width: 200px;
-  height: 5px;
-  background: #a1a1a1;
-  border-radius: 99px;
+  height: 4px;
+  background: rgb(0 38 77 / 12%);
+  border-radius: 999px;
   position: relative;
   overflow: hidden;
 }
