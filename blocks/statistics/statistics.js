@@ -250,6 +250,17 @@ function splitCollapsedStatLabels(value, expectedCount = 0) {
     .filter(Boolean);
   if (yearBoundaryParts.length === expectedCount) return yearBoundaryParts;
 
+  // Split on sentence-casing boundaries: lowercase letter → space → uppercase word.
+  // Handles adjacent labels with no separator, e.g. "exploitation Missing children".
+  // Requires the uppercase word to have a following lowercase letter (avoids splitting
+  // on acronyms like "DNA" or single-letter words like "A").
+  const sentenceBoundaryParts = normalized
+    .replace(/([a-z])\s+(?=[A-Z][a-z])/gu, '$1|')
+    .split('|')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (sentenceBoundaryParts.length === expectedCount) return sentenceBoundaryParts;
+
   const boundaryParts = normalized
     .split(/\s+(?=(?:exploitation reports analyzed|people reached annually|public\b|esp\b)\b)/iu)
     .map((part) => part.trim())
@@ -332,6 +343,22 @@ function redistributeRenderedLabels(items) {
   items.forEach((item, index) => {
     ensureRenderedLabel(item).textContent = labels[index] || '';
   });
+}
+
+// When all labels are authored in the first item and the rest have none,
+// attempt to split and redistribute them across all items.
+function redistributeAuthoredLabels(items) {
+  if (items.length < 2) return items;
+  const firstLabel = items[0]?.labelField?.value;
+  if (!firstLabel) return items;
+  const restHaveNoLabels = items.slice(1).every((item) => !item.labelField?.value);
+  if (!restHaveNoLabels) return items;
+  const labels = splitCollapsedStatLabels(firstLabel, items.length);
+  if (labels.length !== items.length) return items;
+  return items.map((item, i) => ({
+    ...item,
+    labelField: createStatField(labels[i] || ''),
+  }));
 }
 
 function normalizeRenderedStatistics(block) {
@@ -1675,8 +1702,10 @@ export default function decorate(block) {
   list.className = 'statistics-list';
   const authoredItems = getAuthoredItems(block);
   const items = applyItemDefaults(
-    expandCollapsedStatItems(
-      authoredItems.length ? authoredItems : getLegacyItems(effectiveValues, effectiveLabels),
+    redistributeAuthoredLabels(
+      expandCollapsedStatItems(
+        authoredItems.length ? authoredItems : getLegacyItems(effectiveValues, effectiveLabels),
+      ),
     ),
     {
       imageField: iconImageField,
