@@ -329,6 +329,19 @@ function normalizeColumnLinks(column) {
   });
 }
 
+function unwrapColoredTextBlocks(column) {
+  column.querySelectorAll('.colored-text.block').forEach((coloredText) => {
+    const content = coloredText.querySelector(
+      ':scope > .colored-text-inner > .colored-text-content',
+    );
+    if (!content) return;
+
+    coloredText.replaceWith(...content.childNodes);
+  });
+
+  column.classList.remove('colored-text-wrapper');
+}
+
 function classifyBrandContent(brandColumn) {
   if (!brandColumn) return;
 
@@ -384,6 +397,13 @@ function decorateFlexibleColumns(footerRoot) {
 
   const columns = [...row.children];
   if (columns.length < 2) return;
+
+  columns.forEach(unwrapColoredTextBlocks);
+
+  const section = columnsBlock.closest('.section');
+  if (section && !section.querySelector('.colored-text.block')) {
+    section.classList.remove('colored-text-container');
+  }
 
   columnsBlock.classList.add('footer-columns-layout');
   columnsBlock.style.setProperty('--footer-link-columns', `${Math.max(columns.length - 1, 1)}`);
