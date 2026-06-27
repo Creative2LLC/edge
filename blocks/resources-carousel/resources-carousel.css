@@ -50,6 +50,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
   padding-bottom: 4px;
+  cursor: grab;
 }
 
 .resources-carousel .resources-carousel-track::-webkit-scrollbar {
@@ -150,7 +151,7 @@
 .resources-carousel .resources-carousel-progress-bar {
   height: 100%;
   width: 0%;
-  background: #008db6;
+  background: #00264d;
   border-radius: 999px;
   transition: width 0.2s ease;
 }

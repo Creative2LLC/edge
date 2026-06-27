@@ -241,6 +241,15 @@ function splitCollapsedStatLabels(value, expectedCount = 0) {
     && yearParts.every((part) => /\(\d{4}\)/u.test(part))
   ) return yearParts;
 
+  // Split on a bare year (e.g. "in 2024") followed by an uppercase-starting word.
+  // Handles labels like "...in 2024 Next label..." where each label ends with a year.
+  const yearBoundaryParts = normalized
+    .replace(/(\d{4})\s+(?=[A-Z])/gu, '$1|')
+    .split('|')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (yearBoundaryParts.length === expectedCount) return yearBoundaryParts;
+
   const boundaryParts = normalized
     .split(/\s+(?=(?:exploitation reports analyzed|people reached annually|public\b|esp\b)\b)/iu)
     .map((part) => part.trim())

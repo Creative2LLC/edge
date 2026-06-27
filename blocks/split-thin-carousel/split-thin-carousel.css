@@ -58,6 +58,7 @@ main > .section > .split-thin-carousel-wrapper {
   gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
@@ -233,30 +234,31 @@ main > .section > .split-thin-carousel-wrapper {
   position: relative;
 }
 
-/* Dots */
+/* Dots — pill-segment progress bar */
 .split-thin-carousel .stc-dots {
   display: flex;
-  gap: 15px;
+  gap: 6px;
   align-items: center;
 }
 
 .split-thin-carousel .stc-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  width: 8px;
+  height: 4px;
+  border-radius: 999px;
   border: none;
-  background: #a1a1a1;
+  background: rgb(0 38 77 / 20%);
   cursor: pointer;
   padding: 0;
-  transition: background-color 0.2s ease;
+  transition: width 0.3s ease, background-color 0.2s ease;
 }
 
 .split-thin-carousel .stc-dot.active {
+  width: 28px;
   background: #00264d;
 }
 
-.split-thin-carousel .stc-dot:hover {
-  opacity: 0.8;
+.split-thin-carousel .stc-dot:hover:not(.active) {
+  background: rgb(0 38 77 / 40%);
 }
 
 /* Nav arrows */

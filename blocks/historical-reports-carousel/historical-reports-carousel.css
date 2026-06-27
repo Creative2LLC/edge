@@ -61,6 +61,7 @@ main > .section > .historical-reports-carousel-wrapper {
   gap: 28px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  cursor: grab;
   scrollbar-width: none;
   -ms-overflow-style: none;
   width: calc(100% + 24px + max(0px, (var(--historical-reports-carousel-viewport-width) - 1420px) / 2));
@@ -231,23 +232,28 @@ main > .section > .historical-reports-carousel-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 6px;
   margin-top: 18px;
 }
 
 .historical-reports-carousel .historical-reports-carousel-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 4px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: #a9a8aa;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  border-radius: 999px;
+  background: rgb(0 38 77 / 20%);
+  cursor: pointer;
+  transition: width 0.3s ease, background-color 0.2s ease;
 }
 
 .historical-reports-carousel .historical-reports-carousel-dot.active {
-  background: #e04c35;
-  transform: scale(1.12);
+  width: 28px;
+  background: #00264d;
+}
+
+.historical-reports-carousel .historical-reports-carousel-dot:hover:not(.active) {
+  background: rgb(0 38 77 / 40%);
 }
 
 .historical-reports-carousel .historical-reports-carousel-empty-state {

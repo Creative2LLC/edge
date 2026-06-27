@@ -4,6 +4,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { attachDragScroll } from '../../scripts/carousel-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -446,6 +447,7 @@ export default async function decorate(block) {
 
   const track = document.createElement('div');
   track.className = 'historical-reports-carousel-track';
+  attachDragScroll(track);
 
   const slides = slideData.map(({ row, data }, index) => {
     const slide = buildSlide(data, row, cardBackgroundColorField.value);

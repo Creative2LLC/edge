@@ -4,6 +4,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { attachDragScroll } from '../../scripts/carousel-utils.js';
 
 // Row index for each field in the published AEM delivery
 // (each field is one row with a single cell when data-aue-prop is stripped).
@@ -200,6 +201,7 @@ function buildNavArrow(direction) {
 }
 
 function wireCarousel(track, prevBtn, nextBtn, progressBar) {
+  attachDragScroll(track);
   const slideWidth = () => {
     const slide = track.querySelector('.resources-carousel-slide');
     if (!slide) return 0;

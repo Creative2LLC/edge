@@ -57,6 +57,7 @@ main > .section > .split-card-carousel-wrapper {
   gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
@@ -184,30 +185,31 @@ main > .section > .split-card-carousel-wrapper {
   position: relative;
 }
 
-/* Dots */
+/* Dots — pill-segment progress bar */
 .split-card-carousel .split-card-carousel-dots {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
 .split-card-carousel .split-card-carousel-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 8px;
+  height: 4px;
+  border-radius: 999px;
   border: none;
-  background: #a1a1a1;
+  background: rgb(0 38 77 / 20%);
   cursor: pointer;
   padding: 0;
-  transition: background-color 0.2s ease;
+  transition: width 0.3s ease, background-color 0.2s ease;
 }
 
 .split-card-carousel .split-card-carousel-dot.active {
+  width: 28px;
   background: #00264d;
 }
 
-.split-card-carousel .split-card-carousel-dot:hover {
-  opacity: 0.8;
+.split-card-carousel .split-card-carousel-dot:hover:not(.active) {
+  background: rgb(0 38 77 / 40%);
 }
 
 /* Nav arrows - positioned right on the controls row */
