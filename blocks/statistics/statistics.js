@@ -203,7 +203,7 @@ function splitCollapsedStatValues(value) {
   const normalized = String(value || '').replace(/\u00a0/g, ' ').trim();
   if (!normalized) return [];
 
-  const statValueRe = /(?:^|\s)([-+$]?\d[\d,]*(?:\.\d+)?(?:\s*(?:million|billion|trillion|thousand)|[kmb])?[%+]?)/giu;
+  const statValueRe = /(?:^|\s)([-+$]?\d[\d,]*(?:\.\d+)?(?:\s*(?:million|billion|trillion|thousand)|[kmb])?[%+]?|[A-Za-z]{1,3}[%+])/giu;
   const values = [...normalized.matchAll(statValueRe)]
     .map((match) => match[1].trim())
     .filter(Boolean);
