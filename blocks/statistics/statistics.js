@@ -226,7 +226,7 @@ function splitCollapsedStatLabels(value, expectedCount = 0) {
   if (!normalized || expectedCount < 2) return normalized ? [normalized] : [];
 
   const separatorParts = normalized
-    .split(/\s*(?:\||;|•)\s*/u)
+    .split(/\s*(?:\||;|ï¿½)\s*/u)
     .map((part) => part.trim())
     .filter(Boolean);
   if (separatorParts.length === expectedCount) return separatorParts;
@@ -1687,6 +1687,10 @@ export default function decorate(block) {
   if (list.childElementCount) wrapper.append(list);
 
   block.replaceChildren(wrapper);
+  // On live, AEM strips default-value rows (alignment fields default to center/top),
+  // so findLegacyAlignmentIndex fails and the heading row has no fallback cell.
+  // If the heading ended up misclassified as body text, promote it here.
+  restoreRenderedHeading(wrapper, list.childElementCount > 1);
   applyAnimatedMarkers(wrapper, {
     terms: markerTermsField.value,
     color: markerColorField.value,
