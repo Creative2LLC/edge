@@ -175,11 +175,20 @@ export default function decorate(block) {
   const refreshBar = () => updateBarThumb(track, barTrack, barThumb);
 
   prevBtn.addEventListener('click', () => {
-    track.scrollBy({ left: -getStepDistance(track), behavior: 'smooth' });
+    if (track.scrollLeft <= 1) {
+      track.scrollTo({ left: track.scrollWidth - track.clientWidth, behavior: 'smooth' });
+    } else {
+      track.scrollBy({ left: -getStepDistance(track), behavior: 'smooth' });
+    }
   });
 
   nextBtn.addEventListener('click', () => {
-    track.scrollBy({ left: getStepDistance(track), behavior: 'smooth' });
+    const max = track.scrollWidth - track.clientWidth;
+    if (max > 0 && track.scrollLeft >= max - 1) {
+      track.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      track.scrollBy({ left: getStepDistance(track), behavior: 'smooth' });
+    }
   });
 
   track.addEventListener('scroll', refreshBar, { passive: true });

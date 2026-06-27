@@ -599,10 +599,19 @@ export default async function decorate(block) {
   attachDragScroll(cardsContainer);
 
   prevBtn.addEventListener('click', () => {
-    cardsContainer.scrollBy({ left: -370, behavior: 'smooth' });
+    if (cardsContainer.scrollLeft <= 1) {
+      cardsContainer.scrollTo({ left: cardsContainer.scrollWidth - cardsContainer.clientWidth, behavior: 'smooth' });
+    } else {
+      cardsContainer.scrollBy({ left: -370, behavior: 'smooth' });
+    }
   });
   nextBtn.addEventListener('click', () => {
-    cardsContainer.scrollBy({ left: 370, behavior: 'smooth' });
+    const max = cardsContainer.scrollWidth - cardsContainer.clientWidth;
+    if (max > 0 && cardsContainer.scrollLeft >= max - 1) {
+      cardsContainer.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      cardsContainer.scrollBy({ left: 370, behavior: 'smooth' });
+    }
   });
   cardsContainer.addEventListener('scroll', () => {
     updateScrollbar(scrollThumb, cardsContainer);

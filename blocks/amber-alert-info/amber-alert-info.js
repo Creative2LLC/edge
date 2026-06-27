@@ -29,24 +29,38 @@ function findHexAcrossRows(block) {
 }
 
 export default function decorate(block) {
+  const rows = getBlockRows(block);
   const allPictures = [...block.querySelectorAll('picture')];
+
   const mainImageField = readImageField(block, 'mainImage', 0);
-  const iconField = readImageField(block, 'icon', 2);
   const mainPicture = mainImageField.picture || allPictures[0] || null;
+
+  // In live delivery AEM omits rows whose value matches the field's default.
+  // mainImageAlt has default "" so it is absent when not authored. Detect this:
+  // in live mode (no data-aue-prop attributes) if row 1 contains a picture it is
+  // actually the icon row — mainImageAlt was stripped and everything shifts by -1.
+  const hasAuthorProps = !!block.querySelector('[data-aue-prop], [data-richtext-prop]');
+  const liveRow1HasPicture = !hasAuthorProps && !!rows[1]?.querySelector('img, picture');
+  const i = liveRow1HasPicture ? -1 : 0; // row-index compensation
+
+  const mainImageAlt = (!hasAuthorProps && liveRow1HasPicture)
+    ? (mainPicture?.querySelector('img')?.alt || '')
+    : readTextField(block, 'mainImageAlt', 1).value;
+
+  const iconField = readImageField(block, 'icon', 2 + i);
   const iconPicture = iconField.picture || allPictures.find((p) => p !== mainPicture) || null;
 
-  const mainImageAlt = readTextField(block, 'mainImageAlt', 1).value;
-  const titleField = readRichTextField(block, 'title', 3);
-  const subtitleField = readRichTextField(block, 'subtitle', 4);
-  const buttonText = readTextField(block, 'buttonText', 5).value;
-  const buttonLink = readLinkField(block, 'buttonLink', 6).value;
-  const stat1Number = readTextField(block, 'stat1Number', 7).value;
-  const stat1Text = readTextField(block, 'stat1Text', 8).value;
-  const stat2Number = readTextField(block, 'stat2Number', 9).value;
-  const stat2Text = readTextField(block, 'stat2Text', 10).value;
-  const rawBg = readTextField(block, 'backgroundColor', 11).value.trim();
+  const titleField = readRichTextField(block, 'title', 3 + i);
+  const subtitleField = readRichTextField(block, 'subtitle', 4 + i);
+  const buttonText = readTextField(block, 'buttonText', 5 + i).value;
+  const buttonLink = readLinkField(block, 'buttonLink', 6 + i).value;
+  const stat1Number = readTextField(block, 'stat1Number', 7 + i).value;
+  const stat1Text = readTextField(block, 'stat1Text', 8 + i).value;
+  const stat2Number = readTextField(block, 'stat2Number', 9 + i).value;
+  const stat2Text = readTextField(block, 'stat2Text', 10 + i).value;
+  const rawBg = readTextField(block, 'backgroundColor', 11 + i).value.trim();
   const backgroundColor = normalizeHex(rawBg) || findHexAcrossRows(block);
-  const buttonStyle = readTextField(block, 'buttonStyle', 12).value || 'solid';
+  const buttonStyle = readTextField(block, 'buttonStyle', 12 + i).value || 'solid';
 
   const container = document.createElement('div');
   container.className = 'amber-alert-info-container';

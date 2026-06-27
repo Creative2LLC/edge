@@ -1,8 +1,14 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { getBlockRows, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  getBlockRows, readLinkField, readRichTextField, readTextField,
+} from '../../scripts/block-field-utils.js';
 
 function getField(block, rows, name, index) {
   return readTextField(block, name, { fallbackCell: rows[index] });
+}
+
+function getRichField(block, rows, name, index) {
+  return readRichTextField(block, name, { fallbackCell: rows[index] });
 }
 
 function getLinkField(block, rows, name, index) {
@@ -23,11 +29,27 @@ function buildTextElement(tag, className, field) {
   return el;
 }
 
+function buildRichTextElement(tag, className, field) {
+  if (!field?.html && !field?.source?.childNodes?.length) return null;
+  const el = document.createElement(tag);
+  el.className = className;
+  if (field.source) {
+    moveInstrumentation(field.source, el);
+    while (field.source.firstChild) el.append(field.source.firstChild);
+    field.source.remove();
+  } else if (field.html) {
+    el.innerHTML = field.html;
+  } else {
+    el.textContent = field.text || '';
+  }
+  return el;
+}
+
 export default function decorate(block) {
   const rows = getBlockRows(block);
 
   const titleField = getField(block, rows, 'title', 0);
-  const subtitleField = getField(block, rows, 'subtitle', 1);
+  const subtitleField = getRichField(block, rows, 'subtitle', 1);
   const gradientLeftField = getField(block, rows, 'gradientLeft', 2);
   const gradientRightField = getField(block, rows, 'gradientRight', 3);
   const buttonTextField = getField(block, rows, 'buttonText', 4);
@@ -41,7 +63,7 @@ export default function decorate(block) {
   const button2BackgroundColorField = getField(block, rows, 'button2BackgroundColor', 12);
   const button2SubtextField = getField(block, rows, 'button2Subtext', 13);
   const button2LocationField = getField(block, rows, 'button2Location', 14);
-  const belowButtonTextField = getField(block, rows, 'belowButtonText', 15);
+  const belowButtonTextField = getRichField(block, rows, 'belowButtonText', 15);
   const button3TextField = getField(block, rows, 'button3Text', 16);
   const button3LinkField = getLinkField(block, rows, 'button3Link', 17);
   const styleTypeField = getField(block, rows, 'styleType', 18);
@@ -71,7 +93,7 @@ export default function decorate(block) {
   const title = buildTextElement('h2', 'cta-card-1-title', titleField);
   if (title) left.append(title);
 
-  const subtitle = buildTextElement('div', 'cta-card-1-subtitle', subtitleField);
+  const subtitle = buildRichTextElement('div', 'cta-card-1-subtitle', subtitleField);
   if (subtitle) left.append(subtitle);
 
   // Third button (Variant 4 only) — outlined, sits under the subtitle on the left.
@@ -191,11 +213,11 @@ export default function decorate(block) {
   // On the published page (no field instrumentation) the styleType select value
   // can leak into this slot via positional fallback — never render a bare
   // "variant-N" keyword as the below-button caption.
-  if (/^variant-\d+$/i.test((belowButtonTextField.value || '').trim())) {
-    belowButtonTextField.value = '';
+  if (/^variant-\d+$/i.test((belowButtonTextField.text || '').trim())) {
+    belowButtonTextField.html = '';
     belowButtonTextField.source = null;
   }
-  const belowText = buildTextElement('div', 'cta-card-1-below-button', belowButtonTextField);
+  const belowText = buildRichTextElement('div', 'cta-card-1-below-button', belowButtonTextField);
   if (belowText) {
     if (button2Location === 'left') {
       right.classList.add('cta-card-1-right-inline');

@@ -213,16 +213,23 @@ function wireCarousel(track, prevBtn, nextBtn, progressBar) {
     const max = track.scrollWidth - track.clientWidth;
     const pct = max > 0 ? (track.scrollLeft / max) * 100 : 0;
     if (progressBar) progressBar.style.width = `${Math.min(100, pct)}%`;
-    if (prevBtn) prevBtn.disabled = track.scrollLeft <= 1;
-    if (nextBtn) nextBtn.disabled = max > 0 && track.scrollLeft >= max - 1;
   };
 
   prevBtn?.addEventListener('click', () => {
-    track.scrollBy({ left: -slideWidth(), behavior: 'smooth' });
+    if (track.scrollLeft <= 1) {
+      track.scrollTo({ left: track.scrollWidth - track.clientWidth, behavior: 'smooth' });
+    } else {
+      track.scrollBy({ left: -slideWidth(), behavior: 'smooth' });
+    }
   });
 
   nextBtn?.addEventListener('click', () => {
-    track.scrollBy({ left: slideWidth(), behavior: 'smooth' });
+    const max = track.scrollWidth - track.clientWidth;
+    if (max > 0 && track.scrollLeft >= max - 1) {
+      track.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      track.scrollBy({ left: slideWidth(), behavior: 'smooth' });
+    }
   });
 
   track.addEventListener('scroll', updateProgress, { passive: true });
