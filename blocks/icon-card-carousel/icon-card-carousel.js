@@ -5,7 +5,7 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { attachDragScroll } from '../../scripts/carousel-utils.js';
+import attachDragScroll from '../../scripts/carousel-utils.js';
 
 function getFieldText(row, colIndex, propName) {
   return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;

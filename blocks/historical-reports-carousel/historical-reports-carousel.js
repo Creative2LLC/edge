@@ -4,7 +4,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { attachDragScroll } from '../../scripts/carousel-utils.js';
+import attachDragScroll from '../../scripts/carousel-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,

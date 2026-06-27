@@ -6,7 +6,7 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { attachDragScroll } from '../../scripts/carousel-utils.js';
+import attachDragScroll from '../../scripts/carousel-utils.js';
 
 function extractHexColor(el) {
   if (!el) return '';

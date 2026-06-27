@@ -8,7 +8,7 @@
  * Also disables `scroll-behavior: smooth` during the drag so the track
  * follows the pointer instantly instead of lagging behind.
  */
-export function attachDragScroll(track) {
+export default function attachDragScroll(track) {
   let active = false;
   let startX = 0;
   let startLeft = 0;
