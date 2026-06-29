@@ -17,6 +17,7 @@ const SETTING_NAMES = [
   'imageDisplay',
   'cardBorderRadius',
   'cardShadow',
+  'defaultCardTextSize',
 ];
 
 const CARD_FIELD_NAMES = [
@@ -27,6 +28,7 @@ const CARD_FIELD_NAMES = [
   'cardTextColor',
   'highlightTextColor',
   'cardAlignment',
+  'cardTextSize',
 ];
 
 const DEFAULT_SETTINGS = {
@@ -38,6 +40,7 @@ const DEFAULT_SETTINGS = {
   imageDisplay: 'auto',
   cardBorderRadius: 'none',
   cardShadow: 'none',
+  defaultCardTextSize: '',
 };
 
 function directRowOf(block, element) {
@@ -80,6 +83,20 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+function normalizeCssLength(value, propertyName) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^-?\d+(\.\d+)?$/u.test(normalized)) return `${normalized}px`;
+  if (!window.CSS?.supports || window.CSS.supports(propertyName, normalized)) return normalized;
+  return '';
+}
+
+function isExplicitCssLength(value) {
+  const normalized = String(value || '').trim();
+  return /^-?\d+(\.\d+)?(?:px|em|rem|ch|ex|vh|vw|vmin|vmax|%)$/iu.test(normalized)
+    || /^(?:calc|min|max|clamp)\(.+\)$/iu.test(normalized);
+}
+
 function rowText(row) {
   return fieldCell(row)?.textContent?.trim() || '';
 }
@@ -94,6 +111,7 @@ function isConfigOnlyText(value) {
 
   return Boolean(
     normalizeColorValue(text)
+      || isExplicitCssLength(text)
       || normalizeOption(text, [
         'left',
         'center',
@@ -144,6 +162,9 @@ function getLegacySettingCells(rows) {
   const colorRows = scanRows
     .slice(textAlignmentIndex + 1, colorEndIndex)
     .filter((row) => normalizeColorValue(rowText(row)));
+  const defaultCardTextSizeRow = scanRows.find((row, index) => (
+    index > textAlignmentIndex && isExplicitCssLength(rowText(row))
+  ));
 
   return {
     textAlignment: fieldCell(scanRows[textAlignmentIndex]),
@@ -156,6 +177,7 @@ function getLegacySettingCells(rows) {
     imageDisplay: fieldCell(scanRows[imageDisplayIndex]),
     cardBorderRadius: fieldCell(radiusShadowRows[0]?.row),
     cardShadow: fieldCell(radiusShadowRows[1]?.row),
+    defaultCardTextSize: fieldCell(defaultCardTextSizeRow),
   };
 }
 
@@ -205,6 +227,10 @@ function applySettings(block, settings = {}) {
     ['none', 'small', 'medium', 'large'],
     'none',
   );
+  const defaultCardTextSize = normalizeCssLength(
+    nextSettings.defaultCardTextSize,
+    'font-size',
+  );
 
   block.classList.remove(
     'cards-text-align-left',
@@ -252,6 +278,12 @@ function applySettings(block, settings = {}) {
     block.style.setProperty('--cards-card-highlight-default', defaultHighlightTextColor);
   } else {
     block.style.removeProperty('--cards-card-highlight-default');
+  }
+
+  if (defaultCardTextSize) {
+    block.style.setProperty('--cards-card-text-size-default', defaultCardTextSize);
+  } else {
+    block.style.removeProperty('--cards-card-text-size-default');
   }
 }
 
@@ -472,9 +504,11 @@ function buildCard(row) {
     fallbackCell: row.children[5],
   });
   const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: row.children[6] });
+  const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: row.children[7] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
   const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
+  const cardTextSize = normalizeCssLength(cardTextSizeField.value, 'font-size');
   const cardAlignment = normalizeOption(
     cardAlignmentField.value,
     ['left', 'center', 'right', 'justify'],
@@ -488,6 +522,7 @@ function buildCard(row) {
 
   if (cardTextColor) li.style.setProperty('--cards-card-text', cardTextColor);
   if (highlightTextColor) li.style.setProperty('--cards-card-highlight', highlightTextColor);
+  if (cardTextSize) li.style.setProperty('--cards-card-text-size', cardTextSize);
   if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
 
   const image = buildImage(imageField, isStatIconCard(textField, highlightField));
@@ -546,6 +581,12 @@ export default function decorate(block) {
       legacySettings.cardBorderRadius,
     ),
     cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow'], legacySettings.cardShadow),
+    defaultCardTextSize: readSetting(
+      block,
+      'defaultCardTextSize',
+      ['default card text size', 'card text size', 'text size'],
+      legacySettings.defaultCardTextSize,
+    ),
   });
 
   const ul = document.createElement('ul');

@@ -46,6 +46,9 @@ const CONFIG_OPTION_VALUES = [
   'h6',
   'circle',
   'underline',
+  'content-spacing-small',
+  'content-spacing-medium',
+  'content-spacing-large',
 ];
 
 const CURRENT_IMAGE_MODE_OFFSETS = {
@@ -75,6 +78,7 @@ const CURRENT_IMAGE_MODE_OFFSETS = {
   markerTerms: 24,
   markerColor: 25,
   markerStyle: 26,
+  contentSpacing: 27,
 };
 
 const LEGACY_IMAGE_MODE_OFFSETS = {
@@ -102,6 +106,7 @@ const LEGACY_IMAGE_MODE_OFFSETS = {
   markerTerms: 25,
   markerColor: 26,
   markerStyle: 27,
+  contentSpacing: 28,
 };
 
 function directRowOf(block, element) {
@@ -543,6 +548,9 @@ const LABELED_CONFIG_FIELDS = new Set([
   'marker color',
   'highlight color',
   'marker style',
+  'content spacing',
+  'stat content spacing',
+  'item spacing',
 ]);
 
 function hasLabeledConfigRows(rows) {
@@ -646,6 +654,19 @@ function normalizeOption(value, allowedValues, fallback) {
     .replace(/^-|-$/g, '');
 
   return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function normalizeContentSpacing(value, fallback = 'none') {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  if (normalized === 'none') return 'none';
+  if (!normalized.startsWith('content-spacing-')) return fallback;
+
+  const option = normalized.replace(/^content-spacing-/u, '');
+  return ['small', 'medium', 'large'].includes(option) ? option : fallback;
 }
 
 function normalizeImageMode(value, fallback = 'icon') {
@@ -790,6 +811,8 @@ function getLegacyConfig(rows) {
   const compactImageModeRow = compactTextRows.find((row) => normalizeImageMode(rowText(row), '')) || null;
   const compactMarkerStyleRow = compactTextRows
     .find((row) => hasOptionValue(row, ['circle', 'underline'])) || null;
+  const compactContentSpacingRow = compactTextRows
+    .find((row) => normalizeContentSpacing(rowText(row), '')) || null;
   const compactColorRows = compactTextRows.filter((row) => isHexColorText(rowText(row)));
   const compactMarkerStyleIndex = compactMarkerStyleRow
     ? compactTextRows.indexOf(compactMarkerStyleRow)
@@ -908,6 +931,7 @@ function getLegacyConfig(rows) {
     statLabels: legacyOffsetRow('statLabels', isContentRow) || statLabelRow,
     markerColor: compactMarkerColorRow,
     markerStyle: compactMarkerStyleRow,
+    contentSpacing: compactContentSpacingRow,
   };
 
   return {
@@ -1062,9 +1086,23 @@ function parseTextWeights(value) {
   }, {});
 }
 
+function applyContentSpacing(block, value) {
+  const spacing = normalizeContentSpacing(value, 'none');
+  const amounts = {
+    none: '0px',
+    small: '8px',
+    medium: '16px',
+    large: '24px',
+  };
+  block.style.setProperty('--statistics-content-spacing', amounts[spacing]);
+}
+
 function applyStatisticsStyles(block, fields = {}) {
   if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
     applyBlockBackground(block, fields.blockBackgroundColor);
+  }
+  if (Object.prototype.hasOwnProperty.call(fields, 'contentSpacing')) {
+    applyContentSpacing(block, fields.contentSpacing);
   }
   setCssVar(block, '--statistics-heading-color', normalizeColorValue(fields.headingTextColor));
   setCssVar(block, '--statistics-body-color', normalizeColorValue(fields.bodyTextColor));
@@ -1103,6 +1141,7 @@ function syncResourceStyles(resourcePath, block) {
     'minHeightMobile',
     'iconMaxWidth',
     'iconMaxHeight',
+    'contentSpacing',
   ]).then((fields) => applyStatisticsStyles(block, fields));
 }
 
@@ -1193,6 +1232,7 @@ function readItemRows(block) {
             '[data-aue-prop="statValues"]',
             '[data-aue-prop="statLabels"]',
             '[data-aue-prop="textColors"]',
+            '[data-aue-prop="contentSpacing"]',
           ].join(', '),
         )
     ));
@@ -1423,6 +1463,7 @@ function buildItem(itemData) {
 export default function decorate(block) {
   if (block.querySelector(':scope > .statistics-inner')) {
     normalizeRenderedStatistics(block);
+    syncResourceStyles(getAueResourcePath(block), block);
     return;
   }
 
@@ -1626,6 +1667,13 @@ export default function decorate(block) {
     ['marker style', 'highlight marker style'],
     legacyConfig.compactCell('markerStyle') || legacyCell(27),
   );
+  const contentSpacingField = readField(
+    block,
+    'contentSpacing',
+    ['content spacing', 'stat content spacing', 'item spacing'],
+    legacyConfig.compactCell('contentSpacing')
+      || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.contentSpacing),
+  );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
   const fieldFallback = (name) => authoredFieldValues[name] || compactValue(name);
   legacyConfig.cleanupCompactRows();
@@ -1690,6 +1738,7 @@ export default function decorate(block) {
     minHeightMobile: minHeightMobileField.value || fieldFallback('minHeightMobile'),
     iconMaxWidth: iconMaxWidthField.value,
     iconMaxHeight: iconMaxHeightField.value,
+    contentSpacing: contentSpacingField.value || fieldFallback('contentSpacing'),
   });
 
   const alignment = normalizeOption(contentAlignmentField.value, ['left', 'center', 'right'], 'center');

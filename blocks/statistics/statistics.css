@@ -22,6 +22,7 @@
   --statistics-icon-max-height: 96px;
   --statistics-min-height: 0;
   --statistics-min-height-mobile: var(--statistics-min-height);
+  --statistics-content-spacing: 0px;
 
   padding: 20px 0 40px;
 }
@@ -150,7 +151,7 @@
   justify-content: center;
   align-items: center;
   min-height: 84px;
-  margin-bottom: 18px;
+  margin-bottom: calc(18px + var(--statistics-content-spacing));
 }
 
 .statistics .statistics-image picture {
@@ -195,7 +196,7 @@
   font-weight: var(--statistics-value-weight);
   line-height: 1;
   color: var(--statistics-value-color);
-  margin-bottom: 10px;
+  margin-bottom: calc(10px + var(--statistics-content-spacing));
 }
 
 .statistics .statistics-top-label {
@@ -203,7 +204,7 @@
   font-weight: var(--statistics-label-weight);
   line-height: 1.4;
   color: var(--statistics-label-color);
-  margin-bottom: 8px;
+  margin-bottom: calc(8px + var(--statistics-content-spacing));
 }
 
 .statistics .statistics-label {
@@ -220,7 +221,7 @@
   gap: 14px;
   min-width: min(292px, 100%);
   min-height: 60px;
-  margin-top: 28px;
+  margin-top: calc(28px + var(--statistics-content-spacing));
   padding: 14px 28px;
   border-radius: 8px;
   background: var(--statistics-button-bg);

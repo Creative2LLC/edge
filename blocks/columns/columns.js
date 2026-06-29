@@ -11,6 +11,31 @@ const DIRECT_COLUMN_SCOPE_SELECTOR = [
 ].join(', ');
 const VERTICAL_ALIGNMENTS = ['top', 'middle', 'bottom'];
 const HORIZONTAL_ALIGNMENTS = ['left', 'center', 'right'];
+const SPACING_OPTIONS = [
+  'default',
+  'none',
+  'all-sm',
+  'all-md',
+  'all-lg',
+  'vertical-sm',
+  'vertical-md',
+  'vertical-lg',
+  'horizontal-sm',
+  'horizontal-md',
+  'horizontal-lg',
+  'top-sm',
+  'top-md',
+  'top-lg',
+  'bottom-sm',
+  'bottom-md',
+  'bottom-lg',
+];
+const SPACING_SIZES = {
+  sm: '12px',
+  md: '24px',
+  lg: '40px',
+};
+const SPACING_SIDES = ['top', 'right', 'bottom', 'left'];
 
 function normalizeAlignment(value, allowedValues, fallback = '') {
   const normalized = String(value || '')
@@ -20,6 +45,50 @@ function normalizeAlignment(value, allowedValues, fallback = '') {
     .replace(/^-|-$/g, '');
 
   return allowedValues.find((allowedValue) => normalized.includes(allowedValue)) || fallback;
+}
+
+function normalizeSpacingOption(value, type, fallback = '') {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const prefix = `${type}-`;
+  if (!normalized.startsWith(prefix)) return fallback;
+
+  const option = normalized.slice(prefix.length);
+  return SPACING_OPTIONS.includes(option) ? option : fallback;
+}
+
+function spacingSides(value, type) {
+  const option = normalizeSpacingOption(value, type, 'default');
+  if (option === 'default') return null;
+  if (option === 'none') return Object.fromEntries(SPACING_SIDES.map((side) => [side, '0']));
+
+  const [mode, size] = option.split('-');
+  const amount = SPACING_SIZES[size];
+  if (!amount) return null;
+
+  return {
+    top: ['all', 'vertical', 'top'].includes(mode) ? amount : '0',
+    right: ['all', 'horizontal'].includes(mode) ? amount : '0',
+    bottom: ['all', 'vertical', 'bottom'].includes(mode) ? amount : '0',
+    left: ['all', 'horizontal'].includes(mode) ? amount : '0',
+  };
+}
+
+function applyColumnSpacing(block, fields = {}) {
+  [
+    ['padding', fields.paddingStyle],
+    ['margin', fields.marginStyle],
+  ].forEach(([type, value]) => {
+    SPACING_SIDES.forEach((side) => block.style.removeProperty(`--columns-${type}-${side}`));
+    const sides = spacingSides(value, type);
+    if (!sides) return;
+    SPACING_SIDES.forEach((side) => {
+      block.style.setProperty(`--columns-${type}-${side}`, sides[side]);
+    });
+  });
 }
 
 function normalizeColorValue(value) {
@@ -79,6 +148,38 @@ function findOwnField(block, row, name) {
 
 function rowText(row) {
   return String(row?.textContent || '').trim();
+}
+
+function readSpacingField(block, name, type) {
+  const rows = [...block.children];
+  let source = null;
+  let row = null;
+
+  rows.some((candidate) => {
+    const field = findOwnField(block, candidate, name);
+    if (!field) return false;
+    source = field;
+    row = candidate;
+    return true;
+  });
+
+  if (!source) {
+    row = rows.find((candidate) => normalizeSpacingOption(rowText(candidate), type, '')) || null;
+  }
+
+  const value = source?.textContent?.trim() || rowText(row);
+  if (row && row.parentElement === block) row.remove();
+  return value;
+}
+
+function syncColumnSpacing(block) {
+  const resourcePath = resourcePathFromAueResource(
+    block.getAttribute('data-aue-resource') || '',
+  );
+  readAueResourceFields(resourcePath, ['paddingStyle', 'marginStyle'])
+    .then((fields) => {
+      if (Object.keys(fields).length) applyColumnSpacing(block, fields);
+    });
 }
 
 function rowHasNestedContent(row) {
@@ -256,6 +357,10 @@ function readAlignment(block) {
 }
 
 export default function decorate(block) {
+  applyColumnSpacing(block, {
+    paddingStyle: readSpacingField(block, 'paddingStyle', 'padding'),
+    marginStyle: readSpacingField(block, 'marginStyle', 'margin'),
+  });
   const { verticalAlign, horizontalAlign } = readAlignment(block);
 
   const contentRow = [...block.children].find(isColumnsContentRow)
@@ -298,6 +403,8 @@ export default function decorate(block) {
       decorateColumnBackground(col);
     });
   });
+
+  syncColumnSpacing(block);
 
   // setup image columns
   [...block.children].forEach((row) => {

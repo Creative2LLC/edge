@@ -1,3 +1,16 @@
+.columns {
+  margin:
+    var(--columns-margin-top, 0)
+    var(--columns-margin-right, 0)
+    var(--columns-margin-bottom, 0)
+    var(--columns-margin-left, 0);
+  padding:
+    var(--columns-padding-top, 0)
+    var(--columns-padding-right, 0)
+    var(--columns-padding-bottom, 0)
+    var(--columns-padding-left, 0);
+}
+
 .columns > div {
   display: flex;
   flex-direction: column;

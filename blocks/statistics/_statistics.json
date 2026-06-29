@@ -928,6 +928,32 @@
             }
           ],
           "value": "circle"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contentSpacing",
+          "label": "Stat Content Spacing",
+          "description": "Adds space between each item image, top label, stat value, stat label, and optional button. This does not change horizontal or vertical alignment.",
+          "options": [
+            {
+              "name": "No Additional Spacing (current)",
+              "value": "none"
+            },
+            {
+              "name": "Little",
+              "value": "content-spacing-small"
+            },
+            {
+              "name": "Medium",
+              "value": "content-spacing-medium"
+            },
+            {
+              "name": "Large",
+              "value": "content-spacing-large"
+            }
+          ],
+          "value": "none"
         }
       ]
     },

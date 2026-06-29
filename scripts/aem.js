@@ -1134,6 +1134,9 @@ function isFlattenedConfigText(value) {
     'h6',
     'circle',
     'underline',
+    'content-spacing-small',
+    'content-spacing-medium',
+    'content-spacing-large',
   ].includes(normalized)
     || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
     || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(String(value || '').trim())
@@ -1669,6 +1672,11 @@ function createLabeledFlattenedStatisticsRows(children) {
   const iconImageChild = children.find((child) => child.querySelector('picture, img')) || null;
   const markerStyleChild = [...children].reverse()
     .find((child) => normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], ''));
+  const contentSpacingChild = children.find((child) => normalizeFlattenedOption(
+    childTextRaw(child),
+    ['content-spacing-small', 'content-spacing-medium', 'content-spacing-large'],
+    '',
+  )) || null;
   const markerStyleIndex = markerStyleChild ? children.indexOf(markerStyleChild) : -1;
   const markerColorChild = markerStyleIndex > 0
     && normalizeHexColorValue(childTextRaw(children[markerStyleIndex - 1]))
@@ -1767,6 +1775,7 @@ function createLabeledFlattenedStatisticsRows(children) {
     createBlockFieldRow('marker text', childTextRaw(markerTextChild)),
     createBlockFieldRow('marker color', normalizeHexColorValue(childTextRaw(markerColorChild))),
     createBlockFieldRow('marker style', childTextRaw(markerStyleChild)),
+    createBlockFieldRow('content spacing', childTextRaw(contentSpacingChild)),
   ];
 }
 

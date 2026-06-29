@@ -415,6 +415,14 @@
             }
           ],
           "value": "none"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "defaultCardTextSize",
+          "label": "Default Card Text Size",
+          "description": "Optional CSS length such as 20px, 1.25rem, or clamp(1rem, 2vw, 1.5rem). Individual cards can override this value.",
+          "value": ""
         }
       ]
     },
@@ -732,6 +740,14 @@
               "value": "justify"
             }
           ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardTextSize",
+          "label": "Card Text Size",
+          "description": "Optional CSS length override for this card, such as 18px, 1.125rem, or clamp(1rem, 2vw, 1.4rem).",
           "value": ""
         }
       ]

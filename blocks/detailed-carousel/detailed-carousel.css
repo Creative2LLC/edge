@@ -51,6 +51,7 @@
   display: flex;
   gap: 24px;
   overflow-x: auto;
+  cursor: grab;
   scroll-behavior: smooth;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -160,11 +161,6 @@
 .detailed-carousel .detailed-carousel-button:hover {
   opacity: 0.9;
   text-decoration: none;
-}
-
-/* Track — grab cursor hints draggability */
-.detailed-carousel .detailed-carousel-track {
-  cursor: grab;
 }
 
 /* Controls row: dots centered, arrows absolute right */

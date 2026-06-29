@@ -74,6 +74,60 @@
             }
           ],
           "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "paddingStyle",
+          "label": "Padding",
+          "description": "Adds padding inside the Columns block without changing column alignment.",
+          "options": [
+            { "name": "Default", "value": "padding-default" },
+            { "name": "None", "value": "padding-none" },
+            { "name": "All Small", "value": "padding-all-sm" },
+            { "name": "All Medium", "value": "padding-all-md" },
+            { "name": "All Large", "value": "padding-all-lg" },
+            { "name": "Vertical Small", "value": "padding-vertical-sm" },
+            { "name": "Vertical Medium", "value": "padding-vertical-md" },
+            { "name": "Vertical Large", "value": "padding-vertical-lg" },
+            { "name": "Sides Small", "value": "padding-horizontal-sm" },
+            { "name": "Sides Medium", "value": "padding-horizontal-md" },
+            { "name": "Sides Large", "value": "padding-horizontal-lg" },
+            { "name": "Top Small", "value": "padding-top-sm" },
+            { "name": "Top Medium", "value": "padding-top-md" },
+            { "name": "Top Large", "value": "padding-top-lg" },
+            { "name": "Bottom Small", "value": "padding-bottom-sm" },
+            { "name": "Bottom Medium", "value": "padding-bottom-md" },
+            { "name": "Bottom Large", "value": "padding-bottom-lg" }
+          ],
+          "value": "padding-default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "marginStyle",
+          "label": "Margin",
+          "description": "Adds space outside the Columns block without changing column alignment.",
+          "options": [
+            { "name": "Default", "value": "margin-default" },
+            { "name": "None", "value": "margin-none" },
+            { "name": "All Small", "value": "margin-all-sm" },
+            { "name": "All Medium", "value": "margin-all-md" },
+            { "name": "All Large", "value": "margin-all-lg" },
+            { "name": "Vertical Small", "value": "margin-vertical-sm" },
+            { "name": "Vertical Medium", "value": "margin-vertical-md" },
+            { "name": "Vertical Large", "value": "margin-vertical-lg" },
+            { "name": "Sides Small", "value": "margin-horizontal-sm" },
+            { "name": "Sides Medium", "value": "margin-horizontal-md" },
+            { "name": "Sides Large", "value": "margin-horizontal-lg" },
+            { "name": "Top Small", "value": "margin-top-sm" },
+            { "name": "Top Medium", "value": "margin-top-md" },
+            { "name": "Top Large", "value": "margin-top-lg" },
+            { "name": "Bottom Small", "value": "margin-bottom-sm" },
+            { "name": "Bottom Medium", "value": "margin-bottom-md" },
+            { "name": "Bottom Large", "value": "margin-bottom-lg" }
+          ],
+          "value": "margin-default"
         }
       ]
     },
