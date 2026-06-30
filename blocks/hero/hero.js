@@ -1299,6 +1299,8 @@ function applyTextColor(main, color) {
 // it survives block.replaceChildren(), then observe it so panel edits update the
 // color live instead of requiring a page refresh.
 function watchHeroTextColor(content, main, rows) {
+  // eslint-disable-next-line no-console
+  console.log('[HEROCOLORDBG] watch attach. rows=', rows?.length, rows?.[0]?.outerHTML);
   if (!rows?.length) return;
   const archive = document.createElement('span');
   archive.hidden = true;
@@ -1316,8 +1318,10 @@ function watchHeroTextColor(content, main, rows) {
     return normalizeHexColor((cell?.textContent || '').trim());
   };
 
-  new MutationObserver(() => {
+  new MutationObserver((mutations) => {
     const color = currentColor();
+    // eslint-disable-next-line no-console
+    console.log('[HEROCOLORDBG] archive mutated. n=', mutations.length, 'color=', color, archive.innerHTML);
     if (color) applyTextColor(main, color);
   }).observe(archive, { childList: true, characterData: true, subtree: true });
 }
@@ -1334,6 +1338,18 @@ export default async function decorate(block) {
   block.classList.add('no-scroll-reveal', 'is-visible');
   block.classList.remove('scroll-reveal');
   if (isAemAuthorHost()) block.classList.add('hero-authoring');
+
+  // HEROCOLORDBG — temporary diagnostics for the live Text Color update.
+  /* eslint-disable no-console */
+  console.log('[HEROCOLORDBG] decorate run. UE=', isUniversalEditor(), block.getAttribute('data-aue-resource'));
+  if (isUniversalEditor() && !window.heroColorDbgAttached) {
+    window.heroColorDbgAttached = true;
+    const dbgTypes = ['aue:content-patch', 'aue:content-update', 'aue:content-add', 'aue:content-move', 'aue:content-remove', 'aue:content-copy'];
+    dbgTypes.forEach((type) => document.querySelector('main')?.addEventListener(type, (e) => {
+      console.log('[HEROCOLORDBG] event', type, e.detail);
+    }, true));
+  }
+  /* eslint-enable no-console */
 
   const originalBlock = block.cloneNode(true);
   const originalRichText = getFieldHtml(readRichTextField(originalBlock, ['content_text', 'text']));
