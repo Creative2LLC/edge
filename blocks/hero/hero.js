@@ -256,6 +256,13 @@ function isAemAuthorHost(hostname = window.location.hostname) {
   return hostname.includes('adobeaemcloud.com');
 }
 
+// True inside Universal Editor. Unlike isAemAuthorHost(), this doesn't depend on
+// the hostname — in UE the page is rendered from the Edge Delivery origin, not
+// adobeaemcloud.com, so the only reliable signal is the UE instrumentation.
+function isUniversalEditor() {
+  return Boolean(document.querySelector('[data-aue-resource]'));
+}
+
 function getAssetOrigin() {
   if (isAemAuthorHost()) {
     return window.location.origin;
@@ -632,7 +639,7 @@ function readTextColor(block, fallbackValue = '') {
     });
   }
 
-  const editor = isAemAuthorHost();
+  const editor = isUniversalEditor();
   rowsToRemove.forEach((row) => {
     // In the editor, keep the instrumented field node (hidden) instead of
     // removing it. That lets Universal Editor patch it in place — without it,
@@ -1433,7 +1440,7 @@ export default async function decorate(block) {
   content.className = 'hero-content';
   content.append(layout);
 
-  if (isAemAuthorHost()) {
+  if (isUniversalEditor()) {
     watchHeroTextColor(content, main, textColorSource, textColorRows);
   }
 
