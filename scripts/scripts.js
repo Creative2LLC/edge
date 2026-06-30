@@ -836,6 +836,27 @@ export function decorateInlineColors(main) {
   });
 }
 
+// The one-time decorateInlineColors() pass in decorateMain() only sees content
+// present at eager-decorate time. Blocks that render rich text from fetched JSON
+// (which resolves after loadSections) and Universal Editor re-renders inject raw
+// {#hex} text later. This observer re-applies the parser to anything added to
+// main afterwards. decorateInlineColors is idempotent and the '{#' guard means
+// our own span insertions never re-trigger work — so there is no feedback loop.
+export function observeInlineColors(main) {
+  if (!main || main.dataset.inlineColorObserver) return;
+  main.dataset.inlineColorObserver = 'true';
+  const hasCandidate = (nodes) => [...nodes].some((node) => {
+    if (node.nodeType === Node.TEXT_NODE) return node.nodeValue.includes('{#');
+    return node.nodeType === Node.ELEMENT_NODE && node.textContent.includes('{#');
+  });
+  const observer = new MutationObserver((mutations) => {
+    if (mutations.some((mutation) => hasCandidate(mutation.addedNodes))) {
+      decorateInlineColors(main);
+    }
+  });
+  observer.observe(main, { childList: true, subtree: true });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -926,7 +947,9 @@ async function loadLazy(doc) {
     loadCookieConsent(cookieConsentHost);
   }
 
+  if (main) observeInlineColors(main);
   await loadSections(main);
+  if (main) decorateInlineColors(main);
   if (main) decoratePdfLinks(main);
   if (main) removeAemBlockFieldArtifacts(main);
 
