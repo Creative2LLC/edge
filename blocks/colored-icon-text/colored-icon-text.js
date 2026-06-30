@@ -215,40 +215,51 @@ export default function decorate(block) {
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
 
+  // AEM omits empty richtext rows in published markup. When the 'text' field was
+  // left blank, rows[2] will contain the textColor hex anchor instead. Detect this
+  // by checking if rows[2] looks like an AEM color cell and shift every subsequent
+  // field one position earlier (ro = -1) to realign with the actual row order.
+  const isColorCell = (cell) => /^#[0-9a-f]{3,8}$/i.test((cell?.textContent || '').trim());
+  const hasNamedText = Boolean(block.querySelector('[data-aue-prop="text"], [data-richtext-prop="text"]'));
+  const textRowMissing = !hasNamedText && Boolean(rows[2]) && isColorCell(fieldCell(rows[2]));
+  const ro = textRowMissing ? -1 : 0;
+
   const imageField = readImage(block, 'image', ['image', 'icon'], fieldCell(rows[0]));
   const imageAlt = readField(block, 'imageAlt', ['image alt', 'alt text'], fieldCell(rows[1])).value;
-  const textField = readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[2]));
-  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[3]));
-  const blockBgField = readColorField(block, 'blockBackgroundColor', ['block background color', 'background color'], isEditor, fieldCell(rows[4]));
+  const textField = textRowMissing
+    ? { source: null, cell: null, html: '', text: '' }
+    : readRichField(block, 'text', ['body', 'copy'], fieldCell(rows[2]));
+  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[3 + ro]));
+  const blockBgField = readColorField(block, 'blockBackgroundColor', ['block background color', 'background color'], isEditor, fieldCell(rows[4 + ro]));
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[5])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[5 + ro])).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[6])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[6 + ro])).value,
     ['top', 'middle', 'bottom'],
     'middle',
   );
   const imagePosition = normalizeOption(
-    readField(block, 'imagePosition', ['image position', 'icon position'], fieldCell(rows[7])).value,
+    readField(block, 'imagePosition', ['image position', 'icon position'], fieldCell(rows[7 + ro])).value,
     ['left', 'right', 'none'],
     'left',
   );
   const imageMode = normalizeOption(
-    readField(block, 'imageMode', ['image mode', 'icon mode'], fieldCell(rows[8])).value,
+    readField(block, 'imageMode', ['image mode', 'icon mode'], fieldCell(rows[8 + ro])).value,
     ['circle', 'square', 'icon'],
     'circle',
   );
-  const imageSize = normalizeCssLength(readField(block, 'imageSize', ['image size', 'icon size'], fieldCell(rows[9])).value, 'width');
-  const gap = normalizeCssLength(readField(block, 'gap', ['content gap', 'gap'], fieldCell(rows[10])).value, 'gap');
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[11])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[12])).value);
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[13])).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height'], fieldCell(rows[14])).value, 'min-height');
-  const paddingStyleField = readField(block, 'paddingStyle', ['padding style', 'padding'], fieldCell(rows[15]));
-  const marginStyleField = readField(block, 'marginStyle', ['margin style', 'margin'], fieldCell(rows[16]));
-  const dropShadowField = readField(block, 'dropShadow', ['drop shadow', 'shadow'], fieldCell(rows[17]));
+  const imageSize = normalizeCssLength(readField(block, 'imageSize', ['image size', 'icon size'], fieldCell(rows[9 + ro])).value, 'width');
+  const gap = normalizeCssLength(readField(block, 'gap', ['content gap', 'gap'], fieldCell(rows[10 + ro])).value, 'gap');
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[11 + ro])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[12 + ro])).value);
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[13 + ro])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height'], fieldCell(rows[14 + ro])).value, 'min-height');
+  const paddingStyleField = readField(block, 'paddingStyle', ['padding style', 'padding'], fieldCell(rows[15 + ro]));
+  const marginStyleField = readField(block, 'marginStyle', ['margin style', 'margin'], fieldCell(rows[16 + ro]));
+  const dropShadowField = readField(block, 'dropShadow', ['drop shadow', 'shadow'], fieldCell(rows[17 + ro]));
 
   const textColor = normalizeColorValue(txtField.value) || DEFAULT_TEXT_COLOR;
   const backgroundColor = applyBlockBackground(

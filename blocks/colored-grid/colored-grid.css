@@ -208,6 +208,7 @@
 .colored-grid .colored-button,
 .colored-grid .colored-list,
 .colored-grid .columns {
+  box-sizing: border-box;
   width: 100%;
   margin-inline: 0;
 }
