@@ -204,6 +204,7 @@
 .colored-grid .cards,
 .colored-grid .colored-heading,
 .colored-grid .colored-text,
+.colored-grid .colored-icon-text,
 .colored-grid .colored-button,
 .colored-grid .colored-list,
 .colored-grid .columns {
@@ -227,8 +228,28 @@
 .colored-grid .statistics .statistics-inner,
 .colored-grid .colored-heading .colored-heading-inner,
 .colored-grid .colored-text .colored-text-inner,
+.colored-grid .colored-icon-text .colored-icon-text-inner,
 .colored-grid .colored-list .colored-list-inner {
   max-width: 100%;
+}
+
+/*
+  Padding fix: .colored-grid-row-item { padding } has specificity (0,2,0) which beats
+  the block's own padding rule (0,1,0), so block-level padding options were silently
+  ignored. These higher-specificity rules (0,3,0) restore the intended behavior:
+  use the block's --colored-field-padding-* when set by a padding option class,
+  otherwise fall back to the row-level --colored-grid-row-padding, then 0.
+*/
+.colored-grid .colored-grid-row-item.colored-text,
+.colored-grid .colored-grid-row-item.colored-heading,
+.colored-grid .colored-grid-row-item.colored-icon-text,
+.colored-grid .colored-grid-row-item.colored-list,
+.colored-grid .colored-grid-row-item.colored-button {
+  padding:
+    var(--colored-field-padding-top, var(--colored-grid-row-padding, 0))
+    var(--colored-field-padding-right, var(--colored-grid-row-padding, 0))
+    var(--colored-field-padding-bottom, var(--colored-grid-row-padding, 0))
+    var(--colored-field-padding-left, var(--colored-grid-row-padding, 0));
 }
 
 @media (width <= 700px) {
