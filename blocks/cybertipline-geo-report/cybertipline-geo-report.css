@@ -804,6 +804,72 @@
   }
 }
 
+@media (width <= 900px) {
+  .cybertipline-geo-report .cybertipline-geo-report-table,
+  .cybertipline-geo-report .cybertipline-geo-report-table .cybertipline-geo-report-rows {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-table-header {
+    display: none;
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-table-title {
+    margin-bottom: 10px;
+    border-radius: 8px;
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-table-title + .cybertipline-geo-report-rows {
+    border-top: 0;
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-table .cybertipline-geo-report-rows {
+    gap: 10px;
+    background: transparent;
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px 12px;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 8px;
+    box-shadow: 0 8px 18px rgb(17 58 103 / 6%);
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular
+  .cybertipline-geo-report-row-label {
+    grid-column: 2;
+    font-size: 1rem;
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-row-referrals,
+  .cybertipline-geo-report .cybertipline-geo-report-row-informational,
+  .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular
+  .cybertipline-geo-report-row-value {
+    display: grid;
+    grid-column: 2;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: baseline;
+    text-align: right;
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-row-referrals::before,
+  .cybertipline-geo-report .cybertipline-geo-report-row-informational::before,
+  .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular
+  .cybertipline-geo-report-row-value::before {
+    content: attr(data-label);
+    color: #147da8;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+  }
+}
+
 @media (width <= 700px) {
   .cybertipline-geo-report {
     padding: 48px 0;
@@ -886,11 +952,11 @@
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular {
-    grid-template-columns: 46px minmax(150px, 1.25fr) repeat(3, minmax(92px, 0.75fr));
+    grid-template-columns: 34px minmax(0, 1fr);
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-row-button.is-tabular .cybertipline-geo-report-row-value {
-    grid-column: auto;
+    grid-column: 2;
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-detail-meta {

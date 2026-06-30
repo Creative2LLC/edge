@@ -3,7 +3,6 @@
   --cards-card-text-default: inherit;
   --cards-card-highlight-default: var(--cards-card-text, var(--cards-card-text-default));
   --cards-card-text-size-default: inherit;
-  --cards-card-max-width: 432px;
   --cards-card-radius: 0;
   --cards-card-shadow: none;
 }
@@ -13,7 +12,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(257px, 100%), var(--cards-card-max-width)));
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
   justify-content: center;
   gap: 24px;
 }
@@ -195,4 +194,10 @@
   gap: 12px;
   justify-content: inherit;
   margin-top: 4px;
+}
+
+@media (width <= 900px) {
+  .cards .cards-card-text {
+    font-size: 18px;
+  }
 }

@@ -1086,14 +1086,15 @@ async function buildWorldMapPanel(rows, dataset, onPreview, onSelect) {
   return wrap;
 }
 
-function buildRowCell(text, className) {
+function buildRowCell(text, className, label = '') {
   const cell = document.createElement('span');
   cell.className = className;
   cell.textContent = text;
+  if (label) cell.dataset.label = label;
   return cell;
 }
 
-function buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown) {
+function buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown, labels = {}) {
   const item = document.createElement('li');
   item.className = 'cybertipline-geo-report-row';
   item.style.setProperty('--bar-width', `${Math.max((row.value / maxValue) * 100, 2)}%`);
@@ -1121,10 +1122,12 @@ function buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown)
   const label = document.createElement('span');
   label.className = 'cybertipline-geo-report-row-label';
   label.textContent = row.label;
+  if (labels.geography) label.dataset.label = labels.geography;
 
   const value = document.createElement('span');
   value.className = 'cybertipline-geo-report-row-value';
   value.textContent = row.displayValue;
+  value.dataset.label = labels.total || 'Total';
 
   if (hasBreakdown) {
     const breakdownEntries = rowBreakdownEntries(row);
@@ -1135,8 +1138,8 @@ function buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown)
     button.append(
       rank,
       label,
-      buildRowCell(firstMetric, 'cybertipline-geo-report-row-referrals'),
-      buildRowCell(secondMetric, 'cybertipline-geo-report-row-informational'),
+      buildRowCell(firstMetric, 'cybertipline-geo-report-row-referrals', labels.firstMetric),
+      buildRowCell(secondMetric, 'cybertipline-geo-report-row-informational', labels.secondMetric),
       value,
     );
   } else {
@@ -1213,9 +1216,23 @@ function buildRowsPanel(rows, dataset, onPreview, onSelect) {
   const list = document.createElement('ol');
   list.className = 'cybertipline-geo-report-rows';
   const maxValue = Math.max(...rows.map((row) => row.value), 1);
+  const labels = {
+    geography: geographyLabelForDataset(dataset),
+    firstMetric: breakdownHeaders[0]?.label || 'Metric 1',
+    secondMetric: breakdownHeaders[1]?.label || 'Metric 2',
+    total: 'Total',
+  };
 
   rows.forEach((row, index) => {
-    list.append(buildRowButton(row, maxValue, index, onPreview, onSelect, hasBreakdown));
+    list.append(buildRowButton(
+      row,
+      maxValue,
+      index,
+      onPreview,
+      onSelect,
+      hasBreakdown,
+      labels,
+    ));
   });
 
   enableBarReveal(list);

@@ -190,3 +190,24 @@
 .colored-button .colored-button-icon img {
   object-fit: contain;
 }
+
+@media (width <= 900px) {
+  .colored-button {
+    margin:
+      min(var(--colored-field-margin-top, 0px), 24px)
+      min(var(--colored-field-margin-right, 0px), 16px)
+      min(var(--colored-field-margin-bottom, 0px), 24px)
+      min(var(--colored-field-margin-left, 0px), 16px);
+    padding:
+      min(var(--colored-field-padding-top, 12px), 8px)
+      min(var(--colored-field-padding-right, 0px), 16px)
+      min(var(--colored-field-padding-bottom, 12px), 8px)
+      min(var(--colored-field-padding-left, 0px), 16px);
+  }
+
+  .colored-button .colored-button-link {
+    gap: 0.625rem;
+    padding: 0.75rem 1.125rem;
+    font-size: 18px;
+  }
+}

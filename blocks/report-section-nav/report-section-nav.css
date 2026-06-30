@@ -31,6 +31,10 @@
   margin: 0;
 }
 
+.report-section-nav .report-section-nav-select {
+  display: none;
+}
+
 .report-section-nav .report-section-nav-link {
   display: inline-flex;
   align-items: center;
@@ -58,15 +62,33 @@
   transform: translateY(-1px);
 }
 
-@media (width <= 700px) {
+@media (width <= 900px) {
   .report-section-nav {
     top: calc(var(--nav-height, 64px) + 6px);
   }
 
-  .report-section-nav .report-section-nav-link {
-    min-height: 38px;
-    padding: 0 13px;
-    font-size: 0.88rem;
+  .report-section-nav .report-section-nav-inner {
+    overflow: visible;
+    border-radius: 8px;
+    padding: 8px;
+  }
+
+  .report-section-nav .report-section-nav-list {
+    display: none;
+  }
+
+  .report-section-nav .report-section-nav-select {
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    padding: 0 12px;
+    border: 1px solid rgb(17 58 103 / 20%);
+    border-radius: 6px;
+    background: #fff;
+    color: #113a67;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
   }
 }
 

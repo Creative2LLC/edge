@@ -512,7 +512,6 @@
 
 @media (width <= 899px) {
   .hero {
-    align-items: flex-start;
     min-height: min(var(--hero-height, 420px), 420px);
     padding: 38px 24px 28px;
   }

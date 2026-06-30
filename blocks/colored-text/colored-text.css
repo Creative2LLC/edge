@@ -155,6 +155,10 @@
 }
 
 @media (width <= 900px) {
+  .colored-text .colored-text-content {
+    font-size: 18px;
+  }
+
   .colored-text .colored-text-inner {
     min-height: var(--colored-text-min-height-mobile);
   }

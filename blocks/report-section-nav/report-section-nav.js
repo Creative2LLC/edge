@@ -86,7 +86,7 @@ function smoothScrollTo(target) {
   window.scrollTo({ top, behavior: 'smooth' });
 }
 
-function syncActiveLink(nav, links) {
+function syncActiveLink(nav, links, select) {
   const sectionEntries = links
     .map((link) => ({
       link,
@@ -107,6 +107,7 @@ function syncActiveLink(nav, links) {
       link.classList.toggle('is-active', isActive);
       if (isActive) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
+      if (isActive) select.value = link.getAttribute('href') || '';
     });
   }, {
     rootMargin: '-30% 0px -55% 0px',
@@ -129,6 +130,10 @@ export default function decorate(block) {
   const list = document.createElement('ul');
   list.className = 'report-section-nav-list';
 
+  const select = document.createElement('select');
+  select.className = 'report-section-nav-select';
+  select.setAttribute('aria-label', label);
+
   links.forEach((entry) => {
     const item = document.createElement('li');
     const link = document.createElement('a');
@@ -148,9 +153,30 @@ export default function decorate(block) {
 
     item.append(link);
     list.append(item);
+
+    const option = document.createElement('option');
+    option.value = entry.href;
+    option.textContent = entry.label;
+    select.append(option);
   });
 
-  nav.append(list);
+  select.addEventListener('change', () => {
+    const href = select.value;
+    const target = sectionForHref(href);
+    if (target) {
+      smoothScrollTo(target);
+      window.history.pushState(null, '', href);
+      return;
+    }
+    window.location.assign(href);
+  });
+
+  const currentHash = window.location.hash;
+  if ([...select.options].some((option) => option.value === currentHash)) {
+    select.value = currentHash;
+  }
+
+  nav.append(list, select);
   block.replaceChildren(nav);
-  syncActiveLink(nav, [...nav.querySelectorAll('a[href^="#"]')]);
+  syncActiveLink(nav, [...nav.querySelectorAll('a[href^="#"]')], select);
 }

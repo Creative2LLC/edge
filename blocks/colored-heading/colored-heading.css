@@ -81,6 +81,22 @@
 }
 
 @media (width <= 900px) {
+  .colored-heading .colored-heading-title:is(h2) {
+    font-size: 40px;
+  }
+
+  .colored-heading .colored-heading-title:is(h3) {
+    font-size: 32px;
+  }
+
+  .colored-heading.has-custom-size .colored-heading-title:is(h2) {
+    font-size: 40px;
+  }
+
+  .colored-heading.has-custom-size .colored-heading-title:is(h3) {
+    font-size: 32px;
+  }
+
   .colored-heading .colored-heading-inner {
     min-height: var(--colored-heading-min-height-mobile);
   }

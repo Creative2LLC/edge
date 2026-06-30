@@ -191,6 +191,15 @@
   }
 }
 
+@media (width <= 900px) {
+  .report-download .report-download-button,
+  .report-download .report-download-button-placeholder {
+    min-height: 52px;
+    padding: 0 20px;
+    font-size: 18px;
+  }
+}
+
 @media (width <= 760px) {
   .report-download {
     padding: 24px 0;
