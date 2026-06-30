@@ -72,6 +72,8 @@
 
 .hero .hero-richtext {
   max-width: 900px;
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
 }
 
 .hero .hero-layout {
@@ -174,6 +176,17 @@
   font-weight: 500;
   line-height: 1.45;
   color: #404041;
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+}
+
+.hero .hero-text-html > :where(p, ul, ol, blockquote) {
+  margin-block: 0;
+}
+
+.hero .hero-text-html > :where(p, ul, ol, blockquote)
+  + :where(p, ul, ol, blockquote) {
+  margin-top: 1em;
 }
 
 .hero .hero-breadcrumbs {

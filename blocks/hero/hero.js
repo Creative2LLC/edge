@@ -563,6 +563,16 @@ function isClassArtifactNode(node, followingNodes) {
   ));
 }
 
+function getFallbackMainTextNodes(block) {
+  const nodes = getFallbackTextNodes(block);
+  const firstHeadingIndex = nodes.findIndex(isHeadingNode);
+  if (firstHeadingIndex < 0) return nodes;
+
+  let endIndex = firstHeadingIndex + 1;
+  while (endIndex < nodes.length && isHeadingNode(nodes[endIndex])) endIndex += 1;
+  return nodes.slice(0, endIndex);
+}
+
 function getFallbackHtmlText(block) {
   const nodes = getFallbackTextNodes(block);
   if (!nodes.some(isHeadingNode)) return '';
@@ -590,7 +600,7 @@ function buildHtmlText(block, fallbackHtml = '', fallbackClass = '') {
   if (!hasField && !resolvedFallbackHtml) return null;
 
   const wrapper = document.createElement('div');
-  wrapper.className = 'hero-text-html';
+  wrapper.className = 'hero-text-html richtext-preserve-spaces';
   if (hasField) moveRichField(field, wrapper, resolvedFallbackHtml);
   else appendHtmlValue(resolvedFallbackHtml, wrapper);
   if (!hasRenderableContent(wrapper)) return null;
@@ -659,25 +669,54 @@ function readTextColor(block, fallbackValue = '') {
   };
 }
 
+function getFlattenedMarkerConfig(block) {
+  const cells = getRowCells(block);
+  let styleIndex = -1;
+
+  for (let index = cells.length - 1; index >= 0; index -= 1) {
+    if (isExactChoiceCell(cells[index], ['circle', 'underline'])) {
+      styleIndex = index;
+      break;
+    }
+  }
+
+  if (styleIndex < 1) return { terms: '', color: '', style: '' };
+
+  const precedingValue = getCellText(cells[styleIndex - 1]);
+  const color = normalizeHexColor(precedingValue) || '';
+  const hasColorSlot = !precedingValue || Boolean(color);
+  const termsIndex = hasColorSlot ? styleIndex - 2 : styleIndex - 1;
+
+  return {
+    terms: termsIndex >= 0 ? getCellText(cells[termsIndex]) : '',
+    color,
+    style: getCellText(cells[styleIndex]).toLowerCase(),
+  };
+}
+
 function readMarkerConfig(block, resourceData) {
+  const flattened = getFlattenedMarkerConfig(block);
   return {
     terms: getHeroTextFieldValue(
       block,
       ['markerTerms', 'marker_terms', 'highlightText'],
       'markerTerms',
-      findResourceFieldValue(resourceData, ['markerTerms', 'marker_terms', 'highlightText']),
+      findResourceFieldValue(resourceData, ['markerTerms', 'marker_terms', 'highlightText'])
+        || flattened.terms,
     ).value,
     color: getHeroTextFieldValue(
       block,
       ['markerColor', 'marker_color', 'highlightMarkerColor'],
       'markerColor',
-      findResourceFieldValue(resourceData, ['markerColor', 'marker_color', 'highlightMarkerColor']),
+      findResourceFieldValue(resourceData, ['markerColor', 'marker_color', 'highlightMarkerColor'])
+        || flattened.color,
     ).value,
     style: getHeroTextFieldValue(
       block,
       ['markerStyle', 'marker_style', 'highlightMarkerStyle'],
       'markerStyle',
-      findResourceFieldValue(resourceData, ['markerStyle', 'marker_style', 'highlightMarkerStyle']),
+      findResourceFieldValue(resourceData, ['markerStyle', 'marker_style', 'highlightMarkerStyle'])
+        || flattened.style,
     ).value,
   };
 }
@@ -934,7 +973,7 @@ function buildMainRichText(block, fallbackHtml = '') {
   const hasField = hasRichFieldContent(field);
   if (hasField || fallbackHtml) {
     const richText = document.createElement('div');
-    richText.className = 'hero-richtext';
+    richText.className = 'hero-richtext richtext-preserve-spaces';
     if (hasField) moveRichField(field, richText, fallbackHtml);
     else appendHtmlValue(fallbackHtml, richText);
     normalizeMainRichTextStructure(richText);
@@ -943,11 +982,9 @@ function buildMainRichText(block, fallbackHtml = '') {
   }
 
   const fallback = document.createElement('div');
-  fallback.className = 'hero-richtext';
-  const fallbackNodes = getFallbackTextNodes(block);
-  const headingNodes = fallbackNodes.filter(isHeadingNode);
-  const richTextNodes = headingNodes.length ? headingNodes : fallbackNodes;
-  richTextNodes.forEach((node) => fallback.append(node.cloneNode(true)));
+  fallback.className = 'hero-richtext richtext-preserve-spaces';
+  const fallbackNodes = getFallbackMainTextNodes(block);
+  fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
   normalizeMainRichTextStructure(fallback);
   if (!hasRenderableContent(fallback)) return null;
   return fallback;
