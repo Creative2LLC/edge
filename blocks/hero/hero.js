@@ -1298,17 +1298,28 @@ function applyTextColor(main, color) {
 // Editor only: re-home the (hidden) Text Color field into the rendered output so
 // it survives block.replaceChildren(), then observe it so panel edits update the
 // color live instead of requiring a page refresh.
-function watchHeroTextColor(content, main, source, rows) {
+function watchHeroTextColor(content, main, rows) {
   if (!rows?.length) return;
   const archive = document.createElement('span');
   archive.hidden = true;
   rows.forEach((row) => archive.append(row));
   content.append(archive);
-  if (!source) return;
+
+  // Re-read the current Text Color value straight from the (hidden) field on
+  // every mutation, rather than caching the source node. The editor may either
+  // patch the field node's contents in place OR swap the node out entirely; by
+  // watching the whole archive subtree and re-querying, we catch both cases.
+  const currentColor = () => {
+    const cell = archive.querySelector(
+      '[data-aue-prop="content_textColor"], [data-aue-prop="text_color"]',
+    ) || archive.querySelector(':scope > div > div:last-child');
+    return normalizeHexColor((cell?.textContent || '').trim());
+  };
+
   new MutationObserver(() => {
-    const color = normalizeHexColor(source.textContent.trim());
+    const color = currentColor();
     if (color) applyTextColor(main, color);
-  }).observe(source, { childList: true, characterData: true, subtree: true });
+  }).observe(archive, { childList: true, characterData: true, subtree: true });
 }
 
 function readOverlayOpacity(block) {
@@ -1370,7 +1381,7 @@ export default async function decorate(block) {
   block.classList.remove('hero-pos-left', 'hero-pos-center', 'hero-pos-right');
   block.classList.add(`hero-pos-${contentPosition}`);
 
-  const { color: textColor, source: textColorSource, rows: textColorRows } = readTextColor(
+  const { color: textColor, rows: textColorRows } = readTextColor(
     block,
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
@@ -1441,7 +1452,7 @@ export default async function decorate(block) {
   content.append(layout);
 
   if (isUniversalEditor()) {
-    watchHeroTextColor(content, main, textColorSource, textColorRows);
+    watchHeroTextColor(content, main, textColorRows);
   }
 
   if (videoEl) {
