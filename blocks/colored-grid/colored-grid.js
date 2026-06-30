@@ -311,6 +311,49 @@ function isFlattenedColoredTextItem(row) {
     && isOptionAt(row, 4, ['top', 'middle', 'bottom']);
 }
 
+// "appearance" only ever holds solid/outlined/inverted, so anchoring on it and
+// walking forward survives the optional blockBackgroundColor row that shifts
+// every later field index by one (see hasInsertedBlockBackgroundRow in colored-button.js).
+function isFlattenedColoredButtonItem(row) {
+  const rows = directRows(row);
+  if (rows.length < 12) return false;
+
+  const appearanceIndex = rows.findIndex((_, index) => (
+    index >= 2 && isOptionAt(row, index, ['solid', 'outlined', 'inverted'])
+  ));
+  if (appearanceIndex < 2) return false;
+
+  return isOptionAt(row, appearanceIndex + 1, ['yes', 'no'])
+    && isOptionAt(row, appearanceIndex + 2, ['left', 'center', 'right', 'stretch'])
+    && isOptionAt(row, appearanceIndex + 3, ['top', 'middle', 'bottom']);
+}
+
+// headingLevel only ever holds h1-h6, a signature no other nested block shares.
+function isFlattenedColoredHeadingItem(row) {
+  const rows = directRows(row);
+  return rows.length >= 6
+    && Boolean(directRowText(row, 0))
+    && /^h[1-6]$/u.test(normalizeBlockName(directRowText(row, 1)))
+    && isOptionAt(row, 4, ['left', 'center', 'right', 'justify'])
+    && isOptionAt(row, 5, ['top', 'middle', 'bottom']);
+}
+
+// imageMode (circle/square/icon) preceded by imagePosition/verticalAlign/horizontalAlign
+// in sequence is unique to colored-icon-text among the nested block models.
+function isFlattenedColoredIconTextItem(row) {
+  const rows = directRows(row);
+  if (rows.length < 14) return false;
+
+  const imageModeIndex = rows.findIndex((_, index) => (
+    index >= 3 && isOptionAt(row, index, ['circle', 'square', 'icon'])
+  ));
+  if (imageModeIndex < 3) return false;
+
+  return isOptionAt(row, imageModeIndex - 1, ['left', 'right', 'none'])
+    && isOptionAt(row, imageModeIndex - 2, ['top', 'middle', 'bottom'])
+    && isOptionAt(row, imageModeIndex - 3, ['left', 'center', 'right', 'justify']);
+}
+
 function normalizeFlattenedRowItem(item) {
   if (
     item.dataset.blockName
@@ -320,6 +363,12 @@ function normalizeFlattenedRowItem(item) {
 
   if (isFlattenedStatisticsItem(item)) {
     item.dataset.blockName = 'statistics';
+  } else if (isFlattenedColoredButtonItem(item)) {
+    item.dataset.blockName = 'colored-button';
+  } else if (isFlattenedColoredHeadingItem(item)) {
+    item.dataset.blockName = 'colored-heading';
+  } else if (isFlattenedColoredIconTextItem(item)) {
+    item.dataset.blockName = 'colored-icon-text';
   } else if (isFlattenedColoredTextItem(item)) {
     item.dataset.blockName = 'colored-text';
   }
