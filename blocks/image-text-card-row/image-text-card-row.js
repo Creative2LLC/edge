@@ -1,6 +1,8 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  readImageField, readLinkField, readTextField, setItemLabel,
+} from '../../scripts/block-field-utils.js';
 
 function getFieldText(row, colIndex, propName) {
   return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
@@ -71,7 +73,12 @@ function parseCardRow(row) {
 function buildCard(data, row) {
   const card = document.createElement('div');
   card.className = 'image-text-card-row-card';
-  if (row) moveInstrumentation(row, card);
+  if (row) {
+    moveInstrumentation(row, card);
+    // Label the item in the Universal Editor content tree by its content (title first,
+    // then subtitle/body) so authors can identify cards without opening each one.
+    setItemLabel(card, [data.title, data.subtitle, data.bodyText]);
+  }
 
   // Image — always covers the full top area
   if (data.imagePicture || data.imgSrc) {
