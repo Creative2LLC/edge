@@ -619,6 +619,11 @@ function readTextColor(block, fallbackValue = '') {
 
   const textColorField = getFieldValue(block, ['content_textColor', 'text_color']);
   const instrumented = textColorField.source;
+  // HEROCOLORDBG
+  const dbgProps = [...block.querySelectorAll('[data-aue-prop],[data-richtext-prop]')]
+    .map((n) => n.getAttribute('data-aue-prop') || n.getAttribute('data-richtext-prop'));
+  // eslint-disable-next-line no-console, max-len
+  console.log('[HEROCOLORDBG] readTextColor src/val/fallback/props', !!instrumented, textColorField.value, fallbackValue, dbgProps);
   if (instrumented) {
     rawValue = textColorField.value;
     const row = getDirectRow(block, instrumented);
@@ -1354,6 +1359,9 @@ export default async function decorate(block) {
   const originalBlock = block.cloneNode(true);
   const originalRichText = getFieldHtml(readRichTextField(originalBlock, ['content_text', 'text']));
   const originalHtmlText = getFieldHtml(readRichTextField(originalBlock, ['content_textHtml', 'text_html']));
+  // In the editor, never serve stale resource JSON: a re-decoration triggered by
+  // an edit must read the freshly-saved values, not the module-level cache.
+  if (isUniversalEditor()) resourceDataCache.clear();
   const resourceData = await getHeroResourceData(block);
   const resourceRichText = findResourceFieldValue(resourceData, ['content_text', 'text']) || originalRichText;
   const resourceHtmlText = findResourceFieldValue(resourceData, ['content_textHtml', 'text_html']) || originalHtmlText;
