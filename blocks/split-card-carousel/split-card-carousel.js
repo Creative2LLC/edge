@@ -4,6 +4,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
 
@@ -86,6 +87,7 @@ function buildSlide(data, row) {
   const slide = document.createElement('div');
   slide.className = 'split-card-carousel-slide';
   if (row) moveInstrumentation(row, slide);
+  setItemLabel(slide, [data.heading, data.subheading]);
 
   const card = document.createElement('div');
   card.className = 'split-card-carousel-card';

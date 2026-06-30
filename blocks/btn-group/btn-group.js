@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import { readLinkField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -60,6 +60,7 @@ export default function decorate(block) {
     const wrapper = document.createElement('div');
     wrapper.className = 'btn-group-item';
     moveInstrumentation(row, wrapper);
+    setItemLabel(wrapper, [textField.value]);
 
     const btn = buildButton({
       textField,

@@ -4,6 +4,7 @@ import {
   readAueResourceFields,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
 import {
@@ -228,6 +229,7 @@ function buildItem(row, listStyle, index) {
   const item = document.createElement('li');
   item.className = 'colored-list-item';
   moveInstrumentation(row, item);
+  setItemLabel(item, [itemTextField.text, markerTextField.value]);
   if (itemTextColor) item.style.setProperty('--colored-list-item-text-color', itemTextColor);
   if (itemMarkerColor) item.style.setProperty('--colored-list-item-marker-color', itemMarkerColor);
   if (itemMarkerTextColor) item.style.setProperty('--colored-list-item-marker-text-color', itemMarkerTextColor);

@@ -4,6 +4,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
@@ -174,6 +175,7 @@ function buildFeaturedCard(article, row) {
   const featured = document.createElement('div');
   featured.className = 'news-featured';
   if (row) moveInstrumentation(row, featured);
+  setItemLabel(featured, [article.title, article.subheading]);
 
   const content = document.createElement('div');
   content.className = 'news-featured-content';
@@ -214,6 +216,7 @@ function buildSmallCard(article, row, hidden) {
   const li = document.createElement('li');
   li.className = `news-card${hidden ? ' news-card-hidden' : ''}`;
   if (row) moveInstrumentation(row, li);
+  setItemLabel(li, [article.title, article.subheading]);
 
   if (article.imgSrc) {
     const imageWrap = document.createElement('div');

@@ -1,5 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  readImageField, readLinkField, readTextField, setItemLabel,
+} from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
 
 function getField(row, name, index) {
@@ -19,6 +21,7 @@ function buildSlide(data) {
   const slide = document.createElement('div');
   slide.className = 'logo-carousel-slide';
   if (data.row) moveInstrumentation(data.row, slide);
+  setItemLabel(slide, [data.altText]);
 
   if (!data.logoField.img && !data.logoField.picture) {
     // Authoring placeholder so an empty item is still selectable in the editor.

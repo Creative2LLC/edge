@@ -3,6 +3,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
@@ -104,6 +105,7 @@ function buildCard(data, icons) {
   const card = document.createElement('div');
   card.className = 'job-postings-card';
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.positionName, data.location]);
 
   const bgColor = data.cardBg || '#DDD5CC52';
   card.style.setProperty('background-color', bgColor, 'important');

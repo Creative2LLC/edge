@@ -7,6 +7,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELD_NAMES = [
@@ -290,6 +291,7 @@ function buildBenefitItem(data, textColor) {
   const item = document.createElement('div');
   item.className = 'split-card-gap-benefit';
   if (data.row) moveInstrumentation(data.row, item);
+  setItemLabel(item, [data.titleField.value]);
 
   if (isAuthoringPlaceholder) {
     item.classList.add('is-authoring-placeholder');

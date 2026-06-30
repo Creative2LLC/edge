@@ -6,6 +6,7 @@ import {
   readRichTextField,
   readTextField,
   resourcePathFromAueResource,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
@@ -385,6 +386,7 @@ function buildCard(card, options = {}) {
   article.style.setProperty('--tabs-card-index', card.index);
   if (!options.inPlace && card.row) moveInstrumentation(card.row, article);
   if (options.inPlace) article.replaceChildren();
+  setItemLabel(article, [card.titleField?.text, card.bodyField?.text]);
 
   const tabIndexTarget = buildHiddenField(card.tabIndexField, 'tabs-card-tab-index');
   if (tabIndexTarget) article.append(tabIndexTarget);
@@ -767,6 +769,7 @@ export default async function decorate(block) {
     } else if (!isAuthoring && tab.labelField?.source) {
       moveInstrumentation(tab.labelField.source, button);
     }
+    setItemLabel(button, [tab.label]);
     button.textContent = tab.label;
     button.addEventListener('click', () => setActiveTab(state, index));
     state.buttons.push(button);

@@ -3,6 +3,7 @@ import {
   getFieldSelector,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const FAQ_BLOCK_FIELD_NAMES = ['heading', 'preset'];
@@ -285,6 +286,9 @@ function buildFaqItem(row, index, items) {
   item.className = 'faq-item';
   item.style.setProperty('--faq-index', index);
   moveInstrumentation(row, item);
+  // Label the item in the Universal Editor content tree by its own question so
+  // authors can tell FAQ items apart instead of seeing the generic component name.
+  setItemLabel(item, [questionField.text]);
 
   if (isAuthoringPlaceholder) {
     item.classList.add('is-authoring-placeholder', 'faq-item-open');

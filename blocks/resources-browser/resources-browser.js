@@ -18,6 +18,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
@@ -557,7 +558,10 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
   const labels = resourceBrowserActionLabels();
   const card = document.createElement('article');
   card.className = 'resources-browser-card';
-  if (row) moveInstrumentation(row, card);
+  if (row) {
+    moveInstrumentation(row, card);
+    setItemLabel(card, [resource.title, resource.subtitle]);
+  }
 
   if (resource.imagePicture) {
     const imageWrap = document.createElement('div');

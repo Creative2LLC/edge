@@ -3,6 +3,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -420,6 +421,7 @@ function buildCard(item, index) {
   card.className = 'historical-trends-card historical-trends-reveal';
   card.style.setProperty('--stagger-index', index + 2);
   if (item.row) moveInstrumentation(item.row, card);
+  setItemLabel(card, [item.titleField?.value, item.bodySource?.textContent]);
 
   if (item.isAuthoringPlaceholder) {
     card.classList.add('is-authoring-placeholder');

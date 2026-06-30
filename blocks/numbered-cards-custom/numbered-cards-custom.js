@@ -6,6 +6,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const CARD_PROPS = [
@@ -336,6 +337,7 @@ export default async function decorate(block) {
     card.className = 'numbered-cards-custom-card';
     card.tabIndex = layout === 'carousel' ? 0 : -1;
     if (data.row) moveInstrumentation(data.row, card);
+    setItemLabel(card, [data.cardTitleEl?.textContent, data.cardBodyEl?.textContent]);
 
     let defaultNumberColor = layout === 'grid'
       ? DEFAULTS.gridNumberColor

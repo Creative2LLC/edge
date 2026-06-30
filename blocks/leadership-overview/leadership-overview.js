@@ -6,6 +6,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELDS = [
@@ -466,6 +467,7 @@ async function buildNavCard(row, index) {
   card.dataset.index = `${index}`;
   card.style.backgroundColor = cardBackgroundColorField.value || '#00264d';
   if (row) moveInstrumentation(row, card);
+  setItemLabel(card, [titleField.value, descriptionField.value]);
 
   if (isAuthoringPlaceholder) {
     card.classList.add('is-authoring-placeholder');

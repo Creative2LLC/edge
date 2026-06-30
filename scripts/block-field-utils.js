@@ -19,6 +19,27 @@ export function getBlockRows(scope) {
   return [...(scope?.querySelectorAll?.(':scope > div') || [])];
 }
 
+/**
+ * Sets the Universal Editor content-tree / overlay label for a nested item so authors
+ * can tell items apart at a glance instead of seeing the generic component name on every
+ * one. The label is taken from the first non-empty candidate value (e.g. title, heading,
+ * name, text). Editor-only and purely additive: it is a no-op when no instrumentation is
+ * present (published pages), changes no stored content, and does not alter rendered markup.
+ *
+ * @param {Element} itemEl element carrying the item's instrumentation (data-aue-resource)
+ * @param {(string|null|undefined)[]|string} candidates ordered values; first non-empty wins
+ * @param {number} [maxLength=60] truncate long labels to keep the tree readable
+ */
+export function setItemLabel(itemEl, candidates, maxLength = 60) {
+  if (!itemEl?.setAttribute || !itemEl.hasAttribute?.('data-aue-resource')) return;
+  const value = normalizeNames(candidates)
+    .map((candidate) => `${candidate ?? ''}`.replace(/\s+/g, ' ').trim())
+    .find((candidate) => candidate.length > 0);
+  if (!value) return;
+  const label = value.length > maxLength ? `${value.slice(0, maxLength - 1).trim()}…` : value;
+  itemEl.setAttribute('data-aue-label', label);
+}
+
 function normalizeOptions(options) {
   if (typeof options === 'number') {
     return { rowIndex: options, columnIndex: 0 };

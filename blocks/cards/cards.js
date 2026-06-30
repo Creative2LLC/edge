@@ -5,6 +5,7 @@ import {
   readImageField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
@@ -489,6 +490,7 @@ function buildCard(row) {
 
   const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
   const textField = readRichTextField(row, 'text', { fallbackCell: row.children[1] });
+  setItemLabel(li, [fieldText(textField)]);
   const legacyActionStartIndex = !hasCardField(row) && hasActionContent(row.children[2]) ? 2 : 3;
   const highlightField = legacyActionStartIndex === 2
     ? {

@@ -5,6 +5,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELDS = [
@@ -109,6 +110,7 @@ function buildStatementCard(data) {
   const card = document.createElement('div');
   card.className = 'scl-statement-card';
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.title, data.subtitle]);
 
   const left = document.createElement('div');
   left.className = 'scl-statement-left';
@@ -155,6 +157,7 @@ function buildEmailCard(data) {
   const card = document.createElement('div');
   card.className = 'scl-email-card';
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.title, data.subtitle]);
 
   if (data.title) {
     const title = document.createElement('h3');

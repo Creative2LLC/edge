@@ -2,6 +2,7 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import {
   deriveColumns,
@@ -252,6 +253,7 @@ function buildTable(dataset, columns, rows) {
   rows.forEach((row) => {
     const tr = document.createElement('tr');
     if (row.row) moveInstrumentation(row.row, tr);
+    setItemLabel(tr, [row.label, row.description]);
     if (row.isAuthoringPlaceholder) tr.classList.add('is-authoring-placeholder');
 
     columns.forEach((column) => {

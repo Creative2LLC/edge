@@ -5,6 +5,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
@@ -120,7 +121,10 @@ function buildOfficeCard(item, index, variant) {
   const card = document.createElement('article');
   card.className = 'regional-offices-card regional-offices-reveal';
   card.style.setProperty('--stagger-index', index);
-  if (item.row) moveInstrumentation(item.row, card);
+  if (item.row) {
+    moveInstrumentation(item.row, card);
+    setItemLabel(card, [item.titleField.value, item.bodySource?.textContent]);
+  }
 
   const media = document.createElement('div');
   media.className = 'regional-offices-card-media';

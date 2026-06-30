@@ -1,6 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
+import { readImageField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -98,6 +98,7 @@ function buildCard(data, index, total) {
   card.className = 'split-card-detail-card';
   card.style.borderRadius = getRadius(index, total);
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.titleField.value, data.subtitleField.value]);
 
   const hasVisibleContent = Boolean(
     data.iconField.img || data.titleField.value || data.subtitleField.value,

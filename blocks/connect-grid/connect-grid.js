@@ -1,5 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  readImageField, readRichTextField, readTextField, setItemLabel,
+} from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -299,7 +301,13 @@ function buildCard(item, index) {
     card.classList.add('has-hover-bg');
     card.style.setProperty('--connect-grid-card-hover-bg', item.cardHoverBackgroundColor);
   }
-  if (item.row) moveInstrumentation(item.row, card);
+  if (item.row) {
+    moveInstrumentation(item.row, card);
+    setItemLabel(card, [
+      item.titleSource?.textContent || '',
+      item.descriptionSource?.textContent || '',
+    ]);
+  }
 
   if (item.isAuthoringPlaceholder) {
     card.classList.add('is-authoring-placeholder');
