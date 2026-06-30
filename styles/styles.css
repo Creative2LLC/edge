@@ -330,6 +330,20 @@ main .default-content-wrapper p + p {
   stroke-width: 7;
 }
 
+.has-dark-text-marker-background .text-marker-brush {
+  filter: none;
+  mask: none;
+}
+
+.has-dark-text-marker-background .text-marker-path-shadow,
+.has-dark-text-marker-background .text-marker-path-grain {
+  display: none;
+}
+
+.has-dark-text-marker-background .text-marker-path-main {
+  stroke-width: 6;
+}
+
 .text-marker .text-marker-path-grain {
   opacity: 0;
   stroke-width: 1.45;

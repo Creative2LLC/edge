@@ -316,8 +316,17 @@
 }
 
 @media (width <= 700px) {
+
+  .statistics{
+        padding: 0;
+    }
+
+  .statistics .statistics-value{
+        margin-bottom: 0;
+   }
+
   .statistics .statistics-inner {
-    min-height: var(--statistics-min-height-mobile);
+    min-height: 100%;
   }
 
   /* Single column on mobile: drop the items' side padding so every stat

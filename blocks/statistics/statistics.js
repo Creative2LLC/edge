@@ -328,8 +328,11 @@ function isLikelyRenderedHeading(value) {
 function restoreRenderedHeading(inner, removeBody = false) {
   const bodyEl = inner?.querySelector(':scope > .statistics-body');
   const hasHeading = Boolean(inner?.querySelector(':scope > .statistics-heading'));
+  const hasAuthoredBodyBinding = Boolean(bodyEl?.matches(
+    '[data-aue-prop="bodyText"], [data-richtext-prop="bodyText"]',
+  ));
   const bodyText = bodyEl?.textContent?.trim() || '';
-  if (hasHeading || !isLikelyRenderedHeading(bodyText)) return;
+  if (hasHeading || hasAuthoredBodyBinding || !isLikelyRenderedHeading(bodyText)) return;
 
   const heading = document.createElement('h2');
   heading.className = 'statistics-heading';
@@ -388,7 +391,9 @@ function normalizeRenderedStatistics(block) {
   const values = items.length === 1 ? splitCollapsedStatValues(valueEl?.textContent) : [];
   const willSplitSingleItem = values.length > 1;
 
-  restoreRenderedHeading(inner, items.length > 1 || willSplitSingleItem);
+  if (items.length > 1 || willSplitSingleItem) {
+    restoreRenderedHeading(inner, true);
+  }
   redistributeRenderedLabels(items);
 
   if (!willSplitSingleItem) return;
@@ -1785,10 +1790,11 @@ export default function decorate(block) {
   if (list.childElementCount) wrapper.append(list);
 
   block.replaceChildren(wrapper);
-  // On live, AEM strips default-value rows (alignment fields default to center/top),
-  // so findLegacyAlignmentIndex fails and the heading row has no fallback cell.
-  // If the heading ended up misclassified as body text, promote it here.
-  restoreRenderedHeading(wrapper, list.childElementCount > 1);
+  // Multi-stat delivery markup can lose default alignment rows and misclassify the
+  // heading as body text. Single-stat blocks keep their optional body unchanged.
+  if (list.childElementCount > 1) {
+    restoreRenderedHeading(wrapper, true);
+  }
   applyAnimatedMarkers(wrapper, {
     terms: markerTermsField.value,
     color: markerColorField.value,

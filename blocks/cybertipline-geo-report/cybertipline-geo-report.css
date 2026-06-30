@@ -872,7 +872,7 @@
 
 @media (width <= 700px) {
   .cybertipline-geo-report {
-    padding: 48px 0;
+    padding: 0;
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-body,

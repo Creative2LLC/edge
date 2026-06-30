@@ -29,6 +29,36 @@ function normalizeMarkerStyle(value) {
   return normalized === 'circle' || normalized === 'underline' ? normalized : 'circle';
 }
 
+function parseComputedColor(value) {
+  const channels = String(value || '').match(/[\d.]+/g)?.map(Number) || [];
+  if (channels.length < 3) return null;
+
+  return {
+    red: channels[0],
+    green: channels[1],
+    blue: channels[2],
+    alpha: channels[3] ?? 1,
+  };
+}
+
+function hasDarkBackground(element) {
+  if (!element || typeof window === 'undefined' || !window.getComputedStyle) return false;
+
+  let current = element;
+  while (current) {
+    const color = parseComputedColor(window.getComputedStyle(current).backgroundColor);
+    if (color && color.alpha > 0.05) {
+      const luminance = (
+        (0.2126 * color.red) + (0.7152 * color.green) + (0.0722 * color.blue)
+      ) / 255;
+      return luminance < 0.42;
+    }
+    current = current.parentElement;
+  }
+
+  return false;
+}
+
 function isSkippableElement(element) {
   if (!element) return true;
   if (element.closest('.text-marker')) return true;
@@ -311,6 +341,7 @@ function applyMarkerState(root, config) {
 
   root.style.setProperty('--text-marker-color', config.color);
   root.classList.add(`has-text-marker-${config.style}`);
+  root.classList.toggle('has-dark-text-marker-background', hasDarkBackground(root));
   wrapMatches(root, config.terms, config.style);
   revealMarkers(root);
 }

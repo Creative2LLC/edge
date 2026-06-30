@@ -435,7 +435,7 @@
 
 @media (width <= 700px) {
   .report-breakdown {
-    padding: 58px 0 46px;
+    padding: 0;
   }
 
   .report-breakdown .report-breakdown-inner {
