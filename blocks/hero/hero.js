@@ -1,4 +1,4 @@
-import { moveAttributes } from '../../scripts/scripts.js';
+import { moveAttributes, decorateInlineColors } from '../../scripts/scripts.js';
 import {
   readImageField,
   readLinkField,
@@ -254,6 +254,13 @@ function isAemPageHost(hostname = window.location.hostname) {
 
 function isAemAuthorHost(hostname = window.location.hostname) {
   return hostname.includes('adobeaemcloud.com');
+}
+
+// True inside Universal Editor. Unlike isAemAuthorHost(), this doesn't depend on
+// the hostname — in UE the page is rendered from the Edge Delivery origin, not
+// adobeaemcloud.com, so the only reliable signal is the UE instrumentation.
+function isUniversalEditor() {
+  return Boolean(document.querySelector('[data-aue-resource]'));
 }
 
 function getAssetOrigin() {
@@ -612,6 +619,11 @@ function readTextColor(block, fallbackValue = '') {
 
   const textColorField = getFieldValue(block, ['content_textColor', 'text_color']);
   const instrumented = textColorField.source;
+  // HEROCOLORDBG
+  const dbgProps = [...block.querySelectorAll('[data-aue-prop],[data-richtext-prop]')]
+    .map((n) => n.getAttribute('data-aue-prop') || n.getAttribute('data-richtext-prop'));
+  // eslint-disable-next-line no-console, max-len
+  console.log('[HEROCOLORDBG] readTextColor src/val/fallback/props', !!instrumented, textColorField.value, fallbackValue, dbgProps);
   if (instrumented) {
     rawValue = textColorField.value;
     const row = getDirectRow(block, instrumented);
@@ -632,8 +644,19 @@ function readTextColor(block, fallbackValue = '') {
     });
   }
 
-  rowsToRemove.forEach((row) => row.remove());
-  return normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue);
+  const editor = isUniversalEditor();
+  rowsToRemove.forEach((row) => {
+    // In the editor, keep the instrumented field node (hidden) instead of
+    // removing it. That lets Universal Editor patch it in place — without it,
+    // a Text Color edit can't find its target and forces a full page reload.
+    if (editor) row.hidden = true;
+    else row.remove();
+  });
+  return {
+    color: normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue),
+    source: instrumented || null,
+    rows: rowsToRemove,
+  };
 }
 
 function readMarkerConfig(block, resourceData) {
@@ -1277,6 +1300,37 @@ function applyTextColor(main, color) {
   if (richtext) richtext.style.color = color;
 }
 
+// Editor only: re-home the (hidden) Text Color field into the rendered output so
+// it survives block.replaceChildren(), then observe it so panel edits update the
+// color live instead of requiring a page refresh.
+function watchHeroTextColor(content, main, rows) {
+  // eslint-disable-next-line no-console
+  console.log('[HEROCOLORDBG] watch attach. rows=', rows?.length, rows?.[0]?.outerHTML);
+  if (!rows?.length) return;
+  const archive = document.createElement('span');
+  archive.hidden = true;
+  rows.forEach((row) => archive.append(row));
+  content.append(archive);
+
+  // Re-read the current Text Color value straight from the (hidden) field on
+  // every mutation, rather than caching the source node. The editor may either
+  // patch the field node's contents in place OR swap the node out entirely; by
+  // watching the whole archive subtree and re-querying, we catch both cases.
+  const currentColor = () => {
+    const cell = archive.querySelector(
+      '[data-aue-prop="content_textColor"], [data-aue-prop="text_color"]',
+    ) || archive.querySelector(':scope > div > div:last-child');
+    return normalizeHexColor((cell?.textContent || '').trim());
+  };
+
+  new MutationObserver((mutations) => {
+    const color = currentColor();
+    // eslint-disable-next-line no-console
+    console.log('[HEROCOLORDBG] archive mutated. n=', mutations.length, 'color=', color, archive.innerHTML);
+    if (color) applyTextColor(main, color);
+  }).observe(archive, { childList: true, characterData: true, subtree: true });
+}
+
 function readOverlayOpacity(block) {
   const { value } = getFieldValue(block, ['media_overlayOpacity', 'overlayOpacity']);
   if (!value) return null;
@@ -1290,9 +1344,24 @@ export default async function decorate(block) {
   block.classList.remove('scroll-reveal');
   if (isAemAuthorHost()) block.classList.add('hero-authoring');
 
+  // HEROCOLORDBG — temporary diagnostics for the live Text Color update.
+  /* eslint-disable no-console */
+  console.log('[HEROCOLORDBG] decorate run. UE=', isUniversalEditor(), block.getAttribute('data-aue-resource'));
+  if (isUniversalEditor() && !window.heroColorDbgAttached) {
+    window.heroColorDbgAttached = true;
+    const dbgTypes = ['aue:content-patch', 'aue:content-update', 'aue:content-add', 'aue:content-move', 'aue:content-remove', 'aue:content-copy'];
+    dbgTypes.forEach((type) => document.querySelector('main')?.addEventListener(type, (e) => {
+      console.log('[HEROCOLORDBG] event', type, e.detail);
+    }, true));
+  }
+  /* eslint-enable no-console */
+
   const originalBlock = block.cloneNode(true);
   const originalRichText = getFieldHtml(readRichTextField(originalBlock, ['content_text', 'text']));
   const originalHtmlText = getFieldHtml(readRichTextField(originalBlock, ['content_textHtml', 'text_html']));
+  // In the editor, never serve stale resource JSON: a re-decoration triggered by
+  // an edit must read the freshly-saved values, not the module-level cache.
+  if (isUniversalEditor()) resourceDataCache.clear();
   const resourceData = await getHeroResourceData(block);
   const resourceRichText = findResourceFieldValue(resourceData, ['content_text', 'text']) || originalRichText;
   const resourceHtmlText = findResourceFieldValue(resourceData, ['content_textHtml', 'text_html']) || originalHtmlText;
@@ -1336,7 +1405,7 @@ export default async function decorate(block) {
   block.classList.remove('hero-pos-left', 'hero-pos-center', 'hero-pos-right');
   block.classList.add(`hero-pos-${contentPosition}`);
 
-  const textColor = readTextColor(
+  const { color: textColor, rows: textColorRows } = readTextColor(
     block,
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
@@ -1366,9 +1435,16 @@ export default async function decorate(block) {
   if (richText) {
     applyAccentBrackets(richText);
     applyAnimatedMarkers(richText, markerConfig);
+    // Run last so the {#hex}…{#hex} spans aren't clobbered by the innerHTML
+    // rewrites above. Hero renders after the one-time global pass in
+    // decorateMain(), so it has to apply the inline-color parser itself.
+    decorateInlineColors(richText);
   }
   const htmlText = buildHtmlText(block, resourceHtmlText, resourceHtmlTextClass);
-  if (htmlText) applyAnimatedMarkers(htmlText, markerConfig);
+  if (htmlText) {
+    applyAnimatedMarkers(htmlText, markerConfig);
+    decorateInlineColors(htmlText);
+  }
   const actions = buildActions(block);
   const sidePanel = buildSidePanel(block);
 
@@ -1398,6 +1474,10 @@ export default async function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-content';
   content.append(layout);
+
+  if (isUniversalEditor()) {
+    watchHeroTextColor(content, main, textColorRows);
+  }
 
   if (videoEl) {
     if (picture) {
