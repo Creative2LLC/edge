@@ -1,4 +1,4 @@
-import { moveAttributes } from '../../scripts/scripts.js';
+import { moveAttributes, decorateInlineColors } from '../../scripts/scripts.js';
 import {
   readImageField,
   readLinkField,
@@ -632,8 +632,19 @@ function readTextColor(block, fallbackValue = '') {
     });
   }
 
-  rowsToRemove.forEach((row) => row.remove());
-  return normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue);
+  const editor = isAemAuthorHost();
+  rowsToRemove.forEach((row) => {
+    // In the editor, keep the instrumented field node (hidden) instead of
+    // removing it. That lets Universal Editor patch it in place — without it,
+    // a Text Color edit can't find its target and forces a full page reload.
+    if (editor) row.hidden = true;
+    else row.remove();
+  });
+  return {
+    color: normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue),
+    source: instrumented || null,
+    rows: rowsToRemove,
+  };
 }
 
 function readMarkerConfig(block, resourceData) {
@@ -1277,6 +1288,22 @@ function applyTextColor(main, color) {
   if (richtext) richtext.style.color = color;
 }
 
+// Editor only: re-home the (hidden) Text Color field into the rendered output so
+// it survives block.replaceChildren(), then observe it so panel edits update the
+// color live instead of requiring a page refresh.
+function watchHeroTextColor(content, main, source, rows) {
+  if (!rows?.length) return;
+  const archive = document.createElement('span');
+  archive.hidden = true;
+  rows.forEach((row) => archive.append(row));
+  content.append(archive);
+  if (!source) return;
+  new MutationObserver(() => {
+    const color = normalizeHexColor(source.textContent.trim());
+    if (color) applyTextColor(main, color);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
 function readOverlayOpacity(block) {
   const { value } = getFieldValue(block, ['media_overlayOpacity', 'overlayOpacity']);
   if (!value) return null;
@@ -1336,7 +1363,7 @@ export default async function decorate(block) {
   block.classList.remove('hero-pos-left', 'hero-pos-center', 'hero-pos-right');
   block.classList.add(`hero-pos-${contentPosition}`);
 
-  const textColor = readTextColor(
+  const { color: textColor, source: textColorSource, rows: textColorRows } = readTextColor(
     block,
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
@@ -1366,9 +1393,16 @@ export default async function decorate(block) {
   if (richText) {
     applyAccentBrackets(richText);
     applyAnimatedMarkers(richText, markerConfig);
+    // Run last so the {#hex}…{#hex} spans aren't clobbered by the innerHTML
+    // rewrites above. Hero renders after the one-time global pass in
+    // decorateMain(), so it has to apply the inline-color parser itself.
+    decorateInlineColors(richText);
   }
   const htmlText = buildHtmlText(block, resourceHtmlText, resourceHtmlTextClass);
-  if (htmlText) applyAnimatedMarkers(htmlText, markerConfig);
+  if (htmlText) {
+    applyAnimatedMarkers(htmlText, markerConfig);
+    decorateInlineColors(htmlText);
+  }
   const actions = buildActions(block);
   const sidePanel = buildSidePanel(block);
 
@@ -1398,6 +1432,10 @@ export default async function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-content';
   content.append(layout);
+
+  if (isAemAuthorHost()) {
+    watchHeroTextColor(content, main, textColorSource, textColorRows);
+  }
 
   if (videoEl) {
     if (picture) {
