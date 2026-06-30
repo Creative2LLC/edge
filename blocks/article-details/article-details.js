@@ -6,6 +6,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const FIELD_COLUMN_INDEX = {
@@ -646,6 +647,7 @@ function buildBody(fields) {
         if (item.isPlaceholder) text.classList.add('article-details-body-placeholder');
         text.innerHTML = item.html;
         if (item.source) moveInstrumentation(item.source, text);
+        setItemLabel(text, [text.textContent]);
         body.append(text);
         return;
       }

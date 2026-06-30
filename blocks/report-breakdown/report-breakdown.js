@@ -3,6 +3,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import { animateCountUp } from '../../scripts/count-up.js';
 
@@ -667,7 +668,10 @@ function buildTableRow(entry, index) {
   const row = document.createElement('div');
   row.className = 'report-breakdown-row';
   row.style.setProperty('--row-index', index);
-  if (entry.row) moveInstrumentation(entry.row, row);
+  if (entry.row) {
+    moveInstrumentation(entry.row, row);
+    setItemLabel(row, [entry.reportType, entry.year]);
+  }
 
   const type = document.createElement('div');
   type.className = 'report-breakdown-type';

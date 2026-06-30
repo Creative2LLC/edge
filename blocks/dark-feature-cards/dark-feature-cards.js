@@ -4,6 +4,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 /* ---------- Field helpers (mirror card-row-detailed.js) ---------- */
@@ -56,7 +57,15 @@ function buildWhiteIcon(picture, size, className) {
 function buildCard(data) {
   const card = document.createElement('div');
   card.className = 'dark-feature-cards-card';
-  if (data.row) moveInstrumentation(data.row, card);
+  if (data.row) {
+    moveInstrumentation(data.row, card);
+    // Label the item in the Universal Editor content tree by its own content so
+    // authors can tell cards apart instead of seeing the generic component name.
+    setItemLabel(card, [
+      data.cardTitleField.source?.textContent,
+      data.cardSubtitleField.source?.textContent,
+    ]);
+  }
 
   const bg = data.cardBackgroundColor || '#0f3357';
   card.style.setProperty('background-color', bg, 'important');

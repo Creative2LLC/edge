@@ -3,6 +3,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 function normalizeText(value) {
@@ -107,6 +108,10 @@ export default function decorate(block) {
         card.setAttribute(name, value);
       }
     });
+    setItemLabel(card, [
+      getField(row, 'title') || normalizeText(row.children[1]?.textContent),
+      getField(row, 'description') || normalizeText(row.children[2]?.textContent),
+    ]);
     grid.append(card);
   });
   shell.append(grid);

@@ -6,6 +6,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import { animateCountUpOnVisible } from '../../scripts/count-up.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
@@ -1395,6 +1396,7 @@ function buildItem(itemData) {
   const item = document.createElement('li');
   item.className = 'statistics-item';
   if (itemData.row) moveInstrumentation(itemData.row, item);
+  setItemLabel(item, [itemData.labelField.value, itemData.topLabelField.value]);
 
   const imageMode = normalizeImageMode(itemData.imageMode, 'icon');
   const picture = buildOptimizedPicture(itemData.imageField, itemData.imageAlt, imageMode);

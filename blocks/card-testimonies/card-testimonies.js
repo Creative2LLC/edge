@@ -3,6 +3,7 @@ import {
   readImageField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELD_INDEX = {
@@ -36,7 +37,10 @@ function getFieldImage(row, colIndex) {
 function buildMainCard(data, row) {
   const card = document.createElement('div');
   card.className = 'card-testimonies-main';
-  if (row) moveInstrumentation(row, card);
+  if (row) {
+    moveInstrumentation(row, card);
+    setItemLabel(card, [data.author, data.quote]);
+  }
 
   const imgWrap = document.createElement('div');
   imgWrap.className = 'card-testimonies-main-image';
@@ -73,7 +77,10 @@ function buildMainCard(data, row) {
 function buildSmallCard(data, row) {
   const card = document.createElement('div');
   card.className = 'card-testimonies-small';
-  if (row) moveInstrumentation(row, card);
+  if (row) {
+    moveInstrumentation(row, card);
+    setItemLabel(card, [data.author, data.quote]);
+  }
 
   const inner = document.createElement('div');
   inner.className = 'card-testimonies-small-inner';

@@ -4,6 +4,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
 
@@ -25,7 +26,12 @@ function getImageField(row, index) {
 function buildSlide(data, row) {
   const slide = document.createElement('div');
   slide.className = 'detailed-carousel-slide';
-  if (row) moveInstrumentation(row, slide);
+  if (row) {
+    moveInstrumentation(row, slide);
+    // Label the slide in the Universal Editor content tree by its own content so
+    // authors can tell slides apart instead of seeing the generic component name.
+    setItemLabel(slide, [data.stat1Title, data.imageAlt]);
+  }
 
   const card = document.createElement('div');
   card.className = 'detailed-carousel-card';

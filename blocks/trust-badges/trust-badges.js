@@ -5,6 +5,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELDS = ['heading', 'ctaText', 'ctaLink', 'backgroundColor'];
@@ -280,6 +281,7 @@ function buildBadge(row, index) {
   if (linkField.value) badge.href = linkField.value;
   if (linkField.source) moveInstrumentation(linkField.source, badge);
   if (row) moveInstrumentation(row, badge);
+  setItemLabel(badge, [captionField.value]);
 
   const media = document.createElement('div');
   media.className = 'trust-badges-item-media';

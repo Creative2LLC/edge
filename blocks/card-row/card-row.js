@@ -1,5 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  readImageField, readLinkField, readTextField, setItemLabel,
+} from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -18,6 +20,7 @@ function buildCard(data, variant) {
   const card = document.createElement('div');
   card.className = 'card-row-card';
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.titleField.value, data.bodyField.value]);
 
   const cardBg = data.cardBg || '#ffffff';
   card.style.setProperty('background-color', cardBg, 'important');

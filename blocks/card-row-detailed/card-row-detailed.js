@@ -4,6 +4,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
@@ -43,6 +44,7 @@ function buildCard(data) {
   const card = document.createElement('div');
   card.className = 'card-row-detailed-card';
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.headingField.value, data.subheadingField.value]);
 
   const content = document.createElement('div');
   content.className = 'card-row-detailed-content';

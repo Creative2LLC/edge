@@ -4,6 +4,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_ROW_INDEX = {
@@ -220,6 +221,7 @@ function buildStatItem(item, index) {
   stat.style.setProperty('--stagger-index', index);
   stat.style.setProperty('--impact-donut-stat-color', item.displayColor || DEFAULT_STAT_COLOR);
   if (item.row) moveInstrumentation(item.row, stat);
+  setItemLabel(stat, [item.label]);
 
   if (item.isAuthoringPlaceholder) {
     stat.classList.add('is-authoring-placeholder');
@@ -268,6 +270,7 @@ function buildLegendItem(segment, index) {
   item.className = 'impact-donut-legend-item impact-donut-reveal';
   item.style.setProperty('--stagger-index', index + 1);
   if (segment.row) moveInstrumentation(segment.row, item);
+  setItemLabel(item, [segment.label]);
 
   if (segment.isAuthoringPlaceholder) {
     item.classList.add('is-authoring-placeholder');

@@ -2,6 +2,7 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import {
   fetchImpactDataset,
@@ -328,6 +329,7 @@ function buildChart(rows, config) {
     item.className = 'impact-bar-chart-row';
     item.style.setProperty('--row-index', index);
     if (row.row) moveInstrumentation(row.row, item);
+    setItemLabel(item, [row.label, row.description]);
     if (row.isAuthoringPlaceholder) item.classList.add('is-authoring-placeholder');
 
     label.className = 'impact-bar-chart-label';

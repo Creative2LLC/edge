@@ -3,6 +3,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
 
@@ -339,6 +340,9 @@ function buildSlide(data, row, cardBackgroundColor) {
   const slide = document.createElement('article');
   slide.className = 'historical-reports-carousel-slide';
   moveInstrumentation(row, slide);
+  // Label the slide in the Universal Editor content tree by its own content so
+  // authors can tell reports apart instead of seeing the generic component name.
+  setItemLabel(slide, [data.yearField.value, data.linkTextField.value]);
 
   const card = document.createElement('div');
   card.className = 'historical-reports-carousel-card';

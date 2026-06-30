@@ -5,6 +5,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELD_INDEX = {
@@ -394,6 +395,7 @@ function buildCard(data, index, variant) {
   card.className = 'info-cards-grid-card';
   card.style.setProperty('--info-card-index', index);
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.titleField.value, data.subtitleField.value]);
 
   const isVolunteerVariant = variant === 'volunteer';
   let { cardStyle } = data;

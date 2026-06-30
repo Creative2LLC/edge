@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import { readLinkField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -27,6 +27,7 @@ function buildCard(data) {
   const card = document.createElement('div');
   card.className = 'need-help-card';
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.titleField.value, data.subheadingField.value]);
 
   if (data.titleField.value || data.titleField.source) {
     const h3 = document.createElement('h3');

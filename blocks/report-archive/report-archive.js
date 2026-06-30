@@ -1,5 +1,5 @@
 import { moveInstrumentation, decoratePdfLinks } from '../../scripts/scripts.js';
-import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
+import { readImageField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 function hasAuthoringContext(scope) {
   return Boolean(
@@ -89,6 +89,7 @@ async function buildAccordionItem(data, row, index, isAuthoring) {
   const item = document.createElement('div');
   item.className = index === 0 ? 'report-archive-item is-open' : 'report-archive-item';
   moveInstrumentation(row, item);
+  setItemLabel(item, [data.year]);
 
   const trigger = document.createElement('button');
   trigger.type = 'button';

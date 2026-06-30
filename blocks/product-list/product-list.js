@@ -4,6 +4,7 @@ import {
   readImageField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 function getFieldText(row, colIndex, propName) {
@@ -41,6 +42,7 @@ function buildCard(data, row) {
   const card = document.createElement('div');
   card.className = 'product-list-card';
   if (row) moveInstrumentation(row, card);
+  if (row) setItemLabel(card, [data.title, getFieldText(row, 2, 'description')]);
 
   // Image side
   if (data.imagePicture || data.imgSrc) {

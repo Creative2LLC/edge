@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
+import { readImageField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -14,6 +14,7 @@ function buildCard(data) {
   const card = document.createElement('div');
   card.className = 'icon-text-row-card';
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.textField.value]);
 
   // Icon
   if (data.iconField.img) {

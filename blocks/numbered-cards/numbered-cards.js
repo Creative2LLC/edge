@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { readRichTextField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 const BLOCK_PROPS = ['title', 'subtitle', 'textAlign', 'blockBackgroundColor', 'layout', 'cardsPerRow', 'cardBackgroundColor', 'numberBorder'];
 
@@ -131,6 +131,7 @@ export default function decorate(block) {
     card.style.setProperty('--numbered-card-index', index);
     card.style.backgroundColor = data.cardBgOverride || cardBg;
     if (data.row) moveInstrumentation(data.row, card);
+    setItemLabel(card, [data.cardTitleEl?.textContent, data.cardBodyEl?.textContent]);
 
     // Number index
     const numberWrap = document.createElement('div');

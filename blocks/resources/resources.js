@@ -7,6 +7,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
 
@@ -286,7 +287,10 @@ function buildResourceCard(resource, row) {
   const labels = resourceActionLabels();
   const card = document.createElement('div');
   card.className = 'resources-card';
-  if (row) moveInstrumentation(row, card);
+  if (row) {
+    moveInstrumentation(row, card);
+    setItemLabel(card, [resource.title, resource.subtitle]);
+  }
 
   const hasIcon = resource.iconPicture || resource.iconSrc;
   const hasImage = resource.imagePicture || resource.imgSrc;

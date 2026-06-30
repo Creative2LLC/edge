@@ -7,6 +7,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 const BLOCK_FIELDS = [
@@ -363,6 +364,7 @@ function buildLogoItem(data, clone = false) {
   if (hasLink) item.href = data.logoLinkField.value;
   if (!clone && data.logoLinkField.source) moveInstrumentation(data.logoLinkField.source, item);
   if (!clone && data.row) moveInstrumentation(data.row, item);
+  if (!clone) setItemLabel(item, [data.attributionNameField?.value, data.logoAltField?.value]);
   if (clone) item.setAttribute('aria-hidden', 'true');
 
   const picture = buildOptimizedPicture(data.logoField, data.logoAltField, 280, !clone);
@@ -471,6 +473,7 @@ function buildTestimonialCard(data, cardBackgroundColor) {
   card.className = 'partners-showcase-testimonial';
   card.style.backgroundColor = cardBackgroundColor;
   if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.attributionNameField?.value, data.logoAltField?.value]);
 
   if (isAuthoringPlaceholder) {
     card.classList.add('is-authoring-placeholder');

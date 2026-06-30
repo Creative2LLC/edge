@@ -4,6 +4,7 @@ import {
   readLinkField,
   readRichTextField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
 
@@ -50,6 +51,7 @@ function buildSlide(data, row) {
   const slide = document.createElement('div');
   slide.className = 'icon-card-carousel-slide';
   if (row) moveInstrumentation(row, slide);
+  setItemLabel(slide, [data.heading?.text, data.body?.text]);
 
   const card = document.createElement('div');
   card.className = 'icon-card-carousel-card';

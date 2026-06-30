@@ -5,6 +5,7 @@ import {
   readImageField,
   readLinkField,
   readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
 /**
@@ -72,6 +73,7 @@ function buildLeaderCard(leader) {
   }
 
   if (leader.row) moveInstrumentation(leader.row, card);
+  setItemLabel(card, [leader.name, leader.leaderTitle]);
 
   // Image
   if (leader.picture || leader.imgSrc) {

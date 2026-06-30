@@ -1,5 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readImageField, readLinkField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  readImageField, readLinkField, readTextField, setItemLabel,
+} from '../../scripts/block-field-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -61,6 +63,9 @@ function buildCard(row) {
   const card = document.createElement('div');
   card.className = 'dual-cards-card';
   moveInstrumentation(row, card);
+  // Label the item in the Universal Editor content tree by its own title so authors
+  // can tell cards apart instead of seeing the generic component name.
+  setItemLabel(card, [titleField.value]);
 
   const icon = buildIcon(iconField, iconColorField.value);
   if (icon) card.append(icon);

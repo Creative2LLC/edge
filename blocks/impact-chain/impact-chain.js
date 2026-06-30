@@ -1,6 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { readImageField, readTextField } from '../../scripts/block-field-utils.js';
+import { readImageField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -89,6 +89,7 @@ function buildItemCard(item, row, index) {
   card.className = 'impact-chain-item';
   card.dataset.index = index;
   if (row) moveInstrumentation(row, card);
+  setItemLabel(card, [item.title, item.description]);
 
   // Image
   if (item.imagePicture) {
