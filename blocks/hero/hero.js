@@ -629,11 +629,6 @@ function readTextColor(block, fallbackValue = '') {
 
   const textColorField = getFieldValue(block, ['content_textColor', 'text_color']);
   const instrumented = textColorField.source;
-  // HEROCOLORDBG
-  const dbgProps = [...block.querySelectorAll('[data-aue-prop],[data-richtext-prop]')]
-    .map((n) => n.getAttribute('data-aue-prop') || n.getAttribute('data-richtext-prop'));
-  // eslint-disable-next-line no-console, max-len
-  console.log('[HEROCOLORDBG] readTextColor src/val/fallback/props', !!instrumented, textColorField.value, fallbackValue, dbgProps);
   if (instrumented) {
     rawValue = textColorField.value;
     const row = getDirectRow(block, instrumented);
@@ -654,19 +649,8 @@ function readTextColor(block, fallbackValue = '') {
     });
   }
 
-  const editor = isUniversalEditor();
-  rowsToRemove.forEach((row) => {
-    // In the editor, keep the instrumented field node (hidden) instead of
-    // removing it. That lets Universal Editor patch it in place — without it,
-    // a Text Color edit can't find its target and forces a full page reload.
-    if (editor) row.hidden = true;
-    else row.remove();
-  });
-  return {
-    color: normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue),
-    source: instrumented || null,
-    rows: rowsToRemove,
-  };
+  rowsToRemove.forEach((row) => row.remove());
+  return normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue);
 }
 
 function getFlattenedMarkerConfig(block) {
@@ -1337,37 +1321,6 @@ function applyTextColor(main, color) {
   if (richtext) richtext.style.color = color;
 }
 
-// Editor only: re-home the (hidden) Text Color field into the rendered output so
-// it survives block.replaceChildren(), then observe it so panel edits update the
-// color live instead of requiring a page refresh.
-function watchHeroTextColor(content, main, rows) {
-  // eslint-disable-next-line no-console
-  console.log('[HEROCOLORDBG] watch attach. rows=', rows?.length, rows?.[0]?.outerHTML);
-  if (!rows?.length) return;
-  const archive = document.createElement('span');
-  archive.hidden = true;
-  rows.forEach((row) => archive.append(row));
-  content.append(archive);
-
-  // Re-read the current Text Color value straight from the (hidden) field on
-  // every mutation, rather than caching the source node. The editor may either
-  // patch the field node's contents in place OR swap the node out entirely; by
-  // watching the whole archive subtree and re-querying, we catch both cases.
-  const currentColor = () => {
-    const cell = archive.querySelector(
-      '[data-aue-prop="content_textColor"], [data-aue-prop="text_color"]',
-    ) || archive.querySelector(':scope > div > div:last-child');
-    return normalizeHexColor((cell?.textContent || '').trim());
-  };
-
-  new MutationObserver((mutations) => {
-    const color = currentColor();
-    // eslint-disable-next-line no-console
-    console.log('[HEROCOLORDBG] archive mutated. n=', mutations.length, 'color=', color, archive.innerHTML);
-    if (color) applyTextColor(main, color);
-  }).observe(archive, { childList: true, characterData: true, subtree: true });
-}
-
 function readOverlayOpacity(block) {
   const { value } = getFieldValue(block, ['media_overlayOpacity', 'overlayOpacity']);
   if (!value) return null;
@@ -1380,18 +1333,6 @@ export default async function decorate(block) {
   block.classList.add('no-scroll-reveal', 'is-visible');
   block.classList.remove('scroll-reveal');
   if (isAemAuthorHost()) block.classList.add('hero-authoring');
-
-  // HEROCOLORDBG — temporary diagnostics for the live Text Color update.
-  /* eslint-disable no-console */
-  console.log('[HEROCOLORDBG] decorate run. UE=', isUniversalEditor(), block.getAttribute('data-aue-resource'));
-  if (isUniversalEditor() && !window.heroColorDbgAttached) {
-    window.heroColorDbgAttached = true;
-    const dbgTypes = ['aue:content-patch', 'aue:content-update', 'aue:content-add', 'aue:content-move', 'aue:content-remove', 'aue:content-copy'];
-    dbgTypes.forEach((type) => document.querySelector('main')?.addEventListener(type, (e) => {
-      console.log('[HEROCOLORDBG] event', type, e.detail);
-    }, true));
-  }
-  /* eslint-enable no-console */
 
   const originalBlock = block.cloneNode(true);
   const originalRichText = getFieldHtml(readRichTextField(originalBlock, ['content_text', 'text']));
@@ -1442,7 +1383,7 @@ export default async function decorate(block) {
   block.classList.remove('hero-pos-left', 'hero-pos-center', 'hero-pos-right');
   block.classList.add(`hero-pos-${contentPosition}`);
 
-  const { color: textColor, rows: textColorRows } = readTextColor(
+  const textColor = readTextColor(
     block,
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
@@ -1511,10 +1452,6 @@ export default async function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-content';
   content.append(layout);
-
-  if (isUniversalEditor()) {
-    watchHeroTextColor(content, main, textColorRows);
-  }
 
   if (videoEl) {
     if (picture) {
