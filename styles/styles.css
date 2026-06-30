@@ -289,12 +289,14 @@ main .default-content-wrapper p + p {
   position: relative;
   display: inline-block;
   z-index: 0;
-  white-space: nowrap;
+  max-width: 100%;
+  white-space: normal;
 }
 
 .text-marker .text-marker-content {
   position: relative;
   z-index: 1;
+  overflow-wrap: anywhere;
 }
 
 .text-marker .text-marker-svg {
@@ -319,13 +321,13 @@ main .default-content-wrapper p + p {
 }
 
 .text-marker .text-marker-path-shadow {
-  opacity: 0.28;
-  stroke-width: 11;
+  opacity: 0.18;
+  stroke-width: 10;
 }
 
 .text-marker .text-marker-path-main {
-  opacity: 0.96;
-  stroke-width: 7.6;
+  opacity: 1;
+  stroke-width: 7;
 }
 
 .text-marker .text-marker-path-grain {

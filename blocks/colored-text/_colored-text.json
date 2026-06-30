@@ -3,6 +3,7 @@
     {
       "title": "Colored Text",
       "id": "colored-text",
+      "model": "colored-text",
       "plugins": {
         "xwalk": {
           "page": {

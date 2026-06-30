@@ -3,6 +3,7 @@
     {
       "title": "Colored Icon Text",
       "id": "colored-icon-text",
+      "model": "colored-icon-text",
       "plugins": {
         "xwalk": {
           "page": {

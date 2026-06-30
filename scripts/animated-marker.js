@@ -64,6 +64,7 @@ function appendBrushDefs(svg, id, style) {
     y: '-18%',
     width: '116%',
     height: '136%',
+    'color-interpolation-filters': 'sRGB',
   });
   const turbulence = svgElement('feTurbulence', {
     type: 'fractalNoise',
@@ -212,6 +213,7 @@ function createMarker(text, style) {
 
   svg.setAttribute('class', 'text-marker-svg');
   svg.setAttribute('viewBox', style === 'underline' ? '0 0 120 32' : '0 0 124 58');
+  svg.setAttribute('preserveAspectRatio', 'none');
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
 

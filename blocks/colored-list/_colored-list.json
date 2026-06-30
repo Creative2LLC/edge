@@ -3,6 +3,8 @@
     {
       "title": "Colored List",
       "id": "colored-list",
+      "model": "colored-list",
+      "filter": "colored-list",
       "plugins": {
         "xwalk": {
           "page": {
@@ -19,6 +21,7 @@
     {
       "title": "Colored List Item",
       "id": "colored-list-item",
+      "model": "colored-list-item",
       "plugins": {
         "xwalk": {
           "page": {

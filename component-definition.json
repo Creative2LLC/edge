@@ -640,6 +640,7 @@
         {
           "title": "Colored Button",
           "id": "colored-button",
+          "model": "colored-button",
           "plugins": {
             "xwalk": {
               "page": {
@@ -655,6 +656,8 @@
         {
           "title": "Colored Grid",
           "id": "colored-grid",
+          "model": "colored-grid",
+          "filter": "colored-grid",
           "plugins": {
             "xwalk": {
               "page": {
@@ -671,6 +674,7 @@
         {
           "title": "Colored Grid Row",
           "id": "colored-grid-row",
+          "model": "colored-grid-row",
           "plugins": {
             "xwalk": {
               "page": {
@@ -686,6 +690,7 @@
         {
           "title": "Colored Heading",
           "id": "colored-heading",
+          "model": "colored-heading",
           "plugins": {
             "xwalk": {
               "page": {
@@ -701,6 +706,7 @@
         {
           "title": "Colored Icon Text",
           "id": "colored-icon-text",
+          "model": "colored-icon-text",
           "plugins": {
             "xwalk": {
               "page": {
@@ -716,6 +722,8 @@
         {
           "title": "Colored List",
           "id": "colored-list",
+          "model": "colored-list",
+          "filter": "colored-list",
           "plugins": {
             "xwalk": {
               "page": {
@@ -732,6 +740,7 @@
         {
           "title": "Colored List Item",
           "id": "colored-list-item",
+          "model": "colored-list-item",
           "plugins": {
             "xwalk": {
               "page": {
@@ -747,6 +756,7 @@
         {
           "title": "Colored Text",
           "id": "colored-text",
+          "model": "colored-text",
           "plugins": {
             "xwalk": {
               "page": {

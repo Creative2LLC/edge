@@ -3,6 +3,8 @@
     {
       "title": "Colored Grid",
       "id": "colored-grid",
+      "model": "colored-grid",
+      "filter": "colored-grid",
       "plugins": {
         "xwalk": {
           "page": {
@@ -19,6 +21,7 @@
     {
       "title": "Colored Grid Row",
       "id": "colored-grid-row",
+      "model": "colored-grid-row",
       "plugins": {
         "xwalk": {
           "page": {

@@ -3,6 +3,7 @@
     {
       "title": "Colored Heading",
       "id": "colored-heading",
+      "model": "colored-heading",
       "plugins": {
         "xwalk": {
           "page": {

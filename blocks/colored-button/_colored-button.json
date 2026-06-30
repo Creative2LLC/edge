@@ -3,6 +3,7 @@
     {
       "title": "Colored Button",
       "id": "colored-button",
+      "model": "colored-button",
       "plugins": {
         "xwalk": {
           "page": {
