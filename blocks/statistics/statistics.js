@@ -935,7 +935,8 @@ function getLegacyConfig(rows) {
     minHeightMobile: legacyOffsetRow('minHeightMobile', isCssLengthText) || minHeightRows[1],
     statValues: legacyOffsetRow('statValues', isContentRow) || statValueRow,
     statLabels: legacyOffsetRow('statLabels', isContentRow) || statLabelRow,
-    markerColor: compactMarkerColorRow,
+    markerTerms: legacyOffsetRow('markerTerms', isContentRow),
+    markerColor: legacyOffsetRow('markerColor', isHexColorText) || compactMarkerColorRow,
     markerStyle: compactMarkerStyleRow,
     contentSpacing: compactContentSpacingRow,
   };
@@ -1660,19 +1661,19 @@ export default function decorate(block) {
     block,
     'markerTerms',
     ['marker text', 'marker terms', 'highlight text'],
-    legacyCell(25),
+    legacyConfig.compactCell('markerTerms') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.markerTerms),
   );
   const markerColorField = readField(
     block,
     'markerColor',
     ['marker color', 'highlight marker color'],
-    legacyConfig.compactCell('markerColor') || legacyCell(26),
+    legacyConfig.compactCell('markerColor') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.markerColor),
   );
   const markerStyleField = readField(
     block,
     'markerStyle',
     ['marker style', 'highlight marker style'],
-    legacyConfig.compactCell('markerStyle') || legacyCell(27),
+    legacyConfig.compactCell('markerStyle') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.markerStyle),
   );
   const contentSpacingField = readField(
     block,
