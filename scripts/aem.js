@@ -2005,7 +2005,12 @@ async function loadNestedBlocks(root) {
   }
 
   const columnsBlocks = root.matches?.('.columns.block') ? [root] : [...root.querySelectorAll('.columns.block')];
-  columnsBlocks.forEach(recoverFlattenedPromoColumnAlignment);
+  columnsBlocks.forEach((columnsBlock) => {
+    columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
+      cleanupFlattenedColumnConfigArtifacts(column);
+    });
+    recoverFlattenedPromoColumnAlignment(columnsBlock);
+  });
 }
 
 /**

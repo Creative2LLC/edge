@@ -408,68 +408,82 @@ export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const cellAt = (index) => fieldCell(rows[index]);
 
-  const imageField = readImage(block, 'image', ['image', 'icon'], cellAt(0));
-  const imageAlt = readField(block, 'imageAlt', ['image alt', 'alt text'], cellAt(1)).value;
-  const labelField = readRichField(block, 'label', ['eyebrow', 'label'], cellAt(2));
-  const textField = readRichField(block, 'text', ['body', 'copy'], cellAt(3));
-  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, cellAt(4));
+  // imageMode is an exact-match, small-value-space field ('circle'/'square'/'icon'),
+  // so it's a reliable anchor: locate it dynamically, then read every other field at a
+  // fixed offset relative to it. This stays correct even if the exported row count for
+  // earlier fields (e.g. the image reference) doesn't match the model's field count 1:1 —
+  // unlike reading fields at fixed absolute indices from row 0.
+  const imageModeIndex = rows.findIndex((row, index) => (
+    index >= 4
+      && ['circle', 'square', 'icon'].includes(
+        String(fieldCell(row)?.textContent || '').trim().toLowerCase(),
+      )
+  ));
+  const cellAt = (relativeOffset, absoluteFallback) => fieldCell(
+    rows[imageModeIndex >= 0 ? imageModeIndex + relativeOffset : absoluteFallback],
+  );
+
+  const imageField = readImage(block, 'image', ['image', 'icon'], cellAt(-13, 0));
+  const imageAlt = readField(block, 'imageAlt', ['image alt', 'alt text'], cellAt(-12, 1)).value;
+  const labelField = readRichField(block, 'label', ['eyebrow', 'label'], cellAt(-11, 2));
+  const textField = readRichField(block, 'text', ['body', 'copy'], cellAt(-10, 3));
+  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, cellAt(-9, 4));
   const blockBgField = readColorField(
     block,
     'blockBackgroundColor',
     ['block background color', 'background color'],
     isEditor,
-    cellAt(5),
+    cellAt(-8, 5),
   );
-  const labelColorField = readColorField(block, 'labelColor', ['label color'], isEditor, cellAt(6));
-  const labelPart2Field = readRichField(block, 'labelPart2', ['label part 2', 'eyebrow part 2'], cellAt(7));
-  const labelColor2Field = readColorField(block, 'labelColor2', ['label color 2'], isEditor, cellAt(8));
+  const labelColorField = readColorField(block, 'labelColor', ['label color'], isEditor, cellAt(-7, 6));
+  const labelPart2Field = readRichField(block, 'labelPart2', ['label part 2', 'eyebrow part 2'], cellAt(-6, 7));
+  const labelColor2Field = readColorField(block, 'labelColor2', ['label color 2'], isEditor, cellAt(-5, 8));
   const labelFontSize = normalizeCssLength(
-    readField(block, 'labelFontSize', ['label font size', 'eyebrow font size'], cellAt(9)).value,
+    readField(block, 'labelFontSize', ['label font size', 'eyebrow font size'], cellAt(-4, 9)).value,
     'font-size',
   );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], cellAt(10)).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], cellAt(-3, 10)).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], cellAt(11)).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], cellAt(-2, 11)).value,
     ['top', 'middle', 'bottom'],
     'middle',
   );
   const imagePosition = normalizeOption(
-    readField(block, 'imagePosition', ['image position', 'icon position'], cellAt(12)).value,
+    readField(block, 'imagePosition', ['image position', 'icon position'], cellAt(-1, 12)).value,
     ['left', 'right', 'none'],
     'left',
   );
   const imageMode = normalizeOption(
-    readField(block, 'imageMode', ['image mode', 'icon mode'], cellAt(13)).value,
+    readField(block, 'imageMode', ['image mode', 'icon mode'], cellAt(0, 13)).value,
     ['circle', 'square', 'icon'],
     'circle',
   );
-  const imageSize = normalizeCssLength(readField(block, 'imageSize', ['image size', 'icon size'], cellAt(14)).value, 'width');
-  const gap = normalizeCssLength(readField(block, 'gap', ['content gap', 'gap'], cellAt(15)).value, 'gap');
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], cellAt(16)).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], cellAt(17)).value);
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], cellAt(18)).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height'], cellAt(19)).value, 'min-height');
-  const paddingStyleField = readField(block, 'paddingStyle', ['padding style', 'padding'], cellAt(20));
-  const marginStyleField = readField(block, 'marginStyle', ['margin style', 'margin'], cellAt(21));
-  const dropShadowField = readField(block, 'dropShadow', ['drop shadow', 'shadow'], cellAt(22));
-  const text2Field = readRichField(block, 'text2', ['text 2', 'body text'], cellAt(23));
+  const imageSize = normalizeCssLength(readField(block, 'imageSize', ['image size', 'icon size'], cellAt(1, 14)).value, 'width');
+  const gap = normalizeCssLength(readField(block, 'gap', ['content gap', 'gap'], cellAt(2, 15)).value, 'gap');
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], cellAt(3, 16)).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], cellAt(4, 17)).value);
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], cellAt(5, 18)).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height'], cellAt(6, 19)).value, 'min-height');
+  const paddingStyleField = readField(block, 'paddingStyle', ['padding style', 'padding'], cellAt(7, 20));
+  const marginStyleField = readField(block, 'marginStyle', ['margin style', 'margin'], cellAt(8, 21));
+  const dropShadowField = readField(block, 'dropShadow', ['drop shadow', 'shadow'], cellAt(9, 22));
+  const text2Field = readRichField(block, 'text2', ['text 2', 'body text'], cellAt(10, 23));
   const text2ColorField = readColorField(
     block,
     'text2Color',
     ['text 2 color', 'body text color'],
     isEditor,
-    cellAt(24),
+    cellAt(11, 24),
   );
-  const text2FontSize = normalizeCssLength(readField(block, 'text2FontSize', ['text 2 font size', 'body font size'], cellAt(25)).value, 'font-size');
-  const buttonTextField = readField(block, 'buttonText', ['button text'], cellAt(26));
-  const buttonLinkField = readLink(block, 'buttonLink', ['button link'], cellAt(27));
-  const buttonTargetField = readField(block, 'buttonTarget', ['button target'], cellAt(28));
+  const text2FontSize = normalizeCssLength(readField(block, 'text2FontSize', ['text 2 font size', 'body font size'], cellAt(12, 25)).value, 'font-size');
+  const buttonTextField = readField(block, 'buttonText', ['button text'], cellAt(13, 26));
+  const buttonLinkField = readLink(block, 'buttonLink', ['button link'], cellAt(14, 27));
+  const buttonTargetField = readField(block, 'buttonTarget', ['button target'], cellAt(15, 28));
 
   const textColor = normalizeColorValue(txtField.value) || DEFAULT_TEXT_COLOR;
   const text2Color = normalizeColorValue(text2ColorField.value) || DEFAULT_TEXT2_COLOR;

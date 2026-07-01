@@ -175,7 +175,7 @@ function spacingValueFromRow(row, name, type) {
   }
 
   const text = rowText(row);
-  return normalizeSpacingOption(text, type, '') ? text : '';
+  return normalizeSpacingOption(text, type, '', true) ? text : '';
 }
 
 function readSpacingField(block, name, type) {
