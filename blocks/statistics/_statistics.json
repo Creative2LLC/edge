@@ -1005,6 +1005,19 @@
             { "name": "Bottom Large", "value": "bottom-lg" }
           ],
           "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "borderRadius",
+          "label": "Border Radius",
+          "options": [
+            { "name": "None (default)", "value": "none" },
+            { "name": "Small", "value": "small" },
+            { "name": "Medium", "value": "medium" },
+            { "name": "Large", "value": "large" }
+          ],
+          "value": "none"
         }
       ]
     },

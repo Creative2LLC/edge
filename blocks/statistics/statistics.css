@@ -23,6 +23,7 @@
   --statistics-min-height: 0;
   --statistics-min-height-mobile: var(--statistics-min-height);
   --statistics-content-spacing: 0px;
+  --statistics-border-radius: 0;
 
   /* Outer padding around the block's outskirts, adjustable via the "Padding Style"
      field — separate from --statistics-content-spacing, which only spaces out each
@@ -41,11 +42,24 @@
   width: 100%;
   min-height: var(--statistics-min-height);
   background-color: var(--statistics-block-bg);
+  border-radius: var(--statistics-border-radius);
   justify-content: flex-start;
 }
 
 .statistics.has-block-background .statistics-inner {
   padding: 15px;
+}
+
+.statistics.statistics-radius-small {
+  --statistics-border-radius: 4px;
+}
+
+.statistics.statistics-radius-medium {
+  --statistics-border-radius: 8px;
+}
+
+.statistics.statistics-radius-large {
+  --statistics-border-radius: 16px;
 }
 
 .statistics.statistics-v-middle .statistics-inner {
@@ -62,7 +76,11 @@
   flex-direction: column;
   height: 100%;
   margin-inline: 0;
-  padding: 12px 0;
+  padding:
+    var(--colored-field-padding-top, 12px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 12px)
+    var(--colored-field-padding-left, 0);
 }
 
 .columns .statistics .statistics-inner {
@@ -324,9 +342,13 @@
 }
 
 @media (width <= 700px) {
-  .statistics{
-        padding: 0;
-    }
+  .statistics {
+    padding:
+      var(--colored-field-padding-top, 0)
+      var(--colored-field-padding-right, 0)
+      var(--colored-field-padding-bottom, 0)
+      var(--colored-field-padding-left, 0);
+  }
 
   .statistics .statistics-value{
         margin-bottom: 0;

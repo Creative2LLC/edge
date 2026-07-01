@@ -85,6 +85,7 @@ const CURRENT_IMAGE_MODE_OFFSETS = {
   markerStyle: 26,
   contentSpacing: 27,
   paddingStyle: 28,
+  borderRadius: 29,
 };
 
 const LEGACY_IMAGE_MODE_OFFSETS = {
@@ -114,6 +115,7 @@ const LEGACY_IMAGE_MODE_OFFSETS = {
   markerStyle: 27,
   contentSpacing: 28,
   paddingStyle: 29,
+  borderRadius: 30,
 };
 
 function directRowOf(block, element) {
@@ -1711,6 +1713,13 @@ export default function decorate(block) {
     legacyConfig.compactCell('paddingStyle')
       || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.paddingStyle),
   );
+  const borderRadiusField = readField(
+    block,
+    'borderRadius',
+    ['border radius'],
+    legacyConfig.compactCell('borderRadius')
+      || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.borderRadius),
+  );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
   const fieldFallback = (name) => (
     authoredFieldValues[name] || compactValue(name) || publishedFieldValues[name] || ''
@@ -1782,7 +1791,12 @@ export default function decorate(block) {
 
   const alignment = normalizeOption(contentAlignmentField.value, ['left', 'center', 'right'], 'center');
   const verticalAlignment = normalizeOption(verticalAlignmentField.value, ['top', 'middle', 'bottom'], 'top');
-  block.classList.add(`statistics-align-${alignment}`, `statistics-v-${verticalAlignment}`);
+  const borderRadius = normalizeOption(
+    borderRadiusField.value || fieldFallback('borderRadius'),
+    ['none', 'small', 'medium', 'large'],
+    'none',
+  );
+  block.classList.add(`statistics-align-${alignment}`, `statistics-v-${verticalAlignment}`, `statistics-radius-${borderRadius}`);
 
   if (verticalDividersField.value.toLowerCase() === 'hide') {
     block.classList.add('statistics-no-dividers');
