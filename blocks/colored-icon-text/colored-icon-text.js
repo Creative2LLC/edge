@@ -424,8 +424,12 @@ export default function decorate(block) {
     rows[imageModeIndex >= 0 ? imageModeIndex + relativeOffset : absoluteFallback],
   );
 
-  const imageField = readImage(block, 'image', ['image', 'icon'], cellAt(-13, 0));
-  const imageAlt = readField(block, 'imageAlt', ['image alt', 'alt text'], cellAt(-12, 1)).value;
+  // The "imageAlt" text field directly follows the "image" reference field but doesn't
+  // get its own row in exported markup, so it has no reliable position to fall back to
+  // outside the editor — it relies on data-aue-prop binding there instead. When absent,
+  // buildMedia() leaves the asset's own embedded alt text in place rather than blanking it.
+  const imageField = readImage(block, 'image', ['image', 'icon'], cellAt(-12, 0));
+  const imageAlt = readField(block, 'imageAlt', ['image alt', 'alt text'], null).value;
   const labelField = readRichField(block, 'label', ['eyebrow', 'label'], cellAt(-11, 2));
   const textField = readRichField(block, 'text', ['body', 'copy'], cellAt(-10, 3));
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, cellAt(-9, 4));
