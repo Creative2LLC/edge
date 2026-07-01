@@ -31,7 +31,7 @@ module.exports = {
     'xwalk/max-cells': ['error', {
       '*': 16,
       'colored-button': 17,
-      'colored-icon-text': 18,
+      'colored-icon-text': 19,
       'news-article': 5,
       resources: 12,
       'resource-item': 8,

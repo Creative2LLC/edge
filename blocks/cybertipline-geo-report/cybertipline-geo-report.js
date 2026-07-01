@@ -632,6 +632,45 @@ function renderDetail(panel, row, dataset, animate = false) {
       duration: 520,
     });
   }
+
+  const allRows = dataset?.rows || [];
+  if (allRows.length > 0) {
+    const topRows = allRows.slice(0, 5);
+    const topSection = document.createElement('div');
+    topSection.className = 'cybertipline-geo-report-detail-top';
+
+    const topLabel = document.createElement('p');
+    topLabel.className = 'cybertipline-geo-report-detail-top-label';
+    topLabel.textContent = 'Top Locations';
+    topSection.append(topLabel);
+
+    const list = document.createElement('ul');
+    list.className = 'cybertipline-geo-report-detail-top-list';
+
+    topRows.forEach((topRow, index) => {
+      const li = document.createElement('li');
+      li.className = 'cybertipline-geo-report-detail-top-item';
+      if (topRow.id === row?.id) li.classList.add('is-selected');
+
+      const rank = document.createElement('span');
+      rank.className = 'cybertipline-geo-report-detail-top-rank';
+      rank.textContent = String(index + 1);
+
+      const name = document.createElement('span');
+      name.className = 'cybertipline-geo-report-detail-top-name';
+      name.textContent = topRow.label;
+
+      const val = document.createElement('span');
+      val.className = 'cybertipline-geo-report-detail-top-value';
+      val.textContent = topRow.displayValue;
+
+      li.append(rank, name, val);
+      list.append(li);
+    });
+
+    topSection.append(list);
+    panel.append(topSection);
+  }
 }
 
 function colorForRatio(ratio) {

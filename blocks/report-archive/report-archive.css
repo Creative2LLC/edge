@@ -3,8 +3,7 @@
 }
 
 .report-archive .report-archive-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .report-archive .report-archive-heading {
@@ -28,7 +27,7 @@
 
 .report-archive .report-archive-item {
   border: 1px solid rgb(0 46 93 / 14%);
-  border-radius: 14px;
+  border-radius: 10px;
   background: #fff;
   overflow: hidden;
 }
@@ -59,8 +58,7 @@
 }
 
 .report-archive .report-archive-trigger:focus-visible {
-  outline: 2px solid #1491bf;
-  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px #1491bf;
 }
 
 .report-archive .report-archive-item.is-open .report-archive-trigger {

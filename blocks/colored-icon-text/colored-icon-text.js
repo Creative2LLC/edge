@@ -281,11 +281,10 @@ export default function decorate(block) {
   ));
   const imageAltFallback = contentRows.length >= 1 ? fieldCell(contentRows[0]) : null;
   const labelFallback = contentRows.length >= 3 ? fieldCell(contentRows[1]) : null;
-  const textFallback = contentRows.length >= 3
-    ? fieldCell(contentRows[2])
-    : contentRows.length === 2
-      ? fieldCell(contentRows[1])
-      : fieldCell(contentRows[0]);
+  let textFallback;
+  if (contentRows.length >= 3) textFallback = fieldCell(contentRows[2]);
+  else if (contentRows.length === 2) textFallback = fieldCell(contentRows[1]);
+  else textFallback = fieldCell(contentRows[0]);
   const rowAfterImageMode = (offset, fallbackIndex) => fieldCell(
     rows[imageModeIndex >= 0 ? imageModeIndex + offset : fallbackIndex],
   );

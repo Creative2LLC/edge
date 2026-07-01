@@ -1,3 +1,11 @@
+/* When the nav is alone in a section, make that section sticky so the nav doesn't lose its anchor */
+main > .section:has(> div > .report-section-nav) {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  margin: 0;
+}
+
 .report-section-nav {
   position: sticky;
   top: calc(var(--nav-height, 64px) + 10px);

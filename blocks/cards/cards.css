@@ -14,7 +14,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
   justify-content: center;
-  gap: 24px;
+  gap: var(--cards-gap, 24px);
 }
 
 .cards > ul > li {

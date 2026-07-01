@@ -389,6 +389,28 @@ function buildStackedBar(row, maxValue, metrics) {
   return bar;
 }
 
+function buildSeriesValues(row, metrics) {
+  const list = document.createElement('ul');
+  list.className = 'impact-bar-chart-series-values';
+
+  metrics.forEach((metric) => {
+    const item = document.createElement('li');
+    const marker = document.createElement('span');
+    const label = document.createElement('span');
+    const value = document.createElement('strong');
+
+    marker.className = 'impact-bar-chart-series-marker';
+    marker.style.setProperty('--impact-bar-chart-segment-color', metric.color);
+    marker.setAttribute('aria-hidden', 'true');
+    label.textContent = metric.label;
+    value.textContent = formatNumber(rowNumericValue(row, metric.key) ?? 0);
+    item.append(marker, label, value);
+    list.append(item);
+  });
+
+  return list;
+}
+
 function buildChart(rows, config) {
   const list = document.createElement('div');
   const values = rows.map((row) => rowTotal(row, config.valueKey, config.metrics));
@@ -425,6 +447,10 @@ function buildChart(rows, config) {
 
     item.append(label, track, value);
 
+    if (config.metrics.length && config.showValues) {
+      item.append(buildSeriesValues(row, config.metrics));
+    }
+
     if (description) {
       const body = document.createElement('p');
       body.className = 'impact-bar-chart-description';
@@ -448,6 +474,9 @@ function buildTable(rows, config, dataset) {
 
   wrap.className = 'impact-bar-chart-table-wrap';
   if (config.metrics.length > 1) wrap.classList.add('is-multiseries');
+  wrap.tabIndex = 0;
+  wrap.setAttribute('role', 'region');
+  wrap.setAttribute('aria-label', `${dataset.title || 'Impact chart'} data table`);
   table.className = 'impact-bar-chart-table';
 
   headers.forEach((header) => {
@@ -647,6 +676,7 @@ export default async function decorate(block) {
 
   block.classList.add(`impact-bar-chart-style-${chartStyleClass(chartStyleField.value)}`);
   block.classList.toggle('impact-bar-chart-text-light', textModeClass(textModeField.value) === 'light');
+  block.classList.toggle('impact-bar-chart-multiseries', metrics.length > 1);
   inner.className = 'impact-bar-chart-inner';
 
   if (header.childElementCount) inner.append(header);

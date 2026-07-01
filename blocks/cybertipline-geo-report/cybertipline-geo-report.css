@@ -506,8 +506,8 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-detail {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   min-height: 250px;
   height: 100%;
@@ -581,6 +581,70 @@
 .cybertipline-geo-report .cybertipline-geo-report-detail-meta dd {
   color: var(--cybertipline-geo-ink);
   font-size: 1rem;
+  font-weight: 800;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--cybertipline-geo-border);
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-label {
+  margin: 0 0 8px;
+  color: var(--cybertipline-geo-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-item {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+}
+
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-rank {
+  color: var(--cybertipline-geo-orange);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-name {
+  color: var(--cybertipline-geo-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-value {
+  color: var(--cybertipline-geo-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-item.is-selected .cybertipline-geo-report-detail-top-name,
+.cybertipline-geo-report .cybertipline-geo-report-detail-top-item.is-selected .cybertipline-geo-report-detail-top-value {
+  color: var(--cybertipline-geo-blue);
   font-weight: 800;
 }
 
@@ -961,6 +1025,10 @@
 
   .cybertipline-geo-report .cybertipline-geo-report-detail-meta {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cybertipline-geo-report .cybertipline-geo-report-detail-top {
+    margin-top: 16px;
   }
 }
 

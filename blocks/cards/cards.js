@@ -19,6 +19,7 @@ const SETTING_NAMES = [
   'cardBorderRadius',
   'cardShadow',
   'defaultCardTextSize',
+  'cardGap',
 ];
 
 const CARD_FIELD_NAMES = [
@@ -42,6 +43,7 @@ const DEFAULT_SETTINGS = {
   cardBorderRadius: 'none',
   cardShadow: 'none',
   defaultCardTextSize: '',
+  cardGap: '',
 };
 
 function directRowOf(block, element) {
@@ -232,6 +234,7 @@ function applySettings(block, settings = {}) {
     nextSettings.defaultCardTextSize,
     'font-size',
   );
+  const cardGap = normalizeCssLength(nextSettings.cardGap, 'gap');
 
   block.classList.remove(
     'cards-text-align-left',
@@ -285,6 +288,12 @@ function applySettings(block, settings = {}) {
     block.style.setProperty('--cards-card-text-size-default', defaultCardTextSize);
   } else {
     block.style.removeProperty('--cards-card-text-size-default');
+  }
+
+  if (cardGap) {
+    block.style.setProperty('--cards-gap', cardGap);
+  } else {
+    block.style.removeProperty('--cards-gap');
   }
 }
 
@@ -589,6 +598,7 @@ export default function decorate(block) {
       ['default card text size', 'card text size', 'text size'],
       legacySettings.defaultCardTextSize,
     ),
+    cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null),
   });
 
   const ul = document.createElement('ul');

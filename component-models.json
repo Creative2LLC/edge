@@ -3262,6 +3262,14 @@
         "label": "Default Card Text Size",
         "description": "Optional CSS length such as 20px, 1.25rem, or clamp(1rem, 2vw, 1.5rem). Individual cards can override this value.",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "cardGap",
+        "label": "Card Gap (Optional)",
+        "description": "Space between cards. Optional CSS length such as 12px, 1rem, or 2vw. Defaults to 24px.",
+        "value": ""
       }
     ]
   },
