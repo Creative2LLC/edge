@@ -6,6 +6,10 @@
   --colored-text-min-height-mobile: var(--colored-text-min-height);
   --colored-text-block-bg: transparent;
   --colored-text-list-marker-color: #ff8a00;
+  --colored-text-content-padding-top: 0;
+  --colored-text-content-padding-right: 0;
+  --colored-text-content-padding-bottom: 0;
+  --colored-text-content-padding-left: 0;
 
   height: 100%;
   margin:
@@ -26,10 +30,23 @@
   height: 100%;
   min-height: var(--colored-text-min-height);
   background-color: var(--colored-text-block-bg);
+
+  /* Padding around the content, independent of the block's own outer padding above —
+     adjustable via the "Content Padding" field. Defaults to 0, except when a block
+     background is set (see .has-block-background below), matching the 15px this
+     element always used to get automatically whenever a background color was set. */
+  padding:
+    var(--colored-text-content-padding-top)
+    var(--colored-text-content-padding-right)
+    var(--colored-text-content-padding-bottom)
+    var(--colored-text-content-padding-left);
 }
 
-.colored-text.has-block-background .colored-text-inner {
-  padding: 15px;
+.colored-text.has-block-background {
+  --colored-text-content-padding-top: 15px;
+  --colored-text-content-padding-right: 15px;
+  --colored-text-content-padding-bottom: 15px;
+  --colored-text-content-padding-left: 15px;
 }
 
 .colored-text.colored-text-v-top .colored-text-inner {

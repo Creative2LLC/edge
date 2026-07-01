@@ -184,6 +184,64 @@ function normalizeOption(value, allowedValues, fallback) {
   return allowedValues.includes(normalized) ? normalized : fallback;
 }
 
+const CONTENT_PADDING_OPTIONS = [
+  'default',
+  'none',
+  'all-sm',
+  'all-md',
+  'all-lg',
+  'vertical-sm',
+  'vertical-md',
+  'vertical-lg',
+  'horizontal-sm',
+  'horizontal-md',
+  'horizontal-lg',
+  'top-sm',
+  'top-md',
+  'top-lg',
+  'bottom-sm',
+  'bottom-md',
+  'bottom-lg',
+];
+const CONTENT_PADDING_SPACE = { sm: '12px', md: '24px', lg: '40px' };
+
+// Independent from the shared colored-field-options.js padding (which controls the
+// block's own outer spacing) — this is a self-contained option, using its own CSS
+// vars, so the two don't collide over --colored-field-padding-*.
+function computeContentPadding(value) {
+  const option = normalizeOption(value, CONTENT_PADDING_OPTIONS, 'default');
+  if (option === 'default') return null;
+  if (option === 'none') {
+    return {
+      top: '0', right: '0', bottom: '0', left: '0',
+    };
+  }
+
+  const [, position, size] = option.match(/^(all|vertical|horizontal|top|bottom)-(sm|md|lg)$/u) || [];
+  if (!position) return null;
+
+  const amount = CONTENT_PADDING_SPACE[size];
+  const zero = '0';
+  const sides = {
+    all: {
+      top: amount, right: amount, bottom: amount, left: amount,
+    },
+    vertical: {
+      top: amount, right: zero, bottom: amount, left: zero,
+    },
+    horizontal: {
+      top: zero, right: amount, bottom: zero, left: amount,
+    },
+    top: {
+      top: amount, right: zero, bottom: zero, left: zero,
+    },
+    bottom: {
+      top: zero, right: zero, bottom: amount, left: zero,
+    },
+  };
+  return sides[position];
+}
+
 function normalizeFontWeight(value) {
   const normalized = String(value || '').trim().toLowerCase();
   const namedWeights = {
@@ -316,6 +374,12 @@ export default function decorate(block) {
     ['marker style', 'highlight marker style'],
     fieldCell(rows[13 + rowOffset]),
   );
+  const contentPaddingStyleField = readField(
+    block,
+    'contentPaddingStyle',
+    ['content padding', 'inner padding'],
+    fieldCell(rows[14 + rowOffset]),
+  );
 
   if (!blockBackgroundColor && shouldRestoreMissingListBackground(block, textField, fontSize)) {
     blockBackgroundColor = '#FFF';
@@ -333,6 +397,13 @@ export default function decorate(block) {
   if (fontWeight) block.style.setProperty('--colored-text-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-text-min-height', minHeight);
   if (minHeightMobile) block.style.setProperty('--colored-text-min-height-mobile', minHeightMobile);
+  const contentPadding = computeContentPadding(contentPaddingStyleField.value);
+  if (contentPadding) {
+    block.style.setProperty('--colored-text-content-padding-top', contentPadding.top);
+    block.style.setProperty('--colored-text-content-padding-right', contentPadding.right);
+    block.style.setProperty('--colored-text-content-padding-bottom', contentPadding.bottom);
+    block.style.setProperty('--colored-text-content-padding-left', contentPadding.left);
+  }
 
   const inner = document.createElement('div');
   inner.className = 'colored-text-inner';
