@@ -114,7 +114,7 @@
   border: 2px solid var(--colored-text-list-marker-color);
   border-radius: 50%;
   color: var(--colored-text-list-marker-color);
-  font-size: 0.58em;
+  font-size: 27px;
   font-weight: 700;
   line-height: 1;
 }

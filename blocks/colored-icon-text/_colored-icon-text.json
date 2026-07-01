@@ -97,6 +97,38 @@
           "value": ""
         },
         {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "labelPart2",
+          "label": "Label / Eyebrow Part 2 (Optional)",
+          "description": "Adds a second, differently colored segment after Label, separated by a divider — for a split-color eyebrow."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "labelColor2",
+          "label": "Label Color 2 (Optional)",
+          "description": "Color for Label Part 2.",
+          "options": [
+            { "name": "Match Text Color", "value": "" },
+            { "name": "Teal", "value": "teal" },
+            { "name": "Orange", "value": "orange" },
+            { "name": "Navy", "value": "navy" },
+            { "name": "Dark Navy", "value": "dark-navy" },
+            { "name": "White", "value": "white" },
+            { "name": "Body Grey", "value": "grey" }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "labelFontSize",
+          "label": "Label / Eyebrow Font Size",
+          "description": "Optional CSS length. Defaults to 1.75rem.",
+          "value": ""
+        },
+        {
           "component": "select",
           "valueType": "string",
           "name": "horizontalAlign",
@@ -270,36 +302,17 @@
           "value": "none"
         },
         {
-          "component": "select",
-          "valueType": "string",
-          "name": "layoutStyle",
-          "label": "Layout Style",
-          "description": "Feature Card adds a split-color eyebrow, a dedicated headline, and full-width body copy.",
-          "options": [
-            { "name": "Standard", "value": "standard" },
-            { "name": "Feature Card", "value": "feature-card" }
-          ],
-          "value": "standard"
-        },
-        {
           "component": "richtext",
           "valueType": "string",
-          "name": "headline",
-          "label": "Feature Headline",
-          "description": "Used by the Feature Card layout."
-        },
-        {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "bodyText",
-          "label": "Feature Body Text",
-          "description": "Full-width supporting copy used by the Feature Card layout."
+          "name": "text2",
+          "label": "Text 2 (Optional)",
+          "description": "Optional second paragraph, displayed under Text."
         },
         {
           "component": "select",
           "valueType": "string",
-          "name": "bodyTextColor",
-          "label": "Feature Body Text Color",
+          "name": "text2Color",
+          "label": "Text 2 Color",
           "options": [
             { "name": "Body Grey (#404041)", "value": "#404041" },
             { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
@@ -313,10 +326,33 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "bodyFontSize",
-          "label": "Feature Body Font Size",
+          "name": "text2FontSize",
+          "label": "Text 2 Font Size",
           "description": "Optional CSS length. Defaults to 1.25rem.",
           "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonTarget",
+          "label": "Button Target",
+          "options": [
+            { "name": "Same Tab", "value": "_self" },
+            { "name": "New Tab", "value": "_blank" }
+          ],
+          "value": "_self"
         }
       ]
     }

@@ -7,8 +7,9 @@
   --colored-icon-text-min-height: 0;
   --colored-icon-text-min-height-mobile: var(--colored-icon-text-min-height);
   --colored-icon-text-block-bg: #e9f7fa;
-  --colored-icon-text-body-color: #404041;
-  --colored-icon-text-body-size: 1.25rem;
+  --colored-icon-text-text2-color: #404041;
+  --colored-icon-text-text2-size: 1.25rem;
+  --colored-icon-text-label-size: 1.75rem;
 
   height: 100%;
   margin:
@@ -25,6 +26,7 @@
 
 .colored-icon-text .colored-icon-text-inner {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--colored-icon-text-gap);
   align-items: center;
   width: 100%;
@@ -35,16 +37,10 @@
 }
 
 .colored-icon-text.has-block-background .colored-icon-text-inner {
-  padding: clamp(24px, 4vw, 50px);
-}
-
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-inner {
-  flex-wrap: wrap;
-  align-items: flex-start;
   padding: clamp(28px, 4vw, 50px);
 }
 
-.colored-icon-text .colored-icon-text-feature-meta {
+.colored-icon-text .colored-icon-text-label-row {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -96,10 +92,9 @@
 }
 
 /* Icon-mode art (object-fit: contain) doesn't fill its box like a circle/square
-   photo crop does, so centering it leaves a gap before the card's own padding.
-   In the Feature Card layout that reads as "the icon isn't aligned left" — pin
-   it to the top-left of its box instead. */
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-media.colored-icon-text-image-icon {
+   photo crop does, so centering it would leave a gap before the card's own
+   padding. Pin it to the top-left of its box instead. */
+.colored-icon-text .colored-icon-text-media.colored-icon-text-image-icon {
   place-items: start;
 }
 
@@ -112,35 +107,29 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4em;
-}
-
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-text-wrapper {
   justify-content: flex-start;
   gap: clamp(20px, 3vw, 30px);
 }
 
 .colored-icon-text .colored-icon-text-label {
   color: var(--colored-icon-text-label-color, var(--colored-icon-text-color));
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0;
-}
-
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-label {
-  order: 1;
-  font-size: 1.75rem;
+  font-size: var(--colored-icon-text-label-size);
   font-weight: 800;
   line-height: 1.35;
   text-transform: uppercase;
+  letter-spacing: 0;
 }
 
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-label:not(:last-child)::after {
+.colored-icon-text .colored-icon-text-label-2 {
+  color: var(--colored-icon-text-label-color-2, var(--colored-icon-text-color));
+}
+
+.colored-icon-text .colored-icon-text-label-row .colored-icon-text-label:not(:last-child)::after {
   content: "|";
   margin-left: 0.45rem;
   color: var(--colored-icon-text-color);
   font-weight: 400;
+  text-transform: none;
 }
 
 .colored-icon-text .colored-icon-text-label.is-authoring-placeholder {
@@ -148,6 +137,7 @@
   font-size: 0.8rem;
   font-style: italic;
   font-weight: 400;
+  text-transform: none;
 }
 
 .colored-icon-text .colored-icon-text-content {
@@ -199,66 +189,29 @@
   text-align: justify;
 }
 
-.colored-icon-text .colored-icon-text-feature-headline > * {
-  margin-bottom: 0.45em;
-}
-
-.colored-icon-text .colored-icon-text-feature-headline > :last-child {
-  margin-bottom: 0;
-}
-
-.colored-icon-text .colored-icon-text-feature-body > * {
-  margin-bottom: 0.65em;
-}
-
-.colored-icon-text .colored-icon-text-feature-body > :last-child {
-  margin-bottom: 0;
-}
-
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content {
-  display: inline;
-  order: 2;
-  flex: 1 1 20rem;
-  font-size: 1.75rem;
-  font-weight: 400;
-  line-height: 1.35;
-}
-
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content > * {
-  display: inline;
-  margin: 0;
-}
-
-.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content > * + *::before {
-  content: " ";
-}
-
-.colored-icon-text .colored-icon-text-feature-headline {
-  min-width: 0;
-  color: var(--colored-icon-text-color);
-  font-size: var(--colored-icon-text-size);
-  font-weight: var(--colored-icon-text-weight);
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-}
-
-.colored-icon-text .colored-icon-text-feature-body {
-  flex: 1 0 100%;
-  width: 100%;
-  min-width: 0;
-  margin-top: clamp(4px, 1vw, 12px);
-  color: var(--colored-icon-text-body-color);
-  font-size: var(--colored-icon-text-body-size);
-  font-weight: 400;
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-
 .colored-icon-text .colored-icon-text-content > :first-child {
   margin-top: 0;
 }
 
 .colored-icon-text .colored-icon-text-content > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-icon-text .colored-icon-text-text2 {
+  min-width: 0;
+  margin-top: clamp(4px, 1vw, 12px);
+  color: var(--colored-icon-text-text2-color);
+  font-size: var(--colored-icon-text-text2-size);
+  font-weight: 400;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.colored-icon-text .colored-icon-text-text2 > * {
+  margin-bottom: 0.65em;
+}
+
+.colored-icon-text .colored-icon-text-text2 > :last-child {
   margin-bottom: 0;
 }
 
@@ -273,6 +226,59 @@
   border: 1px dashed #9ccbd8;
   border-radius: 999px;
   background: rgb(255 255 255 / 55%);
+}
+
+.colored-icon-text .colored-icon-text-button-row {
+  flex: 1 0 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(20px, 3vw, 32px);
+}
+
+.colored-icon-text .colored-icon-text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-width: min(292px, 100%);
+  min-height: 60px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  background: #092348;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background-color 150ms linear,
+    box-shadow 150ms linear,
+    color 150ms linear;
+}
+
+.colored-icon-text .colored-icon-text-button::after {
+  content: "";
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  background: #14b4cf;
+  mask: url("../../icons/external-link.svg") center / contain no-repeat;
+}
+
+.colored-icon-text .colored-icon-text-button:hover,
+.colored-icon-text .colored-icon-text-button:focus {
+  cursor: pointer;
+  background-color: rgb(9 35 72 / 90%);
+  color: #fff;
+  text-decoration: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px #f7941d;
+}
+
+.colored-icon-text .colored-icon-text-button:focus-visible {
+  outline: none;
 }
 
 .colored-icon-text.colored-icon-text-shadow-small .colored-icon-text-inner {
@@ -329,21 +335,30 @@
     font-size: clamp(1.25rem, 5vw, var(--colored-icon-text-size));
   }
 
-  .colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta {
+  .colored-icon-text .colored-icon-text-label-row {
     display: block;
   }
 
-  .colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-label,
-  .colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content {
+  .colored-icon-text .colored-icon-text-label-row .colored-icon-text-label {
     display: inline;
-    font-size: 1.25rem;
+    font-size: min(var(--colored-icon-text-label-size), 1.25rem);
   }
 
-  .colored-icon-text .colored-icon-text-feature-headline {
-    font-size: min(var(--colored-icon-text-size), 1.65rem);
+  .colored-icon-text .colored-icon-text-text2 {
+    font-size: min(var(--colored-icon-text-text2-size), 1.125rem);
   }
 
-  .colored-icon-text .colored-icon-text-feature-body {
-    font-size: min(var(--colored-icon-text-body-size), 1.125rem);
+  .colored-icon-text .colored-icon-text-button-row {
+    width: 100%;
+  }
+
+  .colored-icon-text .colored-icon-text-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .colored-icon-text .colored-icon-text-button {
+    transition: none;
   }
 }

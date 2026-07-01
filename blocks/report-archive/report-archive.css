@@ -53,9 +53,10 @@
 }
 
 .report-archive .report-archive-trigger:hover,
+.report-archive .report-archive-trigger:focus,
 .report-archive .report-archive-trigger:focus-visible {
   background: rgb(0 46 93 / 4%);
-  outline: none;
+  outline: none !important;
 }
 
 /* outline (not box-shadow) so the ring follows the item's rounded corners
