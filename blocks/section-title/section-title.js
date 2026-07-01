@@ -3,16 +3,17 @@ import { readLinkField, readRichTextField, readTextField } from '../../scripts/b
 
 const FIELD_INDEX = {
   title: 0,
-  subtitle: 1,
-  subtitleMaxWidth: 2,
-  textAlign: 3,
-  buttonText: 4,
-  buttonLink: 5,
-  buttonStyle: 6,
-  buttonColor: 7,
-  buttonTextColor: 8,
-  marginTop: 9,
-  marginBottom: 10,
+  titleColor: 1,
+  subtitle: 2,
+  subtitleMaxWidth: 3,
+  textAlign: 4,
+  buttonText: 5,
+  buttonLink: 6,
+  buttonStyle: 7,
+  buttonColor: 8,
+  buttonTextColor: 9,
+  marginTop: 10,
+  marginBottom: 11,
 };
 
 function getRows(block) {
@@ -124,6 +125,7 @@ export default function decorate(block) {
   const subtitleField = getRichField(block, 'subtitle');
   const subtitleMaxWidth = normalizeSubtitleMaxWidth(getField(block, 'subtitleMaxWidth').value);
   const alignField = getField(block, 'textAlign');
+  const titleColor = normalizeColorValue(getField(block, 'titleColor').value);
 
   const alignment = alignField.value || 'left';
 
@@ -154,6 +156,7 @@ export default function decorate(block) {
   if (titleField.value || titleField.source) {
     const titleEl = document.createElement('h2');
     titleEl.className = 'section-title-heading';
+    if (titleColor) titleEl.style.setProperty('color', titleColor, 'important');
     if (titleField.source) {
       moveInstrumentation(titleField.source, titleEl);
       // Flatten rich text block wrappers (p/div) into the heading, keeping each
