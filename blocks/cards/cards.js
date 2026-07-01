@@ -21,9 +21,6 @@ const SETTING_NAMES = [
   'cardShadow',
   'defaultCardTextSize',
   'cardGap',
-  'markerTerms',
-  'markerColor',
-  'markerStyle',
 ];
 
 const CARD_FIELD_NAMES = [
@@ -35,6 +32,9 @@ const CARD_FIELD_NAMES = [
   'highlightTextColor',
   'cardAlignment',
   'cardTextSize',
+  'markerTerms',
+  'markerColor',
+  'markerStyle',
 ];
 
 const DEFAULT_SETTINGS = {
@@ -527,6 +527,9 @@ function buildCard(row) {
   });
   const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: row.children[6] });
   const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: row.children[7] });
+  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: row.children[8] });
+  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: row.children[9] });
+  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: row.children[10] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
   const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
@@ -562,6 +565,13 @@ function buildCard(row) {
   }
 
   if (body.childElementCount || body.textContent.trim()) li.append(body);
+
+  applyAnimatedMarkers(li, {
+    terms: markerTermsField.value,
+    color: markerColorField.value,
+    style: markerStyleField.value,
+  });
+
   return li;
 }
 
@@ -611,9 +621,6 @@ export default function decorate(block) {
     ),
     cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null),
   });
-  const markerTerms = readSetting(block, 'markerTerms', ['marker text', 'marker terms', 'highlight text'], null);
-  const markerColor = readSetting(block, 'markerColor', ['marker color'], null);
-  const markerStyle = readSetting(block, 'markerStyle', ['marker style'], null);
 
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
@@ -631,10 +638,5 @@ export default function decorate(block) {
   });
 
   block.replaceChildren(ul);
-  applyAnimatedMarkers(block, {
-    terms: markerTerms,
-    color: markerColor,
-    style: markerStyle,
-  });
   syncResourceSettings(resourcePath, block);
 }
