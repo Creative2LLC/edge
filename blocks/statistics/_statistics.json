@@ -284,6 +284,10 @@
             {
               "name": "Light Grey 3 (#DDD5CC)",
               "value": "#DDD5CC"
+            },
+            {
+              "name": "Light Yellow (#FECF5D)",
+              "value": "#FECF5D"
             }
           ],
           "value": "",
@@ -370,6 +374,10 @@
             {
               "name": "Light Grey 3 (#DDD5CC)",
               "value": "#DDD5CC"
+            },
+            {
+              "name": "Light Yellow (#FECF5D)",
+              "value": "#FECF5D"
             }
           ],
           "value": "",
@@ -497,6 +505,10 @@
             {
               "name": "Light Grey 3 (#DDD5CC)",
               "value": "#DDD5CC"
+            },
+            {
+              "name": "Light Yellow (#FECF5D)",
+              "value": "#FECF5D"
             }
           ],
           "value": "",
@@ -624,6 +636,10 @@
             {
               "name": "Light Grey 3 (#DDD5CC)",
               "value": "#DDD5CC"
+            },
+            {
+              "name": "Light Yellow (#FECF5D)",
+              "value": "#FECF5D"
             }
           ],
           "value": "",
@@ -751,6 +767,10 @@
             {
               "name": "Light Grey 3 (#DDD5CC)",
               "value": "#DDD5CC"
+            },
+            {
+              "name": "Light Yellow (#FECF5D)",
+              "value": "#FECF5D"
             }
           ],
           "value": "",
@@ -903,6 +923,10 @@
             {
               "name": "Light Grey 3 (#DDD5CC)",
               "value": "#DDD5CC"
+            },
+            {
+              "name": "Light Yellow (#FECF5D)",
+              "value": "#FECF5D"
             }
           ],
           "value": "",
@@ -954,6 +978,33 @@
             }
           ],
           "value": "none"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "paddingStyle",
+          "label": "Padding Style",
+          "description": "Outer padding around the whole block's outskirts. Not related to Stat Content Spacing, which only affects spacing between each item's own image/label/value/button.",
+          "options": [
+            { "name": "Default", "value": "default" },
+            { "name": "None", "value": "none" },
+            { "name": "All Small", "value": "all-sm" },
+            { "name": "All Medium", "value": "all-md" },
+            { "name": "All Large", "value": "all-lg" },
+            { "name": "Vertical Small", "value": "vertical-sm" },
+            { "name": "Vertical Medium", "value": "vertical-md" },
+            { "name": "Vertical Large", "value": "vertical-lg" },
+            { "name": "Horizontal Small", "value": "horizontal-sm" },
+            { "name": "Horizontal Medium", "value": "horizontal-md" },
+            { "name": "Horizontal Large", "value": "horizontal-lg" },
+            { "name": "Top Small", "value": "top-sm" },
+            { "name": "Top Medium", "value": "top-md" },
+            { "name": "Top Large", "value": "top-lg" },
+            { "name": "Bottom Small", "value": "bottom-sm" },
+            { "name": "Bottom Medium", "value": "bottom-md" },
+            { "name": "Bottom Large", "value": "bottom-lg" }
+          ],
+          "value": "default"
         }
       ]
     },

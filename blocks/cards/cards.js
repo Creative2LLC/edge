@@ -8,6 +8,7 @@ import {
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 
 const SETTING_NAMES = [
   'textAlignment',
@@ -20,6 +21,9 @@ const SETTING_NAMES = [
   'cardShadow',
   'defaultCardTextSize',
   'cardGap',
+  'markerTerms',
+  'markerColor',
+  'markerStyle',
 ];
 
 const CARD_FIELD_NAMES = [
@@ -607,6 +611,9 @@ export default function decorate(block) {
     ),
     cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null),
   });
+  const markerTerms = readSetting(block, 'markerTerms', ['marker text', 'marker terms', 'highlight text'], null);
+  const markerColor = readSetting(block, 'markerColor', ['marker color'], null);
+  const markerStyle = readSetting(block, 'markerStyle', ['marker style'], null);
 
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
@@ -624,5 +631,10 @@ export default function decorate(block) {
   });
 
   block.replaceChildren(ul);
+  applyAnimatedMarkers(block, {
+    terms: markerTerms,
+    color: markerColor,
+    style: markerStyle,
+  });
   syncResourceSettings(resourcePath, block);
 }

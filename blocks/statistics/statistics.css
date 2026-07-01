@@ -24,7 +24,15 @@
   --statistics-min-height-mobile: var(--statistics-min-height);
   --statistics-content-spacing: 0px;
 
-  padding: 20px 0 40px;
+  /* Outer padding around the block's outskirts, adjustable via the "Padding Style"
+     field — separate from --statistics-content-spacing, which only spaces out each
+     stat item's own image/label/value/button. Defaults match the pre-existing
+     20px/0/40px/0 padding when Padding Style is left at "Default". */
+  padding:
+    var(--colored-field-padding-top, 20px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 40px)
+    var(--colored-field-padding-left, 0);
 }
 
 .statistics .statistics-inner {

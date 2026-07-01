@@ -11,6 +11,10 @@ import {
 import { animateCountUpOnVisible } from '../../scripts/count-up.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
+import {
+  applyColoredFieldLayoutOptions,
+  syncColoredFieldLayoutOptions,
+} from '../../scripts/colored-field-options.js';
 
 const HEX_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const TARGET_OPTION_VALUES = ['self', 'blank', 'same-tab', 'new-tab'];
@@ -80,6 +84,7 @@ const CURRENT_IMAGE_MODE_OFFSETS = {
   markerColor: 25,
   markerStyle: 26,
   contentSpacing: 27,
+  paddingStyle: 28,
 };
 
 const LEGACY_IMAGE_MODE_OFFSETS = {
@@ -108,6 +113,7 @@ const LEGACY_IMAGE_MODE_OFFSETS = {
   markerColor: 26,
   markerStyle: 27,
   contentSpacing: 28,
+  paddingStyle: 29,
 };
 
 function directRowOf(block, element) {
@@ -1486,6 +1492,7 @@ export default function decorate(block) {
   if (block.querySelector(':scope > .statistics-inner')) {
     normalizeRenderedStatistics(block);
     syncResourceStyles(getAueResourcePath(block), block);
+    syncColoredFieldLayoutOptions(getAueResourcePath(block), block, 'statistics');
     return;
   }
 
@@ -1697,6 +1704,13 @@ export default function decorate(block) {
     legacyConfig.compactCell('contentSpacing')
       || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.contentSpacing),
   );
+  const paddingStyleField = readField(
+    block,
+    'paddingStyle',
+    ['padding style', 'padding', 'outer padding'],
+    legacyConfig.compactCell('paddingStyle')
+      || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.paddingStyle),
+  );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
   const fieldFallback = (name) => (
     authoredFieldValues[name] || compactValue(name) || publishedFieldValues[name] || ''
@@ -1820,6 +1834,9 @@ export default function decorate(block) {
     color: markerColorField.value || fieldFallback('markerColor'),
     style: markerStyleField.value || fieldFallback('markerStyle'),
   });
+  applyColoredFieldLayoutOptions(block, 'statistics', {
+    paddingStyle: paddingStyleField.value || fieldFallback('paddingStyle'),
+  });
 
   injectColorPickers(block, [
     { label: 'Heading', cssVar: '--statistics-heading-color', value: headingColor },
@@ -1842,4 +1859,5 @@ export default function decorate(block) {
   });
 
   syncResourceStyles(resourcePath, block);
+  syncColoredFieldLayoutOptions(resourcePath, block, 'statistics');
 }
