@@ -22,6 +22,7 @@ const SETTING_NAMES = [
   'defaultCardTextSize',
   'cardGap',
   'defaultHighlightTextSize',
+  'defaultCardPaddingStyle',
 ];
 
 const CARD_FIELD_NAMES = [
@@ -37,6 +38,7 @@ const CARD_FIELD_NAMES = [
   'markerColor',
   'markerStyle',
   'highlightTextSize',
+  'cardPaddingStyle',
 ];
 
 const DEFAULT_SETTINGS = {
@@ -51,6 +53,7 @@ const DEFAULT_SETTINGS = {
   defaultCardTextSize: '',
   cardGap: '',
   defaultHighlightTextSize: '',
+  defaultCardPaddingStyle: '',
 };
 
 function directRowOf(block, element) {
@@ -74,6 +77,63 @@ function normalizeOption(value, allowedValues, fallback) {
     .replace(/^-|-$/g, '');
 
   return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+const CARD_PADDING_OPTIONS = [
+  'default',
+  'none',
+  'all-sm',
+  'all-md',
+  'all-lg',
+  'vertical-sm',
+  'vertical-md',
+  'vertical-lg',
+  'horizontal-sm',
+  'horizontal-md',
+  'horizontal-lg',
+  'top-sm',
+  'top-md',
+  'top-lg',
+  'bottom-sm',
+  'bottom-md',
+  'bottom-lg',
+];
+const CARD_PADDING_SPACE = { sm: '12px', md: '24px', lg: '40px' };
+
+// Self-contained (not the shared colored-field-options.js) so it doesn't collide
+// with any other block's use of --colored-field-padding-*.
+function computeCardPadding(value) {
+  const option = normalizeOption(value, CARD_PADDING_OPTIONS, 'default');
+  if (option === 'default') return null;
+  if (option === 'none') {
+    return {
+      top: '0', right: '0', bottom: '0', left: '0',
+    };
+  }
+
+  const [, position, size] = option.match(/^(all|vertical|horizontal|top|bottom)-(sm|md|lg)$/u) || [];
+  if (!position) return null;
+
+  const amount = CARD_PADDING_SPACE[size];
+  const zero = '0';
+  const sides = {
+    all: {
+      top: amount, right: amount, bottom: amount, left: amount,
+    },
+    vertical: {
+      top: amount, right: zero, bottom: amount, left: zero,
+    },
+    horizontal: {
+      top: zero, right: amount, bottom: zero, left: amount,
+    },
+    top: {
+      top: amount, right: zero, bottom: zero, left: zero,
+    },
+    bottom: {
+      top: zero, right: zero, bottom: amount, left: zero,
+    },
+  };
+  return sides[position];
 }
 
 function normalizeButtonDisplay(value) {
@@ -248,6 +308,7 @@ function applySettings(block, settings = {}) {
     nextSettings.defaultHighlightTextSize,
     'font-size',
   );
+  const defaultCardPadding = computeCardPadding(nextSettings.defaultCardPaddingStyle);
   const cardGap = normalizeCssLength(nextSettings.cardGap, 'gap');
 
   block.classList.remove(
@@ -312,6 +373,18 @@ function applySettings(block, settings = {}) {
     block.style.setProperty('--cards-card-highlight-size-default', defaultHighlightTextSize);
   } else {
     block.style.removeProperty('--cards-card-highlight-size-default');
+  }
+
+  if (defaultCardPadding) {
+    block.style.setProperty('--cards-card-padding-top-default', defaultCardPadding.top);
+    block.style.setProperty('--cards-card-padding-right-default', defaultCardPadding.right);
+    block.style.setProperty('--cards-card-padding-bottom-default', defaultCardPadding.bottom);
+    block.style.setProperty('--cards-card-padding-left-default', defaultCardPadding.left);
+  } else {
+    block.style.removeProperty('--cards-card-padding-top-default');
+    block.style.removeProperty('--cards-card-padding-right-default');
+    block.style.removeProperty('--cards-card-padding-bottom-default');
+    block.style.removeProperty('--cards-card-padding-left-default');
   }
 
   if (cardGap) {
@@ -544,11 +617,13 @@ function buildCard(row) {
   const markerColorField = readTextField(row, 'markerColor', { fallbackCell: row.children[9] });
   const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: row.children[10] });
   const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: row.children[11] });
+  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: row.children[12] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
   const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
   const cardTextSize = normalizeCssLength(cardTextSizeField.value, 'font-size');
   const highlightTextSize = normalizeCssLength(highlightTextSizeField.value, 'font-size');
+  const cardPadding = computeCardPadding(cardPaddingStyleField.value);
   const cardAlignment = normalizeOption(
     cardAlignmentField.value,
     ['left', 'center', 'right', 'justify'],
@@ -564,6 +639,12 @@ function buildCard(row) {
   if (highlightTextColor) li.style.setProperty('--cards-card-highlight', highlightTextColor);
   if (cardTextSize) li.style.setProperty('--cards-card-text-size', cardTextSize);
   if (highlightTextSize) li.style.setProperty('--cards-card-highlight-size', highlightTextSize);
+  if (cardPadding) {
+    li.style.setProperty('--cards-card-padding-top', cardPadding.top);
+    li.style.setProperty('--cards-card-padding-right', cardPadding.right);
+    li.style.setProperty('--cards-card-padding-bottom', cardPadding.bottom);
+    li.style.setProperty('--cards-card-padding-left', cardPadding.left);
+  }
   if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
 
   const image = buildImage(imageField, isStatIconCard(textField, highlightField));
@@ -643,6 +724,12 @@ export default function decorate(block) {
       block,
       'defaultHighlightTextSize',
       ['default highlighted text size', 'highlighted text size', 'highlight text size'],
+      null,
+    ),
+    defaultCardPaddingStyle: readSetting(
+      block,
+      'defaultCardPaddingStyle',
+      ['default card padding', 'card padding'],
       null,
     ),
   });

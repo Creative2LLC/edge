@@ -627,9 +627,9 @@ function parseColorChannels(value) {
   return rgb ? rgb.slice(1, 4).map((part) => Number.parseInt(part, 10)) : null;
 }
 
-function isDarkColor(value) {
+function getColorLuminance(value) {
   const channels = parseColorChannels(value);
-  if (!channels) return false;
+  if (!channels) return null;
 
   const [red, green, blue] = channels.map((channel) => {
     const normalized = channel / 255;
@@ -638,7 +638,24 @@ function isDarkColor(value) {
       : ((normalized + 0.055) / 1.055) ** 2.4;
   });
 
-  return ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) < 0.3;
+  return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
+}
+
+function isDarkColor(value) {
+  const luminance = getColorLuminance(value);
+  return luminance !== null && luminance < 0.3;
+}
+
+function isLightColor(value) {
+  const luminance = getColorLuminance(value);
+  return luminance !== null && luminance > 0.72;
+}
+
+function hasLikelyBackgroundLeadColor(colors = []) {
+  const [firstColor, ...restColors] = colors;
+  return colors.length >= 3
+    && isDarkColor(firstColor)
+    && restColors.some((color) => isLightColor(color));
 }
 
 function getInheritedTextColor(block) {
@@ -1015,10 +1032,9 @@ function getLegacyConfig(rows) {
   const labelWeightRow = compactWeightRows[0] || null;
   const minHeightRows = styleLengthRows
     .filter((row) => row !== valueSizeRow && row !== labelSizeRow);
-  const colorCount = compactStyleColorRows.length;
-  const leadingDarkColorRow = colorCount >= 3
-    && isDarkColor(rowText(compactStyleColorRows[0]))
-    && !isDarkColor(rowText(compactStyleColorRows[colorCount - 1]))
+  const compactStyleColors = compactStyleColorRows.map((row) => rowText(row));
+  const colorCount = compactStyleColors.length;
+  const leadingDarkColorRow = hasLikelyBackgroundLeadColor(compactStyleColors)
     ? compactStyleColorRows[0]
     : null;
   const blockBackgroundColorRow = leadingDarkColorRow
@@ -1501,9 +1517,7 @@ function getLooseLegacyStyleFallbacks(rows, { hasHeading = false, hasBody = fals
 
   if (colors.length) {
     const [firstColor] = colors;
-    const hasDarkCardLead = colors.length >= 3
-      && isDarkColor(firstColor)
-      && !isDarkColor(colors[colors.length - 1]);
+    const hasDarkCardLead = hasLikelyBackgroundLeadColor(colors);
     const contentColors = hasDarkCardLead ? colors.slice(1) : colors.slice();
     const roleNames = [];
 
@@ -1913,8 +1927,15 @@ export default function decorate(block) {
       || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.borderRadius),
   );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
+  const authoredOrPublishedValue = (name) => authoredFieldValues[name] || publishedFieldValues[name] || '';
+  const explicitFieldValue = (field, name) => {
+    const inlineValue = field?.source || field?.row?.children?.length > 1
+      ? field.value
+      : '';
+    return inlineValue || authoredOrPublishedValue(name);
+  };
   const fieldFallback = (name) => (
-    authoredFieldValues[name] || compactValue(name) || publishedFieldValues[name] || ''
+    authoredOrPublishedValue(name) || compactValue(name) || ''
   );
   legacyConfig.cleanupCompactRows();
 
@@ -1934,41 +1955,48 @@ export default function decorate(block) {
   const textColors = parseTextColors(textStylesField.value);
   const textSizes = parseTextSizes(textStylesField.value);
   const textWeights = parseTextWeights(textStylesField.value);
-  const headingColor = normalizeColorValue(headingColorField.value)
+  const resolvedHeadingFontSize = hasHeadingText
+    ? explicitFieldValue(headingSizeField, 'headingFontSize')
+    : '';
+  const resolvedHeadingFontWeight = hasHeadingText
+    ? explicitFieldValue(headingWeightField, 'headingFontWeight')
+    : '';
+  const resolvedBodyFontSize = hasBodyText
+    ? explicitFieldValue(bodySizeField, 'bodyFontSize')
+    : '';
+  const resolvedBodyFontWeight = hasBodyText
+    ? explicitFieldValue(bodyWeightField, 'bodyFontWeight')
+    : '';
+  const resolvedValueFontWeight = explicitFieldValue(valueWeightField, 'valueFontWeight');
+  const resolvedLabelFontWeight = explicitFieldValue(labelWeightField, 'labelFontWeight');
+  const resolvedMinHeightMobile = explicitFieldValue(minHeightMobileField, 'minHeightMobile');
+  const headingColor = normalizeColorValue(explicitFieldValue(headingColorField, 'headingTextColor'))
     || normalizeColorValue(looseLegacyStyles.headingTextColor)
-    || (hasHeadingText ? normalizeColorValue(fieldFallback('headingTextColor')) : '')
     || textColors.heading
     || defaultColorForContext(block, '#00264d');
-  const bodyColor = normalizeColorValue(bodyColorField.value)
+  const bodyColor = normalizeColorValue(explicitFieldValue(bodyColorField, 'bodyTextColor'))
     || normalizeColorValue(looseLegacyStyles.bodyTextColor)
-    || (hasBodyText ? normalizeColorValue(fieldFallback('bodyTextColor')) : '')
     || textColors.body
     || defaultColorForContext(block, '#404041');
-  const valueColor = normalizeColorValue(valueColorField.value)
+  const valueColor = normalizeColorValue(explicitFieldValue(valueColorField, 'valueTextColor'))
     || normalizeColorValue(looseLegacyStyles.valueTextColor)
-    || normalizeColorValue(fieldFallback('valueTextColor'))
     || textColors.value
     || defaultValueColorForContext(block, hasBodyText);
-  const labelColor = normalizeColorValue(labelColorField.value)
+  const labelColor = normalizeColorValue(explicitFieldValue(labelColorField, 'labelTextColor'))
     || normalizeColorValue(looseLegacyStyles.labelTextColor)
-    || normalizeColorValue(fieldFallback('labelTextColor'))
     || textColors.label
     || defaultColorForContext(block, '#6b6b6b');
-  const blockBackgroundColor = normalizeColorValue(blockBackgroundField.value)
-    || normalizeColorValue(looseLegacyStyles.blockBackgroundColor)
-    || normalizeColorValue(fieldFallback('blockBackgroundColor'));
-  const resolvedValueFontSize = valueSizeField.value
-    || looseLegacyStyles.valueFontSize
-    || fieldFallback('valueFontSize');
-  const resolvedLabelFontSize = labelSizeField.value
-    || looseLegacyStyles.labelFontSize
-    || fieldFallback('labelFontSize');
-  const resolvedMinHeight = minHeightField.value
-    || looseLegacyStyles.minHeight
-    || (fieldFallback('minHeight') !== resolvedValueFontSize ? fieldFallback('minHeight') : '');
-  const resolvedMarkerColor = markerColorField.value
-    || looseLegacyStyles.markerColor
-    || fieldFallback('markerColor');
+  const blockBackgroundColor = normalizeColorValue(
+    explicitFieldValue(blockBackgroundField, 'blockBackgroundColor'),
+  ) || normalizeColorValue(looseLegacyStyles.blockBackgroundColor);
+  const resolvedValueFontSize = explicitFieldValue(valueSizeField, 'valueFontSize')
+    || looseLegacyStyles.valueFontSize;
+  const resolvedLabelFontSize = explicitFieldValue(labelSizeField, 'labelFontSize')
+    || looseLegacyStyles.labelFontSize;
+  const resolvedMinHeight = explicitFieldValue(minHeightField, 'minHeight')
+    || looseLegacyStyles.minHeight;
+  const resolvedMarkerColor = explicitFieldValue(markerColorField, 'markerColor')
+    || looseLegacyStyles.markerColor;
 
   if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
   if (textColors.body) block.style.setProperty('--statistics-body-color', textColors.body);
@@ -1986,19 +2014,19 @@ export default function decorate(block) {
   applyStatisticsStyles(block, {
     blockBackgroundColor,
     headingTextColor: headingColor,
-    headingFontSize: headingSizeField.value || fieldFallback('headingFontSize'),
-    headingFontWeight: headingWeightField.value || fieldFallback('headingFontWeight'),
+    headingFontSize: resolvedHeadingFontSize,
+    headingFontWeight: resolvedHeadingFontWeight,
     bodyTextColor: bodyColor,
-    bodyFontSize: bodySizeField.value || fieldFallback('bodyFontSize'),
-    bodyFontWeight: bodyWeightField.value || fieldFallback('bodyFontWeight'),
+    bodyFontSize: resolvedBodyFontSize,
+    bodyFontWeight: resolvedBodyFontWeight,
     valueTextColor: valueColor,
     valueFontSize: resolvedValueFontSize,
-    valueFontWeight: valueWeightField.value || fieldFallback('valueFontWeight'),
+    valueFontWeight: resolvedValueFontWeight,
     labelTextColor: labelColor,
     labelFontSize: resolvedLabelFontSize,
-    labelFontWeight: labelWeightField.value || fieldFallback('labelFontWeight'),
+    labelFontWeight: resolvedLabelFontWeight,
     minHeight: resolvedMinHeight,
-    minHeightMobile: minHeightMobileField.value || fieldFallback('minHeightMobile'),
+    minHeightMobile: resolvedMinHeightMobile,
     iconMaxWidth: iconMaxWidthField.value,
     iconMaxHeight: iconMaxHeightField.value,
     contentSpacing: contentSpacingField.value || fieldFallback('contentSpacing'),

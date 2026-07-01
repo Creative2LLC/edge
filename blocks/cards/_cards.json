@@ -467,6 +467,33 @@
           "label": "Default Highlighted Text Size",
           "description": "Optional CSS length such as 40px, 3rem, or clamp(2rem, 5vw, 3.625rem). Individual cards can override this value.",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "defaultCardPaddingStyle",
+          "label": "Default Card Padding",
+          "description": "Padding around each card's own content (image + text), not the space between cards (see Card Gap above). Defaults to 16px on all sides. Individual cards can override this value.",
+          "options": [
+            { "name": "Default", "value": "default" },
+            { "name": "None", "value": "none" },
+            { "name": "All Small", "value": "all-sm" },
+            { "name": "All Medium", "value": "all-md" },
+            { "name": "All Large", "value": "all-lg" },
+            { "name": "Vertical Small", "value": "vertical-sm" },
+            { "name": "Vertical Medium", "value": "vertical-md" },
+            { "name": "Vertical Large", "value": "vertical-lg" },
+            { "name": "Sides Small", "value": "horizontal-sm" },
+            { "name": "Sides Medium", "value": "horizontal-md" },
+            { "name": "Sides Large", "value": "horizontal-lg" },
+            { "name": "Top Small", "value": "top-sm" },
+            { "name": "Top Medium", "value": "top-md" },
+            { "name": "Top Large", "value": "top-lg" },
+            { "name": "Bottom Small", "value": "bottom-sm" },
+            { "name": "Bottom Medium", "value": "bottom-md" },
+            { "name": "Bottom Large", "value": "bottom-lg" }
+          ],
+          "value": "default"
         }
       ]
     },
@@ -866,6 +893,33 @@
           "label": "Highlighted Text Size",
           "description": "Optional CSS length override for this card's highlighted text, such as 40px, 3rem, or clamp(2rem, 5vw, 3.625rem).",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardPaddingStyle",
+          "label": "Card Padding",
+          "description": "Overrides the default padding around this card's own content (image + text).",
+          "options": [
+            { "name": "Use Default", "value": "default" },
+            { "name": "None", "value": "none" },
+            { "name": "All Small", "value": "all-sm" },
+            { "name": "All Medium", "value": "all-md" },
+            { "name": "All Large", "value": "all-lg" },
+            { "name": "Vertical Small", "value": "vertical-sm" },
+            { "name": "Vertical Medium", "value": "vertical-md" },
+            { "name": "Vertical Large", "value": "vertical-lg" },
+            { "name": "Sides Small", "value": "horizontal-sm" },
+            { "name": "Sides Medium", "value": "horizontal-md" },
+            { "name": "Sides Large", "value": "horizontal-lg" },
+            { "name": "Top Small", "value": "top-sm" },
+            { "name": "Top Medium", "value": "top-md" },
+            { "name": "Top Large", "value": "top-lg" },
+            { "name": "Bottom Small", "value": "bottom-sm" },
+            { "name": "Bottom Medium", "value": "bottom-md" },
+            { "name": "Bottom Large", "value": "bottom-lg" }
+          ],
+          "value": "default"
         }
       ]
     }

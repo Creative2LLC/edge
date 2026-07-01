@@ -75,7 +75,14 @@
   flex-direction: column;
   gap: 14px;
   color: inherit;
-  margin: 16px;
+
+  /* Padding around this card's own content, adjustable via the "Card Padding" /
+     "Default Card Padding" fields — not the space between cards (--cards-gap). */
+  padding:
+    var(--cards-card-padding-top, var(--cards-card-padding-top-default, 16px))
+    var(--cards-card-padding-right, var(--cards-card-padding-right-default, 16px))
+    var(--cards-card-padding-bottom, var(--cards-card-padding-bottom-default, 16px))
+    var(--cards-card-padding-left, var(--cards-card-padding-left-default, 16px));
 }
 
 .cards .cards-card-highlight {
