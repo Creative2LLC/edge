@@ -25,15 +25,7 @@
   --statistics-content-spacing: 0px;
   --statistics-border-radius: 0;
 
-  /* Outer padding around the block's outskirts, adjustable via the "Padding Style"
-     field — separate from --statistics-content-spacing, which only spaces out each
-     stat item's own image/label/value/button. Defaults match the pre-existing
-     20px/0/40px/0 padding when Padding Style is left at "Default". */
-  padding:
-    var(--colored-field-padding-top, 20px)
-    var(--colored-field-padding-right, 0)
-    var(--colored-field-padding-bottom, 40px)
-    var(--colored-field-padding-left, 0);
+  padding: 20px 0 40px;
 }
 
 .statistics .statistics-inner {
@@ -44,10 +36,16 @@
   background-color: var(--statistics-block-bg);
   border-radius: var(--statistics-border-radius);
   justify-content: flex-start;
-}
 
-.statistics.has-block-background .statistics-inner {
-  padding: 15px;
+  /* Padding around the content inside the card (not the block's own outer spacing,
+     set above, and not --statistics-content-spacing, which only spaces out each stat
+     item's own image/label/value/button). Adjustable via the "Padding Style" field;
+     defaults to the pre-existing 15px used whenever a background color was set. */
+  padding:
+    var(--colored-field-padding-top, 15px)
+    var(--colored-field-padding-right, 15px)
+    var(--colored-field-padding-bottom, 15px)
+    var(--colored-field-padding-left, 15px);
 }
 
 .statistics.statistics-radius-small {
@@ -76,11 +74,7 @@
   flex-direction: column;
   height: 100%;
   margin-inline: 0;
-  padding:
-    var(--colored-field-padding-top, 12px)
-    var(--colored-field-padding-right, 0)
-    var(--colored-field-padding-bottom, 12px)
-    var(--colored-field-padding-left, 0);
+  padding: 12px 0;
 }
 
 .columns .statistics .statistics-inner {
@@ -343,11 +337,7 @@
 
 @media (width <= 700px) {
   .statistics {
-    padding:
-      var(--colored-field-padding-top, 0)
-      var(--colored-field-padding-right, 0)
-      var(--colored-field-padding-bottom, 0)
-      var(--colored-field-padding-left, 0);
+    padding: 0;
   }
 
   .statistics .statistics-value{

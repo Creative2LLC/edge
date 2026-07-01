@@ -1558,129 +1558,132 @@ export default function decorate(block) {
     block,
     'defaultButtonText',
     ['button text', 'cta text'],
-    legacyConfig.compactCell('defaultButtonText') || legacyCell(3),
+    legacyConfig.compactCell('defaultButtonText') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.defaultButtonText),
   );
   const defaultButtonLinkField = readLinkBlockField(
     block,
     'defaultButtonLink',
     ['button link', 'cta link'],
-    legacyConfig.compactCell('defaultButtonLink') || legacyCell(4),
+    legacyConfig.compactCell('defaultButtonLink') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.defaultButtonLink),
   );
   const defaultButtonTargetField = readField(
     block,
     'defaultButtonTarget',
     ['button target', 'open link in'],
-    legacyConfig.compactCell('defaultButtonTarget') || legacyCell(5),
+    legacyConfig.compactCell('defaultButtonTarget') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.defaultButtonTarget),
   );
   const verticalDividersField = readField(
     block,
     'verticalDividers',
     ['vertical dividers', 'dividers'],
-    legacyConfig.compactCell('verticalDividers') || legacyCell(6),
+    legacyConfig.compactCell('verticalDividers') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.verticalDividers),
   );
   const blockBackgroundField = readField(
     block,
     'blockBackgroundColor',
     ['block background color', 'background color'],
-    legacyConfig.compactCell('blockBackgroundColor') || legacyCell(7),
+    legacyConfig.compactCell('blockBackgroundColor') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.blockBackgroundColor),
   );
   const headingColorField = readField(
     block,
     'headingTextColor',
     ['heading text color', 'heading color'],
-    legacyConfig.compactCell('headingTextColor') || legacyCell(8),
+    legacyConfig.compactCell('headingTextColor') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.headingTextColor),
   );
   const headingSizeField = readField(
     block,
     'headingFontSize',
     ['heading font size', 'heading size'],
-    legacyConfig.compactCell('headingFontSize') || legacyCell(9),
+    legacyConfig.compactCell('headingFontSize') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.headingFontSize),
   );
   const headingWeightField = readField(
     block,
     'headingFontWeight',
     ['heading font weight', 'heading weight'],
-    legacyConfig.compactCell('headingFontWeight') || legacyCell(10),
+    legacyConfig.compactCell('headingFontWeight') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.headingFontWeight),
   );
   const bodyColorField = readField(
     block,
     'bodyTextColor',
     ['body text color', 'body color'],
-    legacyConfig.compactCell('bodyTextColor') || legacyCell(11),
+    legacyConfig.compactCell('bodyTextColor') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.bodyTextColor),
   );
   const bodySizeField = readField(
     block,
     'bodyFontSize',
     ['body font size', 'body size'],
-    legacyConfig.compactCell('bodyFontSize') || legacyCell(12),
+    legacyConfig.compactCell('bodyFontSize') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.bodyFontSize),
   );
   const bodyWeightField = readField(
     block,
     'bodyFontWeight',
     ['body font weight', 'body weight'],
-    legacyConfig.compactCell('bodyFontWeight') || legacyCell(13),
+    legacyConfig.compactCell('bodyFontWeight') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.bodyFontWeight),
   );
   const valueColorField = readField(
     block,
     'valueTextColor',
     ['stat value text color', 'value text color', 'value color'],
-    legacyConfig.compactCell('valueTextColor') || legacyCell(14),
+    legacyConfig.compactCell('valueTextColor') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.valueTextColor),
   );
   const valueSizeField = readField(
     block,
     'valueFontSize',
     ['stat value font size', 'value font size', 'value size'],
-    legacyConfig.compactCell('valueFontSize') || legacyCell(15),
+    legacyConfig.compactCell('valueFontSize') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.valueFontSize),
   );
   const valueWeightField = readField(
     block,
     'valueFontWeight',
     ['stat value font weight', 'value font weight', 'value weight'],
-    legacyConfig.compactCell('valueFontWeight') || legacyCell(16),
+    legacyConfig.compactCell('valueFontWeight') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.valueFontWeight),
   );
   const labelColorField = readField(
     block,
     'labelTextColor',
     ['stat label text color', 'label text color', 'label color'],
-    legacyConfig.compactCell('labelTextColor') || legacyCell(17),
+    legacyConfig.compactCell('labelTextColor') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.labelTextColor),
   );
   const labelSizeField = readField(
     block,
     'labelFontSize',
     ['stat label font size', 'label font size', 'label size'],
-    legacyConfig.compactCell('labelFontSize') || legacyCell(18),
+    legacyConfig.compactCell('labelFontSize') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.labelFontSize),
   );
   const labelWeightField = readField(
     block,
     'labelFontWeight',
     ['stat label font weight', 'label font weight', 'label weight'],
-    legacyConfig.compactCell('labelFontWeight') || legacyCell(19),
+    legacyConfig.compactCell('labelFontWeight') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.labelFontWeight),
   );
   const minHeightField = readField(
     block,
     'minHeight',
     ['minimum height', 'min height'],
-    legacyConfig.compactCell('minHeight') || legacyCell(20),
+    legacyConfig.compactCell('minHeight') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.minHeight),
   );
   const minHeightMobileField = readField(
     block,
     'minHeightMobile',
     ['mobile min height', 'minimum height mobile'],
-    legacyConfig.compactCell('minHeightMobile') || legacyCell(21),
+    legacyConfig.compactCell('minHeightMobile') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.minHeightMobile),
   );
   const statValuesField = readField(
     block,
     'statValues',
     ['stat values', 'values'],
-    legacyConfig.compactCell('statValues') || legacyCell(22),
+    legacyConfig.compactCell('statValues') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.statValues),
   );
   const statLabelsField = readField(
     block,
     'statLabels',
     ['stat labels', 'labels'],
-    legacyConfig.compactCell('statLabels') || legacyCell(23),
+    legacyConfig.compactCell('statLabels') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.statLabels),
   );
-  const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors'], legacyCell(24));
+  // "textColors" is a deprecated combined field that no longer exists in the current
+  // model (superseded by the dedicated *TextColor fields above) — there's no valid
+  // current position for it, so it relies solely on data-aue-prop matching in the editor.
+  const textStylesField = readField(block, 'textColors', ['text styles', 'text colors', 'colors'], null);
   const markerTermsField = readField(
     block,
     'markerTerms',
@@ -1709,7 +1712,7 @@ export default function decorate(block) {
   const paddingStyleField = readField(
     block,
     'paddingStyle',
-    ['padding style', 'padding', 'outer padding'],
+    ['padding style', 'padding', 'content padding'],
     legacyConfig.compactCell('paddingStyle')
       || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.paddingStyle),
   );

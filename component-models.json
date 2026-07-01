@@ -25042,7 +25042,7 @@
         "valueType": "string",
         "name": "paddingStyle",
         "label": "Padding Style",
-        "description": "Outer padding around the whole block's outskirts. Not related to Stat Content Spacing, which only affects spacing between each item's own image/label/value/button.",
+        "description": "Padding around the content inside the card (heading, body, stat list). Defaults to 15px on all sides. Not related to Stat Content Spacing, which only affects spacing between each item's own image/label/value/button.",
         "options": [
           {
             "name": "Default",
