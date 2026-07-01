@@ -18,6 +18,26 @@ import {
 
 const HEX_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const TARGET_OPTION_VALUES = ['self', 'blank', 'same-tab', 'new-tab'];
+const PADDING_STYLE_VALUES = [
+  'default',
+  'none',
+  'all-sm',
+  'all-md',
+  'all-lg',
+  'vertical-sm',
+  'vertical-md',
+  'vertical-lg',
+  'horizontal-sm',
+  'horizontal-md',
+  'horizontal-lg',
+  'top-sm',
+  'top-md',
+  'top-lg',
+  'bottom-sm',
+  'bottom-md',
+  'bottom-lg',
+];
+const BORDER_RADIUS_VALUES = ['none', 'small', 'medium', 'large'];
 const CONFIG_OPTION_VALUES = [
   'left',
   'center',
@@ -54,6 +74,7 @@ const CONFIG_OPTION_VALUES = [
   'content-spacing-small',
   'content-spacing-medium',
   'content-spacing-large',
+  ...PADDING_STYLE_VALUES.filter((value) => value !== 'default'),
 ];
 
 const CURRENT_IMAGE_MODE_OFFSETS = {
@@ -696,6 +717,30 @@ function normalizeImageMode(value, fallback = 'icon') {
   return fallback;
 }
 
+function normalizePaddingStyle(value, fallback = '') {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  if (!normalized) return fallback;
+
+  const option = normalized.startsWith('padding-')
+    ? normalized.replace(/^padding-/u, '')
+    : normalized;
+  return PADDING_STYLE_VALUES.includes(option) ? option : fallback;
+}
+
+function normalizeBorderRadius(value, fallback = '') {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return BORDER_RADIUS_VALUES.includes(normalized) ? normalized : fallback;
+}
+
 function rowText(row) {
   return fieldCell(row)?.textContent?.trim() || '';
 }
@@ -720,6 +765,16 @@ function isFontWeightText(value) {
   return /^(?:[1-9]00)$/u.test(String(value || '').trim());
 }
 
+function isLikelyValueFontSizeText(value) {
+  const size = Number.parseFloat(String(value || '').trim());
+  return Number.isFinite(size) && size >= 40 && size <= 200;
+}
+
+function isLikelyLabelFontSizeText(value) {
+  const size = Number.parseFloat(String(value || '').trim());
+  return Number.isFinite(size) && size > 0 && size <= 80;
+}
+
 function isTargetText(value) {
   return Boolean(normalizeOption(value, TARGET_OPTION_VALUES, ''));
 }
@@ -730,7 +785,8 @@ function isConfigOnlyText(value) {
   return isHexColorText(text)
     || isCssLengthText(text)
     || isFontWeightText(text)
-    || Boolean(normalizeOption(text, CONFIG_OPTION_VALUES, ''));
+    || Boolean(normalizeOption(text, CONFIG_OPTION_VALUES, ''))
+    || Boolean(normalizePaddingStyle(text, ''));
 }
 
 function isLikelyStatValue(value) {
@@ -781,12 +837,46 @@ function findLegacyImageModeIndex(rows, alignmentIndex) {
   return -1;
 }
 
+function hasTrustedLegacyOffsetValue(rows, imageModeIndex, offset, predicate) {
+  if (imageModeIndex < 0 || !Number.isInteger(offset)) return false;
+
+  const row = rows[imageModeIndex + offset];
+  if (!row) return false;
+
+  const text = rowText(row);
+  return !text || predicate(text);
+}
+
+function hasTrustedLegacyOffsets(rows, imageModeIndex, offsets) {
+  if (imageModeIndex < 0) return false;
+
+  const checks = [
+    ['verticalDividers', (text) => Boolean(normalizeOption(text, ['show', 'hide'], ''))],
+    ['markerColor', isHexColorText],
+    ['markerStyle', (text) => Boolean(normalizeOption(text, ['circle', 'underline'], ''))],
+    ['contentSpacing', (text) => Boolean(normalizeContentSpacing(text, ''))],
+    ['paddingStyle', (text) => Boolean(normalizePaddingStyle(text, ''))],
+    ['borderRadius', (text) => Boolean(normalizeBorderRadius(text, ''))],
+  ];
+
+  const score = checks.reduce((count, [name, predicate]) => (
+    count + (hasTrustedLegacyOffsetValue(rows, imageModeIndex, offsets[name], predicate) ? 1 : 0)
+  ), 0);
+
+  return score >= 4;
+}
+
 function snapshotPublishedFieldValues(rows) {
   const alignmentIndex = findLegacyAlignmentIndex(rows);
   const imageModeIndex = alignmentIndex >= 0
     ? findLegacyImageModeIndex(rows, alignmentIndex)
     : -1;
-  if (imageModeIndex < 0) return {};
+  if (
+    imageModeIndex < 0
+    || !hasTrustedLegacyOffsets(rows, imageModeIndex, CURRENT_IMAGE_MODE_OFFSETS)
+  ) {
+    return {};
+  }
 
   return Object.entries(CURRENT_IMAGE_MODE_OFFSETS).reduce((values, [name, offset]) => {
     const value = rowText(rows[imageModeIndex + offset]);
@@ -836,11 +926,24 @@ function getLegacyConfig(rows) {
       ? rows.slice(alignmentIndex + 2).filter((row) => rowText(row) || rowHasMedia(row))
       : []
   );
-  const compactImageModeRow = compactTextRows.find((row) => normalizeImageMode(rowText(row), '')) || null;
+  const compactTextRowsReversed = [...compactTextRows].reverse();
+  const compactImageModeRow = compactTextRows
+    .find((row) => normalizeImageMode(rowText(row), '')) || null;
   const compactMarkerStyleRow = compactTextRows
     .find((row) => hasOptionValue(row, ['circle', 'underline'])) || null;
-  const compactContentSpacingRow = compactTextRows
-    .find((row) => normalizeContentSpacing(rowText(row), '')) || null;
+  const compactBorderRadiusRow = compactTextRowsReversed
+    .find((row) => normalizeBorderRadius(rowText(row), '')) || null;
+  const compactPaddingStyleRow = compactTextRowsReversed
+    .find((row) => (
+      row !== compactBorderRadiusRow
+      && normalizePaddingStyle(rowText(row), '')
+    )) || null;
+  const compactContentSpacingRow = compactTextRowsReversed
+    .find((row) => (
+      row !== compactBorderRadiusRow
+      && row !== compactPaddingStyleRow
+      && normalizeContentSpacing(rowText(row), '')
+    )) || null;
   const compactColorRows = compactTextRows.filter((row) => isHexColorText(rowText(row)));
   const compactMarkerStyleIndex = compactMarkerStyleRow
     ? compactTextRows.indexOf(compactMarkerStyleRow)
@@ -856,9 +959,21 @@ function getLegacyConfig(rows) {
     .find((row) => isTargetText(rowText(row))) || null;
   const compactDividerRow = compactTextRows.find((row) => hasOptionValue(row, ['show', 'hide'])) || null;
   const compactLinkRows = compactTextRows.filter(hasUsableLink);
+  const compactConfigRows = new Set([
+    compactImageModeRow,
+    compactMarkerStyleRow,
+    compactContentSpacingRow,
+    compactPaddingStyleRow,
+    compactBorderRadiusRow,
+    compactTargetRow,
+    compactDividerRow,
+  ].filter(Boolean));
   const compactContentRows = compactTextRows.filter((row) => {
     const text = rowText(row);
-    return text && !isConfigOnlyText(text) && !hasUsableLink(row);
+    return text
+      && !compactConfigRows.has(row)
+      && !isConfigOnlyText(text)
+      && !hasUsableLink(row);
   });
   const statValueRow = compactContentRows.find((row) => isLikelyStatValue(rowText(row)))
     || compactContentRows.find((row) => !isLikelyButtonText(rowText(row)))
@@ -890,21 +1005,38 @@ function getLegacyConfig(rows) {
   const bodySizeRow = bodyTextRow && compactLengthRows.length > 1
     ? compactLengthRows[0]
     : null;
-  const labelSizeRow = compactLengthRows
-    .find((row) => (
-      row !== bodySizeRow
-        && Number.parseFloat(rowText(row)) <= 80
-    )) || null;
+  const styleLengthRows = compactLengthRows.filter((row) => row !== bodySizeRow);
+  const valueSizeRow = styleLengthRows
+    .find((row) => isLikelyValueFontSizeText(rowText(row))) || null;
+  const labelSizeRow = styleLengthRows.find((row) => (
+    row !== valueSizeRow
+      && isLikelyLabelFontSizeText(rowText(row))
+  )) || null;
   const labelWeightRow = compactWeightRows[0] || null;
-  const minHeightRows = compactLengthRows.filter((row) => (
-    row !== bodySizeRow && row !== labelSizeRow && Number.parseFloat(rowText(row)) > 80
-  ));
+  const minHeightRows = styleLengthRows
+    .filter((row) => row !== valueSizeRow && row !== labelSizeRow);
   const colorCount = compactStyleColorRows.length;
-  const blockBackgroundColorRow = colorCount >= 5 ? compactStyleColorRows[0] : null;
+  const leadingDarkColorRow = colorCount >= 3
+    && isDarkColor(rowText(compactStyleColorRows[0]))
+    && !isDarkColor(rowText(compactStyleColorRows[colorCount - 1]))
+    ? compactStyleColorRows[0]
+    : null;
+  const blockBackgroundColorRow = leadingDarkColorRow
+    || (colorCount >= 5 ? compactStyleColorRows[0] : null);
+  const resolvedStyleColorRows = blockBackgroundColorRow === compactStyleColorRows[0]
+    ? compactStyleColorRows.slice(1)
+    : compactStyleColorRows;
+  const resolvedColorCount = resolvedStyleColorRows.length;
   let headingColorRow = null;
   let bodyColorRow = null;
 
-  if (colorCount >= 5) {
+  if (blockBackgroundColorRow) {
+    if (resolvedColorCount >= 4) {
+      [headingColorRow, bodyColorRow] = resolvedStyleColorRows;
+    } else if (resolvedColorCount >= 3) {
+      [bodyColorRow] = resolvedStyleColorRows;
+    }
+  } else if (colorCount >= 5) {
     [, headingColorRow, bodyColorRow] = compactStyleColorRows;
   } else if (colorCount === 4) {
     [headingColorRow, bodyColorRow] = compactStyleColorRows;
@@ -912,23 +1044,23 @@ function getLegacyConfig(rows) {
     [bodyColorRow] = compactStyleColorRows;
   }
 
-  const valueColorRow = colorCount >= 2
-    ? compactStyleColorRows[colorCount - 2]
-    : compactStyleColorRows[0] || null;
-  const labelColorRow = colorCount >= 2 ? compactStyleColorRows[colorCount - 1] : null;
+  const valueColorRow = resolvedColorCount >= 2
+    ? resolvedStyleColorRows[resolvedColorCount - 2]
+    : resolvedStyleColorRows[0] || null;
+  const labelColorRow = resolvedColorCount >= 2
+    ? resolvedStyleColorRows[resolvedColorCount - 1]
+    : null;
+  const trustedOffsetMaps = [
+    CURRENT_IMAGE_MODE_OFFSETS,
+    LEGACY_IMAGE_MODE_OFFSETS,
+  ].filter((offsets) => hasTrustedLegacyOffsets(rows, imageModeIndex, offsets));
   const offsetRow = (offset, predicate) => {
     if (imageModeIndex < 0 || !Number.isInteger(offset)) return null;
     const row = rows[imageModeIndex + offset];
     return row && predicate(rowText(row)) ? row : null;
   };
-  const legacyOffsetRow = (name, predicate) => [
-    CURRENT_IMAGE_MODE_OFFSETS[name],
-    LEGACY_IMAGE_MODE_OFFSETS[name],
-  ]
-    .filter((offset, index, offsets) => (
-      Number.isInteger(offset) && offsets.indexOf(offset) === index
-    ))
-    .map((offset) => offsetRow(offset, predicate))
+  const legacyOffsetRow = (name, predicate) => trustedOffsetMaps
+    .map((offsets) => offsetRow(offsets[name], predicate))
     .find(Boolean) || null;
   const isContentRow = (value) => Boolean(
     value && !isConfigOnlyText(value) && !isLikelyButtonText(value),
@@ -948,7 +1080,7 @@ function getLegacyConfig(rows) {
     bodyFontSize: legacyOffsetRow('bodyFontSize', isCssLengthText) || bodySizeRow,
     bodyFontWeight: legacyOffsetRow('bodyFontWeight', isFontWeightText),
     valueTextColor: legacyOffsetRow('valueTextColor', isHexColorText) || valueColorRow,
-    valueFontSize: legacyOffsetRow('valueFontSize', isCssLengthText),
+    valueFontSize: legacyOffsetRow('valueFontSize', isCssLengthText) || valueSizeRow,
     valueFontWeight: legacyOffsetRow('valueFontWeight', isFontWeightText),
     labelTextColor: legacyOffsetRow('labelTextColor', isHexColorText) || labelColorRow,
     labelFontSize: legacyOffsetRow('labelFontSize', isCssLengthText) || labelSizeRow,
@@ -961,6 +1093,8 @@ function getLegacyConfig(rows) {
     markerColor: legacyOffsetRow('markerColor', isHexColorText) || compactMarkerColorRow,
     markerStyle: compactMarkerStyleRow,
     contentSpacing: compactContentSpacingRow,
+    paddingStyle: compactPaddingStyleRow,
+    borderRadius: compactBorderRadiusRow,
   };
 
   return {
