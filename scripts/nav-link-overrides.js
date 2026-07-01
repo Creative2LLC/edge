@@ -84,5 +84,4 @@ function ensureCaseAnniversariesLink(root) {
 export default function applyNavLinkOverrides(root) {
   if (!root) return;
   updateExistingLinks(root);
-  ensureCaseAnniversariesLink(root);
 }
