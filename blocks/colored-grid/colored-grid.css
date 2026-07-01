@@ -28,7 +28,6 @@
   border-radius: var(--colored-grid-radius);
   background: var(--colored-grid-bg);
   color: inherit;
-  overflow: hidden;
 }
 
 .colored-grid .colored-grid-inner > * {
