@@ -222,7 +222,10 @@ function getLegacySettingCells(rows) {
   const radiusShadowRows = scanRows
     .map((row, index) => ({ row, index }))
     .filter(({ index }) => index > Math.max(textAlignmentIndex, imageDisplayIndex))
-    .filter(({ row }) => hasOptionText(row, ['none', 'small', 'medium', 'large']));
+    .filter(({ row }) => hasOptionText(row, [
+      'none', 'small', 'medium', 'large',
+      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold',
+    ]));
   const colorEndIndex = [
     buttonDisplayIndex,
     imageDisplayIndex,
