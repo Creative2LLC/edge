@@ -1934,7 +1934,7 @@ function cleanupFlattenedColumnConfigArtifacts(column) {
     ':scope > .colored-button, :scope > [data-aue-model="colored-button"], :scope > [data-block-name="colored-button"]',
   ));
   directContentChildren(column).forEach((child) => {
-    if (child.closest('.block')) return;
+    if (child.matches('.block') || child.querySelector('.block')) return;
     const text = childTextRaw(child);
     if (
       isPlainParagraph(child)
@@ -1963,6 +1963,47 @@ function recoverFlattenedPromoColumnAlignment(columnsBlock) {
 
   columnsBlock.classList.remove('columns-align-top');
   columnsBlock.classList.add('columns-align-middle');
+}
+
+function recoverFlattenedFeatureColumnPadding(columnsBlock) {
+  if (document.querySelector('[data-aue-resource]')) return;
+  if (columnsBlock.style.getPropertyValue('--columns-padding-top')) return;
+
+  const columns = [...columnsBlock.querySelectorAll(':scope > div > div')];
+  if (columns.length !== 2) return;
+
+  const textColumn = columns.find((column) => (
+    column.matches('.colored-heading-wrapper.colored-text-wrapper')
+      && column.querySelector(':scope > .colored-heading')
+      && column.querySelector(':scope > .colored-text')
+  ));
+  const imageColumn = columns.find((column) => (
+    column.classList.contains('columns-img-col')
+      && column.querySelector(':scope img')
+  ));
+
+  if (!textColumn || !imageColumn) return;
+
+  const isWhiteColor = (value) => {
+    const normalized = normalizeColorValue(value).toLowerCase().replace(/\s+/g, '');
+    return normalized === '#fff' || normalized === '#ffffff' || normalized === 'rgb(255,255,255)';
+  };
+
+  const headingColor = textColumn.querySelector(':scope > .colored-heading')
+    ?.style.getPropertyValue('--colored-heading-color') || '';
+  const textColor = textColumn.querySelector(':scope > .colored-text')
+    ?.style.getPropertyValue('--colored-text-color') || '';
+
+  if (!isWhiteColor(headingColor) || !isWhiteColor(textColor)) return;
+
+  columnsBlock.style.setProperty('--columns-padding-top', '24px');
+  columnsBlock.style.setProperty('--columns-padding-right', '0');
+  columnsBlock.style.setProperty('--columns-padding-bottom', '24px');
+  columnsBlock.style.setProperty('--columns-padding-left', '0');
+
+  if (!/\bcolumns-halign-/.test(columnsBlock.className)) {
+    columnsBlock.classList.add('columns-halign-left');
+  }
 }
 
 function decorateNestedBlocks(root) {
@@ -2010,6 +2051,7 @@ async function loadNestedBlocks(root) {
       cleanupFlattenedColumnConfigArtifacts(column);
     });
     recoverFlattenedPromoColumnAlignment(columnsBlock);
+    recoverFlattenedFeatureColumnPadding(columnsBlock);
   });
 }
 
