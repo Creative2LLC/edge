@@ -1087,12 +1087,16 @@ function isRichTextContentElement(element) {
   return isTextContentParagraph(element) || isTextContentList(element);
 }
 
-function isFlattenedConfigText(value) {
-  const normalized = String(value || '')
+function normalizeFlattenedConfigToken(value) {
+  return String(value || '')
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+function isFlattenedConfigText(value) {
+  const normalized = normalizeFlattenedConfigToken(value);
 
   return [
     'left',
@@ -1141,6 +1145,10 @@ function isFlattenedConfigText(value) {
     || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
     || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(String(value || '').trim())
     || /^(?:[1-9]00)$/u.test(String(value || '').trim());
+}
+
+function isFlattenedButtonArtifactText(value) {
+  return normalizeFlattenedConfigToken(value) === 'download';
 }
 
 function isLikelyContentText(element) {
@@ -1829,11 +1837,16 @@ function normalizeFlattenedPromoColumn(column) {
   const imageIndex = children.findIndex((child) => child.querySelector('picture, img'));
   if (imageIndex < 0) return;
 
+  const hasExistingButtonBlock = Boolean(column.querySelector(
+    ':scope > .colored-button, :scope > [data-aue-model="colored-button"], :scope > [data-block-name="colored-button"]',
+  ));
   const title = children.slice(imageIndex + 1).find((child) => (
     isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
   ));
   const button = children.slice(imageIndex + 1).find((child) => (
-    isPlainParagraph(child) && isDownloadButtonText(child)
+    isPlainParagraph(child)
+      && isDownloadButtonText(child)
+      && (!hasExistingButtonBlock || !isFlattenedButtonArtifactText(childTextRaw(child)))
   ));
   const titleIndex = children.indexOf(title);
   const buttonIndex = children.indexOf(button);
@@ -1868,7 +1881,7 @@ function normalizeFlattenedPromoColumn(column) {
     column.insertBefore(textBlock, button || null);
   }
 
-  if (button && !button.closest('.colored-button')) {
+  if (button && !hasExistingButtonBlock && !button.closest('.colored-button')) {
     const buttonBlock = createFlattenedBlock('colored-button', [
       createBlockFieldRow('label', button),
       createBlockFieldRow('link', ''),
@@ -1917,12 +1930,39 @@ function normalizeFlattenedPromoColumn(column) {
 function cleanupFlattenedColumnConfigArtifacts(column) {
   if (document.querySelector('[data-aue-resource]')) return;
 
+  const hasExistingButtonBlock = Boolean(column.querySelector(
+    ':scope > .colored-button, :scope > [data-aue-model="colored-button"], :scope > [data-block-name="colored-button"]',
+  ));
   directContentChildren(column).forEach((child) => {
     if (child.closest('.block')) return;
-    if (isPlainParagraph(child) && isFlattenedConfigText(childTextRaw(child))) {
+    const text = childTextRaw(child);
+    if (
+      isPlainParagraph(child)
+      && (
+        isFlattenedConfigText(text)
+        || (hasExistingButtonBlock && isFlattenedButtonArtifactText(text))
+      )
+    ) {
       child.remove();
     }
   });
+}
+
+function recoverFlattenedPromoColumnAlignment(columnsBlock) {
+  if (document.querySelector('[data-aue-resource]')) return;
+  if (!columnsBlock.classList.contains('columns-align-top')) return;
+
+  const columns = [...columnsBlock.querySelectorAll(':scope > div > div')];
+  const hasCenteredPromoColumn = columns.some((column) => (
+    column.querySelector(':scope > p.image-positioned, :scope > .image-positioned')
+      && column.querySelector(':scope > .colored-text.colored-text-v-middle')
+      && column.querySelector(':scope > .colored-button')
+  ));
+
+  if (!hasCenteredPromoColumn) return;
+
+  columnsBlock.classList.remove('columns-align-top');
+  columnsBlock.classList.add('columns-align-middle');
 }
 
 function decorateNestedBlocks(root) {
@@ -1963,6 +2003,9 @@ async function loadNestedBlocks(root) {
     // eslint-disable-next-line no-await-in-loop
     await loadBlock(nestedBlocks[i]);
   }
+
+  const columnsBlocks = root.matches?.('.columns.block') ? [root] : [...root.querySelectorAll('.columns.block')];
+  columnsBlocks.forEach(recoverFlattenedPromoColumnAlignment);
 }
 
 /**

@@ -47,21 +47,25 @@ function normalizeAlignment(value, allowedValues, fallback = '') {
   return allowedValues.find((allowedValue) => normalized.includes(allowedValue)) || fallback;
 }
 
-function normalizeSpacingOption(value, type, fallback = '') {
+function normalizeSpacingOption(value, type, fallback = '', allowBareOption = false) {
   const normalized = String(value || '')
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
   const prefix = `${type}-`;
-  if (!normalized.startsWith(prefix)) return fallback;
+  if (!normalized.startsWith(prefix) && !allowBareOption) return fallback;
 
-  const option = normalized.slice(prefix.length);
+  const rawOption = normalized.startsWith(prefix) ? normalized.slice(prefix.length) : normalized;
+  const option = rawOption
+    .replace(/-small$/u, '-sm')
+    .replace(/-medium$/u, '-md')
+    .replace(/-large$/u, '-lg');
   return SPACING_OPTIONS.includes(option) ? option : fallback;
 }
 
 function spacingSides(value, type) {
-  const option = normalizeSpacingOption(value, type, 'default');
+  const option = normalizeSpacingOption(value, type, 'default', true);
   if (option === 'default') return null;
   if (option === 'none') return Object.fromEntries(SPACING_SIDES.map((side) => [side, '0']));
 
@@ -82,6 +86,9 @@ function applyColumnSpacing(block, fields = {}) {
     ['padding', fields.paddingStyle],
     ['margin', fields.marginStyle],
   ].forEach(([type, value]) => {
+    const option = normalizeSpacingOption(value, type, '', true);
+    if (!option) return;
+
     SPACING_SIDES.forEach((side) => block.style.removeProperty(`--columns-${type}-${side}`));
     const sides = spacingSides(value, type);
     if (!sides) return;
@@ -150,6 +157,27 @@ function rowText(row) {
   return String(row?.textContent || '').trim();
 }
 
+function fieldKey(row) {
+  return String(row?.children?.[0]?.textContent || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, '');
+}
+
+function spacingValueFromRow(row, name, type) {
+  if (!row) return '';
+
+  const key = fieldKey(row);
+  const isNamedField = [name.toLowerCase(), `${type}style`, type].includes(key);
+  if (isNamedField && row.children.length >= 2) {
+    const cellValue = row.children[1].textContent.trim();
+    if (normalizeSpacingOption(cellValue, type, '', true)) return cellValue;
+  }
+
+  const text = rowText(row);
+  return normalizeSpacingOption(text, type, '') ? text : '';
+}
+
 function readSpacingField(block, name, type) {
   const rows = [...block.children];
   let source = null;
@@ -164,10 +192,10 @@ function readSpacingField(block, name, type) {
   });
 
   if (!source) {
-    row = rows.find((candidate) => normalizeSpacingOption(rowText(candidate), type, '')) || null;
+    row = rows.find((candidate) => spacingValueFromRow(candidate, name, type)) || null;
   }
 
-  const value = source?.textContent?.trim() || rowText(row);
+  const value = source?.textContent?.trim() || spacingValueFromRow(row, name, type);
   if (row && row.parentElement === block) row.remove();
   return value;
 }
