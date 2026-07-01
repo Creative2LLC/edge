@@ -1,0 +1,221 @@
+import {
+  createOptimizedPicture, decorateButtons, loadBlock, wrapTextNodes,
+} from '../../scripts/aem.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readImageField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
+
+const SETTING_NAMES = ['columns', 'gap', 'borderRadius'];
+
+const DEFAULT_SETTINGS = {
+  columns: '2',
+  gap: '',
+  borderRadius: 'none',
+};
+
+// A gallery-grid item is either a plain background image, or an author-nested
+// Statistics/Cards component filling the slot instead — this is the allow-list
+// for the latter (must match the "gallery-grid-item" filter in _gallery-grid.json).
+const NESTED_BLOCK_NAMES = new Set(['statistics', 'cards']);
+
+function directRowOf(block, element) {
+  let row = element;
+  while (row && row.parentElement !== block) {
+    row = row.parentElement;
+  }
+  return row && row.parentElement === block ? row : null;
+}
+
+function normalizeOption(value, allowedValues, fallback) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function normalizeCssLength(value, propertyName) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^-?\d+(\.\d+)?$/u.test(normalized)) return `${normalized}px`;
+  if (!window.CSS?.supports || window.CSS.supports(propertyName, normalized)) return normalized;
+  return '';
+}
+
+function normalizeColumns(value) {
+  const parsed = Number.parseInt(String(value || '').trim(), 10);
+  if (!Number.isFinite(parsed)) return 2;
+  return Math.min(Math.max(parsed, 2), 4);
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute?.('data-aue-resource')
+      || scope?.querySelector?.('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function readSetting(block, name, labels = [], fallbackCell = null) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) row.remove();
+  return field.value;
+}
+
+function isSettingRow(row) {
+  return SETTING_NAMES.some((name) => row.querySelector(`[data-aue-prop="${name}"]`));
+}
+
+function applySettings(block, settings = {}) {
+  const nextSettings = {
+    ...DEFAULT_SETTINGS,
+    ...(block.galleryGridSettings || {}),
+    ...settings,
+  };
+  block.galleryGridSettings = nextSettings;
+
+  const columns = normalizeColumns(nextSettings.columns);
+  const gap = normalizeCssLength(nextSettings.gap, 'gap');
+  const borderRadius = normalizeOption(
+    nextSettings.borderRadius,
+    ['none', 'small', 'medium', 'large'],
+    'none',
+  );
+
+  block.classList.remove(
+    'gallery-grid-radius-none',
+    'gallery-grid-radius-small',
+    'gallery-grid-radius-medium',
+    'gallery-grid-radius-large',
+  );
+  block.classList.add(`gallery-grid-radius-${borderRadius}`);
+  block.style.setProperty('--gallery-grid-columns', columns);
+
+  if (gap) block.style.setProperty('--gallery-grid-gap', gap);
+  else block.style.removeProperty('--gallery-grid-gap');
+}
+
+function syncResourceSettings(resourcePath, block) {
+  readAueResourceFields(resourcePath, SETTING_NAMES)
+    .then((fields) => {
+      if (Object.keys(fields).length) applySettings(block, fields);
+    });
+}
+
+function getContentBlockName(element) {
+  const resource = element.getAttribute('data-aue-resource') || '';
+  const segments = resource.split('/').filter(Boolean);
+  const fromResource = segments[segments.length - 1] || '';
+
+  return String(element.dataset.blockName || element.getAttribute('data-aue-model') || fromResource)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-\d{4,}$/u, '')
+    .replace(/^-|-$/g, '');
+}
+
+async function loadNestedBlock(element) {
+  const blockName = getContentBlockName(element);
+  if (!NESTED_BLOCK_NAMES.has(blockName)) return false;
+
+  if (!element.dataset.blockStatus) {
+    element.classList.add(blockName, 'block', 'no-scroll-reveal');
+    element.dataset.blockName = blockName;
+    element.dataset.blockStatus = 'initialized';
+    wrapTextNodes(element);
+    decorateButtons(element);
+  }
+
+  await loadBlock(element);
+  element.classList.add('is-visible');
+  return true;
+}
+
+function findNestedBlockElement(row) {
+  return [...row.children].find((child) => (
+    child.getAttribute('data-aue-resource') || child.dataset.blockName
+  ));
+}
+
+async function buildItem(row, isEditor) {
+  const item = document.createElement('div');
+  item.className = 'gallery-grid-item';
+  moveInstrumentation(row, item);
+
+  const nestedSource = findNestedBlockElement(row);
+  if (nestedSource && await loadNestedBlock(nestedSource)) {
+    item.classList.add('gallery-grid-item-content');
+    item.append(nestedSource);
+    return item;
+  }
+
+  const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
+  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: row.children[1] });
+
+  if (imageField.img) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'gallery-grid-image';
+
+    const picture = createOptimizedPicture(
+      imageField.img.src,
+      imageAltField.value || imageField.img.alt || '',
+      false,
+      [{ width: '750' }],
+    );
+    const img = picture.querySelector('img');
+    if (imageField.source && imageField.source !== imageField.img) {
+      moveInstrumentation(imageField.source, picture);
+    }
+    if (img) moveInstrumentation(imageField.img, img);
+
+    wrapper.append(picture);
+    item.append(wrapper);
+    return item;
+  }
+
+  if (isEditor && hasAuthoringContext(row)) {
+    item.classList.add('is-authoring-placeholder');
+    item.textContent = 'Add a background image, or add a Statistics/Cards component inside this item.';
+    return item;
+  }
+
+  return null;
+}
+
+export default async function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const resourcePath = getAueResourcePath(block);
+
+  applySettings(block, {
+    columns: readSetting(block, 'columns', ['columns'], null),
+    gap: readSetting(block, 'gap', ['gap', 'grid gap'], null),
+    borderRadius: readSetting(block, 'borderRadius', ['item border radius', 'border radius'], null),
+  });
+
+  const itemRows = [...block.children].filter((row) => {
+    if (isSettingRow(row)) {
+      row.remove();
+      return false;
+    }
+    return true;
+  });
+
+  const inner = document.createElement('div');
+  inner.className = 'gallery-grid-inner';
+
+  const items = await Promise.all(itemRows.map((row) => buildItem(row, isEditor)));
+  items.filter(Boolean).forEach((item) => inner.append(item));
+
+  block.replaceChildren(inner);
+  syncResourceSettings(resourcePath, block);
+}

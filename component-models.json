@@ -10781,6 +10781,86 @@
     ]
   },
   {
+    "id": "gallery-grid",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "columns",
+        "label": "Columns",
+        "description": "Number of equal-size columns on desktop.",
+        "options": [
+          {
+            "name": "2 Columns",
+            "value": "2"
+          },
+          {
+            "name": "3 Columns",
+            "value": "3"
+          },
+          {
+            "name": "4 Columns",
+            "value": "4"
+          }
+        ],
+        "value": "2"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "gap",
+        "label": "Gap",
+        "description": "Optional CSS length between grid items. Defaults to 24px.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "borderRadius",
+        "label": "Item Border Radius",
+        "options": [
+          {
+            "name": "None (default)",
+            "value": "none"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ],
+        "value": "none"
+      }
+    ]
+  },
+  {
+    "id": "gallery-grid-item",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Background Image (Optional)",
+        "description": "Fills this grid slot edge-to-edge. Leave empty and add a Statistics or Cards component inside this item instead.",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "general-inquiries",
     "fields": [
       {

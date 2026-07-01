@@ -1,0 +1,80 @@
+.gallery-grid {
+  --gallery-grid-columns: 2;
+  --gallery-grid-gap: 24px;
+  --gallery-grid-radius: 0;
+}
+
+.gallery-grid .gallery-grid-inner {
+  display: grid;
+  grid-template-columns: repeat(var(--gallery-grid-columns), minmax(0, 1fr));
+  gap: var(--gallery-grid-gap);
+  width: 100%;
+}
+
+.gallery-grid .gallery-grid-item {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--gallery-grid-radius);
+}
+
+.gallery-grid.gallery-grid-radius-small {
+  --gallery-grid-radius: 8px;
+}
+
+.gallery-grid.gallery-grid-radius-medium {
+  --gallery-grid-radius: 16px;
+}
+
+.gallery-grid.gallery-grid-radius-large {
+  --gallery-grid-radius: 24px;
+}
+
+.gallery-grid .gallery-grid-image {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  line-height: 0;
+}
+
+.gallery-grid .gallery-grid-image picture,
+.gallery-grid .gallery-grid-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The nested Statistics/Cards component fills the slot edge-to-edge and stretches
+   to match the tallest item in its grid row (CSS Grid's default row-stretch
+   behavior on .gallery-grid-item already handles the row height itself). */
+.gallery-grid .gallery-grid-item-content {
+  display: flex;
+  height: 100%;
+}
+
+.gallery-grid .gallery-grid-item-content > * {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.gallery-grid .is-authoring-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  width: 100%;
+  padding: 16px;
+  border: 1px dashed #9ccbd8;
+  border-radius: inherit;
+  background: rgb(20 145 191 / 4%);
+  color: #6b6b6b;
+  font-size: 0.95rem;
+  font-style: italic;
+  text-align: center;
+}
+
+@media (width <= 700px) {
+  .gallery-grid .gallery-grid-inner {
+    grid-template-columns: 1fr;
+  }
+}

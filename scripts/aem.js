@@ -1417,11 +1417,23 @@ function isLikelyStatisticValueText(value) {
   return /^\s*[-+$]?\d/u.test(String(value || ''));
 }
 
-function isFlattenedStatisticsColumn(column) {
-  if (document.querySelector('[data-aue-resource]')) return false;
-  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
+function getFlattenedStatisticsEndIndex(children) {
+  let contentCount = 0;
 
-  const children = directContentChildren(column);
+  for (let index = 2; index < children.length; index += 1) {
+    const child = children[index];
+
+    if (child.querySelector('picture, img')) {
+      if (contentCount >= 2) return index;
+    } else if (isLikelyContentText(child)) {
+      contentCount += 1;
+    }
+  }
+
+  return children.length;
+}
+
+function isFlattenedStatisticsGroup(children) {
   if (children.length < 5) return false;
 
   const horizontalAlign = childText(children[0]);
@@ -1445,6 +1457,36 @@ function isFlattenedStatisticsColumn(column) {
   return (hasAlignmentRows || hasMarkerStyle)
     && hasStatisticValue
     && contentChildren.length >= 2;
+}
+
+function isFlattenedStatisticsStart(children, index) {
+  return ['left', 'center', 'right'].includes(childText(children[index]))
+    && ['top', 'middle', 'bottom'].includes(childText(children[index + 1]));
+}
+
+function getFlattenedStatisticsGroups(children) {
+  if (!isFlattenedStatisticsStart(children, 0)) return [];
+
+  const starts = [0];
+  for (let index = 2; index < children.length - 1; index += 1) {
+    if (isFlattenedStatisticsStart(children, index)) starts.push(index);
+  }
+
+  return starts.map((start, index) => {
+    const nextStart = starts[index + 1] ?? children.length;
+    const candidate = children.slice(start, nextStart);
+    const end = index === starts.length - 1
+      ? getFlattenedStatisticsEndIndex(candidate)
+      : candidate.length;
+    return candidate.slice(0, end);
+  }).filter((group) => isFlattenedStatisticsGroup(group));
+}
+
+function isFlattenedStatisticsColumn(column) {
+  if (document.querySelector('[data-aue-resource]')) return false;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
+
+  return getFlattenedStatisticsGroups(directContentChildren(column)).length > 0;
 }
 
 function getFlattenedMultiTextColumnParts(column) {
@@ -1635,22 +1677,6 @@ function normalizeFlattenedSingleTextColumn(column) {
   column.append(textBlock);
 }
 
-function getFlattenedStatisticsEndIndex(children) {
-  let contentCount = 0;
-
-  for (let index = 2; index < children.length; index += 1) {
-    const child = children[index];
-
-    if (child.querySelector('picture, img')) {
-      if (contentCount >= 2) return index;
-    } else if (isLikelyContentText(child)) {
-      contentCount += 1;
-    }
-  }
-
-  return children.length;
-}
-
 function inferFlattenedStatisticImageMode(imageChild) {
   if (!imageChild) return '';
 
@@ -1680,16 +1706,56 @@ function createLabeledFlattenedStatisticsRows(children) {
   const iconImageChild = children.find((child) => child.querySelector('picture, img')) || null;
   const markerStyleChild = [...children].reverse()
     .find((child) => normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], ''));
-  const contentSpacingChild = children.find((child) => normalizeFlattenedOption(
-    childTextRaw(child),
-    ['content-spacing-small', 'content-spacing-medium', 'content-spacing-large'],
-    '',
-  )) || null;
   const markerStyleIndex = markerStyleChild ? children.indexOf(markerStyleChild) : -1;
   const markerColorChild = markerStyleIndex > 0
     && normalizeHexColorValue(childTextRaw(children[markerStyleIndex - 1]))
     ? children[markerStyleIndex - 1]
     : null;
+  const trailingConfigChildren = markerStyleIndex >= 0
+    ? children.slice(markerStyleIndex + 1)
+    : children;
+  const borderRadiusChild = [...trailingConfigChildren].reverse()
+    .find((child) => normalizeFlattenedOption(
+      childTextRaw(child),
+      ['none', 'small', 'medium', 'large'],
+      '',
+    )) || null;
+  const paddingStyleChild = [...trailingConfigChildren].reverse()
+    .find((child) => (
+      child !== borderRadiusChild
+        && normalizeFlattenedOption(
+          childTextRaw(child),
+          [
+            'default',
+            'none',
+            'all-sm',
+            'all-md',
+            'all-lg',
+            'vertical-sm',
+            'vertical-md',
+            'vertical-lg',
+            'horizontal-sm',
+            'horizontal-md',
+            'horizontal-lg',
+            'top-sm',
+            'top-md',
+            'top-lg',
+            'bottom-sm',
+            'bottom-md',
+            'bottom-lg',
+          ],
+          '',
+        )
+    )) || null;
+  const contentSpacingChild = trailingConfigChildren.find((child) => (
+    child !== paddingStyleChild
+      && child !== borderRadiusChild
+      && normalizeFlattenedOption(
+        childTextRaw(child),
+        ['none', 'content-spacing-small', 'content-spacing-medium', 'content-spacing-large'],
+        '',
+      )
+  )) || null;
   const colorChildren = children.filter((child) => (
     child !== markerColorChild && normalizeHexColorValue(childTextRaw(child))
   ));
@@ -1728,14 +1794,20 @@ function createLabeledFlattenedStatisticsRows(children) {
       child !== statLabelChild && childTextRaw(child)
     ))
     : null;
-  const valueColorChild = colorChildren.length >= 2
-    ? colorChildren[colorChildren.length - 2]
-    : colorChildren[0] || null;
-  const labelColorChild = colorChildren.length >= 2
-    ? colorChildren[colorChildren.length - 1]
+  const blockBackgroundChild = colorChildren.length >= 5
+    || (!bodyTextChild && colorChildren.length >= 3)
+    ? colorChildren[0]
     : null;
-  const bodyColorChild = colorChildren.length >= 3
-    ? colorChildren[colorChildren.length - 3]
+  const styleColorChildren = blockBackgroundChild ? colorChildren.slice(1) : colorChildren;
+  const headingColorChild = styleColorChildren.length >= 4 ? styleColorChildren[0] : null;
+  const valueColorChild = styleColorChildren.length >= 2
+    ? styleColorChildren[styleColorChildren.length - 2]
+    : styleColorChildren[0] || null;
+  const labelColorChild = styleColorChildren.length >= 2
+    ? styleColorChildren[styleColorChildren.length - 1]
+    : null;
+  const bodyColorChild = styleColorChildren.length >= 3
+    ? styleColorChildren[styleColorChildren.length - 3]
     : null;
   const bodySizeChild = bodyTextChild && lengthChildren.length > 1
     ? lengthChildren[0]
@@ -1780,40 +1852,48 @@ function createLabeledFlattenedStatisticsRows(children) {
     createBlockFieldRow('button text', childTextRaw(buttonChild)),
     createBlockFieldRow('button link', getFlattenedLinkHref(buttonChild) || getFlattenedLinkHref(buttonLinkChild)),
     createBlockFieldRow('button target', getFlattenedLinkTarget(buttonChild) || getFlattenedLinkTarget(buttonTargetChild)),
+    createBlockFieldRow('vertical dividers', findFlattenedOptionValue(children, ['show', 'hide'], 'show')),
+    createBlockFieldRow('block background color', normalizeHexColorValue(childTextRaw(blockBackgroundChild))),
+    createBlockFieldRow('heading text color', normalizeHexColorValue(childTextRaw(headingColorChild))),
     createBlockFieldRow('marker text', childTextRaw(markerTextChild)),
     createBlockFieldRow('marker color', normalizeHexColorValue(childTextRaw(markerColorChild))),
     createBlockFieldRow('marker style', childTextRaw(markerStyleChild)),
     createBlockFieldRow('content spacing', childTextRaw(contentSpacingChild)),
+    createBlockFieldRow('padding style', childTextRaw(paddingStyleChild)),
+    createBlockFieldRow('border radius', childTextRaw(borderRadiusChild)),
   ];
 }
 
 function normalizeFlattenedStatisticsColumn(column) {
-  if (!isFlattenedStatisticsColumn(column)) return;
-
-  const block = document.createElement('div');
-  block.className = 'statistics';
   const children = directContentChildren(column);
-  const statsEndIndex = getFlattenedStatisticsEndIndex(children);
-  const statsChildren = children.slice(0, statsEndIndex);
-  const labeledRows = createLabeledFlattenedStatisticsRows(statsChildren);
+  const groups = getFlattenedStatisticsGroups(children);
+  if (!groups.length) return;
 
-  if (labeledRows.length) {
-    labeledRows.forEach((row) => block.append(row));
-    statsChildren.forEach((child) => {
-      if (child.parentElement === column) child.remove();
-    });
-  } else {
-    statsChildren.forEach((child) => {
-      const row = document.createElement('div');
-      row.append(child);
-      block.append(row);
-    });
-  }
+  const blocks = groups.map((statsChildren) => {
+    const block = document.createElement('div');
+    block.className = 'statistics';
+    const labeledRows = createLabeledFlattenedStatisticsRows(statsChildren);
+
+    if (labeledRows.length) {
+      labeledRows.forEach((row) => block.append(row));
+      statsChildren.forEach((child) => {
+        if (child.parentElement === column) child.remove();
+      });
+    } else {
+      statsChildren.forEach((child) => {
+        const row = document.createElement('div');
+        row.append(child);
+        block.append(row);
+      });
+    }
+
+    return block;
+  });
 
   [...column.childNodes]
     .filter((child) => child.nodeType === Node.TEXT_NODE && !child.textContent.trim())
     .forEach((child) => child.remove());
-  column.prepend(block);
+  column.prepend(...blocks);
 }
 
 function normalizeFlattenedColumnImages(column) {
@@ -2014,8 +2094,8 @@ function decorateNestedBlocks(root) {
 
     columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
       normalizeFlattenedColumnImages(column);
-      normalizeFlattenedHeadingTextColumn(column);
       normalizeFlattenedStatisticsColumn(column);
+      normalizeFlattenedHeadingTextColumn(column);
       normalizeFlattenedMultiTextColumn(column);
       normalizeFlattenedSingleTextColumn(column);
       normalizeFlattenedPromoColumn(column);
