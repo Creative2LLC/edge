@@ -500,12 +500,12 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-side {
   display: grid;
-  align-self: start;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-detail {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 12px;
   min-height: 250px;
   height: auto;

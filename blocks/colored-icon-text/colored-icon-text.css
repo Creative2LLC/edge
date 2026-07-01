@@ -95,6 +95,14 @@
   overflow: visible;
 }
 
+/* Icon-mode art (object-fit: contain) doesn't fill its box like a circle/square
+   photo crop does, so centering it leaves a gap before the card's own padding.
+   In the Feature Card layout that reads as "the icon isn't aligned left" — pin
+   it to the top-left of its box instead. */
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-media.colored-icon-text-image-icon {
+  place-items: start;
+}
+
 .colored-icon-text .colored-icon-text-image-icon img {
   object-fit: contain;
 }

@@ -467,7 +467,7 @@ export default function decorate(block) {
     isEditor,
     fieldCell(colorRows[1] || rows[5]),
   );
-  const labelColorField = readField(block, 'labelColor', ['label color'], null);
+  const labelColorField = readColorField(block, 'labelColor', ['label color'], isEditor, null);
   const horizontalAlign = normalizeOption(
     readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[horizontalAlignIndex])).value,
     ['left', 'center', 'right', 'justify'],
