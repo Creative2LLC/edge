@@ -5632,6 +5632,12 @@
       {
         "component": "richtext",
         "valueType": "string",
+        "name": "label",
+        "label": "Label / Eyebrow (optional)"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
         "name": "text",
         "label": "Text"
       },
@@ -5709,6 +5715,43 @@
           {
             "name": "Transparent",
             "value": "transparent"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "labelColor",
+        "label": "Label Color",
+        "options": [
+          {
+            "name": "Match Text Color",
+            "value": ""
+          },
+          {
+            "name": "Teal",
+            "value": "teal"
+          },
+          {
+            "name": "Orange",
+            "value": "orange"
+          },
+          {
+            "name": "Navy",
+            "value": "navy"
+          },
+          {
+            "name": "Dark Navy",
+            "value": "dark-navy"
+          },
+          {
+            "name": "White",
+            "value": "white"
+          },
+          {
+            "name": "Body Grey",
+            "value": "grey"
           }
         ],
         "value": ""

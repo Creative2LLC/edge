@@ -138,13 +138,52 @@ function watchBlockBackgroundField(source, block) {
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
+const LABEL_COLOR_MAP = {
+  teal: '#008EB7',
+  orange: '#F7941D',
+  navy: '#00264D',
+  'dark-navy': '#092348',
+  white: '#FFFFFF',
+  grey: '#404041',
+};
+
+function applyLabelColor(block, value) {
+  const hex = LABEL_COLOR_MAP[String(value || '').trim().toLowerCase()] || '';
+  if (hex) {
+    block.style.setProperty('--colored-icon-text-label-color', hex);
+  } else {
+    block.style.removeProperty('--colored-icon-text-label-color');
+  }
+}
+
 function syncResourceColorFields(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor', 'text'])
+  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor', 'label', 'labelColor', 'text'])
     .then((fields) => {
       const textColor = normalizeColorValue(fields.textColor);
       if (textColor) block.style.setProperty('--colored-icon-text-color', textColor);
       if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
         applyBlockBackground(block, fields.blockBackgroundColor);
+      }
+      if (Object.prototype.hasOwnProperty.call(fields, 'labelColor')) {
+        applyLabelColor(block, fields.labelColor);
+      }
+      // Render label authored via Properties Rail when the DOM didn't carry the richtext row
+      const resourceLabel = String(fields.label || '').trim();
+      if (resourceLabel) {
+        let labelEl = block.querySelector('.colored-icon-text-label');
+        if (!labelEl) {
+          labelEl = document.createElement('div');
+          labelEl.className = 'colored-icon-text-label';
+          const wrapper = block.querySelector('.colored-icon-text-text-wrapper');
+          const content = block.querySelector('.colored-icon-text-content');
+          if (wrapper && content) wrapper.insertBefore(labelEl, content);
+          else if (wrapper) wrapper.prepend(labelEl);
+        }
+        if (!labelEl.children.length || labelEl.classList.contains('is-authoring-placeholder')) {
+          labelEl.classList.remove('is-authoring-placeholder');
+          labelEl.innerHTML = resourceLabel;
+          labelEl.setAttribute('data-richtext-prop', 'label');
+        }
       }
       // Render text authored via Properties Rail when the DOM didn't carry the richtext row
       const resourceText = String(fields.text || '').trim();
@@ -240,31 +279,36 @@ export default function decorate(block) {
     fieldCell(row)?.textContent?.trim()
       || row.querySelector('[data-aue-prop], [data-richtext-prop]')
   ));
-  const imageAltFallback = contentRows.length > 1 ? fieldCell(contentRows[0]) : null;
-  const textFallback = contentRows.length > 1
-    ? fieldCell(contentRows[1])
-    : fieldCell(contentRows[0]);
+  const imageAltFallback = contentRows.length >= 1 ? fieldCell(contentRows[0]) : null;
+  const labelFallback = contentRows.length >= 3 ? fieldCell(contentRows[1]) : null;
+  const textFallback = contentRows.length >= 3
+    ? fieldCell(contentRows[2])
+    : contentRows.length === 2
+      ? fieldCell(contentRows[1])
+      : fieldCell(contentRows[0]);
   const rowAfterImageMode = (offset, fallbackIndex) => fieldCell(
     rows[imageModeIndex >= 0 ? imageModeIndex + offset : fallbackIndex],
   );
 
   const imageField = readImage(block, 'image', ['image', 'icon'], fieldCell(rows[0]));
   const imageAlt = readField(block, 'imageAlt', ['image alt', 'alt text'], imageAltFallback).value;
+  const labelField = readRichField(block, 'label', ['eyebrow', 'label'], labelFallback);
   const textField = readRichField(block, 'text', ['body', 'copy'], textFallback);
   const txtField = readColorField(
     block,
     'textColor',
     ['text color', 'color'],
     isEditor,
-    fieldCell(colorRows[0] || rows[3]),
+    fieldCell(colorRows[0] || rows[4]),
   );
   const blockBgField = readColorField(
     block,
     'blockBackgroundColor',
     ['block background color', 'background color'],
     isEditor,
-    fieldCell(colorRows[1] || rows[4]),
+    fieldCell(colorRows[1] || rows[5]),
   );
+  const labelColorField = readField(block, 'labelColor', ['label color'], null);
   const horizontalAlign = normalizeOption(
     readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[horizontalAlignIndex])).value,
     ['left', 'center', 'right', 'justify'],
@@ -285,15 +329,15 @@ export default function decorate(block) {
     ['circle', 'square', 'icon'],
     'circle',
   );
-  const imageSize = normalizeCssLength(readField(block, 'imageSize', ['image size', 'icon size'], rowAfterImageMode(1, 9)).value, 'width');
-  const gap = normalizeCssLength(readField(block, 'gap', ['content gap', 'gap'], rowAfterImageMode(2, 10)).value, 'gap');
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], rowAfterImageMode(3, 11)).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], rowAfterImageMode(4, 12)).value);
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], rowAfterImageMode(5, 13)).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height'], rowAfterImageMode(6, 14)).value, 'min-height');
-  const paddingStyleField = readField(block, 'paddingStyle', ['padding style', 'padding'], rowAfterImageMode(7, 15));
-  const marginStyleField = readField(block, 'marginStyle', ['margin style', 'margin'], rowAfterImageMode(8, 16));
-  const dropShadowField = readField(block, 'dropShadow', ['drop shadow', 'shadow'], rowAfterImageMode(9, 17));
+  const imageSize = normalizeCssLength(readField(block, 'imageSize', ['image size', 'icon size'], rowAfterImageMode(1, 11)).value, 'width');
+  const gap = normalizeCssLength(readField(block, 'gap', ['content gap', 'gap'], rowAfterImageMode(2, 12)).value, 'gap');
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], rowAfterImageMode(3, 13)).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], rowAfterImageMode(4, 14)).value);
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], rowAfterImageMode(5, 15)).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height'], rowAfterImageMode(6, 16)).value, 'min-height');
+  const paddingStyleField = readField(block, 'paddingStyle', ['padding style', 'padding'], rowAfterImageMode(7, 17));
+  const marginStyleField = readField(block, 'marginStyle', ['margin style', 'margin'], rowAfterImageMode(8, 18));
+  const dropShadowField = readField(block, 'dropShadow', ['drop shadow', 'shadow'], rowAfterImageMode(9, 19));
 
   const textColor = normalizeColorValue(txtField.value) || DEFAULT_TEXT_COLOR;
   const backgroundColor = applyBlockBackground(
@@ -313,6 +357,7 @@ export default function decorate(block) {
   });
 
   block.style.setProperty('--colored-icon-text-color', textColor);
+  applyLabelColor(block, labelColorField.value);
   if (imageSize) block.style.setProperty('--colored-icon-text-image-size', imageSize);
   if (gap) block.style.setProperty('--colored-icon-text-gap', gap);
   if (fontSize) block.style.setProperty('--colored-icon-text-size', fontSize);
@@ -323,19 +368,40 @@ export default function decorate(block) {
   const inner = document.createElement('div');
   inner.className = 'colored-icon-text-inner';
 
-  const media = imagePosition === 'none' ? null : buildMedia(imageField, imageMode, imageAlt, hasAuthoringContext(block));
+  const textWrapper = document.createElement('div');
+  textWrapper.className = 'colored-icon-text-text-wrapper';
+
+  const isAuthoring = hasAuthoringContext(block);
+  const media = imagePosition === 'none' ? null : buildMedia(imageField, imageMode, imageAlt, isAuthoring);
+
+  const hasLabelContent = labelField.text.trim() || labelField.html.trim() || labelField.source;
+  if (hasLabelContent) {
+    const label = document.createElement('div');
+    label.className = 'colored-icon-text-label';
+    appendRichText(labelField, label);
+    textWrapper.append(label);
+  } else if (isAuthoring) {
+    const label = document.createElement('div');
+    label.className = 'colored-icon-text-label is-authoring-placeholder';
+    label.textContent = 'Add label / eyebrow (optional)';
+    textWrapper.append(label);
+  }
+
   const content = document.createElement('div');
   content.className = 'colored-icon-text-content';
 
-  if (textField.text.trim() || textField.html.trim() || textField.source) {
+  const hasTextContent = textField.text.trim() || textField.html.trim() || textField.source;
+  if (hasTextContent) {
     appendRichText(textField, content);
-  } else if (hasAuthoringContext(block)) {
+  } else if (isAuthoring) {
     content.classList.add('is-authoring-placeholder');
     content.textContent = 'Add colored icon text in the editor.';
   }
 
+  if (hasTextContent || isAuthoring) textWrapper.append(content);
+
   if (media && imagePosition === 'left') inner.append(media);
-  if (content.textContent.trim() || content.children.length) inner.append(content);
+  if (textWrapper.children.length) inner.append(textWrapper);
   if (media && imagePosition === 'right') inner.append(media);
 
   if (isEditor) {
@@ -350,6 +416,11 @@ export default function decorate(block) {
   if (isEditor) {
     watchColorField(txtField.source, '--colored-icon-text-color', block);
     watchBlockBackgroundField(blockBgField.source, block);
+    if (labelColorField.source) {
+      new MutationObserver(() => {
+        applyLabelColor(block, labelColorField.source.textContent.trim());
+      }).observe(labelColorField.source, { childList: true, characterData: true, subtree: true });
+    }
   }
 
   injectColorPickers(block, [

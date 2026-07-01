@@ -84,14 +84,60 @@
   object-fit: contain;
 }
 
-.colored-icon-text .colored-icon-text-content {
+.colored-icon-text .colored-icon-text-text-wrapper {
   flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.colored-icon-text .colored-icon-text-label {
+  color: var(--colored-icon-text-label-color, var(--colored-icon-text-color));
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+.colored-icon-text .colored-icon-text-label.is-authoring-placeholder {
+  color: #6b6b6b;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.colored-icon-text .colored-icon-text-content {
   min-width: 0;
   color: var(--colored-icon-text-color);
   font-size: var(--colored-icon-text-size);
   font-weight: var(--colored-icon-text-weight);
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+.colored-icon-text .colored-icon-text-content p {
+  margin-bottom: 0.65em;
+}
+
+.colored-icon-text .colored-icon-text-content p:last-child {
+  margin-bottom: 0;
+}
+
+.colored-icon-text.colored-icon-text-h-left .colored-icon-text-text-wrapper {
+  text-align: left;
+}
+
+.colored-icon-text.colored-icon-text-h-center .colored-icon-text-text-wrapper {
+  text-align: center;
+}
+
+.colored-icon-text.colored-icon-text-h-right .colored-icon-text-text-wrapper {
+  text-align: right;
+}
+
+.colored-icon-text.colored-icon-text-h-justify .colored-icon-text-text-wrapper {
+  text-align: justify;
 }
 
 .colored-icon-text.colored-icon-text-h-left .colored-icon-text-content {
