@@ -46,6 +46,10 @@ const DEFAULTS = {
   emptyMessage: 'No impact chart data is available.',
 };
 
+const NON_METRIC_KEYS = new Set(['label', 'description', 'value', 'total']);
+
+let viewInstance = 0;
+
 function isItemRow(row) {
   return Boolean(
     row.getAttribute('data-aue-model') === 'impact-bar-chart-row'
@@ -210,6 +214,71 @@ function booleanSelect(value, defaultValue) {
   return defaultValue;
 }
 
+function tableDisplayMode(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  if (['toggle', 'switch', 'tabs'].includes(normalized)) return 'toggle';
+  if (['table', 'table-only'].includes(normalized)) return 'table';
+  if (['show', 'true', 'yes', '1'].includes(normalized)) return 'show';
+  return 'hide';
+}
+
+function metricColor(dataset, rows, key, index) {
+  const rowColor = rows
+    .map((row) => row.values?.colors?.[key] || row.raw?.values?.colors?.[key])
+    .find(Boolean);
+
+  return normalizeColor(dataset.metadata?.colors?.[key] || rowColor, index);
+}
+
+function deriveMetrics(dataset, rows, configuredMetrics) {
+  if (configuredMetrics.length) return configuredMetrics;
+
+  const datasetType = normalizeText(dataset.type).toLowerCase().replace(/-/g, '_');
+  const supportsMultipleSeries = ['stacked_bar', 'grouped_bar', 'multi_bar'].includes(datasetType);
+  if (!supportsMultipleSeries) return [];
+
+  let columns = (dataset.columns || [])
+    .filter((column) => !NON_METRIC_KEYS.has(normalizeText(column.key).toLowerCase()));
+
+  if (!columns.length) {
+    const keys = [];
+    rows.forEach((row) => {
+      Object.entries(row.values || {}).forEach(([key, value]) => {
+        if (!NON_METRIC_KEYS.has(key) && typeof value !== 'object' && !keys.includes(key)) {
+          keys.push(key);
+        }
+      });
+    });
+    columns = keys.map((key) => ({
+      key,
+      label: key.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
+    }));
+  }
+
+  return columns.map((column, index) => ({
+    key: column.key,
+    label: column.label,
+    color: metricColor(dataset, rows, column.key, index),
+  }));
+}
+
+function tableColumns(dataset, metrics, valueKey) {
+  if (dataset.columns?.length) return dataset.columns;
+
+  if (metrics.length) {
+    return [
+      { key: 'label', label: 'Category' },
+      ...metrics.map(({ key, label }) => ({ key, label, align: 'right' })),
+      { key: 'total', label: 'Total', align: 'right' },
+    ];
+  }
+
+  return [
+    { key: 'label', label: 'Category' },
+    { key: valueKey, label: 'Value', align: 'right' },
+  ];
+}
+
 function rowTotal(row, valueKey, metrics) {
   if (metrics.length) {
     const total = metrics.reduce((sum, metric) => {
@@ -296,6 +365,13 @@ function buildStackedBar(row, maxValue, metrics) {
 
   bar.className = 'impact-bar-chart-stack';
   bar.style.setProperty('--impact-bar-chart-bar-width', `${outerWidth}%`);
+  bar.setAttribute('role', 'img');
+  bar.setAttribute('aria-label', [
+    `${row.label}: ${formatNumber(total)} total`,
+    ...metrics.map((metric) => (
+      `${metric.label}: ${formatNumber(rowNumericValue(row, metric.key) ?? 0)}`
+    )),
+  ].join('. '));
 
   metrics.forEach((metric) => {
     const value = rowNumericValue(row, metric.key) ?? 0;
@@ -306,6 +382,7 @@ function buildStackedBar(row, maxValue, metrics) {
     segment.style.setProperty('--impact-bar-chart-segment-width', `${segmentWidth}%`);
     segment.style.setProperty('--impact-bar-chart-segment-color', metric.color);
     segment.title = `${metric.label}: ${formatNumber(value)}`;
+    segment.setAttribute('aria-hidden', 'true');
     bar.append(segment);
   });
 
@@ -361,16 +438,16 @@ function buildChart(rows, config) {
   return list;
 }
 
-function buildTable(rows, config) {
+function buildTable(rows, config, dataset) {
+  const wrap = document.createElement('div');
   const table = document.createElement('table');
   const thead = document.createElement('thead');
   const tbody = document.createElement('tbody');
   const headerRow = document.createElement('tr');
-  const headers = [
-    { key: 'label', label: 'Category' },
-    ...(config.metrics.length ? config.metrics : [{ key: config.valueKey, label: 'Value' }]),
-  ];
+  const headers = config.columns;
 
+  wrap.className = 'impact-bar-chart-table-wrap';
+  if (config.metrics.length > 1) wrap.classList.add('is-multiseries');
   table.className = 'impact-bar-chart-table';
 
   headers.forEach((header) => {
@@ -383,6 +460,8 @@ function buildTable(rows, config) {
 
   rows.forEach((row) => {
     const tr = document.createElement('tr');
+    if (config.instrumentTable && row.row) moveInstrumentation(row.row, tr);
+    setItemLabel(tr, [row.label, row.description]);
     headers.forEach((header) => {
       const td = document.createElement('td');
       td.dataset.label = header.label;
@@ -397,7 +476,102 @@ function buildTable(rows, config) {
 
   thead.append(headerRow);
   table.append(thead, tbody);
-  return table;
+
+  if (config.metrics.length) {
+    const tfoot = document.createElement('tfoot');
+    const totalRow = document.createElement('tr');
+
+    headers.forEach((header, index) => {
+      const cell = document.createElement('td');
+      if (index === 0 || header.key === 'label') {
+        cell.textContent = 'TOTAL';
+      } else {
+        const total = rows.reduce((sum, row) => {
+          const value = header.key === 'total'
+            ? rowTotal(row, config.valueKey, config.metrics)
+            : rowNumericValue(row, header.key);
+          return sum + (Number.isFinite(value) ? value : 0);
+        }, 0);
+        cell.textContent = formatNumber(total);
+        cell.className = 'is-numeric';
+      }
+      cell.dataset.label = header.label;
+      totalRow.append(cell);
+    });
+
+    tfoot.append(totalRow);
+    table.append(tfoot);
+  }
+
+  const captionText = dataset.metadata?.caption || dataset.metadata?.source_note || '';
+  if (captionText) {
+    const caption = document.createElement('caption');
+    caption.textContent = captionText;
+    table.append(caption);
+  }
+
+  wrap.append(table);
+  return wrap;
+}
+
+function buildViewSwitcher(chart, table) {
+  viewInstance += 1;
+  const controls = document.createElement('div');
+  const chartButton = document.createElement('button');
+  const tableButton = document.createElement('button');
+  const chartPanel = document.createElement('div');
+  const tablePanel = document.createElement('div');
+  const chartId = `impact-bar-chart-view-${viewInstance}`;
+  const tableId = `impact-bar-table-view-${viewInstance}`;
+
+  controls.className = 'impact-bar-chart-view-toggle';
+  controls.setAttribute('role', 'tablist');
+  controls.setAttribute('aria-label', 'Data display');
+
+  chartButton.type = 'button';
+  chartButton.textContent = 'Chart';
+  chartButton.setAttribute('role', 'tab');
+  chartButton.setAttribute('aria-controls', chartId);
+
+  tableButton.type = 'button';
+  tableButton.textContent = 'Table';
+  tableButton.setAttribute('role', 'tab');
+  tableButton.setAttribute('aria-controls', tableId);
+
+  chartPanel.id = chartId;
+  chartPanel.className = 'impact-bar-chart-view-panel';
+  chartPanel.setAttribute('role', 'tabpanel');
+  chartPanel.append(chart);
+
+  tablePanel.id = tableId;
+  tablePanel.className = 'impact-bar-chart-view-panel';
+  tablePanel.setAttribute('role', 'tabpanel');
+  tablePanel.append(table);
+
+  function selectView(view) {
+    const showChart = view === 'chart';
+    chartButton.setAttribute('aria-selected', String(showChart));
+    tableButton.setAttribute('aria-selected', String(!showChart));
+    chartButton.tabIndex = showChart ? 0 : -1;
+    tableButton.tabIndex = showChart ? -1 : 0;
+    chartPanel.hidden = !showChart;
+    tablePanel.hidden = showChart;
+  }
+
+  chartButton.addEventListener('click', () => selectView('chart'));
+  tableButton.addEventListener('click', () => selectView('table'));
+  controls.addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+    event.preventDefault();
+    const nextButton = event.target === chartButton ? tableButton : chartButton;
+    nextButton.click();
+    nextButton.focus();
+  });
+
+  controls.append(chartButton, tableButton);
+  selectView('chart');
+
+  return [controls, chartPanel, tablePanel];
 }
 
 function observeChart(block) {
@@ -457,13 +631,16 @@ export default async function decorate(block) {
   }, authoredDataset);
   const dataset = resolved?.dataset || authoredDataset.dataset;
   const displayRows = dataset.rows || rows;
-  const metrics = parseMetricKeys(metricKeysField.value);
+  const metrics = deriveMetrics(dataset, displayRows, parseMetricKeys(metricKeysField.value));
+  const tableMode = tableDisplayMode(showTableField.value);
   const config = {
     valueKey: normalizeText(valueKeyField.value) || 'value',
     metrics,
     showValues: booleanSelect(showValuesField.value, true),
-    showTable: booleanSelect(showTableField.value, false),
+    tableMode,
+    instrumentTable: tableMode === 'table',
   };
+  config.columns = tableColumns(dataset, config.metrics, config.valueKey);
   const inner = document.createElement('div');
   const header = buildHeader(headingField, introField, dataset);
   const legend = buildLegend(metrics);
@@ -480,9 +657,18 @@ export default async function decorate(block) {
     return;
   }
 
-  if (legend) inner.append(legend);
-  inner.append(buildChart(displayRows, config));
-  if (config.showTable) inner.append(buildTable(displayRows, config));
+  if (legend && config.tableMode !== 'table') inner.append(legend);
+  const chart = config.tableMode === 'table' ? null : buildChart(displayRows, config);
+  const table = config.tableMode === 'hide' ? null : buildTable(displayRows, config, dataset);
+
+  if (config.tableMode === 'toggle') {
+    inner.append(...buildViewSwitcher(chart, table));
+  } else if (config.tableMode === 'table') {
+    inner.append(table);
+  } else {
+    inner.append(chart);
+    if (table) inner.append(table);
+  }
 
   block.replaceChildren(inner);
   observeChart(block);

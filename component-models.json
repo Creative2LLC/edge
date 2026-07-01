@@ -12784,15 +12784,24 @@
         "component": "select",
         "valueType": "string",
         "name": "showTable",
-        "label": "Show Data Table",
+        "label": "Data Table Display",
+        "description": "For multi-series charts, Toggle provides the chart/list behavior used by the legacy report.",
         "options": [
           {
-            "name": "Hide",
+            "name": "Chart only",
             "value": "hide"
           },
           {
-            "name": "Show",
+            "name": "Chart and table",
             "value": "show"
+          },
+          {
+            "name": "Chart / table toggle",
+            "value": "toggle"
+          },
+          {
+            "name": "Table only",
+            "value": "table"
           }
         ],
         "value": "hide"

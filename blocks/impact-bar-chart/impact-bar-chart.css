@@ -182,14 +182,66 @@
   background: rgb(20 145 191 / 5%);
 }
 
-.impact-bar-chart .impact-bar-chart-table {
-  width: 100%;
-  overflow: hidden;
+.impact-bar-chart .impact-bar-chart-view-toggle {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(92px, 1fr));
+  gap: 4px;
+  justify-self: center;
+  padding: 4px;
   border: 1px solid var(--impact-bar-chart-border);
-  border-collapse: collapse;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 18px rgb(17 58 103 / 8%);
+}
+
+.impact-bar-chart .impact-bar-chart-view-toggle button {
+  min-height: 42px;
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--impact-bar-chart-ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.impact-bar-chart .impact-bar-chart-view-toggle button[aria-selected='true'] {
+  background: var(--impact-bar-chart-ink);
+  color: #fff;
+}
+
+.impact-bar-chart .impact-bar-chart-view-toggle button:focus-visible {
+  outline: 3px solid #f7941d;
+  outline-offset: 2px;
+}
+
+.impact-bar-chart .impact-bar-chart-view-panel[hidden] {
+  display: none;
+}
+
+.impact-bar-chart .impact-bar-chart-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--impact-bar-chart-border);
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 14px 30px rgb(17 58 103 / 7%);
+  overscroll-behavior-inline: contain;
+  scrollbar-color: #147da8 #e9f1f5;
+  scrollbar-width: thin;
+}
+
+.impact-bar-chart .impact-bar-chart-table {
+  width: 100%;
+  border: 0;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries .impact-bar-chart-table {
+  min-width: 940px;
 }
 
 .impact-bar-chart .impact-bar-chart-table th,
@@ -207,6 +259,13 @@
   text-transform: uppercase;
 }
 
+.impact-bar-chart .impact-bar-chart-table tfoot td {
+  border-bottom: 0;
+  background: var(--impact-bar-chart-ink);
+  color: #fff;
+  font-weight: 800;
+}
+
 .impact-bar-chart .impact-bar-chart-table tr:last-child td {
   border-bottom: 0;
 }
@@ -214,6 +273,32 @@
 .impact-bar-chart .impact-bar-chart-table .is-numeric {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+.impact-bar-chart .impact-bar-chart-table caption {
+  padding: 12px 18px;
+  color: var(--impact-bar-chart-muted);
+  font-size: 0.85rem;
+  text-align: left;
+  caption-side: bottom;
+}
+
+.impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries th:first-child,
+.impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries tbody td:first-child,
+.impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries tfoot td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries tbody td:first-child {
+  background: #fff;
+  color: var(--impact-bar-chart-ink);
+  font-weight: 800;
+}
+
+.impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries th:first-child {
+  z-index: 2;
 }
 
 .impact-bar-chart.impact-bar-chart-style-skinny .impact-bar-chart-list {
@@ -321,6 +406,43 @@
     text-align: left;
     text-transform: uppercase;
     content: attr(data-label);
+  }
+
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries .impact-bar-chart-table {
+    display: table;
+  }
+
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries thead {
+    position: static;
+    display: table-header-group;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries tbody {
+    display: table-row-group;
+  }
+
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries tfoot {
+    display: table-footer-group;
+  }
+
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries tr {
+    display: table-row;
+    padding: 0;
+  }
+
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries th,
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries td {
+    display: table-cell;
+    padding: 12px 14px;
+  }
+
+  .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries td::before {
+    display: none;
   }
 }
 

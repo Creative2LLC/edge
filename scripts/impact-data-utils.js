@@ -241,6 +241,7 @@ export function normalizeDataset(payload, datasetSlug = '') {
       slug: dataset.slug || datasetSlug,
       title: normalizeText(dataset.title || data.title),
       description: normalizeText(dataset.description || data.description),
+      type: normalizeText(dataset.type || data.type),
       columns: normalizeColumns(dataset.columns),
       totals: dataset.totals || {},
       metadata: dataset.metadata || {},
