@@ -3251,6 +3251,22 @@
           {
             "name": "Large",
             "value": "large"
+          },
+          {
+            "name": "Highlighter Blue",
+            "value": "highlight-blue"
+          },
+          {
+            "name": "Highlighter Navy",
+            "value": "highlight-navy"
+          },
+          {
+            "name": "Highlighter Orange",
+            "value": "highlight-orange"
+          },
+          {
+            "name": "Highlighter Gold",
+            "value": "highlight-gold"
           }
         ],
         "value": "none"
@@ -6119,6 +6135,79 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "layoutStyle",
+        "label": "Layout Style",
+        "description": "Feature Card adds a split-color eyebrow, a dedicated headline, and full-width body copy.",
+        "options": [
+          {
+            "name": "Standard",
+            "value": "standard"
+          },
+          {
+            "name": "Feature Card",
+            "value": "feature-card"
+          }
+        ],
+        "value": "standard"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "headline",
+        "label": "Feature Headline",
+        "description": "Used by the Feature Card layout."
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Feature Body Text",
+        "description": "Full-width supporting copy used by the Feature Card layout."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "bodyTextColor",
+        "label": "Feature Body Text Color",
+        "options": [
+          {
+            "name": "Body Grey (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Navy (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Dark Navy (#092348)",
+            "value": "#092348"
+          },
+          {
+            "name": "Teal (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Orange (#F7941D)",
+            "value": "#F7941D"
+          }
+        ],
+        "value": "#404041"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "bodyFontSize",
+        "label": "Feature Body Font Size",
+        "description": "Optional CSS length. Defaults to 1.25rem.",
+        "value": ""
       }
     ]
   },

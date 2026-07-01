@@ -1,7 +1,10 @@
-/* When the nav is alone in a section, make that section sticky so the nav doesn't lose its anchor */
-main > .section:has(> div > .report-section-nav) {
+/* When the nav is alone in its own section (no sibling blocks), make that section
+   sticky so the nav doesn't lose its anchor. ":only-child" keeps this from also
+   matching sections where the nav shares space with other blocks. The top offset
+   must clear the fixed header (z-index: 20) or the sticky section sticks behind it. */
+main > .section:has(> div:only-child > .report-section-nav) {
   position: sticky;
-  top: 0;
+  top: var(--nav-height, 64px);
   z-index: 9;
   margin: 0;
 }

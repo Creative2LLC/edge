@@ -14,6 +14,7 @@ import {
 
 const DEFAULT_TEXT_COLOR = '#00264D';
 const DEFAULT_BACKGROUND_COLOR = '#E9F7FA';
+const DEFAULT_BODY_TEXT_COLOR = '#404041';
 
 function directRowOf(block, element) {
   let rowEl = element;
@@ -156,44 +157,179 @@ function applyLabelColor(block, value) {
   }
 }
 
+function ensureTextWrapper(block) {
+  let wrapper = block.querySelector('.colored-icon-text-text-wrapper');
+  if (wrapper) return wrapper;
+
+  const inner = block.querySelector('.colored-icon-text-inner');
+  if (!inner) return null;
+
+  wrapper = document.createElement('div');
+  wrapper.className = 'colored-icon-text-text-wrapper';
+
+  const rightMedia = block.classList.contains('colored-icon-text-media-right')
+    ? inner.querySelector(':scope > .colored-icon-text-media')
+    : null;
+  if (rightMedia) inner.insertBefore(wrapper, rightMedia);
+  else inner.append(wrapper);
+
+  return wrapper;
+}
+
+function ensureFeatureMeta(block) {
+  const wrapper = ensureTextWrapper(block);
+  if (!wrapper) return null;
+
+  let meta = wrapper.querySelector(':scope > .colored-icon-text-feature-meta');
+  if (meta) return meta;
+
+  meta = document.createElement('div');
+  meta.className = 'colored-icon-text-feature-meta';
+
+  const label = wrapper.querySelector(':scope > .colored-icon-text-label');
+  const content = wrapper.querySelector(':scope > .colored-icon-text-content');
+  if (label) meta.append(label);
+  if (content) meta.append(content);
+
+  wrapper.prepend(meta);
+  return meta;
+}
+
+function ensureFeatureBody(block) {
+  let body = block.querySelector('.colored-icon-text-feature-body');
+  if (body) return body;
+
+  const inner = block.querySelector('.colored-icon-text-inner');
+  if (!inner) return null;
+
+  body = document.createElement('div');
+  body.className = 'colored-icon-text-feature-body';
+
+  const archive = inner.querySelector(':scope > .colored-icon-text-field-archive');
+  if (archive) inner.insertBefore(body, archive);
+  else inner.append(body);
+
+  return body;
+}
+
+function setResourceRichText(element, html, propName) {
+  const resourceHtml = String(html || '').trim();
+  if (!element || !resourceHtml) return;
+
+  if (!element.children.length || element.classList.contains('is-authoring-placeholder')) {
+    element.classList.remove('is-authoring-placeholder');
+    element.innerHTML = resourceHtml;
+    element.setAttribute('data-richtext-prop', propName);
+  }
+}
+
+function syncResourceRichText(block, selector, className, propName, html, getParent) {
+  const resourceHtml = String(html || '').trim();
+  if (!resourceHtml) return null;
+
+  let element = block.querySelector(selector);
+  if (!element) {
+    const parent = getParent();
+    if (!parent) return null;
+
+    element = document.createElement('div');
+    element.className = className;
+    parent.append(element);
+  }
+
+  setResourceRichText(element, resourceHtml, propName);
+  return element;
+}
+
+function orderFeatureMeta(block) {
+  const meta = block.querySelector('.colored-icon-text-feature-meta');
+  if (!meta) return;
+
+  const label = meta.querySelector(':scope > .colored-icon-text-label');
+  const content = meta.querySelector(':scope > .colored-icon-text-content');
+  if (label && content && label.nextElementSibling !== content) {
+    meta.insertBefore(label, content);
+  }
+}
+
+function applyFeatureLayout(block) {
+  block.classList.remove('colored-icon-text-layout-standard');
+  block.classList.add('colored-icon-text-layout-feature-card');
+  ensureFeatureMeta(block);
+  orderFeatureMeta(block);
+}
+
 function syncResourceColorFields(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor', 'label', 'labelColor', 'text'])
+  readAueResourceFields(resourcePath, [
+    'textColor',
+    'blockBackgroundColor',
+    'label',
+    'labelColor',
+    'text',
+    'layoutStyle',
+    'headline',
+    'bodyText',
+    'bodyTextColor',
+    'bodyFontSize',
+  ])
     .then((fields) => {
       const textColor = normalizeColorValue(fields.textColor);
       if (textColor) block.style.setProperty('--colored-icon-text-color', textColor);
+      const bodyTextColor = normalizeColorValue(fields.bodyTextColor);
+      if (bodyTextColor) block.style.setProperty('--colored-icon-text-body-color', bodyTextColor);
+      const bodyFontSize = normalizeCssLength(fields.bodyFontSize, 'font-size');
+      if (bodyFontSize) block.style.setProperty('--colored-icon-text-body-size', bodyFontSize);
       if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
         applyBlockBackground(block, fields.blockBackgroundColor);
       }
       if (Object.prototype.hasOwnProperty.call(fields, 'labelColor')) {
         applyLabelColor(block, fields.labelColor);
       }
-      // Render label authored via Properties Rail when the DOM didn't carry the richtext row
-      const resourceLabel = String(fields.label || '').trim();
-      if (resourceLabel) {
-        let labelEl = block.querySelector('.colored-icon-text-label');
-        if (!labelEl) {
-          labelEl = document.createElement('div');
-          labelEl.className = 'colored-icon-text-label';
-          const wrapper = block.querySelector('.colored-icon-text-text-wrapper');
-          const content = block.querySelector('.colored-icon-text-content');
-          if (wrapper && content) wrapper.insertBefore(labelEl, content);
-          else if (wrapper) wrapper.prepend(labelEl);
+
+      const hasFeatureFields = String(fields.headline || '').trim()
+        || String(fields.bodyText || '').trim();
+      const layoutStyle = normalizeOption(fields.layoutStyle, ['standard', 'feature-card'], '');
+      if (layoutStyle === 'feature-card' || hasFeatureFields) applyFeatureLayout(block);
+
+      syncResourceRichText(
+        block,
+        '.colored-icon-text-label',
+        'colored-icon-text-label',
+        'label',
+        fields.label,
+        () => (block.classList.contains('colored-icon-text-layout-feature-card')
+          ? ensureFeatureMeta(block)
+          : ensureTextWrapper(block)),
+      );
+
+      const textParent = () => {
+        if (block.classList.contains('colored-icon-text-layout-feature-card')) {
+          return ensureFeatureMeta(block);
         }
-        if (!labelEl.children.length || labelEl.classList.contains('is-authoring-placeholder')) {
-          labelEl.classList.remove('is-authoring-placeholder');
-          labelEl.innerHTML = resourceLabel;
-          labelEl.setAttribute('data-richtext-prop', 'label');
-        }
-      }
-      // Render text authored via Properties Rail when the DOM didn't carry the richtext row
-      const resourceText = String(fields.text || '').trim();
-      if (resourceText) {
-        const content = block.querySelector('.colored-icon-text-content');
-        if (content && (!content.children.length || content.classList.contains('is-authoring-placeholder'))) {
-          content.classList.remove('is-authoring-placeholder');
-          content.innerHTML = resourceText;
-          content.setAttribute('data-richtext-prop', 'text');
-        }
+        return ensureTextWrapper(block);
+      };
+      syncResourceRichText(
+        block,
+        '.colored-icon-text-content',
+        'colored-icon-text-content',
+        'text',
+        fields.text,
+        textParent,
+      );
+      orderFeatureMeta(block);
+
+      syncResourceRichText(
+        block,
+        '.colored-icon-text-feature-headline',
+        'colored-icon-text-feature-headline',
+        'headline',
+        fields.headline,
+        () => ensureTextWrapper(block),
+      );
+
+      if (String(fields.bodyText || '').trim()) {
+        applyFeatureLayout(block);
+        setResourceRichText(ensureFeatureBody(block), fields.bodyText, 'bodyText');
       }
     });
 }
@@ -229,6 +365,30 @@ function appendRichText(field, element) {
 
 function hasAuthoringContext(block) {
   return Boolean(block.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'));
+}
+
+function hasAuthoredRichText(field) {
+  return Boolean(field?.text?.trim() || field?.html?.trim());
+}
+
+function hasRichTextContent(field) {
+  return hasAuthoredRichText(field) || Boolean(field?.source);
+}
+
+function buildRichTextElement(className, field, placeholder, isAuthoring) {
+  const element = document.createElement('div');
+  element.className = className;
+
+  if (hasRichTextContent(field)) {
+    appendRichText(field, element);
+    return element;
+  }
+
+  if (!isAuthoring || !placeholder) return null;
+
+  element.classList.add('is-authoring-placeholder');
+  element.textContent = placeholder;
+  return element;
 }
 
 function buildMedia(imageField, imageMode, imageAlt, isAuthoring) {
@@ -337,17 +497,34 @@ export default function decorate(block) {
   const paddingStyleField = readField(block, 'paddingStyle', ['padding style', 'padding'], rowAfterImageMode(7, 17));
   const marginStyleField = readField(block, 'marginStyle', ['margin style', 'margin'], rowAfterImageMode(8, 18));
   const dropShadowField = readField(block, 'dropShadow', ['drop shadow', 'shadow'], rowAfterImageMode(9, 19));
+  const layoutStyleField = readField(block, 'layoutStyle', ['layout style'], rowAfterImageMode(10, 20));
+  const headlineField = readRichField(block, 'headline', ['feature headline', 'headline'], rowAfterImageMode(11, 21));
+  const bodyTextField = readRichField(block, 'bodyText', ['feature body text', 'body text'], rowAfterImageMode(12, 22));
+  const bodyTextColorField = readColorField(
+    block,
+    'bodyTextColor',
+    ['feature body text color', 'body text color'],
+    isEditor,
+    rowAfterImageMode(13, 23),
+  );
+  const bodyFontSize = normalizeCssLength(readField(block, 'bodyFontSize', ['feature body font size', 'body font size'], rowAfterImageMode(14, 24)).value, 'font-size');
 
   const textColor = normalizeColorValue(txtField.value) || DEFAULT_TEXT_COLOR;
+  const bodyTextColor = normalizeColorValue(bodyTextColorField.value) || DEFAULT_BODY_TEXT_COLOR;
   const backgroundColor = applyBlockBackground(
     block,
     normalizeColorValue(blockBgField.value) || DEFAULT_BACKGROUND_COLOR,
   );
+  const layoutStyle = normalizeOption(layoutStyleField.value, ['standard', 'feature-card'], 'standard');
+  const isFeatureCard = layoutStyle === 'feature-card'
+    || hasAuthoredRichText(headlineField)
+    || hasAuthoredRichText(bodyTextField);
 
   block.classList.add(
     `colored-icon-text-h-${horizontalAlign}`,
     `colored-icon-text-v-${verticalAlign}`,
     `colored-icon-text-media-${imagePosition}`,
+    `colored-icon-text-layout-${isFeatureCard ? 'feature-card' : 'standard'}`,
   );
   applyColoredFieldLayoutOptions(block, 'colored-icon-text', {
     paddingStyle: paddingStyleField.value,
@@ -356,6 +533,7 @@ export default function decorate(block) {
   });
 
   block.style.setProperty('--colored-icon-text-color', textColor);
+  block.style.setProperty('--colored-icon-text-body-color', bodyTextColor);
   applyLabelColor(block, labelColorField.value);
   if (imageSize) block.style.setProperty('--colored-icon-text-image-size', imageSize);
   if (gap) block.style.setProperty('--colored-icon-text-gap', gap);
@@ -363,6 +541,7 @@ export default function decorate(block) {
   if (fontWeight) block.style.setProperty('--colored-icon-text-weight', fontWeight);
   if (minHeight) block.style.setProperty('--colored-icon-text-min-height', minHeight);
   if (minHeightMobile) block.style.setProperty('--colored-icon-text-min-height-mobile', minHeightMobile);
+  if (bodyFontSize) block.style.setProperty('--colored-icon-text-body-size', bodyFontSize);
 
   const inner = document.createElement('div');
   inner.className = 'colored-icon-text-inner';
@@ -373,38 +552,68 @@ export default function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const media = imagePosition === 'none' ? null : buildMedia(imageField, imageMode, imageAlt, isAuthoring);
 
-  const hasLabelContent = labelField.text.trim() || labelField.html.trim() || labelField.source;
-  if (hasLabelContent) {
-    const label = document.createElement('div');
-    label.className = 'colored-icon-text-label';
-    appendRichText(labelField, label);
-    textWrapper.append(label);
-  } else if (isAuthoring) {
-    const label = document.createElement('div');
-    label.className = 'colored-icon-text-label is-authoring-placeholder';
-    label.textContent = 'Add label / eyebrow (optional)';
-    textWrapper.append(label);
+  if (isFeatureCard) {
+    const meta = document.createElement('div');
+    meta.className = 'colored-icon-text-feature-meta';
+
+    const label = buildRichTextElement(
+      'colored-icon-text-label',
+      labelField,
+      'Add label / eyebrow (optional)',
+      isAuthoring,
+    );
+    const content = buildRichTextElement(
+      'colored-icon-text-content',
+      textField,
+      'Add feature intro text (optional).',
+      isAuthoring,
+    );
+    if (label) meta.append(label);
+    if (content) meta.append(content);
+    if (meta.children.length) textWrapper.append(meta);
+
+    const headline = buildRichTextElement(
+      'colored-icon-text-feature-headline',
+      headlineField,
+      'Add feature headline.',
+      isAuthoring,
+    );
+    if (headline) textWrapper.append(headline);
+  } else {
+    const label = buildRichTextElement(
+      'colored-icon-text-label',
+      labelField,
+      'Add label / eyebrow (optional)',
+      isAuthoring,
+    );
+    if (label) textWrapper.append(label);
+
+    const content = buildRichTextElement(
+      'colored-icon-text-content',
+      textField,
+      'Add colored icon text in the editor.',
+      isAuthoring,
+    );
+    if (content) textWrapper.append(content);
   }
-
-  const content = document.createElement('div');
-  content.className = 'colored-icon-text-content';
-
-  const hasTextContent = textField.text.trim() || textField.html.trim() || textField.source;
-  if (hasTextContent) {
-    appendRichText(textField, content);
-  } else if (isAuthoring) {
-    content.classList.add('is-authoring-placeholder');
-    content.textContent = 'Add colored icon text in the editor.';
-  }
-
-  if (hasTextContent || isAuthoring) textWrapper.append(content);
 
   if (media && imagePosition === 'left') inner.append(media);
   if (textWrapper.children.length) inner.append(textWrapper);
   if (media && imagePosition === 'right') inner.append(media);
 
+  if (isFeatureCard) {
+    const body = buildRichTextElement(
+      'colored-icon-text-feature-body',
+      bodyTextField,
+      'Add feature body text.',
+      isAuthoring,
+    );
+    if (body) inner.append(body);
+  }
+
   if (isEditor) {
     const archive = document.createElement('span');
+    archive.className = 'colored-icon-text-field-archive';
     archive.hidden = true;
     [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
     if (archive.children.length) inner.append(archive);
@@ -415,6 +624,7 @@ export default function decorate(block) {
   if (isEditor) {
     watchColorField(txtField.source, '--colored-icon-text-color', block);
     watchBlockBackgroundField(blockBgField.source, block);
+    watchColorField(bodyTextColorField.source, '--colored-icon-text-body-color', block);
     if (labelColorField.source) {
       new MutationObserver(() => {
         applyLabelColor(block, labelColorField.source.textContent.trim());
@@ -430,6 +640,9 @@ export default function decorate(block) {
       value: backgroundColor || DEFAULT_BACKGROUND_COLOR,
       className: 'has-block-background',
     },
+    ...(isFeatureCard ? [
+      { label: 'Feature Body Text', cssVar: '--colored-icon-text-body-color', value: bodyTextColor },
+    ] : []),
   ]);
 
   syncResourceColorFields(resourcePath, block);

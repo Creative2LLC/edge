@@ -7,6 +7,8 @@
   --colored-icon-text-min-height: 0;
   --colored-icon-text-min-height-mobile: var(--colored-icon-text-min-height);
   --colored-icon-text-block-bg: #e9f7fa;
+  --colored-icon-text-body-color: #404041;
+  --colored-icon-text-body-size: 1.25rem;
 
   height: 100%;
   margin:
@@ -34,6 +36,19 @@
 
 .colored-icon-text.has-block-background .colored-icon-text-inner {
   padding: clamp(24px, 4vw, 50px);
+}
+
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-inner {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: clamp(28px, 4vw, 50px);
+}
+
+.colored-icon-text .colored-icon-text-feature-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.45rem;
 }
 
 .colored-icon-text.colored-icon-text-v-top .colored-icon-text-inner {
@@ -92,12 +107,32 @@
   gap: 0.4em;
 }
 
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-text-wrapper {
+  justify-content: flex-start;
+  gap: clamp(20px, 3vw, 30px);
+}
+
 .colored-icon-text .colored-icon-text-label {
   color: var(--colored-icon-text-label-color, var(--colored-icon-text-color));
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.4;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
+}
+
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-label {
+  order: 1;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-label:not(:last-child)::after {
+  content: "|";
+  margin-left: 0.45rem;
+  color: var(--colored-icon-text-color);
+  font-weight: 400;
 }
 
 .colored-icon-text .colored-icon-text-label.is-authoring-placeholder {
@@ -154,6 +189,61 @@
 
 .colored-icon-text.colored-icon-text-h-justify .colored-icon-text-content {
   text-align: justify;
+}
+
+.colored-icon-text .colored-icon-text-feature-headline > * {
+  margin-bottom: 0.45em;
+}
+
+.colored-icon-text .colored-icon-text-feature-headline > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-icon-text .colored-icon-text-feature-body > * {
+  margin-bottom: 0.65em;
+}
+
+.colored-icon-text .colored-icon-text-feature-body > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content {
+  display: inline;
+  order: 2;
+  flex: 1 1 20rem;
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content > * {
+  display: inline;
+  margin: 0;
+}
+
+.colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content > * + *::before {
+  content: " ";
+}
+
+.colored-icon-text .colored-icon-text-feature-headline {
+  min-width: 0;
+  color: var(--colored-icon-text-color);
+  font-size: var(--colored-icon-text-size);
+  font-weight: var(--colored-icon-text-weight);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.colored-icon-text .colored-icon-text-feature-body {
+  flex: 1 0 100%;
+  width: 100%;
+  min-width: 0;
+  margin-top: clamp(4px, 1vw, 12px);
+  color: var(--colored-icon-text-body-color);
+  font-size: var(--colored-icon-text-body-size);
+  font-weight: 400;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .colored-icon-text .colored-icon-text-content > :first-child {
@@ -229,5 +319,23 @@
 
   .colored-icon-text .colored-icon-text-content {
     font-size: clamp(1.25rem, 5vw, var(--colored-icon-text-size));
+  }
+
+  .colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta {
+    display: block;
+  }
+
+  .colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-label,
+  .colored-icon-text.colored-icon-text-layout-feature-card .colored-icon-text-feature-meta .colored-icon-text-content {
+    display: inline;
+    font-size: 1.25rem;
+  }
+
+  .colored-icon-text .colored-icon-text-feature-headline {
+    font-size: min(var(--colored-icon-text-size), 1.65rem);
+  }
+
+  .colored-icon-text .colored-icon-text-feature-body {
+    font-size: min(var(--colored-icon-text-body-size), 1.125rem);
   }
 }

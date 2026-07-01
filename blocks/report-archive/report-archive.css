@@ -27,7 +27,7 @@
 
 .report-archive .report-archive-item {
   border: 1px solid rgb(0 46 93 / 14%);
-  border-radius: 10px;
+  border-radius: 16px;
   background: #fff;
   overflow: hidden;
 }
@@ -43,6 +43,7 @@
   padding: 20px 24px;
   border: 0;
   border-bottom: 1px solid transparent;
+  border-radius: inherit;
   background: transparent;
   cursor: pointer;
   text-align: left;
@@ -57,8 +58,11 @@
   outline: none;
 }
 
+/* outline (not box-shadow) so the ring follows the item's rounded corners
+   instead of getting clipped into a jagged edge by the overflow: hidden card */
 .report-archive .report-archive-trigger:focus-visible {
-  box-shadow: inset 0 0 0 2px #1491bf;
+  outline: 2px solid #1491bf;
+  outline-offset: -2px;
 }
 
 .report-archive .report-archive-item.is-open .report-archive-trigger {

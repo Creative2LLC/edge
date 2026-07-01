@@ -52,6 +52,22 @@
   --cards-card-shadow: 0 18px 42px rgb(0 0 0 / 18%);
 }
 
+.cards.cards-shadow-highlight-blue {
+  --cards-card-shadow: 0 14px 24px 0 rgb(20 145 191 / 40%);
+}
+
+.cards.cards-shadow-highlight-navy {
+  --cards-card-shadow: 0 14px 24px 0 rgb(9 35 72 / 40%);
+}
+
+.cards.cards-shadow-highlight-orange {
+  --cards-card-shadow: 0 14px 24px 0 rgb(247 148 29 / 40%);
+}
+
+.cards.cards-shadow-highlight-gold {
+  --cards-card-shadow: 0 14px 24px 0 rgb(245 181 27 / 40%);
+}
+
 .cards .cards-card-body {
   display: flex;
   flex: 1 1 auto;

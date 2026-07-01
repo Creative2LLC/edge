@@ -227,7 +227,10 @@ function applySettings(block, settings = {}) {
   );
   const cardShadow = normalizeOption(
     nextSettings.cardShadow,
-    ['none', 'small', 'medium', 'large'],
+    [
+      'none', 'small', 'medium', 'large',
+      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold',
+    ],
     'none',
   );
   const defaultCardTextSize = normalizeCssLength(
@@ -255,6 +258,10 @@ function applySettings(block, settings = {}) {
     'cards-shadow-small',
     'cards-shadow-medium',
     'cards-shadow-large',
+    'cards-shadow-highlight-blue',
+    'cards-shadow-highlight-navy',
+    'cards-shadow-highlight-orange',
+    'cards-shadow-highlight-gold',
   );
   block.classList.add(
     `cards-text-align-${textAlignment}`,

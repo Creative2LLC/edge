@@ -201,6 +201,8 @@
 .cybertipline-geo-report .cybertipline-geo-report-map {
   width: 100%;
   height: auto;
+  min-height: 420px;
+  padding: 8px;
   align-self: center;
   overflow: visible;
 }
@@ -243,11 +245,6 @@
   stroke: rgb(255 255 255 / 70%);
   stroke-width: 1;
   pointer-events: none;
-}
-
-.cybertipline-geo-report .cybertipline-geo-report-world-map {
-  min-height: 420px;
-  padding: 8px;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-world-land {
