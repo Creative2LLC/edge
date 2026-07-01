@@ -284,8 +284,6 @@ main .default-content-wrapper p + p {
 }
 
 .text-marker {
-  --text-marker-color: #f5c84b;
-
   position: relative;
   display: inline-block;
   z-index: 0;
@@ -311,7 +309,7 @@ main .default-content-wrapper p + p {
 
 .text-marker .text-marker-path {
   fill: none;
-  stroke: var(--text-marker-color);
+  stroke: var(--text-marker-color, #f5c84b);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 1;

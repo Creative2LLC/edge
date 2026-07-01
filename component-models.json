@@ -3298,6 +3298,14 @@
         "label": "Card Gap (Optional)",
         "description": "Space between cards. Optional CSS length such as 12px, 1rem, or 2vw. Defaults to 24px.",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "defaultHighlightTextSize",
+        "label": "Default Highlighted Text Size",
+        "description": "Optional CSS length such as 40px, 3rem, or clamp(2rem, 5vw, 3.625rem). Individual cards can override this value.",
+        "value": ""
       }
     ]
   },
@@ -3752,6 +3760,14 @@
           }
         ],
         "value": "circle"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "highlightTextSize",
+        "label": "Highlighted Text Size",
+        "description": "Optional CSS length override for this card's highlighted text, such as 40px, 3rem, or clamp(2rem, 5vw, 3.625rem).",
+        "value": ""
       }
     ]
   },

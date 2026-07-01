@@ -1484,6 +1484,61 @@ function getLooseLegacyStatContent(rows) {
   };
 }
 
+function getLooseLegacyStyleFallbacks(rows, { hasHeading = false, hasBody = false } = {}) {
+  const colors = rows.map((row) => rowText(row)).filter(isHexColorText);
+  const lengths = rows.map((row) => rowText(row)).filter(isCssLengthText);
+  const styles = {
+    blockBackgroundColor: '',
+    headingTextColor: '',
+    bodyTextColor: '',
+    valueTextColor: '',
+    valueFontSize: '',
+    labelTextColor: '',
+    labelFontSize: '',
+    markerColor: '',
+    minHeight: '',
+  };
+
+  if (colors.length) {
+    const [firstColor] = colors;
+    const hasDarkCardLead = colors.length >= 3
+      && isDarkColor(firstColor)
+      && !isDarkColor(colors[colors.length - 1]);
+    const contentColors = hasDarkCardLead ? colors.slice(1) : colors.slice();
+    const roleNames = [];
+
+    if (hasDarkCardLead) styles.blockBackgroundColor = firstColor;
+    if (hasHeading) roleNames.push('headingTextColor');
+    if (hasBody) roleNames.push('bodyTextColor');
+    roleNames.push('valueTextColor', 'labelTextColor');
+
+    const roleColors = contentColors.length > roleNames.length
+      ? contentColors.slice(0, -1)
+      : contentColors;
+
+    roleNames.forEach((name, index) => {
+      if (roleColors[index]) styles[name] = roleColors[index];
+    });
+
+    if (contentColors.length > roleNames.length) {
+      styles.markerColor = contentColors[contentColors.length - 1];
+    }
+  }
+
+  styles.valueFontSize = lengths.find((value) => isLikelyValueFontSizeText(value)) || '';
+  styles.labelFontSize = lengths.find((value) => (
+    value !== styles.valueFontSize
+      && isLikelyLabelFontSizeText(value)
+  )) || '';
+  styles.minHeight = lengths.find((value) => (
+    value !== styles.valueFontSize
+      && value !== styles.labelFontSize
+      && isLikelyValueFontSizeText(value)
+  )) || '';
+
+  return styles;
+}
+
 function appendFieldContent(field, element, fallbackValue = '') {
   if (field?.source) {
     moveInstrumentation(field.source, element);
@@ -1870,27 +1925,50 @@ export default function decorate(block) {
   const effectiveBodyTextField = fieldHasContent(bodyTextField) || !looseLegacy.bodyText
     ? bodyTextField
     : { source: null, value: looseLegacy.bodyText };
+  const hasHeadingText = fieldHasContent(headingField);
+  const hasBodyText = fieldHasContent(effectiveBodyTextField);
+  const looseLegacyStyles = getLooseLegacyStyleFallbacks(rows, {
+    hasHeading: hasHeadingText,
+    hasBody: hasBodyText,
+  });
   const textColors = parseTextColors(textStylesField.value);
   const textSizes = parseTextSizes(textStylesField.value);
   const textWeights = parseTextWeights(textStylesField.value);
   const headingColor = normalizeColorValue(headingColorField.value)
-    || normalizeColorValue(fieldFallback('headingTextColor'))
+    || normalizeColorValue(looseLegacyStyles.headingTextColor)
+    || (hasHeadingText ? normalizeColorValue(fieldFallback('headingTextColor')) : '')
     || textColors.heading
     || defaultColorForContext(block, '#00264d');
   const bodyColor = normalizeColorValue(bodyColorField.value)
-    || normalizeColorValue(fieldFallback('bodyTextColor'))
+    || normalizeColorValue(looseLegacyStyles.bodyTextColor)
+    || (hasBodyText ? normalizeColorValue(fieldFallback('bodyTextColor')) : '')
     || textColors.body
     || defaultColorForContext(block, '#404041');
   const valueColor = normalizeColorValue(valueColorField.value)
+    || normalizeColorValue(looseLegacyStyles.valueTextColor)
     || normalizeColorValue(fieldFallback('valueTextColor'))
     || textColors.value
-    || defaultValueColorForContext(block, fieldHasContent(effectiveBodyTextField));
+    || defaultValueColorForContext(block, hasBodyText);
   const labelColor = normalizeColorValue(labelColorField.value)
+    || normalizeColorValue(looseLegacyStyles.labelTextColor)
     || normalizeColorValue(fieldFallback('labelTextColor'))
     || textColors.label
     || defaultColorForContext(block, '#6b6b6b');
   const blockBackgroundColor = normalizeColorValue(blockBackgroundField.value)
+    || normalizeColorValue(looseLegacyStyles.blockBackgroundColor)
     || normalizeColorValue(fieldFallback('blockBackgroundColor'));
+  const resolvedValueFontSize = valueSizeField.value
+    || looseLegacyStyles.valueFontSize
+    || fieldFallback('valueFontSize');
+  const resolvedLabelFontSize = labelSizeField.value
+    || looseLegacyStyles.labelFontSize
+    || fieldFallback('labelFontSize');
+  const resolvedMinHeight = minHeightField.value
+    || looseLegacyStyles.minHeight
+    || (fieldFallback('minHeight') !== resolvedValueFontSize ? fieldFallback('minHeight') : '');
+  const resolvedMarkerColor = markerColorField.value
+    || looseLegacyStyles.markerColor
+    || fieldFallback('markerColor');
 
   if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
   if (textColors.body) block.style.setProperty('--statistics-body-color', textColors.body);
@@ -1914,12 +1992,12 @@ export default function decorate(block) {
     bodyFontSize: bodySizeField.value || fieldFallback('bodyFontSize'),
     bodyFontWeight: bodyWeightField.value || fieldFallback('bodyFontWeight'),
     valueTextColor: valueColor,
-    valueFontSize: valueSizeField.value || fieldFallback('valueFontSize'),
+    valueFontSize: resolvedValueFontSize,
     valueFontWeight: valueWeightField.value || fieldFallback('valueFontWeight'),
     labelTextColor: labelColor,
-    labelFontSize: labelSizeField.value || fieldFallback('labelFontSize'),
+    labelFontSize: resolvedLabelFontSize,
     labelFontWeight: labelWeightField.value || fieldFallback('labelFontWeight'),
-    minHeight: minHeightField.value || fieldFallback('minHeight'),
+    minHeight: resolvedMinHeight,
     minHeightMobile: minHeightMobileField.value || fieldFallback('minHeightMobile'),
     iconMaxWidth: iconMaxWidthField.value,
     iconMaxHeight: iconMaxHeightField.value,
@@ -1982,7 +2060,7 @@ export default function decorate(block) {
   }
   applyAnimatedMarkers(wrapper, {
     terms: markerTermsField.value || fieldFallback('markerTerms'),
-    color: markerColorField.value || fieldFallback('markerColor'),
+    color: resolvedMarkerColor,
     style: markerStyleField.value || fieldFallback('markerStyle'),
   });
   applyColoredFieldLayoutOptions(block, 'statistics', {

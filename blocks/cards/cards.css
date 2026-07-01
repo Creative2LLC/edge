@@ -3,6 +3,7 @@
   --cards-card-text-default: inherit;
   --cards-card-highlight-default: var(--cards-card-text, var(--cards-card-text-default));
   --cards-card-text-size-default: inherit;
+  --cards-card-highlight-size-default: clamp(2rem, 5vw, 3.625rem);
   --cards-card-radius: 0;
   --cards-card-shadow: none;
 }
@@ -79,7 +80,7 @@
 
 .cards .cards-card-highlight {
   color: var(--cards-card-highlight, var(--cards-card-highlight-default));
-  font-size: clamp(2rem, 5vw, 3.625rem);
+  font-size: var(--cards-card-highlight-size, var(--cards-card-highlight-size-default));
   font-weight: 700;
   line-height: 1.05;
 }

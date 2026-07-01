@@ -21,6 +21,7 @@ const SETTING_NAMES = [
   'cardShadow',
   'defaultCardTextSize',
   'cardGap',
+  'defaultHighlightTextSize',
 ];
 
 const CARD_FIELD_NAMES = [
@@ -35,6 +36,7 @@ const CARD_FIELD_NAMES = [
   'markerTerms',
   'markerColor',
   'markerStyle',
+  'highlightTextSize',
 ];
 
 const DEFAULT_SETTINGS = {
@@ -48,6 +50,7 @@ const DEFAULT_SETTINGS = {
   cardShadow: 'none',
   defaultCardTextSize: '',
   cardGap: '',
+  defaultHighlightTextSize: '',
 };
 
 function directRowOf(block, element) {
@@ -241,6 +244,10 @@ function applySettings(block, settings = {}) {
     nextSettings.defaultCardTextSize,
     'font-size',
   );
+  const defaultHighlightTextSize = normalizeCssLength(
+    nextSettings.defaultHighlightTextSize,
+    'font-size',
+  );
   const cardGap = normalizeCssLength(nextSettings.cardGap, 'gap');
 
   block.classList.remove(
@@ -299,6 +306,12 @@ function applySettings(block, settings = {}) {
     block.style.setProperty('--cards-card-text-size-default', defaultCardTextSize);
   } else {
     block.style.removeProperty('--cards-card-text-size-default');
+  }
+
+  if (defaultHighlightTextSize) {
+    block.style.setProperty('--cards-card-highlight-size-default', defaultHighlightTextSize);
+  } else {
+    block.style.removeProperty('--cards-card-highlight-size-default');
   }
 
   if (cardGap) {
@@ -530,10 +543,12 @@ function buildCard(row) {
   const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: row.children[8] });
   const markerColorField = readTextField(row, 'markerColor', { fallbackCell: row.children[9] });
   const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: row.children[10] });
+  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: row.children[11] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
   const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
   const cardTextSize = normalizeCssLength(cardTextSizeField.value, 'font-size');
+  const highlightTextSize = normalizeCssLength(highlightTextSizeField.value, 'font-size');
   const cardAlignment = normalizeOption(
     cardAlignmentField.value,
     ['left', 'center', 'right', 'justify'],
@@ -548,6 +563,7 @@ function buildCard(row) {
   if (cardTextColor) li.style.setProperty('--cards-card-text', cardTextColor);
   if (highlightTextColor) li.style.setProperty('--cards-card-highlight', highlightTextColor);
   if (cardTextSize) li.style.setProperty('--cards-card-text-size', cardTextSize);
+  if (highlightTextSize) li.style.setProperty('--cards-card-highlight-size', highlightTextSize);
   if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
 
   const image = buildImage(imageField, isStatIconCard(textField, highlightField));
@@ -566,11 +582,14 @@ function buildCard(row) {
 
   if (body.childElementCount || body.textContent.trim()) li.append(body);
 
-  applyAnimatedMarkers(li, {
+  // Marker application (specifically its dark-background detection, which reads
+  // computed styles) needs the card attached to the document to work correctly —
+  // stash the config and apply it after this card is in the DOM, not here.
+  li.cardsMarkerConfig = {
     terms: markerTermsField.value,
     color: markerColorField.value,
     style: markerStyleField.value,
-  });
+  };
 
   return li;
 }
@@ -620,6 +639,12 @@ export default function decorate(block) {
       legacySettings.defaultCardTextSize,
     ),
     cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null),
+    defaultHighlightTextSize: readSetting(
+      block,
+      'defaultHighlightTextSize',
+      ['default highlighted text size', 'highlighted text size', 'highlight text size'],
+      null,
+    ),
   });
 
   const ul = document.createElement('ul');
@@ -638,5 +663,9 @@ export default function decorate(block) {
   });
 
   block.replaceChildren(ul);
+  [...ul.children].forEach((li) => {
+    applyAnimatedMarkers(li, li.cardsMarkerConfig);
+    delete li.cardsMarkerConfig;
+  });
   syncResourceSettings(resourcePath, block);
 }
