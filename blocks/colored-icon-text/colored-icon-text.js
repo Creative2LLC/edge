@@ -139,12 +139,22 @@ function watchBlockBackgroundField(source, block) {
 }
 
 function syncResourceColorFields(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor'])
+  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor', 'text'])
     .then((fields) => {
       const textColor = normalizeColorValue(fields.textColor);
       if (textColor) block.style.setProperty('--colored-icon-text-color', textColor);
       if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
         applyBlockBackground(block, fields.blockBackgroundColor);
+      }
+      // Render text authored via Properties Rail when the DOM didn't carry the richtext row
+      const resourceText = String(fields.text || '').trim();
+      if (resourceText) {
+        const content = block.querySelector('.colored-icon-text-content');
+        if (content && (!content.children.length || content.classList.contains('is-authoring-placeholder'))) {
+          content.classList.remove('is-authoring-placeholder');
+          content.innerHTML = resourceText;
+          content.setAttribute('data-richtext-prop', 'text');
+        }
       }
     });
 }
