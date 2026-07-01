@@ -103,7 +103,11 @@
 }
 
 .colored-icon-text .colored-icon-text-text-wrapper {
-  flex: 1 1 auto;
+  /* flex-basis: 0 (not auto) keeps this off the wrapped button row's line — with
+     "auto" its unshrunk content width (a long heading) can exceed the space next
+     to the icon, pushing the whole wrapper onto its own line instead of just
+     shrinking to fit beside it. */
+  flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
