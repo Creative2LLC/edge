@@ -773,6 +773,20 @@ function findLegacyImageModeIndex(rows, alignmentIndex) {
   return -1;
 }
 
+function snapshotPublishedFieldValues(rows) {
+  const alignmentIndex = findLegacyAlignmentIndex(rows);
+  const imageModeIndex = alignmentIndex >= 0
+    ? findLegacyImageModeIndex(rows, alignmentIndex)
+    : -1;
+  if (imageModeIndex < 0) return {};
+
+  return Object.entries(CURRENT_IMAGE_MODE_OFFSETS).reduce((values, [name, offset]) => {
+    const value = rowText(rows[imageModeIndex + offset]);
+    if (value) values[name] = value;
+    return values;
+  }, {});
+}
+
 function getLegacyConfig(rows) {
   if (hasLabeledConfigRows(rows)) {
     return {
@@ -1477,6 +1491,7 @@ export default function decorate(block) {
 
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
+  const publishedFieldValues = snapshotPublishedFieldValues(rows);
   const authoredFieldValues = snapshotAuthoredFieldValues(block);
   const legacyConfig = getLegacyConfig(rows);
   const looseLegacy = getLooseLegacyStatContent(rows);
@@ -1683,7 +1698,9 @@ export default function decorate(block) {
       || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.contentSpacing),
   );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
-  const fieldFallback = (name) => authoredFieldValues[name] || compactValue(name);
+  const fieldFallback = (name) => (
+    authoredFieldValues[name] || compactValue(name) || publishedFieldValues[name] || ''
+  );
   legacyConfig.cleanupCompactRows();
 
   const values = normalizeStatValueLines(statValuesField, fieldFallback('statValues'));
@@ -1799,9 +1816,9 @@ export default function decorate(block) {
     restoreRenderedHeading(wrapper, true);
   }
   applyAnimatedMarkers(wrapper, {
-    terms: markerTermsField.value,
-    color: markerColorField.value,
-    style: markerStyleField.value,
+    terms: markerTermsField.value || fieldFallback('markerTerms'),
+    color: markerColorField.value || fieldFallback('markerColor'),
+    style: markerStyleField.value || fieldFallback('markerStyle'),
   });
 
   injectColorPickers(block, [
