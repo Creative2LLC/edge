@@ -296,6 +296,12 @@ function normalizeRows(rows) {
     });
 }
 
+function rankRowsByValue(rows) {
+  return [...rows].sort((a, b) => (
+    (b.value - a.value) || a.label.localeCompare(b.label)
+  ));
+}
+
 function datasetFromPayload(payload, datasetSlug) {
   const data = payload?.data || payload || {};
   const matchingDataset = data.datasets?.find?.((entry) => entry.slug === datasetSlug);
@@ -635,7 +641,7 @@ function renderDetail(panel, row, dataset, animate = false) {
 
   const allRows = dataset?.rows || [];
   if (allRows.length > 0) {
-    const topRows = allRows.slice(0, 5);
+    const topRows = rankRowsByValue(allRows).slice(0, 5);
     const topSection = document.createElement('div');
     topSection.className = 'cybertipline-geo-report-detail-top';
 
@@ -1375,7 +1381,7 @@ export default async function decorate(block) {
     return;
   }
 
-  let selectedRow = rows[0];
+  let selectedRow = rankRowsByValue(rows)[0] || rows[0];
   const detail = document.createElement('aside');
   detail.className = 'cybertipline-geo-report-detail';
 

@@ -503,6 +503,7 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-side {
   display: grid;
+  align-self: start;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-detail {
@@ -510,7 +511,7 @@
   flex-direction: column;
   gap: 12px;
   min-height: 250px;
-  height: 100%;
+  height: auto;
   box-sizing: border-box;
   padding: 26px;
   border: 1px solid var(--cybertipline-geo-border);
@@ -585,7 +586,7 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-detail-top {
-  margin-top: auto;
+  margin-top: 12px;
   padding-top: 16px;
   border-top: 1px solid var(--cybertipline-geo-border);
 }
