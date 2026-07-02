@@ -73,6 +73,19 @@
   text-align: center;
 }
 
+.gallery-grid .gallery-grid-empty {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgb(0 38 77 / 24%);
+  border-radius: 8px;
+  color: #6b6b6b;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
 @media (width <= 700px) {
   .gallery-grid .gallery-grid-inner {
     grid-template-columns: 1fr;

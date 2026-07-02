@@ -216,6 +216,16 @@ export default async function decorate(block) {
   const items = await Promise.all(itemRows.map((row) => buildItem(row, isEditor)));
   items.filter(Boolean).forEach((item) => inner.append(item));
 
+  // With zero items the block would otherwise render as an empty, zero-height div —
+  // giving Universal Editor's canvas nothing visible to hover/click to add the first
+  // item. Colored Grid uses the same empty-state-placeholder pattern for this reason.
+  if (!inner.children.length && isEditor && hasAuthoringContext(block)) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'gallery-grid-empty';
+    placeholder.textContent = 'Add a Gallery Grid Item.';
+    inner.append(placeholder);
+  }
+
   block.replaceChildren(inner);
   syncResourceSettings(resourcePath, block);
 }

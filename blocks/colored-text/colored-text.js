@@ -380,12 +380,27 @@ export default function decorate(block) {
     ['content padding', 'inner padding'],
     fieldCell(rows[14 + rowOffset]),
   );
+  const borderRadiusField = readField(
+    block,
+    'borderRadius',
+    ['border radius'],
+    fieldCell(rows[15 + rowOffset]),
+  );
 
   if (!blockBackgroundColor && shouldRestoreMissingListBackground(block, textField, fontSize)) {
     blockBackgroundColor = '#FFF';
   }
 
-  block.classList.add(`colored-text-h-${horizontalAlign}`, `colored-text-v-${verticalAlign}`);
+  const borderRadius = normalizeOption(
+    borderRadiusField.value,
+    ['none', 'small', 'medium', 'large'],
+    'none',
+  );
+  block.classList.add(
+    `colored-text-h-${horizontalAlign}`,
+    `colored-text-v-${verticalAlign}`,
+    `colored-text-radius-${borderRadius}`,
+  );
   applyColoredFieldLayoutOptions(block, 'colored-text', {
     paddingStyle: paddingStyleField.value,
     marginStyle: marginStyleField.value,

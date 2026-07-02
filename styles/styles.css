@@ -1072,16 +1072,16 @@ main > .section.padding-y-lg {
 }
 
 :is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-shadow-small"]
-  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner) {
+  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner, .statistics-inner) {
   box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
 }
 
 :is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-shadow-medium"]
-  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner) {
+  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner, .statistics-inner) {
   box-shadow: 0 14px 24px 0 rgb(0 0 0 / 18%);
 }
 
 :is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-shadow-large"]
-  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner) {
+  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner, .statistics-inner) {
   box-shadow: 0 21px 36px 0 rgb(0 0 0 / 24%);
 }

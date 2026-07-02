@@ -107,6 +107,7 @@ const CURRENT_IMAGE_MODE_OFFSETS = {
   contentSpacing: 27,
   paddingStyle: 28,
   borderRadius: 29,
+  dropShadow: 30,
 };
 
 const LEGACY_IMAGE_MODE_OFFSETS = {
@@ -137,6 +138,7 @@ const LEGACY_IMAGE_MODE_OFFSETS = {
   contentSpacing: 28,
   paddingStyle: 29,
   borderRadius: 30,
+  dropShadow: 31,
 };
 
 function directRowOf(block, element) {
@@ -1926,6 +1928,13 @@ export default function decorate(block) {
     legacyConfig.compactCell('borderRadius')
       || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.borderRadius),
   );
+  const dropShadowField = readField(
+    block,
+    'dropShadow',
+    ['drop shadow', 'shadow'],
+    legacyConfig.compactCell('dropShadow')
+      || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.dropShadow),
+  );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
   const authoredOrPublishedValue = (name) => authoredFieldValues[name] || publishedFieldValues[name] || '';
   const explicitFieldValue = (field, name) => {
@@ -2093,6 +2102,7 @@ export default function decorate(block) {
   });
   applyColoredFieldLayoutOptions(block, 'statistics', {
     paddingStyle: paddingStyleField.value || fieldFallback('paddingStyle'),
+    dropShadow: dropShadowField.value || fieldFallback('dropShadow'),
   });
 
   injectColorPickers(block, [

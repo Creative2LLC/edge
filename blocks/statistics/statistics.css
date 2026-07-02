@@ -60,6 +60,26 @@
   --statistics-border-radius: 16px;
 }
 
+.statistics.statistics-shadow-highlight-blue {
+  --colored-field-highlight-shadow-color: 20 145 191;
+}
+
+.statistics.statistics-shadow-highlight-navy {
+  --colored-field-highlight-shadow-color: 9 35 72;
+}
+
+.statistics.statistics-shadow-highlight-orange {
+  --colored-field-highlight-shadow-color: 247 148 29;
+}
+
+.statistics.statistics-shadow-highlight-gold {
+  --colored-field-highlight-shadow-color: 245 181 27;
+}
+
+.statistics[class*="statistics-shadow-highlight-"] .statistics-inner {
+  box-shadow: 0 14px 24px 0 rgb(var(--colored-field-highlight-shadow-color) / 40%);
+}
+
 .statistics.statistics-v-middle .statistics-inner {
   justify-content: center;
 }

@@ -1018,6 +1018,23 @@
             { "name": "Large", "value": "large" }
           ],
           "value": "none"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "dropShadow",
+          "label": "Drop Shadow",
+          "options": [
+            { "name": "None", "value": "none" },
+            { "name": "Small", "value": "small" },
+            { "name": "Medium", "value": "medium" },
+            { "name": "Large", "value": "large" },
+            { "name": "Highlighter Blue", "value": "highlight-blue" },
+            { "name": "Highlighter Navy", "value": "highlight-navy" },
+            { "name": "Highlighter Orange", "value": "highlight-orange" },
+            { "name": "Highlighter Gold", "value": "highlight-gold" }
+          ],
+          "value": "none"
         }
       ]
     },
