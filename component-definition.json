@@ -1101,8 +1101,7 @@
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
                   "name": "Gallery Grid Item",
-                  "model": "gallery-grid-item",
-                  "filter": "gallery-grid-item"
+                  "model": "gallery-grid-item"
                 }
               }
             }
