@@ -235,7 +235,8 @@
                                            "prpl-application",
                                            "apply-for-training",
                                            "event-calendar",
-                                           "gallery-grid"
+                                           "gallery-grid",
+                                           "mega-nav"
                                        ]
                     }
                 ]

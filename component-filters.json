@@ -173,7 +173,8 @@
       "prpl-application",
       "apply-for-training",
       "event-calendar",
-      "gallery-grid"
+      "gallery-grid",
+      "mega-nav"
     ]
   },
   {
@@ -420,6 +421,14 @@
     "id": "logo-carousel",
     "components": [
       "logo-carousel-item"
+    ]
+  },
+  {
+    "id": "mega-nav",
+    "components": [
+      "mega-nav-row",
+      "mega-nav-sub-link",
+      "mega-nav-top-link"
     ]
   },
   {
