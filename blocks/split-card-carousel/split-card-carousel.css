@@ -151,6 +151,28 @@ main > .section > .split-card-carousel-wrapper {
   margin-top: 1em;
 }
 
+/* Restore list markers inside rich-text fields. The global Tailwind reset
+   (styles/tailwind.css) sets `ol, ul { list-style: none; padding: 0 }`, which
+   strips the numbers/bullets authored in the RTE. Re-enable them here. */
+.split-card-carousel .split-card-carousel-heading ol,
+.split-card-carousel .split-card-carousel-subheading ol {
+  list-style: decimal;
+  margin: 0 0 24px;
+  padding-left: 1.5em;
+}
+
+.split-card-carousel .split-card-carousel-heading ul,
+.split-card-carousel .split-card-carousel-subheading ul {
+  list-style: disc;
+  margin: 0 0 24px;
+  padding-left: 1.5em;
+}
+
+.split-card-carousel .split-card-carousel-heading li,
+.split-card-carousel .split-card-carousel-subheading li {
+  margin: 0;
+}
+
 /* Button row — holds button 1 + optional button 2 */
 .split-card-carousel .split-card-carousel-buttons {
   display: flex;
@@ -313,6 +335,44 @@ main > .section > .split-card-carousel-wrapper {
   font-size: 14px;
 }
 
+/* ============================================================
+   Variant 3 — 1200px card, 500px image left, content right with
+   64px padding all around. Heading/subheading capped at 587px.
+   ============================================================ */
+
+.split-card-carousel.variant-3 .split-card-carousel-slide {
+  flex: 0 0 1200px;
+  max-width: 1200px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-card {
+  width: 1200px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-media {
+  flex: 0 0 500px;
+  width: 500px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-content {
+  flex: 1 1 auto;
+  width: auto;
+  padding: 64px;
+  justify-content: center;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-heading {
+  font-size: 40px;
+  font-weight: 700;
+  max-width: 587px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-subheading {
+  font-size: 17px;
+  font-weight: 500;
+  max-width: 587px;
+}
+
 /* Responsive - tablet */
 @media (width <= 900px) {
   .split-card-carousel .split-card-carousel-slide {
@@ -321,6 +381,25 @@ main > .section > .split-card-carousel-wrapper {
 
   .split-card-carousel .split-card-carousel-title {
     font-size: 36px;
+  }
+
+  /* Variant 3's fixed 1200px would overflow — let it fill the slide instead. */
+  .split-card-carousel.variant-3 .split-card-carousel-slide {
+    flex: 0 0 90%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-card {
+    width: auto;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-media {
+    flex: 0 0 45%;
+    width: auto;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-content {
+    padding: 40px;
   }
 }
 
@@ -392,5 +471,32 @@ main > .section > .split-card-carousel-wrapper {
 
   .split-card-carousel.variant-2 .split-card-carousel-content {
     padding: 28px 24px;
+  }
+
+  /* Variant 3 stacks like default on mobile so the fixed 1200px doesn't overflow. */
+  .split-card-carousel.variant-3 .split-card-carousel-slide {
+    flex: 0 0 95%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-card {
+    width: auto;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-media {
+    flex: none;
+    width: auto;
+    height: 240px;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-content {
+    padding: 28px 24px;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-heading,
+  .split-card-carousel.variant-3 .split-card-carousel-subheading {
+    max-width: none;
   }
 }

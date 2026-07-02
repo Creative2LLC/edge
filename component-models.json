@@ -21617,6 +21617,10 @@
           {
             "name": "Variant 2",
             "value": "variant-2"
+          },
+          {
+            "name": "Variant 3",
+            "value": "variant-3"
           }
         ],
         "value": "default"

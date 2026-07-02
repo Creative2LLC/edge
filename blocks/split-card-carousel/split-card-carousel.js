@@ -215,6 +215,7 @@ export default function decorate(block) {
 
   const isVariant2 = variant === 'variant-2';
   if (isVariant2) block.classList.add('variant-2');
+  if (variant === 'variant-3') block.classList.add('variant-3');
 
   // Parse slides — each slide row has fields as columns
   // Item field order: 0:image, 1:imageAlt, 2:heading, 3:subheading,
