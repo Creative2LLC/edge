@@ -368,7 +368,7 @@ main > .section > .icon-card-carousel-wrapper {
 @media (width >= 901px) {
   .icon-card-carousel.icon-card-carousel-thinner-dynamic .icon-card-carousel-card,
   .icon-card-carousel.icon-card-carousel-thinner-dynamic .icon-card-carousel-card.no-icon {
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 84px;
   }
