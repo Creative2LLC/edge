@@ -3,6 +3,7 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
@@ -11,6 +12,11 @@ import attachDragScroll from '../../scripts/carousel-utils.js';
 function getField(row, name, index) {
   const field = readTextField(row, name, { fallbackCell: row.children[index] });
   return { source: field.source, value: field.value };
+}
+
+function getRichField(row, name, index) {
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.html, text: field.text };
 }
 
 function getLinkField(row, name, index) {
@@ -87,7 +93,7 @@ function buildSlide(data, row) {
   const slide = document.createElement('div');
   slide.className = 'split-card-carousel-slide';
   if (row) moveInstrumentation(row, slide);
-  setItemLabel(slide, [data.heading, data.subheading]);
+  setItemLabel(slide, [data.headingText, data.subheadingText]);
 
   const card = document.createElement('div');
   card.className = 'split-card-carousel-card';
@@ -136,15 +142,15 @@ function buildSlide(data, row) {
   if (data.heading) {
     const h2 = document.createElement('h2');
     h2.className = 'split-card-carousel-heading';
-    h2.textContent = data.heading;
+    h2.innerHTML = data.heading;
     contentSide.append(h2);
   }
 
   if (data.subheading) {
-    const p = document.createElement('p');
-    p.className = 'split-card-carousel-subheading';
-    p.textContent = data.subheading;
-    contentSide.append(p);
+    const sub = document.createElement('div');
+    sub.className = 'split-card-carousel-subheading';
+    sub.innerHTML = data.subheading;
+    contentSide.append(sub);
   }
 
   const btn1 = buildButton(data.buttonText, data.buttonLink, data.buttonColor, data.buttonStyle);
@@ -219,8 +225,8 @@ export default function decorate(block) {
   slideRows.forEach((row) => {
     const imageField = getImageField(row, 0);
     const imageAltField = getField(row, 'imageAlt', 1);
-    const headingField = getField(row, 'heading', 2);
-    const subheadingField = getField(row, 'subheading', 3);
+    const headingField = getRichField(row, 'heading', 2);
+    const subheadingField = getRichField(row, 'subheading', 3);
     const buttonTextField = getField(row, 'buttonText', 4);
     const buttonLinkField = getLinkField(row, 'buttonLink', 5);
     const buttonColorField = getColorField(row, 'buttonColor', 6);
@@ -237,7 +243,9 @@ export default function decorate(block) {
         imageField,
         imageAlt: imageAltField.value,
         heading: headingField.value,
+        headingText: headingField.text,
         subheading: subheadingField.value,
+        subheadingText: subheadingField.text,
         buttonText: buttonTextField.value,
         buttonLink: buttonLinkField.value,
         buttonColor: buttonColorField.value,

@@ -176,6 +176,11 @@ export default function decorate(block) {
   }
   if (styleVariant === 'thinner') {
     block.classList.add('icon-card-carousel-thinner');
+  } else if (styleVariant === 'thinner-dynamic') {
+    // Thinner Dynamic builds on the Thinner Cards sizing, then adds its own
+    // centering/padding tweaks via the extra class.
+    block.classList.add('icon-card-carousel-thinner');
+    block.classList.add('icon-card-carousel-thinner-dynamic');
   }
 
   // Parse slides

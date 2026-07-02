@@ -12483,6 +12483,10 @@
           {
             "name": "Thinner Cards",
             "value": "thinner"
+          },
+          {
+            "name": "Thinner Dynamic",
+            "value": "thinner-dynamic"
           }
         ]
       }
@@ -21439,13 +21443,13 @@
         "label": "Image Alt Text"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Heading"
       },
       {
-        "component": "text",
+        "component": "richtext",
         "valueType": "string",
         "name": "subheading",
         "label": "Subheading"
