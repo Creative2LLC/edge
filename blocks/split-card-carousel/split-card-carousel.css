@@ -151,6 +151,28 @@ main > .section > .split-card-carousel-wrapper {
   margin-top: 1em;
 }
 
+/* Restore list markers inside rich-text fields. The global Tailwind reset
+   (styles/tailwind.css) sets `ol, ul { list-style: none; padding: 0 }`, which
+   strips the numbers/bullets authored in the RTE. Re-enable them here. */
+.split-card-carousel .split-card-carousel-heading ol,
+.split-card-carousel .split-card-carousel-subheading ol {
+  list-style: decimal;
+  margin: 0 0 24px;
+  padding-left: 1.5em;
+}
+
+.split-card-carousel .split-card-carousel-heading ul,
+.split-card-carousel .split-card-carousel-subheading ul {
+  list-style: disc;
+  margin: 0 0 24px;
+  padding-left: 1.5em;
+}
+
+.split-card-carousel .split-card-carousel-heading li,
+.split-card-carousel .split-card-carousel-subheading li {
+  margin: 0;
+}
+
 /* Button row — holds button 1 + optional button 2 */
 .split-card-carousel .split-card-carousel-buttons {
   display: flex;
