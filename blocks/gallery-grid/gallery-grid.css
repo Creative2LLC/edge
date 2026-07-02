@@ -17,6 +17,10 @@
   border-radius: var(--gallery-grid-radius);
 }
 
+.gallery-grid .gallery-grid-item .statistics{
+    padding: 0 !important;
+}
+
 .gallery-grid.gallery-grid-radius-small {
   --gallery-grid-radius: 8px;
 }
