@@ -440,6 +440,10 @@
             {
               "name": "Highlighter Gold",
               "value": "highlight-gold"
+            },
+            {
+              "name": "White",
+              "value": "white"
             }
           ],
           "value": "none"
@@ -920,6 +924,22 @@
             { "name": "Bottom Large", "value": "bottom-lg" }
           ],
           "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "disclaimer",
+          "label": "Disclaimer Text (Optional)",
+          "description": "Optional fine print displayed below this card's text.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "disclaimerFontSize",
+          "label": "Disclaimer Font Size",
+          "description": "Optional CSS length such as 12px or 0.75rem.",
+          "value": ""
         }
       ]
     }

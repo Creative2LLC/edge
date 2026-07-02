@@ -61,13 +61,20 @@ function hasAuthoringContext(scope) {
   );
 }
 
-function readSetting(block, name, labels = [], fallbackCell = null) {
+// In the editor, hide (don't remove) setting rows that carry Universal Editor
+// instrumentation — permanently removing an aue-tracked node can desync UE's
+// resource tree from the DOM and break later structural operations like adding
+// a new item (see colored-grid.js's cleanupConfigRows for the same pattern).
+function readSetting(block, name, labels = [], fallbackCell = null, isEditor = false) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
     fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
+  if (row) {
+    if (isEditor && hasAuthoringContext(row)) row.hidden = true;
+    else row.remove();
+  }
   return field.value;
 }
 
@@ -192,19 +199,36 @@ async function buildItem(row, isEditor) {
   return null;
 }
 
+// Preserves aue-tracked setting rows as hidden descendants of `inner` (instead of
+// detaching them from the block entirely) so Universal Editor doesn't lose track of
+// them when block.replaceChildren(inner) swaps out the block's original children —
+// mirrors colored-grid.js's archiveHiddenFieldRows.
+function archiveHiddenRows(block, inner, isEditor) {
+  if (!isEditor) return;
+
+  const archive = document.createElement('span');
+  archive.className = 'gallery-grid-field-archive';
+  archive.hidden = true;
+
+  [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
+
+  if (archive.children.length) inner.append(archive);
+}
+
 export default async function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
 
   applySettings(block, {
-    columns: readSetting(block, 'columns', ['columns'], null),
-    gap: readSetting(block, 'gap', ['gap', 'grid gap'], null),
-    borderRadius: readSetting(block, 'borderRadius', ['item border radius', 'border radius'], null),
+    columns: readSetting(block, 'columns', ['columns'], null, isEditor),
+    gap: readSetting(block, 'gap', ['gap', 'grid gap'], null, isEditor),
+    borderRadius: readSetting(block, 'borderRadius', ['item border radius', 'border radius'], null, isEditor),
   });
 
   const itemRows = [...block.children].filter((row) => {
     if (isSettingRow(row)) {
-      row.remove();
+      if (isEditor && hasAuthoringContext(row)) row.hidden = true;
+      else row.remove();
       return false;
     }
     return true;
@@ -225,6 +249,8 @@ export default async function decorate(block) {
     placeholder.textContent = 'Add a Gallery Grid Item.';
     inner.append(placeholder);
   }
+
+  archiveHiddenRows(block, inner, isEditor);
 
   block.replaceChildren(inner);
   syncResourceSettings(resourcePath, block);

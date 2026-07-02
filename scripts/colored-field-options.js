@@ -29,6 +29,7 @@ const SHADOW_OPTIONS = [
   'highlight-navy',
   'highlight-orange',
   'highlight-gold',
+  'white',
 ];
 const LAYOUT_FIELD_NAMES = ['paddingStyle', 'marginStyle', 'dropShadow', 'layoutOptions'];
 const LAYOUT_OPTION_PATTERN = new RegExp(

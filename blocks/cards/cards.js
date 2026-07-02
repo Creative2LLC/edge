@@ -39,6 +39,8 @@ const CARD_FIELD_NAMES = [
   'markerStyle',
   'highlightTextSize',
   'cardPaddingStyle',
+  'disclaimer',
+  'disclaimerFontSize',
 ];
 
 const DEFAULT_SETTINGS = {
@@ -224,7 +226,7 @@ function getLegacySettingCells(rows) {
     .filter(({ index }) => index > Math.max(textAlignmentIndex, imageDisplayIndex))
     .filter(({ row }) => hasOptionText(row, [
       'none', 'small', 'medium', 'large',
-      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold',
+      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold', 'white',
     ]));
   const colorEndIndex = [
     buttonDisplayIndex,
@@ -299,7 +301,7 @@ function applySettings(block, settings = {}) {
     nextSettings.cardShadow,
     [
       'none', 'small', 'medium', 'large',
-      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold',
+      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold', 'white',
     ],
     'none',
   );
@@ -337,6 +339,7 @@ function applySettings(block, settings = {}) {
     'cards-shadow-highlight-navy',
     'cards-shadow-highlight-orange',
     'cards-shadow-highlight-gold',
+    'cards-shadow-white',
   );
   block.classList.add(
     `cards-text-align-${textAlignment}`,
@@ -621,6 +624,8 @@ function buildCard(row) {
   const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: row.children[10] });
   const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: row.children[11] });
   const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: row.children[12] });
+  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: row.children[13] });
+  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: row.children[14] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
   const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
@@ -657,6 +662,25 @@ function buildCard(row) {
   body.className = 'cards-card-body';
   appendRichText(highlightField, 'cards-card-highlight', body);
   appendRichText(textField, 'cards-card-text', body);
+
+  if (disclaimerField.value || disclaimerField.source) {
+    const disclaimerEl = document.createElement('div');
+    disclaimerEl.className = 'cards-card-disclaimer';
+    const disclaimerFontSize = normalizeCssLength(disclaimerFontSizeField.value, 'font-size');
+    if (disclaimerFontSize) {
+      disclaimerEl.style.setProperty('--cards-card-disclaimer-size', disclaimerFontSize);
+    }
+    if (disclaimerField.source) {
+      moveInstrumentation(disclaimerField.source, disclaimerEl);
+      while (disclaimerField.source.firstChild) {
+        disclaimerEl.append(disclaimerField.source.firstChild);
+      }
+    } else {
+      disclaimerEl.textContent = disclaimerField.value;
+    }
+    body.append(disclaimerEl);
+  }
+
   appendLegacyActions(row, body, legacyActionStartIndex);
 
   if (!body.childElementCount && hasAuthoringContext(row)) {

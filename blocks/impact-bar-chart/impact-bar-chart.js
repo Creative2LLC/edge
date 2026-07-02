@@ -32,6 +32,7 @@ const BLOCK_ROW_INDEX = {
   showTable: 10,
   emptyMessage: 11,
   textMode: 12,
+  disclaimer: 13,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -322,6 +323,16 @@ function buildEmpty(message, isAuthoring) {
     ? 'Add impact chart rows in Universal Editor or connect an API endpoint.'
     : DEFAULTS.emptyMessage);
   return empty;
+}
+
+function buildDisclaimer(field) {
+  if (!field.text && !field.html && !field.source) return null;
+
+  const disclaimer = document.createElement('div');
+  disclaimer.className = 'impact-bar-chart-disclaimer';
+  moveRich(field, disclaimer);
+
+  return disclaimer.childNodes.length ? disclaimer : null;
 }
 
 function buildLegend(metrics) {
@@ -643,6 +654,7 @@ export default async function decorate(block) {
   const showTableField = readText(block, 'showTable', BLOCK_ROW_INDEX.showTable, ['show table']);
   const emptyMessageField = readText(block, 'emptyMessage', BLOCK_ROW_INDEX.emptyMessage, ['empty message']);
   const textModeField = readText(block, 'textMode', BLOCK_ROW_INDEX.textMode, ['text mode']);
+  const disclaimerField = readRich(block, 'disclaimer', BLOCK_ROW_INDEX.disclaimer, ['disclaimer']);
   const rows = authoredRows(block);
   const authoredDataset = {
     dataset: {
@@ -683,6 +695,8 @@ export default async function decorate(block) {
 
   if (!displayRows.length) {
     inner.append(buildEmpty(emptyMessageField.value, isAuthoring));
+    const disclaimer = buildDisclaimer(disclaimerField);
+    if (disclaimer) inner.append(disclaimer);
     block.replaceChildren(inner);
     return;
   }
@@ -699,6 +713,9 @@ export default async function decorate(block) {
     inner.append(chart);
     if (table) inner.append(table);
   }
+
+  const disclaimer = buildDisclaimer(disclaimerField);
+  if (disclaimer) inner.append(disclaimer);
 
   block.replaceChildren(inner);
   observeChart(block);

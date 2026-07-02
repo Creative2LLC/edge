@@ -27,6 +27,7 @@ const BLOCK_ROW_INDEX = {
   columns: 6,
   tableStyle: 7,
   emptyMessage: 8,
+  disclaimer: 9,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -217,6 +218,16 @@ function buildEmpty(message, isAuthoring) {
   return empty;
 }
 
+function buildDisclaimer(field) {
+  if (!field.text && !field.html && !field.source) return null;
+
+  const disclaimer = document.createElement('div');
+  disclaimer.className = 'impact-data-table-disclaimer';
+  moveRich(field, disclaimer);
+
+  return disclaimer.childNodes.length ? disclaimer : null;
+}
+
 function buildCell(row, column, isNumeric) {
   const cell = document.createElement('td');
   const value = rowDisplayValue(row, column.key);
@@ -295,6 +306,7 @@ export default async function decorate(block) {
   const columnsField = readText(block, 'columns', BLOCK_ROW_INDEX.columns, ['columns']);
   const tableStyleField = readText(block, 'tableStyle', BLOCK_ROW_INDEX.tableStyle, ['table style']);
   const emptyMessageField = readText(block, 'emptyMessage', BLOCK_ROW_INDEX.emptyMessage, ['empty message']);
+  const disclaimerField = readRich(block, 'disclaimer', BLOCK_ROW_INDEX.disclaimer, ['disclaimer']);
   const configuredColumns = parseColumns(columnsField.value);
   const rows = authoredRows(block);
   const authoredDataset = {
@@ -332,10 +344,14 @@ export default async function decorate(block) {
 
   if (!displayRows.length) {
     inner.append(buildEmpty(emptyMessageField.value, isAuthoring));
+    const disclaimer = buildDisclaimer(disclaimerField);
+    if (disclaimer) inner.append(disclaimer);
     block.replaceChildren(inner);
     return;
   }
 
   inner.append(buildTable(dataset, columns, displayRows));
+  const disclaimer = buildDisclaimer(disclaimerField);
+  if (disclaimer) inner.append(disclaimer);
   block.replaceChildren(inner);
 }

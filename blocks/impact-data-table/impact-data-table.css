@@ -8,7 +8,7 @@
 
   max-width: 1420px;
   margin: 0 auto;
-  padding: 64px 0;
+  padding: 64px 32px;
   color: var(--impact-data-table-text);
 }
 
@@ -153,6 +153,23 @@
 
 .impact-data-table.impact-data-table-style-inverted tbody tr:nth-child(even) td {
   background: rgb(255 255 255 / 5%);
+}
+
+.impact-data-table .impact-data-table-disclaimer {
+  max-width: 980px;
+  margin: 0 auto;
+  color: var(--impact-data-table-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.impact-data-table .impact-data-table-disclaimer > :first-child {
+  margin-top: 0;
+}
+
+.impact-data-table .impact-data-table-disclaimer > :last-child {
+  margin-bottom: 0;
 }
 
 .impact-data-table .impact-data-table-empty {

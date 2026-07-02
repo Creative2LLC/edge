@@ -10,7 +10,7 @@
 
   max-width: 1420px;
   margin: 0 auto;
-  padding: 68px 0;
+  padding: 68px 32px;
   color: var(--impact-bar-chart-text);
 }
 
@@ -390,6 +390,23 @@
 
 .impact-bar-chart.impact-bar-chart-style-skinny .impact-bar-chart-description {
   margin-top: -2px;
+}
+
+.impact-bar-chart .impact-bar-chart-disclaimer {
+  max-width: 980px;
+  margin: 0 auto;
+  color: var(--impact-bar-chart-copy-color);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.impact-bar-chart .impact-bar-chart-disclaimer > :first-child {
+  margin-top: 0;
+}
+
+.impact-bar-chart .impact-bar-chart-disclaimer > :last-child {
+  margin-bottom: 0;
 }
 
 .impact-bar-chart .impact-bar-chart-empty {

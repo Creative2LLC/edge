@@ -3279,6 +3279,10 @@
           {
             "name": "Highlighter Gold",
             "value": "highlight-gold"
+          },
+          {
+            "name": "White",
+            "value": "white"
           }
         ],
         "value": "none"
@@ -3924,6 +3928,22 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclaimer",
+        "label": "Disclaimer Text (Optional)",
+        "description": "Optional fine print displayed below this card's text.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclaimerFontSize",
+        "label": "Disclaimer Font Size",
+        "description": "Optional CSS length such as 12px or 0.75rem.",
+        "value": ""
       }
     ]
   },
@@ -13522,6 +13542,14 @@
           }
         ],
         "value": "dark"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "disclaimer",
+        "label": "Disclaimer Text (Optional)",
+        "description": "Optional fine print shown below the chart/table.",
+        "value": ""
       }
     ]
   },
@@ -13850,6 +13878,14 @@
         "name": "emptyMessage",
         "label": "Empty State Message",
         "value": "No impact data is available."
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "disclaimer",
+        "label": "Disclaimer Text (Optional)",
+        "description": "Optional fine print shown below the table.",
+        "value": ""
       }
     ]
   },
@@ -25532,6 +25568,10 @@
           {
             "name": "Highlighter Gold",
             "value": "highlight-gold"
+          },
+          {
+            "name": "White",
+            "value": "white"
           }
         ],
         "value": "none"
@@ -25640,6 +25680,22 @@
         "name": "statTopLabel",
         "label": "Stat Top Label (Optional)",
         "description": "Optional label displayed above the stat value.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclaimer",
+        "label": "Disclaimer Text (Optional)",
+        "description": "Optional fine print displayed below the stat label.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclaimerFontSize",
+        "label": "Disclaimer Font Size",
+        "description": "Optional CSS length such as 12px or 0.75rem.",
         "value": ""
       }
     ]

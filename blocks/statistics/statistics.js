@@ -1432,6 +1432,8 @@ function getAuthoredItems(block) {
     const buttonLinkField = readItemLinkField(row, 'buttonLink', 8);
     const buttonTargetField = readItemTextField(row, 'buttonTarget', 9);
     const topLabelField = readItemTextField(row, 'statTopLabel', 10);
+    const disclaimerField = readItemTextField(row, 'disclaimer', 11);
+    const disclaimerFontSizeField = readItemTextField(row, 'disclaimerFontSize', 12);
 
     return {
       row,
@@ -1446,6 +1448,8 @@ function getAuthoredItems(block) {
       buttonTextField,
       buttonLinkField,
       buttonTarget: buttonTargetField.value,
+      disclaimerField,
+      disclaimerFontSize: disclaimerFontSizeField.value,
       isAuthoringPlaceholder: hasAuthoringContext(row)
         && !imageField.img
         && !valueField.value
@@ -1472,6 +1476,8 @@ function getLegacyItems(values, labels) {
     buttonTextField: { source: null, value: '' },
     buttonLinkField: { source: null, value: '' },
     buttonTarget: '',
+    disclaimerField: { source: null, value: '' },
+    disclaimerFontSize: '',
     isAuthoringPlaceholder: false,
   }));
 }
@@ -1657,6 +1663,14 @@ function buildItem(itemData) {
     labelEl.className = 'statistics-label';
     appendFieldContent(itemData.labelField, labelEl, itemData.labelField.value);
     item.append(labelEl);
+  }
+
+  if (itemData.disclaimerField.value || itemData.disclaimerField.source) {
+    const disclaimerEl = document.createElement('div');
+    disclaimerEl.className = 'statistics-disclaimer';
+    setCssVarOnElement(disclaimerEl, '--statistics-disclaimer-size', normalizeCssLength(itemData.disclaimerFontSize, 'font-size'));
+    appendFieldContent(itemData.disclaimerField, disclaimerEl, itemData.disclaimerField.value);
+    item.append(disclaimerEl);
   }
 
   const rawButtonText = itemData.buttonTextField.value;

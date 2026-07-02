@@ -117,6 +117,14 @@
           "name": "emptyMessage",
           "label": "Empty State Message",
           "value": "No impact data is available."
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "disclaimer",
+          "label": "Disclaimer Text (Optional)",
+          "description": "Optional fine print shown below the table.",
+          "value": ""
         }
       ]
     },

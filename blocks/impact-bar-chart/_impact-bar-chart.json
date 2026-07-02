@@ -182,6 +182,14 @@
             }
           ],
           "value": "dark"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "disclaimer",
+          "label": "Disclaimer Text (Optional)",
+          "description": "Optional fine print shown below the chart/table.",
+          "value": ""
         }
       ]
     },
