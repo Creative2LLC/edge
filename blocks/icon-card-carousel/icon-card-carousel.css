@@ -360,3 +360,30 @@ main > .section > .icon-card-carousel-wrapper {
     max-width: 356px;
   }
 }
+
+/* ---------- Style Variant: Thinner Dynamic ----------
+   Inherits all of the Thinner Cards sizing (both classes are applied in JS),
+   then centers the content within the card and applies even padding all
+   around. Desktop-only, matching the Thinner Cards scoping. */
+@media (width >= 901px) {
+  .icon-card-carousel.icon-card-carousel-thinner-dynamic .icon-card-carousel-card,
+  .icon-card-carousel.icon-card-carousel-thinner-dynamic .icon-card-carousel-card.no-icon {
+    align-items: center;
+    justify-content: center;
+    padding: 84px;
+  }
+
+  /* Drop the spacer that pushes the button to the bottom. Without it the whole
+     content group (icon, title, body, button) stays vertically centered with
+     even padding, whether or not a button is present — no empty space at the
+     bottom of button-less cards. */
+  .icon-card-carousel.icon-card-carousel-thinner-dynamic .icon-card-carousel-spacer {
+    display: none;
+  }
+
+  /* The spacer previously provided the gap above the button, so restore a bit
+     of separation now that it's removed. */
+  .icon-card-carousel.icon-card-carousel-thinner-dynamic .icon-card-carousel-button {
+    margin-top: 32px;
+  }
+}

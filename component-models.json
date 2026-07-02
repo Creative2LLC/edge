@@ -12483,6 +12483,10 @@
           {
             "name": "Thinner Cards",
             "value": "thinner"
+          },
+          {
+            "name": "Thinner Dynamic",
+            "value": "thinner-dynamic"
           }
         ]
       }
