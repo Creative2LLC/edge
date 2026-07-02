@@ -86,13 +86,13 @@
           "label": "Image Alt Text"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "heading",
           "label": "Heading"
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
           "name": "subheading",
           "label": "Subheading"

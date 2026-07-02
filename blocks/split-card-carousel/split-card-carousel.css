@@ -136,6 +136,21 @@ main > .section > .split-card-carousel-wrapper {
   max-width: 540px;
 }
 
+/* Rich-text paragraphs inside heading/subheading should preserve authored
+   line breaks instead of stacking default <p> margins. */
+.split-card-carousel .split-card-carousel-heading p,
+.split-card-carousel .split-card-carousel-subheading p {
+  margin: 0;
+}
+
+.split-card-carousel .split-card-carousel-heading p + p {
+  margin-top: 0.25em;
+}
+
+.split-card-carousel .split-card-carousel-subheading p + p {
+  margin-top: 1em;
+}
+
 /* Button row — holds button 1 + optional button 2 */
 .split-card-carousel .split-card-carousel-buttons {
   display: flex;
