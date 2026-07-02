@@ -10893,7 +10893,7 @@
         "valueType": "string",
         "name": "image",
         "label": "Background Image (Optional)",
-        "description": "Fills this grid slot edge-to-edge. Leave empty and add a Statistics or Cards component inside this item instead.",
+        "description": "Fills this grid slot edge-to-edge. Add Statistics or Cards directly to the Gallery Grid as separate grid items.",
         "multi": false
       },
       {
@@ -25575,6 +25575,22 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "disclaimer",
+        "label": "Disclaimer Text (Optional)",
+        "description": "Optional fine print displayed below the stats.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclaimerFontSize",
+        "label": "Disclaimer Font Size",
+        "description": "Optional CSS length such as 12px or 0.75rem.",
+        "value": ""
       }
     ]
   },
@@ -25680,22 +25696,6 @@
         "name": "statTopLabel",
         "label": "Stat Top Label (Optional)",
         "description": "Optional label displayed above the stat value.",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "disclaimer",
-        "label": "Disclaimer Text (Optional)",
-        "description": "Optional fine print displayed below the stat label.",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "disclaimerFontSize",
-        "label": "Disclaimer Font Size",
-        "description": "Optional CSS length such as 12px or 0.75rem.",
         "value": ""
       }
     ]

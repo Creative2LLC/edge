@@ -1036,6 +1036,22 @@
             { "name": "White", "value": "white" }
           ],
           "value": "none"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "disclaimer",
+          "label": "Disclaimer Text (Optional)",
+          "description": "Optional fine print displayed below the stats.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "disclaimerFontSize",
+          "label": "Disclaimer Font Size",
+          "description": "Optional CSS length such as 12px or 0.75rem.",
+          "value": ""
         }
       ]
     },
@@ -1141,22 +1157,6 @@
           "name": "statTopLabel",
           "label": "Stat Top Label (Optional)",
           "description": "Optional label displayed above the stat value.",
-          "value": ""
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "disclaimer",
-          "label": "Disclaimer Text (Optional)",
-          "description": "Optional fine print displayed below the stat label.",
-          "value": ""
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "disclaimerFontSize",
-          "label": "Disclaimer Font Size",
-          "description": "Optional CSS length such as 12px or 0.75rem.",
           "value": ""
         }
       ]

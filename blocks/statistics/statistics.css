@@ -260,12 +260,22 @@
 }
 
 .statistics .statistics-disclaimer {
-  color: var(--statistics-label-color);
+  color: var(--statistics-body-color);
   opacity: 0.7;
   font-size: var(--statistics-disclaimer-size, 0.8rem);
   font-style: italic;
   line-height: 1.4;
-  margin-top: 6px;
+  max-width: 860px;
+  margin: 16px auto 0;
+  text-align: center;
+}
+
+.statistics .statistics-disclaimer > :first-child {
+  margin-top: 0;
+}
+
+.statistics .statistics-disclaimer > :last-child {
+  margin-bottom: 0;
 }
 
 .statistics .statistics-button {

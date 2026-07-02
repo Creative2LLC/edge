@@ -25,8 +25,7 @@
             "resourceType": "core/franklin/components/block/v1/block/item",
             "template": {
               "name": "Gallery Grid Item",
-              "model": "gallery-grid-item",
-              "filter": "gallery-grid-item"
+              "model": "gallery-grid-item"
             }
           }
         }
@@ -81,7 +80,7 @@
           "valueType": "string",
           "name": "image",
           "label": "Background Image (Optional)",
-          "description": "Fills this grid slot edge-to-edge. Leave empty and add a Statistics or Cards component inside this item instead.",
+          "description": "Fills this grid slot edge-to-edge. Add Statistics or Cards directly to the Gallery Grid as separate grid items.",
           "multi": false
         },
         {
@@ -98,12 +97,7 @@
     {
       "id": "gallery-grid",
       "components": [
-        "gallery-grid-item"
-      ]
-    },
-    {
-      "id": "gallery-grid-item",
-      "components": [
+        "gallery-grid-item",
         "statistics",
         "cards"
       ]

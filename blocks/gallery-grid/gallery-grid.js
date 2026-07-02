@@ -79,6 +79,12 @@ function readSetting(block, name, labels = [], fallbackCell = null, isEditor = f
 }
 
 function isSettingRow(row) {
+  const isContentBlock = [...NESTED_BLOCK_NAMES].some((name) => (
+    row.classList.contains(name)
+      || row.dataset.blockName === name
+      || row.getAttribute('data-aue-model') === name
+  ));
+  if (isContentBlock) return false;
   return SETTING_NAMES.some((name) => row.querySelector(`[data-aue-prop="${name}"]`));
 }
 
@@ -156,9 +162,9 @@ function findNestedBlockElement(row) {
 }
 
 function prepareAuthoringItem(row) {
-  row.setAttribute('data-aue-type', 'container');
+  row.setAttribute('data-aue-type', 'component');
   row.setAttribute('data-aue-behavior', 'component');
-  row.setAttribute('data-aue-filter', 'gallery-grid-item');
+  row.removeAttribute('data-aue-filter');
   if (!row.getAttribute('data-aue-label')) row.setAttribute('data-aue-label', 'Gallery Grid Item');
   return row;
 }
@@ -189,6 +195,15 @@ function removeGeneratedItemContent(item) {
 }
 
 async function buildItem(row, isEditor) {
+  if (NESTED_BLOCK_NAMES.has(getContentBlockName(row))) {
+    const item = document.createElement('div');
+    item.className = 'gallery-grid-item gallery-grid-item-content';
+    if (await loadNestedBlock(row)) {
+      item.append(row);
+      return item;
+    }
+  }
+
   const isAuthoringItem = isEditor && hasAuthoringContext(row);
   const item = isAuthoringItem ? prepareAuthoringItem(row) : document.createElement('div');
   item.className = 'gallery-grid-item';
@@ -237,7 +252,7 @@ async function buildItem(row, isEditor) {
     hideAuthoringFieldRow(item, findOwnItemField(row, 'imageAlt'));
     const placeholder = document.createElement('div');
     placeholder.className = 'gallery-grid-item-placeholder is-authoring-placeholder';
-    placeholder.textContent = 'Add a background image, or add a Statistics/Cards component inside this item.';
+    placeholder.textContent = 'Add a background image here. Add Cards or Statistics directly to the Gallery Grid.';
     item.append(placeholder);
     return item;
   }

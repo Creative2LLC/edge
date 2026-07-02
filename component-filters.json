@@ -327,12 +327,7 @@
   {
     "id": "gallery-grid",
     "components": [
-      "gallery-grid-item"
-    ]
-  },
-  {
-    "id": "gallery-grid-item",
-    "components": [
+      "gallery-grid-item",
       "statistics",
       "cards"
     ]

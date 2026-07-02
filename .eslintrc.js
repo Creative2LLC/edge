@@ -54,7 +54,7 @@ module.exports = {
       'split-card-carousel-item': 13,
       'icon-card-carousel-item': 10,
       'card-row-compact-item': 10,
-      statistics: 36,
+      statistics: 38,
       'job-posting-item': 10,
       'job-postings': 8,
       'internship-program': 18,

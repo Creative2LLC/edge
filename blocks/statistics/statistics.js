@@ -108,6 +108,8 @@ const CURRENT_IMAGE_MODE_OFFSETS = {
   paddingStyle: 28,
   borderRadius: 29,
   dropShadow: 30,
+  disclaimer: 31,
+  disclaimerFontSize: 32,
 };
 
 const LEGACY_IMAGE_MODE_OFFSETS = {
@@ -139,6 +141,8 @@ const LEGACY_IMAGE_MODE_OFFSETS = {
   paddingStyle: 29,
   borderRadius: 30,
   dropShadow: 31,
+  disclaimer: 32,
+  disclaimerFontSize: 33,
 };
 
 function directRowOf(block, element) {
@@ -1432,8 +1436,6 @@ function getAuthoredItems(block) {
     const buttonLinkField = readItemLinkField(row, 'buttonLink', 8);
     const buttonTargetField = readItemTextField(row, 'buttonTarget', 9);
     const topLabelField = readItemTextField(row, 'statTopLabel', 10);
-    const disclaimerField = readItemTextField(row, 'disclaimer', 11);
-    const disclaimerFontSizeField = readItemTextField(row, 'disclaimerFontSize', 12);
 
     return {
       row,
@@ -1448,8 +1450,6 @@ function getAuthoredItems(block) {
       buttonTextField,
       buttonLinkField,
       buttonTarget: buttonTargetField.value,
-      disclaimerField,
-      disclaimerFontSize: disclaimerFontSizeField.value,
       isAuthoringPlaceholder: hasAuthoringContext(row)
         && !imageField.img
         && !valueField.value
@@ -1476,8 +1476,6 @@ function getLegacyItems(values, labels) {
     buttonTextField: { source: null, value: '' },
     buttonLinkField: { source: null, value: '' },
     buttonTarget: '',
-    disclaimerField: { source: null, value: '' },
-    disclaimerFontSize: '',
     isAuthoringPlaceholder: false,
   }));
 }
@@ -1663,14 +1661,6 @@ function buildItem(itemData) {
     labelEl.className = 'statistics-label';
     appendFieldContent(itemData.labelField, labelEl, itemData.labelField.value);
     item.append(labelEl);
-  }
-
-  if (itemData.disclaimerField.value || itemData.disclaimerField.source) {
-    const disclaimerEl = document.createElement('div');
-    disclaimerEl.className = 'statistics-disclaimer';
-    setCssVarOnElement(disclaimerEl, '--statistics-disclaimer-size', normalizeCssLength(itemData.disclaimerFontSize, 'font-size'));
-    appendFieldContent(itemData.disclaimerField, disclaimerEl, itemData.disclaimerField.value);
-    item.append(disclaimerEl);
   }
 
   const rawButtonText = itemData.buttonTextField.value;
@@ -1949,6 +1939,18 @@ export default function decorate(block) {
     legacyConfig.compactCell('dropShadow')
       || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.dropShadow),
   );
+  const disclaimerField = readField(
+    block,
+    'disclaimer',
+    ['disclaimer', 'disclaimer text'],
+    legacyCell(CURRENT_IMAGE_MODE_OFFSETS.disclaimer),
+  );
+  const disclaimerFontSizeField = readField(
+    block,
+    'disclaimerFontSize',
+    ['disclaimer font size'],
+    legacyCell(CURRENT_IMAGE_MODE_OFFSETS.disclaimerFontSize),
+  );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
   const authoredOrPublishedValue = (name) => authoredFieldValues[name] || publishedFieldValues[name] || '';
   const explicitFieldValue = (field, name) => {
@@ -2102,6 +2104,12 @@ export default function decorate(block) {
     if (item) list.append(item);
   });
   if (list.childElementCount) wrapper.append(list);
+
+  const disclaimer = buildTextElement('div', 'statistics-disclaimer', disclaimerField);
+  if (disclaimer) {
+    setCssVarOnElement(disclaimer, '--statistics-disclaimer-size', normalizeCssLength(disclaimerFontSizeField.value, 'font-size'));
+    wrapper.append(disclaimer);
+  }
 
   block.replaceChildren(wrapper);
   // Multi-stat delivery markup can lose default alignment rows and misclassify the
