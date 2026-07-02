@@ -150,19 +150,57 @@ async function loadNestedBlock(element) {
 
 function findNestedBlockElement(row) {
   return [...row.children].find((child) => (
-    child.getAttribute('data-aue-resource') || child.dataset.blockName
+    (child.getAttribute('data-aue-resource') || child.dataset.blockName)
+      && NESTED_BLOCK_NAMES.has(getContentBlockName(child))
   ));
 }
 
+function prepareAuthoringItem(row) {
+  row.setAttribute('data-aue-type', 'container');
+  row.setAttribute('data-aue-behavior', 'component');
+  row.setAttribute('data-aue-filter', 'gallery-grid-item');
+  if (!row.getAttribute('data-aue-label')) row.setAttribute('data-aue-label', 'Gallery Grid Item');
+  return row;
+}
+
+function hideAuthoringFieldRow(item, source) {
+  const row = source ? directRowOf(item, source) : null;
+  if (row) row.hidden = true;
+}
+
+function findOwnItemField(item, name) {
+  return [...item.querySelectorAll(
+    '[data-aue-prop], [data-richtext-prop]',
+  )].find((source) => {
+    const fieldName = source.getAttribute('data-aue-prop')
+      || source.getAttribute('data-richtext-prop');
+    const row = directRowOf(item, source);
+    return fieldName === name
+      && row
+      && !NESTED_BLOCK_NAMES.has(getContentBlockName(row));
+  }) || null;
+}
+
+function removeGeneratedItemContent(item) {
+  item.querySelectorAll(
+    ':scope > .gallery-grid-image, :scope > .gallery-grid-item-placeholder',
+  ).forEach((element) => element.remove());
+  item.classList.remove('gallery-grid-item-content', 'is-authoring-placeholder');
+}
+
 async function buildItem(row, isEditor) {
-  const item = document.createElement('div');
+  const isAuthoringItem = isEditor && hasAuthoringContext(row);
+  const item = isAuthoringItem ? prepareAuthoringItem(row) : document.createElement('div');
   item.className = 'gallery-grid-item';
-  moveInstrumentation(row, item);
+  if (!isAuthoringItem) moveInstrumentation(row, item);
+  else removeGeneratedItemContent(item);
 
   const nestedSource = findNestedBlockElement(row);
   if (nestedSource && await loadNestedBlock(nestedSource)) {
     item.classList.add('gallery-grid-item-content');
-    item.append(nestedSource);
+    hideAuthoringFieldRow(item, findOwnItemField(row, 'image'));
+    hideAuthoringFieldRow(item, findOwnItemField(row, 'imageAlt'));
+    if (nestedSource.parentElement !== item) item.append(nestedSource);
     return item;
   }
 
@@ -187,12 +225,20 @@ async function buildItem(row, isEditor) {
 
     wrapper.append(picture);
     item.append(wrapper);
+    if (isAuthoringItem) {
+      hideAuthoringFieldRow(item, imageField.source);
+      hideAuthoringFieldRow(item, imageAltField.source);
+    }
     return item;
   }
 
-  if (isEditor && hasAuthoringContext(row)) {
-    item.classList.add('is-authoring-placeholder');
-    item.textContent = 'Add a background image, or add a Statistics/Cards component inside this item.';
+  if (isAuthoringItem) {
+    hideAuthoringFieldRow(item, findOwnItemField(row, 'image'));
+    hideAuthoringFieldRow(item, findOwnItemField(row, 'imageAlt'));
+    const placeholder = document.createElement('div');
+    placeholder.className = 'gallery-grid-item-placeholder is-authoring-placeholder';
+    placeholder.textContent = 'Add a background image, or add a Statistics/Cards component inside this item.';
+    item.append(placeholder);
     return item;
   }
 
