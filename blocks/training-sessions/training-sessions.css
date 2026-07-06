@@ -56,9 +56,12 @@ main > .section > .training-sessions-wrapper {
   gap: 12px;
 }
 
+/* All tracks are deterministic (fr / fixed, no content-based `auto`) so every
+   card — each its own grid — resolves identical column x-positions and the
+   columns line up across all rows. */
 .training-sessions .training-sessions-card {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, auto) 28px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.1fr) 28px;
   align-items: center;
   gap: 24px;
   padding: 26px 30px;
