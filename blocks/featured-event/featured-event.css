@@ -1,0 +1,245 @@
+/* Override the global section max-width (styles.css caps `main > .section > div`
+   at 1200px) so this block can run up to its 1420px design width. */
+main > .section > .featured-event-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.featured-event {
+  margin: 80px auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.featured-event .featured-event-inner {
+  max-width: 1420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ---------- Header ---------- */
+.featured-event .featured-event-header {
+  margin: 0 0 40px;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #00264d;
+}
+
+/* Rich-text header can contain paragraphs/headings — keep them on-brand and
+   let the RTE control spacing between lines without huge default gaps. */
+.featured-event .featured-event-header :is(h1, h2, h3, h4, p) {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.featured-event .featured-event-header :is(p, h1, h2, h3, h4) + :is(p, h1, h2, h3, h4) {
+  margin-top: 8px;
+}
+
+/* ---------- Card grid ---------- */
+.featured-event .featured-event-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 48px;
+}
+
+.featured-event .featured-event-card {
+  flex: 1 1 686px;
+  max-width: 686px;
+  width: 100%;
+  min-height: 799px;
+  background-color: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Top image — full card width, 330px tall, square bottom corners (the card's
+   overflow:hidden clips the top corners to the 14px radius). */
+.featured-event .featured-event-card-media {
+  width: 100%;
+  height: 330px;
+  flex: 0 0 330px;
+  overflow: hidden;
+}
+
+.featured-event .featured-event-card-media picture,
+.featured-event .featured-event-card-media img {
+  display: block;
+  width: 100%;
+  height: 330px;
+  object-fit: cover;
+}
+
+/* Card body — 48px side padding on a 686px card leaves a 590px content column. */
+.featured-event .featured-event-card-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 48px 48px;
+  color: #404041;
+  box-sizing: border-box;
+}
+
+.featured-event .featured-event-card-title {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #404041;
+}
+
+.featured-event .featured-event-card-title p {
+  margin: 0;
+}
+
+.featured-event .featured-event-card-description {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #404041;
+}
+
+.featured-event .featured-event-card-description p {
+  margin: 0;
+}
+
+.featured-event .featured-event-card-title p + p {
+  margin-top: 4px;
+}
+
+.featured-event .featured-event-card-description p + p {
+  margin-top: 8px;
+}
+
+/* ---------- Divider ---------- */
+.featured-event .featured-event-divider {
+  width: 100%;
+  height: 1px;
+  margin: 24px 0;
+  border: 0;
+  background-color: #d9d9d9;
+}
+
+/* ---------- Details (2 per row) ---------- */
+.featured-event .featured-event-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.featured-event .featured-event-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Icon — mask lets the background-color tint the artwork. */
+.featured-event .featured-event-detail-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  background-color: #008db6;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.featured-event .featured-event-detail-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.featured-event .featured-event-detail-label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #404041;
+}
+
+.featured-event .featured-event-detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #404041;
+}
+
+/* ---------- CTA button ---------- */
+.featured-event .featured-event-cta {
+  align-self: flex-start;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 99px;
+  background-color: #008db6;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+/* Space between the details grid and the button when the card body isn't full. */
+.featured-event .featured-event-details + .featured-event-cta {
+  margin-top: 28px;
+}
+
+.featured-event .featured-event-cta:hover,
+.featured-event .featured-event-cta:focus,
+.featured-event .featured-event-cta:focus-visible {
+  color: #fff;
+  opacity: 0.9;
+  outline: none;
+}
+
+/* ---------- Responsive ---------- */
+@media (width <= 900px) {
+  .featured-event {
+    margin: 56px auto;
+    padding: 0 20px;
+  }
+
+  .featured-event .featured-event-header {
+    font-size: 32px;
+    margin-bottom: 28px;
+  }
+
+  .featured-event .featured-event-card {
+    min-height: 0;
+  }
+
+  .featured-event .featured-event-card-media,
+  .featured-event .featured-event-card-media picture,
+  .featured-event .featured-event-card-media img {
+    height: auto;
+    flex-basis: auto;
+    aspect-ratio: 686 / 330;
+  }
+
+  .featured-event .featured-event-card-body {
+    padding: 32px 28px 36px;
+  }
+
+  .featured-event .featured-event-card-title {
+    font-size: 28px;
+  }
+}
+
+@media (width <= 560px) {
+  .featured-event .featured-event-details {
+    grid-template-columns: 1fr;
+  }
+}

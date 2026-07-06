@@ -1,0 +1,282 @@
+{
+  "definitions": [
+    {
+      "title": "Featured Event",
+      "id": "featured-event",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Featured Event",
+              "model": "featured-event",
+              "filter": "featured-event"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Event Card",
+      "id": "featured-event-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Event Card",
+              "model": "featured-event-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "featured-event",
+      "fields": [
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "title",
+          "label": "Header Text",
+          "description": "Optional heading shown above the event cards."
+        }
+      ]
+    },
+    {
+      "id": "featured-event-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Card Image (686 x 330)",
+          "description": "Image displayed at the top of the card.",
+          "multi": false
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "cardTitle",
+          "label": "Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "description",
+          "label": "Description"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "detail1Icon",
+          "label": "Detail 1 — Icon (32x32)",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "detail1IconColor",
+          "label": "Detail 1 — Icon Color",
+          "description": "Color used to tint the icon. Defaults to #008DB6.",
+          "options": [
+            { "name": "Default / None", "value": "" },
+            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
+            { "name": "Primary Blue 1 (#00264D)", "value": "#00264D" },
+            { "name": "Primary Blue 2 (#007294)", "value": "#007294" },
+            { "name": "Primary Blue 3 (#008EB7)", "value": "#008EB7" },
+            { "name": "Brand Blue (#008DB6)", "value": "#008DB6" },
+            { "name": "Primary Grey 1 (#404041)", "value": "#404041" },
+            { "name": "Primary Grey 2 (#0D273B)", "value": "#0D273B" },
+            { "name": "Primary Grey 3 (#A1A1A1)", "value": "#A1A1A1" },
+            { "name": "Orange (#E07E27)", "value": "#E07E27" },
+            { "name": "Peach (#FCBC7E)", "value": "#FCBC7E" },
+            { "name": "Green (#7BC581)", "value": "#7BC581" },
+            { "name": "Primary Red 1 (#E13E30)", "value": "#E13E30" },
+            { "name": "Primary Red 2 (#F58A80)", "value": "#F58A80" },
+            { "name": "Light Blue (#92D6E3)", "value": "#92D6E3" },
+            { "name": "Light Grey 1 (#F6F6F6)", "value": "#F6F6F6" },
+            { "name": "Light Grey 2 (#E7E4E1)", "value": "#E7E4E1" },
+            { "name": "Light Grey 3 (#DDD5CC)", "value": "#DDD5CC" }
+          ],
+          "value": "#008DB6"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail1Name",
+          "label": "Detail 1 — Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail1Value",
+          "label": "Detail 1 — Value"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "detail2Icon",
+          "label": "Detail 2 — Icon (32x32)",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "detail2IconColor",
+          "label": "Detail 2 — Icon Color",
+          "description": "Color used to tint the icon. Defaults to #008DB6.",
+          "options": [
+            { "name": "Default / None", "value": "" },
+            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
+            { "name": "Primary Blue 1 (#00264D)", "value": "#00264D" },
+            { "name": "Primary Blue 2 (#007294)", "value": "#007294" },
+            { "name": "Primary Blue 3 (#008EB7)", "value": "#008EB7" },
+            { "name": "Brand Blue (#008DB6)", "value": "#008DB6" },
+            { "name": "Primary Grey 1 (#404041)", "value": "#404041" },
+            { "name": "Primary Grey 2 (#0D273B)", "value": "#0D273B" },
+            { "name": "Primary Grey 3 (#A1A1A1)", "value": "#A1A1A1" },
+            { "name": "Orange (#E07E27)", "value": "#E07E27" },
+            { "name": "Peach (#FCBC7E)", "value": "#FCBC7E" },
+            { "name": "Green (#7BC581)", "value": "#7BC581" },
+            { "name": "Primary Red 1 (#E13E30)", "value": "#E13E30" },
+            { "name": "Primary Red 2 (#F58A80)", "value": "#F58A80" },
+            { "name": "Light Blue (#92D6E3)", "value": "#92D6E3" },
+            { "name": "Light Grey 1 (#F6F6F6)", "value": "#F6F6F6" },
+            { "name": "Light Grey 2 (#E7E4E1)", "value": "#E7E4E1" },
+            { "name": "Light Grey 3 (#DDD5CC)", "value": "#DDD5CC" }
+          ],
+          "value": "#008DB6"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail2Name",
+          "label": "Detail 2 — Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail2Value",
+          "label": "Detail 2 — Value"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "detail3Icon",
+          "label": "Detail 3 — Icon (32x32)",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "detail3IconColor",
+          "label": "Detail 3 — Icon Color",
+          "description": "Color used to tint the icon. Defaults to #008DB6.",
+          "options": [
+            { "name": "Default / None", "value": "" },
+            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
+            { "name": "Primary Blue 1 (#00264D)", "value": "#00264D" },
+            { "name": "Primary Blue 2 (#007294)", "value": "#007294" },
+            { "name": "Primary Blue 3 (#008EB7)", "value": "#008EB7" },
+            { "name": "Brand Blue (#008DB6)", "value": "#008DB6" },
+            { "name": "Primary Grey 1 (#404041)", "value": "#404041" },
+            { "name": "Primary Grey 2 (#0D273B)", "value": "#0D273B" },
+            { "name": "Primary Grey 3 (#A1A1A1)", "value": "#A1A1A1" },
+            { "name": "Orange (#E07E27)", "value": "#E07E27" },
+            { "name": "Peach (#FCBC7E)", "value": "#FCBC7E" },
+            { "name": "Green (#7BC581)", "value": "#7BC581" },
+            { "name": "Primary Red 1 (#E13E30)", "value": "#E13E30" },
+            { "name": "Primary Red 2 (#F58A80)", "value": "#F58A80" },
+            { "name": "Light Blue (#92D6E3)", "value": "#92D6E3" },
+            { "name": "Light Grey 1 (#F6F6F6)", "value": "#F6F6F6" },
+            { "name": "Light Grey 2 (#E7E4E1)", "value": "#E7E4E1" },
+            { "name": "Light Grey 3 (#DDD5CC)", "value": "#DDD5CC" }
+          ],
+          "value": "#008DB6"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail3Name",
+          "label": "Detail 3 — Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail3Value",
+          "label": "Detail 3 — Value"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "detail4Icon",
+          "label": "Detail 4 — Icon (32x32)",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "detail4IconColor",
+          "label": "Detail 4 — Icon Color",
+          "description": "Color used to tint the icon. Defaults to #008DB6.",
+          "options": [
+            { "name": "Default / None", "value": "" },
+            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
+            { "name": "Primary Blue 1 (#00264D)", "value": "#00264D" },
+            { "name": "Primary Blue 2 (#007294)", "value": "#007294" },
+            { "name": "Primary Blue 3 (#008EB7)", "value": "#008EB7" },
+            { "name": "Brand Blue (#008DB6)", "value": "#008DB6" },
+            { "name": "Primary Grey 1 (#404041)", "value": "#404041" },
+            { "name": "Primary Grey 2 (#0D273B)", "value": "#0D273B" },
+            { "name": "Primary Grey 3 (#A1A1A1)", "value": "#A1A1A1" },
+            { "name": "Orange (#E07E27)", "value": "#E07E27" },
+            { "name": "Peach (#FCBC7E)", "value": "#FCBC7E" },
+            { "name": "Green (#7BC581)", "value": "#7BC581" },
+            { "name": "Primary Red 1 (#E13E30)", "value": "#E13E30" },
+            { "name": "Primary Red 2 (#F58A80)", "value": "#F58A80" },
+            { "name": "Light Blue (#92D6E3)", "value": "#92D6E3" },
+            { "name": "Light Grey 1 (#F6F6F6)", "value": "#F6F6F6" },
+            { "name": "Light Grey 2 (#E7E4E1)", "value": "#E7E4E1" },
+            { "name": "Light Grey 3 (#DDD5CC)", "value": "#DDD5CC" }
+          ],
+          "value": "#008DB6"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail4Name",
+          "label": "Detail 4 — Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detail4Value",
+          "label": "Detail 4 — Value"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "ctaText",
+          "label": "CTA Button Text",
+          "description": "An arrow ( → ) is added automatically after the text."
+        },
+        {
+          "component": "aem-content",
+          "name": "ctaLink",
+          "label": "CTA Button Link"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "featured-event",
+      "components": [
+        "featured-event-item"
+      ]
+    }
+  ]
+}

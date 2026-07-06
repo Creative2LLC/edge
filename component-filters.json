@@ -326,6 +326,12 @@
     ]
   },
   {
+    "id": "featured-event",
+    "components": [
+      "featured-event-item"
+    ]
+  },
+  {
     "id": "gallery-grid",
     "components": [
       "gallery-grid-item",

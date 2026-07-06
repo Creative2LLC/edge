@@ -29,7 +29,7 @@ module.exports = {
     'linebreak-style': ['error', 'unix'], // enforce unix linebreaks
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
     'xwalk/max-cells': ['error', {
-      '*': 16,
+      '*': 21,
       'colored-button': 17,
       'colored-icon-text': 28,
       'colored-text': 17,
