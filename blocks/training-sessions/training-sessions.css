@@ -49,10 +49,11 @@ main > .section > .training-sessions-wrapper {
   margin-top: 8px;
 }
 
-/* ---------- Card stack (flush, table-like) ---------- */
+/* ---------- Card stack ---------- */
 .training-sessions .training-sessions-list {
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
 .training-sessions .training-sessions-card {
@@ -61,18 +62,8 @@ main > .section > .training-sessions-wrapper {
   align-items: center;
   gap: 24px;
   padding: 26px 30px;
+  border-radius: 8px;
   background-color: #ddd5cc52;
-}
-
-/* Straight corners everywhere except the very last card, which rounds only its
-   bottom-left / bottom-right corners so the stack reads as one unit. */
-.training-sessions .training-sessions-card:not(:last-child) {
-  border-bottom: 1px solid rgb(64 64 65 / 12%);
-}
-
-.training-sessions .training-sessions-card:last-child {
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
 }
 
 /* ---------- Columns ---------- */
@@ -80,6 +71,7 @@ main > .section > .training-sessions-wrapper {
   min-width: 0;
   font-size: 17px;
   line-height: 1.4;
+  text-align: left;
 }
 
 .training-sessions .training-sessions-col-1 {
