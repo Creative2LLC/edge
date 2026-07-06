@@ -109,6 +109,10 @@
               "value": "#E07E27"
             },
             {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
               "name": "Peach (#FCBC7E)",
               "value": "#FCBC7E"
             },
@@ -200,6 +204,10 @@
               "value": "#E07E27"
             },
             {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
               "name": "Peach (#FCBC7E)",
               "value": "#FCBC7E"
             },
@@ -289,6 +297,10 @@
             {
               "name": "Orange (#E07E27)",
               "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
             },
             {
               "name": "Peach (#FCBC7E)",
@@ -574,6 +586,10 @@
               "value": "#E07E27"
             },
             {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
               "name": "Peach (#FCBC7E)",
               "value": "#FCBC7E"
             },
@@ -665,6 +681,10 @@
               "value": "#E07E27"
             },
             {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
               "name": "Peach (#FCBC7E)",
               "value": "#FCBC7E"
             },
@@ -754,6 +774,10 @@
             {
               "name": "Orange (#E07E27)",
               "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
             },
             {
               "name": "Peach (#FCBC7E)",
@@ -862,6 +886,7 @@
             { "name": "Primary Grey 2 (#0D273B)", "value": "#0D273B" },
             { "name": "Primary Grey 3 (#A1A1A1)", "value": "#A1A1A1" },
             { "name": "Orange (#E07E27)", "value": "#E07E27" },
+            { "name": "Light Orange (#FAAB60)", "value": "#FAAB60" },
             { "name": "Peach (#FCBC7E)", "value": "#FCBC7E" },
             { "name": "Green (#7BC581)", "value": "#7BC581" },
             { "name": "Primary Red 1 (#E13E30)", "value": "#E13E30" },
