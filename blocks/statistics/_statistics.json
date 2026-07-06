@@ -37,9 +37,8 @@
       "id": "statistics",
       "fields": [
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
-          "value": "",
           "name": "heading",
           "label": "Heading"
         },
@@ -143,17 +142,15 @@
           "value": ""
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
-          "value": "",
           "name": "statValues",
           "label": "Legacy Stat Values (one per line)",
           "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
-          "value": "",
           "name": "statLabels",
           "label": "Legacy Stat Labels (one per line)",
           "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
