@@ -553,6 +553,12 @@
     ]
   },
   {
+    "id": "training-sessions",
+    "components": [
+      "training-sessions-item"
+    ]
+  },
+  {
     "id": "trust-badges",
     "components": [
       "trust-badge-item"
