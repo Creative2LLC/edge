@@ -43,6 +43,8 @@ function parseCardRow(row) {
       linkText: getFieldText(row, 6, 'linkText'),
       linkUrl: getLinkUrl(row, 'linkUrl', 7),
       cardContentBg: getFieldText(row, 8, 'cardContentBg'),
+      // Author-facing image ALT: read by name with positional fallback at last cell (index 9)
+      imageAltText: getFieldText(row, 9, 'imageAlt'),
     };
   }
 
@@ -89,12 +91,16 @@ function buildCard(data, row) {
       imageWrap.append(data.imagePicture);
       const img = data.imagePicture.querySelector('img');
       if (img) {
-        const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '400' }]);
+        // Prefer the author-facing ALT, keep the source image alt as fallback
+        const altVal = data.imageAltText || img.alt || '';
+        const optimized = createOptimizedPicture(img.src, altVal, false, [{ width: '400' }]);
         moveInstrumentation(img, optimized.querySelector('img'));
         data.imagePicture.replaceWith(optimized);
       }
     } else {
-      const pic = createOptimizedPicture(data.imgSrc, data.imageAlt, false, [{ width: '400' }]);
+      // Prefer the author-facing ALT, keep the source image alt as fallback
+      const altVal = data.imageAltText || data.imageAlt || '';
+      const pic = createOptimizedPicture(data.imgSrc, altVal, false, [{ width: '400' }]);
       imageWrap.append(pic);
     }
 

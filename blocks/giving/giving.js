@@ -10,6 +10,7 @@ const FALLBACK_POSITIONS = {
   primaryButton: [1, 0],
   secondaryButton: [2, 0],
   backgroundImage: [3, 0],
+  backgroundImageAlt: [4, 0],
 };
 
 function getField(block, name, rowIndex, columnIndex = 0) {
@@ -98,6 +99,7 @@ export default function decorate(block) {
   const primaryButtonSource = getField(block, 'primaryButton');
   const secondaryButtonSource = getField(block, 'secondaryButton');
   const backgroundSource = getField(block, 'backgroundImage') || block.querySelector('picture');
+  const backgroundImageAltSource = getField(block, 'backgroundImageAlt');
   const metadata = readMetadata(block);
   const overlayColor = metadata.overlayColor || FALLBACK_OVERLAY_COLOR;
   const overlayOpacity = parseOpacity(metadata.overlayOpacity) ?? FALLBACK_OVERLAY_OPACITY;
@@ -126,7 +128,11 @@ export default function decorate(block) {
   const newChildren = [];
   const media = document.createElement('div');
   media.className = 'giving-media';
-  const bgAlt = metadata.backgroundAlt || backgroundSource?.querySelector('img')?.alt || '';
+  const backgroundImageAlt = backgroundImageAltSource?.textContent?.trim();
+  const bgAlt = backgroundImageAlt
+    || metadata.backgroundAlt
+    || backgroundSource?.querySelector('img')?.alt
+    || '';
   const bg = buildBackground(backgroundSource, bgAlt);
   if (bg) media.append(bg);
   if (media.childElementCount) newChildren.push(media);

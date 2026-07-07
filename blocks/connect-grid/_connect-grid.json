@@ -475,6 +475,13 @@
             }
           ],
           "value": "show"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
         }
       ]
     }

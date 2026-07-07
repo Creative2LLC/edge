@@ -53,10 +53,12 @@ function parseItemRow(row) {
   if (hasItemProps || cols.length >= 5) {
     const imageData = getImageData(readImageField(row, 'image', { fallbackCell: cols[0] }));
     const iconData = getImageData(readImageField(row, 'icon', { fallbackCell: cols[1] }));
+    const imageAltOverride = readTextField(row, 'imageAlt', { fallbackCell: cols[5] }).value;
     return {
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
       imageAlt: imageData.alt,
+      imageAltOverride,
       iconPicture: iconData.picture,
       iconSrc: iconData.src,
       iconColor: readTextField(row, 'iconColor', { fallbackCell: cols[2] }).value,
@@ -69,10 +71,12 @@ function parseItemRow(row) {
   if (cols.length >= 2) {
     const imageData = getImageData(readImageField(row, 'image', { fallbackCell: cols[0] }));
     const paragraphs = cols[1].querySelectorAll('p');
+    const imageAltOverride = readTextField(row, 'imageAlt', { fallbackCell: cols[5] }).value;
     return {
       imagePicture: imageData.picture,
       imgSrc: imageData.src,
       imageAlt: imageData.alt,
+      imageAltOverride,
       iconPicture: null,
       iconSrc: '',
       iconColor: '',
@@ -98,7 +102,7 @@ function buildItemCard(item, row, index) {
     imageWrap.append(item.imagePicture);
     const img = item.imagePicture.querySelector('img');
     if (img) {
-      const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '400' }]);
+      const optimized = createOptimizedPicture(img.src, item.imageAltOverride || img.alt || '', false, [{ width: '400' }]);
       moveInstrumentation(img, optimized.querySelector('img'));
       item.imagePicture.replaceWith(optimized);
     }
@@ -106,7 +110,7 @@ function buildItemCard(item, row, index) {
   } else if (item.imgSrc) {
     const imageWrap = document.createElement('div');
     imageWrap.className = 'impact-chain-item-image';
-    const pic = createOptimizedPicture(item.imgSrc, item.imageAlt, false, [{ width: '400' }]);
+    const pic = createOptimizedPicture(item.imgSrc, item.imageAltOverride || item.imageAlt || '', false, [{ width: '400' }]);
     imageWrap.append(pic);
     card.append(imageWrap);
   }

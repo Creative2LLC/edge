@@ -297,6 +297,13 @@
             }
           ],
           "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "headerImageAlt",
+          "label": "Header Image Alt Text",
+          "value": ""
         }
       ]
     },

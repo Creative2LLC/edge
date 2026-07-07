@@ -76,6 +76,13 @@
           "component": "aem-content",
           "name": "link",
           "label": "Card Link (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
         }
       ]
     }

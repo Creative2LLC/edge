@@ -33,6 +33,7 @@ function parseRow(row) {
     imagePicture: imageData.picture,
     imgSrc: imageData.src,
     imageAlt: imageData.alt,
+    imageAltOverride: getFieldText(row, 3, 'imageAlt'),
     title: getFieldText(row, 1, 'title'),
     description: getFieldHtml(row, 2, 'description'),
   };
@@ -53,12 +54,22 @@ function buildCard(data, row) {
       imageWrap.append(data.imagePicture);
       const img = data.imagePicture.querySelector('img');
       if (img) {
-        const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '500' }]);
+        const optimized = createOptimizedPicture(
+          img.src,
+          data.imageAltOverride || img.alt || '',
+          false,
+          [{ width: '500' }],
+        );
         moveInstrumentation(img, optimized.querySelector('img'));
         data.imagePicture.replaceWith(optimized);
       }
     } else {
-      const pic = createOptimizedPicture(data.imgSrc, data.imageAlt, false, [{ width: '500' }]);
+      const pic = createOptimizedPicture(
+        data.imgSrc,
+        data.imageAltOverride || data.imageAlt || '',
+        false,
+        [{ width: '500' }],
+      );
       imageWrap.append(pic);
     }
 

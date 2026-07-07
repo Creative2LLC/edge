@@ -78,6 +78,9 @@ function buildCard(data) {
     if (data.imageField.source) {
       moveInstrumentation(data.imageField.source, picture);
     }
+    const altVal = data.imageAlt;
+    const img = picture.querySelector('img');
+    if (altVal && img) img.alt = altVal;
     mediaWrap.append(picture);
     card.append(mediaWrap);
   }
@@ -178,6 +181,7 @@ export default function decorate(block) {
     const buttonLinkField = getLinkField(row, 'buttonLink', 5);
     const buttonStyleField = getField(row, 'buttonStyle', 6);
     const cardBgField = getField(row, 'cardBackgroundColor', 7);
+    const imageAltField = getField(row, 'imageAlt', 8);
 
     const hasContent = imageField.picture
       || iconField.picture
@@ -202,6 +206,7 @@ export default function decorate(block) {
       buttonLink: buttonLinkField.value,
       buttonStyle: (buttonStyleField.value || 'outlined').toLowerCase(),
       cardBackgroundColor: cardBgField.value || '#0f3357',
+      imageAlt: imageAltField.value,
       row,
     });
   });

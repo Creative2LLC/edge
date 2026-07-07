@@ -301,6 +301,13 @@
           "name": "tags",
           "label": "Resource Tags - Universal Tags",
           "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "headerImageAlt",
+          "label": "Header Image Alt Text",
+          "value": ""
         }
       ]
     }

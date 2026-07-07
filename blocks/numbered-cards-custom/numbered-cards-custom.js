@@ -203,6 +203,8 @@ export default async function decorate(block) {
   const titleField = getBlockField(block, 'title');
   const subtitleField = getBlockField(block, 'subtitle');
   const headerImageField = getImageField(block, 'headerImage');
+  const headerImageAltValue = getBlockField(block, 'headerImageAlt').value
+    || normalizeJsonFieldValue(blockData.headerImageAlt);
   const titleValue = titleField.value || normalizeJsonFieldValue(blockData.title);
   const subtitleValue = subtitleField.value || normalizeJsonFieldValue(blockData.subtitle);
   const alignment = getBlockField(block, 'textAlign').value
@@ -247,7 +249,7 @@ export default async function decorate(block) {
     header.style.textAlign = alignment;
   }
 
-  const headerImage = buildOptimizedPicture(headerImageField, '', 240);
+  const headerImage = buildOptimizedPicture(headerImageField, headerImageAltValue || '', 240);
   if (headerImage) {
     const headerMedia = document.createElement('div');
     headerMedia.className = 'numbered-cards-custom-header-media';

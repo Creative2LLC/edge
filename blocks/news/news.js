@@ -91,11 +91,14 @@ function parseArticleRow(row) {
     return field.value;
   };
   const imageField = readImageField(row, 'image');
+  // Author-provided ALT: read by name (editor) with positional fallback at index N=5 (published)
+  const modelImageAltField = readTextField(row, 'imageAlt');
+  const modelImageAlt = modelImageAltField.value || getColText(cols[5]);
   const title = getField('title');
   if (title) {
     return {
       imgSrc: imageField.img?.src || '',
-      imageAlt: imageField.img?.alt || '',
+      imageAlt: modelImageAlt || imageField.img?.alt || '',
       title,
       subheading: getField('subtitle'),
       linkUrl: readLinkField(row, 'link').value,

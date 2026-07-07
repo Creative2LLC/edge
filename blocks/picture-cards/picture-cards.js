@@ -21,6 +21,7 @@ function buildCard(row) {
   const description = getField(row, 'description') || normalizeText(row.children[2]?.textContent);
   const linkField = readLinkField(row, 'link');
   const href = linkField.value || normalizeText(row.querySelector('a')?.getAttribute('href') || '');
+  const altVal = getField(row, 'imageAlt') || normalizeText(row.children[4]?.textContent);
 
   const card = document.createElement(href ? 'a' : 'div');
   card.className = 'picture-card';
@@ -33,7 +34,10 @@ function buildCard(row) {
     const media = document.createElement('div');
     media.className = 'picture-card-media';
     const pic = img.closest('picture') || img;
-    media.append(pic.cloneNode(true));
+    const picClone = pic.cloneNode(true);
+    const cloneImg = picClone.tagName === 'IMG' ? picClone : picClone.querySelector('img');
+    if (altVal && cloneImg) cloneImg.alt = altVal;
+    media.append(picClone);
     card.append(media);
   }
 

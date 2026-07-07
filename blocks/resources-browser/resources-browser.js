@@ -373,10 +373,11 @@ function getPropLink(row, prop) {
 
 function getPropImage(row, prop) {
   const field = readImageField(row, prop);
+  const altVal = getPropText(row, 'imageAlt');
   return {
     picture: field.picture,
     src: field.img?.src || '',
-    alt: field.img?.alt || '',
+    alt: altVal || field.img?.alt || '',
   };
 }
 
@@ -569,7 +570,7 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
     imageWrap.append(resource.imagePicture);
     const img = resource.imagePicture.querySelector('img');
     if (img) {
-      const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '800' }]);
+      const optimized = createOptimizedPicture(img.src, resource.imageAlt || img.alt, false, [{ width: '800' }]);
       moveInstrumentation(img, optimized.querySelector('img'));
       resource.imagePicture.replaceWith(optimized);
     }

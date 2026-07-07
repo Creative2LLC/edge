@@ -7,6 +7,7 @@ const FIELD_INDEX = {
   copy: 2,
   email: 3,
   note: 4,
+  imageAlt: 5,
 };
 
 function normalizeText(value) {
@@ -56,7 +57,7 @@ function appendText(parent, field, tagName, className) {
   return element;
 }
 
-function buildVisual(imageField, href) {
+function buildVisual(imageField, href, altValue) {
   const visual = document.createElement(href ? 'a' : 'span');
   visual.className = 'media-contact-cta-visual';
   if (href) {
@@ -68,6 +69,7 @@ function buildVisual(imageField, href) {
     const img = imageField.img.cloneNode(true);
     img.className = 'media-contact-cta-image';
     if (imageField.source) moveInstrumentation(imageField.source, img);
+    if (altValue) img.alt = altValue;
     visual.append(img);
   } else {
     visual.classList.add('is-fallback');
@@ -83,12 +85,14 @@ export default function decorate(block) {
   const copyField = getTextField(block, 'copy');
   const emailField = getTextField(block, 'email');
   const noteField = getTextField(block, 'note');
+  const imageAltField = getTextField(block, 'imageAlt');
+  const imageAlt = normalizeText(imageAltField.value);
   const email = normalizeText(emailField.value);
   const href = mailTo(email);
 
   const inner = document.createElement('div');
   inner.className = 'media-contact-cta-inner';
-  inner.append(buildVisual(imageField, href));
+  inner.append(buildVisual(imageField, href, imageAlt));
 
   const body = document.createElement('div');
   body.className = 'media-contact-cta-body';

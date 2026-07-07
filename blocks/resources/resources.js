@@ -185,10 +185,11 @@ function parseResourceRow(row) {
   if (cols.length >= 6) {
     const imageField = readImageField(row, 'image', { fallbackCell: cols[0] });
     const iconField = readImageField(row, 'icon', { fallbackCell: cols[1] });
+    const altVal = readTextField(row, 'imageAlt', { fallbackCell: cols[8] }).value;
     const imageData = {
       picture: imageField.picture,
       src: imageField.img?.src || '',
-      alt: imageField.img?.alt || '',
+      alt: altVal || imageField.img?.alt || '',
     };
     const iconData = {
       picture: iconField.picture,

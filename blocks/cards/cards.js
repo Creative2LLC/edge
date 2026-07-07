@@ -558,7 +558,7 @@ function isIconLikeImage(src) {
   }
 }
 
-function buildImage(imageField, forceIcon = false) {
+function buildImage(imageField, forceIcon = false, altVal = '') {
   const sourceImg = imageField?.img;
   if (!sourceImg) return null;
 
@@ -566,7 +566,7 @@ function buildImage(imageField, forceIcon = false) {
   wrapper.className = 'cards-card-image';
   if (forceIcon || isIconLikeImage(sourceImg.src)) wrapper.classList.add('cards-card-image-icon');
 
-  const optimizedPic = createOptimizedPicture(sourceImg.src, sourceImg.alt, false, [{ width: '750' }]);
+  const optimizedPic = createOptimizedPicture(sourceImg.src, altVal || sourceImg.alt, false, [{ width: '750' }]);
   const optimizedImg = optimizedPic.querySelector('img');
 
   if (imageField.source && imageField.source !== sourceImg) {
@@ -626,6 +626,7 @@ function buildCard(row) {
   const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: row.children[12] });
   const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: row.children[13] });
   const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: row.children[14] });
+  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: row.children[15] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
   const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
@@ -655,7 +656,11 @@ function buildCard(row) {
   }
   if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
 
-  const image = buildImage(imageField, isStatIconCard(textField, highlightField));
+  const image = buildImage(
+    imageField,
+    isStatIconCard(textField, highlightField),
+    imageAltField.value,
+  );
   if (image) li.append(image);
 
   const body = document.createElement('div');

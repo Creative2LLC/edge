@@ -2941,6 +2941,13 @@
         "valueType": "string",
         "name": "author",
         "label": "Author Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -4064,6 +4071,13 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -9379,6 +9393,13 @@
           }
         ],
         "value": "show"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -10600,6 +10621,13 @@
           }
         ],
         "value": "#0f3357"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -11658,6 +11686,13 @@
         "component": "aem-content",
         "name": "ctaLink",
         "label": "CTA Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -12015,6 +12050,13 @@
         "name": "backgroundImage",
         "label": "Background Image",
         "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundImageAlt",
+        "label": "Background Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -14385,6 +14427,13 @@
             "value": "#DDD5CC"
           }
         ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -14794,6 +14843,13 @@
         "valueType": "string",
         "name": "description",
         "label": "Description"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -17435,6 +17491,13 @@
         "component": "aem-content",
         "name": "featuredLink",
         "label": "Featured Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "featuredImageAlt",
+        "label": "Featured Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -18092,6 +18155,13 @@
         "name": "note",
         "label": "Note",
         "value": "Include the case name/number, your outlet, and deadline in your request."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -18710,6 +18780,13 @@
         "valueType": "string",
         "name": "tags",
         "label": "Tags (Name:#hex per line)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -19079,6 +19156,13 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "headerImageAlt",
+        "label": "Header Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -20382,6 +20466,13 @@
         "component": "aem-content",
         "name": "link",
         "label": "Card Link (Optional)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -20561,6 +20652,13 @@
         "valueType": "string",
         "name": "description",
         "label": "Description"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -21552,6 +21650,13 @@
         "name": "tags",
         "label": "Resource Tags - Universal Tags",
         "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "headerImageAlt",
+        "label": "Header Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -22113,6 +22218,13 @@
         "valueType": "string",
         "name": "filters",
         "label": "Audience/Issue/Type/Tags/Language/Program/Grade"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },
@@ -22380,6 +22492,13 @@
         "valueType": "string",
         "name": "tags",
         "label": "Custom Tags (Comma/Newline)"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image Alt Text",
+        "value": ""
       }
     ]
   },

@@ -51,6 +51,9 @@ function buildMainCard(data, row) {
     imgWrap.append(data.img);
   }
 
+  const img = imgWrap.querySelector('img');
+  if (data.imageAlt && img) img.alt = data.imageAlt;
+
   card.append(imgWrap);
 
   const textSection = document.createElement('div');
@@ -173,6 +176,7 @@ export default function decorate(block) {
     const imageData = getFieldImage(row, 0);
     const quote = getFieldText(row, 1, 'quote');
     const author = getFieldText(row, 2, 'author');
+    const imageAlt = getFieldText(row, 3, 'imageAlt');
 
     if (!mainBuilt && imageData.img) {
       const card = buildMainCard({
@@ -180,6 +184,7 @@ export default function decorate(block) {
         img: imageData.img,
         quote,
         author,
+        imageAlt,
       }, row);
       container.append(card);
       mainBuilt = true;

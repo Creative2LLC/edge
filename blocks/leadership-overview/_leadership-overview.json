@@ -85,6 +85,13 @@
           "component": "aem-content",
           "name": "featuredLink",
           "label": "Featured Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "featuredImageAlt",
+          "label": "Featured Image Alt Text",
+          "value": ""
         }
       ]
     },

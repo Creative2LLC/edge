@@ -22,6 +22,7 @@ const FIELD_COLUMN_INDEX = {
   programs: 11,
   gradeAges: 12,
   tags: 13,
+  headerImageAlt: 14,
 };
 
 const resourceDataCache = new Map();
@@ -351,7 +352,7 @@ function buildHero(fields) {
     media.append(
       createOptimizedPicture(
         image.src,
-        image.alt || fields.pageTitle || 'Resource image',
+        fields.headerImageAlt || image.alt || fields.pageTitle || 'Resource image',
         false,
         [{ width: '750' }, { width: '1600' }],
       ),
@@ -437,6 +438,7 @@ export default async function decorate(block) {
       normalizeJsonFieldValue(resourceData.gradeAges || resourceData.grade_ages),
     ),
     tags: getTextField(block, 'tags', normalizeJsonFieldValue(resourceData.tags)),
+    headerImageAlt: getTextField(block, 'headerImageAlt'),
   };
 
   if (!fields.pageTitle && !fields.resourceBody) {

@@ -316,6 +316,13 @@
               "value": "#DDD5CC"
             }
           ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
         }
       ]
     }

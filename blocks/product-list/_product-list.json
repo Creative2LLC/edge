@@ -58,6 +58,13 @@
           "valueType": "string",
           "name": "description",
           "label": "Description"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
         }
       ]
     }

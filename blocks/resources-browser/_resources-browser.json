@@ -222,6 +222,13 @@
           "valueType": "string",
           "name": "filters",
           "label": "Audience/Issue/Type/Tags/Language/Program/Grade"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
         }
       ]
     }

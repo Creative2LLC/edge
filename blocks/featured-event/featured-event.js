@@ -91,6 +91,8 @@ function buildCard(data) {
     media.className = 'featured-event-card-media';
     const picture = data.imageField.picture.cloneNode(true);
     if (data.imageField.source) moveInstrumentation(data.imageField.source, picture);
+    const img = picture.querySelector('img');
+    if (data.imageAlt && img) img.alt = data.imageAlt;
     media.append(picture);
     card.append(media);
   }
@@ -171,6 +173,7 @@ export default function decorate(block) {
     if (row.children.length < 1) return;
 
     const imageField = getImageField(row, 'image', 0);
+    const imageAltField = getField(row, 'imageAlt', 21);
     const titleF = getRichTextField(row, 'cardTitle', 1);
     const descriptionField = getRichTextField(row, 'description', 2);
 
@@ -202,6 +205,7 @@ export default function decorate(block) {
 
     cards.push({
       imageField,
+      imageAlt: imageAltField.value,
       titleField: titleF,
       descriptionField,
       details,

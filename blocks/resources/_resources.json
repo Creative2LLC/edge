@@ -223,6 +223,13 @@
           "valueType": "string",
           "name": "tags",
           "label": "Custom Tags (Comma/Newline)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
         }
       ]
     }

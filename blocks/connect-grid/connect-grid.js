@@ -31,6 +31,7 @@ const ITEM_COLUMN_INDEX = {
   cardBackgroundColor: 18,
   showDivider: 19,
   cardHoverBackgroundColor: 20,
+  imageAlt: 21,
 };
 
 const DEFAULTS = {
@@ -215,6 +216,9 @@ function buildMedia(item) {
     : null;
   const imageMedia = imagePicture || imageImg;
   if (imageMedia) {
+    const altVal = item.imageAlt;
+    const img = imageMedia.tagName === 'IMG' ? imageMedia : imageMedia.querySelector('img');
+    if (altVal && img) img.alt = altVal;
     const media = document.createElement('div');
     media.className = 'connect-grid-card-media is-image';
     media.append(imageMedia);
@@ -446,6 +450,7 @@ export default function decorate(block) {
 
     const iconField = getImageField(row, 'icon', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.icon);
     const imageField = getImageField(row, 'image', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.image);
+    const imageAltField = getField(row, 'imageAlt', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.imageAlt);
     const iconColorField = getField(
       row,
       'iconColor',
@@ -497,6 +502,7 @@ export default function decorate(block) {
     cards.push({
       iconField,
       imageField,
+      imageAlt: imageAltField.value,
       iconColor: iconColorField.value,
       titleSource,
       descriptionSource,
