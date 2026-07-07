@@ -22,6 +22,42 @@
       "id": "colored-icon-text",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "label",
+          "label": "Label / Eyebrow (optional)"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "labelPart2",
+          "label": "Label / Eyebrow Part 2 (Optional)",
+          "description": "Adds a second, differently colored segment after Label, separated by a divider — for a split-color eyebrow."
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "text",
+          "label": "Text"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "text2",
+          "label": "Text 2 (Optional)",
+          "description": "Optional second paragraph, displayed under Text."
+        },
+        {
+          "component": "tab",
+          "name": "tabImage",
+          "label": "Image"
+        },
+        {
           "component": "reference",
           "valueType": "string",
           "name": "image",
@@ -36,132 +72,23 @@
           "value": ""
         },
         {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "label",
-          "label": "Label / Eyebrow (optional)"
-        },
-        {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "text",
-          "label": "Text"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "textColor",
-          "label": "Text Color",
-          "options": [
-            { "name": "Default Navy (#00264D)", "value": "" },
-            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
-            { "name": "Navy (#00264D)", "value": "#00264D" },
-            { "name": "Dark Navy (#092348)", "value": "#092348" },
-            { "name": "Teal (#008EB7)", "value": "#008EB7" },
-            { "name": "Orange (#F7941D)", "value": "#F7941D" },
-            { "name": "Body Grey (#404041)", "value": "#404041" }
-          ],
-          "value": ""
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "blockBackgroundColor",
-          "label": "Block Background Color",
-          "options": [
-            { "name": "Default Light Blue (#E9F7FA)", "value": "" },
-            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
-            { "name": "Light Blue (#E9F7FA)", "value": "#E9F7FA" },
-            { "name": "Light Blue 2 (#C5EAF2)", "value": "#C5EAF2" },
-            { "name": "Navy (#00264D)", "value": "#00264D" },
-            { "name": "Dark Navy (#092348)", "value": "#092348" },
-            { "name": "Orange (#F7941D)", "value": "#F7941D" },
-            { "name": "Transparent", "value": "transparent" }
-          ],
-          "value": ""
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "labelColor",
-          "label": "Label Color",
-          "options": [
-            { "name": "Match Text Color", "value": "" },
-            { "name": "Teal", "value": "teal" },
-            { "name": "Orange", "value": "orange" },
-            { "name": "Navy", "value": "navy" },
-            { "name": "Dark Navy", "value": "dark-navy" },
-            { "name": "White", "value": "white" },
-            { "name": "Body Grey", "value": "grey" }
-          ],
-          "value": ""
-        },
-        {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "labelPart2",
-          "label": "Label / Eyebrow Part 2 (Optional)",
-          "description": "Adds a second, differently colored segment after Label, separated by a divider — for a split-color eyebrow."
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "labelColor2",
-          "label": "Label Color 2 (Optional)",
-          "description": "Color for Label Part 2.",
-          "options": [
-            { "name": "Match Text Color", "value": "" },
-            { "name": "Teal", "value": "teal" },
-            { "name": "Orange", "value": "orange" },
-            { "name": "Navy", "value": "navy" },
-            { "name": "Dark Navy", "value": "dark-navy" },
-            { "name": "White", "value": "white" },
-            { "name": "Body Grey", "value": "grey" }
-          ],
-          "value": ""
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "labelFontSize",
-          "label": "Label / Eyebrow Font Size",
-          "description": "Optional CSS length. Defaults to 1.75rem.",
-          "value": ""
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "horizontalAlign",
-          "label": "Text Alignment",
-          "options": [
-            { "name": "Left", "value": "left" },
-            { "name": "Center", "value": "center" },
-            { "name": "Right", "value": "right" },
-            { "name": "Justify", "value": "justify" }
-          ],
-          "value": "left"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "verticalAlign",
-          "label": "Vertical Alignment",
-          "options": [
-            { "name": "Top", "value": "top" },
-            { "name": "Middle", "value": "middle" },
-            { "name": "Bottom", "value": "bottom" }
-          ],
-          "value": "middle"
-        },
-        {
           "component": "select",
           "valueType": "string",
           "name": "imagePosition",
           "label": "Image Position",
           "options": [
-            { "name": "Left", "value": "left" },
-            { "name": "Right", "value": "right" },
-            { "name": "None", "value": "none" }
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            }
           ],
           "value": "left"
         },
@@ -171,9 +98,18 @@
           "name": "imageMode",
           "label": "Image Mode",
           "options": [
-            { "name": "Circle", "value": "circle" },
-            { "name": "Square", "value": "square" },
-            { "name": "Icon / Contain", "value": "icon" }
+            {
+              "name": "Circle",
+              "value": "circle"
+            },
+            {
+              "name": "Square",
+              "value": "square"
+            },
+            {
+              "name": "Icon / Contain",
+              "value": "icon"
+            }
           ],
           "value": "circle"
         },
@@ -186,11 +122,162 @@
           "value": ""
         },
         {
+          "component": "tab",
+          "name": "tabButton",
+          "label": "Button"
+        },
+        {
           "component": "text",
           "valueType": "string",
-          "name": "gap",
-          "label": "Gap",
-          "description": "Optional CSS gap between image and text. Defaults to 38px.",
+          "name": "buttonText",
+          "label": "Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonTarget",
+          "label": "Button Target",
+          "options": [
+            {
+              "name": "Same Tab",
+              "value": "_self"
+            },
+            {
+              "name": "New Tab",
+              "value": "_blank"
+            }
+          ],
+          "value": "_self"
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Text Color",
+          "options": [
+            {
+              "name": "Default Navy (#00264D)",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Dark Navy (#092348)",
+              "value": "#092348"
+            },
+            {
+              "name": "Teal (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Orange (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Body Grey (#404041)",
+              "value": "#404041"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "labelColor",
+          "label": "Label Color",
+          "options": [
+            {
+              "name": "Match Text Color",
+              "value": ""
+            },
+            {
+              "name": "Teal",
+              "value": "teal"
+            },
+            {
+              "name": "Orange",
+              "value": "orange"
+            },
+            {
+              "name": "Navy",
+              "value": "navy"
+            },
+            {
+              "name": "Dark Navy",
+              "value": "dark-navy"
+            },
+            {
+              "name": "White",
+              "value": "white"
+            },
+            {
+              "name": "Body Grey",
+              "value": "grey"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "labelColor2",
+          "label": "Label Color 2 (Optional)",
+          "description": "Color for Label Part 2.",
+          "options": [
+            {
+              "name": "Match Text Color",
+              "value": ""
+            },
+            {
+              "name": "Teal",
+              "value": "teal"
+            },
+            {
+              "name": "Orange",
+              "value": "orange"
+            },
+            {
+              "name": "Navy",
+              "value": "navy"
+            },
+            {
+              "name": "Dark Navy",
+              "value": "dark-navy"
+            },
+            {
+              "name": "White",
+              "value": "white"
+            },
+            {
+              "name": "Body Grey",
+              "value": "grey"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "labelFontSize",
+          "label": "Label / Eyebrow Font Size",
+          "description": "Optional CSS length. Defaults to 1.75rem.",
           "value": ""
         },
         {
@@ -207,13 +294,172 @@
           "name": "fontWeight",
           "label": "Font Weight",
           "options": [
-            { "name": "Default", "value": "" },
-            { "name": "Regular", "value": "400" },
-            { "name": "Medium", "value": "500" },
-            { "name": "Semi Bold", "value": "600" },
-            { "name": "Bold", "value": "700" },
-            { "name": "Extra Bold", "value": "800" }
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Regular",
+              "value": "400"
+            },
+            {
+              "name": "Medium",
+              "value": "500"
+            },
+            {
+              "name": "Semi Bold",
+              "value": "600"
+            },
+            {
+              "name": "Bold",
+              "value": "700"
+            },
+            {
+              "name": "Extra Bold",
+              "value": "800"
+            }
           ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "text2Color",
+          "label": "Text 2 Color",
+          "options": [
+            {
+              "name": "Body Grey (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Dark Navy (#092348)",
+              "value": "#092348"
+            },
+            {
+              "name": "Teal (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Orange (#F7941D)",
+              "value": "#F7941D"
+            }
+          ],
+          "value": "#404041"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "text2FontSize",
+          "label": "Text 2 Font Size",
+          "description": "Optional CSS length. Defaults to 1.25rem.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "blockBackgroundColor",
+          "label": "Block Background Color",
+          "options": [
+            {
+              "name": "Default Light Blue (#E9F7FA)",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Light Blue (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Light Blue 2 (#C5EAF2)",
+              "value": "#C5EAF2"
+            },
+            {
+              "name": "Navy (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Dark Navy (#092348)",
+              "value": "#092348"
+            },
+            {
+              "name": "Orange (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Transparent",
+              "value": "transparent"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabLayoutSpacing",
+          "label": "Layout & Spacing"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "horizontalAlign",
+          "label": "Text Alignment",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            },
+            {
+              "name": "Justify",
+              "value": "justify"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalAlign",
+          "label": "Vertical Alignment",
+          "options": [
+            {
+              "name": "Top",
+              "value": "top"
+            },
+            {
+              "name": "Middle",
+              "value": "middle"
+            },
+            {
+              "name": "Bottom",
+              "value": "bottom"
+            }
+          ],
+          "value": "middle"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "gap",
+          "label": "Gap",
+          "description": "Optional CSS gap between image and text. Defaults to 38px.",
           "value": ""
         },
         {
@@ -238,23 +484,74 @@
           "name": "paddingStyle",
           "label": "Padding Style",
           "options": [
-            { "name": "Default", "value": "default" },
-            { "name": "None", "value": "none" },
-            { "name": "All Small", "value": "all-sm" },
-            { "name": "All Medium", "value": "all-md" },
-            { "name": "All Large", "value": "all-lg" },
-            { "name": "Vertical Small", "value": "vertical-sm" },
-            { "name": "Vertical Medium", "value": "vertical-md" },
-            { "name": "Vertical Large", "value": "vertical-lg" },
-            { "name": "Horizontal Small", "value": "horizontal-sm" },
-            { "name": "Horizontal Medium", "value": "horizontal-md" },
-            { "name": "Horizontal Large", "value": "horizontal-lg" },
-            { "name": "Top Small", "value": "top-sm" },
-            { "name": "Top Medium", "value": "top-md" },
-            { "name": "Top Large", "value": "top-lg" },
-            { "name": "Bottom Small", "value": "bottom-sm" },
-            { "name": "Bottom Medium", "value": "bottom-md" },
-            { "name": "Bottom Large", "value": "bottom-lg" }
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "All Small",
+              "value": "all-sm"
+            },
+            {
+              "name": "All Medium",
+              "value": "all-md"
+            },
+            {
+              "name": "All Large",
+              "value": "all-lg"
+            },
+            {
+              "name": "Vertical Small",
+              "value": "vertical-sm"
+            },
+            {
+              "name": "Vertical Medium",
+              "value": "vertical-md"
+            },
+            {
+              "name": "Vertical Large",
+              "value": "vertical-lg"
+            },
+            {
+              "name": "Horizontal Small",
+              "value": "horizontal-sm"
+            },
+            {
+              "name": "Horizontal Medium",
+              "value": "horizontal-md"
+            },
+            {
+              "name": "Horizontal Large",
+              "value": "horizontal-lg"
+            },
+            {
+              "name": "Top Small",
+              "value": "top-sm"
+            },
+            {
+              "name": "Top Medium",
+              "value": "top-md"
+            },
+            {
+              "name": "Top Large",
+              "value": "top-lg"
+            },
+            {
+              "name": "Bottom Small",
+              "value": "bottom-sm"
+            },
+            {
+              "name": "Bottom Medium",
+              "value": "bottom-md"
+            },
+            {
+              "name": "Bottom Large",
+              "value": "bottom-lg"
+            }
           ],
           "value": "default"
         },
@@ -264,23 +561,74 @@
           "name": "marginStyle",
           "label": "Margin Style",
           "options": [
-            { "name": "Default", "value": "default" },
-            { "name": "None", "value": "none" },
-            { "name": "All Small", "value": "all-sm" },
-            { "name": "All Medium", "value": "all-md" },
-            { "name": "All Large", "value": "all-lg" },
-            { "name": "Vertical Small", "value": "vertical-sm" },
-            { "name": "Vertical Medium", "value": "vertical-md" },
-            { "name": "Vertical Large", "value": "vertical-lg" },
-            { "name": "Horizontal Small", "value": "horizontal-sm" },
-            { "name": "Horizontal Medium", "value": "horizontal-md" },
-            { "name": "Horizontal Large", "value": "horizontal-lg" },
-            { "name": "Top Small", "value": "top-sm" },
-            { "name": "Top Medium", "value": "top-md" },
-            { "name": "Top Large", "value": "top-lg" },
-            { "name": "Bottom Small", "value": "bottom-sm" },
-            { "name": "Bottom Medium", "value": "bottom-md" },
-            { "name": "Bottom Large", "value": "bottom-lg" }
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "All Small",
+              "value": "all-sm"
+            },
+            {
+              "name": "All Medium",
+              "value": "all-md"
+            },
+            {
+              "name": "All Large",
+              "value": "all-lg"
+            },
+            {
+              "name": "Vertical Small",
+              "value": "vertical-sm"
+            },
+            {
+              "name": "Vertical Medium",
+              "value": "vertical-md"
+            },
+            {
+              "name": "Vertical Large",
+              "value": "vertical-lg"
+            },
+            {
+              "name": "Horizontal Small",
+              "value": "horizontal-sm"
+            },
+            {
+              "name": "Horizontal Medium",
+              "value": "horizontal-md"
+            },
+            {
+              "name": "Horizontal Large",
+              "value": "horizontal-lg"
+            },
+            {
+              "name": "Top Small",
+              "value": "top-sm"
+            },
+            {
+              "name": "Top Medium",
+              "value": "top-md"
+            },
+            {
+              "name": "Top Large",
+              "value": "top-lg"
+            },
+            {
+              "name": "Bottom Small",
+              "value": "bottom-sm"
+            },
+            {
+              "name": "Bottom Medium",
+              "value": "bottom-md"
+            },
+            {
+              "name": "Bottom Large",
+              "value": "bottom-lg"
+            }
           ],
           "value": "default"
         },
@@ -290,69 +638,40 @@
           "name": "dropShadow",
           "label": "Drop Shadow",
           "options": [
-            { "name": "None", "value": "none" },
-            { "name": "Small", "value": "small" },
-            { "name": "Medium", "value": "medium" },
-            { "name": "Large", "value": "large" },
-            { "name": "Highlighter Blue", "value": "highlight-blue" },
-            { "name": "Highlighter Navy", "value": "highlight-navy" },
-            { "name": "Highlighter Orange", "value": "highlight-orange" },
-            { "name": "Highlighter Gold", "value": "highlight-gold" }
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "Small",
+              "value": "small"
+            },
+            {
+              "name": "Medium",
+              "value": "medium"
+            },
+            {
+              "name": "Large",
+              "value": "large"
+            },
+            {
+              "name": "Highlighter Blue",
+              "value": "highlight-blue"
+            },
+            {
+              "name": "Highlighter Navy",
+              "value": "highlight-navy"
+            },
+            {
+              "name": "Highlighter Orange",
+              "value": "highlight-orange"
+            },
+            {
+              "name": "Highlighter Gold",
+              "value": "highlight-gold"
+            }
           ],
           "value": "none"
-        },
-        {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "text2",
-          "label": "Text 2 (Optional)",
-          "description": "Optional second paragraph, displayed under Text."
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "text2Color",
-          "label": "Text 2 Color",
-          "options": [
-            { "name": "Body Grey (#404041)", "value": "#404041" },
-            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
-            { "name": "Navy (#00264D)", "value": "#00264D" },
-            { "name": "Dark Navy (#092348)", "value": "#092348" },
-            { "name": "Teal (#008EB7)", "value": "#008EB7" },
-            { "name": "Orange (#F7941D)", "value": "#F7941D" }
-          ],
-          "value": "#404041"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "text2FontSize",
-          "label": "Text 2 Font Size",
-          "description": "Optional CSS length. Defaults to 1.25rem.",
-          "value": ""
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "buttonText",
-          "label": "Button Text (Optional)",
-          "value": ""
-        },
-        {
-          "component": "aem-content",
-          "name": "buttonLink",
-          "label": "Button Link (Optional)"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "buttonTarget",
-          "label": "Button Target",
-          "options": [
-            { "name": "Same Tab", "value": "_self" },
-            { "name": "New Tab", "value": "_blank" }
-          ],
-          "value": "_self"
         }
       ]
     }

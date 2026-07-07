@@ -21,6 +21,11 @@
       "id": "split-card-offices",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "headingText",
@@ -28,42 +33,9 @@
           "value": ""
         },
         {
-          "component": "reference",
-          "valueType": "string",
-          "name": "button1Icon",
-          "label": "Button 1 Icon (24x24)",
-          "multi": false
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "button1Text",
-          "label": "Button 1 Text",
-          "value": ""
-        },
-        {
-          "component": "aem-content",
-          "name": "button1Link",
-          "label": "Button 1 Link"
-        },
-        {
-          "component": "reference",
-          "valueType": "string",
-          "name": "button2Icon",
-          "label": "Button 2 Icon (24x24)",
-          "multi": false
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "button2Text",
-          "label": "Button 2 Text",
-          "value": ""
-        },
-        {
-          "component": "aem-content",
-          "name": "button2Link",
-          "label": "Button 2 Link"
+          "component": "tab",
+          "name": "tabFeature1",
+          "label": "Feature 1"
         },
         {
           "component": "reference",
@@ -166,6 +138,11 @@
           "value": ""
         },
         {
+          "component": "tab",
+          "name": "tabFeature2",
+          "label": "Feature 2"
+        },
+        {
           "component": "reference",
           "valueType": "string",
           "name": "feature2Icon",
@@ -266,6 +243,11 @@
           "value": ""
         },
         {
+          "component": "tab",
+          "name": "tabFeature3",
+          "label": "Feature 3"
+        },
+        {
           "component": "reference",
           "valueType": "string",
           "name": "feature3Icon",
@@ -364,6 +346,49 @@
           "name": "feature3Text",
           "label": "Feature 3 Text",
           "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "button1Icon",
+          "label": "Button 1 Icon (24x24)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button1Text",
+          "label": "Button 1 Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "button1Link",
+          "label": "Button 1 Link"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "button2Icon",
+          "label": "Button 2 Icon (24x24)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Text",
+          "label": "Button 2 Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "button2Link",
+          "label": "Button 2 Link"
         }
       ]
     }

@@ -37,10 +37,23 @@
       "id": "statistics",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
           "component": "richtext",
           "valueType": "string",
           "name": "heading",
           "label": "Heading"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text / Subheading (Optional)",
+          "description": "Optional body text displayed below the heading.",
+          "value": ""
         },
         {
           "component": "select",
@@ -85,12 +98,9 @@
           "value": "top"
         },
         {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "bodyText",
-          "label": "Body Text / Subheading (Optional)",
-          "description": "Optional body text displayed below the heading.",
-          "value": ""
+          "component": "tab",
+          "name": "tabDefaultIcon",
+          "label": "Default Icon"
         },
         {
           "component": "reference",
@@ -142,6 +152,11 @@
           "value": ""
         },
         {
+          "component": "tab",
+          "name": "tabStatsButtonLegacy",
+          "label": "Stats & Button (Legacy)"
+        },
+        {
           "component": "richtext",
           "valueType": "string",
           "name": "statValues",
@@ -154,6 +169,24 @@
           "name": "statLabels",
           "label": "Legacy Stat Labels (one per line)",
           "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalDividers",
+          "label": "Vertical Dividers",
+          "description": "Show or hide the vertical dividers between stats.",
+          "options": [
+            {
+              "name": "Show (default)",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ],
+          "value": "show"
         },
         {
           "component": "text",
@@ -186,22 +219,9 @@
           "value": "_self"
         },
         {
-          "component": "select",
-          "valueType": "string",
-          "name": "verticalDividers",
-          "label": "Vertical Dividers",
-          "description": "Show or hide the vertical dividers between stats.",
-          "options": [
-            {
-              "name": "Show (default)",
-              "value": "show"
-            },
-            {
-              "name": "Hide",
-              "value": "hide"
-            }
-          ],
-          "value": "show"
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
         },
         {
           "component": "select",
@@ -839,6 +859,11 @@
           "value": ""
         },
         {
+          "component": "tab",
+          "name": "tabLayoutSpacing",
+          "label": "Layout & Spacing"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "minHeight",
@@ -853,6 +878,185 @@
           "label": "Minimum Height (Mobile)",
           "description": "Optional CSS length override for screens up to 700px. Leave blank to use the same value as Minimum Height.",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contentSpacing",
+          "label": "Stat Content Spacing",
+          "description": "Adds space between each item image, top label, stat value, stat label, and optional button. This does not change horizontal or vertical alignment.",
+          "options": [
+            {
+              "name": "No Additional Spacing (current)",
+              "value": "none"
+            },
+            {
+              "name": "Little",
+              "value": "content-spacing-small"
+            },
+            {
+              "name": "Medium",
+              "value": "content-spacing-medium"
+            },
+            {
+              "name": "Large",
+              "value": "content-spacing-large"
+            }
+          ],
+          "value": "none"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "paddingStyle",
+          "label": "Padding Style",
+          "description": "Padding around the content inside the card (heading, body, stat list). Defaults to 15px on all sides. Not related to Stat Content Spacing, which only affects spacing between each item's own image/label/value/button.",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "All Small",
+              "value": "all-sm"
+            },
+            {
+              "name": "All Medium",
+              "value": "all-md"
+            },
+            {
+              "name": "All Large",
+              "value": "all-lg"
+            },
+            {
+              "name": "Vertical Small",
+              "value": "vertical-sm"
+            },
+            {
+              "name": "Vertical Medium",
+              "value": "vertical-md"
+            },
+            {
+              "name": "Vertical Large",
+              "value": "vertical-lg"
+            },
+            {
+              "name": "Horizontal Small",
+              "value": "horizontal-sm"
+            },
+            {
+              "name": "Horizontal Medium",
+              "value": "horizontal-md"
+            },
+            {
+              "name": "Horizontal Large",
+              "value": "horizontal-lg"
+            },
+            {
+              "name": "Top Small",
+              "value": "top-sm"
+            },
+            {
+              "name": "Top Medium",
+              "value": "top-md"
+            },
+            {
+              "name": "Top Large",
+              "value": "top-lg"
+            },
+            {
+              "name": "Bottom Small",
+              "value": "bottom-sm"
+            },
+            {
+              "name": "Bottom Medium",
+              "value": "bottom-md"
+            },
+            {
+              "name": "Bottom Large",
+              "value": "bottom-lg"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "borderRadius",
+          "label": "Border Radius",
+          "options": [
+            {
+              "name": "None (default)",
+              "value": "none"
+            },
+            {
+              "name": "Small",
+              "value": "small"
+            },
+            {
+              "name": "Medium",
+              "value": "medium"
+            },
+            {
+              "name": "Large",
+              "value": "large"
+            }
+          ],
+          "value": "none"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "dropShadow",
+          "label": "Drop Shadow",
+          "options": [
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "Small",
+              "value": "small"
+            },
+            {
+              "name": "Medium",
+              "value": "medium"
+            },
+            {
+              "name": "Large",
+              "value": "large"
+            },
+            {
+              "name": "Highlighter Blue",
+              "value": "highlight-blue"
+            },
+            {
+              "name": "Highlighter Navy",
+              "value": "highlight-navy"
+            },
+            {
+              "name": "Highlighter Orange",
+              "value": "highlight-orange"
+            },
+            {
+              "name": "Highlighter Gold",
+              "value": "highlight-gold"
+            },
+            {
+              "name": "White",
+              "value": "white"
+            }
+          ],
+          "value": "none"
+        },
+        {
+          "component": "tab",
+          "name": "tabAnimatedMarker",
+          "label": "Animated Marker"
         },
         {
           "component": "text",
@@ -975,88 +1179,9 @@
           "value": "circle"
         },
         {
-          "component": "select",
-          "valueType": "string",
-          "name": "contentSpacing",
-          "label": "Stat Content Spacing",
-          "description": "Adds space between each item image, top label, stat value, stat label, and optional button. This does not change horizontal or vertical alignment.",
-          "options": [
-            {
-              "name": "No Additional Spacing (current)",
-              "value": "none"
-            },
-            {
-              "name": "Little",
-              "value": "content-spacing-small"
-            },
-            {
-              "name": "Medium",
-              "value": "content-spacing-medium"
-            },
-            {
-              "name": "Large",
-              "value": "content-spacing-large"
-            }
-          ],
-          "value": "none"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "paddingStyle",
-          "label": "Padding Style",
-          "description": "Padding around the content inside the card (heading, body, stat list). Defaults to 15px on all sides. Not related to Stat Content Spacing, which only affects spacing between each item's own image/label/value/button.",
-          "options": [
-            { "name": "Default", "value": "default" },
-            { "name": "None", "value": "none" },
-            { "name": "All Small", "value": "all-sm" },
-            { "name": "All Medium", "value": "all-md" },
-            { "name": "All Large", "value": "all-lg" },
-            { "name": "Vertical Small", "value": "vertical-sm" },
-            { "name": "Vertical Medium", "value": "vertical-md" },
-            { "name": "Vertical Large", "value": "vertical-lg" },
-            { "name": "Horizontal Small", "value": "horizontal-sm" },
-            { "name": "Horizontal Medium", "value": "horizontal-md" },
-            { "name": "Horizontal Large", "value": "horizontal-lg" },
-            { "name": "Top Small", "value": "top-sm" },
-            { "name": "Top Medium", "value": "top-md" },
-            { "name": "Top Large", "value": "top-lg" },
-            { "name": "Bottom Small", "value": "bottom-sm" },
-            { "name": "Bottom Medium", "value": "bottom-md" },
-            { "name": "Bottom Large", "value": "bottom-lg" }
-          ],
-          "value": "default"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "borderRadius",
-          "label": "Border Radius",
-          "options": [
-            { "name": "None (default)", "value": "none" },
-            { "name": "Small", "value": "small" },
-            { "name": "Medium", "value": "medium" },
-            { "name": "Large", "value": "large" }
-          ],
-          "value": "none"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "dropShadow",
-          "label": "Drop Shadow",
-          "options": [
-            { "name": "None", "value": "none" },
-            { "name": "Small", "value": "small" },
-            { "name": "Medium", "value": "medium" },
-            { "name": "Large", "value": "large" },
-            { "name": "Highlighter Blue", "value": "highlight-blue" },
-            { "name": "Highlighter Navy", "value": "highlight-navy" },
-            { "name": "Highlighter Orange", "value": "highlight-orange" },
-            { "name": "Highlighter Gold", "value": "highlight-gold" },
-            { "name": "White", "value": "white" }
-          ],
-          "value": "none"
+          "component": "tab",
+          "name": "tabDisclaimer",
+          "label": "Disclaimer"
         },
         {
           "component": "richtext",

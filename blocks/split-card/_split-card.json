@@ -21,6 +21,28 @@
       "id": "split-card",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "component": "tab",
+          "name": "tabImage",
+          "label": "Image"
+        },
+        {
           "component": "reference",
           "valueType": "string",
           "name": "image",
@@ -34,16 +56,41 @@
           "label": "Image Alt Text"
         },
         {
-          "component": "text",
-          "valueType": "string",
-          "name": "heading",
-          "label": "Heading"
+          "component": "select",
+          "name": "imagePosition",
+          "label": "Image Position",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ]
         },
         {
-          "component": "richtext",
+          "component": "select",
           "valueType": "string",
-          "name": "subheading",
-          "label": "Subheading"
+          "name": "imageSize",
+          "label": "Image Size",
+          "value": "even",
+          "options": [
+            {
+              "name": "Image Even Split",
+              "value": "even"
+            },
+            {
+              "name": "Image Smaller",
+              "value": "smaller"
+            }
+          ]
+        },
+        {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
         },
         {
           "component": "text",
@@ -300,6 +347,11 @@
           "name": "button2Subtext",
           "label": "Second Button Subtext (Optional)",
           "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
         },
         {
           "component": "select",
@@ -642,6 +694,11 @@
           "value": ""
         },
         {
+          "component": "tab",
+          "name": "tabLayoutSpacing",
+          "label": "Layout & Spacing"
+        },
+        {
           "component": "select",
           "name": "contentAlign",
           "label": "Content Alignment",
@@ -657,38 +714,6 @@
             {
               "name": "Right",
               "value": "right"
-            }
-          ]
-        },
-        {
-          "component": "select",
-          "name": "imagePosition",
-          "label": "Image Position",
-          "options": [
-            {
-              "name": "Left",
-              "value": "left"
-            },
-            {
-              "name": "Right",
-              "value": "right"
-            }
-          ]
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "imageSize",
-          "label": "Image Size",
-          "value": "even",
-          "options": [
-            {
-              "name": "Image Even Split",
-              "value": "even"
-            },
-            {
-              "name": "Image Smaller",
-              "value": "smaller"
             }
           ]
         },

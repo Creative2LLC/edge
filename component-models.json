@@ -3479,6 +3479,11 @@
     "id": "card",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",
@@ -3499,6 +3504,19 @@
         "label": "Highlighted Text (Optional)",
         "description": "Optional large text displayed before the main card text.",
         "valueType": "string"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclaimer",
+        "label": "Disclaimer Text (Optional)",
+        "description": "Optional fine print displayed below this card's text.",
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
       },
       {
         "component": "select",
@@ -3786,42 +3804,33 @@
         }
       },
       {
-        "component": "select",
-        "valueType": "string",
-        "name": "cardAlignment",
-        "label": "Card Horizontal Alignment",
-        "description": "Optional per-card alignment override.",
-        "options": [
-          {
-            "name": "Use Block Setting",
-            "value": ""
-          },
-          {
-            "name": "Left",
-            "value": "left"
-          },
-          {
-            "name": "Center",
-            "value": "center"
-          },
-          {
-            "name": "Right",
-            "value": "right"
-          },
-          {
-            "name": "Justify",
-            "value": "justify"
-          }
-        ],
-        "value": ""
-      },
-      {
         "component": "text",
         "valueType": "string",
         "name": "cardTextSize",
         "label": "Card Text Size",
         "description": "Optional CSS length override for this card, such as 18px, 1.125rem, or clamp(1rem, 2vw, 1.4rem).",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "highlightTextSize",
+        "label": "Highlighted Text Size",
+        "description": "Optional CSS length override for this card's highlighted text, such as 40px, 3rem, or clamp(2rem, 5vw, 3.625rem).",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "disclaimerFontSize",
+        "label": "Disclaimer Font Size",
+        "description": "Optional CSS length such as 12px or 0.75rem.",
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabAnimatedMarker",
+        "label": "Animated Marker"
       },
       {
         "component": "text",
@@ -3944,11 +3953,38 @@
         "value": "circle"
       },
       {
-        "component": "text",
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
+      },
+      {
+        "component": "select",
         "valueType": "string",
-        "name": "highlightTextSize",
-        "label": "Highlighted Text Size",
-        "description": "Optional CSS length override for this card's highlighted text, such as 40px, 3rem, or clamp(2rem, 5vw, 3.625rem).",
+        "name": "cardAlignment",
+        "label": "Card Horizontal Alignment",
+        "description": "Optional per-card alignment override.",
+        "options": [
+          {
+            "name": "Use Block Setting",
+            "value": ""
+          },
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "Justify",
+            "value": "justify"
+          }
+        ],
         "value": ""
       },
       {
@@ -4028,22 +4064,6 @@
           }
         ],
         "value": "default"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "disclaimer",
-        "label": "Disclaimer Text (Optional)",
-        "description": "Optional fine print displayed below this card's text.",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "disclaimerFontSize",
-        "label": "Disclaimer Font Size",
-        "description": "Optional CSS length such as 12px or 0.75rem.",
-        "value": ""
       }
     ]
   },
@@ -4225,6 +4245,11 @@
     "id": "colored-button",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "label",
@@ -4235,6 +4260,11 @@
         "component": "aem-content",
         "name": "link",
         "label": "Link"
+      },
+      {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
       },
       {
         "component": "select",
@@ -4637,6 +4667,100 @@
         "value": "no"
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "fontSize",
+        "label": "Font Size",
+        "description": "Optional CSS length such as 16px, 1rem, or clamp(1rem, 2vw, 1.25rem).",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "fontWeight",
+        "label": "Font Weight",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Regular",
+            "value": "400"
+          },
+          {
+            "name": "Medium",
+            "value": "500"
+          },
+          {
+            "name": "Semi Bold",
+            "value": "600"
+          },
+          {
+            "name": "Bold",
+            "value": "700"
+          },
+          {
+            "name": "Extra Bold",
+            "value": "800"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabIcon",
+        "label": "Icon"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icon Image (Optional)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconName",
+        "label": "Icon Name (Optional)",
+        "description": "Optional fallback icon name from /icons, for example search or download.",
+        "value": "download"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "iconAlt",
+        "label": "Icon Alt Text",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "iconPosition",
+        "label": "Icon Position",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          }
+        ],
+        "value": "right"
+      },
+      {
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "horizontalAlign",
@@ -4681,90 +4805,6 @@
           }
         ],
         "value": "top"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "fontSize",
-        "label": "Font Size",
-        "description": "Optional CSS length such as 16px, 1rem, or clamp(1rem, 2vw, 1.25rem).",
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "fontWeight",
-        "label": "Font Weight",
-        "options": [
-          {
-            "name": "Default",
-            "value": ""
-          },
-          {
-            "name": "Regular",
-            "value": "400"
-          },
-          {
-            "name": "Medium",
-            "value": "500"
-          },
-          {
-            "name": "Semi Bold",
-            "value": "600"
-          },
-          {
-            "name": "Bold",
-            "value": "700"
-          },
-          {
-            "name": "Extra Bold",
-            "value": "800"
-          }
-        ],
-        "value": ""
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "icon",
-        "label": "Icon Image (Optional)",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "iconName",
-        "label": "Icon Name (Optional)",
-        "description": "Optional fallback icon name from /icons, for example search or download.",
-        "value": "download"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "iconAlt",
-        "label": "Icon Alt Text",
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "iconPosition",
-        "label": "Icon Position",
-        "options": [
-          {
-            "name": "Left",
-            "value": "left"
-          },
-          {
-            "name": "Right",
-            "value": "right"
-          },
-          {
-            "name": "None",
-            "value": "none"
-          }
-        ],
-        "value": "right"
       },
       {
         "component": "text",
@@ -5475,6 +5515,11 @@
     "id": "colored-heading",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "heading",
@@ -5513,6 +5558,11 @@
           }
         ],
         "value": "h2"
+      },
+      {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
       },
       {
         "component": "select",
@@ -5606,95 +5656,50 @@
         }
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "fontSize",
+        "label": "Font Size",
+        "description": "Optional CSS length such as 48px, 3rem, or clamp(2rem, 5vw, 4rem).",
+        "value": ""
+      },
+      {
         "component": "select",
         "valueType": "string",
-        "name": "blockBackgroundColor",
-        "label": "Block Background Color (Optional)",
-        "description": "Leave empty for a transparent block background.",
+        "name": "fontWeight",
+        "label": "Font Weight",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Regular",
+            "value": "400"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Medium",
+            "value": "500"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Semi Bold",
+            "value": "600"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Bold",
+            "value": "700"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Extra Bold",
+            "value": "800"
           }
         ],
-        "value": "",
-        "valueFormat": "regexp",
-        "validation": {
-          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
-          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
-        }
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
       },
       {
         "component": "select",
@@ -5741,47 +5746,6 @@
           }
         ],
         "value": "top"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "fontSize",
-        "label": "Font Size",
-        "description": "Optional CSS length such as 48px, 3rem, or clamp(2rem, 5vw, 4rem).",
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "fontWeight",
-        "label": "Font Weight",
-        "options": [
-          {
-            "name": "Default",
-            "value": ""
-          },
-          {
-            "name": "Regular",
-            "value": "400"
-          },
-          {
-            "name": "Medium",
-            "value": "500"
-          },
-          {
-            "name": "Semi Bold",
-            "value": "600"
-          },
-          {
-            "name": "Bold",
-            "value": "700"
-          },
-          {
-            "name": "Extra Bold",
-            "value": "800"
-          }
-        ],
-        "value": ""
       },
       {
         "component": "text",
@@ -5954,6 +5918,102 @@
         "value": "default"
       },
       {
+        "component": "tab",
+        "name": "tabBackground",
+        "label": "Background"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Optional)",
+        "description": "Leave empty for a transparent block background.",
+        "options": [
+          {
+            "name": "Default / None",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Primary Blue 1 (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Primary Blue 2 (#007294)",
+            "value": "#007294"
+          },
+          {
+            "name": "Primary Blue 3 (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008DB6"
+          },
+          {
+            "name": "Primary Grey 1 (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "Primary Grey 2 (#0D273B)",
+            "value": "#0D273B"
+          },
+          {
+            "name": "Primary Grey 3 (#A1A1A1)",
+            "value": "#A1A1A1"
+          },
+          {
+            "name": "Orange (#E07E27)",
+            "value": "#E07E27"
+          },
+          {
+            "name": "Light Orange (#FAAB60)",
+            "value": "#FAAB60"
+          },
+          {
+            "name": "Peach (#FCBC7E)",
+            "value": "#FCBC7E"
+          },
+          {
+            "name": "Green (#7BC581)",
+            "value": "#7BC581"
+          },
+          {
+            "name": "Primary Red 1 (#E13E30)",
+            "value": "#E13E30"
+          },
+          {
+            "name": "Primary Red 2 (#F58A80)",
+            "value": "#F58A80"
+          },
+          {
+            "name": "Light Blue (#92D6E3)",
+            "value": "#92D6E3"
+          },
+          {
+            "name": "Light Grey 1 (#F6F6F6)",
+            "value": "#F6F6F6"
+          },
+          {
+            "name": "Light Grey 2 (#E7E4E1)",
+            "value": "#E7E4E1"
+          },
+          {
+            "name": "Light Grey 3 (#DDD5CC)",
+            "value": "#DDD5CC"
+          }
+        ],
+        "value": "",
+        "valueFormat": "regexp",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+        }
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "dropShadow",
@@ -5993,6 +6053,11 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "tab",
+        "name": "tabAnimatedMarker",
+        "label": "Animated Marker"
       },
       {
         "component": "text",
@@ -6116,6 +6181,42 @@
     "id": "colored-icon-text",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "label",
+        "label": "Label / Eyebrow (optional)"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "labelPart2",
+        "label": "Label / Eyebrow Part 2 (Optional)",
+        "description": "Adds a second, differently colored segment after Label, separated by a divider — for a split-color eyebrow."
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "text",
+        "label": "Text"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "text2",
+        "label": "Text 2 (Optional)",
+        "description": "Optional second paragraph, displayed under Text."
+      },
+      {
+        "component": "tab",
+        "name": "tabImage",
+        "label": "Image"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",
@@ -6128,232 +6229,6 @@
         "name": "imageAlt",
         "label": "Image Alt Text",
         "value": ""
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "label",
-        "label": "Label / Eyebrow (optional)"
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "text",
-        "label": "Text"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "textColor",
-        "label": "Text Color",
-        "options": [
-          {
-            "name": "Default Navy (#00264D)",
-            "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Navy (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Dark Navy (#092348)",
-            "value": "#092348"
-          },
-          {
-            "name": "Teal (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Orange (#F7941D)",
-            "value": "#F7941D"
-          },
-          {
-            "name": "Body Grey (#404041)",
-            "value": "#404041"
-          }
-        ],
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "blockBackgroundColor",
-        "label": "Block Background Color",
-        "options": [
-          {
-            "name": "Default Light Blue (#E9F7FA)",
-            "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Light Blue (#E9F7FA)",
-            "value": "#E9F7FA"
-          },
-          {
-            "name": "Light Blue 2 (#C5EAF2)",
-            "value": "#C5EAF2"
-          },
-          {
-            "name": "Navy (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Dark Navy (#092348)",
-            "value": "#092348"
-          },
-          {
-            "name": "Orange (#F7941D)",
-            "value": "#F7941D"
-          },
-          {
-            "name": "Transparent",
-            "value": "transparent"
-          }
-        ],
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "labelColor",
-        "label": "Label Color",
-        "options": [
-          {
-            "name": "Match Text Color",
-            "value": ""
-          },
-          {
-            "name": "Teal",
-            "value": "teal"
-          },
-          {
-            "name": "Orange",
-            "value": "orange"
-          },
-          {
-            "name": "Navy",
-            "value": "navy"
-          },
-          {
-            "name": "Dark Navy",
-            "value": "dark-navy"
-          },
-          {
-            "name": "White",
-            "value": "white"
-          },
-          {
-            "name": "Body Grey",
-            "value": "grey"
-          }
-        ],
-        "value": ""
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "labelPart2",
-        "label": "Label / Eyebrow Part 2 (Optional)",
-        "description": "Adds a second, differently colored segment after Label, separated by a divider — for a split-color eyebrow."
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "labelColor2",
-        "label": "Label Color 2 (Optional)",
-        "description": "Color for Label Part 2.",
-        "options": [
-          {
-            "name": "Match Text Color",
-            "value": ""
-          },
-          {
-            "name": "Teal",
-            "value": "teal"
-          },
-          {
-            "name": "Orange",
-            "value": "orange"
-          },
-          {
-            "name": "Navy",
-            "value": "navy"
-          },
-          {
-            "name": "Dark Navy",
-            "value": "dark-navy"
-          },
-          {
-            "name": "White",
-            "value": "white"
-          },
-          {
-            "name": "Body Grey",
-            "value": "grey"
-          }
-        ],
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "labelFontSize",
-        "label": "Label / Eyebrow Font Size",
-        "description": "Optional CSS length. Defaults to 1.75rem.",
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "horizontalAlign",
-        "label": "Text Alignment",
-        "options": [
-          {
-            "name": "Left",
-            "value": "left"
-          },
-          {
-            "name": "Center",
-            "value": "center"
-          },
-          {
-            "name": "Right",
-            "value": "right"
-          },
-          {
-            "name": "Justify",
-            "value": "justify"
-          }
-        ],
-        "value": "left"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "verticalAlign",
-        "label": "Vertical Alignment",
-        "options": [
-          {
-            "name": "Top",
-            "value": "top"
-          },
-          {
-            "name": "Middle",
-            "value": "middle"
-          },
-          {
-            "name": "Bottom",
-            "value": "bottom"
-          }
-        ],
-        "value": "middle"
       },
       {
         "component": "select",
@@ -6406,11 +6281,162 @@
         "value": ""
       },
       {
+        "component": "tab",
+        "name": "tabButton",
+        "label": "Button"
+      },
+      {
         "component": "text",
         "valueType": "string",
-        "name": "gap",
-        "label": "Gap",
-        "description": "Optional CSS gap between image and text. Defaults to 38px.",
+        "name": "buttonText",
+        "label": "Button Text (Optional)",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "buttonLink",
+        "label": "Button Link (Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonTarget",
+        "label": "Button Target",
+        "options": [
+          {
+            "name": "Same Tab",
+            "value": "_self"
+          },
+          {
+            "name": "New Tab",
+            "value": "_blank"
+          }
+        ],
+        "value": "_self"
+      },
+      {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "textColor",
+        "label": "Text Color",
+        "options": [
+          {
+            "name": "Default Navy (#00264D)",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Navy (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Dark Navy (#092348)",
+            "value": "#092348"
+          },
+          {
+            "name": "Teal (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Orange (#F7941D)",
+            "value": "#F7941D"
+          },
+          {
+            "name": "Body Grey (#404041)",
+            "value": "#404041"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "labelColor",
+        "label": "Label Color",
+        "options": [
+          {
+            "name": "Match Text Color",
+            "value": ""
+          },
+          {
+            "name": "Teal",
+            "value": "teal"
+          },
+          {
+            "name": "Orange",
+            "value": "orange"
+          },
+          {
+            "name": "Navy",
+            "value": "navy"
+          },
+          {
+            "name": "Dark Navy",
+            "value": "dark-navy"
+          },
+          {
+            "name": "White",
+            "value": "white"
+          },
+          {
+            "name": "Body Grey",
+            "value": "grey"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "labelColor2",
+        "label": "Label Color 2 (Optional)",
+        "description": "Color for Label Part 2.",
+        "options": [
+          {
+            "name": "Match Text Color",
+            "value": ""
+          },
+          {
+            "name": "Teal",
+            "value": "teal"
+          },
+          {
+            "name": "Orange",
+            "value": "orange"
+          },
+          {
+            "name": "Navy",
+            "value": "navy"
+          },
+          {
+            "name": "Dark Navy",
+            "value": "dark-navy"
+          },
+          {
+            "name": "White",
+            "value": "white"
+          },
+          {
+            "name": "Body Grey",
+            "value": "grey"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "labelFontSize",
+        "label": "Label / Eyebrow Font Size",
+        "description": "Optional CSS length. Defaults to 1.75rem.",
         "value": ""
       },
       {
@@ -6452,6 +6478,147 @@
             "value": "800"
           }
         ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "text2Color",
+        "label": "Text 2 Color",
+        "options": [
+          {
+            "name": "Body Grey (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Navy (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Dark Navy (#092348)",
+            "value": "#092348"
+          },
+          {
+            "name": "Teal (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Orange (#F7941D)",
+            "value": "#F7941D"
+          }
+        ],
+        "value": "#404041"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "text2FontSize",
+        "label": "Text 2 Font Size",
+        "description": "Optional CSS length. Defaults to 1.25rem.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color",
+        "options": [
+          {
+            "name": "Default Light Blue (#E9F7FA)",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Light Blue (#E9F7FA)",
+            "value": "#E9F7FA"
+          },
+          {
+            "name": "Light Blue 2 (#C5EAF2)",
+            "value": "#C5EAF2"
+          },
+          {
+            "name": "Navy (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Dark Navy (#092348)",
+            "value": "#092348"
+          },
+          {
+            "name": "Orange (#F7941D)",
+            "value": "#F7941D"
+          },
+          {
+            "name": "Transparent",
+            "value": "transparent"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "horizontalAlign",
+        "label": "Text Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          },
+          {
+            "name": "Justify",
+            "value": "justify"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalAlign",
+        "label": "Vertical Alignment",
+        "options": [
+          {
+            "name": "Top",
+            "value": "top"
+          },
+          {
+            "name": "Middle",
+            "value": "middle"
+          },
+          {
+            "name": "Bottom",
+            "value": "bottom"
+          }
+        ],
+        "value": "middle"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "gap",
+        "label": "Gap",
+        "description": "Optional CSS gap between image and text. Defaults to 38px.",
         "value": ""
       },
       {
@@ -6664,83 +6831,6 @@
           }
         ],
         "value": "none"
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "text2",
-        "label": "Text 2 (Optional)",
-        "description": "Optional second paragraph, displayed under Text."
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "text2Color",
-        "label": "Text 2 Color",
-        "options": [
-          {
-            "name": "Body Grey (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Navy (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Dark Navy (#092348)",
-            "value": "#092348"
-          },
-          {
-            "name": "Teal (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Orange (#F7941D)",
-            "value": "#F7941D"
-          }
-        ],
-        "value": "#404041"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "text2FontSize",
-        "label": "Text 2 Font Size",
-        "description": "Optional CSS length. Defaults to 1.25rem.",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "buttonText",
-        "label": "Button Text (Optional)",
-        "value": ""
-      },
-      {
-        "component": "aem-content",
-        "name": "buttonLink",
-        "label": "Button Link (Optional)"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "buttonTarget",
-        "label": "Button Target",
-        "options": [
-          {
-            "name": "Same Tab",
-            "value": "_self"
-          },
-          {
-            "name": "New Tab",
-            "value": "_blank"
-          }
-        ],
-        "value": "_self"
       }
     ]
   },
@@ -7722,10 +7812,20 @@
     "id": "colored-text",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "richtext",
         "valueType": "string",
         "name": "text",
         "label": "Text"
+      },
+      {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
       },
       {
         "component": "select",
@@ -7819,95 +7919,50 @@
         }
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "fontSize",
+        "label": "Font Size",
+        "description": "Optional CSS length such as 20px, 1.5rem, or clamp(1.25rem, 3vw, 2rem).",
+        "value": ""
+      },
+      {
         "component": "select",
         "valueType": "string",
-        "name": "blockBackgroundColor",
-        "label": "Block Background Color (Optional)",
-        "description": "Leave empty for a transparent block background.",
+        "name": "fontWeight",
+        "label": "Font Weight",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Regular",
+            "value": "400"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Medium",
+            "value": "500"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Semi Bold",
+            "value": "600"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Bold",
+            "value": "700"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Extra Bold",
+            "value": "800"
           }
         ],
-        "value": "",
-        "valueFormat": "regexp",
-        "validation": {
-          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
-          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
-        }
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
       },
       {
         "component": "select",
@@ -7954,47 +8009,6 @@
           }
         ],
         "value": "top"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "fontSize",
-        "label": "Font Size",
-        "description": "Optional CSS length such as 20px, 1.5rem, or clamp(1.25rem, 3vw, 2rem).",
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "fontWeight",
-        "label": "Font Weight",
-        "options": [
-          {
-            "name": "Default",
-            "value": ""
-          },
-          {
-            "name": "Regular",
-            "value": "400"
-          },
-          {
-            "name": "Medium",
-            "value": "500"
-          },
-          {
-            "name": "Semi Bold",
-            "value": "600"
-          },
-          {
-            "name": "Bold",
-            "value": "700"
-          },
-          {
-            "name": "Extra Bold",
-            "value": "800"
-          }
-        ],
-        "value": ""
       },
       {
         "component": "text",
@@ -8169,6 +8183,180 @@
       {
         "component": "select",
         "valueType": "string",
+        "name": "contentPaddingStyle",
+        "label": "Content Padding",
+        "description": "Padding around the content inside the block (not the block's own outer Padding field above). Defaults to 15px on all sides.",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          },
+          {
+            "name": "All Small",
+            "value": "all-sm"
+          },
+          {
+            "name": "All Medium",
+            "value": "all-md"
+          },
+          {
+            "name": "All Large",
+            "value": "all-lg"
+          },
+          {
+            "name": "Vertical Small",
+            "value": "vertical-sm"
+          },
+          {
+            "name": "Vertical Medium",
+            "value": "vertical-md"
+          },
+          {
+            "name": "Vertical Large",
+            "value": "vertical-lg"
+          },
+          {
+            "name": "Sides Small",
+            "value": "horizontal-sm"
+          },
+          {
+            "name": "Sides Medium",
+            "value": "horizontal-md"
+          },
+          {
+            "name": "Sides Large",
+            "value": "horizontal-lg"
+          },
+          {
+            "name": "Top Small",
+            "value": "top-sm"
+          },
+          {
+            "name": "Top Medium",
+            "value": "top-md"
+          },
+          {
+            "name": "Top Large",
+            "value": "top-lg"
+          },
+          {
+            "name": "Bottom Small",
+            "value": "bottom-sm"
+          },
+          {
+            "name": "Bottom Medium",
+            "value": "bottom-md"
+          },
+          {
+            "name": "Bottom Large",
+            "value": "bottom-lg"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "tab",
+        "name": "tabBackground",
+        "label": "Background"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "blockBackgroundColor",
+        "label": "Block Background Color (Optional)",
+        "description": "Leave empty for a transparent block background.",
+        "options": [
+          {
+            "name": "Default / None",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Primary Blue 1 (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Primary Blue 2 (#007294)",
+            "value": "#007294"
+          },
+          {
+            "name": "Primary Blue 3 (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008DB6"
+          },
+          {
+            "name": "Primary Grey 1 (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "Primary Grey 2 (#0D273B)",
+            "value": "#0D273B"
+          },
+          {
+            "name": "Primary Grey 3 (#A1A1A1)",
+            "value": "#A1A1A1"
+          },
+          {
+            "name": "Orange (#E07E27)",
+            "value": "#E07E27"
+          },
+          {
+            "name": "Light Orange (#FAAB60)",
+            "value": "#FAAB60"
+          },
+          {
+            "name": "Peach (#FCBC7E)",
+            "value": "#FCBC7E"
+          },
+          {
+            "name": "Green (#7BC581)",
+            "value": "#7BC581"
+          },
+          {
+            "name": "Primary Red 1 (#E13E30)",
+            "value": "#E13E30"
+          },
+          {
+            "name": "Primary Red 2 (#F58A80)",
+            "value": "#F58A80"
+          },
+          {
+            "name": "Light Blue (#92D6E3)",
+            "value": "#92D6E3"
+          },
+          {
+            "name": "Light Grey 1 (#F6F6F6)",
+            "value": "#F6F6F6"
+          },
+          {
+            "name": "Light Grey 2 (#E7E4E1)",
+            "value": "#E7E4E1"
+          },
+          {
+            "name": "Light Grey 3 (#DDD5CC)",
+            "value": "#DDD5CC"
+          }
+        ],
+        "value": "",
+        "valueFormat": "regexp",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
         "name": "dropShadow",
         "label": "Drop Shadow",
         "options": [
@@ -8206,6 +8394,36 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "borderRadius",
+        "label": "Border Radius",
+        "options": [
+          {
+            "name": "None (default)",
+            "value": "none"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ],
+        "value": "none"
+      },
+      {
+        "component": "tab",
+        "name": "tabAnimatedMarker",
+        "label": "Animated Marker"
       },
       {
         "component": "text",
@@ -8322,109 +8540,6 @@
           }
         ],
         "value": "circle"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "contentPaddingStyle",
-        "label": "Content Padding",
-        "description": "Padding around the content inside the block (not the block's own outer Padding field above). Defaults to 15px on all sides.",
-        "options": [
-          {
-            "name": "Default",
-            "value": "default"
-          },
-          {
-            "name": "None",
-            "value": "none"
-          },
-          {
-            "name": "All Small",
-            "value": "all-sm"
-          },
-          {
-            "name": "All Medium",
-            "value": "all-md"
-          },
-          {
-            "name": "All Large",
-            "value": "all-lg"
-          },
-          {
-            "name": "Vertical Small",
-            "value": "vertical-sm"
-          },
-          {
-            "name": "Vertical Medium",
-            "value": "vertical-md"
-          },
-          {
-            "name": "Vertical Large",
-            "value": "vertical-lg"
-          },
-          {
-            "name": "Sides Small",
-            "value": "horizontal-sm"
-          },
-          {
-            "name": "Sides Medium",
-            "value": "horizontal-md"
-          },
-          {
-            "name": "Sides Large",
-            "value": "horizontal-lg"
-          },
-          {
-            "name": "Top Small",
-            "value": "top-sm"
-          },
-          {
-            "name": "Top Medium",
-            "value": "top-md"
-          },
-          {
-            "name": "Top Large",
-            "value": "top-lg"
-          },
-          {
-            "name": "Bottom Small",
-            "value": "bottom-sm"
-          },
-          {
-            "name": "Bottom Medium",
-            "value": "bottom-md"
-          },
-          {
-            "name": "Bottom Large",
-            "value": "bottom-lg"
-          }
-        ],
-        "value": "default"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "borderRadius",
-        "label": "Border Radius",
-        "options": [
-          {
-            "name": "None (default)",
-            "value": "none"
-          },
-          {
-            "name": "Small",
-            "value": "small"
-          },
-          {
-            "name": "Medium",
-            "value": "medium"
-          },
-          {
-            "name": "Large",
-            "value": "large"
-          }
-        ],
-        "value": "none"
       }
     ]
   },
@@ -8866,6 +8981,28 @@
     "id": "connect-grid-item",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "description",
+        "label": "Description"
+      },
+      {
+        "component": "tab",
+        "name": "tabMedia",
+        "label": "Media"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "icon",
@@ -8878,6 +9015,95 @@
         "name": "image",
         "label": "Top Image",
         "multi": false
+      },
+      {
+        "component": "tab",
+        "name": "tabContactMethods",
+        "label": "Contact Methods"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod1Label",
+        "label": "Contact Method 1 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod1Text",
+        "label": "Contact Method 1 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod1Link",
+        "label": "Contact Method 1 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod2Label",
+        "label": "Contact Method 2 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod2Text",
+        "label": "Contact Method 2 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod2Link",
+        "label": "Contact Method 2 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod3Label",
+        "label": "Contact Method 3 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod3Text",
+        "label": "Contact Method 3 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod3Link",
+        "label": "Contact Method 3 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod4Label",
+        "label": "Contact Method 4 Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod4Text",
+        "label": "Contact Method 4 Text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethod4Link",
+        "label": "Contact Method 4 Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "contactMethods",
+        "label": "Legacy Contact Methods (One Per Line: Label|Text|Link)",
+        "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
+      },
+      {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
       },
       {
         "component": "select",
@@ -8966,102 +9192,97 @@
         "value": ""
       },
       {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "title",
-        "label": "Title"
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "description",
-        "label": "Description"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod1Label",
-        "label": "Contact Method 1 Label"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod1Text",
-        "label": "Contact Method 1 Text"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod1Link",
-        "label": "Contact Method 1 Link"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod2Label",
-        "label": "Contact Method 2 Label"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod2Text",
-        "label": "Contact Method 2 Text"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod2Link",
-        "label": "Contact Method 2 Link"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod3Label",
-        "label": "Contact Method 3 Label"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod3Text",
-        "label": "Contact Method 3 Text"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod3Link",
-        "label": "Contact Method 3 Link"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod4Label",
-        "label": "Contact Method 4 Label"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod4Text",
-        "label": "Contact Method 4 Text"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethod4Link",
-        "label": "Contact Method 4 Link"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "contactMethods",
-        "label": "Legacy Contact Methods (One Per Line: Label|Text|Link)",
-        "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
-      },
-      {
         "component": "select",
         "valueType": "string",
         "name": "cardBackgroundColor",
         "label": "Card Background Color",
         "description": "Defaults to #f4f0ec if left empty.",
+        "options": [
+          {
+            "name": "Default / None",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Primary Blue 1 (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Primary Blue 2 (#007294)",
+            "value": "#007294"
+          },
+          {
+            "name": "Primary Blue 3 (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008DB6"
+          },
+          {
+            "name": "Primary Grey 1 (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "Primary Grey 2 (#0D273B)",
+            "value": "#0D273B"
+          },
+          {
+            "name": "Primary Grey 3 (#A1A1A1)",
+            "value": "#A1A1A1"
+          },
+          {
+            "name": "Orange (#E07E27)",
+            "value": "#E07E27"
+          },
+          {
+            "name": "Light Orange (#FAAB60)",
+            "value": "#FAAB60"
+          },
+          {
+            "name": "Peach (#FCBC7E)",
+            "value": "#FCBC7E"
+          },
+          {
+            "name": "Green (#7BC581)",
+            "value": "#7BC581"
+          },
+          {
+            "name": "Primary Red 1 (#E13E30)",
+            "value": "#E13E30"
+          },
+          {
+            "name": "Primary Red 2 (#F58A80)",
+            "value": "#F58A80"
+          },
+          {
+            "name": "Light Blue (#92D6E3)",
+            "value": "#92D6E3"
+          },
+          {
+            "name": "Light Grey 1 (#F6F6F6)",
+            "value": "#F6F6F6"
+          },
+          {
+            "name": "Light Grey 2 (#E7E4E1)",
+            "value": "#E7E4E1"
+          },
+          {
+            "name": "Light Grey 3 (#DDD5CC)",
+            "value": "#DDD5CC"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "cardHoverBackgroundColor",
+        "label": "Card Hover Background Color",
+        "description": "Optional. Applies only when provided.",
         "options": [
           {
             "name": "Default / None",
@@ -9158,92 +9379,6 @@
           }
         ],
         "value": "show"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "cardHoverBackgroundColor",
-        "label": "Card Hover Background Color",
-        "description": "Optional. Applies only when provided.",
-        "options": [
-          {
-            "name": "Default / None",
-            "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
-          }
-        ],
-        "value": ""
       }
     ]
   },
@@ -9375,6 +9510,11 @@
     "id": "cta-card-1",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "title",
@@ -9387,6 +9527,17 @@
         "label": "Subtitle"
       },
       {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "belowButtonText",
+        "label": "Text Below Button"
+      },
+      {
+        "component": "tab",
+        "name": "tabBackground",
+        "label": "Background"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "gradientLeft",
@@ -9397,6 +9548,11 @@
         "valueType": "string",
         "name": "gradientRight",
         "label": "Gradient Right Color (Hex)"
+      },
+      {
+        "component": "tab",
+        "name": "tabButtons",
+        "label": "Buttons"
       },
       {
         "component": "text",
@@ -9790,12 +9946,6 @@
         "value": "right"
       },
       {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "belowButtonText",
-        "label": "Text Below Button"
-      },
-      {
         "component": "text",
         "valueType": "string",
         "name": "button3Text",
@@ -9805,6 +9955,11 @@
         "component": "aem-content",
         "name": "button3Link",
         "label": "Button 3 Link (Variant 4 only)"
+      },
+      {
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
       },
       {
         "component": "select",
@@ -11028,12 +11183,22 @@
     "id": "featured-event-item",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabImage",
+        "label": "Image"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",
         "label": "Card Image (686 x 330)",
         "description": "Image displayed at the top of the card.",
         "multi": false
+      },
+      {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
       },
       {
         "component": "richtext",
@@ -11046,6 +11211,11 @@
         "valueType": "string",
         "name": "description",
         "label": "Description"
+      },
+      {
+        "component": "tab",
+        "name": "tabDetails12",
+        "label": "Details 1 & 2"
       },
       {
         "component": "reference",
@@ -11258,6 +11428,11 @@
         "label": "Detail 2 — Value"
       },
       {
+        "component": "tab",
+        "name": "tabDetails34",
+        "label": "Details 3 & 4"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "detail3Icon",
@@ -11466,6 +11641,11 @@
         "valueType": "string",
         "name": "detail4Value",
         "label": "Detail 4 — Value"
+      },
+      {
+        "component": "tab",
+        "name": "tabButton",
+        "label": "Button"
       },
       {
         "component": "text",
@@ -15669,6 +15849,11 @@
     "id": "info-card",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "icon",
@@ -15692,6 +15877,11 @@
         "valueType": "string",
         "name": "bodyContent",
         "label": "Body Content (Text, Bullet List, or Numbered List)"
+      },
+      {
+        "component": "tab",
+        "name": "tabButtons",
+        "label": "Buttons"
       },
       {
         "component": "text",
@@ -15728,92 +15918,6 @@
           }
         ],
         "value": "default"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "cardBackgroundColor",
-        "label": "Card Background Color",
-        "description": "e.g. #1a2b3c",
-        "options": [
-          {
-            "name": "Default / None",
-            "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
-          }
-        ],
-        "value": ""
       },
       {
         "component": "select",
@@ -16024,6 +16128,11 @@
         "value": ""
       },
       {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
+      },
+      {
         "component": "select",
         "valueType": "string",
         "name": "iconColor",
@@ -16116,6 +16225,97 @@
         "label": "Card Styles",
         "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px, icon-size|72px, icon-layout|left",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "cardBackgroundColor",
+        "label": "Card Background Color",
+        "description": "e.g. #1a2b3c",
+        "options": [
+          {
+            "name": "Default / None",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Primary Blue 1 (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Primary Blue 2 (#007294)",
+            "value": "#007294"
+          },
+          {
+            "name": "Primary Blue 3 (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008DB6"
+          },
+          {
+            "name": "Primary Grey 1 (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "Primary Grey 2 (#0D273B)",
+            "value": "#0D273B"
+          },
+          {
+            "name": "Primary Grey 3 (#A1A1A1)",
+            "value": "#A1A1A1"
+          },
+          {
+            "name": "Orange (#E07E27)",
+            "value": "#E07E27"
+          },
+          {
+            "name": "Light Orange (#FAAB60)",
+            "value": "#FAAB60"
+          },
+          {
+            "name": "Peach (#FCBC7E)",
+            "value": "#FCBC7E"
+          },
+          {
+            "name": "Green (#7BC581)",
+            "value": "#7BC581"
+          },
+          {
+            "name": "Primary Red 1 (#E13E30)",
+            "value": "#E13E30"
+          },
+          {
+            "name": "Primary Red 2 (#F58A80)",
+            "value": "#F58A80"
+          },
+          {
+            "name": "Light Blue (#92D6E3)",
+            "value": "#92D6E3"
+          },
+          {
+            "name": "Light Grey 1 (#F6F6F6)",
+            "value": "#F6F6F6"
+          },
+          {
+            "name": "Light Grey 2 (#E7E4E1)",
+            "value": "#E7E4E1"
+          },
+          {
+            "name": "Light Grey 3 (#DDD5CC)",
+            "value": "#DDD5CC"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabBackground",
+        "label": "Background"
       },
       {
         "component": "reference",
@@ -16239,6 +16439,11 @@
     "id": "internship-program",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabImage",
+        "label": "Image"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",
@@ -16250,6 +16455,11 @@
         "valueType": "string",
         "name": "imageAlt",
         "label": "Image Alt Text"
+      },
+      {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
       },
       {
         "component": "text",
@@ -16310,6 +16520,11 @@
         "valueType": "string",
         "name": "bottomText",
         "label": "Bottom Text"
+      },
+      {
+        "component": "tab",
+        "name": "tabButtons",
+        "label": "Buttons"
       },
       {
         "component": "text",
@@ -16510,6 +16725,11 @@
           }
         ],
         "value": "solid"
+      },
+      {
+        "component": "tab",
+        "name": "tabBackground",
+        "label": "Background"
       },
       {
         "component": "select",
@@ -24292,6 +24512,11 @@
     "id": "split-card-offices",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "headingText",
@@ -24299,42 +24524,9 @@
         "value": ""
       },
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "button1Icon",
-        "label": "Button 1 Icon (24x24)",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "button1Text",
-        "label": "Button 1 Text",
-        "value": ""
-      },
-      {
-        "component": "aem-content",
-        "name": "button1Link",
-        "label": "Button 1 Link"
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "button2Icon",
-        "label": "Button 2 Icon (24x24)",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "button2Text",
-        "label": "Button 2 Text",
-        "value": ""
-      },
-      {
-        "component": "aem-content",
-        "name": "button2Link",
-        "label": "Button 2 Link"
+        "component": "tab",
+        "name": "tabFeature1",
+        "label": "Feature 1"
       },
       {
         "component": "reference",
@@ -24437,6 +24629,11 @@
         "value": ""
       },
       {
+        "component": "tab",
+        "name": "tabFeature2",
+        "label": "Feature 2"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "feature2Icon",
@@ -24537,6 +24734,11 @@
         "value": ""
       },
       {
+        "component": "tab",
+        "name": "tabFeature3",
+        "label": "Feature 3"
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "feature3Icon",
@@ -24635,12 +24837,77 @@
         "name": "feature3Text",
         "label": "Feature 3 Text",
         "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabButtons",
+        "label": "Buttons"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "button1Icon",
+        "label": "Button 1 Icon (24x24)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "button1Text",
+        "label": "Button 1 Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "button1Link",
+        "label": "Button 1 Link"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "button2Icon",
+        "label": "Button 2 Icon (24x24)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "button2Text",
+        "label": "Button 2 Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "button2Link",
+        "label": "Button 2 Link"
       }
     ]
   },
   {
     "id": "split-card",
     "fields": [
+      {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "subheading",
+        "label": "Subheading"
+      },
+      {
+        "component": "tab",
+        "name": "tabImage",
+        "label": "Image"
+      },
       {
         "component": "reference",
         "valueType": "string",
@@ -24655,16 +24922,41 @@
         "label": "Image Alt Text"
       },
       {
-        "component": "text",
-        "valueType": "string",
-        "name": "heading",
-        "label": "Heading"
+        "component": "select",
+        "name": "imagePosition",
+        "label": "Image Position",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ]
       },
       {
-        "component": "richtext",
+        "component": "select",
         "valueType": "string",
-        "name": "subheading",
-        "label": "Subheading"
+        "name": "imageSize",
+        "label": "Image Size",
+        "value": "even",
+        "options": [
+          {
+            "name": "Image Even Split",
+            "value": "even"
+          },
+          {
+            "name": "Image Smaller",
+            "value": "smaller"
+          }
+        ]
+      },
+      {
+        "component": "tab",
+        "name": "tabButtons",
+        "label": "Buttons"
       },
       {
         "component": "text",
@@ -24921,6 +25213,11 @@
         "name": "button2Subtext",
         "label": "Second Button Subtext (Optional)",
         "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
       },
       {
         "component": "select",
@@ -25263,6 +25560,11 @@
         "value": ""
       },
       {
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
+      },
+      {
         "component": "select",
         "name": "contentAlign",
         "label": "Content Alignment",
@@ -25278,38 +25580,6 @@
           {
             "name": "Right",
             "value": "right"
-          }
-        ]
-      },
-      {
-        "component": "select",
-        "name": "imagePosition",
-        "label": "Image Position",
-        "options": [
-          {
-            "name": "Left",
-            "value": "left"
-          },
-          {
-            "name": "Right",
-            "value": "right"
-          }
-        ]
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "imageSize",
-        "label": "Image Size",
-        "value": "even",
-        "options": [
-          {
-            "name": "Image Even Split",
-            "value": "even"
-          },
-          {
-            "name": "Image Smaller",
-            "value": "smaller"
           }
         ]
       },
@@ -25794,10 +26064,23 @@
     "id": "statistics",
     "fields": [
       {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
         "component": "richtext",
         "valueType": "string",
         "name": "heading",
         "label": "Heading"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "bodyText",
+        "label": "Body Text / Subheading (Optional)",
+        "description": "Optional body text displayed below the heading.",
+        "value": ""
       },
       {
         "component": "select",
@@ -25842,12 +26125,9 @@
         "value": "top"
       },
       {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "bodyText",
-        "label": "Body Text / Subheading (Optional)",
-        "description": "Optional body text displayed below the heading.",
-        "value": ""
+        "component": "tab",
+        "name": "tabDefaultIcon",
+        "label": "Default Icon"
       },
       {
         "component": "reference",
@@ -25899,6 +26179,11 @@
         "value": ""
       },
       {
+        "component": "tab",
+        "name": "tabStatsButtonLegacy",
+        "label": "Stats & Button (Legacy)"
+      },
+      {
         "component": "richtext",
         "valueType": "string",
         "name": "statValues",
@@ -25911,6 +26196,24 @@
         "name": "statLabels",
         "label": "Legacy Stat Labels (one per line)",
         "description": "Backward-compatible fallback. For new statistics with images, add Statistics Item children instead."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "verticalDividers",
+        "label": "Vertical Dividers",
+        "description": "Show or hide the vertical dividers between stats.",
+        "options": [
+          {
+            "name": "Show (default)",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ],
+        "value": "show"
       },
       {
         "component": "text",
@@ -25943,22 +26246,9 @@
         "value": "_self"
       },
       {
-        "component": "select",
-        "valueType": "string",
-        "name": "verticalDividers",
-        "label": "Vertical Dividers",
-        "description": "Show or hide the vertical dividers between stats.",
-        "options": [
-          {
-            "name": "Show (default)",
-            "value": "show"
-          },
-          {
-            "name": "Hide",
-            "value": "hide"
-          }
-        ],
-        "value": "show"
+        "component": "tab",
+        "name": "tabTypographyColors",
+        "label": "Typography & Colors"
       },
       {
         "component": "select",
@@ -26596,6 +26886,11 @@
         "value": ""
       },
       {
+        "component": "tab",
+        "name": "tabLayoutSpacing",
+        "label": "Layout & Spacing"
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "minHeight",
@@ -26610,126 +26905,6 @@
         "label": "Minimum Height (Mobile)",
         "description": "Optional CSS length override for screens up to 700px. Leave blank to use the same value as Minimum Height.",
         "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "markerTerms",
-        "label": "Animated Marker Text",
-        "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in headings, body, stat values, and labels gets a drawn marker on scroll.",
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "markerColor",
-        "label": "Animated Marker Color",
-        "description": "Defaults to yellow if left empty.",
-        "options": [
-          {
-            "name": "Default / None",
-            "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
-          },
-          {
-            "name": "Light Yellow (#FECF5D)",
-            "value": "#FECF5D"
-          }
-        ],
-        "value": "",
-        "valueFormat": "regexp",
-        "validation": {
-          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
-          "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
-        }
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "markerStyle",
-        "label": "Animated Marker Style",
-        "options": [
-          {
-            "name": "Circle",
-            "value": "circle"
-          },
-          {
-            "name": "Underline",
-            "value": "underline"
-          }
-        ],
-        "value": "circle"
       },
       {
         "component": "select",
@@ -26904,6 +27079,136 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "tab",
+        "name": "tabAnimatedMarker",
+        "label": "Animated Marker"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "markerTerms",
+        "label": "Animated Marker Text",
+        "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in headings, body, stat values, and labels gets a drawn marker on scroll.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "markerColor",
+        "label": "Animated Marker Color",
+        "description": "Defaults to yellow if left empty.",
+        "options": [
+          {
+            "name": "Default / None",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Primary Blue 1 (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Primary Blue 2 (#007294)",
+            "value": "#007294"
+          },
+          {
+            "name": "Primary Blue 3 (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008DB6"
+          },
+          {
+            "name": "Primary Grey 1 (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "Primary Grey 2 (#0D273B)",
+            "value": "#0D273B"
+          },
+          {
+            "name": "Primary Grey 3 (#A1A1A1)",
+            "value": "#A1A1A1"
+          },
+          {
+            "name": "Orange (#E07E27)",
+            "value": "#E07E27"
+          },
+          {
+            "name": "Light Orange (#FAAB60)",
+            "value": "#FAAB60"
+          },
+          {
+            "name": "Peach (#FCBC7E)",
+            "value": "#FCBC7E"
+          },
+          {
+            "name": "Green (#7BC581)",
+            "value": "#7BC581"
+          },
+          {
+            "name": "Primary Red 1 (#E13E30)",
+            "value": "#E13E30"
+          },
+          {
+            "name": "Primary Red 2 (#F58A80)",
+            "value": "#F58A80"
+          },
+          {
+            "name": "Light Blue (#92D6E3)",
+            "value": "#92D6E3"
+          },
+          {
+            "name": "Light Grey 1 (#F6F6F6)",
+            "value": "#F6F6F6"
+          },
+          {
+            "name": "Light Grey 2 (#E7E4E1)",
+            "value": "#E7E4E1"
+          },
+          {
+            "name": "Light Grey 3 (#DDD5CC)",
+            "value": "#DDD5CC"
+          },
+          {
+            "name": "Light Yellow (#FECF5D)",
+            "value": "#FECF5D"
+          }
+        ],
+        "value": "",
+        "valueFormat": "regexp",
+        "validation": {
+          "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+          "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "markerStyle",
+        "label": "Animated Marker Style",
+        "options": [
+          {
+            "name": "Circle",
+            "value": "circle"
+          },
+          {
+            "name": "Underline",
+            "value": "underline"
+          }
+        ],
+        "value": "circle"
+      },
+      {
+        "component": "tab",
+        "name": "tabDisclaimer",
+        "label": "Disclaimer"
       },
       {
         "component": "richtext",

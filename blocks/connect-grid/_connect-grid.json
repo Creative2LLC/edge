@@ -77,6 +77,28 @@
       "id": "connect-grid-item",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "description",
+          "label": "Description"
+        },
+        {
+          "component": "tab",
+          "name": "tabMedia",
+          "label": "Media"
+        },
+        {
           "component": "reference",
           "valueType": "string",
           "name": "icon",
@@ -89,6 +111,95 @@
           "name": "image",
           "label": "Top Image",
           "multi": false
+        },
+        {
+          "component": "tab",
+          "name": "tabContactMethods",
+          "label": "Contact Methods"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Label",
+          "label": "Contact Method 1 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Text",
+          "label": "Contact Method 1 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Link",
+          "label": "Contact Method 1 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Label",
+          "label": "Contact Method 2 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Text",
+          "label": "Contact Method 2 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Link",
+          "label": "Contact Method 2 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Label",
+          "label": "Contact Method 3 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Text",
+          "label": "Contact Method 3 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Link",
+          "label": "Contact Method 3 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Label",
+          "label": "Contact Method 4 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Text",
+          "label": "Contact Method 4 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Link",
+          "label": "Contact Method 4 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethods",
+          "label": "Legacy Contact Methods (One Per Line: Label|Text|Link)",
+          "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
         },
         {
           "component": "select",
@@ -177,102 +288,97 @@
           "value": ""
         },
         {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "title",
-          "label": "Title"
-        },
-        {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "description",
-          "label": "Description"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod1Label",
-          "label": "Contact Method 1 Label"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod1Text",
-          "label": "Contact Method 1 Text"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod1Link",
-          "label": "Contact Method 1 Link"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod2Label",
-          "label": "Contact Method 2 Label"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod2Text",
-          "label": "Contact Method 2 Text"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod2Link",
-          "label": "Contact Method 2 Link"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod3Label",
-          "label": "Contact Method 3 Label"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod3Text",
-          "label": "Contact Method 3 Text"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod3Link",
-          "label": "Contact Method 3 Link"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod4Label",
-          "label": "Contact Method 4 Label"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod4Text",
-          "label": "Contact Method 4 Text"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethod4Link",
-          "label": "Contact Method 4 Link"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "contactMethods",
-          "label": "Legacy Contact Methods (One Per Line: Label|Text|Link)",
-          "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
-        },
-        {
           "component": "select",
           "valueType": "string",
           "name": "cardBackgroundColor",
           "label": "Card Background Color",
           "description": "Defaults to #f4f0ec if left empty.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Brand Blue (#008DB6)",
+              "value": "#008DB6"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardHoverBackgroundColor",
+          "label": "Card Hover Background Color",
+          "description": "Optional. Applies only when provided.",
           "options": [
             {
               "name": "Default / None",
@@ -369,92 +475,6 @@
             }
           ],
           "value": "show"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "cardHoverBackgroundColor",
-          "label": "Card Hover Background Color",
-          "description": "Optional. Applies only when provided.",
-          "options": [
-            {
-              "name": "Default / None",
-              "value": ""
-            },
-            {
-              "name": "White (#FFFFFF)",
-              "value": "#FFFFFF"
-            },
-            {
-              "name": "Primary Blue 1 (#00264D)",
-              "value": "#00264D"
-            },
-            {
-              "name": "Primary Blue 2 (#007294)",
-              "value": "#007294"
-            },
-            {
-              "name": "Primary Blue 3 (#008EB7)",
-              "value": "#008EB7"
-            },
-            {
-              "name": "Brand Blue (#008DB6)",
-              "value": "#008DB6"
-            },
-            {
-              "name": "Primary Grey 1 (#404041)",
-              "value": "#404041"
-            },
-            {
-              "name": "Primary Grey 2 (#0D273B)",
-              "value": "#0D273B"
-            },
-            {
-              "name": "Primary Grey 3 (#A1A1A1)",
-              "value": "#A1A1A1"
-            },
-            {
-              "name": "Orange (#E07E27)",
-              "value": "#E07E27"
-            },
-            {
-              "name": "Light Orange (#FAAB60)",
-              "value": "#FAAB60"
-            },
-            {
-              "name": "Peach (#FCBC7E)",
-              "value": "#FCBC7E"
-            },
-            {
-              "name": "Green (#7BC581)",
-              "value": "#7BC581"
-            },
-            {
-              "name": "Primary Red 1 (#E13E30)",
-              "value": "#E13E30"
-            },
-            {
-              "name": "Primary Red 2 (#F58A80)",
-              "value": "#F58A80"
-            },
-            {
-              "name": "Light Blue (#92D6E3)",
-              "value": "#92D6E3"
-            },
-            {
-              "name": "Light Grey 1 (#F6F6F6)",
-              "value": "#F6F6F6"
-            },
-            {
-              "name": "Light Grey 2 (#E7E4E1)",
-              "value": "#E7E4E1"
-            },
-            {
-              "name": "Light Grey 3 (#DDD5CC)",
-              "value": "#DDD5CC"
-            }
-          ],
-          "value": ""
         }
       ]
     }

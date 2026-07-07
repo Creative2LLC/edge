@@ -22,6 +22,11 @@
       "id": "colored-button",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "label",
@@ -32,6 +37,11 @@
           "component": "aem-content",
           "name": "link",
           "label": "Link"
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
         },
         {
           "component": "select",
@@ -434,6 +444,100 @@
           "value": "no"
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "fontSize",
+          "label": "Font Size",
+          "description": "Optional CSS length such as 16px, 1rem, or clamp(1rem, 2vw, 1.25rem).",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "fontWeight",
+          "label": "Font Weight",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Regular",
+              "value": "400"
+            },
+            {
+              "name": "Medium",
+              "value": "500"
+            },
+            {
+              "name": "Semi Bold",
+              "value": "600"
+            },
+            {
+              "name": "Bold",
+              "value": "700"
+            },
+            {
+              "name": "Extra Bold",
+              "value": "800"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabIcon",
+          "label": "Icon"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon Image (Optional)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconName",
+          "label": "Icon Name (Optional)",
+          "description": "Optional fallback icon name from /icons, for example search or download.",
+          "value": "download"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconAlt",
+          "label": "Icon Alt Text",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconPosition",
+          "label": "Icon Position",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            }
+          ],
+          "value": "right"
+        },
+        {
+          "component": "tab",
+          "name": "tabLayoutSpacing",
+          "label": "Layout & Spacing"
+        },
+        {
           "component": "select",
           "valueType": "string",
           "name": "horizontalAlign",
@@ -478,90 +582,6 @@
             }
           ],
           "value": "top"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "fontSize",
-          "label": "Font Size",
-          "description": "Optional CSS length such as 16px, 1rem, or clamp(1rem, 2vw, 1.25rem).",
-          "value": ""
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "fontWeight",
-          "label": "Font Weight",
-          "options": [
-            {
-              "name": "Default",
-              "value": ""
-            },
-            {
-              "name": "Regular",
-              "value": "400"
-            },
-            {
-              "name": "Medium",
-              "value": "500"
-            },
-            {
-              "name": "Semi Bold",
-              "value": "600"
-            },
-            {
-              "name": "Bold",
-              "value": "700"
-            },
-            {
-              "name": "Extra Bold",
-              "value": "800"
-            }
-          ],
-          "value": ""
-        },
-        {
-          "component": "reference",
-          "valueType": "string",
-          "name": "icon",
-          "label": "Icon Image (Optional)",
-          "multi": false
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "iconName",
-          "label": "Icon Name (Optional)",
-          "description": "Optional fallback icon name from /icons, for example search or download.",
-          "value": "download"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "iconAlt",
-          "label": "Icon Alt Text",
-          "value": ""
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "iconPosition",
-          "label": "Icon Position",
-          "options": [
-            {
-              "name": "Left",
-              "value": "left"
-            },
-            {
-              "name": "Right",
-              "value": "right"
-            },
-            {
-              "name": "None",
-              "value": "none"
-            }
-          ],
-          "value": "right"
         },
         {
           "component": "text",

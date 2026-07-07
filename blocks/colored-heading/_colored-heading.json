@@ -22,6 +22,11 @@
       "id": "colored-heading",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "heading",
@@ -60,6 +65,11 @@
             }
           ],
           "value": "h2"
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
         },
         {
           "component": "select",
@@ -153,95 +163,50 @@
           }
         },
         {
+          "component": "text",
+          "valueType": "string",
+          "name": "fontSize",
+          "label": "Font Size",
+          "description": "Optional CSS length such as 48px, 3rem, or clamp(2rem, 5vw, 4rem).",
+          "value": ""
+        },
+        {
           "component": "select",
           "valueType": "string",
-          "name": "blockBackgroundColor",
-          "label": "Block Background Color (Optional)",
-          "description": "Leave empty for a transparent block background.",
+          "name": "fontWeight",
+          "label": "Font Weight",
           "options": [
             {
-              "name": "Default / None",
+              "name": "Default",
               "value": ""
             },
             {
-              "name": "White (#FFFFFF)",
-              "value": "#FFFFFF"
+              "name": "Regular",
+              "value": "400"
             },
             {
-              "name": "Primary Blue 1 (#00264D)",
-              "value": "#00264D"
+              "name": "Medium",
+              "value": "500"
             },
             {
-              "name": "Primary Blue 2 (#007294)",
-              "value": "#007294"
+              "name": "Semi Bold",
+              "value": "600"
             },
             {
-              "name": "Primary Blue 3 (#008EB7)",
-              "value": "#008EB7"
+              "name": "Bold",
+              "value": "700"
             },
             {
-              "name": "Brand Blue (#008DB6)",
-              "value": "#008DB6"
-            },
-            {
-              "name": "Primary Grey 1 (#404041)",
-              "value": "#404041"
-            },
-            {
-              "name": "Primary Grey 2 (#0D273B)",
-              "value": "#0D273B"
-            },
-            {
-              "name": "Primary Grey 3 (#A1A1A1)",
-              "value": "#A1A1A1"
-            },
-            {
-              "name": "Orange (#E07E27)",
-              "value": "#E07E27"
-            },
-            {
-              "name": "Light Orange (#FAAB60)",
-              "value": "#FAAB60"
-            },
-            {
-              "name": "Peach (#FCBC7E)",
-              "value": "#FCBC7E"
-            },
-            {
-              "name": "Green (#7BC581)",
-              "value": "#7BC581"
-            },
-            {
-              "name": "Primary Red 1 (#E13E30)",
-              "value": "#E13E30"
-            },
-            {
-              "name": "Primary Red 2 (#F58A80)",
-              "value": "#F58A80"
-            },
-            {
-              "name": "Light Blue (#92D6E3)",
-              "value": "#92D6E3"
-            },
-            {
-              "name": "Light Grey 1 (#F6F6F6)",
-              "value": "#F6F6F6"
-            },
-            {
-              "name": "Light Grey 2 (#E7E4E1)",
-              "value": "#E7E4E1"
-            },
-            {
-              "name": "Light Grey 3 (#DDD5CC)",
-              "value": "#DDD5CC"
+              "name": "Extra Bold",
+              "value": "800"
             }
           ],
-          "value": "",
-          "valueFormat": "regexp",
-          "validation": {
-            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
-            "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
-          }
+          "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabLayoutSpacing",
+          "label": "Layout & Spacing"
         },
         {
           "component": "select",
@@ -288,47 +253,6 @@
             }
           ],
           "value": "top"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "fontSize",
-          "label": "Font Size",
-          "description": "Optional CSS length such as 48px, 3rem, or clamp(2rem, 5vw, 4rem).",
-          "value": ""
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "fontWeight",
-          "label": "Font Weight",
-          "options": [
-            {
-              "name": "Default",
-              "value": ""
-            },
-            {
-              "name": "Regular",
-              "value": "400"
-            },
-            {
-              "name": "Medium",
-              "value": "500"
-            },
-            {
-              "name": "Semi Bold",
-              "value": "600"
-            },
-            {
-              "name": "Bold",
-              "value": "700"
-            },
-            {
-              "name": "Extra Bold",
-              "value": "800"
-            }
-          ],
-          "value": ""
         },
         {
           "component": "text",
@@ -501,6 +425,102 @@
           "value": "default"
         },
         {
+          "component": "tab",
+          "name": "tabBackground",
+          "label": "Background"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "blockBackgroundColor",
+          "label": "Block Background Color (Optional)",
+          "description": "Leave empty for a transparent block background.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Brand Blue (#008DB6)",
+              "value": "#008DB6"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "value": "",
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+          }
+        },
+        {
           "component": "select",
           "valueType": "string",
           "name": "dropShadow",
@@ -540,6 +560,11 @@
             }
           ],
           "value": "none"
+        },
+        {
+          "component": "tab",
+          "name": "tabAnimatedMarker",
+          "label": "Animated Marker"
         },
         {
           "component": "text",

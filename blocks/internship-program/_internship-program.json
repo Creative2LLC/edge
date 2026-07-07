@@ -21,6 +21,11 @@
       "id": "internship-program",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabImage",
+          "label": "Image"
+        },
+        {
           "component": "reference",
           "valueType": "string",
           "name": "image",
@@ -32,6 +37,11 @@
           "valueType": "string",
           "name": "imageAlt",
           "label": "Image Alt Text"
+        },
+        {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
         },
         {
           "component": "text",
@@ -92,6 +102,11 @@
           "valueType": "string",
           "name": "bottomText",
           "label": "Bottom Text"
+        },
+        {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
         },
         {
           "component": "text",
@@ -292,6 +307,11 @@
             }
           ],
           "value": "solid"
+        },
+        {
+          "component": "tab",
+          "name": "tabBackground",
+          "label": "Background"
         },
         {
           "component": "select",

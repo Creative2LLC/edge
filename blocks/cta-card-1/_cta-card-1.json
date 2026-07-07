@@ -21,6 +21,11 @@
       "id": "cta-card-1",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "title",
@@ -33,6 +38,17 @@
           "label": "Subtitle"
         },
         {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "belowButtonText",
+          "label": "Text Below Button"
+        },
+        {
+          "component": "tab",
+          "name": "tabBackground",
+          "label": "Background"
+        },
+        {
           "component": "text",
           "valueType": "string",
           "name": "gradientLeft",
@@ -43,6 +59,11 @@
           "valueType": "string",
           "name": "gradientRight",
           "label": "Gradient Right Color (Hex)"
+        },
+        {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
         },
         {
           "component": "text",
@@ -436,12 +457,6 @@
           "value": "right"
         },
         {
-          "component": "richtext",
-          "valueType": "string",
-          "name": "belowButtonText",
-          "label": "Text Below Button"
-        },
-        {
           "component": "text",
           "valueType": "string",
           "name": "button3Text",
@@ -451,6 +466,11 @@
           "component": "aem-content",
           "name": "button3Link",
           "label": "Button 3 Link (Variant 4 only)"
+        },
+        {
+          "component": "tab",
+          "name": "tabLayoutSpacing",
+          "label": "Layout & Spacing"
         },
         {
           "component": "select",
