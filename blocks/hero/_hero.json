@@ -115,7 +115,7 @@
           "component": "select",
           "name": "media_overlayOpacity",
           "label": "Image Overlay Opacity",
-          "description": "Controls the white overlay on the background image. Higher = more white/washed out. Defaults to 78%.",
+          "description": "Controls the white overlay on the background image. Higher = more white/washed out. Defaults to 50%.",
           "options": [
             {
               "name": "0% (No overlay)",
@@ -138,7 +138,7 @@
               "value": "40"
             },
             {
-              "name": "50%",
+              "name": "50% (Default)",
               "value": "50"
             },
             {
@@ -150,7 +150,7 @@
               "value": "70"
             },
             {
-              "name": "78% (Default)",
+              "name": "78%",
               "value": ""
             },
             {
@@ -166,7 +166,7 @@
               "value": "100"
             }
           ],
-          "value": ""
+          "value": "50"
         },
         {
           "component": "select",
