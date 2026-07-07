@@ -21,6 +21,11 @@
       "id": "hero-content",
       "fields": [
         {
+          "component": "tab",
+          "name": "tabLayout",
+          "label": "Layout"
+        },
+        {
           "component": "select",
           "name": "variant",
           "label": "Hero Variant",
@@ -36,6 +41,38 @@
             }
           ],
           "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "content_height",
+          "label": "Height (rem)",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "name": "content_position",
+          "label": "Content Position",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "tab",
+          "name": "tabMedia",
+          "label": "Background & Media"
         },
         {
           "component": "reference",
@@ -149,31 +186,9 @@
           "value": "show"
         },
         {
-          "component": "text",
-          "valueType": "string",
-          "name": "content_height",
-          "label": "Height (rem)",
-          "value": ""
-        },
-        {
-          "component": "select",
-          "name": "content_position",
-          "label": "Content Position",
-          "options": [
-            {
-              "name": "Left",
-              "value": "left"
-            },
-            {
-              "name": "Center",
-              "value": "center"
-            },
-            {
-              "name": "Right",
-              "value": "right"
-            }
-          ],
-          "value": "left"
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
         },
         {
           "component": "select",
@@ -305,6 +320,11 @@
           "valueType": "string"
         },
         {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
+        },
+        {
           "component": "text",
           "name": "action_1Text",
           "value": "",
@@ -407,6 +427,11 @@
           "value": "solid"
         },
         {
+          "component": "tab",
+          "name": "tabPanel",
+          "label": "Side Panel"
+        },
+        {
           "component": "text",
           "name": "panel_title",
           "value": "",
@@ -454,6 +479,11 @@
           "value": "",
           "label": "Side Panel Footer Text",
           "valueType": "string"
+        },
+        {
+          "component": "tab",
+          "name": "tabMarker",
+          "label": "Animated Marker"
         },
         {
           "component": "text",
