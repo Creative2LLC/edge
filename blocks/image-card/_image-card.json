@@ -18,6 +18,56 @@
   ],
   "models": [
     {
+      "id": "image-card",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Background Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "primaryButtonText",
+          "label": "Primary Button Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "primaryButtonLink",
+          "label": "Primary Button Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "secondaryButtonText",
+          "label": "Secondary Button Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "secondaryButtonLink",
+          "label": "Secondary Button Link"
+        }
+      ]
+    },
+    {
       "id": "image-card-content",
       "fields": [
         {
