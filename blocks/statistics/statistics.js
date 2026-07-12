@@ -77,15 +77,20 @@ const CONFIG_OPTION_VALUES = [
   ...PADDING_STYLE_VALUES.filter((value) => value !== 'default'),
 ];
 
+// Offsets below match _statistics.json's ACTUAL current field order (fields were regrouped
+// under UI tabs by a later commit — tabs don't consume a row, but the reorder invalidated
+// these offsets: verticalDividers moved before the button fields instead of after them, and
+// markerTerms/markerColor/markerStyle moved after contentSpacing/paddingStyle/borderRadius/
+// dropShadow instead of before them. Everything else in this table was already correct.
 const CURRENT_IMAGE_MODE_OFFSETS = {
   iconMaxWidth: 1,
   iconMaxHeight: 2,
   statValues: 3,
   statLabels: 4,
-  defaultButtonText: 5,
-  defaultButtonLink: 6,
-  defaultButtonTarget: 7,
-  verticalDividers: 8,
+  verticalDividers: 5,
+  defaultButtonText: 6,
+  defaultButtonLink: 7,
+  defaultButtonTarget: 8,
   blockBackgroundColor: 9,
   headingTextColor: 10,
   headingFontSize: 11,
@@ -101,13 +106,13 @@ const CURRENT_IMAGE_MODE_OFFSETS = {
   labelFontWeight: 21,
   minHeight: 22,
   minHeightMobile: 23,
-  markerTerms: 24,
-  markerColor: 25,
-  markerStyle: 26,
-  contentSpacing: 27,
-  paddingStyle: 28,
-  borderRadius: 29,
-  dropShadow: 30,
+  contentSpacing: 24,
+  paddingStyle: 25,
+  borderRadius: 26,
+  dropShadow: 27,
+  markerTerms: 28,
+  markerColor: 29,
+  markerStyle: 30,
   disclaimer: 31,
   disclaimerFontSize: 32,
 };

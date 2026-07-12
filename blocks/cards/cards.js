@@ -29,18 +29,19 @@ const CARD_FIELD_NAMES = [
   'image',
   'text',
   'highlightText',
+  'disclaimer',
   'cardBackgroundColor',
   'cardTextColor',
   'highlightTextColor',
-  'cardAlignment',
   'cardTextSize',
+  'highlightTextSize',
+  'disclaimerFontSize',
   'markerTerms',
   'markerColor',
   'markerStyle',
-  'highlightTextSize',
+  'cardAlignment',
   'cardPaddingStyle',
-  'disclaimer',
-  'disclaimerFontSize',
+  'imageAlt',
 ];
 
 const DEFAULT_SETTINGS = {
@@ -620,20 +621,27 @@ function buildCard(row) {
       text: '',
     }
     : readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
-  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: row.children[3] });
-  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: row.children[4] });
+  // Fallback indices below match _cards.json's ACTUAL current field order (fields were
+  // regrouped under UI tabs by a later commit, which changed this order without the
+  // fixed-index reads here being updated — that drift was misreading one field's stored
+  // value as another's on published pages). Order: image, text, highlightText, disclaimer,
+  // cardBackgroundColor, cardTextColor, highlightTextColor, cardTextSize, highlightTextSize,
+  // disclaimerFontSize, markerTerms, markerColor, markerStyle, cardAlignment,
+  // cardPaddingStyle, imageAlt. "tab" model entries are UI-only and consume no row.
+  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: row.children[3] });
+  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: row.children[4] });
+  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: row.children[5] });
   const highlightTextColorField = readTextField(row, 'highlightTextColor', {
-    fallbackCell: row.children[5],
+    fallbackCell: row.children[6],
   });
-  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: row.children[6] });
   const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: row.children[7] });
-  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: row.children[8] });
-  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: row.children[9] });
-  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: row.children[10] });
-  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: row.children[11] });
-  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: row.children[12] });
-  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: row.children[13] });
-  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: row.children[14] });
+  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: row.children[8] });
+  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: row.children[9] });
+  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: row.children[10] });
+  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: row.children[11] });
+  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: row.children[12] });
+  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: row.children[13] });
+  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: row.children[14] });
   const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: row.children[15] });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
