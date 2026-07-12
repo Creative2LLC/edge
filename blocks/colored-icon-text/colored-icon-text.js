@@ -185,9 +185,23 @@ function normalizeButtonTarget(value) {
   return String(value || '').trim() === '_blank' ? '_blank' : '_self';
 }
 
+// Guards against a positional-fallback misread landing button text/link on a config-shaped
+// value (a CSS length, hex color, or enum keyword) instead of genuine authored content —
+// e.g. an empty Button Text field on a published page can shift the row-based fallback onto
+// a neighboring size/color field. Matches the isConfigOnlyText-style guards used elsewhere
+// in this codebase (cards.js, statistics.js, colored-grid.js) for the same defensive reason.
+function isConfigLikeText(value) {
+  const text = String(value || '').trim();
+  if (!text) return true;
+  return /^-?\d+(\.\d+)?(?:px|em|rem|%|vh|vw|vmin|vmax)$/iu.test(text)
+    || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/iu.test(text)
+    || /^(?:[1-9]00)$/u.test(text)
+    || ['left', 'right', 'none', 'top', 'middle', 'bottom', 'circle', 'square', 'icon', 'transparent'].includes(text.toLowerCase());
+}
+
 function buildButton(buttonTextField, buttonLinkField, buttonTargetField) {
-  const text = buttonTextField.value.trim();
-  const href = buttonLinkField.value.trim();
+  const text = isConfigLikeText(buttonTextField.value) ? '' : buttonTextField.value.trim();
+  const href = isConfigLikeText(buttonLinkField.value) ? '' : buttonLinkField.value.trim();
   if (!text && !href) return null;
 
   const button = document.createElement(href ? 'a' : 'span');

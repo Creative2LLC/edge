@@ -720,6 +720,20 @@ function buildCard(row) {
     style: markerStyleField.value,
   };
 
+  // `row` itself is discarded after this point (only `li` gets attached to the DOM), but
+  // its per-card style/config fields (cardBackgroundColor, cardTextColor, etc.) were only
+  // ever read by value here — their aue-tracked elements were never relocated into `li`.
+  // Fully dropping `row` desyncs Universal Editor's tracking of those fields, so a live
+  // edit to e.g. Card Background Color patches a DOM node that no longer exists on the
+  // page (visible only after a hard refresh). moveInstrumentation(row, li) above already
+  // stripped row's OWN aue-resource identity, so re-attaching it hidden inside `li` can't
+  // create a duplicate/competing resource — only its still-instrumented field descendants
+  // remain live. Matches the hide-not-remove pattern used for block-level settings.
+  if (hasAuthoringContext(row)) {
+    row.hidden = true;
+    li.append(row);
+  }
+
   return li;
 }
 
