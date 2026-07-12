@@ -125,6 +125,24 @@
           "label": "Disclaimer Text (Optional)",
           "description": "Optional fine print shown below the table.",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textMode",
+          "label": "Text Mode",
+          "description": "Light mode uses white heading/intro text. Use when this block sits on a dark section background.",
+          "options": [
+            {
+              "name": "Dark (default)",
+              "value": "dark"
+            },
+            {
+              "name": "Light",
+              "value": "light"
+            }
+          ],
+          "value": "dark"
         }
       ]
     },

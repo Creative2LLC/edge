@@ -256,13 +256,28 @@ function getLegacySettingCells(rows) {
   };
 }
 
-function readSetting(block, name, labels = [], fallbackCell = null) {
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope.getAttribute?.('data-aue-resource')
+      || scope.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+// In the editor, hide (don't remove) setting rows that carry Universal Editor
+// instrumentation — permanently removing an aue-tracked node can desync UE's
+// resource tree from the DOM and break later live-edit syncing for the whole
+// block, not just the row itself (see colored-grid.js's cleanupConfigRows and
+// gallery-grid.js's readSetting for the same pattern/fix).
+function readSetting(block, name, labels = [], fallbackCell = null, isEditor = false) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
     fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
+  if (row) {
+    if (isEditor && hasAuthoringContext(row)) row.hidden = true;
+    else row.remove();
+  }
   return field.value;
 }
 
@@ -405,13 +420,6 @@ function syncResourceSettings(resourcePath, block) {
     .then((fields) => {
       if (Object.keys(fields).length) applySettings(block, fields);
     });
-}
-
-function hasAuthoringContext(scope) {
-  return Boolean(
-    scope.getAttribute?.('data-aue-resource')
-      || scope.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
-  );
 }
 
 function hasCardField(row) {
@@ -707,7 +715,20 @@ function buildCard(row) {
   return li;
 }
 
+function archiveHiddenRows(block, isEditor) {
+  if (!isEditor) return null;
+
+  const archive = document.createElement('span');
+  archive.className = 'cards-field-archive';
+  archive.hidden = true;
+
+  [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
+
+  return archive.children.length ? archive : null;
+}
+
 export default function decorate(block) {
+  const isEditor = hasAuthoringContext(block);
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
   const legacySettings = getLegacySettingCells(rows);
@@ -717,59 +738,78 @@ export default function decorate(block) {
       'textAlignment',
       ['text alignment', 'alignment', 'horizontal alignment'],
       legacySettings.textAlignment,
+      isEditor,
     ),
     defaultCardBackgroundColor: readSetting(block, 'defaultCardBackgroundColor', [
       'default card background color',
       'card background color',
-    ], legacySettings.defaultCardBackgroundColor),
+    ], legacySettings.defaultCardBackgroundColor, isEditor),
     defaultCardTextColor: readSetting(block, 'defaultCardTextColor', [
       'default card text color',
       'card text color',
-    ], legacySettings.defaultCardTextColor),
+    ], legacySettings.defaultCardTextColor, isEditor),
     defaultHighlightTextColor: readSetting(block, 'defaultHighlightTextColor', [
       'default highlighted text color',
       'highlighted text color',
       'highlight text color',
-    ], legacySettings.defaultHighlightTextColor),
-    buttonDisplay: readSetting(block, 'buttonDisplay', ['card buttons', 'buttons'], legacySettings.buttonDisplay),
+    ], legacySettings.defaultHighlightTextColor, isEditor),
+    buttonDisplay: readSetting(
+      block,
+      'buttonDisplay',
+      ['card buttons', 'buttons'],
+      legacySettings.buttonDisplay,
+      isEditor,
+    ),
     imageDisplay: readSetting(
       block,
       'imageDisplay',
       ['image display', 'image display mode', 'image style'],
       legacySettings.imageDisplay,
+      isEditor,
     ),
     cardBorderRadius: readSetting(
       block,
       'cardBorderRadius',
       ['card border radius', 'border radius'],
       legacySettings.cardBorderRadius,
+      isEditor,
     ),
-    cardShadow: readSetting(block, 'cardShadow', ['card shadow', 'drop shadow', 'shadow'], legacySettings.cardShadow),
+    cardShadow: readSetting(
+      block,
+      'cardShadow',
+      ['card shadow', 'drop shadow', 'shadow'],
+      legacySettings.cardShadow,
+      isEditor,
+    ),
     defaultCardTextSize: readSetting(
       block,
       'defaultCardTextSize',
       ['default card text size', 'card text size', 'text size'],
       legacySettings.defaultCardTextSize,
+      isEditor,
     ),
-    cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null),
+    cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null, isEditor),
     defaultHighlightTextSize: readSetting(
       block,
       'defaultHighlightTextSize',
       ['default highlighted text size', 'highlighted text size', 'highlight text size'],
       null,
+      isEditor,
     ),
     defaultCardPaddingStyle: readSetting(
       block,
       'defaultCardPaddingStyle',
       ['default card padding', 'card padding'],
       null,
+      isEditor,
     ),
   });
 
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
     if (isSettingRow(row)) {
-      row.remove();
+      if (isEditor && hasAuthoringContext(row)) row.hidden = true;
+      else row.remove();
       return;
     }
 
@@ -781,7 +821,8 @@ export default function decorate(block) {
     ul.append(buildCard(row));
   });
 
-  block.replaceChildren(ul);
+  const archive = archiveHiddenRows(block, isEditor);
+  block.replaceChildren(ul, ...(archive ? [archive] : []));
   [...ul.children].forEach((li) => {
     applyAnimatedMarkers(li, li.cardsMarkerConfig);
     delete li.cardsMarkerConfig;

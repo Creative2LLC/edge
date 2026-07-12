@@ -28,6 +28,7 @@ const BLOCK_ROW_INDEX = {
   tableStyle: 7,
   emptyMessage: 8,
   disclaimer: 9,
+  textMode: 10,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -169,6 +170,10 @@ function authoredRows(block) {
     .filter(Boolean);
 }
 
+function textModeClass(value) {
+  return String(value || '').trim().toLowerCase() === 'light' ? 'light' : 'dark';
+}
+
 function tableStyleClass(value) {
   const normalized = String(value || '')
     .trim()
@@ -307,6 +312,7 @@ export default async function decorate(block) {
   const tableStyleField = readText(block, 'tableStyle', BLOCK_ROW_INDEX.tableStyle, ['table style']);
   const emptyMessageField = readText(block, 'emptyMessage', BLOCK_ROW_INDEX.emptyMessage, ['empty message']);
   const disclaimerField = readRich(block, 'disclaimer', BLOCK_ROW_INDEX.disclaimer, ['disclaimer']);
+  const textModeField = readText(block, 'textMode', BLOCK_ROW_INDEX.textMode, ['text mode']);
   const configuredColumns = parseColumns(columnsField.value);
   const rows = authoredRows(block);
   const authoredDataset = {
@@ -336,6 +342,7 @@ export default async function decorate(block) {
   if (!columns.length) columns = deriveColumns(displayRows);
 
   block.classList.add(`impact-data-table-style-${tableStyleClass(tableStyleField.value)}`);
+  block.classList.toggle('impact-data-table-text-light', textModeClass(textModeField.value) === 'light');
 
   const inner = document.createElement('div');
   inner.className = 'impact-data-table-inner';

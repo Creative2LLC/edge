@@ -62,6 +62,29 @@
   margin: 0;
 }
 
+.gallery-grid .gallery-grid-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  padding: 40px;
+  background: var(--gallery-grid-text-bg, #007294);
+  color: var(--gallery-grid-text-color, #fff);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.gallery-grid .gallery-grid-text > :first-child {
+  margin-top: 0;
+}
+
+.gallery-grid .gallery-grid-text > :last-child {
+  margin-bottom: 0;
+}
+
 .gallery-grid .is-authoring-placeholder {
   display: grid;
   place-items: center;

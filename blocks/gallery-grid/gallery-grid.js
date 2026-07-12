@@ -5,6 +5,7 @@ import {
   getAueResourcePath,
   readAueResourceFields,
   readImageField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -52,6 +53,14 @@ function normalizeColumns(value) {
   const parsed = Number.parseInt(String(value || '').trim(), 10);
   if (!Number.isFinite(parsed)) return 2;
   return Math.min(Math.max(parsed, 2), 4);
+}
+
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  return hexMatch ? hexMatch[0] : '';
 }
 
 function hasAuthoringContext(scope) {
@@ -189,7 +198,7 @@ function findOwnItemField(item, name) {
 
 function removeGeneratedItemContent(item) {
   item.querySelectorAll(
-    ':scope > .gallery-grid-image, :scope > .gallery-grid-item-placeholder',
+    ':scope > .gallery-grid-image, :scope > .gallery-grid-text, :scope > .gallery-grid-item-placeholder',
   ).forEach((element) => element.remove());
   item.classList.remove('gallery-grid-item-content', 'is-authoring-placeholder');
 }
@@ -247,12 +256,45 @@ async function buildItem(row, isEditor) {
     return item;
   }
 
+  const textField = readRichTextField(row, 'text', { fallbackCell: row.children[2] });
+  const backgroundColorField = readTextField(row, 'backgroundColor', { fallbackCell: row.children[3] });
+  const textColorField = readTextField(row, 'textColor', { fallbackCell: row.children[4] });
+
+  if (textField.text || textField.source) {
+    const textCard = document.createElement('div');
+    textCard.className = 'gallery-grid-text';
+
+    const backgroundColor = normalizeColorValue(backgroundColorField.value);
+    const textColor = normalizeColorValue(textColorField.value);
+    if (backgroundColor) textCard.style.setProperty('--gallery-grid-text-bg', backgroundColor);
+    if (textColor) textCard.style.setProperty('--gallery-grid-text-color', textColor);
+
+    if (textField.source) {
+      moveInstrumentation(textField.source, textCard);
+      while (textField.source.firstChild) textCard.append(textField.source.firstChild);
+    } else {
+      textCard.innerHTML = textField.html;
+    }
+
+    item.append(textCard);
+    if (isAuthoringItem) {
+      hideAuthoringFieldRow(item, imageField.source);
+      hideAuthoringFieldRow(item, imageAltField.source);
+      hideAuthoringFieldRow(item, backgroundColorField.source);
+      hideAuthoringFieldRow(item, textColorField.source);
+    }
+    return item;
+  }
+
   if (isAuthoringItem) {
     hideAuthoringFieldRow(item, findOwnItemField(row, 'image'));
     hideAuthoringFieldRow(item, findOwnItemField(row, 'imageAlt'));
+    hideAuthoringFieldRow(item, findOwnItemField(row, 'text'));
+    hideAuthoringFieldRow(item, findOwnItemField(row, 'backgroundColor'));
+    hideAuthoringFieldRow(item, findOwnItemField(row, 'textColor'));
     const placeholder = document.createElement('div');
     placeholder.className = 'gallery-grid-item-placeholder is-authoring-placeholder';
-    placeholder.textContent = 'Add a background image here. Add Cards or Statistics directly to the Gallery Grid.';
+    placeholder.textContent = 'Add a background image or text content here. Add Cards or Statistics directly to the Gallery Grid.';
     item.append(placeholder);
     return item;
   }

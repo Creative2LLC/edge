@@ -155,6 +155,15 @@
   background: rgb(255 255 255 / 5%);
 }
 
+/* Heading/intro sit outside the table surface, so their default ink color depends on
+   what's behind them — dark navy for a light page background (the default), or white
+   when this block itself sits on a dark section background. Independent of Table Style,
+   which only controls the table surface's own colors. */
+.impact-data-table.impact-data-table-text-light {
+  --impact-data-table-ink: #fff;
+  --impact-data-table-muted: rgb(255 255 255 / 78%);
+}
+
 .impact-data-table .impact-data-table-disclaimer {
   max-width: 980px;
   margin: 0 auto;
