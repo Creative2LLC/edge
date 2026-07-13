@@ -604,13 +604,24 @@ function appendLegacyActions(row, body, startIndex) {
   });
 }
 
-function buildCard(row) {
+function buildCard(row, isEditor) {
   const li = document.createElement('li');
   li.className = 'cards-card';
   moveInstrumentation(row, li);
 
-  const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
-  const textField = readRichTextField(row, 'text', { fallbackCell: row.children[1] });
+  // Fields with no authored value (and, empirically, color-select fields even WITH a
+  // value — they export as a bare uninstrumented <a href="#hex"> anchor with no
+  // data-aue-prop at all) frequently don't get reliable per-field row positions. In the
+  // editor, name-based data-aue-prop lookup is reliable whenever a field genuinely has
+  // that instrumentation, so never fall back to a position guess there — it was
+  // observed reading one field's leftover value into a completely different field
+  // (e.g. a background-color hex showing up as the disclaimer text). Positional
+  // fallback is kept for true published pages, where there's no instrumentation to
+  // name-match against at all.
+  const fallback = (index) => (isEditor ? null : row.children[index]);
+
+  const imageField = readImageField(row, 'image', { fallbackCell: fallback(0) });
+  const textField = readRichTextField(row, 'text', { fallbackCell: fallback(1) });
   setItemLabel(li, [fieldText(textField)]);
   const legacyActionStartIndex = !hasCardField(row) && hasActionContent(row.children[2]) ? 2 : 3;
   const highlightField = legacyActionStartIndex === 2
@@ -620,7 +631,7 @@ function buildCard(row) {
       html: '',
       text: '',
     }
-    : readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
+    : readRichTextField(row, 'highlightText', { fallbackCell: fallback(2) });
   // Fallback indices below match _cards.json's ACTUAL current field order (fields were
   // regrouped under UI tabs by a later commit, which changed this order without the
   // fixed-index reads here being updated — that drift was misreading one field's stored
@@ -628,21 +639,21 @@ function buildCard(row) {
   // cardBackgroundColor, cardTextColor, highlightTextColor, cardTextSize, highlightTextSize,
   // disclaimerFontSize, markerTerms, markerColor, markerStyle, cardAlignment,
   // cardPaddingStyle, imageAlt. "tab" model entries are UI-only and consume no row.
-  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: row.children[3] });
-  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: row.children[4] });
-  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: row.children[5] });
+  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: fallback(3) });
+  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: fallback(4) });
+  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: fallback(5) });
   const highlightTextColorField = readTextField(row, 'highlightTextColor', {
-    fallbackCell: row.children[6],
+    fallbackCell: fallback(6),
   });
-  const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: row.children[7] });
-  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: row.children[8] });
-  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: row.children[9] });
-  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: row.children[10] });
-  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: row.children[11] });
-  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: row.children[12] });
-  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: row.children[13] });
-  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: row.children[14] });
-  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: row.children[15] });
+  const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: fallback(7) });
+  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: fallback(8) });
+  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: fallback(9) });
+  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: fallback(10) });
+  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: fallback(11) });
+  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: fallback(12) });
+  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: fallback(13) });
+  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: fallback(14) });
+  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: fallback(15) });
   const cardBackground = normalizeColorValue(cardBackgroundField.value);
   const cardTextColor = normalizeColorValue(cardTextColorField.value);
   const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
@@ -840,7 +851,7 @@ export default function decorate(block) {
       return;
     }
 
-    ul.append(buildCard(row));
+    ul.append(buildCard(row, isEditor));
   });
 
   const archive = archiveHiddenRows(block, isEditor);

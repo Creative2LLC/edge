@@ -465,7 +465,16 @@ function getBlockConfigRows(rows) {
     !hasAueResource(row) && hasNamedField(row, BLOCK_FIELD_NAMES)
   ));
 
-  if (namedFieldRows.length) return namedFieldRows;
+  if (namedFieldRows.length) {
+    // Fields left empty by the author often get no data-aue-prop instrumentation on their
+    // row at all (confirmed empirically), so hasNamedField can't match them — they still
+    // occupy a row in sequence, just an anonymous one. Sweep in every non-resource row up
+    // through the LAST named match instead of returning only the matched rows themselves,
+    // so those anonymous empty-field rows get correctly treated as config (and hidden)
+    // rather than falling through as visible empty divs.
+    const lastNamedIndex = candidateRows.lastIndexOf(namedFieldRows[namedFieldRows.length - 1]);
+    return candidateRows.slice(0, lastNamedIndex + 1).filter((row) => !hasAueResource(row));
+  }
 
   const firstResourceIndex = rows.findIndex(hasAueResource);
   if (firstResourceIndex > 0) {

@@ -30,6 +30,17 @@ function fieldCell(row) {
   return row.children.length > 1 ? row.children[1] : row.children[0] || row;
 }
 
+// Fields with no authored value frequently don't get their own row in the exported
+// markup at all (confirmed empirically: a 29-field model rendered only 13 rows total
+// for a partially-filled instance). A `cellAt()` offset guess still returns SOME row
+// in that case — just the wrong one, belonging to whichever field happens to occupy
+// that position for THIS particular instance's row count. In the editor, named
+// `data-aue-prop` lookup is reliable whenever a field actually has content (confirmed:
+// every populated field in the same sample carried its own aue-prop binding), so a
+// failed name lookup there means the field is genuinely empty — never fall back to a
+// position guess in that case. Positional fallback is only meaningful on true published
+// pages (no instrumentation to name-match against at all), so it's kept there.
+//
 // In the editor, hide (don't remove) rows that carry Universal Editor instrumentation —
 // permanently removing an aue-tracked node desyncs UE's resource tree from the DOM,
 // which shifts every later imageMode-relative offset read on the NEXT decoration pass
@@ -37,7 +48,7 @@ function fieldCell(row) {
 function readField(block, name, labels = [], fallbackCell = null, isEditor = false) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
+    fallbackCell: isEditor ? null : fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -50,7 +61,7 @@ function readField(block, name, labels = [], fallbackCell = null, isEditor = fal
 function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
+    fallbackCell: isEditor ? null : fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -63,7 +74,7 @@ function readColorField(block, name, labels = [], isEditor = false, fallbackCell
 function readRichField(block, name, labels = [], fallbackCell = null, isEditor = false) {
   const field = readRichTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
+    fallbackCell: isEditor ? null : fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -74,7 +85,10 @@ function readRichField(block, name, labels = [], fallbackCell = null, isEditor =
 }
 
 function readImage(block, name, labels = [], fallbackCell = null, isEditor = false) {
-  const field = readImageField(block, name, { labels, fallbackCell });
+  const field = readImageField(block, name, {
+    labels,
+    fallbackCell: isEditor ? null : fallbackCell,
+  });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
     if (isEditor && field.source) row.hidden = true;
@@ -84,7 +98,10 @@ function readImage(block, name, labels = [], fallbackCell = null, isEditor = fal
 }
 
 function readLink(block, name, labels = [], fallbackCell = null, isEditor = false) {
-  const field = readLinkField(block, name, { labels, fallbackCell });
+  const field = readLinkField(block, name, {
+    labels,
+    fallbackCell: isEditor ? null : fallbackCell,
+  });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
     if (isEditor && field.source) row.hidden = true;
@@ -220,78 +237,22 @@ function buildButton(buttonTextField, buttonLinkField, buttonTargetField) {
   return button;
 }
 
-function ensureTextWrapper(block) {
-  let wrapper = block.querySelector('.colored-icon-text-text-wrapper');
-  if (wrapper) return wrapper;
-
-  const inner = block.querySelector('.colored-icon-text-inner');
-  if (!inner) return null;
-
-  wrapper = document.createElement('div');
-  wrapper.className = 'colored-icon-text-text-wrapper';
-
-  const rightMedia = block.classList.contains('colored-icon-text-media-right')
-    ? inner.querySelector(':scope > .colored-icon-text-media')
-    : null;
-  if (rightMedia) inner.insertBefore(wrapper, rightMedia);
-  else inner.append(wrapper);
-
-  return wrapper;
-}
-
-function setResourceRichText(element, html, propName) {
-  const resourceHtml = String(html || '').trim();
-  if (!element || !resourceHtml) return;
-
-  if (!element.children.length || element.classList.contains('is-authoring-placeholder')) {
-    element.classList.remove('is-authoring-placeholder');
-    element.innerHTML = resourceHtml;
-    element.setAttribute('data-richtext-prop', propName);
-  }
-}
-
-function syncResourceRichText(block, selector, className, propName, html, getParent) {
-  const resourceHtml = String(html || '').trim();
-  if (!resourceHtml) return null;
-
-  let element = block.querySelector(selector);
-  if (!element) {
-    const parent = getParent();
-    if (!parent) return null;
-
-    element = document.createElement('div');
-    element.className = className;
-    parent.append(element);
-  }
-
-  setResourceRichText(element, resourceHtml, propName);
-  return element;
-}
-
-function ensureLabelRow(block) {
-  const wrapper = ensureTextWrapper(block);
-  if (!wrapper) return null;
-
-  let row = wrapper.querySelector(':scope > .colored-icon-text-label-row');
-  if (row) return row;
-
-  row = document.createElement('div');
-  row.className = 'colored-icon-text-label-row';
-  wrapper.prepend(row);
-  return row;
-}
-
+// Only style/CSS-var fields are synced from the fetched resource JSON — content fields
+// (label, labelPart2, text, text2) used to be injected here too via a create-if-missing
+// syncResourceRichText helper, but that trusted whatever the .json resource endpoint
+// returned by field name, and on at least one confirmed occasion it returned a stale/
+// duplicate value for an empty field (text2 came back identical to text, producing a
+// duplicated paragraph the author never authored). The synchronous decorate() pass
+// already renders content fields correctly from live DOM instrumentation, so injecting
+// content again from this async fetch is redundant at best; a wrong color/size from a
+// stale fetch is comparatively harmless and easy to spot, so only that risk is kept.
 function syncResourceColorFields(resourcePath, block) {
   readAueResourceFields(resourcePath, [
     'textColor',
     'blockBackgroundColor',
-    'label',
     'labelColor',
-    'labelPart2',
     'labelColor2',
     'labelFontSize',
-    'text',
-    'text2',
     'text2Color',
     'text2FontSize',
   ])
@@ -313,39 +274,6 @@ function syncResourceColorFields(resourcePath, block) {
       if (Object.prototype.hasOwnProperty.call(fields, 'labelColor2')) {
         applyLabelColor(block, fields.labelColor2, '--colored-icon-text-label-color-2');
       }
-
-      syncResourceRichText(
-        block,
-        '.colored-icon-text-label',
-        'colored-icon-text-label',
-        'label',
-        fields.label,
-        () => ensureLabelRow(block),
-      );
-      syncResourceRichText(
-        block,
-        '.colored-icon-text-label-2',
-        'colored-icon-text-label colored-icon-text-label-2',
-        'labelPart2',
-        fields.labelPart2,
-        () => ensureLabelRow(block),
-      );
-      syncResourceRichText(
-        block,
-        '.colored-icon-text-content',
-        'colored-icon-text-content',
-        'text',
-        fields.text,
-        () => ensureTextWrapper(block),
-      );
-      syncResourceRichText(
-        block,
-        '.colored-icon-text-text2',
-        'colored-icon-text-text2',
-        'text2',
-        fields.text2,
-        () => ensureTextWrapper(block),
-      );
     });
 }
 
