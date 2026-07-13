@@ -713,6 +713,14 @@ function buildCard(row, isEditor) {
   // fallback is kept for true published pages, where there's no instrumentation to
   // name-match against at all.
   const fallback = (index) => (isEditor ? null : row.children[index]);
+  // Hex-color "select" fields (regex-validated) render in the editor as a bare
+  // <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
+  // unlike every other field type, which does get real instrumentation whenever it has
+  // content. Name-based lookup can never succeed for these, so positional fallback must
+  // stay enabled in the editor too for them, unlike `fallback` above (this caused a live
+  // regression: cards falling back to default colors because these fields could never
+  // be read in the editor).
+  const fallbackColor = (index) => row.children[index];
 
   const imageField = readImageField(row, 'image', { fallbackCell: fallback(0) });
   const textField = readRichTextField(row, 'text', { fallbackCell: fallback(1) });
@@ -734,16 +742,16 @@ function buildCard(row, isEditor) {
   // disclaimerFontSize, markerTerms, markerColor, markerStyle, cardAlignment,
   // cardPaddingStyle, imageAlt. "tab" model entries are UI-only and consume no row.
   const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: fallback(3) });
-  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: fallback(4) });
-  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: fallback(5) });
+  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: fallbackColor(4) });
+  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: fallbackColor(5) });
   const highlightTextColorField = readTextField(row, 'highlightTextColor', {
-    fallbackCell: fallback(6),
+    fallbackCell: fallbackColor(6),
   });
   const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: fallback(7) });
   const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: fallback(8) });
   const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: fallback(9) });
   const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: fallback(10) });
-  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: fallback(11) });
+  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: fallbackColor(11) });
   const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: fallback(12) });
   const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: fallback(13) });
   const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: fallback(14) });

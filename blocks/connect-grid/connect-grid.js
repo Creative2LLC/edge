@@ -78,9 +78,17 @@ function getParentFallbackCell(scope, rowIndex) {
   return row?.children?.[0] || row || null;
 }
 
-function getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor) {
+// Hex-color "select" fields (regex-validated) render in the editor as a bare
+// <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
+// unlike every other field type, which does get real instrumentation whenever it has
+// content. Name-based lookup can never succeed for these, so positional fallback must
+// stay enabled in the editor too for them (this caused a live regression: cards falling
+// back to default colors because these fields could never be read in the editor).
+const ALWAYS_POSITIONAL_FIELDS = new Set(['iconColor', 'cardBackgroundColor', 'cardHoverBackgroundColor']);
+
+function getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor, name) {
   if (rowIndexMap !== ITEM_COLUMN_INDEX) return getParentFallbackCell(scope, rowIndex);
-  if (isEditor) return null;
+  if (isEditor && !ALWAYS_POSITIONAL_FIELDS.has(name)) return null;
   return scope.children[columnIndex];
 }
 
@@ -92,10 +100,10 @@ function getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor) {
 // field is genuinely empty — never fall back to a position guess in that case. Positional
 // fallback is kept for true published pages, where there's no instrumentation to name-match
 // against at all. Matches colored-icon-text.js's readField/readColorField/readRichField/
-// readImage pattern.
+// readImage pattern. Exception: ALWAYS_POSITIONAL_FIELDS above.
 function getField(scope, name, rowIndexMap, columnIndex = 0, isEditor = false) {
   const rowIndex = rowIndexMap?.[name];
-  const fallbackCell = getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor);
+  const fallbackCell = getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor, name);
   const field = readTextField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return { ...field, source: field.source || field.cell };
 }

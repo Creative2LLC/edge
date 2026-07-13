@@ -57,10 +57,17 @@ function readField(block, name, labels = [], fallbackCell = null, isEditor = fal
   return field;
 }
 
+// Hex-color "select" fields (regex-validated) render in the editor as a bare
+// <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
+// unlike every other field type, which does get real instrumentation whenever it has
+// content. Name-based lookup can never succeed for these, so unlike readField below,
+// positional fallback must stay enabled in the editor too, or these fields always read
+// empty (this caused a live regression: color pickers falling back to defaults because
+// the field could never be read in the editor).
 function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell: isEditor ? null : fallbackCell,
+    fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {

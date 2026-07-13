@@ -14,6 +14,17 @@ function getField(block, rows, name, index, isEditor) {
   return readTextField(block, name, { fallbackCell: isEditor ? null : rows[index] });
 }
 
+// Hex-color "select" fields (regex-validated) render in the editor as a bare
+// <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
+// unlike every other field type, which does get real instrumentation whenever it has
+// content. Name-based lookup can never succeed for these, so unlike getField above,
+// positional fallback must stay enabled in the editor too, or these fields always read
+// empty (this caused a live regression: color pickers falling back to defaults because
+// the field could never be read in the editor).
+function getColorField(block, rows, name, index) {
+  return readTextField(block, name, { fallbackCell: rows[index] });
+}
+
 function getRichField(block, rows, name, index, isEditor) {
   return readRichTextField(block, name, { fallbackCell: isEditor ? null : rows[index] });
 }
@@ -83,17 +94,17 @@ export default function decorate(block) {
   const titleField = getField(block, rows, 'title', 0, isEditor);
   const subtitleField = getRichField(block, rows, 'subtitle', 1, isEditor);
   const belowButtonTextField = getRichField(block, rows, 'belowButtonText', 2, isEditor);
-  const gradientLeftField = getField(block, rows, 'gradientLeft', 3, isEditor);
-  const gradientRightField = getField(block, rows, 'gradientRight', 4, isEditor);
+  const gradientLeftField = getColorField(block, rows, 'gradientLeft', 3);
+  const gradientRightField = getColorField(block, rows, 'gradientRight', 4);
   const buttonTextField = getField(block, rows, 'buttonText', 5, isEditor);
   const buttonLinkField = getLinkField(block, rows, 'buttonLink', 6, isEditor);
-  const buttonColorField = getField(block, rows, 'buttonColor', 7, isEditor);
-  const buttonTextColorField = getField(block, rows, 'buttonTextColor', 8, isEditor);
+  const buttonColorField = getColorField(block, rows, 'buttonColor', 7);
+  const buttonTextColorField = getColorField(block, rows, 'buttonTextColor', 8);
   const buttonSubtextField = getField(block, rows, 'buttonSubtext', 9, isEditor);
   const button2TextField = getField(block, rows, 'button2Text', 10, isEditor);
   const button2LinkField = getLinkField(block, rows, 'button2Link', 11, isEditor);
-  const button2ColorField = getField(block, rows, 'button2Color', 12, isEditor);
-  const button2BackgroundColorField = getField(block, rows, 'button2BackgroundColor', 13, isEditor);
+  const button2ColorField = getColorField(block, rows, 'button2Color', 12);
+  const button2BackgroundColorField = getColorField(block, rows, 'button2BackgroundColor', 13);
   const button2SubtextField = getField(block, rows, 'button2Subtext', 14, isEditor);
   const button2LocationField = getField(block, rows, 'button2Location', 15, isEditor);
   const button3TextField = getField(block, rows, 'button3Text', 16, isEditor);

@@ -171,6 +171,18 @@ function getField(row, name, index, isEditor) {
   return { source: field.source, value: field.value };
 }
 
+// Hex-color "select" fields (regex-validated) render in the editor as a bare
+// <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
+// unlike every other field type, which does get real instrumentation whenever it has
+// content. Name-based lookup can never succeed for these, so unlike getField above,
+// positional fallback must stay enabled in the editor too, or these fields always read
+// empty (this caused a live regression: cards falling back to the default near-black
+// background because cardBackgroundColor could never be read).
+function getColorField(row, name, index) {
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
+}
+
 function getLinkField(row, name, index, isEditor) {
   const fallbackCell = isEditor ? null : row.children[index];
   const field = readLinkField(row, name, { fallbackCell });
@@ -635,34 +647,30 @@ export default function decorate(block) {
     const buttonTextField = getField(row, 'buttonText', ITEM_FIELD_INDEX.buttonText, isEditor);
     const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink, isEditor);
     const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle, isEditor);
-    const cardBgField = getField(
+    const cardBgField = getColorField(
       row,
       'cardBackgroundColor',
       ITEM_FIELD_INDEX.cardBackgroundColor,
-      isEditor,
     );
-    const cardHoverBgField = getField(
+    const cardHoverBgField = getColorField(
       row,
       'cardHoverBackgroundColor',
       ITEM_FIELD_INDEX.cardHoverBackgroundColor,
-      isEditor,
     );
-    const buttonBgField = getField(
+    const buttonBgField = getColorField(
       row,
       'buttonBackgroundColor',
       ITEM_FIELD_INDEX.buttonBackgroundColor,
-      isEditor,
     );
     const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text, isEditor);
     const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link, isEditor);
     const button2StyleField = getField(row, 'button2Style', ITEM_FIELD_INDEX.button2Style, isEditor);
-    const button2BgField = getField(
+    const button2BgField = getColorField(
       row,
       'button2BackgroundColor',
       ITEM_FIELD_INDEX.button2BackgroundColor,
-      isEditor,
     );
-    const iconColorField = getField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor, isEditor);
+    const iconColorField = getColorField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor);
     const textStyleField = getField(row, 'textColor', ITEM_FIELD_INDEX.textColor, isEditor);
     const overlayField = getImageField(row, 'overlayImage', ITEM_FIELD_INDEX.overlayImage, isEditor);
     const cardStyleField = getField(row, 'cardStyle', ITEM_FIELD_INDEX.cardStyle, isEditor);
