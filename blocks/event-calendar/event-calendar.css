@@ -77,14 +77,17 @@
 
 .event-calendar .event-calendar-featured-card {
   display: grid;
-  gap: 18px;
+  gap: 0;
   min-width: 0;
   border: 0;
   padding: 0;
-  background: transparent;
+  border-radius: 8px;
+  background: #fff;
   color: inherit;
   cursor: pointer;
   font: inherit;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgb(17 58 103 / 8%);
   text-align: left;
 }
 
@@ -100,7 +103,7 @@
   justify-content: center;
   overflow: hidden;
   aspect-ratio: 1.58;
-  border-radius: 10px;
+  border-radius: 6px 6px 0 0;
   background: var(--event-calendar-navy);
   color: #fff;
   font-size: 1.45rem;
@@ -130,6 +133,8 @@
 .event-calendar .event-calendar-featured-content {
   display: grid;
   gap: 6px;
+  padding: 18px 20px 22px;
+  background: #fff;
 }
 
 .event-calendar .event-calendar-featured-date {
