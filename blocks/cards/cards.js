@@ -44,6 +44,17 @@ const CARD_FIELD_NAMES = [
   'imageAlt',
 ];
 
+const CARD_STYLE_FIELD_NAMES = [
+  'cardBackgroundColor',
+  'cardTextColor',
+  'highlightTextColor',
+  'cardTextSize',
+  'highlightTextSize',
+  'disclaimerFontSize',
+  'cardAlignment',
+  'cardPaddingStyle',
+];
+
 const DEFAULT_SETTINGS = {
   textAlignment: 'left',
   defaultCardBackgroundColor: '',
@@ -423,6 +434,88 @@ function syncResourceSettings(resourcePath, block) {
     });
 }
 
+function hasOwnField(fields, name) {
+  return Object.prototype.hasOwnProperty.call(fields, name);
+}
+
+function setCssVariable(element, name, value) {
+  if (value) element.style.setProperty(name, value);
+  else element.style.removeProperty(name);
+}
+
+function applyCardStyles(li, fields = {}, partial = false) {
+  if (!partial || hasOwnField(fields, 'cardBackgroundColor')) {
+    const cardBackground = normalizeColorValue(fields.cardBackgroundColor);
+    li.classList.toggle('cards-card-has-background', Boolean(cardBackground));
+    setCssVariable(li, '--cards-card-bg', cardBackground);
+  }
+
+  if (!partial || hasOwnField(fields, 'cardTextColor')) {
+    setCssVariable(li, '--cards-card-text', normalizeColorValue(fields.cardTextColor));
+  }
+
+  if (!partial || hasOwnField(fields, 'highlightTextColor')) {
+    setCssVariable(li, '--cards-card-highlight', normalizeColorValue(fields.highlightTextColor));
+  }
+
+  if (!partial || hasOwnField(fields, 'cardTextSize')) {
+    setCssVariable(li, '--cards-card-text-size', normalizeCssLength(fields.cardTextSize, 'font-size'));
+  }
+
+  if (!partial || hasOwnField(fields, 'highlightTextSize')) {
+    setCssVariable(
+      li,
+      '--cards-card-highlight-size',
+      normalizeCssLength(fields.highlightTextSize, 'font-size'),
+    );
+  }
+
+  if (!partial || hasOwnField(fields, 'disclaimerFontSize')) {
+    setCssVariable(
+      li,
+      '--cards-card-disclaimer-size',
+      normalizeCssLength(fields.disclaimerFontSize, 'font-size'),
+    );
+  }
+
+  if (!partial || hasOwnField(fields, 'cardPaddingStyle')) {
+    const cardPadding = computeCardPadding(fields.cardPaddingStyle);
+    ['top', 'right', 'bottom', 'left'].forEach((side) => {
+      setCssVariable(li, `--cards-card-padding-${side}`, cardPadding?.[side] || '');
+    });
+  }
+
+  if (!partial || hasOwnField(fields, 'cardAlignment')) {
+    li.classList.remove(
+      'cards-card-align-left',
+      'cards-card-align-center',
+      'cards-card-align-right',
+      'cards-card-align-justify',
+    );
+    const cardAlignment = normalizeOption(
+      fields.cardAlignment,
+      ['left', 'center', 'right', 'justify'],
+      '',
+    );
+    if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
+  }
+}
+
+function syncResourceCardStyles(resourcePath, li) {
+  readAueResourceFields(resourcePath, CARD_STYLE_FIELD_NAMES)
+    .then((fields) => {
+      if (Object.keys(fields).length) applyCardStyles(li, fields, true);
+    });
+}
+
+function watchCardStyleField(field, li, name) {
+  if (!field.source) return;
+
+  new MutationObserver(() => {
+    applyCardStyles(li, { [name]: field.source.textContent?.trim() || '' }, true);
+  }).observe(field.source, { childList: true, characterData: true, subtree: true });
+}
+
 function hasCardField(row) {
   return CARD_FIELD_NAMES.some((name) => (
     row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`)
@@ -607,6 +700,7 @@ function appendLegacyActions(row, body, startIndex) {
 function buildCard(row, isEditor) {
   const li = document.createElement('li');
   li.className = 'cards-card';
+  const resourcePath = getAueResourcePath(row);
   moveInstrumentation(row, li);
 
   // Fields with no authored value (and, empirically, color-select fields even WITH a
@@ -654,34 +748,16 @@ function buildCard(row, isEditor) {
   const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: fallback(13) });
   const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: fallback(14) });
   const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: fallback(15) });
-  const cardBackground = normalizeColorValue(cardBackgroundField.value);
-  const cardTextColor = normalizeColorValue(cardTextColorField.value);
-  const highlightTextColor = normalizeColorValue(highlightTextColorField.value);
-  const cardTextSize = normalizeCssLength(cardTextSizeField.value, 'font-size');
-  const highlightTextSize = normalizeCssLength(highlightTextSizeField.value, 'font-size');
-  const cardPadding = computeCardPadding(cardPaddingStyleField.value);
-  const cardAlignment = normalizeOption(
-    cardAlignmentField.value,
-    ['left', 'center', 'right', 'justify'],
-    '',
-  );
-
-  if (cardBackground) {
-    li.classList.add('cards-card-has-background');
-    li.style.setProperty('--cards-card-bg', cardBackground);
-  }
-
-  if (cardTextColor) li.style.setProperty('--cards-card-text', cardTextColor);
-  if (highlightTextColor) li.style.setProperty('--cards-card-highlight', highlightTextColor);
-  if (cardTextSize) li.style.setProperty('--cards-card-text-size', cardTextSize);
-  if (highlightTextSize) li.style.setProperty('--cards-card-highlight-size', highlightTextSize);
-  if (cardPadding) {
-    li.style.setProperty('--cards-card-padding-top', cardPadding.top);
-    li.style.setProperty('--cards-card-padding-right', cardPadding.right);
-    li.style.setProperty('--cards-card-padding-bottom', cardPadding.bottom);
-    li.style.setProperty('--cards-card-padding-left', cardPadding.left);
-  }
-  if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
+  applyCardStyles(li, {
+    cardBackgroundColor: cardBackgroundField.value,
+    cardTextColor: cardTextColorField.value,
+    highlightTextColor: highlightTextColorField.value,
+    cardTextSize: cardTextSizeField.value,
+    highlightTextSize: highlightTextSizeField.value,
+    disclaimerFontSize: disclaimerFontSizeField.value,
+    cardAlignment: cardAlignmentField.value,
+    cardPaddingStyle: cardPaddingStyleField.value,
+  });
 
   const image = buildImage(
     imageField,
@@ -698,10 +774,6 @@ function buildCard(row, isEditor) {
   if (disclaimerField.value || disclaimerField.source) {
     const disclaimerEl = document.createElement('div');
     disclaimerEl.className = 'cards-card-disclaimer';
-    const disclaimerFontSize = normalizeCssLength(disclaimerFontSizeField.value, 'font-size');
-    if (disclaimerFontSize) {
-      disclaimerEl.style.setProperty('--cards-card-disclaimer-size', disclaimerFontSize);
-    }
     if (disclaimerField.source) {
       moveInstrumentation(disclaimerField.source, disclaimerEl);
       while (disclaimerField.source.firstChild) {
@@ -743,6 +815,20 @@ function buildCard(row, isEditor) {
   if (hasAuthoringContext(row)) {
     row.hidden = true;
     li.append(row);
+  }
+
+  if (isEditor) {
+    [
+      ['cardBackgroundColor', cardBackgroundField],
+      ['cardTextColor', cardTextColorField],
+      ['highlightTextColor', highlightTextColorField],
+      ['cardTextSize', cardTextSizeField],
+      ['highlightTextSize', highlightTextSizeField],
+      ['disclaimerFontSize', disclaimerFontSizeField],
+      ['cardAlignment', cardAlignmentField],
+      ['cardPaddingStyle', cardPaddingStyleField],
+    ].forEach(([name, field]) => watchCardStyleField(field, li, name));
+    syncResourceCardStyles(resourcePath, li);
   }
 
   return li;
