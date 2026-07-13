@@ -20,6 +20,118 @@ function isValidHexColor(value) {
   return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
 }
 
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function fieldText(row) {
+  return fieldCell(row)?.textContent?.trim() || '';
+}
+
+function isButtonLocation(value) {
+  return /^(?:left|right)$/i.test(String(value || '').trim());
+}
+
+function isStyleType(value) {
+  return /^variant-[1-4]$/i.test(String(value || '').trim());
+}
+
+function rowAt(rows, index) {
+  return index >= 0 && index < rows.length ? fieldCell(rows[index]) : null;
+}
+
+function lastIndexBefore(values, beforeIndex, predicate) {
+  for (let index = beforeIndex - 1; index >= 0; index -= 1) {
+    if (predicate(values[index])) return index;
+  }
+  return -1;
+}
+
+function readPublishedFallbackCells(rows) {
+  const values = rows.map(fieldText);
+  const cells = {};
+  let index = 0;
+
+  cells.title = rowAt(rows, index);
+  index += 1;
+  cells.subtitle = rowAt(rows, index);
+  index += 1;
+
+  // Optional rich text rows are omitted from published markup when empty. Only consume
+  // belowButtonText when it is followed by the color run that starts the background fields;
+  // otherwise the first button label would be mistaken for below-button copy on simpler cards.
+  if (
+    values[index]
+    && !isValidHexColor(values[index])
+    && (isValidHexColor(values[index + 1]) || isValidHexColor(values[index + 2]))
+  ) {
+    cells.belowButtonText = rowAt(rows, index);
+    index += 1;
+  }
+
+  if (isValidHexColor(values[index])) {
+    cells.gradientLeft = rowAt(rows, index);
+    index += 1;
+  }
+  if (isValidHexColor(values[index])) {
+    cells.gradientRight = rowAt(rows, index);
+    index += 1;
+  }
+
+  cells.buttonText = rowAt(rows, index);
+  index += 1;
+  cells.buttonLink = rowAt(rows, index);
+  index += 1;
+
+  if (isValidHexColor(values[index])) {
+    cells.buttonColor = rowAt(rows, index);
+    index += 1;
+  }
+  if (isValidHexColor(values[index])) {
+    cells.buttonTextColor = rowAt(rows, index);
+    index += 1;
+  }
+
+  const styleIndex = lastIndexBefore(values, values.length, isStyleType);
+  if (styleIndex >= 0) cells.styleType = rowAt(rows, styleIndex);
+
+  const tailEnd = styleIndex >= 0 ? styleIndex : values.length;
+  const locationIndex = lastIndexBefore(values, tailEnd, isButtonLocation);
+  if (locationIndex >= 0) cells.button2Location = rowAt(rows, locationIndex);
+
+  let beforeLocation = locationIndex >= 0 ? locationIndex : tailEnd;
+
+  if (beforeLocation > index && !isValidHexColor(values[beforeLocation - 1])) {
+    cells.button2Subtext = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 1;
+  }
+  if (beforeLocation > index && isValidHexColor(values[beforeLocation - 1])) {
+    cells.button2BackgroundColor = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 1;
+  }
+  if (beforeLocation > index && isValidHexColor(values[beforeLocation - 1])) {
+    cells.button2Color = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 1;
+  }
+  if (beforeLocation - index >= 2) {
+    cells.button2Text = rowAt(rows, beforeLocation - 2);
+    cells.button2Link = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 2;
+  }
+  if (beforeLocation > index) {
+    cells.buttonSubtext = rowAt(rows, index);
+  }
+
+  if (locationIndex >= 0 && styleIndex > locationIndex) {
+    const afterLocation = locationIndex + 1;
+    if (afterLocation < styleIndex) cells.button3Text = rowAt(rows, afterLocation);
+    if (afterLocation + 1 < styleIndex) cells.button3Link = rowAt(rows, afterLocation + 1);
+  }
+
+  return cells;
+}
+
 // Fields with no authored value frequently don't get their own row in the exported
 // markup at all, so a positional fallback can silently grab a completely different
 // field's value. In the editor, named data-aue-prop lookup is reliable whenever a
@@ -27,8 +139,8 @@ function isValidHexColor(value) {
 // genuinely empty — never fall back to a position guess in that case. Positional
 // fallback is only meaningful on true published pages (see cards.js /
 // colored-icon-text.js for the same pattern).
-function getField(block, rows, name, index, isEditor) {
-  return readTextField(block, name, { fallbackCell: isEditor ? null : rows[index] });
+function getField(block, name, fallbackCell, isEditor) {
+  return readTextField(block, name, { fallbackCell: isEditor ? null : fallbackCell });
 }
 
 // Hex-color "select" fields (regex-validated) render in the editor as a bare
@@ -38,16 +150,16 @@ function getField(block, rows, name, index, isEditor) {
 // positional fallback must stay enabled in the editor too, or these fields always read
 // empty (this caused a live regression: color pickers falling back to defaults because
 // the field could never be read in the editor).
-function getColorField(block, rows, name, index) {
-  return readTextField(block, name, { fallbackCell: rows[index] });
+function getColorField(block, name, fallbackCell) {
+  return readTextField(block, name, { fallbackCell });
 }
 
-function getRichField(block, rows, name, index, isEditor) {
-  return readRichTextField(block, name, { fallbackCell: isEditor ? null : rows[index] });
+function getRichField(block, name, fallbackCell, isEditor) {
+  return readRichTextField(block, name, { fallbackCell: isEditor ? null : fallbackCell });
 }
 
-function getLinkField(block, rows, name, index, isEditor) {
-  return readLinkField(block, name, { fallbackCell: isEditor ? null : rows[index] });
+function getLinkField(block, name, fallbackCell, isEditor) {
+  return readLinkField(block, name, { fallbackCell: isEditor ? null : fallbackCell });
 }
 
 function directRowOf(block, element) {
@@ -149,29 +261,42 @@ function syncColors(block, styleType, defaultLeftColor, defaultRightColor) {
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const rows = getBlockRows(block);
+  const publishedCells = isEditor ? {} : readPublishedFallbackCells(rows);
+  const fallbackCell = (name, index) => (
+    isEditor ? fieldCell(rows[index]) : publishedCells[name] || null
+  );
 
   // Indices below match _cta-card-1.json's ACTUAL current field order (fields were
   // regrouped under UI tabs by a later commit — belowButtonText was pulled to the front
   // of the Content tab, right after subtitle, shifting every button field after it).
-  const titleField = getField(block, rows, 'title', 0, isEditor);
-  const subtitleField = getRichField(block, rows, 'subtitle', 1, isEditor);
-  const belowButtonTextField = getRichField(block, rows, 'belowButtonText', 2, isEditor);
-  const gradientLeftField = getColorField(block, rows, 'gradientLeft', 3);
-  const gradientRightField = getColorField(block, rows, 'gradientRight', 4);
-  const buttonTextField = getField(block, rows, 'buttonText', 5, isEditor);
-  const buttonLinkField = getLinkField(block, rows, 'buttonLink', 6, isEditor);
-  const buttonColorField = getColorField(block, rows, 'buttonColor', 7);
-  const buttonTextColorField = getColorField(block, rows, 'buttonTextColor', 8);
-  const buttonSubtextField = getField(block, rows, 'buttonSubtext', 9, isEditor);
-  const button2TextField = getField(block, rows, 'button2Text', 10, isEditor);
-  const button2LinkField = getLinkField(block, rows, 'button2Link', 11, isEditor);
-  const button2ColorField = getColorField(block, rows, 'button2Color', 12);
-  const button2BackgroundColorField = getColorField(block, rows, 'button2BackgroundColor', 13);
-  const button2SubtextField = getField(block, rows, 'button2Subtext', 14, isEditor);
-  const button2LocationField = getField(block, rows, 'button2Location', 15, isEditor);
-  const button3TextField = getField(block, rows, 'button3Text', 16, isEditor);
-  const button3LinkField = getLinkField(block, rows, 'button3Link', 17, isEditor);
-  const styleTypeField = getField(block, rows, 'styleType', 18, isEditor);
+  const titleField = getField(block, 'title', fallbackCell('title', 0), isEditor);
+  const subtitleField = getRichField(block, 'subtitle', fallbackCell('subtitle', 1), isEditor);
+  const belowButtonTextField = getRichField(
+    block,
+    'belowButtonText',
+    fallbackCell('belowButtonText', 2),
+    isEditor,
+  );
+  const gradientLeftField = getColorField(block, 'gradientLeft', fallbackCell('gradientLeft', 3));
+  const gradientRightField = getColorField(block, 'gradientRight', fallbackCell('gradientRight', 4));
+  const buttonTextField = getField(block, 'buttonText', fallbackCell('buttonText', 5), isEditor);
+  const buttonLinkField = getLinkField(block, 'buttonLink', fallbackCell('buttonLink', 6), isEditor);
+  const buttonColorField = getColorField(block, 'buttonColor', fallbackCell('buttonColor', 7));
+  const buttonTextColorField = getColorField(block, 'buttonTextColor', fallbackCell('buttonTextColor', 8));
+  const buttonSubtextField = getField(block, 'buttonSubtext', fallbackCell('buttonSubtext', 9), isEditor);
+  const button2TextField = getField(block, 'button2Text', fallbackCell('button2Text', 10), isEditor);
+  const button2LinkField = getLinkField(block, 'button2Link', fallbackCell('button2Link', 11), isEditor);
+  const button2ColorField = getColorField(block, 'button2Color', fallbackCell('button2Color', 12));
+  const button2BackgroundColorField = getColorField(
+    block,
+    'button2BackgroundColor',
+    fallbackCell('button2BackgroundColor', 13),
+  );
+  const button2SubtextField = getField(block, 'button2Subtext', fallbackCell('button2Subtext', 14), isEditor);
+  const button2LocationField = getField(block, 'button2Location', fallbackCell('button2Location', 15), isEditor);
+  const button3TextField = getField(block, 'button3Text', fallbackCell('button3Text', 16), isEditor);
+  const button3LinkField = getLinkField(block, 'button3Link', fallbackCell('button3Link', 17), isEditor);
+  const styleTypeField = getField(block, 'styleType', fallbackCell('styleType', 18), isEditor);
   const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
   if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
   removeOrHideField(block, button2LocationField.source, isEditor);
