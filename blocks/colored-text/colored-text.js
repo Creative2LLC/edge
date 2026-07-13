@@ -158,13 +158,22 @@ function watchBlockBackgroundField(source, block) {
   }).observe(source, { childList: true, characterData: true, subtree: true });
 }
 
-function syncResourceColorFields(resourcePath, block) {
-  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor'])
+// markerColor is also a hex-color select field, so it's just as vulnerable to the
+// row-position drift as textColor/blockBackgroundColor above — added here for the same
+// reason. applyAnimatedMarkers() (scripts/animated-marker.js) sets the marker color as
+// the --text-marker-color custom property on `markerRoot`, so correcting it after the
+// fact is just a style update, not a re-run of the marker-wrapping logic.
+function syncResourceColorFields(resourcePath, block, markerRoot) {
+  readAueResourceFields(resourcePath, ['textColor', 'blockBackgroundColor', 'markerColor'])
     .then((fields) => {
       const color = normalizeColorValue(fields.textColor);
       if (color) block.style.setProperty('--colored-text-color', color);
       if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
         applyBlockBackground(block, fields.blockBackgroundColor);
+      }
+      const markerColor = normalizeColorValue(fields.markerColor);
+      if (markerColor && markerRoot) {
+        markerRoot.style.setProperty('--text-marker-color', markerColor);
       }
     });
 }
@@ -503,6 +512,6 @@ export default function decorate(block) {
     },
   ]);
 
-  syncResourceColorFields(resourcePath, block);
+  syncResourceColorFields(resourcePath, block, content);
   syncColoredFieldLayoutOptions(resourcePath, block, 'colored-text');
 }

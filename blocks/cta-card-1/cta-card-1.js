@@ -1,7 +1,24 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
-  getBlockRows, readLinkField, readRichTextField, readTextField,
+  getAueResourcePath,
+  getBlockRows,
+  readAueResourceFields,
+  readLinkField,
+  readRichTextField,
+  readTextField,
 } from '../../scripts/block-field-utils.js';
+
+// Hex-color select fields never get data-aue-prop instrumentation in the editor, so their
+// positional fallback is only as reliable as the fixed index it's given — which breaks
+// whenever an EARLIER field (even a non-color one) has no row of its own and everything
+// after it shifts. A resource JSON fetch, keyed by field name, sidesteps row position
+// entirely and is the authoritative correction. Matches the pattern in cards.js /
+// info-cards-grid.js / connect-grid.js.
+const COLOR_FIELD_NAMES = ['gradientLeft', 'gradientRight', 'buttonColor', 'buttonTextColor', 'button2Color', 'button2BackgroundColor'];
+
+function isValidHexColor(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
+}
 
 // Fields with no authored value frequently don't get their own row in the exported
 // markup at all, so a positional fallback can silently grab a completely different
@@ -82,6 +99,51 @@ function buildRichTextElement(tag, className, field) {
     el.textContent = field.text || '';
   }
   return el;
+}
+
+// Corrects color fields using the resource's own JSON (keyed by field name, so it's
+// immune to the row-position drift that breaks positional fallback). Fires after the
+// block already rendered with its best synchronous guess; only touches fields the fetch
+// actually returned a valid hex value for, so a malformed/unexpected API response can't
+// corrupt an already-correct render.
+function syncColors(block, styleType, defaultLeftColor, defaultRightColor) {
+  const resourcePath = getAueResourcePath(block);
+  if (!resourcePath) return;
+
+  readAueResourceFields(resourcePath, COLOR_FIELD_NAMES)
+    .then((fields) => {
+      Object.keys(fields).forEach((key) => {
+        if (!isValidHexColor(fields[key])) delete fields[key];
+      });
+      if (!Object.keys(fields).length) return;
+
+      if (fields.gradientLeft || fields.gradientRight) {
+        const leftColor = fields.gradientLeft || defaultLeftColor;
+        const rightColor = fields.gradientRight || defaultRightColor;
+        block.style.setProperty('background', `linear-gradient(to right, ${leftColor}, ${rightColor})`, 'important');
+      }
+
+      const primaryBtn = block.querySelector(
+        '.cta-card-1-button:not(.cta-card-1-button-secondary):not(.cta-card-1-button-tertiary)',
+      );
+      if (primaryBtn) {
+        if (fields.buttonColor) primaryBtn.style.setProperty('background-color', fields.buttonColor, 'important');
+        if (fields.buttonTextColor) primaryBtn.style.setProperty('color', fields.buttonTextColor, 'important');
+      }
+
+      const secondaryBtn = block.querySelector('.cta-card-1-button-secondary');
+      if (secondaryBtn) {
+        if (fields.button2Color) {
+          if (styleType !== 'variant-3') {
+            secondaryBtn.style.setProperty('border', `1px solid ${fields.button2Color}`, 'important');
+          }
+          secondaryBtn.style.setProperty('color', fields.button2Color, 'important');
+        }
+        if (fields.button2BackgroundColor) {
+          secondaryBtn.style.setProperty('background-color', fields.button2BackgroundColor, 'important');
+        }
+      }
+    });
 }
 
 export default function decorate(block) {
@@ -276,5 +338,9 @@ export default function decorate(block) {
     block.replaceChildren(left, right, archive);
   } else {
     block.replaceChildren(left, right);
+  }
+
+  if (isEditor) {
+    syncColors(block, styleType, leftColor, rightColor);
   }
 }

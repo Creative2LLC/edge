@@ -1,7 +1,24 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
-  readImageField, readRichTextField, readTextField, setItemLabel,
+  getAueResourcePath,
+  readAueResourceFields,
+  readImageField,
+  readRichTextField,
+  readTextField,
+  setItemLabel,
 } from '../../scripts/block-field-utils.js';
+
+// Hex-color select fields never get data-aue-prop instrumentation in the editor, so their
+// positional fallback is only as reliable as the fixed index it's given — which breaks
+// whenever an EARLIER field on the same card (even a non-color one) has no row of its own
+// and everything after it shifts. A per-card fetch of the resource's own JSON, keyed by
+// field name, sidesteps row position entirely and is the authoritative correction. Matches
+// the pattern already proven in cards.js / info-cards-grid.js.
+const CARD_COLOR_FIELD_NAMES = ['iconColor', 'cardBackgroundColor', 'cardHoverBackgroundColor'];
+
+function isValidHexColor(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
+}
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -320,8 +337,36 @@ function buildMethod(method) {
   return wrapper;
 }
 
-function buildCard(item, index) {
+// Corrects color fields using the resource's own JSON (keyed by field name, so it's
+// immune to the row-position drift that breaks positional fallback — see
+// CARD_COLOR_FIELD_NAMES above). Fires after the card already rendered with its best
+// synchronous guess; only touches fields the fetch actually returned a valid hex value
+// for, so a malformed/unexpected API response can't corrupt an already-correct card.
+function syncCardColors(resourcePath, card) {
+  readAueResourceFields(resourcePath, CARD_COLOR_FIELD_NAMES)
+    .then((fields) => {
+      Object.keys(fields).forEach((key) => {
+        if (!isValidHexColor(fields[key])) delete fields[key];
+      });
+      if (!Object.keys(fields).length) return;
+
+      if (fields.cardBackgroundColor) {
+        card.style.setProperty('--connect-grid-card-bg', fields.cardBackgroundColor);
+      }
+      if (fields.cardHoverBackgroundColor) {
+        card.classList.add('has-hover-bg');
+        card.style.setProperty('--connect-grid-card-hover-bg', fields.cardHoverBackgroundColor);
+      }
+      if (fields.iconColor) {
+        const icon = card.querySelector(':scope > .connect-grid-card-media.is-icon');
+        if (icon) icon.style.setProperty('background-color', fields.iconColor, 'important');
+      }
+    });
+}
+
+function buildCard(item, index, isEditor) {
   const card = document.createElement('article');
+  const resourcePath = item.row ? getAueResourcePath(item.row) : '';
   card.className = 'connect-grid-card connect-grid-reveal';
   card.style.setProperty('--stagger-index', index);
   card.style.setProperty(
@@ -396,6 +441,10 @@ function buildCard(item, index) {
   if (item.row && hasAuthoringContext(item.row)) {
     item.row.hidden = true;
     card.append(item.row);
+  }
+
+  if (isEditor && resourcePath) {
+    syncCardColors(resourcePath, card);
   }
 
   return card;
@@ -616,7 +665,7 @@ export default function decorate(block) {
   grid.style.setProperty('--connect-grid-columns', columnsField.value || DEFAULTS.columns);
 
   cards.forEach((card, index) => {
-    grid.append(buildCard(card, index));
+    grid.append(buildCard(card, index, isEditor));
   });
 
   inner.append(grid);
