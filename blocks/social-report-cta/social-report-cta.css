@@ -96,6 +96,7 @@
 }
 
 .social-report-cta .social-report-cta-social {
+  position: relative;
   display: grid;
   grid-template-columns: 62px minmax(0, 1fr) 26px;
   gap: 14px;
@@ -108,6 +109,7 @@
   background: linear-gradient(135deg, #fff 0%, #f6fbfe 100%);
   box-shadow: 0 12px 26px rgb(9 35 72 / 8%);
   text-decoration: none;
+  overflow: hidden;
   transition:
     transform 220ms ease,
     border-color 220ms ease,
@@ -115,16 +117,44 @@
     background 220ms ease;
 }
 
+.social-report-cta .social-report-cta-social::before {
+  content: '';
+  position: absolute;
+  inset: -35% auto -35% -65%;
+  width: 44%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgb(255 255 255 / 0%) 20%,
+    rgb(255 255 255 / 68%) 50%,
+    rgb(255 255 255 / 0%) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+  transform: skewX(-18deg);
+  transition: left 520ms ease;
+}
+
 .social-report-cta .social-report-cta-social:not(.is-empty):hover,
 .social-report-cta .social-report-cta-social:not(.is-empty):focus-visible {
   transform: translateY(-3px);
   border-color: rgb(252 184 19 / 60%);
   background: linear-gradient(135deg, var(--social-report-cta-cream) 0%, #fff 100%);
-  box-shadow: 0 18px 34px rgb(9 35 72 / 13%);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px var(--social-report-cta-gold),
+    0 18px 34px rgb(9 35 72 / 13%);
   text-decoration: none;
 }
 
+.social-report-cta .social-report-cta-social:not(.is-empty):hover::before,
+.social-report-cta .social-report-cta-social:not(.is-empty):focus-visible::before {
+  left: 125%;
+}
+
 .social-report-cta .social-report-cta-social-icon {
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   width: 62px;
@@ -148,7 +178,16 @@
   font-size: 1.55rem;
 }
 
+.social-report-cta .social-report-cta-social:not(.is-empty):hover
+  .social-report-cta-social-icon,
+.social-report-cta .social-report-cta-social:not(.is-empty):focus-visible
+  .social-report-cta-social-icon {
+  animation: social-report-cta-social-pop 620ms cubic-bezier(0.2, 1.35, 0.35, 1);
+}
+
 .social-report-cta .social-report-cta-social-copy {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -177,6 +216,23 @@
   border: 2px solid currentcolor;
   border-radius: 999px;
   color: var(--social-report-cta-blue);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.social-report-cta .social-report-cta-social-arrow {
+  z-index: 1;
+}
+
+.social-report-cta .social-report-cta-social:not(.is-empty):hover
+  .social-report-cta-social-arrow,
+.social-report-cta .social-report-cta-social:not(.is-empty):focus-visible
+  .social-report-cta-social-arrow {
+  color: var(--social-report-cta-navy);
+  background-color: var(--social-report-cta-gold);
+  transform: translateX(3px);
 }
 
 .social-report-cta .social-report-cta-social-arrow::before,
@@ -293,14 +349,25 @@
 .social-report-cta .social-report-cta-report-button:not(.is-empty):hover,
 .social-report-cta .social-report-cta-report-button:not(.is-empty):focus-visible {
   transform: translateY(-2px);
-  background: #113a67;
-  box-shadow: 0 22px 34px rgb(9 35 72 / 28%);
+  background-color: rgb(9 35 72 / 90%);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px var(--social-report-cta-gold),
+    0 20px 34px rgb(9 35 72 / 22%);
   text-decoration: none;
 }
 
 .social-report-cta .social-report-cta-report-button-icon {
   flex: 0 0 auto;
   color: #00aeef;
+}
+
+.social-report-cta .social-report-cta-report-button:not(.is-empty):hover
+  .social-report-cta-report-button-icon,
+.social-report-cta .social-report-cta-report-button:not(.is-empty):focus-visible
+  .social-report-cta-report-button-icon {
+  color: var(--social-report-cta-gold);
+  transform: translateX(3px);
 }
 
 .social-report-cta .social-report-cta-placeholder {
@@ -365,8 +432,31 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .social-report-cta .social-report-cta-social::before,
+  .social-report-cta .social-report-cta-social-icon,
+  .social-report-cta .social-report-cta-social-arrow,
+  .social-report-cta .social-report-cta-report-button-icon,
   .social-report-cta .social-report-cta-social,
   .social-report-cta .social-report-cta-report-button {
+    animation: none;
     transition: none;
+  }
+}
+
+@keyframes social-report-cta-social-pop {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  35% {
+    transform: scale(1.12) rotate(-6deg);
+  }
+
+  70% {
+    transform: scale(0.96) rotate(4deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
   }
 }

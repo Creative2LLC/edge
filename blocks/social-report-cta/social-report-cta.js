@@ -23,6 +23,9 @@ const FIELD_INDEX = {
   reportImageAlt: 12,
   reportButtonText: 13,
   reportButtonLink: 14,
+  reportPanelDisplay: 15,
+  backgroundColor: 16,
+  backgroundGradient: 17,
 };
 
 const SOCIALS = [
@@ -93,6 +96,16 @@ function getImageField(block, name, isEditor) {
 
 function textValue(field) {
   return field?.value?.trim() || field?.text?.trim() || '';
+}
+
+function reportDisplayMode(field) {
+  const value = textValue(field).toLowerCase();
+  return ['auto', 'show', 'hide'].includes(value) ? value : 'auto';
+}
+
+function applyCustomBackground(inner, colorField, gradientField) {
+  const background = textValue(gradientField) || textValue(colorField);
+  if (background) inner.style.background = background;
 }
 
 function richFieldHasContent(field) {
@@ -215,10 +228,10 @@ function buildReportImage(imageField, altField, isEditor) {
   return wrap.childElementCount ? wrap : null;
 }
 
-function buildReportButton(labelField, linkField, isEditor) {
+function buildReportButton(labelField, linkField, showEmptyButton = false) {
   const href = textValue(linkField);
   const label = textValue(labelField) || (href ? 'Download the PDF' : '');
-  if (!label && !href && !isEditor) return null;
+  if (!href && !showEmptyButton) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
   button.className = 'social-report-cta-report-button';
@@ -229,6 +242,9 @@ function buildReportButton(labelField, linkField, isEditor) {
   const text = document.createElement('span');
   text.className = 'social-report-cta-report-button-text';
   moveFieldContent(labelField, text, label || 'Add PDF button text');
+  if (!text.textContent.trim() && !text.childElementCount) {
+    text.textContent = label || 'Add PDF button text';
+  }
 
   const icon = document.createElement('span');
   icon.className = 'social-report-cta-report-button-icon';
@@ -243,6 +259,9 @@ export default function decorate(block) {
   const eyebrowField = getTextField(block, 'eyebrow', isEditor);
   const socialHeadingField = getTextField(block, 'socialHeading', isEditor);
   const socialIntroField = getRichField(block, 'socialIntro', isEditor);
+  const backgroundColorField = getTextField(block, 'backgroundColor', isEditor);
+  const backgroundGradientField = getTextField(block, 'backgroundGradient', isEditor);
+  const reportPanelDisplayField = getTextField(block, 'reportPanelDisplay', isEditor);
   const reportHeadingField = getTextField(block, 'reportHeading', isEditor);
   const reportBodyField = getRichField(block, 'reportBody', isEditor);
   const reportImageField = getImageField(block, 'reportImage', isEditor);
@@ -261,10 +280,15 @@ export default function decorate(block) {
       || reportImageField.img
       || textValue(reportButtonLinkField),
   );
+  const displayMode = reportDisplayMode(reportPanelDisplayField);
+  const shouldRenderReport = displayMode === 'show'
+    ? isEditor || hasReportContent
+    : displayMode !== 'hide' && hasReportContent;
 
   const inner = document.createElement('div');
   inner.className = 'social-report-cta-inner';
-  if (!hasReportContent && !isEditor) inner.classList.add('is-social-only');
+  applyCustomBackground(inner, backgroundColorField, backgroundGradientField);
+  if (!shouldRenderReport) inner.classList.add('is-social-only');
 
   const socialPanel = document.createElement('section');
   socialPanel.className = 'social-report-cta-panel social-report-cta-social-panel';
@@ -302,7 +326,7 @@ export default function decorate(block) {
   socialPanel.append(socialGrid);
   inner.append(socialPanel);
 
-  if (hasReportContent || isEditor) {
+  if (shouldRenderReport) {
     const reportPanel = document.createElement('section');
     reportPanel.className = 'social-report-cta-panel social-report-cta-report-panel';
     reportPanel.setAttribute('aria-label', 'Report download');
@@ -325,7 +349,11 @@ export default function decorate(block) {
     const reportBody = buildRichContent(reportBodyField, 'social-report-cta-report-body');
     if (reportBody) reportContent.append(reportBody);
 
-    const button = buildReportButton(reportButtonTextField, reportButtonLinkField, isEditor);
+    const button = buildReportButton(
+      reportButtonTextField,
+      reportButtonLinkField,
+      isEditor && displayMode === 'show',
+    );
     if (button) reportContent.append(button);
 
     reportPanel.append(reportContent);

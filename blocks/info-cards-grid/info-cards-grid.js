@@ -1,12 +1,29 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
+  getAueResourcePath,
   getFieldSelector,
+  readAueResourceFields,
   readImageField,
   readLinkField,
   readRichTextField,
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+
+// Hex-color "select" fields never get data-aue-prop instrumentation in the editor (see
+// getColorField below), so their positional fallback is only as reliable as the fixed
+// index it's given — which breaks whenever an EARLIER field on the same card (even a
+// non-color one, like an empty button) has no row of its own and everything after it
+// shifts. A per-card fetch of the resource's own JSON, keyed by field NAME, sidesteps
+// row position entirely and is the authoritative correction. Matches the pattern already
+// proven in cards.js's syncResourceCardStyles/applyCardStyles.
+const CARD_COLOR_FIELD_NAMES = [
+  'iconColor',
+  'cardBackgroundColor',
+  'cardHoverBackgroundColor',
+  'buttonBackgroundColor',
+  'button2BackgroundColor',
+];
 
 const BLOCK_FIELD_INDEX = {
   columns: 0,
@@ -413,6 +430,68 @@ function buildIcon(content, data) {
   content.append(wrap);
 }
 
+function restyleIcon(content, data) {
+  content.querySelectorAll(':scope > .info-cards-grid-card-icon, :scope > .info-cards-grid-card-icon-wrap')
+    .forEach((el) => el.remove());
+  // buildIcon() always appends — fine on first render since content is still empty at
+  // that point, but here the title/subtitle/body text block is already in place, so
+  // appending would push the icon below the text. Build into a scratch parent instead
+  // and prepend the result to preserve icon-before-text order.
+  const scratch = document.createElement('div');
+  buildIcon(scratch, data);
+  if (scratch.firstElementChild) content.prepend(scratch.firstElementChild);
+}
+
+function restyleCardButtons(card, data, cardBg, variant) {
+  const buttons = [...card.querySelectorAll(':scope > .info-cards-grid-card-buttons > .info-cards-grid-card-button')];
+  if (buttons[0]) styleCardButton(buttons[0], data.buttonBg, data.buttonStyle, cardBg, variant);
+  if (buttons[1]) styleCardButton(buttons[1], data.button2Bg, data.button2Style, cardBg, variant);
+}
+
+function isValidHexColor(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
+}
+
+// Corrects color fields using the resource's own JSON (keyed by field name, so it's
+// immune to the row-position drift that breaks positional fallback — see
+// CARD_COLOR_FIELD_NAMES above). Fires after the card already rendered with its best
+// synchronous guess; only touches fields the fetch actually returned a valid hex value
+// for, so a malformed/unexpected API response can't corrupt an already-correct card.
+function syncCardColors(resourcePath, card, content, data, variant) {
+  readAueResourceFields(resourcePath, CARD_COLOR_FIELD_NAMES)
+    .then((fields) => {
+      Object.keys(fields).forEach((key) => {
+        if (!isValidHexColor(fields[key])) delete fields[key];
+      });
+      if (!Object.keys(fields).length) return;
+
+      if (fields.cardBackgroundColor) {
+        card.style.setProperty('--info-card-bg', fields.cardBackgroundColor);
+      }
+      if (fields.cardHoverBackgroundColor) {
+        card.classList.add('info-cards-grid-card-has-hover-bg');
+        card.style.setProperty('--info-card-hover-bg', fields.cardHoverBackgroundColor);
+      }
+      const cardBg = fields.cardBackgroundColor
+        || card.style.getPropertyValue('--info-card-bg')
+        || data.cardBg;
+
+      if (fields.iconColor && fields.iconColor !== data.iconColor) {
+        restyleIcon(content, { ...data, iconColor: fields.iconColor });
+      }
+      if (
+        (fields.buttonBackgroundColor && fields.buttonBackgroundColor !== data.buttonBg)
+        || (fields.button2BackgroundColor && fields.button2BackgroundColor !== data.button2Bg)
+      ) {
+        restyleCardButtons(card, {
+          ...data,
+          buttonBg: fields.buttonBackgroundColor || data.buttonBg,
+          button2Bg: fields.button2BackgroundColor || data.button2Bg,
+        }, cardBg, variant);
+      }
+    });
+}
+
 function applyTextStyles(card, textStyles) {
   if (!textStyles) return;
 
@@ -430,10 +509,11 @@ function applyTextStyles(card, textStyles) {
   if (textStyles.bodySize) card.style.setProperty('--info-card-body-size', textStyles.bodySize);
 }
 
-function buildCard(data, index, variant) {
+function buildCard(data, index, variant, isEditor) {
   const card = document.createElement('div');
   card.className = 'info-cards-grid-card';
   card.style.setProperty('--info-card-index', index);
+  const resourcePath = data.row ? getAueResourcePath(data.row) : '';
   if (data.row) moveInstrumentation(data.row, card);
   setItemLabel(card, [data.titleField.value, data.subtitleField.value]);
 
@@ -523,6 +603,10 @@ function buildCard(data, index, variant) {
   if (data.row && hasAuthoringContext(data.row)) {
     data.row.hidden = true;
     card.append(data.row);
+  }
+
+  if (isEditor && resourcePath) {
+    syncCardColors(resourcePath, card, content, data, variant);
   }
 
   return card;
@@ -727,7 +811,7 @@ export default function decorate(block) {
   grid.classList.add(`info-cards-grid-inner-align-${cardContentAlignment}`);
   grid.style.setProperty('--grid-columns', columns);
 
-  const cardElements = cards.map((data, index) => buildCard(data, index, variant));
+  const cardElements = cards.map((data, index) => buildCard(data, index, variant, isEditor));
   const orphanCount = columns > 1 ? cardElements.length % columns : 0;
   const fullRowCount = cardElements.length - orphanCount;
 

@@ -23264,13 +23264,52 @@
         "component": "text",
         "valueType": "string",
         "name": "reportButtonText",
-        "label": "Report Button Text",
-        "value": "Download the PDF"
+        "label": "Report Button Text (Optional)",
+        "description": "Only renders when a report PDF link is provided.",
+        "value": ""
       },
       {
         "component": "aem-content",
         "name": "reportButtonLink",
         "label": "Report PDF Link (Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "reportPanelDisplay",
+        "label": "Report Panel Display",
+        "description": "Auto shows the report panel only when report content exists.",
+        "value": "auto",
+        "options": [
+          {
+            "name": "Auto (show when populated)",
+            "value": "auto"
+          },
+          {
+            "name": "Show in authoring",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundColor",
+        "label": "Background Color (Optional)",
+        "description": "CSS color for the full CTA background. Example: #e9fbff.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "backgroundGradient",
+        "label": "Background Gradient (Optional)",
+        "description": "CSS background value. Overrides Background Color when set.",
+        "value": ""
       }
     ]
   },
