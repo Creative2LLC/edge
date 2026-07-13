@@ -10970,6 +10970,39 @@
         "label": "Empty Month Message",
         "description": "Shown when there are no events in the displayed month.",
         "value": "No events this month."
+      },
+      {
+        "component": "select",
+        "name": "defaultView",
+        "label": "Default View",
+        "description": "Choose whether visitors first see the calendar or event table.",
+        "value": "calendar",
+        "options": [
+          {
+            "name": "Calendar",
+            "value": "calendar"
+          },
+          {
+            "name": "Table",
+            "value": "table"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tableHeading",
+        "label": "Table Heading",
+        "description": "Heading displayed above the table view.",
+        "value": "Upcoming NCMEC Events"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "featuredCount",
+        "label": "Featured Event Count",
+        "description": "Number of event cards shown above the calendar/table. Use 0 to hide.",
+        "value": "2"
       }
     ]
   },

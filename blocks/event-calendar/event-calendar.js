@@ -8,12 +8,18 @@ const DEFAULTS = {
   heading: '',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   emptyMessage: 'No events this month.',
+  defaultView: 'calendar',
+  tableHeading: 'Upcoming NCMEC Events',
+  featuredCount: 2,
 };
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
   apiBaseUrl: ['api base url', 'api url', 'backend url'],
   emptyMessage: ['empty message', 'no events message'],
+  defaultView: ['default view', 'view mode', 'mode'],
+  tableHeading: ['table heading', 'events table heading'],
+  featuredCount: ['featured event count', 'featured count', 'card count'],
 };
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -28,6 +34,18 @@ function normalizeText(value) {
 
 function normalizeApiBaseUrl(value) {
   return normalizeText(value).replace(/\/+$/, '');
+}
+
+function normalizeView(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  if (normalized.includes('table')) return 'table';
+  return 'calendar';
+}
+
+function normalizeCount(value, fallback) {
+  const count = Number.parseInt(normalizeText(value), 10);
+  if (Number.isNaN(count)) return fallback;
+  return Math.max(0, Math.min(count, 6));
 }
 
 function getRows(block) {
@@ -80,6 +98,70 @@ function eventCoversDay(event, key) {
   return event.end_datetime.slice(0, 10) >= key;
 }
 
+function dateParts(event) {
+  const [year = '', month = '', day = ''] = normalizeText(event.start_date).split('-');
+  return { year, month, day };
+}
+
+function formatCardDate(event) {
+  const { year, month, day } = dateParts(event);
+  if (!year || !month || !day) return '';
+  return `${month}-${day}-${year}`;
+}
+
+function formatTableDate(event) {
+  const { year, month, day } = dateParts(event);
+  if (!year || !month || !day) return '';
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+}
+
+function formatModalDate(event) {
+  const { year, month, day } = dateParts(event);
+  if (!year || !month || !day) return '';
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+function formatEventTime(event) {
+  const timePart = event.start_time || '';
+  const endTimePart = event.end_time ? ` – ${event.end_time}` : '';
+  return timePart ? `${timePart}${endTimePart}` : '';
+}
+
+function truncateText(value, maxLength = 130) {
+  const text = normalizeText(value);
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength).trim().replace(/[.,;:!?-]+$/, '')}...`;
+}
+
+function locationParts(event) {
+  const location = normalizeText(event.location);
+  const explicitCityState = normalizeText(event.city_state || event.cityState);
+
+  if (!location) {
+    return { venue: '', cityState: explicitCityState };
+  }
+
+  const lines = location.split(/\r?\n/).map(normalizeText).filter(Boolean);
+  if (lines.length > 1) {
+    return {
+      venue: lines[0],
+      cityState: explicitCityState || lines.slice(1).join(', '),
+    };
+  }
+
+  return {
+    venue: normalizeText(event.venue || event.location_name) || location,
+    cityState: explicitCityState,
+  };
+}
+
 function createModal() {
   const modal = document.createElement('dialog');
   modal.className = 'event-calendar-modal';
@@ -96,29 +178,45 @@ function createModal() {
   closeBtn.textContent = '×';
   closeBtn.addEventListener('click', () => modal.close());
 
-  const titleEl = document.createElement('h3');
-  titleEl.id = 'event-calendar-modal-title';
-
-  const whenEl = document.createElement('time');
-  whenEl.className = 'event-calendar-modal-time';
-
-  const locationEl = document.createElement('p');
-  locationEl.className = 'event-calendar-modal-location';
-
-  const descriptionEl = document.createElement('p');
-  descriptionEl.className = 'event-calendar-modal-description';
+  const media = document.createElement('div');
+  media.className = 'event-calendar-modal-media';
 
   const imgEl = document.createElement('img');
   imgEl.className = 'event-calendar-modal-image';
   imgEl.loading = 'lazy';
+  media.append(imgEl);
+
+  const content = document.createElement('div');
+  content.className = 'event-calendar-modal-content';
+
+  const eyebrow = document.createElement('p');
+  eyebrow.className = 'event-calendar-modal-eyebrow';
+  eyebrow.textContent = 'Event Details';
+
+  const titleEl = document.createElement('h3');
+  titleEl.id = 'event-calendar-modal-title';
+
+  const meta = document.createElement('div');
+  meta.className = 'event-calendar-modal-meta';
+
+  const whenEl = document.createElement('span');
+  whenEl.className = 'event-calendar-modal-chip is-date';
+
+  const locationEl = document.createElement('span');
+  locationEl.className = 'event-calendar-modal-chip is-location';
+
+  const descriptionEl = document.createElement('p');
+  descriptionEl.className = 'event-calendar-modal-description';
 
   const linkEl = document.createElement('a');
   linkEl.className = 'event-calendar-modal-link';
   linkEl.target = '_blank';
   linkEl.rel = 'noopener noreferrer';
-  linkEl.textContent = 'Learn more';
+  linkEl.textContent = 'View event details';
 
-  inner.append(closeBtn, titleEl, whenEl, locationEl, descriptionEl, imgEl, linkEl);
+  meta.append(whenEl, locationEl);
+  content.append(eyebrow, titleEl, meta, descriptionEl, linkEl);
+  inner.append(closeBtn, media, content);
   modal.append(inner);
 
   // Close on backdrop click
@@ -129,26 +227,21 @@ function createModal() {
   function openModal(event) {
     titleEl.textContent = event.title;
 
-    const datePart = event.start_datetime
-      ? new Date(event.start_datetime).toLocaleDateString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-      })
-      : '';
-    const timePart = event.start_time || '';
-    const endTimePart = event.end_time ? ` – ${event.end_time}` : '';
-    whenEl.setAttribute('datetime', event.start_datetime || '');
-    whenEl.textContent = timePart ? `${datePart} · ${timePart}${endTimePart}` : datePart;
+    const datePart = formatModalDate(event);
+    const timePart = formatEventTime(event);
+    whenEl.textContent = timePart ? `${datePart} · ${timePart}` : datePart;
     whenEl.hidden = !datePart;
 
-    locationEl.textContent = event.location || '';
-    locationEl.hidden = !event.location;
+    const { venue, cityState } = locationParts(event);
+    locationEl.textContent = [venue, cityState].filter(Boolean).join(' · ');
+    locationEl.hidden = !locationEl.textContent;
 
     descriptionEl.textContent = event.description || '';
     descriptionEl.hidden = !event.description;
 
     imgEl.src = event.image_url || '';
     imgEl.alt = event.title;
-    imgEl.hidden = !event.image_url;
+    media.hidden = !event.image_url;
 
     linkEl.href = event.external_url || '#';
     linkEl.hidden = !event.external_url;
@@ -157,6 +250,62 @@ function createModal() {
   }
 
   return { modal, openModal };
+}
+
+function buildEventImage(event, className) {
+  const image = document.createElement('div');
+  image.className = className;
+
+  if (event.image_url) {
+    const img = document.createElement('img');
+    img.src = event.image_url;
+    img.alt = event.title || 'Event image';
+    img.loading = 'lazy';
+    image.append(img);
+    return image;
+  }
+
+  image.classList.add('is-placeholder');
+  image.textContent = 'NCMEC';
+  return image;
+}
+
+function renderFeaturedEvents(container, events, count, openModal) {
+  container.replaceChildren();
+
+  const featured = events.slice(0, count);
+  if (!featured.length) {
+    container.hidden = true;
+    return;
+  }
+
+  container.hidden = false;
+  featured.forEach((event) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'event-calendar-featured-card';
+    card.addEventListener('click', () => openModal(event));
+
+    const content = document.createElement('span');
+    content.className = 'event-calendar-featured-content';
+
+    const date = document.createElement('span');
+    date.className = 'event-calendar-featured-date';
+    date.textContent = formatCardDate(event);
+
+    const title = document.createElement('span');
+    title.className = 'event-calendar-featured-title';
+    title.textContent = event.title || 'Event';
+
+    const description = document.createElement('span');
+    description.className = 'event-calendar-featured-description';
+    description.textContent = truncateText(event.description);
+
+    content.append(date, title);
+    if (description.textContent) content.append(description);
+    card.append(buildEventImage(event, 'event-calendar-featured-image'), content);
+    container.append(card);
+  });
 }
 
 function renderGrid(grid, events, year, month, openModal) {
@@ -211,15 +360,102 @@ function renderGrid(grid, events, year, month, openModal) {
   grid.append(weekdaysRow, daysEl);
 }
 
+function renderTable(container, heading, events, openModal, emptyMessage) {
+  container.replaceChildren();
+
+  if (!events.length) {
+    const empty = document.createElement('p');
+    empty.className = 'event-calendar-empty';
+    empty.textContent = emptyMessage;
+    container.append(empty);
+    return;
+  }
+
+  if (heading) {
+    const headingEl = document.createElement('h3');
+    headingEl.className = 'event-calendar-table-heading';
+    headingEl.textContent = heading;
+    container.append(headingEl);
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'event-calendar-table-wrap';
+
+  const table = document.createElement('table');
+  table.className = 'event-calendar-table';
+
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  ['Date', 'Event', 'Location', 'City, State'].forEach((label) => {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = label;
+    headerRow.append(th);
+  });
+  thead.append(headerRow);
+
+  const tbody = document.createElement('tbody');
+  events.forEach((event) => {
+    const { venue, cityState } = locationParts(event);
+    const row = document.createElement('tr');
+    row.tabIndex = 0;
+    row.role = 'button';
+    row.setAttribute('aria-label', `View details for ${event.title || 'event'}`);
+    row.addEventListener('click', () => openModal(event));
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openModal(event);
+      }
+    });
+
+    [
+      ['Date', formatTableDate(event)],
+      ['Event', event.title || 'Event'],
+      ['Location', venue],
+      ['City, State', cityState],
+    ].forEach(([label, value]) => {
+      const td = document.createElement('td');
+      td.dataset.label = label;
+      td.textContent = value;
+      row.append(td);
+    });
+
+    tbody.append(row);
+  });
+
+  table.append(thead, tbody);
+  wrap.append(table);
+  container.append(wrap);
+}
+
+async function fetchEvents(config, params = {}) {
+  const url = new URL('/api/events', `${config.apiBaseUrl}/`);
+  Object.entries(params).forEach(([key, value]) => {
+    url.searchParams.set(key, value);
+  });
+
+  const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const payload = await response.json();
+  return Array.isArray(payload?.data) ? payload.data : [];
+}
+
 export default async function decorate(block) {
   const config = {
     heading: getFieldValue(block, 'heading', 0, DEFAULTS.heading),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 1, DEFAULTS.apiBaseUrl)),
     emptyMessage: getFieldValue(block, 'emptyMessage', 2, DEFAULTS.emptyMessage),
+    defaultView: normalizeView(getFieldValue(block, 'defaultView', 3, DEFAULTS.defaultView)),
+    tableHeading: getFieldValue(block, 'tableHeading', 4, DEFAULTS.tableHeading),
+    featuredCount: normalizeCount(
+      getFieldValue(block, 'featuredCount', 5, DEFAULTS.featuredCount),
+      DEFAULTS.featuredCount,
+    ),
   };
 
   const now = new Date();
-  const state = { year: now.getFullYear(), month: now.getMonth() + 1 };
+  const state = { year: now.getFullYear(), month: now.getMonth() + 1, view: config.defaultView };
 
   const inner = document.createElement('div');
   inner.className = 'event-calendar-inner';
@@ -229,6 +465,28 @@ export default async function decorate(block) {
     headingEl.textContent = config.heading;
     inner.append(headingEl);
   }
+
+  const featured = document.createElement('div');
+  featured.className = 'event-calendar-featured';
+  featured.hidden = true;
+
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'event-calendar-view-toggle';
+  viewToggle.setAttribute('aria-label', 'Event view');
+
+  const calendarToggle = document.createElement('button');
+  calendarToggle.type = 'button';
+  calendarToggle.textContent = 'Calendar';
+
+  const tableToggle = document.createElement('button');
+  tableToggle.type = 'button';
+  tableToggle.textContent = 'Table';
+
+  viewToggle.append(calendarToggle, tableToggle);
+
+  const calendarPanel = document.createElement('div');
+  calendarPanel.className = 'event-calendar-panel';
+  calendarPanel.dataset.view = 'calendar';
 
   const controls = document.createElement('div');
   controls.className = 'event-calendar-controls';
@@ -256,10 +514,31 @@ export default async function decorate(block) {
   const grid = document.createElement('div');
   grid.className = 'event-calendar-grid';
 
+  calendarPanel.append(controls, status, grid);
+
+  const tablePanel = document.createElement('div');
+  tablePanel.className = 'event-calendar-panel';
+  tablePanel.dataset.view = 'table';
+
+  const tableStatus = document.createElement('p');
+  tableStatus.hidden = true;
+
+  const tableContainer = document.createElement('div');
+  tableContainer.className = 'event-calendar-table-container';
+  tablePanel.append(tableStatus, tableContainer);
+
   const { modal, openModal } = createModal();
 
-  inner.append(controls, status, grid, modal);
+  inner.append(featured, viewToggle, calendarPanel, tablePanel, modal);
   block.replaceChildren(inner);
+
+  function updateView() {
+    const isTable = state.view === 'table';
+    calendarPanel.hidden = isTable;
+    tablePanel.hidden = !isTable;
+    calendarToggle.setAttribute('aria-selected', isTable ? 'false' : 'true');
+    tableToggle.setAttribute('aria-selected', isTable ? 'true' : 'false');
+  }
 
   function updateMonthLabel() {
     monthLabel.textContent = `${MONTHS[state.month - 1]} ${state.year}`;
@@ -272,13 +551,7 @@ export default async function decorate(block) {
     grid.replaceChildren();
 
     try {
-      const url = new URL('/api/events', `${config.apiBaseUrl}/`);
-      url.searchParams.set('year', state.year);
-      url.searchParams.set('month', state.month);
-      const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload = await response.json();
-      const events = Array.isArray(payload?.data) ? payload.data : [];
+      const events = await fetchEvents(config, { year: state.year, month: state.month });
       setStatus(status, '', '');
       renderGrid(grid, events, state.year, state.month, openModal);
       if (!events.length) {
@@ -295,6 +568,21 @@ export default async function decorate(block) {
     }
   }
 
+  async function loadEventListings() {
+    setStatus(tableStatus, 'Loading events...', 'loading');
+    tableContainer.replaceChildren();
+
+    try {
+      const events = await fetchEvents(config, { all: 1 });
+      setStatus(tableStatus, '', '');
+      renderFeaturedEvents(featured, events, config.featuredCount, openModal);
+      renderTable(tableContainer, config.tableHeading, events, openModal, config.emptyMessage);
+    } catch {
+      featured.hidden = true;
+      setStatus(tableStatus, 'Events are unavailable at this time.', 'error');
+    }
+  }
+
   prev.addEventListener('click', () => {
     if (state.month === 1) { state.month = 12; state.year -= 1; } else { state.month -= 1; }
     updateMonthLabel();
@@ -307,6 +595,18 @@ export default async function decorate(block) {
     loadEvents();
   });
 
+  calendarToggle.addEventListener('click', () => {
+    state.view = 'calendar';
+    updateView();
+  });
+
+  tableToggle.addEventListener('click', () => {
+    state.view = 'table';
+    updateView();
+  });
+
+  updateView();
   updateMonthLabel();
   loadEvents();
+  loadEventListings();
 }
