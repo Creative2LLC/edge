@@ -120,6 +120,7 @@
 .social-report-cta .social-report-cta-social::before {
   content: '';
   position: absolute;
+  z-index: 1;
   inset: -35% auto -35% -65%;
   width: 44%;
   background: linear-gradient(
@@ -133,6 +134,22 @@
   pointer-events: none;
   transform: skewX(-18deg);
   transition: left 520ms ease;
+}
+
+.social-report-cta .social-report-cta-social::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--social-report-cta-cream) 0%, #fff 100%);
+  opacity: 0;
+  pointer-events: none;
+  transform: scaleX(0.18);
+  transform-origin: left center;
+  transition:
+    opacity 240ms ease,
+    transform 280ms ease;
 }
 
 .social-report-cta .social-report-cta-social:not(.is-empty):hover,
@@ -152,9 +169,15 @@
   left: 125%;
 }
 
+.social-report-cta .social-report-cta-social:not(.is-empty):hover::after,
+.social-report-cta .social-report-cta-social:not(.is-empty):focus-visible::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
 .social-report-cta .social-report-cta-social-icon {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   place-items: center;
   width: 62px;
@@ -187,7 +210,7 @@
 
 .social-report-cta .social-report-cta-social-copy {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -223,7 +246,7 @@
 }
 
 .social-report-cta .social-report-cta-social-arrow {
-  z-index: 1;
+  z-index: 2;
 }
 
 .social-report-cta .social-report-cta-social:not(.is-empty):hover
@@ -433,6 +456,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .social-report-cta .social-report-cta-social::before,
+  .social-report-cta .social-report-cta-social::after,
   .social-report-cta .social-report-cta-social-icon,
   .social-report-cta .social-report-cta-social-arrow,
   .social-report-cta .social-report-cta-report-button-icon,

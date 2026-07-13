@@ -1,10 +1,13 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
+  getAueResourcePath,
   readImageField,
   readLinkField,
+  readAueResourceFields,
   readRichTextField,
   readTextField,
+  resourcePathFromAueResource,
 } from '../../scripts/block-field-utils.js';
 
 const FIELD_INDEX = {
@@ -47,6 +50,13 @@ const SOCIALS = [
   {
     key: 'youtube', field: 'youtubeLink', label: 'YouTube', glyph: '▶', handle: '@NCMEC',
   },
+];
+
+const RESOURCE_FIELD_NAMES = [
+  ...SOCIALS.map((entry) => entry.field),
+  'reportButtonLink',
+  'backgroundColor',
+  'backgroundGradient',
 ];
 
 function directRows(block) {
@@ -98,14 +108,78 @@ function textValue(field) {
   return field?.value?.trim() || field?.text?.trim() || '';
 }
 
+function resourceValue(value) {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return resourcePathFromAueResource(trimmed) || trimmed;
+  }
+  if (Array.isArray(value)) return value.map(resourceValue).find(Boolean) || '';
+  if (typeof value !== 'object') return String(value).trim();
+
+  const aemPath = Object.getOwnPropertyDescriptor(value, '_path')?.value;
+
+  return [
+    value.href,
+    value.url,
+    value.path,
+    value.src,
+    value.link,
+    value.value,
+    aemPath,
+    value.asset?.path,
+    value.asset?.url,
+  ].map(resourceValue).find(Boolean) || '';
+}
+
+function elementLinkValue(element) {
+  const linked = element?.matches?.('a[href], [href], [data-href], [data-url], [src]')
+    ? element
+    : element?.querySelector?.('a[href], [href], [data-href], [data-url], [src]');
+
+  return resourceValue(
+    linked?.getAttribute?.('href')
+      || linked?.getAttribute?.('data-href')
+      || linked?.getAttribute?.('data-url')
+      || linked?.getAttribute?.('src'),
+  );
+}
+
+function linkValue(field) {
+  const value = resourceValue(field?.value)
+    || elementLinkValue(field?.cell)
+    || elementLinkValue(field?.source);
+
+  return /^(?:add link|add pdf link)$/i.test(value) ? '' : value;
+}
+
+function cssBackgroundValue(value) {
+  const normalized = resourceValue(value);
+  if (!normalized) return '';
+  if (!window.CSS?.supports || window.CSS.supports('background', normalized)) return normalized;
+  return '';
+}
+
 function reportDisplayMode(field) {
   const value = textValue(field).toLowerCase();
   return ['auto', 'show', 'hide'].includes(value) ? value : 'auto';
 }
 
 function applyCustomBackground(inner, colorField, gradientField) {
-  const background = textValue(gradientField) || textValue(colorField);
+  const background = cssBackgroundValue(textValue(gradientField))
+    || cssBackgroundValue(textValue(colorField));
   if (background) inner.style.background = background;
+}
+
+function syncCustomBackground(inner, fields) {
+  if (!Object.prototype.hasOwnProperty.call(fields, 'backgroundColor')
+    && !Object.prototype.hasOwnProperty.call(fields, 'backgroundGradient')) return;
+
+  const background = cssBackgroundValue(fields.backgroundGradient)
+    || cssBackgroundValue(fields.backgroundColor);
+
+  if (background) inner.style.background = background;
+  else inner.style.removeProperty('background');
 }
 
 function richFieldHasContent(field) {
@@ -153,10 +227,10 @@ function buildPlaceholder(text) {
 }
 
 function buildSocialTile(entry, linkField, isEditor) {
-  const href = textValue(linkField);
+  const href = linkValue(linkField);
   if (!href && !isEditor) return null;
 
-  const tile = document.createElement(href ? 'a' : 'span');
+  const tile = document.createElement(href || isEditor ? 'a' : 'span');
   tile.className = `social-report-cta-social social-report-cta-social-${entry.key}`;
   tile.setAttribute('aria-label', `Follow NCMEC on ${entry.label}`);
 
@@ -195,6 +269,25 @@ function buildSocialTile(entry, linkField, isEditor) {
   return tile;
 }
 
+function updateSocialTile(tile, handle, href, fallbackHandle) {
+  if (!tile) return;
+
+  if (href) {
+    tile.href = href;
+    tile.target = '_blank';
+    tile.rel = 'noopener noreferrer';
+    tile.classList.remove('is-empty');
+    if (handle) handle.textContent = fallbackHandle;
+    return;
+  }
+
+  tile.removeAttribute('href');
+  tile.removeAttribute('target');
+  tile.removeAttribute('rel');
+  tile.classList.add('is-empty');
+  if (handle) handle.textContent = 'Add link';
+}
+
 function buildReportImage(imageField, altField, isEditor) {
   const wrap = document.createElement('div');
   wrap.className = 'social-report-cta-report-visual';
@@ -229,7 +322,7 @@ function buildReportImage(imageField, altField, isEditor) {
 }
 
 function buildReportButton(labelField, linkField, showEmptyButton = false) {
-  const href = textValue(linkField);
+  const href = linkValue(linkField);
   const label = textValue(labelField) || (href ? 'Download the PDF' : '');
   if (!href && !showEmptyButton) return null;
 
@@ -256,6 +349,7 @@ function buildReportButton(labelField, linkField, showEmptyButton = false) {
 
 export default function decorate(block) {
   const isEditor = hasAuthoringContext(block);
+  const resourcePath = getAueResourcePath(block);
   const eyebrowField = getTextField(block, 'eyebrow', isEditor);
   const socialHeadingField = getTextField(block, 'socialHeading', isEditor);
   const socialIntroField = getRichField(block, 'socialIntro', isEditor);
@@ -278,7 +372,7 @@ export default function decorate(block) {
     textValue(reportHeadingField)
       || richFieldHasContent(reportBodyField)
       || reportImageField.img
-      || textValue(reportButtonLinkField),
+      || linkValue(reportButtonLinkField),
   );
   const displayMode = reportDisplayMode(reportPanelDisplayField);
   const shouldRenderReport = displayMode === 'show'
@@ -315,9 +409,17 @@ export default function decorate(block) {
 
   const socialGrid = document.createElement('div');
   socialGrid.className = 'social-report-cta-social-grid';
+  const socialTileData = [];
   socialLinks.forEach(({ entry, field }) => {
     const tile = buildSocialTile(entry, field, isEditor);
-    if (tile) socialGrid.append(tile);
+    if (tile) {
+      socialTileData.push({
+        entry,
+        tile,
+        handle: tile.querySelector('.social-report-cta-social-handle'),
+      });
+      socialGrid.append(tile);
+    }
   });
 
   if (!socialGrid.childElementCount && isEditor) {
@@ -361,4 +463,14 @@ export default function decorate(block) {
   }
 
   block.replaceChildren(inner);
+
+  if (isEditor && resourcePath) {
+    readAueResourceFields(resourcePath, RESOURCE_FIELD_NAMES).then((fields) => {
+      syncCustomBackground(inner, fields);
+      socialTileData.forEach(({ entry, tile, handle }) => {
+        if (!Object.prototype.hasOwnProperty.call(fields, entry.field)) return;
+        updateSocialTile(tile, handle, resourceValue(fields[entry.field]), entry.handle);
+      });
+    });
+  }
 }
