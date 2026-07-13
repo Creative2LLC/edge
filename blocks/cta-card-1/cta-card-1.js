@@ -3,16 +3,44 @@ import {
   getBlockRows, readLinkField, readRichTextField, readTextField,
 } from '../../scripts/block-field-utils.js';
 
-function getField(block, rows, name, index) {
-  return readTextField(block, name, { fallbackCell: rows[index] });
+// Fields with no authored value frequently don't get their own row in the exported
+// markup at all, so a positional fallback can silently grab a completely different
+// field's value. In the editor, named data-aue-prop lookup is reliable whenever a
+// field actually has content, so a failed name lookup there means the field is
+// genuinely empty — never fall back to a position guess in that case. Positional
+// fallback is only meaningful on true published pages (see cards.js /
+// colored-icon-text.js for the same pattern).
+function getField(block, rows, name, index, isEditor) {
+  return readTextField(block, name, { fallbackCell: isEditor ? null : rows[index] });
 }
 
-function getRichField(block, rows, name, index) {
-  return readRichTextField(block, name, { fallbackCell: rows[index] });
+function getRichField(block, rows, name, index, isEditor) {
+  return readRichTextField(block, name, { fallbackCell: isEditor ? null : rows[index] });
 }
 
-function getLinkField(block, rows, name, index) {
-  return readLinkField(block, name, { fallbackCell: rows[index] });
+function getLinkField(block, rows, name, index, isEditor) {
+  return readLinkField(block, name, { fallbackCell: isEditor ? null : rows[index] });
+}
+
+function directRowOf(block, element) {
+  let row = element;
+  while (row && row.parentElement !== block) {
+    row = row.parentElement;
+  }
+  return row && row.parentElement === block ? row : null;
+}
+
+// Hides (in the editor) rather than removes a field's row/source — permanently
+// removing an aue-tracked node that was never moveInstrumentation'd elsewhere
+// desyncs Universal Editor's resource tree from the DOM and breaks live-patching
+// of that field on the next decoration pass (see cards.js's readSetting for the
+// same pattern). Hidden nodes get swept into an archive before the final
+// block.replaceChildren() call so they survive being detached from `block`.
+function removeOrHideField(block, source, isEditor) {
+  if (!source) return;
+  const row = directRowOf(block, source) || source;
+  if (isEditor) row.hidden = true;
+  else row.remove();
 }
 
 function buildTextElement(tag, className, field) {
@@ -46,30 +74,34 @@ function buildRichTextElement(tag, className, field) {
 }
 
 export default function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const rows = getBlockRows(block);
 
-  const titleField = getField(block, rows, 'title', 0);
-  const subtitleField = getRichField(block, rows, 'subtitle', 1);
-  const gradientLeftField = getField(block, rows, 'gradientLeft', 2);
-  const gradientRightField = getField(block, rows, 'gradientRight', 3);
-  const buttonTextField = getField(block, rows, 'buttonText', 4);
-  const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
-  const buttonColorField = getField(block, rows, 'buttonColor', 6);
-  const buttonTextColorField = getField(block, rows, 'buttonTextColor', 7);
-  const buttonSubtextField = getField(block, rows, 'buttonSubtext', 8);
-  const button2TextField = getField(block, rows, 'button2Text', 9);
-  const button2LinkField = getLinkField(block, rows, 'button2Link', 10);
-  const button2ColorField = getField(block, rows, 'button2Color', 11);
-  const button2BackgroundColorField = getField(block, rows, 'button2BackgroundColor', 12);
-  const button2SubtextField = getField(block, rows, 'button2Subtext', 13);
-  const button2LocationField = getField(block, rows, 'button2Location', 14);
-  const belowButtonTextField = getRichField(block, rows, 'belowButtonText', 15);
-  const button3TextField = getField(block, rows, 'button3Text', 16);
-  const button3LinkField = getLinkField(block, rows, 'button3Link', 17);
-  const styleTypeField = getField(block, rows, 'styleType', 18);
+  // Indices below match _cta-card-1.json's ACTUAL current field order (fields were
+  // regrouped under UI tabs by a later commit — belowButtonText was pulled to the front
+  // of the Content tab, right after subtitle, shifting every button field after it).
+  const titleField = getField(block, rows, 'title', 0, isEditor);
+  const subtitleField = getRichField(block, rows, 'subtitle', 1, isEditor);
+  const belowButtonTextField = getRichField(block, rows, 'belowButtonText', 2, isEditor);
+  const gradientLeftField = getField(block, rows, 'gradientLeft', 3, isEditor);
+  const gradientRightField = getField(block, rows, 'gradientRight', 4, isEditor);
+  const buttonTextField = getField(block, rows, 'buttonText', 5, isEditor);
+  const buttonLinkField = getLinkField(block, rows, 'buttonLink', 6, isEditor);
+  const buttonColorField = getField(block, rows, 'buttonColor', 7, isEditor);
+  const buttonTextColorField = getField(block, rows, 'buttonTextColor', 8, isEditor);
+  const buttonSubtextField = getField(block, rows, 'buttonSubtext', 9, isEditor);
+  const button2TextField = getField(block, rows, 'button2Text', 10, isEditor);
+  const button2LinkField = getLinkField(block, rows, 'button2Link', 11, isEditor);
+  const button2ColorField = getField(block, rows, 'button2Color', 12, isEditor);
+  const button2BackgroundColorField = getField(block, rows, 'button2BackgroundColor', 13, isEditor);
+  const button2SubtextField = getField(block, rows, 'button2Subtext', 14, isEditor);
+  const button2LocationField = getField(block, rows, 'button2Location', 15, isEditor);
+  const button3TextField = getField(block, rows, 'button3Text', 16, isEditor);
+  const button3LinkField = getLinkField(block, rows, 'button3Link', 17, isEditor);
+  const styleTypeField = getField(block, rows, 'styleType', 18, isEditor);
   const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
   if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
-  if (button2LocationField.source) button2LocationField.source.remove();
+  removeOrHideField(block, button2LocationField.source, isEditor);
 
   const styleType = styleTypeField.value.toLowerCase();
   if (styleType === 'variant-2') {
@@ -79,7 +111,7 @@ export default function decorate(block) {
   } else if (styleType === 'variant-4') {
     block.classList.add('cta-card-1-variant-4');
   }
-  if (styleTypeField.source) styleTypeField.source.remove();
+  removeOrHideField(block, styleTypeField.source, isEditor);
 
   // Apply gradient background
   const leftColor = gradientLeftField.value || '#ffffff';
@@ -110,14 +142,10 @@ export default function decorate(block) {
     }
     btn3.textContent = btn3Label;
     left.append(btn3);
-  } else if (button3TextField.source) {
-    button3TextField.source.remove();
+  } else {
+    removeOrHideField(block, button3TextField.source, isEditor);
   }
-  if (button3LinkField.source) {
-    const row = button3LinkField.source.closest('.cta-card-1 > div');
-    if (row) row.remove();
-    else button3LinkField.source.remove();
-  }
+  removeOrHideField(block, button3LinkField.source, isEditor);
 
   // Right side
   const right = document.createElement('div');
@@ -204,11 +232,7 @@ export default function decorate(block) {
   }
 
   // Clean up button2Link source
-  if (button2LinkField.source) {
-    const row = button2LinkField.source.closest('.cta-card-1 > div');
-    if (row) row.remove();
-    else button2LinkField.source.remove();
-  }
+  removeOrHideField(block, button2LinkField.source, isEditor);
 
   // On the published page (no field instrumentation) the styleType select value
   // can leak into this slot via positional fallback — never render a bare
@@ -228,11 +252,18 @@ export default function decorate(block) {
   }
 
   // Clean up buttonLink source
-  if (buttonLinkField.source) {
-    const row = buttonLinkField.source.closest('.cta-card-1 > div');
-    if (row) row.remove();
-    else buttonLinkField.source.remove();
-  }
+  removeOrHideField(block, buttonLinkField.source, isEditor);
 
-  block.replaceChildren(left, right);
+  // Rows hidden above (instead of removed) need to survive replaceChildren to stay
+  // live-trackable by Universal Editor — collect them into a hidden archive appended
+  // alongside the real content, matching cards.js / colored-icon-text.js / hero.js.
+  const hiddenRows = [...block.querySelectorAll(':scope > div[hidden]')];
+  if (hiddenRows.length) {
+    const archive = document.createElement('span');
+    archive.hidden = true;
+    hiddenRows.forEach((row) => archive.append(row));
+    block.replaceChildren(left, right, archive);
+  } else {
+    block.replaceChildren(left, right);
+  }
 }

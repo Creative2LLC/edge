@@ -24,20 +24,30 @@ function fieldCell(row) {
   return row.children.length > 1 ? row.children[1] : row.children[0] || row;
 }
 
-function readField(block, name, labels = [], fallbackCell = null) {
+// In the editor, hide (don't remove) rows that carry Universal Editor instrumentation —
+// permanently removing an aue-tracked node desyncs UE's resource tree from the DOM and
+// breaks live-patching of that field on the next decoration pass (see cards.js's
+// readSetting / colored-icon-text.js's readField for the same pattern). Also, fields left
+// empty by the author frequently get NO row at all in the exported markup, so a positional
+// fallback can silently grab a different field's value — only trust it on published pages
+// (isEditor false), never in the editor where name-based data-aue-prop lookup is reliable.
+function readField(block, name, labels = [], fallbackCell = null, isEditor = false) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
+    fallbackCell: isEditor ? null : fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
+  if (row) {
+    if (isEditor && field.source) row.hidden = true;
+    else row.remove();
+  }
   return field;
 }
 
 function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
+    fallbackCell: isEditor ? null : fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -88,15 +98,6 @@ function hasDarkSectionBackground(block) {
   });
 
   return ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) < 0.3;
-}
-
-function hasInsertedBlockBackgroundRow(block, rows, rowIndex) {
-  if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
-  const currentValue = fieldCell(rows[rowIndex])?.textContent?.trim() || '';
-  const nextValue = fieldCell(rows[rowIndex + 1])?.textContent?.trim() || '';
-  if (normalizeColorValue(currentValue)) return true;
-  if (!currentValue && /^(?:left|center|right|justify)$/i.test(nextValue)) return true;
-  return false;
 }
 
 function applyBlockBackground(block, value) {
@@ -190,86 +191,98 @@ export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
-  const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 3) ? 1 : 0;
 
-  const headingField = readField(block, 'heading', ['title', 'text', 'heading text'], fieldCell(rows[0]));
+  // Fixed indices below match _colored-heading.json's ACTUAL current field order (fields
+  // were regrouped under UI tabs by a later commit; "tab" entries are UI-only and consume
+  // no row). Order: heading(0), headingLevel(1), textColor(2), fontSize(3), fontWeight(4),
+  // horizontalAlign(5), verticalAlign(6), minHeight(7), minHeightMobile(8), paddingStyle(9),
+  // marginStyle(10), blockBackgroundColor(11), dropShadow(12), markerTerms(13),
+  // markerColor(14), markerStyle(15). blockBackgroundColor now sits at a fixed position
+  // (it is no longer an optionally-inserted row after textColor), so it's read at its own
+  // index like every other field instead of via a heuristic rowOffset.
+  const headingField = readField(block, 'heading', ['title', 'text', 'heading text'], fieldCell(rows[0]), isEditor);
   const headingLevel = normalizeOption(
-    readField(block, 'headingLevel', ['heading level', 'h tag', 'tag'], fieldCell(rows[1])).value,
+    readField(block, 'headingLevel', ['heading level', 'h tag', 'tag'], fieldCell(rows[1]), isEditor).value,
     ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
     'h2',
   );
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[2]));
   const textColor = normalizeColorValue(txtField.value)
     || (hasDarkSectionBackground(block) ? '#FFF' : '#00264D');
-  const blockBgField = readColorField(
-    block,
-    'blockBackgroundColor',
-    ['block background color', 'background color'],
-    isEditor,
-    rowOffset ? fieldCell(rows[3]) : null,
+  const fontSize = normalizeCssLength(
+    readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[3]), isEditor).value,
+    'font-size',
   );
-  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
+  const fontWeight = normalizeFontWeight(
+    readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[4]), isEditor).value,
+  );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[3 + rowOffset])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[5]), isEditor).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[4 + rowOffset])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[6]), isEditor).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(
-    readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[5 + rowOffset])).value,
-    'font-size',
-  );
-  const fontWeight = normalizeFontWeight(
-    readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[6 + rowOffset])).value,
-  );
   const minHeight = normalizeCssLength(
-    readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[7 + rowOffset])).value,
+    readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[7]), isEditor).value,
     'min-height',
   );
   const minHeightMobile = normalizeCssLength(
-    readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[8 + rowOffset])).value,
+    readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[8]), isEditor).value,
     'min-height',
   );
   const paddingStyleField = readField(
     block,
     'paddingStyle',
     ['padding style', 'padding'],
-    fieldCell(rows[9 + rowOffset]),
+    fieldCell(rows[9]),
+    isEditor,
   );
   const marginStyleField = readField(
     block,
     'marginStyle',
     ['margin style', 'margin'],
-    fieldCell(rows[10 + rowOffset]),
+    fieldCell(rows[10]),
+    isEditor,
   );
+  const blockBgField = readColorField(
+    block,
+    'blockBackgroundColor',
+    ['block background color', 'background color'],
+    isEditor,
+    fieldCell(rows[11]),
+  );
+  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const dropShadowField = readField(
     block,
     'dropShadow',
     ['drop shadow', 'shadow'],
-    fieldCell(rows[11 + rowOffset]),
+    fieldCell(rows[12]),
+    isEditor,
   );
   const markerTermsField = readField(
     block,
     'markerTerms',
     ['marker text', 'marker terms', 'highlight text'],
-    fieldCell(rows[12 + rowOffset]),
+    fieldCell(rows[13]),
+    isEditor,
   );
   const markerColorField = readColorField(
     block,
     'markerColor',
     ['marker color', 'highlight marker color'],
     isEditor,
-    fieldCell(rows[13 + rowOffset]),
+    fieldCell(rows[14]),
   );
   const markerStyleField = readField(
     block,
     'markerStyle',
     ['marker style', 'highlight marker style'],
-    fieldCell(rows[14 + rowOffset]),
+    fieldCell(rows[15]),
+    isEditor,
   );
 
   block.classList.add(`colored-heading-h-${horizontalAlign}`, `colored-heading-v-${verticalAlign}`);

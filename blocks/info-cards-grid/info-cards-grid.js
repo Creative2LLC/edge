@@ -23,6 +23,13 @@ const BLOCK_FIELD_INDEX = {
   iconSize: 11,
 };
 
+// Order below matches _info-cards-grid.json's ACTUAL current "info-card" item field order
+// (fields were regrouped under UI tabs by a later commit; tab entries are UI-only and
+// consume no row, but the reorder itself shifted cardBackgroundColor without this array
+// being updated to match). Order: icon, title, subtitle, bodyContent, buttonText,
+// buttonLink, buttonStyle, buttonBackgroundColor, button2Text, button2Link, button2Style,
+// button2BackgroundColor, iconColor, textColor, cardBackgroundColor, overlayImage,
+// cardStyle, cardHoverBackgroundColor.
 const ITEM_FIELD_NAMES = [
   'icon',
   'title',
@@ -31,7 +38,6 @@ const ITEM_FIELD_NAMES = [
   'buttonText',
   'buttonLink',
   'buttonStyle',
-  'cardBackgroundColor',
   'buttonBackgroundColor',
   'button2Text',
   'button2Link',
@@ -39,6 +45,7 @@ const ITEM_FIELD_NAMES = [
   'button2BackgroundColor',
   'iconColor',
   'textColor',
+  'cardBackgroundColor',
   'overlayImage',
   'cardStyle',
   'cardHoverBackgroundColor',
@@ -56,6 +63,13 @@ function hasMeaningfulNodeContent(node) {
 
 function hasFieldContent(field) {
   return Boolean(field?.value || hasMeaningfulNodeContent(field?.source));
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute?.('data-aue-resource')
+      || scope?.querySelector?.('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
 }
 
 function normalizeLines(value) {
@@ -143,35 +157,49 @@ function parseTextStyles(value) {
   }, {});
 }
 
-function getField(row, name, index) {
-  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+// Fields left empty by the author frequently get NO row at all in the exported markup, so
+// a positional fallback (row.children[index]) can silently grab a totally different field's
+// value once one earlier field is missing its row. In the editor, name-based data-aue-prop
+// lookup (already tried first inside readTextField/readLinkField/etc.) is reliable whenever
+// a field genuinely has content, so a failed name lookup there means the field is genuinely
+// empty — never fall back to a position guess in that case. Positional fallback is only
+// meaningful on true published pages, where there's no instrumentation to name-match
+// against at all. Matches colored-icon-text.js's readField/readColorField/etc. pattern.
+function getField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readTextField(row, name, { fallbackCell });
   return { source: field.source, value: field.value };
 }
 
-function getLinkField(row, name, index) {
-  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+function getLinkField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readLinkField(row, name, { fallbackCell });
   return { source: field.source, value: field.value };
 }
 
-function getRichField(row, name, index) {
-  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+function getRichField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readRichTextField(row, name, { fallbackCell });
   return field.source || field.cell;
 }
 
-function getImageField(row, name, index) {
-  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+function getImageField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readImageField(row, name, { fallbackCell });
   return { source: field.source, img: field.img };
 }
 
-function getBlockField(block, rows, name, index) {
+function getBlockField(block, rows, name, index, isEditor) {
   const row = rows[index];
-  const field = readTextField(block, name, { fallbackCell: row?.children[0] || row });
+  const fallbackCell = isEditor ? null : (row?.children[0] || row);
+  const field = readTextField(block, name, { fallbackCell });
   return { source: field.source, value: field.value };
 }
 
-function getBlockLinkField(block, rows, name, index) {
+function getBlockLinkField(block, rows, name, index, isEditor) {
   const row = rows[index];
-  const field = readLinkField(block, name, { fallbackCell: row?.children[0] || row });
+  const fallbackCell = isEditor ? null : (row?.children[0] || row);
+  const field = readLinkField(block, name, { fallbackCell });
   return { source: field.source, value: field.value };
 }
 
@@ -468,6 +496,23 @@ function buildCard(data, index, variant) {
   card.append(content);
   buildButtons(card, data, cardBg, variant);
 
+  // `data.row` is discarded after this point (only `card` gets attached to the DOM), but
+  // several of its style-only select fields (buttonStyle, cardBackgroundColor,
+  // cardHoverBackgroundColor, buttonBackgroundColor, button2Style, button2BackgroundColor,
+  // iconColor, textColor/Card Styles, cardStyle) were only ever read by value above — unlike
+  // icon/title/subtitle/bodyContent/buttons/overlayImage, their aue-tracked elements were
+  // never individually relocated into `card`. Fully dropping `row` desyncs Universal
+  // Editor's tracking of those fields, so a live edit to e.g. Card Background Color patches
+  // a DOM node that no longer exists on the page (visible only after a hard refresh).
+  // moveInstrumentation(data.row, card) above already stripped row's OWN aue-resource
+  // identity, so re-attaching it hidden inside `card` can't create a duplicate/competing
+  // resource — only its still-instrumented field descendants remain live. Matches the
+  // hide-not-remove / re-attach pattern used in cards.js's buildCard().
+  if (data.row && hasAuthoringContext(data.row)) {
+    data.row.hidden = true;
+    card.append(data.row);
+  }
+
   return card;
 }
 
@@ -546,6 +591,7 @@ function setupMatchedHeights(block, grid) {
 }
 
 export default function decorate(block) {
+  const isEditor = hasAuthoringContext(block);
   const rows = [...block.querySelectorAll(':scope > div')];
   const firstItemRowIndex = rows.findIndex((row) => {
     if (hasItemFieldProps(row)) return true;
@@ -554,18 +600,18 @@ export default function decorate(block) {
   });
   const blockRows = firstItemRowIndex >= 0 ? rows.slice(0, firstItemRowIndex) : rows;
   const itemRows = firstItemRowIndex >= 0 ? rows.slice(firstItemRowIndex) : [];
-  const columnsField = getBlockField(block, blockRows, 'columns', BLOCK_FIELD_INDEX.columns);
-  const styleVariantField = getBlockField(block, blockRows, 'styleVariant', BLOCK_FIELD_INDEX.styleVariant);
-  const sectionHeadingField = getBlockField(block, blockRows, 'sectionHeading', BLOCK_FIELD_INDEX.sectionHeading);
-  const sectionSubheadingField = getBlockField(block, blockRows, 'sectionSubheading', BLOCK_FIELD_INDEX.sectionSubheading);
-  const introButtonTextField = getBlockField(block, blockRows, 'introButtonText', BLOCK_FIELD_INDEX.introButtonText);
-  const introButtonLinkField = getBlockLinkField(block, blockRows, 'introButtonLink', BLOCK_FIELD_INDEX.introButtonLink);
-  const footerTextField = getBlockField(block, blockRows, 'footerText', BLOCK_FIELD_INDEX.footerText);
-  const sectionButtonTextField = getBlockField(block, blockRows, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText);
-  const sectionButtonLinkField = getBlockLinkField(block, blockRows, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink);
-  const headerAlignmentField = getBlockField(block, blockRows, 'headerAlignment', BLOCK_FIELD_INDEX.headerAlignment);
-  const cardContentAlignmentField = getBlockField(block, blockRows, 'cardContentAlignment', BLOCK_FIELD_INDEX.cardContentAlignment);
-  const iconSizeField = getBlockField(block, blockRows, 'iconSize', BLOCK_FIELD_INDEX.iconSize);
+  const columnsField = getBlockField(block, blockRows, 'columns', BLOCK_FIELD_INDEX.columns, isEditor);
+  const styleVariantField = getBlockField(block, blockRows, 'styleVariant', BLOCK_FIELD_INDEX.styleVariant, isEditor);
+  const sectionHeadingField = getBlockField(block, blockRows, 'sectionHeading', BLOCK_FIELD_INDEX.sectionHeading, isEditor);
+  const sectionSubheadingField = getBlockField(block, blockRows, 'sectionSubheading', BLOCK_FIELD_INDEX.sectionSubheading, isEditor);
+  const introButtonTextField = getBlockField(block, blockRows, 'introButtonText', BLOCK_FIELD_INDEX.introButtonText, isEditor);
+  const introButtonLinkField = getBlockLinkField(block, blockRows, 'introButtonLink', BLOCK_FIELD_INDEX.introButtonLink, isEditor);
+  const footerTextField = getBlockField(block, blockRows, 'footerText', BLOCK_FIELD_INDEX.footerText, isEditor);
+  const sectionButtonTextField = getBlockField(block, blockRows, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText, isEditor);
+  const sectionButtonLinkField = getBlockLinkField(block, blockRows, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink, isEditor);
+  const headerAlignmentField = getBlockField(block, blockRows, 'headerAlignment', BLOCK_FIELD_INDEX.headerAlignment, isEditor);
+  const cardContentAlignmentField = getBlockField(block, blockRows, 'cardContentAlignment', BLOCK_FIELD_INDEX.cardContentAlignment, isEditor);
+  const iconSizeField = getBlockField(block, blockRows, 'iconSize', BLOCK_FIELD_INDEX.iconSize, isEditor);
 
   const columns = parseInt(columnsField.value, 10) || 3;
   const variant = styleVariantField.value === 'volunteer' ? 'volunteer' : 'default';
@@ -582,28 +628,44 @@ export default function decorate(block) {
 
   const cards = [];
   itemRows.forEach((row) => {
-    const iconField = getImageField(row, 'icon', 0);
-    const titleField = getField(row, 'title', 1);
-    const subtitleField = getField(row, 'subtitle', 2);
-    const bodySource = getRichField(row, 'bodyContent', 3);
-    const buttonTextField = getField(row, 'buttonText', ITEM_FIELD_INDEX.buttonText);
-    const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink);
-    const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle);
-    const cardBgField = getField(row, 'cardBackgroundColor', ITEM_FIELD_INDEX.cardBackgroundColor);
+    const iconField = getImageField(row, 'icon', 0, isEditor);
+    const titleField = getField(row, 'title', 1, isEditor);
+    const subtitleField = getField(row, 'subtitle', 2, isEditor);
+    const bodySource = getRichField(row, 'bodyContent', 3, isEditor);
+    const buttonTextField = getField(row, 'buttonText', ITEM_FIELD_INDEX.buttonText, isEditor);
+    const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink, isEditor);
+    const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle, isEditor);
+    const cardBgField = getField(
+      row,
+      'cardBackgroundColor',
+      ITEM_FIELD_INDEX.cardBackgroundColor,
+      isEditor,
+    );
     const cardHoverBgField = getField(
       row,
       'cardHoverBackgroundColor',
       ITEM_FIELD_INDEX.cardHoverBackgroundColor,
+      isEditor,
     );
-    const buttonBgField = getField(row, 'buttonBackgroundColor', ITEM_FIELD_INDEX.buttonBackgroundColor);
-    const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text);
-    const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link);
-    const button2StyleField = getField(row, 'button2Style', ITEM_FIELD_INDEX.button2Style);
-    const button2BgField = getField(row, 'button2BackgroundColor', ITEM_FIELD_INDEX.button2BackgroundColor);
-    const iconColorField = getField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor);
-    const textStyleField = getField(row, 'textColor', ITEM_FIELD_INDEX.textColor);
-    const overlayField = getImageField(row, 'overlayImage', ITEM_FIELD_INDEX.overlayImage);
-    const cardStyleField = getField(row, 'cardStyle', ITEM_FIELD_INDEX.cardStyle);
+    const buttonBgField = getField(
+      row,
+      'buttonBackgroundColor',
+      ITEM_FIELD_INDEX.buttonBackgroundColor,
+      isEditor,
+    );
+    const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text, isEditor);
+    const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link, isEditor);
+    const button2StyleField = getField(row, 'button2Style', ITEM_FIELD_INDEX.button2Style, isEditor);
+    const button2BgField = getField(
+      row,
+      'button2BackgroundColor',
+      ITEM_FIELD_INDEX.button2BackgroundColor,
+      isEditor,
+    );
+    const iconColorField = getField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor, isEditor);
+    const textStyleField = getField(row, 'textColor', ITEM_FIELD_INDEX.textColor, isEditor);
+    const overlayField = getImageField(row, 'overlayImage', ITEM_FIELD_INDEX.overlayImage, isEditor);
+    const cardStyleField = getField(row, 'cardStyle', ITEM_FIELD_INDEX.cardStyle, isEditor);
     const textStyles = parseTextStyles(textStyleField.value);
 
     cards.push({

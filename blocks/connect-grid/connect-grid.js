@@ -9,28 +9,35 @@ const BLOCK_ROW_INDEX = {
   columns: 2,
 };
 
+// Offsets below match _connect-grid.json's ACTUAL current field order for the
+// connect-grid-item model (fields were regrouped under UI tabs by a later commit —
+// tabs don't consume a row, but the reorder itself invalidated the old fixed indices
+// here). Order: title, description, icon, image, contactMethod1Label/Text/Link,
+// contactMethod2Label/Text/Link, contactMethod3Label/Text/Link,
+// contactMethod4Label/Text/Link, contactMethods (legacy), iconColor,
+// cardBackgroundColor, cardHoverBackgroundColor, showDivider, imageAlt.
 const ITEM_COLUMN_INDEX = {
-  icon: 0,
-  image: 1,
-  iconColor: 2,
-  title: 3,
-  description: 4,
-  contactMethod1Label: 5,
-  contactMethod1Text: 6,
-  contactMethod1Link: 7,
-  contactMethod2Label: 8,
-  contactMethod2Text: 9,
-  contactMethod2Link: 10,
-  contactMethod3Label: 11,
-  contactMethod3Text: 12,
-  contactMethod3Link: 13,
-  contactMethod4Label: 14,
-  contactMethod4Text: 15,
-  contactMethod4Link: 16,
-  contactMethods: 17,
+  title: 0,
+  description: 1,
+  icon: 2,
+  image: 3,
+  contactMethod1Label: 4,
+  contactMethod1Text: 5,
+  contactMethod1Link: 6,
+  contactMethod2Label: 7,
+  contactMethod2Text: 8,
+  contactMethod2Link: 9,
+  contactMethod3Label: 10,
+  contactMethod3Text: 11,
+  contactMethod3Link: 12,
+  contactMethod4Label: 13,
+  contactMethod4Text: 14,
+  contactMethod4Link: 15,
+  contactMethods: 16,
+  iconColor: 17,
   cardBackgroundColor: 18,
-  showDivider: 19,
-  cardHoverBackgroundColor: 20,
+  cardHoverBackgroundColor: 19,
+  showDivider: 20,
   imageAlt: 21,
 };
 
@@ -71,29 +78,38 @@ function getParentFallbackCell(scope, rowIndex) {
   return row?.children?.[0] || row || null;
 }
 
-function getField(scope, name, rowIndexMap, columnIndex = 0) {
+function getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor) {
+  if (rowIndexMap !== ITEM_COLUMN_INDEX) return getParentFallbackCell(scope, rowIndex);
+  if (isEditor) return null;
+  return scope.children[columnIndex];
+}
+
+// Fields left empty by the author frequently get NO row at all in the exported/edited
+// markup (confirmed repeatedly this session), so a positional `scope.children[columnIndex]`
+// guess can silently grab a totally different field's value. In the editor, named
+// `data-aue-prop` lookup (done first, inside readTextField/readRichTextField/readImageField)
+// is reliable whenever a field genuinely has content, so a failed name lookup there means the
+// field is genuinely empty — never fall back to a position guess in that case. Positional
+// fallback is kept for true published pages, where there's no instrumentation to name-match
+// against at all. Matches colored-icon-text.js's readField/readColorField/readRichField/
+// readImage pattern.
+function getField(scope, name, rowIndexMap, columnIndex = 0, isEditor = false) {
   const rowIndex = rowIndexMap?.[name];
-  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX
-    ? scope.children[columnIndex]
-    : getParentFallbackCell(scope, rowIndex);
+  const fallbackCell = getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor);
   const field = readTextField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return { ...field, source: field.source || field.cell };
 }
 
-function getRichField(scope, name, rowIndexMap, columnIndex = 0) {
+function getRichField(scope, name, rowIndexMap, columnIndex = 0, isEditor = false) {
   const rowIndex = rowIndexMap?.[name];
-  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX
-    ? scope.children[columnIndex]
-    : getParentFallbackCell(scope, rowIndex);
+  const fallbackCell = getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor);
   const field = readRichTextField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return field.source || field.cell;
 }
 
-function getImageField(scope, name, rowIndexMap, columnIndex = 0) {
+function getImageField(scope, name, rowIndexMap, columnIndex = 0, isEditor = false) {
   const rowIndex = rowIndexMap?.[name];
-  const fallbackCell = rowIndexMap === ITEM_COLUMN_INDEX
-    ? scope.children[columnIndex]
-    : getParentFallbackCell(scope, rowIndex);
+  const fallbackCell = getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor);
   const field = readImageField(scope, name, { rowIndex, columnIndex, fallbackCell });
   return { source: field.source, picture: field.picture, img: field.img };
 }
@@ -160,7 +176,7 @@ function parseContactMethods(value) {
     .filter((method) => method.text);
 }
 
-function getStructuredContactMethods(row) {
+function getStructuredContactMethods(row, isEditor) {
   const methods = [];
 
   for (let index = 1; index <= 4; index += 1) {
@@ -169,18 +185,21 @@ function getStructuredContactMethods(row) {
       `contactMethod${index}Label`,
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX[`contactMethod${index}Label`],
+      isEditor,
     );
     const textField = getField(
       row,
       `contactMethod${index}Text`,
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX[`contactMethod${index}Text`],
+      isEditor,
     );
     const linkField = getField(
       row,
       `contactMethod${index}Link`,
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX[`contactMethod${index}Link`],
+      isEditor,
     );
 
     const text = textField.value || linkField.value;
@@ -357,6 +376,20 @@ function buildCard(item, index) {
     card.append(methods);
   }
 
+  // `item.row` itself is discarded after this point (only `card` gets attached to the DOM),
+  // but its per-card style/config fields (iconColor, cardBackgroundColor, showDivider,
+  // cardHoverBackgroundColor, imageAlt) were only ever read by value above — their aue-tracked
+  // elements were never relocated into `card`. Fully dropping `row` desyncs Universal Editor's
+  // tracking of those fields, so a live edit to e.g. Card Background Color patches a DOM node
+  // that no longer exists on the page (visible only after a hard refresh). moveInstrumentation
+  // (item.row, card) above already stripped row's OWN aue-resource identity, so re-attaching it
+  // hidden inside `card` can't create a duplicate/competing resource — only its still-
+  // instrumented field descendants remain live. Matches cards.js's buildCard() fix.
+  if (item.row && hasAuthoringContext(item.row)) {
+    item.row.hidden = true;
+    card.append(item.row);
+  }
+
   return card;
 }
 
@@ -436,7 +469,7 @@ function setupMatchedHeights(block, grid) {
 }
 
 export default function decorate(block) {
-  const isAuthoring = hasAuthoringContext(block);
+  const isEditor = hasAuthoringContext(block);
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
   const subheadingSource = getRichField(block, 'subheading', BLOCK_ROW_INDEX);
   const columnsField = getField(block, 'columns', BLOCK_ROW_INDEX);
@@ -448,46 +481,76 @@ export default function decorate(block) {
 
     if (!isItemRow) return;
 
-    const iconField = getImageField(row, 'icon', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.icon);
-    const imageField = getImageField(row, 'image', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.image);
-    const imageAltField = getField(row, 'imageAlt', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.imageAlt);
+    const iconField = getImageField(
+      row,
+      'icon',
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX.icon,
+      isEditor,
+    );
+    const imageField = getImageField(
+      row,
+      'image',
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX.image,
+      isEditor,
+    );
+    const imageAltField = getField(
+      row,
+      'imageAlt',
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX.imageAlt,
+      isEditor,
+    );
     const iconColorField = getField(
       row,
       'iconColor',
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.iconColor,
+      isEditor,
     );
-    const titleSource = getRichField(row, 'title', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.title);
+    const titleSource = getRichField(
+      row,
+      'title',
+      ITEM_COLUMN_INDEX,
+      ITEM_COLUMN_INDEX.title,
+      isEditor,
+    );
     const descriptionSource = getRichField(
       row,
       'description',
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.description,
+      isEditor,
     );
     const contactMethodsField = getField(
       row,
       'contactMethods',
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.contactMethods,
+      isEditor,
     );
-    const structuredContactMethods = getStructuredContactMethods(row);
+    const structuredContactMethods = getStructuredContactMethods(row, isEditor);
     const cardBackgroundColorField = getField(
       row,
       'cardBackgroundColor',
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.cardBackgroundColor,
+      isEditor,
     );
     const showDividerField = getField(
       row,
       'showDivider',
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.showDivider,
+      isEditor,
     );
     const cardHoverBackgroundColorField = getField(
       row,
       'cardHoverBackgroundColor',
       ITEM_COLUMN_INDEX,
       ITEM_COLUMN_INDEX.cardHoverBackgroundColor,
+      isEditor,
     );
 
     if (
@@ -518,7 +581,7 @@ export default function decorate(block) {
     });
   });
 
-  if (!cards.length && isAuthoring) {
+  if (!cards.length && isEditor) {
     cards.push({ isAuthoringPlaceholder: true });
   }
 

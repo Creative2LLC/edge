@@ -23178,6 +23178,103 @@
     ]
   },
   {
+    "id": "social-report-cta",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow (Optional)",
+        "value": "Stay connected"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "socialHeading",
+        "label": "Social Heading",
+        "value": "Connect with us on social media"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "socialIntro",
+        "label": "Social Intro (Optional)",
+        "value": "Follow NCMEC for updates, prevention resources, and ways to help."
+      },
+      {
+        "component": "aem-content",
+        "name": "facebookLink",
+        "label": "Facebook Link"
+      },
+      {
+        "component": "aem-content",
+        "name": "xLink",
+        "label": "X Link"
+      },
+      {
+        "component": "aem-content",
+        "name": "instagramLink",
+        "label": "Instagram Link"
+      },
+      {
+        "component": "aem-content",
+        "name": "tiktokLink",
+        "label": "TikTok Link"
+      },
+      {
+        "component": "aem-content",
+        "name": "linkedinLink",
+        "label": "LinkedIn Link"
+      },
+      {
+        "component": "aem-content",
+        "name": "youtubeLink",
+        "label": "YouTube Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "reportHeading",
+        "label": "Report Heading (Optional)",
+        "description": "Leave this and the report link/image fields empty to hide the report panel.",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "reportBody",
+        "label": "Report Body (Optional)",
+        "value": ""
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "reportImage",
+        "label": "Report Cover Image (Optional)",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "reportImageAlt",
+        "label": "Report Cover Alt Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "reportButtonText",
+        "label": "Report Button Text",
+        "value": "Download the PDF"
+      },
+      {
+        "component": "aem-content",
+        "name": "reportButtonLink",
+        "label": "Report PDF Link (Optional)"
+      }
+    ]
+  },
+  {
     "id": "split-card-carousel",
     "fields": [
       {

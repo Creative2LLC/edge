@@ -30,24 +30,37 @@ function fieldCell(row) {
   return row.children.length > 1 ? row.children[1] : row.children[0] || row;
 }
 
-function readField(block, name, labels = [], fallbackCell = null) {
-  const field = readTextField(block, name, {
-    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
-  });
-  const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
-  return field;
-}
-
+// Fields with no authored value frequently don't get their own row in the exported
+// markup at all, so a positional fallback can silently grab a completely different
+// field's row. In the editor, named data-aue-prop lookup is reliable whenever a field
+// actually has content, so a failed name lookup there means the field is genuinely
+// empty — never fall back to a position guess in that case. Positional fallback is
+// only meaningful on true published pages (see cards.js / colored-icon-text.js for
+// the same pattern).
+//
 // In editor context, hides the row instead of removing it so the data-aue-prop
 // source element stays in the DOM. It gets moved into a hidden archive inside
 // inner before replaceChildren, then a MutationObserver keeps the CSS variable
 // in sync when UE writes a new value to that element via the Properties panel.
+// Permanently removing an aue-tracked node desyncs UE's resource tree from the DOM,
+// which breaks live-edit syncing for that field on the NEXT decoration pass.
+function readField(block, name, labels = [], fallbackCell = null, isEditor = false) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell: isEditor ? null : fallbackCell,
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) {
+    if (isEditor && field.source) row.hidden = true;
+    else row.remove();
+  }
+  return field;
+}
+
 function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
   const field = readTextField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
+    fallbackCell: isEditor ? null : fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
   if (row) {
@@ -109,20 +122,29 @@ function syncResourceColorFields(resourcePath, block) {
     });
 }
 
-function readLink(block, name, labels = [], fallbackCell = null) {
+function readLink(block, name, labels = [], fallbackCell = null, isEditor = false) {
   const field = readLinkField(block, name, {
     labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
-    fallbackCell,
+    fallbackCell: isEditor ? null : fallbackCell,
   });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
+  if (row) {
+    if (isEditor && field.source) row.hidden = true;
+    else row.remove();
+  }
   return field;
 }
 
-function readImage(block, name, labels = [], fallbackCell = null) {
-  const field = readImageField(block, name, { labels, fallbackCell });
+function readImage(block, name, labels = [], fallbackCell = null, isEditor = false) {
+  const field = readImageField(block, name, {
+    labels,
+    fallbackCell: isEditor ? null : fallbackCell,
+  });
   const row = field.cell ? directRowOf(block, field.cell) : null;
-  if (row) row.remove();
+  if (row) {
+    if (isEditor && field.source) row.hidden = true;
+    else row.remove();
+  }
   return field;
 }
 
@@ -249,8 +271,8 @@ export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
   const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 5) ? 1 : 0;
 
-  const labelField = readField(block, 'label', ['button text', 'text', 'label'], fieldCell(rows[0]));
-  const linkField = readLink(block, 'link', ['button link', 'url', 'href'], fieldCell(rows[1]));
+  const labelField = readField(block, 'label', ['button text', 'text', 'label'], fieldCell(rows[0]), isEditor);
+  const linkField = readLink(block, 'link', ['button link', 'url', 'href'], fieldCell(rows[1]), isEditor);
   const bgField = readColorField(
     block,
     'backgroundColor',
@@ -275,42 +297,49 @@ export default function decorate(block) {
   );
   const blockBackgroundColor = normalizeColorValue(blockBgField.value);
   const appearance = normalizeOption(
-    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[5 + rowOffset])).value,
+    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[5 + rowOffset]), isEditor).value,
     ['solid', 'outlined', 'inverted'],
     'solid',
   );
   const invertOnHover = normalizeOption(
-    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[6 + rowOffset])).value,
+    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[6 + rowOffset]), isEditor).value,
     ['yes', 'no'],
     'no',
   );
+  // Offsets below match _colored-button.json's ACTUAL current field order (fields were
+  // regrouped under UI tabs by a later commit, which changed this order without the
+  // fixed-index reads here being updated). Order after invertOnHover: fontSize(7),
+  // fontWeight(8), icon(9), iconName(10), iconAlt(11), iconPosition(12), then
+  // horizontalAlign(13), verticalAlign(14), minHeight(15), layoutOptions(16) — the Icon tab
+  // fields and fontSize/fontWeight come BEFORE the Layout & Spacing fields, not after.
+  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[7 + rowOffset]), isEditor).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[8 + rowOffset]), isEditor).value);
+  const iconField = readImage(block, 'icon', ['icon', 'icon image'], fieldCell(rows[9 + rowOffset]), isEditor);
+  const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[10 + rowOffset]), isEditor).value;
+  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[11 + rowOffset]), isEditor).value;
+  const iconPosition = normalizeOption(
+    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[12 + rowOffset]), isEditor).value,
+    ['left', 'right', 'none'],
+    'right',
+  );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[7 + rowOffset])).value,
+    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[13 + rowOffset]), isEditor).value,
     ['left', 'center', 'right', 'stretch'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[8 + rowOffset])).value,
+    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[14 + rowOffset]), isEditor).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const fontSize = normalizeCssLength(readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[9 + rowOffset])).value, 'font-size');
-  const fontWeight = normalizeFontWeight(readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[10 + rowOffset])).value);
-  const iconField = readImage(block, 'icon', ['icon', 'icon image'], fieldCell(rows[11 + rowOffset]));
-  const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[12 + rowOffset])).value;
-  const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[13 + rowOffset])).value;
-  const iconPosition = normalizeOption(
-    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[14 + rowOffset])).value,
-    ['left', 'right', 'none'],
-    'right',
-  );
   const iconSize = normalizeCssLength(readField(block, 'iconSize', ['icon size']).value, 'width');
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[16 + rowOffset])).value, 'min-height');
+  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[15 + rowOffset]), isEditor).value, 'min-height');
   const layoutOptionsField = readField(
     block,
     'layoutOptions',
     ['layout options', 'spacing and shadow'],
-    fieldCell(rows[17 + rowOffset]),
+    fieldCell(rows[16 + rowOffset]),
+    isEditor,
   );
 
   block.classList.add(

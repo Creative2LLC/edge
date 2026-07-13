@@ -76,12 +76,23 @@ function getFallbackLink(block, index) {
   return anchor?.getAttribute('href') || cell?.textContent?.trim() || '';
 }
 
-function getFieldWithFallback(block, name, fallbackIndex) {
-  return getField(block, name) || getFallbackText(block, fallbackIndex);
+// Fields with no authored value frequently don't get their own row in the exported
+// markup at all, so a positional fallback can silently grab a completely different
+// field's value. In the editor, named data-aue-prop lookup is reliable whenever a
+// field actually has content, so a failed name lookup there means the field is
+// genuinely empty — never fall back to a position guess in that case. Positional
+// fallback is only meaningful on true published pages (see cards.js /
+// colored-icon-text.js for the same pattern).
+function getFieldWithFallback(block, name, fallbackIndex, isEditor) {
+  const value = getField(block, name);
+  if (value || isEditor) return value;
+  return getFallbackText(block, fallbackIndex);
 }
 
-function getLinkFieldWithFallback(block, name, fallbackIndex) {
-  return getLinkField(block, name) || getFallbackLink(block, fallbackIndex);
+function getLinkFieldWithFallback(block, name, fallbackIndex, isEditor) {
+  const value = getLinkField(block, name);
+  if (value || isEditor) return value;
+  return getFallbackLink(block, fallbackIndex);
 }
 
 function getImage(block) {
@@ -177,28 +188,37 @@ function buildButton(text, href, backgroundColor, style, textColor) {
 }
 
 export default async function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const wrapper = block.closest('.split-card-wrapper') || block.parentElement;
   const resourceData = await getBlockResourceData(block);
   const picture = getImage(block);
 
-  const heading = getFieldWithFallback(block, 'heading', 1)
+  // Fallback indices below match _split-card.json's ACTUAL current field order (fields
+  // were regrouped under UI tabs by a later commit, which changed this order without
+  // the fixed-index reads here being updated). Order: heading(0), subheading(1),
+  // image(2), imageAlt(3), imagePosition(4), imageSize(5), buttonText(6), buttonLink(7),
+  // buttonColor(8), buttonStyle(9), buttonSubtext(10), button2Text(11), button2Link(12),
+  // button2Color(13), button2Style(14), button2Subtext(15), backgroundColor(16),
+  // headingColor(17), subheadingColor(18), textColor(19), contentAlign(20), blockSize(21),
+  // maxWidth(22), stylingVariant(23).
+  const heading = getFieldWithFallback(block, 'heading', 0, isEditor)
     || normalizeJsonFieldValue(resourceData.heading);
   const subheadingField = readRichTextField(block, 'subheading', {
-    fallbackCell: getRowCells(block)[2],
+    fallbackCell: isEditor ? null : getRowCells(block)[1],
   });
   const subheadingHtml = subheadingField.html
     || normalizeJsonFieldValue(resourceData.subheading);
-  const buttonText = getFieldWithFallback(block, 'buttonText', 3)
+  const buttonText = getFieldWithFallback(block, 'buttonText', 6, isEditor)
     || normalizeJsonFieldValue(resourceData.buttonText);
-  const buttonLink = getLinkFieldWithFallback(block, 'buttonLink', 4)
+  const buttonLink = getLinkFieldWithFallback(block, 'buttonLink', 7, isEditor)
     || normalizeJsonFieldValue(resourceData.buttonLink);
-  const button2Text = getFieldWithFallback(block, 'button2Text', 7)
+  const button2Text = getFieldWithFallback(block, 'button2Text', 11, isEditor)
     || normalizeJsonFieldValue(resourceData.button2Text);
-  const button2Link = getLinkFieldWithFallback(block, 'button2Link', 8)
+  const button2Link = getLinkFieldWithFallback(block, 'button2Link', 12, isEditor)
     || normalizeJsonFieldValue(resourceData.button2Link);
-  const buttonStyle = getFieldWithFallback(block, 'buttonStyle', 6)
+  const buttonStyle = getFieldWithFallback(block, 'buttonStyle', 9, isEditor)
     || normalizeJsonFieldValue(resourceData.buttonStyle);
-  const button2Style = getFieldWithFallback(block, 'button2Style', 10)
+  const button2Style = getFieldWithFallback(block, 'button2Style', 14, isEditor)
     || normalizeJsonFieldValue(resourceData.button2Style);
   const buttonSubtext = getField(block, 'buttonSubtext')
     || normalizeJsonFieldValue(resourceData.buttonSubtext);
@@ -218,18 +238,20 @@ export default async function decorate(block) {
     getField(block, 'subheadingColor') || resourceData.subheadingColor,
   ) || sharedTextColor;
 
-  const contentAlign = getFieldWithFallback(block, 'contentAlign', 15)
+  const contentAlign = getFieldWithFallback(block, 'contentAlign', 20, isEditor)
     || normalizeJsonFieldValue(resourceData.contentAlign)
     || 'left';
-  const imagePosition = getFieldWithFallback(block, 'imagePosition', 16)
+  const imagePosition = getFieldWithFallback(block, 'imagePosition', 4, isEditor)
     || normalizeJsonFieldValue(resourceData.imagePosition)
     || 'left';
-  const maxWidth = normalizeSizeValue(getFieldWithFallback(block, 'maxWidth', 19) || resourceData.maxWidth);
-  const blockSize = (getFieldWithFallback(block, 'blockSize', 18)
+  const maxWidth = normalizeSizeValue(
+    getFieldWithFallback(block, 'maxWidth', 22, isEditor) || resourceData.maxWidth,
+  );
+  const blockSize = (getFieldWithFallback(block, 'blockSize', 21, isEditor)
     || normalizeJsonFieldValue(resourceData.blockSize) || 'normal').toLowerCase();
-  const imageSize = (getFieldWithFallback(block, 'imageSize', 17)
+  const imageSize = (getFieldWithFallback(block, 'imageSize', 5, isEditor)
     || normalizeJsonFieldValue(resourceData.imageSize) || 'even').toLowerCase();
-  const stylingVariant = (getFieldWithFallback(block, 'stylingVariant', 20)
+  const stylingVariant = (getFieldWithFallback(block, 'stylingVariant', 23, isEditor)
     || normalizeJsonFieldValue(resourceData.stylingVariant) || 'default').toLowerCase();
 
   if (picture) {

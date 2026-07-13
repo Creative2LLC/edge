@@ -25,17 +25,21 @@ const HERO_RESOURCE_FIELD_NAMES = [
 ];
 const resourceDataCache = new Map();
 
+// Indices below match _hero.json's ACTUAL current field order (fields were regrouped
+// under UI tabs by a later commit — the Layout tab, containing variant/content_height/
+// content_position, was placed BEFORE the Media tab, not after it as this table used
+// to assume; "tab" model entries are UI-only and consume no row).
 const HERO_FIELD_INDEX = {
   variant: 0,
-  media_image: 1,
-  media_imageAlt: 2,
-  media_featuredImage: 3,
-  media_featuredImageAlt: 4,
-  media_video: 5,
-  media_overlayOpacity: 6,
-  media_gradientOverlay: 7,
-  content_height: 8,
-  content_position: 9,
+  content_height: 1,
+  content_position: 2,
+  media_image: 3,
+  media_imageAlt: 4,
+  media_featuredImage: 5,
+  media_featuredImageAlt: 6,
+  media_video: 7,
+  media_overlayOpacity: 8,
+  media_gradientOverlay: 9,
   content_showBreadcrumbs: 10,
   content_breadcrumbs: 11,
   content_text: 12,
@@ -296,7 +300,15 @@ function getRowCells(block) {
     .filter(Boolean);
 }
 
+// Fields with no authored value frequently don't get their own row in the exported
+// markup at all, so a positional fallback can silently grab a completely different
+// field's value. In the editor, named data-aue-prop lookup is reliable whenever a
+// field actually has content, so a failed name lookup there means the field is
+// genuinely empty — never fall back to a position guess in that case. Positional
+// fallback is only meaningful on true published pages (see cards.js /
+// colored-icon-text.js for the same pattern).
 function getHeroFieldCell(block, name) {
+  if (isUniversalEditor()) return null;
   const index = HERO_FIELD_INDEX[name];
   return Number.isInteger(index) ? getRowCells(block)[index] || null : null;
 }
@@ -649,7 +661,19 @@ function readTextColor(block, fallbackValue = '') {
     });
   }
 
-  rowsToRemove.forEach((row) => row.remove());
+  // Hide (don't remove) rows that still carry live Universal Editor instrumentation —
+  // permanently removing an aue-tracked node desyncs UE's resource tree from the DOM
+  // and breaks live-patching of that field on the next decoration pass. Rows found via
+  // the legacy label-matching branch above never had instrumentation to begin with, so
+  // they're always safe to remove outright.
+  const isEditor = isUniversalEditor();
+  rowsToRemove.forEach((row) => {
+    if (isEditor && row.querySelector('[data-aue-prop], [data-richtext-prop]')) {
+      row.hidden = true;
+    } else {
+      row.remove();
+    }
+  });
   return normalizeHexColor(rawValue) || normalizeHexColor(fallbackValue);
 }
 
@@ -731,7 +755,15 @@ function readHeight(block) {
     });
   }
 
-  rowsToRemove.forEach((row) => row.remove());
+  // Same hide-not-remove rationale as readTextColor above.
+  const isEditor = isUniversalEditor();
+  rowsToRemove.forEach((row) => {
+    if (isEditor && row.querySelector('[data-aue-prop], [data-richtext-prop]')) {
+      row.hidden = true;
+    } else {
+      row.remove();
+    }
+  });
   return normalizeHeight(rawValue);
 }
 
@@ -1453,17 +1485,29 @@ export default async function decorate(block) {
   content.className = 'hero-content';
   content.append(layout);
 
+  // Rows hidden above (readTextColor/readHeight) instead of removed need to survive
+  // this replaceChildren call to stay live-trackable by Universal Editor — collect them
+  // into a hidden archive appended alongside the real content, matching the pattern used
+  // in cards.js / colored-icon-text.js / colored-grid.js.
+  const hiddenRows = [...block.querySelectorAll(':scope > div[hidden]')];
+  const archive = hiddenRows.length ? document.createElement('span') : null;
+  if (archive) {
+    archive.hidden = true;
+    hiddenRows.forEach((row) => archive.append(row));
+  }
+  const archiveNodes = archive ? [archive] : [];
+
   if (videoEl) {
     if (picture) {
-      block.replaceChildren(picture, videoEl, content);
+      block.replaceChildren(picture, videoEl, content, ...archiveNodes);
     } else {
-      block.replaceChildren(videoEl, content);
+      block.replaceChildren(videoEl, content, ...archiveNodes);
     }
     return;
   }
   if (picture) {
-    block.replaceChildren(picture, content);
+    block.replaceChildren(picture, content, ...archiveNodes);
     return;
   }
-  block.replaceChildren(content);
+  block.replaceChildren(content, ...archiveNodes);
 }
