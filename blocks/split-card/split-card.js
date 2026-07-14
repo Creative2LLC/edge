@@ -31,10 +31,104 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
+function isValidSizeValue(value) {
+  const normalized = String(value || '').trim();
+  return /^(?:\d+(?:\.\d+)?(?:px|rem|em|%|vw|vh|vmin|vmax|ch|ex|lh|rlh)|calc\(.+\)|clamp\(.+\)|min\(.+\)|max\(.+\))$/iu
+    .test(normalized);
+}
+
 function normalizeSizeValue(value) {
   const normalized = normalizeJsonFieldValue(value);
   if (!normalized) return '';
   if (/^\d+(\.\d+)?$/.test(normalized)) return `${normalized}px`;
+  if (!isValidSizeValue(normalized)) return '';
+  return normalized;
+}
+
+const BUTTON_STYLE_VALUES = ['default', 'solid', 'outlined', 'outline', 'link'];
+const CONTENT_ALIGN_VALUES = ['left', 'center', 'right'];
+const IMAGE_POSITION_VALUES = ['left', 'right'];
+const IMAGE_SIZE_VALUES = ['even', 'smaller'];
+const BLOCK_SIZE_VALUES = ['normal', 'smaller'];
+const STYLING_VARIANT_VALUES = ['default', 'variant-2'];
+
+const CURRENT_FIELD_INDEX = {
+  heading: 0,
+  subheading: 1,
+  image: 2,
+  imageAlt: 3,
+  imagePosition: 4,
+  imageSize: 5,
+  buttonText: 6,
+  buttonLink: 7,
+  buttonColor: 8,
+  buttonStyle: 9,
+  buttonSubtext: 10,
+  button2Text: 11,
+  button2Link: 12,
+  button2Color: 13,
+  button2Style: 14,
+  button2Subtext: 15,
+  backgroundColor: 16,
+  headingColor: 17,
+  subheadingColor: 18,
+  textColor: 19,
+  contentAlign: 20,
+  blockSize: 21,
+  maxWidth: 22,
+  stylingVariant: 23,
+};
+
+// Pages authored before the field-tab cleanup publish in the previous image-first order.
+// Several optional fields do not emit rows when empty, so these indices mirror the old
+// runtime fallback that matched those pages.
+const LEGACY_FIELD_INDEX = {
+  heading: 1,
+  subheading: 2,
+  buttonText: 3,
+  buttonLink: 4,
+  buttonStyle: 6,
+  button2Text: 7,
+  button2Link: 8,
+  button2Style: 10,
+  contentAlign: 15,
+  imagePosition: 16,
+  imageSize: 17,
+  blockSize: 18,
+  maxWidth: 19,
+  stylingVariant: 20,
+};
+
+function normalizeOptionValue(value, allowedValues, fallback) {
+  const normalized = normalizeJsonFieldValue(value).toLowerCase();
+  return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function isConfigToken(value) {
+  const normalized = normalizeJsonFieldValue(value).toLowerCase();
+  return [
+    ...BUTTON_STYLE_VALUES,
+    ...CONTENT_ALIGN_VALUES,
+    ...IMAGE_POSITION_VALUES,
+    ...IMAGE_SIZE_VALUES,
+    ...BLOCK_SIZE_VALUES,
+    ...STYLING_VARIANT_VALUES,
+  ].includes(normalized)
+    || isValidSizeValue(normalized)
+    || normalizeColorValue(normalized).startsWith('#');
+}
+
+function normalizeButtonTextValue(value) {
+  const normalized = normalizeJsonFieldValue(value);
+  return isConfigToken(normalized) ? '' : normalized;
+}
+
+function normalizeLinkValue(value) {
+  const normalized = normalizeJsonFieldValue(value);
+  if (!normalized) return '';
+  if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/iu.test(normalized)) return '';
+  if (isConfigToken(normalized)) return '';
+  if (/\s/u.test(normalized)) return '';
   return normalized;
 }
 
@@ -74,6 +168,35 @@ function getFallbackLink(block, index) {
   const cell = getRowCells(block)[index];
   const anchor = cell?.querySelector?.('a[href]');
   return anchor?.getAttribute('href') || cell?.textContent?.trim() || '';
+}
+
+function findFallbackOption(block, preferredIndex, allowedValues) {
+  const preferred = normalizeOptionValue(getFallbackText(block, preferredIndex), allowedValues, '');
+  if (preferred) return preferred;
+
+  return getRowCells(block)
+    .map((cell) => normalizeOptionValue(cell.textContent, allowedValues, ''))
+    .find(Boolean) || '';
+}
+
+function getFallbackIndexMap(block, isEditor) {
+  if (isEditor) return CURRENT_FIELD_INDEX;
+
+  const currentHeading = getFallbackText(block, CURRENT_FIELD_INDEX.heading);
+  const legacyHeading = getFallbackText(block, LEGACY_FIELD_INDEX.heading);
+  const currentMaxWidth = getFallbackText(block, CURRENT_FIELD_INDEX.maxWidth);
+  const legacyVariant = getFallbackText(block, LEGACY_FIELD_INDEX.stylingVariant);
+
+  if (!currentHeading && legacyHeading) return LEGACY_FIELD_INDEX;
+  if (!isValidSizeValue(currentMaxWidth) && normalizeOptionValue(
+    legacyVariant,
+    STYLING_VARIANT_VALUES,
+    '',
+  )) {
+    return LEGACY_FIELD_INDEX;
+  }
+
+  return CURRENT_FIELD_INDEX;
 }
 
 // Fields with no authored value frequently don't get their own row in the exported
@@ -126,6 +249,7 @@ function collectColorValues(block) {
   });
 
   return {
+    values,
     buttonColor: values[0] || '',
     button2Color: values[1] || '',
     backgroundColor: values[2] || '',
@@ -192,34 +316,53 @@ export default async function decorate(block) {
   const wrapper = block.closest('.split-card-wrapper') || block.parentElement;
   const resourceData = await getBlockResourceData(block);
   const picture = getImage(block);
+  const fieldIndex = getFallbackIndexMap(block, isEditor);
 
-  // Fallback indices below match _split-card.json's ACTUAL current field order (fields
-  // were regrouped under UI tabs by a later commit, which changed this order without
-  // the fixed-index reads here being updated). Order: heading(0), subheading(1),
-  // image(2), imageAlt(3), imagePosition(4), imageSize(5), buttonText(6), buttonLink(7),
-  // buttonColor(8), buttonStyle(9), buttonSubtext(10), button2Text(11), button2Link(12),
-  // button2Color(13), button2Style(14), button2Subtext(15), backgroundColor(16),
-  // headingColor(17), subheadingColor(18), textColor(19), contentAlign(20), blockSize(21),
-  // maxWidth(22), stylingVariant(23).
-  const heading = getFieldWithFallback(block, 'heading', 0, isEditor)
+  // Use the selected field index map for positional live fallbacks. Author keeps using
+  // data-aue-prop/resource JSON, while live can support both current and pre-tabs rows.
+  const heading = getFieldWithFallback(block, 'heading', fieldIndex.heading, isEditor)
     || normalizeJsonFieldValue(resourceData.heading);
   const subheadingField = readRichTextField(block, 'subheading', {
-    fallbackCell: isEditor ? null : getRowCells(block)[1],
+    fallbackCell: isEditor ? null : getRowCells(block)[fieldIndex.subheading],
   });
   const subheadingHtml = subheadingField.html
     || normalizeJsonFieldValue(resourceData.subheading);
-  const buttonText = getFieldWithFallback(block, 'buttonText', 6, isEditor)
-    || normalizeJsonFieldValue(resourceData.buttonText);
-  const buttonLink = getLinkFieldWithFallback(block, 'buttonLink', 7, isEditor)
-    || normalizeJsonFieldValue(resourceData.buttonLink);
-  const button2Text = getFieldWithFallback(block, 'button2Text', 11, isEditor)
-    || normalizeJsonFieldValue(resourceData.button2Text);
-  const button2Link = getLinkFieldWithFallback(block, 'button2Link', 12, isEditor)
-    || normalizeJsonFieldValue(resourceData.button2Link);
-  const buttonStyle = getFieldWithFallback(block, 'buttonStyle', 9, isEditor)
-    || normalizeJsonFieldValue(resourceData.buttonStyle);
-  const button2Style = getFieldWithFallback(block, 'button2Style', 14, isEditor)
-    || normalizeJsonFieldValue(resourceData.button2Style);
+  const buttonText = normalizeButtonTextValue(getFieldWithFallback(
+    block,
+    'buttonText',
+    fieldIndex.buttonText,
+    isEditor,
+  ) || resourceData.buttonText);
+  const buttonLink = normalizeLinkValue(getLinkFieldWithFallback(
+    block,
+    'buttonLink',
+    fieldIndex.buttonLink,
+    isEditor,
+  ) || resourceData.buttonLink);
+  const button2Text = normalizeButtonTextValue(getFieldWithFallback(
+    block,
+    'button2Text',
+    fieldIndex.button2Text,
+    isEditor,
+  ) || resourceData.button2Text);
+  const button2Link = normalizeLinkValue(getLinkFieldWithFallback(
+    block,
+    'button2Link',
+    fieldIndex.button2Link,
+    isEditor,
+  ) || resourceData.button2Link);
+  const buttonStyle = normalizeOptionValue(
+    getFieldWithFallback(block, 'buttonStyle', fieldIndex.buttonStyle, isEditor)
+      || resourceData.buttonStyle,
+    BUTTON_STYLE_VALUES,
+    'default',
+  );
+  const button2Style = normalizeOptionValue(
+    getFieldWithFallback(block, 'button2Style', fieldIndex.button2Style, isEditor)
+      || resourceData.button2Style,
+    BUTTON_STYLE_VALUES,
+    'default',
+  );
   const buttonSubtext = getField(block, 'buttonSubtext')
     || normalizeJsonFieldValue(resourceData.buttonSubtext);
   const button2Subtext = getField(block, 'button2Subtext')
@@ -227,32 +370,60 @@ export default async function decorate(block) {
   const imageAlt = getField(block, 'imageAlt') || normalizeJsonFieldValue(resourceData.imageAlt);
 
   const colors = collectColorValues(block);
-  const buttonColor = colors.buttonColor || normalizeColorValue(resourceData.buttonColor);
-  const button2Color = colors.button2Color || normalizeColorValue(resourceData.button2Color);
-  const backgroundColor = colors.backgroundColor
+  const colorValues = colors.values || [];
+  const hasPrimaryButton = Boolean(buttonText || buttonLink);
+  const hasSecondaryButton = Boolean(button2Text || button2Link);
+  const buttonColor = (hasPrimaryButton ? colorValues[0] : '')
+    || normalizeColorValue(resourceData.buttonColor);
+  const button2Color = (hasSecondaryButton ? colorValues[hasPrimaryButton ? 1 : 0] : '')
+    || normalizeColorValue(resourceData.button2Color);
+  const backgroundColor = colorValues[
+    (hasPrimaryButton ? 1 : 0) + (hasSecondaryButton ? 1 : 0)
+  ] || colors.backgroundColor
     || normalizeColorValue(resourceData.backgroundColor);
-  const sharedTextColor = colors.textColor || normalizeColorValue(resourceData.textColor);
+  const sharedTextColor = colorValues[
+    (hasPrimaryButton ? 2 : 1) + (hasSecondaryButton ? 1 : 0)
+  ] || colors.textColor || normalizeColorValue(resourceData.textColor);
   const headingColor = normalizeColorValue(getField(block, 'headingColor') || resourceData.headingColor)
     || sharedTextColor;
   const subheadingColor = normalizeColorValue(
     getField(block, 'subheadingColor') || resourceData.subheadingColor,
   ) || sharedTextColor;
 
-  const contentAlign = getFieldWithFallback(block, 'contentAlign', 20, isEditor)
-    || normalizeJsonFieldValue(resourceData.contentAlign)
-    || 'left';
-  const imagePosition = getFieldWithFallback(block, 'imagePosition', 4, isEditor)
-    || normalizeJsonFieldValue(resourceData.imagePosition)
-    || 'left';
-  const maxWidth = normalizeSizeValue(
-    getFieldWithFallback(block, 'maxWidth', 22, isEditor) || resourceData.maxWidth,
+  const contentAlign = normalizeOptionValue(
+    getFieldWithFallback(block, 'contentAlign', fieldIndex.contentAlign, isEditor)
+      || resourceData.contentAlign,
+    CONTENT_ALIGN_VALUES,
+    'left',
   );
-  const blockSize = (getFieldWithFallback(block, 'blockSize', 21, isEditor)
-    || normalizeJsonFieldValue(resourceData.blockSize) || 'normal').toLowerCase();
-  const imageSize = (getFieldWithFallback(block, 'imageSize', 5, isEditor)
-    || normalizeJsonFieldValue(resourceData.imageSize) || 'even').toLowerCase();
-  const stylingVariant = (getFieldWithFallback(block, 'stylingVariant', 23, isEditor)
-    || normalizeJsonFieldValue(resourceData.stylingVariant) || 'default').toLowerCase();
+  const imagePosition = normalizeOptionValue(
+    getFieldWithFallback(block, 'imagePosition', fieldIndex.imagePosition, isEditor)
+      || resourceData.imagePosition,
+    IMAGE_POSITION_VALUES,
+    'left',
+  );
+  const maxWidth = normalizeSizeValue(
+    getFieldWithFallback(block, 'maxWidth', fieldIndex.maxWidth, isEditor) || resourceData.maxWidth,
+  );
+  const blockSize = normalizeOptionValue(
+    getFieldWithFallback(block, 'blockSize', fieldIndex.blockSize, isEditor)
+      || resourceData.blockSize,
+    BLOCK_SIZE_VALUES,
+    'normal',
+  );
+  const imageSize = normalizeOptionValue(
+    getFieldWithFallback(block, 'imageSize', fieldIndex.imageSize, isEditor)
+      || resourceData.imageSize,
+    IMAGE_SIZE_VALUES,
+    'even',
+  );
+  const stylingVariant = normalizeOptionValue(
+    getField(block, 'stylingVariant')
+      || findFallbackOption(block, fieldIndex.stylingVariant, STYLING_VARIANT_VALUES)
+      || resourceData.stylingVariant,
+    STYLING_VARIANT_VALUES,
+    'default',
+  );
 
   if (picture) {
     const img = picture.querySelector('img');
