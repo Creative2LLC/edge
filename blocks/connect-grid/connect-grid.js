@@ -14,7 +14,16 @@ import {
 // and everything after it shifts. A per-card fetch of the resource's own JSON, keyed by
 // field name, sidesteps row position entirely and is the authoritative correction. Matches
 // the pattern already proven in cards.js / info-cards-grid.js.
-const CARD_COLOR_FIELD_NAMES = ['iconColor', 'cardBackgroundColor', 'cardHoverBackgroundColor'];
+const CARD_COLOR_FIELD_NAMES = [
+  'iconColor',
+  'cardBackgroundColor',
+  'cardHoverBackgroundColor',
+  'cardTextColor',
+  'titleColor',
+  'descriptionColor',
+  'contactLabelColor',
+  'contactValueColor',
+];
 
 function isValidHexColor(value) {
   return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
@@ -181,7 +190,7 @@ function normalizeCssSize(value) {
 // content. Name-based lookup can never succeed for these, so positional fallback must
 // stay enabled in the editor too for them (this caused a live regression: cards falling
 // back to default colors because these fields could never be read in the editor).
-const ALWAYS_POSITIONAL_FIELDS = new Set(['iconColor', 'cardBackgroundColor', 'cardHoverBackgroundColor']);
+const ALWAYS_POSITIONAL_FIELDS = new Set(CARD_COLOR_FIELD_NAMES);
 
 function getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor, name) {
   if (!isItemIndexMap(rowIndexMap)) return getParentFallbackCell(scope, rowIndex);
@@ -440,6 +449,22 @@ function syncCardColors(resourcePath, card) {
       if (fields.iconColor) {
         const icon = card.querySelector(':scope > .connect-grid-card-media.is-icon');
         if (icon) icon.style.setProperty('background-color', fields.iconColor, 'important');
+      }
+      if (fields.cardTextColor) {
+        card.style.setProperty('--connect-grid-title-color', fields.cardTextColor);
+        card.style.setProperty('--connect-grid-description-color', fields.cardTextColor);
+        card.style.setProperty('--connect-grid-method-label-color', fields.cardTextColor);
+        card.style.setProperty('--connect-grid-method-value-color', fields.cardTextColor);
+      }
+      if (fields.titleColor) card.style.setProperty('--connect-grid-title-color', fields.titleColor);
+      if (fields.descriptionColor) {
+        card.style.setProperty('--connect-grid-description-color', fields.descriptionColor);
+      }
+      if (fields.contactLabelColor) {
+        card.style.setProperty('--connect-grid-method-label-color', fields.contactLabelColor);
+      }
+      if (fields.contactValueColor) {
+        card.style.setProperty('--connect-grid-method-value-color', fields.contactValueColor);
       }
     });
 }

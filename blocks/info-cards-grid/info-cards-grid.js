@@ -23,6 +23,10 @@ const CARD_COLOR_FIELD_NAMES = [
   'cardHoverBackgroundColor',
   'buttonBackgroundColor',
   'button2BackgroundColor',
+  'cardTextColor',
+  'titleColor',
+  'subtitleColor',
+  'bodyColor',
 ];
 
 const BLOCK_FIELD_INDEX = {
@@ -83,6 +87,20 @@ const ITEM_FIELD_INDEX = Object.fromEntries(
   ITEM_FIELD_NAMES.map((name, index) => [name, index]),
 );
 
+const EXTRA_ITEM_FIELD_NAMES = [
+  'cardTextColor',
+  'titleColor',
+  'subtitleColor',
+  'bodyColor',
+  'titleFontSize',
+  'subtitleFontSize',
+  'bodyFontSize',
+  'cardIconSize',
+  'iconLayout',
+  'cardItemSpacing',
+  'buttonSpacing',
+];
+
 const PREVIOUS_ITEM_FIELD_NAMES = [
   'icon',
   'title',
@@ -136,6 +154,11 @@ const LEGACY_ITEM_FIELD_NAMES = [
 const LEGACY_ITEM_FIELD_INDEX = Object.fromEntries(
   LEGACY_ITEM_FIELD_NAMES.map((name, index) => [name, index]),
 );
+
+EXTRA_ITEM_FIELD_NAMES.forEach((name, offset) => {
+  PREVIOUS_ITEM_FIELD_INDEX[name] = PREVIOUS_ITEM_FIELD_NAMES.length + offset;
+  LEGACY_ITEM_FIELD_INDEX[name] = LEGACY_ITEM_FIELD_NAMES.length + offset;
+});
 
 function hasMeaningfulNodeContent(node) {
   if (!node) return false;
@@ -609,6 +632,16 @@ function syncCardColors(resourcePath, card, content, data, variant) {
       if (fields.iconColor && fields.iconColor !== data.iconColor) {
         restyleIcon(content, { ...data, iconColor: fields.iconColor });
       }
+      if (fields.cardTextColor) {
+        card.style.setProperty('--info-card-title-color', fields.cardTextColor);
+        card.style.setProperty('--info-card-subtitle-color', fields.cardTextColor);
+        card.style.setProperty('--info-card-body-color', fields.cardTextColor);
+      }
+      if (fields.titleColor) card.style.setProperty('--info-card-title-color', fields.titleColor);
+      if (fields.subtitleColor) {
+        card.style.setProperty('--info-card-subtitle-color', fields.subtitleColor);
+      }
+      if (fields.bodyColor) card.style.setProperty('--info-card-body-color', fields.bodyColor);
       if (
         (fields.buttonBackgroundColor && fields.buttonBackgroundColor !== data.buttonBg)
         || (fields.button2BackgroundColor && fields.button2BackgroundColor !== data.button2Bg)
@@ -911,10 +944,10 @@ export default function decorate(block) {
     );
     const iconColorField = getColorField(row, 'iconColor', itemFieldIndex.iconColor);
     const textStyleField = getField(row, 'textColor', itemFieldIndex.textColor, isEditor);
-    const cardTextColorField = getField(row, 'cardTextColor', itemFieldIndex.cardTextColor, isEditor);
-    const titleColorField = getField(row, 'titleColor', itemFieldIndex.titleColor, isEditor);
-    const subtitleColorField = getField(row, 'subtitleColor', itemFieldIndex.subtitleColor, isEditor);
-    const bodyColorField = getField(row, 'bodyColor', itemFieldIndex.bodyColor, isEditor);
+    const cardTextColorField = getColorField(row, 'cardTextColor', itemFieldIndex.cardTextColor);
+    const titleColorField = getColorField(row, 'titleColor', itemFieldIndex.titleColor);
+    const subtitleColorField = getColorField(row, 'subtitleColor', itemFieldIndex.subtitleColor);
+    const bodyColorField = getColorField(row, 'bodyColor', itemFieldIndex.bodyColor);
     const titleSizeField = getField(row, 'titleFontSize', itemFieldIndex.titleFontSize, isEditor);
     const subtitleSizeField = getField(row, 'subtitleFontSize', itemFieldIndex.subtitleFontSize, isEditor);
     const bodySizeField = getField(row, 'bodyFontSize', itemFieldIndex.bodyFontSize, isEditor);

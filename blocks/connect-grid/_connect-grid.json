@@ -484,100 +484,761 @@
           "value": ""
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "cardTextColor",
           "label": "All Text Color",
-          "description": "Optional hex color applied to title, description, and contact method text. Example: #404041",
-          "value": ""
+          "description": "Optional color applied to title, description, and contact method text.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Brand Blue (#008DB6)",
+              "value": "#008DB6"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "titleColor",
           "label": "Title Color",
-          "description": "Optional title-only hex color. Overrides All Text Color.",
-          "value": ""
+          "description": "Optional title-only color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Brand Blue (#008DB6)",
+              "value": "#008DB6"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "descriptionColor",
           "label": "Description Color",
-          "description": "Optional description-only hex color. Overrides All Text Color.",
-          "value": ""
+          "description": "Optional description-only color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Brand Blue (#008DB6)",
+              "value": "#008DB6"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "contactLabelColor",
           "label": "Contact Label Color",
-          "description": "Optional contact label hex color. Overrides All Text Color.",
-          "value": ""
+          "description": "Optional contact label color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Brand Blue (#008DB6)",
+              "value": "#008DB6"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "contactValueColor",
           "label": "Contact Value Color",
-          "description": "Optional contact value or link hex color. Overrides All Text Color.",
-          "value": ""
+          "description": "Optional contact value or link color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Primary Blue 1 (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Primary Blue 2 (#007294)",
+              "value": "#007294"
+            },
+            {
+              "name": "Primary Blue 3 (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Brand Blue (#008DB6)",
+              "value": "#008DB6"
+            },
+            {
+              "name": "Primary Grey 1 (#404041)",
+              "value": "#404041"
+            },
+            {
+              "name": "Primary Grey 2 (#0D273B)",
+              "value": "#0D273B"
+            },
+            {
+              "name": "Primary Grey 3 (#A1A1A1)",
+              "value": "#A1A1A1"
+            },
+            {
+              "name": "Orange (#E07E27)",
+              "value": "#E07E27"
+            },
+            {
+              "name": "Light Orange (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Peach (#FCBC7E)",
+              "value": "#FCBC7E"
+            },
+            {
+              "name": "Green (#7BC581)",
+              "value": "#7BC581"
+            },
+            {
+              "name": "Primary Red 1 (#E13E30)",
+              "value": "#E13E30"
+            },
+            {
+              "name": "Primary Red 2 (#F58A80)",
+              "value": "#F58A80"
+            },
+            {
+              "name": "Light Blue (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Light Grey 1 (#F6F6F6)",
+              "value": "#F6F6F6"
+            },
+            {
+              "name": "Light Grey 2 (#E7E4E1)",
+              "value": "#E7E4E1"
+            },
+            {
+              "name": "Light Grey 3 (#DDD5CC)",
+              "value": "#DDD5CC"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "titleFontSize",
           "label": "Title Font Size",
-          "description": "Optional CSS size. Example: 36px or 2rem.",
-          "value": ""
+          "description": "Optional title font size.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Small (14px)",
+              "value": "14px"
+            },
+            {
+              "name": "Base (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (18px)",
+              "value": "18px"
+            },
+            {
+              "name": "XL (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "2XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "3XL (28px)",
+              "value": "28px"
+            },
+            {
+              "name": "4XL (32px)",
+              "value": "32px"
+            },
+            {
+              "name": "5XL (40px)",
+              "value": "40px"
+            }
+          ]
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "descriptionFontSize",
           "label": "Description Font Size",
-          "description": "Optional CSS size. Example: 17px or 1rem.",
-          "value": ""
+          "description": "Optional description font size.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Small (14px)",
+              "value": "14px"
+            },
+            {
+              "name": "Base (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (18px)",
+              "value": "18px"
+            },
+            {
+              "name": "XL (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "2XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "3XL (28px)",
+              "value": "28px"
+            },
+            {
+              "name": "4XL (32px)",
+              "value": "32px"
+            },
+            {
+              "name": "5XL (40px)",
+              "value": "40px"
+            }
+          ]
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "contactLabelFontSize",
           "label": "Contact Label Font Size",
-          "description": "Optional CSS size. Example: 15px or 0.92rem.",
-          "value": ""
+          "description": "Optional contact label font size.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Small (14px)",
+              "value": "14px"
+            },
+            {
+              "name": "Base (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (18px)",
+              "value": "18px"
+            },
+            {
+              "name": "XL (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "2XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "3XL (28px)",
+              "value": "28px"
+            },
+            {
+              "name": "4XL (32px)",
+              "value": "32px"
+            },
+            {
+              "name": "5XL (40px)",
+              "value": "40px"
+            }
+          ]
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "contactValueFontSize",
           "label": "Contact Value Font Size",
-          "description": "Optional CSS size. Example: 17px or 1rem.",
-          "value": ""
+          "description": "Optional contact value font size.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Small (14px)",
+              "value": "14px"
+            },
+            {
+              "name": "Base (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (18px)",
+              "value": "18px"
+            },
+            {
+              "name": "XL (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "2XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "3XL (28px)",
+              "value": "28px"
+            },
+            {
+              "name": "4XL (32px)",
+              "value": "32px"
+            },
+            {
+              "name": "5XL (40px)",
+              "value": "40px"
+            }
+          ]
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "iconSize",
           "label": "Icon Size",
-          "description": "Optional per-card icon size. Example: 64px.",
-          "value": ""
+          "description": "Optional per-card icon size.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Small (32px)",
+              "value": "32px"
+            },
+            {
+              "name": "Medium (48px)",
+              "value": "48px"
+            },
+            {
+              "name": "Large (64px)",
+              "value": "64px"
+            },
+            {
+              "name": "XL (80px)",
+              "value": "80px"
+            },
+            {
+              "name": "2XL (96px)",
+              "value": "96px"
+            }
+          ]
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "cardItemSpacing",
           "label": "Card Item Spacing",
-          "description": "Optional spacing between the icon/image, title, description, divider, and methods. Example: 20px.",
-          "value": ""
+          "description": "Spacing between the icon/image, title, description, divider, and methods.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "None (0px)",
+              "value": "0px"
+            },
+            {
+              "name": "Tight (8px)",
+              "value": "8px"
+            },
+            {
+              "name": "Small (12px)",
+              "value": "12px"
+            },
+            {
+              "name": "Medium (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "2XL (32px)",
+              "value": "32px"
+            }
+          ]
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "contactMethodSpacing",
           "label": "Contact Method Spacing",
-          "description": "Optional spacing between multiple contact methods. Example: 12px.",
-          "value": ""
+          "description": "Spacing between multiple contact methods.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "None (0px)",
+              "value": "0px"
+            },
+            {
+              "name": "Tight (8px)",
+              "value": "8px"
+            },
+            {
+              "name": "Small (12px)",
+              "value": "12px"
+            },
+            {
+              "name": "Medium (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "2XL (32px)",
+              "value": "32px"
+            }
+          ]
         }
       ]
     }
