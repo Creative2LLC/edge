@@ -45,7 +45,7 @@ module.exports = {
       'leadership-profile': 8,
       'cta-card-1': 19,
       'cta-card-2': 8,
-      'info-card': 19,
+      'info-card': 30,
       'card-row-item': 9,
       'card-row-detailed-item': 14,
       'split-card': 23,

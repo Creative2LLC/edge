@@ -569,7 +569,7 @@
           "component": "text",
           "valueType": "string",
           "name": "textColor",
-          "label": "Card Styles",
+          "label": "Legacy Card Styles (Optional)",
           "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px, icon-size|72px, icon-layout|left",
           "value": ""
         },
@@ -657,6 +657,103 @@
               "value": "#DDD5CC"
             }
           ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardTextColor",
+          "label": "All Text Color",
+          "description": "Optional hex color applied to title, subtitle, and body text. Example: #404041",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "titleColor",
+          "label": "Title Color",
+          "description": "Optional title-only hex color. Overrides All Text Color.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitleColor",
+          "label": "Subtitle Color",
+          "description": "Optional subtitle-only hex color. Overrides All Text Color.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bodyColor",
+          "label": "Body Color",
+          "description": "Optional body-only hex color. Overrides All Text Color.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "titleFontSize",
+          "label": "Title Font Size",
+          "description": "Optional CSS size. Example: 32px or 2rem.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitleFontSize",
+          "label": "Subtitle Font Size",
+          "description": "Optional CSS size. Example: 17px or 1rem.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bodyFontSize",
+          "label": "Body Font Size",
+          "description": "Optional CSS size. Example: 17px or 1rem.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardIconSize",
+          "label": "Icon Size",
+          "description": "Optional per-card icon size. Example: 64px. Overrides the block-level Icon Size setting.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconLayout",
+          "label": "Icon Layout",
+          "options": [
+            {
+              "name": "Default (above text)",
+              "value": ""
+            },
+            {
+              "name": "Left of text",
+              "value": "left"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardItemSpacing",
+          "label": "Card Item Spacing",
+          "description": "Optional spacing between the icon, title, subtitle, body, and button area. Example: 20px.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonSpacing",
+          "label": "Button Spacing",
+          "description": "Optional spacing between buttons when a card has multiple buttons. Example: 12px.",
           "value": ""
         },
         {

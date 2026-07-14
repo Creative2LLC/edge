@@ -63,6 +63,17 @@ const ITEM_FIELD_NAMES = [
   'iconColor',
   'textColor',
   'cardBackgroundColor',
+  'cardTextColor',
+  'titleColor',
+  'subtitleColor',
+  'bodyColor',
+  'titleFontSize',
+  'subtitleFontSize',
+  'bodyFontSize',
+  'cardIconSize',
+  'iconLayout',
+  'cardItemSpacing',
+  'buttonSpacing',
   'overlayImage',
   'cardStyle',
   'cardHoverBackgroundColor',
@@ -70,6 +81,31 @@ const ITEM_FIELD_NAMES = [
 
 const ITEM_FIELD_INDEX = Object.fromEntries(
   ITEM_FIELD_NAMES.map((name, index) => [name, index]),
+);
+
+const PREVIOUS_ITEM_FIELD_NAMES = [
+  'icon',
+  'title',
+  'subtitle',
+  'bodyContent',
+  'buttonText',
+  'buttonLink',
+  'buttonStyle',
+  'buttonBackgroundColor',
+  'button2Text',
+  'button2Link',
+  'button2Style',
+  'button2BackgroundColor',
+  'iconColor',
+  'textColor',
+  'cardBackgroundColor',
+  'overlayImage',
+  'cardStyle',
+  'cardHoverBackgroundColor',
+];
+
+const PREVIOUS_ITEM_FIELD_INDEX = Object.fromEntries(
+  PREVIOUS_ITEM_FIELD_NAMES.map((name, index) => [name, index]),
 );
 
 // Existing pages authored before the tab cleanup commit still publish with
@@ -151,6 +187,21 @@ function normalizeCardStyle(value) {
   return 'default';
 }
 
+function hasKnownCardStyle(value) {
+  return [
+    'default',
+    'outline',
+    'outlined',
+    'border',
+    'bordered',
+    'dashed',
+    'filled',
+    'solid',
+    'light',
+  ]
+    .includes(normalizeStyleKey(value));
+}
+
 function normalizeButtonStyle(value) {
   const normalizedValue = normalizeStyleKey(value);
 
@@ -193,8 +244,12 @@ function normalizeCssSize(value) {
   return normalizedValue;
 }
 
+function normalizeStyleLines(value) {
+  return normalizeLines(String(value || '').replace(/\s+(?=[a-z][a-z\s-]*(?:\||:))/giu, '\n'));
+}
+
 function parseTextStyles(value) {
-  return normalizeLines(value).reduce((styles, line) => {
+  return normalizeStyleLines(value).reduce((styles, line) => {
     const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
 
     if (separatorIndex <= 0) {
@@ -206,7 +261,7 @@ function parseTextStyles(value) {
     const styleValue = line.slice(separatorIndex + 1).trim();
     if (!styleValue) return styles;
 
-    if (['color', 'text', 'text color'].includes(key)) styles.textColor = styleValue;
+    if (['color', 'text', 'text color', 'card text color'].includes(key)) styles.textColor = styleValue;
     else if (['title color', 'heading color'].includes(key)) styles.titleColor = styleValue;
     else if (['subtitle color', 'subheading color'].includes(key)) styles.subtitleColor = styleValue;
     else if (['body color', 'body text color', 'text body color'].includes(key)) styles.bodyColor = styleValue;
@@ -215,6 +270,8 @@ function parseTextStyles(value) {
     else if (['body size', 'body font size', 'text size', 'body text size'].includes(key)) styles.bodySize = styleValue;
     else if (['icon size', 'icon dimension', 'icon width'].includes(key)) styles.iconSize = normalizeCssSize(styleValue);
     else if (['icon layout', 'icon position', 'layout'].includes(key)) styles.iconLayout = normalizeIconLayout(styleValue);
+    else if (['spacing', 'item spacing', 'card item spacing', 'content spacing'].includes(key)) styles.cardItemSpacing = normalizeCssSize(styleValue);
+    else if (['button spacing', 'button gap', 'buttons gap'].includes(key)) styles.buttonSpacing = normalizeCssSize(styleValue);
 
     return styles;
   }, {});
@@ -259,6 +316,8 @@ function getItemFieldIndex(row) {
   const legacyCardBg = getCellText(row, LEGACY_ITEM_FIELD_INDEX.cardBackgroundColor);
   const currentButton2Style = getCellText(row, ITEM_FIELD_INDEX.button2Style);
   const legacyButton2Style = getCellText(row, LEGACY_ITEM_FIELD_INDEX.button2Style);
+  const currentCardStyle = getCellText(row, ITEM_FIELD_INDEX.cardStyle);
+  const previousCardStyle = getCellText(row, PREVIOUS_ITEM_FIELD_INDEX.cardStyle);
 
   if (
     isValidHexColor(legacyCardBg)
@@ -266,6 +325,10 @@ function getItemFieldIndex(row) {
     && hasKnownButtonStyle(legacyButton2Style)
   ) {
     return LEGACY_ITEM_FIELD_INDEX;
+  }
+
+  if (!hasKnownCardStyle(currentCardStyle) && hasKnownCardStyle(previousCardStyle)) {
+    return PREVIOUS_ITEM_FIELD_INDEX;
   }
 
   return ITEM_FIELD_INDEX;
@@ -571,9 +634,27 @@ function applyTextStyles(card, textStyles) {
   if (textStyles.titleColor) card.style.setProperty('--info-card-title-color', textStyles.titleColor);
   if (textStyles.subtitleColor) card.style.setProperty('--info-card-subtitle-color', textStyles.subtitleColor);
   if (textStyles.bodyColor) card.style.setProperty('--info-card-body-color', textStyles.bodyColor);
-  if (textStyles.titleSize) card.style.setProperty('--info-card-title-size', textStyles.titleSize);
-  if (textStyles.subtitleSize) card.style.setProperty('--info-card-subtitle-size', textStyles.subtitleSize);
-  if (textStyles.bodySize) card.style.setProperty('--info-card-body-size', textStyles.bodySize);
+  if (textStyles.titleSize) {
+    card.style.setProperty('--info-card-title-size', normalizeCssSize(textStyles.titleSize));
+  }
+  if (textStyles.subtitleSize) {
+    card.style.setProperty('--info-card-subtitle-size', normalizeCssSize(textStyles.subtitleSize));
+  }
+  if (textStyles.bodySize) {
+    card.style.setProperty('--info-card-body-size', normalizeCssSize(textStyles.bodySize));
+  }
+
+  if (textStyles.cardItemSpacing) {
+    const spacing = normalizeCssSize(textStyles.cardItemSpacing);
+    card.style.setProperty('--info-card-icon-bottom-gap', spacing);
+    card.style.setProperty('--info-card-title-bottom-gap', spacing);
+    card.style.setProperty('--info-card-text-bottom-gap', spacing);
+    card.style.setProperty('--info-card-buttons-top-gap', spacing);
+  }
+
+  if (textStyles.buttonSpacing) {
+    card.style.setProperty('--info-card-buttons-gap', normalizeCssSize(textStyles.buttonSpacing));
+  }
 }
 
 function buildCard(data, index, variant, isEditor) {
@@ -614,10 +695,16 @@ function buildCard(data, index, variant, isEditor) {
   }
   applyTextStyles(card, data.textStyles);
 
-  if (isVolunteerVariant && !data.textStyles.textColor) {
-    card.style.setProperty('--info-card-title-color', '#00264d');
-    card.style.setProperty('--info-card-subtitle-color', '#465a70');
-    card.style.setProperty('--info-card-body-color', '#2f485d');
+  if (isVolunteerVariant) {
+    if (!data.textStyles.textColor && !data.textStyles.titleColor) {
+      card.style.setProperty('--info-card-title-color', '#00264d');
+    }
+    if (!data.textStyles.textColor && !data.textStyles.subtitleColor) {
+      card.style.setProperty('--info-card-subtitle-color', '#465a70');
+    }
+    if (!data.textStyles.textColor && !data.textStyles.bodyColor) {
+      card.style.setProperty('--info-card-body-color', '#2f485d');
+    }
   }
 
   if (data.iconSize) {
@@ -658,7 +745,7 @@ function buildCard(data, index, variant, isEditor) {
   // `data.row` is discarded after this point (only `card` gets attached to the DOM), but
   // several of its style-only select fields (buttonStyle, cardBackgroundColor,
   // cardHoverBackgroundColor, buttonBackgroundColor, button2Style, button2BackgroundColor,
-  // iconColor, textColor/Card Styles, cardStyle) were only ever read by value above — unlike
+  // iconColor, typography/style controls, cardStyle) were only ever read by value above — unlike
   // icon/title/subtitle/bodyContent/buttons/overlayImage, their aue-tracked elements were
   // never individually relocated into `card`. Fully dropping `row` desyncs Universal
   // Editor's tracking of those fields, so a live edit to e.g. Card Background Color patches
@@ -824,9 +911,34 @@ export default function decorate(block) {
     );
     const iconColorField = getColorField(row, 'iconColor', itemFieldIndex.iconColor);
     const textStyleField = getField(row, 'textColor', itemFieldIndex.textColor, isEditor);
+    const cardTextColorField = getField(row, 'cardTextColor', itemFieldIndex.cardTextColor, isEditor);
+    const titleColorField = getField(row, 'titleColor', itemFieldIndex.titleColor, isEditor);
+    const subtitleColorField = getField(row, 'subtitleColor', itemFieldIndex.subtitleColor, isEditor);
+    const bodyColorField = getField(row, 'bodyColor', itemFieldIndex.bodyColor, isEditor);
+    const titleSizeField = getField(row, 'titleFontSize', itemFieldIndex.titleFontSize, isEditor);
+    const subtitleSizeField = getField(row, 'subtitleFontSize', itemFieldIndex.subtitleFontSize, isEditor);
+    const bodySizeField = getField(row, 'bodyFontSize', itemFieldIndex.bodyFontSize, isEditor);
+    const cardIconSizeField = getField(row, 'cardIconSize', itemFieldIndex.cardIconSize, isEditor);
+    const iconLayoutField = getField(row, 'iconLayout', itemFieldIndex.iconLayout, isEditor);
+    const cardItemSpacingField = getField(row, 'cardItemSpacing', itemFieldIndex.cardItemSpacing, isEditor);
+    const buttonSpacingField = getField(row, 'buttonSpacing', itemFieldIndex.buttonSpacing, isEditor);
     const overlayField = getImageField(row, 'overlayImage', itemFieldIndex.overlayImage, isEditor);
     const cardStyleField = getField(row, 'cardStyle', itemFieldIndex.cardStyle, isEditor);
-    const textStyles = parseTextStyles(textStyleField.value);
+    const legacyTextStyles = parseTextStyles(textStyleField.value);
+    const textStyles = {
+      ...legacyTextStyles,
+      textColor: cardTextColorField.value || legacyTextStyles.textColor,
+      titleColor: titleColorField.value || legacyTextStyles.titleColor,
+      subtitleColor: subtitleColorField.value || legacyTextStyles.subtitleColor,
+      bodyColor: bodyColorField.value || legacyTextStyles.bodyColor,
+      titleSize: titleSizeField.value || legacyTextStyles.titleSize,
+      subtitleSize: subtitleSizeField.value || legacyTextStyles.subtitleSize,
+      bodySize: bodySizeField.value || legacyTextStyles.bodySize,
+      iconSize: normalizeCssSize(cardIconSizeField.value || legacyTextStyles.iconSize),
+      iconLayout: normalizeIconLayout(iconLayoutField.value || legacyTextStyles.iconLayout),
+      cardItemSpacing: cardItemSpacingField.value || legacyTextStyles.cardItemSpacing,
+      buttonSpacing: buttonSpacingField.value || legacyTextStyles.buttonSpacing,
+    };
 
     cards.push({
       iconField,

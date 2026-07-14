@@ -187,6 +187,11 @@
   --info-card-body-color: #fff;
   --info-card-icon-size: 48px;
   --info-card-icon-gap: 28px;
+  --info-card-icon-bottom-gap: 24px;
+  --info-card-title-bottom-gap: 12px;
+  --info-card-text-bottom-gap: 16px;
+  --info-card-buttons-gap: 12px;
+  --info-card-buttons-top-gap: 8px;
 
   position: relative;
   display: flex;
@@ -257,7 +262,7 @@
   object-fit: contain;
   object-position: center;
   display: block;
-  margin-bottom: 24px;
+  margin-bottom: var(--info-card-icon-bottom-gap);
   flex-shrink: 0;
 }
 
@@ -266,7 +271,7 @@
   font-size: var(--info-card-title-size);
   font-weight: 600;
   color: var(--info-card-title-color);
-  margin: 0 0 12px;
+  margin: 0 0 var(--info-card-title-bottom-gap);
   line-height: 1.15;
 }
 
@@ -279,7 +284,7 @@
   font-size: var(--info-card-subtitle-size);
   font-weight: 400;
   color: var(--info-card-subtitle-color);
-  margin: 0 0 16px;
+  margin: 0 0 var(--info-card-text-bottom-gap);
   line-height: 1.5;
 }
 
@@ -293,7 +298,7 @@
   font-weight: 400;
   color: var(--info-card-body-color);
   line-height: 1.5;
-  margin: 0 0 16px;
+  margin: 0 0 var(--info-card-text-bottom-gap);
 }
 
 .info-cards-grid-card-body p {
@@ -329,7 +334,7 @@
   width: var(--info-card-icon-size);
   height: var(--info-card-icon-size);
   display: block;
-  margin-bottom: 24px;
+  margin-bottom: var(--info-card-icon-bottom-gap);
   flex-shrink: 0;
 }
 
@@ -344,8 +349,8 @@
   z-index: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 8px;
+  gap: var(--info-card-buttons-gap);
+  margin-top: var(--info-card-buttons-top-gap);
 }
 
 .info-cards-grid-card-default {
