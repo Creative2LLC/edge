@@ -25,6 +25,17 @@ const CARD_COLOR_FIELD_NAMES = [
   'contactValueColor',
 ];
 
+const CARD_STYLE_FIELD_NAMES = [
+  ...CARD_COLOR_FIELD_NAMES,
+  'titleFontSize',
+  'descriptionFontSize',
+  'contactLabelFontSize',
+  'contactValueFontSize',
+  'iconSize',
+  'cardItemSpacing',
+  'contactMethodSpacing',
+];
+
 function isValidHexColor(value) {
   return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
 }
@@ -426,16 +437,36 @@ function buildMethod(method) {
   return wrapper;
 }
 
-// Corrects color fields using the resource's own JSON (keyed by field name, so it's
+function applyCardItemSpacing(card, value) {
+  const spacing = normalizeCssSize(value);
+  if (!spacing) return;
+
+  card.style.setProperty('--connect-grid-card-media-gap', spacing);
+  card.style.setProperty('--connect-grid-card-title-gap', spacing);
+  card.style.setProperty('--connect-grid-card-divider-top-gap', spacing);
+  card.style.setProperty('--connect-grid-card-divider-bottom-gap', spacing);
+  card.style.setProperty('--connect-grid-card-methods-top-gap', spacing);
+}
+
+function applyContactMethodSpacing(card, value) {
+  const spacing = normalizeCssSize(value);
+  if (!spacing) return;
+
+  card.style.setProperty('--connect-grid-methods-gap', spacing);
+}
+
+// Corrects style fields using the resource's own JSON (keyed by field name, so it's
 // immune to the row-position drift that breaks positional fallback — see
-// CARD_COLOR_FIELD_NAMES above). Fires after the card already rendered with its best
-// synchronous guess; only touches fields the fetch actually returned a valid hex value
-// for, so a malformed/unexpected API response can't corrupt an already-correct card.
-function syncCardColors(resourcePath, card) {
-  readAueResourceFields(resourcePath, CARD_COLOR_FIELD_NAMES)
+// CARD_STYLE_FIELD_NAMES above). Fires after the card already rendered with its best
+// synchronous guess; invalid color values are ignored, so a malformed/unexpected API
+// response can't corrupt an already-correct card.
+function syncCardStyles(resourcePath, card) {
+  readAueResourceFields(resourcePath, CARD_STYLE_FIELD_NAMES)
     .then((fields) => {
       Object.keys(fields).forEach((key) => {
-        if (!isValidHexColor(fields[key])) delete fields[key];
+        if (CARD_COLOR_FIELD_NAMES.includes(key) && !isValidHexColor(fields[key])) {
+          delete fields[key];
+        }
       });
       if (!Object.keys(fields).length) return;
 
@@ -466,6 +497,32 @@ function syncCardColors(resourcePath, card) {
       if (fields.contactValueColor) {
         card.style.setProperty('--connect-grid-method-value-color', fields.contactValueColor);
       }
+      if (fields.titleFontSize) {
+        card.style.setProperty('--connect-grid-title-size', normalizeCssSize(fields.titleFontSize));
+      }
+      if (fields.descriptionFontSize) {
+        card.style.setProperty(
+          '--connect-grid-description-size',
+          normalizeCssSize(fields.descriptionFontSize),
+        );
+      }
+      if (fields.contactLabelFontSize) {
+        card.style.setProperty(
+          '--connect-grid-method-label-size',
+          normalizeCssSize(fields.contactLabelFontSize),
+        );
+      }
+      if (fields.contactValueFontSize) {
+        card.style.setProperty(
+          '--connect-grid-method-value-size',
+          normalizeCssSize(fields.contactValueFontSize),
+        );
+      }
+      if (fields.iconSize) {
+        card.style.setProperty('--connect-grid-card-icon-size', normalizeCssSize(fields.iconSize));
+      }
+      applyCardItemSpacing(card, fields.cardItemSpacing);
+      applyContactMethodSpacing(card, fields.contactMethodSpacing);
     });
 }
 
@@ -514,18 +571,11 @@ function applyCardStyles(card, item) {
   }
 
   if (item.cardItemSpacing) {
-    const spacing = normalizeCssSize(item.cardItemSpacing);
-    card.style.setProperty('--connect-grid-card-media-gap', spacing);
-    card.style.setProperty('--connect-grid-card-title-gap', spacing);
-    card.style.setProperty('--connect-grid-card-divider-top-gap', spacing);
-    card.style.setProperty('--connect-grid-card-divider-bottom-gap', spacing);
+    applyCardItemSpacing(card, item.cardItemSpacing);
   }
 
   if (item.contactMethodSpacing) {
-    card.style.setProperty(
-      '--connect-grid-methods-gap',
-      normalizeCssSize(item.contactMethodSpacing),
-    );
+    applyContactMethodSpacing(card, item.contactMethodSpacing);
   }
 }
 
@@ -576,6 +626,8 @@ function buildCard(item, index, isEditor) {
   if (description) card.append(description);
 
   if (item.contactMethods.length) {
+    card.classList.toggle('has-divider', item.showDivider);
+
     if (item.showDivider) {
       const divider = document.createElement('div');
       divider.className = 'connect-grid-card-divider';
@@ -610,7 +662,7 @@ function buildCard(item, index, isEditor) {
   }
 
   if (isEditor && resourcePath) {
-    syncCardColors(resourcePath, card);
+    syncCardStyles(resourcePath, card);
   }
 
   return card;

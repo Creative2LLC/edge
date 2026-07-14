@@ -77,6 +77,7 @@
   --connect-grid-card-title-gap: 12px;
   --connect-grid-card-divider-top-gap: 18px;
   --connect-grid-card-divider-bottom-gap: 20px;
+  --connect-grid-card-methods-top-gap: 0;
   --connect-grid-title-color: #404041;
   --connect-grid-description-color: #404041;
   --connect-grid-method-label-color: #5e5f63;
@@ -207,6 +208,10 @@
   display: grid;
   gap: var(--connect-grid-methods-gap);
   margin-top: auto;
+}
+
+.connect-grid .connect-grid-card:not(.has-divider) .connect-grid-methods {
+  padding-top: var(--connect-grid-card-methods-top-gap);
 }
 
 .connect-grid .connect-grid-method {

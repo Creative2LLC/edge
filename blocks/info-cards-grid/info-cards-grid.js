@@ -29,6 +29,16 @@ const CARD_COLOR_FIELD_NAMES = [
   'bodyColor',
 ];
 
+const CARD_STYLE_FIELD_NAMES = [
+  ...CARD_COLOR_FIELD_NAMES,
+  'titleFontSize',
+  'subtitleFontSize',
+  'bodyFontSize',
+  'cardIconSize',
+  'cardItemSpacing',
+  'buttonSpacing',
+];
+
 const BLOCK_FIELD_INDEX = {
   columns: 0,
   styleVariant: 1,
@@ -605,16 +615,18 @@ function restyleCardButtons(card, data, cardBg, variant) {
   if (buttons[1]) styleCardButton(buttons[1], data.button2Bg, data.button2Style, cardBg, variant);
 }
 
-// Corrects color fields using the resource's own JSON (keyed by field name, so it's
+// Corrects style fields using the resource's own JSON (keyed by field name, so it's
 // immune to the row-position drift that breaks positional fallback — see
-// CARD_COLOR_FIELD_NAMES above). Fires after the card already rendered with its best
-// synchronous guess; only touches fields the fetch actually returned a valid hex value
-// for, so a malformed/unexpected API response can't corrupt an already-correct card.
-function syncCardColors(resourcePath, card, content, data, variant) {
-  readAueResourceFields(resourcePath, CARD_COLOR_FIELD_NAMES)
+// CARD_STYLE_FIELD_NAMES above). Fires after the card already rendered with its best
+// synchronous guess; invalid color values are ignored, so a malformed/unexpected API
+// response can't corrupt an already-correct card.
+function syncCardStyles(resourcePath, card, content, data, variant) {
+  readAueResourceFields(resourcePath, CARD_STYLE_FIELD_NAMES)
     .then((fields) => {
       Object.keys(fields).forEach((key) => {
-        if (!isValidHexColor(fields[key])) delete fields[key];
+        if (CARD_COLOR_FIELD_NAMES.includes(key) && !isValidHexColor(fields[key])) {
+          delete fields[key];
+        }
       });
       if (!Object.keys(fields).length) return;
 
@@ -642,6 +654,31 @@ function syncCardColors(resourcePath, card, content, data, variant) {
         card.style.setProperty('--info-card-subtitle-color', fields.subtitleColor);
       }
       if (fields.bodyColor) card.style.setProperty('--info-card-body-color', fields.bodyColor);
+      if (fields.titleFontSize) {
+        card.style.setProperty('--info-card-title-size', normalizeCssSize(fields.titleFontSize));
+      }
+      if (fields.subtitleFontSize) {
+        card.style.setProperty(
+          '--info-card-subtitle-size',
+          normalizeCssSize(fields.subtitleFontSize),
+        );
+      }
+      if (fields.bodyFontSize) {
+        card.style.setProperty('--info-card-body-size', normalizeCssSize(fields.bodyFontSize));
+      }
+      if (fields.cardIconSize) {
+        card.style.setProperty('--info-card-icon-size', normalizeCssSize(fields.cardIconSize));
+      }
+      if (fields.cardItemSpacing) {
+        const spacing = normalizeCssSize(fields.cardItemSpacing);
+        card.style.setProperty('--info-card-icon-bottom-gap', spacing);
+        card.style.setProperty('--info-card-title-bottom-gap', spacing);
+        card.style.setProperty('--info-card-text-bottom-gap', spacing);
+        card.style.setProperty('--info-card-buttons-top-gap', spacing);
+      }
+      if (fields.buttonSpacing) {
+        card.style.setProperty('--info-card-buttons-gap', normalizeCssSize(fields.buttonSpacing));
+      }
       if (
         (fields.buttonBackgroundColor && fields.buttonBackgroundColor !== data.buttonBg)
         || (fields.button2BackgroundColor && fields.button2BackgroundColor !== data.button2Bg)
@@ -793,7 +830,7 @@ function buildCard(data, index, variant, isEditor) {
   }
 
   if (isEditor && resourcePath) {
-    syncCardColors(resourcePath, card, content, data, variant);
+    syncCardStyles(resourcePath, card, content, data, variant);
   }
 
   return card;
