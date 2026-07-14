@@ -843,55 +843,6 @@ function normalizeBreadcrumbHref(href) {
   }
 }
 
-const breadcrumbHrefExistsCache = new Map();
-
-async function probeBreadcrumbUrl(url) {
-  try {
-    const headResponse = await fetch(url, { method: 'HEAD' });
-    if (headResponse.ok) return true;
-    if (headResponse.status === 405 || headResponse.status === 501) {
-      const getResponse = await fetch(url, { method: 'GET' });
-      return getResponse.ok;
-    }
-  } catch (e) {
-    // Ignore network/probe failures and treat as unresolved.
-  }
-  return false;
-}
-
-async function doesBreadcrumbHrefExist(href) {
-  const normalizedHref = normalizeBreadcrumbHref(href);
-  if (!normalizedHref) return false;
-
-  const absolute = new URL(normalizedHref, window.location.origin);
-  const cacheKey = absolute.toString();
-  if (breadcrumbHrefExistsCache.has(cacheKey)) {
-    return breadcrumbHrefExistsCache.get(cacheKey);
-  }
-
-  const basePath = absolute.pathname.replace(/\/$/, '');
-  const candidates = new Set([
-    absolute.toString(),
-  ]);
-
-  if (!absolute.pathname.endsWith('/')) {
-    const withSlash = new URL(`${absolute.pathname}/${absolute.search}${absolute.hash}`, absolute.origin);
-    candidates.add(withSlash.toString());
-  }
-
-  if (basePath && !basePath.endsWith('.html')) {
-    const withHtml = new URL(`${basePath}.html${absolute.search}${absolute.hash}`, absolute.origin);
-    candidates.add(withHtml.toString());
-  }
-
-  const checks = await Promise.all(
-    [...candidates].map((candidate) => probeBreadcrumbUrl(candidate)),
-  );
-  const exists = checks.some(Boolean);
-  breadcrumbHrefExistsCache.set(cacheKey, exists);
-  return exists;
-}
-
 async function buildBreadcrumbs(block) {
   const showBreadcrumbs = normalizeChoice(
     getFieldValue(block, ['content_showBreadcrumbs', 'showBreadcrumbs']).value,
@@ -913,13 +864,6 @@ async function buildBreadcrumbs(block) {
     isCurrent: index === crumbs.length - 1,
   }));
 
-  const availableHrefs = await Promise.all(
-    resolvedCrumbs.map((crumb) => {
-      if (crumb.isCurrent || !crumb.href) return Promise.resolve(false);
-      return doesBreadcrumbHrefExist(crumb.href);
-    }),
-  );
-
   const nav = document.createElement('nav');
   nav.className = 'hero-breadcrumbs';
   nav.setAttribute('aria-label', 'Breadcrumb');
@@ -930,7 +874,7 @@ async function buildBreadcrumbs(block) {
     const item = document.createElement('li');
     if (crumb.isCurrent) item.classList.add('is-current');
 
-    const shouldLink = !crumb.isCurrent && availableHrefs[index] && crumb.href;
+    const shouldLink = !crumb.isCurrent && crumb.href;
     if (shouldLink) {
       const link = document.createElement('a');
       link.href = crumb.href;
@@ -984,7 +928,38 @@ function applyAccentBrackets(richText) {
   if (replaced !== original) richText.innerHTML = replaced;
 }
 
-function buildMainRichText(block, fallbackHtml = '') {
+function normalizeBreadcrumbText(value) {
+  return String(value || '')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s*>\s*/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function isBreadcrumbTextNode(node) {
+  const text = normalizeBreadcrumbText(node?.textContent || '');
+  if (!text || !text.includes('>')) return false;
+  if (text.length > 160) return false;
+  return /^[a-z0-9 &'/().,-]+(?:>[a-z0-9 &'/().,-]+)+$/i.test(text);
+}
+
+function removeLeadingBreadcrumbText(richText) {
+  let node = richText.firstElementChild;
+  while (node && node.textContent.trim() === '') {
+    const empty = node;
+    node = node.nextElementSibling;
+    empty.remove();
+  }
+
+  while (node && !isHeadingNode(node) && isBreadcrumbTextNode(node)) {
+    const next = node.nextElementSibling;
+    node.remove();
+    node = next;
+  }
+}
+
+function buildMainRichText(block, fallbackHtml = '', hasBreadcrumb = false) {
   const field = readRichTextField(block, ['content_text', 'text']);
   const hasField = hasRichFieldContent(field);
   if (hasField || fallbackHtml) {
@@ -992,6 +967,7 @@ function buildMainRichText(block, fallbackHtml = '') {
     richText.className = 'hero-richtext richtext-preserve-spaces';
     if (hasField) moveRichField(field, richText, fallbackHtml);
     else appendHtmlValue(fallbackHtml, richText);
+    if (hasBreadcrumb) removeLeadingBreadcrumbText(richText);
     normalizeMainRichTextStructure(richText);
     if (!hasRenderableContent(richText)) return null;
     return richText;
@@ -1001,6 +977,7 @@ function buildMainRichText(block, fallbackHtml = '') {
   fallback.className = 'hero-richtext richtext-preserve-spaces';
   const fallbackNodes = getFallbackMainTextNodes(block);
   fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
+  if (hasBreadcrumb) removeLeadingBreadcrumbText(fallback);
   normalizeMainRichTextStructure(fallback);
   if (!hasRenderableContent(fallback)) return null;
   return fallback;
@@ -1441,7 +1418,7 @@ export default async function decorate(block) {
     );
   }
   const breadcrumb = await buildBreadcrumbs(block);
-  const richText = buildMainRichText(block, resourceRichText);
+  const richText = buildMainRichText(block, resourceRichText, Boolean(breadcrumb));
   if (richText) {
     applyAccentBrackets(richText);
     applyAnimatedMarkers(richText, markerConfig);

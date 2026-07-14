@@ -72,6 +72,35 @@ const ITEM_FIELD_INDEX = Object.fromEntries(
   ITEM_FIELD_NAMES.map((name, index) => [name, index]),
 );
 
+// Existing pages authored before the tab cleanup commit still publish with
+// cardBackgroundColor directly after buttonStyle. Author can repair that from
+// the resource JSON by field name, but live delivery has only flattened cells,
+// so keep a legacy index map for those already-authored rows.
+const LEGACY_ITEM_FIELD_NAMES = [
+  'icon',
+  'title',
+  'subtitle',
+  'bodyContent',
+  'buttonText',
+  'buttonLink',
+  'buttonStyle',
+  'cardBackgroundColor',
+  'buttonBackgroundColor',
+  'button2Text',
+  'button2Link',
+  'button2Style',
+  'button2BackgroundColor',
+  'iconColor',
+  'textColor',
+  'overlayImage',
+  'cardStyle',
+  'cardHoverBackgroundColor',
+];
+
+const LEGACY_ITEM_FIELD_INDEX = Object.fromEntries(
+  LEGACY_ITEM_FIELD_NAMES.map((name, index) => [name, index]),
+);
+
 function hasMeaningfulNodeContent(node) {
   if (!node) return false;
   if (node.textContent.trim()) return true;
@@ -140,6 +169,23 @@ function normalizeButtonStyle(value) {
   return 'default';
 }
 
+function hasKnownButtonStyle(value) {
+  return [
+    'default',
+    'solid',
+    'filled',
+    'fill',
+    'outline',
+    'outlined',
+    'border',
+    'bordered',
+    'link',
+    'text',
+    'plain',
+  ]
+    .includes(normalizeStyleKey(value));
+}
+
 function normalizeCssSize(value) {
   const normalizedValue = String(value || '').trim();
   if (!normalizedValue) return '';
@@ -198,6 +244,31 @@ function getField(row, name, index, isEditor) {
 function getColorField(row, name, index) {
   const field = readTextField(row, name, { fallbackCell: row.children[index] });
   return { source: field.source, value: field.value };
+}
+
+function isValidHexColor(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
+    .test(String(value || '').trim());
+}
+
+function getCellText(row, index) {
+  return row.children[index]?.textContent?.trim() || '';
+}
+
+function getItemFieldIndex(row) {
+  const legacyCardBg = getCellText(row, LEGACY_ITEM_FIELD_INDEX.cardBackgroundColor);
+  const currentButton2Style = getCellText(row, ITEM_FIELD_INDEX.button2Style);
+  const legacyButton2Style = getCellText(row, LEGACY_ITEM_FIELD_INDEX.button2Style);
+
+  if (
+    isValidHexColor(legacyCardBg)
+    && !hasKnownButtonStyle(currentButton2Style)
+    && hasKnownButtonStyle(legacyButton2Style)
+  ) {
+    return LEGACY_ITEM_FIELD_INDEX;
+  }
+
+  return ITEM_FIELD_INDEX;
 }
 
 function getLinkField(row, name, index, isEditor) {
@@ -446,10 +517,6 @@ function restyleCardButtons(card, data, cardBg, variant) {
   const buttons = [...card.querySelectorAll(':scope > .info-cards-grid-card-buttons > .info-cards-grid-card-button')];
   if (buttons[0]) styleCardButton(buttons[0], data.buttonBg, data.buttonStyle, cardBg, variant);
   if (buttons[1]) styleCardButton(buttons[1], data.button2Bg, data.button2Style, cardBg, variant);
-}
-
-function isValidHexColor(value) {
-  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
 }
 
 // Corrects color fields using the resource's own JSON (keyed by field name, so it's
@@ -724,40 +791,41 @@ export default function decorate(block) {
 
   const cards = [];
   itemRows.forEach((row) => {
+    const itemFieldIndex = getItemFieldIndex(row);
     const iconField = getImageField(row, 'icon', 0, isEditor);
     const titleField = getField(row, 'title', 1, isEditor);
     const subtitleField = getField(row, 'subtitle', 2, isEditor);
     const bodySource = getRichField(row, 'bodyContent', 3, isEditor);
-    const buttonTextField = getField(row, 'buttonText', ITEM_FIELD_INDEX.buttonText, isEditor);
-    const buttonLinkField = getLinkField(row, 'buttonLink', ITEM_FIELD_INDEX.buttonLink, isEditor);
-    const buttonStyleField = getField(row, 'buttonStyle', ITEM_FIELD_INDEX.buttonStyle, isEditor);
+    const buttonTextField = getField(row, 'buttonText', itemFieldIndex.buttonText, isEditor);
+    const buttonLinkField = getLinkField(row, 'buttonLink', itemFieldIndex.buttonLink, isEditor);
+    const buttonStyleField = getField(row, 'buttonStyle', itemFieldIndex.buttonStyle, isEditor);
     const cardBgField = getColorField(
       row,
       'cardBackgroundColor',
-      ITEM_FIELD_INDEX.cardBackgroundColor,
+      itemFieldIndex.cardBackgroundColor,
     );
     const cardHoverBgField = getColorField(
       row,
       'cardHoverBackgroundColor',
-      ITEM_FIELD_INDEX.cardHoverBackgroundColor,
+      itemFieldIndex.cardHoverBackgroundColor,
     );
     const buttonBgField = getColorField(
       row,
       'buttonBackgroundColor',
-      ITEM_FIELD_INDEX.buttonBackgroundColor,
+      itemFieldIndex.buttonBackgroundColor,
     );
-    const button2TextField = getField(row, 'button2Text', ITEM_FIELD_INDEX.button2Text, isEditor);
-    const button2LinkField = getLinkField(row, 'button2Link', ITEM_FIELD_INDEX.button2Link, isEditor);
-    const button2StyleField = getField(row, 'button2Style', ITEM_FIELD_INDEX.button2Style, isEditor);
+    const button2TextField = getField(row, 'button2Text', itemFieldIndex.button2Text, isEditor);
+    const button2LinkField = getLinkField(row, 'button2Link', itemFieldIndex.button2Link, isEditor);
+    const button2StyleField = getField(row, 'button2Style', itemFieldIndex.button2Style, isEditor);
     const button2BgField = getColorField(
       row,
       'button2BackgroundColor',
-      ITEM_FIELD_INDEX.button2BackgroundColor,
+      itemFieldIndex.button2BackgroundColor,
     );
-    const iconColorField = getColorField(row, 'iconColor', ITEM_FIELD_INDEX.iconColor);
-    const textStyleField = getField(row, 'textColor', ITEM_FIELD_INDEX.textColor, isEditor);
-    const overlayField = getImageField(row, 'overlayImage', ITEM_FIELD_INDEX.overlayImage, isEditor);
-    const cardStyleField = getField(row, 'cardStyle', ITEM_FIELD_INDEX.cardStyle, isEditor);
+    const iconColorField = getColorField(row, 'iconColor', itemFieldIndex.iconColor);
+    const textStyleField = getField(row, 'textColor', itemFieldIndex.textColor, isEditor);
+    const overlayField = getImageField(row, 'overlayImage', itemFieldIndex.overlayImage, isEditor);
+    const cardStyleField = getField(row, 'cardStyle', itemFieldIndex.cardStyle, isEditor);
     const textStyles = parseTextStyles(textStyleField.value);
 
     cards.push({
