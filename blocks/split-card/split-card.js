@@ -31,6 +31,22 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
+function isDarkHexColor(value) {
+  const normalized = normalizeColorValue(value);
+  const match = normalized.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/iu);
+  if (!match) return false;
+
+  const hex = match[1].length === 3
+    ? match[1].split('').map((char) => `${char}${char}`).join('')
+    : match[1];
+  const red = parseInt(hex.slice(0, 2), 16);
+  const green = parseInt(hex.slice(2, 4), 16);
+  const blue = parseInt(hex.slice(4, 6), 16);
+  const brightness = (red * 299 + green * 587 + blue * 114) / 1000;
+
+  return brightness < 145;
+}
+
 function isValidSizeValue(value) {
   const normalized = String(value || '').trim();
   return /^(?:\d+(?:\.\d+)?(?:px|rem|em|%|vw|vh|vmin|vmax|ch|ex|lh|rlh)|calc\(.+\)|clamp\(.+\)|min\(.+\)|max\(.+\))$/iu
@@ -170,13 +186,23 @@ function getFallbackLink(block, index) {
   return anchor?.getAttribute('href') || cell?.textContent?.trim() || '';
 }
 
-function findFallbackOption(block, preferredIndex, allowedValues) {
+function findFallbackOptionFromEnd(
+  block,
+  preferredIndex,
+  allowedValues,
+  fallback,
+  honorPreferredFallback = true,
+) {
   const preferred = normalizeOptionValue(getFallbackText(block, preferredIndex), allowedValues, '');
-  if (preferred) return preferred;
+  if (preferred && (honorPreferredFallback || preferred !== fallback)) return preferred;
 
-  return getRowCells(block)
+  const tailMatch = getRowCells(block)
+    .slice()
+    .reverse()
     .map((cell) => normalizeOptionValue(cell.textContent, allowedValues, ''))
-    .find(Boolean) || '';
+    .find((value) => value && value !== fallback);
+
+  return tailMatch || preferred || '';
 }
 
 function getFallbackIndexMap(block, isEditor) {
@@ -384,11 +410,13 @@ export default async function decorate(block) {
   const sharedTextColor = colorValues[
     (hasPrimaryButton ? 2 : 1) + (hasSecondaryButton ? 1 : 0)
   ] || colors.textColor || normalizeColorValue(resourceData.textColor);
+  const fallbackTextColor = !sharedTextColor && isDarkHexColor(backgroundColor) ? '#fff' : '';
+  const effectiveTextColor = sharedTextColor || fallbackTextColor;
   const headingColor = normalizeColorValue(getField(block, 'headingColor') || resourceData.headingColor)
-    || sharedTextColor;
+    || effectiveTextColor;
   const subheadingColor = normalizeColorValue(
     getField(block, 'subheadingColor') || resourceData.subheadingColor,
-  ) || sharedTextColor;
+  ) || effectiveTextColor;
 
   const contentAlign = normalizeOptionValue(
     getFieldWithFallback(block, 'contentAlign', fieldIndex.contentAlign, isEditor)
@@ -397,7 +425,8 @@ export default async function decorate(block) {
     'left',
   );
   const imagePosition = normalizeOptionValue(
-    getFieldWithFallback(block, 'imagePosition', fieldIndex.imagePosition, isEditor)
+    getField(block, 'imagePosition')
+      || findFallbackOptionFromEnd(block, fieldIndex.imagePosition, IMAGE_POSITION_VALUES, 'left')
       || resourceData.imagePosition,
     IMAGE_POSITION_VALUES,
     'left',
@@ -406,20 +435,28 @@ export default async function decorate(block) {
     getFieldWithFallback(block, 'maxWidth', fieldIndex.maxWidth, isEditor) || resourceData.maxWidth,
   );
   const blockSize = normalizeOptionValue(
-    getFieldWithFallback(block, 'blockSize', fieldIndex.blockSize, isEditor)
+    getField(block, 'blockSize')
+      || findFallbackOptionFromEnd(block, fieldIndex.blockSize, BLOCK_SIZE_VALUES, 'normal')
       || resourceData.blockSize,
     BLOCK_SIZE_VALUES,
     'normal',
   );
   const imageSize = normalizeOptionValue(
-    getFieldWithFallback(block, 'imageSize', fieldIndex.imageSize, isEditor)
+    getField(block, 'imageSize')
+      || findFallbackOptionFromEnd(block, fieldIndex.imageSize, IMAGE_SIZE_VALUES, 'even')
       || resourceData.imageSize,
     IMAGE_SIZE_VALUES,
     'even',
   );
   const stylingVariant = normalizeOptionValue(
     getField(block, 'stylingVariant')
-      || findFallbackOption(block, fieldIndex.stylingVariant, STYLING_VARIANT_VALUES)
+      || findFallbackOptionFromEnd(
+        block,
+        fieldIndex.stylingVariant,
+        STYLING_VARIANT_VALUES,
+        'default',
+        false,
+      )
       || resourceData.stylingVariant,
     STYLING_VARIANT_VALUES,
     'default',
@@ -492,14 +529,14 @@ export default async function decorate(block) {
     buttonLink,
     buttonColor,
     buttonStyle,
-    sharedTextColor,
+    effectiveTextColor,
   );
   const secondaryButton = buildButton(
     button2Text,
     button2Link,
     button2Color,
     button2Style,
-    sharedTextColor,
+    effectiveTextColor,
   );
 
   const wrapButtonWithSubtext = (button, subtext) => {

@@ -188,32 +188,51 @@ function parsePublishedItem(row) {
       return;
     }
 
-    if (!item.resourceSlug && isSlugLike(text)) {
-      item.resourceSlug = text;
-      return;
+    // A slug and a short lowercase title are indistinguishable here, so
+    // slug-looking cells are kept as CANDIDATES and verified against the
+    // API later; losers flow back into the title/description below.
+    if (text) {
+      freeCells.push({
+        text,
+        html: cell.innerHTML,
+        slugCandidate: isSlugLike(text),
+      });
     }
-
-    if (text) freeCells.push(cell);
   });
 
-  // Model order is title, description, button label. With omitted fields the
-  // last short plain cell is treated as the button label.
-  if (freeCells.length) {
-    item.title = normalizeText(freeCells[0].textContent);
-    const rest = freeCells.slice(1);
-    if (rest.length) {
-      const last = rest[rest.length - 1];
-      const lastText = normalizeText(last.textContent);
-      const looksLikeLabel = lastText.length <= 32 && !last.querySelector('p + p, ul, ol, h1, h2, h3');
-      if (looksLikeLabel && (rest.length > 1 || lastText.split(' ').length <= 4)) {
-        item.buttonLabel = lastText;
-        rest.pop();
-      }
-      item.description = rest.map((cell) => cell.innerHTML).join('');
-    }
-  }
+  item.textEntries = freeCells;
+  item.slugCandidates = freeCells.filter((entry) => entry.slugCandidate).map((entry) => entry.text);
 
   return item;
+}
+
+/**
+ * Once the winning slug is known, distribute the remaining text cells.
+ * Model order is title, description, button label; with omitted fields the
+ * last short plain cell is treated as the button label.
+ */
+function finalizePublishedText(item) {
+  const cells = (item.textEntries || [])
+    .filter((entry) => !(entry.slugCandidate && entry.text === item.resourceSlug));
+  if (!cells.length) return;
+
+  item.title = cells[0].text;
+  const rest = cells.slice(1);
+  if (rest.length) {
+    // A lone remaining cell is a description; the button label is only
+    // split off when there are at least two (description + short label).
+    const last = rest[rest.length - 1];
+    const looksLikeLabel = rest.length >= 2
+      && last.text.length <= 32 && last.text.split(' ').length <= 4
+      && !/<(ul|ol|h[1-3])/i.test(last.html);
+    if (looksLikeLabel) {
+      item.buttonLabel = last.text;
+      rest.pop();
+    }
+    item.description = rest
+      .map((entry) => (entry.html.includes('<') ? entry.html : `<p>${entry.html}</p>`))
+      .join('');
+  }
 }
 
 function readPublishedContent(block) {
@@ -284,6 +303,19 @@ function fetchResource(apiBaseUrl, slug) {
   }
 
   return resourceCache.get(key);
+}
+
+/**
+ * Try each slug-looking cell against the API in DOM order; the first that
+ * resolves is this item's resource. fetchResource caching makes re-lookups
+ * free later in the render pass.
+ */
+function resolveSlugCandidates(item, apiBaseUrl) {
+  return (item.slugCandidates || []).reduce((chain, candidate) => chain.then((found) => {
+    if (found) return found;
+    return fetchResource(apiBaseUrl, candidate)
+      .then((resource) => (resource ? { slug: candidate, resource } : null));
+  }), Promise.resolve(null));
 }
 
 // ── Video modal ──────────────────────────────────────────────────────────────
@@ -524,7 +556,7 @@ function buildEmptyNotice(entry) {
   const notice = document.createElement('p');
   notice.className = 'resource-downloads-item-notice';
   notice.textContent = entry.item.resourceSlug
-    ? `No download found for resource "${entry.item.resourceSlug}".`
+    ? `Couldn't load resource "${entry.item.resourceSlug}" in the editor — check the slug is a published resource. The live page fetches it directly.`
     : 'Add a Resource Slug, File, or Video URL to this download item.';
   return notice;
 }
@@ -715,6 +747,15 @@ export default async function decorate(block) {
   const { config, items, rows } = isEditor
     ? readEditorContent(block)
     : readPublishedContent(block);
+
+  // Published rows can't name their fields, so slug-looking cells were kept
+  // as candidates — settle them against the API before anything else.
+  await Promise.all(items.map(async (item) => {
+    if (!item.textEntries) return;
+    const resolved = await resolveSlugCandidates(item, config.apiBaseUrl);
+    if (resolved) item.resourceSlug = resolved.slug;
+    finalizePublishedText(item);
+  }));
 
   // The primary resource always appears as a download, even if its seeded
   // item was removed — dedupe against explicit items by slug.
