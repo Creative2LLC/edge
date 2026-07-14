@@ -1,0 +1,139 @@
+{
+  "definitions": [
+    {
+      "title": "Resource Downloads",
+      "id": "resource-downloads",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Resource Downloads",
+              "model": "resource-downloads",
+              "filter": "resource-downloads"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Download Item",
+      "id": "resource-download-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Download Item",
+              "model": "resource-download-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "resource-downloads",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "description": "Backend API origin. Filled automatically when the page is generated from a resource."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "slug",
+          "label": "Primary Resource Slug",
+          "description": "Slug of the resource this landing page belongs to. Filled automatically."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "gated",
+          "label": "Gate Downloads (require registration)",
+          "description": "Controls the whole page's downloads unless an item overrides it. Synced with the backend resource.",
+          "options": [
+            {
+              "name": "Inherit from resource",
+              "value": ""
+            },
+            {
+              "name": "Gated (registration required)",
+              "value": "true"
+            },
+            {
+              "name": "Open (no registration)",
+              "value": "false"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "resource-download-item",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "itemTitle",
+          "label": "Title",
+          "description": "Display title for this download. Falls back to the resource title or file name."
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "itemDescription",
+          "label": "Description"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "resourceSlug",
+          "label": "Resource Slug",
+          "description": "Link this item to a backend resource by slug (preferred — pulls title, file, and gating from the API)."
+        },
+        {
+          "component": "aem-content",
+          "valueType": "string",
+          "name": "file",
+          "label": "File",
+          "description": "Direct DAM file link. Only used when no Resource Slug is set."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "gated",
+          "label": "Gating Override",
+          "options": [
+            {
+              "name": "Inherit",
+              "value": ""
+            },
+            {
+              "name": "Gated (registration required)",
+              "value": "gated"
+            },
+            {
+              "name": "Open (no registration)",
+              "value": "open"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "resource-downloads",
+      "components": [
+        "resource-download-item"
+      ]
+    }
+  ]
+}

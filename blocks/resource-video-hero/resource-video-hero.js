@@ -7,6 +7,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { bindGatedLink } from '../../scripts/resource-gate.js';
 
 const FIELD_COLUMN_INDEX = {
   apiBaseUrl: 0,
@@ -21,6 +22,7 @@ const FIELD_COLUMN_INDEX = {
   videoFile: 9,
   videoFilePath: 10,
   videoUrl: 11,
+  gated: 12,
 };
 
 const DEFAULT_LISTING_PATH = '/content/edge/resources.html';
@@ -283,6 +285,20 @@ function buildActions(resource, config, videoSource) {
       download.rel = 'noopener noreferrer';
     }
     download.textContent = config.downloadLabel || 'Download Resource';
+
+    // Authored gated value overrides the API value; missing → API → open.
+    let gated = Boolean(resource.gated);
+    if (config.gated === 'true') gated = true;
+    if (config.gated === 'false') gated = false;
+
+    bindGatedLink(download, {
+      gated,
+      resourceSlug: resource.slug || config.slug || '',
+      fileUrl: downloadUrl,
+      fileName: resource.aem_asset_name || '',
+      downloadLabel: config.downloadLabel || 'Download Resource',
+    });
+
     actions.append(download);
   }
 
@@ -397,6 +413,7 @@ export default async function decorate(block) {
     description: getFieldValue(block, 'description'),
     videoFile: aemFields.videoFilePath || aemFields.videoFile || getVideoFileValue(block),
     videoUrl: aemFields.videoUrl || getFieldValue(block, 'videoUrl'),
+    gated: normalizeText(getFieldValue(block, 'gated')).toLowerCase(),
   };
 
   block.replaceChildren(buildMessage('Loading resource...', ''));

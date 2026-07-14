@@ -89,6 +89,7 @@
       "poster-map",
       "resource-detail",
       "resource-details",
+      "resource-downloads",
       "resource-video-hero",
       "resource-video-player",
       "article-detail",
@@ -498,6 +499,12 @@
     "id": "report-breakdown",
     "components": [
       "report-breakdown-item"
+    ]
+  },
+  {
+    "id": "resource-downloads",
+    "components": [
+      "resource-download-item"
     ]
   },
   {

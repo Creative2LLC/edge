@@ -1,0 +1,176 @@
+/* Shared styles for the resource download gate (scripts/resource-gate.js) */
+
+.resource-gate-link.is-locked {
+  position: relative;
+  padding-left: 2.1em;
+  cursor: pointer;
+}
+
+.resource-gate-link.is-locked::before {
+  content: "";
+  position: absolute;
+  left: 0.9em;
+  top: 50%;
+  width: 0.9em;
+  height: 0.9em;
+  transform: translateY(-50%);
+  background-color: currentcolor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9zm3 4a1.5 1.5 0 0 1 .75 2.8V19a0.75 0.75 0 0 1-1.5 0v-2.2A1.5 1.5 0 0 1 12 14z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+.resource-gate-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.resource-gate-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 20 40 / 65%);
+}
+
+.resource-gate-modal-dialog {
+  position: relative;
+  width: min(520px, 100%);
+  max-height: min(90vh, 720px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px 28px 28px;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 30%);
+  font-family: var(--body-font-family, sans-serif);
+}
+
+.resource-gate-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #00264d;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.resource-gate-modal-close:hover,
+.resource-gate-modal-close:focus-visible {
+  background: rgb(0 38 77 / 8%);
+}
+
+.resource-gate-modal-title {
+  margin: 0 0 8px;
+  color: #00264d;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--heading-font-size-m, 22px);
+  line-height: 1.2;
+}
+
+.resource-gate-modal-subtitle {
+  margin: 0 0 20px;
+  color: #445;
+  font-size: var(--body-font-size-xs, 14px);
+  line-height: 1.5;
+}
+
+.resource-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.resource-gate-form-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.7fr) 1fr 1fr;
+  gap: 12px;
+}
+
+.resource-gate-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.resource-gate-label {
+  color: #00264d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.resource-gate-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #c6cdd6;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text-color, #131313);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.resource-gate-input:focus-visible {
+  outline: 2px solid #00264d;
+  outline-offset: 1px;
+}
+
+.resource-gate-form-status {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.resource-gate-form-status.is-error {
+  color: #b3261e;
+}
+
+.resource-gate-form-status.is-success {
+  color: #1d6f42;
+}
+
+.resource-gate-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.resource-gate-form-submit {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 28px;
+  background: #00264d;
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.resource-gate-form-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.resource-gate-form-submit:focus-visible,
+.resource-gate-form-submit:hover:not(:disabled) {
+  background: #003a75;
+}
+
+@media (width <= 600px) {
+  .resource-gate-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-gate-modal-dialog {
+    padding: 26px 18px 20px;
+  }
+}

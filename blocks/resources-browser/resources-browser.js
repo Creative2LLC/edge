@@ -20,6 +20,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import { bindGatedLink } from '../../scripts/resource-gate.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -81,10 +82,12 @@ const RESOURCE_BROWSER_ACTION_LABELS = {
   en: {
     learnMore: 'Learn more ->',
     downloadPdf: 'Download PDF ->',
+    viewResource: 'View Resource ->',
   },
   es: {
     learnMore: 'Mas informacion ->',
     downloadPdf: 'Descargar PDF ->',
+    viewResource: 'Ver recurso ->',
   },
 };
 
@@ -474,6 +477,8 @@ function mapApiResource(resource) {
     linkAction: resource.primary_action || '',
     hasDetailPage: Boolean(resource.has_detail_page),
     hasDownload: Boolean(resource.has_download),
+    gated: Boolean(resource.gated),
+    slug: resource.slug || '',
   };
 }
 
@@ -608,14 +613,14 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
     content.append(subtitle);
   }
 
-  const actions = [
-    resource.hasDetailPage && resource.detailUrl
-      ? { href: resource.detailUrl, label: labels.learnMore, isDownload: false }
-      : null,
-    resource.hasDownload && resource.downloadUrl
-      ? { href: resource.downloadUrl, label: labels.downloadPdf, isDownload: true }
-      : null,
-  ].filter(Boolean);
+  // Each card gets ONE button: the landing/detail page when it exists,
+  // otherwise a (possibly gated) direct download.
+  const actions = [];
+  if (resource.hasDetailPage && resource.detailUrl) {
+    actions.push({ href: resource.detailUrl, label: labels.viewResource, isDownload: false });
+  } else if (resource.hasDownload && resource.downloadUrl) {
+    actions.push({ href: resource.downloadUrl, label: labels.downloadPdf, isDownload: true });
+  }
 
   if (!actions.length && resource.linkUrl) {
     actions.push({
@@ -634,6 +639,14 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
       link.rel = 'noopener noreferrer';
     }
     link.textContent = action.label;
+    if (action.isDownload) {
+      bindGatedLink(link, {
+        gated: resource.gated,
+        resourceSlug: resource.slug,
+        fileUrl: action.href,
+        downloadLabel: action.label,
+      });
+    }
     content.append(link);
   });
 

@@ -1,0 +1,146 @@
+.resource-downloads {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 8px 16px 32px;
+}
+
+.resource-downloads-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.resource-downloads-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid #e2e6eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgb(0 20 40 / 6%);
+}
+
+.resource-downloads-item-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 56px;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: #eaf4f8;
+  color: #00264d;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.resource-downloads-item-icon[data-extension="pdf"] {
+  background: #fdeeee;
+  color: #b3261e;
+}
+
+.resource-downloads-item-icon[data-extension="ppt"],
+.resource-downloads-item-icon[data-extension="pptx"] {
+  background: #fdf1e6;
+  color: #c05a11;
+}
+
+.resource-downloads-item-icon[data-extension="zip"] {
+  background: #f0ecfa;
+  color: #4c3a8f;
+}
+
+.resource-downloads-item-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.resource-downloads-item-title {
+  margin: 0;
+  color: #00264d;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--heading-font-size-xs, 18px);
+  line-height: 1.3;
+}
+
+.resource-downloads-item-description {
+  margin-top: 6px;
+  color: #445;
+  font-size: var(--body-font-size-xs, 14px);
+  line-height: 1.5;
+}
+
+.resource-downloads-item-description p {
+  margin: 0;
+}
+
+.resource-downloads-item-actions {
+  flex: 0 0 auto;
+}
+
+.resource-downloads-item-button {
+  display: inline-block;
+  padding: 11px 26px;
+  border-radius: 999px;
+  background: #00264d;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.resource-downloads-item-button:hover,
+.resource-downloads-item-button:focus-visible {
+  background: #003a75;
+  color: #fff;
+}
+
+.resource-downloads-item-button.is-locked {
+  background: #5a6b7d;
+}
+
+.resource-downloads-item-button.is-locked:hover,
+.resource-downloads-item-button.is-locked:focus-visible {
+  background: #46566a;
+}
+
+.resource-downloads-item-notice {
+  margin: 0;
+  color: #8a5a00;
+  font-size: 13px;
+  font-style: italic;
+  max-width: 220px;
+}
+
+.resource-downloads-empty {
+  margin: 0;
+  padding: 24px;
+  border: 1px dashed #c6cdd6;
+  border-radius: 12px;
+  color: #667;
+  text-align: center;
+  font-size: 14px;
+}
+
+@media (width <= 640px) {
+  .resource-downloads-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .resource-downloads-item-actions {
+    width: 100%;
+  }
+
+  .resource-downloads-item-button {
+    display: block;
+    text-align: center;
+  }
+}

@@ -6,6 +6,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { bindGatedLink } from '../../scripts/resource-gate.js';
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
@@ -13,6 +14,7 @@ const FIELD_LABELS = {
   listingPath: ['listing path', 'back link', 'back link url', 'back url'],
   listingLabel: ['listing label', 'back link label', 'back label'],
   ctaLabel: ['cta label', 'resource cta label', 'button label', 'primary cta label'],
+  gated: ['gated', 'gate downloads', 'gated download'],
 };
 
 const FIELD_COLUMN_INDEX = {
@@ -21,6 +23,7 @@ const FIELD_COLUMN_INDEX = {
   listingPath: 2,
   listingLabel: 3,
   ctaLabel: 4,
+  gated: 5,
 };
 
 const DEFAULT_RESOURCE_LISTING_PATH = '/content/edge/resources.html';
@@ -251,7 +254,14 @@ function buildMeta(resource) {
   return meta;
 }
 
-function buildActions(resource, ctaLabel) {
+function resolveGated(resource, config) {
+  // Authored block value overrides the API value; missing → API → open.
+  if (config.gated === 'true') return true;
+  if (config.gated === 'false') return false;
+  return Boolean(resource.gated);
+}
+
+function buildActions(resource, config) {
   const downloadUrl = resource.download_url || resource.resource_url;
   if (!downloadUrl) return null;
 
@@ -263,7 +273,16 @@ function buildActions(resource, ctaLabel) {
   link.href = downloadUrl;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  link.textContent = ctaLabel;
+  link.textContent = config.ctaLabel;
+
+  bindGatedLink(link, {
+    gated: resolveGated(resource, config),
+    resourceSlug: resource.slug || config.slug || '',
+    fileUrl: downloadUrl,
+    fileName: resource.aem_asset_name || '',
+    downloadLabel: config.ctaLabel,
+  });
+
   actions.append(link);
 
   return actions;
@@ -318,7 +337,7 @@ function buildHero(resource, config) {
     content.append(excerpt);
   }
 
-  const actions = buildActions(resource, config.ctaLabel);
+  const actions = buildActions(resource, config);
   if (actions) content.append(actions);
 
   hero.append(content);
@@ -389,6 +408,7 @@ export default async function decorate(block) {
     listingPath: normalizeEdgeContentPath(getFieldValue(block, 'listingPath'), DEFAULT_RESOURCE_LISTING_PATH),
     listingLabel: getFieldValue(block, 'listingLabel', 'Back to Resources') || 'Back to Resources',
     ctaLabel: getFieldValue(block, 'ctaLabel', 'Open Resource') || 'Open Resource',
+    gated: normalizeText(getFieldValue(block, 'gated')).toLowerCase(),
   };
 
   block.replaceChildren(buildMessage('Loading resource...', ''));

@@ -3,6 +3,8 @@ export const PHONE_PATTERN = '^[+]?[0-9().\\\\s-]{7,25}$';
 export const DEFAULT_FORM_ENDPOINTS = {
   'general-inquiries': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/general-inquiries',
   newsletter: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/newsletter-subscriptions',
+  'resource-registration': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/resource-registrations',
+  'resource-download': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/resource-downloads',
 };
 
 function countPhoneDigits(value) {

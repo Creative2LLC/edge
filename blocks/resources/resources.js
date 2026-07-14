@@ -10,6 +10,7 @@ import {
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
+import { bindGatedLink } from '../../scripts/resource-gate.js';
 
 const BLOCK_PROPS = [
   'heading',
@@ -35,10 +36,12 @@ const RESOURCE_ACTION_LABELS = {
   en: {
     learnMore: 'Learn More',
     downloadPdf: 'Download PDF',
+    viewResource: 'View Resource',
   },
   es: {
     learnMore: 'Mas informacion',
     downloadPdf: 'Descargar PDF',
+    viewResource: 'Ver recurso',
   },
 };
 
@@ -248,10 +251,12 @@ function mapApiResource(resource) {
     linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
     detailUrl: resource.detail_path || '',
     downloadUrl: resource.download_url || resource.resource_url || '',
-    linkText: resource.primary_action === 'download' ? labels.downloadPdf : labels.learnMore,
+    linkText: resource.primary_action === 'download' ? labels.downloadPdf : labels.viewResource,
     linkAction: resource.primary_action || '',
     hasDetailPage: Boolean(resource.has_detail_page),
     hasDownload: Boolean(resource.has_download),
+    gated: Boolean(resource.gated),
+    slug: resource.slug || '',
     tags: [
       ...(resource.program_labels || []),
       ...(resource.grade_age_labels || []),
@@ -363,18 +368,18 @@ function buildResourceCard(resource, row) {
     content.append(sub);
   }
 
-  const actions = [
-    resource.hasDetailPage && resource.detailUrl
-      ? {
-        href: resource.detailUrl,
-        label: resource.linkText || labels.learnMore,
-        isDownload: false,
-      }
-      : null,
-    resource.hasDownload && resource.downloadUrl
-      ? { href: resource.downloadUrl, label: labels.downloadPdf, isDownload: true }
-      : null,
-  ].filter(Boolean);
+  // Each card gets ONE button: the landing/detail page when it exists,
+  // otherwise a (possibly gated) direct download.
+  const actions = [];
+  if (resource.hasDetailPage && resource.detailUrl) {
+    actions.push({
+      href: resource.detailUrl,
+      label: resource.linkText || labels.viewResource,
+      isDownload: false,
+    });
+  } else if (resource.hasDownload && resource.downloadUrl) {
+    actions.push({ href: resource.downloadUrl, label: labels.downloadPdf, isDownload: true });
+  }
 
   if (!actions.length && resource.linkUrl) {
     actions.push({
@@ -393,6 +398,14 @@ function buildResourceCard(resource, row) {
       link.rel = 'noopener noreferrer';
     }
     link.textContent = action.label;
+    if (action.isDownload) {
+      bindGatedLink(link, {
+        gated: resource.gated,
+        resourceSlug: resource.slug,
+        fileUrl: action.href,
+        downloadLabel: action.label,
+      });
+    }
     content.append(link);
   });
 
