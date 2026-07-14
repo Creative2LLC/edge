@@ -72,6 +72,21 @@
 }
 
 .connect-grid .connect-grid-card {
+  --connect-grid-card-icon-size: 96px;
+  --connect-grid-card-media-gap: 26px;
+  --connect-grid-card-title-gap: 12px;
+  --connect-grid-card-divider-top-gap: 18px;
+  --connect-grid-card-divider-bottom-gap: 20px;
+  --connect-grid-title-color: #404041;
+  --connect-grid-description-color: #404041;
+  --connect-grid-method-label-color: #5e5f63;
+  --connect-grid-method-value-color: #008db6;
+  --connect-grid-title-size: 36px;
+  --connect-grid-description-size: 17px;
+  --connect-grid-method-label-size: 0.92rem;
+  --connect-grid-method-value-size: 1.04rem;
+  --connect-grid-methods-gap: 20px;
+
   display: flex;
   flex-direction: column;
   min-height: var(--connect-grid-card-matched-height, 0);
@@ -90,7 +105,7 @@
 }
 
 .connect-grid .connect-grid-card-media {
-  margin-bottom: 26px;
+  margin-bottom: var(--connect-grid-card-media-gap);
   flex-shrink: 0;
 }
 
@@ -98,8 +113,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 96px;
-  height: 96px;
+  width: var(--connect-grid-card-icon-size);
+  height: var(--connect-grid-card-icon-size);
   background-color: #ff8b7e;
   mask-size: contain;
   mask-repeat: no-repeat;
@@ -118,15 +133,15 @@
 .connect-grid .connect-grid-card-media.is-icon picture,
 .connect-grid .connect-grid-card-media.is-icon img {
   display: block;
-  width: 96px;
-  height: 96px;
+  width: var(--connect-grid-card-icon-size);
+  height: var(--connect-grid-card-icon-size);
   object-fit: contain;
 }
 
 .connect-grid .connect-grid-card-media.is-image {
   width: calc(100% + 56px);
   max-width: none;
-  margin: -30px -28px 26px;
+  margin: -30px -28px var(--connect-grid-card-media-gap);
   align-self: stretch;
   overflow: hidden;
 }
@@ -145,9 +160,9 @@
 }
 
 .connect-grid .connect-grid-card-title {
-  margin: 0 0 12px;
-  color: #404041;
-  font-size: 36px;
+  margin: 0 0 var(--connect-grid-card-title-gap);
+  color: var(--connect-grid-title-color);
+  font-size: var(--connect-grid-title-size);
   font-weight: 700;
   line-height: 1.06;
   letter-spacing: -0.04em;
@@ -164,7 +179,7 @@
 }
 
 .connect-grid .connect-grid-card-description {
-  color: #404041;
+  color: var(--connect-grid-description-color);
   line-height: 1.45;
 }
 
@@ -172,7 +187,7 @@
    larger with a space between (per design). */
 .connect-grid .connect-grid-card-description > * {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--connect-grid-description-size);
   font-weight: 500;
 }
 
@@ -184,13 +199,13 @@
 .connect-grid .connect-grid-card-divider {
   width: 100%;
   height: 1px;
-  margin: 18px 0 20px;
+  margin: var(--connect-grid-card-divider-top-gap) 0 var(--connect-grid-card-divider-bottom-gap);
   background: rgb(17 58 103 / 10%);
 }
 
 .connect-grid .connect-grid-methods {
   display: grid;
-  gap: 20px;
+  gap: var(--connect-grid-methods-gap);
   margin-top: auto;
 }
 
@@ -201,15 +216,15 @@
 
 .connect-grid .connect-grid-method-label {
   margin: 0;
-  color: #5e5f63;
-  font-size: 0.92rem;
+  color: var(--connect-grid-method-label-color);
+  font-size: var(--connect-grid-method-label-size);
   font-weight: 700;
   line-height: 1.2;
 }
 
 .connect-grid .connect-grid-method-value {
-  color: #008db6;
-  font-size: 1.04rem;
+  color: var(--connect-grid-method-value-color);
+  font-size: var(--connect-grid-method-value-size);
   line-height: 1.35;
   text-decoration: none;
 }

@@ -482,6 +482,102 @@
           "name": "imageAlt",
           "label": "Image Alt Text",
           "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardTextColor",
+          "label": "All Text Color",
+          "description": "Optional hex color applied to title, description, and contact method text. Example: #404041",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "titleColor",
+          "label": "Title Color",
+          "description": "Optional title-only hex color. Overrides All Text Color.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "descriptionColor",
+          "label": "Description Color",
+          "description": "Optional description-only hex color. Overrides All Text Color.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactLabelColor",
+          "label": "Contact Label Color",
+          "description": "Optional contact label hex color. Overrides All Text Color.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactValueColor",
+          "label": "Contact Value Color",
+          "description": "Optional contact value or link hex color. Overrides All Text Color.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "titleFontSize",
+          "label": "Title Font Size",
+          "description": "Optional CSS size. Example: 36px or 2rem.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "descriptionFontSize",
+          "label": "Description Font Size",
+          "description": "Optional CSS size. Example: 17px or 1rem.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactLabelFontSize",
+          "label": "Contact Label Font Size",
+          "description": "Optional CSS size. Example: 15px or 0.92rem.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactValueFontSize",
+          "label": "Contact Value Font Size",
+          "description": "Optional CSS size. Example: 17px or 1rem.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "iconSize",
+          "label": "Icon Size",
+          "description": "Optional per-card icon size. Example: 64px.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "cardItemSpacing",
+          "label": "Card Item Spacing",
+          "description": "Optional spacing between the icon/image, title, description, divider, and methods. Example: 20px.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethodSpacing",
+          "label": "Contact Method Spacing",
+          "description": "Optional spacing between multiple contact methods. Example: 12px.",
+          "value": ""
         }
       ]
     }

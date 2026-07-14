@@ -58,6 +58,49 @@ const ITEM_COLUMN_INDEX = {
   imageAlt: 21,
 };
 
+const LEGACY_ITEM_COLUMN_INDEX = {
+  icon: 0,
+  image: 1,
+  iconColor: 2,
+  title: 3,
+  description: 4,
+  contactMethod1Label: 5,
+  contactMethod1Text: 6,
+  contactMethod1Link: 7,
+  contactMethod2Label: 8,
+  contactMethod2Text: 9,
+  contactMethod2Link: 10,
+  contactMethod3Label: 11,
+  contactMethod3Text: 12,
+  contactMethod3Link: 13,
+  contactMethod4Label: 14,
+  contactMethod4Text: 15,
+  contactMethod4Link: 16,
+  contactMethods: 17,
+  cardBackgroundColor: 18,
+  showDivider: 19,
+  cardHoverBackgroundColor: 20,
+  imageAlt: 21,
+};
+
+[
+  'cardTextColor',
+  'titleColor',
+  'descriptionColor',
+  'contactLabelColor',
+  'contactValueColor',
+  'titleFontSize',
+  'descriptionFontSize',
+  'contactLabelFontSize',
+  'contactValueFontSize',
+  'iconSize',
+  'cardItemSpacing',
+  'contactMethodSpacing',
+].forEach((name, offset) => {
+  ITEM_COLUMN_INDEX[name] = 22 + offset;
+  LEGACY_ITEM_COLUMN_INDEX[name] = 22 + offset;
+});
+
 const DEFAULTS = {
   columns: '3',
   iconColor: '#ff8b7e',
@@ -95,6 +138,43 @@ function getParentFallbackCell(scope, rowIndex) {
   return row?.children?.[0] || row || null;
 }
 
+function isItemIndexMap(rowIndexMap) {
+  return rowIndexMap === ITEM_COLUMN_INDEX || rowIndexMap === LEGACY_ITEM_COLUMN_INDEX;
+}
+
+function getCellText(row, index) {
+  return row?.children?.[index]?.textContent?.trim() || '';
+}
+
+function hasMediaCell(row, index) {
+  return Boolean(row?.children?.[index]?.querySelector?.('picture, img'));
+}
+
+function isDividerValue(value) {
+  return ['show', 'hide', 'hidden', 'off', 'false', 'no', 'none']
+    .includes(String(value || '').trim().toLowerCase());
+}
+
+function getItemColumnIndex(row) {
+  if (
+    hasMediaCell(row, LEGACY_ITEM_COLUMN_INDEX.icon)
+    || hasMediaCell(row, LEGACY_ITEM_COLUMN_INDEX.image)
+    || isValidHexColor(getCellText(row, LEGACY_ITEM_COLUMN_INDEX.iconColor))
+    || isDividerValue(getCellText(row, LEGACY_ITEM_COLUMN_INDEX.showDivider))
+  ) {
+    return LEGACY_ITEM_COLUMN_INDEX;
+  }
+
+  return ITEM_COLUMN_INDEX;
+}
+
+function normalizeCssSize(value) {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) return '';
+  if (/^\d+(\.\d+)?$/.test(normalizedValue)) return `${normalizedValue}px`;
+  return normalizedValue;
+}
+
 // Hex-color "select" fields (regex-validated) render in the editor as a bare
 // <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
 // unlike every other field type, which does get real instrumentation whenever it has
@@ -104,7 +184,7 @@ function getParentFallbackCell(scope, rowIndex) {
 const ALWAYS_POSITIONAL_FIELDS = new Set(['iconColor', 'cardBackgroundColor', 'cardHoverBackgroundColor']);
 
 function getFallbackCell(scope, rowIndexMap, rowIndex, columnIndex, isEditor, name) {
-  if (rowIndexMap !== ITEM_COLUMN_INDEX) return getParentFallbackCell(scope, rowIndex);
+  if (!isItemIndexMap(rowIndexMap)) return getParentFallbackCell(scope, rowIndex);
   if (isEditor && !ALWAYS_POSITIONAL_FIELDS.has(name)) return null;
   return scope.children[columnIndex];
 }
@@ -201,29 +281,29 @@ function parseContactMethods(value) {
     .filter((method) => method.text);
 }
 
-function getStructuredContactMethods(row, isEditor) {
+function getStructuredContactMethods(row, isEditor, itemColumnIndex) {
   const methods = [];
 
   for (let index = 1; index <= 4; index += 1) {
     const labelField = getField(
       row,
       `contactMethod${index}Label`,
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX[`contactMethod${index}Label`],
+      itemColumnIndex,
+      itemColumnIndex[`contactMethod${index}Label`],
       isEditor,
     );
     const textField = getField(
       row,
       `contactMethod${index}Text`,
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX[`contactMethod${index}Text`],
+      itemColumnIndex,
+      itemColumnIndex[`contactMethod${index}Text`],
       isEditor,
     );
     const linkField = getField(
       row,
       `contactMethod${index}Link`,
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX[`contactMethod${index}Link`],
+      itemColumnIndex,
+      itemColumnIndex[`contactMethod${index}Link`],
       isEditor,
     );
 
@@ -364,6 +444,66 @@ function syncCardColors(resourcePath, card) {
     });
 }
 
+function applyCardStyles(card, item) {
+  if (item.cardTextColor) {
+    card.style.setProperty('--connect-grid-title-color', item.cardTextColor);
+    card.style.setProperty('--connect-grid-description-color', item.cardTextColor);
+    card.style.setProperty('--connect-grid-method-label-color', item.cardTextColor);
+    card.style.setProperty('--connect-grid-method-value-color', item.cardTextColor);
+  }
+
+  if (item.titleColor) card.style.setProperty('--connect-grid-title-color', item.titleColor);
+  if (item.descriptionColor) {
+    card.style.setProperty('--connect-grid-description-color', item.descriptionColor);
+  }
+  if (item.contactLabelColor) {
+    card.style.setProperty('--connect-grid-method-label-color', item.contactLabelColor);
+  }
+  if (item.contactValueColor) {
+    card.style.setProperty('--connect-grid-method-value-color', item.contactValueColor);
+  }
+
+  if (item.titleFontSize) {
+    card.style.setProperty('--connect-grid-title-size', normalizeCssSize(item.titleFontSize));
+  }
+  if (item.descriptionFontSize) {
+    card.style.setProperty(
+      '--connect-grid-description-size',
+      normalizeCssSize(item.descriptionFontSize),
+    );
+  }
+  if (item.contactLabelFontSize) {
+    card.style.setProperty(
+      '--connect-grid-method-label-size',
+      normalizeCssSize(item.contactLabelFontSize),
+    );
+  }
+  if (item.contactValueFontSize) {
+    card.style.setProperty(
+      '--connect-grid-method-value-size',
+      normalizeCssSize(item.contactValueFontSize),
+    );
+  }
+  if (item.iconSize) {
+    card.style.setProperty('--connect-grid-card-icon-size', normalizeCssSize(item.iconSize));
+  }
+
+  if (item.cardItemSpacing) {
+    const spacing = normalizeCssSize(item.cardItemSpacing);
+    card.style.setProperty('--connect-grid-card-media-gap', spacing);
+    card.style.setProperty('--connect-grid-card-title-gap', spacing);
+    card.style.setProperty('--connect-grid-card-divider-top-gap', spacing);
+    card.style.setProperty('--connect-grid-card-divider-bottom-gap', spacing);
+  }
+
+  if (item.contactMethodSpacing) {
+    card.style.setProperty(
+      '--connect-grid-methods-gap',
+      normalizeCssSize(item.contactMethodSpacing),
+    );
+  }
+}
+
 function buildCard(item, index, isEditor) {
   const card = document.createElement('article');
   const resourcePath = item.row ? getAueResourcePath(item.row) : '';
@@ -377,6 +517,7 @@ function buildCard(item, index, isEditor) {
     card.classList.add('has-hover-bg');
     card.style.setProperty('--connect-grid-card-hover-bg', item.cardHoverBackgroundColor);
   }
+  applyCardStyles(card, item);
   if (item.row) {
     moveInstrumentation(item.row, card);
     setItemLabel(card, [
@@ -538,75 +679,161 @@ export default function decorate(block) {
 
     if (!isItemRow) return;
 
+    const itemColumnIndex = getItemColumnIndex(row);
+
     const iconField = getImageField(
       row,
       'icon',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.icon,
+      itemColumnIndex,
+      itemColumnIndex.icon,
       isEditor,
     );
     const imageField = getImageField(
       row,
       'image',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.image,
+      itemColumnIndex,
+      itemColumnIndex.image,
       isEditor,
     );
     const imageAltField = getField(
       row,
       'imageAlt',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.imageAlt,
+      itemColumnIndex,
+      itemColumnIndex.imageAlt,
       isEditor,
     );
     const iconColorField = getField(
       row,
       'iconColor',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.iconColor,
+      itemColumnIndex,
+      itemColumnIndex.iconColor,
       isEditor,
     );
     const titleSource = getRichField(
       row,
       'title',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.title,
+      itemColumnIndex,
+      itemColumnIndex.title,
       isEditor,
     );
     const descriptionSource = getRichField(
       row,
       'description',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.description,
+      itemColumnIndex,
+      itemColumnIndex.description,
       isEditor,
     );
     const contactMethodsField = getField(
       row,
       'contactMethods',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.contactMethods,
+      itemColumnIndex,
+      itemColumnIndex.contactMethods,
       isEditor,
     );
-    const structuredContactMethods = getStructuredContactMethods(row, isEditor);
+    const structuredContactMethods = getStructuredContactMethods(row, isEditor, itemColumnIndex);
     const cardBackgroundColorField = getField(
       row,
       'cardBackgroundColor',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.cardBackgroundColor,
+      itemColumnIndex,
+      itemColumnIndex.cardBackgroundColor,
       isEditor,
     );
     const showDividerField = getField(
       row,
       'showDivider',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.showDivider,
+      itemColumnIndex,
+      itemColumnIndex.showDivider,
       isEditor,
     );
     const cardHoverBackgroundColorField = getField(
       row,
       'cardHoverBackgroundColor',
-      ITEM_COLUMN_INDEX,
-      ITEM_COLUMN_INDEX.cardHoverBackgroundColor,
+      itemColumnIndex,
+      itemColumnIndex.cardHoverBackgroundColor,
+      isEditor,
+    );
+    const cardTextColorField = getField(
+      row,
+      'cardTextColor',
+      itemColumnIndex,
+      itemColumnIndex.cardTextColor,
+      isEditor,
+    );
+    const titleColorField = getField(
+      row,
+      'titleColor',
+      itemColumnIndex,
+      itemColumnIndex.titleColor,
+      isEditor,
+    );
+    const descriptionColorField = getField(
+      row,
+      'descriptionColor',
+      itemColumnIndex,
+      itemColumnIndex.descriptionColor,
+      isEditor,
+    );
+    const contactLabelColorField = getField(
+      row,
+      'contactLabelColor',
+      itemColumnIndex,
+      itemColumnIndex.contactLabelColor,
+      isEditor,
+    );
+    const contactValueColorField = getField(
+      row,
+      'contactValueColor',
+      itemColumnIndex,
+      itemColumnIndex.contactValueColor,
+      isEditor,
+    );
+    const titleFontSizeField = getField(
+      row,
+      'titleFontSize',
+      itemColumnIndex,
+      itemColumnIndex.titleFontSize,
+      isEditor,
+    );
+    const descriptionFontSizeField = getField(
+      row,
+      'descriptionFontSize',
+      itemColumnIndex,
+      itemColumnIndex.descriptionFontSize,
+      isEditor,
+    );
+    const contactLabelFontSizeField = getField(
+      row,
+      'contactLabelFontSize',
+      itemColumnIndex,
+      itemColumnIndex.contactLabelFontSize,
+      isEditor,
+    );
+    const contactValueFontSizeField = getField(
+      row,
+      'contactValueFontSize',
+      itemColumnIndex,
+      itemColumnIndex.contactValueFontSize,
+      isEditor,
+    );
+    const iconSizeField = getField(
+      row,
+      'iconSize',
+      itemColumnIndex,
+      itemColumnIndex.iconSize,
+      isEditor,
+    );
+    const cardItemSpacingField = getField(
+      row,
+      'cardItemSpacing',
+      itemColumnIndex,
+      itemColumnIndex.cardItemSpacing,
+      isEditor,
+    );
+    const contactMethodSpacingField = getField(
+      row,
+      'contactMethodSpacing',
+      itemColumnIndex,
+      itemColumnIndex.contactMethodSpacing,
       isEditor,
     );
 
@@ -633,6 +860,18 @@ export default function decorate(block) {
       cardBackgroundColor: cardBackgroundColorField.value,
       showDivider: shouldShowDivider(showDividerField.value),
       cardHoverBackgroundColor: cardHoverBackgroundColorField.value,
+      cardTextColor: cardTextColorField.value,
+      titleColor: titleColorField.value,
+      descriptionColor: descriptionColorField.value,
+      contactLabelColor: contactLabelColorField.value,
+      contactValueColor: contactValueColorField.value,
+      titleFontSize: titleFontSizeField.value,
+      descriptionFontSize: descriptionFontSizeField.value,
+      contactLabelFontSize: contactLabelFontSizeField.value,
+      contactValueFontSize: contactValueFontSizeField.value,
+      iconSize: iconSizeField.value,
+      cardItemSpacing: cardItemSpacingField.value,
+      contactMethodSpacing: contactMethodSpacingField.value,
       row,
       order: index,
     });

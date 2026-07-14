@@ -59,7 +59,7 @@ module.exports = {
       'job-postings': 8,
       'internship-program': 18,
       'detailed-carousel-item': 11,
-      'connect-grid-item': 21,
+      'connect-grid-item': 34,
       'split-card-offices': 16,
       'split-card-gap': 12,
       'split-card-list-item': 10,
