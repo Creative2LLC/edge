@@ -71,6 +71,23 @@
             }
           ],
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "layout",
+          "label": "Layout",
+          "options": [
+            {
+              "name": "Stacked list",
+              "value": ""
+            },
+            {
+              "name": "Grid",
+              "value": "grid"
+            }
+          ],
+          "value": ""
         }
       ]
     },
@@ -88,14 +105,22 @@
           "component": "richtext",
           "valueType": "string",
           "name": "itemDescription",
-          "label": "Description"
+          "label": "Description",
+          "description": "Supporting copy. On Feature cards this doubles as the 'what's inside' line."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonLabel",
+          "label": "Button Label",
+          "description": "Defaults by file type (Download PDF, Download PowerPoint, Watch Video...)."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "resourceSlug",
           "label": "Resource Slug",
-          "description": "Link this item to a backend resource by slug (preferred — pulls title, file, and gating from the API)."
+          "description": "Link this item to a backend resource by slug (preferred — pulls title, file, thumbnail, and gating from the API)."
         },
         {
           "component": "aem-content",
@@ -103,6 +128,55 @@
           "name": "file",
           "label": "File",
           "description": "Direct DAM file link. Only used when no Resource Slug is set."
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image / Poster",
+          "description": "Thumbnail for Document cards or poster for Video items. Slug-backed items fall back to the resource thumbnail.",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "videoUrl",
+          "label": "Video URL",
+          "description": "YouTube, Vimeo, or MP4 URL for Video items. Slug-backed items fall back to the resource's video."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "displayStyle",
+          "label": "Display Style",
+          "description": "Auto picks by file type: video links get the player, ppt/zip the Feature card, documents the card or row.",
+          "options": [
+            {
+              "name": "Auto (by file type)",
+              "value": ""
+            },
+            {
+              "name": "Compact row",
+              "value": "row"
+            },
+            {
+              "name": "Document card",
+              "value": "card"
+            },
+            {
+              "name": "Feature CTA",
+              "value": "feature"
+            },
+            {
+              "name": "Video player",
+              "value": "video"
+            },
+            {
+              "name": "Grouped buttons (merge with neighbors)",
+              "value": "grouped"
+            }
+          ],
+          "value": ""
         },
         {
           "component": "select",

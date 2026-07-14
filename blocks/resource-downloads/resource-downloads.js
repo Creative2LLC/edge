@@ -1,29 +1,38 @@
 /*
  * Resource Downloads block — the download list on resource landing pages.
- * Hosts one or more download links, each backed by a backend resource slug
- * (preferred; pulls title/file/gating from the API) or a direct DAM file.
- * Gated items render "Locked" and go through the shared registration modal
- * in scripts/resource-gate.js; every download fires a GA4 + backend event.
+ * Each item is backed by a backend resource slug (preferred; pulls title,
+ * file, thumbnail, video, and gating from the API) or a direct DAM file,
+ * and renders in one of four treatments — compact row, document card,
+ * feature CTA, or in-page video player — picked automatically by file type
+ * or overridden per item. Consecutive "grouped" items merge into a single
+ * card with stacked buttons. Gated items go through the shared registration
+ * modal in scripts/resource-gate.js; downloads fire GA4 + backend events.
  *
  * The backend stamps apiBaseUrl/slug/gated onto this block and seeds the
  * first item when it auto-creates a landing page for a DAM asset.
  */
 
+import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import {
   getBlockRows,
+  readImageField,
   readLinkField,
   readRichTextField,
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import { bindGatedLink } from '../../scripts/resource-gate.js';
+import { bindGatedLink, isRegistered, openRegistrationModal } from '../../scripts/resource-gate.js';
+import { trackEvent } from '../../scripts/analytics.js';
 
 const LOCKED_LABEL = 'Locked';
-const DOWNLOAD_LABEL = 'Download';
 
 const FILE_EXTENSION_PATTERN = /\.(pdf|docx?|pptx?|zip|xlsx?|mp4|mov)([?#]|$)/i;
+const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g|gif|webp|svg)([?#]|$)/i;
+const VIDEO_EXTENSIONS = ['mp4', 'mov'];
+const FEATURE_EXTENSIONS = ['ppt', 'pptx', 'zip'];
+const DISPLAY_STYLES = ['row', 'card', 'feature', 'video', 'grouped'];
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -33,9 +42,13 @@ function isUrlLike(value) {
   return /^https?:\/\//i.test(normalizeText(value));
 }
 
+function isImageHref(href) {
+  return IMAGE_EXTENSION_PATTERN.test(normalizeText(href));
+}
+
 function isFileHref(href) {
   const value = normalizeText(href);
-  if (!value) return false;
+  if (!value || isImageHref(value)) return false;
   return value.includes('/content/dam/') || FILE_EXTENSION_PATTERN.test(value);
 }
 
@@ -65,6 +78,22 @@ function isEditorContext(block) {
   );
 }
 
+function emptyItem(row = null) {
+  return {
+    row,
+    title: '',
+    description: '',
+    buttonLabel: '',
+    resourceSlug: '',
+    fileHref: '',
+    imageEl: null,
+    imageSrc: '',
+    videoUrl: '',
+    displayStyle: '',
+    gatedOverride: '',
+  };
+}
+
 // ── Config/item extraction ───────────────────────────────────────────────────
 
 function isEditorItemRow(row) {
@@ -77,14 +106,21 @@ function isEditorItemRow(row) {
 }
 
 function parseEditorItem(row) {
-  return {
-    row,
-    title: normalizeText(readTextField(row, 'itemTitle').value),
-    description: readRichTextField(row, 'itemDescription').html || '',
-    resourceSlug: normalizeText(readTextField(row, 'resourceSlug').value),
-    fileHref: normalizeText(readLinkField(row, 'file').value),
-    gatedOverride: normalizeText(readTextField(row, 'gated').value).toLowerCase(),
-  };
+  const item = emptyItem(row);
+  const image = readImageField(row, 'image');
+
+  item.title = normalizeText(readTextField(row, 'itemTitle').value);
+  item.description = readRichTextField(row, 'itemDescription').html || '';
+  item.buttonLabel = normalizeText(readTextField(row, 'buttonLabel').value);
+  item.resourceSlug = normalizeText(readTextField(row, 'resourceSlug').value);
+  item.fileHref = normalizeText(readLinkField(row, 'file').value);
+  item.videoUrl = normalizeText(readLinkField(row, 'videoUrl').value);
+  item.displayStyle = normalizeText(readTextField(row, 'displayStyle').value).toLowerCase();
+  item.gatedOverride = normalizeText(readTextField(row, 'gated').value).toLowerCase();
+  item.imageEl = image.picture || null;
+  item.imageSrc = image.img?.src || '';
+
+  return item;
 }
 
 function readEditorContent(block) {
@@ -99,6 +135,7 @@ function readEditorContent(block) {
       apiBaseUrl: normalizeText(readTextField(configScope, 'apiBaseUrl').value),
       slug: normalizeText(readTextField(configScope, 'slug').value),
       gated: normalizeText(readTextField(configScope, 'gated').value).toLowerCase(),
+      layout: normalizeText(readTextField(configScope, 'layout').value).toLowerCase(),
     },
     items: itemRows.map((row) => parseEditorItem(row)),
     rows,
@@ -106,28 +143,48 @@ function readEditorContent(block) {
 }
 
 function parsePublishedItem(row) {
-  const item = {
-    row,
-    title: '',
-    description: '',
-    resourceSlug: '',
-    fileHref: '',
-    gatedOverride: '',
-  };
+  const item = emptyItem(row);
   const freeCells = [];
 
   [...row.children].forEach((cell) => {
+    const picture = cell.querySelector('picture');
+    const img = cell.querySelector('img');
+    if (picture || img) {
+      if (!item.imageEl) {
+        item.imageEl = picture || img;
+        item.imageSrc = (img || picture?.querySelector('img'))?.src || '';
+      }
+      return;
+    }
+
     const anchor = cell.querySelector('a');
     const href = normalizeText(anchor?.getAttribute('href'));
     const text = normalizeText(cell.textContent);
 
-    if (href && (isFileHref(href) || isUrlLike(href))) {
+    if (href && isImageHref(href)) {
+      if (!item.imageSrc) item.imageSrc = href;
+      return;
+    }
+
+    if (href && isFileHref(href)) {
       item.fileHref = item.fileHref || href;
+      return;
+    }
+
+    if ((href && isUrlLike(href)) || isUrlLike(text)) {
+      item.videoUrl = item.videoUrl || (isUrlLike(href) ? href : text.match(/https?:\/\/[^\s<>"]+/i)[0]);
       return;
     }
 
     if (/^(gated|open)$/i.test(text)) {
       item.gatedOverride = text.toLowerCase();
+      return;
+    }
+
+    // Stamped select values are lowercase; case-sensitive so a title like
+    // "Video" is not mistaken for a display style.
+    if (!item.displayStyle && DISPLAY_STYLES.includes(text)) {
+      item.displayStyle = text;
       return;
     }
 
@@ -139,9 +196,21 @@ function parsePublishedItem(row) {
     if (text) freeCells.push(cell);
   });
 
+  // Model order is title, description, button label. With omitted fields the
+  // last short plain cell is treated as the button label.
   if (freeCells.length) {
     item.title = normalizeText(freeCells[0].textContent);
-    item.description = freeCells.slice(1).map((cell) => cell.innerHTML).join('');
+    const rest = freeCells.slice(1);
+    if (rest.length) {
+      const last = rest[rest.length - 1];
+      const lastText = normalizeText(last.textContent);
+      const looksLikeLabel = lastText.length <= 32 && !last.querySelector('p + p, ul, ol, h1, h2, h3');
+      if (looksLikeLabel && (rest.length > 1 || lastText.split(' ').length <= 4)) {
+        item.buttonLabel = lastText;
+        rest.pop();
+      }
+      item.description = rest.map((cell) => cell.innerHTML).join('');
+    }
   }
 
   return item;
@@ -149,7 +218,9 @@ function parsePublishedItem(row) {
 
 function readPublishedContent(block) {
   const rows = getBlockRows(block);
-  const config = { apiBaseUrl: '', slug: '', gated: '' };
+  const config = {
+    apiBaseUrl: '', slug: '', gated: '', layout: '',
+  };
   const items = [];
 
   rows.forEach((row) => {
@@ -166,7 +237,7 @@ function readPublishedContent(block) {
     const href = normalizeText(anchor?.getAttribute('href'));
     const text = normalizeText(cell.textContent);
 
-    if (href && isFileHref(href)) {
+    if ((href && isFileHref(href)) || cell.querySelector('picture, img')) {
       items.push(parsePublishedItem(row));
       return;
     }
@@ -178,6 +249,11 @@ function readPublishedContent(block) {
 
     if (!config.gated && /^(true|false)$/i.test(text)) {
       config.gated = text.toLowerCase();
+      return;
+    }
+
+    if (!config.layout && /^grid$/i.test(text)) {
+      config.layout = 'grid';
       return;
     }
 
@@ -210,7 +286,99 @@ function fetchResource(apiBaseUrl, slug) {
   return resourceCache.get(key);
 }
 
-// ── Rendering ────────────────────────────────────────────────────────────────
+// ── Video modal ──────────────────────────────────────────────────────────────
+
+let videoModal = null;
+
+function buildVideoEmbed(url, title) {
+  const youtube = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  if (youtube) {
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${youtube[1]}?autoplay=1&rel=0`;
+    iframe.title = title || 'Video';
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    return iframe;
+  }
+
+  const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if (vimeo) {
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://player.vimeo.com/video/${vimeo[1]}?autoplay=1`;
+    iframe.title = title || 'Video';
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    return iframe;
+  }
+
+  const video = document.createElement('video');
+  video.controls = true;
+  video.autoplay = true;
+  video.playsInline = true;
+  video.setAttribute('title', title || 'Video');
+  const source = document.createElement('source');
+  source.src = resolveSiteHref(url);
+  source.type = `video/${fileExtensionFrom(url) || 'mp4'}`;
+  video.append(source);
+  return video;
+}
+
+function getVideoModal() {
+  if (videoModal) return videoModal;
+
+  const modal = document.createElement('div');
+  modal.className = 'resource-downloads-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.hidden = true;
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'resource-downloads-modal-backdrop';
+  modal.append(backdrop);
+
+  const dialog = document.createElement('div');
+  dialog.className = 'resource-downloads-modal-dialog';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'resource-downloads-modal-close';
+  closeBtn.setAttribute('aria-label', 'Close video');
+  closeBtn.innerHTML = '&times;';
+  dialog.append(closeBtn);
+
+  const frame = document.createElement('div');
+  frame.className = 'resource-downloads-modal-frame';
+  dialog.append(frame);
+
+  modal.append(dialog);
+  document.body.append(modal);
+
+  function close() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    frame.replaceChildren();
+  }
+
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modal.hidden) close();
+  });
+
+  videoModal = {
+    open(url, title) {
+      modal.setAttribute('aria-label', title || 'Video');
+      frame.replaceChildren(buildVideoEmbed(url, title));
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    },
+  };
+
+  return videoModal;
+}
+
+// ── Entry resolution ─────────────────────────────────────────────────────────
 
 function resolveGated(item, itemResource, config, primaryResource) {
   if (item.gatedOverride === 'gated') return true;
@@ -222,99 +390,325 @@ function resolveGated(item, itemResource, config, primaryResource) {
   return false;
 }
 
-function buildItemCard(item, itemResource, config, primaryResource, isEditor) {
-  const downloadUrl = item.fileHref
-    || itemResource?.download_url
-    || itemResource?.resource_url
-    || '';
+function resolveEntry(item, resource, config, primaryResource) {
+  const downloadUrl = item.fileHref || resource?.download_url || resource?.resource_url || '';
+  const videoUrl = item.videoUrl
+    || resource?.video_url
+    || (VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : '');
+  const extension = fileExtensionFrom(downloadUrl)
+    || fileExtensionFrom(resource?.aem_asset_name || '');
 
-  if (!downloadUrl && !isEditor) return null;
-
-  const card = document.createElement('article');
-  card.className = 'resource-downloads-item';
-
-  if (item.row && isEditor) {
-    moveInstrumentation(item.row, card);
+  let style = DISPLAY_STYLES.includes(item.displayStyle) ? item.displayStyle : '';
+  if (!style) {
+    if (videoUrl) style = 'video';
+    else if (FEATURE_EXTENSIONS.includes(extension)) style = 'feature';
+    else if ((item.imageEl || item.imageSrc || resource?.thumbnail) && (item.description || resource?.excerpt)) style = 'card';
+    else style = 'row';
   }
 
-  const extension = fileExtensionFrom(downloadUrl)
-    || fileExtensionFrom(itemResource?.aem_asset_name || '')
-    || 'file';
+  return {
+    item,
+    resource,
+    style,
+    downloadUrl,
+    videoUrl,
+    extension: extension || (videoUrl ? 'video' : 'file'),
+    gated: resolveGated(item, resource, config, primaryResource),
+    title: item.title || resource?.title || titleFromFileName(downloadUrl) || 'Download',
+    description: item.description || '',
+    fallbackDescription: normalizeText(resource?.excerpt),
+    imageSrc: item.imageSrc || resource?.thumbnail || '',
+    imageEl: item.imageEl,
+    slug: item.resourceSlug || resource?.slug || '',
+    fileName: fileNameFrom(downloadUrl) || resource?.aem_asset_name || '',
+  };
+}
 
+// ── Rendering ────────────────────────────────────────────────────────────────
+
+function defaultButtonLabel(entry) {
+  if (entry.style === 'video' && !entry.downloadUrl) return 'Watch Video';
+  if (entry.extension === 'pdf') return 'Download PDF';
+  if (['ppt', 'pptx'].includes(entry.extension)) return 'Download PowerPoint';
+  if (entry.extension === 'zip') return 'Download Bundle';
+  if (['doc', 'docx'].includes(entry.extension)) return 'Download Guide';
+  return 'Download';
+}
+
+function buildImage(entry, width = 400) {
+  if (entry.imageEl?.tagName === 'PICTURE') {
+    const img = entry.imageEl.querySelector('img');
+    if (img?.src) {
+      const optimized = createOptimizedPicture(img.src, entry.title, false, [{ width: `${width}` }]);
+      moveInstrumentation(img, optimized.querySelector('img'));
+      return optimized;
+    }
+  }
+
+  if (entry.imageSrc) {
+    return createOptimizedPicture(entry.imageSrc, entry.title, false, [{ width: `${width}` }]);
+  }
+
+  return null;
+}
+
+function buildDownloadButton(entry) {
+  const link = document.createElement('a');
+  link.className = 'resource-downloads-item-button';
+  link.href = resolveSiteHref(entry.downloadUrl);
+  link.textContent = entry.item.buttonLabel || defaultButtonLabel(entry);
+  if (entry.downloadUrl.includes('/content/dam/')) {
+    link.setAttribute('download', '');
+  } else {
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+
+  bindGatedLink(link, {
+    gated: entry.gated,
+    resourceSlug: entry.slug,
+    fileUrl: entry.downloadUrl,
+    fileName: entry.fileName,
+    lockedLabel: LOCKED_LABEL,
+    downloadLabel: entry.item.buttonLabel || defaultButtonLabel(entry),
+  });
+
+  return link;
+}
+
+function buildWatchButton(entry) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'resource-downloads-item-button resource-downloads-watch-button';
+  button.textContent = entry.item.buttonLabel || 'Watch Video';
+
+  const play = () => {
+    trackEvent('resource_video_watch', {
+      resource_slug: entry.slug,
+      file_name: entry.fileName || fileNameFrom(entry.videoUrl),
+    });
+    getVideoModal().open(entry.videoUrl, entry.title);
+  };
+
+  button.addEventListener('click', () => {
+    if (!entry.gated || isRegistered()) {
+      play();
+      return;
+    }
+    openRegistrationModal({ resourceSlug: entry.slug }).then((registration) => {
+      if (registration) play();
+    });
+  });
+
+  return button;
+}
+
+function buildDescription(entry) {
+  const html = entry.description;
+  const text = html || entry.fallbackDescription;
+  if (!text) return null;
+
+  const description = document.createElement('div');
+  description.className = 'resource-downloads-item-description';
+  if (html) {
+    description.innerHTML = html;
+  } else {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    description.append(paragraph);
+  }
+  return description;
+}
+
+function buildEmptyNotice(entry) {
+  const notice = document.createElement('p');
+  notice.className = 'resource-downloads-item-notice';
+  notice.textContent = entry.item.resourceSlug
+    ? `No download found for resource "${entry.item.resourceSlug}".`
+    : 'Add a Resource Slug, File, or Video URL to this download item.';
+  return notice;
+}
+
+function buildTitleEl(entry, tag = 'h3') {
+  const title = document.createElement(tag);
+  title.className = 'resource-downloads-item-title';
+  title.textContent = entry.title;
+  return title;
+}
+
+function buildTypeIcon(entry) {
   const icon = document.createElement('span');
   icon.className = 'resource-downloads-item-icon';
-  icon.dataset.extension = extension;
-  icon.textContent = extension === 'file' ? 'FILE' : extension.toUpperCase();
-  card.append(icon);
+  icon.dataset.extension = entry.extension;
+  icon.textContent = entry.extension === 'file' ? 'FILE' : entry.extension.toUpperCase().slice(0, 5);
+  return icon;
+}
 
-  const body = document.createElement('div');
-  body.className = 'resource-downloads-item-body';
-
-  const title = document.createElement('h3');
-  title.className = 'resource-downloads-item-title';
-  title.textContent = item.title
-    || itemResource?.title
-    || titleFromFileName(downloadUrl)
-    || 'Download';
-  body.append(title);
-
-  const descriptionHtml = item.description || '';
-  const descriptionText = descriptionHtml || normalizeText(itemResource?.excerpt);
-  if (descriptionText) {
-    const description = document.createElement('div');
-    description.className = 'resource-downloads-item-description';
-    if (descriptionHtml) {
-      description.innerHTML = descriptionHtml;
-    } else {
-      const paragraph = document.createElement('p');
-      paragraph.textContent = descriptionText;
-      description.append(paragraph);
-    }
-    body.append(description);
-  }
-
-  card.append(body);
-
+function buildActions(entry, isEditor) {
   const actions = document.createElement('div');
   actions.className = 'resource-downloads-item-actions';
 
-  if (downloadUrl) {
-    const gated = resolveGated(item, itemResource, config, primaryResource);
-    const link = document.createElement('a');
-    link.className = 'resource-downloads-item-button';
-    link.href = resolveSiteHref(downloadUrl);
-    link.textContent = DOWNLOAD_LABEL;
-    if (downloadUrl.includes('/content/dam/')) {
-      link.setAttribute('download', '');
-    } else {
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-    }
+  if (entry.videoUrl && entry.style === 'video') actions.append(buildWatchButton(entry));
+  if (entry.downloadUrl) actions.append(buildDownloadButton(entry));
+  if (!actions.children.length && isEditor) actions.append(buildEmptyNotice(entry));
 
-    bindGatedLink(link, {
-      gated,
-      resourceSlug: item.resourceSlug || itemResource?.slug || '',
-      fileUrl: downloadUrl,
-      fileName: fileNameFrom(downloadUrl) || itemResource?.aem_asset_name || '',
-      lockedLabel: LOCKED_LABEL,
-      downloadLabel: DOWNLOAD_LABEL,
-    });
+  return actions.children.length ? actions : null;
+}
 
-    actions.append(link);
-  } else {
-    const notice = document.createElement('p');
-    notice.className = 'resource-downloads-item-notice';
-    notice.textContent = item.resourceSlug
-      ? `No download found for resource "${item.resourceSlug}".`
-      : 'Add a Resource Slug or File to this download item.';
-    actions.append(notice);
-  }
+function buildRowEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-row';
+  card.append(buildTypeIcon(entry));
 
-  card.append(actions);
-  setItemLabel(card, [item.title, itemResource?.title, fileNameFrom(downloadUrl)]);
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+  card.append(body);
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) card.append(actions);
 
   return card;
 }
+
+function buildCardEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-card';
+
+  const image = buildImage(entry);
+  if (image) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media';
+    media.append(image);
+    card.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+function buildFeatureEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-feature';
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+
+  const description = buildDescription(entry);
+  if (description) {
+    description.classList.add('resource-downloads-item-contents');
+    body.append(description);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+
+  card.append(body);
+  return card;
+}
+
+function buildVideoEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-video';
+
+  const media = document.createElement('div');
+  media.className = 'resource-downloads-item-media';
+  const image = buildImage(entry, 800);
+  if (image) media.append(image);
+
+  if (entry.videoUrl) {
+    const playButton = document.createElement('button');
+    playButton.type = 'button';
+    playButton.className = 'resource-downloads-play';
+    playButton.setAttribute('aria-label', `Play ${entry.title}`);
+    playButton.addEventListener('click', () => {
+      const watch = buildWatchButton(entry);
+      watch.click();
+    });
+    media.append(playButton);
+  }
+
+  card.append(media);
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+function buildGroupEntry(entries, isEditor) {
+  const lead = entries[0];
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-group';
+
+  const image = buildImage(lead);
+  if (image) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media';
+    media.append(image);
+    card.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(lead));
+  const description = buildDescription(lead);
+  if (description) body.append(description);
+
+  const actions = document.createElement('div');
+  actions.className = 'resource-downloads-item-actions is-stacked';
+
+  entries.forEach((entry, index) => {
+    let button = null;
+    if (entry.videoUrl) {
+      button = buildWatchButton(entry);
+    } else if (entry.downloadUrl) {
+      button = buildDownloadButton(entry);
+      if (!entry.item.buttonLabel && entry.title && index > 0) {
+        button.textContent = entry.title;
+      }
+    } else if (isEditor) {
+      actions.append(buildEmptyNotice(entry));
+    }
+
+    if (button) {
+      if (index > 0 && entry.item.row && isEditor) {
+        moveInstrumentation(entry.item.row, button);
+        setItemLabel(button, [entry.item.buttonLabel, entry.title]);
+      }
+      actions.append(button);
+    }
+  });
+
+  if (actions.children.length) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+const ENTRY_BUILDERS = {
+  row: buildRowEntry,
+  card: buildCardEntry,
+  feature: buildFeatureEntry,
+  video: buildVideoEntry,
+};
 
 export default async function decorate(block) {
   const isEditor = isEditorContext(block);
@@ -326,39 +720,56 @@ export default async function decorate(block) {
   // item was removed — dedupe against explicit items by slug.
   const workingItems = [...items];
   if (config.slug && !workingItems.some((item) => item.resourceSlug === config.slug)) {
-    workingItems.push({
-      row: null,
-      title: '',
-      description: '',
-      resourceSlug: config.slug,
-      fileHref: '',
-      gatedOverride: '',
-    });
+    workingItems.push({ ...emptyItem(), resourceSlug: config.slug });
   }
 
   const primaryResource = await fetchResource(config.apiBaseUrl, config.slug);
-  const resolvedItems = await Promise.all(workingItems.map(async (item) => ({
-    item,
-    resource: item.resourceSlug
+  const entries = (await Promise.all(workingItems.map(async (item) => {
+    const resource = item.resourceSlug
       ? await fetchResource(config.apiBaseUrl, item.resourceSlug)
-      : null,
-  })));
+      : null;
+    return resolveEntry(item, resource, config, primaryResource);
+  }))).filter((entry) => entry.downloadUrl || entry.videoUrl || isEditor);
 
   const list = document.createElement('div');
   list.className = 'resource-downloads-list';
+  if (config.layout === 'grid') list.classList.add('is-grid');
 
-  resolvedItems.forEach(({ item, resource }) => {
-    const card = buildItemCard(item, resource, config, primaryResource, isEditor);
-    if (card) list.append(card);
-  });
+  // Merge consecutive "grouped" entries into a single stacked-button card.
+  let index = 0;
+  while (index < entries.length) {
+    const entry = entries[index];
 
-  if (!list.children.length) {
+    if (entry.style === 'grouped') {
+      const group = [entry];
+      while (entries[index + 1]?.style === 'grouped') {
+        index += 1;
+        group.push(entries[index]);
+      }
+      const groupCard = buildGroupEntry(group, isEditor);
+      if (group[0].item.row && isEditor) {
+        moveInstrumentation(group[0].item.row, groupCard);
+      }
+      setItemLabel(groupCard, [group[0].title]);
+      list.append(groupCard);
+      index += 1;
+    } else {
+      const builder = ENTRY_BUILDERS[entry.style] || buildRowEntry;
+      const card = builder(entry, isEditor);
+      if (entry.item.row && isEditor) {
+        moveInstrumentation(entry.item.row, card);
+      }
+      setItemLabel(card, [entry.title, entry.fileName]);
+      list.append(card);
+      index += 1;
+    }
+  }
+
+  if (!list.children.length && isEditor) {
     const empty = document.createElement('p');
     empty.className = 'resource-downloads-empty';
-    empty.textContent = isEditor
-      ? 'Add download items to this block, or set the Primary Resource Slug.'
-      : '';
-    if (isEditor) list.append(empty);
+    empty.textContent = 'Add download items to this block, or set the Primary Resource Slug.';
+    list.append(empty);
   }
 
   const children = [list];

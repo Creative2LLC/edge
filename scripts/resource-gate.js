@@ -138,6 +138,24 @@ export function recordDownload({
   }
 }
 
+/**
+ * Kick off a file download via a synthesized anchor click, preserving the
+ * original link's target/download semantics. More reliable than window.open
+ * after async work, which popup blockers are quick to eat.
+ */
+function startDownload(link) {
+  const anchor = document.createElement('a');
+  anchor.href = link.href;
+  if (link.target) anchor.target = link.target;
+  if (link.hasAttribute('download')) {
+    anchor.setAttribute('download', link.getAttribute('download') || '');
+  }
+  anchor.rel = 'noopener noreferrer';
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+}
+
 function buildField({
   name, label, type = 'text', required = false, autocomplete = '', options = null, placeholder = '',
 }) {
@@ -343,7 +361,20 @@ function buildModal() {
 
       form.reset();
       formSession.reset();
-      close(registration);
+      updateFormStatus(status, "You're all set — your download is starting.", 'success');
+      root.classList.add('is-success');
+
+      // Resolve now so the download starts while the browser still honors
+      // the visitor's click; keep the modal up briefly as confirmation.
+      if (pendingResolve) {
+        pendingResolve(registration);
+        pendingResolve = null;
+      }
+
+      window.setTimeout(() => {
+        root.classList.remove('is-success');
+        close(null);
+      }, 1600);
     } catch (error) {
       updateFormStatus(status, error.message || 'Something went wrong. Please try again.', 'error');
     } finally {
@@ -425,11 +456,7 @@ export function bindGatedLink(link, {
       if (!registration) return;
       track();
       // Start the download the visitor originally asked for.
-      if (link.target === '_blank') {
-        window.open(link.href, '_blank', 'noopener');
-      } else {
-        window.location.href = link.href;
-      }
+      startDownload(link);
     });
   });
 }

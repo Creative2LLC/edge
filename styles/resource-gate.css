@@ -135,6 +135,7 @@
 
 .resource-gate-form-status.is-success {
   color: #1d6f42;
+  font-weight: 600;
 }
 
 .resource-gate-form-actions {
@@ -163,6 +164,14 @@
 .resource-gate-form-submit:focus-visible,
 .resource-gate-form-submit:hover:not(:disabled) {
   background: #003a75;
+}
+
+/* Brief post-submit confirmation state before the modal auto-closes */
+.resource-gate-modal.is-success .resource-gate-field,
+.resource-gate-modal.is-success .resource-gate-form-actions {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
 @media (width <= 600px) {
