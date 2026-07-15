@@ -101,7 +101,7 @@ function isEditorItemRow(row) {
   if (model) return model === 'resource-download-item';
   if (!row.hasAttribute('data-aue-resource')) return false;
   return Boolean(row.querySelector(
-    '[data-aue-prop="itemTitle"], [data-richtext-prop="itemDescription"], [data-aue-prop="resourceSlug"], [data-aue-prop="file"]',
+    '[data-aue-prop="itemTitle"], [data-richtext-prop="itemDescription"], [data-aue-prop="resourceSlug"], [data-aue-prop="file"], [data-aue-prop="filePath"]',
   )) || !row.querySelector('[data-aue-prop="apiBaseUrl"], [data-aue-prop="slug"]');
 }
 
@@ -113,7 +113,9 @@ function parseEditorItem(row) {
   item.description = readRichTextField(row, 'itemDescription').html || '';
   item.buttonLabel = normalizeText(readTextField(row, 'buttonLabel').value);
   item.resourceSlug = normalizeText(readTextField(row, 'resourceSlug').value);
-  item.fileHref = normalizeText(readLinkField(row, 'file').value);
+  item.fileHref = normalizeText(
+    readTextField(row, 'filePath').value || readLinkField(row, 'file').value,
+  );
   item.videoUrl = normalizeText(readLinkField(row, 'videoUrl').value);
   item.displayStyle = normalizeText(readTextField(row, 'displayStyle').value).toLowerCase();
   item.gatedOverride = normalizeText(readTextField(row, 'gated').value).toLowerCase();
@@ -166,8 +168,8 @@ function parsePublishedItem(row) {
       return;
     }
 
-    if (href && isFileHref(href)) {
-      item.fileHref = item.fileHref || href;
+    if ((href && isFileHref(href)) || isFileHref(text)) {
+      item.fileHref = item.fileHref || href || text;
       return;
     }
 

@@ -116,12 +116,23 @@
           "description": "Defaults by file type (Download PDF, Download PowerPoint, Watch Video...)."
         },
         {
-          "component": "aem-content",
+          "component": "reference",
           "valueType": "string",
           "name": "file",
           "label": "File",
-          "description": "Pick or upload the file (PDF, Word, PowerPoint, ZIP, MP4). New files become tracked backend resources automatically on the next sync — no slug needed.",
-          "rootPath": "/content/dam/edge/misc/PDFs"
+          "description": "Pick or upload a DAM file (PDF, Word, PowerPoint, ZIP, MP4). New files become tracked backend resources automatically on the next sync - no slug needed.",
+          "validation": {
+            "rootPath": "/content/dam/edge/misc/PDFs"
+          },
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "filePath",
+          "label": "File Path (Manual)",
+          "description": "Paste the DAM path here if the picker does not open the expected folder or the file still needs to be uploaded first. Example: /content/dam/edge/misc/PDFs/example.pdf. Overrides the picker value.",
+          "value": ""
         },
         {
           "component": "text",
