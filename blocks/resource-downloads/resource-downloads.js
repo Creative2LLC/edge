@@ -33,6 +33,7 @@ const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g|gif|webp|svg)([?#]|$)/i;
 const VIDEO_EXTENSIONS = ['mp4', 'mov'];
 const FEATURE_EXTENSIONS = ['ppt', 'pptx', 'zip'];
 const DISPLAY_STYLES = ['row', 'card', 'feature', 'video', 'grouped'];
+const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -69,6 +70,18 @@ function titleFromFileName(href) {
   const name = fileNameFrom(href);
   const base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
   return base.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function slugFromPathname(pathname = window.location.pathname) {
+  const cleanPath = normalizeText(pathname);
+  const pathWithoutExtension = cleanPath.toLowerCase().endsWith('.html')
+    ? cleanPath.slice(0, -5)
+    : cleanPath;
+
+  return pathWithoutExtension
+    .split('/')
+    .filter(Boolean)
+    .pop() || '';
 }
 
 function isEditorContext(block) {
@@ -134,7 +147,8 @@ function readEditorContent(block) {
 
   return {
     config: {
-      apiBaseUrl: normalizeText(readTextField(configScope, 'apiBaseUrl').value),
+      apiBaseUrl: normalizeText(readTextField(configScope, 'apiBaseUrl').value)
+        || DEFAULT_API_BASE_URL,
       slug: normalizeText(readTextField(configScope, 'slug').value),
       gated: normalizeText(readTextField(configScope, 'gated').value).toLowerCase(),
       layout: normalizeText(readTextField(configScope, 'layout').value).toLowerCase(),
@@ -282,6 +296,9 @@ function readPublishedContent(block) {
       config.slug = text;
     }
   });
+
+  config.apiBaseUrl = config.apiBaseUrl || DEFAULT_API_BASE_URL;
+  config.slug = config.slug || slugFromPathname();
 
   return { config, items, rows };
 }
@@ -530,7 +547,9 @@ function buildImage(entry, width = 400) {
 function buildDownloadButton(entry) {
   const link = document.createElement('a');
   link.className = 'resource-downloads-item-button';
-  link.href = resolveSiteHref(entry.downloadUrl);
+  link.href = isUrlLike(entry.downloadUrl)
+    ? entry.downloadUrl
+    : resolveSiteHref(entry.downloadUrl);
   link.textContent = entry.item.buttonLabel || defaultButtonLabel(entry);
   if (entry.downloadUrl.includes('/content/dam/')) {
     link.setAttribute('download', '');
