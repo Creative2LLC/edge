@@ -28,6 +28,11 @@
   padding: 16px;
 }
 
+/* display:flex above would defeat the hidden attribute without this */
+.resource-gate-modal[hidden] {
+  display: none;
+}
+
 .resource-gate-modal-backdrop {
   position: absolute;
   inset: 0;

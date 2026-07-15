@@ -74,6 +74,7 @@ const FILTER_FACETS = [
   'language',
   'programs',
   'grade_ages',
+  'lengths',
 ];
 
 const DEFAULT_VISIBLE_FILTERS = [...FILTER_FACETS];
@@ -265,6 +266,10 @@ function normalizeFilterFacet(value) {
     grade_age: 'grade_ages',
     grade_ages: 'grade_ages',
     gradeages: 'grade_ages',
+    length: 'lengths',
+    lengths: 'lengths',
+    time: 'lengths',
+    duration: 'lengths',
   };
   const facet = aliases[key] || key;
   return FILTER_FACETS.includes(facet) ? facet : '';
@@ -333,6 +338,7 @@ function parseFilterLists(value) {
         || map.grade_age
         || map.grade_ages,
     ),
+    lengths: parseList(map.length || map.lengths || map.time),
   };
 }
 
@@ -468,6 +474,11 @@ function mapApiResource(resource) {
         value: normalizeToken(resource.issue),
         label: resource.issue_label,
       }] : []),
+      ...(resource.length && resource.length_label ? [{
+        facet: 'lengths',
+        value: normalizeToken(resource.length),
+        label: resource.length_label,
+      }] : []),
       ...((resource.tags || []).map((tag) => ({
         facet: 'tags',
         value: normalizeToken(tag.slug || tag.name),
@@ -479,6 +490,7 @@ function mapApiResource(resource) {
     hasDownload: Boolean(resource.has_download),
     gated: Boolean(resource.gated),
     slug: resource.slug || '',
+    lengths: resource.length ? [resource.length] : [],
   };
 }
 
@@ -834,6 +846,7 @@ function buildShell(config) {
   const languageSelect = createFilterSelect('Language');
   const programSelect = createFilterSelect('Program');
   const gradeAgeSelect = createFilterSelect('Grade / Age');
+  const lengthSelect = createFilterSelect('Length');
   const sortSelect = createSortSelect('Sort resources');
   primaryRow.append(sortSelect);
   controls.append(primaryRow);
@@ -848,6 +861,7 @@ function buildShell(config) {
     ['language', languageSelect],
     ['programs', programSelect],
     ['grade_ages', gradeAgeSelect],
+    ['lengths', lengthSelect],
   ].forEach(([facet, select]) => {
     if (isFilterVisible(config, facet)) filterRow.append(select);
   });
@@ -898,6 +912,7 @@ function buildShell(config) {
     languageSelect,
     programSelect,
     gradeAgeSelect,
+    lengthSelect,
     sortSelect,
     viewButtons: [gridButton, listButton],
     activeFilters,
@@ -922,6 +937,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     languageSelect,
     programSelect,
     gradeAgeSelect,
+    lengthSelect,
     sortSelect,
     viewButtons,
     activeFilters,
@@ -952,6 +968,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     selectedLanguage: new Set(),
     selectedProgram: new Set(),
     selectedGradeAge: new Set(),
+    selectedLength: new Set(),
     sort: DEFAULT_LIST_SORT,
     hasExplicitSort: false,
     view: 'grid',
@@ -965,6 +982,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     selectedLanguage: parseList(config.languagePreset).map(normalizeToken),
     selectedProgram: parseList(config.programPreset).map(normalizeToken),
     selectedGradeAge: parseList(config.gradeAgePreset).map(normalizeToken),
+    selectedLength: parseList(config.lengthPreset).map(normalizeToken),
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
@@ -1005,6 +1023,11 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       ? locationState.gradeAges.values
       : defaultState.selectedGradeAge,
   );
+  state.selectedLength = new Set(
+    locationState.lengths.present
+      ? locationState.lengths.values
+      : defaultState.selectedLength,
+  );
   const syncUrlState = (replace = true) => {
     writeListFilterState({
       query: state.query,
@@ -1015,6 +1038,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       languages: [...state.selectedLanguage],
       programs: [...state.selectedProgram],
       gradeAges: [...state.selectedGradeAge],
+      lengths: [...state.selectedLength],
       sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
@@ -1027,6 +1051,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     syncSelectValue(languageSelect, state.selectedLanguage);
     syncSelectValue(programSelect, state.selectedProgram);
     syncSelectValue(gradeAgeSelect, state.selectedGradeAge);
+    syncSelectValue(lengthSelect, state.selectedLength);
   };
   const syncSortControl = () => {
     sortSelect.value = state.sort || DEFAULT_LIST_SORT;
@@ -1042,6 +1067,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     language: new Map(),
     programs: new Map(),
     grade_ages: new Map(),
+    lengths: new Map(),
   };
 
   function applyFilters() {
@@ -1069,9 +1095,11 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         || data.programs.some((value) => state.selectedProgram.has(normalizeToken(value)));
       const gradeAgeMatch = !state.selectedGradeAge.size
         || data.gradeAges.some((value) => state.selectedGradeAge.has(normalizeToken(value)));
+      const lengthMatch = !state.selectedLength.size
+        || (data.lengths || []).some((value) => state.selectedLength.has(normalizeToken(value)));
 
       return audienceMatch && issueMatch && typeMatch && tagMatch
-        && languageMatch && programMatch && gradeAgeMatch;
+        && languageMatch && programMatch && gradeAgeMatch && lengthMatch;
     });
 
     const sorted = sortListItems(filtered, state.sort, ({ data, originalIndex }) => ({
@@ -1128,6 +1156,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     if (facet === 'language') state.selectedLanguage.add(value);
     if (facet === 'programs') state.selectedProgram.add(value);
     if (facet === 'grade_ages') state.selectedGradeAge.add(value);
+    if (facet === 'lengths') state.selectedLength.add(value);
 
     state.visibleCount = config.pageSize;
     state.page = 1;
@@ -1142,7 +1171,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     return { data, card, originalIndex: index };
   });
 
-  const collectOptions = (facet) => [...new Set(cards.flatMap(({ data }) => data[facet]))]
+  const collectOptions = (facet) => [...new Set(cards.flatMap(({ data }) => data[facet] || []))]
     .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
     .map((value) => ({ value, label: value }));
 
@@ -1153,6 +1182,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   const languages = collectOptions('language');
   const programs = collectOptions('programs');
   const gradeAges = collectOptions('gradeAges');
+  const lengths = collectOptions('lengths');
   setFilterOptions(audienceSelect, 'Audience', audiences);
   setFilterOptions(issueSelect, 'Issue', issues);
   setFilterOptions(typeSelect, 'Type', types);
@@ -1160,6 +1190,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   setFilterOptions(languageSelect, 'Language', languages);
   setFilterOptions(programSelect, 'Program', programs);
   setFilterOptions(gradeAgeSelect, 'Grade / Age', gradeAges);
+  setFilterOptions(lengthSelect, 'Length', lengths);
   setFilterOptions(sortSelect, 'Sort', getListSortOptions());
 
   optionLabels = {
@@ -1170,6 +1201,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     language: new Map(languages.map((option) => [normalizeToken(option.value), option.label])),
     programs: new Map(programs.map((option) => [normalizeToken(option.value), option.label])),
     grade_ages: new Map(gradeAges.map((option) => [normalizeToken(option.value), option.label])),
+    lengths: new Map(lengths.map((option) => [normalizeToken(option.value), option.label])),
   };
   syncFilterControls();
   syncSortControl();
@@ -1187,6 +1219,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
       ...visiblePrograms,
       ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
+      ...[...state.selectedLength].map((value) => ({ facet: 'lengths', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -1199,6 +1232,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         if (facet === 'language') state.selectedLanguage.delete(value);
         if (facet === 'programs') state.selectedProgram.delete(value);
         if (facet === 'grade_ages') state.selectedGradeAge.delete(value);
+        if (facet === 'lengths') state.selectedLength.delete(value);
         state.visibleCount = config.pageSize;
         state.page = 1;
         syncFilterControls();
@@ -1248,6 +1282,9 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   gradeAgeSelect.addEventListener('change', () => {
     applyFacet(gradeAgeSelect, state.selectedGradeAge);
   });
+  lengthSelect.addEventListener('change', () => {
+    applyFacet(lengthSelect, state.selectedLength);
+  });
   sortSelect.addEventListener('change', () => {
     state.sort = normalizeListSort(sortSelect.value);
     state.hasExplicitSort = true;
@@ -1269,6 +1306,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     state.selectedLanguage.clear();
     state.selectedProgram.clear();
     state.selectedGradeAge.clear();
+    state.selectedLength.clear();
     state.visibleCount = config.pageSize;
     state.page = 1;
     searchInput.value = '';
@@ -1303,6 +1341,7 @@ function renderApiBrowser(block, config) {
     languageSelect,
     programSelect,
     gradeAgeSelect,
+    lengthSelect,
     sortSelect,
     viewButtons,
     activeFilters,
@@ -1326,6 +1365,7 @@ function renderApiBrowser(block, config) {
     selectedLanguage: new Set(),
     selectedProgram: new Set(),
     selectedGradeAge: new Set(),
+    selectedLength: new Set(),
     sort: '',
     hasExplicitSort: false,
     view: 'grid',
@@ -1343,6 +1383,7 @@ function renderApiBrowser(block, config) {
     selectedLanguage: parseList(config.languagePreset).map(normalizeToken),
     selectedProgram: parseList(config.programPreset).map(normalizeToken),
     selectedGradeAge: parseList(config.gradeAgePreset).map(normalizeToken),
+    selectedLength: parseList(config.lengthPreset).map(normalizeToken),
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
@@ -1381,6 +1422,11 @@ function renderApiBrowser(block, config) {
       ? locationState.gradeAges.values
       : defaultState.selectedGradeAge,
   );
+  state.selectedLength = new Set(
+    locationState.lengths.present
+      ? locationState.lengths.values
+      : defaultState.selectedLength,
+  );
 
   const optionLabels = {
     audience: new Map(),
@@ -1390,6 +1436,7 @@ function renderApiBrowser(block, config) {
     language: new Map(),
     programs: new Map(),
     grade_ages: new Map(),
+    lengths: new Map(),
   };
   const syncUrlState = (replace = true) => {
     writeListFilterState({
@@ -1401,6 +1448,7 @@ function renderApiBrowser(block, config) {
       languages: [...state.selectedLanguage],
       programs: [...state.selectedProgram],
       gradeAges: [...state.selectedGradeAge],
+      lengths: [...state.selectedLength],
       sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
@@ -1413,6 +1461,7 @@ function renderApiBrowser(block, config) {
     syncSelectValue(languageSelect, state.selectedLanguage);
     syncSelectValue(programSelect, state.selectedProgram);
     syncSelectValue(gradeAgeSelect, state.selectedGradeAge);
+    syncSelectValue(lengthSelect, state.selectedLength);
   };
   const syncSortControl = () => {
     sortSelect.value = state.sort || '';
@@ -1433,6 +1482,7 @@ function renderApiBrowser(block, config) {
     if (facet === 'language') state.selectedLanguage.add(value);
     if (facet === 'programs') state.selectedProgram.add(value);
     if (facet === 'grade_ages') state.selectedGradeAge.add(value);
+    if (facet === 'lengths') state.selectedLength.add(value);
 
     syncFilterControls();
     syncUrlState();
@@ -1452,6 +1502,7 @@ function renderApiBrowser(block, config) {
       ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
       ...visiblePrograms,
       ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
+      ...[...state.selectedLength].map((value) => ({ facet: 'lengths', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -1464,6 +1515,7 @@ function renderApiBrowser(block, config) {
         if (facet === 'language') state.selectedLanguage.delete(value);
         if (facet === 'programs') state.selectedProgram.delete(value);
         if (facet === 'grade_ages') state.selectedGradeAge.delete(value);
+        if (facet === 'lengths') state.selectedLength.delete(value);
         syncFilterControls();
         syncUrlState();
         loadResources(true);
@@ -1479,6 +1531,7 @@ function renderApiBrowser(block, config) {
     const languages = filters.languages || [];
     const programs = filters.programs || [];
     const gradeAges = filters.grade_ages || [];
+    const lengths = filters.lengths || [];
     const tags = (filters.tags || []).map((option) => ({
       value: option.slug,
       label: option.name,
@@ -1491,6 +1544,7 @@ function renderApiBrowser(block, config) {
     setFilterOptions(languageSelect, 'Language', languages);
     setFilterOptions(programSelect, 'Program', programs);
     setFilterOptions(gradeAgeSelect, 'Grade / Age', gradeAges);
+    setFilterOptions(lengthSelect, 'Length', lengths);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
@@ -1511,6 +1565,9 @@ function renderApiBrowser(block, config) {
     );
     optionLabels.grade_ages = new Map(
       gradeAges.map((option) => [normalizeToken(option.value), option.label]),
+    );
+    optionLabels.lengths = new Map(
+      lengths.map((option) => [normalizeToken(option.value), option.label]),
     );
     syncFilterControls();
   }
@@ -1581,6 +1638,7 @@ function renderApiBrowser(block, config) {
     state.selectedLanguage.forEach((value) => url.searchParams.append('languages[]', value));
     state.selectedProgram.forEach((value) => url.searchParams.append('programs[]', value));
     state.selectedGradeAge.forEach((value) => url.searchParams.append('grade_ages[]', value));
+    state.selectedLength.forEach((value) => url.searchParams.append('lengths[]', value));
     config.visibleFilters.forEach((facet) => {
       url.searchParams.append('filter_groups[]', filterGroupName(facet));
     });
@@ -1679,6 +1737,9 @@ function renderApiBrowser(block, config) {
   gradeAgeSelect.addEventListener('change', () => {
     applyFacet(gradeAgeSelect, state.selectedGradeAge);
   });
+  lengthSelect.addEventListener('change', () => {
+    applyFacet(lengthSelect, state.selectedLength);
+  });
   sortSelect.addEventListener('change', () => {
     state.sort = normalizeListSort(sortSelect.value);
     state.hasExplicitSort = true;
@@ -1695,6 +1756,7 @@ function renderApiBrowser(block, config) {
     state.selectedLanguage.clear();
     state.selectedProgram.clear();
     state.selectedGradeAge.clear();
+    state.selectedLength.clear();
     searchInput.value = '';
     syncFilterControls();
     syncUrlState();
@@ -1775,6 +1837,8 @@ export default function decorate(block) {
     gradeAgePreset: getBlockField(block, legacyMap, 'gradeAgePreset')
       || readConfigValue(configRows, 'gradeAgePreset', 13)
       || filterConfig.gradeAges.join(', '),
+    lengthPreset: getBlockField(block, legacyMap, 'lengthPreset')
+      || filterConfig.lengths.join(', '),
     visibleFilters: parseVisibleFilters(
       getBlockField(block, legacyMap, 'visibleFilters')
         || readConfigValue(configRows, 'visibleFilters', 4)

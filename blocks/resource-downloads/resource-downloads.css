@@ -358,6 +358,11 @@
   padding: 16px;
 }
 
+/* display:flex above would defeat the hidden attribute without this */
+.resource-downloads-modal[hidden] {
+  display: none;
+}
+
 .resource-downloads-modal-backdrop {
   position: absolute;
   inset: 0;

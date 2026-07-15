@@ -116,18 +116,19 @@
           "description": "Defaults by file type (Download PDF, Download PowerPoint, Watch Video...)."
         },
         {
-          "component": "text",
-          "valueType": "string",
-          "name": "resourceSlug",
-          "label": "Resource Slug",
-          "description": "Link this item to a backend resource by slug (preferred — pulls title, file, thumbnail, and gating from the API)."
-        },
-        {
           "component": "aem-content",
           "valueType": "string",
           "name": "file",
           "label": "File",
-          "description": "Direct DAM file link. Only used when no Resource Slug is set."
+          "description": "Pick or upload the file (PDF, Word, PowerPoint, ZIP, MP4). New files become tracked backend resources automatically on the next sync — no slug needed.",
+          "rootPath": "/content/dam/edge/misc/PDFs"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "resourceSlug",
+          "label": "Resource Slug (existing resource)",
+          "description": "Only for linking an EXISTING backend resource by slug — pulls its title, file, thumbnail, and gating. Filled automatically for file items once they sync."
         },
         {
           "component": "reference",
@@ -135,6 +136,7 @@
           "name": "image",
           "label": "Image / Poster",
           "description": "Thumbnail for Document cards or poster for Video items. Slug-backed items fall back to the resource thumbnail.",
+          "rootPath": "/content/dam/edge",
           "multi": false
         },
         {

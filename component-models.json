@@ -23350,6 +23350,44 @@
         ]
       },
       {
+        "component": "select",
+        "valueType": "string",
+        "name": "length",
+        "label": "Length of Time",
+        "description": "Approximate time to read, watch, or complete this resource. Synced with the backend.",
+        "options": [
+          {
+            "name": "Not set",
+            "value": ""
+          },
+          {
+            "name": "5 minutes or less",
+            "value": "5"
+          },
+          {
+            "name": "10 minutes or less",
+            "value": "10"
+          },
+          {
+            "name": "15 minutes or less",
+            "value": "15"
+          },
+          {
+            "name": "30 minutes or less",
+            "value": "30"
+          },
+          {
+            "name": "45 minutes or less",
+            "value": "45"
+          },
+          {
+            "name": "60 minutes or less",
+            "value": "60"
+          }
+        ],
+        "value": ""
+      },
+      {
         "component": "text",
         "valueType": "string",
         "name": "tags",
@@ -23448,18 +23486,19 @@
         "description": "Defaults by file type (Download PDF, Download PowerPoint, Watch Video...)."
       },
       {
-        "component": "text",
-        "valueType": "string",
-        "name": "resourceSlug",
-        "label": "Resource Slug",
-        "description": "Link this item to a backend resource by slug (preferred — pulls title, file, thumbnail, and gating from the API)."
-      },
-      {
         "component": "aem-content",
         "valueType": "string",
         "name": "file",
         "label": "File",
-        "description": "Direct DAM file link. Only used when no Resource Slug is set."
+        "description": "Pick or upload the file (PDF, Word, PowerPoint, ZIP, MP4). New files become tracked backend resources automatically on the next sync — no slug needed.",
+        "rootPath": "/content/dam/edge/misc/PDFs"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "resourceSlug",
+        "label": "Resource Slug (existing resource)",
+        "description": "Only for linking an EXISTING backend resource by slug — pulls its title, file, thumbnail, and gating. Filled automatically for file items once they sync."
       },
       {
         "component": "reference",
@@ -23467,6 +23506,7 @@
         "name": "image",
         "label": "Image / Poster",
         "description": "Thumbnail for Document cards or poster for Video items. Slug-backed items fall back to the resource thumbnail.",
+        "rootPath": "/content/dam/edge",
         "multi": false
       },
       {
@@ -23949,7 +23989,7 @@
         "component": "text",
         "valueType": "string",
         "name": "filters",
-        "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages)"
+        "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages/lengths)"
       },
       {
         "component": "multiselect",
@@ -23984,6 +24024,10 @@
           {
             "name": "Grade / Age",
             "value": "grade_ages"
+          },
+          {
+            "name": "Length of Time",
+            "value": "lengths"
           }
         ]
       },

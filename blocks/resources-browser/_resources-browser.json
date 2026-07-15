@@ -58,7 +58,7 @@
           "component": "text",
           "valueType": "string",
           "name": "filters",
-          "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages)"
+          "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages/lengths)"
         },
         {
           "component": "multiselect",
@@ -93,6 +93,10 @@
             {
               "name": "Grade / Age",
               "value": "grade_ages"
+            },
+            {
+              "name": "Length of Time",
+              "value": "lengths"
             }
           ]
         },

@@ -326,7 +326,7 @@ function buildVideoEmbed(url, title) {
   const youtube = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
   if (youtube) {
     const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${youtube[1]}?autoplay=1&rel=0`;
+    iframe.src = `https://www.youtube-nocookie.com/embed/${youtube[1]}?autoplay=1&rel=0`;
     iframe.title = title || 'Video';
     iframe.allow = 'autoplay; fullscreen; picture-in-picture';
     iframe.allowFullscreen = true;
@@ -555,9 +555,13 @@ function buildDescription(entry) {
 function buildEmptyNotice(entry) {
   const notice = document.createElement('p');
   notice.className = 'resource-downloads-item-notice';
-  notice.textContent = entry.item.resourceSlug
-    ? `Couldn't load resource "${entry.item.resourceSlug}" in the editor — check the slug is a published resource. The live page fetches it directly.`
-    : 'Add a Resource Slug, File, or Video URL to this download item.';
+  if (entry.resource && !entry.downloadUrl) {
+    notice.textContent = `The resource "${entry.item.resourceSlug}" has no file yet — pick or upload one in a Download Item's File field, or set its Download URL in Filament.`;
+  } else if (entry.item.resourceSlug) {
+    notice.textContent = `Couldn't load resource "${entry.item.resourceSlug}" in the editor — check the slug is a published resource. The live page fetches it directly.`;
+  } else {
+    notice.textContent = 'Pick or upload a File (it becomes a tracked resource automatically), or set a Resource Slug or Video URL.';
+  }
   return notice;
 }
 

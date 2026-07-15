@@ -48,6 +48,7 @@ export function readListFilterState(search = window.location.search) {
     languages: readFacetState(params, ['languages', 'languages[]', 'language']),
     programs: readFacetState(params, ['programs', 'programs[]', 'program']),
     gradeAges: readFacetState(params, ['grade_ages', 'grade_ages[]', 'grade_age', 'grades']),
+    lengths: readFacetState(params, ['lengths', 'lengths[]', 'length']),
     view: view === 'list' ? 'list' : 'grid',
     sort,
     hasSort: params.has('sort'),
@@ -63,6 +64,7 @@ export function writeListFilterState({
   languages = [],
   programs = [],
   gradeAges = [],
+  lengths = [],
   view = '',
   sort = '',
 }, replace = true) {
@@ -82,6 +84,7 @@ export function writeListFilterState({
   writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
   writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
   writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);
+  writeFacetState(url.searchParams, 'lengths', ['lengths[]', 'length'], lengths);
   if (normalizedView === 'list') url.searchParams.set('view', 'list');
   else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
   else url.searchParams.delete('view');
@@ -101,6 +104,7 @@ export function buildListFilterHref(basePath, {
   languages = [],
   programs = [],
   gradeAges = [],
+  lengths = [],
   view = '',
   sort = '',
 } = {}) {
@@ -117,6 +121,7 @@ export function buildListFilterHref(basePath, {
   writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
   writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
   writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);
+  writeFacetState(url.searchParams, 'lengths', ['lengths[]', 'length'], lengths);
   if (normalizedView === 'list') url.searchParams.set('view', 'list');
   else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
   if (normalizedSort) url.searchParams.set('sort', normalizedSort);
