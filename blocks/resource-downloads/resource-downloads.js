@@ -34,6 +34,9 @@ const VIDEO_EXTENSIONS = ['mp4', 'mov'];
 const FEATURE_EXTENSIONS = ['ppt', 'pptx', 'zip'];
 const DISPLAY_STYLES = ['row', 'card', 'feature', 'video', 'grouped'];
 const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
+// AEM publish tier — the public host that serves DAM files. Used to turn a
+// raw /content/dam/ path into a working URL when no backend resource is found.
+const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -70,6 +73,15 @@ function titleFromFileName(href) {
   const name = fileNameFrom(href);
   const base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
   return base.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// A raw /content/dam/ path only resolves on the publish tier, never on the
+// site domain — rewrite it so file-only items download correctly.
+function resolveDamUrl(href) {
+  const value = normalizeText(href);
+  if (!value || isUrlLike(value)) return value;
+  if (value.startsWith('/content/dam/')) return `${PUBLISH_BASE_URL}${value}`;
+  return value;
 }
 
 function slugFromPathname(pathname = window.location.pathname) {
@@ -324,6 +336,32 @@ function fetchResource(apiBaseUrl, slug) {
   return resourceCache.get(key);
 }
 
+const assetCache = new Map();
+
+/**
+ * Resolve a file to its backend resource by DAM path, so a file-only item
+ * (no slug) still gets the public download URL and gated flag. Returns null
+ * when no published resource references that file yet.
+ */
+function fetchResourceByAsset(apiBaseUrl, assetPath) {
+  const path = normalizeText(assetPath).split(/[?#]/)[0];
+  if (!apiBaseUrl || !path.startsWith('/content/dam/')) return Promise.resolve(null);
+
+  const key = `${apiBaseUrl}|${path}`;
+  if (!assetCache.has(key)) {
+    const endpoint = new URL('/api/resources/lookup', `${apiBaseUrl.replace(/\/+$/, '')}/`);
+    endpoint.searchParams.set('asset_path', path);
+    endpoint.searchParams.set('locale', currentSiteLocale());
+
+    assetCache.set(key, fetch(endpoint.toString(), { headers: { Accept: 'application/json' } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload) => payload?.data || null)
+      .catch(() => null));
+  }
+
+  return assetCache.get(key);
+}
+
 /**
  * Try each slug-looking cell against the API in DOM order; the first that
  * resolves is this item's resource. fetchResource caching makes re-lookups
@@ -479,7 +517,7 @@ function resolveEntry(item, resource, config, primaryResource) {
     || (resourceMatchesFile(primaryResource, item.fileHref) ? primaryResource : null);
   const downloadUrl = matchedPrimaryResource?.download_url
     || matchedPrimaryResource?.resource_url
-    || item.fileHref
+    || resolveDamUrl(item.fileHref)
     || '';
   const videoUrl = item.videoUrl
     || matchedPrimaryResource?.video_url
@@ -832,9 +870,14 @@ export default async function decorate(block) {
 
   const primaryResource = await fetchResource(config.apiBaseUrl, config.slug);
   const entries = (await Promise.all(workingItems.map(async (item) => {
-    const resource = item.resourceSlug
+    // Prefer a slug link; otherwise resolve the picked file to its resource
+    // so file-only items still get the public URL + gated flag.
+    let resource = item.resourceSlug
       ? await fetchResource(config.apiBaseUrl, item.resourceSlug)
       : null;
+    if (!resource && item.fileHref && !resourceMatchesFile(primaryResource, item.fileHref)) {
+      resource = await fetchResourceByAsset(config.apiBaseUrl, item.fileHref);
+    }
     return resolveEntry(item, resource, config, primaryResource);
   }))).filter((entry) => entry.downloadUrl || entry.videoUrl || isEditor);
 
