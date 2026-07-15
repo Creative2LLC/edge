@@ -185,6 +185,10 @@
               "value": "video"
             },
             {
+              "name": "Informative (card + audience/time/format)",
+              "value": "informative"
+            },
+            {
               "name": "Grouped buttons (merge with neighbors)",
               "value": "grouped"
             }

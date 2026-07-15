@@ -156,6 +156,51 @@ function startDownload(link) {
   anchor.remove();
 }
 
+// Types a browser can render in-tab. Everything else is a genuine download.
+const INLINE_VIEW_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
+
+function fileExtensionOf(url) {
+  const name = String(url || '').split(/[?#]/)[0].split('/').pop() || '';
+  return name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+}
+
+function isInlineViewable(url) {
+  return INLINE_VIEW_EXTENSIONS.includes(fileExtensionOf(url));
+}
+
+/**
+ * Open a file in a new tab even when the server forces a download via
+ * Content-Disposition: attachment. Fetching it as a blob and viewing the
+ * blob: URL sidesteps that header (the browser renders it inline). The tab
+ * is opened synchronously to survive popup blockers; if blocked (e.g. after
+ * an async registration), we fall back to a normal download.
+ */
+function openInline(url, link) {
+  const win = window.open('about:blank', '_blank');
+  if (!win) {
+    if (link) startDownload(link);
+    return;
+  }
+  win.opener = null;
+
+  fetch(url)
+    .then((response) => (response.ok ? response.blob() : Promise.reject(response.status)))
+    .then((blob) => {
+      const blobUrl = URL.createObjectURL(blob);
+      win.location.href = blobUrl;
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    })
+    .catch(() => {
+      // CORS/network failure — let the browser handle the raw URL.
+      win.location.href = url;
+    });
+}
+
+function deliverFile(url, link) {
+  if (isInlineViewable(url)) openInline(url, link);
+  else startDownload(link);
+}
+
 function buildField({
   name, label, type = 'text', required = false, autocomplete = '', options = null, placeholder = '',
 }) {
@@ -421,9 +466,17 @@ export function bindGatedLink(link, {
   const track = () => recordDownload({
     resourceSlug, fileUrl: targetUrl, fileName, gated,
   });
+  // Leave modifier / middle clicks to the browser's native behavior.
+  const isPlainClick = (event) => event.button === 0
+    && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 
   if (!gated) {
-    link.addEventListener('click', () => track());
+    link.addEventListener('click', (event) => {
+      if (!isPlainClick(event)) return;
+      event.preventDefault();
+      track();
+      deliverFile(targetUrl, link);
+    });
     return;
   }
 
@@ -446,17 +499,20 @@ export function bindGatedLink(link, {
   window.addEventListener(REGISTERED_EVENT, () => applyState(true));
 
   link.addEventListener('click', (event) => {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+
     if (isRegistered()) {
       track();
+      deliverFile(targetUrl, link);
       return;
     }
 
-    event.preventDefault();
     openRegistrationModal({ resourceSlug }).then((registration) => {
       if (!registration) return;
       track();
-      // Start the download the visitor originally asked for.
-      startDownload(link);
+      // Deliver the file the visitor originally asked for.
+      deliverFile(targetUrl, link);
     });
   });
 }

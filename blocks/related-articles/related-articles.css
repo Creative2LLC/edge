@@ -107,6 +107,40 @@
   content: '->';
 }
 
+.related-articles .related-articles-card-actions {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.related-articles .related-articles-card-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  background: #008db6;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.related-articles .related-articles-card-download:hover,
+.related-articles .related-articles-card-download:focus-visible {
+  background: #007294;
+  color: #fff;
+}
+
+.related-articles .related-articles-card-download.is-locked {
+  background: #5a6b7d;
+}
+
 .related-articles .related-articles-message {
   padding: 1.5rem;
   border: 1px solid #d9e3ea;

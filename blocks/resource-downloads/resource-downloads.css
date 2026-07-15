@@ -174,6 +174,117 @@
   margin-top: 6px;
 }
 
+/* ── Informative (card + audience/time/format panel) ─────────────────────── */
+
+.resource-downloads-item.is-informative {
+  align-items: stretch;
+  gap: 28px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.resource-downloads-informative-card {
+  flex: 0 0 44%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 36px 28px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e2e6eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 14px rgb(0 20 40 / 8%);
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-title {
+  font-size: var(--heading-font-size-m, 22px);
+}
+
+.resource-downloads-contains-label {
+  margin: 0;
+  color: #7a8794;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-contents {
+  margin: 0;
+  color: #33424f;
+  font-size: var(--body-font-size-s, 16px);
+  line-height: 1.6;
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-actions {
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.resource-downloads-meta-panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+}
+
+.resource-downloads-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #f1eee9;
+  border-radius: 10px;
+}
+
+.resource-downloads-meta-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  color: #007294;
+}
+
+.resource-downloads-meta-row[data-meta="audience"] .resource-downloads-meta-icon {
+  color: #4f9d69;
+}
+
+.resource-downloads-meta-row[data-meta="time"] .resource-downloads-meta-icon {
+  color: #2f9bb5;
+}
+
+.resource-downloads-meta-row[data-meta="format"] .resource-downloads-meta-icon {
+  color: #e07e27;
+}
+
+.resource-downloads-meta-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.resource-downloads-meta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.resource-downloads-meta-label {
+  color: #6b7883;
+  font-size: 13px;
+}
+
+.resource-downloads-meta-value {
+  color: #13253a;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--body-font-size-s, 16px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
 /* ── Video ───────────────────────────────────────────────────────────────── */
 
 .resource-downloads-item.is-video {
@@ -410,6 +521,17 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (width <= 860px) {
+  .resource-downloads-item.is-informative {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .resource-downloads-informative-card {
+    flex-basis: auto;
+  }
+}
 
 @media (width <= 640px) {
   .resource-downloads-item,

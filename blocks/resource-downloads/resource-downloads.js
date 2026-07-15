@@ -32,7 +32,7 @@ const FILE_EXTENSION_PATTERN = /\.(pdf|docx?|pptx?|zip|xlsx?|mp4|mov)([?#]|$)/i;
 const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g|gif|webp|svg)([?#]|$)/i;
 const VIDEO_EXTENSIONS = ['mp4', 'mov'];
 const FEATURE_EXTENSIONS = ['ppt', 'pptx', 'zip'];
-const DISPLAY_STYLES = ['row', 'card', 'feature', 'video', 'grouped'];
+const DISPLAY_STYLES = ['row', 'card', 'feature', 'video', 'grouped', 'informative'];
 const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
 // AEM publish tier — the public host that serves DAM files. Used to turn a
 // raw /content/dam/ path into a working URL when no backend resource is found.
@@ -67,6 +67,10 @@ function fileNameFrom(href) {
 function fileExtensionFrom(href) {
   const name = fileNameFrom(href);
   return name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+}
+
+function isVideoFile(url) {
+  return VIDEO_EXTENSIONS.includes(fileExtensionFrom(url));
 }
 
 function titleFromFileName(href) {
@@ -178,9 +182,14 @@ function parsePublishedItem(row) {
     const picture = cell.querySelector('picture');
     const img = cell.querySelector('img');
     if (picture || img) {
-      if (!item.imageEl) {
+      const src = (img || picture?.querySelector('img'))?.src || '';
+      // A video/file reference can render as an <img> — it's the file, not a
+      // poster. Never treat it as an image (avoids a broken poster request).
+      if (isVideoFile(src) || isFileHref(src)) {
+        if (!item.fileHref) item.fileHref = src;
+      } else if (!item.imageEl) {
         item.imageEl = picture || img;
-        item.imageSrc = (img || picture?.querySelector('img'))?.src || '';
+        item.imageSrc = src;
       }
       return;
     }
@@ -568,14 +577,14 @@ function defaultButtonLabel(entry) {
 function buildImage(entry, width = 400) {
   if (entry.imageEl?.tagName === 'PICTURE') {
     const img = entry.imageEl.querySelector('img');
-    if (img?.src) {
+    if (img?.src && !isVideoFile(img.src) && !isFileHref(img.src)) {
       const optimized = createOptimizedPicture(img.src, entry.title, false, [{ width: `${width}` }]);
       moveInstrumentation(img, optimized.querySelector('img'));
       return optimized;
     }
   }
 
-  if (entry.imageSrc) {
+  if (entry.imageSrc && !isVideoFile(entry.imageSrc) && !isFileHref(entry.imageSrc)) {
     return createOptimizedPicture(entry.imageSrc, entry.title, false, [{ width: `${width}` }]);
   }
 
@@ -839,11 +848,82 @@ function buildGroupEntry(entries, isEditor) {
   return card;
 }
 
+const META_ICONS = {
+  audience: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 19v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  time: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg>',
+  format: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18"/><path d="M4 4v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4"/><path d="M12 15v5"/><path d="M9 20h6"/></svg>',
+};
+
+function buildMetaRow(iconKey, label, value) {
+  const row = document.createElement('div');
+  row.className = 'resource-downloads-meta-row';
+  row.dataset.meta = iconKey;
+
+  const icon = document.createElement('span');
+  icon.className = 'resource-downloads-meta-icon';
+  icon.innerHTML = META_ICONS[iconKey];
+  row.append(icon);
+
+  const text = document.createElement('div');
+  text.className = 'resource-downloads-meta-text';
+  const labelEl = document.createElement('span');
+  labelEl.className = 'resource-downloads-meta-label';
+  labelEl.textContent = label;
+  const valueEl = document.createElement('span');
+  valueEl.className = 'resource-downloads-meta-value';
+  valueEl.textContent = value;
+  text.append(labelEl, valueEl);
+  row.append(text);
+
+  return row;
+}
+
+function buildInformativeEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-informative';
+
+  // Left: the download card.
+  const panel = document.createElement('div');
+  panel.className = 'resource-downloads-informative-card';
+  panel.append(buildTitleEl(entry));
+
+  const description = buildDescription(entry);
+  if (description) {
+    const containsLabel = document.createElement('p');
+    containsLabel.className = 'resource-downloads-contains-label';
+    containsLabel.textContent = 'This download contains:';
+    panel.append(containsLabel);
+    description.classList.add('resource-downloads-item-contents');
+    panel.append(description);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) panel.append(actions);
+  card.append(panel);
+
+  // Right: metadata pulled from the resource (audience / time / format).
+  const { resource } = entry;
+  const meta = document.createElement('div');
+  meta.className = 'resource-downloads-meta-panel';
+
+  const audience = (resource?.audience_labels || []).join(', ');
+  if (audience) meta.append(buildMetaRow('audience', 'Primary Audience', audience));
+  if (resource?.length_label) meta.append(buildMetaRow('time', 'Time', resource.length_label));
+  if (resource?.resource_type_label) {
+    meta.append(buildMetaRow('format', 'Format', resource.resource_type_label));
+  }
+
+  if (meta.children.length) card.append(meta);
+
+  return card;
+}
+
 const ENTRY_BUILDERS = {
   row: buildRowEntry,
   card: buildCardEntry,
   feature: buildFeatureEntry,
   video: buildVideoEntry,
+  informative: buildInformativeEntry,
 };
 
 export default async function decorate(block) {
@@ -853,11 +933,15 @@ export default async function decorate(block) {
     : readPublishedContent(block);
 
   // Published rows can't name their fields, so slug-looking cells were kept
-  // as candidates — settle them against the API before anything else.
+  // as candidates — settle them against the API before anything else. Skip
+  // this when the item already has a file (the file is authoritative), which
+  // also avoids probing a plain title like "test" as if it were a slug.
   await Promise.all(items.map(async (item) => {
     if (!item.textEntries) return;
-    const resolved = await resolveSlugCandidates(item, config.apiBaseUrl);
-    if (resolved) item.resourceSlug = resolved.slug;
+    if (!item.fileHref && !item.videoUrl) {
+      const resolved = await resolveSlugCandidates(item, config.apiBaseUrl);
+      if (resolved) item.resourceSlug = resolved.slug;
+    }
     finalizePublishedText(item);
   }));
 

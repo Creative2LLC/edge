@@ -4,6 +4,18 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { bindGatedLink } from '../../scripts/resource-gate.js';
+
+const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+
+// A raw /content/dam/ path only resolves on the publish tier, never the site.
+function resolveDownloadUrl(url) {
+  const value = `${url || ''}`.trim();
+  if (!value) return '';
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.startsWith('/content/dam/')) return `${PUBLISH_BASE_URL}${value}`;
+  return value;
+}
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url', 'article api base url', 'article api url'],
@@ -242,13 +254,38 @@ function buildCard(item, config) {
     body.append(excerpt);
   }
 
+  const actions = document.createElement('div');
+  actions.className = 'related-articles-card-actions';
+
   if (href) {
     const link = document.createElement('a');
     link.className = 'related-articles-card-link';
     link.href = href;
     link.textContent = 'Learn More';
-    body.append(link);
+    actions.append(link);
   }
+
+  // When the related resource is itself downloadable, offer a gated download
+  // straight from the card (in addition to Learn More).
+  const downloadUrl = resolveDownloadUrl(item.download_url || item.resource_url);
+  if (item.has_download && downloadUrl) {
+    const download = document.createElement('a');
+    download.className = 'related-articles-card-download';
+    download.href = downloadUrl;
+    download.target = '_blank';
+    download.rel = 'noopener noreferrer';
+    download.textContent = 'Download';
+    bindGatedLink(download, {
+      gated: Boolean(item.gated),
+      resourceSlug: item.slug || '',
+      fileUrl: downloadUrl,
+      fileName: item.aem_asset_name || '',
+      downloadLabel: 'Download',
+    });
+    actions.append(download);
+  }
+
+  if (actions.children.length) body.append(actions);
 
   card.append(body);
   return card;
