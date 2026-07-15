@@ -414,47 +414,88 @@ function getVideoModal() {
 
 // ── Entry resolution ─────────────────────────────────────────────────────────
 
+function normalizeGatedValue(value) {
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0) return false;
+
+  const normalized = normalizeText(value).toLowerCase();
+  if (['true', 'gated', '1', 'yes'].includes(normalized)) return true;
+  if (['false', 'open', '0', 'no'].includes(normalized)) return false;
+  return null;
+}
+
+function resourceMatchesFile(resource, fileHref) {
+  const file = normalizeText(fileHref).split(/[?#]/)[0];
+  if (!resource || !file) return false;
+
+  return [
+    resource.aem_asset_path,
+    resource.download_url,
+    resource.resource_url,
+  ].some((value) => {
+    const normalized = normalizeText(value).split(/[?#]/)[0];
+    return normalized && (
+      normalized === file
+      || normalized.endsWith(file)
+      || file.endsWith(normalized)
+    );
+  });
+}
+
 function resolveGated(item, itemResource, config, primaryResource) {
-  if (item.gatedOverride === 'gated') return true;
-  if (item.gatedOverride === 'open') return false;
-  if (itemResource && typeof itemResource.gated === 'boolean') return itemResource.gated;
-  if (config.gated === 'true') return true;
-  if (config.gated === 'false') return false;
-  if (primaryResource && typeof primaryResource.gated === 'boolean') return primaryResource.gated;
-  return false;
+  const itemOverride = normalizeGatedValue(item.gatedOverride);
+  if (itemOverride !== null) return itemOverride;
+
+  const resourceGated = normalizeGatedValue(itemResource?.gated);
+  if (resourceGated !== null) return resourceGated;
+
+  const configGated = normalizeGatedValue(config.gated);
+  if (configGated !== null) return configGated;
+
+  const primaryGated = normalizeGatedValue(primaryResource?.gated);
+  return primaryGated !== null ? primaryGated : false;
 }
 
 function resolveEntry(item, resource, config, primaryResource) {
-  const downloadUrl = item.fileHref || resource?.download_url || resource?.resource_url || '';
+  const matchedPrimaryResource = resource
+    || (item.resourceSlug === config.slug ? primaryResource : null)
+    || (resourceMatchesFile(primaryResource, item.fileHref) ? primaryResource : null);
+  const downloadUrl = matchedPrimaryResource?.download_url
+    || matchedPrimaryResource?.resource_url
+    || item.fileHref
+    || '';
   const videoUrl = item.videoUrl
-    || resource?.video_url
+    || matchedPrimaryResource?.video_url
     || (VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : '');
   const extension = fileExtensionFrom(downloadUrl)
-    || fileExtensionFrom(resource?.aem_asset_name || '');
+    || fileExtensionFrom(matchedPrimaryResource?.aem_asset_name || '');
 
   let style = DISPLAY_STYLES.includes(item.displayStyle) ? item.displayStyle : '';
   if (!style) {
     if (videoUrl) style = 'video';
     else if (FEATURE_EXTENSIONS.includes(extension)) style = 'feature';
-    else if ((item.imageEl || item.imageSrc || resource?.thumbnail) && (item.description || resource?.excerpt)) style = 'card';
+    else if (
+      (item.imageEl || item.imageSrc || matchedPrimaryResource?.thumbnail)
+      && (item.description || matchedPrimaryResource?.excerpt)
+    ) style = 'card';
     else style = 'row';
   }
 
   return {
     item,
-    resource,
+    resource: matchedPrimaryResource,
     style,
     downloadUrl,
     videoUrl,
     extension: extension || (videoUrl ? 'video' : 'file'),
-    gated: resolveGated(item, resource, config, primaryResource),
-    title: item.title || resource?.title || titleFromFileName(downloadUrl) || 'Download',
+    gated: resolveGated(item, matchedPrimaryResource, config, primaryResource),
+    title: item.title || matchedPrimaryResource?.title || titleFromFileName(downloadUrl) || 'Download',
     description: item.description || '',
-    fallbackDescription: normalizeText(resource?.excerpt),
-    imageSrc: item.imageSrc || resource?.thumbnail || '',
+    fallbackDescription: normalizeText(matchedPrimaryResource?.excerpt),
+    imageSrc: item.imageSrc || matchedPrimaryResource?.thumbnail || '',
     imageEl: item.imageEl,
-    slug: item.resourceSlug || resource?.slug || '',
-    fileName: fileNameFrom(downloadUrl) || resource?.aem_asset_name || '',
+    slug: item.resourceSlug || matchedPrimaryResource?.slug || '',
+    fileName: fileNameFrom(downloadUrl) || matchedPrimaryResource?.aem_asset_name || '',
   };
 }
 
