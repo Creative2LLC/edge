@@ -31,10 +31,10 @@ function normalizeColorValue(value) {
   return normalized;
 }
 
-function isDarkHexColor(value) {
+function getHexBrightness(value) {
   const normalized = normalizeColorValue(value);
   const match = normalized.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/iu);
-  if (!match) return false;
+  if (!match) return null;
 
   const hex = match[1].length === 3
     ? match[1].split('').map((char) => `${char}${char}`).join('')
@@ -42,9 +42,18 @@ function isDarkHexColor(value) {
   const red = parseInt(hex.slice(0, 2), 16);
   const green = parseInt(hex.slice(2, 4), 16);
   const blue = parseInt(hex.slice(4, 6), 16);
-  const brightness = (red * 299 + green * 587 + blue * 114) / 1000;
 
-  return brightness < 145;
+  return (red * 299 + green * 587 + blue * 114) / 1000;
+}
+
+function isDarkHexColor(value) {
+  const brightness = getHexBrightness(value);
+  return brightness !== null && brightness < 145;
+}
+
+function isLightHexColor(value) {
+  const brightness = getHexBrightness(value);
+  return brightness !== null && brightness >= 180;
 }
 
 function isValidSizeValue(value) {
@@ -205,6 +214,34 @@ function findFallbackOptionFromEnd(
   return tailMatch || preferred || '';
 }
 
+function findFallbackOptionNear(block, preferredIndex, allowedValues, fallback) {
+  const preferred = normalizeOptionValue(getFallbackText(block, preferredIndex), allowedValues, '');
+  if (preferred) return preferred;
+
+  const cells = getRowCells(block);
+  const start = Math.max(0, preferredIndex - 2);
+  const end = Math.min(cells.length - 1, preferredIndex + 2);
+  for (let index = start; index <= end; index += 1) {
+    if (index !== preferredIndex) {
+      const value = normalizeOptionValue(cells[index]?.textContent, allowedValues, '');
+      if (value && value !== fallback) return value;
+    }
+  }
+
+  return '';
+}
+
+function findFallbackSizeFromEnd(block, preferredIndex) {
+  const preferred = normalizeSizeValue(getFallbackText(block, preferredIndex));
+  if (preferred) return preferred;
+
+  return getRowCells(block)
+    .slice()
+    .reverse()
+    .map((cell) => normalizeSizeValue(cell.textContent))
+    .find(Boolean) || '';
+}
+
 function getFallbackIndexMap(block, isEditor) {
   if (isEditor) return CURRENT_FIELD_INDEX;
 
@@ -259,27 +296,71 @@ function getImage(block) {
   return optimized;
 }
 
+function extractHexColor(cell) {
+  if (!cell) return '';
+  const hexRe = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})\b/iu;
+  const anchor = cell.querySelector?.('a');
+  const hrefMatch = anchor?.getAttribute('href')?.match(hexRe);
+  if (hrefMatch) return hrefMatch[0];
+  const anchorTextMatch = anchor?.textContent?.trim()?.match(hexRe);
+  if (anchorTextMatch) return anchorTextMatch[0];
+  const textMatch = cell.textContent?.trim()?.match(hexRe);
+  return textMatch ? textMatch[0] : '';
+}
+
 /**
  * Legacy color rows may still be auto-linked by EDS into button anchors
- * without data-aue-prop markers. Preserve the existing order for those rows.
+ * without data-aue-prop markers. Preserve the existing visible order for those rows.
  */
 function collectColorValues(block) {
   const values = [];
   block.querySelectorAll(':scope > div').forEach((row) => {
     if (row.querySelector('[data-aue-prop]')) return;
-    const anchor = row.querySelector('a');
-    const value = anchor?.textContent.trim() || '';
-    if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)) {
+    const value = extractHexColor(row);
+    if (value) {
       values.push(value);
     }
   });
 
+  return { values };
+}
+
+function resolveFlattenedColors(colorValues, hasPrimaryButton, hasSecondaryButton) {
+  const buttonCount = (hasPrimaryButton ? 1 : 0) + (hasSecondaryButton ? 1 : 0);
+  const remaining = colorValues.slice(buttonCount);
+
+  if (remaining.length >= 4) {
+    return {
+      backgroundColor: remaining[0] || '',
+      headingColor: remaining[1] || '',
+      subheadingColor: remaining[2] || '',
+      textColor: remaining[3] || '',
+    };
+  }
+
+  if (remaining.length >= 2 && isDarkHexColor(remaining[0]) && isLightHexColor(remaining[1])) {
+    return {
+      backgroundColor: remaining[0],
+      headingColor: '',
+      subheadingColor: '',
+      textColor: remaining[1],
+    };
+  }
+
+  if (remaining[0] && isLightHexColor(remaining[0])) {
+    return {
+      backgroundColor: remaining[0],
+      headingColor: remaining[1] || '',
+      subheadingColor: remaining[2] || '',
+      textColor: '',
+    };
+  }
+
   return {
-    values,
-    buttonColor: values[0] || '',
-    button2Color: values[1] || '',
-    backgroundColor: values[2] || '',
-    textColor: values[3] || '',
+    backgroundColor: '',
+    headingColor: remaining[0] || '',
+    subheadingColor: remaining[1] || '',
+    textColor: remaining[2] || '',
   };
 }
 
@@ -399,24 +480,27 @@ export default async function decorate(block) {
   const colorValues = colors.values || [];
   const hasPrimaryButton = Boolean(buttonText || buttonLink);
   const hasSecondaryButton = Boolean(button2Text || button2Link);
+  const flattenedColors = resolveFlattenedColors(
+    colorValues,
+    hasPrimaryButton,
+    hasSecondaryButton,
+  );
   const buttonColor = (hasPrimaryButton ? colorValues[0] : '')
     || normalizeColorValue(resourceData.buttonColor);
   const button2Color = (hasSecondaryButton ? colorValues[hasPrimaryButton ? 1 : 0] : '')
     || normalizeColorValue(resourceData.button2Color);
-  const backgroundColor = colorValues[
-    (hasPrimaryButton ? 1 : 0) + (hasSecondaryButton ? 1 : 0)
-  ] || colors.backgroundColor
-    || normalizeColorValue(resourceData.backgroundColor);
-  const sharedTextColor = colorValues[
-    (hasPrimaryButton ? 2 : 1) + (hasSecondaryButton ? 1 : 0)
-  ] || colors.textColor || normalizeColorValue(resourceData.textColor);
+  const backgroundColor = normalizeColorValue(getField(block, 'backgroundColor')
+    || resourceData.backgroundColor) || flattenedColors.backgroundColor;
+  const sharedTextColor = normalizeColorValue(getField(block, 'textColor')
+    || resourceData.textColor) || flattenedColors.textColor;
   const fallbackTextColor = !sharedTextColor && isDarkHexColor(backgroundColor) ? '#fff' : '';
   const effectiveTextColor = sharedTextColor || fallbackTextColor;
   const headingColor = normalizeColorValue(getField(block, 'headingColor') || resourceData.headingColor)
+    || flattenedColors.headingColor
     || effectiveTextColor;
   const subheadingColor = normalizeColorValue(
     getField(block, 'subheadingColor') || resourceData.subheadingColor,
-  ) || effectiveTextColor;
+  ) || flattenedColors.subheadingColor || effectiveTextColor;
 
   const contentAlign = normalizeOptionValue(
     getFieldWithFallback(block, 'contentAlign', fieldIndex.contentAlign, isEditor)
@@ -426,13 +510,15 @@ export default async function decorate(block) {
   );
   const imagePosition = normalizeOptionValue(
     getField(block, 'imagePosition')
-      || findFallbackOptionFromEnd(block, fieldIndex.imagePosition, IMAGE_POSITION_VALUES, 'left')
+      || findFallbackOptionNear(block, fieldIndex.imagePosition, IMAGE_POSITION_VALUES, 'left')
       || resourceData.imagePosition,
     IMAGE_POSITION_VALUES,
     'left',
   );
   const maxWidth = normalizeSizeValue(
-    getFieldWithFallback(block, 'maxWidth', fieldIndex.maxWidth, isEditor) || resourceData.maxWidth,
+    getField(block, 'maxWidth')
+      || findFallbackSizeFromEnd(block, fieldIndex.maxWidth)
+      || resourceData.maxWidth,
   );
   const blockSize = normalizeOptionValue(
     getField(block, 'blockSize')
@@ -443,7 +529,7 @@ export default async function decorate(block) {
   );
   const imageSize = normalizeOptionValue(
     getField(block, 'imageSize')
-      || findFallbackOptionFromEnd(block, fieldIndex.imageSize, IMAGE_SIZE_VALUES, 'even')
+      || findFallbackOptionNear(block, fieldIndex.imageSize, IMAGE_SIZE_VALUES, 'even')
       || resourceData.imageSize,
     IMAGE_SIZE_VALUES,
     'even',
@@ -473,14 +559,16 @@ export default async function decorate(block) {
 
   if (maxWidth) {
     block.style.setProperty('--split-card-max-width', maxWidth);
+  } else {
+    block.style.removeProperty('--split-card-max-width');
+  }
+
+  if (maxWidth || blockSize === 'smaller') {
     if (wrapper) {
       wrapper.style.maxWidth = 'none';
     }
-  } else {
-    block.style.removeProperty('--split-card-max-width');
-    if (wrapper) {
-      wrapper.style.removeProperty('max-width');
-    }
+  } else if (wrapper) {
+    wrapper.style.removeProperty('max-width');
   }
 
   const card = document.createElement('div');
