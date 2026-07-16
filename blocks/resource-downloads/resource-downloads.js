@@ -421,7 +421,9 @@ const assetCache = new Map();
  * when no published resource references that file yet.
  */
 function fetchResourceByAsset(apiBaseUrl, assetPath) {
-  const path = normalizeText(assetPath).split(/[?#]/)[0];
+  const rawPath = normalizeText(assetPath).split(/[?#]/)[0];
+  const damMatch = rawPath.match(/\/content\/dam\/[^\s?#]+/);
+  const path = damMatch ? damMatch[0] : rawPath;
   if (!apiBaseUrl || !path.startsWith('/content/dam/')) return Promise.resolve(null);
 
   const key = `${apiBaseUrl}|${path}`;
@@ -568,10 +570,37 @@ function resourceMatchesFile(resource, fileHref) {
   const file = normalizeText(fileHref).split(/[?#]/)[0];
   if (!resource || !file) return false;
 
-  return [
+  const resourceValues = [
     resource.aem_asset_path,
     resource.download_url,
     resource.resource_url,
+  ];
+  const fileValues = Array.isArray(resource.files)
+    ? resource.files.flatMap((item) => [
+      item.aem_asset_path,
+      item.download_url,
+      item.file_url,
+    ])
+    : [];
+
+  return [...resourceValues, ...fileValues].some((value) => {
+    const normalized = normalizeText(value).split(/[?#]/)[0];
+    return normalized && (
+      normalized === file
+      || normalized.endsWith(file)
+      || file.endsWith(normalized)
+    );
+  });
+}
+
+function resourceFileMatches(fileEntry, fileHref) {
+  const file = normalizeText(fileHref).split(/[?#]/)[0];
+  if (!fileEntry || !file) return false;
+
+  return [
+    fileEntry.aem_asset_path,
+    fileEntry.download_url,
+    fileEntry.file_url,
   ].some((value) => {
     const normalized = normalizeText(value).split(/[?#]/)[0];
     return normalized && (
@@ -582,9 +611,24 @@ function resourceMatchesFile(resource, fileHref) {
   });
 }
 
-function resolveGated(item, itemResource, config, primaryResource) {
+function primaryResourceFile(resource) {
+  const files = Array.isArray(resource?.files) ? resource.files : [];
+  return files.find((file) => file?.is_primary) || files[0] || null;
+}
+
+function resolveResourceFile(resource, fileHref) {
+  const files = Array.isArray(resource?.files) ? resource.files : [];
+  if (!files.length) return null;
+  if (fileHref) return files.find((file) => resourceFileMatches(file, fileHref)) || null;
+  return primaryResourceFile(resource);
+}
+
+function resolveGated(item, itemResource, config, primaryResource, itemFile = null) {
   const itemOverride = normalizeGatedValue(item.gatedOverride);
   if (itemOverride !== null) return itemOverride;
+
+  const fileGated = normalizeGatedValue(itemFile?.gated);
+  if (fileGated !== null) return fileGated;
 
   const resourceGated = normalizeGatedValue(itemResource?.gated);
   if (resourceGated !== null) return resourceGated;
@@ -600,7 +644,10 @@ function resolveEntry(item, resource, config, primaryResource) {
   const matchedPrimaryResource = resource
     || (item.resourceSlug === config.slug ? primaryResource : null)
     || (resourceMatchesFile(primaryResource, item.fileHref) ? primaryResource : null);
-  const downloadUrl = matchedPrimaryResource?.download_url
+  const matchedFile = resolveResourceFile(matchedPrimaryResource, item.fileHref);
+  const downloadUrl = matchedFile?.download_url
+    || matchedFile?.file_url
+    || matchedPrimaryResource?.download_url
     || matchedPrimaryResource?.resource_url
     || resolveDamUrl(item.fileHref)
     || '';
@@ -608,6 +655,7 @@ function resolveEntry(item, resource, config, primaryResource) {
     || matchedPrimaryResource?.video_url
     || (VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : ''));
   const extension = fileExtensionFrom(downloadUrl)
+    || fileExtensionFrom(matchedFile?.file_name || '')
     || fileExtensionFrom(matchedPrimaryResource?.aem_asset_name || '');
 
   let style = DISPLAY_STYLES.includes(item.displayStyle) ? item.displayStyle : '';
@@ -628,14 +676,18 @@ function resolveEntry(item, resource, config, primaryResource) {
     downloadUrl,
     videoUrl,
     extension: extension || (videoUrl ? 'video' : 'file'),
-    gated: resolveGated(item, matchedPrimaryResource, config, primaryResource),
-    title: item.title || matchedPrimaryResource?.title || titleFromFileName(downloadUrl) || 'Download',
-    description: item.description || '',
+    gated: resolveGated(item, matchedPrimaryResource, config, primaryResource, matchedFile),
+    title: item.title || matchedFile?.title || matchedPrimaryResource?.title
+      || titleFromFileName(downloadUrl) || 'Download',
+    description: item.description || matchedFile?.description || '',
     fallbackDescription: normalizeText(matchedPrimaryResource?.excerpt),
     imageSrc: item.imageSrc || matchedPrimaryResource?.thumbnail || '',
     imageEl: item.imageEl,
     slug: item.resourceSlug || matchedPrimaryResource?.slug || '',
-    fileName: fileNameFrom(downloadUrl) || matchedPrimaryResource?.aem_asset_name || '',
+    fileName: fileNameFrom(downloadUrl)
+      || matchedFile?.file_name
+      || matchedPrimaryResource?.aem_asset_name
+      || '',
   };
 }
 

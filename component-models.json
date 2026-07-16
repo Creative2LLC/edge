@@ -23490,7 +23490,7 @@
         "valueType": "string",
         "name": "file",
         "label": "File",
-        "description": "Pick or upload a DAM file (PDF, Word, PowerPoint, ZIP, MP4). New files become tracked backend resources automatically on the next sync - no slug needed.",
+        "description": "Pick or upload a DAM file (PDF, Word, PowerPoint, ZIP, MP4). On the next resource sync, this becomes a tracked file on the current resource page - no slug needed.",
         "validation": {
           "rootPath": "/content/dam/edge/misc/PDFs"
         },
