@@ -179,7 +179,8 @@
 .resource-downloads-item.is-informative {
   align-items: center;
   gap: 30px;
-  max-width: 950px;
+  /*max-width: 950px;*/
+  width: 100%;
   margin-inline: auto;
   padding: 0;
   background: none;
@@ -372,6 +373,23 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.resource-downloads-default-video-poster {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 8vw, 58px);
+  background: linear-gradient(135deg, #e7f6fa 0%, #fff 55%, #ecf6fa 100%);
+}
+
+.resource-downloads-item.is-video .resource-downloads-default-video-poster img {
+  width: min(58%, 280px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 18px rgb(0 38 77 / 16%));
 }
 
 .resource-downloads-play {

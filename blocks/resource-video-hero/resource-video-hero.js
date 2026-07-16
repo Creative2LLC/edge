@@ -26,6 +26,7 @@ const FIELD_COLUMN_INDEX = {
 };
 
 const DEFAULT_LISTING_PATH = '/content/edge/resources.html';
+const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -91,6 +92,36 @@ function getSlugFromPathname(pathname = window.location.pathname) {
 
 // ── Video embed helpers ──────────────────────────────────────────────────────
 
+function isDamAssetUrl(link) {
+  const value = normalizeText(link);
+  if (!value) return false;
+
+  return new URL(value, window.location.href).pathname.startsWith('/content/dam/');
+}
+
+function resolveVideoUrl(link) {
+  const value = normalizeText(link);
+  if (!value) return '';
+
+  const url = new URL(value, window.location.href);
+  if (isDamAssetUrl(value)) {
+    return `${PUBLISH_BASE_URL}${url.pathname}${url.search}${url.hash}`;
+  }
+
+  return value;
+}
+
+function videoMimeType(url) {
+  const extension = new URL(url, window.location.href).pathname.split('.').pop().toLowerCase();
+  if (extension === 'mov') return 'video/quicktime';
+  return `video/${extension || 'mp4'}`;
+}
+
+function playNativeVideo(root) {
+  const video = root.querySelector('video');
+  if (video?.play) video.play().catch(() => {});
+}
+
 function getVideoSource(link) {
   const normalized = link.toLowerCase();
   if (normalized.includes('youtube.com') || normalized.includes('youtu.be')) return 'youtube';
@@ -111,7 +142,7 @@ function getVimeoId(url) {
 }
 
 function buildEmbed(link, title) {
-  const url = new URL(link, window.location.href);
+  const url = new URL(resolveVideoUrl(link), window.location.href);
   const source = getVideoSource(url.href);
 
   if (source === 'youtube') {
@@ -142,10 +173,11 @@ function buildEmbed(link, title) {
   video.controls = true;
   video.autoplay = true;
   video.playsInline = true;
+  video.preload = 'metadata';
   video.setAttribute('title', title || 'Video');
   const source2 = document.createElement('source');
   source2.src = url.href;
-  source2.type = `video/${url.pathname.split('.').pop() || 'mp4'}`;
+  source2.type = videoMimeType(url.href);
   video.append(source2);
   return video;
 }
@@ -183,6 +215,7 @@ function buildModal(title) {
 
   function open(videoUrl) {
     frame.replaceChildren(buildEmbed(videoUrl, title));
+    playNativeVideo(frame);
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
     closeBtn.focus();
@@ -275,10 +308,13 @@ function buildActions(resource, config, videoSource) {
   // Download: prefer the uploaded DAM file, then API download_url / resource_url
   const downloadUrl = config.videoFile || resource.download_url || resource.resource_url;
   if (downloadUrl) {
+    const downloadHref = isDamAssetUrl(downloadUrl)
+      ? resolveVideoUrl(downloadUrl)
+      : resolveSiteHref(downloadUrl);
     const download = document.createElement('a');
     download.className = 'resource-video-hero-action is-secondary';
-    download.href = resolveSiteHref(downloadUrl);
-    if (downloadUrl.startsWith('/content/dam/')) {
+    download.href = downloadHref;
+    if (isDamAssetUrl(downloadUrl)) {
       download.setAttribute('download', '');
     } else {
       download.target = '_blank';
@@ -294,7 +330,7 @@ function buildActions(resource, config, videoSource) {
     bindGatedLink(download, {
       gated,
       resourceSlug: resource.slug || config.slug || '',
-      fileUrl: downloadUrl,
+      fileUrl: downloadHref,
       fileName: resource.aem_asset_name || '',
       downloadLabel: config.downloadLabel || 'Download Resource',
     });

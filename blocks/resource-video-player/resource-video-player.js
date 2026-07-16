@@ -7,6 +7,9 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
+const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+const DEFAULT_VIDEO_POSTER_PATH = '/blocks/header/ncmec-brand-mark.svg';
+
 const FIELD_COLUMN_INDEX = {
   apiBaseUrl: 0,
   slug: 1,
@@ -20,8 +23,12 @@ function normalizeText(value) {
   return `${value || ''}`.trim();
 }
 
+function codeAssetPath(path) {
+  return `${window.hlx?.codeBasePath || ''}${path}`;
+}
+
 function findUrlLikeValue(value) {
-  const match = `${value || ''}`.match(/https?:\/\/[^\s<>"]+/i);
+  const match = `${value || ''}`.match(/(?:https?:\/\/[^\s<>"]+|\/content\/dam\/[^\s<>"]+)/i);
   return match ? match[0].replace(/[),.;]+$/, '') : '';
 }
 
@@ -138,6 +145,29 @@ function getVimeoId(url) {
     .find((part) => /^\d+$/.test(part)) || '';
 }
 
+function resolveVideoUrl(link) {
+  const value = normalizeText(link);
+  if (!value) return '';
+
+  const url = new URL(value, window.location.href);
+  if (url.pathname.startsWith('/content/dam/')) {
+    return `${PUBLISH_BASE_URL}${url.pathname}${url.search}${url.hash}`;
+  }
+
+  return value;
+}
+
+function videoMimeType(url) {
+  const extension = new URL(url, window.location.href).pathname.split('.').pop().toLowerCase();
+  if (extension === 'mov') return 'video/quicktime';
+  return `video/${extension || 'mp4'}`;
+}
+
+function playNativeVideo(root) {
+  const video = root.querySelector('video');
+  if (video?.play) video.play().catch(() => {});
+}
+
 function getVideoSource(link) {
   const normalized = link.toLowerCase();
   if (normalized.includes('youtube.com') || normalized.includes('youtu.be')) return 'youtube';
@@ -178,17 +208,18 @@ function embedVideo(url, title) {
   video.controls = true;
   video.autoplay = true;
   video.playsInline = true;
+  video.preload = 'metadata';
   video.setAttribute('title', title || 'Video');
 
   const source = document.createElement('source');
   source.src = url.href;
-  source.type = `video/${url.pathname.split('.').pop() || 'mp4'}`;
+  source.type = videoMimeType(url.href);
   video.append(source);
   return video;
 }
 
 function buildEmbed(link, title) {
-  const url = new URL(link, window.location.href);
+  const url = new URL(resolveVideoUrl(link), window.location.href);
   const source = getVideoSource(url.href);
 
   if (source === 'youtube') return embedYoutube(url, title);
@@ -228,6 +259,14 @@ function buildPlaceholder(video) {
     ));
   } else {
     button.classList.add('is-empty');
+
+    const fallback = document.createElement('div');
+    fallback.className = 'resource-video-player-default-poster';
+    const image = document.createElement('img');
+    image.src = codeAssetPath(DEFAULT_VIDEO_POSTER_PATH);
+    image.alt = video.title || 'NCMEC video';
+    fallback.append(image);
+    button.append(fallback);
   }
 
   const play = document.createElement('span');
@@ -248,6 +287,7 @@ function buildPlayer(video) {
 
   const loadEmbed = () => {
     frame.replaceChildren(buildEmbed(video.videoUrl, video.title));
+    playNativeVideo(frame);
     frame.classList.add('is-loaded');
   };
 

@@ -45,6 +45,7 @@ const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
 // AEM publish tier — the public host that serves DAM files. Used to turn a
 // raw /content/dam/ path into a working URL when no backend resource is found.
 const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+const DEFAULT_VIDEO_POSTER_PATH = '/blocks/header/ncmec-brand-mark.svg';
 const INFORMATIVE_META_PREFIXES = [
   ['informativeAudienceLabel', /^audience label\s*:\s*/i],
   ['informativeAudienceText', /^(primary audience|audience)\s*:\s*/i],
@@ -56,6 +57,10 @@ const INFORMATIVE_META_PREFIXES = [
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
+}
+
+function codeAssetPath(path) {
+  return `${window.hlx?.codeBasePath || ''}${path}`;
 }
 
 function isUrlLike(value) {
@@ -87,6 +92,12 @@ function fileExtensionFrom(href) {
 
 function isVideoFile(url) {
   return VIDEO_EXTENSIONS.includes(fileExtensionFrom(url));
+}
+
+function videoMimeType(url) {
+  const extension = fileExtensionFrom(url);
+  if (extension === 'mov') return 'video/quicktime';
+  return `video/${extension || 'mp4'}`;
 }
 
 function titleFromFileName(href) {
@@ -466,16 +477,23 @@ function buildVideoEmbed(url, title) {
     return iframe;
   }
 
+  const videoUrl = resolveDamUrl(url);
   const video = document.createElement('video');
   video.controls = true;
   video.autoplay = true;
   video.playsInline = true;
+  video.preload = 'metadata';
   video.setAttribute('title', title || 'Video');
   const source = document.createElement('source');
-  source.src = resolveSiteHref(url);
-  source.type = `video/${fileExtensionFrom(url) || 'mp4'}`;
+  source.src = videoUrl;
+  source.type = videoMimeType(videoUrl);
   video.append(source);
   return video;
+}
+
+function playNativeVideo(root) {
+  const video = root.querySelector('video');
+  if (video?.play) video.play().catch(() => {});
 }
 
 function getVideoModal() {
@@ -524,6 +542,7 @@ function getVideoModal() {
     open(url, title) {
       modal.setAttribute('aria-label', title || 'Video');
       frame.replaceChildren(buildVideoEmbed(url, title));
+      playNativeVideo(frame);
       modal.hidden = false;
       document.body.style.overflow = 'hidden';
       closeBtn.focus();
@@ -629,6 +648,19 @@ function defaultButtonLabel(entry) {
   if (entry.extension === 'zip') return 'Download Bundle';
   if (['doc', 'docx'].includes(entry.extension)) return 'Download Guide';
   return 'Download';
+}
+
+function buildDefaultVideoPoster(title = 'NCMEC video') {
+  const poster = document.createElement('div');
+  poster.className = 'resource-downloads-default-video-poster';
+
+  const image = document.createElement('img');
+  image.src = codeAssetPath(DEFAULT_VIDEO_POSTER_PATH);
+  image.alt = title;
+  image.loading = 'lazy';
+  poster.append(image);
+
+  return poster;
 }
 
 function buildImage(entry, width = 400) {
@@ -918,7 +950,7 @@ function buildVideoEntry(entry, isEditor) {
   const media = document.createElement('div');
   media.className = 'resource-downloads-item-media';
   const image = buildImage(entry, 800);
-  if (image) media.append(image);
+  media.append(image || buildDefaultVideoPoster(entry.title));
 
   if (entry.videoUrl) {
     const playButton = document.createElement('button');
