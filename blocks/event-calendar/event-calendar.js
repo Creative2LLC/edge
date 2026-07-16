@@ -134,6 +134,27 @@ function formatEventTime(event) {
   return timePart ? `${timePart}${endTimePart}` : '';
 }
 
+function eventEndDateKey(event) {
+  return normalizeText(event.end_datetime).slice(0, 10) || normalizeText(event.start_date);
+}
+
+function todayDateKey() {
+  const today = new Date();
+  return buildDayKey(today.getFullYear(), today.getMonth() + 1, today.getDate());
+}
+
+function isUpcomingEvent(event, todayKey = todayDateKey()) {
+  const endKey = eventEndDateKey(event);
+  return endKey ? endKey >= todayKey : false;
+}
+
+function selectFeaturedEvents(events, count) {
+  if (!count) return [];
+
+  const upcoming = events.filter((event) => isUpcomingEvent(event));
+  return (upcoming.length ? upcoming : events).slice(0, count);
+}
+
 function truncateText(value, maxLength = 130) {
   const text = normalizeText(value);
   if (text.length <= maxLength) return text;
@@ -273,7 +294,7 @@ function buildEventImage(event, className) {
 function renderFeaturedEvents(container, events, count, openModal) {
   container.replaceChildren();
 
-  const featured = events.slice(0, count);
+  const featured = selectFeaturedEvents(events, count);
   if (!featured.length) {
     container.hidden = true;
     return;
@@ -297,11 +318,16 @@ function renderFeaturedEvents(container, events, count, openModal) {
     title.className = 'event-calendar-featured-title';
     title.textContent = event.title || 'Event';
 
+    const time = document.createElement('span');
+    time.className = 'event-calendar-featured-time';
+    time.textContent = formatEventTime(event);
+
     const description = document.createElement('span');
     description.className = 'event-calendar-featured-description';
     description.textContent = truncateText(event.description);
 
     content.append(date, title);
+    if (time.textContent) content.append(time);
     if (description.textContent) content.append(description);
     card.append(buildEventImage(event, 'event-calendar-featured-image'), content);
     container.append(card);
@@ -386,7 +412,7 @@ function renderTable(container, heading, events, openModal, emptyMessage) {
 
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  ['Date', 'Event', 'Location', 'City, State'].forEach((label) => {
+  ['Date', 'Time', 'Event', 'Location', 'City, State'].forEach((label) => {
     const th = document.createElement('th');
     th.scope = 'col';
     th.textContent = label;
@@ -411,6 +437,7 @@ function renderTable(container, heading, events, openModal, emptyMessage) {
 
     [
       ['Date', formatTableDate(event)],
+      ['Time', formatEventTime(event)],
       ['Event', event.title || 'Event'],
       ['Location', venue],
       ['City, State', cityState],
