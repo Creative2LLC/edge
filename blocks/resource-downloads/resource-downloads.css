@@ -174,11 +174,13 @@
   margin-top: 6px;
 }
 
-/* ── Informative (card + audience/time/format panel) ─────────────────────── */
+/* Informative (card + audience/time/format panel) */
 
 .resource-downloads-item.is-informative {
-  align-items: stretch;
-  gap: 28px;
+  align-items: center;
+  gap: 30px;
+  max-width: 950px;
+  margin-inline: auto;
   padding: 0;
   background: none;
   border: 0;
@@ -186,36 +188,98 @@
 }
 
 .resource-downloads-informative-card {
-  flex: 0 0 44%;
+  position: relative;
+  flex: 0 1 430px;
   display: flex;
+  min-height: 270px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 36px 28px;
+  padding: 38px 34px;
   text-align: center;
   background: #fff;
-  border: 1px solid #e2e6eb;
-  border-radius: 12px;
-  box-shadow: 0 2px 14px rgb(0 20 40 / 8%);
+  border: 1px solid #e8edf1;
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgb(0 20 40 / 12%);
+}
+
+.resource-downloads-informative-type {
+  position: absolute;
+  top: -16px;
+  right: -18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  color: #00264d;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+}
+
+.resource-downloads-informative-type-icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  background: #008db6;
+  border-radius: 999px;
+}
+
+.resource-downloads-informative-card[data-resource-type="pdf"] .resource-downloads-informative-type-icon {
+  background: #e14439;
+}
+
+.resource-downloads-informative-card[data-resource-type="video"] .resource-downloads-informative-type-icon {
+  background: #008db6;
+}
+
+.resource-downloads-informative-card[data-resource-type="presentation"] .resource-downloads-informative-type-icon {
+  background: #f7941d;
+}
+
+.resource-downloads-informative-card[data-resource-type="bundle"] .resource-downloads-informative-type-icon {
+  background: #00264d;
+}
+
+.resource-downloads-informative-type-label {
+  padding-right: 2px;
 }
 
 .resource-downloads-item.is-informative .resource-downloads-item-title {
-  font-size: var(--heading-font-size-m, 22px);
+  margin: 0;
+  color: #404041;
+  font-size: clamp(24px, 2.5vw, 30px);
+  line-height: 1.1;
 }
 
 .resource-downloads-contains-label {
   margin: 0;
-  color: #7a8794;
-  font-size: 13px;
+  color: #8a8a8a;
+  font-size: 12px;
   font-style: italic;
 }
 
 .resource-downloads-item.is-informative .resource-downloads-item-contents {
+  max-width: 260px;
   margin: 0;
-  color: #33424f;
-  font-size: var(--body-font-size-s, 16px);
-  line-height: 1.6;
+  color: #404041;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-contents p {
+  margin: 0;
 }
 
 .resource-downloads-item.is-informative .resource-downloads-item-actions {
@@ -224,40 +288,41 @@
 }
 
 .resource-downloads-meta-panel {
-  flex: 1 1 auto;
+  flex: 1 1 430px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
   justify-content: center;
 }
 
 .resource-downloads-meta-row {
   display: flex;
+  min-height: 76px;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  background: #f1eee9;
-  border-radius: 10px;
+  gap: 24px;
+  padding: 18px 22px;
+  background: #ece8e3;
+  border-radius: 8px;
 }
 
 .resource-downloads-meta-icon {
   flex: 0 0 auto;
   display: inline-flex;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   color: #007294;
 }
 
 .resource-downloads-meta-row[data-meta="audience"] .resource-downloads-meta-icon {
-  color: #4f9d69;
+  color: #5cbf75;
 }
 
 .resource-downloads-meta-row[data-meta="time"] .resource-downloads-meta-icon {
-  color: #2f9bb5;
+  color: #6fd6e8;
 }
 
 .resource-downloads-meta-row[data-meta="format"] .resource-downloads-meta-icon {
-  color: #e07e27;
+  color: #ffb15a;
 }
 
 .resource-downloads-meta-icon svg {
@@ -267,21 +332,22 @@
 
 .resource-downloads-meta-text {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
   min-width: 0;
+  flex-direction: column;
+  gap: 7px;
 }
 
 .resource-downloads-meta-label {
-  color: #6b7883;
+  color: #404041;
   font-size: 13px;
+  line-height: 1;
 }
 
 .resource-downloads-meta-value {
-  color: #13253a;
+  color: #404041;
   font-family: var(--heading-font-family, sans-serif);
-  font-size: var(--body-font-size-s, 16px);
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   line-height: 1.3;
 }
 

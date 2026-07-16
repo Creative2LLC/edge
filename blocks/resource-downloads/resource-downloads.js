@@ -33,10 +33,26 @@ const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g|gif|webp|svg)([?#]|$)/i;
 const VIDEO_EXTENSIONS = ['mp4', 'mov'];
 const FEATURE_EXTENSIONS = ['ppt', 'pptx', 'zip'];
 const DISPLAY_STYLES = ['row', 'card', 'feature', 'video', 'grouped', 'informative'];
+const INFORMATIVE_META_FIELD_BY_INDEX = {
+  10: 'informativeAudienceLabel',
+  11: 'informativeAudienceText',
+  12: 'informativeTimeLabel',
+  13: 'informativeTimeText',
+  14: 'informativeFormatLabel',
+  15: 'informativeFormatText',
+};
 const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
 // AEM publish tier — the public host that serves DAM files. Used to turn a
 // raw /content/dam/ path into a working URL when no backend resource is found.
 const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+const INFORMATIVE_META_PREFIXES = [
+  ['informativeAudienceLabel', /^audience label\s*:\s*/i],
+  ['informativeAudienceText', /^(primary audience|audience)\s*:\s*/i],
+  ['informativeTimeLabel', /^time label\s*:\s*/i],
+  ['informativeTimeText', /^(time|length)\s*:\s*/i],
+  ['informativeFormatLabel', /^format label\s*:\s*/i],
+  ['informativeFormatText', /^(format|resource type)\s*:\s*/i],
+];
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -79,13 +95,27 @@ function titleFromFileName(href) {
   return base.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-// A raw /content/dam/ path only resolves on the publish tier, never on the
-// site domain — rewrite it so file-only items download correctly.
+// A /content/dam/ asset only resolves on the publish tier, never on the site
+// domain. Pull the DAM path out of whatever form it arrives in — a bare path,
+// or an absolute site URL the browser already resolved — and point it at the
+// publish host. Non-DAM URLs (e.g. YouTube) pass through untouched.
 function resolveDamUrl(href) {
   const value = normalizeText(href);
-  if (!value || isUrlLike(value)) return value;
-  if (value.startsWith('/content/dam/')) return `${PUBLISH_BASE_URL}${value}`;
+  if (!value) return '';
+  const match = value.match(/\/content\/dam\/[^?#"'\s]+/);
+  if (match) return `${PUBLISH_BASE_URL}${match[0]}`;
   return value;
+}
+
+function parseInformativeMetaOverride(value) {
+  const text = normalizeText(value);
+  if (!text) return null;
+
+  const match = INFORMATIVE_META_PREFIXES.find(([, pattern]) => pattern.test(text));
+  if (!match) return null;
+
+  const [name, pattern] = match;
+  return { name, value: normalizeText(text.replace(pattern, '')) };
 }
 
 function slugFromPathname(pathname = window.location.pathname) {
@@ -120,6 +150,12 @@ function emptyItem(row = null) {
     videoUrl: '',
     displayStyle: '',
     gatedOverride: '',
+    informativeAudienceLabel: '',
+    informativeAudienceText: '',
+    informativeTimeLabel: '',
+    informativeTimeText: '',
+    informativeFormatLabel: '',
+    informativeFormatText: '',
   };
 }
 
@@ -148,6 +184,16 @@ function parseEditorItem(row) {
   item.videoUrl = normalizeText(readLinkField(row, 'videoUrl').value);
   item.displayStyle = normalizeText(readTextField(row, 'displayStyle').value).toLowerCase();
   item.gatedOverride = normalizeText(readTextField(row, 'gated').value).toLowerCase();
+  item.informativeAudienceLabel = normalizeText(
+    readTextField(row, 'informativeAudienceLabel').value,
+  );
+  item.informativeAudienceText = normalizeText(
+    readTextField(row, 'informativeAudienceText').value,
+  );
+  item.informativeTimeLabel = normalizeText(readTextField(row, 'informativeTimeLabel').value);
+  item.informativeTimeText = normalizeText(readTextField(row, 'informativeTimeText').value);
+  item.informativeFormatLabel = normalizeText(readTextField(row, 'informativeFormatLabel').value);
+  item.informativeFormatText = normalizeText(readTextField(row, 'informativeFormatText').value);
   item.imageEl = image.picture || null;
   item.imageSrc = image.img?.src || '';
 
@@ -178,7 +224,7 @@ function parsePublishedItem(row) {
   const item = emptyItem(row);
   const freeCells = [];
 
-  [...row.children].forEach((cell) => {
+  [...row.children].forEach((cell, cellIndex) => {
     const picture = cell.querySelector('picture');
     const img = cell.querySelector('img');
     if (picture || img) {
@@ -197,6 +243,17 @@ function parsePublishedItem(row) {
     const anchor = cell.querySelector('a');
     const href = normalizeText(anchor?.getAttribute('href'));
     const text = normalizeText(cell.textContent);
+    const indexedMetaField = INFORMATIVE_META_FIELD_BY_INDEX[cellIndex];
+    if (indexedMetaField) {
+      item[indexedMetaField] = text;
+      return;
+    }
+
+    const prefixedMetaField = parseInformativeMetaOverride(text);
+    if (prefixedMetaField) {
+      item[prefixedMetaField.name] = prefixedMetaField.value;
+      return;
+    }
 
     if (href && isImageHref(href)) {
       if (!item.imageSrc) item.imageSrc = href;
@@ -528,9 +585,9 @@ function resolveEntry(item, resource, config, primaryResource) {
     || matchedPrimaryResource?.resource_url
     || resolveDamUrl(item.fileHref)
     || '';
-  const videoUrl = item.videoUrl
+  const videoUrl = resolveDamUrl(item.videoUrl
     || matchedPrimaryResource?.video_url
-    || (VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : '');
+    || (VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : ''));
   const extension = fileExtensionFrom(downloadUrl)
     || fileExtensionFrom(matchedPrimaryResource?.aem_asset_name || '');
 
@@ -689,12 +746,103 @@ function buildTypeIcon(entry) {
   return icon;
 }
 
+function informativeTypeInfo(entry) {
+  const { extension } = entry;
+  const resourceType = normalizeText(entry.resource?.resource_type_label);
+  const resourceTypeLower = resourceType.toLowerCase();
+
+  if (entry.videoUrl
+    && (!entry.downloadUrl || VIDEO_EXTENSIONS.includes(extension) || resourceTypeLower.includes('video'))) {
+    return {
+      key: 'video',
+      badge: 'PLAY',
+      badgeLabel: 'Video',
+      title: 'Watch Video',
+      containsLabel: 'This video covers:',
+      format: 'Video',
+    };
+  }
+
+  if (['ppt', 'pptx'].includes(extension)
+    || resourceTypeLower.includes('presentation')
+    || resourceTypeLower.includes('powerpoint')) {
+    return {
+      key: 'presentation',
+      badge: 'PPT',
+      badgeLabel: 'Presentation',
+      title: 'Download Presentation',
+      containsLabel: 'This presentation contains:',
+      format: 'Presentation (PowerPoint)',
+    };
+  }
+
+  if (extension === 'zip') {
+    return {
+      key: 'bundle',
+      badge: 'ZIP',
+      badgeLabel: 'Bundle',
+      title: 'Download Bundle',
+      containsLabel: 'This download contains:',
+      format: 'Download Bundle',
+    };
+  }
+
+  if (extension === 'pdf') {
+    return {
+      key: 'pdf',
+      badge: 'PDF',
+      badgeLabel: 'PDF',
+      title: 'Download PDF',
+      containsLabel: 'This download contains:',
+      format: 'PDF Document',
+    };
+  }
+
+  return {
+    key: 'file',
+    badge: 'FILE',
+    badgeLabel: 'File',
+    title: 'Download Resource',
+    containsLabel: 'This download contains:',
+    format: '',
+  };
+}
+
+function informativeFormatValue(entry) {
+  const override = normalizeText(entry.item.informativeFormatText);
+  if (override) return override;
+
+  const resourceType = normalizeText(entry.resource?.resource_type_label);
+  const info = informativeTypeInfo(entry);
+  if (!resourceType) return info.format;
+
+  if (info.key === 'pdf' && !/pdf/i.test(resourceType)) return `${resourceType} (PDF)`;
+  if (info.key === 'video' && !/video/i.test(resourceType)) return `${resourceType} (Video)`;
+  if (info.key === 'presentation' && !/(presentation|powerpoint)/i.test(resourceType)) {
+    return `${resourceType} (PowerPoint)`;
+  }
+
+  return resourceType;
+}
+
+function labelListText(value) {
+  if (Array.isArray(value)) return value.map((item) => normalizeText(item)).filter(Boolean).join(', ');
+  return normalizeText(value);
+}
+
+function usesInformativeWatchAction(entry) {
+  return entry.style === 'informative' && informativeTypeInfo(entry).key === 'video';
+}
+
 function buildActions(entry, isEditor) {
   const actions = document.createElement('div');
   actions.className = 'resource-downloads-item-actions';
+  const useWatchAction = entry.videoUrl && (entry.style === 'video' || usesInformativeWatchAction(entry));
 
-  if (entry.videoUrl && entry.style === 'video') actions.append(buildWatchButton(entry));
-  if (entry.downloadUrl) actions.append(buildDownloadButton(entry));
+  if (useWatchAction) actions.append(buildWatchButton(entry));
+  if (entry.downloadUrl && !usesInformativeWatchAction(entry)) {
+    actions.append(buildDownloadButton(entry));
+  }
   if (!actions.children.length && isEditor) actions.append(buildEmptyNotice(entry));
 
   return actions.children.length ? actions : null;
@@ -878,20 +1026,65 @@ function buildMetaRow(iconKey, label, value) {
   return row;
 }
 
+function buildInformativeTypeBadge(info) {
+  const badge = document.createElement('div');
+  badge.className = 'resource-downloads-informative-type';
+
+  const icon = document.createElement('span');
+  icon.className = 'resource-downloads-informative-type-icon';
+  icon.textContent = info.badge;
+
+  const label = document.createElement('span');
+  label.className = 'resource-downloads-informative-type-label';
+  label.textContent = info.badgeLabel;
+
+  badge.append(icon, label);
+  return badge;
+}
+
+function informativeMetaRows(entry) {
+  const { resource } = entry;
+  const audience = normalizeText(entry.item.informativeAudienceText)
+    || labelListText(resource?.audience_labels);
+  const time = normalizeText(entry.item.informativeTimeText)
+    || normalizeText(resource?.length_label);
+  const format = informativeFormatValue(entry);
+
+  return [
+    audience ? buildMetaRow(
+      'audience',
+      normalizeText(entry.item.informativeAudienceLabel) || 'Primary Audience',
+      audience,
+    ) : null,
+    time ? buildMetaRow('time', normalizeText(entry.item.informativeTimeLabel) || 'Time', time) : null,
+    format ? buildMetaRow(
+      'format',
+      normalizeText(entry.item.informativeFormatLabel) || 'Format',
+      format,
+    ) : null,
+  ].filter(Boolean);
+}
+
 function buildInformativeEntry(entry, isEditor) {
   const card = document.createElement('article');
   card.className = 'resource-downloads-item is-informative';
+  const info = informativeTypeInfo(entry);
 
-  // Left: the download card.
   const panel = document.createElement('div');
   panel.className = 'resource-downloads-informative-card';
-  panel.append(buildTitleEl(entry));
+  panel.dataset.resourceType = info.key;
+  panel.append(buildInformativeTypeBadge(info));
+
+  const title = document.createElement('h3');
+  title.className = 'resource-downloads-item-title';
+  title.textContent = entry.item.title || info.title;
+  panel.append(title);
 
   const description = buildDescription(entry);
   if (description) {
     const containsLabel = document.createElement('p');
     containsLabel.className = 'resource-downloads-contains-label';
-    containsLabel.textContent = 'This download contains:';
+    containsLabel.textContent = info.containsLabel;
     panel.append(containsLabel);
     description.classList.add('resource-downloads-item-contents');
     panel.append(description);
@@ -901,19 +1094,13 @@ function buildInformativeEntry(entry, isEditor) {
   if (actions) panel.append(actions);
   card.append(panel);
 
-  // Right: metadata pulled from the resource (audience / time / format).
-  const { resource } = entry;
-  const meta = document.createElement('div');
-  meta.className = 'resource-downloads-meta-panel';
-
-  const audience = (resource?.audience_labels || []).join(', ');
-  if (audience) meta.append(buildMetaRow('audience', 'Primary Audience', audience));
-  if (resource?.length_label) meta.append(buildMetaRow('time', 'Time', resource.length_label));
-  if (resource?.resource_type_label) {
-    meta.append(buildMetaRow('format', 'Format', resource.resource_type_label));
+  const metaRows = informativeMetaRows(entry);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel';
+    meta.append(...metaRows);
+    card.append(meta);
   }
-
-  if (meta.children.length) card.append(meta);
 
   return card;
 }
@@ -945,11 +1132,11 @@ export default async function decorate(block) {
     finalizePublishedText(item);
   }));
 
-  // The primary resource always appears as a download, even if its seeded
-  // item was removed — dedupe against explicit items by slug.
+  // The page's own resource is always the first download, even with no items
+  // added — dedupe against explicit items by slug, and keep it at the top.
   const workingItems = [...items];
   if (config.slug && !workingItems.some((item) => item.resourceSlug === config.slug)) {
-    workingItems.push({ ...emptyItem(), resourceSlug: config.slug });
+    workingItems.unshift({ ...emptyItem(), resourceSlug: config.slug });
   }
 
   const primaryResource = await fetchResource(config.apiBaseUrl, config.slug);

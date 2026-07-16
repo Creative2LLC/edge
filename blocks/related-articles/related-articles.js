@@ -8,12 +8,13 @@ import { bindGatedLink } from '../../scripts/resource-gate.js';
 
 const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
-// A raw /content/dam/ path only resolves on the publish tier, never the site.
+// A /content/dam/ asset only resolves on the publish tier, never the site
+// domain — point any DAM path (bare or site-absolute) at the publish host.
 function resolveDownloadUrl(url) {
   const value = `${url || ''}`.trim();
   if (!value) return '';
-  if (/^https?:\/\//i.test(value)) return value;
-  if (value.startsWith('/content/dam/')) return `${PUBLISH_BASE_URL}${value}`;
+  const match = value.match(/\/content\/dam\/[^?#"'\s]+/);
+  if (match) return `${PUBLISH_BASE_URL}${match[0]}`;
   return value;
 }
 

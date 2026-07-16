@@ -215,6 +215,54 @@
             }
           ],
           "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeAudienceLabel",
+          "label": "Informative Audience Label Override",
+          "description": "Optional label for the audience metadata row. Defaults to Primary Audience.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeAudienceText",
+          "label": "Informative Audience Text Override",
+          "description": "Optional audience text. Falls back to the resource audience tags. Leave blank to hide when no tags exist.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeTimeLabel",
+          "label": "Informative Time Label Override",
+          "description": "Optional label for the time metadata row. Defaults to Time.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeTimeText",
+          "label": "Informative Time Text Override",
+          "description": "Optional time text. Falls back to the resource length tag. Leave blank to hide when no tag exists.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeFormatLabel",
+          "label": "Informative Format Label Override",
+          "description": "Optional label for the format metadata row. Defaults to Format.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeFormatText",
+          "label": "Informative Format Text Override",
+          "description": "Optional format text. Falls back to PDF, Video, PowerPoint, bundle, or the resource type.",
+          "value": ""
         }
       ]
     }
