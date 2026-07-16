@@ -1216,10 +1216,11 @@ export default async function decorate(block) {
     finalizePublishedText(item);
   }));
 
-  // The page's own resource is always the first download, even with no items
-  // added — dedupe against explicit items by slug, and keep it at the top.
+  // If no download items are authored, fall back to the page resource's
+  // primary file. If authors added items, those items are the source of truth;
+  // adding the primary again would duplicate the same file on the frontend.
   const workingItems = [...items];
-  if (config.slug && !workingItems.some((item) => item.resourceSlug === config.slug)) {
+  if (config.slug && workingItems.length === 0) {
     workingItems.unshift({ ...emptyItem(), resourceSlug: config.slug });
   }
 
