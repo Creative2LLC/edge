@@ -23637,6 +23637,685 @@
     ]
   },
   {
+    "id": "resource-hero",
+    "fields": [
+      {
+        "component": "tab",
+        "name": "tabLayout",
+        "label": "Layout"
+      },
+      {
+        "component": "select",
+        "name": "variant",
+        "label": "Hero Variant",
+        "options": [
+          {
+            "name": "Default",
+            "value": "default"
+          },
+          {
+            "name": "Compact",
+            "value": "compact"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "content_height",
+        "label": "Height (rem)",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "content_position",
+        "label": "Content Position",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
+      },
+      {
+        "component": "tab",
+        "name": "tabMedia",
+        "label": "Background & Media"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "media_image",
+        "label": "Hero Image",
+        "rootPath": "/content/dam/edge",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "media_imageAlt",
+        "label": "Hero Image Alt",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "media_overlayOpacity",
+        "label": "Image Overlay Opacity",
+        "description": "Controls the white overlay on the hero image.",
+        "options": [
+          {
+            "name": "0% (No overlay)",
+            "value": "0"
+          },
+          {
+            "name": "10%",
+            "value": "10"
+          },
+          {
+            "name": "20%",
+            "value": "20"
+          },
+          {
+            "name": "30%",
+            "value": "30"
+          },
+          {
+            "name": "40%",
+            "value": "40"
+          },
+          {
+            "name": "50% (Default)",
+            "value": "50"
+          },
+          {
+            "name": "60%",
+            "value": "60"
+          },
+          {
+            "name": "70%",
+            "value": "70"
+          },
+          {
+            "name": "80%",
+            "value": "80"
+          },
+          {
+            "name": "90%",
+            "value": "90"
+          },
+          {
+            "name": "100% (Fully white)",
+            "value": "100"
+          }
+        ],
+        "value": "50"
+      },
+      {
+        "component": "select",
+        "name": "media_gradientOverlay",
+        "label": "Gradient Overlay",
+        "options": [
+          {
+            "name": "Show",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ],
+        "value": "show"
+      },
+      {
+        "component": "tab",
+        "name": "tabContent",
+        "label": "Content"
+      },
+      {
+        "component": "select",
+        "name": "content_showBreadcrumbs",
+        "label": "Show Breadcrumbs",
+        "options": [
+          {
+            "name": "Hide",
+            "value": "hide"
+          },
+          {
+            "name": "Show",
+            "value": "show"
+          }
+        ],
+        "value": "show"
+      },
+      {
+        "component": "text",
+        "name": "content_breadcrumbs",
+        "value": "",
+        "label": "Breadcrumb Trail (use > or |)",
+        "description": "Use Label::/path for linked crumbs when needed.",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "pageTitle",
+        "label": "Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "jcr:description",
+        "label": "Intro / Description"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "resourceBody",
+        "label": "Body Text"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "content_textColor",
+        "label": "Text Color",
+        "options": [
+          {
+            "name": "Default / None",
+            "value": ""
+          },
+          {
+            "name": "White (#FFFFFF)",
+            "value": "#FFFFFF"
+          },
+          {
+            "name": "Primary Blue 1 (#00264D)",
+            "value": "#00264D"
+          },
+          {
+            "name": "Primary Blue 2 (#007294)",
+            "value": "#007294"
+          },
+          {
+            "name": "Primary Blue 3 (#008EB7)",
+            "value": "#008EB7"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008DB6"
+          },
+          {
+            "name": "Primary Grey 1 (#404041)",
+            "value": "#404041"
+          },
+          {
+            "name": "Orange (#E07E27)",
+            "value": "#E07E27"
+          },
+          {
+            "name": "Primary Red 1 (#E13E30)",
+            "value": "#E13E30"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabActions",
+        "label": "Video & Download"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "watchLabel",
+        "label": "Watch Button Label",
+        "value": "Watch Video"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "videoFile",
+        "label": "Video File (DAM MP4)",
+        "rootPath": "/content/dam/edge",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "videoFilePath",
+        "label": "Video File Path (Manual)",
+        "description": "Paste a DAM path if the picker does not open the expected folder."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "videoUrl",
+        "label": "Video URL (YouTube / Vimeo / MP4)",
+        "description": "Overrides the DAM video for playback."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "downloadLabel",
+        "label": "Download Button Label",
+        "value": "Download Resource"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "downloadFile",
+        "label": "Download File",
+        "description": "Pick or upload a DAM file for the primary download.",
+        "rootPath": "/content/dam/edge",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "downloadFilePath",
+        "label": "Download File Path (Manual)",
+        "description": "Paste a DAM path if the picker does not open the expected folder."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "downloadUrl",
+        "label": "Download URL",
+        "description": "Optional external or published asset URL. Overrides Download File."
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "gated",
+        "label": "Gate Download (require registration)",
+        "description": "Synced with the backend resource. Inherit keeps the backend value.",
+        "options": [
+          {
+            "name": "Inherit from resource",
+            "value": ""
+          },
+          {
+            "name": "Gated (registration required)",
+            "value": "true"
+          },
+          {
+            "name": "Open (no registration)",
+            "value": "false"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabResource",
+        "label": "Resource Metadata"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "authorName",
+        "label": "Author Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "articleDate",
+        "label": "Resource Date"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "thumbnail",
+        "label": "Thumbnail Image",
+        "rootPath": "/content/dam/edge",
+        "multi": false
+      },
+      {
+        "component": "multiselect",
+        "name": "audience",
+        "label": "Audience",
+        "options": [
+          {
+            "name": "Families",
+            "value": "families"
+          },
+          {
+            "name": "Law Enforcement",
+            "value": "law-enforcement"
+          },
+          {
+            "name": "Educators",
+            "value": "educators"
+          },
+          {
+            "name": "Child Welfare Professionals",
+            "value": "child-welfare-professionals"
+          },
+          {
+            "name": "Mental Health Professionals",
+            "value": "mental-health-professionals"
+          },
+          {
+            "name": "Legal Professionals",
+            "value": "legal-professionals"
+          },
+          {
+            "name": "Electronic Service Providers",
+            "value": "electronic-service-providers"
+          },
+          {
+            "name": "Policymakers",
+            "value": "policymakers"
+          },
+          {
+            "name": "Media",
+            "value": "media"
+          },
+          {
+            "name": "Native, Indigenous & Tribal",
+            "value": "native-indigenous-tribal"
+          },
+          {
+            "name": "Teens (13+)",
+            "value": "teens-13-plus"
+          },
+          {
+            "name": "Children (up to 12)",
+            "value": "children-up-to-12"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "issue",
+        "label": "Topic",
+        "options": [
+          {
+            "name": "Missing Children",
+            "value": "missing-children"
+          },
+          {
+            "name": "Autism & Wandering",
+            "value": "autism-wandering"
+          },
+          {
+            "name": "Children Missing from Care",
+            "value": "children-missing-from-care"
+          },
+          {
+            "name": "Infant Abductions",
+            "value": "infant-abductions"
+          },
+          {
+            "name": "Long-Term Missing Children",
+            "value": "long-term-missing-children"
+          },
+          {
+            "name": "Family Abduction",
+            "value": "family-abduction"
+          },
+          {
+            "name": "Help ID Me",
+            "value": "help-id-me"
+          },
+          {
+            "name": "CSAM",
+            "value": "csam"
+          },
+          {
+            "name": "Child Sex Trafficking",
+            "value": "child-sex-trafficking"
+          },
+          {
+            "name": "Online Enticement",
+            "value": "online-enticement"
+          },
+          {
+            "name": "Sextortion",
+            "value": "sextortion"
+          },
+          {
+            "name": "Generative AI",
+            "value": "generative-ai"
+          },
+          {
+            "name": "End-to-End Encryption",
+            "value": "end-to-end-encryption"
+          },
+          {
+            "name": "Disaster Response",
+            "value": "disaster-response"
+          },
+          {
+            "name": "NCMEC Data",
+            "value": "ncmec-data"
+          },
+          {
+            "name": "NCMEC Analysis",
+            "value": "ncmec-analysis"
+          },
+          {
+            "name": "Child Safety Advocacy",
+            "value": "child-safety-advocacy"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "resourceType",
+        "label": "Resource Type",
+        "options": [
+          {
+            "name": "Tip Sheet",
+            "value": "tip-sheet"
+          },
+          {
+            "name": "Educator Kit / Curriculum",
+            "value": "educator-kit-curriculum"
+          },
+          {
+            "name": "Discussion Guide",
+            "value": "discussion-guide"
+          },
+          {
+            "name": "Professional Guide",
+            "value": "professional-guide"
+          },
+          {
+            "name": "Data Report",
+            "value": "data-report"
+          },
+          {
+            "name": "Video",
+            "value": "video"
+          },
+          {
+            "name": "Presentation",
+            "value": "presentation"
+          },
+          {
+            "name": "Activity Sheet",
+            "value": "activity-sheet"
+          },
+          {
+            "name": "eBook",
+            "value": "ebook"
+          },
+          {
+            "name": "Blog Post",
+            "value": "blog-post"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "language",
+        "label": "Language",
+        "options": [
+          {
+            "name": "English",
+            "value": "en"
+          },
+          {
+            "name": "Spanish",
+            "value": "es"
+          }
+        ],
+        "value": "en"
+      },
+      {
+        "component": "multiselect",
+        "name": "programs",
+        "label": "Program",
+        "options": [
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
+          },
+          {
+            "name": "NetSmartz",
+            "value": "netsmartz"
+          }
+        ]
+      },
+      {
+        "component": "multiselect",
+        "name": "gradeAges",
+        "label": "Grade / Age",
+        "options": [
+          {
+            "name": "K-2",
+            "value": "k-2"
+          },
+          {
+            "name": "3-5",
+            "value": "3-5"
+          },
+          {
+            "name": "Middle School",
+            "value": "middle-school"
+          },
+          {
+            "name": "High School",
+            "value": "high-school"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "length",
+        "label": "Length of Time",
+        "options": [
+          {
+            "name": "Not set",
+            "value": ""
+          },
+          {
+            "name": "5 minutes or less",
+            "value": "5"
+          },
+          {
+            "name": "10 minutes or less",
+            "value": "10"
+          },
+          {
+            "name": "15 minutes or less",
+            "value": "15"
+          },
+          {
+            "name": "30 minutes or less",
+            "value": "30"
+          },
+          {
+            "name": "45 minutes or less",
+            "value": "45"
+          },
+          {
+            "name": "60 minutes or less",
+            "value": "60"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "tags",
+        "label": "Universal Tags",
+        "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
+      },
+      {
+        "component": "tab",
+        "name": "tabMarker",
+        "label": "Animated Marker"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "markerTerms",
+        "label": "Animated Marker Text",
+        "description": "Add exact words or phrases separated by line breaks or |.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "markerColor",
+        "label": "Animated Marker Color",
+        "options": [
+          {
+            "name": "Default / None",
+            "value": ""
+          },
+          {
+            "name": "Yellow (#FFB81C)",
+            "value": "#FFB81C"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "#008DB6"
+          },
+          {
+            "name": "Primary Red (#E13E30)",
+            "value": "#E13E30"
+          },
+          {
+            "name": "Green (#7BC581)",
+            "value": "#7BC581"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "markerStyle",
+        "label": "Animated Marker Style",
+        "options": [
+          {
+            "name": "Circle",
+            "value": "circle"
+          },
+          {
+            "name": "Underline",
+            "value": "underline"
+          }
+        ],
+        "value": "circle"
+      }
+    ]
+  },
+  {
     "id": "resource-tags",
     "fields": [
       {
