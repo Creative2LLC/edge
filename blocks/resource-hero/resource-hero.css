@@ -1,3 +1,8 @@
+.resource-hero-container .resource-hero-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
 .resource-hero {
   --resource-hero-min-height: 34rem;
   --resource-hero-overlay-opacity: 0.5;
