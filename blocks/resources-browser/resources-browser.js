@@ -77,6 +77,12 @@ const FILTER_FACETS = [
   'lengths',
 ];
 
+// Only real program values may drive the program lock. Published pages render
+// block config positionally with no labels, so a stale/misread config cell
+// (e.g. "pagination" on an older-model page) must never become a phantom
+// program filter that hides every resource.
+const LOCKABLE_PROGRAM_VALUES = ['kidsmartz', 'netsmartz'];
+
 const DEFAULT_VISIBLE_FILTERS = [...FILTER_FACETS];
 
 const RESOURCE_BROWSER_ACTION_LABELS = {
@@ -1851,8 +1857,10 @@ export default function decorate(block) {
       || readConfigValue(configRows, 'hiddenFilterTags', 6)
       || readConfigField(configRow, 'hiddenFilterTags', 6),
     lockedPrograms: parseTagOptions(
-      getBlockField(block, legacyMap, 'lockedPrograms') || '',
-    ),
+      getBlockField(block, legacyMap, 'lockedPrograms')
+        || readConfigValue(configRows, 'lockedPrograms', 7)
+        || readConfigField(configRow, 'lockedPrograms', 7),
+    ).filter((value) => LOCKABLE_PROGRAM_VALUES.includes(value)),
   };
 
   configRows.forEach((row) => row.remove());
