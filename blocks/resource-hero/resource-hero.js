@@ -721,31 +721,89 @@ function buildRichText(field, className, fallbackHtml = '') {
     : null;
 }
 
-function buildTaxonomy(fields) {
-  const entries = [
-    ...splitList(fields.resourceType).map((value) => labelFor('resourceType', value)),
-    ...splitList(fields.audience).map((value) => labelFor('audience', value)),
-    ...splitList(fields.issue).map((value) => labelFor('issue', value)),
-    fields.language ? labelFor('language', fields.language) : '',
-    ...splitList(fields.programs).map((value) => labelFor('programs', value)),
-    ...splitList(fields.gradeAges).map((value) => labelFor('gradeAges', value)),
-    fields.length ? labelFor('length', fields.length) : '',
-    ...parseTagEntries(fields.tags),
-  ].filter(Boolean);
+function buildTaxonomyGroup(label, values) {
+  const filtered = values.filter(Boolean);
+  if (!filtered.length) return null;
 
-  if (!entries.length) return null;
+  const item = document.createElement('article');
+  item.className = 'resource-hero-taxonomy-item';
 
-  const wrap = document.createElement('div');
-  wrap.className = 'resource-hero-taxonomy';
+  const title = document.createElement('span');
+  title.className = 'resource-hero-taxonomy-label';
+  title.textContent = label;
+  item.append(title);
 
-  entries.slice(0, 8).forEach((label) => {
+  const valueWrap = document.createElement('div');
+  valueWrap.className = 'resource-hero-taxonomy-values';
+
+  filtered.forEach((value) => {
     const pill = document.createElement('span');
     pill.className = 'resource-hero-pill';
-    pill.textContent = label;
-    wrap.append(pill);
+    pill.textContent = value;
+    valueWrap.append(pill);
   });
 
-  return wrap;
+  item.append(valueWrap);
+  return item;
+}
+
+function buildTaxonomy(fields) {
+  const groups = [
+    {
+      label: 'Type',
+      values: splitList(fields.resourceType).map((value) => labelFor('resourceType', value)),
+    },
+    {
+      label: 'Audience',
+      values: splitList(fields.audience).map((value) => labelFor('audience', value)),
+    },
+    {
+      label: 'Topic',
+      values: splitList(fields.issue).map((value) => labelFor('issue', value)),
+    },
+    {
+      label: 'Language',
+      values: fields.language ? [labelFor('language', fields.language)] : [],
+    },
+    {
+      label: 'Program',
+      values: splitList(fields.programs).map((value) => labelFor('programs', value)),
+    },
+    {
+      label: 'Grade / Age',
+      values: splitList(fields.gradeAges).map((value) => labelFor('gradeAges', value)),
+    },
+    {
+      label: 'Length',
+      values: fields.length ? [labelFor('length', fields.length)] : [],
+    },
+    {
+      label: 'Tags',
+      values: parseTagEntries(fields.tags),
+    },
+  ];
+
+  const items = groups
+    .map(({ label, values }) => buildTaxonomyGroup(label, values))
+    .filter(Boolean);
+
+  if (!items.length) return null;
+
+  const panel = document.createElement('aside');
+  panel.className = 'resource-hero-taxonomy';
+  panel.setAttribute('aria-label', 'Resource details');
+
+  const heading = document.createElement('p');
+  heading.className = 'resource-hero-taxonomy-title';
+  heading.textContent = 'Resource details';
+  panel.append(heading);
+
+  const grid = document.createElement('div');
+  grid.className = 'resource-hero-taxonomy-grid';
+  items.forEach((item) => grid.append(item));
+  panel.append(grid);
+
+  return panel;
 }
 
 function fileNameFromUrl(url) {
@@ -950,9 +1008,6 @@ export default async function decorate(block) {
   const breadcrumbs = buildBreadcrumbs(fields);
   if (breadcrumbs) main.append(breadcrumbs);
 
-  const taxonomy = buildTaxonomy(fields);
-  if (taxonomy) main.append(taxonomy);
-
   const title = buildInstrumentedText(
     fields.titleField,
     'h1',
@@ -974,6 +1029,9 @@ export default async function decorate(block) {
 
   const actions = buildActions(fields);
   if (actions) main.append(actions);
+
+  const taxonomy = buildTaxonomy(fields);
+  if (taxonomy) main.append(taxonomy);
 
   [title, intro, body].filter(Boolean).forEach((target) => {
     applyAnimatedMarkers(target, {

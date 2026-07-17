@@ -485,13 +485,20 @@ export function bindGatedLink(link, {
 
   const unlockedLabel = downloadLabel || link.textContent.trim() || 'Download';
 
+  // The visible label stays constant; the locked state is conveyed by the
+  // padlock icon (via the .is-locked CSS ::before) and, for assistive tech,
+  // by the accessible name and tooltip built from lockedLabel.
   const applyState = (registered) => {
     link.classList.toggle('is-locked', !registered);
-    link.textContent = registered ? unlockedLabel : lockedLabel;
+    link.textContent = unlockedLabel;
     if (registered) {
       link.removeAttribute('aria-disabled');
+      link.removeAttribute('aria-label');
+      link.removeAttribute('title');
     } else {
       link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('aria-label', `${lockedLabel}: ${unlockedLabel}`);
+      link.setAttribute('title', lockedLabel);
     }
   };
 
