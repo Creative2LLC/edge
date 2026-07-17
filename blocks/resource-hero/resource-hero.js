@@ -141,18 +141,6 @@ function isUniversalEditor() {
   return Boolean(document.querySelector('[data-aue-resource]'));
 }
 
-function getRowCells(block) {
-  return getBlockRows(block)
-    .map((row) => row.children[0] || row)
-    .filter(Boolean);
-}
-
-function getFieldCell(block, name) {
-  if (isUniversalEditor()) return null;
-  const index = FIELD_INDEX[name];
-  return Number.isInteger(index) ? getRowCells(block)[index] || null : null;
-}
-
 function normalizeFieldValue(value) {
   if (value === undefined || value === null) return '';
   if (typeof value === 'string') return value.trim();
@@ -183,29 +171,29 @@ function normalizeFieldValue(value) {
 }
 
 function readText(block, aemFields, name, fallback = '') {
-  const field = readTextField(block, name, { fallbackCell: getFieldCell(block, name) });
+  const field = readTextField(block, name);
   if (field.value) return field.value;
 
-  const linkField = readLinkField(block, name, { fallbackCell: getFieldCell(block, name) });
+  const linkField = readLinkField(block, name);
   if (linkField.value) return linkField.value;
 
   return normalizeFieldValue(aemFields[name]) || fallback;
 }
 
-function readRichHtml(block, aemFields, name) {
-  const field = readRichTextField(block, name, { fallbackCell: getFieldCell(block, name) });
+function readRichHtml(block, aemFields, name, fallback = '') {
+  const field = readRichTextField(block, name);
   if (field.html) return field.html;
-  return normalizeFieldValue(aemFields[name]);
+  return normalizeFieldValue(aemFields[name]) || fallback;
 }
 
-function readReference(block, aemFields, name) {
+function readReference(block, aemFields, name, fallback = '') {
   const aemValue = normalizeFieldValue(aemFields[name]);
   if (aemValue) return aemValue;
 
-  const linkField = readLinkField(block, name, { fallbackCell: getFieldCell(block, name) });
+  const linkField = readLinkField(block, name);
   if (linkField.value) return linkField.value;
 
-  return readText(block, aemFields, name);
+  return readText(block, aemFields, name, fallback);
 }
 
 function moveFieldBinding(from, to) {
@@ -268,6 +256,179 @@ function parseTagEntries(value) {
     .filter(Boolean);
 }
 
+function cellText(cell) {
+  return normalizeText(cell?.textContent || '');
+}
+
+function cellHtml(cell) {
+  return normalizeText(cell?.innerHTML || '');
+}
+
+function textTokens(cell) {
+  const nodes = [...(cell?.querySelectorAll?.('h1, h2, h3, h4, h5, h6, p, li, a, span') || [])];
+  const values = nodes
+    .map((node) => normalizeText(node.textContent))
+    .filter(Boolean);
+
+  if (values.length) return [...new Set(values)];
+
+  return cellText(cell)
+    .split(/[\n|]+/)
+    .map((value) => normalizeText(value))
+    .filter(Boolean);
+}
+
+function getFlattenedEntries(block) {
+  if (isUniversalEditor()) return [];
+
+  return getBlockRows(block)
+    .map((row) => row.children[0] || row)
+    .map((cell) => ({
+      cell,
+      text: cellText(cell),
+      html: cellHtml(cell),
+      key: normalizeKey(cellText(cell)),
+      tokens: textTokens(cell),
+      consumed: false,
+    }))
+    .filter((entry) => entry.text || entry.cell.querySelector('picture, img, a[href]'));
+}
+
+function tokenMatches(entry, allowed) {
+  return entry.tokens.some((token) => allowed.includes(normalizeKey(token)));
+}
+
+function consumeMatching(entries, predicate) {
+  const entry = entries.find((candidate) => !candidate.consumed && predicate(candidate));
+  if (entry) entry.consumed = true;
+  return entry || null;
+}
+
+function taxonomyValues(group) {
+  return Object.keys(TAXONOMY_LABELS[group] || {});
+}
+
+function consumeTaxonomy(entries, group) {
+  const allowed = taxonomyValues(group);
+  const entry = consumeMatching(entries, (candidate) => {
+    const values = splitList(candidate.text).map(normalizeKey);
+    return values.length > 0 && values.every((value) => allowed.includes(value));
+  });
+
+  return entry?.text || '';
+}
+
+function extensionFromPath(value) {
+  const clean = normalizeText(value).split(/[?#]/)[0];
+  const last = clean.split('/').pop() || '';
+  return last.includes('.') ? last.split('.').pop().toLowerCase() : '';
+}
+
+function findUrlLikeValue(value) {
+  const match = normalizeText(value).match(/(?:https?:\/\/[^\s<>"]+|\/content\/dam\/[^\s<>"]+)/i);
+  return match ? match[0].replace(/[),.;]+$/, '') : '';
+}
+
+function entryUrl(entry) {
+  const anchor = entry.cell.querySelector('a[href]');
+  return normalizeText(anchor?.getAttribute('href')) || findUrlLikeValue(entry.text);
+}
+
+function isVideoLink(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  const extension = extensionFromPath(normalized);
+  return ['mp4', 'mov', 'webm', 'm4v', 'ogv'].includes(extension)
+    || normalized.includes('youtube.com')
+    || normalized.includes('youtu.be')
+    || normalized.includes('vimeo.com');
+}
+
+function isDownloadLink(value) {
+  return ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip'].includes(extensionFromPath(value));
+}
+
+function consumeLink(entries, predicate) {
+  const entry = consumeMatching(entries, (candidate) => {
+    const url = entryUrl(candidate);
+    return url && predicate(url);
+  });
+
+  return entry ? entryUrl(entry) : '';
+}
+
+function consumeContent(entries) {
+  const leftovers = entries.filter((entry) => !entry.consumed && entry.text);
+  const content = {};
+  const heading = leftovers.find((entry) => entry.cell.querySelector('h1, h2, h3, h4, h5, h6'));
+
+  if (heading) {
+    heading.consumed = true;
+    content.pageTitle = heading.text;
+  }
+
+  const remaining = entries.filter((entry) => !entry.consumed && entry.text);
+  if (remaining.length >= 3) {
+    content.pageTitle ||= remaining.shift().text;
+    content.description = remaining.shift().text;
+    content.resourceBody = remaining.map((entry) => entry.html || entry.text).join('');
+    remaining.forEach((entry) => { entry.consumed = true; });
+  } else if (remaining.length === 2) {
+    content.pageTitle ||= remaining[0].text;
+    content.resourceBody = remaining[1].html || remaining[1].text;
+    remaining.forEach((entry) => { entry.consumed = true; });
+  } else if (remaining.length === 1) {
+    content.resourceBody = remaining[0].html || remaining[0].text;
+    remaining[0].consumed = true;
+  }
+
+  return content;
+}
+
+function parseFlattenedFields(block) {
+  const entries = getFlattenedEntries(block);
+  if (!entries.length) return {};
+
+  const fields = {};
+  const variant = consumeMatching(entries, (entry) => ['default', 'compact'].includes(entry.key));
+  if (variant) fields.variant = variant.text;
+
+  const position = consumeMatching(entries, (entry) => tokenMatches(entry, ['left', 'center', 'right']));
+  if (position) {
+    fields.content_position = position.tokens.find((token) => (
+      ['left', 'center', 'right'].includes(normalizeKey(token))
+    )) || '';
+    fields.content_showBreadcrumbs = position.tokens.find((token) => (
+      ['show', 'hide'].includes(normalizeKey(token))
+    )) || '';
+  }
+
+  const overlay = consumeMatching(entries, (entry) => entry.tokens.some((token) => /^(?:100|[1-9]?[0-9])$/.test(token)));
+  if (overlay) {
+    fields.media_overlayOpacity = overlay.tokens.find((token) => /^(?:100|[1-9]?[0-9])$/.test(token)) || '';
+    fields.media_gradientOverlay = overlay.tokens.find((token) => (
+      ['show', 'hide'].includes(normalizeKey(token))
+    )) || '';
+  }
+
+  fields.markerStyle = consumeMatching(entries, (entry) => ['circle', 'underline'].includes(entry.key))?.text || '';
+  fields.watchLabel = consumeMatching(entries, (entry) => entry.key === 'watch-video')?.text || '';
+  fields.downloadLabel = consumeMatching(entries, (entry) => entry.key === 'download-resource')?.text || '';
+  fields.gated = consumeMatching(entries, (entry) => ['true', 'false', 'gated', 'open'].includes(entry.key))?.text || '';
+  fields.videoUrl = consumeLink(entries, isVideoLink);
+  fields.downloadUrl = consumeLink(entries, isDownloadLink);
+  fields.resourceType = consumeTaxonomy(entries, 'resourceType');
+  fields.audience = consumeTaxonomy(entries, 'audience');
+  fields.issue = consumeTaxonomy(entries, 'issue');
+  fields.language = consumeTaxonomy(entries, 'language');
+  fields.programs = consumeTaxonomy(entries, 'programs');
+  fields.gradeAges = consumeTaxonomy(entries, 'gradeAges');
+  fields.length = consumeTaxonomy(entries, 'length');
+
+  return {
+    ...fields,
+    ...consumeContent(entries),
+  };
+}
 function isDamAssetUrl(value) {
   const raw = normalizeText(value);
   if (!raw) return false;
@@ -647,9 +808,7 @@ function buildActions(fields) {
 }
 
 function getPicture(block, aemFields, alt) {
-  const imageField = readImageField(block, 'media_image', {
-    fallbackCell: getFieldCell(block, 'media_image'),
-  });
+  const imageField = readImageField(block, 'media_image');
 
   if (imageField.picture) {
     if (imageField.source && imageField.source !== imageField.picture) {
@@ -659,6 +818,9 @@ function getPicture(block, aemFields, alt) {
     if (img && alt) img.alt = alt;
     return imageField.picture;
   }
+
+  const fallbackPicture = block.querySelector('picture');
+  if (fallbackPicture) return fallbackPicture;
 
   const imagePath = normalizeFieldValue(aemFields.media_image);
   if (!imagePath) return null;
@@ -683,69 +845,71 @@ function buildHiddenArchive(block) {
 }
 
 function readFields(block, aemFields) {
-  const titleField = readTextField(block, 'pageTitle', {
-    fallbackCell: getFieldCell(block, 'pageTitle'),
-  });
-  const introField = readTextField(block, 'jcr:description', {
-    fallbackCell: getFieldCell(block, 'jcr:description'),
-  });
-  const bodyField = readRichTextField(block, 'resourceBody', {
-    fallbackCell: getFieldCell(block, 'resourceBody'),
-  });
+  const flattened = parseFlattenedFields(block);
+  const titleField = readTextField(block, 'pageTitle');
+  const introField = readTextField(block, 'jcr:description');
+  const bodyField = readRichTextField(block, 'resourceBody');
 
   return {
-    variant: normalizeChoice(readText(block, aemFields, 'variant'), ['default', 'compact'], 'default'),
-    height: normalizeHeight(readText(block, aemFields, 'content_height')),
+    variant: normalizeChoice(
+      readText(block, aemFields, 'variant', flattened.variant),
+      ['default', 'compact'],
+      'default',
+    ),
+    height: normalizeHeight(readText(block, aemFields, 'content_height', flattened.content_height)),
     position: normalizeChoice(
-      readText(block, aemFields, 'content_position'),
+      readText(block, aemFields, 'content_position', flattened.content_position),
       ['left', 'center', 'right'],
       'left',
     ),
-    overlayOpacity: readText(block, aemFields, 'media_overlayOpacity', '50'),
+    overlayOpacity: readText(block, aemFields, 'media_overlayOpacity', flattened.media_overlayOpacity || '50'),
     gradientOverlay: normalizeChoice(
-      readText(block, aemFields, 'media_gradientOverlay'),
+      readText(block, aemFields, 'media_gradientOverlay', flattened.media_gradientOverlay),
       ['show', 'hide'],
       'show',
     ),
     showBreadcrumbs: normalizeChoice(
-      readText(block, aemFields, 'content_showBreadcrumbs'),
+      readText(block, aemFields, 'content_showBreadcrumbs', flattened.content_showBreadcrumbs),
       ['show', 'hide'],
       'show',
     ),
-    breadcrumbs: readText(block, aemFields, 'content_breadcrumbs'),
-    title: titleField.value || normalizeFieldValue(aemFields.pageTitle),
+    breadcrumbs: readText(block, aemFields, 'content_breadcrumbs', flattened.content_breadcrumbs),
+    title: titleField.value || normalizeFieldValue(aemFields.pageTitle) || flattened.pageTitle,
     titleField,
-    intro: introField.value || normalizeFieldValue(aemFields['jcr:description']),
+    intro: introField.value || normalizeFieldValue(aemFields['jcr:description']) || flattened.description,
     introField,
-    bodyHtml: bodyField.html || readRichHtml(block, aemFields, 'resourceBody'),
+    bodyHtml: bodyField.html || readRichHtml(block, aemFields, 'resourceBody', flattened.resourceBody),
     bodyField,
-    textColor: normalizeHexColor(readText(block, aemFields, 'content_textColor')),
-    watchLabel: readText(block, aemFields, 'watchLabel', 'Watch Video'),
-    videoFile: readReference(block, aemFields, 'videoFile'),
-    videoFilePath: readText(block, aemFields, 'videoFilePath'),
-    videoUrl: readText(block, aemFields, 'videoUrl'),
-    downloadLabel: readText(block, aemFields, 'downloadLabel', 'Download Resource'),
-    downloadFile: readReference(block, aemFields, 'downloadFile'),
-    downloadFilePath: readText(block, aemFields, 'downloadFilePath'),
-    downloadUrl: readText(block, aemFields, 'downloadUrl'),
-    gated: normalizeText(readText(block, aemFields, 'gated')).toLowerCase(),
-    authorName: readText(block, aemFields, 'authorName'),
-    articleDate: readText(block, aemFields, 'articleDate'),
-    thumbnail: readReference(block, aemFields, 'thumbnail'),
-    audience: readText(block, aemFields, 'audience'),
-    issue: readText(block, aemFields, 'issue'),
-    resourceType: readText(block, aemFields, 'resourceType'),
-    language: readText(block, aemFields, 'language'),
-    programs: readText(block, aemFields, 'programs'),
-    gradeAges: readText(block, aemFields, 'gradeAges'),
-    length: readText(block, aemFields, 'length'),
-    tags: readText(block, aemFields, 'tags'),
-    markerTerms: readText(block, aemFields, 'markerTerms'),
-    markerColor: normalizeHexColor(readText(block, aemFields, 'markerColor')),
-    markerStyle: normalizeChoice(readText(block, aemFields, 'markerStyle'), ['circle', 'underline'], 'circle'),
+    textColor: normalizeHexColor(readText(block, aemFields, 'content_textColor', flattened.content_textColor)),
+    watchLabel: readText(block, aemFields, 'watchLabel', flattened.watchLabel || 'Watch Video'),
+    videoFile: readReference(block, aemFields, 'videoFile', flattened.videoFile),
+    videoFilePath: readText(block, aemFields, 'videoFilePath', flattened.videoFilePath),
+    videoUrl: readText(block, aemFields, 'videoUrl', flattened.videoUrl),
+    downloadLabel: readText(block, aemFields, 'downloadLabel', flattened.downloadLabel || 'Download Resource'),
+    downloadFile: readReference(block, aemFields, 'downloadFile', flattened.downloadFile),
+    downloadFilePath: readText(block, aemFields, 'downloadFilePath', flattened.downloadFilePath),
+    downloadUrl: readText(block, aemFields, 'downloadUrl', flattened.downloadUrl),
+    gated: normalizeText(readText(block, aemFields, 'gated', flattened.gated)).toLowerCase(),
+    authorName: readText(block, aemFields, 'authorName', flattened.authorName),
+    articleDate: readText(block, aemFields, 'articleDate', flattened.articleDate),
+    thumbnail: readReference(block, aemFields, 'thumbnail', flattened.thumbnail),
+    audience: readText(block, aemFields, 'audience', flattened.audience),
+    issue: readText(block, aemFields, 'issue', flattened.issue),
+    resourceType: readText(block, aemFields, 'resourceType', flattened.resourceType),
+    language: readText(block, aemFields, 'language', flattened.language),
+    programs: readText(block, aemFields, 'programs', flattened.programs),
+    gradeAges: readText(block, aemFields, 'gradeAges', flattened.gradeAges),
+    length: readText(block, aemFields, 'length', flattened.length),
+    tags: readText(block, aemFields, 'tags', flattened.tags),
+    markerTerms: readText(block, aemFields, 'markerTerms', flattened.markerTerms),
+    markerColor: normalizeHexColor(readText(block, aemFields, 'markerColor', flattened.markerColor)),
+    markerStyle: normalizeChoice(
+      readText(block, aemFields, 'markerStyle', flattened.markerStyle),
+      ['circle', 'underline'],
+      'circle',
+    ),
   };
 }
-
 function applyBlockSettings(block, fields) {
   block.classList.add(
     `resource-hero-variant-${fields.variant}`,

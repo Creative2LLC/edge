@@ -281,6 +281,77 @@ function getLinkFieldWithFallback(block, name, fallbackIndex, isEditor) {
   return getFallbackLink(block, fallbackIndex);
 }
 
+function getFlattenedEntries(block, isEditor) {
+  if (isEditor) return [];
+
+  return getRowCells(block)
+    .map((cell) => ({
+      cell,
+      text: normalizeJsonFieldValue(cell.textContent),
+      html: normalizeJsonFieldValue(cell.innerHTML),
+      href: cell.querySelector?.('a[href]')?.getAttribute('href') || '',
+      consumed: false,
+    }))
+    .filter((entry) => entry.text || entry.href || entry.cell.querySelector?.('picture'));
+}
+
+function consumeTextEntry(entries) {
+  const entry = entries.find((candidate) => {
+    if (candidate.consumed || !candidate.text) return false;
+    if (candidate.cell.querySelector?.('picture')) return false;
+    if (candidate.href) return false;
+    return !isConfigToken(candidate.text);
+  });
+
+  if (entry) entry.consumed = true;
+  return entry || null;
+}
+
+function consumeOptionEntry(entries, allowedValues) {
+  const entry = entries.find((candidate) => (
+    !candidate.consumed
+      && normalizeOptionValue(candidate.text, allowedValues, '')
+  ));
+
+  if (entry) entry.consumed = true;
+  return entry ? normalizeOptionValue(entry.text, allowedValues, '') : '';
+}
+
+function consumeLinkEntry(entries) {
+  const entry = entries.find((candidate) => {
+    if (candidate.consumed) return false;
+    const value = candidate.href || candidate.text;
+    return Boolean(normalizeLinkValue(value));
+  });
+
+  if (entry) entry.consumed = true;
+  return entry ? normalizeLinkValue(entry.href || entry.text) : '';
+}
+
+function parseFlattenedFields(block, isEditor) {
+  const entries = getFlattenedEntries(block, isEditor);
+  if (!entries.length) return {};
+
+  const heading = consumeTextEntry(entries);
+  const subheading = consumeTextEntry(entries);
+  const buttonText = consumeTextEntry(entries);
+  const buttonLink = consumeLinkEntry(entries);
+  const buttonStyle = consumeOptionEntry(entries, BUTTON_STYLE_VALUES);
+  const button2Text = consumeTextEntry(entries);
+  const button2Link = consumeLinkEntry(entries);
+  const button2Style = consumeOptionEntry(entries, BUTTON_STYLE_VALUES);
+
+  return {
+    heading: heading?.text || '',
+    subheadingHtml: subheading?.html || subheading?.text || '',
+    buttonText: buttonText?.text || '',
+    buttonLink,
+    buttonStyle,
+    button2Text: button2Text?.text || '',
+    button2Link,
+    button2Style,
+  };
+}
 function getImage(block) {
   const imageField = readImageField(block, 'image', {
     fallbackCell: getRowCells(block).find((cell) => cell.querySelector('picture')),
@@ -424,48 +495,56 @@ export default async function decorate(block) {
   const resourceData = await getBlockResourceData(block);
   const picture = getImage(block);
   const fieldIndex = getFallbackIndexMap(block, isEditor);
+  const flattened = parseFlattenedFields(block, isEditor);
 
   // Use the selected field index map for positional live fallbacks. Author keeps using
   // data-aue-prop/resource JSON, while live can support both current and pre-tabs rows.
-  const heading = getFieldWithFallback(block, 'heading', fieldIndex.heading, isEditor)
+  const heading = getField(block, 'heading')
+    || flattened.heading
+    || getFieldWithFallback(block, 'heading', fieldIndex.heading, isEditor)
     || normalizeJsonFieldValue(resourceData.heading);
   const subheadingField = readRichTextField(block, 'subheading', {
     fallbackCell: isEditor ? null : getRowCells(block)[fieldIndex.subheading],
   });
   const subheadingHtml = subheadingField.html
+    || flattened.subheadingHtml
     || normalizeJsonFieldValue(resourceData.subheading);
-  const buttonText = normalizeButtonTextValue(getFieldWithFallback(
-    block,
-    'buttonText',
-    fieldIndex.buttonText,
-    isEditor,
-  ) || resourceData.buttonText);
-  const buttonLink = normalizeLinkValue(getLinkFieldWithFallback(
-    block,
-    'buttonLink',
-    fieldIndex.buttonLink,
-    isEditor,
-  ) || resourceData.buttonLink);
-  const button2Text = normalizeButtonTextValue(getFieldWithFallback(
-    block,
-    'button2Text',
-    fieldIndex.button2Text,
-    isEditor,
-  ) || resourceData.button2Text);
-  const button2Link = normalizeLinkValue(getLinkFieldWithFallback(
-    block,
-    'button2Link',
-    fieldIndex.button2Link,
-    isEditor,
-  ) || resourceData.button2Link);
+  const buttonText = normalizeButtonTextValue(
+    getField(block, 'buttonText')
+      || flattened.buttonText
+      || getFieldWithFallback(block, 'buttonText', fieldIndex.buttonText, isEditor)
+      || resourceData.buttonText,
+  );
+  const buttonLink = normalizeLinkValue(
+    getLinkField(block, 'buttonLink')
+      || flattened.buttonLink
+      || getLinkFieldWithFallback(block, 'buttonLink', fieldIndex.buttonLink, isEditor)
+      || resourceData.buttonLink,
+  );
+  const button2Text = normalizeButtonTextValue(
+    getField(block, 'button2Text')
+      || flattened.button2Text
+      || getFieldWithFallback(block, 'button2Text', fieldIndex.button2Text, isEditor)
+      || resourceData.button2Text,
+  );
+  const button2Link = normalizeLinkValue(
+    getLinkField(block, 'button2Link')
+      || flattened.button2Link
+      || getLinkFieldWithFallback(block, 'button2Link', fieldIndex.button2Link, isEditor)
+      || resourceData.button2Link,
+  );
   const buttonStyle = normalizeOptionValue(
-    getFieldWithFallback(block, 'buttonStyle', fieldIndex.buttonStyle, isEditor)
+    getField(block, 'buttonStyle')
+      || flattened.buttonStyle
+      || getFieldWithFallback(block, 'buttonStyle', fieldIndex.buttonStyle, isEditor)
       || resourceData.buttonStyle,
     BUTTON_STYLE_VALUES,
     'default',
   );
   const button2Style = normalizeOptionValue(
-    getFieldWithFallback(block, 'button2Style', fieldIndex.button2Style, isEditor)
+    getField(block, 'button2Style')
+      || flattened.button2Style
+      || getFieldWithFallback(block, 'button2Style', fieldIndex.button2Style, isEditor)
       || resourceData.button2Style,
     BUTTON_STYLE_VALUES,
     'default',

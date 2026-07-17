@@ -1,10 +1,106 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
-const BLOCK_PROPS = ['title', 'subtitle', 'textAlign', 'blockBackgroundColor', 'layout', 'cardsPerRow', 'cardBackgroundColor', 'numberBorder'];
+const BLOCK_PROPS = [
+  'title',
+  'subtitle',
+  'textAlign',
+  'blockBackgroundColor',
+  'layout',
+  'cardsPerRow',
+  'cardBackgroundColor',
+  'numberBorder',
+];
+
+const CONFIG_VALUE_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$|^(?:left|center|right|grid|carousel|[234]|show|hide)$/i;
+
+function normalizeText(value) {
+  return `${value || ''}`.trim();
+}
+
+function directRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function rowText(row) {
+  return normalizeText((row.children[0] || row).textContent);
+}
+
+function isConfigToken(value) {
+  return CONFIG_VALUE_RE.test(normalizeText(value));
+}
+
+function findAndConsume(entries, predicate) {
+  const entry = entries.find((candidate) => !candidate.consumed && predicate(candidate));
+  if (entry) entry.consumed = true;
+  return entry || null;
+}
+
+function parsePublishedBlockConfig(block) {
+  const entries = directRows(block)
+    .map((row) => ({ row, value: rowText(row), consumed: false }))
+    .filter((entry) => entry.value);
+
+  if (!entries.length) return { values: {}, rows: [] };
+
+  const values = {};
+  const contentEntries = entries.filter((entry) => !isConfigToken(entry.value));
+  const titleEntry = contentEntries[0] || null;
+  const subtitleEntry = contentEntries[1] || null;
+
+  if (titleEntry) {
+    values.title = titleEntry.value;
+    titleEntry.consumed = true;
+  }
+
+  if (subtitleEntry) {
+    values.subtitle = subtitleEntry.value;
+    subtitleEntry.consumed = true;
+  }
+
+  values.textAlign = findAndConsume(entries, (entry) => /^(left|center|right)$/i.test(entry.value))?.value || '';
+  values.layout = findAndConsume(entries, (entry) => /^(grid|carousel)$/i.test(entry.value))?.value || '';
+  values.cardsPerRow = findAndConsume(entries, (entry) => /^[234]$/.test(entry.value))?.value || '';
+
+  const colorEntries = entries.filter((entry) => !entry.consumed && /^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i.test(entry.value));
+  if (colorEntries.length > 1) {
+    values.blockBackgroundColor = colorEntries[0].value;
+    colorEntries[0].consumed = true;
+    values.cardBackgroundColor = colorEntries[colorEntries.length - 1].value;
+    colorEntries[colorEntries.length - 1].consumed = true;
+  } else if (colorEntries.length === 1) {
+    values.cardBackgroundColor = colorEntries[0].value;
+    colorEntries[0].consumed = true;
+  }
+
+  values.numberBorder = findAndConsume(entries, (entry) => /^(show|hide)$/i.test(entry.value))?.value || '';
+
+  return {
+    values,
+    rows: entries.filter((entry) => entry.consumed).map((entry) => entry.row),
+  };
+}
 
 function getBlockField(block, name) {
   return readTextField(block, name);
+}
+function readBlockConfig(block) {
+  const published = parsePublishedBlockConfig(block);
+  const fallback = published.values;
+
+  return {
+    title: getBlockField(block, 'title').value || fallback.title || '',
+    titleSource: getBlockField(block, 'title').source,
+    subtitle: getBlockField(block, 'subtitle').value || fallback.subtitle || '',
+    subtitleSource: getBlockField(block, 'subtitle').source,
+    alignment: getBlockField(block, 'textAlign').value || fallback.textAlign || 'left',
+    blockBg: getBlockField(block, 'blockBackgroundColor').value || fallback.blockBackgroundColor || '',
+    layout: getBlockField(block, 'layout').value || fallback.layout || 'grid',
+    cardsPerRow: parseInt(getBlockField(block, 'cardsPerRow').value || fallback.cardsPerRow, 10) || 4,
+    cardBg: getBlockField(block, 'cardBackgroundColor').value || fallback.cardBackgroundColor || '#00264D',
+    numberBorder: getBlockField(block, 'numberBorder').value || fallback.numberBorder || 'show',
+    publishedRows: published.rows,
+  };
 }
 
 function getRichField(row, name, index) {
@@ -23,22 +119,22 @@ function updateDots(dots, activeIndex) {
 }
 
 export default function decorate(block) {
-  // Read block-level fields
-  const titleField = getBlockField(block, 'title');
-  const subtitleField = getBlockField(block, 'subtitle');
-  const alignment = getBlockField(block, 'textAlign').value || 'left';
-  const blockBg = getBlockField(block, 'blockBackgroundColor').value || '';
-  const layout = getBlockField(block, 'layout').value || 'grid';
-  const cardsPerRow = parseInt(getBlockField(block, 'cardsPerRow').value, 10) || 4;
-  const cardBg = getBlockField(block, 'cardBackgroundColor').value || '#00264D';
-  const numberBorder = getBlockField(block, 'numberBorder').value || 'show';
+  const config = readBlockConfig(block);
+  const {
+    alignment,
+    blockBg,
+    layout,
+    cardsPerRow,
+    cardBg,
+    numberBorder,
+  } = config;
 
-  // Remove config rows â€” any row that contains a block-level prop
+  // Remove config rows — author rows carry block props, live rows are flattened.
+  const liveConfigRows = new Set(config.publishedRows);
   [...block.querySelectorAll(':scope > div')].forEach((row) => {
     const hasBlockProp = BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
-    if (hasBlockProp) row.remove();
+    if (hasBlockProp || liveConfigRows.has(row)) row.remove();
   });
-
   // Apply block background
   if (blockBg) {
     block.style.backgroundColor = blockBg;
@@ -58,26 +154,26 @@ export default function decorate(block) {
     headerDiv.style.textAlign = alignment;
   }
 
-  if (titleField.value || titleField.source) {
+  if (config.title || config.titleSource) {
     const titleEl = document.createElement('h2');
     titleEl.className = 'numbered-cards-heading';
-    if (titleField.source) {
-      moveInstrumentation(titleField.source, titleEl);
-      while (titleField.source.firstChild) titleEl.append(titleField.source.firstChild);
+    if (config.titleSource) {
+      moveInstrumentation(config.titleSource, titleEl);
+      while (config.titleSource.firstChild) titleEl.append(config.titleSource.firstChild);
     } else {
-      titleEl.textContent = titleField.value;
+      titleEl.textContent = config.title;
     }
     headerDiv.append(titleEl);
   }
 
-  if (subtitleField.value || subtitleField.source) {
+  if (config.subtitle || config.subtitleSource) {
     const subtitleEl = document.createElement('p');
     subtitleEl.className = 'numbered-cards-subtitle';
-    if (subtitleField.source) {
-      moveInstrumentation(subtitleField.source, subtitleEl);
-      while (subtitleField.source.firstChild) subtitleEl.append(subtitleField.source.firstChild);
+    if (config.subtitleSource) {
+      moveInstrumentation(config.subtitleSource, subtitleEl);
+      while (config.subtitleSource.firstChild) subtitleEl.append(config.subtitleSource.firstChild);
     } else {
-      subtitleEl.textContent = subtitleField.value;
+      subtitleEl.textContent = config.subtitle;
     }
     headerDiv.append(subtitleEl);
   }
