@@ -87,14 +87,14 @@ const DEFAULT_VISIBLE_FILTERS = [...FILTER_FACETS];
 
 const RESOURCE_BROWSER_ACTION_LABELS = {
   en: {
-    learnMore: 'Learn more ->',
-    downloadPdf: 'Download PDF ->',
-    viewResource: 'View Resource ->',
+    learnMore: 'Learn more →',
+    downloadPdf: 'Download PDF →',
+    viewResource: 'Learn more →',
   },
   es: {
-    learnMore: 'Mas informacion ->',
-    downloadPdf: 'Descargar PDF ->',
-    viewResource: 'Ver recurso ->',
+    learnMore: 'Mas informacion →',
+    downloadPdf: 'Descargar PDF →',
+    viewResource: 'Mas informacion →',
   },
 };
 
@@ -403,6 +403,7 @@ function mapResource(resource) {
   const language = parseList(resource.language);
   const programs = parseList(resource.programs);
   const gradeAges = parseList(resource.gradeAges);
+  const lengths = parseList(resource.lengths || resource.length);
   const customTags = parseList(resource.tags);
   return {
     imagePicture: resource.imagePicture || null,
@@ -413,6 +414,7 @@ function mapResource(resource) {
     linkUrl: resource.linkUrl || '',
     id: resource.id || resource.title || '',
     durationMinutes: resource.durationMinutes || '',
+    durationLabel: resource.durationLabel || '',
     weight: Number.parseInt(resource.weight || '0', 10) || 0,
     audience,
     issue,
@@ -420,11 +422,13 @@ function mapResource(resource) {
     language,
     programs,
     gradeAges,
+    lengths,
     tags: customTags,
     tagEntries: [
       ...type.map((label) => ({ facet: 'type', value: normalizeToken(label), label })),
       ...programs.map((label) => ({ facet: 'programs', value: normalizeToken(label), label })),
       ...gradeAges.map((label) => ({ facet: 'grade_ages', value: normalizeToken(label), label })),
+      ...lengths.map((label) => ({ facet: 'lengths', value: normalizeToken(label), label })),
       ...language.map((label) => ({ facet: 'language', value: normalizeToken(label), label })),
       ...audience.map((label) => ({ facet: 'audience', value: normalizeToken(label), label })),
       ...issue.map((label) => ({ facet: 'issue', value: normalizeToken(label), label })),
@@ -547,6 +551,7 @@ function parseResourceRow(row) {
       programs: getPropText(row, 'programs') || filters.programs.join(', '),
       gradeAges: getPropText(row, 'gradeAges') || filters.gradeAges.join(', '),
       tags: getPropText(row, 'tags') || filters.tags.join(', '),
+      lengths: filters.lengths.join(', '),
       durationMinutes: getPropText(row, 'durationMinutes'),
       weight: getPropText(row, 'weight'),
     });
@@ -589,7 +594,89 @@ function buildTag(tagEntry, onActivate = null) {
   return pill;
 }
 
-function buildResourceCard(resource, row = null, onFacetActivate = null) {
+function resourceTypeEntry(resource) {
+  return resource.tagEntries?.find((entry) => entry.facet === 'type')
+    || (resource.type?.[0]
+      ? { label: resource.type[0], value: normalizeToken(resource.type[0]) }
+      : null);
+}
+
+function normalizeResourceTypeLabel(label) {
+  const raw = `${label || ''}`.trim();
+  const key = normalizeToken(raw).replace(/[_\s]+/g, '-');
+  const labels = {
+    pdf: 'PDF',
+    video: 'Video',
+    presentation: 'Presentation',
+    powerpoint: 'Presentation',
+    ppt: 'Presentation',
+    'tip-sheet': 'Tip Sheet',
+    tipsheet: 'Tip Sheet',
+    guide: 'Guide',
+    'professional-guide': 'Professional Guide',
+    'activity-sheet': 'Activity Sheet',
+    resource: 'Resource',
+  };
+  return labels[key] || raw || 'Resource';
+}
+
+function resourceTypeIconKey(label) {
+  const key = normalizeToken(label).replace(/[_\s]+/g, '-');
+  if (key.includes('video')) return 'video';
+  if (key.includes('presentation') || key.includes('powerpoint') || key.includes('ppt')) {
+    return 'presentation';
+  }
+  if (key.includes('pdf')) return 'pdf';
+  return 'resource';
+}
+
+function buildResourceTypeIcon(typeLabel) {
+  const icon = document.createElement('span');
+  icon.className = `resources-browser-card-type-icon is-${resourceTypeIconKey(typeLabel)}`;
+  icon.setAttribute('aria-hidden', 'true');
+  return icon;
+}
+
+function formatDurationLabel(resource) {
+  const minutes = Number.parseInt(resource.durationMinutes || '', 10);
+  if (Number.isFinite(minutes) && minutes > 0) {
+    if (minutes < 60) return `${minutes}M`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes ? `${hours}H ${remainingMinutes}M` : `${hours}HR`;
+  }
+
+  return `${resource.durationLabel || resource.lengths?.[0] || ''}`.trim();
+}
+
+function appendResourceCardImage(card, resource) {
+  const imageWrap = document.createElement('div');
+  imageWrap.className = 'resources-browser-card-image';
+
+  if (resource.imagePicture) {
+    imageWrap.append(resource.imagePicture);
+    const img = resource.imagePicture.querySelector('img');
+    if (img) {
+      const optimized = createOptimizedPicture(
+        img.src,
+        resource.imageAlt || img.alt,
+        false,
+        [{ width: '800' }],
+      );
+      moveInstrumentation(img, optimized.querySelector('img'));
+      resource.imagePicture.replaceWith(optimized);
+    }
+  } else if (resource.imgSrc) {
+    imageWrap.append(createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '800' }]));
+  } else {
+    imageWrap.classList.add('is-placeholder');
+    imageWrap.setAttribute('aria-hidden', 'true');
+  }
+
+  card.append(imageWrap);
+}
+
+function buildResourceCard(resource, row = null) {
   const labels = resourceBrowserActionLabels();
   const card = document.createElement('article');
   card.className = 'resources-browser-card';
@@ -598,26 +685,31 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
     setItemLabel(card, [resource.title, resource.subtitle]);
   }
 
-  if (resource.imagePicture) {
-    const imageWrap = document.createElement('div');
-    imageWrap.className = 'resources-browser-card-image';
-    imageWrap.append(resource.imagePicture);
-    const img = resource.imagePicture.querySelector('img');
-    if (img) {
-      const optimized = createOptimizedPicture(img.src, resource.imageAlt || img.alt, false, [{ width: '800' }]);
-      moveInstrumentation(img, optimized.querySelector('img'));
-      resource.imagePicture.replaceWith(optimized);
-    }
-    card.append(imageWrap);
-  } else if (resource.imgSrc) {
-    const imageWrap = document.createElement('div');
-    imageWrap.className = 'resources-browser-card-image';
-    imageWrap.append(createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '800' }]));
-    card.append(imageWrap);
-  }
+  appendResourceCardImage(card, resource);
 
   const content = document.createElement('div');
   content.className = 'resources-browser-card-content';
+
+  const typeLabel = normalizeResourceTypeLabel(resourceTypeEntry(resource)?.label);
+  const durationLabel = formatDurationLabel(resource);
+  const meta = document.createElement('div');
+  meta.className = 'resources-browser-card-meta';
+
+  const type = document.createElement('span');
+  type.className = 'resources-browser-card-type';
+  type.append(buildResourceTypeIcon(typeLabel), document.createTextNode(typeLabel));
+  meta.append(type);
+
+  if (durationLabel) {
+    const duration = document.createElement('span');
+    duration.className = 'resources-browser-card-duration';
+    const durationIcon = document.createElement('span');
+    durationIcon.className = 'resources-browser-card-duration-icon';
+    durationIcon.setAttribute('aria-hidden', 'true');
+    duration.append(durationIcon, document.createTextNode(durationLabel));
+    meta.append(duration);
+  }
+  content.append(meta);
 
   if (resource.title) {
     const title = document.createElement('h3');
@@ -626,6 +718,7 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
     content.append(title);
   }
 
+  /* Card tags are intentionally disabled for the new card design.
   if (resource.tagEntries?.length) {
     const tagsWrap = document.createElement('div');
     tagsWrap.className = 'resources-browser-card-tags';
@@ -634,6 +727,7 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
       .forEach((tag) => tagsWrap.append(buildTag(tag, onFacetActivate)));
     content.append(tagsWrap);
   }
+  */
 
   if (resource.subtitle) {
     const subtitle = document.createElement('p');
@@ -642,8 +736,6 @@ function buildResourceCard(resource, row = null, onFacetActivate = null) {
     content.append(subtitle);
   }
 
-  // Each card gets ONE button: the landing/detail page when it exists,
-  // otherwise a (possibly gated) direct download.
   const actions = [];
   if (resource.hasDetailPage && resource.detailUrl) {
     actions.push({ href: resource.detailUrl, label: labels.viewResource, isDownload: false });
@@ -736,18 +828,20 @@ function setFilterOptions(select, label, options = []) {
 }
 
 function createChip(label, onRemove) {
-  const colors = colorFromTag(label);
   const chip = document.createElement('button');
   chip.type = 'button';
   chip.className = 'resources-browser-active-chip';
-  chip.append(buildTag(label));
+
+  const textLabel = buildTag(label);
+  textLabel.classList.add('resources-browser-active-chip-label');
 
   const close = document.createElement('span');
   close.className = 'resources-browser-active-chip-close';
-  close.textContent = 'x';
-  close.style.backgroundColor = colors.bg;
-  close.style.color = colors.color;
-  chip.append(close);
+  close.textContent = '×';
+  close.setAttribute('aria-hidden', 'true');
+
+  chip.append(textLabel, close);
+  chip.setAttribute('aria-label', `Remove ${label} filter`);
   chip.addEventListener('click', onRemove);
   return chip;
 }
@@ -857,13 +951,13 @@ function buildShell(config) {
   primaryRow.append(searchWrap);
 
   const audienceSelect = createFilterSelect('Audience');
-  const issueSelect = createFilterSelect('Issue');
-  const typeSelect = createFilterSelect('Type');
+  const issueSelect = createFilterSelect('Topic');
+  const typeSelect = createFilterSelect('Resource Format');
   const tagSelect = createFilterSelect('Tag');
   const languageSelect = createFilterSelect('Language');
-  const programSelect = createFilterSelect('Program');
-  const gradeAgeSelect = createFilterSelect('Grade / Age');
-  const lengthSelect = createFilterSelect('Length');
+  const programSelect = createFilterSelect('Prevention Program');
+  const gradeAgeSelect = createFilterSelect('Grade Level / Age');
+  const lengthSelect = createFilterSelect('Length of Time');
   const sortSelect = createSortSelect('Sort resources');
   primaryRow.append(sortSelect);
   controls.append(primaryRow);
@@ -871,14 +965,14 @@ function buildShell(config) {
   const filterRow = document.createElement('div');
   filterRow.className = 'resources-browser-filter-row';
   [
+    ['programs', programSelect],
+    ['grade_ages', gradeAgeSelect],
     ['audience', audienceSelect],
     ['issue', issueSelect],
     ['type', typeSelect],
-    ['tags', tagSelect],
-    ['language', languageSelect],
-    ['programs', programSelect],
-    ['grade_ages', gradeAgeSelect],
     ['lengths', lengthSelect],
+    ['language', languageSelect],
+    ['tags', tagSelect],
   ].forEach(([facet, select]) => {
     if (isFilterVisible(config, facet)) filterRow.append(select);
   });
@@ -894,7 +988,7 @@ function buildShell(config) {
   const clearAllButton = document.createElement('button');
   clearAllButton.className = 'resources-browser-clear-all';
   clearAllButton.type = 'button';
-  clearAllButton.textContent = 'Clear Filters';
+  clearAllButton.textContent = 'Clear All';
   clearAllButton.hidden = true;
   const count = document.createElement('p');
   count.className = 'resources-browser-count';
@@ -1189,9 +1283,24 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
     return { data, card, originalIndex: index };
   });
 
-  const collectOptions = (facet) => [...new Set(cards.flatMap(({ data }) => data[facet] || []))]
-    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
-    .map((value) => ({ value, label: value }));
+  const collectOptions = (facet, dataKey = facet) => {
+    const options = new Map();
+    cards.forEach(({ data }) => {
+      (data.tagEntries || [])
+        .filter((entry) => entry.facet === facet)
+        .forEach((entry) => {
+          const key = normalizeToken(entry.value || entry.label);
+          if (key && !options.has(key)) options.set(key, entry.label);
+        });
+      (data[dataKey] || []).forEach((value) => {
+        const key = normalizeToken(value);
+        if (key && !options.has(key)) options.set(key, value);
+      });
+    });
+    return [...options.entries()]
+      .sort((a, b) => a[1].localeCompare(b[1], undefined, { sensitivity: 'base' }))
+      .map(([value, label]) => ({ value, label }));
+  };
 
   const audiences = collectOptions('audience');
   const issues = collectOptions('issue');
@@ -1199,16 +1308,16 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   const tags = collectOptions('tags');
   const languages = collectOptions('language');
   const programs = collectOptions('programs');
-  const gradeAges = collectOptions('gradeAges');
+  const gradeAges = collectOptions('grade_ages', 'gradeAges');
   const lengths = collectOptions('lengths');
   setFilterOptions(audienceSelect, 'Audience', audiences);
-  setFilterOptions(issueSelect, 'Issue', issues);
-  setFilterOptions(typeSelect, 'Type', types);
+  setFilterOptions(issueSelect, 'Topic', issues);
+  setFilterOptions(typeSelect, 'Resource Format', types);
   setFilterOptions(tagSelect, 'Tag', tags);
   setFilterOptions(languageSelect, 'Language', languages);
-  setFilterOptions(programSelect, 'Program', programs);
-  setFilterOptions(gradeAgeSelect, 'Grade / Age', gradeAges);
-  setFilterOptions(lengthSelect, 'Length', lengths);
+  setFilterOptions(programSelect, 'Prevention Program', programs);
+  setFilterOptions(gradeAgeSelect, 'Grade Level / Age', gradeAges);
+  setFilterOptions(lengthSelect, 'Length of Time', lengths);
   setFilterOptions(sortSelect, 'Sort', getListSortOptions());
 
   optionLabels = {
@@ -1230,14 +1339,14 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       ? []
       : [...state.selectedProgram].map((value) => ({ facet: 'programs', value }));
     const facets = [
-      ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
-      ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
-      ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
-      ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
-      ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
       ...visiblePrograms,
       ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
+      ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
+      ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
+      ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedLength].map((value) => ({ facet: 'lengths', value })),
+      ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
+      ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -1513,14 +1622,14 @@ function renderApiBrowser(block, config) {
       ? []
       : [...state.selectedProgram].map((value) => ({ facet: 'programs', value }));
     const facets = [
-      ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
-      ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
-      ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
-      ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
-      ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
       ...visiblePrograms,
       ...[...state.selectedGradeAge].map((value) => ({ facet: 'grade_ages', value })),
+      ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
+      ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
+      ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
       ...[...state.selectedLength].map((value) => ({ facet: 'lengths', value })),
+      ...[...state.selectedLanguage].map((value) => ({ facet: 'language', value })),
+      ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
     ];
 
     facets.forEach(({ facet, value }) => {
@@ -1556,13 +1665,13 @@ function renderApiBrowser(block, config) {
     }));
 
     setFilterOptions(audienceSelect, 'Audience', audiences);
-    setFilterOptions(issueSelect, 'Issue', issues);
-    setFilterOptions(typeSelect, 'Type', types);
+    setFilterOptions(issueSelect, 'Topic', issues);
+    setFilterOptions(typeSelect, 'Resource Format', types);
     setFilterOptions(tagSelect, 'Tag', tags);
     setFilterOptions(languageSelect, 'Language', languages);
-    setFilterOptions(programSelect, 'Program', programs);
-    setFilterOptions(gradeAgeSelect, 'Grade / Age', gradeAges);
-    setFilterOptions(lengthSelect, 'Length', lengths);
+    setFilterOptions(programSelect, 'Prevention Program', programs);
+    setFilterOptions(gradeAgeSelect, 'Grade Level / Age', gradeAges);
+    setFilterOptions(lengthSelect, 'Length of Time', lengths);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
