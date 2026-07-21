@@ -177,16 +177,20 @@ function isAllTab(tab) {
   return key === 'all' || key.startsWith('all-') || key.endsWith('-all') || key.includes('all-services');
 }
 
-function getRowTextField(row, name, fallbackRow) {
-  return readTextField(row, name, { fallbackCell: fieldCell(fallbackRow) });
+function fallbackCell(fallbackRow, directCell = false) {
+  return directCell ? fallbackRow : fieldCell(fallbackRow);
 }
 
-function getRowRichField(row, name, fallbackRow) {
-  return readRichTextField(row, name, { fallbackCell: fieldCell(fallbackRow) });
+function getRowTextField(row, name, fallbackRow, directCell = false) {
+  return readTextField(row, name, { fallbackCell: fallbackCell(fallbackRow, directCell) });
 }
 
-function getRowLinkField(row, name, fallbackRow) {
-  return readLinkField(row, name, { fallbackCell: fieldCell(fallbackRow) });
+function getRowRichField(row, name, fallbackRow, directCell = false) {
+  return readRichTextField(row, name, { fallbackCell: fallbackCell(fallbackRow, directCell) });
+}
+
+function getRowLinkField(row, name, fallbackRow, directCell = false) {
+  return readLinkField(row, name, { fallbackCell: fallbackCell(fallbackRow, directCell) });
 }
 
 function getBlockRichField(block, name, labels = [], fallbackRow = null) {
@@ -337,11 +341,12 @@ function parseTabIndices(rawValue, sourceEl) {
 async function readCard(row, index) {
   const cardElement = componentElement(row, 'tabs-info-card') || row;
   const rows = directRows(cardElement);
+  const useLegacyRows = useLegacyRowFallbacks(cardElement);
 
   // rows[0] may be a legacy assignment field (tabLabels/tabName) or the new tabIndex field
   const firstLabel = rowLabel(rows[0]);
   const hasLegacyLeadField = (
-    useLegacyRowFallbacks(cardElement)
+    useLegacyRows
       && parseExplicitTabIndices(directCellText(cardElement)).length > 0
   );
   const hasLeadField = (
@@ -355,23 +360,39 @@ async function readCard(row, index) {
 
   const tabIndexSources = [...(cardElement.querySelectorAll?.('[data-aue-prop="tabIndex"], [data-richtext-prop="tabIndex"]') || [])];
   const tabIndexSource = tabIndexSources[0] || null;
-  const useLegacyRows = useLegacyRowFallbacks(cardElement);
   const tabIndexRaw = tabIndexSources.length > 1
     ? tabIndexSources.map((el) => el.textContent.trim()).filter(Boolean).join(',')
     : getRowTextField(
       cardElement,
       'tabIndex',
       legacyRow(hasLeadField ? rows[0] : null, useLegacyRows),
+      useLegacyRows,
     ).value;
 
-  const titleField = getRowRichField(cardElement, 'title', legacyRow(rows[offset], useLegacyRows));
-  const bodyField = getRowRichField(cardElement, 'bodyContent', legacyRow(rows[offset + 1], useLegacyRows));
+  const titleField = getRowRichField(
+    cardElement,
+    'title',
+    legacyRow(rows[offset], useLegacyRows),
+    useLegacyRows,
+  );
+  const bodyField = getRowRichField(
+    cardElement,
+    'bodyContent',
+    legacyRow(rows[offset + 1], useLegacyRows),
+    useLegacyRows,
+  );
   const linkTextField = getRowTextField(
     cardElement,
     'linkText',
     legacyRow(rows[offset + 2], useLegacyRows),
+    useLegacyRows,
   );
-  const linkField = getRowLinkField(cardElement, 'link', legacyRow(rows[offset + 3], useLegacyRows));
+  const linkField = getRowLinkField(
+    cardElement,
+    'link',
+    legacyRow(rows[offset + 3], useLegacyRows),
+    useLegacyRows,
+  );
   const resourceFields = await readCardResourceFields(cardElement, [
     tabIndexSource ? { source: tabIndexSource } : null,
     titleField,
@@ -382,8 +403,13 @@ async function readCard(row, index) {
   const tabIndices = parseTabIndices(resourceFields.tabIndex || tabIndexRaw, tabIndexSource);
   const resolvedTitleField = applyRichResourceFallback(titleField, resourceFields.title);
   const resolvedBodyField = applyRichResourceFallback(bodyField, resourceFields.bodyContent);
+  const inlineLink = linkTextField.cell?.tagName === 'A'
+    ? linkTextField.cell
+    : linkTextField.cell?.querySelector?.('a');
   const linkTextValue = linkTextField.value || normalizeResourceText(resourceFields.linkText);
-  const linkValue = linkField.value || normalizeResourceLink(resourceFields.link);
+  const linkValue = linkField.value
+    || inlineLink?.getAttribute('href')
+    || normalizeResourceLink(resourceFields.link);
 
   return {
     index,
@@ -557,14 +583,24 @@ async function deriveFlatTabs(tabRows, cards, isAuthoring) {
   return derived;
 }
 
+function hasInlineMedia(row) {
+  return [...(row?.children || [])].some((cell) => cell.querySelector?.('picture, img'));
+}
+
+function legacyFlatRows(allRows) {
+  const columnsIndex = allRows.findIndex((row) => isColumnsValue(directCellText(row)));
+  return columnsIndex >= 0 ? allRows.slice(columnsIndex + 1) : allRows;
+}
+
 function flatTabLabelRows(allRows) {
   const explicitRows = allRows.filter(isTabLabelRow);
   if (explicitRows.length) return explicitRows;
 
-  const firstCardIndex = allRows.findIndex(isLegacyFlatCardRow);
-  if (firstCardIndex < 0) return [];
+  const itemRows = legacyFlatRows(allRows);
+  const mediaLabelRows = itemRows.filter((row) => isLegacyFlatLabelRow(row) && hasInlineMedia(row));
+  if (mediaLabelRows.length) return mediaLabelRows;
 
-  return allRows.slice(0, firstCardIndex).filter(isLegacyFlatLabelRow);
+  return itemRows.filter(isLegacyFlatLabelRow);
 }
 
 async function buildFlatTabs(allRows, tabLabelRows = flatTabLabelRows(allRows)) {
