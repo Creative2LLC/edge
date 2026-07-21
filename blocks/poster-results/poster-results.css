@@ -665,6 +665,15 @@
   text-transform: uppercase;
 }
 
+.poster-results-related-person p.poster-results-related-copy {
+  margin: 8px 0 0;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-transform: none;
+}
+
 .poster-results-vehicle-list dl {
   padding-top: 0;
 }
@@ -1027,7 +1036,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 .poster-results:not(.is-poster-page) .poster-results-header {
   max-width: none;
-  margin: 0 0 52px 0;
+  margin: 0 0 52px;
 }
 
 .poster-results:not(.is-poster-page) .poster-results-eyebrow {

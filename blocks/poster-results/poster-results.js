@@ -304,9 +304,9 @@ function displayName(person, fallback = 'Missing child poster') {
 
 function locationText(person) {
   return [
-    person.missingCity || person.city,
-    person.missingState || person.state,
-    person.missingCountry || person.country,
+    person.missingCity || person.city || person.foundCity,
+    person.missingState || person.state || person.foundState,
+    person.missingCountry || person.country || person.foundCountry,
   ]
     .map(normalizeText)
     .filter(Boolean)
@@ -571,11 +571,15 @@ function childPhotoSources(child) {
 }
 
 function createDetailRow(label, value) {
-  if (!normalizeText(value)) return null;
+  // Some fields (e.g. unidentified `races`) arrive as arrays; render them joined.
+  const display = Array.isArray(value)
+    ? value.map(normalizeText).filter(Boolean).join(', ')
+    : normalizeText(value);
+  if (!display) return null;
   const dt = document.createElement('dt');
   dt.textContent = label;
   const dd = document.createElement('dd');
-  dd.textContent = value;
+  dd.textContent = display;
   return [dt, dd];
 }
 
@@ -958,15 +962,124 @@ function createDetailFooter(config, payload, child) {
   return footer;
 }
 
-function createMissingChildHeading() {
+function createMissingChildHeading(label = 'Missing Child') {
   const heading = document.createElement('div');
   heading.className = 'poster-results-missing-child-heading';
   const start = document.createElement('span');
   const text = document.createElement('h1');
-  text.textContent = 'Missing Child';
+  text.textContent = label;
   const end = document.createElement('span');
   heading.append(start, text, end);
   return heading;
+}
+
+function isUnidentifiedPoster(payload, child) {
+  return payload?.unidentified === true
+    || Boolean(normalizeText(child?.dateFound || child?.foundCity || child?.foundState));
+}
+
+function missingChildDetailRows(payload, child) {
+  return [
+    ['Case', payload?.caseNumber || child.caseNumber],
+    ['NCIC', detailValue(payload, child, ['ncicNumber', 'ncic'])],
+    ['Missing Since', detailValue(payload, child, ['missingDate', 'dateMissing', 'missingSince'])],
+    ['Missing From', locationText(child)],
+    ['Age Now', detailValue(payload, child, ['age', 'ageNow'])],
+    ['Age Missing', detailValue(payload, child, ['ageMissing', 'missingAge'])],
+    ['Date of Birth', detailValue(payload, child, ['dateOfBirth', 'birthDate', 'dob'])],
+    ['Gender', detailValue(payload, child, ['sex', 'gender'])],
+    ['Race', detailValue(payload, child, ['race', 'races'])],
+    ['Hair Color', detailValue(payload, child, ['hairColor', 'hair'])],
+    ['Eye Color', detailValue(payload, child, ['eyeColor', 'eyes'])],
+    ['Height', joinValues([
+      detailValue(payload, child, ['height']),
+      detailValue(payload, child, ['heightTo']),
+    ], ' - ')],
+    ['Weight', joinValues([
+      detailValue(payload, child, ['weight']),
+      detailValue(payload, child, ['weightTo']),
+    ], ' - ')],
+    ['Aliases', detailValue(payload, child, ['alias', 'aliases', 'nickname'])],
+  ];
+}
+
+function unidentifiedDetailRows(payload, child) {
+  return [
+    ['Case', payload?.caseNumber || child.caseNumber],
+    ['NCIC', detailValue(payload, child, ['ncicNumber', 'ncic'])],
+    ['NamUs', detailValue(payload, child, ['namus', 'namusNumber'])],
+    ['Date Found', detailValue(payload, child, ['dateFound', 'foundDate'])],
+    ['Found In', locationText(child)],
+    ['Approximate Age', detailValue(payload, child, ['approximateAge', 'age', 'ageNow'])],
+    ['Gender', detailValue(payload, child, ['sex', 'gender'])],
+    ['Race', detailValue(payload, child, ['race', 'races'])],
+    ['Hair Color', detailValue(payload, child, ['hairColor', 'hair'])],
+    ['Eye Color', detailValue(payload, child, ['eyeColor', 'eyes'])],
+    ['Height', joinValues([
+      detailValue(payload, child, ['height']),
+      detailValue(payload, child, ['heightTo']),
+    ], ' - ')],
+    ['Weight', joinValues([
+      detailValue(payload, child, ['weight']),
+      detailValue(payload, child, ['weightTo']),
+    ], ' - ')],
+  ];
+}
+
+function createCompanionsSection(payload, selectedPerson) {
+  const companions = arrayItems(payload?.companions)
+    .filter((person) => !samePerson(person, selectedPerson));
+  if (!companions.length) return null;
+
+  const section = document.createElement('section');
+  section.className = 'poster-results-related';
+  const heading = document.createElement('h4');
+  heading.textContent = 'May Be In The Company Of';
+  const list = document.createElement('div');
+  list.className = 'poster-results-related-list';
+
+  companions.forEach((companion) => {
+    const row = document.createElement('article');
+    row.className = 'poster-results-related-person';
+    const image = childPhotoSources(companion)[0];
+    if (image) {
+      const img = document.createElement('img');
+      img.src = image;
+      img.alt = displayName(companion, 'Companion');
+      img.loading = 'lazy';
+      row.append(img);
+    }
+
+    const content = document.createElement('div');
+    const title = document.createElement('h5');
+    title.textContent = displayName(companion, 'Companion');
+    const type = document.createElement('p');
+    type.textContent = firstValue(companion, ['companionType', 'person_type', 'personType', 'type']) || 'Companion';
+    const details = document.createElement('dl');
+    appendDetailRows(details, [
+      ['Age', firstValue(companion, ['ageNow', 'age', 'approximateAge'])],
+      ['Gender', firstValue(companion, ['sex', 'gender'])],
+      ['Race', firstValue(companion, ['race', 'races'])],
+      ['Hair Color', firstValue(companion, ['hairColor'])],
+      ['Eye Color', firstValue(companion, ['eyeColor'])],
+      ['NCIC', firstValue(companion, ['ncicNumber', 'ncic'])],
+    ]);
+    content.append(title, type, details);
+
+    const description = firstValue(companion, ['description']);
+    if (description) {
+      const copy = document.createElement('p');
+      copy.className = 'poster-results-related-copy';
+      copy.textContent = description;
+      content.append(copy);
+    }
+
+    row.append(content);
+    list.append(row);
+  });
+
+  section.append(heading, list);
+  return section;
 }
 
 function renderPosterDetail(container, meta, payload, config, onBack) {
@@ -977,12 +1090,15 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   const child = children[0] || payload || {};
   const name = displayName(child);
   const imageSrc = childPhotoSources(child)[0];
-  const missingDate = detailValue(payload, child, ['missingDate', 'dateMissing', 'missingSince']);
+  const unidentified = isUnidentifiedPoster(payload, child);
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail';
 
-  detail.append(createMissingChildHeading(), createActionBar(config));
+  detail.append(
+    createMissingChildHeading(unidentified ? 'Unidentified Child' : 'Missing Child'),
+    createActionBar(config),
+  );
 
   const back = document.createElement('button');
   back.type = 'button';
@@ -1010,28 +1126,9 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   body.append(title);
 
   const details = document.createElement('dl');
-  appendDetailRows(details, [
-    ['Case', payload?.caseNumber || child.caseNumber],
-    ['NCIC', detailValue(payload, child, ['ncicNumber', 'ncic'])],
-    ['Missing Since', missingDate],
-    ['Missing From', locationText(child)],
-    ['Age Now', detailValue(payload, child, ['age', 'ageNow'])],
-    ['Age Missing', detailValue(payload, child, ['ageMissing', 'missingAge'])],
-    ['Date of Birth', detailValue(payload, child, ['dateOfBirth', 'birthDate', 'dob'])],
-    ['Gender', detailValue(payload, child, ['sex', 'gender'])],
-    ['Race', detailValue(payload, child, ['race'])],
-    ['Hair Color', detailValue(payload, child, ['hairColor', 'hair'])],
-    ['Eye Color', detailValue(payload, child, ['eyeColor', 'eyes'])],
-    ['Height', joinValues([
-      detailValue(payload, child, ['height']),
-      detailValue(payload, child, ['heightTo']),
-    ], ' - ')],
-    ['Weight', joinValues([
-      detailValue(payload, child, ['weight']),
-      detailValue(payload, child, ['weightTo']),
-    ], ' - ')],
-    ['Aliases', detailValue(payload, child, ['alias', 'aliases', 'nickname'])],
-  ]);
+  appendDetailRows(details, unidentified
+    ? unidentifiedDetailRows(payload, child)
+    : missingChildDetailRows(payload, child));
   body.append(details);
 
   const narrative = posterNarrative(payload, child);
@@ -1041,6 +1138,9 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
     copy.textContent = narrative;
     body.append(copy);
   }
+
+  const companions = createCompanionsSection(payload, child);
+  if (companions) body.append(companions);
 
   layout.append(body);
   detail.append(back, layout, createDetailFooter(config, payload, child));
