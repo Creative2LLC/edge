@@ -1,6 +1,6 @@
 /* Override section max-width for wider block */
 main > .section > .newsletter-wrapper {
-  max-width: 1420px;
+  max-width: 1612px;
 }
 
 .newsletter {
