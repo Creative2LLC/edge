@@ -50,6 +50,145 @@ function getImageField(row, index) {
   return { picture, img };
 }
 
+function hasAuthoringContext(row) {
+  return Boolean(
+    row?.getAttribute?.('data-aue-resource')
+      || row?.querySelector?.('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function cellText(cell) {
+  return cell?.textContent?.trim() || '';
+}
+
+function cellHtml(cell) {
+  return cell?.innerHTML?.trim() || '';
+}
+
+function hasMedia(cell) {
+  return Boolean(cell?.matches?.('picture, img') || cell?.querySelector?.('picture, img'));
+}
+
+function nonEmptyCells(row) {
+  return [...(row?.children || [])].filter((cell) => hasMedia(cell) || cellText(cell));
+}
+
+function getCellLink(cell) {
+  const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a');
+  return anchor?.getAttribute('href') || cell?.getAttribute?.('href') || cellText(cell);
+}
+
+function getCellColor(cell) {
+  const hex = extractHexColor(cell);
+  if (hex) return hex;
+
+  const text = cellText(cell);
+  const match = text.match(/#(?:[0-9a-f]{3,8})\b/i);
+  return match ? match[0] : '';
+}
+
+function isButtonStyle(value) {
+  return ['solid', 'outlined', 'link'].includes(String(value || '').trim().toLowerCase());
+}
+
+function readAuthoredSlideData(row) {
+  const imageField = getImageField(row, 0);
+  const imageAltField = getField(row, 'imageAlt', 1);
+  const headingField = getField(row, 'heading', 2);
+  const subheadingField = getRichField(row, 'subheading', 3);
+  const buttonTextField = getField(row, 'buttonText', 4);
+  const buttonLinkField = getLinkField(row, 'buttonLink', 5);
+  const buttonColorField = getColorField(row, 'buttonColor', 6);
+  const buttonTextColorField = getColorField(row, 'buttonTextColor', 7);
+  const buttonStyleField = getField(row, 'buttonStyle', 8);
+  const linkTextField = getField(row, 'linkText', 9);
+  const linkUrlField = getLinkField(row, 'linkUrl', 10);
+  const linkColorField = getColorField(row, 'linkColor', 11);
+  const contentBgField = getColorField(row, 'contentBackgroundColor', 12);
+
+  return {
+    imageField,
+    imageAlt: imageAltField.value,
+    heading: headingField.value,
+    subheading: subheadingField.value,
+    buttonText: buttonTextField.value,
+    buttonLink: buttonLinkField.value,
+    buttonColor: buttonColorField.value,
+    buttonTextColor: buttonTextColorField.value,
+    buttonStyle: buttonStyleField.value || 'solid',
+    linkText: linkTextField.value,
+    linkUrl: linkUrlField.value,
+    linkColor: linkColorField.value,
+    contentBackgroundColor: contentBgField.value,
+  };
+}
+
+function readLiveSlideData(row) {
+  const imageField = getImageField(row, 0);
+  const cells = nonEmptyCells(row);
+  let index = hasMedia(cells[0]) ? 1 : 0;
+
+  const takeText = () => {
+    const value = cellText(cells[index]);
+    index += 1;
+    return value;
+  };
+  const takeHtml = () => {
+    const value = cellHtml(cells[index]);
+    index += 1;
+    return value;
+  };
+  const takeColor = () => {
+    const color = getCellColor(cells[index]);
+    if (color) index += 1;
+    return color;
+  };
+  const takeStyle = () => {
+    const value = cellText(cells[index]).toLowerCase();
+    if (!isButtonStyle(value)) return '';
+    index += 1;
+    return value;
+  };
+  const takeLink = () => {
+    const cell = cells[index];
+    if (!cell || getCellColor(cell) || isButtonStyle(cellText(cell))) return '';
+    index += 1;
+    return getCellLink(cell);
+  };
+
+  const heading = takeText();
+  const subheading = takeHtml();
+  const buttonText = takeText();
+  const buttonLink = takeLink();
+  const buttonColor = takeColor();
+  const buttonTextColor = takeColor();
+  const buttonStyle = takeStyle() || 'solid';
+  const linkText = takeText();
+  const linkUrl = takeLink();
+  const linkColor = takeColor();
+  const contentBackgroundColor = takeColor();
+
+  return {
+    imageField,
+    imageAlt: imageField.img?.alt || heading,
+    heading,
+    subheading,
+    buttonText,
+    buttonLink,
+    buttonColor,
+    buttonTextColor,
+    buttonStyle,
+    linkText,
+    linkUrl,
+    linkColor,
+    contentBackgroundColor,
+  };
+}
+
+function readSlideData(row) {
+  return hasAuthoringContext(row) ? readAuthoredSlideData(row) : readLiveSlideData(row);
+}
+
 function styleButton(btn, color, textColor, style) {
   const bgColor = color || '#008db6';
 
@@ -190,36 +329,8 @@ export default function decorate(block) {
 
   const slides = [];
   slideRows.forEach((row) => {
-    const imageField = getImageField(row, 0);
-    const imageAltField = getField(row, 'imageAlt', 1);
-    const headingField = getField(row, 'heading', 2);
-    const subheadingField = getRichField(row, 'subheading', 3);
-    const buttonTextField = getField(row, 'buttonText', 4);
-    const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-    const buttonColorField = getColorField(row, 'buttonColor', 6);
-    const buttonTextColorField = getColorField(row, 'buttonTextColor', 7);
-    const buttonStyleField = getField(row, 'buttonStyle', 8);
-    const linkTextField = getField(row, 'linkText', 9);
-    const linkUrlField = getLinkField(row, 'linkUrl', 10);
-    const linkColorField = getColorField(row, 'linkColor', 11);
-    const contentBgField = getColorField(row, 'contentBackgroundColor', 12);
-
     slides.push({
-      data: {
-        imageField,
-        imageAlt: imageAltField.value,
-        heading: headingField.value,
-        subheading: subheadingField.value,
-        buttonText: buttonTextField.value,
-        buttonLink: buttonLinkField.value,
-        buttonColor: buttonColorField.value,
-        buttonTextColor: buttonTextColorField.value,
-        buttonStyle: buttonStyleField.value || 'solid',
-        linkText: linkTextField.value,
-        linkUrl: linkUrlField.value,
-        linkColor: linkColorField.value,
-        contentBackgroundColor: contentBgField.value,
-      },
+      data: readSlideData(row),
       row,
     });
   });

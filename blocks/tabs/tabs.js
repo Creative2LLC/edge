@@ -91,6 +91,21 @@ function directRows(scope) {
   return [...(scope?.querySelectorAll?.(':scope > div') || [])];
 }
 
+function directCellText(row, index = 0) {
+  return row?.children?.[index]?.textContent?.trim() || '';
+}
+
+function flattenRawValues(value) {
+  if (value === undefined || value === null) return [];
+  if (Array.isArray(value)) return value.flatMap(flattenRawValues);
+  if (typeof value === 'object') return Object.values(value).flatMap(flattenRawValues);
+  return [value];
+}
+
+function isColumnsValue(value) {
+  return /^[1-4]$/u.test(String(value || '').trim());
+}
+
 function hasOwnField(row, names) {
   return names.some((name) => {
     const selector = getFieldSelector(name);
@@ -103,6 +118,46 @@ function hasOwnField(row, names) {
   });
 }
 
+function parseExplicitTabIndices(rawValue, sourceEl) {
+  // AEM may render string[] values as child list/block elements; read each child first.
+  const childValues = [];
+  if (sourceEl) {
+    const childEls = [...(sourceEl.querySelectorAll?.('li, p') || [])];
+    if (childEls.length) {
+      childValues.push(...childEls.map((el) => el.textContent.trim()).filter(Boolean));
+    }
+  }
+
+  const values = childValues.length ? childValues : flattenRawValues(rawValue);
+  const nums = values
+    .flatMap((value) => String(value || '').replace(/[[\]"']/g, '').match(/\d+/gu) || [])
+    .map((value) => parseInt(value, 10))
+    .filter((n) => n >= 1 && n <= MAX_TAB_INDEX);
+  return [...new Set(nums)];
+}
+
+function isLegacyFlatCardRow(row) {
+  if (!row || hasAuthoringContext(row) || componentName(row)) return false;
+  if ((row.children?.length || 0) < 3) return false;
+  return parseExplicitTabIndices(directCellText(row)).length > 0;
+}
+
+function isLegacyFlatLabelRow(row) {
+  if (!row || hasAuthoringContext(row) || componentName(row)) return false;
+  const childCount = row.children?.length || 0;
+  if (childCount < 1 || childCount > 2) return false;
+
+  const label = directCellText(row);
+  if (!label || isColumnsValue(label) || parseExplicitTabIndices(label).length) return false;
+
+  if (childCount === 2) {
+    const iconCell = row.children[1];
+    if (!iconCell.querySelector?.('picture, img') && iconCell.textContent.trim()) return false;
+  }
+
+  return true;
+}
+
 function isTabRow(row) {
   return componentName(row) === 'tabs-tab' || hasOwnField(row, TAB_FIELD_NAMES);
 }
@@ -112,7 +167,9 @@ function isTabLabelRow(row) {
 }
 
 function isCardRow(row) {
-  return componentName(row) === 'tabs-info-card' || hasOwnField(row, CARD_FIELD_NAMES);
+  return componentName(row) === 'tabs-info-card'
+    || hasOwnField(row, CARD_FIELD_NAMES)
+    || isLegacyFlatCardRow(row);
 }
 
 function isAllTab(tab) {
@@ -231,13 +288,6 @@ function normalizeResourceLink(value) {
   return String(value).trim();
 }
 
-function flattenRawValues(value) {
-  if (value === undefined || value === null) return [];
-  if (Array.isArray(value)) return value.flatMap(flattenRawValues);
-  if (typeof value === 'object') return Object.values(value).flatMap(flattenRawValues);
-  return [value];
-}
-
 function useLegacyRowFallbacks(cardElement) {
   return !hasAuthoringContext(cardElement);
 }
@@ -280,21 +330,7 @@ function findNestedCardRows(tabRow) {
 }
 
 function parseTabIndices(rawValue, sourceEl) {
-  // AEM may render string[] values as child list/block elements; read each child first.
-  const childValues = [];
-  if (sourceEl) {
-    const childEls = [...(sourceEl.querySelectorAll?.('li, p') || [])];
-    if (childEls.length) {
-      childValues.push(...childEls.map((el) => el.textContent.trim()).filter(Boolean));
-    }
-  }
-
-  const values = childValues.length ? childValues : flattenRawValues(rawValue);
-  const nums = values
-    .flatMap((value) => String(value || '').replace(/[[\]"']/g, '').match(/\d+/gu) || [])
-    .map((value) => parseInt(value, 10))
-    .filter((n) => n >= 1 && n <= MAX_TAB_INDEX);
-  const unique = [...new Set(nums)];
+  const unique = parseExplicitTabIndices(rawValue, sourceEl);
   return unique.length ? unique : [1];
 }
 
@@ -304,11 +340,16 @@ async function readCard(row, index) {
 
   // rows[0] may be a legacy assignment field (tabLabels/tabName) or the new tabIndex field
   const firstLabel = rowLabel(rows[0]);
+  const hasLegacyLeadField = (
+    useLegacyRowFallbacks(cardElement)
+      && parseExplicitTabIndices(directCellText(cardElement)).length > 0
+  );
   const hasLeadField = (
     hasOwnField(cardElement, ['tabIndex', 'tabLabels', 'tabName'])
       || firstLabel === 'tab-index'
       || firstLabel === 'tab-labels'
       || firstLabel === 'tab-name'
+      || hasLegacyLeadField
   );
   const offset = hasLeadField ? 1 : 0;
 
@@ -516,12 +557,21 @@ async function deriveFlatTabs(tabRows, cards, isAuthoring) {
   return derived;
 }
 
-async function buildFlatTabs(allRows) {
+function flatTabLabelRows(allRows) {
+  const explicitRows = allRows.filter(isTabLabelRow);
+  if (explicitRows.length) return explicitRows;
+
+  const firstCardIndex = allRows.findIndex(isLegacyFlatCardRow);
+  if (firstCardIndex < 0) return [];
+
+  return allRows.slice(0, firstCardIndex).filter(isLegacyFlatLabelRow);
+}
+
+async function buildFlatTabs(allRows, tabLabelRows = flatTabLabelRows(allRows)) {
   const tabs = [];
 
   // First pass: collect tab labels in DOM order (AEM groups all labels first)
-  allRows.forEach((row) => {
-    if (!isTabLabelRow(row)) return;
+  tabLabelRows.forEach((row) => {
     const labelElement = componentElement(row, 'tabs-tab-label') || row;
     const labelRows = directRows(labelElement);
     const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
@@ -648,10 +698,6 @@ function fieldText(row) {
   return fieldCell(row)?.textContent?.trim() || '';
 }
 
-function isColumnsValue(value) {
-  return /^[1-4]$/u.test(String(value || '').trim());
-}
-
 function createTabPanel(tab, index, instanceId, isAuthoring) {
   const panel = tab.row || document.createElement('div');
   panel.classList.add('tabs-panel');
@@ -696,13 +742,15 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
 export default async function decorate(block) {
   const isAuthoring = hasAuthoringContext(block);
   const allBlockRows = directRows(block);
-  const hasFlatLabels = allBlockRows.some((row) => componentName(row) === 'tabs-tab-label');
+  const tabLabelRows = flatTabLabelRows(allBlockRows);
+  const tabLabelRowSet = new Set(tabLabelRows);
+  const hasFlatLabels = tabLabelRows.length > 0;
 
   let tabs;
   let flatCards;
 
   if (hasFlatLabels) {
-    const flatResult = await buildFlatTabs(allBlockRows);
+    const flatResult = await buildFlatTabs(allBlockRows, tabLabelRows);
     tabs = flatResult.tabs;
     flatCards = flatResult.flatCards
       .filter((card) => card.hasContent || isAuthoring)
@@ -736,7 +784,7 @@ export default async function decorate(block) {
 
   const allCards = allCardsForTabs(tabs, flatCards);
   const fieldRows = allBlockRows.filter(
-    (row) => !isTabLabelRow(row) && !isTabRow(row) && !isCardRow(row),
+    (row) => !tabLabelRowSet.has(row) && !isTabLabelRow(row) && !isTabRow(row) && !isCardRow(row),
   );
   const columnsFallbackRow = [...fieldRows].reverse().find((row) => isColumnsValue(fieldText(row)));
   const contentFallbackRows = fieldRows.filter((row) => row !== columnsFallbackRow);
