@@ -47,10 +47,12 @@ const FIELD_INDEX = {
   programs: 29,
   gradeAges: 30,
   length: 31,
-  tags: 32,
-  markerTerms: 33,
-  markerColor: 34,
-  markerStyle: 35,
+  durationMinutes: 32,
+  weight: 33,
+  tags: 34,
+  markerTerms: 35,
+  markerColor: 36,
+  markerStyle: 37,
 };
 
 const RESOURCE_FIELD_NAMES = Object.keys(FIELD_INDEX);
@@ -747,7 +749,15 @@ function buildTaxonomyGroup(label, values) {
   return item;
 }
 
+function formatDurationMinutes(value) {
+  const minutes = Number.parseInt(normalizeText(value).replace(/[^0-9]/g, ''), 10);
+  if (Number.isNaN(minutes) || minutes <= 0) return '';
+
+  return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+}
+
 function buildTaxonomy(fields) {
+  const duration = formatDurationMinutes(fields.durationMinutes);
   const groups = [
     {
       label: 'Type',
@@ -775,7 +785,11 @@ function buildTaxonomy(fields) {
     },
     {
       label: 'Length',
-      values: fields.length ? [labelFor('length', fields.length)] : [],
+      values: !duration && fields.length ? [labelFor('length', fields.length)] : [],
+    },
+    {
+      label: 'Time',
+      values: duration ? [duration] : [],
     },
     {
       label: 'Tags',
@@ -958,6 +972,8 @@ function readFields(block, aemFields) {
     programs: readText(block, aemFields, 'programs', flattened.programs),
     gradeAges: readText(block, aemFields, 'gradeAges', flattened.gradeAges),
     length: readText(block, aemFields, 'length', flattened.length),
+    durationMinutes: readText(block, aemFields, 'durationMinutes', flattened.durationMinutes),
+    weight: readText(block, aemFields, 'weight', flattened.weight),
     tags: readText(block, aemFields, 'tags', flattened.tags),
     markerTerms: readText(block, aemFields, 'markerTerms', flattened.markerTerms),
     markerColor: normalizeHexColor(readText(block, aemFields, 'markerColor', flattened.markerColor)),

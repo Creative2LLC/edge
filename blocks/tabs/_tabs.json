@@ -75,7 +75,7 @@
             { "name": "3 Cards", "value": "3" },
             { "name": "4 Cards", "value": "4" }
           ],
-          "value": "3"
+          "value": "4"
         }
       ]
     },
@@ -89,6 +89,14 @@
           "label": "Tab Label",
           "description": "Text shown in the tab button.",
           "value": "Tab"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Tab Icon (optional)",
+          "description": "Small icon shown to the left of the tab label (~24px square). Upload a dark/navy version; it is recolored to white automatically when the tab is active.",
+          "multi": false
         }
       ]
     },
@@ -106,7 +114,17 @@
             { "name": "Tab 2", "value": "2" },
             { "name": "Tab 3", "value": "3" },
             { "name": "Tab 4", "value": "4" },
-            { "name": "Tab 5", "value": "5" }
+            { "name": "Tab 5", "value": "5" },
+            { "name": "Tab 6", "value": "6" },
+            { "name": "Tab 7", "value": "7" },
+            { "name": "Tab 8", "value": "8" },
+            { "name": "Tab 9", "value": "9" },
+            { "name": "Tab 10", "value": "10" },
+            { "name": "Tab 11", "value": "11" },
+            { "name": "Tab 12", "value": "12" },
+            { "name": "Tab 13", "value": "13" },
+            { "name": "Tab 14", "value": "14" },
+            { "name": "Tab 15", "value": "15" }
           ]
         },
         {

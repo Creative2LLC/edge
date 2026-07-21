@@ -2,12 +2,19 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   getFieldSelector,
   readAueResourceFields,
+  readImageField,
   readLinkField,
   readRichTextField,
   readTextField,
   resourcePathFromAueResource,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+
+// Beyond this many tabs the tablist becomes a single horizontal scroller
+// instead of wrapping onto multiple rows.
+const TAB_SCROLL_THRESHOLD = 9;
+// Highest tab number a card can be assigned to (matches the tabIndex model).
+const MAX_TAB_INDEX = 15;
 
 const TAB_FIELD_NAMES = ['tabLabel', 'tabId'];
 const TAB_LABEL_FIELD_NAMES = ['label', 'tabLabel'];
@@ -286,7 +293,7 @@ function parseTabIndices(rawValue, sourceEl) {
   const nums = values
     .flatMap((value) => String(value || '').replace(/[[\]"']/g, '').match(/\d+/gu) || [])
     .map((value) => parseInt(value, 10))
-    .filter((n) => n >= 1 && n <= 5);
+    .filter((n) => n >= 1 && n <= MAX_TAB_INDEX);
   const unique = [...new Set(nums)];
   return unique.length ? unique : [1];
 }
@@ -350,6 +357,18 @@ async function readCard(row, index) {
     linkField: { ...linkField, value: linkValue },
     hasContent: richFieldHasContent(resolvedTitleField) || richFieldHasContent(resolvedBodyField),
   };
+}
+
+function buildTabIcon(iconField) {
+  const media = iconField?.picture?.cloneNode(true)
+    || (iconField?.img ? iconField.img.cloneNode(true) : null);
+  if (!media) return null;
+
+  const wrap = document.createElement('span');
+  wrap.className = 'tabs-tab-icon';
+  wrap.setAttribute('aria-hidden', 'true');
+  wrap.append(media);
+  return wrap;
 }
 
 function buildHiddenField(field, className) {
@@ -428,6 +447,9 @@ async function readTab(row, index, isAuthoring) {
     ? getRowTextField(labelElement, 'label', labelRows[0])
     : getRowTextField(tabElement, 'tabLabel', rows[0]);
   const label = labelField.value || `Tab ${index + 1}`;
+  const iconField = readImageField(labelElement || tabElement, 'icon', {
+    fallbackCell: labelElement ? fieldCell(labelRows[1]) : null,
+  });
   const idField = getRowTextField(tabElement, 'tabId', rows[1]);
   const key = normalizeKey(idField.value || label);
   const readCards = await Promise.all(
@@ -443,6 +465,7 @@ async function readTab(row, index, isAuthoring) {
     key,
     label,
     labelField,
+    iconField,
     row: tabElement,
   };
 }
@@ -462,6 +485,7 @@ async function deriveFlatTabs(tabRows, cards, isAuthoring) {
         cards: cards.filter((candidate) => candidate.tabKeys.includes(key)),
         key,
         label,
+        iconField: null,
       });
     });
   });
@@ -471,6 +495,7 @@ async function deriveFlatTabs(tabRows, cards, isAuthoring) {
       cards,
       key: 'all-services',
       label: 'All Services',
+      iconField: null,
     });
   }
 
@@ -488,8 +513,11 @@ async function buildFlatTabs(allRows) {
     const labelField = getRowTextField(labelElement, 'label', labelRows[0]);
     const label = labelField.value || `Tab ${tabs.length + 1}`;
     const key = normalizeKey(label);
+    const iconField = readImageField(labelElement, 'icon', {
+      fallbackCell: fieldCell(labelRows[1]),
+    });
     tabs.push({
-      cards: [], key, label, labelField, labelRow: row, row: null,
+      cards: [], key, label, labelField, iconField, labelRow: row, row: null,
     });
   });
 
@@ -668,7 +696,13 @@ export default async function decorate(block) {
     if (tabs.length > 1) {
       tabs = [
         {
-          cards: [], key: 'all', label: 'All', labelField: { value: 'All' }, labelRow: null, row: null,
+          cards: [],
+          key: 'all',
+          label: 'All',
+          labelField: { value: 'All' },
+          iconField: null,
+          labelRow: null,
+          row: null,
         },
         ...tabs,
       ];
@@ -695,7 +729,7 @@ export default async function decorate(block) {
   const headingField = getBlockRichField(block, 'heading', [], contentFallbackRows[0]);
   const subheadingField = getBlockRichField(block, 'subheading', [], contentFallbackRows[1]);
   const columnsField = getBlockTextField(block, 'columns', ['cards per row'], columnsFallbackRow);
-  const columns = Math.max(1, Math.min(4, parseInt(columnsField.value, 10) || 3));
+  const columns = Math.max(1, Math.min(4, parseInt(columnsField.value, 10) || 4));
 
   block.style.setProperty('--tabs-columns', columns);
 
@@ -738,6 +772,9 @@ export default async function decorate(block) {
   tablist.className = 'tabs-tablist';
   tablist.setAttribute('role', 'tablist');
   tablist.setAttribute('aria-label', 'Card categories');
+  // Many tabs wrap onto several rows and look cluttered; switch to a single
+  // horizontal scroller once the count grows past the threshold.
+  if (tabs.length > TAB_SCROLL_THRESHOLD) tablist.classList.add('is-scroll');
 
   const panels = document.createElement('div');
   panels.className = 'tabs-panels';
@@ -770,7 +807,14 @@ export default async function decorate(block) {
       moveInstrumentation(tab.labelField.source, button);
     }
     setItemLabel(button, [tab.label]);
-    button.textContent = tab.label;
+
+    const icon = buildTabIcon(tab.iconField);
+    if (icon) button.append(icon);
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'tabs-tab-label';
+    labelSpan.textContent = tab.label;
+    button.append(labelSpan);
+
     button.addEventListener('click', () => setActiveTab(state, index));
     state.buttons.push(button);
     tablist.append(button);

@@ -5,7 +5,7 @@ import {
 } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
-  heading: 'Search Missing Children Posters',
+  heading: 'Poster Results',
   eyebrow: 'Poster Search',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   submitLabel: 'Search',
@@ -132,6 +132,11 @@ const EYE_COLORS = [
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
+}
+
+function normalizePosterHeading(value) {
+  const heading = normalizeText(value);
+  return heading === 'Search Missing Children Posters' ? DEFAULTS.heading : heading;
 }
 
 function normalizeApiBaseUrl(value) {
@@ -1310,60 +1315,27 @@ function appendParams(url, form) {
   });
 }
 
-function createNearMeSection(config, onNearMe) {
+function createNearMeSection(onNearMe) {
   const wrap = document.createElement('div');
   wrap.className = 'poster-results-near-me';
 
-  const divider = document.createElement('div');
+  const divider = document.createElement('span');
   divider.className = 'poster-results-near-me-divider';
-  const lineStart = document.createElement('span');
-  const text = document.createElement('strong');
-  text.textContent = 'or';
-  const lineEnd = document.createElement('span');
-  divider.append(lineStart, text, lineEnd);
+  divider.textContent = 'or';
 
-  const action = document.createElement('div');
-  action.className = 'poster-results-near-me-action';
   const button = document.createElement('button');
   button.type = 'button';
+  button.className = 'poster-results-near-me-button';
   button.textContent = 'Search Near Me';
   button.addEventListener('click', onNearMe);
 
-  const tip = document.createElement('span');
-  tip.className = 'poster-results-near-me-tip';
-  tip.tabIndex = 0;
-  tip.textContent = 'i';
-  const tooltip = document.createElement('span');
-  tooltip.className = 'poster-results-near-me-tooltip';
-  tooltip.textContent = 'Search for children who have gone missing within 50 miles of your current location. Location is estimated using your IP address.';
-  tip.append(tooltip);
-  action.append(button, tip);
-
-  const qr = document.createElement('p');
-  qr.className = 'poster-results-qr';
-  qr.append(document.createTextNode('Download, print, and share '));
-  if (config.qrCodeUrl) {
-    const link = document.createElement('a');
-    link.href = config.qrCodeUrl;
-    link.textContent = config.qrCodeLabel;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.removeAttribute('download');
-    qr.append(link);
-  } else {
-    const placeholder = document.createElement('strong');
-    placeholder.textContent = config.qrCodeLabel;
-    qr.append(placeholder);
-  }
-  qr.append(document.createTextNode(' handout to help people view missing children from their area.'));
-
-  wrap.append(divider, action, qr);
+  wrap.append(divider, button);
   return { wrap, button };
 }
 
 export default async function decorate(block) {
   const config = {
-    heading: getFieldValue(block, 'heading', 0, DEFAULTS.heading),
+    heading: normalizePosterHeading(getFieldValue(block, 'heading', 0, DEFAULTS.heading)),
     eyebrow: getFieldValue(block, 'eyebrow', 1, DEFAULTS.eyebrow),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
     submitLabel: getFieldValue(block, 'submitLabel', 3, DEFAULTS.submitLabel),
@@ -1472,8 +1444,8 @@ export default async function decorate(block) {
   const city = createField('City', 'city', 'text', 'City');
   const state = createSelect('State', 'state', STATES);
   const country = createSelect('Country', 'country', COUNTRIES);
-  const fromDate = createField('From', 'from_date', 'date');
-  const toDate = createField('To', 'to_date', 'date');
+  const fromDate = createField('From', 'from_date', 'date', 'mm/dd/yy');
+  const toDate = createField('To', 'to_date', 'date', 'mm/dd/yy');
   const ageNowMin = createField('Age Now Min', 'age_now_min', 'number', '0');
   const ageNowMax = createField('Age Now Max', 'age_now_max', 'number', '99+');
   const ageMissingMin = createField('Age Missing Min', 'age_missing_min', 'number', '0');
@@ -1492,9 +1464,9 @@ export default async function decorate(block) {
     ['companion', 'Companion'],
     ['unidentified', 'Unidentified'],
   ]);
-  const sort = createRadioGroup('Sort by', 'sort', [
-    ['MostRecent', 'Most recent'],
-    ['AZ', 'A - Z'],
+  const sort = createRadioGroup('Sort By', 'sort', [
+    ['MostRecent', 'Most Recent'],
+    ['AZ', 'A-Z'],
   ]);
   const gender = createRadioGroup('Gender', 'gender', [
     ['All', 'All'],
@@ -1502,37 +1474,69 @@ export default async function decorate(block) {
     ['female', 'Female'],
   ]);
 
-  const submitRow = document.createElement('div');
-  submitRow.className = 'poster-results-actions';
-  const submit = document.createElement('button');
-  submit.type = 'submit';
-  submit.textContent = config.submitLabel;
-  const reset = document.createElement('button');
-  reset.type = 'reset';
-  reset.className = 'poster-results-reset';
-  reset.textContent = 'Reset';
-  submitRow.append(submit, reset);
+  let searchPosters;
 
-  form.append(
+  const topControls = document.createElement('div');
+  topControls.className = 'poster-results-form-top';
+  topControls.append(subject, sort);
+
+  const divider = document.createElement('div');
+  divider.className = 'poster-results-form-divider';
+
+  const fieldGrid = document.createElement('div');
+  fieldGrid.className = 'poster-results-field-grid';
+
+  const identityColumn = document.createElement('div');
+  identityColumn.className = 'poster-results-field-column';
+  identityColumn.append(
     firstName.closest('label'),
     lastName.closest('label'),
-    sort,
-    subject,
+    fromDate.closest('label'),
+    toDate.closest('label'),
+  );
+
+  const locationColumn = document.createElement('div');
+  locationColumn.className = 'poster-results-field-column';
+  locationColumn.append(
     city.closest('label'),
     state.closest('label'),
     country.closest('label'),
-    fromDate.closest('label'),
-    toDate.closest('label'),
+  );
+
+  const ageColumn = document.createElement('div');
+  ageColumn.className = 'poster-results-field-column poster-results-field-column-ages';
+  ageColumn.append(
     ageNowMin.closest('label'),
     ageNowMax.closest('label'),
     ageMissingMin.closest('label'),
     ageMissingMax.closest('label'),
+  );
+
+  const appearanceColumn = document.createElement('div');
+  appearanceColumn.className = 'poster-results-field-column';
+  appearanceColumn.append(
     gender,
     race.closest('label'),
     hairColor.closest('label'),
     eyeColor.closest('label'),
-    submitRow,
   );
+
+  fieldGrid.append(identityColumn, locationColumn, ageColumn, appearanceColumn);
+
+  const submitRow = document.createElement('div');
+  submitRow.className = 'poster-results-actions';
+  const reset = document.createElement('button');
+  reset.type = 'reset';
+  reset.className = 'poster-results-reset';
+  reset.textContent = 'Reset';
+  const submit = document.createElement('button');
+  submit.type = 'submit';
+  submit.className = 'poster-results-submit';
+  submit.textContent = config.submitLabel;
+  const nearMe = createNearMeSection(() => searchPosters(1, true));
+  submitRow.append(reset, submit, nearMe.wrap);
+
+  form.append(topControls, divider, fieldGrid, submitRow);
 
   const status = document.createElement('p');
   status.hidden = true;
@@ -1556,11 +1560,9 @@ export default async function decorate(block) {
   let currentPage = 1;
   let totalPages = 1;
   let currentNearSearch = false;
-  let searchPosters;
   let renderPagination = () => {};
-  const nearMe = createNearMeSection(config, () => searchPosters(1, true));
 
-  inner.append(header, form, nearMe.wrap, status, meta, backToSearch, results, pagination);
+  inner.append(header, form, status, meta, backToSearch, results, pagination);
   block.replaceChildren(inner);
 
   renderPagination = () => {

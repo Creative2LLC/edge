@@ -631,6 +631,22 @@
         {
           "component": "text",
           "valueType": "string",
+          "name": "durationMinutes",
+          "label": "Duration (minutes)",
+          "description": "Enter total time in minutes. Example: 45.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "weight",
+          "label": "Search Weight",
+          "description": "Optional ranking boost. Higher numbers appear first in default resource/search results. Use 0 for normal priority.",
+          "value": "0"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
           "name": "tags",
           "label": "Universal Tags",
           "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."

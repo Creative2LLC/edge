@@ -346,6 +346,22 @@
           "name": "headerImageAlt",
           "label": "Header Image Alt Text",
           "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "durationMinutes",
+          "label": "Duration (minutes)",
+          "description": "Enter total time in minutes. Example: 45.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "weight",
+          "label": "Search Weight",
+          "description": "Optional ranking boost. Higher numbers appear first in default resource/search results. Use 0 for normal priority.",
+          "value": "0"
         }
       ]
     }

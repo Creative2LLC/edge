@@ -21,8 +21,11 @@ const FIELD_COLUMN_INDEX = {
   language: 10,
   programs: 11,
   gradeAges: 12,
-  tags: 13,
-  headerImageAlt: 14,
+  length: 13,
+  tags: 14,
+  headerImageAlt: 15,
+  durationMinutes: 16,
+  weight: 17,
 };
 
 const resourceDataCache = new Map();
@@ -85,6 +88,14 @@ const TAXONOMY_LABELS = {
     '3-5': '3-5',
     'middle-school': 'Middle School',
     'high-school': 'High School',
+  },
+  length: {
+    5: '5 minutes or less',
+    10: '10 minutes or less',
+    15: '15 minutes or less',
+    30: '30 minutes or less',
+    45: '45 minutes or less',
+    60: '60 minutes or less',
   },
 };
 
@@ -323,7 +334,15 @@ function buildPillGroup(entries, className) {
   return wrap;
 }
 
+function formatDurationMinutes(value) {
+  const minutes = Number.parseInt(normalizeText(value).replace(/[^0-9]/g, ''), 10);
+  if (Number.isNaN(minutes) || minutes <= 0) return '';
+
+  return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+}
+
 function buildTaxonomy(fields) {
+  const duration = formatDurationMinutes(fields.durationMinutes);
   const entries = [
     ...splitList(fields.resourceType).map((resourceType) => labelFor('resourceType', resourceType)),
     ...splitList(fields.audience).map((audience) => labelFor('audience', audience)),
@@ -331,6 +350,8 @@ function buildTaxonomy(fields) {
     fields.language ? labelFor('language', fields.language) : '',
     ...splitList(fields.programs).map((program) => labelFor('programs', program)),
     ...splitList(fields.gradeAges).map((gradeAge) => labelFor('gradeAges', gradeAge)),
+    !duration && fields.length ? labelFor('length', fields.length) : '',
+    duration,
   ].filter(Boolean);
 
   return buildPillGroup(entries, 'resource-details-taxonomy');
@@ -437,6 +458,13 @@ export default async function decorate(block) {
       'gradeAges',
       normalizeJsonFieldValue(resourceData.gradeAges || resourceData.grade_ages),
     ),
+    length: getTextField(block, 'length', normalizeJsonFieldValue(resourceData.length)),
+    durationMinutes: getTextField(
+      block,
+      'durationMinutes',
+      normalizeJsonFieldValue(resourceData.durationMinutes || resourceData.duration_minutes),
+    ),
+    weight: getTextField(block, 'weight', normalizeJsonFieldValue(resourceData.weight)),
     tags: getTextField(block, 'tags', normalizeJsonFieldValue(resourceData.tags)),
     headerImageAlt: getTextField(block, 'headerImageAlt'),
   };

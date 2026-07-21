@@ -22249,7 +22249,7 @@
         "valueType": "string",
         "name": "heading",
         "label": "Heading",
-        "value": "Search Missing Children Posters"
+        "value": "Poster Results"
       },
       {
         "component": "text",
@@ -23400,6 +23400,22 @@
         "name": "headerImageAlt",
         "label": "Header Image Alt Text",
         "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "durationMinutes",
+        "label": "Duration (minutes)",
+        "description": "Enter total time in minutes. Example: 45.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "weight",
+        "label": "Search Weight",
+        "description": "Optional ranking boost. Higher numbers appear first in default resource/search results. Use 0 for normal priority.",
+        "value": "0"
       }
     ]
   },
@@ -24250,6 +24266,22 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "durationMinutes",
+        "label": "Duration (minutes)",
+        "description": "Enter total time in minutes. Example: 45.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "weight",
+        "label": "Search Weight",
+        "description": "Optional ranking boost. Higher numbers appear first in default resource/search results. Use 0 for normal priority.",
+        "value": "0"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "tags",
         "label": "Universal Tags",
         "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
@@ -24936,6 +24968,22 @@
         "valueType": "string",
         "name": "filters",
         "label": "Audience/Issue/Type/Tags/Language/Program/Grade"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "durationMinutes",
+        "label": "Duration (minutes)",
+        "description": "Enter total time in minutes. Example: 45.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "weight",
+        "label": "Search Weight",
+        "description": "Optional ranking boost. Higher numbers appear first in default resource/search results. Use 0 for normal priority.",
+        "value": "0"
       },
       {
         "component": "text",
@@ -30572,7 +30620,7 @@
             "value": "4"
           }
         ],
-        "value": "3"
+        "value": "4"
       }
     ]
   },
@@ -30586,6 +30634,14 @@
         "label": "Tab Label",
         "description": "Text shown in the tab button.",
         "value": "Tab"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Tab Icon (optional)",
+        "description": "Small icon shown to the left of the tab label (~24px square). Upload a dark/navy version; it is recolored to white automatically when the tab is active.",
+        "multi": false
       }
     ]
   },
@@ -30618,6 +30674,46 @@
           {
             "name": "Tab 5",
             "value": "5"
+          },
+          {
+            "name": "Tab 6",
+            "value": "6"
+          },
+          {
+            "name": "Tab 7",
+            "value": "7"
+          },
+          {
+            "name": "Tab 8",
+            "value": "8"
+          },
+          {
+            "name": "Tab 9",
+            "value": "9"
+          },
+          {
+            "name": "Tab 10",
+            "value": "10"
+          },
+          {
+            "name": "Tab 11",
+            "value": "11"
+          },
+          {
+            "name": "Tab 12",
+            "value": "12"
+          },
+          {
+            "name": "Tab 13",
+            "value": "13"
+          },
+          {
+            "name": "Tab 14",
+            "value": "14"
+          },
+          {
+            "name": "Tab 15",
+            "value": "15"
           }
         ]
       },

@@ -412,6 +412,8 @@ function mapResource(resource) {
     subtitle: resource.subtitle || '',
     linkUrl: resource.linkUrl || '',
     id: resource.id || resource.title || '',
+    durationMinutes: resource.durationMinutes || '',
+    weight: Number.parseInt(resource.weight || '0', 10) || 0,
     audience,
     issue,
     type,
@@ -439,6 +441,13 @@ function mapApiResource(resource) {
     title: resource.title || '',
     subtitle: resource.excerpt || '',
     linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
+    durationMinutes: resource.duration_minutes || '',
+    durationLabel: resource.duration_label || '',
+    weight: Number.parseInt(resource.weight || '0', 10) || 0,
+    article_date: resource.article_date || '',
+    published_at: resource.published_at || '',
+    updated_at: resource.updated_at || '',
+    created_at: resource.created_at || '',
     detailUrl: resource.detail_path || '',
     downloadUrl: resource.download_url || resource.resource_url || '',
     id: resource.slug || `${resource.id || ''}`,
@@ -483,7 +492,7 @@ function mapApiResource(resource) {
       ...(resource.length && resource.length_label ? [{
         facet: 'lengths',
         value: normalizeToken(resource.length),
-        label: resource.length_label,
+        label: resource.duration_label || resource.length_label,
       }] : []),
       ...((resource.tags || []).map((tag) => ({
         facet: 'tags',
@@ -538,6 +547,8 @@ function parseResourceRow(row) {
       programs: getPropText(row, 'programs') || filters.programs.join(', '),
       gradeAges: getPropText(row, 'gradeAges') || filters.gradeAges.join(', '),
       tags: getPropText(row, 'tags') || filters.tags.join(', '),
+      durationMinutes: getPropText(row, 'durationMinutes'),
+      weight: getPropText(row, 'weight'),
     });
   }
 
@@ -1114,6 +1125,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
       publishedAt: data.published_at || data.publishedAt || '',
       updatedAt: data.updated_at || data.updatedAt || '',
       createdAt: data.created_at || data.createdAt || '',
+      weight: data.weight || 0,
       originalIndex,
     }));
 

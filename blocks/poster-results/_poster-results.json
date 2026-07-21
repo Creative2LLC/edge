@@ -25,7 +25,7 @@
           "valueType": "string",
           "name": "heading",
           "label": "Heading",
-          "value": "Search Missing Children Posters"
+          "value": "Poster Results"
         },
         {
           "component": "text",
