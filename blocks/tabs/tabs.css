@@ -68,7 +68,7 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--tabs-text);
+  color: var(--tabs-muted);
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1;
@@ -108,8 +108,9 @@
   object-fit: contain;
 }
 
-/* Uploaded icons are dark/navy; force them white on the active navy pill. */
-.tabs .tabs-tab.is-active .tabs-tab-icon :is(img, svg) {
+/* Uploaded (img) icons carry a baked color; force them white on the active
+   navy pill. The built-in inline svg uses currentColor and recolors on its own. */
+.tabs .tabs-tab.is-active .tabs-tab-icon img {
   filter: brightness(0) invert(1);
 }
 

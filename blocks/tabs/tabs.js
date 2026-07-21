@@ -359,15 +359,29 @@ async function readCard(row, index) {
   };
 }
 
+function tabIconWrap() {
+  const wrap = document.createElement('span');
+  wrap.className = 'tabs-tab-icon';
+  wrap.setAttribute('aria-hidden', 'true');
+  return wrap;
+}
+
 function buildTabIcon(iconField) {
   const media = iconField?.picture?.cloneNode(true)
     || (iconField?.img ? iconField.img.cloneNode(true) : null);
   if (!media) return null;
 
-  const wrap = document.createElement('span');
-  wrap.className = 'tabs-tab-icon';
-  wrap.setAttribute('aria-hidden', 'true');
+  const wrap = tabIconWrap();
   wrap.append(media);
+  return wrap;
+}
+
+// The synthetic "All" tab has no upload field, so it falls back to a built-in
+// grid icon. Inline SVG with stroke="currentColor" so it inherits the muted
+// tab color and turns white on the active pill for free.
+function buildDefaultAllIcon() {
+  const wrap = tabIconWrap();
+  wrap.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>';
   return wrap;
 }
 
@@ -808,7 +822,8 @@ export default async function decorate(block) {
     }
     setItemLabel(button, [tab.label]);
 
-    const icon = buildTabIcon(tab.iconField);
+    const icon = buildTabIcon(tab.iconField)
+      || (isAllTab(tab) ? buildDefaultAllIcon() : null);
     if (icon) button.append(icon);
     const labelSpan = document.createElement('span');
     labelSpan.className = 'tabs-tab-label';
