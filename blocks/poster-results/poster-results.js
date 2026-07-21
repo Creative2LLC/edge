@@ -1231,8 +1231,12 @@ function createResultCard(person) {
   const card = document.createElement('article');
   card.className = 'poster-results-card';
   const detailUrl = posterDetailUrl(person);
+  const imageUrl = normalizeText(
+    person.image_url || person.imageUrl || person.thumbnail_url || person.thumbnailUrl,
+  );
 
-  if (person.thumbnail_url) {
+  if (imageUrl) {
+    card.classList.add('has-photo');
     const imageLink = document.createElement('a');
     imageLink.href = detailUrl;
     imageLink.target = '_blank';
@@ -1240,22 +1244,30 @@ function createResultCard(person) {
     imageLink.className = 'poster-results-photo';
 
     const img = document.createElement('img');
-    img.src = person.thumbnail_url;
+    img.src = imageUrl;
     img.alt = fullName(person) || 'Missing child poster';
+    img.loading = 'lazy';
     imageLink.append(img);
     card.append(imageLink);
+  } else {
+    card.classList.add('no-photo');
   }
 
   const body = document.createElement('div');
   body.className = 'poster-results-card-body';
 
   const title = document.createElement('h3');
-  title.textContent = fullName(person) || 'Unidentified child';
+  const titleLink = document.createElement('a');
+  titleLink.href = detailUrl;
+  titleLink.target = '_blank';
+  titleLink.rel = 'noopener noreferrer';
+  titleLink.className = 'poster-results-card-title-link';
+  titleLink.textContent = fullName(person) || 'Unidentified child';
+  title.append(titleLink);
   body.append(title);
 
   const details = document.createElement('dl');
   [
-    ['Case', person.caseNumber],
     ['Missing Since', person.missingDate],
     ['Missing From', locationText(person)],
     ['Age Now', person.age],
@@ -1268,14 +1280,6 @@ function createResultCard(person) {
     details.append(dt, dd);
   });
   body.append(details);
-
-  const link = document.createElement('a');
-  link.href = detailUrl;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.className = 'poster-results-card-link';
-  link.textContent = 'View details';
-  body.append(link);
 
   card.append(body);
   return card;
