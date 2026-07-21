@@ -6,12 +6,21 @@
   --tabs-accent: #008db6;
   --tabs-card-border: #e6e9ee;
 
-  max-width: 1180px;
-  margin: 0 auto;
   padding: clamp(44px, 6vw, 76px) 0;
 }
 
+/* Break out of the section wrapper's 32px side padding at desktop so the block
+   reaches the same 1420px line as the section-title block above it. */
+@media (width >= 900px) {
+  .tabs {
+    margin-left: -32px;
+    margin-right: -32px;
+  }
+}
+
 .tabs .tabs-shell {
+  max-width: 1420px;
+  margin: 0 auto;
   display: grid;
   gap: 28px;
 }
