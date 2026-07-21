@@ -923,9 +923,9 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     align-items: stretch;
   }
 
-  .poster-results-actions button {
+  /* .poster-results-actions button {
     flex: 1 1 0;
-  }
+  } */
 
   .poster-results-near-me {
     gap: 20px;
@@ -1027,7 +1027,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 .poster-results:not(.is-poster-page) .poster-results-header {
   max-width: none;
-  margin: 0 0 52px clamp(0px, 4.8vw, 76px);
+  margin: 0 0 52px 0;
 }
 
 .poster-results:not(.is-poster-page) .poster-results-eyebrow {
@@ -1231,7 +1231,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 @media (width <= 1100px) {
   .poster-results:not(.is-poster-page) .poster-results-inner {
-    width: min(100%, calc(100% - 40px));
+    width: 100%;
   }
 
   .poster-results:not(.is-poster-page) .poster-results-header {
@@ -1250,7 +1250,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   }
 
   .poster-results:not(.is-poster-page) .poster-results-inner {
-    width: min(100%, calc(100% - 24px));
+    width: 100%;
   }
 
   .poster-results:not(.is-poster-page) .poster-results-form {
