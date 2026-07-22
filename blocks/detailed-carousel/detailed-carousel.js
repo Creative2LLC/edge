@@ -66,7 +66,7 @@ function buildSlide(data, row) {
   const content = document.createElement('div');
   content.className = 'detailed-carousel-content';
 
-  // Three stat columns
+  // Stat columns - only render if they have content
   const stats = document.createElement('div');
   stats.className = 'detailed-carousel-stats';
 
@@ -76,7 +76,10 @@ function buildSlide(data, row) {
     { title: data.stat3Title, body: data.stat3Body },
   ];
 
+  // Only render stats that have at least a title or body
   statFields.forEach((stat) => {
+    if (!stat.title && !stat.body) return;
+
     const col = document.createElement('div');
     col.className = 'detailed-carousel-stat';
 
@@ -144,6 +147,8 @@ export default function decorate(block) {
   slideRows.forEach((row) => {
     const imageField = getImageField(row, 0);
     const imageAltField = getField(row, 'imageAlt', 1);
+
+    // Read all fields
     const stat1TitleField = getField(row, 'stat1Title', 2);
     const stat1BodyField = getField(row, 'stat1Body', 3);
     const stat2TitleField = getField(row, 'stat2Title', 4);
@@ -154,6 +159,18 @@ export default function decorate(block) {
     const buttonLinkField = getLinkField(row, 'buttonLink', 9);
     const buttonColorField = getField(row, 'buttonColor', 10);
 
+    // Check if stat3 values match button values (indicating they were read from same cell)
+    // If stat3Title matches buttonText exactly, it means buttonText was read as stat3Title
+    let stat3Title = stat3TitleField.value;
+    let stat3Body = stat3BodyField.value;
+
+    if (stat3Title && stat3Title === buttonTextField.value) {
+      stat3Title = '';
+    }
+    if (stat3Body && stat3Body === buttonLinkField.value) {
+      stat3Body = '';
+    }
+
     slides.push({
       data: {
         imageField,
@@ -162,8 +179,8 @@ export default function decorate(block) {
         stat1Body: stat1BodyField.value,
         stat2Title: stat2TitleField.value,
         stat2Body: stat2BodyField.value,
-        stat3Title: stat3TitleField.value,
-        stat3Body: stat3BodyField.value,
+        stat3Title,
+        stat3Body,
         buttonText: buttonTextField.value,
         buttonLink: buttonLinkField.value,
         buttonColor: buttonColorField.value,
