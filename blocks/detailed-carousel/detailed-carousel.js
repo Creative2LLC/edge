@@ -66,7 +66,7 @@ function buildSlide(data, row) {
   const content = document.createElement('div');
   content.className = 'detailed-carousel-content';
 
-  // Three stat columns
+  // Stat columns - only render if they have content
   const stats = document.createElement('div');
   stats.className = 'detailed-carousel-stats';
 
@@ -76,7 +76,10 @@ function buildSlide(data, row) {
     { title: data.stat3Title, body: data.stat3Body },
   ];
 
+  // Only render stats that have at least a title or body
   statFields.forEach((stat) => {
+    if (!stat.title && !stat.body) return;
+
     const col = document.createElement('div');
     col.className = 'detailed-carousel-stat';
 
