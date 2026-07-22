@@ -1100,7 +1100,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 /* Redesigned search form */
 .poster-results:not(.is-poster-page) {
-  padding: 60px 0 72px;
+  padding: 60px 0 0;
   background: linear-gradient(90deg, #f8f8f8 0%, #f4f6f8 100%);
 }
 
@@ -1329,7 +1329,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 @media (width <= 700px) {
   .poster-results:not(.is-poster-page) {
-    padding: 42px 0 52px;
+    padding: 42px 0 0;
   }
 
   .poster-results:not(.is-poster-page) .poster-results-inner {
