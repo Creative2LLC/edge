@@ -148,24 +148,28 @@ export default function decorate(block) {
     const imageField = getImageField(row, 0);
     const imageAltField = getField(row, 'imageAlt', 1);
 
-    // Read button fields first to identify them
-    const buttonTextField = getField(row, 'buttonText', 8);
-    const buttonLinkField = getLinkField(row, 'buttonLink', 9);
-    const buttonColorField = getField(row, 'buttonColor', 10);
-
-    // Read stat fields, but skip if they come from button field sources
+    // Read all fields
     const stat1TitleField = getField(row, 'stat1Title', 2);
     const stat1BodyField = getField(row, 'stat1Body', 3);
     const stat2TitleField = getField(row, 'stat2Title', 4);
     const stat2BodyField = getField(row, 'stat2Body', 5);
     const stat3TitleField = getField(row, 'stat3Title', 6);
     const stat3BodyField = getField(row, 'stat3Body', 7);
+    const buttonTextField = getField(row, 'buttonText', 8);
+    const buttonLinkField = getLinkField(row, 'buttonLink', 9);
+    const buttonColorField = getField(row, 'buttonColor', 10);
 
-    // If stat3Title's source is the same as buttonText's source, clear stat3Title
-    const stat3Title = (stat3TitleField.source === buttonTextField.source && buttonTextField.source)
-      ? '' : stat3TitleField.value;
-    const stat3Body = (stat3BodyField.source === buttonLinkField.source && buttonLinkField.source)
-      ? '' : stat3BodyField.value;
+    // Check if stat3 values match button values (indicating they were read from same cell)
+    // If stat3Title matches buttonText exactly, it means buttonText was read as stat3Title
+    let stat3Title = stat3TitleField.value;
+    let stat3Body = stat3BodyField.value;
+
+    if (stat3Title && stat3Title === buttonTextField.value) {
+      stat3Title = '';
+    }
+    if (stat3Body && stat3Body === buttonLinkField.value) {
+      stat3Body = '';
+    }
 
     slides.push({
       data: {
