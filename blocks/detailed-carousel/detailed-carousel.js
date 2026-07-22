@@ -147,15 +147,25 @@ export default function decorate(block) {
   slideRows.forEach((row) => {
     const imageField = getImageField(row, 0);
     const imageAltField = getField(row, 'imageAlt', 1);
+
+    // Read button fields first to identify them
+    const buttonTextField = getField(row, 'buttonText', 8);
+    const buttonLinkField = getLinkField(row, 'buttonLink', 9);
+    const buttonColorField = getField(row, 'buttonColor', 10);
+
+    // Read stat fields, but skip if they come from button field sources
     const stat1TitleField = getField(row, 'stat1Title', 2);
     const stat1BodyField = getField(row, 'stat1Body', 3);
     const stat2TitleField = getField(row, 'stat2Title', 4);
     const stat2BodyField = getField(row, 'stat2Body', 5);
     const stat3TitleField = getField(row, 'stat3Title', 6);
     const stat3BodyField = getField(row, 'stat3Body', 7);
-    const buttonTextField = getField(row, 'buttonText', 8);
-    const buttonLinkField = getLinkField(row, 'buttonLink', 9);
-    const buttonColorField = getField(row, 'buttonColor', 10);
+
+    // If stat3Title's source is the same as buttonText's source, clear stat3Title
+    const stat3Title = (stat3TitleField.source === buttonTextField.source && buttonTextField.source)
+      ? '' : stat3TitleField.value;
+    const stat3Body = (stat3BodyField.source === buttonLinkField.source && buttonLinkField.source)
+      ? '' : stat3BodyField.value;
 
     slides.push({
       data: {
@@ -165,8 +175,8 @@ export default function decorate(block) {
         stat1Body: stat1BodyField.value,
         stat2Title: stat2TitleField.value,
         stat2Body: stat2BodyField.value,
-        stat3Title: stat3TitleField.value,
-        stat3Body: stat3BodyField.value,
+        stat3Title,
+        stat3Body,
         buttonText: buttonTextField.value,
         buttonLink: buttonLinkField.value,
         buttonColor: buttonColorField.value,
