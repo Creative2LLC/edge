@@ -599,6 +599,80 @@
   line-height: 1.5;
 }
 
+/* Participant sections: missing child(ren) → associated child → companion */
+.poster-results-participant + .poster-results-participant {
+  margin-top: 32px;
+  padding-top: 30px;
+  border-top: 1px solid #e2e6ea;
+}
+
+.poster-results-participant-heading {
+  margin: 0 0 24px;
+  color: #243846;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.poster-results-participant-heading::after {
+  content: "";
+  display: block;
+  width: 132px;
+  height: 3px;
+  margin: 10px auto 0;
+  border-radius: 2px;
+  background: #f4c21d;
+}
+
+.poster-results-detail-body h3.poster-results-detail-name {
+  margin: 0 0 6px;
+  color: #1b8db5;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.14;
+}
+
+.poster-results-detail-ncic {
+  margin: 0 0 18px;
+  color: #6b7680;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.poster-results-detail-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.poster-results-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  color: #303030;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.poster-results-fact-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: #33566b;
+}
+
+.poster-results-fact-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.poster-results-fact-label {
+  font-weight: 700;
+}
+
 .poster-results-related-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -583,10 +583,6 @@ function createDetailRow(label, value) {
   return [dt, dd];
 }
 
-function detailValue(payload, child, keys) {
-  return firstValue(child, keys) || firstValue(payload, keys);
-}
-
 function appendDetailRows(list, rows) {
   rows.forEach(([label, value]) => {
     const row = createDetailRow(label, value);
@@ -978,107 +974,139 @@ function isUnidentifiedPoster(payload, child) {
     || Boolean(normalizeText(child?.dateFound || child?.foundCity || child?.foundState));
 }
 
-function missingChildDetailRows(payload, child) {
-  return [
-    ['Case', payload?.caseNumber || child.caseNumber],
-    ['NCIC', detailValue(payload, child, ['ncicNumber', 'ncic'])],
-    ['Missing Since', detailValue(payload, child, ['missingDate', 'dateMissing', 'missingSince'])],
-    ['Missing From', locationText(child)],
-    ['Age Now', detailValue(payload, child, ['age', 'ageNow'])],
-    ['Age Missing', detailValue(payload, child, ['ageMissing', 'missingAge'])],
-    ['Date of Birth', detailValue(payload, child, ['dateOfBirth', 'birthDate', 'dob'])],
-    ['Gender', detailValue(payload, child, ['sex', 'gender'])],
-    ['Race', detailValue(payload, child, ['race', 'races'])],
-    ['Hair Color', detailValue(payload, child, ['hairColor', 'hair'])],
-    ['Eye Color', detailValue(payload, child, ['eyeColor', 'eyes'])],
-    ['Height', joinValues([
-      detailValue(payload, child, ['height']),
-      detailValue(payload, child, ['heightTo']),
-    ], ' - ')],
-    ['Weight', joinValues([
-      detailValue(payload, child, ['weight']),
-      detailValue(payload, child, ['weightTo']),
-    ], ' - ')],
-    ['Aliases', detailValue(payload, child, ['alias', 'aliases', 'nickname'])],
-  ];
+function posterTypeLabel(children, unidentified) {
+  if (unidentified) return 'Unidentified';
+  return children.length > 1 ? 'Missing Children' : 'Missing Child';
 }
 
-function unidentifiedDetailRows(payload, child) {
-  return [
-    ['Case', payload?.caseNumber || child.caseNumber],
-    ['NCIC', detailValue(payload, child, ['ncicNumber', 'ncic'])],
-    ['NamUs', detailValue(payload, child, ['namus', 'namusNumber'])],
-    ['Date Found', detailValue(payload, child, ['dateFound', 'foundDate'])],
-    ['Found In', locationText(child)],
-    ['Approximate Age', detailValue(payload, child, ['approximateAge', 'age', 'ageNow'])],
-    ['Gender', detailValue(payload, child, ['sex', 'gender'])],
-    ['Race', detailValue(payload, child, ['race', 'races'])],
-    ['Hair Color', detailValue(payload, child, ['hairColor', 'hair'])],
-    ['Eye Color', detailValue(payload, child, ['eyeColor', 'eyes'])],
-    ['Height', joinValues([
-      detailValue(payload, child, ['height']),
-      detailValue(payload, child, ['heightTo']),
-    ], ' - ')],
-    ['Weight', joinValues([
-      detailValue(payload, child, ['weight']),
-      detailValue(payload, child, ['weightTo']),
-    ], ' - ')],
-  ];
+// Simple line icons (Lucide-style) shown beside each fact, matching the legacy
+// poster. stroke="currentColor" so they inherit the surrounding text color.
+const POSTER_FACT_ICONS = {
+  date: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+  location: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+  age: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/>',
+  gender: '<circle cx="12" cy="8" r="4"/><path d="M6 21v-1a6 6 0 0 1 12 0v1"/>',
+};
+
+function posterFactIcon(name) {
+  const icon = document.createElement('span');
+  icon.className = 'poster-results-fact-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${POSTER_FACT_ICONS[name] || ''}</svg>`;
+  return icon;
 }
 
-function createCompanionsSection(payload, selectedPerson) {
-  const companions = arrayItems(payload?.companions)
-    .filter((person) => !samePerson(person, selectedPerson));
-  if (!companions.length) return null;
+function formatPosterDate(value) {
+  const text = normalizeText(value);
+  if (!text) return '';
+  // Drop a trailing "12:00:00 AM"-style time so only the date shows.
+  return text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim() || text;
+}
 
-  const section = document.createElement('section');
-  section.className = 'poster-results-related';
-  const heading = document.createElement('h4');
-  heading.textContent = 'May Be In The Company Of';
-  const list = document.createElement('div');
-  list.className = 'poster-results-related-list';
+function capitalizeWords(value) {
+  return normalizeText(value).toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+}
 
-  companions.forEach((companion) => {
-    const row = document.createElement('article');
-    row.className = 'poster-results-related-person';
-    const image = childPhotoSources(companion)[0];
-    if (image) {
-      const img = document.createElement('img');
-      img.src = image;
-      img.alt = displayName(companion, 'Companion');
-      img.loading = 'lazy';
-      row.append(img);
+function participantFacts(person, unidentified) {
+  const date = formatPosterDate(firstValue(person, ['missingDate', 'dateMissing', 'missingSince', 'dateFound', 'foundDate']));
+  const location = locationText(person);
+  const age = firstValue(person, ['approximateAge', 'age', 'ageNow']);
+  const gender = firstValue(person, ['sex', 'gender']);
+
+  const facts = [];
+  if (date) facts.push({ icon: 'date', label: unidentified ? 'Date Found' : 'Missing Since', value: date });
+  if (location) facts.push({ icon: 'location', label: unidentified ? 'Location Found' : '', value: location });
+  if (age && `${age}` !== '-1') {
+    facts.push({ icon: 'age', label: unidentified ? 'Estimated Age' : 'Age Now', value: `${age} Years Old` });
+  }
+  if (gender) facts.push({ icon: 'gender', label: '', value: capitalizeWords(gender) });
+  return facts;
+}
+
+function appendFactRows(container, facts) {
+  facts.forEach(({ icon, label, value }) => {
+    if (!normalizeText(value)) return;
+    const row = document.createElement('p');
+    row.className = 'poster-results-fact';
+    row.append(posterFactIcon(icon));
+
+    const text = document.createElement('span');
+    text.className = 'poster-results-fact-text';
+    if (label) {
+      const strong = document.createElement('span');
+      strong.className = 'poster-results-fact-label';
+      strong.textContent = `${label}: `;
+      text.append(strong);
     }
-
-    const content = document.createElement('div');
-    const title = document.createElement('h5');
-    title.textContent = displayName(companion, 'Companion');
-    const type = document.createElement('p');
-    type.textContent = firstValue(companion, ['companionType', 'person_type', 'personType', 'type']) || 'Companion';
-    const details = document.createElement('dl');
-    appendDetailRows(details, [
-      ['Age', firstValue(companion, ['ageNow', 'age', 'approximateAge'])],
-      ['Gender', firstValue(companion, ['sex', 'gender'])],
-      ['Race', firstValue(companion, ['race', 'races'])],
-      ['Hair Color', firstValue(companion, ['hairColor'])],
-      ['Eye Color', firstValue(companion, ['eyeColor'])],
-      ['NCIC', firstValue(companion, ['ncicNumber', 'ncic'])],
-    ]);
-    content.append(title, type, details);
-
-    const description = firstValue(companion, ['description']);
-    if (description) {
-      const copy = document.createElement('p');
-      copy.className = 'poster-results-related-copy';
-      copy.textContent = description;
-      content.append(copy);
-    }
-
-    row.append(content);
-    list.append(row);
+    text.append(document.createTextNode(value));
+    row.append(text);
+    container.append(row);
   });
+}
 
-  section.append(heading, list);
+function buildParticipantSection(payload, {
+  person, heading, main, unidentified,
+}) {
+  const section = document.createElement('section');
+  section.className = `poster-results-participant${main ? ' is-main' : ''}`;
+
+  if (heading) {
+    const headingEl = document.createElement('h4');
+    headingEl.className = 'poster-results-participant-heading';
+    headingEl.textContent = heading;
+    section.append(headingEl);
+  }
+
+  const layout = document.createElement('div');
+  layout.className = 'poster-results-detail-layout';
+
+  const name = displayName(person, heading || 'Missing Child');
+  const image = childPhotoSources(person)[0];
+  if (image) {
+    const media = document.createElement('div');
+    media.className = 'poster-results-detail-media';
+    const img = document.createElement('img');
+    img.src = image;
+    img.alt = name;
+    img.loading = 'lazy';
+    media.append(img);
+    layout.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'poster-results-detail-body';
+
+  const title = document.createElement('h3');
+  title.className = 'poster-results-detail-name';
+  title.textContent = name;
+  body.append(title);
+
+  const ncic = firstValue(person, ['ncicNumber', 'ncic']);
+  if (ncic) {
+    const ncicEl = document.createElement('p');
+    ncicEl.className = 'poster-results-detail-ncic';
+    ncicEl.textContent = `NCIC# ${ncic}`;
+    body.append(ncicEl);
+  }
+
+  const facts = document.createElement('div');
+  facts.className = 'poster-results-detail-facts';
+  appendFactRows(facts, participantFacts(person, unidentified));
+  body.append(facts);
+
+  if (main) {
+    const narrative = posterNarrative(payload, person);
+    if (narrative) {
+      const copy = document.createElement('p');
+      copy.className = 'poster-results-detail-copy';
+      copy.textContent = narrative;
+      body.append(copy);
+    }
+  }
+
+  layout.append(body);
+  section.append(layout);
+  appendPhotoGallery(section, person, name);
   return section;
 }
 
@@ -1086,17 +1114,17 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   container.replaceChildren();
   meta.textContent = '';
 
-  const children = Array.isArray(payload?.children) ? payload.children : [];
-  const child = children[0] || payload || {};
-  const name = displayName(child);
-  const imageSrc = childPhotoSources(child)[0];
-  const unidentified = isUnidentifiedPoster(payload, child);
+  const children = Array.isArray(payload?.children) && payload.children.length
+    ? payload.children
+    : [payload || {}];
+  const mainChild = children[0] || {};
+  const unidentified = isUnidentifiedPoster(payload, mainChild);
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail';
 
   detail.append(
-    createMissingChildHeading(unidentified ? 'Unidentified Child' : 'Missing Child'),
+    createMissingChildHeading(posterTypeLabel(children, unidentified)),
     createActionBar(config),
   );
 
@@ -1105,47 +1133,28 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   back.className = 'poster-results-detail-back';
   back.textContent = 'Back to results';
   back.addEventListener('click', onBack);
+  detail.append(back);
 
-  const layout = document.createElement('div');
-  layout.className = 'poster-results-detail-layout';
+  // Missing child(ren) first, then any additional children as "Associated
+  // Child", then companions — matching the legacy poster's stacked sections.
+  const entries = [
+    ...children.map((person, index) => ({
+      person,
+      main: index === 0,
+      unidentified,
+      heading: index === 0 ? '' : 'Associated Child',
+    })),
+    ...arrayItems(payload?.companions).map((person) => ({
+      person,
+      main: false,
+      unidentified: false,
+      heading: capitalizeWords(firstValue(person, ['companionType']) || 'Companion'),
+    })),
+  ];
 
-  if (imageSrc) {
-    const media = document.createElement('div');
-    media.className = 'poster-results-detail-media';
-    const img = document.createElement('img');
-    img.src = imageSrc;
-    img.alt = name;
-    media.append(img);
-    layout.append(media);
-  }
-
-  const body = document.createElement('div');
-  body.className = 'poster-results-detail-body';
-  const title = document.createElement('h3');
-  title.textContent = name;
-  body.append(title);
-
-  const details = document.createElement('dl');
-  appendDetailRows(details, unidentified
-    ? unidentifiedDetailRows(payload, child)
-    : missingChildDetailRows(payload, child));
-  body.append(details);
-
-  const narrative = posterNarrative(payload, child);
-  if (narrative) {
-    const copy = document.createElement('p');
-    copy.className = 'poster-results-detail-copy';
-    copy.textContent = narrative;
-    body.append(copy);
-  }
-
-  const companions = createCompanionsSection(payload, child);
-  if (companions) body.append(companions);
-
-  layout.append(body);
-  detail.append(back, layout, createDetailFooter(config, payload, child));
+  entries.forEach((entry) => detail.append(buildParticipantSection(payload, entry)));
+  detail.append(createDetailFooter(config, payload, mainChild));
   container.append(detail);
-  appendPhotoGallery(detail, child, name);
 }
 
 function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) {
