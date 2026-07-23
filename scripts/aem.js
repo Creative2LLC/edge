@@ -11,6 +11,8 @@
  */
 
 /* eslint-env browser */
+import { decorateButtonText } from './button-utils.js';
+
 function sampleRUM(checkpoint, data) {
   // eslint-disable-next-line max-len
   const timeShift = () => (window.performance ? window.performance.now() : Date.now() - window.hlx.rum.firstReadTime);
@@ -626,7 +628,6 @@ function decorateButtons(element) {
   element.querySelectorAll('a').forEach((a) => {
     if (isAemColorValueLink(a)) return;
 
-    a.title = a.title || a.textContent;
     if (a.href !== a.textContent) {
       const up = a.parentElement;
       const twoup = a.parentElement.parentElement;
@@ -634,6 +635,13 @@ function decorateButtons(element) {
         if (up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV')) {
           a.classList.add('button'); // default
           up.classList.add('button-container');
+          // Auto-add arrow to button text (only if not already decorated)
+          if (!a.dataset.buttonDecorated) {
+            a.textContent = decorateButtonText(a.textContent);
+            a.dataset.buttonDecorated = 'true';
+          }
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
         if (
           up.childNodes.length === 1
@@ -643,6 +651,13 @@ function decorateButtons(element) {
         ) {
           a.classList.add('button', 'primary');
           twoup.classList.add('button-container');
+          // Auto-add arrow to button text (only if not already decorated)
+          if (!a.dataset.buttonDecorated) {
+            a.textContent = decorateButtonText(a.textContent);
+            a.dataset.buttonDecorated = 'true';
+          }
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
         if (
           up.childNodes.length === 1
@@ -652,6 +667,13 @@ function decorateButtons(element) {
         ) {
           a.classList.add('button', 'secondary');
           twoup.classList.add('button-container');
+          // Auto-add arrow to button text (only if not already decorated)
+          if (!a.dataset.buttonDecorated) {
+            a.textContent = decorateButtonText(a.textContent);
+            a.dataset.buttonDecorated = 'true';
+          }
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
       }
     }

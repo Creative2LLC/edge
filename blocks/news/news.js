@@ -6,6 +6,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import { decorateButtonText } from '../../scripts/button-utils.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -170,7 +171,7 @@ function buildReadMore(url) {
   a.href = url;
   a.target = '_blank';
   a.rel = 'noopener noreferrer';
-  a.textContent = 'Read more \u2192';
+  a.textContent = decorateButtonText('Read more');
   return a;
 }
 

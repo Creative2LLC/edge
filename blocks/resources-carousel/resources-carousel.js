@@ -5,6 +5,7 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
+import { decorateButtonText } from '../../scripts/button-utils.js';
 
 // Row index for each field in the published AEM delivery
 // (each field is one row with a single cell when data-aue-prop is stripped).
@@ -174,7 +175,7 @@ function buildCard(item, learnMoreLabel) {
   const link = document.createElement('a');
   link.className = 'resources-carousel-card-link';
   link.href = item.href || '#';
-  link.textContent = learnMoreLabel;
+  link.textContent = decorateButtonText(learnMoreLabel);
   card.append(link);
 
   // Cover link for full-card clickability

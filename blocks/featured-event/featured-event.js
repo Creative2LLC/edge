@@ -6,6 +6,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import { decorateButtonText } from '../../scripts/button-utils.js';
 
 /* ---------- Field helpers ---------- */
 
@@ -136,7 +137,7 @@ function buildCard(data) {
     cta.className = 'featured-event-cta';
     if (data.ctaLink) cta.href = data.ctaLink;
     if (data.ctaTextSource) moveInstrumentation(data.ctaTextSource, cta);
-    cta.textContent = `${data.ctaText} →`;
+    cta.textContent = decorateButtonText(data.ctaText);
     body.append(cta);
   }
 

@@ -9,6 +9,7 @@ import {
   resourcePathFromAueResource,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import { decorateButtonText } from '../../scripts/button-utils.js';
 
 // Beyond this many tabs the tablist becomes a single horizontal scroller
 // instead of wrapping onto multiple rows.
@@ -474,7 +475,7 @@ function buildCardLink(card) {
 
   const labelElement = document.createElement('span');
   labelElement.className = 'tabs-card-link-text';
-  appendTextField(card.linkTextField, labelElement, label || 'Learn more');
+  appendTextField(card.linkTextField, labelElement, decorateButtonText(label, { defaultText: 'Learn more' }));
   link.append(labelElement);
 
   return link;
