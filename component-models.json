@@ -24269,6 +24269,82 @@
           }
         ],
         "value": "circle"
+      },
+      {
+        "component": "tab",
+        "name": "tabTitleStyle",
+        "label": "Title Style"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "content_titleSize",
+        "label": "Title Font Size",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Small",
+            "value": "title-sm"
+          },
+          {
+            "name": "Medium",
+            "value": "title-md"
+          },
+          {
+            "name": "Large",
+            "value": "title-lg"
+          },
+          {
+            "name": "Extra Large",
+            "value": "title-xl"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "content_titleColor",
+        "label": "Title Color",
+        "description": "Overrides the general Text Color for the title only.",
+        "options": [
+          {
+            "name": "Inherit (use Text Color)",
+            "value": ""
+          },
+          {
+            "name": "White",
+            "value": "title-white"
+          },
+          {
+            "name": "Primary Blue 1 (#00264D)",
+            "value": "title-navy"
+          },
+          {
+            "name": "Primary Blue 2 (#007294)",
+            "value": "title-blue"
+          },
+          {
+            "name": "Brand Blue (#008DB6)",
+            "value": "title-brand"
+          },
+          {
+            "name": "Primary Grey 1 (#404041)",
+            "value": "title-grey"
+          },
+          {
+            "name": "Orange (#E07E27)",
+            "value": "title-orange"
+          },
+          {
+            "name": "Primary Red 1 (#E13E30)",
+            "value": "title-red"
+          }
+        ],
+        "value": ""
       }
     ]
   },

@@ -883,18 +883,6 @@ function createActionBar(config) {
   actions.append(createActionLink('CALL 911', 'tel:911'));
   actions.append(createActionLink('SUBMIT A TIP', config.submitTipUrl));
   actions.append(createActionButton('PRINT POSTER', () => window.print()));
-  actions.append(createActionButton('SHARE', async () => {
-    const shareData = {
-      title: document.title,
-      url: window.location.href,
-    };
-
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(window.location.href);
-    }
-  }));
 
   return actions;
 }

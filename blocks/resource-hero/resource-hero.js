@@ -53,7 +53,12 @@ const FIELD_INDEX = {
   markerTerms: 35,
   markerColor: 36,
   markerStyle: 37,
+  content_titleSize: 38,
+  content_titleColor: 39,
 };
+
+const TITLE_SIZE_TOKENS = ['title-sm', 'title-md', 'title-lg', 'title-xl'];
+const TITLE_COLOR_TOKENS = ['title-white', 'title-navy', 'title-blue', 'title-brand', 'title-grey', 'title-orange', 'title-red'];
 
 const RESOURCE_FIELD_NAMES = Object.keys(FIELD_INDEX);
 
@@ -231,6 +236,12 @@ function normalizeHexColor(value) {
     return trimmed;
   }
   return '';
+}
+
+// Accept only a known style token (e.g. title-lg / title-navy); ignore anything else.
+function normalizeToken(value, allowed) {
+  const trimmed = normalizeText(value).toLowerCase();
+  return allowed.includes(trimmed) ? trimmed : '';
 }
 
 function splitList(value) {
@@ -413,6 +424,8 @@ function parseFlattenedFields(block) {
   }
 
   fields.markerStyle = consumeMatching(entries, (entry) => ['circle', 'underline'].includes(entry.key))?.text || '';
+  fields.content_titleSize = consumeMatching(entries, (entry) => TITLE_SIZE_TOKENS.includes(entry.key))?.text || '';
+  fields.content_titleColor = consumeMatching(entries, (entry) => TITLE_COLOR_TOKENS.includes(entry.key))?.text || '';
   fields.watchLabel = consumeMatching(entries, (entry) => entry.key === 'watch-video')?.text || '';
   fields.downloadLabel = consumeMatching(entries, (entry) => entry.key === 'download-resource')?.text || '';
   fields.gated = consumeMatching(entries, (entry) => ['true', 'false', 'gated', 'open'].includes(entry.key))?.text || '';
@@ -1011,6 +1024,8 @@ function readFields(block, aemFields) {
     bodyHtml: bodyField.html || readRichHtml(block, aemFields, 'resourceBody', flattened.resourceBody),
     bodyField,
     textColor: normalizeHexColor(readText(block, aemFields, 'content_textColor', flattened.content_textColor)),
+    titleSize: normalizeToken(readText(block, aemFields, 'content_titleSize', flattened.content_titleSize), TITLE_SIZE_TOKENS),
+    titleColor: normalizeToken(readText(block, aemFields, 'content_titleColor', flattened.content_titleColor), TITLE_COLOR_TOKENS),
     watchLabel: readText(block, aemFields, 'watchLabel', flattened.watchLabel || 'Watch Video'),
     videoFile: readReference(block, aemFields, 'videoFile', flattened.videoFile),
     videoFilePath: readText(block, aemFields, 'videoFilePath', flattened.videoFilePath),
@@ -1088,7 +1103,11 @@ export default async function decorate(block) {
     'resource-hero-title',
     fields.title || 'Resource title',
   );
-  if (title) main.append(title);
+  if (title) {
+    if (fields.titleSize) title.classList.add(fields.titleSize);
+    if (fields.titleColor) title.classList.add(fields.titleColor);
+    main.append(title);
+  }
 
   const intro = buildInstrumentedText(
     fields.introField,
@@ -1114,7 +1133,9 @@ export default async function decorate(block) {
       style: fields.markerStyle,
     });
     decorateInlineColors(target);
-    if (fields.textColor) target.style.color = fields.textColor;
+    // A per-title color (applied as a CSS class) wins over the general text color.
+    const titleColorWins = target === title && fields.titleColor;
+    if (fields.textColor && !titleColorWins) target.style.color = fields.textColor;
   });
 
   layout.append(main);

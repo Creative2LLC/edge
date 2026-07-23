@@ -38,6 +38,13 @@
   font-size: clamp(16px, 1.35vw, 20px);
   font-weight: 500;
   line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: break-spaces;
+}
+
+.resources-browser .resources-browser-description :where(p, li, h1, h2, h3, h4, h5, h6) {
+  overflow-wrap: anywhere;
+  white-space: break-spaces;
 }
 
 .resources-browser .resources-browser-description > :first-child {

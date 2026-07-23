@@ -195,6 +195,29 @@ function readConfigValue(rows, name, columnIndex, fallback = '') {
   return fallback;
 }
 
+function readConfigRichValue(rows, name, columnIndex, fallback = '') {
+  const propValue = rows
+    .map((row) => readRichTextField(row, name).html)
+    .find(Boolean);
+  if (propValue) return propValue || fallback;
+
+  const firstRow = rows[0];
+  if (firstRow) {
+    const col = [...firstRow.children][columnIndex];
+    const value = col?.innerHTML?.trim() || '';
+    if (value) return value;
+  }
+
+  const compactRow = rows[columnIndex];
+  if (compactRow) {
+    const compactCell = compactRow.children[0] || compactRow;
+    const compactValue = compactCell?.innerHTML?.trim() || '';
+    if (compactValue) return compactValue;
+  }
+
+  return fallback;
+}
+
 const TAG_COLORS = {
   video: { bg: '#1f9bd1', color: '#fff' },
   families: { bg: '#ef4444', color: '#fff' },
@@ -236,7 +259,9 @@ function collectLegacyBlockFields(block) {
       const matched = labels.some((label) => key === label || key.includes(label));
       if (!matched) return false;
       const anchor = valueEl.querySelector('a');
-      map[name] = anchor?.getAttribute('href') || valueEl.textContent.trim();
+      map[name] = name === 'bodyText'
+        ? valueEl.innerHTML.trim()
+        : anchor?.getAttribute('href') || valueEl.textContent.trim();
       rowsToRemove.push(row);
       return true;
     });
@@ -1985,8 +2010,7 @@ export default function decorate(block) {
       || readConfigValue(configRows, 'heading', 0)
       || readConfigField(configRow, 'heading', 0),
     bodyText: getBlockRichTextField(block, legacyMap, 'bodyText')
-      || readConfigValue(configRows, 'bodyText', 12)
-      || readConfigField(configRow, 'bodyText', 12),
+      || readConfigRichValue(configRows, 'bodyText', 11),
     apiBaseUrl,
     selectedField: getBlockField(block, legacyMap, 'selected')
       || readConfigValue(configRows, 'selected', 2)
@@ -2019,13 +2043,10 @@ export default function decorate(block) {
     tagPreset: getBlockField(block, legacyMap, 'tagPreset')
       || filterConfig.tags.join(', '),
     languagePreset: getBlockField(block, legacyMap, 'languagePreset')
-      || readConfigValue(configRows, 'languagePreset', 11)
       || filterConfig.language.join(', '),
     programPreset: getBlockField(block, legacyMap, 'programPreset')
-      || readConfigValue(configRows, 'programPreset', 12)
       || filterConfig.programs.join(', '),
     gradeAgePreset: getBlockField(block, legacyMap, 'gradeAgePreset')
-      || readConfigValue(configRows, 'gradeAgePreset', 13)
       || filterConfig.gradeAges.join(', '),
     lengthPreset: getBlockField(block, legacyMap, 'lengthPreset')
       || filterConfig.lengths.join(', '),
@@ -2037,13 +2058,11 @@ export default function decorate(block) {
     filterTags: getBlockField(block, legacyMap, 'filterTags')
       || readConfigValue(configRows, 'filterTags', 5)
       || readConfigField(configRow, 'filterTags', 5),
-    hiddenFilterTags: getBlockField(block, legacyMap, 'hiddenFilterTags')
-      || readConfigValue(configRows, 'hiddenFilterTags', 6)
-      || readConfigField(configRow, 'hiddenFilterTags', 6),
+    hiddenFilterTags: getBlockField(block, legacyMap, 'hiddenFilterTags'),
     lockedPrograms: parseTagOptions(
       getBlockField(block, legacyMap, 'lockedPrograms')
-        || readConfigValue(configRows, 'lockedPrograms', 7)
-        || readConfigField(configRow, 'lockedPrograms', 7),
+        || readConfigValue(configRows, 'lockedPrograms', 6)
+        || readConfigField(configRow, 'lockedPrograms', 6),
     ).filter((value) => LOCKABLE_PROGRAM_VALUES.includes(value)),
   };
 
