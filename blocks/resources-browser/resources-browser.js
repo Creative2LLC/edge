@@ -81,7 +81,7 @@ const FILTER_FACETS = [
 // block config positionally with no labels, so a stale/misread config cell
 // (e.g. "pagination" on an older-model page) must never become a phantom
 // program filter that hides every resource.
-const LOCKABLE_PROGRAM_VALUES = ['kidsmartz', 'netsmartz'];
+const LOCKABLE_PROGRAM_VALUES = ['kidsmartz', 'netsmartz', 'safe-to-compete'];
 
 const DEFAULT_VISIBLE_FILTERS = [...FILTER_FACETS];
 
@@ -198,6 +198,7 @@ const TAG_COLORS = {
   'fact-sheet': { bg: '#2eb6d8', color: '#fff' },
   kidsmartz: { bg: '#008db6', color: '#fff' },
   netsmartz: { bg: '#f28c28', color: '#102536' },
+  'safe-to-compete': { bg: '#00264d', color: '#fff' },
   'k-2': { bg: '#c7e8d1', color: '#143423' },
   '3-5': { bg: '#d8ecf7', color: '#123244' },
   'middle-school': { bg: '#6b7fca', color: '#fff' },
@@ -396,6 +397,25 @@ function getPropImage(row, prop) {
   };
 }
 
+function durationMinutesValue(value) {
+  const minutes = Number.parseInt(`${value || ''}`.replace(/[^0-9]/g, ''), 10);
+  return Number.isFinite(minutes) && minutes > 0 ? minutes : null;
+}
+
+function matchesDurationThreshold(resource, selectedLength) {
+  if (!selectedLength.size) return true;
+
+  const minutes = durationMinutesValue(resource.durationMinutes);
+  if (minutes) {
+    return [...selectedLength].some((value) => {
+      const threshold = durationMinutesValue(value);
+      return threshold && minutes <= threshold;
+    });
+  }
+
+  return (resource.lengths || []).some((value) => selectedLength.has(normalizeToken(value)));
+}
+
 function mapResource(resource) {
   const audience = parseList(resource.audience);
   const issue = parseList(resource.issue);
@@ -404,6 +424,8 @@ function mapResource(resource) {
   const programs = parseList(resource.programs);
   const gradeAges = parseList(resource.gradeAges);
   const lengths = parseList(resource.lengths || resource.length);
+  const durationMinutes = durationMinutesValue(resource.durationMinutes)
+    || durationMinutesValue(lengths[0]);
   const customTags = parseList(resource.tags);
   return {
     imagePicture: resource.imagePicture || null,
@@ -413,7 +435,7 @@ function mapResource(resource) {
     subtitle: resource.subtitle || '',
     linkUrl: resource.linkUrl || '',
     id: resource.id || resource.title || '',
-    durationMinutes: resource.durationMinutes || '',
+    durationMinutes: durationMinutes || '',
     durationLabel: resource.durationLabel || '',
     weight: Number.parseInt(resource.weight || '0', 10) || 0,
     audience,
@@ -438,6 +460,8 @@ function mapResource(resource) {
 }
 
 function mapApiResource(resource) {
+  const durationMinutes = durationMinutesValue(resource.duration_minutes);
+
   return {
     imagePicture: null,
     imgSrc: resource.thumbnail || '',
@@ -445,7 +469,7 @@ function mapApiResource(resource) {
     title: resource.title || '',
     subtitle: resource.excerpt || '',
     linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
-    durationMinutes: resource.duration_minutes || '',
+    durationMinutes: durationMinutes || '',
     durationLabel: resource.duration_label || '',
     weight: Number.parseInt(resource.weight || '0', 10) || 0,
     article_date: resource.article_date || '',
@@ -493,11 +517,6 @@ function mapApiResource(resource) {
         value: normalizeToken(resource.issue),
         label: resource.issue_label,
       }] : []),
-      ...(resource.length && resource.length_label ? [{
-        facet: 'lengths',
-        value: normalizeToken(resource.length),
-        label: resource.duration_label || resource.length_label,
-      }] : []),
       ...((resource.tags || []).map((tag) => ({
         facet: 'tags',
         value: normalizeToken(tag.slug || tag.name),
@@ -509,7 +528,7 @@ function mapApiResource(resource) {
     hasDownload: Boolean(resource.has_download),
     gated: Boolean(resource.gated),
     slug: resource.slug || '',
-    lengths: resource.length ? [resource.length] : [],
+    lengths: [],
   };
 }
 
@@ -646,7 +665,7 @@ function formatDurationLabel(resource) {
     return remainingMinutes ? `${hours}H ${remainingMinutes}M` : `${hours}HR`;
   }
 
-  return `${resource.durationLabel || resource.lengths?.[0] || ''}`.trim();
+  return `${resource.durationLabel || ''}`.trim();
 }
 
 function appendResourceCardImage(card, resource) {
@@ -1206,8 +1225,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         || data.programs.some((value) => state.selectedProgram.has(normalizeToken(value)));
       const gradeAgeMatch = !state.selectedGradeAge.size
         || data.gradeAges.some((value) => state.selectedGradeAge.has(normalizeToken(value)));
-      const lengthMatch = !state.selectedLength.size
-        || (data.lengths || []).some((value) => state.selectedLength.has(normalizeToken(value)));
+      const lengthMatch = matchesDurationThreshold(data, state.selectedLength);
 
       return audienceMatch && issueMatch && typeMatch && tagMatch
         && languageMatch && programMatch && gradeAgeMatch && lengthMatch;

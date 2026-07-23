@@ -145,6 +145,10 @@
             {
               "name": "NetSmartz",
               "value": "netsmartz"
+            },
+            {
+              "name": "Safe to Compete",
+              "value": "safe-to-compete"
             }
           ]
         },

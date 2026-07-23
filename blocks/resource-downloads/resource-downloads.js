@@ -1131,7 +1131,7 @@ function informativeMetaRows(entry) {
   const audience = normalizeText(entry.item.informativeAudienceText)
     || labelListText(resource?.audience_labels);
   const time = normalizeText(entry.item.informativeTimeText)
-    || normalizeText(resource?.length_label);
+    || normalizeText(resource?.duration_label);
   const format = informativeFormatValue(entry);
 
   return [

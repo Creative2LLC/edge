@@ -592,43 +592,6 @@
           ]
         },
         {
-          "component": "select",
-          "valueType": "string",
-          "name": "length",
-          "label": "Length of Time",
-          "options": [
-            {
-              "name": "Not set",
-              "value": ""
-            },
-            {
-              "name": "5 minutes or less",
-              "value": "5"
-            },
-            {
-              "name": "10 minutes or less",
-              "value": "10"
-            },
-            {
-              "name": "15 minutes or less",
-              "value": "15"
-            },
-            {
-              "name": "30 minutes or less",
-              "value": "30"
-            },
-            {
-              "name": "45 minutes or less",
-              "value": "45"
-            },
-            {
-              "name": "60 minutes or less",
-              "value": "60"
-            }
-          ],
-          "value": ""
-        },
-        {
           "component": "text",
           "valueType": "string",
           "name": "durationMinutes",

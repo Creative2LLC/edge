@@ -723,30 +723,11 @@ function buildRichText(field, className, fallbackHtml = '') {
     : null;
 }
 
-function buildTaxonomyGroup(label, values) {
+function compactMetaValues(values, maxVisible = 2) {
   const filtered = values.filter(Boolean);
-  if (!filtered.length) return null;
+  if (filtered.length <= maxVisible) return filtered.join(', ');
 
-  const item = document.createElement('article');
-  item.className = 'resource-hero-taxonomy-item';
-
-  const title = document.createElement('span');
-  title.className = 'resource-hero-taxonomy-label';
-  title.textContent = label;
-  item.append(title);
-
-  const valueWrap = document.createElement('div');
-  valueWrap.className = 'resource-hero-taxonomy-values';
-
-  filtered.forEach((value) => {
-    const pill = document.createElement('span');
-    pill.className = 'resource-hero-pill';
-    pill.textContent = value;
-    valueWrap.append(pill);
-  });
-
-  item.append(valueWrap);
-  return item;
+  return `${filtered.slice(0, maxVisible).join(', ')} +${filtered.length - maxVisible}`;
 }
 
 function formatDurationMinutes(value) {
@@ -756,68 +737,145 @@ function formatDurationMinutes(value) {
   return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
 }
 
-function buildTaxonomy(fields) {
-  const duration = formatDurationMinutes(fields.durationMinutes);
-  const groups = [
+function buildMetaFact(group) {
+  const value = compactMetaValues(group.values);
+  if (!value) return null;
+
+  const fact = document.createElement('span');
+  fact.className = `resource-hero-meta-fact is-${group.key}`;
+  fact.dataset.icon = group.icon;
+
+  const label = document.createElement('span');
+  label.className = 'resource-hero-meta-fact-label';
+  label.textContent = group.label;
+
+  const text = document.createElement('span');
+  text.className = 'resource-hero-meta-fact-value';
+  text.textContent = value;
+
+  fact.append(label, text);
+  return fact;
+}
+
+function buildMetaDetailItem(group) {
+  const filtered = group.values.filter(Boolean);
+  if (!filtered.length) return null;
+
+  const item = document.createElement('div');
+  item.className = 'resource-hero-meta-item';
+
+  const label = document.createElement('dt');
+  label.textContent = group.label;
+
+  const value = document.createElement('dd');
+  filtered.forEach((entry) => {
+    const token = document.createElement('span');
+    token.className = 'resource-hero-meta-token';
+    token.textContent = entry;
+    value.append(token);
+  });
+
+  item.append(label, value);
+  return item;
+}
+
+function collectTaxonomyGroups(fields) {
+  const duration = formatDurationMinutes(fields.durationMinutes || fields.length);
+  return [
     {
-      label: 'Type',
+      key: 'type',
+      label: 'Format',
+      icon: '',
       values: splitList(fields.resourceType).map((value) => labelFor('resourceType', value)),
     },
     {
+      key: 'audience',
       label: 'Audience',
+      icon: '',
       values: splitList(fields.audience).map((value) => labelFor('audience', value)),
     },
     {
-      label: 'Topic',
-      values: splitList(fields.issue).map((value) => labelFor('issue', value)),
-    },
-    {
-      label: 'Language',
-      values: fields.language ? [labelFor('language', fields.language)] : [],
-    },
-    {
+      key: 'program',
       label: 'Program',
+      icon: '',
       values: splitList(fields.programs).map((value) => labelFor('programs', value)),
     },
     {
-      label: 'Grade / Age',
-      values: splitList(fields.gradeAges).map((value) => labelFor('gradeAges', value)),
-    },
-    {
-      label: 'Length',
-      values: !duration && fields.length ? [labelFor('length', fields.length)] : [],
-    },
-    {
+      key: 'time',
       label: 'Time',
+      icon: '',
       values: duration ? [duration] : [],
     },
     {
+      key: 'topic',
+      label: 'Topic',
+      icon: '',
+      values: splitList(fields.issue).map((value) => labelFor('issue', value)),
+    },
+    {
+      key: 'grade-age',
+      label: 'Grade / Age',
+      icon: '',
+      values: splitList(fields.gradeAges).map((value) => labelFor('gradeAges', value)),
+    },
+    {
+      key: 'language',
+      label: 'Language',
+      icon: '',
+      values: fields.language ? [labelFor('language', fields.language)] : [],
+    },
+    {
+      key: 'tags',
       label: 'Tags',
+      icon: '',
       values: parseTagEntries(fields.tags),
     },
-  ];
+  ].filter((group) => group.values.filter(Boolean).length);
+}
 
-  const items = groups
-    .map(({ label, values }) => buildTaxonomyGroup(label, values))
-    .filter(Boolean);
+function buildTaxonomy(fields) {
+  const groups = collectTaxonomyGroups(fields);
+  if (!groups.length) return null;
 
-  if (!items.length) return null;
+  const primaryKeys = ['type', 'audience', 'program', 'time'];
+  const primaryGroups = groups.filter((group) => primaryKeys.includes(group.key));
+  groups.forEach((group) => {
+    if (primaryGroups.length < 4 && !primaryGroups.includes(group)) {
+      primaryGroups.push(group);
+    }
+  });
 
-  const panel = document.createElement('aside');
-  panel.className = 'resource-hero-taxonomy';
-  panel.setAttribute('aria-label', 'Resource details');
+  const primarySet = new Set(primaryGroups.map((group) => group.key));
+  const detailGroups = groups.filter((group) => (
+    !primarySet.has(group.key) || group.values.filter(Boolean).length > 2
+  ));
+  const wrapper = document.createElement('aside');
+  wrapper.className = 'resource-hero-meta';
+  wrapper.setAttribute('aria-label', 'Resource details');
 
-  const heading = document.createElement('p');
-  heading.className = 'resource-hero-taxonomy-title';
-  heading.textContent = 'Resource details';
-  panel.append(heading);
+  if (primaryGroups.length) {
+    const facts = document.createElement('div');
+    facts.className = 'resource-hero-meta-facts';
+    primaryGroups.map(buildMetaFact).filter(Boolean).forEach((fact) => facts.append(fact));
+    wrapper.append(facts);
+  }
 
-  const grid = document.createElement('div');
-  grid.className = 'resource-hero-taxonomy-grid';
-  items.forEach((item) => grid.append(item));
-  panel.append(grid);
+  if (detailGroups.length) {
+    const details = document.createElement('details');
+    details.className = 'resource-hero-meta-details';
 
-  return panel;
+    const summary = document.createElement('summary');
+    summary.textContent = 'View all details';
+    details.append(summary);
+
+    const panel = document.createElement('dl');
+    panel.className = 'resource-hero-meta-panel';
+    detailGroups.map(buildMetaDetailItem).filter(Boolean).forEach((item) => panel.append(item));
+    details.append(panel);
+    wrapper.append(details);
+  }
+
+  return wrapper;
 }
 
 function fileNameFromUrl(url) {
@@ -1043,11 +1101,11 @@ export default async function decorate(block) {
   const body = buildRichText(fields.bodyField, 'resource-hero-body richtext-preserve-spaces', fields.bodyHtml);
   if (body) main.append(body);
 
-  const actions = buildActions(fields);
-  if (actions) main.append(actions);
-
   const taxonomy = buildTaxonomy(fields);
   if (taxonomy) main.append(taxonomy);
+
+  const actions = buildActions(fields);
+  if (actions) main.append(actions);
 
   [title, intro, body].filter(Boolean).forEach((target) => {
     applyAnimatedMarkers(target, {
