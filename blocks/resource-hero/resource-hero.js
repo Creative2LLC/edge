@@ -865,7 +865,7 @@ function buildTaxonomy(fields) {
     details.className = 'resource-hero-meta-details';
 
     const summary = document.createElement('summary');
-    summary.textContent = 'View all details';
+    summary.textContent = 'More details';
     details.append(summary);
 
     const panel = document.createElement('dl');

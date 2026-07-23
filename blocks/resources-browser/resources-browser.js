@@ -17,6 +17,7 @@ import {
   getFieldSelector,
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
@@ -24,6 +25,7 @@ import { bindGatedLink } from '../../scripts/resource-gate.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
+  bodyText: ['body text', 'description', 'intro text', 'intro', 'summary'],
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
   selected: ['selected', 'selected ids', 'selected slugs', 'resource ids', 'selected resources'],
   pageSize: ['page size', 'items per page', 'limit', 'initial count'],
@@ -46,6 +48,7 @@ const LEGACY_BLOCK_LABELS = {
 
 const BLOCK_PROPS = [
   'heading',
+  'bodyText',
   'apiBaseUrl',
   'selected',
   'filters',
@@ -83,7 +86,13 @@ const FILTER_FACETS = [
 // program filter that hides every resource.
 const LOCKABLE_PROGRAM_VALUES = ['kidsmartz', 'netsmartz', 'safe-to-compete'];
 
-const DEFAULT_VISIBLE_FILTERS = [...FILTER_FACETS];
+const DEFAULT_VISIBLE_FILTERS = [
+  'programs',
+  'grade_ages',
+  'audience',
+  'type',
+  'lengths',
+];
 
 const RESOURCE_BROWSER_ACTION_LABELS = {
   en: {
@@ -205,6 +214,17 @@ const TAG_COLORS = {
   'high-school': { bg: '#243846', color: '#fff' },
 };
 
+const ACTIVE_CHIP_COLORS = {
+  programs: { border: '#48c7e8', bg: '#effbff', color: '#008db6' },
+  grade_ages: { border: '#ff7f73', bg: '#fff1ef', color: '#e14439' },
+  audience: { border: '#87d89a', bg: '#f0fbf2', color: '#358f49' },
+  issue: { border: '#f4bd47', bg: '#fff8e8', color: '#9c6d00' },
+  type: { border: '#243846', bg: '#eef2f5', color: '#243846' },
+  lengths: { border: '#b9b0a8', bg: '#f6f3ef', color: '#6b625a' },
+  language: { border: '#9aa7b3', bg: '#f3f7fa', color: '#465968' },
+  tags: { border: '#48c7e8', bg: '#effbff', color: '#008db6' },
+};
+
 function collectLegacyBlockFields(block) {
   const map = {};
   const rowsToRemove = [];
@@ -230,6 +250,16 @@ function getBlockField(block, legacyMap, name, fallback = '') {
   if (source) {
     const value = source.textContent.trim();
     source.remove();
+    return value || fallback;
+  }
+  return legacyMap[name] || fallback;
+}
+
+function getBlockRichTextField(block, legacyMap, name, fallback = '') {
+  const field = readRichTextField(block, name);
+  if (field.source) {
+    const value = field.html;
+    field.source.remove();
     return value || fallback;
   }
   return legacyMap[name] || fallback;
@@ -296,10 +326,12 @@ function parseTagOptions(value) {
 }
 
 function parseVisibleFilters(value) {
-  const filters = parseList(value)
+  const filters = [...new Set(parseList(value)
     .map(normalizeFilterFacet)
-    .filter(Boolean);
-  return filters.length ? [...new Set(filters)] : DEFAULT_VISIBLE_FILTERS;
+    .filter(Boolean))];
+  const allFiltersSelected = filters.length === FILTER_FACETS.length
+    && FILTER_FACETS.every((facet) => filters.includes(facet));
+  return filters.length && !allFiltersSelected ? filters : DEFAULT_VISIBLE_FILTERS;
 }
 
 function isFilterVisible(config, facet) {
@@ -846,10 +878,16 @@ function setFilterOptions(select, label, options = []) {
   select.disabled = options.length === 0;
 }
 
-function createChip(label, onRemove) {
+function createChip(label, onRemove, facet = '') {
   const chip = document.createElement('button');
   chip.type = 'button';
   chip.className = 'resources-browser-active-chip';
+  const colors = ACTIVE_CHIP_COLORS[facet];
+  if (colors) {
+    chip.style.setProperty('--resource-chip-border', colors.border);
+    chip.style.setProperty('--resource-chip-bg', colors.bg);
+    chip.style.setProperty('--resource-chip-color', colors.color);
+  }
 
   const textLabel = buildTag(label);
   textLabel.classList.add('resources-browser-active-chip-label');
@@ -874,16 +912,8 @@ function applyResultView(cardsContainer, buttons, view) {
   });
 }
 
-function syncSelectValue(select, selectedValues) {
-  const values = Array.from(selectedValues || []);
-  const selected = values.length ? values[values.length - 1] : '';
-  if (!selected) {
-    select.value = '';
-    return;
-  }
-
-  const option = [...select.options].find((entry) => normalizeToken(entry.value) === selected);
-  select.value = option?.value || '';
+function syncSelectValue(select) {
+  select.value = '';
 }
 
 function debounce(callback, wait = 250) {
@@ -933,7 +963,12 @@ function buildDebugPanel(title, lines = []) {
 }
 
 function buildShell(config) {
-  const { heading, searchPlaceholder, loadMoreText } = config;
+  const {
+    heading,
+    bodyText,
+    searchPlaceholder,
+    loadMoreText,
+  } = config;
   const inner = document.createElement('div');
   inner.className = 'resources-browser-inner';
 
@@ -956,6 +991,13 @@ function buildShell(config) {
   headerTop.append(viewToggle);
   header.append(headerTop);
 
+  if (bodyText) {
+    const body = document.createElement('div');
+    body.className = 'resources-browser-description richtext-preserve-spaces';
+    body.innerHTML = bodyText;
+    header.append(body);
+  }
+
   const controls = document.createElement('div');
   controls.className = 'resources-browser-controls';
   const primaryRow = document.createElement('div');
@@ -975,7 +1017,7 @@ function buildShell(config) {
   const tagSelect = createFilterSelect('Tag');
   const languageSelect = createFilterSelect('Language');
   const programSelect = createFilterSelect('Prevention Program');
-  const gradeAgeSelect = createFilterSelect('Grade Level / Age');
+  const gradeAgeSelect = createFilterSelect('Grade');
   const lengthSelect = createFilterSelect('Length of Time');
   const sortSelect = createSortSelect('Sort resources');
   primaryRow.append(sortSelect);
@@ -1334,7 +1376,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
   setFilterOptions(tagSelect, 'Tag', tags);
   setFilterOptions(languageSelect, 'Language', languages);
   setFilterOptions(programSelect, 'Prevention Program', programs);
-  setFilterOptions(gradeAgeSelect, 'Grade Level / Age', gradeAges);
+  setFilterOptions(gradeAgeSelect, 'Grade', gradeAges);
   setFilterOptions(lengthSelect, 'Length of Time', lengths);
   setFilterOptions(sortSelect, 'Sort', getListSortOptions());
 
@@ -1383,7 +1425,7 @@ function renderInlineBrowser(block, config, resources, debugLines = []) {
         syncFilterControls();
         syncUrlState();
         applyFilters();
-      }));
+      }, facet));
     });
     clearAllButton.hidden = !facets.length && !state.query.trim();
   };
@@ -1664,7 +1706,7 @@ function renderApiBrowser(block, config) {
         syncFilterControls();
         syncUrlState();
         loadResources(true);
-      }));
+      }, facet));
     });
     clearAllButton.hidden = !facets.length && !state.query.trim();
   };
@@ -1688,7 +1730,7 @@ function renderApiBrowser(block, config) {
     setFilterOptions(tagSelect, 'Tag', tags);
     setFilterOptions(languageSelect, 'Language', languages);
     setFilterOptions(programSelect, 'Prevention Program', programs);
-    setFilterOptions(gradeAgeSelect, 'Grade Level / Age', gradeAges);
+    setFilterOptions(gradeAgeSelect, 'Grade', gradeAges);
     setFilterOptions(lengthSelect, 'Length of Time', lengths);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
@@ -1942,6 +1984,9 @@ export default function decorate(block) {
     heading: getBlockField(block, legacyMap, 'heading')
       || readConfigValue(configRows, 'heading', 0)
       || readConfigField(configRow, 'heading', 0),
+    bodyText: getBlockRichTextField(block, legacyMap, 'bodyText')
+      || readConfigValue(configRows, 'bodyText', 12)
+      || readConfigField(configRow, 'bodyText', 12),
     apiBaseUrl,
     selectedField: getBlockField(block, legacyMap, 'selected')
       || readConfigValue(configRows, 'selected', 2)

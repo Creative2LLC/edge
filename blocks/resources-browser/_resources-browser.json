@@ -64,7 +64,7 @@
           "component": "multiselect",
           "name": "visibleFilters",
           "label": "Filter Groups to Show",
-          "description": "Leave empty to show all filter groups.",
+          "description": "Leave empty to show the default resource filters: Prevention Program, Grade, Audience, Resource Format, and Length of Time.",
           "options": [
             {
               "name": "Audience",
@@ -75,7 +75,7 @@
               "value": "issue"
             },
             {
-              "name": "Content Type",
+              "name": "Resource Format",
               "value": "type"
             },
             {
@@ -87,11 +87,11 @@
               "value": "language"
             },
             {
-              "name": "Program",
+              "name": "Prevention Program",
               "value": "programs"
             },
             {
-              "name": "Grade / Age",
+              "name": "Grade",
               "value": "grade_ages"
             },
             {
@@ -105,22 +105,6 @@
           "name": "filterTags",
           "label": "Visible Tag Options",
           "description": "Optional shortcuts for common universal tag options. Leave empty to show all tag options.",
-          "options": [
-            {
-              "name": "KidSmartz",
-              "value": "kidsmartz"
-            },
-            {
-              "name": "NetSmartz",
-              "value": "netsmartz"
-            }
-          ]
-        },
-        {
-          "component": "multiselect",
-          "name": "hiddenFilterTags",
-          "label": "Hidden Tag Options",
-          "description": "Optional shortcuts for common universal tag options to hide from the tag filter.",
           "options": [
             {
               "name": "KidSmartz",
@@ -188,6 +172,13 @@
             }
           ],
           "value": "load-more"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text / Description",
+          "description": "Optional text shown between the heading and search controls."
         }
       ]
     },

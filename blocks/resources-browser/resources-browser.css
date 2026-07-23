@@ -31,6 +31,23 @@
   line-height: 0.98;
 }
 
+.resources-browser .resources-browser-description {
+  max-width: 880px;
+  margin: -4px 0 2px;
+  color: #404041;
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.resources-browser .resources-browser-description > :first-child {
+  margin-top: 0;
+}
+
+.resources-browser .resources-browser-description > :last-child {
+  margin-bottom: 0;
+}
+
 .resources-browser .resources-browser-controls {
   display: grid;
   gap: 14px;
@@ -130,16 +147,16 @@
 
 .resources-browser .resources-browser-filter {
   width: 100%;
-  padding: 8px 36px 8px 16px;
+  padding: 8px 42px 8px 16px;
   appearance: none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #404041 50%),
-    linear-gradient(135deg, #404041 50%, transparent 50%);
-  background-position:
-    calc(100% - 18px) 50%,
-    calc(100% - 13px) 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 5.25 7 8.75l3.5-3.5' fill='none' stroke='%23243846' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: calc(100% - 17px) 50%;
   background-repeat: no-repeat;
-  background-size: 5px 5px;
+  background-size: 14px 14px;
+}
+
+.resources-browser .resources-browser-filter::-ms-expand {
+  display: none;
 }
 
 .resources-browser .resources-browser-filter:disabled {
@@ -178,16 +195,16 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 32px;
-  padding: 6px 10px 6px 14px;
-  border: 1px solid #777;
+  min-height: 30px;
+  padding: 5px 10px 5px 13px;
+  border: 1.5px solid var(--resource-chip-border, #777);
   border-radius: 999px;
-  background: #fff;
-  color: #404041;
+  background: var(--resource-chip-bg, #fff);
+  color: var(--resource-chip-color, #404041);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
   transition:
     border-color 0.18s ease,
@@ -196,7 +213,7 @@
 }
 
 .resources-browser .resources-browser-active-chip:hover {
-  border-color: #243846;
+  border-color: var(--resource-chip-border, #243846);
   box-shadow: 0 10px 22px rgb(36 56 70 / 10%);
   transform: translateY(-1px);
 }
@@ -205,9 +222,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #404041;
+  color: currentcolor;
   font-size: 16px;
   line-height: 1;
+  opacity: 0.72;
 }
 
 .resources-browser .resources-browser-tag {
