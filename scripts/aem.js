@@ -628,7 +628,6 @@ function decorateButtons(element) {
   element.querySelectorAll('a').forEach((a) => {
     if (isAemColorValueLink(a)) return;
 
-    a.title = a.title || a.textContent;
     if (a.href !== a.textContent) {
       const up = a.parentElement;
       const twoup = a.parentElement.parentElement;
@@ -638,6 +637,8 @@ function decorateButtons(element) {
           up.classList.add('button-container');
           // Auto-add arrow to button text
           a.textContent = decorateButtonText(a.textContent);
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
         if (
           up.childNodes.length === 1
@@ -649,6 +650,8 @@ function decorateButtons(element) {
           twoup.classList.add('button-container');
           // Auto-add arrow to button text
           a.textContent = decorateButtonText(a.textContent);
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
         if (
           up.childNodes.length === 1
@@ -660,6 +663,8 @@ function decorateButtons(element) {
           twoup.classList.add('button-container');
           // Auto-add arrow to button text
           a.textContent = decorateButtonText(a.textContent);
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
       }
     }
