@@ -1,6 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
+import { decorateButtonText } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 import {
   DEFAULT_LIST_SORT,
@@ -96,14 +97,14 @@ const DEFAULT_VISIBLE_FILTERS = [
 
 const RESOURCE_BROWSER_ACTION_LABELS = {
   en: {
-    learnMore: 'Learn more →',
-    downloadPdf: 'Download PDF →',
-    viewResource: 'Learn more →',
+    learnMore: 'Learn more',
+    downloadPdf: 'Download PDF',
+    viewResource: 'Learn more',
   },
   es: {
-    learnMore: 'Mas informacion →',
-    downloadPdf: 'Descargar PDF →',
-    viewResource: 'Mas informacion →',
+    learnMore: 'Mas informacion',
+    downloadPdf: 'Descargar PDF',
+    viewResource: 'Mas informacion',
   },
 };
 
@@ -810,7 +811,7 @@ function buildResourceCard(resource, row = null) {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
     }
-    link.textContent = action.label;
+    link.textContent = decorateButtonText(action.label);
     if (action.isDownload) {
       bindGatedLink(link, {
         gated: resource.gated,

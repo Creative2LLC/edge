@@ -7,6 +7,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import { decorateButtonText } from '../../scripts/button-utils.js';
 
 /**
  * Get text from a data-aue-prop element, or return ''.
@@ -126,7 +127,7 @@ function buildLeaderCard(leader) {
     const linkEl = document.createElement('a');
     linkEl.className = 'leadership-team-card-link';
     linkEl.href = resolveSiteHref(leader.link);
-    linkEl.textContent = 'Read bio →';
+    linkEl.textContent = decorateButtonText('Read bio');
     textWrap.appendChild(linkEl);
   }
 

@@ -12,6 +12,7 @@ import {
   applyColoredFieldLayoutOptions,
   syncColoredFieldLayoutOptions,
 } from '../../scripts/colored-field-options.js';
+import { decorateButtonText } from '../../scripts/button-utils.js';
 
 const DEFAULT_TEXT_COLOR = '#00264D';
 const DEFAULT_BACKGROUND_COLOR = '#E9F7FA';
@@ -230,7 +231,7 @@ function buildButton(buttonTextField, buttonLinkField, buttonTargetField) {
 
   const button = document.createElement(href ? 'a' : 'span');
   button.className = 'colored-icon-text-button';
-  button.textContent = text || 'Learn more';
+  button.textContent = decorateButtonText(text, { defaultText: 'Learn more' });
   if (buttonTextField.source) moveInstrumentation(buttonTextField.source, button);
 
   if (href) {

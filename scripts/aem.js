@@ -11,6 +11,8 @@
  */
 
 /* eslint-env browser */
+import { decorateButtonText } from './button-utils.js';
+
 function sampleRUM(checkpoint, data) {
   // eslint-disable-next-line max-len
   const timeShift = () => (window.performance ? window.performance.now() : Date.now() - window.hlx.rum.firstReadTime);
@@ -634,6 +636,8 @@ function decorateButtons(element) {
         if (up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV')) {
           a.classList.add('button'); // default
           up.classList.add('button-container');
+          // Auto-add arrow to button text
+          a.textContent = decorateButtonText(a.textContent);
         }
         if (
           up.childNodes.length === 1
@@ -643,6 +647,8 @@ function decorateButtons(element) {
         ) {
           a.classList.add('button', 'primary');
           twoup.classList.add('button-container');
+          // Auto-add arrow to button text
+          a.textContent = decorateButtonText(a.textContent);
         }
         if (
           up.childNodes.length === 1
@@ -652,6 +658,8 @@ function decorateButtons(element) {
         ) {
           a.classList.add('button', 'secondary');
           twoup.classList.add('button-container');
+          // Auto-add arrow to button text
+          a.textContent = decorateButtonText(a.textContent);
         }
       }
     }
