@@ -361,7 +361,6 @@ function parseVisibleFilters(value) {
 }
 
 function isFilterVisible(config, facet) {
-  if (facet === 'programs' && config.lockedPrograms?.length) return false;
   return (config.visibleFilters || DEFAULT_VISIBLE_FILTERS).includes(facet);
 }
 

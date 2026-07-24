@@ -24345,6 +24345,27 @@
           }
         ],
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "content_titleWeight",
+        "label": "Title Weight",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Bold",
+            "value": "title-bold"
+          },
+          {
+            "name": "Extra Bold",
+            "value": "title-black"
+          }
+        ],
+        "value": ""
       }
     ]
   },

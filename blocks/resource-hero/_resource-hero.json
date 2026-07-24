@@ -709,6 +709,18 @@
             { "name": "Primary Red 1 (#E13E30)", "value": "title-red" }
           ],
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "content_titleWeight",
+          "label": "Title Weight",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "Bold", "value": "title-bold" },
+            { "name": "Extra Bold", "value": "title-black" }
+          ],
+          "value": ""
         }
       ]
     }

@@ -55,10 +55,12 @@ const FIELD_INDEX = {
   markerStyle: 37,
   content_titleSize: 38,
   content_titleColor: 39,
+  content_titleWeight: 40,
 };
 
 const TITLE_SIZE_TOKENS = ['title-sm', 'title-md', 'title-lg', 'title-xl'];
 const TITLE_COLOR_TOKENS = ['title-white', 'title-navy', 'title-blue', 'title-brand', 'title-grey', 'title-orange', 'title-red'];
+const TITLE_WEIGHT_TOKENS = ['title-bold', 'title-black'];
 
 const RESOURCE_FIELD_NAMES = Object.keys(FIELD_INDEX);
 
@@ -426,6 +428,7 @@ function parseFlattenedFields(block) {
   fields.markerStyle = consumeMatching(entries, (entry) => ['circle', 'underline'].includes(entry.key))?.text || '';
   fields.content_titleSize = consumeMatching(entries, (entry) => TITLE_SIZE_TOKENS.includes(entry.key))?.text || '';
   fields.content_titleColor = consumeMatching(entries, (entry) => TITLE_COLOR_TOKENS.includes(entry.key))?.text || '';
+  fields.content_titleWeight = consumeMatching(entries, (entry) => TITLE_WEIGHT_TOKENS.includes(entry.key))?.text || '';
   fields.watchLabel = consumeMatching(entries, (entry) => entry.key === 'watch-video')?.text || '';
   fields.downloadLabel = consumeMatching(entries, (entry) => entry.key === 'download-resource')?.text || '';
   fields.gated = consumeMatching(entries, (entry) => ['true', 'false', 'gated', 'open'].includes(entry.key))?.text || '';
@@ -1026,6 +1029,7 @@ function readFields(block, aemFields) {
     textColor: normalizeHexColor(readText(block, aemFields, 'content_textColor', flattened.content_textColor)),
     titleSize: normalizeToken(readText(block, aemFields, 'content_titleSize', flattened.content_titleSize), TITLE_SIZE_TOKENS),
     titleColor: normalizeToken(readText(block, aemFields, 'content_titleColor', flattened.content_titleColor), TITLE_COLOR_TOKENS),
+    titleWeight: normalizeToken(readText(block, aemFields, 'content_titleWeight', flattened.content_titleWeight), TITLE_WEIGHT_TOKENS),
     watchLabel: readText(block, aemFields, 'watchLabel', flattened.watchLabel || 'Watch Video'),
     videoFile: readReference(block, aemFields, 'videoFile', flattened.videoFile),
     videoFilePath: readText(block, aemFields, 'videoFilePath', flattened.videoFilePath),
@@ -1106,6 +1110,7 @@ export default async function decorate(block) {
   if (title) {
     if (fields.titleSize) title.classList.add(fields.titleSize);
     if (fields.titleColor) title.classList.add(fields.titleColor);
+    if (fields.titleWeight) title.classList.add(fields.titleWeight);
     main.append(title);
   }
 

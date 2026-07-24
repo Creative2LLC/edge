@@ -331,6 +331,10 @@
 .resource-hero-title.title-lg { font-size: clamp(3rem, 7vw, 5.75rem); }
 .resource-hero-title.title-xl { font-size: clamp(3.75rem, 9vw, 8rem); }
 
+/* Optional per-title font weight */
+.resource-hero-title.title-bold { font-weight: 700; }
+.resource-hero-title.title-black { font-weight: 900; }
+
 /* Optional per-title color override (wins over the general Text Color) */
 .resource-hero-title.title-white { color: #fff; }
 .resource-hero-title.title-navy { color: #00264d; }
