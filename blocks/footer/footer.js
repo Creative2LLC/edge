@@ -282,6 +282,11 @@ function applyBrandWidth(columnsBlock, brandColumn) {
 function stripButtonClasses(column) {
   column.querySelectorAll('a.button').forEach((link) => {
     link.classList.remove('button', 'primary', 'secondary');
+    // Remove arrow from text content if present
+    const text = link.textContent;
+    if (text.endsWith(' →')) {
+      link.textContent = text.slice(0, -2).trim();
+    }
   });
 
   column.querySelectorAll('.button-container').forEach((container) => {
