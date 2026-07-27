@@ -3,7 +3,6 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { buildAmberPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
