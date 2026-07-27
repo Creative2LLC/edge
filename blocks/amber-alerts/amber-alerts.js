@@ -204,16 +204,6 @@ function appendDetailRows(list, rows) {
   });
 }
 
-function posterPageUrl(alert, posterPagePath = DEFAULTS.posterPagePath) {
-  return buildAmberPosterDetailHref({
-    caseNumber: caseNumber(alert),
-    sequenceNumber: personId(alert) || sequenceNumber(alert) || '1',
-    personId: personId(alert),
-    name: alertName(alert),
-    posterPagePath,
-  });
-}
-
 function createAlertCard(alert, config, onSelect) {
   const card = document.createElement('article');
   card.className = 'amber-alerts-card';
