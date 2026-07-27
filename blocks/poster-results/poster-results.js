@@ -734,9 +734,9 @@ function createAmberVehicleSection(payload, selectedPerson) {
   if (!vehicles.length) return null;
 
   const section = document.createElement('section');
-  section.className = 'poster-results-related';
+  section.className = 'poster-results-related poster-results-vehicle-section';
   const heading = document.createElement('h4');
-  heading.textContent = vehicles.length > 1 ? 'Vehicles' : 'Vehicle';
+  heading.textContent = 'Vehicle Details';
   const list = document.createElement('div');
   list.className = 'poster-results-vehicle-list';
 

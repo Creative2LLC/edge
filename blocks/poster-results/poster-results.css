@@ -759,8 +759,72 @@
   text-transform: none;
 }
 
+.poster-results-vehicle-section {
+  max-width: 980px;
+  margin: 36px auto 0;
+  padding: clamp(22px, 3vw, 30px);
+  border: 1px solid #d9e5ec;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgb(0 0 0 / 8%);
+}
+
+.poster-results-related.poster-results-vehicle-section + .poster-results-related {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.poster-results-vehicle-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  color: #243846;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.poster-results-vehicle-section h4::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #f4c21d;
+  box-shadow: 0 0 0 6px rgb(244 194 29 / 18%);
+}
+
+.poster-results-vehicle-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
 .poster-results-vehicle-list dl {
-  padding-top: 0;
+  display: grid;
+  grid-template-columns: minmax(110px, max-content) minmax(0, 1fr);
+  gap: 12px 20px;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid #dce7ee;
+  border-radius: 14px;
+  background: #f8fbfd;
+}
+
+.poster-results-vehicle-list dt {
+  color: #52616c;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.poster-results-vehicle-list dd {
+  margin: 0;
+  color: #102a43;
+  font-size: 16px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .poster-results-detail-gallery {
@@ -915,7 +979,7 @@
 
 .poster-results.is-poster-page {
   background: #eee;
-  padding: 30px 0 72px;
+  padding: 30px 0 120px;
   margin-top: 140px;
 }
 
@@ -1053,7 +1117,8 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     font-size: 26px;
   }
 
-  .poster-results-detail-body dl {
+  .poster-results-detail-body dl,
+  .poster-results-vehicle-list dl {
     grid-template-columns: 1fr;
   }
 
@@ -1111,7 +1176,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 /* Redesigned search form */
 .poster-results:not(.is-poster-page) {
-  padding: 60px 0 0;
+  padding: 60px 0 90px;
   background: linear-gradient(90deg, #f8f8f8 0%, #f4f6f8 100%);
 }
 
@@ -1153,7 +1218,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 }
 
 .poster-results-amber-summary-header {
-  max-width: 860px;
+  max-width: 1120px;
   margin: 0 0 28px;
 }
 
@@ -1177,7 +1242,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 }
 
 .poster-results-amber-summary-copy {
-  max-width: 860px;
+  max-width: 1120px;
   margin: 16px 0 0;
   color: #304656;
   font-size: 18px;
