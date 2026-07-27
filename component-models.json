@@ -11760,6 +11760,57 @@
         "label": "Featured Event Count",
         "description": "Number of event cards shown above the calendar/table. Use 0 to hide.",
         "value": "2"
+      },
+      {
+        "component": "select",
+        "name": "showFeaturedCards",
+        "label": "Featured Cards",
+        "description": "Show or hide the event cards above the calendar/table.",
+        "value": "show",
+        "options": [
+          {
+            "name": "Show",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "showCalendarView",
+        "label": "Calendar View",
+        "description": "Show or hide the calendar view.",
+        "value": "show",
+        "options": [
+          {
+            "name": "Show",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "showTableView",
+        "label": "Table View",
+        "description": "Show or hide the table view.",
+        "value": "show",
+        "options": [
+          {
+            "name": "Show",
+            "value": "show"
+          },
+          {
+            "name": "Hide",
+            "value": "hide"
+          }
+        ]
       }
     ]
   },

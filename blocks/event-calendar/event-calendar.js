@@ -11,6 +11,9 @@ const DEFAULTS = {
   defaultView: 'calendar',
   tableHeading: 'Upcoming NCMEC Events',
   featuredCount: 2,
+  showFeaturedCards: 'show',
+  showCalendarView: 'show',
+  showTableView: 'show',
 };
 
 const FIELD_LABELS = {
@@ -20,8 +23,12 @@ const FIELD_LABELS = {
   defaultView: ['default view', 'view mode', 'mode'],
   tableHeading: ['table heading', 'events table heading'],
   featuredCount: ['featured event count', 'featured count', 'card count'],
+  showFeaturedCards: ['show featured cards', 'show cards', 'featured cards'],
+  showCalendarView: ['show calendar', 'calendar view'],
+  showTableView: ['show table', 'table view'],
 };
 
+const ARCHIVE_DELAY_MS = 24 * 60 * 60 * 1000;
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -46,6 +53,19 @@ function normalizeCount(value, fallback) {
   const count = Number.parseInt(normalizeText(value), 10);
   if (Number.isNaN(count)) return fallback;
   return Math.max(0, Math.min(count, 6));
+}
+
+function normalizeVisibility(value, fallback = 'show') {
+  const normalized = normalizeText(value || fallback).toLowerCase();
+  return !['hide', 'hidden', 'off', 'false', 'no', '0'].includes(normalized);
+}
+
+function resolveDefaultView(value, showCalendarView, showTableView) {
+  const preferred = normalizeView(value);
+  if (preferred === 'table' && showTableView) return 'table';
+  if (preferred === 'calendar' && showCalendarView) return 'calendar';
+  if (showCalendarView) return 'calendar';
+  return 'table';
 }
 
 function getRows(block) {
@@ -136,6 +156,28 @@ function formatEventTime(event) {
 
 function eventEndDateKey(event) {
   return normalizeText(event.end_datetime).slice(0, 10) || normalizeText(event.start_date);
+}
+
+function parseEventDateTime(value) {
+  const normalized = normalizeText(value);
+  if (!normalized) return null;
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function eventCompletionDate(event) {
+  return parseEventDateTime(event.end_datetime) || parseEventDateTime(event.start_datetime);
+}
+
+function isArchivedForListings(event, now = new Date()) {
+  const completionDate = eventCompletionDate(event);
+  if (!completionDate) return false;
+  return completionDate.getTime() + ARCHIVE_DELAY_MS <= now.getTime();
+}
+
+function activeListingEvents(events) {
+  const now = new Date();
+  return events.filter((event) => !isArchivedForListings(event, now));
 }
 
 function todayDateKey() {
@@ -254,7 +296,9 @@ function createModal() {
     whenEl.hidden = !datePart;
 
     const { venue, cityState } = locationParts(event);
-    locationEl.textContent = [venue, cityState].filter(Boolean).join(' · ');
+    const locationText = [venue, cityState].filter(Boolean).join(' · ');
+    const duplicateTitle = locationText.toLowerCase() === normalizeText(event.title).toLowerCase();
+    locationEl.textContent = duplicateTitle ? '' : locationText;
     locationEl.hidden = !locationEl.textContent;
 
     descriptionEl.textContent = event.description || '';
@@ -310,24 +354,20 @@ function renderFeaturedEvents(container, events, count, openModal) {
     const content = document.createElement('span');
     content.className = 'event-calendar-featured-content';
 
-    const date = document.createElement('span');
-    date.className = 'event-calendar-featured-date';
-    date.textContent = formatCardDate(event);
+    const meta = document.createElement('span');
+    meta.className = 'event-calendar-featured-meta';
+    meta.textContent = [formatCardDate(event), formatEventTime(event)].filter(Boolean).join(' · ');
 
     const title = document.createElement('span');
     title.className = 'event-calendar-featured-title';
     title.textContent = event.title || 'Event';
 
-    const time = document.createElement('span');
-    time.className = 'event-calendar-featured-time';
-    time.textContent = formatEventTime(event);
-
     const description = document.createElement('span');
     description.className = 'event-calendar-featured-description';
     description.textContent = truncateText(event.description);
 
-    content.append(date, title);
-    if (time.textContent) content.append(time);
+    if (meta.textContent) content.append(meta);
+    content.append(title);
     if (description.textContent) content.append(description);
     card.append(buildEventImage(event, 'event-calendar-featured-image'), content);
     container.append(card);
@@ -479,10 +519,30 @@ export default async function decorate(block) {
       getFieldValue(block, 'featuredCount', 5, DEFAULTS.featuredCount),
       DEFAULTS.featuredCount,
     ),
+    showFeaturedCards: normalizeVisibility(
+      getFieldValue(block, 'showFeaturedCards', 6, DEFAULTS.showFeaturedCards),
+      DEFAULTS.showFeaturedCards,
+    ),
+    showCalendarView: normalizeVisibility(
+      getFieldValue(block, 'showCalendarView', 7, DEFAULTS.showCalendarView),
+      DEFAULTS.showCalendarView,
+    ),
+    showTableView: normalizeVisibility(
+      getFieldValue(block, 'showTableView', 8, DEFAULTS.showTableView),
+      DEFAULTS.showTableView,
+    ),
   };
 
+  if (!config.showFeaturedCards && !config.showCalendarView && !config.showTableView) {
+    config.showCalendarView = true;
+  }
+
   const now = new Date();
-  const state = { year: now.getFullYear(), month: now.getMonth() + 1, view: config.defaultView };
+  const state = {
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+    view: resolveDefaultView(config.defaultView, config.showCalendarView, config.showTableView),
+  };
 
   const inner = document.createElement('div');
   inner.className = 'event-calendar-inner';
@@ -561,8 +621,9 @@ export default async function decorate(block) {
 
   function updateView() {
     const isTable = state.view === 'table';
-    calendarPanel.hidden = isTable;
-    tablePanel.hidden = !isTable;
+    viewToggle.hidden = !(config.showCalendarView && config.showTableView);
+    calendarPanel.hidden = !config.showCalendarView || isTable;
+    tablePanel.hidden = !config.showTableView || !isTable;
     calendarToggle.setAttribute('aria-selected', isTable ? 'false' : 'true');
     tableToggle.setAttribute('aria-selected', isTable ? 'true' : 'false');
   }
@@ -600,10 +661,17 @@ export default async function decorate(block) {
     tableContainer.replaceChildren();
 
     try {
-      const events = await fetchEvents(config, { all: 1 });
+      const events = activeListingEvents(await fetchEvents(config, { all: 1 }));
       setStatus(tableStatus, '', '');
-      renderFeaturedEvents(featured, events, config.featuredCount, openModal);
-      renderTable(tableContainer, config.tableHeading, events, openModal, config.emptyMessage);
+      if (config.showFeaturedCards) {
+        renderFeaturedEvents(featured, events, config.featuredCount, openModal);
+      } else {
+        featured.replaceChildren();
+        featured.hidden = true;
+      }
+      if (config.showTableView) {
+        renderTable(tableContainer, config.tableHeading, events, openModal, config.emptyMessage);
+      }
     } catch {
       featured.hidden = true;
       setStatus(tableStatus, 'Events are unavailable at this time.', 'error');
@@ -634,6 +702,6 @@ export default async function decorate(block) {
 
   updateView();
   updateMonthLabel();
-  loadEvents();
-  loadEventListings();
+  if (config.showCalendarView) loadEvents();
+  if (config.showFeaturedCards || config.showTableView) loadEventListings();
 }

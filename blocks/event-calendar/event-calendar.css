@@ -137,16 +137,13 @@
   background: #fff;
 }
 
-.event-calendar .event-calendar-featured-date,
-.event-calendar .event-calendar-featured-time {
-  color: var(--event-calendar-text);
-  font-size: 0.82rem;
-  line-height: 1.2;
-}
-
-.event-calendar .event-calendar-featured-time {
+.event-calendar .event-calendar-featured-meta {
+  display: inline-flex;
+  align-items: center;
   color: var(--event-calendar-blue);
+  font-size: 0.84rem;
   font-weight: 800;
+  line-height: 1.25;
 }
 
 .event-calendar .event-calendar-featured-title {

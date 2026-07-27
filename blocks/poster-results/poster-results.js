@@ -1,4 +1,5 @@
 import {
+  buildAmberPosterDetailHref,
   buildCleanPosterPath,
   buildPosterDetailHref,
   currentPosterPagePath,
@@ -341,6 +342,12 @@ function posterDetailUrl(person) {
   });
 }
 
+function amberCaseNumber(alert) {
+  return normalizeText(
+    alert?.case_number || alert?.caseNumber || alert?.amberId || alert?.amberCaseNumber,
+  );
+}
+
 function canonicalPosterPath(directRequest) {
   if (!directRequest) return '';
 
@@ -360,6 +367,8 @@ function canonicalPosterPath(directRequest) {
 }
 
 function replaceWithCanonicalPosterUrl(directRequest) {
+  if (directRequest?.type === 'amber' && (directRequest.personId || directRequest.name)) return;
+
   const canonicalPath = canonicalPosterPath(directRequest);
   if (!canonicalPath || !window.history?.replaceState) return;
 
@@ -465,6 +474,19 @@ function sequenceNumber(person) {
 
 function personId(person) {
   return normalizeText(person?.personId || person?.personID || person?.id);
+}
+
+function amberPosterDetailUrl(alert, fallbackCaseNumber = '') {
+  const caseNumber = amberCaseNumber(alert) || normalizeText(fallbackCaseNumber);
+  if (!caseNumber) return '';
+
+  return buildAmberPosterDetailHref({
+    caseNumber,
+    sequenceNumber: personId(alert) || sequenceNumber(alert) || '1',
+    personId: personId(alert),
+    name: displayName(alert, ''),
+    posterPagePath: currentPosterPagePath(),
+  });
 }
 
 function normalizedPersonName(person) {
@@ -673,6 +695,24 @@ function vehicleSummary(vehicle) {
     ], ' ');
 }
 
+function createLinkedNameElement(tagName, name, href, className = '') {
+  const title = document.createElement(tagName);
+  if (className) title.className = className;
+  if (!href) {
+    title.textContent = name;
+    return title;
+  }
+
+  const link = document.createElement('a');
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.className = 'poster-results-linked-name';
+  link.textContent = name;
+  title.append(link);
+  return title;
+}
+
 function createAmberRelatedPeopleSection(payload, selectedPerson) {
   const people = relatedAmberPeople(payload, selectedPerson);
   if (!people.length) return null;
@@ -697,8 +737,11 @@ function createAmberRelatedPeopleSection(payload, selectedPerson) {
     }
 
     const content = document.createElement('div');
-    const title = document.createElement('h5');
-    title.textContent = displayName(person, readablePersonType(person));
+    const title = createLinkedNameElement(
+      'h5',
+      displayName(person, readablePersonType(person)),
+      amberPosterDetailUrl(person, payload.case_number || payload.caseNumber),
+    );
     const type = document.createElement('p');
     type.textContent = readablePersonType(person);
     const details = document.createElement('dl');
@@ -876,13 +919,35 @@ function createActionButton(label, onClick) {
   return button;
 }
 
-function createActionBar(config) {
+function createShareButton() {
+  return createActionButton('SHARE', () => {
+    const shareData = {
+      title: document.title,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch(() => {});
+      return;
+    }
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).catch(() => {});
+    }
+  });
+}
+
+function createActionBar(config, options = {}) {
+  const { includePrint = true } = options;
   const actions = document.createElement('div');
   actions.className = 'poster-results-detail-actions';
 
   actions.append(createActionLink('CALL 911', 'tel:911'));
   actions.append(createActionLink('SUBMIT A TIP', config.submitTipUrl));
-  actions.append(createActionButton('PRINT POSTER', () => window.print()));
+  if (includePrint) {
+    actions.append(createActionButton('PRINT POSTER', () => window.print()));
+  }
+  actions.append(createShareButton());
 
   return actions;
 }
@@ -1064,9 +1129,12 @@ function buildParticipantSection(payload, {
   const body = document.createElement('div');
   body.className = 'poster-results-detail-body';
 
-  const title = document.createElement('h3');
-  title.className = 'poster-results-detail-name';
-  title.textContent = name;
+  const title = createLinkedNameElement(
+    'h3',
+    name,
+    posterDetailUrl(person),
+    'poster-results-detail-name',
+  );
   body.append(title);
 
   const ncic = firstValue(person, ['ncicNumber', 'ncic']);
@@ -1138,9 +1206,24 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
       unidentified: false,
       heading: capitalizeWords(firstValue(person, ['companionType']) || 'Companion'),
     })),
+    ...[
+      ...arrayItems(payload?.suspects),
+      ...arrayItems(payload?.abductors),
+      ...arrayItems(payload?.related_people),
+      ...arrayItems(payload?.relatedPeople),
+    ].map((person) => ({
+      person,
+      main: false,
+      unidentified: false,
+      heading: readablePersonType(person),
+    })),
   ];
 
-  entries.forEach((entry) => detail.append(buildParticipantSection(payload, entry)));
+  uniqueItems(entries, (entry) => (
+    personId(entry.person)
+      || sequenceNumber(entry.person)
+      || `${entry.heading}:${normalizedPersonName(entry.person)}`
+  )).forEach((entry) => detail.append(buildParticipantSection(payload, entry)));
   detail.append(createDetailFooter(config, payload, mainChild));
   container.append(detail);
 }
@@ -1156,7 +1239,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail poster-results-amber-poster';
-  detail.append(createMissingChildHeading(), createActionBar(config));
+  detail.append(createMissingChildHeading(), createActionBar(config, { includePrint: false }));
 
   const layout = document.createElement('div');
   layout.className = 'poster-results-detail-layout';
@@ -1173,8 +1256,12 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
 
   const body = document.createElement('div');
   body.className = 'poster-results-detail-body';
-  const title = document.createElement('h3');
-  title.textContent = name;
+  const title = createLinkedNameElement(
+    'h3',
+    name,
+    amberPosterDetailUrl(alert, payload.case_number || payload.caseNumber),
+    'poster-results-detail-name',
+  );
   body.append(title);
 
   const caseLine = document.createElement('p');
@@ -1407,6 +1494,88 @@ function renderResults(container, meta, payload) {
   people.forEach((person) => container.append(createResultCard(person)));
 }
 
+function createAmberSummaryCard(alert) {
+  const card = document.createElement('article');
+  card.className = 'poster-results-amber-card';
+  const href = amberPosterDetailUrl(alert);
+  const imageUrl = normalizeText(
+    alert.image_url || alert.imageUrl || alert.thumbnail_url || alert.thumbnailUrl,
+  );
+
+  if (imageUrl) {
+    const media = document.createElement(href ? 'a' : 'div');
+    media.className = 'poster-results-amber-card-media';
+    if (href) {
+      media.href = href;
+      media.target = '_blank';
+      media.rel = 'noopener noreferrer';
+    }
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = displayName(alert, 'AMBER Alert');
+    img.loading = 'lazy';
+    media.append(img);
+    card.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'poster-results-amber-card-body';
+  const badge = document.createElement('p');
+  badge.className = 'poster-results-amber-card-badge';
+  badge.textContent = 'AMBER Alert';
+  const title = createLinkedNameElement(
+    'h3',
+    displayName(alert, 'AMBER Alert'),
+    href,
+    'poster-results-amber-card-title',
+  );
+  const meta = document.createElement('p');
+  meta.className = 'poster-results-amber-card-meta';
+  meta.textContent = joinValues([
+    firstValue(alert, ['missing_location', 'missingLocation']) || locationText(alert),
+    firstValue(alert, ['missing_date', 'missingDate', 'dateMissing', 'missingSince']),
+  ]);
+  body.append(badge, title);
+  if (meta.textContent) body.append(meta);
+  card.append(body);
+  return card;
+}
+
+function createAmberSummarySection() {
+  const section = document.createElement('section');
+  section.className = 'poster-results-amber-summary';
+  section.hidden = true;
+
+  const header = document.createElement('div');
+  header.className = 'poster-results-amber-summary-header';
+  const eyebrow = document.createElement('p');
+  eyebrow.textContent = 'AMBER Alerts';
+  const heading = document.createElement('h3');
+  heading.textContent = 'Active AMBER Alerts';
+  header.append(eyebrow, heading);
+
+  const list = document.createElement('div');
+  list.className = 'poster-results-amber-summary-list';
+  section.append(header, list);
+  return { section, list };
+}
+
+async function loadAmberSummary(config, list, section) {
+  try {
+    const url = new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
+    const response = await fetch(url.toString(), {
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    const alerts = Array.isArray(payload?.data) ? payload.data : [];
+    if (!alerts.length) return;
+    list.replaceChildren(...alerts.slice(0, 3).map(createAmberSummaryCard));
+    section.hidden = false;
+  } catch (error) {
+    section.hidden = true;
+  }
+}
 function appendParams(url, form) {
   const formData = new FormData(form);
   [...formData.entries()].forEach(([key, value]) => {
@@ -1635,7 +1804,7 @@ export default async function decorate(block) {
   submit.className = 'poster-results-submit';
   submit.textContent = config.submitLabel;
   const nearMe = createNearMeSection(() => searchPosters(1, true));
-  submitRow.append(reset, submit, nearMe.wrap);
+  submitRow.append(submit, reset, nearMe.wrap);
 
   form.append(topControls, divider, fieldGrid, submitRow);
 
@@ -1663,8 +1832,11 @@ export default async function decorate(block) {
   let currentNearSearch = false;
   let renderPagination = () => {};
 
-  inner.append(header, form, status, meta, backToSearch, results, pagination);
+  const amberSummary = createAmberSummarySection();
+
+  inner.append(header, amberSummary.section, form, status, meta, backToSearch, results, pagination);
   block.replaceChildren(inner);
+  loadAmberSummary(config, amberSummary.list, amberSummary.section);
 
   renderPagination = () => {
     pagination.replaceChildren();
