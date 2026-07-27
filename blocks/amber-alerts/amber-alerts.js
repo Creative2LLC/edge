@@ -259,16 +259,6 @@ function createAlertCard(alert, config, onSelect) {
   detail.addEventListener('click', () => onSelect(alert));
   actions.append(detail);
 
-  if (caseNumber(alert)) {
-    const poster = document.createElement('a');
-    poster.href = posterPageUrl(alert, config.posterPagePath);
-    poster.target = '_blank';
-    poster.rel = 'noopener noreferrer';
-    poster.className = 'amber-alerts-card-secondary';
-    poster.textContent = 'Open poster';
-    actions.append(poster);
-  }
-
   body.append(badge, title, details, actions);
   card.append(body);
   return card;
@@ -606,13 +596,7 @@ export default async function decorate(block) {
   copy.textContent = config.copy;
   header.append(eyebrow, heading, copy);
 
-  const controls = document.createElement('div');
-  controls.className = 'amber-alerts-controls';
-  const { label: stateLabel, select: stateSelect } = createStateFilter(config.state);
-  const refresh = document.createElement('button');
-  refresh.type = 'button';
-  refresh.textContent = 'Refresh';
-  controls.append(stateLabel, refresh);
+  const { select: stateSelect } = createStateFilter(config.state);
 
   const status = document.createElement('p');
   status.hidden = true;
@@ -623,7 +607,7 @@ export default async function decorate(block) {
   disclosure.className = 'amber-alerts-disclosure';
   disclosure.textContent = config.disclosure;
 
-  inner.append(header, controls, status, list);
+  inner.append(header, status, list);
   if (config.disclosure) inner.append(disclosure);
   block.replaceChildren(inner);
 
@@ -657,7 +641,6 @@ export default async function decorate(block) {
 
   const loadAlerts = async () => {
     setStatus(status, 'Loading active AMBER Alerts...', 'loading');
-    refresh.disabled = true;
     list.replaceChildren();
 
     try {
@@ -692,12 +675,9 @@ export default async function decorate(block) {
       renderAlerts(list, payload, config, showAlertDetail);
     } catch (error) {
       setStatus(status, 'AMBER Alerts are unavailable.', 'error');
-    } finally {
-      refresh.disabled = false;
     }
   };
 
-  refresh.addEventListener('click', loadAlerts);
   stateSelect.addEventListener('change', loadAlerts);
   loadAlerts();
 }

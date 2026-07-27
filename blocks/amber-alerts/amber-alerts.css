@@ -25,27 +25,21 @@
 
 .amber-alerts h2 {
   margin: 0;
-  color: #243846;
-  font-size: clamp(44px, 4.8vw, 68px);
+  color: #304656;
+  font-size: clamp(38px, 3vw, 48px);
   font-weight: 500;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.05;
 }
 
 .amber-alerts-copy {
   max-width: 900px;
-  margin: 22px 0 0;
+  margin: 16px 0 0;
   color: #304656;
-  font-size: clamp(20px, 1.6vw, 25px);
-  line-height: 1.42;
+  font-size: 18px;
+  line-height: 1.5;
 }
 
-.amber-alerts-controls {
-  display: flex;
-  align-items: end;
-  gap: 12px;
-  margin-bottom: 32px;
-}
 
 .amber-alerts-filter {
   display: none;
@@ -70,9 +64,7 @@
   padding: 8px 12px;
 }
 
-.amber-alerts-controls button,
 .amber-alerts-card-actions button,
-.amber-alerts-card-actions a,
 .amber-alerts-detail-back {
   display: inline-flex;
   align-items: center;
@@ -90,18 +82,6 @@
   text-decoration: none;
 }
 
-.amber-alerts-card-actions a {
-  border: 1px solid #c7d1d8;
-  background: #fff;
-  color: #243846;
-}
-
-.amber-alerts-card-actions .amber-alerts-card-secondary {
-  display: inline-flex;
-  border: 1px solid #c7d1d8;
-  background: #fff;
-  color: #243846;
-}
 
 .amber-alerts-detail-back {
   border: 1px solid #c7d1d8;
@@ -110,18 +90,14 @@
   margin-bottom: 20px;
 }
 
-.amber-alerts-controls button:hover,
 .amber-alerts-card-actions button:hover {
   background: #005f7d;
 }
 
-.amber-alerts-card-actions a:hover,
-.amber-alerts-card-actions .amber-alerts-card-secondary:hover,
 .amber-alerts-detail-back:hover {
   background: #eef3f6;
 }
 
-.amber-alerts-controls button:disabled,
 .amber-alerts-card-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -169,6 +145,8 @@
 }
 
 .amber-alerts-card-media {
+  display: block;
+  height: 100%;
   min-height: 250px;
   background: #dfe5e9;
 }
@@ -178,6 +156,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
 }
 
 .amber-alerts-card-body,
@@ -364,9 +343,7 @@
 }
 
 .amber-alerts-filter select:focus-visible,
-.amber-alerts-controls button:focus-visible,
 .amber-alerts-card-actions button:focus-visible,
-.amber-alerts-card-actions a:focus-visible,
 .amber-alerts-detail-back:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
@@ -385,16 +362,12 @@
     font-size: 38px;
   }
 
-  .amber-alerts-controls,
   .amber-alerts-list,
   .amber-alerts-card,
   .amber-alerts-detail-body {
     grid-template-columns: 1fr;
   }
 
-  .amber-alerts-controls {
-    display: grid;
-  }
 
   .amber-alerts-filter {
     min-width: 0;
@@ -415,8 +388,7 @@
   }
 
   .amber-alerts-card-actions,
-  .amber-alerts-card-actions button,
-  .amber-alerts-card-actions a {
+  .amber-alerts-card-actions button {
     width: 100%;
   }
 

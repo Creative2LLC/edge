@@ -715,54 +715,18 @@ function createLinkedNameElement(tagName, name, href, className = '') {
   return title;
 }
 
-function createAmberRelatedPeopleSection(payload, selectedPerson) {
-  const people = relatedAmberPeople(payload, selectedPerson);
-  if (!people.length) return null;
-
-  const section = document.createElement('section');
-  section.className = 'poster-results-related';
-  const heading = document.createElement('h4');
-  heading.textContent = 'Related People';
-  const list = document.createElement('div');
-  list.className = 'poster-results-related-list';
-
-  people.forEach((person) => {
-    const row = document.createElement('article');
-    row.className = 'poster-results-related-person';
-    const image = childPhotoSources(person)[0];
-    if (image) {
-      const img = document.createElement('img');
-      img.src = image;
-      img.alt = displayName(person, readablePersonType(person));
-      img.loading = 'lazy';
-      row.append(img);
-    }
-
-    const content = document.createElement('div');
-    const title = createLinkedNameElement(
-      'h5',
-      displayName(person, readablePersonType(person)),
-      amberPosterDetailUrl(person, payload.case_number || payload.caseNumber),
-    );
-    const type = document.createElement('p');
-    type.textContent = readablePersonType(person);
-    const details = document.createElement('dl');
-    appendDetailRows(details, [
-      ['Age', firstValue(person, ['age', 'ageNow'])],
-      ['Gender', firstValue(person, ['sex', 'gender'])],
-      ['Race', firstValue(person, ['race', 'skinColor'])],
-      ['Hair Color', firstValue(person, ['hairColor'])],
-      ['Eye Color', firstValue(person, ['eyeColor'])],
-      ['Height', firstValue(person, ['height'])],
-      ['Weight', firstValue(person, ['weight'])],
-    ]);
-    content.append(title, type, details);
-    row.append(content);
-    list.append(row);
-  });
-
-  section.append(heading, list);
-  return section;
+// Physical-description facts for an AMBER related person (suspect / companion),
+// rendered as the same icon rows as the associated-child sections.
+function amberPersonFacts(person) {
+  return [
+    { icon: 'age', label: 'Age', value: firstValue(person, ['age', 'ageNow']) },
+    { icon: 'gender', label: 'Gender', value: firstValue(person, ['sex', 'gender']) },
+    { icon: 'info', label: 'Race', value: firstValue(person, ['race', 'skinColor']) },
+    { icon: 'info', label: 'Hair Color', value: firstValue(person, ['hairColor']) },
+    { icon: 'info', label: 'Eye Color', value: firstValue(person, ['eyeColor']) },
+    { icon: 'info', label: 'Height', value: joinValues([firstValue(person, ['height']), firstValue(person, ['heightTo'])], ' - ') },
+    { icon: 'info', label: 'Weight', value: joinValues([firstValue(person, ['weight']), firstValue(person, ['weightTo'])], ' - ') },
+  ];
 }
 
 function createAmberVehicleSection(payload, selectedPerson) {
@@ -789,20 +753,6 @@ function createAmberVehicleSection(payload, selectedPerson) {
 
   section.append(heading, list);
   return section;
-}
-
-function appendAmberRelatedGrid(body, payload, selectedPerson) {
-  const sections = [
-    createAmberRelatedPeopleSection(payload, selectedPerson),
-    createAmberVehicleSection(payload, selectedPerson),
-  ].filter(Boolean);
-
-  if (!sections.length) return;
-
-  const grid = document.createElement('div');
-  grid.className = `poster-results-related-grid${sections.length === 1 ? ' is-single' : ''}`;
-  grid.append(...sections);
-  body.append(grid);
 }
 
 function appendPhotoGallery(container, child, name) {
@@ -1041,6 +991,7 @@ const POSTER_FACT_ICONS = {
   location: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
   age: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/>',
   gender: '<circle cx="12" cy="8" r="4"/><path d="M6 21v-1a6 6 0 0 1 12 0v1"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
 };
 
 function posterFactIcon(name) {
@@ -1117,7 +1068,7 @@ function participantPosterUrl(payload, person, isMain) {
 }
 
 function buildParticipantSection(payload, {
-  person, heading, main, unidentified,
+  person, heading, main, unidentified, facts, href,
 }) {
   const section = document.createElement('section');
   section.className = `poster-results-participant${main ? ' is-main' : ''}`;
@@ -1151,7 +1102,7 @@ function buildParticipantSection(payload, {
   const title = createLinkedNameElement(
     'h3',
     name,
-    participantPosterUrl(payload, person, main),
+    href ?? participantPosterUrl(payload, person, main),
     'poster-results-detail-name',
   );
   body.append(title);
@@ -1164,10 +1115,10 @@ function buildParticipantSection(payload, {
     body.append(ncicEl);
   }
 
-  const facts = document.createElement('div');
-  facts.className = 'poster-results-detail-facts';
-  appendFactRows(facts, participantFacts(person, unidentified));
-  body.append(facts);
+  const factsEl = document.createElement('div');
+  factsEl.className = 'poster-results-detail-facts';
+  appendFactRows(factsEl, facts ?? participantFacts(person, unidentified));
+  body.append(factsEl);
 
   if (main) {
     const narrative = posterNarrative(payload, person);
@@ -1313,10 +1264,27 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     copy.textContent = narrative;
     body.append(copy);
   }
-  appendAmberRelatedGrid(body, payload, alert);
 
   layout.append(body);
-  detail.append(layout, createDetailFooter(config, payload, alert));
+  detail.append(layout);
+
+  // Related people (suspect / abductor / companion) get the same sectioned
+  // participant style as associated children, stacked below the main alert.
+  const caseNumber = payload.case_number || payload.caseNumber;
+  relatedAmberPeople(payload, alert).forEach((person) => {
+    detail.append(buildParticipantSection(payload, {
+      person,
+      heading: readablePersonType(person),
+      main: false,
+      facts: amberPersonFacts(person),
+      href: amberPosterDetailUrl(person, caseNumber),
+    }));
+  });
+
+  const vehicles = createAmberVehicleSection(payload, alert);
+  if (vehicles) detail.append(vehicles);
+
+  detail.append(createDetailFooter(config, payload, alert));
   container.append(detail);
   appendPhotoGallery(detail, alert, name);
 }
@@ -1518,12 +1486,12 @@ function amberSummaryImage(alert) {
     || deepFirstValue(alert, ['image_url', 'thumbnail_url', 'imageUrl', 'thumbnailUrl']);
 }
 
-function createAmberCardAction(label, href, variant = '') {
+function createAmberCardAction(label, href) {
   const action = document.createElement('a');
   action.href = href;
   action.target = '_blank';
   action.rel = 'noopener noreferrer';
-  action.className = `poster-results-amber-card-action${variant ? ` ${variant}` : ''}`;
+  action.className = 'poster-results-amber-card-action';
   action.textContent = label;
   return action;
 }
@@ -1572,10 +1540,7 @@ function createAmberSummaryCard(alert) {
   const actions = document.createElement('div');
   actions.className = 'poster-results-amber-card-actions';
   if (href) {
-    actions.append(
-      createAmberCardAction('View alert', href),
-      createAmberCardAction('Open poster', href, 'is-secondary'),
-    );
+    actions.append(createAmberCardAction('View alert', href));
   }
 
   body.append(badge, title);
@@ -1594,27 +1559,20 @@ function createAmberSummarySection() {
   header.className = 'poster-results-amber-summary-header';
   const eyebrow = document.createElement('p');
   eyebrow.textContent = 'AMBER Alert';
-  const heading = document.createElement('h3');
+  const heading = document.createElement('h2');
   heading.textContent = 'Active AMBER Alerts';
   const copy = document.createElement('p');
   copy.className = 'poster-results-amber-summary-copy';
   copy.textContent = 'Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle.';
   header.append(eyebrow, heading, copy);
 
-  const refresh = document.createElement('button');
-  refresh.type = 'button';
-  refresh.className = 'poster-results-amber-summary-refresh';
-  refresh.textContent = 'Refresh';
-
   const list = document.createElement('div');
   list.className = 'poster-results-amber-summary-list';
-  section.append(header, refresh, list);
-  return { section, list, refresh };
+  section.append(header, list);
+  return { section, list };
 }
 
-async function loadAmberSummary(config, list, section, refresh = null) {
-  if (refresh) refresh.disabled = true;
-
+async function loadAmberSummary(config, list, section) {
   try {
     const url = new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
     const response = await fetch(url.toString(), {
@@ -1647,8 +1605,6 @@ async function loadAmberSummary(config, list, section, refresh = null) {
     section.hidden = false;
   } catch (error) {
     section.hidden = true;
-  } finally {
-    if (refresh) refresh.disabled = false;
   }
 }
 
@@ -1912,10 +1868,7 @@ export default async function decorate(block) {
 
   inner.append(amberSummary.section, header, form, status, meta, backToSearch, results, pagination);
   block.replaceChildren(inner);
-  loadAmberSummary(config, amberSummary.list, amberSummary.section, amberSummary.refresh);
-  amberSummary.refresh.addEventListener('click', () => {
-    loadAmberSummary(config, amberSummary.list, amberSummary.section, amberSummary.refresh);
-  });
+  loadAmberSummary(config, amberSummary.list, amberSummary.section);
 
   renderPagination = () => {
     pagination.replaceChildren();
