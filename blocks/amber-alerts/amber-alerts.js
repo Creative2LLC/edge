@@ -3,7 +3,6 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { buildAmberPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
@@ -201,16 +200,6 @@ function appendDetailRows(list, rows) {
   rows.forEach(([label, value]) => {
     const row = createDetailRow(label, value);
     if (row) list.append(...row);
-  });
-}
-
-function posterPageUrl(alert, posterPagePath = DEFAULTS.posterPagePath) {
-  return buildAmberPosterDetailHref({
-    caseNumber: caseNumber(alert),
-    sequenceNumber: personId(alert) || sequenceNumber(alert) || '1',
-    personId: personId(alert),
-    name: alertName(alert),
-    posterPagePath,
   });
 }
 
