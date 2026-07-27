@@ -1,48 +1,50 @@
 .amber-alerts {
   background: #f5f7f8;
-  padding: 52px 0 60px;
+  padding: 72px 0 76px;
 }
 
 .amber-alerts-inner {
-  width: min(1120px, calc(100% - 40px));
+  width: min(1400px, calc(100% - 64px));
   margin: 0 auto;
 }
 
 .amber-alerts-header {
-  max-width: 820px;
-  margin-bottom: 24px;
+  max-width: 900px;
+  margin-bottom: 34px;
 }
 
 .amber-alerts-eyebrow,
 .amber-alerts-card-badge {
-  margin: 0 0 8px;
+  margin: 0 0 14px;
   color: #b42318;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
 .amber-alerts h2 {
   margin: 0;
   color: #243846;
-  font-size: 44px;
-  line-height: 1.08;
+  font-size: clamp(44px, 4.8vw, 68px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
 .amber-alerts-copy {
-  max-width: 720px;
-  margin: 14px 0 0;
-  color: #3f4b53;
-  font-size: 18px;
-  line-height: 1.5;
+  max-width: 900px;
+  margin: 22px 0 0;
+  color: #304656;
+  font-size: clamp(20px, 1.6vw, 25px);
+  line-height: 1.42;
 }
 
 .amber-alerts-controls {
   display: flex;
   align-items: end;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
 }
 
 .amber-alerts-filter {
@@ -75,16 +77,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 54px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #007294;
   color: #fff;
   cursor: pointer;
   font: inherit;
-  font-size: 15px;
-  font-weight: 800;
-  padding: 0 18px;
+  font-size: 18px;
+  font-weight: 900;
+  padding: 0 24px;
   text-decoration: none;
 }
 
@@ -142,23 +144,24 @@
 
 .amber-alerts-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  width: min(760px, 100%);
 }
 
 .amber-alerts-card,
 .amber-alerts-detail {
   overflow: hidden;
-  border: 1px solid #d9e1e6;
-  border-radius: 8px;
+  border: 1px solid #d6e0e7;
+  border-radius: 9px;
   background: #fff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
 }
 
 .amber-alerts-card {
   display: grid;
-  grid-template-columns: minmax(160px, 190px) minmax(0, 1fr);
-  min-height: 220px;
+  grid-template-columns: minmax(190px, 250px) minmax(0, 1fr);
+  min-height: 250px;
 }
 
 .amber-alerts-card.is-no-media {
@@ -166,6 +169,7 @@
 }
 
 .amber-alerts-card-media {
+  min-height: 250px;
   background: #dfe5e9;
 }
 
@@ -179,37 +183,39 @@
 .amber-alerts-card-body,
 .amber-alerts-detail-content {
   min-width: 0;
-  padding: 20px;
+  padding: clamp(24px, 3vw, 32px);
 }
 
 .amber-alerts-card h3,
 .amber-alerts-detail h3 {
-  margin: 0 0 14px;
+  margin: 0 0 22px;
   color: #243846;
-  font-size: 26px;
+  font-size: clamp(28px, 2.5vw, 36px);
+  font-weight: 500;
   line-height: 1.12;
 }
 
 .amber-alerts-card dl,
 .amber-alerts-detail dl {
   display: grid;
-  grid-template-columns: minmax(84px, max-content) minmax(0, 1fr);
-  gap: 8px 12px;
+  grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+  gap: 13px 28px;
   margin: 0;
 }
 
 .amber-alerts-card dt,
 .amber-alerts-detail dt {
-  color: #5f6a72;
-  font-size: 13px;
-  font-weight: 800;
+  color: #4c5964;
+  font-size: 15px;
+  font-weight: 900;
 }
 
 .amber-alerts-card dd,
 .amber-alerts-detail dd {
   margin: 0;
-  color: #303030;
-  font-size: 15px;
+  color: #182b3a;
+  font-size: 17px;
+  line-height: 1.35;
   overflow-wrap: normal;
   word-break: normal;
 }
@@ -217,8 +223,8 @@
 .amber-alerts-card-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 28px;
 }
 
 .amber-alerts-empty {
@@ -234,9 +240,9 @@
 }
 
 .amber-alerts-disclosure {
-  margin: 22px 0 0;
-  color: #3f4b53;
-  font-size: 14px;
+  margin: 28px 0 0;
+  color: #304656;
+  font-size: 17px;
   line-height: 1.5;
 }
 
@@ -372,11 +378,11 @@
   }
 
   .amber-alerts-inner {
-    width: min(1120px, calc(100% - 24px));
+    width: min(1400px, calc(100% - 24px));
   }
 
   .amber-alerts h2 {
-    font-size: 32px;
+    font-size: 38px;
   }
 
   .amber-alerts-controls,
@@ -405,6 +411,13 @@
   .amber-alerts-card dl,
   .amber-alerts-detail dl {
     grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .amber-alerts-card-actions,
+  .amber-alerts-card-actions button,
+  .amber-alerts-card-actions a {
+    width: 100%;
   }
 
   .amber-alerts-related-grid {

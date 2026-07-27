@@ -581,9 +581,11 @@ function photoSource(photo) {
 }
 
 function childPhotoSources(child) {
-  const photos = Array.isArray(child?.photos) ? child.photos : [];
+  const galleries = ['photos', 'ageProgressionPhotos', 'extraPhotos']
+    .flatMap((key) => (Array.isArray(child?.[key]) ? child[key] : []))
+    .map(photoSource);
   return [
-    ...photos.map(photoSource),
+    ...galleries,
     child?.image_url,
     child?.thumbnail_url,
     child?.imageUrl,
@@ -1097,6 +1099,23 @@ function appendFactRows(container, facts) {
   });
 }
 
+// Link an associated person to their own poster. Associated children carry only
+// a seq number, so provider/case fall back to the case-level values. The main
+// person isn't linked (already shown); companions without their own case stay
+// plain text (matching the legacy poster).
+function participantPosterUrl(payload, person, isMain) {
+  if (isMain) return '';
+  const provider = normalizeText(
+    person.orgPrefix || payload?.organizationCode || payload?.orgPrefix,
+  );
+  const caseNumber = normalizeText(
+    person.caseNumber || payload?.caseNumber || payload?.case_number,
+  );
+  const seq = normalizeText(sequenceNumber(person));
+  if (!provider || !caseNumber || !seq) return '';
+  return buildCleanPosterPath({ provider, caseNumber, sequenceNumber: seq });
+}
+
 function buildParticipantSection(payload, {
   person, heading, main, unidentified,
 }) {
@@ -1132,7 +1151,7 @@ function buildParticipantSection(payload, {
   const title = createLinkedNameElement(
     'h3',
     name,
-    posterDetailUrl(person),
+    participantPosterUrl(payload, person, main),
     'poster-results-detail-name',
   );
   body.append(title);
@@ -1494,13 +1513,26 @@ function renderResults(container, meta, payload) {
   people.forEach((person) => container.append(createResultCard(person)));
 }
 
+function amberSummaryImage(alert) {
+  return childPhotoSources(alert)[0]
+    || deepFirstValue(alert, ['image_url', 'thumbnail_url', 'imageUrl', 'thumbnailUrl']);
+}
+
+function createAmberCardAction(label, href, variant = '') {
+  const action = document.createElement('a');
+  action.href = href;
+  action.target = '_blank';
+  action.rel = 'noopener noreferrer';
+  action.className = `poster-results-amber-card-action${variant ? ` ${variant}` : ''}`;
+  action.textContent = label;
+  return action;
+}
+
 function createAmberSummaryCard(alert) {
   const card = document.createElement('article');
   card.className = 'poster-results-amber-card';
   const href = amberPosterDetailUrl(alert);
-  const imageUrl = normalizeText(
-    alert.image_url || alert.imageUrl || alert.thumbnail_url || alert.thumbnailUrl,
-  );
+  const imageUrl = amberSummaryImage(alert);
 
   if (imageUrl) {
     const media = document.createElement(href ? 'a' : 'div');
@@ -1516,6 +1548,8 @@ function createAmberSummaryCard(alert) {
     img.loading = 'lazy';
     media.append(img);
     card.append(media);
+  } else {
+    card.classList.add('is-no-media');
   }
 
   const body = document.createElement('div');
@@ -1529,14 +1563,24 @@ function createAmberSummaryCard(alert) {
     href,
     'poster-results-amber-card-title',
   );
-  const meta = document.createElement('p');
-  meta.className = 'poster-results-amber-card-meta';
-  meta.textContent = joinValues([
-    firstValue(alert, ['missing_location', 'missingLocation']) || locationText(alert),
-    firstValue(alert, ['missing_date', 'missingDate', 'dateMissing', 'missingSince']),
+  const details = document.createElement('dl');
+  appendDetailRows(details, [
+    ['Case', amberCaseNumber(alert)],
+    ['Missing From', firstValue(alert, ['missing_location', 'missingLocation']) || locationText(alert)],
+    ['Issued For', firstValue(alert, ['issued_for', 'issuedFor'])],
   ]);
+  const actions = document.createElement('div');
+  actions.className = 'poster-results-amber-card-actions';
+  if (href) {
+    actions.append(
+      createAmberCardAction('View alert', href),
+      createAmberCardAction('Open poster', href, 'is-secondary'),
+    );
+  }
+
   body.append(badge, title);
-  if (meta.textContent) body.append(meta);
+  if (details.children.length) body.append(details);
+  if (actions.children.length) body.append(actions);
   card.append(body);
   return card;
 }
@@ -1549,18 +1593,28 @@ function createAmberSummarySection() {
   const header = document.createElement('div');
   header.className = 'poster-results-amber-summary-header';
   const eyebrow = document.createElement('p');
-  eyebrow.textContent = 'AMBER Alerts';
+  eyebrow.textContent = 'AMBER Alert';
   const heading = document.createElement('h3');
   heading.textContent = 'Active AMBER Alerts';
-  header.append(eyebrow, heading);
+  const copy = document.createElement('p');
+  copy.className = 'poster-results-amber-summary-copy';
+  copy.textContent = 'Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle.';
+  header.append(eyebrow, heading, copy);
+
+  const refresh = document.createElement('button');
+  refresh.type = 'button';
+  refresh.className = 'poster-results-amber-summary-refresh';
+  refresh.textContent = 'Refresh';
 
   const list = document.createElement('div');
   list.className = 'poster-results-amber-summary-list';
-  section.append(header, list);
-  return { section, list };
+  section.append(header, refresh, list);
+  return { section, list, refresh };
 }
 
-async function loadAmberSummary(config, list, section) {
+async function loadAmberSummary(config, list, section, refresh = null) {
+  if (refresh) refresh.disabled = true;
+
   try {
     const url = new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
     const response = await fetch(url.toString(), {
@@ -1570,12 +1624,34 @@ async function loadAmberSummary(config, list, section) {
     const payload = await response.json();
     const alerts = Array.isArray(payload?.data) ? payload.data : [];
     if (!alerts.length) return;
+    await Promise.all(alerts.map(async (alert) => {
+      if (amberSummaryImage(alert) || !amberCaseNumber(alert)) return;
+      try {
+        const detailUrl = new URL(
+          `/api/amber-alerts/${encodeURIComponent(amberCaseNumber(alert))}`,
+          `${config.apiBaseUrl}/`,
+        );
+        const detailResponse = await fetch(detailUrl.toString(), {
+          headers: { Accept: 'application/json' },
+        });
+        if (!detailResponse.ok) return;
+        const detailPayload = await detailResponse.json();
+        const detailAlert = matchingPerson(detailPayload, alert);
+        const image = amberSummaryImage(detailAlert) || amberSummaryImage(detailPayload);
+        if (image) alert.image_url = image;
+      } catch (error) {
+        // The card remains usable without an image.
+      }
+    }));
     list.replaceChildren(...alerts.slice(0, 3).map(createAmberSummaryCard));
     section.hidden = false;
   } catch (error) {
     section.hidden = true;
+  } finally {
+    if (refresh) refresh.disabled = false;
   }
 }
+
 function appendParams(url, form) {
   const formData = new FormData(form);
   [...formData.entries()].forEach(([key, value]) => {
@@ -1834,9 +1910,12 @@ export default async function decorate(block) {
 
   const amberSummary = createAmberSummarySection();
 
-  inner.append(header, amberSummary.section, form, status, meta, backToSearch, results, pagination);
+  inner.append(amberSummary.section, header, form, status, meta, backToSearch, results, pagination);
   block.replaceChildren(inner);
-  loadAmberSummary(config, amberSummary.list, amberSummary.section);
+  loadAmberSummary(config, amberSummary.list, amberSummary.section, amberSummary.refresh);
+  amberSummary.refresh.addEventListener('click', () => {
+    loadAmberSummary(config, amberSummary.list, amberSummary.section, amberSummary.refresh);
+  });
 
   renderPagination = () => {
     pagination.replaceChildren();

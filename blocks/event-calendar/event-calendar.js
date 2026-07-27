@@ -297,8 +297,10 @@ function createModal() {
 
     const { venue, cityState } = locationParts(event);
     const locationText = [venue, cityState].filter(Boolean).join(' · ');
-    const duplicateTitle = locationText.toLowerCase() === normalizeText(event.title).toLowerCase();
-    locationEl.textContent = duplicateTitle ? '' : locationText;
+    const normalizedLocation = locationText.toLowerCase();
+    const duplicateChip = normalizedLocation === normalizeText(event.title).toLowerCase()
+      || normalizedLocation === normalizeText(event.description).toLowerCase();
+    locationEl.textContent = duplicateChip ? '' : locationText;
     locationEl.hidden = !locationEl.textContent;
 
     descriptionEl.textContent = event.description || '';
