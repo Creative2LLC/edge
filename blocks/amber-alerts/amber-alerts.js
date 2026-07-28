@@ -3,6 +3,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { buildAmberPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
@@ -11,7 +12,7 @@ const DEFAULTS = {
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   state: '',
   emptyMessage: 'There are no AMBER Alerts at this time.',
-  detailLabel: 'View alert',
+  detailLabel: 'Open poster',
   posterPagePath: '/missing-children-posters',
   disclosure: 'Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster.',
 };
@@ -156,6 +157,16 @@ function alertName(alert) {
     || 'AMBER Alert';
 }
 
+function amberPosterUrl(alert, posterPagePath) {
+  return buildAmberPosterDetailHref({
+    caseNumber: caseNumber(alert),
+    sequenceNumber: personId(alert) || sequenceNumber(alert) || '1',
+    personId: personId(alert),
+    name: alertName(alert),
+    posterPagePath,
+  });
+}
+
 function normalizedName(alert) {
   return alertName(alert).toLowerCase().replace(/\s+/g, ' ').trim();
 }
@@ -203,7 +214,7 @@ function appendDetailRows(list, rows) {
   });
 }
 
-function createAlertCard(alert, config, onSelect) {
+function createAlertCard(alert, config) {
   const card = document.createElement('article');
   card.className = 'amber-alerts-card';
 
@@ -240,20 +251,23 @@ function createAlertCard(alert, config, onSelect) {
 
   const actions = document.createElement('div');
   actions.className = 'amber-alerts-card-actions';
+  const posterUrl = amberPosterUrl(alert, config.posterPagePath);
+  if (posterUrl) {
+    const poster = document.createElement('a');
+    poster.href = posterUrl;
+    poster.target = '_blank';
+    poster.rel = 'noopener noreferrer';
+    poster.textContent = 'Open poster';
+    actions.append(poster);
+  }
 
-  const detail = document.createElement('button');
-  detail.type = 'button';
-  detail.textContent = config.detailLabel;
-  detail.disabled = !caseNumber(alert);
-  detail.addEventListener('click', () => onSelect(alert));
-  actions.append(detail);
-
-  body.append(badge, title, details, actions);
+  body.append(badge, title, details);
+  if (actions.children.length) body.append(actions);
   card.append(body);
   return card;
 }
 
-function renderAlerts(container, payload, config, onSelect) {
+function renderAlerts(container, payload, config) {
   container.replaceChildren();
   const alerts = Array.isArray(payload?.data) ? payload.data : [];
 
@@ -265,7 +279,7 @@ function renderAlerts(container, payload, config, onSelect) {
     return;
   }
 
-  alerts.forEach((alert) => container.append(createAlertCard(alert, config, onSelect)));
+  alerts.forEach((alert) => container.append(createAlertCard(alert, config)));
 }
 
 function detailImage(payload, sourceAlert) {
@@ -625,7 +639,7 @@ export default async function decorate(block) {
   }
 
   restoreList = () => {
-    if (lastPayload) renderAlerts(list, lastPayload, config, showAlertDetail);
+    if (lastPayload) renderAlerts(list, lastPayload, config);
   };
 
   const loadAlerts = async () => {
@@ -661,7 +675,7 @@ export default async function decorate(block) {
       }));
       lastPayload = payload;
       setStatus(status, '', '');
-      renderAlerts(list, payload, config, showAlertDetail);
+      renderAlerts(list, payload, config);
     } catch (error) {
       setStatus(status, 'AMBER Alerts are unavailable.', 'error');
     }

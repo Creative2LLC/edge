@@ -64,7 +64,7 @@
   padding: 8px 12px;
 }
 
-.amber-alerts-card-actions button,
+.amber-alerts-card-actions a,
 .amber-alerts-detail-back {
   display: inline-flex;
   align-items: center;
@@ -90,7 +90,7 @@
   margin-bottom: 20px;
 }
 
-.amber-alerts-card-actions button:hover {
+.amber-alerts-card-actions a:hover {
   background: #005f7d;
 }
 
@@ -98,10 +98,6 @@
   background: #eef3f6;
 }
 
-.amber-alerts-card-actions button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
 
 .amber-alerts-status {
   margin: 0 0 18px;
@@ -343,7 +339,7 @@
 }
 
 .amber-alerts-filter select:focus-visible,
-.amber-alerts-card-actions button:focus-visible,
+.amber-alerts-card-actions a:focus-visible,
 .amber-alerts-detail-back:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
@@ -388,7 +384,7 @@
   }
 
   .amber-alerts-card-actions,
-  .amber-alerts-card-actions button {
+  .amber-alerts-card-actions a {
     width: 100%;
   }
 
