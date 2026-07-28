@@ -715,40 +715,118 @@ function createLinkedNameElement(tagName, name, href, className = '') {
   return title;
 }
 
-// Physical-description facts for an AMBER related person (suspect / companion),
-// rendered as the same icon rows as the associated-child sections.
-function amberPersonFacts(person) {
-  return [
-    { icon: 'age', label: 'Age', value: firstValue(person, ['age', 'ageNow']) },
-    { icon: 'gender', label: 'Gender', value: firstValue(person, ['sex', 'gender']) },
-    { icon: 'info', label: 'Race', value: firstValue(person, ['race', 'skinColor']) },
-    { icon: 'info', label: 'Hair Color', value: firstValue(person, ['hairColor']) },
-    { icon: 'info', label: 'Eye Color', value: firstValue(person, ['eyeColor']) },
-    { icon: 'info', label: 'Height', value: joinValues([firstValue(person, ['height']), firstValue(person, ['heightTo'])], ' - ') },
-    { icon: 'info', label: 'Weight', value: joinValues([firstValue(person, ['weight']), firstValue(person, ['weightTo'])], ' - ') },
+function amberVehicleRows(vehicle) {
+  const rows = [
+    ['Make', firstValue(vehicle, ['make'])],
+    ['Model', firstValue(vehicle, ['model'])],
+    ['Year', firstValue(vehicle, ['year', 'modelYear'])],
+    ['Color', firstValue(vehicle, ['color', 'colorPrimary', 'primaryColor'])],
+    ['License plate', firstValue(vehicle, ['license_plate', 'licensePlateText', 'licensePlate'])],
+    ['License state', firstValue(vehicle, ['license_state', 'licensePlateState', 'plateState'])],
+    ['Description', firstValue(vehicle, ['description', 'vehicleDescription'])],
   ];
+
+  if (!rows.some(([, value]) => normalizeText(value))) {
+    rows.unshift(['Vehicle', vehicleSummary(vehicle)]);
+  }
+
+  return rows;
 }
 
-function createAmberVehicleSection(payload, selectedPerson) {
+function createAmberVehiclePanel(payload, selectedPerson) {
   const vehicles = vehicleItems(payload, selectedPerson);
   if (!vehicles.length) return null;
 
-  const section = document.createElement('section');
-  section.className = 'poster-results-related poster-results-vehicle-section';
+  const panel = document.createElement('aside');
+  panel.className = 'poster-results-amber-vehicle-panel';
   const heading = document.createElement('h4');
-  heading.textContent = 'Vehicle Details';
+  heading.textContent = 'Vehicle Information';
   const list = document.createElement('div');
-  list.className = 'poster-results-vehicle-list';
+  list.className = 'poster-results-amber-vehicle-list';
 
   vehicles.forEach((vehicle) => {
     const details = document.createElement('dl');
+    appendDetailRows(details, amberVehicleRows(vehicle));
+    if (details.children.length) list.append(details);
+  });
+
+  panel.append(heading, list);
+  return list.children.length ? panel : null;
+}
+
+function createAmberPosterHeader(payload, alert) {
+  const header = document.createElement('div');
+  header.className = 'poster-results-amber-poster-header';
+
+  const brand = document.createElement('div');
+  brand.className = 'poster-results-amber-poster-brand';
+  const brandTop = document.createElement('span');
+  brandTop.textContent = 'AMBER';
+  const brandBottom = document.createElement('strong');
+  brandBottom.textContent = 'ALERT';
+  brand.append(brandTop, brandBottom);
+
+  const issueBar = document.createElement('div');
+  issueBar.className = 'poster-results-amber-issue-bar';
+  const issuedFor = document.createElement('p');
+  const issuedValue = alert.issued_for || alert.issuedFor || firstValue(alert, ['state', 'missing_state', 'missingState']);
+  const issuedStrong = document.createElement('strong');
+  issuedStrong.textContent = issuedValue || 'Active alert';
+  issuedFor.append('Issued for: ', issuedStrong);
+  const caseText = document.createElement('p');
+  const caseNumber = payload.case_number || payload.caseNumber || alert.case_number || alert.caseNumber;
+  caseText.textContent = caseNumber ? `AMBER Alert: ${caseNumber}` : 'AMBER Alert';
+  issueBar.append(issuedFor, caseText);
+
+  header.append(brand, issueBar);
+  return header;
+}
+
+function createAmberRelatedPeoplePanel(payload, selectedPerson) {
+  const people = relatedAmberPeople(payload, selectedPerson);
+  if (!people.length) return null;
+
+  const section = document.createElement('section');
+  section.className = 'poster-results-amber-related-panel';
+  const heading = document.createElement('h4');
+  heading.textContent = people.length > 1 ? 'Associated companions' : 'Associated companion';
+
+  const list = document.createElement('div');
+  list.className = 'poster-results-amber-related-list';
+  const caseNumber = payload.case_number || payload.caseNumber;
+
+  people.forEach((person) => {
+    const card = document.createElement('article');
+    card.className = 'poster-results-amber-related-card';
+
+    const image = childPhotoSources(person)[0];
+    if (image) {
+      const img = document.createElement('img');
+      img.src = image;
+      img.alt = displayName(person, readablePersonType(person));
+      img.loading = 'lazy';
+      card.append(img);
+    }
+
+    const body = document.createElement('div');
+    const title = createLinkedNameElement(
+      'h5',
+      displayName(person, readablePersonType(person)),
+      amberPosterDetailUrl(person, caseNumber),
+    );
+    const type = document.createElement('p');
+    type.textContent = readablePersonType(person);
+    const details = document.createElement('dl');
     appendDetailRows(details, [
-      ['Vehicle', vehicleSummary(vehicle)],
-      ['License Plate', firstValue(vehicle, ['license_plate', 'licensePlateText', 'licensePlate'])],
-      ['License State', firstValue(vehicle, ['license_state', 'licensePlateState', 'plateState'])],
-      ['Description', firstValue(vehicle, ['description', 'vehicleDescription'])],
+      ['Gender', firstValue(person, ['sex', 'gender'])],
+      ['Race', firstValue(person, ['race', 'skinColor'])],
+      ['Hair', firstValue(person, ['hairColor'])],
+      ['Eyes', firstValue(person, ['eyeColor'])],
     ]);
-    list.append(details);
+    body.append(title, type);
+    if (details.children.length) body.append(details);
+    card.append(body);
+    list.append(card);
   });
 
   section.append(heading, list);
@@ -1209,8 +1287,10 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail poster-results-amber-poster';
-  detail.append(createMissingChildHeading(), createActionBar(config, { includePrint: false }));
+  detail.append(createAmberPosterHeader(payload, alert), createActionBar(config, { includePrint: false }));
 
+  const overview = document.createElement('div');
+  overview.className = 'poster-results-amber-overview';
   const layout = document.createElement('div');
   layout.className = 'poster-results-detail-layout';
 
@@ -1258,31 +1338,22 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   body.append(details);
 
   const narrative = posterNarrative(payload, alert);
+  let narrativeEl = null;
   if (narrative) {
-    const copy = document.createElement('p');
-    copy.className = 'poster-results-detail-copy';
-    copy.textContent = narrative;
-    body.append(copy);
+    narrativeEl = document.createElement('p');
+    narrativeEl.className = 'poster-results-detail-copy poster-results-amber-narrative';
+    narrativeEl.textContent = narrative;
   }
 
   layout.append(body);
-  detail.append(layout);
+  overview.append(layout);
+  const vehiclePanel = createAmberVehiclePanel(payload, alert);
+  if (vehiclePanel) overview.append(vehiclePanel);
+  detail.append(overview);
+  if (narrativeEl) detail.append(narrativeEl);
 
-  // Related people (suspect / abductor / companion) get the same sectioned
-  // participant style as associated children, stacked below the main alert.
-  const caseNumber = payload.case_number || payload.caseNumber;
-  relatedAmberPeople(payload, alert).forEach((person) => {
-    detail.append(buildParticipantSection(payload, {
-      person,
-      heading: readablePersonType(person),
-      main: false,
-      facts: amberPersonFacts(person),
-      href: amberPosterDetailUrl(person, caseNumber),
-    }));
-  });
-
-  const vehicles = createAmberVehicleSection(payload, alert);
-  if (vehicles) detail.append(vehicles);
+  const relatedPeople = createAmberRelatedPeoplePanel(payload, alert);
+  if (relatedPeople) detail.append(relatedPeople);
 
   detail.append(createDetailFooter(config, payload, alert));
   container.append(detail);

@@ -120,9 +120,9 @@
 
 .amber-alerts-list {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 22px;
-  width: min(760px, 100%);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr));
+  gap: 24px;
+  width: min(1280px, 100%);
 }
 
 .amber-alerts-card,
