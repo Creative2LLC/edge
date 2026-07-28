@@ -1071,6 +1071,17 @@ function participantPosterUrl(payload, person, isMain) {
   return buildCleanPosterPath({ provider, caseNumber, sequenceNumber: seq });
 }
 
+// Companions have no case of their own, so — like the legacy poster — their name
+// links to the poster they appear on (the current main person).
+function mainPosterUrl(payload) {
+  const main = arrayItems(payload?.children)[0] || {};
+  const provider = normalizeText(main.orgPrefix || payload?.organizationCode || payload?.orgPrefix);
+  const caseNumber = normalizeText(main.caseNumber || payload?.caseNumber || payload?.case_number);
+  const seq = normalizeText(sequenceNumber(main) || payload?.sequenceNumber) || '1';
+  if (!provider || !caseNumber) return '';
+  return buildCleanPosterPath({ provider, caseNumber, sequenceNumber: seq });
+}
+
 function buildParticipantSection(payload, {
   person, heading, main, unidentified, facts, href,
 }) {
@@ -1179,6 +1190,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
       main: false,
       unidentified: false,
       heading: capitalizeWords(firstValue(person, ['companionType']) || 'Companion'),
+      href: mainPosterUrl(payload),
     })),
     ...[
       ...arrayItems(payload?.suspects),
