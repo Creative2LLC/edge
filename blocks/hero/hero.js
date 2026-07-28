@@ -1124,27 +1124,22 @@ function getInlineFlattenedActionGroups(block) {
   return getUnstyledFlattenedActionGroups(elements, headingIndex);
 }
 
-function getFlattenedActionGroups(block) {
-  if (isUniversalEditor()) return [];
-
-  const cells = getRowCells(block);
-  const contentIndex = getContentCellIndex(cells);
-  if (contentIndex < 0) return getInlineFlattenedActionGroups(block);
-
+// Core grouping: given an ordered list of "cells" (either row cells, or the
+// flattened sibling elements of a single actions cell) and the index to start
+// after, split them into up to three actions delimited by their style value
+// (outline/solid/inverted). Each action's text/link precede its style.
+function buildStyledActionGroups(cells, startIndex) {
   const styleIndexes = cells
     .map((cell, index) => ({ cell, index, value: getCellText(cell).toLowerCase() }))
-    .filter(({ index, value }) => index > contentIndex && isActionStyleValue(value))
+    .filter(({ index, value }) => index > startIndex && isActionStyleValue(value))
     .slice(0, 3);
 
-  if (!styleIndexes.length) {
-    const unstyledGroups = getUnstyledFlattenedActionGroups(cells, contentIndex);
-    return unstyledGroups.length ? unstyledGroups : getInlineFlattenedActionGroups(block);
-  }
+  if (!styleIndexes.length) return [];
 
-  let previousStyleIndex = contentIndex;
-  const groups = styleIndexes
+  let previousStyleIndex = startIndex;
+  return styleIndexes
     .map(({ cell, index, value }) => {
-      const isFirstGroup = previousStyleIndex === contentIndex;
+      const isFirstGroup = previousStyleIndex === startIndex;
       const candidates = cells
         .slice(previousStyleIndex + 1, index)
         .filter((candidate) => !hasNonActionFieldContent(candidate))
@@ -1165,8 +1160,40 @@ function getFlattenedActionGroups(block) {
       );
     })
     .filter(Boolean);
+}
 
-  return groups.length ? groups : getInlineFlattenedActionGroups(block);
+// Some published exports flatten every action field (text/link/style x N) into a
+// SINGLE cell as sibling elements, instead of one cell per field. Detect that
+// cell — it holds the action-style values among its children — and group its
+// children the same way we group row cells.
+function getGroupedActionCellGroups(cells, contentIndex) {
+  const actionsCell = cells
+    .slice(contentIndex + 1)
+    .find((cell) => [...cell.children]
+      .some((child) => isActionStyleValue(getCellText(child))));
+  if (!actionsCell) return [];
+
+  const items = [...actionsCell.children]
+    .filter((child) => getCellText(child) || child.querySelector?.('a[href]'));
+
+  return buildStyledActionGroups(items, -1);
+}
+
+function getFlattenedActionGroups(block) {
+  if (isUniversalEditor()) return [];
+
+  const cells = getRowCells(block);
+  const contentIndex = getContentCellIndex(cells);
+  if (contentIndex < 0) return getInlineFlattenedActionGroups(block);
+
+  const styledGroups = buildStyledActionGroups(cells, contentIndex);
+  if (styledGroups.length) return styledGroups;
+
+  const groupedCellGroups = getGroupedActionCellGroups(cells, contentIndex);
+  if (groupedCellGroups.length) return groupedCellGroups;
+
+  const unstyledGroups = getUnstyledFlattenedActionGroups(cells, contentIndex);
+  return unstyledGroups.length ? unstyledGroups : getInlineFlattenedActionGroups(block);
 }
 
 function getButtonStyle(block, name) {
