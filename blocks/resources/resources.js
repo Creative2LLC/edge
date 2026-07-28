@@ -46,9 +46,54 @@ const RESOURCE_ACTION_LABELS = {
 };
 
 const DEFAULT_HEADER_BUTTON_TEXT = 'Find other resources';
+const CONFIG_ROW_INDEX = {
+  heading: 0,
+  subheading: 1,
+  headerMaxWidth: 2,
+  button: 3,
+  buttonLink: 4,
+  settings: 5,
+  apiBaseUrl: 6,
+  selected: 7,
+  limit: 8,
+};
+const CONFIG_FIELD_LABELS = {
+  heading: ['heading'],
+  subheading: ['subheading'],
+  headerMaxWidth: ['header max width', 'header max width px'],
+  button: ['button', 'button text'],
+  buttonLink: ['button link'],
+  settings: ['settings'],
+  apiBaseUrl: ['api base url'],
+  selected: ['selected', 'selected resource slugs or ids'],
+  limit: ['limit', 'resource limit'],
+};
 
 function resourceActionLabels() {
   return RESOURCE_ACTION_LABELS[currentSiteLocale()] || RESOURCE_ACTION_LABELS.en;
+}
+
+function normalizeConfigLabel(value) {
+  return String(value || '')
+    .replace(/\([^)]*\)/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function isLabeledConfigRow(row) {
+  if (!row || row.children.length < 2) return false;
+  const label = normalizeConfigLabel(row.children[0].textContent);
+  return Object.values(CONFIG_FIELD_LABELS).some((labels) => labels.includes(label));
+}
+
+function isResourceItemRow(row) {
+  if (!row) return false;
+  if (row.querySelector('picture')) return true;
+  if (row.querySelector(getFieldSelector('title'))) return true;
+  if (row.querySelector(getFieldSelector('image'))) return true;
+  return row.children.length >= 6 && !isLabeledConfigRow(row);
 }
 
 function extractConfigRows(block) {
@@ -57,15 +102,20 @@ function extractConfigRows(block) {
     (prop) => row.querySelector(getFieldSelector(prop)),
   ));
 
-  if (configRows.length === 0 && rows.length > 0) {
-    const fallback = rows.find((row) => !row.querySelector(getFieldSelector('title'))
-      && !row.querySelector(getFieldSelector('image'))
-      && !row.querySelector('picture'));
-    if (fallback) return [fallback];
-    return [rows[0]];
+  if (configRows.length) return configRows;
+  if (!rows.length) return [];
+
+  if (rows[0].children.length > 1 && !isLabeledConfigRow(rows[0])) return [rows[0]];
+
+  const publishedRows = [];
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    if (publishedRows.length && isResourceItemRow(row)) break;
+    publishedRows.push(row);
+    if (publishedRows.length >= Object.keys(CONFIG_ROW_INDEX).length) break;
   }
 
-  return configRows;
+  return publishedRows.length ? publishedRows : [rows[0]];
 }
 
 function findPropElement(configRows, name) {
@@ -74,10 +124,49 @@ function findPropElement(configRows, name) {
     .find(Boolean) || null;
 }
 
+function configRowCell(row) {
+  if (!row) return null;
+  return row.children.length === 2 ? row.children[1] : row.children[0] || row;
+}
+
+function findLabeledConfigCell(configRows, name) {
+  const labels = CONFIG_FIELD_LABELS[name] || [];
+  if (!labels.length) return null;
+
+  const row = configRows.find((candidate) => {
+    if (candidate.children.length < 2) return false;
+    return labels.includes(normalizeConfigLabel(candidate.children[0].textContent));
+  });
+
+  return configRowCell(row);
+}
+
+function readSeparateConfigCell(configRows, name) {
+  if (!configRows || configRows.length <= 1) return null;
+  const labeledCell = findLabeledConfigCell(configRows, name);
+  if (labeledCell) return labeledCell;
+
+  const index = CONFIG_ROW_INDEX[name];
+  return Number.isInteger(index) ? configRowCell(configRows[index]) : null;
+}
+
+function textFromCell(cell) {
+  return cell?.textContent?.trim() || '';
+}
+
+function hrefFromCell(cell) {
+  const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a[href]');
+  return anchor?.href || anchor?.getAttribute('href') || textFromCell(cell);
+}
+
 function readConfigField(configRows, name, columnIndexes = []) {
   if (!configRows || configRows.length === 0) return '';
   const source = findPropElement(configRows, name);
   if (source) return source.textContent.trim();
+
+  const separateCell = readSeparateConfigCell(configRows, name);
+  const separateValue = textFromCell(separateCell);
+  if (separateValue) return separateValue;
 
   const cols = [...(configRows[0]?.children || [])];
   const value = columnIndexes
@@ -95,12 +184,12 @@ function readConfigLinkField(configRows, name, columnIndexes = []) {
     return anchor?.href || source.textContent.trim();
   }
 
+  const separateValue = hrefFromCell(readSeparateConfigCell(configRows, name));
+  if (separateValue) return separateValue;
+
   const cols = [...(configRows[0]?.children || [])];
   const value = columnIndexes
-    .map((index) => {
-      const anchor = cols[index]?.querySelector('a');
-      return anchor?.href || cols[index]?.textContent.trim() || '';
-    })
+    .map((index) => hrefFromCell(cols[index]))
     .find(Boolean);
 
   return value || '';

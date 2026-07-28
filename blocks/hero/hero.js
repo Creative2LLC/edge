@@ -1527,6 +1527,7 @@ export default async function decorate(block) {
     );
   }
   const breadcrumb = await buildBreadcrumbs(block);
+  const actions = buildActions(block);
   const richText = buildMainRichText(block, resourceRichText, Boolean(breadcrumb));
   if (richText) {
     applyAccentBrackets(richText);
@@ -1541,7 +1542,6 @@ export default async function decorate(block) {
     applyAnimatedMarkers(htmlText, markerConfig);
     decorateInlineColors(htmlText);
   }
-  const actions = buildActions(block);
   const sidePanel = buildSidePanel(block);
 
   const main = document.createElement('div');

@@ -90,8 +90,11 @@ function readPublishedFallbackCells(rows) {
 
     if (alignIndex > index) {
       const subtitleEnd = cells.subtitleMaxWidth ? maybeWidthIndex : alignIndex;
-      if (subtitleEnd > index && !isConfigOnlyValue(values[index])) {
-        cells.subtitle = rowAt(rows, index);
+      const subtitleIndex = firstIndexFrom(values, index, (value) => (
+        Boolean(value) && !isConfigOnlyValue(value)
+      ));
+      if (subtitleIndex >= index && subtitleIndex < subtitleEnd) {
+        cells.subtitle = rowAt(rows, subtitleIndex);
       }
     }
 
