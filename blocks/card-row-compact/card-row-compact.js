@@ -16,6 +16,24 @@ function getImageField(row, name, index) {
   return { source: field.source || field.cell, img: field.img };
 }
 
+function emptyField() {
+  return { source: null, value: '' };
+}
+
+function isColorValue(value) {
+  const trimmed = String(value || '').trim();
+  return /^#(?:[0-9a-f]{3,8})$/i.test(trimmed)
+    || /^rgba?\(/i.test(trimmed)
+    || /^hsla?\(/i.test(trimmed);
+}
+
+function isCompactLiveCardRow(row) {
+  const cols = [...row.children];
+  if (cols.length < 5 || cols.length > 8) return false;
+  const possibleLinkText = getField(row, 'linkText', 4).value;
+  return Boolean(possibleLinkText && !isColorValue(possibleLinkText));
+}
+
 function buildCard(data) {
   const card = document.createElement('div');
   card.className = 'card-row-compact-card';
@@ -107,16 +125,17 @@ export default function decorate(block) {
     const cols = [...row.children];
     if (cols.length < 2) return;
 
+    const isCompactLiveRow = isCompactLiveCardRow(row);
     const iconField = getImageField(row, 'icon', 0);
     const iconColorField = getField(row, 'iconColor', 1);
     const titleField = getField(row, 'title', 2);
     const subheadingField = getField(row, 'subheading', 3);
-    const titleColorField = getField(row, 'titleColor', 4);
-    const subheadingColorField = getField(row, 'subheadingColor', 5);
-    const linkTextField = getField(row, 'linkText', 6);
-    const linkUrlField = getLinkField(row, 'linkUrl', 7);
-    const linkColorField = getField(row, 'linkColor', 8);
-    const cardBgField = getField(row, 'cardBackgroundColor', 9);
+    const titleColorField = isCompactLiveRow ? emptyField() : getField(row, 'titleColor', 4);
+    const subheadingColorField = isCompactLiveRow ? emptyField() : getField(row, 'subheadingColor', 5);
+    const linkTextField = getField(row, 'linkText', isCompactLiveRow ? 4 : 6);
+    const linkUrlField = getLinkField(row, 'linkUrl', isCompactLiveRow ? 5 : 7);
+    const linkColorField = getField(row, 'linkColor', isCompactLiveRow ? 6 : 8);
+    const cardBgField = getField(row, 'cardBackgroundColor', isCompactLiveRow ? 7 : 9);
 
     cards.push({
       iconField,

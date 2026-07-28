@@ -1102,22 +1102,47 @@ function getUnstyledFlattenedActionGroups(cells, contentIndex) {
   return groups.slice(0, 3);
 }
 
+function getInlineFlattenedElements(root) {
+  if (!root) return [];
+  const direct = [...root.children]
+    .filter((element) => !element.matches('picture, video, source, img'))
+    .filter((element) => getCellText(element) || element.querySelector('h1, h2, h3, h4, h5, h6'));
+
+  if (direct.length > 1) return direct;
+
+  return [...root.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, span')]
+    .filter((element) => !element.closest('picture, video'))
+    .filter((element) => getCellText(element));
+}
+
+function getInlineFlattenedActionGroups(block) {
+  const contentCell = getContentCell(block);
+  const elements = getInlineFlattenedElements(contentCell || block);
+  const headingIndex = elements.findIndex((element) => isHeadingNode(element));
+  if (headingIndex < 0) return [];
+
+  return getUnstyledFlattenedActionGroups(elements, headingIndex);
+}
+
 function getFlattenedActionGroups(block) {
   if (isUniversalEditor()) return [];
 
   const cells = getRowCells(block);
   const contentIndex = getContentCellIndex(cells);
-  if (contentIndex < 0) return [];
+  if (contentIndex < 0) return getInlineFlattenedActionGroups(block);
 
   const styleIndexes = cells
     .map((cell, index) => ({ cell, index, value: getCellText(cell).toLowerCase() }))
     .filter(({ index, value }) => index > contentIndex && isActionStyleValue(value))
     .slice(0, 3);
 
-  if (!styleIndexes.length) return getUnstyledFlattenedActionGroups(cells, contentIndex);
+  if (!styleIndexes.length) {
+    const unstyledGroups = getUnstyledFlattenedActionGroups(cells, contentIndex);
+    return unstyledGroups.length ? unstyledGroups : getInlineFlattenedActionGroups(block);
+  }
 
   let previousStyleIndex = contentIndex;
-  return styleIndexes
+  const groups = styleIndexes
     .map(({ cell, index, value }) => {
       const isFirstGroup = previousStyleIndex === contentIndex;
       const candidates = cells
@@ -1140,6 +1165,8 @@ function getFlattenedActionGroups(block) {
       );
     })
     .filter(Boolean);
+
+  return groups.length ? groups : getInlineFlattenedActionGroups(block);
 }
 
 function getButtonStyle(block, name) {
@@ -1507,6 +1534,7 @@ export default async function decorate(block) {
     ['content_textHtmlClass', 'textHtmlClass'],
   );
 
+  const actions = buildActions(block);
   const variant = normalizeChoice(
     getFieldValue(block, ['variant']).value,
     ['default', 'homepage'],
@@ -1568,7 +1596,6 @@ export default async function decorate(block) {
     );
   }
   const breadcrumb = await buildBreadcrumbs(block);
-  const actions = buildActions(block);
   const richText = buildMainRichText(block, resourceRichText, Boolean(breadcrumb));
   if (richText) {
     applyAccentBrackets(richText);

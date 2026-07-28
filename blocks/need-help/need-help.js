@@ -16,6 +16,59 @@ function normalizeLengthValue(value) {
   return trimmed;
 }
 
+function normalizeLabel(value) {
+  return String(value || '')
+    .replace(/\([^)]*\)/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function getParentFieldElement(block, name) {
+  return [...block.querySelectorAll(`[data-aue-prop="${name}"]`)]
+    .find((element) => !element.closest('[data-aue-model="need-help-card"]')) || null;
+}
+
+function getLabeledValueRow(rows, labels) {
+  const accepted = labels.map(normalizeLabel);
+  return rows.find((row) => {
+    if (row.children.length < 2) return false;
+    return accepted.includes(normalizeLabel(row.children[0].textContent));
+  }) || null;
+}
+
+function getRowValue(row) {
+  if (!row) return '';
+  if (row.children.length >= 2) return row.children[1].textContent.trim();
+  return (row.children[0] || row).textContent.trim();
+}
+
+function isNeedHelpCardRow(row) {
+  if (row.matches?.('[data-aue-model="need-help-card"]')) return true;
+  if (row.children.length < 2) return false;
+  if (normalizeLabel(row.children[0].textContent).startsWith('card')) return true;
+  return row.children.length >= 3;
+}
+
+function readParentText(block, rows, name, labels, fallbackIndex) {
+  const source = getParentFieldElement(block, name);
+  if (source) {
+    return {
+      source,
+      value: source.textContent.trim(),
+    };
+  }
+
+  const labeledRow = getLabeledValueRow(rows, labels);
+  const fallbackRows = rows.filter((row) => !isNeedHelpCardRow(row));
+  const fallbackRow = labeledRow || fallbackRows[fallbackIndex] || null;
+
+  return {
+    source: null,
+    value: getRowValue(fallbackRow),
+  };
+}
+
 function formatLinkText(text) {
   return text.replace(
     /(\([^)]*\))/g,
@@ -74,26 +127,23 @@ function buildCard(data) {
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
-  const headingEl = block.querySelector(
-    '[data-aue-prop="heading"]',
+  const headingField = readParentText(block, rows, 'heading', ['heading', 'title'], 0);
+  const blockSubheadingField = readParentText(
+    block,
+    rows,
+    'subheading',
+    ['subheading', 'description'],
+    1,
   );
-  const heading = headingEl?.textContent.trim() || '';
-
-  const subheadingEl = block.querySelector(
-    '[data-aue-prop="subheading"]',
-  );
-  const subheading = subheadingEl?.textContent.trim() || '';
-
-  const marginTopEl = block.querySelector(
-    '[data-aue-prop="marginTop"]',
-  );
-  const marginTopValue = normalizeLengthValue(marginTopEl?.textContent);
+  const marginTopField = readParentText(block, rows, 'marginTop', ['top spacing', 'margin top'], 2);
+  const marginTopValue = normalizeLengthValue(marginTopField.value);
   if (marginTopValue) {
     block.style.setProperty('margin-top', marginTopValue, 'important');
   }
 
   const cards = [];
   rows.forEach((row) => {
+    if (!isNeedHelpCardRow(row)) return;
     const cols = [...row.children];
     if (cols.length < 2) return;
 
@@ -114,17 +164,19 @@ export default function decorate(block) {
   const inner = document.createElement('div');
   inner.className = 'need-help-inner';
 
-  if (heading) {
+  if (headingField.value || headingField.source) {
     const h2 = document.createElement('h2');
     h2.className = 'need-help-heading';
-    h2.textContent = heading;
+    if (headingField.source) moveInstrumentation(headingField.source, h2);
+    h2.textContent = headingField.value;
     inner.append(h2);
   }
 
-  if (subheading) {
+  if (blockSubheadingField.value || blockSubheadingField.source) {
     const sub = document.createElement('p');
     sub.className = 'need-help-subheading';
-    sub.textContent = subheading;
+    if (blockSubheadingField.source) moveInstrumentation(blockSubheadingField.source, sub);
+    sub.textContent = blockSubheadingField.value;
     inner.append(sub);
   }
 
