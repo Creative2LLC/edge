@@ -1061,6 +1061,47 @@ function resolveFlattenedAction(candidates, isFirstGroup, style) {
   };
 }
 
+function shouldSkipFlattenedActionText(cell, value) {
+  if (!value) return true;
+  if (hasNonActionFieldContent(cell)) return true;
+  if (cell.querySelector?.('h1, h2, h3, h4, h5, h6')) return true;
+  if (isIgnoredFallbackText(value)) return true;
+  if (isActionStyleValue(value)) return true;
+  if (isLikelyBodyValue(value)) return true;
+  return false;
+}
+
+function getUnstyledFlattenedActionGroups(cells, contentIndex) {
+  const groups = [];
+  let pending = null;
+
+  cells.slice(contentIndex + 1).forEach((cell) => {
+    if (groups.length >= 3) return;
+
+    const value = getCellText(cell);
+    if (shouldSkipFlattenedActionText(cell, value)) return;
+
+    if (isLikelyLinkValue(value)) {
+      if (pending && !pending.link.href) {
+        pending.link = { source: null, value, href: getCellHrefValue(cell) };
+        groups.push(pending);
+        pending = null;
+      }
+      return;
+    }
+
+    if (pending) groups.push(pending);
+    pending = {
+      text: { source: null, value },
+      link: { source: null, value: '', href: '' },
+      style: 'outline',
+    };
+  });
+
+  if (groups.length < 3 && pending) groups.push(pending);
+  return groups.slice(0, 3);
+}
+
 function getFlattenedActionGroups(block) {
   if (isUniversalEditor()) return [];
 
@@ -1073,7 +1114,7 @@ function getFlattenedActionGroups(block) {
     .filter(({ index, value }) => index > contentIndex && isActionStyleValue(value))
     .slice(0, 3);
 
-  if (!styleIndexes.length) return [];
+  if (!styleIndexes.length) return getUnstyledFlattenedActionGroups(cells, contentIndex);
 
   let previousStyleIndex = contentIndex;
   return styleIndexes

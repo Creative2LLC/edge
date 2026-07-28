@@ -778,6 +778,42 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   return wrapper;
 }
 
+function normalizeNavToolLabel(value) {
+  return `${value || ''}`
+    .replace(/[\u2192\u203a]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function isNavSearchTrigger(button) {
+  const label = normalizeNavToolLabel(button.textContent);
+  return button.classList.contains('nav-search-trigger')
+    || !!button.querySelector('.icon-search')
+    || label === 'search';
+}
+
+function stripTrailingNavToolArrow(button) {
+  const textNodes = [];
+  const walk = (node) => {
+    [...node.childNodes].forEach((child) => {
+      if (child.nodeType === 1 && child.classList?.contains('icon')) return;
+      if (child.nodeType === 3) {
+        textNodes.push(child);
+        return;
+      }
+      walk(child);
+    });
+  };
+
+  walk(button);
+
+  const labelNode = textNodes.reverse().find((node) => node.textContent.trim());
+  if (labelNode) {
+    labelNode.textContent = labelNode.textContent.replace(/\s*[\u2192\u203a]\s*$/, '');
+  }
+}
+
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
     const nav = document.getElementById('nav');
@@ -2708,13 +2744,14 @@ export default async function decorate(block) {
 
     const toolButtons = [...navTools.querySelectorAll('a.button')];
     toolButtons.forEach((btn, index) => {
+      stripTrailingNavToolArrow(btn);
       btn.classList.remove('nav-tool-primary', 'nav-tool-accent', 'nav-tool-mobile-hidden');
       if (index === 0) btn.classList.add('nav-tool-primary');
       if (index === 1) btn.classList.add('nav-tool-accent');
       if (index >= 2) btn.classList.add('nav-tool-mobile-hidden');
     });
 
-    const searchTrigger = toolButtons.find((btn) => btn.textContent.trim().toLowerCase() === 'search');
+    const searchTrigger = toolButtons.find(isNavSearchTrigger);
     if (searchTrigger) {
       headerSearch.bindExternalTrigger(searchTrigger);
     }
