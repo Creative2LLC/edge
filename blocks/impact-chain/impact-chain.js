@@ -6,10 +6,27 @@ const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
 };
 
+const ITEM_FIELD_SELECTOR = [
+  '[data-aue-model="impact-chain-item"]',
+  '[data-aue-prop="image"]',
+  '[data-aue-prop="icon"]',
+  '[data-aue-prop="title"]',
+  'picture',
+  'img',
+].join(', ');
+
+function isLikelyItemRow(row) {
+  return row.matches?.('[data-aue-model="impact-chain-item"]')
+    || row.querySelector(ITEM_FIELD_SELECTOR)
+    || row.children.length >= 5;
+}
+
 function collectLegacyBlockFields(block) {
   const map = {};
   const rowsToRemove = [];
-  block.querySelectorAll(':scope > div').forEach((row) => {
+  const rows = [...block.querySelectorAll(':scope > div')];
+
+  rows.forEach((row) => {
     if (row.children.length !== 2) return;
     const key = row.children[0].textContent.trim().toLowerCase();
     const valueEl = row.children[1];
@@ -20,6 +37,18 @@ function collectLegacyBlockFields(block) {
       return true;
     });
   });
+
+  if (!map.heading) {
+    const headingRow = rows.find((row) => !rowsToRemove.includes(row)
+      && !isLikelyItemRow(row)
+      && row.textContent.trim());
+
+    if (headingRow) {
+      map.heading = headingRow.textContent.trim();
+      rowsToRemove.push(headingRow);
+    }
+  }
+
   rowsToRemove.forEach((row) => row.remove());
   return map;
 }

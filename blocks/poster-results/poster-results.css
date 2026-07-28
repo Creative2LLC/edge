@@ -1084,6 +1084,7 @@
   object-fit: cover;
 }
 
+/* stylelint-disable-next-line no-descending-specificity -- amber override above is intentionally more specific */
 .poster-results-detail-footer {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -1393,10 +1394,12 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     height: 92px;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity -- amber override is intentionally more specific */
   .poster-results-detail-actions {
     flex-wrap: wrap;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity -- amber override is intentionally more specific */
   .poster-results-detail-action {
     flex: 1 1 50%;
   }

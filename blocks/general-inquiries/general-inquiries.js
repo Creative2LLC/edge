@@ -193,16 +193,16 @@ function findSemanticFallbackCell(block, name, rowIndex, columnIndex = 0) {
 function getField(block, name, rowIndexMap, columnIndex = 0) {
   const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
   if (source) {
-    return { source, value: extractNodeValue(source) };
+    return { source, value: extractNodeValue(source), isFallback: false };
   }
 
   const rowIndex = rowIndexMap?.[name];
   const cell = Number.isInteger(rowIndex)
     ? findSemanticFallbackCell(block, name, rowIndex, columnIndex)
     : null;
-  if (!cell) return { source: null, value: '' };
+  if (!cell) return { source: null, value: '', isFallback: false };
 
-  return { source: cell, value: extractNodeValue(cell) };
+  return { source: cell, value: extractNodeValue(cell), isFallback: true };
 }
 
 function getFieldFromMaps(block, name, rowMaps, columnIndex = 0) {
@@ -211,7 +211,7 @@ function getFieldFromMaps(block, name, rowMaps, columnIndex = 0) {
     if (field.source || field.value) return field;
   }
 
-  return { source: null, value: '' };
+  return { source: null, value: '', isFallback: false };
 }
 
 function getImageField(block, name, rowIndexMap) {
@@ -255,8 +255,8 @@ function moveFieldBinding(from, to) {
 function moveFieldContent(field, target, fallbackValue = '') {
   if (!target) return;
 
-  if (!field?.source) {
-    target.textContent = fallbackValue || '';
+  if (!field?.source || field.isFallback) {
+    target.textContent = field?.value || fallbackValue || '';
     return;
   }
 
@@ -305,6 +305,8 @@ function parseNamedEntries(value, orderedKeys) {
   if (!value) return {};
 
   const normalized = value.replace(/\r/g, '');
+  if (!/[\n|]/.test(normalized)) return {};
+
   const lines = normalized
     .split(/\n+/)
     .map((line) => line.trim())
@@ -330,10 +332,24 @@ function parseNamedEntries(value, orderedKeys) {
   }, {});
 }
 
+function splitKnownTopicOptions(value) {
+  const compactValue = String(value || '').replace(/\s+/g, ' ').trim();
+  const defaultLabels = DEFAULTS.topicOptions.map((option) => option.label);
+  const hasMultipleDefaults = defaultLabels
+    .filter((label) => compactValue.toLowerCase().includes(label.toLowerCase()))
+    .length > 1;
+
+  return hasMultipleDefaults ? DEFAULTS.topicOptions : [];
+}
+
 function parseOptions(value) {
   if (!value) return [];
 
   const normalized = value.replace(/\r/g, '');
+  if (!/[\n;|]/.test(normalized)) {
+    return splitKnownTopicOptions(normalized);
+  }
+
   const delimiter = normalized.includes('\n') ? /\n+/ : /;+/;
   return normalized
     .split(delimiter)
@@ -836,12 +852,17 @@ export default async function decorate(block) {
   const heroButtonLinkField = getField(block, 'hero_buttonLink', BLOCK_ROW_INDEX);
   const heroBackgroundImageField = getImageField(block, 'hero_backgroundImage', BLOCK_ROW_INDEX);
 
-  const heroStyle = heroStyleField.value
-    || normalizeJsonFieldValue(resourceData.hero_style)
-    || DEFAULTS.heroStyle;
+  const authoredHeroStyle = heroStyleField.value
+    || normalizeJsonFieldValue(resourceData.hero_style);
+  const heroStyle = authoredHeroStyle || DEFAULTS.heroStyle;
   const heroBackgroundImageSrc = normalizeJsonFieldValue(resourceData.hero_backgroundImage)
     || heroBackgroundImageField.reference;
-  const isSupportMode = heroStyle === 'support';
+  const hasSupportFields = Boolean(
+    heroBackgroundImageSrc
+      || heroBackgroundImageField.picture
+      || heroButtonLinkField.value,
+  );
+  const isSupportMode = heroStyle === 'support' || (!authoredHeroStyle && hasSupportFields);
 
   block.classList.toggle('general-inquiries-support-mode', isSupportMode);
 

@@ -234,11 +234,18 @@
   text-decoration: none;
 }
 
+.connect-grid .connect-grid-method-value > p {
+  display: inline;
+  margin: 0;
+}
+
 .connect-grid .connect-grid-method-value.with-arrow::after {
+  display: inline-block;
   content: '\2192';
   margin-left: 8px;
   font-size: 1.05em;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .connect-grid a.connect-grid-method-value:hover,

@@ -296,6 +296,13 @@ function splitCollapsedStatLabels(value, expectedCount = 0) {
     .filter(Boolean);
   if (yearBoundaryParts.length === expectedCount) return yearBoundaryParts;
 
+  const sentenceEndParts = normalized
+    .replace(/([.!?])\s+(?=[A-Za-z0-9])/gu, '$1|')
+    .split('|')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (sentenceEndParts.length === expectedCount) return sentenceEndParts;
+
   // Split on sentence-casing boundaries: lowercase letter → space → uppercase word.
   // Handles adjacent labels with no separator, e.g. "exploitation Missing children".
   // Requires the uppercase word to have a following lowercase letter (avoids splitting
@@ -383,6 +390,17 @@ function restoreRenderedHeading(inner, removeBody = false) {
   if (removeBody) bodyEl.remove();
 }
 
+function removeDuplicateRenderedBody(inner) {
+  const headingEl = inner?.querySelector(':scope > .statistics-heading');
+  const bodyEl = inner?.querySelector(':scope > .statistics-body');
+  const hasAuthoredBodyBinding = Boolean(bodyEl?.matches(
+    '[data-aue-prop="bodyText"], [data-richtext-prop="bodyText"]',
+  ));
+  const headingText = headingEl?.textContent?.trim() || '';
+  const bodyText = bodyEl?.textContent?.trim() || '';
+  if (!hasAuthoredBodyBinding && headingText && headingText === bodyText) bodyEl.remove();
+}
+
 function ensureRenderedLabel(item) {
   const existing = item.querySelector(':scope > .statistics-label');
   if (existing) return existing;
@@ -435,6 +453,7 @@ function normalizeRenderedStatistics(block) {
   if (items.length > 1 || willSplitSingleItem) {
     restoreRenderedHeading(inner, true);
   }
+  removeDuplicateRenderedBody(inner);
   redistributeRenderedLabels(items);
 
   if (!willSplitSingleItem) return;
@@ -1601,6 +1620,24 @@ function fieldHasContent(field) {
   );
 }
 
+function fieldText(field) {
+  return String(field?.value || field?.source?.textContent || '').trim();
+}
+
+function isNamedBodyTextField(field) {
+  return Boolean(field?.source?.matches?.(
+    '[data-aue-prop="bodyText"], [data-richtext-prop="bodyText"]',
+  ));
+}
+
+function suppressDuplicateFallbackBody(headingField, bodyField) {
+  if (isNamedBodyTextField(bodyField)) return bodyField;
+  const headingText = fieldText(headingField);
+  const bodyText = fieldText(bodyField);
+  if (!headingText || headingText !== bodyText) return bodyField;
+  return { source: null, value: '' };
+}
+
 function applyItemDefaults(items, defaults) {
   const styledItems = items.map((item) => ({
     ...item,
@@ -1973,9 +2010,12 @@ export default function decorate(block) {
   const labels = normalizeStatLabelLines(statLabelsField, fieldFallback('statLabels'), values.length);
   const effectiveValues = values.length ? values : looseLegacy.values;
   const effectiveLabels = labels.length ? labels : looseLegacy.labels;
-  const effectiveBodyTextField = fieldHasContent(bodyTextField) || !looseLegacy.bodyText
-    ? bodyTextField
-    : { source: null, value: looseLegacy.bodyText };
+  const effectiveBodyTextField = suppressDuplicateFallbackBody(
+    headingField,
+    fieldHasContent(bodyTextField) || !looseLegacy.bodyText
+      ? bodyTextField
+      : { source: null, value: looseLegacy.bodyText },
+  );
   const hasHeadingText = fieldHasContent(headingField);
   const hasBodyText = fieldHasContent(effectiveBodyTextField);
   const looseLegacyStyles = getLooseLegacyStyleFallbacks(rows, {

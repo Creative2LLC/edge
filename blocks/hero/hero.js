@@ -1002,6 +1002,105 @@ function buildActionButton(textField, linkField, style) {
   return button;
 }
 
+function getCellHrefValue(cell) {
+  if (!cell) return '';
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector?.('a[href]');
+  return anchor?.getAttribute('href') || cell.getAttribute?.('href') || getCellText(cell);
+}
+
+function isActionStyleValue(value) {
+  return ['outline', 'solid', 'inverted'].includes(String(value || '').trim().toLowerCase());
+}
+
+function hasNonActionFieldContent(cell) {
+  if (!cell) return true;
+  if (cell.querySelector('picture, img, video')) return true;
+  return false;
+}
+
+function isLikelyLinkValue(value) {
+  const text = String(value || '').trim();
+  if (!text) return false;
+  return /^(?:#|\/|https?:\/\/|mailto:|tel:)/i.test(text)
+    || /\.(?:html?|pdf|docx?|pptx?|zip)(?:[?#].*)?$/i.test(text);
+}
+
+function isLikelyBodyValue(value) {
+  const text = String(value || '').trim();
+  return text.length > 72 || /[.!?;?]/.test(text);
+}
+
+function getContentCellIndex(cells) {
+  return cells.findIndex((cell) => cell.querySelector('h1, h2, h3, h4, h5, h6'));
+}
+
+function resolveFlattenedAction(candidates, isFirstGroup, style) {
+  let group = candidates;
+  if (isFirstGroup && group.length > 1 && isLikelyBodyValue(group[0].value)) {
+    group = group.slice(1);
+  }
+  if (!group.length) return null;
+
+  const lastCandidate = group[group.length - 1];
+  const lastHasHref = Boolean(lastCandidate.cell.querySelector?.('a[href]'))
+    || isLikelyLinkValue(lastCandidate.href);
+  const linkCandidate = group.length > 1 && lastHasHref ? lastCandidate : null;
+  const textCandidate = linkCandidate ? group[group.length - 2] : lastCandidate;
+
+  return {
+    text: {
+      source: null,
+      value: textCandidate.value,
+    },
+    link: {
+      source: null,
+      value: linkCandidate?.value || '',
+      href: linkCandidate?.href || '',
+    },
+    style,
+  };
+}
+
+function getFlattenedActionGroups(block) {
+  if (isUniversalEditor()) return [];
+
+  const cells = getRowCells(block);
+  const contentIndex = getContentCellIndex(cells);
+  if (contentIndex < 0) return [];
+
+  const styleIndexes = cells
+    .map((cell, index) => ({ cell, index, value: getCellText(cell).toLowerCase() }))
+    .filter(({ index, value }) => index > contentIndex && isActionStyleValue(value))
+    .slice(0, 3);
+
+  if (!styleIndexes.length) return [];
+
+  let previousStyleIndex = contentIndex;
+  return styleIndexes
+    .map(({ cell, index, value }) => {
+      const isFirstGroup = previousStyleIndex === contentIndex;
+      const candidates = cells
+        .slice(previousStyleIndex + 1, index)
+        .filter((candidate) => !hasNonActionFieldContent(candidate))
+        .map((candidate) => ({
+          cell: candidate,
+          value: getCellText(candidate),
+          href: getCellHrefValue(candidate),
+        }))
+        .filter(({ value: candidateValue }) => (
+          candidateValue && !isIgnoredFallbackText(candidateValue)
+        ));
+      previousStyleIndex = index;
+
+      return resolveFlattenedAction(
+        candidates,
+        isFirstGroup,
+        value || getCellText(cell).toLowerCase(),
+      );
+    })
+    .filter(Boolean);
+}
+
 function getButtonStyle(block, name) {
   return normalizeChoice(
     getFieldValue(block, [name]).value,
@@ -1011,6 +1110,7 @@ function getButtonStyle(block, name) {
 }
 
 function buildActions(block) {
+  const flattenedActions = getFlattenedActionGroups(block);
   const rows = [
     {
       text: getFieldValue(block, ['action_1Text', 'cta1Text']),
@@ -1027,7 +1127,16 @@ function buildActions(block) {
       link: getLinkFieldValue(block, ['action_3Link', 'cta3Link']),
       style: getButtonStyle(block, 'action_3Style'),
     },
-  ];
+  ].map((row, index) => {
+    const fallback = flattenedActions[index];
+    if (!fallback) return row;
+
+    return {
+      text: row.text.value ? row.text : fallback.text,
+      link: row.link.value || row.link.href ? row.link : fallback.link,
+      style: row.style === 'solid' && fallback.style ? fallback.style : row.style,
+    };
+  });
 
   const actions = document.createElement('div');
   actions.className = 'hero-actions';

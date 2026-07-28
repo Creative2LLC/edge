@@ -195,6 +195,11 @@ function normalizeCssSize(value) {
   return normalizedValue;
 }
 
+function normalizeIconSize(value) {
+  const size = normalizeCssSize(value);
+  return ['32px', '48px', '64px', '80px', '96px'].includes(size) ? size : '';
+}
+
 // Hex-color "select" fields (regex-validated) render in the editor as a bare
 // <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
 // unlike every other field type, which does get real instrumentation whenever it has
@@ -264,6 +269,17 @@ function buildRichContent(source, className) {
   while (source.firstChild) content.append(source.firstChild);
 
   return content.childNodes.length ? content : null;
+}
+
+function unwrapSingleParagraph(element) {
+  const meaningfulChildren = [...element.childNodes]
+    .filter((node) => node.nodeType !== 3 || node.textContent.trim());
+
+  if (meaningfulChildren.length !== 1 || meaningfulChildren[0].tagName !== 'P') return;
+
+  const paragraph = meaningfulChildren[0];
+  while (paragraph.firstChild) element.insertBefore(paragraph.firstChild, paragraph);
+  paragraph.remove();
 }
 
 function parseContactMethods(value) {
@@ -421,6 +437,7 @@ function buildMethod(method) {
   const value = document.createElement(method.link ? 'a' : 'span');
   value.className = 'connect-grid-method-value';
   moveFieldContent(method.textField, value, method.text);
+  unwrapSingleParagraph(value);
 
   if (method.link) {
     value.href = method.link;
@@ -518,8 +535,9 @@ function syncCardStyles(resourcePath, card) {
           normalizeCssSize(fields.contactValueFontSize),
         );
       }
-      if (fields.iconSize) {
-        card.style.setProperty('--connect-grid-card-icon-size', normalizeCssSize(fields.iconSize));
+      const iconSize = normalizeIconSize(fields.iconSize);
+      if (iconSize) {
+        card.style.setProperty('--connect-grid-card-icon-size', iconSize);
       }
       applyCardItemSpacing(card, fields.cardItemSpacing);
       applyContactMethodSpacing(card, fields.contactMethodSpacing);
@@ -566,8 +584,9 @@ function applyCardStyles(card, item) {
       normalizeCssSize(item.contactValueFontSize),
     );
   }
-  if (item.iconSize) {
-    card.style.setProperty('--connect-grid-card-icon-size', normalizeCssSize(item.iconSize));
+  const iconSize = normalizeIconSize(item.iconSize);
+  if (iconSize) {
+    card.style.setProperty('--connect-grid-card-icon-size', iconSize);
   }
 
   if (item.cardItemSpacing) {

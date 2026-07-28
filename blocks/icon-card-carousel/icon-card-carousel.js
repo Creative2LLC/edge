@@ -26,6 +26,66 @@ function getFieldImage(row, colIndex) {
   return { picture, src: img?.src || '', alt: img?.alt || '' };
 }
 
+const BLOCK_FIELD_ORDER = ['heading', 'subtitle', 'blockBackgroundColor', 'styleVariant'];
+
+function isSlideRow(row) {
+  return row.matches?.('[data-aue-model="icon-card-carousel-item"]')
+    || row.querySelector('[data-aue-model="icon-card-carousel-item"]')
+    || row.querySelector('[data-aue-prop="icon"], [data-aue-prop="body"], [data-aue-prop="buttonText"]')
+    || row.children.length >= 4;
+}
+
+function normalizeBlockFieldName(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function getBlockFieldRowValue(row) {
+  return row.children.length === 2
+    ? row.children[1].textContent.trim()
+    : row.textContent.trim();
+}
+
+function collectBlockConfig(block) {
+  const config = {};
+  const rowsToRemove = new Set();
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const configRows = rows.filter((row) => !isSlideRow(row));
+
+  configRows.forEach((row) => {
+    BLOCK_FIELD_ORDER.forEach((name) => {
+      if (config[name]) return;
+      const source = row.querySelector(`[data-aue-prop="${name}"]`);
+      if (!source) return;
+      config[name] = source.textContent.trim();
+      rowsToRemove.add(row);
+    });
+
+    if (row.children.length !== 2) return;
+    const label = normalizeBlockFieldName(row.children[0].textContent);
+    const name = BLOCK_FIELD_ORDER.find(
+      (fieldName) => normalizeBlockFieldName(fieldName) === label,
+    );
+    if (!name || config[name]) return;
+    config[name] = row.children[1].textContent.trim();
+    rowsToRemove.add(row);
+  });
+
+  configRows
+    .filter((row) => !rowsToRemove.has(row) && row.textContent.trim())
+    .forEach((row) => {
+      const name = BLOCK_FIELD_ORDER.find((fieldName) => !config[fieldName]);
+      if (!name) return;
+      config[name] = getBlockFieldRowValue(row);
+      rowsToRemove.add(row);
+    });
+
+  rowsToRemove.forEach((row) => row.remove());
+  return config;
+}
+
 function parseSlide(row) {
   const cols = [...row.children];
   if (cols.length < 2) return null;
@@ -143,37 +203,11 @@ function updateDots(dots, activeIndex) {
 }
 
 export default function decorate(block) {
-  // Extract section heading
-  const headingProp = readTextField(block, 'heading');
-  let sectionTitle = '';
-  if (headingProp.source) {
-    sectionTitle = headingProp.value;
-    headingProp.source.closest(':scope > div')?.remove();
-  }
-
-  // Extract section subtitle
-  const subtitleProp = readTextField(block, 'subtitle');
-  let sectionSubtitle = '';
-  if (subtitleProp.source) {
-    sectionSubtitle = subtitleProp.value;
-    subtitleProp.source.closest(':scope > div')?.remove();
-  }
-
-  // Extract block background color
-  const bgColorProp = readTextField(block, 'blockBackgroundColor');
-  let blockBgColor = '';
-  if (bgColorProp.source) {
-    blockBgColor = bgColorProp.value;
-    bgColorProp.source.closest(':scope > div')?.remove();
-  }
-
-  // Extract style variant
-  const variantProp = readTextField(block, 'styleVariant');
-  let styleVariant = '';
-  if (variantProp.source) {
-    styleVariant = variantProp.value;
-    variantProp.source.closest(':scope > div')?.remove();
-  }
+  const blockConfig = collectBlockConfig(block);
+  const sectionTitle = blockConfig.heading || '';
+  const sectionSubtitle = blockConfig.subtitle || '';
+  const blockBgColor = blockConfig.blockBackgroundColor || '';
+  const styleVariant = blockConfig.styleVariant || '';
   if (styleVariant === 'thinner') {
     block.classList.add('icon-card-carousel-thinner');
   } else if (styleVariant === 'thinner-dynamic') {

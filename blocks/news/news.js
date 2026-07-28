@@ -8,6 +8,8 @@ import {
 } from '../../scripts/block-field-utils.js';
 import { decorateButtonText } from '../../scripts/button-utils.js';
 
+const DEFAULT_HEADING = 'NCMEC News';
+
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
   subheading: ['subheading', 'subtitle'],
@@ -279,7 +281,8 @@ export default function decorate(block) {
   inner.className = 'news-inner';
 
   // Header row — heading + subheading on left, optional button on right
-  const hasHeader = heading || subheading || headerButtonText || headerButtonLink;
+  const resolvedHeading = heading || (articles.length ? DEFAULT_HEADING : '');
+  const hasHeader = resolvedHeading || subheading || headerButtonText || headerButtonLink;
   if (hasHeader) {
     const header = document.createElement('div');
     header.className = 'news-header';
@@ -287,10 +290,10 @@ export default function decorate(block) {
     const headerLeft = document.createElement('div');
     headerLeft.className = 'news-header-left';
 
-    if (heading) {
+    if (resolvedHeading) {
       const h2 = document.createElement('h2');
       h2.className = 'news-heading';
-      h2.textContent = heading;
+      h2.textContent = resolvedHeading;
       headerLeft.append(h2);
     }
 

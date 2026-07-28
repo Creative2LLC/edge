@@ -45,6 +45,8 @@ const RESOURCE_ACTION_LABELS = {
   },
 };
 
+const DEFAULT_HEADER_BUTTON_TEXT = 'Find other resources';
+
 function resourceActionLabels() {
   return RESOURCE_ACTION_LABELS[currentSiteLocale()] || RESOURCE_ACTION_LABELS.en;
 }
@@ -563,10 +565,12 @@ export default async function decorate(block) {
 
   header.append(headerLeft);
 
-  if (config.buttonText) {
+  const buttonText = config.buttonText || (resources.length ? DEFAULT_HEADER_BUTTON_TEXT : '');
+
+  if (buttonText) {
     const button = document.createElement(config.buttonLink ? 'a' : 'button');
     button.className = 'resources-button';
-    button.textContent = config.buttonText;
+    button.textContent = buttonText;
     if (config.buttonLink) button.href = config.buttonLink;
     else button.type = 'button';
     header.append(button);
