@@ -55,6 +55,21 @@ function lastIndexBefore(values, beforeIndex, predicate) {
   return -1;
 }
 
+function findButton2TextCell(rows, values, startIndex, endIndex) {
+  for (let index = startIndex; index < endIndex; index += 1) {
+    const value = values[index];
+    const remainingTextValues = values
+      .slice(index + 1, endIndex)
+      .filter(isTextFieldValue);
+    const isValidButtonText = isTextFieldValue(value)
+      && !isButtonLocation(value)
+      && !isStyleType(value)
+      && !remainingTextValues.length;
+    if (isValidButtonText) return rowAt(rows, index);
+  }
+  return null;
+}
+
 function readPublishedFallbackCells(rows) {
   const values = rows.map(fieldText);
   const cells = {};
@@ -124,6 +139,10 @@ function readPublishedFallbackCells(rows) {
     beforeLocation = belowIndex;
   }
 
+  if (!cells.button2Text) {
+    cells.button2Text = findButton2TextCell(rows, values, index, beforeLocation);
+  }
+
   if (beforeLocation > index && !isValidHexColor(values[beforeLocation - 1])) {
     cells.button2Subtext = rowAt(rows, beforeLocation - 1);
     beforeLocation -= 1;
@@ -137,7 +156,7 @@ function readPublishedFallbackCells(rows) {
     beforeLocation -= 1;
   }
   if (beforeLocation - index >= 2) {
-    cells.button2Text = rowAt(rows, beforeLocation - 2);
+    if (!cells.button2Text) cells.button2Text = rowAt(rows, beforeLocation - 2);
     cells.button2Link = rowAt(rows, beforeLocation - 1);
     beforeLocation -= 2;
   }

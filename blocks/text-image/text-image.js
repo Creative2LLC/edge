@@ -14,11 +14,22 @@ const LEGACY_FIELD_INDEX = {
   ctaText: 3,
   ctaLink: 4,
   backgroundColor: 5,
-  imageAlt: 7,
-  imageOverlayText: 8,
-  imageOverlaySubtext: 9,
-  styleVariant: 10,
+  headingColor: 6,
+  image: 7,
+  imageAlt: 8,
+  imageOverlayHeader: 9,
+  imageOverlayText: 10,
+  imageOverlaySubtext: 11,
+  styleVariant: 12,
 };
+
+const STYLE_VARIANT_VALUES = new Set([
+  'default',
+  'image-left',
+  'variant-2',
+  'variant-3',
+  'variant-4',
+]);
 
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
@@ -65,12 +76,34 @@ async function getFieldValueFromResourceJson(scope, name) {
   }
 }
 
+function isStyleVariantValue(value) {
+  return STYLE_VARIANT_VALUES.has(`${value || ''}`.trim());
+}
+
 function getLegacyFieldCell(block, name) {
+  if (name === 'styleVariant') {
+    const rows = [...block.querySelectorAll(':scope > div')];
+    const styleRow = rows
+      .slice()
+      .reverse()
+      .find((row) => isStyleVariantValue(row.children[0]?.textContent));
+    return styleRow?.children[0] || null;
+  }
+
   const index = LEGACY_FIELD_INDEX[name];
   if (index === undefined) return null;
   const row = block.querySelectorAll(':scope > div')[index];
   if (!row || row.querySelector('[data-aue-prop], [data-richtext-prop]')) return null;
-  return row.children[0] || null;
+  const cell = row.children[0] || null;
+
+  if (
+    ['imageOverlayHeader', 'imageOverlayText', 'imageOverlaySubtext'].includes(name)
+    && isStyleVariantValue(cell?.textContent)
+  ) {
+    return null;
+  }
+
+  return cell;
 }
 
 function getTextField(block, name) {
@@ -86,7 +119,7 @@ function getRichTextField(block, name) {
 }
 
 function getImageField(block) {
-  const field = readImageField(block, 'image');
+  const field = readImageField(block, 'image', { fallbackCell: getLegacyFieldCell(block, 'image') });
   return {
     source: field.source,
     picture: field.picture || block.querySelector('picture'),

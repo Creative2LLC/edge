@@ -55,6 +55,61 @@ function getColorField(row, name, index) {
   return { source: field.source, value: extractHexColor(field.cell) };
 }
 
+function emptyField() {
+  return { source: null, value: '', text: '' };
+}
+
+function textAt(row, index) {
+  return row.children[index]?.textContent?.trim() || '';
+}
+
+function isLikelyBodyText(value) {
+  return String(value || '').trim().length > 90;
+}
+
+function getSlideFieldMap(row) {
+  const hasNamedHeading = Boolean(row.querySelector('[data-aue-prop="heading"]'));
+  const compactLiveRow = !hasNamedHeading
+    && isLikelyBodyText(textAt(row, 1))
+    && !isLikelyBodyText(textAt(row, 2));
+
+  if (!compactLiveRow) {
+    return {
+      image: 0,
+      imageAlt: 1,
+      heading: 2,
+      subheading: 3,
+      buttonText: 4,
+      buttonLink: 5,
+      buttonColor: 6,
+      buttonStyle: 7,
+      button2Text: 8,
+      button2Link: 9,
+      button2Color: 10,
+      button2Style: 11,
+      backgroundColor: 12,
+      contentAlign: 13,
+    };
+  }
+
+  return {
+    image: 0,
+    imageAlt: -1,
+    heading: -1,
+    subheading: 1,
+    buttonText: 2,
+    buttonLink: 3,
+    buttonColor: 4,
+    buttonStyle: 5,
+    button2Text: 6,
+    button2Link: 7,
+    button2Color: 8,
+    button2Style: 9,
+    backgroundColor: 10,
+    contentAlign: 11,
+  };
+}
+
 function normalizeButtonStyle(value) {
   const v = String(value || '').trim().toLowerCase();
   if (v.includes('outline') || v.includes('border')) return 'outlined';
@@ -224,20 +279,21 @@ export default function decorate(block) {
   // 12:backgroundColor, 13:contentAlign
   const slides = [];
   slideRows.forEach((row) => {
-    const imageField = getImageField(row, 0);
-    const imageAltField = getField(row, 'imageAlt', 1);
-    const headingField = getRichField(row, 'heading', 2);
-    const subheadingField = getRichField(row, 'subheading', 3);
-    const buttonTextField = getField(row, 'buttonText', 4);
-    const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-    const buttonColorField = getColorField(row, 'buttonColor', 6);
-    const buttonStyleField = getField(row, 'buttonStyle', 7);
-    const button2TextField = getField(row, 'button2Text', 8);
-    const button2LinkField = getLinkField(row, 'button2Link', 9);
-    const button2ColorField = getColorField(row, 'button2Color', 10);
-    const button2StyleField = getField(row, 'button2Style', 11);
-    const bgColorField = getColorField(row, 'backgroundColor', 12);
-    const contentAlignField = getField(row, 'contentAlign', 13);
+    const fieldMap = getSlideFieldMap(row);
+    const imageField = getImageField(row, fieldMap.image);
+    const imageAltField = fieldMap.imageAlt >= 0 ? getField(row, 'imageAlt', fieldMap.imageAlt) : emptyField();
+    const headingField = fieldMap.heading >= 0 ? getRichField(row, 'heading', fieldMap.heading) : emptyField();
+    const subheadingField = getRichField(row, 'subheading', fieldMap.subheading);
+    const buttonTextField = getField(row, 'buttonText', fieldMap.buttonText);
+    const buttonLinkField = getLinkField(row, 'buttonLink', fieldMap.buttonLink);
+    const buttonColorField = getColorField(row, 'buttonColor', fieldMap.buttonColor);
+    const buttonStyleField = getField(row, 'buttonStyle', fieldMap.buttonStyle);
+    const button2TextField = getField(row, 'button2Text', fieldMap.button2Text);
+    const button2LinkField = getLinkField(row, 'button2Link', fieldMap.button2Link);
+    const button2ColorField = getColorField(row, 'button2Color', fieldMap.button2Color);
+    const button2StyleField = getField(row, 'button2Style', fieldMap.button2Style);
+    const bgColorField = getColorField(row, 'backgroundColor', fieldMap.backgroundColor);
+    const contentAlignField = getField(row, 'contentAlign', fieldMap.contentAlign);
 
     slides.push({
       data: {
