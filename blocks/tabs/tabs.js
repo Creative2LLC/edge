@@ -9,8 +9,6 @@ import {
   resourcePathFromAueResource,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import { decorateButtonText } from '../../scripts/button-utils.js';
-
 // Beyond this many tabs the tablist becomes a single horizontal scroller
 // instead of wrapping onto multiple rows.
 const TAB_SCROLL_THRESHOLD = 9;
@@ -256,6 +254,22 @@ function appendTextField(field, target, fallback = '') {
   }
 }
 
+// The arrow after a card link is added by CSS (.tabs-card-link::after). Strip any
+// arrow already present in the (authored) link text so it isn't rendered twice.
+// Only text-node values are trimmed, so the field's editing binding is preserved.
+function stripTrailingArrow(el) {
+  for (let node = el.lastChild; node; node = node.previousSibling) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const trimmed = node.nodeValue.replace(/\s*[→›]+\s*$/, '');
+      if (trimmed !== node.nodeValue) node.nodeValue = trimmed;
+      if (node.nodeValue.trim()) return;
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.textContent.trim()) {
+      stripTrailingArrow(node);
+      return;
+    }
+  }
+}
+
 function resourcePathForCard(cardElement, fields = []) {
   const resource = cardElement?.getAttribute?.('data-aue-resource')
     || fields.find((field) => field?.source?.getAttribute?.('data-aue-resource'))
@@ -475,7 +489,10 @@ function buildCardLink(card) {
 
   const labelElement = document.createElement('span');
   labelElement.className = 'tabs-card-link-text';
-  appendTextField(card.linkTextField, labelElement, decorateButtonText(label, { defaultText: 'Learn more' }));
+  // Text only — the trailing arrow is owned by CSS (::after). Strip any arrow the
+  // author included so the two don't stack into "→ →".
+  appendTextField(card.linkTextField, labelElement, label || 'Learn more');
+  stripTrailingArrow(labelElement);
   link.append(labelElement);
 
   return link;

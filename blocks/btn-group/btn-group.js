@@ -37,6 +37,7 @@ function buildButton(data) {
 }
 
 export default function decorate(block) {
+  block.classList.add('btn-group');
   const rows = [...block.querySelectorAll(':scope > div')];
 
   // Read block-level layout setting

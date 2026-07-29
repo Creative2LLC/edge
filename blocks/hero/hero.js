@@ -1064,6 +1064,7 @@ function resolveFlattenedAction(candidates, isFirstGroup, style) {
 function shouldSkipFlattenedActionText(cell, value) {
   if (!value) return true;
   if (hasNonActionFieldContent(cell)) return true;
+  if (isHeadingNode(cell)) return true;
   if (cell.querySelector?.('h1, h2, h3, h4, h5, h6')) return true;
   if (isIgnoredFallbackText(value)) return true;
   if (isActionStyleValue(value)) return true;
