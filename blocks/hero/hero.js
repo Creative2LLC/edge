@@ -1581,27 +1581,35 @@ function extractPicture(block, exclude = []) {
 }
 
 function extractFeaturedPicture(block, exclude = [], pictureCandidates = null) {
+  const candidates = pictureCandidates || [...block.querySelectorAll('picture')];
+  const namedSource = block.querySelector(
+    '[data-aue-prop="media_featuredImage"], [data-aue-prop="featuredImage"]',
+  );
+  const publishedCandidate = !namedSource
+    ? candidates.find((p) => !exclude.includes(p)) || null
+    : null;
+
   const imageField = readImageField(
     block,
     ['media_featuredImage', 'featuredImage'],
-    { fallbackCell: getFeaturedImageCell(block, exclude) },
+    { fallbackCell: publishedCandidate ? null : getFeaturedImageCell(block, exclude) },
   );
   const imageSource = imageField.source || imageField.cell;
-  if (!imageSource && !imageField.picture) return null;
+  if (!publishedCandidate && !imageSource && !imageField.picture) return null;
 
-  let picture = imageField.picture && !exclude.includes(imageField.picture)
+  let picture = publishedCandidate;
+  picture = picture || (imageField.picture && !exclude.includes(imageField.picture)
     ? imageField.picture
-    : null;
+    : null);
   picture = picture || pictureInSource(imageSource, exclude);
   if (!picture) {
-    const candidates = pictureCandidates || [...block.querySelectorAll('picture')];
     picture = candidates.find((p) => p.isConnected && !exclude.includes(p))
       || candidates.find((p) => !exclude.includes(p))
       || null;
   }
   if (!picture) return null;
 
-  if (imageSource !== picture) {
+  if (imageSource && imageSource !== picture) {
     moveFieldBinding(imageSource, picture);
   }
 
@@ -1649,6 +1657,7 @@ export default async function decorate(block) {
   // an edit must read the freshly-saved values, not the module-level cache.
   if (isUniversalEditor()) resourceDataCache.clear();
   const resourceData = await getHeroResourceData(block);
+  const originalPictures = [...block.querySelectorAll('picture')];
   const resourceRichText = findResourceFieldValue(resourceData, ['content_text', 'text']) || originalRichText;
   const resourceHtmlText = findResourceFieldValue(resourceData, ['content_textHtml', 'text_html']) || originalHtmlText;
   const resourceHtmlTextClass = findResourceFieldValue(
@@ -1697,7 +1706,6 @@ export default async function decorate(block) {
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
   const markerConfig = readMarkerConfig(block, resourceData);
-  const originalPictures = [...block.querySelectorAll('picture')];
   const picture = extractPicture(block);
   const excludedPictures = picture ? [picture] : [];
   const featuredImage = extractFeaturedPicture(block, excludedPictures, originalPictures);
