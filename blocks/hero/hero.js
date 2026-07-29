@@ -546,8 +546,19 @@ function isIgnoredFallbackText(text) {
     'left',
     'center',
     'right',
+    'circle',
+    'underline',
   ]);
-  if (ignoredTextValues.has(normalized.toLowerCase())) return true;
+  const normalizedLower = normalized.toLowerCase();
+  if (ignoredTextValues.has(normalizedLower)) return true;
+
+  const tokens = normalizedLower.split(/\s+/).filter(Boolean);
+  if (
+    tokens.length > 1
+    && tokens.every((token) => ['outline', 'solid', 'inverted'].includes(token))
+  ) {
+    return true;
+  }
   if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(normalized)) return true;
   if (/^\d+(\.\d+)?(rem|px|%)?$/.test(normalized)) return true;
 

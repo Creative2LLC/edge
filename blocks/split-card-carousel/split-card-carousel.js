@@ -31,7 +31,7 @@ function getImageField(row, index) {
 
 // EDS auto-links any text starting with `#` (hex colors included) into an
 // anchor whose resolved href is a full URL. textContent of the cell can come
-// back as that URL — which CSS rejects as a color, silently breaking the
+// back as that URL - which CSS rejects as a color, silently breaking the
 // outlined border + text color. Walk the cell to recover the hex itself.
 function extractHexColor(cell) {
   if (!cell) return '';
@@ -69,44 +69,65 @@ function isLikelyBodyText(value) {
 
 function getSlideFieldMap(row) {
   const hasNamedHeading = Boolean(row.querySelector('[data-aue-prop="heading"]'));
-  const compactLiveRow = !hasNamedHeading
-    && isLikelyBodyText(textAt(row, 1))
-    && !isLikelyBodyText(textAt(row, 2));
+  const hasPicture = Boolean(row.querySelector('picture, img'));
+  const columnCount = row.children.length;
 
-  if (!compactLiveRow) {
+  if (!hasNamedHeading && hasPicture && columnCount <= 8) {
+    const firstTextCellIsBody = isLikelyBodyText(textAt(row, 1))
+      && !isLikelyBodyText(textAt(row, 2));
+
+    if (firstTextCellIsBody) {
+      return {
+        image: 0,
+        imageAlt: -1,
+        heading: -1,
+        subheading: 1,
+        buttonText: 2,
+        buttonLink: 3,
+        buttonColor: 4,
+        buttonStyle: 5,
+        button2Text: 6,
+        button2Link: 7,
+        button2Color: -1,
+        button2Style: -1,
+        backgroundColor: -1,
+        contentAlign: -1,
+      };
+    }
+
     return {
       image: 0,
-      imageAlt: 1,
-      heading: 2,
-      subheading: 3,
-      buttonText: 4,
-      buttonLink: 5,
-      buttonColor: 6,
-      buttonStyle: 7,
-      button2Text: 8,
-      button2Link: 9,
-      button2Color: 10,
-      button2Style: 11,
-      backgroundColor: 12,
-      contentAlign: 13,
+      imageAlt: -1,
+      heading: 1,
+      subheading: 2,
+      buttonText: 3,
+      buttonLink: 4,
+      buttonColor: 5,
+      buttonStyle: 6,
+      button2Text: -1,
+      button2Link: -1,
+      button2Color: -1,
+      button2Style: -1,
+      backgroundColor: -1,
+      contentAlign: 7,
     };
   }
 
   return {
     image: 0,
-    imageAlt: -1,
-    heading: -1,
-    subheading: 1,
-    buttonText: 2,
-    buttonLink: 3,
-    buttonColor: 4,
-    buttonStyle: 5,
-    button2Text: 6,
-    button2Link: 7,
-    button2Color: 8,
-    button2Style: 9,
-    backgroundColor: 10,
-    contentAlign: 11,
+    imageAlt: 1,
+    heading: 2,
+    subheading: 3,
+    buttonText: 4,
+    buttonLink: 5,
+    buttonColor: 6,
+    buttonStyle: 7,
+    button2Text: 8,
+    button2Link: 9,
+    button2Color: 10,
+    button2Style: 11,
+    backgroundColor: 12,
+    contentAlign: 13,
   };
 }
 
@@ -248,7 +269,7 @@ export default function decorate(block) {
   rows.forEach((row) => {
     const cols = [...row.children];
     if (cols.length < 2) {
-      // Single-column row — block-level config field
+      // Single-column row - block-level config field
       const headingEl = row.querySelector('[data-aue-prop="heading"]');
       const descEl = row.querySelector('[data-aue-prop="description"]');
       const variantEl = row.querySelector('[data-aue-prop="variant"]');
@@ -272,7 +293,7 @@ export default function decorate(block) {
   if (isVariant2) block.classList.add('variant-2');
   if (variant === 'variant-3') block.classList.add('variant-3');
 
-  // Parse slides — each slide row has fields as columns
+  // Parse slides - each slide row has fields as columns
   // Item field order: 0:image, 1:imageAlt, 2:heading, 3:subheading,
   // 4:buttonText, 5:buttonLink, 6:buttonColor, 7:buttonStyle,
   // 8:button2Text, 9:button2Link, 10:button2Color, 11:button2Style,

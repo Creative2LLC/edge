@@ -196,14 +196,18 @@ function isFieldBoundCell(cell) {
   return Boolean(cell.querySelector?.('[data-aue-prop], [data-richtext-prop]'));
 }
 
-function getContentCell(block) {
-  return getRowCells(block).find((cell) => {
+function getContentCells(block) {
+  return getRowCells(block).filter((cell) => {
     if (cell.querySelector('picture')) return false;
     if (isFieldBoundCell(cell)) return false;
     const values = getParagraphValues(cell);
     if (!values.length) return false;
     return !['input', 'dropdown'].includes(values[0].toLowerCase());
-  }) || null;
+  });
+}
+
+function joinedParagraphValue(cell) {
+  return getParagraphValues(cell).join(' ');
 }
 
 function getFormCell(block) {
@@ -416,7 +420,9 @@ export default async function decorate(block) {
 
   const legacyMap = collectLegacyFields(block);
   const isAuthoring = hasAuthoringContext(block);
-  const contentValues = getParagraphValues(getContentCell(block));
+  const contentCells = getContentCells(block);
+  const headingCell = contentCells[0] || null;
+  const subheadingCell = contentCells[1] || null;
   const formCell = getFormCell(block);
   const formValues = getParagraphValues(formCell);
   const targetValue = formValues.find((value) => ['_self', '_blank'].includes(value));
@@ -443,8 +449,12 @@ export default async function decorate(block) {
   const formActionField = getField(block, legacyMap, ['formAction', 'form_action']);
   let statusMessagesField = getField(block, legacyMap, ['statusMessages', 'status_messages']);
   let targetField = getField(block, legacyMap, ['form_target', 'target']);
-  headingField = applyFallbackField(headingField, getContentCell(block), contentValues[0]);
-  subheadingField = applyFallbackField(subheadingField, getContentCell(block), contentValues[1]);
+  headingField = applyFallbackField(headingField, headingCell, joinedParagraphValue(headingCell));
+  subheadingField = applyFallbackField(
+    subheadingField,
+    subheadingCell,
+    joinedParagraphValue(subheadingCell),
+  );
   formTypeField = applyFallbackField(formTypeField, formCell, formTypeValue);
   placeholderField = applyFallbackField(placeholderField, formCell, formValues[1]);
   optionsField = applyFallbackField(optionsField, formCell, optionFallback);

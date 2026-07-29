@@ -17,6 +17,8 @@ import {
 // shifts. A per-card fetch of the resource's own JSON, keyed by field NAME, sidesteps
 // row position entirely and is the authoritative correction. Matches the pattern already
 // proven in cards.js's syncResourceCardStyles/applyCardStyles.
+const DEFAULT_CARD_HOVER_BG = '#008DB6';
+
 const CARD_COLOR_FIELD_NAMES = [
   'iconColor',
   'cardBackgroundColor',
@@ -759,9 +761,10 @@ function buildCard(data, index, variant, isEditor) {
   }
 
   card.style.setProperty('--info-card-bg', cardBg);
-  if (data.cardHoverBg) {
+  const cardHoverBg = data.cardHoverBg || (isVolunteerVariant ? '' : DEFAULT_CARD_HOVER_BG);
+  if (cardHoverBg) {
     card.classList.add('info-cards-grid-card-has-hover-bg');
-    card.style.setProperty('--info-card-hover-bg', data.cardHoverBg);
+    card.style.setProperty('--info-card-hover-bg', cardHoverBg);
   }
   applyTextStyles(card, data.textStyles);
 

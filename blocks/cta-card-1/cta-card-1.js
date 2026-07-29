@@ -118,6 +118,30 @@ function readPublishedFallbackCells(rows) {
   const styleIndex = lastIndexBefore(values, values.length, isStyleType);
   if (styleIndex >= 0) cells.styleType = rowAt(rows, styleIndex);
 
+  const fullTailLocationIndex = index + 6;
+  const fullTailStyleIndex = index + 10;
+  const hasFullTailLayout = isButtonLocation(values[fullTailLocationIndex])
+    || isStyleType(values[fullTailStyleIndex]);
+
+  if (hasFullTailLayout) {
+    if (isTextFieldValue(values[index])) cells.buttonSubtext = rowAt(rows, index);
+    if (isTextFieldValue(values[index + 1])) cells.button2Text = rowAt(rows, index + 1);
+    if (values[index + 2]) cells.button2Link = rowAt(rows, index + 2);
+    if (isValidHexColor(values[index + 3])) cells.button2Color = rowAt(rows, index + 3);
+    if (isValidHexColor(values[index + 4])) {
+      cells.button2BackgroundColor = rowAt(rows, index + 4);
+    }
+    if (isTextFieldValue(values[index + 5])) cells.button2Subtext = rowAt(rows, index + 5);
+    if (isButtonLocation(values[fullTailLocationIndex])) {
+      cells.button2Location = rowAt(rows, fullTailLocationIndex);
+    }
+    if (isTextFieldValue(values[index + 7])) cells.belowButtonText = rowAt(rows, index + 7);
+    if (isTextFieldValue(values[index + 8])) cells.button3Text = rowAt(rows, index + 8);
+    if (values[index + 9]) cells.button3Link = rowAt(rows, index + 9);
+    if (isStyleType(values[fullTailStyleIndex])) cells.styleType = rowAt(rows, fullTailStyleIndex);
+    return cells;
+  }
+
   const tailEnd = styleIndex >= 0 ? styleIndex : values.length;
   const locationIndex = lastIndexBefore(values, tailEnd, isButtonLocation);
   if (locationIndex >= 0) cells.button2Location = rowAt(rows, locationIndex);
@@ -177,6 +201,17 @@ function readPublishedFallbackCells(rows) {
       ));
       if (belowIndex >= 0) cells.belowButtonText = rowAt(rows, belowIndex);
     }
+  }
+
+  if (!cells.belowButtonText && locationIndex >= 0) {
+    const afterLocation = locationIndex + 1;
+    const scanEnd = styleIndex > locationIndex ? styleIndex : values.length;
+    const belowIndex = values.findIndex((value, valueIndex) => (
+      valueIndex >= afterLocation
+        && valueIndex < scanEnd
+        && isTextFieldValue(value)
+    ));
+    if (belowIndex >= 0) cells.belowButtonText = rowAt(rows, belowIndex);
   }
 
   if (!cells.belowButtonText && styleIndex >= 0) {

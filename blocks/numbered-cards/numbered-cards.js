@@ -118,6 +118,12 @@ function updateDots(dots, activeIndex) {
   });
 }
 
+function updateActiveCard(cardsContainer, activeIndex) {
+  [...cardsContainer.children].forEach((card, i) => {
+    card.classList.toggle('active', i === activeIndex);
+  });
+}
+
 export default function decorate(block) {
   const config = readBlockConfig(block);
   const {
@@ -129,7 +135,7 @@ export default function decorate(block) {
     numberBorder,
   } = config;
 
-  // Remove config rows — author rows carry block props, live rows are flattened.
+  // Remove config rows ï¿½ author rows carry block props, live rows are flattened.
   const liveConfigRows = new Set(config.publishedRows);
   [...block.querySelectorAll(':scope > div')].forEach((row) => {
     const hasBlockProp = BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
@@ -321,6 +327,7 @@ export default function decorate(block) {
 
     // Carousel logic
     let current = 0;
+    updateActiveCard(cardsContainer, current);
 
     const goToSlide = (index) => {
       const total = cards.length;
@@ -331,6 +338,7 @@ export default function decorate(block) {
         cardsContainer.scrollTo({ left: slideEl.offsetLeft - cardsContainer.offsetLeft, behavior: 'smooth' });
       }
       updateDots(dots, current);
+      updateActiveCard(cardsContainer, current);
     };
 
     prevBtn.addEventListener('click', () => goToSlide(current - 1));
@@ -346,6 +354,7 @@ export default function decorate(block) {
       if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < cards.length) {
         current = scrollIndex;
         updateDots(dots, current);
+        updateActiveCard(cardsContainer, current);
       }
     });
   }

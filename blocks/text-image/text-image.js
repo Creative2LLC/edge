@@ -80,6 +80,49 @@ function isStyleVariantValue(value) {
   return STYLE_VARIANT_VALUES.has(`${value || ''}`.trim());
 }
 
+function getFieldCell(row) {
+  return row?.children?.[0] || null;
+}
+
+function getFieldCellText(row) {
+  return getFieldCell(row)?.textContent?.trim() || '';
+}
+
+function isLikelyOverlayBody(value) {
+  const text = String(value || '').trim();
+  return text.length > 80 || /[.!?;]/.test(text);
+}
+
+function getPublishedImageAdjacentCell(block, name) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  if (rows.some((row) => row.querySelector('[data-aue-prop], [data-richtext-prop]'))) return null;
+
+  const imageIndex = rows.findIndex((row) => row.querySelector('picture, img'));
+  if (imageIndex < 0) return null;
+
+  const styleIndex = rows.findIndex((row, index) => (
+    index > imageIndex && isStyleVariantValue(getFieldCellText(row))
+  ));
+  const endIndex = styleIndex >= 0 ? styleIndex : rows.length;
+  const textRows = rows
+    .slice(imageIndex + 1, endIndex)
+    .map((row, offset) => ({ row, index: imageIndex + 1 + offset, value: getFieldCellText(row) }))
+    .filter(({ value }) => value && !isStyleVariantValue(value));
+
+  const first = textRows[0];
+  const second = textRows[1];
+  const hasOverlayHeaderAndBody = Boolean(first && second && isLikelyOverlayBody(second.value));
+
+  if (hasOverlayHeaderAndBody) {
+    if (name === 'imageAlt') return null;
+    if (name === 'imageOverlayHeader') return getFieldCell(first.row);
+    if (name === 'imageOverlayText') return getFieldCell(second.row);
+    if (name === 'imageOverlaySubtext') return getFieldCell(textRows[2]?.row);
+  }
+
+  return null;
+}
+
 function getLegacyFieldCell(block, name) {
   if (name === 'styleVariant') {
     const rows = [...block.querySelectorAll(':scope > div')];
@@ -88,6 +131,15 @@ function getLegacyFieldCell(block, name) {
       .reverse()
       .find((row) => isStyleVariantValue(row.children[0]?.textContent));
     return styleRow?.children[0] || null;
+  }
+
+  if (['imageAlt', 'imageOverlayHeader', 'imageOverlayText', 'imageOverlaySubtext'].includes(name)) {
+    const imageAdjacentCell = getPublishedImageAdjacentCell(block, name);
+    if (imageAdjacentCell) return imageAdjacentCell;
+    if (name === 'imageAlt' && imageAdjacentCell === null) {
+      const overlayHeaderCell = getPublishedImageAdjacentCell(block, 'imageOverlayHeader');
+      if (overlayHeaderCell) return null;
+    }
   }
 
   const index = LEGACY_FIELD_INDEX[name];

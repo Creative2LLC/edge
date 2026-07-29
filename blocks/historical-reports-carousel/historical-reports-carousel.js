@@ -45,8 +45,31 @@ function isReportSlideRow(row) {
     row.querySelector('[data-aue-prop="year"]')
       || row.querySelector('[data-aue-prop="reportCount"]')
       || row.querySelector('[data-aue-prop="coverImage"]')
-      || cols.length >= 6,
+      || row.querySelector('picture, img')
+      || cols.length >= 5,
   );
+}
+
+function isLikelyYear(value) {
+  return /^\d{4}$/.test(String(value || '').trim());
+}
+
+function getItemColumns(row) {
+  const cols = [...row.children];
+  const secondValue = cols[1]?.textContent?.trim() || '';
+
+  if (cols.length < 6 && isLikelyYear(secondValue)) {
+    return {
+      coverImage: 0,
+      coverImageAlt: null,
+      year: 1,
+      reportCount: 2,
+      linkText: 3,
+      linkUrl: 4,
+    };
+  }
+
+  return ITEM_COLUMN_INDEX;
 }
 
 function getParentRows(block) {
@@ -257,7 +280,8 @@ function createCoverImage(imageField, altText, fallbackLabel) {
 }
 
 async function parseSlideRow(row) {
-  const coverImageField = getImageField(row, 'coverImage', ITEM_COLUMN_INDEX.coverImage);
+  const itemColumns = getItemColumns(row);
+  const coverImageField = getImageField(row, 'coverImage', itemColumns.coverImage);
   coverImageField.src = normalizeImageSource(coverImageField.src);
   if (!coverImageField.src) {
     coverImageField.src = normalizeImageSource(await getFieldValueFromResourceJson(row, 'coverImage'));
@@ -266,17 +290,17 @@ async function parseSlideRow(row) {
     row,
     'coverImageAlt',
     ITEM_COLUMN_INDEX,
-    ITEM_COLUMN_INDEX.coverImageAlt,
+    itemColumns.coverImageAlt,
   );
-  const yearField = getField(row, 'year', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.year);
+  const yearField = getField(row, 'year', ITEM_COLUMN_INDEX, itemColumns.year);
   const reportCountField = getField(
     row,
     'reportCount',
     ITEM_COLUMN_INDEX,
-    ITEM_COLUMN_INDEX.reportCount,
+    itemColumns.reportCount,
   );
-  const linkTextField = getField(row, 'linkText', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.linkText);
-  const linkUrlField = getField(row, 'linkUrl', ITEM_COLUMN_INDEX, ITEM_COLUMN_INDEX.linkUrl);
+  const linkTextField = getField(row, 'linkText', ITEM_COLUMN_INDEX, itemColumns.linkText);
+  const linkUrlField = getField(row, 'linkUrl', ITEM_COLUMN_INDEX, itemColumns.linkUrl);
 
   const hasVisibleContent = Boolean(
     coverImageField.src

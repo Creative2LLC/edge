@@ -23,6 +23,48 @@ function getLinkUrl(row, propName, colIndex) {
   return readLinkField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
+const IMAGE_STYLE_VALUES = new Set(['default', 'small']);
+const IMAGE_ALIGN_VALUES = new Set(['left', 'center', 'right']);
+
+function readSingleCellValue(row) {
+  if (!row || row.children.length !== 1) return '';
+  return row.children[0].textContent.trim().toLowerCase();
+}
+
+function readPublishedSettings(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const firstCardIndex = rows.findIndex((row) => row.children.length >= 6);
+  const settingsRows = firstCardIndex >= 0 ? rows.slice(0, firstCardIndex) : rows;
+  const settings = {};
+  const consumedRows = [];
+
+  settingsRows.forEach((row) => {
+    if (row.querySelector('[data-aue-prop]')) return;
+
+    const value = readSingleCellValue(row);
+    if (!value) return;
+
+    if (!settings.columns && /^[1-3]$/.test(value)) {
+      settings.columns = Number(value);
+      consumedRows.push(row);
+      return;
+    }
+
+    if (!settings.imageStyle && IMAGE_STYLE_VALUES.has(value)) {
+      settings.imageStyle = value;
+      consumedRows.push(row);
+      return;
+    }
+
+    if (!settings.imageAlign && IMAGE_ALIGN_VALUES.has(value)) {
+      settings.imageAlign = value;
+      consumedRows.push(row);
+    }
+  });
+
+  return { settings, consumedRows };
+}
+
 function parseCardRow(row) {
   const cols = [...row.children];
 
@@ -181,9 +223,11 @@ function directRowOf(block, el) {
 }
 
 export default function decorate(block) {
+  const { settings, consumedRows } = readPublishedSettings(block);
+
   // Read columns setting
   const columnsProp = block.querySelector('[data-aue-prop="columns"]');
-  let columns = 3;
+  let columns = settings.columns || 3;
   if (columnsProp) {
     const val = columnsProp.textContent.trim();
     if (val && !Number.isNaN(Number(val))) columns = Number(val);
@@ -192,7 +236,7 @@ export default function decorate(block) {
 
   // Read image style setting (default = current behavior, small = 141x183 top-left)
   const imageStyleProp = block.querySelector('[data-aue-prop="imageStyle"]');
-  let imageStyle = 'default';
+  let imageStyle = settings.imageStyle || 'default';
   if (imageStyleProp) {
     const val = imageStyleProp.textContent.trim().toLowerCase();
     if (val === 'small') imageStyle = 'small';
@@ -201,12 +245,14 @@ export default function decorate(block) {
 
   // Read image alignment setting (left / center / right — controls object-position)
   const imageAlignProp = block.querySelector('[data-aue-prop="imageAlign"]');
-  let imageAlign = 'center';
+  let imageAlign = settings.imageAlign || 'center';
   if (imageAlignProp) {
     const val = imageAlignProp.textContent.trim().toLowerCase();
     if (val === 'left' || val === 'right' || val === 'center') imageAlign = val;
     directRowOf(block, imageAlignProp)?.remove();
   }
+
+  consumedRows.forEach((row) => row.remove());
 
   // Parse card rows
   const rows = [...block.querySelectorAll(':scope > div')];

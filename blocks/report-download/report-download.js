@@ -64,20 +64,25 @@ function hasUsableLink(row) {
   return Boolean(anchor && !isHexAnchor(anchor));
 }
 
+function isLinkOnlyRow(row) {
+  const cell = rowCell(row);
+  const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a[href]');
+  if (!anchor || !hasUsableLink(row)) return false;
+
+  return rowText(row) === textFrom(anchor);
+}
+
 function getFlattenedFields(block) {
   const rows = directRows(block);
   const imageRows = rows.filter(rowHasImage);
   const textRows = rows.filter((row) => !rowHasImage(row) && rowText(row));
-  const headingRow = textRows.find((row) => {
-    const text = rowText(row);
-    return !isLikelyButtonText(text) && !row.querySelector?.('ul, ol') && text.length <= 140;
-  }) || textRows.find((row) => !isLikelyButtonText(rowText(row))) || null;
-  const bodyRow = textRows.find((row) => row !== headingRow && row.querySelector?.('ul, ol'))
-    || textRows.find((row) => row !== headingRow && !isLikelyButtonText(rowText(row)))
+  const contentRows = textRows.filter((row) => !isLinkOnlyRow(row));
+  const headingRow = contentRows[0] || null;
+  const remainingRows = contentRows.slice(1);
+  const buttonRow = remainingRows.find((row) => isLikelyButtonText(rowText(row)))
+    || contentRows[2]
     || null;
-  const buttonRow = textRows.find((row) => (
-    row !== headingRow && row !== bodyRow && isLikelyButtonText(rowText(row))
-  )) || null;
+  const bodyRow = remainingRows.find((row) => row !== buttonRow) || null;
   const buttonIndex = rows.indexOf(buttonRow);
   const linkCandidates = buttonIndex >= 0 ? rows.slice(buttonIndex + 1) : [];
   const linkRow = linkCandidates.find(hasUsableLink) || null;
@@ -225,7 +230,7 @@ function buildButton(labelField, linkField) {
   if (href) button.href = href;
   if (href && linkField.source) moveInstrumentation(linkField.source, button);
 
-  if (labelField.source) {
+  if (labelField.source?.matches?.('[data-aue-prop]')) {
     moveFieldContent(labelField, button, label);
   } else {
     button.textContent = label;
