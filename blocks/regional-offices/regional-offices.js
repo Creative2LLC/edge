@@ -77,6 +77,61 @@ function getImageField(row, name, index) {
   };
 }
 
+function isButtonStyleValue(value) {
+  return ['solid', 'outlined'].includes(String(value || '').trim().toLowerCase());
+}
+
+function isLikelyLinkValue(value) {
+  return /^(?:#|\/|https?:\/\/|mailto:|tel:)/i.test(String(value || '').trim());
+}
+
+function getCellLinkValue(cell) {
+  if (!cell) return '';
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector?.('a[href]');
+  const href = anchor?.getAttribute('href') || anchor?.href || '';
+  if (href) return href;
+  const text = cell.textContent.trim();
+  return isLikelyLinkValue(text) && !isButtonStyleValue(text) ? text : '';
+}
+
+function findRowLinkField(row, startIndex = 0) {
+  const cells = [...row.children].slice(Math.max(startIndex, 0));
+  const cell = cells.find((candidate) => getCellLinkValue(candidate));
+  return {
+    source: cell || null,
+    value: getCellLinkValue(cell),
+  };
+}
+
+function getItemColumnMap(row) {
+  const hasInstrumentation = row.querySelector('[data-aue-prop], [data-richtext-prop]');
+  const imageAltCellValue = row.children[1]?.textContent.trim() || '';
+  const titleCellValue = row.children[2]?.textContent.trim() || '';
+  const secondCellLooksLikeTitle = imageAltCellValue && !titleCellValue;
+
+  if (!hasInstrumentation && secondCellLooksLikeTitle) {
+    return {
+      image: 0,
+      imageAlt: null,
+      title: 1,
+      bodyText: 2,
+      buttonText: 3,
+      buttonLink: 4,
+      buttonStyle: 5,
+    };
+  }
+
+  return {
+    image: 0,
+    imageAlt: 1,
+    title: 2,
+    bodyText: 3,
+    buttonText: 4,
+    buttonLink: 5,
+    buttonStyle: 6,
+  };
+}
+
 function buildPicture(imageField, imageAlt) {
   const { img } = imageField;
   if (!img?.src) return null;
@@ -180,13 +235,21 @@ export default function decorate(block) {
 
     if (!isItemRow) return;
 
-    const imageField = getImageField(row, 'image', 0);
-    const imageAltField = getField(row, 'imageAlt', 1);
-    const titleField = getField(row, 'title', 2);
-    const bodySource = getRichField(row, 'bodyText', 3);
-    const buttonTextField = getField(row, 'buttonText', 4);
-    const buttonLinkField = getLinkField(row, 'buttonLink', 5);
-    const buttonStyleField = getField(row, 'buttonStyle', 6);
+    const itemColumns = getItemColumnMap(row);
+    const imageField = getImageField(row, 'image', itemColumns.image);
+    const imageAltField = getField(row, 'imageAlt', itemColumns.imageAlt);
+    const titleField = getField(row, 'title', itemColumns.title);
+    const bodySource = getRichField(row, 'bodyText', itemColumns.bodyText);
+    const buttonTextField = getField(row, 'buttonText', itemColumns.buttonText);
+    const buttonLinkField = getLinkField(row, 'buttonLink', itemColumns.buttonLink);
+    const buttonStyleField = getField(row, 'buttonStyle', itemColumns.buttonStyle);
+
+    if (isButtonStyleValue(buttonLinkField.value)) buttonLinkField.value = '';
+    if (!buttonLinkField.value) {
+      const compactLinkField = findRowLinkField(row, itemColumns.buttonText);
+      buttonLinkField.source = compactLinkField.source;
+      buttonLinkField.value = compactLinkField.value;
+    }
 
     if (!imageField.img && !titleField.value && !bodySource && !buttonTextField.value) return;
 

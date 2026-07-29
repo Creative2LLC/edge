@@ -235,6 +235,28 @@ function readRowLinkField(row, name, index) {
   };
 }
 
+function isLikelyLinkValue(value) {
+  return /^(?:#|\/|https?:\/\/|mailto:|tel:)/i.test(String(value || '').trim());
+}
+
+function getCellLinkValue(cell) {
+  if (!cell) return '';
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector?.('a[href]');
+  const href = anchor?.getAttribute('href') || anchor?.href || '';
+  if (href) return href;
+  const text = cell.textContent.trim();
+  return isLikelyLinkValue(text) ? text : '';
+}
+
+function findRowLinkField(row, startIndex = 0) {
+  const cells = [...row.children].slice(Math.max(startIndex, 0));
+  const cell = cells.find((candidate) => getCellLinkValue(candidate));
+  return {
+    source: cell || null,
+    value: getCellLinkValue(cell),
+  };
+}
+
 function hasAuthoringContext(scope) {
   return Boolean(
     scope?.getAttribute('data-aue-resource')
@@ -449,6 +471,12 @@ async function buildNavCard(row, index) {
   const linkColorField = readRowTextField(row, 'linkColor', 7);
 
   if (!linkField.value) {
+    const compactLinkField = findRowLinkField(row, 2);
+    linkField.source = compactLinkField.source;
+    linkField.value = compactLinkField.value;
+  }
+
+  if (!linkField.value) {
     linkField.value = await getFieldValueFromResourceJson(row, 'link');
   }
 
@@ -462,8 +490,9 @@ async function buildNavCard(row, index) {
     return null;
   }
 
-  const card = document.createElement('div');
+  const card = document.createElement(linkField.value ? 'a' : 'div');
   card.className = 'leadership-overview-nav-card';
+  if (linkField.value) card.href = linkField.value;
   card.dataset.index = `${index}`;
   card.style.backgroundColor = cardBackgroundColorField.value || '#00264d';
   if (row) moveInstrumentation(row, card);
@@ -506,9 +535,25 @@ async function buildNavCard(row, index) {
     card.append(description);
   }
 
-  const link = buildLink(linkTextField, linkField, 'leadership-overview-nav-card-link', 'Learn More');
-  if (link) {
+  const linkLabel = linkTextField.value || (linkField.value ? 'Learn More' : '');
+  if (linkLabel) {
+    const link = document.createElement('span');
+    link.className = 'leadership-overview-nav-card-link';
     link.style.color = linkColorField.value || '#00a0ca';
+
+    const label = document.createElement('span');
+    label.className = 'leadership-overview-nav-card-link-label';
+    if (linkTextField.source) {
+      moveFieldContent(linkTextField, label, linkLabel);
+    } else {
+      label.textContent = linkLabel;
+    }
+
+    const icon = document.createElement('span');
+    icon.className = 'leadership-overview-nav-card-link-icon';
+    icon.innerHTML = ARROW_SVG;
+
+    link.append(label, icon);
     card.append(link);
   }
 

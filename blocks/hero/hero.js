@@ -561,6 +561,7 @@ function isIgnoredFallbackText(text) {
   }
   if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(normalized)) return true;
   if (/^\d+(\.\d+)?(rem|px|%)?$/.test(normalized)) return true;
+  if (/^h\d{2,}$/i.test(normalized)) return true;
 
   return false;
 }
@@ -1191,6 +1192,71 @@ function getGroupedActionCellGroups(cells, contentIndex) {
   return buildStyledActionGroups(items, -1);
 }
 
+function getCellTextLines(cell) {
+  return String(cell?.textContent || '')
+    .split(/\n+/)
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+function buildLineActionGroups(lines) {
+  const groups = [];
+  let currentStyle = 'outline';
+  let pendingText = '';
+
+  lines.forEach((line) => {
+    if (groups.length >= 3) return;
+    const value = line.trim();
+    const lower = value.toLowerCase();
+
+    if (isActionStyleValue(lower)) {
+      currentStyle = lower;
+      return;
+    }
+
+    if (isIgnoredFallbackText(value) || isLikelyBodyValue(value)) return;
+
+    if (isLikelyLinkValue(value)) {
+      if (pendingText) {
+        groups.push({
+          text: { source: null, value: pendingText },
+          link: { source: null, value, href: value },
+          style: currentStyle,
+        });
+        pendingText = '';
+      }
+      return;
+    }
+
+    if (pendingText) {
+      groups.push({
+        text: { source: null, value: pendingText },
+        link: { source: null, value: '', href: '' },
+        style: currentStyle,
+      });
+    }
+
+    pendingText = value;
+  });
+
+  if (groups.length < 3 && pendingText) {
+    groups.push({
+      text: { source: null, value: pendingText },
+      link: { source: null, value: '', href: '' },
+      style: currentStyle,
+    });
+  }
+
+  return groups.slice(0, 3);
+}
+
+function getMultilineActionCellGroups(cells, contentIndex) {
+  return cells
+    .slice(contentIndex + 1)
+    .map((cell) => buildLineActionGroups(getCellTextLines(cell)))
+    .find((groups) => groups.length > 1) || [];
+}
+
 function getFlattenedActionGroups(block) {
   if (isUniversalEditor()) return [];
 
@@ -1203,6 +1269,9 @@ function getFlattenedActionGroups(block) {
 
   const groupedCellGroups = getGroupedActionCellGroups(cells, contentIndex);
   if (groupedCellGroups.length) return groupedCellGroups;
+
+  const multilineGroups = getMultilineActionCellGroups(cells, contentIndex);
+  if (multilineGroups.length) return multilineGroups;
 
   const unstyledGroups = getUnstyledFlattenedActionGroups(cells, contentIndex);
   return unstyledGroups.length ? unstyledGroups : getInlineFlattenedActionGroups(block);

@@ -10,6 +10,7 @@ import { decorateButtonText } from '../../scripts/button-utils.js';
 
 const DEFAULT_HEADING = 'NCMEC News';
 
+const TAG_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
   subheading: ['subheading', 'subtitle'],
@@ -70,7 +71,61 @@ function getColImage(col) {
   return { src: '', alt: '' };
 }
 
-// Model fields: image, title, subtitle, link, tags (5 columns)
+// Model fields: image, title, subtitle, link, tags, imageAlt (6 columns)
+
+function hasImage(col) {
+  return Boolean(col?.querySelector?.('picture, img'));
+}
+
+function isLikelyUrl(value) {
+  return /^(?:#|\/|https?:\/\/|mailto:|tel:)/i.test(String(value || '').trim());
+}
+
+function isLikelyTags(value) {
+  return TAG_COLOR_RE.test(String(value || '').trim())
+    || /#[0-9a-f]{3,8}/i.test(String(value || ''))
+    || String(value || '').includes(':');
+}
+
+function findCompactLink(cols, startIndex = 0) {
+  return cols.slice(startIndex).find((col) => {
+    const anchor = col.querySelector?.('a[href]');
+    return anchor?.getAttribute('href') || isLikelyUrl(col.textContent);
+  }) || null;
+}
+
+function parseCompactArticleRow(row) {
+  const cols = [...row.children];
+  const imageIndex = cols.findIndex(hasImage);
+  if (imageIndex < 0) return null;
+
+  const textCells = cols
+    .slice(imageIndex + 1)
+    .filter((col) => col.textContent.trim());
+  const linkCell = findCompactLink(textCells, 0);
+  const titleCell = textCells.find((col) => col !== linkCell && !isLikelyTags(col.textContent));
+  const subtitleCell = textCells.find((col) => (
+    col !== titleCell && col !== linkCell && !isLikelyTags(col.textContent)
+  ));
+  const tagsCell = textCells.find((col) => col !== linkCell && isLikelyTags(col.textContent));
+
+  const image = getColImage(cols[imageIndex]);
+  const title = getColText(titleCell);
+  if (!title) return null;
+
+  return {
+    imgSrc: image.src,
+    imageAlt: image.alt,
+    title,
+    subheading: getColText(subtitleCell),
+    linkUrl: getColText(linkCell),
+    tags: getColText(tagsCell),
+  };
+}
+
+function hasArticleContent(article) {
+  return Boolean(article?.imgSrc || article?.title || article?.subheading || article?.linkUrl);
+}
 
 function parseArticleRow(row) {
   const cols = [...row.children];
@@ -78,15 +133,20 @@ function parseArticleRow(row) {
   // 5 columns: image | title | subtitle | link | tags
   if (cols.length >= 5) {
     const image = getColImage(cols[0]);
-    return {
+    const article = {
       imgSrc: image.src,
-      imageAlt: image.alt,
+      imageAlt: getColText(cols[5]) || image.alt,
       title: getColText(cols[1]),
       subheading: getColText(cols[2]),
       linkUrl: getColText(cols[3]),
       tags: getColText(cols[4]),
     };
+
+    return hasArticleContent(article) ? article : null;
   }
+
+  const compactArticle = parseCompactArticleRow(row);
+  if (compactArticle) return compactArticle;
 
   // Try data-aue-prop (Universal Editor live context)
   const getField = (prop) => {
@@ -99,7 +159,7 @@ function parseArticleRow(row) {
   const modelImageAlt = modelImageAltField.value || getColText(cols[5]);
   const title = getField('title');
   if (title) {
-    return {
+    const article = {
       imgSrc: imageField.img?.src || '',
       imageAlt: modelImageAlt || imageField.img?.alt || '',
       title,
@@ -107,6 +167,8 @@ function parseArticleRow(row) {
       linkUrl: readLinkField(row, 'link').value,
       tags: getField('tags'),
     };
+
+    return hasArticleContent(article) ? article : null;
   }
 
   // Minimal fallback: 2 columns (image | text)
@@ -114,7 +176,7 @@ function parseArticleRow(row) {
     const img = cols[0].querySelector('img');
     const paragraphs = cols[1].querySelectorAll('p');
     const link = cols[1].querySelector('a');
-    return {
+    const article = {
       imgSrc: img?.src || '',
       imageAlt: img?.alt || '',
       title: paragraphs[0]?.textContent.trim() || '',
@@ -122,12 +184,13 @@ function parseArticleRow(row) {
       linkUrl: link?.href || '',
       tags: '',
     };
+
+    return hasArticleContent(article) ? article : null;
   }
 
   return null;
 }
 
-const TAG_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const FLATTENED_TAG_SEPARATOR_RE = /(#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8}))\s+(?=[^:\n]+(?::#|$))/gi;
 
 function normalizeTagLines(tagsStr) {

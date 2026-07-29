@@ -196,10 +196,15 @@ function isFieldBoundCell(cell) {
   return Boolean(cell.querySelector?.('[data-aue-prop], [data-richtext-prop]'));
 }
 
+function isStatusMessageCell(cell) {
+  return /(?:^|\s)(success|error)\s*\|/i.test(cell?.textContent || '');
+}
+
 function getContentCells(block) {
   return getRowCells(block).filter((cell) => {
     if (cell.querySelector('picture')) return false;
     if (isFieldBoundCell(cell)) return false;
+    if (isStatusMessageCell(cell)) return false;
     const values = getParagraphValues(cell);
     if (!values.length) return false;
     return !['input', 'dropdown'].includes(values[0].toLowerCase());
@@ -218,7 +223,7 @@ function getFormCell(block) {
 }
 
 function getStatusCell(block) {
-  return getRowCells(block).find((cell) => /success\s*\|/i.test(cell.textContent)) || null;
+  return getRowCells(block).find(isStatusMessageCell) || null;
 }
 
 function moveFieldBinding(from, to) {

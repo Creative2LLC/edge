@@ -34,6 +34,37 @@ function isCompactLiveCardRow(row) {
   return Boolean(possibleLinkText && !isColorValue(possibleLinkText));
 }
 
+function rowText(row) {
+  return row?.children?.[0]?.textContent.trim() || row?.textContent.trim() || '';
+}
+
+function readPublishedSettings(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const firstCardIndex = rows.findIndex((row) => row.querySelector('picture, img'));
+  const settingRows = firstCardIndex >= 0 ? rows.slice(0, firstCardIndex) : [];
+  const settings = {};
+  const consumedRows = [];
+
+  settingRows.forEach((row) => {
+    if (row.querySelector('[data-aue-prop]')) return;
+    const value = rowText(row).toLowerCase();
+    if (!value || row.children.length !== 1) return;
+
+    if (!settings.columns && /^[1-6]$/.test(value)) {
+      settings.columns = Number.parseInt(value, 10);
+      consumedRows.push(row);
+      return;
+    }
+
+    if (!settings.alignment && ['left', 'center', 'right'].includes(value)) {
+      settings.alignment = value;
+      consumedRows.push(row);
+    }
+  });
+
+  return { settings, consumedRows };
+}
+
 function buildCard(data) {
   const card = document.createElement('div');
   card.className = 'card-row-compact-card';
@@ -112,14 +143,19 @@ function buildCard(data) {
 }
 
 export default function decorate(block) {
-  const rows = [...block.querySelectorAll(':scope > div')];
+  const { settings, consumedRows } = readPublishedSettings(block);
 
   const columnsEl = block.querySelector('[data-aue-prop="columns"]');
-  const columns = parseInt(columnsEl?.textContent.trim(), 10) || 4;
+  const columns = parseInt(columnsEl?.textContent.trim(), 10) || settings.columns || 4;
 
   const alignmentEl = block.querySelector('[data-aue-prop="alignment"]');
-  const alignment = alignmentEl?.textContent.trim() || 'left';
+  const alignment = alignmentEl?.textContent.trim() || settings.alignment || 'left';
 
+  consumedRows.forEach((row) => row.remove());
+  columnsEl?.closest(':scope > div')?.remove();
+  alignmentEl?.closest(':scope > div')?.remove();
+
+  const rows = [...block.querySelectorAll(':scope > div')];
   const cards = [];
   rows.forEach((row) => {
     const cols = [...row.children];

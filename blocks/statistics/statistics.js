@@ -325,6 +325,16 @@ function splitCollapsedStatLabels(value, expectedCount = 0) {
     .filter(Boolean);
   if (combinedParts.length === expectedCount) return combinedParts;
 
+  // Some published pages collapse item labels with no separator and use acronym-led
+  // labels, e.g. "resolved AMBER Alert cases supported Missing child posters...".
+  const acronymBoundaryParts = normalized
+    .replace(/(\d{4})\s+(?=[A-Z])/gu, '$1|')
+    .replace(/([a-z])\s+(?=(?:[A-Z]{2,}(?:\s+[A-Z][a-z])?|[A-Z][a-z]))/gu, '$1|')
+    .split('|')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (acronymBoundaryParts.length === expectedCount) return acronymBoundaryParts;
+
   const boundaryParts = normalized
     .split(/\s+(?=(?:exploitation reports analyzed|people reached annually|public\b|esp\b)\b)/iu)
     .map((part) => part.trim())
@@ -1154,10 +1164,11 @@ function getLegacyConfig(rows) {
     },
     cell(modelIndex) {
       if (!active) return null;
-      if (modelIndex === 0 && alignmentIndex === 0) return null;
+      if (modelIndex === 0) return alignmentIndex >= 2 ? fieldCell(rows[0]) : null;
       return fieldCell(rows[alignmentIndex + modelIndex - 1]);
     },
     bodyTextCell() {
+      if (active && alignmentIndex >= 2) return fieldCell(rows[1]);
       return fieldCell(compactFields.bodyText);
     },
     imageModeCell(offset) {

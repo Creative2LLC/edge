@@ -105,7 +105,16 @@ function extractConfigRows(block) {
   if (configRows.length) return configRows;
   if (!rows.length) return [];
 
-  if (rows[0].children.length > 1 && !isLabeledConfigRow(rows[0])) return [rows[0]];
+  if (rows[0].children.length > 1 && !isLabeledConfigRow(rows[0])) {
+    const compactRows = [rows[0]];
+    for (let index = 1; index < rows.length; index += 1) {
+      const row = rows[index];
+      if (isResourceItemRow(row)) break;
+      if (row.textContent.trim()) compactRows.push(row);
+      if (compactRows.length >= Object.keys(CONFIG_ROW_INDEX).length) break;
+    }
+    return compactRows;
+  }
 
   const publishedRows = [];
   for (let index = 0; index < rows.length; index += 1) {

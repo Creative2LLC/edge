@@ -9,18 +9,60 @@ import {
 } from '../../scripts/block-field-utils.js';
 import { decorateButtonText } from '../../scripts/button-utils.js';
 
+const FIELD_INDEX = {
+  sectionName: 0,
+  image: 1,
+  imageAlt: 2,
+  leaderName: 3,
+  leaderTitle: 4,
+  bio: 5,
+  link: 6,
+  imageSize: 7,
+};
+
+function getCell(row, index) {
+  if (index === null || index === undefined) return null;
+  return row.children[index] || null;
+}
+
 /**
- * Get text from a data-aue-prop element, or return ''.
+ * Get text from a data-aue-prop element, or positional published fallback.
  */
-function getPropText(row, prop) {
-  return readTextField(row, prop).value;
+function getPropText(row, prop, index = FIELD_INDEX[prop]) {
+  return readTextField(row, prop, { fallbackCell: getCell(row, index) }).value;
 }
 
 /**
  * Get link from a data-aue-prop element — check for <a> first, then text.
  */
-function getPropLink(row, prop) {
-  return readLinkField(row, prop).value;
+function getPropLink(row, prop, index = FIELD_INDEX[prop]) {
+  return readLinkField(row, prop, { fallbackCell: getCell(row, index) }).value;
+}
+
+function hasInstrumentation(row) {
+  return Boolean(row.querySelector('[data-aue-prop], [data-richtext-prop]'));
+}
+
+function getPublishedFieldMap(row, imageIndex) {
+  if (hasInstrumentation(row)) return FIELD_INDEX;
+
+  const sectionName = row.children[0]?.textContent.trim() || '';
+  const imageAlt = row.children[imageIndex + 1]?.textContent.trim() || '';
+  const leaderName = row.children[imageIndex + 2]?.textContent.trim() || '';
+
+  if (imageIndex === 1 && sectionName && imageAlt && !leaderName) {
+    return {
+      ...FIELD_INDEX,
+      imageAlt: null,
+      leaderName: imageIndex + 1,
+      leaderTitle: imageIndex + 2,
+      bio: imageIndex + 3,
+      link: imageIndex + 4,
+      imageSize: imageIndex + 5,
+    };
+  }
+
+  return FIELD_INDEX;
 }
 
 /**
@@ -35,28 +77,37 @@ function parseLeaderRow(row) {
 
   // Find the image by scanning for a <picture> or <img> element
   let imageCol = null;
+  let imageIndex = FIELD_INDEX.image;
   for (let i = 0; i < cols.length; i += 1) {
     if (cols[i].querySelector('picture') || cols[i].querySelector('img')) {
       imageCol = cols[i];
+      imageIndex = i;
       break;
     }
   }
 
+  const fieldMap = getPublishedFieldMap(row, imageIndex);
   const imageField = readImageField(row, 'image', { fallbackCell: imageCol });
   const { picture, img } = imageField;
   const imgSrc = img?.src || '';
-  const imageAlt = img?.alt || '';
+  const imageAlt = getPropText(row, 'imageAlt', fieldMap.imageAlt) || img?.alt || '';
+  const name = getPropText(row, 'leaderName', fieldMap.leaderName);
+  const leaderTitle = getPropText(row, 'leaderTitle', fieldMap.leaderTitle);
+  const bio = getPropText(row, 'bio', fieldMap.bio);
+  const link = getPropLink(row, 'link', fieldMap.link);
+
+  if (!imgSrc && !name && !leaderTitle && !bio && !link) return null;
 
   return {
-    sectionName: getPropText(row, 'sectionName'),
+    sectionName: getPropText(row, 'sectionName', fieldMap.sectionName),
     picture,
     imgSrc,
     imageAlt,
-    imageSize: getPropText(row, 'imageSize') || 'large',
-    name: getPropText(row, 'leaderName'),
-    leaderTitle: getPropText(row, 'leaderTitle'),
-    bio: getPropText(row, 'bio'),
-    link: getPropLink(row, 'link'),
+    imageSize: getPropText(row, 'imageSize', fieldMap.imageSize) || 'large',
+    name,
+    leaderTitle,
+    bio,
+    link,
     row,
   };
 }

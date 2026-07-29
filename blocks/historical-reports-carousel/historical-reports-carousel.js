@@ -97,6 +97,26 @@ function getField(scope, name, rowIndexMap, columnIndex = 0) {
   };
 }
 
+function getItemTextField(row, name, columnIndex = 0) {
+  const fallbackCell = columnIndex === null ? null : row.children[columnIndex];
+  const field = readTextField(row, name, { fallbackCell });
+  return {
+    source: field.source || field.cell,
+    value: field.value,
+    html: field.cell?.innerHTML || '',
+  };
+}
+
+function getItemLinkField(row, name, columnIndex = 0) {
+  const fallbackCell = columnIndex === null ? null : row.children[columnIndex];
+  const field = readLinkField(row, name, { fallbackCell });
+  return {
+    source: field.source || field.cell,
+    value: field.value,
+    html: field.cell?.innerHTML || '',
+  };
+}
+
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
   if (resource.startsWith('/')) return resource;
@@ -179,6 +199,53 @@ function normalizeImageSource(value) {
   if (isUrlLike && trimmed.includes('/content/dam/')) return trimmed;
 
   return '';
+}
+
+function normalizeLinkValue(value) {
+  const normalized = normalizeReferenceValue(value).trim();
+  if (!normalized || /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(normalized)) {
+    return '';
+  }
+
+  if (/^(https?:)?\/\//i.test(normalized)) return normalized;
+  if (/^(mailto:|tel:)/i.test(normalized)) return normalized;
+  if (normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) {
+    return normalized;
+  }
+
+  return '';
+}
+
+function findPublishedLinkField(row, startIndex = 0) {
+  const cells = [...row.children].slice(Math.max(startIndex, 0));
+
+  for (let i = 0; i < cells.length; i += 1) {
+    const cell = cells[i];
+    const anchor = cell.tagName === 'A' ? cell : cell.querySelector?.('a[href]');
+    const href = normalizeLinkValue(anchor?.getAttribute?.('href') || anchor?.href || '');
+    if (href) {
+      return {
+        source: cell,
+        value: href,
+        html: cell.innerHTML || '',
+      };
+    }
+
+    const textHref = normalizeLinkValue(cell.textContent || '');
+    if (textHref) {
+      return {
+        source: cell,
+        value: textHref,
+        html: cell.innerHTML || '',
+      };
+    }
+  }
+
+  return { source: null, value: '', html: '' };
+}
+
+function normalizeLinkLabel(value) {
+  return String(value || '').replace(/\s*(?:→|->)\s*$/g, '').trim();
 }
 
 function getImageField(row, propName, columnIndex = 0) {
@@ -286,21 +353,16 @@ async function parseSlideRow(row) {
   if (!coverImageField.src) {
     coverImageField.src = normalizeImageSource(await getFieldValueFromResourceJson(row, 'coverImage'));
   }
-  const coverImageAltField = getField(
-    row,
-    'coverImageAlt',
-    ITEM_COLUMN_INDEX,
-    itemColumns.coverImageAlt,
-  );
-  const yearField = getField(row, 'year', ITEM_COLUMN_INDEX, itemColumns.year);
-  const reportCountField = getField(
-    row,
-    'reportCount',
-    ITEM_COLUMN_INDEX,
-    itemColumns.reportCount,
-  );
-  const linkTextField = getField(row, 'linkText', ITEM_COLUMN_INDEX, itemColumns.linkText);
-  const linkUrlField = getField(row, 'linkUrl', ITEM_COLUMN_INDEX, itemColumns.linkUrl);
+  const coverImageAltField = getItemTextField(row, 'coverImageAlt', itemColumns.coverImageAlt);
+  const yearField = getItemTextField(row, 'year', itemColumns.year);
+  const reportCountField = getItemTextField(row, 'reportCount', itemColumns.reportCount);
+  const linkTextField = getItemTextField(row, 'linkText', itemColumns.linkText);
+  let linkUrlField = getItemLinkField(row, 'linkUrl', itemColumns.linkUrl);
+  linkUrlField.value = normalizeLinkValue(linkUrlField.value);
+
+  if (!linkUrlField.value) {
+    linkUrlField = findPublishedLinkField(row, itemColumns.linkText);
+  }
 
   const hasVisibleContent = Boolean(
     coverImageField.src
@@ -395,7 +457,11 @@ function buildSlide(data, row, cardBackgroundColor) {
     const link = document.createElement('a');
     link.className = 'historical-reports-carousel-card-link';
     link.href = data.linkUrlField.value;
-    moveFieldContent(data.linkTextField, link, DEFAULTS.linkText);
+    link.textContent = normalizeLinkLabel(data.linkTextField.value) || DEFAULTS.linkText;
+    if (data.linkTextField.source?.matches?.('[data-aue-prop]')) {
+      moveFieldContent(data.linkTextField, link, link.textContent);
+      link.textContent = normalizeLinkLabel(link.textContent) || DEFAULTS.linkText;
+    }
     body.append(link);
   } else if (hasAuthoringContext(row) && data.linkTextField.value) {
     const linkPlaceholder = document.createElement('span');

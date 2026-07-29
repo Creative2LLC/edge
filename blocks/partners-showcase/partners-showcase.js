@@ -536,6 +536,13 @@ function firstTextCell(row, startIndex = 0) {
     || null;
 }
 
+function isCompactPublishedTestimonialRow(row) {
+  if (row.querySelector('[data-aue-prop], [data-richtext-prop]')) return false;
+  const cells = getRowCells(row);
+  const firstValue = cells[0]?.textContent.trim().toLowerCase();
+  return firstValue === 'testimonial' || firstValue === 'quote';
+}
+
 function readCompactTestimonialData(row) {
   const cells = getRowCells(row);
   const firstValue = cells[0]?.textContent.trim().toLowerCase();
@@ -545,10 +552,29 @@ function readCompactTestimonialData(row) {
     .filter((cell) => cell.textContent.trim() && !hasPicture(cell) && !cellHasLink(cell));
 
   return {
-    quoteCell: firstTextCell(row, offset),
+    quoteCell: textCells[0] || firstTextCell(row, offset),
     attributionNameCell: textCells[1] || null,
     attributionTitleCell: textCells[2] || null,
   };
+}
+
+function fieldFromCell(cell, valueKey = 'value') {
+  if (!cell) {
+    return valueKey === 'text'
+      ? { source: null, text: '', html: '' }
+      : { source: null, value: '' };
+  }
+
+  const value = cell.textContent.trim();
+  if (valueKey === 'text') {
+    return {
+      source: cell,
+      text: value,
+      html: cell.innerHTML.trim(),
+    };
+  }
+
+  return { source: cell, value };
 }
 
 function createShell(className) {
@@ -603,24 +629,20 @@ export default async function decorate(block) {
     const itemTypeField = readRowTextField(row, 'itemType', 0);
     const itemType = normalizeItemType(itemTypeField.value, data);
 
-    if (itemType === 'testimonial' && !data.quoteField.text && compactTestimonial.quoteCell) {
-      data.quoteField = {
-        source: compactTestimonial.quoteCell,
-        text: compactTestimonial.quoteCell.textContent.trim(),
-        html: compactTestimonial.quoteCell.innerHTML.trim(),
-      };
-    }
-    if (itemType === 'testimonial' && !data.attributionNameField.value && compactTestimonial.attributionNameCell) {
-      data.attributionNameField = {
-        source: compactTestimonial.attributionNameCell,
-        value: compactTestimonial.attributionNameCell.textContent.trim(),
-      };
-    }
-    if (itemType === 'testimonial' && !data.attributionTitleField.value && compactTestimonial.attributionTitleCell) {
-      data.attributionTitleField = {
-        source: compactTestimonial.attributionTitleCell,
-        value: compactTestimonial.attributionTitleCell.textContent.trim(),
-      };
+    if (itemType === 'testimonial' && isCompactPublishedTestimonialRow(row)) {
+      data.quoteField = fieldFromCell(compactTestimonial.quoteCell, 'text');
+      data.attributionNameField = fieldFromCell(compactTestimonial.attributionNameCell);
+      data.attributionTitleField = fieldFromCell(compactTestimonial.attributionTitleCell);
+    } else {
+      if (itemType === 'testimonial' && !data.quoteField.text && compactTestimonial.quoteCell) {
+        data.quoteField = fieldFromCell(compactTestimonial.quoteCell, 'text');
+      }
+      if (itemType === 'testimonial' && !data.attributionNameField.value && compactTestimonial.attributionNameCell) {
+        data.attributionNameField = fieldFromCell(compactTestimonial.attributionNameCell);
+      }
+      if (itemType === 'testimonial' && !data.attributionTitleField.value && compactTestimonial.attributionTitleCell) {
+        data.attributionTitleField = fieldFromCell(compactTestimonial.attributionTitleCell);
+      }
     }
 
     if (itemType === 'testimonial') testimonials.push(data);

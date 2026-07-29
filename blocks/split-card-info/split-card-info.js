@@ -103,6 +103,93 @@ function collectOrphanedColorValues(block) {
   return values;
 }
 
+function getRowCell(row) {
+  if (!row) return null;
+  if (row.children.length === 2) return row.children[1];
+  return row.children[0] || row;
+}
+
+function getCleanText(node) {
+  return (node?.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function isColorToken(value) {
+  return /^(#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})|rgba?\()/i.test(value || '');
+}
+
+function rowContainsPicture(record, picture) {
+  return Boolean(picture && (record.row.contains(picture) || record.cell?.contains?.(picture)));
+}
+
+function getPublishedRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => {
+      const cell = getRowCell(row);
+      const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a');
+      return {
+        row,
+        cell,
+        text: getCleanText(anchor || cell),
+        html: cell?.innerHTML?.trim() || '',
+        href: anchor?.getAttribute('href') || '',
+        hasPicture: Boolean(cell?.querySelector?.('picture') || cell?.tagName === 'PICTURE'),
+      };
+    });
+}
+
+function getPublishedFields(block, mainPicture, topLogoPicture) {
+  if (block.querySelector('[data-aue-prop]')) return {};
+
+  const rows = getPublishedRows(block);
+  const fields = {};
+  const splitRow = rows.find((record) => /^(half|third)$/i.test(record.text));
+  if (splitRow) fields.imageSplit = splitRow.text.toLowerCase();
+
+  const mainPictureIndex = rows.findIndex((record) => rowContainsPicture(record, mainPicture));
+  const topLogoIndex = rows.findIndex((record) => rowContainsPicture(record, topLogoPicture));
+
+  if (mainPictureIndex >= 0 && topLogoIndex > mainPictureIndex) {
+    const mainAltRow = rows
+      .slice(mainPictureIndex + 1, topLogoIndex)
+      .find((record) => record.text && !record.hasPicture);
+    if (mainAltRow) fields.mainImageAlt = mainAltRow.text;
+  }
+
+  const contentStart = topLogoIndex >= 0 ? topLogoIndex + 1 : mainPictureIndex + 1;
+  const contentRows = rows
+    .slice(Math.max(contentStart, 0))
+    .filter((record) => record.text && !record.hasPicture && !/^(half|third)$/i.test(record.text));
+
+  const colorRows = [];
+  while (contentRows.length && isColorToken(contentRows[contentRows.length - 1].text)) {
+    colorRows.unshift(contentRows.pop());
+  }
+
+  [
+    fields.buttonColor,
+    fields.buttonTextColor,
+    fields.contentBackgroundColor,
+  ] = colorRows.map((record) => record.text);
+
+  const content = [...contentRows];
+  if (content[0] && !/^\d/.test(content[0].text) && content[1] && /^\d/.test(content[1].text)) {
+    fields.heading = content.shift().text;
+  }
+
+  if (content[0]) fields.subheading = content.shift().text;
+  if (content[0]) {
+    const body = content.shift();
+    fields.bodyText = body.html || body.text;
+  }
+  if (content[0]) fields.buttonText = content.shift().text;
+  if (content[0]) {
+    const link = content.shift();
+    fields.buttonLink = link.href || link.text || '';
+  }
+
+  return fields;
+}
+
 /* ---------------------------------- decorate ---------------------------------- */
 
 export default async function decorate(block) {
@@ -119,21 +206,45 @@ export default async function decorate(block) {
     allPictures.find((p) => p !== mainPicture) || null,
   );
 
-  const imageSplit = getField(block, 'imageSplit') || normalizeJsonFieldValue(resourceData.imageSplit);
-  const mainImageAlt = getField(block, 'mainImageAlt') || normalizeJsonFieldValue(resourceData.mainImageAlt);
-  const topLogoAlt = getField(block, 'topLogoAlt') || normalizeJsonFieldValue(resourceData.topLogoAlt);
-  const heading = getField(block, 'heading') || normalizeJsonFieldValue(resourceData.heading);
-  const subheading = getField(block, 'subheading') || normalizeJsonFieldValue(resourceData.subheading);
-  const bodyText = getRichTextField(block, 'bodyText') || normalizeJsonFieldValue(resourceData.bodyText);
-  const buttonText = getField(block, 'buttonText') || normalizeJsonFieldValue(resourceData.buttonText);
-  const buttonLink = getLinkField(block, 'buttonLink') || normalizeJsonFieldValue(resourceData.buttonLink);
+  const publishedFields = getPublishedFields(block, mainPicture, topLogoPicture);
+
+  const imageSplit = getField(block, 'imageSplit')
+    || normalizeJsonFieldValue(resourceData.imageSplit)
+    || publishedFields.imageSplit;
+  const mainImageAlt = getField(block, 'mainImageAlt')
+    || normalizeJsonFieldValue(resourceData.mainImageAlt)
+    || publishedFields.mainImageAlt;
+  const topLogoAlt = getField(block, 'topLogoAlt')
+    || normalizeJsonFieldValue(resourceData.topLogoAlt)
+    || publishedFields.topLogoAlt;
+  const heading = getField(block, 'heading')
+    || normalizeJsonFieldValue(resourceData.heading)
+    || publishedFields.heading;
+  const subheading = getField(block, 'subheading')
+    || normalizeJsonFieldValue(resourceData.subheading)
+    || publishedFields.subheading;
+  const bodyText = getRichTextField(block, 'bodyText')
+    || normalizeJsonFieldValue(resourceData.bodyText)
+    || publishedFields.bodyText;
+  const buttonText = getField(block, 'buttonText')
+    || normalizeJsonFieldValue(resourceData.buttonText)
+    || publishedFields.buttonText;
+  const buttonLink = getLinkField(block, 'buttonLink')
+    || normalizeJsonFieldValue(resourceData.buttonLink)
+    || publishedFields.buttonLink;
 
   // Color fields: try the resource JSON first (most reliable for hex values
   // since EDS doesn't mangle them there), then DOM by name, then fall back
   // to positionally walking orphaned auto-linked rows.
-  let buttonColor = normalizeColorValue(resourceData.buttonColor) || normalizeColorValue(getField(block, 'buttonColor'));
-  let buttonTextColor = normalizeColorValue(resourceData.buttonTextColor) || normalizeColorValue(getField(block, 'buttonTextColor'));
-  let contentBackgroundColor = normalizeColorValue(resourceData.contentBackgroundColor) || normalizeColorValue(getField(block, 'contentBackgroundColor'));
+  let buttonColor = normalizeColorValue(resourceData.buttonColor)
+    || normalizeColorValue(getField(block, 'buttonColor'))
+    || normalizeColorValue(publishedFields.buttonColor);
+  let buttonTextColor = normalizeColorValue(resourceData.buttonTextColor)
+    || normalizeColorValue(getField(block, 'buttonTextColor'))
+    || normalizeColorValue(publishedFields.buttonTextColor);
+  let contentBackgroundColor = normalizeColorValue(resourceData.contentBackgroundColor)
+    || normalizeColorValue(getField(block, 'contentBackgroundColor'))
+    || normalizeColorValue(publishedFields.contentBackgroundColor);
 
   if (!buttonColor || !buttonTextColor || !contentBackgroundColor) {
     const orphans = collectOrphanedColorValues(block);

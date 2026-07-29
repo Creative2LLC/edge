@@ -28,15 +28,66 @@ const FIELD_INDEX = {
   contentBackgroundColor: 17,
 };
 
+const COMPACT_FIELD_INDEX = {
+  image: 0,
+  imageAlt: null,
+  title: 1,
+  subtitle: 2,
+  sectionHeader: 3,
+  sectionText: 4,
+  card1Title: 5,
+  card1Text: 6,
+  card2Title: 7,
+  card2Text: 8,
+  bottomHeader: 9,
+  bottomText: 10,
+  buttonText: 11,
+  buttonLink: 12,
+  buttonColor: 13,
+  buttonTextColor: 14,
+  buttonStyle: 15,
+  contentBackgroundColor: 16,
+};
+
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
 function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
 }
 
-function getFallbackCell(block, name) {
-  const row = getRows(block)[FIELD_INDEX[name]];
+function getRowCell(row) {
   if (!row) return null;
   if (row.children.length === 2) return row.children[1];
   return row.children[0] || row;
+}
+
+function getRowText(rows, index) {
+  const cell = getRowCell(rows[index]);
+  return (cell?.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function useCompactFieldOrder(block, rows) {
+  if (block.querySelector('[data-aue-prop]')) return false;
+
+  const compactTitle = getRowText(rows, COMPACT_FIELD_INDEX.title);
+  const standardTitle = getRowText(rows, FIELD_INDEX.title);
+  if (!compactTitle || !standardTitle) return false;
+
+  const hasSubtitleShape = standardTitle.length > 80
+    || /\b(internship|program|hands-on|experience|skills)\b/i.test(standardTitle);
+  const compactLooksLikeTitle = compactTitle.length < standardTitle.length
+    && !/^https?:\/\//i.test(compactTitle)
+    && !HEX_COLOR.test(compactTitle);
+
+  return hasSubtitleShape && compactLooksLikeTitle;
+}
+
+function getFallbackCell(block, name) {
+  const rows = getRows(block);
+  const indexMap = useCompactFieldOrder(block, rows) ? COMPACT_FIELD_INDEX : FIELD_INDEX;
+  const index = indexMap[name];
+  if (index === null || index === undefined) return null;
+  return getRowCell(rows[index]);
 }
 
 function getTextField(block, name) {
@@ -77,8 +128,6 @@ function appendRichContent(parent, source, className) {
   while (cell.firstChild) div.append(cell.firstChild);
   if (div.childNodes.length) parent.append(div);
 }
-
-const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 function readHex(value) {
   const trimmed = (value || '').trim();
