@@ -1041,7 +1041,7 @@ function getLegacyConfig(rows) {
   let headingRow = null;
   if (preStatContentRows.length > 1) {
     [headingRow] = preStatContentRows;
-  } else if (isLikelyRenderedHeading(rowText(singlePreStatRow))) {
+  } else if (singlePreStatRow) {
     headingRow = singlePreStatRow;
   }
   const bodyTextRow = headingRow ? preStatContentRows[1] || null : preStatContentRows[0] || null;
