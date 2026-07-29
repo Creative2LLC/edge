@@ -48,20 +48,55 @@ async function getBlockResourceData(block) {
   }
 }
 
+const FIELD_INDEX = {
+  headingText: 0,
+  feature1Icon: 1,
+  feature1IconColor: 2,
+  feature1Heading: 3,
+  feature2Icon: 4,
+  feature2IconColor: 5,
+  feature2Text: 6,
+  feature3Icon: 7,
+  feature3IconColor: 8,
+  feature3Text: 9,
+  button1Icon: 10,
+  button1Text: 11,
+  button1Link: 12,
+  button2Icon: 13,
+  button2Text: 14,
+  button2Link: 15,
+};
+
+function getRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function getRowCell(row) {
+  if (!row) return null;
+  if (row.children.length === 2) return row.children[1];
+  return row.children[0] || row;
+}
+
+function getFallbackCell(block, name) {
+  const index = FIELD_INDEX[name];
+  if (index === undefined) return null;
+  return getRowCell(getRows(block)[index]);
+}
+
 function getField(block, name) {
-  return readTextField(block, name).value;
+  return readTextField(block, name, { fallbackCell: getFallbackCell(block, name) }).value;
 }
 
 function getRichTextField(block, name) {
-  return readRichTextField(block, name).html;
+  return readRichTextField(block, name, { fallbackCell: getFallbackCell(block, name) }).html;
 }
 
 function getLinkField(block, name) {
-  return readLinkField(block, name).value;
+  return readLinkField(block, name, { fallbackCell: getFallbackCell(block, name) }).value;
 }
 
 function getPictureFor(block, name) {
-  return readImageField(block, name).picture;
+  return readImageField(block, name, { fallbackCell: getFallbackCell(block, name) }).picture;
 }
 
 /**

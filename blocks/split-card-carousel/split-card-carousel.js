@@ -63,6 +63,11 @@ function textAt(row, index) {
   return row.children[index]?.textContent?.trim() || '';
 }
 
+function normalizeVariant(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return ['default', 'variant-2', 'variant-3'].includes(normalized) ? normalized : '';
+}
+
 function isLikelyBodyText(value) {
   return String(value || '').trim().length > 90;
 }
@@ -278,17 +283,19 @@ export default function decorate(block) {
       else if (variantEl) variant = variantEl.textContent.trim() || 'default';
       else {
         // Fallback: first single-col row without prop = heading,
-        // second = description, third = variant.
+        // second = description, variant rows are config only.
         const text = row.textContent.trim();
-        if (text && !sectionTitle) sectionTitle = text;
+        const variantValue = normalizeVariant(text);
+        if (variantValue) variant = variantValue;
+        else if (text && !sectionTitle) sectionTitle = text;
         else if (text && !sectionDescription) sectionDescription = text;
-        else if (text && variant === 'default') variant = text;
       }
     } else {
       slideRows.push(row);
     }
   });
 
+  variant = normalizeVariant(variant) || 'default';
   const isVariant2 = variant === 'variant-2';
   if (isVariant2) block.classList.add('variant-2');
   if (variant === 'variant-3') block.classList.add('variant-3');

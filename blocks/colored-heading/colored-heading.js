@@ -203,10 +203,45 @@ function hasAuthoringContext(block) {
   return Boolean(block.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'));
 }
 
+function getPublishedCellText(row) {
+  return (fieldCell(row)?.textContent || row?.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function isPublishedControlValue(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (!normalized) return true;
+  if (/^h[1-6]$/u.test(normalized)) return true;
+  if (['left', 'center', 'right', 'justify', 'top', 'middle', 'bottom'].includes(normalized)) {
+    return true;
+  }
+  if (['default', 'none', 'all-sm', 'all-md', 'all-lg'].includes(normalized)) return true;
+  if (/^(?:vertical|horizontal|top|bottom)-(?:sm|md|lg)$/u.test(normalized)) return true;
+  if (/^(?:[1-9]00)$/u.test(normalized)) return true;
+  if (normalizeColorValue(normalized)) return true;
+  if (normalizeCssLength(normalized, 'font-size')) return true;
+  return false;
+}
+
+function derivePublishedFields(rows) {
+  const values = rows.map(getPublishedCellText).filter(Boolean);
+  const findValue = (predicate) => values.find((value) => predicate(value)) || '';
+
+  return {
+    heading: findValue((value) => !isPublishedControlValue(value)),
+    headingLevel: findValue((value) => /^h[1-6]$/iu.test(value.trim())),
+    textColor: findValue((value) => normalizeColorValue(value)),
+    fontSize: findValue((value) => normalizeCssLength(value, 'font-size') && !/^(?:[1-9]00)$/u.test(value.trim())),
+    fontWeight: findValue((value) => normalizeFontWeight(value)),
+    horizontalAlign: findValue((value) => ['left', 'center', 'right', 'justify'].includes(value.trim().toLowerCase())),
+    verticalAlign: findValue((value) => ['top', 'middle', 'bottom'].includes(value.trim().toLowerCase())),
+  };
+}
+
 export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
+  const publishedFields = isEditor ? {} : derivePublishedFields(rows);
 
   // Fixed indices below match _colored-heading.json's ACTUAL current field order (fields
   // were regrouped under UI tabs by a later commit; "tab" entries are UI-only and consume
@@ -217,28 +252,34 @@ export default function decorate(block) {
   // (it is no longer an optionally-inserted row after textColor), so it's read at its own
   // index like every other field instead of via a heuristic rowOffset.
   const headingField = readField(block, 'heading', ['title', 'text', 'heading text'], fieldCell(rows[0]), isEditor);
+  if (!isEditor && publishedFields.heading) headingField.value = publishedFields.heading;
   const headingLevel = normalizeOption(
-    readField(block, 'headingLevel', ['heading level', 'h tag', 'tag'], fieldCell(rows[1]), isEditor).value,
+    publishedFields.headingLevel
+      || readField(block, 'headingLevel', ['heading level', 'h tag', 'tag'], fieldCell(rows[1]), isEditor).value,
     ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
     'h2',
   );
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[2]));
-  const textColor = normalizeColorValue(txtField.value)
+  const textColor = normalizeColorValue(txtField.value || publishedFields.textColor)
     || (hasDarkSectionBackground(block) ? '#FFF' : '#00264D');
   const fontSize = normalizeCssLength(
-    readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[3]), isEditor).value,
+    publishedFields.fontSize
+      || readField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[3]), isEditor).value,
     'font-size',
   );
   const fontWeight = normalizeFontWeight(
-    readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[4]), isEditor).value,
+    publishedFields.fontWeight
+      || readField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[4]), isEditor).value,
   );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[5]), isEditor).value,
+    publishedFields.horizontalAlign
+      || readField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[5]), isEditor).value,
     ['left', 'center', 'right', 'justify'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[6]), isEditor).value,
+    publishedFields.verticalAlign
+      || readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[6]), isEditor).value,
     ['top', 'middle', 'bottom'],
     'top',
   );

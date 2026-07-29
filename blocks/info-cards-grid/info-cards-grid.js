@@ -326,15 +326,14 @@ function getField(row, name, index, isEditor) {
   return { source: field.source, value: field.value };
 }
 
-// Hex-color "select" fields (regex-validated) render in the editor as a bare
-// <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
-// unlike every other field type, which does get real instrumentation whenever it has
-// content. Name-based lookup can never succeed for these, so unlike getField above,
-// positional fallback must stay enabled in the editor too, or these fields always read
-// empty (this caused a live regression: cards falling back to the default near-black
-// background because cardBackgroundColor could never be read).
-function getColorField(row, name, index) {
-  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+// Hex-color dropdowns can render in author as bare <a href="#hex">#hex</a> values
+// with no data-aue-prop. Published pages still need positional fallback, but author
+// rows are more fragile because omitted optional fields shift cells around. In author,
+// only trust a named field; uninstrumented color values are corrected by the existing
+// AEM JSON style sync instead of guessing from a shifted positional cell.
+function getColorField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readTextField(row, name, { fallbackCell });
   return { source: field.source, value: field.value };
 }
 
@@ -963,16 +962,19 @@ export default function decorate(block) {
       row,
       'cardBackgroundColor',
       itemFieldIndex.cardBackgroundColor,
+      isEditor,
     );
     const cardHoverBgField = getColorField(
       row,
       'cardHoverBackgroundColor',
       itemFieldIndex.cardHoverBackgroundColor,
+      isEditor,
     );
     const buttonBgField = getColorField(
       row,
       'buttonBackgroundColor',
       itemFieldIndex.buttonBackgroundColor,
+      isEditor,
     );
     const button2TextField = getField(row, 'button2Text', itemFieldIndex.button2Text, isEditor);
     const button2LinkField = getLinkField(row, 'button2Link', itemFieldIndex.button2Link, isEditor);
@@ -981,13 +983,14 @@ export default function decorate(block) {
       row,
       'button2BackgroundColor',
       itemFieldIndex.button2BackgroundColor,
+      isEditor,
     );
-    const iconColorField = getColorField(row, 'iconColor', itemFieldIndex.iconColor);
+    const iconColorField = getColorField(row, 'iconColor', itemFieldIndex.iconColor, isEditor);
     const textStyleField = getField(row, 'textColor', itemFieldIndex.textColor, isEditor);
-    const cardTextColorField = getColorField(row, 'cardTextColor', itemFieldIndex.cardTextColor);
-    const titleColorField = getColorField(row, 'titleColor', itemFieldIndex.titleColor);
-    const subtitleColorField = getColorField(row, 'subtitleColor', itemFieldIndex.subtitleColor);
-    const bodyColorField = getColorField(row, 'bodyColor', itemFieldIndex.bodyColor);
+    const cardTextColorField = getColorField(row, 'cardTextColor', itemFieldIndex.cardTextColor, isEditor);
+    const titleColorField = getColorField(row, 'titleColor', itemFieldIndex.titleColor, isEditor);
+    const subtitleColorField = getColorField(row, 'subtitleColor', itemFieldIndex.subtitleColor, isEditor);
+    const bodyColorField = getColorField(row, 'bodyColor', itemFieldIndex.bodyColor, isEditor);
     const titleSizeField = getField(row, 'titleFontSize', itemFieldIndex.titleFontSize, isEditor);
     const subtitleSizeField = getField(row, 'subtitleFontSize', itemFieldIndex.subtitleFontSize, isEditor);
     const bodySizeField = getField(row, 'bodyFontSize', itemFieldIndex.bodyFontSize, isEditor);

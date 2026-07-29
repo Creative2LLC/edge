@@ -424,32 +424,24 @@ function buildLogoBand(logos) {
 }
 
 function buildAttribution(nameField, titleField) {
-  if (!nameField.value && !nameField.source && !titleField.value && !titleField.source) {
-    return null;
-  }
+  const nameText = nameField.value || nameField.source?.textContent?.trim() || '';
+  const titleText = titleField.value || titleField.source?.textContent?.trim() || '';
+  if (!nameText && !titleText) return null;
 
   const attribution = document.createElement('p');
   attribution.className = 'partners-showcase-testimonial-attribution';
 
-  if (nameField.value || nameField.source) {
+  if (nameText) {
     const name = document.createElement('span');
     name.className = 'partners-showcase-testimonial-attribution-name';
-    if (nameField.source) {
-      moveFieldContent(nameField, name, nameField.value);
-    } else {
-      name.textContent = nameField.value;
-    }
+    name.textContent = nameText;
     attribution.append(name);
   }
 
-  if (titleField.value || titleField.source) {
+  if (titleText) {
     const title = document.createElement('span');
     title.className = 'partners-showcase-testimonial-attribution-title';
-    if (titleField.source) {
-      moveFieldContent(titleField, title, titleField.value);
-    } else {
-      title.textContent = titleField.value;
-    }
+    title.textContent = titleText;
 
     if (attribution.childNodes.length) {
       attribution.append(document.createTextNode(', '));

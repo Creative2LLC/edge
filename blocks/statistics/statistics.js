@@ -1036,7 +1036,9 @@ function getLegacyConfig(rows) {
     || compactContentRows.find((row) => !isLikelyButtonText(rowText(row)))
     || null;
   const statValueIndex = compactContentRows.indexOf(statValueRow);
-  const bodyTextRow = statValueIndex > 0 ? compactContentRows[0] : null;
+  const preStatContentRows = statValueIndex > 0 ? compactContentRows.slice(0, statValueIndex) : [];
+  const headingRow = preStatContentRows.length > 1 ? preStatContentRows[0] : null;
+  const bodyTextRow = headingRow ? preStatContentRows[1] : preStatContentRows[0] || null;
   const statLabelRow = statValueIndex >= 0
     ? compactContentRows.slice(statValueIndex + 1).find((row) => (
       rowText(row) && !isLikelyButtonText(rowText(row))
@@ -1122,6 +1124,7 @@ function getLegacyConfig(rows) {
     value && !isConfigOnlyText(value) && !isLikelyButtonText(value),
   );
   const compactFields = {
+    heading: headingRow,
     bodyText: bodyTextRow,
     imageMode: compactImageModeRow,
     defaultButtonText: compactButtonTextRow,
@@ -1771,7 +1774,12 @@ export default function decorate(block) {
     legacyConfig.isCompact ? null : legacyConfig.imageModeCell(imageModeOffset)
   );
 
-  const headingField = readField(block, 'heading', ['heading', 'title'], configCell(0));
+  const headingField = readField(
+    block,
+    'heading',
+    ['heading', 'title'],
+    legacyConfig.compactCell('heading') || configCell(0),
+  );
   const contentAlignmentField = readField(
     block,
     'contentAlignment',

@@ -254,6 +254,32 @@ function buildTextElement(tag, className, field) {
   return el;
 }
 
+function splitCollapsedHeadingText(value) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!text) return null;
+
+  const boundary = text.match(/^(.{8,70}?)\s+((?:Sign up|Subscribe|Get|Join|Stay informed|Receive)\b.+)$/iu);
+  if (!boundary) return null;
+
+  const heading = boundary[1].trim();
+  const subheading = boundary[2].trim();
+  if (!heading || !subheading || heading.split(/\s+/u).length > 8) return null;
+  return { heading, subheading };
+}
+
+function splitCollapsedHeadingFields(headingField, subheadingField) {
+  if (subheadingField.value || subheadingField.source) return { headingField, subheadingField };
+  if (headingField.source) return { headingField, subheadingField };
+
+  const split = splitCollapsedHeadingText(headingField.value);
+  if (!split) return { headingField, subheadingField };
+
+  return {
+    headingField: { ...headingField, value: split.heading },
+    subheadingField: { ...subheadingField, value: split.subheading },
+  };
+}
+
 function parseOptions(value) {
   if (!value) return [];
   const normalized = value.replace(/\r/g, '');
@@ -470,6 +496,7 @@ export default async function decorate(block) {
     getStatusCell(block)?.textContent.trim(),
   );
   targetField = applyFallbackField(targetField, formCell, targetValue);
+  ({ headingField, subheadingField } = splitCollapsedHeadingFields(headingField, subheadingField));
   const background = buildBackground(block);
 
   const messages = buildStatusMessages(statusMessagesField, legacyMap);

@@ -340,6 +340,16 @@ function getMediaCell(block) {
   )) || null;
 }
 
+function getFeaturedImageCell(block, exclude = []) {
+  const indexedCell = getHeroFieldCell(block, 'media_featuredImage');
+  if (indexedCell?.querySelector?.('picture')) return indexedCell;
+
+  return getRowCells(block).find((cell) => {
+    const picture = cell.querySelector?.('picture');
+    return picture && !exclude.includes(picture);
+  }) || null;
+}
+
 function getChoiceFromCell(cell, allowed) {
   if (!cell) return '';
   const accepted = new Set(allowed);
@@ -1574,6 +1584,7 @@ function extractFeaturedPicture(block, exclude = []) {
   const imageField = readImageField(
     block,
     ['media_featuredImage', 'featuredImage'],
+    { fallbackCell: getFeaturedImageCell(block, exclude) },
   );
   const imageSource = imageField.source || imageField.cell;
   if (!imageSource && !imageField.picture) return null;

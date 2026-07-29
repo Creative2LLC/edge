@@ -121,6 +121,11 @@ function rowContainsPicture(record, picture) {
   return Boolean(picture && (record.row.contains(picture) || record.cell?.contains?.(picture)));
 }
 
+function looksLikeBodyText(value) {
+  const text = String(value || '').trim();
+  return text.length > 90 || /[.!?]$/u.test(text);
+}
+
 function getPublishedRows(block) {
   return [...block.querySelectorAll(':scope > div')]
     .map((row) => {
@@ -172,12 +177,16 @@ function getPublishedFields(block, mainPicture, topLogoPicture) {
   ] = colorRows.map((record) => record.text);
 
   const content = [...contentRows];
-  if (content[0] && !/^\d/.test(content[0].text) && content[1] && /^\d/.test(content[1].text)) {
+  if (content.length >= 2 && !looksLikeBodyText(content[0].text)) {
     fields.heading = content.shift().text;
   }
 
-  if (content[0]) fields.subheading = content.shift().text;
-  if (content[0]) {
+  if (content[0] && content.length === 1) {
+    fields.subheading = content.shift().text;
+  } else if (content[0] && !looksLikeBodyText(content[0].text)) {
+    fields.subheading = content.shift().text;
+  }
+  if (content[0] && looksLikeBodyText(content[0].text)) {
     const body = content.shift();
     fields.bodyText = body.html || body.text;
   }
@@ -200,11 +209,10 @@ export default async function decorate(block) {
   const allPictures = [...block.querySelectorAll('picture')];
 
   const mainPicture = getPictureFor(block, 'mainImage', allPictures[0]);
-  const topLogoPicture = getPictureFor(
-    block,
-    'topLogo',
-    allPictures.find((p) => p !== mainPicture) || null,
-  );
+  const explicitTopLogoPicture = getPictureFor(block, 'topLogo', null);
+  const topLogoPicture = explicitTopLogoPicture && explicitTopLogoPicture !== mainPicture
+    ? explicitTopLogoPicture
+    : null;
 
   const publishedFields = getPublishedFields(block, mainPicture, topLogoPicture);
 
