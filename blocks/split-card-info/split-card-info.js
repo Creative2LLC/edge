@@ -38,10 +38,9 @@ function normalizeColorValue(value) {
   if (!normalized) return '';
   // EDS may auto-link a hex value into an href; pull the hex back out.
   const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
-  if (/^https?:/i.test(normalized) && hexMatch) {
-    return hexMatch[0];
-  }
-  return normalized;
+  if (hexMatch) return hexMatch[0];
+  if (/^(?:rgb|hsl)a?\(/i.test(normalized) || /^var\(/i.test(normalized)) return normalized;
+  return '';
 }
 
 async function getBlockResourceData(block) {
@@ -126,6 +125,10 @@ function looksLikeBodyText(value) {
   return text.length > 90 || /[.!?]$/u.test(text);
 }
 
+function looksLikeNumberSubheading(value) {
+  return /^[\d,]+\s+/.test(String(value || '').trim());
+}
+
 function getPublishedRows(block) {
   return [...block.querySelectorAll(':scope > div')]
     .map((row) => {
@@ -165,10 +168,8 @@ function getPublishedFields(block, mainPicture, topLogoPicture) {
     .slice(Math.max(contentStart, 0))
     .filter((record) => record.text && !record.hasPicture && !/^(half|third)$/i.test(record.text));
 
-  const colorRows = [];
-  while (contentRows.length && isColorToken(contentRows[contentRows.length - 1].text)) {
-    colorRows.unshift(contentRows.pop());
-  }
+  const colorRows = contentRows.filter((record) => isColorToken(record.text));
+  const content = contentRows.filter((record) => !isColorToken(record.text));
 
   [
     fields.buttonColor,
@@ -176,17 +177,19 @@ function getPublishedFields(block, mainPicture, topLogoPicture) {
     fields.contentBackgroundColor,
   ] = colorRows.map((record) => record.text);
 
-  const content = [...contentRows];
-  if (content.length >= 2 && !looksLikeBodyText(content[0].text)) {
+  let hasHeading = false;
+  if (content[0]
+    && content.length >= 3
+    && !looksLikeNumberSubheading(content[0].text)
+    && !looksLikeBodyText(content[0].text)) {
     fields.heading = content.shift().text;
+    hasHeading = true;
   }
 
-  if (content[0] && content.length === 1) {
-    fields.subheading = content.shift().text;
-  } else if (content[0] && !looksLikeBodyText(content[0].text)) {
+  if (content[0] && (hasHeading || !looksLikeBodyText(content[0].text))) {
     fields.subheading = content.shift().text;
   }
-  if (content[0] && looksLikeBodyText(content[0].text)) {
+  if (content[0]) {
     const body = content.shift();
     fields.bodyText = body.html || body.text;
   }
@@ -209,50 +212,62 @@ export default async function decorate(block) {
   const allPictures = [...block.querySelectorAll('picture')];
 
   const mainPicture = getPictureFor(block, 'mainImage', allPictures[0]);
-  const explicitTopLogoPicture = getPictureFor(block, 'topLogo', null);
+  const explicitTopLogoPicture = getPictureFor(block, 'topLogo', allPictures[1]);
   const topLogoPicture = explicitTopLogoPicture && explicitTopLogoPicture !== mainPicture
     ? explicitTopLogoPicture
     : null;
 
   const publishedFields = getPublishedFields(block, mainPicture, topLogoPicture);
+  const usePublishedFields = Object.keys(publishedFields).length > 0;
 
-  const imageSplit = getField(block, 'imageSplit')
-    || normalizeJsonFieldValue(resourceData.imageSplit)
-    || publishedFields.imageSplit;
-  const mainImageAlt = getField(block, 'mainImageAlt')
-    || normalizeJsonFieldValue(resourceData.mainImageAlt)
-    || publishedFields.mainImageAlt;
-  const topLogoAlt = getField(block, 'topLogoAlt')
-    || normalizeJsonFieldValue(resourceData.topLogoAlt)
-    || publishedFields.topLogoAlt;
-  const heading = getField(block, 'heading')
-    || normalizeJsonFieldValue(resourceData.heading)
-    || publishedFields.heading;
-  const subheading = getField(block, 'subheading')
-    || normalizeJsonFieldValue(resourceData.subheading)
-    || publishedFields.subheading;
-  const bodyText = getRichTextField(block, 'bodyText')
-    || normalizeJsonFieldValue(resourceData.bodyText)
-    || publishedFields.bodyText;
-  const buttonText = getField(block, 'buttonText')
-    || normalizeJsonFieldValue(resourceData.buttonText)
-    || publishedFields.buttonText;
-  const buttonLink = getLinkField(block, 'buttonLink')
-    || normalizeJsonFieldValue(resourceData.buttonLink)
-    || publishedFields.buttonLink;
+  const readPublishedText = (name, resourceValue = '') => {
+    if (usePublishedFields) {
+      return publishedFields[name]
+        || normalizeJsonFieldValue(resourceValue)
+        || getField(block, name);
+    }
+    return getField(block, name) || normalizeJsonFieldValue(resourceValue);
+  };
+
+  const readPublishedRichText = (name, resourceValue = '') => {
+    if (usePublishedFields) {
+      return publishedFields[name]
+        || normalizeJsonFieldValue(resourceValue)
+        || getRichTextField(block, name);
+    }
+    return getRichTextField(block, name) || normalizeJsonFieldValue(resourceValue);
+  };
+
+  const readPublishedLink = (name, resourceValue = '') => {
+    if (usePublishedFields) {
+      return publishedFields[name]
+        || normalizeJsonFieldValue(resourceValue)
+        || getLinkField(block, name);
+    }
+    return getLinkField(block, name) || normalizeJsonFieldValue(resourceValue);
+  };
+
+  const imageSplit = readPublishedText('imageSplit', resourceData.imageSplit);
+  const mainImageAlt = readPublishedText('mainImageAlt', resourceData.mainImageAlt);
+  const topLogoAlt = readPublishedText('topLogoAlt', resourceData.topLogoAlt);
+  const heading = readPublishedText('heading', resourceData.heading);
+  const subheading = readPublishedText('subheading', resourceData.subheading);
+  const bodyText = readPublishedRichText('bodyText', resourceData.bodyText);
+  const buttonText = readPublishedText('buttonText', resourceData.buttonText);
+  const buttonLink = readPublishedLink('buttonLink', resourceData.buttonLink);
 
   // Color fields: try the resource JSON first (most reliable for hex values
   // since EDS doesn't mangle them there), then DOM by name, then fall back
   // to positionally walking orphaned auto-linked rows.
   let buttonColor = normalizeColorValue(resourceData.buttonColor)
-    || normalizeColorValue(getField(block, 'buttonColor'))
-    || normalizeColorValue(publishedFields.buttonColor);
+    || normalizeColorValue(publishedFields.buttonColor)
+    || normalizeColorValue(getField(block, 'buttonColor'));
   let buttonTextColor = normalizeColorValue(resourceData.buttonTextColor)
-    || normalizeColorValue(getField(block, 'buttonTextColor'))
-    || normalizeColorValue(publishedFields.buttonTextColor);
+    || normalizeColorValue(publishedFields.buttonTextColor)
+    || normalizeColorValue(getField(block, 'buttonTextColor'));
   let contentBackgroundColor = normalizeColorValue(resourceData.contentBackgroundColor)
-    || normalizeColorValue(getField(block, 'contentBackgroundColor'))
-    || normalizeColorValue(publishedFields.contentBackgroundColor);
+    || normalizeColorValue(publishedFields.contentBackgroundColor)
+    || normalizeColorValue(getField(block, 'contentBackgroundColor'));
 
   if (!buttonColor || !buttonTextColor || !contentBackgroundColor) {
     const orphans = collectOrphanedColorValues(block);

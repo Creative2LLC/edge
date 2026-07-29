@@ -28,10 +28,9 @@ function normalizeColorValue(value) {
   if (!normalized) return '';
   // EDS may auto-link a hex value into an href; pull the hex back out.
   const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
-  if (/^https?:/i.test(normalized) && hexMatch) {
-    return hexMatch[0];
-  }
-  return normalized;
+  if (hexMatch) return hexMatch[0];
+  if (/^(?:rgb|hsl)a?\(/i.test(normalized) || /^var\(/i.test(normalized)) return normalized;
+  return '';
 }
 
 async function getBlockResourceData(block) {
@@ -116,6 +115,105 @@ function collectOrphanedColorValues(block) {
   return values;
 }
 
+function isAuthorMarkup(block) {
+  return block.hasAttribute('data-aue-resource')
+    || !!block.querySelector('[data-aue-prop], [data-richtext-prop]');
+}
+
+function normalizeText(value) {
+  return `${value || ''}`.replace(/\s+/g, ' ').trim();
+}
+
+function getCellPicture(cell) {
+  return cell?.tagName === 'PICTURE' ? cell : cell?.querySelector?.('picture') || null;
+}
+
+function isColorLike(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value);
+}
+
+function isConfigLike(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  return !normalized
+    || isColorLike(normalized)
+    || ['solid', 'outlined', 'default', 'hide', 'show'].includes(normalized);
+}
+
+function isLikelyLinkValue(value) {
+  return /^(?:https?:|mailto:|tel:|\/|#)/i.test(normalizeText(value));
+}
+
+function getPublishedFieldSnapshot(block) {
+  if (isAuthorMarkup(block)) return {};
+
+  const rows = getRows(block);
+  const textRows = [];
+  const pictures = [];
+  const colors = [];
+
+  rows.forEach((row) => {
+    const cell = getRowCell(row);
+    const picture = getCellPicture(cell);
+    const text = normalizeText(cell?.textContent);
+
+    if (picture) pictures.push(picture);
+    if (isColorLike(text)) colors.push(text);
+    if (!picture && !isConfigLike(text)) {
+      textRows.push({ cell, text });
+    }
+  });
+
+  const readHtml = (index) => textRows[index]?.cell?.innerHTML?.trim() || '';
+  const readText = (index) => textRows[index]?.text || '';
+  const readLink = (index) => {
+    const cell = textRows[index]?.cell;
+    const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a');
+    return anchor?.getAttribute('href') || readText(index);
+  };
+
+  const buttonRows = textRows.slice(4);
+  const button1Text = buttonRows[0]?.text || '';
+  let button1Link = '';
+  let button2Text = '';
+  let button2Link = '';
+
+  if (buttonRows.length >= 4) {
+    button1Link = readLink(5);
+    button2Text = readText(6);
+    button2Link = readLink(7);
+  } else if (buttonRows.length === 3) {
+    if (isLikelyLinkValue(readLink(5))) {
+      button1Link = readLink(5);
+      button2Text = readText(6);
+    } else {
+      button2Text = readText(5);
+      button2Link = isLikelyLinkValue(readLink(6)) ? readLink(6) : '';
+    }
+  } else if (buttonRows.length === 2) {
+    if (isLikelyLinkValue(readLink(5))) button1Link = readLink(5);
+    else button2Text = readText(5);
+  }
+
+  return {
+    headingText: readText(0),
+    feature1Picture: pictures[0] || null,
+    feature2Picture: pictures[1] || null,
+    feature3Picture: pictures[2] || null,
+    button1Picture: pictures[3] || null,
+    button2Picture: pictures[4] || null,
+    feature1IconColor: colors[0] || '',
+    feature2IconColor: colors[1] || '',
+    feature3IconColor: colors[2] || '',
+    feature1Heading: readText(1),
+    feature2Text: readHtml(2),
+    feature3Text: readHtml(3),
+    button1Text,
+    button1Link,
+    button2Text,
+    button2Link,
+  };
+}
+
 /* ---------- Icon builders ---------- */
 
 /**
@@ -169,31 +267,71 @@ function buildPlainIcon(picture, size, className) {
 
 export default async function decorate(block) {
   const resourceData = await getBlockResourceData(block);
+  const publishedFields = getPublishedFieldSnapshot(block);
+  const usePublishedFields = Object.keys(publishedFields).length > 0;
 
-  const headingText = getField(block, 'headingText') || normalizeJsonFieldValue(resourceData.headingText);
+  const readPublishedText = (name, resourceValue = '') => {
+    if (usePublishedFields) {
+      return publishedFields[name]
+        || normalizeJsonFieldValue(resourceValue)
+        || getField(block, name);
+    }
+    return getField(block, name) || normalizeJsonFieldValue(resourceValue);
+  };
 
-  const button1Picture = getPictureFor(block, 'button1Icon');
-  const button1Text = getField(block, 'button1Text') || normalizeJsonFieldValue(resourceData.button1Text);
-  const button1Link = getLinkField(block, 'button1Link') || normalizeJsonFieldValue(resourceData.button1Link);
+  const readPublishedRichText = (name, resourceValue = '') => {
+    if (usePublishedFields) {
+      return publishedFields[name]
+        || normalizeJsonFieldValue(resourceValue)
+        || getRichTextField(block, name);
+    }
+    return getRichTextField(block, name) || normalizeJsonFieldValue(resourceValue);
+  };
 
-  const button2Picture = getPictureFor(block, 'button2Icon');
-  const button2Text = getField(block, 'button2Text') || normalizeJsonFieldValue(resourceData.button2Text);
-  const button2Link = getLinkField(block, 'button2Link') || normalizeJsonFieldValue(resourceData.button2Link);
+  const readPublishedLink = (name, resourceValue = '') => {
+    if (usePublishedFields) {
+      return publishedFields[name]
+        || normalizeJsonFieldValue(resourceValue)
+        || getLinkField(block, name);
+    }
+    return getLinkField(block, name) || normalizeJsonFieldValue(resourceValue);
+  };
 
-  const feature1Picture = getPictureFor(block, 'feature1Icon');
-  const feature1Heading = getField(block, 'feature1Heading') || normalizeJsonFieldValue(resourceData.feature1Heading);
+  const readPublishedPicture = (name, publishedName) => {
+    if (usePublishedFields) return publishedFields[publishedName] || getPictureFor(block, name);
+    return getPictureFor(block, name);
+  };
 
-  const feature2Picture = getPictureFor(block, 'feature2Icon');
-  const feature2Text = getRichTextField(block, 'feature2Text') || normalizeJsonFieldValue(resourceData.feature2Text);
+  const headingText = readPublishedText('headingText', resourceData.headingText);
 
-  const feature3Picture = getPictureFor(block, 'feature3Icon');
-  const feature3Text = getRichTextField(block, 'feature3Text') || normalizeJsonFieldValue(resourceData.feature3Text);
+  const button1Picture = readPublishedPicture('button1Icon', 'button1Picture');
+  const button1Text = readPublishedText('button1Text', resourceData.button1Text);
+  const button1Link = readPublishedLink('button1Link', resourceData.button1Link);
 
-  // Color fields: try resource JSON first (most reliable), then DOM by name,
-  // then fall back to positionally reading orphaned auto-linked rows.
-  let feature1IconColor = normalizeColorValue(resourceData.feature1IconColor) || normalizeColorValue(getField(block, 'feature1IconColor'));
-  let feature2IconColor = normalizeColorValue(resourceData.feature2IconColor) || normalizeColorValue(getField(block, 'feature2IconColor'));
-  let feature3IconColor = normalizeColorValue(resourceData.feature3IconColor) || normalizeColorValue(getField(block, 'feature3IconColor'));
+  const button2Picture = readPublishedPicture('button2Icon', 'button2Picture');
+  const button2Text = readPublishedText('button2Text', resourceData.button2Text);
+  const button2Link = readPublishedLink('button2Link', resourceData.button2Link);
+
+  const feature1Picture = readPublishedPicture('feature1Icon', 'feature1Picture');
+  const feature1Heading = readPublishedText('feature1Heading', resourceData.feature1Heading);
+
+  const feature2Picture = readPublishedPicture('feature2Icon', 'feature2Picture');
+  const feature2Text = readPublishedRichText('feature2Text', resourceData.feature2Text);
+
+  const feature3Picture = readPublishedPicture('feature3Icon', 'feature3Picture');
+  const feature3Text = readPublishedRichText('feature3Text', resourceData.feature3Text);
+
+  // Color fields: try resource JSON first (most reliable), then the publish
+  // snapshot, then DOM by name, then orphaned auto-linked rows.
+  let feature1IconColor = normalizeColorValue(resourceData.feature1IconColor)
+    || normalizeColorValue(publishedFields.feature1IconColor)
+    || normalizeColorValue(getField(block, 'feature1IconColor'));
+  let feature2IconColor = normalizeColorValue(resourceData.feature2IconColor)
+    || normalizeColorValue(publishedFields.feature2IconColor)
+    || normalizeColorValue(getField(block, 'feature2IconColor'));
+  let feature3IconColor = normalizeColorValue(resourceData.feature3IconColor)
+    || normalizeColorValue(publishedFields.feature3IconColor)
+    || normalizeColorValue(getField(block, 'feature3IconColor'));
 
   if (!feature1IconColor || !feature2IconColor || !feature3IconColor) {
     const orphans = collectOrphanedColorValues(block);

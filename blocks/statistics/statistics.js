@@ -1037,8 +1037,14 @@ function getLegacyConfig(rows) {
     || null;
   const statValueIndex = compactContentRows.indexOf(statValueRow);
   const preStatContentRows = statValueIndex > 0 ? compactContentRows.slice(0, statValueIndex) : [];
-  const headingRow = preStatContentRows.length > 1 ? preStatContentRows[0] : null;
-  const bodyTextRow = headingRow ? preStatContentRows[1] : preStatContentRows[0] || null;
+  const singlePreStatRow = preStatContentRows.length === 1 ? preStatContentRows[0] : null;
+  let headingRow = null;
+  if (preStatContentRows.length > 1) {
+    [headingRow] = preStatContentRows;
+  } else if (isLikelyRenderedHeading(rowText(singlePreStatRow))) {
+    headingRow = singlePreStatRow;
+  }
+  const bodyTextRow = headingRow ? preStatContentRows[1] || null : preStatContentRows[0] || null;
   const statLabelRow = statValueIndex >= 0
     ? compactContentRows.slice(statValueIndex + 1).find((row) => (
       rowText(row) && !isLikelyButtonText(rowText(row))

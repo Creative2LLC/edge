@@ -1580,7 +1580,7 @@ function extractPicture(block, exclude = []) {
   return picture;
 }
 
-function extractFeaturedPicture(block, exclude = []) {
+function extractFeaturedPicture(block, exclude = [], pictureCandidates = null) {
   const imageField = readImageField(
     block,
     ['media_featuredImage', 'featuredImage'],
@@ -1594,7 +1594,10 @@ function extractFeaturedPicture(block, exclude = []) {
     : null;
   picture = picture || pictureInSource(imageSource, exclude);
   if (!picture) {
-    picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
+    const candidates = pictureCandidates || [...block.querySelectorAll('picture')];
+    picture = candidates.find((p) => p.isConnected && !exclude.includes(p))
+      || candidates.find((p) => !exclude.includes(p))
+      || null;
   }
   if (!picture) return null;
 
@@ -1694,8 +1697,10 @@ export default async function decorate(block) {
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
   const markerConfig = readMarkerConfig(block, resourceData);
+  const originalPictures = [...block.querySelectorAll('picture')];
   const picture = extractPicture(block);
-  const featuredImage = extractFeaturedPicture(block, picture ? [picture] : []);
+  const excludedPictures = picture ? [picture] : [];
+  const featuredImage = extractFeaturedPicture(block, excludedPictures, originalPictures);
   const { url: videoUrl, source: videoSource } = await extractVideoUrl(block);
   let videoEl = null;
   if (videoUrl) {
