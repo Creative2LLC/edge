@@ -116,6 +116,17 @@ function isColorToken(value) {
   return /^(#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})|rgba?\()/i.test(value || '');
 }
 
+// A translucent color (8-digit hex or rgba with alpha < 1) is the card background,
+// not a button/text color — the latter are opaque. Empty button/text color fields
+// emit no row, so without this the lone background color would fill the first
+// (button) color slot positionally.
+function isAlphaColor(value) {
+  const text = String(value || '').trim();
+  if (/^#[0-9a-f]{8}$/i.test(text)) return text.slice(7, 9).toLowerCase() !== 'ff';
+  const rgba = text.match(/^rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*([\d.]+)\s*\)$/i);
+  return Boolean(rgba) && Number.parseFloat(rgba[1]) < 1;
+}
+
 function rowContainsPicture(record, picture) {
   return Boolean(picture && (record.row.contains(picture) || record.cell?.contains?.(picture)));
 }
@@ -171,11 +182,13 @@ function getPublishedFields(block, mainPicture, topLogoPicture) {
   const colorRows = contentRows.filter((record) => isColorToken(record.text));
   const content = contentRows.filter((record) => !isColorToken(record.text));
 
-  [
-    fields.buttonColor,
-    fields.buttonTextColor,
-    fields.contentBackgroundColor,
-  ] = colorRows.map((record) => record.text);
+  // Route the translucent background color to contentBackgroundColor regardless of
+  // position; the remaining (opaque) colors are the button/text colors in order.
+  const colorTokens = colorRows.map((record) => record.text);
+  const alphaColor = colorTokens.find(isAlphaColor);
+  const opaqueColors = colorTokens.filter((token) => token !== alphaColor);
+  [fields.buttonColor, fields.buttonTextColor] = opaqueColors;
+  fields.contentBackgroundColor = alphaColor || opaqueColors[2] || colorTokens[2];
 
   let hasHeading = false;
   if (content[0]
@@ -186,7 +199,12 @@ function getPublishedFields(block, mainPicture, topLogoPicture) {
     hasHeading = true;
   }
 
-  if (content[0] && (hasHeading || !looksLikeBodyText(content[0].text))) {
+  // A number-led subheading (e.g. "20,512,803 total reports…") often ends with a
+  // period, so looksLikeBodyText would misclassify it as the body and shift every
+  // field below it down by one. Trust the number-led shape when a body still
+  // follows it, so the subheading is consumed here instead of leaking into body.
+  const isNumberSubheading = looksLikeNumberSubheading(content[0]?.text) && content.length >= 2;
+  if (content[0] && (hasHeading || isNumberSubheading || !looksLikeBodyText(content[0].text))) {
     fields.subheading = content.shift().text;
   }
   if (content[0]) {

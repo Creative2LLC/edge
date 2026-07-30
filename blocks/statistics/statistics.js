@@ -629,8 +629,14 @@ const LABELED_CONFIG_FIELDS = new Set([
 ]);
 
 function hasLabeledConfigRows(rows) {
-  return rows.some((row) => LABELED_CONFIG_FIELDS.has(
-    normalizeColorKey(row?.children?.[0]?.textContent),
+  // A labeled config row is a label cell + value cell pair (children.length >= 2),
+  // matching how getFallbackCell resolves labeled fields. A value-only row
+  // (one cell) that merely happens to equal a field name — e.g. an image mode of
+  // "icon" or stat labels literally named "labels" — must NOT count, or the whole
+  // positional path collapses and the heading/body stop rendering on published pages.
+  return rows.some((row) => (
+    (row?.children?.length || 0) >= 2
+    && LABELED_CONFIG_FIELDS.has(normalizeColorKey(row.children[0].textContent))
   ));
 }
 
