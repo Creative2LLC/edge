@@ -1,4 +1,12 @@
-import { isFormValid, normalizeFormAction, updateFormStatus } from '../../scripts/form-utils.js';
+import {
+  appendFormMetadata,
+  createFormSession,
+  extractApiMessage,
+  isFormValid,
+  normalizeFormAction,
+  resolveFormAction,
+  updateFormStatus,
+} from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 
@@ -7,12 +15,14 @@ const FIELD_INDEX = {
   heading: 1,
   intro: 2,
   formAction: 3,
-  clientTokensEndpoint: 4,
-  docsUrl: 5,
-  buttonText: 6,
-  successMessage: 7,
-  errorMessage: 8,
-  topPadding: 9,
+  submissionMode: 4,
+  notificationEmail: 5,
+  clientTokensEndpoint: 6,
+  docsUrl: 7,
+  buttonText: 8,
+  successMessage: 9,
+  errorMessage: 10,
+  topPadding: 11,
 };
 
 const DEFAULTS = {
@@ -20,12 +30,13 @@ const DEFAULTS = {
   heading: 'Missing Child Poster API Registration',
   intro:
     'Register your application to request access to NCMEC missing child poster data.',
-  formAction: '/content/endpoints/posterapi/registration',
+  formAction: '',
+  submissionMode: 'backend-store-email',
   clientTokensEndpoint: '/content/endpoints/posterapi/registration/clienttokens',
   docsUrl: 'http://external-api-posterqa.ncmecad.net/swagger/index.html',
   buttonText: 'Register Application',
   successMessage:
-    'Your application has been registered. Please record these credentials now.',
+    'Thank you. Your request has been submitted.',
   errorMessage:
     'We could not register this application. Please review the form and try again.',
 };
@@ -84,21 +95,46 @@ const US_STATES = [
   ['WY', 'Wyoming'],
 ];
 
-const DISPLAY_MEDIUM_OPTIONS = [
-  ['Website', 'Website'],
-  ['Mobile Application', 'Mobile Application'],
-  ['Digital Signage', 'Digital Signage'],
-  ['Print', 'Print'],
+const COUNTRY_OPTIONS = [
+  ['United States', 'United States'],
+  ['Canada', 'Canada'],
+  ['Mexico', 'Mexico'],
   ['Other', 'Other'],
 ];
 
-const COVERAGE_OPTIONS = [
-  ['National', 'National'],
-  ['Regional', 'Regional'],
-  ['State', 'State'],
-  ['Local', 'Local'],
-  ['Other', 'Other'],
-];
+const SUBMISSION_MODES = new Set([
+  'backend-store',
+  'backend-email',
+  'backend-store-email',
+  'legacy-aem',
+]);
+
+const TERMS_TEXT = `Please read the following terms of use carefully. By accessing and signing up
+for this Poster Application Programming Interface ("API") service offered by the National
+Center for Missing & Exploited Children (the "Poster API Service"), you agree to be bound
+by the terms listed below. The general NCMEC website terms and conditions and privacy
+policy incorporates these Terms of Service.
+
+Signing up for the Poster API Service does not create a partnership or other contractual
+relationship between you and NCMEC. The Poster API Service was designed solely to
+facilitate the distribution of missing and unidentified children posters in order to more
+quickly recover missing children.
+
+You agree that you are responsible for checking NCMEC's Poster API Service for the most
+up-to-date posters and status. NCMEC owns all content on the Poster API Service,
+including copyrights, trademarks, service marks, designs, text, graphics, layout, logos,
+pictures, audio/video clips, information, and data. You agree that you will not delete or
+alter copyright, trademark, intellectual property, or proprietary notices contained in the
+content.
+
+You will not use the content for any commercial, fundraising, or sponsorship purpose, or
+in any way that creates an impression of endorsement, affiliation, partnership, or
+sponsorship by NCMEC. You agree to inform NCMEC if you intend to use the Poster API
+Service or content in connection with technology-assisted programs, including artificial
+intelligence or facial recognition technologies.
+
+NCMEC reserves the right to change, update, discontinue, restrict, terminate, or prevent
+access to the Poster API Service or content at any time without notice.`;
 
 function getRows(block) {
   return [...block.querySelectorAll(':scope > div')];
@@ -152,11 +188,24 @@ function normalizeLengthValue(value) {
   return trimmed;
 }
 
+function normalizeSubmissionMode(value) {
+  const mode = String(value || DEFAULTS.submissionMode).trim().toLowerCase();
+  return SUBMISSION_MODES.has(mode) ? mode : DEFAULTS.submissionMode;
+}
+
 function buildRequiredMarker() {
   const marker = document.createElement('span');
   marker.className = 'missing-child-poster-api-registration-required';
   marker.textContent = ' *';
   return marker;
+}
+
+function buildHelpText(text) {
+  if (!text) return null;
+  const help = document.createElement('span');
+  help.className = 'missing-child-poster-api-registration-help';
+  help.textContent = text;
+  return help;
 }
 
 function buildFieldLabel(label, required) {
@@ -174,6 +223,8 @@ function buildInput({
   required = false,
   autocomplete = '',
   inputMode = '',
+  placeholder = '',
+  help = '',
 }) {
   const field = document.createElement('label');
   field.className = 'missing-child-poster-api-registration-field';
@@ -185,8 +236,11 @@ function buildInput({
   if (required) input.required = true;
   if (autocomplete) input.autocomplete = autocomplete;
   if (inputMode) input.inputMode = inputMode;
+  if (placeholder) input.placeholder = placeholder;
 
   field.append(buildFieldLabel(label, required), input);
+  const helpText = buildHelpText(help);
+  if (helpText) field.append(helpText);
   return field;
 }
 
@@ -195,6 +249,7 @@ function buildTextarea({
   name,
   required = false,
   rows = 4,
+  help = '',
 }) {
   const field = document.createElement('label');
   field.className = 'missing-child-poster-api-registration-field';
@@ -206,6 +261,8 @@ function buildTextarea({
   if (required) textarea.required = true;
 
   field.append(buildFieldLabel(label, required), textarea);
+  const helpText = buildHelpText(help);
+  if (helpText) field.append(helpText);
   return field;
 }
 
@@ -241,6 +298,24 @@ function buildSelect({
   });
 
   field.append(buildFieldLabel(label, required), select);
+  return field;
+}
+
+function buildCheckbox({ label, name, required = false }) {
+  const field = document.createElement('label');
+  field.className = 'missing-child-poster-api-registration-checkbox-field';
+
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.name = name;
+  input.value = '1';
+  if (required) input.required = true;
+
+  const labelText = document.createElement('span');
+  labelText.textContent = label;
+  if (required) labelText.append(buildRequiredMarker());
+
+  field.append(input, labelText);
   return field;
 }
 
@@ -288,7 +363,7 @@ async function parseJsonResponse(response) {
   }
 }
 
-async function postRegistration(endpoint, data) {
+async function postLegacyRegistration(endpoint, data) {
   const body = new FormData();
   body.set('jcr:data', JSON.stringify(buildAdaptiveFormPayload(data)));
 
@@ -305,6 +380,32 @@ async function postRegistration(endpoint, data) {
     const message = await parseJsonResponse(response);
     throw new Error(message?.error || `Registration failed (${response.status}).`);
   }
+  return parseJsonResponse(response);
+}
+
+async function postBackendRegistration(endpoint, data, config, formSession) {
+  const body = new FormData();
+  Object.entries(data).forEach(([key, value]) => body.set(key, value));
+  body.set('submissionMode', config.submissionMode);
+  if (config.notificationEmail) {
+    body.set('notificationEmail', config.notificationEmail);
+  }
+  appendFormMetadata(body, formSession);
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    body,
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const message = await extractApiMessage(response);
+    throw new Error(message || `Registration failed (${response.status}).`);
+  }
+
+  return parseJsonResponse(response);
 }
 
 async function fetchClientTokens(endpoint) {
@@ -410,7 +511,26 @@ function showCredentials(panel, tokens, docsUrl) {
   }
 }
 
+function getResponseTokens(responseData) {
+  if (responseData?.clientID && responseData?.clientSecret) return responseData;
+  if (responseData?.clientId && responseData?.clientSecret) {
+    return {
+      clientID: responseData.clientId,
+      clientSecret: responseData.clientSecret,
+    };
+  }
+  if (responseData?.tokens?.clientID && responseData?.tokens?.clientSecret) {
+    return responseData.tokens;
+  }
+  return null;
+}
+
 function bindSubmit(block, form, submitButton, status, credentialsPanel, config) {
+  const formSession = createFormSession(
+    form,
+    'missing-child-poster-api-registration',
+  );
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (submitButton.disabled) return;
@@ -427,14 +547,22 @@ function bindSubmit(block, form, submitButton, status, credentialsPanel, config)
     submitButton.disabled = true;
     block.classList.add('is-submitting');
     credentialsPanel.hidden = true;
-    updateFormStatus(status, 'Registering application...', 'info');
+    updateFormStatus(status, 'Submitting registration...', 'info');
 
     try {
-      await postRegistration(config.formAction, data);
-      const tokens = await fetchClientTokens(config.clientTokensEndpoint);
+      const responseData = config.submissionMode === 'legacy-aem'
+        ? await postLegacyRegistration(config.formAction, data)
+        : await postBackendRegistration(config.formAction, data, config, formSession);
+      let tokens = getResponseTokens(responseData);
+
+      if (!tokens && config.submissionMode === 'legacy-aem' && config.clientTokensEndpoint) {
+        tokens = await fetchClientTokens(config.clientTokensEndpoint);
+      }
+
       form.reset();
-      showCredentials(credentialsPanel, tokens, config.docsUrl);
-      updateFormStatus(status, config.successMessage, 'success');
+      formSession.reset();
+      if (tokens) showCredentials(credentialsPanel, tokens, config.docsUrl);
+      updateFormStatus(status, responseData?.message || config.successMessage, 'success');
     } catch (error) {
       const message = error instanceof Error && error.message
         ? error.message
@@ -457,43 +585,72 @@ function buildForm() {
       label: 'Application Name',
       name: 'applicationName',
       required: true,
-    }),
-    buildInput({
-      label: 'Organization Name',
-      name: 'organizationName',
-      autocomplete: 'organization',
-      required: true,
-    }),
-    buildInput({
-      label: 'Organization Website',
-      name: 'organizationUrl',
-      type: 'url',
-      autocomplete: 'url',
-    }),
-    buildSelect({
-      label: 'Poster Display Medium',
-      name: 'posterDisplayMediumType',
-      options: DISPLAY_MEDIUM_OPTIONS,
-      required: true,
-    }),
-    buildSelect({
-      label: 'Distribution Coverage Area',
-      name: 'posterDistributionCoverageArea',
-      options: COVERAGE_OPTIONS,
-      required: true,
-    }),
-    buildTextarea({
-      label: 'Distribution Information',
-      name: 'posterDistributionInformation',
-      rows: 4,
-      required: true,
+      help: 'What is the name of the company\'s application that will be using data from the API?',
     }),
   );
 
-  const contact = buildSection('Contact');
+  const company = buildSection('Company Information');
+  company.grid.append(
+    buildInput({
+      label: 'Company or Organization Name',
+      name: 'organizationName',
+      autocomplete: 'organization',
+    }),
+    buildInput({
+      label: 'Website URL',
+      name: 'organizationUrl',
+      type: 'url',
+      autocomplete: 'url',
+      placeholder: 'https://',
+    }),
+  );
+
+  const address = buildSection('Address');
+  address.grid.append(
+    buildInput({
+      label: 'Address Line 1',
+      name: 'addressLine1',
+      autocomplete: 'address-line1',
+    }),
+    buildInput({
+      label: 'Address Line 2',
+      name: 'addressLine2',
+      autocomplete: 'address-line2',
+    }),
+    buildInput({
+      label: 'City',
+      name: 'city',
+      autocomplete: 'address-level2',
+    }),
+    buildInput({
+      label: 'County',
+      name: 'county',
+    }),
+    buildSelect({
+      label: 'State/Province/Region',
+      name: 'stateProvinceRegion',
+      options: US_STATES,
+      placeholder: 'Select a state',
+    }),
+    buildInput({
+      label: 'ZIP/Postal Code',
+      name: 'zipPostalCode',
+      autocomplete: 'postal-code',
+      inputMode: 'numeric',
+    }),
+    buildSelect({
+      label: 'Country',
+      name: 'country',
+      options: COUNTRY_OPTIONS,
+      placeholder: 'Select a country',
+      value: 'United States',
+    }),
+  );
+
+  const contact = buildSection('Primary Contact');
   contact.grid.append(
     buildInput({
-      label: 'Contact Name',
+      label: 'Full Name',
       name: 'contactName',
       autocomplete: 'name',
       required: true,
@@ -504,14 +661,6 @@ function buildForm() {
       autocomplete: 'organization-title',
     }),
     buildInput({
-      label: 'Phone Number',
-      name: 'phoneNumber',
-      type: 'tel',
-      autocomplete: 'tel',
-      inputMode: 'tel',
-      required: true,
-    }),
-    buildInput({
       label: 'Email Address',
       name: 'emailAddress',
       type: 'email',
@@ -519,58 +668,64 @@ function buildForm() {
       inputMode: 'email',
       required: true,
     }),
+    buildInput({
+      label: 'Phone Number',
+      name: 'phoneNumber',
+      type: 'tel',
+      autocomplete: 'tel',
+      inputMode: 'tel',
+    }),
   );
 
-  const address = buildSection('Address');
-  address.grid.append(
-    buildInput({
-      label: 'Address Line 1',
-      name: 'line1',
-      autocomplete: 'address-line1',
+  const additional = buildSection('Additional Information');
+  additional.grid.append(
+    buildTextarea({
+      label: 'What type of medium will be used to display the posters? Please be specific.',
+      name: 'posterDisplayMediumType',
+      rows: 3,
       required: true,
     }),
     buildInput({
-      label: 'Address Line 2',
-      name: 'line2',
-      autocomplete: 'address-line2',
-    }),
-    buildInput({
-      label: 'City',
-      name: 'city',
-      autocomplete: 'address-level2',
+      label: 'How would you describe your distribution coverage area?',
+      name: 'posterDistributionCoverageArea',
       required: true,
+      help: 'For example: national, certain regions, or local area.',
     }),
-    buildInput({
-      label: 'County',
-      name: 'county',
-    }),
-    buildSelect({
-      label: 'State',
-      name: 'state',
-      options: US_STATES,
-      placeholder: 'Select a state',
-      required: true,
-    }),
-    buildInput({
-      label: 'ZIP Code',
-      name: 'zip',
-      autocomplete: 'postal-code',
-      inputMode: 'numeric',
-      required: true,
-    }),
-    buildInput({
-      label: 'Country',
-      name: 'country',
-      autocomplete: 'country-name',
+    buildTextarea({
+      label: 'How will the poster information be distributed by your company?',
+      name: 'posterDistributionInformation',
+      rows: 5,
       required: true,
     }),
   );
 
-  form.append(app.section, contact.section, address.section);
-  form.querySelector('[name="country"]').value = 'United States';
+  const terms = buildSection('Terms of Service');
+  const termsCopy = document.createElement('div');
+  termsCopy.className = 'missing-child-poster-api-registration-terms';
+  TERMS_TEXT.split('\n\n').forEach((paragraph) => {
+    const p = document.createElement('p');
+    p.textContent = paragraph.replace(/\s+/g, ' ').trim();
+    termsCopy.append(p);
+  });
+  terms.grid.append(
+    termsCopy,
+    buildCheckbox({
+      label: 'I have read and agree to the Terms of Service.',
+      name: 'termsAccepted',
+      required: true,
+    }),
+  );
+
+  form.append(
+    app.section,
+    company.section,
+    address.section,
+    contact.section,
+    additional.section,
+    terms.section,
+  );
   return form;
 }
-
 export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) {
@@ -580,8 +735,14 @@ export default function decorate(block) {
     );
   }
 
+  const submissionMode = normalizeSubmissionMode(getTextField(block, 'submissionMode').value);
+  const authoredAction = getTextField(block, 'formAction').value;
   const config = {
-    formAction: normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction),
+    formAction: submissionMode === 'legacy-aem'
+      ? normalizeFormAction(authoredAction || '/content/endpoints/posterapi/registration')
+      : resolveFormAction('missing-child-poster-api-registration', authoredAction),
+    submissionMode,
+    notificationEmail: getTextField(block, 'notificationEmail').value,
     clientTokensEndpoint: normalizeFormAction(
       getTextField(block, 'clientTokensEndpoint').value
       || DEFAULTS.clientTokensEndpoint,
@@ -637,6 +798,12 @@ export default function decorate(block) {
 
   shell.append(header, form, credentialsPanel);
   block.replaceChildren(shell);
+
+  if (!config.formAction) {
+    submitButton.disabled = true;
+    updateFormStatus(status, 'A valid form endpoint is required before this form can submit.', 'error');
+    return;
+  }
 
   bindSubmit(block, form, submitButton, status, credentialsPanel, config);
 }

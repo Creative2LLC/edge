@@ -2,6 +2,7 @@ import {
   getBlockRows,
   readImageField,
   readLinkField,
+  readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 
@@ -109,6 +110,26 @@ function getAuthoredImage(block) {
   return image ? image.cloneNode(true) : null;
 }
 
+// The API-access footer is optional and is the last model field. On published
+// pages fields are one row each in model order, so it is the last content row
+// after the map image — anchor on the image rather than a fixed index, since
+// empty fields above it don't emit rows. In the editor readRichTextField finds
+// the bound field by name and ignores the positional fallback.
+function getApiFooterHtml(block) {
+  const rows = getRows(block);
+  const imageIndex = rows.findIndex((row) => row.querySelector('picture, img'));
+  const fallbackCell = (imageIndex >= 0 ? rows.slice(imageIndex + 1) : [])
+    .map((row) => row.children[0] || row)
+    .reverse()
+    .find((cell) => {
+      const text = normalizeText(cell.textContent);
+      // Skip a short image-alt row: the footer is long and/or carries a link.
+      return text && (cell.querySelector('a') || text.length >= 40);
+    }) || null;
+
+  return (readRichTextField(block, 'apiFooter', { fallbackCell }).html || '').trim();
+}
+
 function createViewerLink(label, href, copy) {
   const item = document.createElement('div');
   item.className = 'poster-map-viewer';
@@ -183,5 +204,15 @@ export default function decorate(block) {
   }
 
   inner.append(header, body);
+
+  // Optional API-access footer. Only rendered (with its divider) when authored.
+  const footerHtml = getApiFooterHtml(block);
+  if (footerHtml) {
+    const footer = document.createElement('div');
+    footer.className = 'poster-map-footer';
+    footer.innerHTML = footerHtml;
+    inner.append(footer);
+  }
+
   block.replaceChildren(inner);
 }

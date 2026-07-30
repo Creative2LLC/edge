@@ -96,6 +96,13 @@
           "name": "imageAlt",
           "label": "Map Image Alt Text",
           "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "apiFooter",
+          "label": "API Access Footer (optional)",
+          "value": ""
         }
       ]
     }

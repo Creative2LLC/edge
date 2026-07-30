@@ -1763,6 +1763,9 @@ function appendParams(url, form) {
   });
 }
 
+const NEAR_ME_TOOLTIP = 'Search for children who have gone missing within 50 miles '
+  + 'of your current location. (Location is estimated using your IP address.)';
+
 function createNearMeSection(onNearMe) {
   const wrap = document.createElement('div');
   wrap.className = 'poster-results-near-me';
@@ -1771,13 +1774,30 @@ function createNearMeSection(onNearMe) {
   divider.className = 'poster-results-near-me-divider';
   divider.textContent = 'or';
 
+  const action = document.createElement('div');
+  action.className = 'poster-results-near-me-action';
+
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'poster-results-near-me-button';
   button.textContent = 'Search Near Me';
   button.addEventListener('click', onNearMe);
 
-  wrap.append(divider, button);
+  // Info affordance with a hover/focus tooltip explaining the location search.
+  const tip = document.createElement('span');
+  tip.className = 'poster-results-near-me-tip';
+  tip.tabIndex = 0;
+  tip.setAttribute('aria-label', NEAR_ME_TOOLTIP);
+  tip.append(document.createTextNode('i'));
+
+  const tooltip = document.createElement('span');
+  tooltip.className = 'poster-results-near-me-tooltip';
+  tooltip.setAttribute('aria-hidden', 'true');
+  tooltip.textContent = NEAR_ME_TOOLTIP;
+  tip.append(tooltip);
+
+  action.append(button, tip);
+  wrap.append(divider, action);
   return { wrap, button };
 }
 
@@ -1927,7 +1947,15 @@ export default async function decorate(block) {
 
   const topControls = document.createElement('div');
   topControls.className = 'poster-results-form-top';
-  topControls.append(subject, sort);
+  topControls.append(subject);
+
+  // Sort lives above the results (not in the form) and re-queries the API on
+  // change, so it only appears once there are results to sort.
+  const sortBar = document.createElement('div');
+  sortBar.className = 'poster-results-sort-bar';
+  sortBar.hidden = true;
+  sortBar.append(sort);
+  const getSortValue = () => sortBar.querySelector('input[name="sort"]:checked')?.value || '';
 
   const divider = document.createElement('div');
   divider.className = 'poster-results-form-divider';
@@ -2013,7 +2041,17 @@ export default async function decorate(block) {
 
   const amberSummary = createAmberSummarySection();
 
-  inner.append(amberSummary.section, header, form, status, meta, backToSearch, results, pagination);
+  inner.append(
+    amberSummary.section,
+    header,
+    form,
+    status,
+    meta,
+    backToSearch,
+    sortBar,
+    results,
+    pagination,
+  );
   block.replaceChildren(inner);
   loadAmberSummary(config, amberSummary.list, amberSummary.section);
 
@@ -2057,6 +2095,10 @@ export default async function decorate(block) {
       } else {
         appendParams(url, form);
       }
+      // Sort is applied to both regular and near-me searches so it can re-query
+      // on the fly (see the sortBar change handler) without re-entering filters.
+      const sortValue = getSortValue();
+      if (sortValue) url.searchParams.set('sort', sortValue);
       url.searchParams.set('page', String(Math.max(1, page)));
       const response = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
@@ -2069,11 +2111,13 @@ export default async function decorate(block) {
       setStatus(status, '', '');
       renderResults(results, meta, payload);
       backToSearch.hidden = !results.children.length;
+      sortBar.hidden = !results.children.length;
       renderPagination();
       if (results.children.length) {
         meta.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } catch (error) {
+      sortBar.hidden = true;
       setStatus(status, nearCurrentLocation ? 'Search near me is unavailable.' : 'Poster search is unavailable.', 'error');
     } finally {
       submit.disabled = false;
@@ -2086,12 +2130,20 @@ export default async function decorate(block) {
     searchPosters(1);
   });
 
+  // Changing sort re-queries the current search (page 1) on the fly. The bar is
+  // only visible once results exist, so this can't fire before an initial search.
+  sortBar.addEventListener('change', () => {
+    if (sortBar.hidden) return;
+    searchPosters(1, currentNearSearch);
+  });
+
   form.addEventListener('reset', () => {
     window.setTimeout(() => {
       results.replaceChildren();
       pagination.replaceChildren();
       meta.textContent = '';
       backToSearch.hidden = true;
+      sortBar.hidden = true;
       setStatus(status, '', '');
       currentPage = 1;
       totalPages = 1;

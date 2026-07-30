@@ -20186,7 +20186,41 @@
         "valueType": "string",
         "name": "formAction",
         "label": "Submit Endpoint URL",
-        "description": "Defaults to the legacy AEM Poster API registration endpoint. Replace later with a Laravel endpoint when available.",
+        "description": "Optional. Leave blank for the selected default submission mode endpoint.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "submissionMode",
+        "label": "Submission Mode",
+        "description": "Use backend modes for the new Laravel endpoint. Legacy AEM posts back to the original old-site adaptive form endpoint.",
+        "value": "backend-store-email",
+        "options": [
+          {
+            "name": "Store in backend and email",
+            "value": "backend-store-email"
+          },
+          {
+            "name": "Store in backend only",
+            "value": "backend-store"
+          },
+          {
+            "name": "Email only",
+            "value": "backend-email"
+          },
+          {
+            "name": "Legacy AEM endpoint",
+            "value": "legacy-aem"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "notificationEmail",
+        "label": "Notification Email",
+        "description": "Optional email recipient for backend email modes. Backend only sends to allow-listed addresses.",
         "value": ""
       },
       {
@@ -20194,7 +20228,7 @@
         "valueType": "string",
         "name": "clientTokensEndpoint",
         "label": "Client Tokens Endpoint URL",
-        "description": "Defaults to the legacy AEM endpoint that returns the generated client ID and secret from the current session.",
+        "description": "Only used by Legacy AEM mode. Defaults to the old-site endpoint that returns generated client ID and secret.",
         "value": ""
       },
       {
@@ -20216,7 +20250,7 @@
         "valueType": "string",
         "name": "successMessage",
         "label": "Success Message",
-        "value": "Your application has been registered. Please record these credentials now."
+        "value": "Thank you. Your request has been submitted."
       },
       {
         "component": "text",
@@ -22288,6 +22322,13 @@
         "valueType": "string",
         "name": "imageAlt",
         "label": "Map Image Alt Text",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "apiFooter",
+        "label": "API Access Footer (optional)",
         "value": ""
       }
     ]

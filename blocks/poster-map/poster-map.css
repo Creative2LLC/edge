@@ -93,6 +93,38 @@
   outline-offset: 3px;
 }
 
+/* Optional API-access footer — the divider only appears with the footer. */
+.poster-map-footer {
+  max-width: 880px;
+  margin: 56px auto 0;
+  padding-top: 40px;
+  border-top: 1px solid rgb(36 56 70 / 45%);
+  color: #243846;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.poster-map-footer p {
+  margin: 0;
+}
+
+/* stylelint-disable-next-line no-descending-specificity -- unrelated to the .poster-map-viewer link rules above */
+.poster-map-footer a {
+  color: #007294;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.poster-map-footer a:hover {
+  text-decoration: underline;
+}
+
+.poster-map-footer a:focus-visible {
+  outline: 2px solid #007294;
+  outline-offset: 2px;
+}
+
 @media (width <= 900px) {
   .poster-map-body {
     grid-template-columns: 1fr;
@@ -124,6 +156,12 @@
   .poster-map-header p,
   .poster-map-viewer p {
     font-size: 16px;
+  }
+
+  .poster-map-footer {
+    margin-top: 40px;
+    padding-top: 32px;
+    font-size: 15px;
   }
 
   .poster-map-viewer a {

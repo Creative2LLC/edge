@@ -138,6 +138,13 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   color: #b6462f;
 }
 
+.missing-child-poster-api-registration-help {
+  color: #66717d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .missing-child-poster-api-registration-input,
 .missing-child-poster-api-registration-select,
 .missing-child-poster-api-registration-textarea,
@@ -179,6 +186,47 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration-textarea {
   resize: vertical;
+}
+
+.missing-child-poster-api-registration-terms {
+  max-height: 260px;
+  overflow: auto;
+  grid-column: 1 / -1;
+  border: 1px solid #d9d3cd;
+  border-radius: 8px;
+  padding: 18px;
+  background: rgb(255 255 255 / 76%);
+  color: #45484d;
+  font-size: 0.94rem;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.missing-child-poster-api-registration-terms > :first-child {
+  margin-top: 0;
+}
+
+.missing-child-poster-api-registration-terms > :last-child {
+  margin-bottom: 0;
+}
+
+.missing-child-poster-api-registration-checkbox-field {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 10px;
+  align-items: flex-start;
+  color: #32363b;
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.missing-child-poster-api-registration-checkbox-field input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 0.05em 0 0;
+  accent-color: #008db6;
 }
 
 .missing-child-poster-api-registration-actions {
@@ -323,6 +371,12 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 .missing-child-poster-api-registration.is-visible .missing-child-poster-api-registration-credentials {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+@media (width >= 760px) {
+  .missing-child-poster-api-registration-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (width < 720px) {

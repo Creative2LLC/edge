@@ -5,6 +5,7 @@ export const DEFAULT_FORM_ENDPOINTS = {
   newsletter: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/newsletter-subscriptions',
   'resource-registration': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/resource-registrations',
   'resource-download': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/resource-downloads',
+  'missing-child-poster-api-registration': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/poster-api-registrations',
 };
 
 function countPhoneDigits(value) {
