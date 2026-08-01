@@ -268,6 +268,46 @@ function isEditorItemRow(row) {
   )) || !row.querySelector('[data-aue-prop="apiBaseUrl"], [data-aue-prop="slug"]');
 }
 
+// Universal Editor only stamps data-aue-prop on text/richtext fields;
+// reference fields (File, Image) render as plain uninstrumented link cells,
+// so parseEditorItem's named lookups can come back empty even though the
+// author picked a file. Recover them with the same content heuristics the
+// published parser uses — but only from cells WITHOUT instrumentation, so a
+// title or description that happens to contain a link is never misread.
+function applyEditorCellFallbacks(item, row) {
+  [...row.children].forEach((cell) => {
+    if (
+      cell.hasAttribute('data-aue-prop')
+      || cell.hasAttribute('data-richtext-prop')
+      || cell.querySelector('[data-aue-prop], [data-richtext-prop]')
+    ) return;
+
+    const picture = cell.querySelector('picture');
+    const img = cell.querySelector('img');
+    if (picture || img) {
+      const src = (img || picture?.querySelector('img'))?.src || '';
+      // A video/file reference can render as an <img>; treat it as the file.
+      if (isVideoFile(src) || isFileHref(src)) {
+        if (!item.fileHref) item.fileHref = src;
+      } else if (!item.imageEl && !item.imageSrc) {
+        item.imageEl = picture || img;
+        item.imageSrc = src;
+      }
+      return;
+    }
+
+    const href = normalizeText(cell.querySelector('a')?.getAttribute('href'));
+    if (!href) return;
+    if (isImageHref(href)) {
+      if (!item.imageSrc) item.imageSrc = href;
+    } else if (isFileHref(href)) {
+      if (!item.fileHref) item.fileHref = href;
+    } else if (isUrlLike(href) && !item.videoUrl) {
+      item.videoUrl = href;
+    }
+  });
+}
+
 function parseEditorItem(row) {
   const item = emptyItem(row);
   const image = readImageField(row, 'image');
@@ -294,6 +334,8 @@ function parseEditorItem(row) {
   item.informativeFormatText = normalizeText(readTextField(row, 'informativeFormatText').value);
   item.imageEl = image.picture || null;
   item.imageSrc = image.img?.src || '';
+
+  applyEditorCellFallbacks(item, row);
 
   return item;
 }
