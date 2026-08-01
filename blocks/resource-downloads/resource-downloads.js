@@ -2,9 +2,12 @@
  * Resource Downloads block — the download list on resource landing pages.
  * Each item is backed by a backend resource slug (preferred; pulls title,
  * file, thumbnail, video, and gating from the API) or a direct DAM file,
- * and renders in one of four treatments — compact row, document card,
- * feature CTA, or in-page video player — picked automatically by file type
- * or overridden per item. Consecutive "grouped" items merge into a single
+ * and renders in a dedicated, color-coded card per file type (PDF, Word,
+ * PowerPoint, ZIP, spreadsheet), an in-page video player, the Informative
+ * card (type badge + audience/time/format — also available as a stacked
+ * card or a full-width banner), or a compact row — picked automatically by
+ * file type or overridden per item. Consecutive "grouped"
+ * items merge into a single
  * card with stacked buttons. Gated items go through the shared registration
  * modal in scripts/resource-gate.js; downloads fire GA4 + backend events.
  *
@@ -31,8 +34,92 @@ const LOCKED_LABEL = 'Locked';
 const FILE_EXTENSION_PATTERN = /\.(pdf|docx?|pptx?|zip|xlsx?|mp4|mov)([?#]|$)/i;
 const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g|gif|webp|svg)([?#]|$)/i;
 const VIDEO_EXTENSIONS = ['mp4', 'mov'];
-const FEATURE_EXTENSIONS = ['ppt', 'pptx', 'zip'];
-const DISPLAY_STYLES = ['row', 'card', 'feature', 'video', 'grouped', 'informative'];
+
+// Single source of truth for each resource type's dedicated, color-coded
+// treatment — drives both the per-type cards and the Informative card badge.
+// `accent` is exposed to CSS as --rd-accent so styling is data-driven, not a
+// rule-per-type.
+const TYPE_THEMES = {
+  pdf: {
+    accent: '#d7263d',
+    abbr: 'PDF',
+    badgeLabel: 'PDF',
+    title: 'Download PDF',
+    format: 'PDF Document',
+    contains: 'This download contains:',
+  },
+  word: {
+    accent: '#2b579a',
+    abbr: 'DOC',
+    badgeLabel: 'Word Document',
+    title: 'Download Document',
+    format: 'Word Document',
+    contains: 'This document contains:',
+  },
+  powerpoint: {
+    accent: '#d24726',
+    abbr: 'PPT',
+    badgeLabel: 'Presentation',
+    title: 'Download PowerPoint',
+    format: 'Presentation (PowerPoint)',
+    contains: 'This presentation contains:',
+  },
+  spreadsheet: {
+    accent: '#217346',
+    abbr: 'XLS',
+    badgeLabel: 'Spreadsheet',
+    title: 'Download Spreadsheet',
+    format: 'Spreadsheet (Excel)',
+    contains: 'This spreadsheet contains:',
+  },
+  bundle: {
+    accent: '#5f6b7a',
+    abbr: 'ZIP',
+    badgeLabel: 'Bundle',
+    title: 'Download Bundle',
+    format: 'Download Bundle',
+    contains: 'This bundle contains:',
+  },
+  video: {
+    accent: '#008db6',
+    abbr: 'PLAY',
+    badgeLabel: 'Video',
+    title: 'Watch Video',
+    format: 'Video',
+    contains: 'This video covers:',
+  },
+  file: {
+    accent: '#00264d',
+    abbr: 'FILE',
+    badgeLabel: 'File',
+    title: 'Download Resource',
+    format: '',
+    contains: 'This download contains:',
+  },
+};
+
+const EXTENSION_TYPE = {
+  pdf: 'pdf',
+  doc: 'word',
+  docx: 'word',
+  ppt: 'powerpoint',
+  pptx: 'powerpoint',
+  xls: 'spreadsheet',
+  xlsx: 'spreadsheet',
+  zip: 'bundle',
+  mp4: 'video',
+  mov: 'video',
+};
+
+// Type keys double as explicit display-style values; the older abstract
+// "card"/"feature" values map to the auto type card for backward compatibility.
+const TYPE_STYLE_KEYS = ['pdf', 'word', 'powerpoint', 'spreadsheet', 'bundle', 'video'];
+const INFORMATIVE_STYLES = ['informative', 'informative-stacked', 'informative-banner'];
+const DISPLAY_STYLES = [...TYPE_STYLE_KEYS, 'row', 'card', 'feature', 'grouped', ...INFORMATIVE_STYLES];
+
+function typeTheme(key) {
+  return TYPE_THEMES[key] || TYPE_THEMES.file;
+}
 const INFORMATIVE_META_FIELD_BY_INDEX = {
   10: 'informativeAudienceLabel',
   11: 'informativeAudienceText',
@@ -658,21 +745,37 @@ function resolveEntry(item, resource, config, primaryResource) {
     || fileExtensionFrom(matchedFile?.file_name || '')
     || fileExtensionFrom(matchedPrimaryResource?.aem_asset_name || '');
 
-  let style = DISPLAY_STYLES.includes(item.displayStyle) ? item.displayStyle : '';
-  if (!style) {
-    if (videoUrl) style = 'video';
-    else if (FEATURE_EXTENSIONS.includes(extension)) style = 'feature';
-    else if (
-      (item.imageEl || item.imageSrc || matchedPrimaryResource?.thumbnail)
-      && (item.description || matchedPrimaryResource?.excerpt)
-    ) style = 'card';
-    else style = 'row';
+  // The resource type (drives color/icon theming) is resolved independently of
+  // the layout style. Video links always get the player; every other type gets
+  // its dedicated color-coded card unless the author picked row/grouped.
+  const resourceTypeLower = normalizeText(matchedPrimaryResource?.resource_type_label)
+    .toLowerCase();
+  let autoType = videoUrl ? 'video' : (EXTENSION_TYPE[extension] || '');
+  if (!autoType) {
+    if (resourceTypeLower.includes('video')) autoType = 'video';
+    else if (/presentation|powerpoint/.test(resourceTypeLower)) autoType = 'powerpoint';
+    else if (resourceTypeLower.includes('pdf')) autoType = 'pdf';
+    else if (/spreadsheet|excel/.test(resourceTypeLower)) autoType = 'spreadsheet';
+    else if (/bundle|zip/.test(resourceTypeLower)) autoType = 'bundle';
+    else autoType = 'file';
+  }
+  let typeKey = autoType;
+  let style;
+  if (TYPE_STYLE_KEYS.includes(item.displayStyle)) {
+    typeKey = item.displayStyle;
+    style = typeKey === 'video' ? 'video' : 'type';
+  } else if ([...INFORMATIVE_STYLES, 'row', 'grouped'].includes(item.displayStyle)) {
+    style = item.displayStyle;
+  } else {
+    style = autoType === 'video' ? 'video' : 'type';
   }
 
   return {
     item,
     resource: matchedPrimaryResource,
     style,
+    typeKey,
+    theme: typeTheme(typeKey),
     downloadUrl,
     videoUrl,
     extension: extension || (videoUrl ? 'video' : 'file'),
@@ -695,11 +798,9 @@ function resolveEntry(item, resource, config, primaryResource) {
 
 function defaultButtonLabel(entry) {
   if (entry.style === 'video' && !entry.downloadUrl) return 'Watch Video';
-  if (entry.extension === 'pdf') return 'Download PDF';
-  if (['ppt', 'pptx'].includes(entry.extension)) return 'Download PowerPoint';
-  if (entry.extension === 'zip') return 'Download Bundle';
-  if (['doc', 'docx'].includes(entry.extension)) return 'Download Guide';
-  return 'Download';
+  // On a video, the download button (if any) sits next to a Watch button.
+  if (entry.typeKey === 'video') return 'Download';
+  return entry.theme?.title || 'Download';
 }
 
 function buildDefaultVideoPoster(title = 'NCMEC video') {
@@ -822,74 +923,20 @@ function buildTitleEl(entry, tag = 'h3') {
   return title;
 }
 
-function buildTypeIcon(entry) {
-  const icon = document.createElement('span');
-  icon.className = 'resource-downloads-item-icon';
-  icon.dataset.extension = entry.extension;
-  icon.textContent = entry.extension === 'file' ? 'FILE' : entry.extension.toUpperCase().slice(0, 5);
-  return icon;
+// Color-coded type tile (PDF/DOC/PPT/ZIP/XLS/FILE) — accent comes from
+// --rd-accent set on the card, so one element themes every type.
+function buildTypeTile(theme) {
+  const tile = document.createElement('span');
+  tile.className = 'resource-downloads-type-tile';
+  tile.textContent = theme.abbr;
+  return tile;
 }
 
-function informativeTypeInfo(entry) {
-  const { extension } = entry;
-  const resourceType = normalizeText(entry.resource?.resource_type_label);
-  const resourceTypeLower = resourceType.toLowerCase();
-
-  if (entry.videoUrl
-    && (!entry.downloadUrl || VIDEO_EXTENSIONS.includes(extension) || resourceTypeLower.includes('video'))) {
-    return {
-      key: 'video',
-      badge: 'PLAY',
-      badgeLabel: 'Video',
-      title: 'Watch Video',
-      containsLabel: 'This video covers:',
-      format: 'Video',
-    };
-  }
-
-  if (['ppt', 'pptx'].includes(extension)
-    || resourceTypeLower.includes('presentation')
-    || resourceTypeLower.includes('powerpoint')) {
-    return {
-      key: 'presentation',
-      badge: 'PPT',
-      badgeLabel: 'Presentation',
-      title: 'Download Presentation',
-      containsLabel: 'This presentation contains:',
-      format: 'Presentation (PowerPoint)',
-    };
-  }
-
-  if (extension === 'zip') {
-    return {
-      key: 'bundle',
-      badge: 'ZIP',
-      badgeLabel: 'Bundle',
-      title: 'Download Bundle',
-      containsLabel: 'This download contains:',
-      format: 'Download Bundle',
-    };
-  }
-
-  if (extension === 'pdf') {
-    return {
-      key: 'pdf',
-      badge: 'PDF',
-      badgeLabel: 'PDF',
-      title: 'Download PDF',
-      containsLabel: 'This download contains:',
-      format: 'PDF Document',
-    };
-  }
-
-  return {
-    key: 'file',
-    badge: 'FILE',
-    badgeLabel: 'File',
-    title: 'Download Resource',
-    containsLabel: 'This download contains:',
-    format: '',
-  };
+function buildTypeIcon(entry) {
+  const icon = buildTypeTile(entry.theme);
+  icon.classList.add('resource-downloads-item-icon');
+  icon.dataset.type = entry.typeKey;
+  return icon;
 }
 
 function informativeFormatValue(entry) {
@@ -897,14 +944,15 @@ function informativeFormatValue(entry) {
   if (override) return override;
 
   const resourceType = normalizeText(entry.resource?.resource_type_label);
-  const info = informativeTypeInfo(entry);
-  if (!resourceType) return info.format;
+  const { typeKey, theme } = entry;
+  if (!resourceType) return theme.format;
 
-  if (info.key === 'pdf' && !/pdf/i.test(resourceType)) return `${resourceType} (PDF)`;
-  if (info.key === 'video' && !/video/i.test(resourceType)) return `${resourceType} (Video)`;
-  if (info.key === 'presentation' && !/(presentation|powerpoint)/i.test(resourceType)) {
+  if (typeKey === 'pdf' && !/pdf/i.test(resourceType)) return `${resourceType} (PDF)`;
+  if (typeKey === 'video' && !/video/i.test(resourceType)) return `${resourceType} (Video)`;
+  if (typeKey === 'powerpoint' && !/(presentation|powerpoint)/i.test(resourceType)) {
     return `${resourceType} (PowerPoint)`;
   }
+  if (typeKey === 'word' && !/(word|doc)/i.test(resourceType)) return `${resourceType} (Word)`;
 
   return resourceType;
 }
@@ -915,7 +963,7 @@ function labelListText(value) {
 }
 
 function usesInformativeWatchAction(entry) {
-  return entry.style === 'informative' && informativeTypeInfo(entry).key === 'video';
+  return INFORMATIVE_STYLES.includes(entry.style) && entry.typeKey === 'video';
 }
 
 function buildActions(entry, isEditor) {
@@ -950,9 +998,42 @@ function buildRowEntry(entry, isEditor) {
   return card;
 }
 
-function buildCardEntry(entry, isEditor) {
+// Decorative line-art per file type, filling the right side of a type card
+// when no thumbnail is authored. Strokes inherit currentColor, so the card's
+// --rd-accent tints every type from a single set of CSS rules.
+const TYPE_ART = {
+  pdf: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M38 12h34l18 18v62H38z" opacity=".3"/><path d="M30 24h34l18 18v66H30z" fill="#fff"/><path d="M64 24v18h18"/><path d="M42 62h28M42 74h28M42 86h16"/></svg>',
+  word: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M38 12h34l18 18v62H38z" opacity=".3"/><path d="M30 24h34l18 18v66H30z" fill="#fff"/><path d="M64 24v18h18"/><path d="M42 58h40M42 70h40M42 82h40M42 94h22"/></svg>',
+  powerpoint: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="22" width="80" height="56" rx="6" fill="#fff"/><path d="M34 64V50M50 64V40M66 64V56M82 64V34"/><path d="M60 78v16M44 102l16-8 16 8"/></svg>',
+  spreadsheet: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="22" width="76" height="76" rx="6" fill="#fff"/><path d="M22 44h76M22 62h76M22 80h76M47 44v54M72 44v54"/></svg>',
+  bundle: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 42 60 22l36 20v38l-36 20-36-20z" fill="#fff"/><path d="M24 42l36 18 36-18M60 60v40"/><path d="M42 32l36 18" opacity=".4"/></svg>',
+  file: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 16h36l20 20v68H32z" fill="#fff"/><path d="M68 16v20h20"/><path d="M44 58h32M44 70h32M44 82h20"/></svg>',
+};
+
+function buildTypeArt(entry) {
+  const art = document.createElement('div');
+  art.className = 'resource-downloads-type-art';
+  art.setAttribute('aria-hidden', 'true');
+
+  const watermark = document.createElement('span');
+  watermark.className = 'resource-downloads-type-art-watermark';
+  watermark.textContent = entry.theme.abbr;
+
+  const glyph = document.createElement('span');
+  glyph.className = 'resource-downloads-type-art-glyph';
+  glyph.innerHTML = TYPE_ART[entry.typeKey] || TYPE_ART.file;
+
+  art.append(watermark, glyph);
+  return art;
+}
+
+// Dedicated, color-coded card for every non-video file type (PDF, Word,
+// PowerPoint, ZIP, spreadsheet, generic file). One builder themed by --rd-accent.
+function buildTypeCard(entry, isEditor) {
+  const { theme } = entry;
   const card = document.createElement('article');
-  card.className = 'resource-downloads-item is-card';
+  card.className = 'resource-downloads-item is-type';
+  card.dataset.type = entry.typeKey;
 
   const image = buildImage(entry);
   if (image) {
@@ -964,34 +1045,32 @@ function buildCardEntry(entry, isEditor) {
 
   const body = document.createElement('div');
   body.className = 'resource-downloads-item-body';
-  body.append(buildTitleEl(entry));
+
+  const head = document.createElement('div');
+  head.className = 'resource-downloads-type-head';
+  head.append(buildTypeIcon(entry));
+
+  const heading = document.createElement('div');
+  heading.className = 'resource-downloads-type-heading';
+  heading.append(buildTitleEl(entry));
+  const format = document.createElement('span');
+  format.className = 'resource-downloads-type-format';
+  format.textContent = theme.badgeLabel;
+  heading.append(format);
+  head.append(heading);
+  body.append(head);
+
   const description = buildDescription(entry);
   if (description) body.append(description);
+
   const actions = buildActions(entry, isEditor);
   if (actions) body.append(actions);
   card.append(body);
 
-  return card;
-}
+  // No authored thumbnail: fill the open side with the type's decorative art
+  // instead of leaving the card half empty.
+  if (!image) card.append(buildTypeArt(entry));
 
-function buildFeatureEntry(entry, isEditor) {
-  const card = document.createElement('article');
-  card.className = 'resource-downloads-item is-feature';
-
-  const body = document.createElement('div');
-  body.className = 'resource-downloads-item-body';
-  body.append(buildTitleEl(entry));
-
-  const description = buildDescription(entry);
-  if (description) {
-    description.classList.add('resource-downloads-item-contents');
-    body.append(description);
-  }
-
-  const actions = buildActions(entry, isEditor);
-  if (actions) body.append(actions);
-
-  card.append(body);
   return card;
 }
 
@@ -1003,6 +1082,11 @@ function buildVideoEntry(entry, isEditor) {
   media.className = 'resource-downloads-item-media';
   const image = buildImage(entry, 800);
   media.append(image || buildDefaultVideoPoster(entry.title));
+
+  const chip = document.createElement('span');
+  chip.className = 'resource-downloads-video-chip';
+  chip.textContent = entry.theme.badgeLabel;
+  media.append(chip);
 
   if (entry.videoUrl) {
     const playButton = document.createElement('button');
@@ -1018,11 +1102,15 @@ function buildVideoEntry(entry, isEditor) {
 
   card.append(media);
 
+  // Footer action bar: title + description on the left, buttons on the right.
   const body = document.createElement('div');
   body.className = 'resource-downloads-item-body';
-  body.append(buildTitleEl(entry));
+  const text = document.createElement('div');
+  text.className = 'resource-downloads-video-text';
+  text.append(buildTitleEl(entry));
   const description = buildDescription(entry);
-  if (description) body.append(description);
+  if (description) text.append(description);
+  body.append(text);
   const actions = buildActions(entry, isEditor);
   if (actions) body.append(actions);
   card.append(body);
@@ -1110,17 +1198,17 @@ function buildMetaRow(iconKey, label, value) {
   return row;
 }
 
-function buildInformativeTypeBadge(info) {
+function buildInformativeTypeBadge(theme) {
   const badge = document.createElement('div');
   badge.className = 'resource-downloads-informative-type';
 
   const icon = document.createElement('span');
   icon.className = 'resource-downloads-informative-type-icon';
-  icon.textContent = info.badge;
+  icon.textContent = theme.abbr;
 
   const label = document.createElement('span');
   label.className = 'resource-downloads-informative-type-label';
-  label.textContent = info.badgeLabel;
+  label.textContent = theme.badgeLabel;
 
   badge.append(icon, label);
   return badge;
@@ -1150,25 +1238,25 @@ function informativeMetaRows(entry) {
 }
 
 function buildInformativeEntry(entry, isEditor) {
+  const { theme } = entry;
   const card = document.createElement('article');
   card.className = 'resource-downloads-item is-informative';
-  const info = informativeTypeInfo(entry);
 
   const panel = document.createElement('div');
   panel.className = 'resource-downloads-informative-card';
-  panel.dataset.resourceType = info.key;
-  panel.append(buildInformativeTypeBadge(info));
+  panel.dataset.resourceType = entry.typeKey;
+  panel.append(buildInformativeTypeBadge(theme));
 
   const title = document.createElement('h3');
   title.className = 'resource-downloads-item-title';
-  title.textContent = entry.item.title || info.title;
+  title.textContent = entry.item.title || theme.title;
   panel.append(title);
 
   const description = buildDescription(entry);
   if (description) {
     const containsLabel = document.createElement('p');
     containsLabel.className = 'resource-downloads-contains-label';
-    containsLabel.textContent = info.containsLabel;
+    containsLabel.textContent = theme.contains;
     panel.append(containsLabel);
     description.classList.add('resource-downloads-item-contents');
     panel.append(description);
@@ -1189,12 +1277,89 @@ function buildInformativeEntry(entry, isEditor) {
   return card;
 }
 
+// Informative data in a single-column card: type head, contents, meta rows
+// inline, actions. Works standalone and as a tile in the Grid layout.
+function buildInformativeStackedEntry(entry, isEditor) {
+  const { theme } = entry;
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-informative-stacked';
+  card.dataset.type = entry.typeKey;
+
+  const head = document.createElement('div');
+  head.className = 'resource-downloads-type-head';
+  head.append(buildTypeIcon(entry));
+  const heading = document.createElement('div');
+  heading.className = 'resource-downloads-type-heading';
+  const title = buildTitleEl(entry);
+  title.textContent = entry.item.title || entry.title || theme.title;
+  heading.append(title);
+  const format = document.createElement('span');
+  format.className = 'resource-downloads-type-format';
+  format.textContent = theme.badgeLabel;
+  heading.append(format);
+  head.append(heading);
+  card.append(head);
+
+  const description = buildDescription(entry);
+  if (description) {
+    const containsLabel = document.createElement('p');
+    containsLabel.className = 'resource-downloads-contains-label';
+    containsLabel.textContent = theme.contains;
+    card.append(containsLabel);
+    description.classList.add('resource-downloads-item-contents');
+    card.append(description);
+  }
+
+  const metaRows = informativeMetaRows(entry);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel is-inline';
+    meta.append(...metaRows);
+    card.append(meta);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) card.append(actions);
+
+  return card;
+}
+
+// Informative data as a full-width horizontal band: badge pill, title +
+// description, compact meta chips, and the action on the far right.
+function buildInformativeBannerEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-informative-banner';
+  card.dataset.type = entry.typeKey;
+  card.append(buildInformativeTypeBadge(entry.theme));
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+  card.append(body);
+
+  const metaRows = informativeMetaRows(entry);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel is-chips';
+    meta.append(...metaRows);
+    card.append(meta);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) card.append(actions);
+
+  return card;
+}
+
 const ENTRY_BUILDERS = {
-  row: buildRowEntry,
-  card: buildCardEntry,
-  feature: buildFeatureEntry,
+  type: buildTypeCard,
   video: buildVideoEntry,
   informative: buildInformativeEntry,
+  'informative-stacked': buildInformativeStackedEntry,
+  'informative-banner': buildInformativeBannerEntry,
+  row: buildRowEntry,
 };
 
 export default async function decorate(block) {
@@ -1253,6 +1418,7 @@ export default async function decorate(block) {
         group.push(entries[index]);
       }
       const groupCard = buildGroupEntry(group, isEditor);
+      groupCard.style.setProperty('--rd-accent', group[0].theme.accent);
       if (group[0].item.row && isEditor) {
         moveInstrumentation(group[0].item.row, groupCard);
       }
@@ -1262,6 +1428,8 @@ export default async function decorate(block) {
     } else {
       const builder = ENTRY_BUILDERS[entry.style] || buildRowEntry;
       const card = builder(entry, isEditor);
+      // One custom property themes the whole card (tile, button, accents).
+      card.style.setProperty('--rd-accent', entry.theme.accent);
       if (entry.item.row && isEditor) {
         moveInstrumentation(entry.item.row, card);
       }
@@ -1296,4 +1464,24 @@ export default async function decorate(block) {
   }
 
   block.replaceChildren(...children);
+
+  // Reveal cards with a soft staggered rise as they enter the viewport. The
+  // CSS only hides cards under prefers-reduced-motion: no-preference, so the
+  // editor, reduced-motion users, and no-IO browsers just render in place.
+  const cards = [...list.children];
+  if (isEditor || !('IntersectionObserver' in window)) {
+    cards.forEach((card) => card.classList.add('is-revealed'));
+    return;
+  }
+  const observer = new IntersectionObserver((observations) => {
+    observations.forEach((observation) => {
+      if (!observation.isIntersecting) return;
+      observation.target.classList.add('is-revealed');
+      observer.unobserve(observation.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  cards.forEach((card, cardIndex) => {
+    card.style.setProperty('--rd-reveal-delay', `${(cardIndex % 6) * 70}ms`);
+    observer.observe(card);
+  });
 }

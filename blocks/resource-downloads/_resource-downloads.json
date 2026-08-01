@@ -162,31 +162,51 @@
           "valueType": "string",
           "name": "displayStyle",
           "label": "Display Style",
-          "description": "Auto picks by file type: video links get the player, ppt/zip the Feature card, documents the card or row.",
+          "description": "Auto renders the dedicated, color-coded card for the file type. Pick a specific type card to force it, or use Informative / Compact row / Grouped.",
           "options": [
             {
               "name": "Auto (by file type)",
               "value": ""
             },
             {
-              "name": "Compact row",
-              "value": "row"
+              "name": "PDF Card",
+              "value": "pdf"
             },
             {
-              "name": "Document card",
-              "value": "card"
+              "name": "Word Doc Card",
+              "value": "word"
             },
             {
-              "name": "Feature CTA",
-              "value": "feature"
+              "name": "PowerPoint Card",
+              "value": "powerpoint"
             },
             {
-              "name": "Video player",
+              "name": "Spreadsheet Card",
+              "value": "spreadsheet"
+            },
+            {
+              "name": "Bundle (ZIP) Card",
+              "value": "bundle"
+            },
+            {
+              "name": "Video Player",
               "value": "video"
             },
             {
               "name": "Informative (card + audience/time/format)",
               "value": "informative"
+            },
+            {
+              "name": "Informative — stacked card (fits Grid layout)",
+              "value": "informative-stacked"
+            },
+            {
+              "name": "Informative — full-width banner",
+              "value": "informative-banner"
+            },
+            {
+              "name": "Compact row",
+              "value": "row"
             },
             {
               "name": "Grouped buttons (merge with neighbors)",
