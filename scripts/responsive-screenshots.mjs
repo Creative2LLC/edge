@@ -253,6 +253,11 @@ async function capturePage(browser, url, viewport, args) {
       height: viewport.height,
     },
     deviceScaleFactor: 1,
+    // Scroll-reveal blocks start at opacity:0 and only reveal when scrolled into
+    // view (IntersectionObserver). In a headless full-page capture that observer
+    // may not have fired, leaving blocks blank/white. The site's own reduced-motion
+    // path (styles.css + aem.js) reveals every block immediately, so emulate it.
+    reducedMotion: 'reduce',
   });
   const page = await context.newPage();
   page.setDefaultTimeout(args.timeout);
