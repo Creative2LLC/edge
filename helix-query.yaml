@@ -1,5 +1,7 @@
 version: 1
 
+# Two indices: `pages` -> query-index.json (site search); `sitemap` -> sitemap.json (sitemap.xml source).
+
 indices:
   pages:
     include:
