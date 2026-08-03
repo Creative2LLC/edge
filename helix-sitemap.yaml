@@ -1,5 +1,6 @@
 sitemaps:
   default:
-    source: /query-index.json
+    origin: https://test--edge--creative2llc.aem.live
+    source: /sitemap.json
     destination: /sitemap.xml
     lastmod: YYYY-MM-DD

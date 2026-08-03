@@ -622,6 +622,7 @@ main > .section > .resources-browser-wrapper {
 
 .resources-browser .resources-browser-footer {
   margin-top: 20px;
+  padding-top: 20px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;

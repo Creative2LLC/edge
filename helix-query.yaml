@@ -35,3 +35,25 @@ indices:
       robots:
         selectFirst: head > meta[name="robots"]
         value: attribute(el, "content")
+
+  sitemap:
+    include:
+      - '/**'
+    exclude:
+      - '/**.json'
+      - '/nav'
+      - '/footer'
+      - '/fragments/**'
+      - '/templates/**'
+      - '/drafts/**'
+      - '/tools/**'
+      - '/for-ncmec-test-pages/**'
+      - '/form-testing-page'
+    target: /sitemap.json
+    properties:
+      lastModified:
+        select: none
+        value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
+      robots:
+        selectFirst: head > meta[name="robots"]
+        value: attribute(el, "content")
