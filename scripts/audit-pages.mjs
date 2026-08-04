@@ -165,7 +165,7 @@ async function capture(browser, url, viewport, dir, args) {
   try {
     const page = await context.newPage();
     page.setDefaultTimeout(args.timeout);
-    // `load` (not `networkidle`) Ã¢â‚¬â€ networkidle hangs on analytics/video beacons.
+    // `load` (not `networkidle`) - networkidle hangs on analytics/video beacons.
     await page.goto(url, { waitUntil: 'load', timeout: args.timeout });
     if (args.waitMs > 0) await page.waitForTimeout(args.waitMs);
 
@@ -202,18 +202,16 @@ async function main() {
 
   const chromePath = await resolveChromePath();
   await fs.mkdir(args.outRoot, { recursive: true });
-  const chromeUserDataDir = path.join(args.outRoot, '.chrome-profile');
-  await fs.mkdir(chromeUserDataDir, { recursive: true });
   const chrome = await chromeLauncher.launch({
     chromePath,
-    userDataDir: chromeUserDataDir,
+    userDataDir: false,
     chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
   });
   const browser = await chromium.launch();
 
-  console.log(`Per-page audit Ã¢â‚¬â€ ${urls.length} pages Ãƒâ€” (Lighthouse + ${args.viewports.length} viewports)`);
+  console.log(`Per-page audit - ${urls.length} pages x (Lighthouse + ${args.viewports.length} viewports)`);
   console.log(`Pass rule: ${CATEGORIES.map((c) => `${CATEGORY_LABEL[c]}>=${args.thresholds[c]}`).join(' ')}`);
-  if (args.seoRelaxed) console.log('  (SEO relaxed to 0 on preview host Ã¢â‚¬â€ override with --min-seo 90)');
+  if (args.seoRelaxed) console.log('  (SEO relaxed to 0 on preview host - override with --min-seo 90)');
   console.log(`Output: ${args.outRoot}/<page>/\n`);
 
   const index = [];

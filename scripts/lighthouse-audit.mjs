@@ -7,7 +7,7 @@
  *
  * Mobile emulation (Lighthouse default: throttled Moto G Power). A page PASSES
  * only when Performance, Accessibility, Best Practices, and SEO are all >= the
- * threshold (default 90 â€” Google's "green" bar).
+ * threshold (default 90 - Google's "green" bar).
  *
  * Runs sequentially on purpose: Lighthouse measures performance, so parallel
  * runs would compete for CPU and skew the scores.
@@ -43,7 +43,7 @@ const CATEGORY_LABEL = {
   'best-practices': 'BP',
   seo: 'SEO',
 };
-// Per-category CLI flag â†’ category key.
+// Per-category CLI flag -> category key.
 const CATEGORY_FLAG = {
   '--min-perf': 'performance',
   '--min-a11y': 'accessibility',
@@ -159,21 +159,19 @@ async function main() {
 
   const chromePath = await resolveChromePath();
   await fs.mkdir(args.outDir, { recursive: true });
-  const chromeUserDataDir = path.join(args.outDir, '.chrome-profile');
-  await fs.mkdir(chromeUserDataDir, { recursive: true });
   const chrome = await chromeLauncher.launch({
     chromePath,
-    userDataDir: chromeUserDataDir,
+    userDataDir: false,
     chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
   });
 
   const passRule = CATEGORIES
     .map((c) => `${CATEGORY_LABEL[c]}>=${args.thresholds[c]}`)
     .join(' ');
-  console.log(`Lighthouse (mobile) â€” ${urls.length} pages`);
+  console.log(`Lighthouse (mobile) - ${urls.length} pages`);
   console.log(`Pass rule: ${passRule}`);
   if (args.seoRelaxed) {
-    console.log('  (SEO threshold set to 0: preview host blocks indexing via robots.txt â€” override with --min-seo 90)');
+    console.log('  (SEO threshold set to 0: preview host blocks indexing via robots.txt - override with --min-seo 90)');
   }
   console.log(`Chrome: ${chromePath || '(auto-detected)'}  port ${chrome.port}`);
   console.log(`Output: ${args.outDir}\n`);
@@ -226,7 +224,7 @@ async function main() {
         ? `ERROR ${r.error}`
         : CATEGORIES.filter((c) => (r[c] ?? 0) < args.thresholds[c])
           .map((c) => `${CATEGORY_LABEL[c]} ${r[c]}`).join(', ');
-      console.log(`  ${new URL(r.url).pathname} â€” ${detail}`);
+      console.log(`  ${new URL(r.url).pathname} - ${detail}`);
     });
     process.exitCode = 1;
   }
