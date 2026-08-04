@@ -426,7 +426,7 @@ main > .section > .resources-browser-wrapper {
 }
 
 .resources-browser .resources-browser-card-duration {
-  color: #8c8985;
+  color: #67655f; /* was #8c8985 (2.85:1 on card bg); darkened for WCAG AA 4.5:1 */
   white-space: nowrap;
 }
 

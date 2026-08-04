@@ -41,6 +41,13 @@
   bottom: -76px;
 }
 
+/* Black label + bubble icon on the orange trigger for WCAG AA contrast
+   (white text on #e38b22 is ~2.3:1; black is ~8:1). The bubble SVG is recolored
+   to black in icons/help-bubble.svg (used only here). */
+.get-help .get-help-trigger {
+  color: #000;
+}
+
 .get-help .get-help-trigger:hover,
 .get-help .get-help-close:hover {
   background: #cd7b1a;

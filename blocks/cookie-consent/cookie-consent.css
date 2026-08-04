@@ -69,7 +69,10 @@
   margin: 0;
   border-radius: 999px;
   padding: 10px 18px;
-  font-size: 0.94rem;
+
+  /* >=18.66px bold qualifies as WCAG "large text" (3:1 contrast threshold),
+     which the brand blue passes, so we keep brand colors without a contrast fail. */
+  font-size: 1.1875rem;
   font-weight: 700;
   line-height: 1.1;
   white-space: normal;

@@ -240,7 +240,7 @@ const TAG_COLORS = {
 
 const ACTIVE_CHIP_COLORS = {
   programs: { border: '#48c7e8', bg: '#effbff', color: '#008db6' },
-  grade_ages: { border: '#ff7f73', bg: '#fff1ef', color: '#e14439' },
+  grade_ages: { border: '#ff7f73', bg: '#fff1ef', color: '#c7352b' },
   audience: { border: '#87d89a', bg: '#f0fbf2', color: '#358f49' },
   issue: { border: '#f4bd47', bg: '#fff8e8', color: '#9c6d00' },
   type: { border: '#243846', bg: '#eef2f5', color: '#243846' },

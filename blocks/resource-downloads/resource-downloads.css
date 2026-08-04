@@ -342,7 +342,7 @@
 
 .resource-downloads-contains-label {
   margin: 0;
-  color: #8a8a8a;
+  color: #737373; /* was #8a8a8a (3.45:1); darkened for WCAG AA 4.5:1 */
   font-size: 12px;
   font-style: italic;
 }

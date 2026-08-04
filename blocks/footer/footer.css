@@ -180,13 +180,21 @@ footer .footer .footer-column a {
 footer .footer .footer-legal-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 10px;
+  gap: 4px 16px;
   line-height: 1.45;
 }
 
 footer .footer .footer-legal-links a {
   color: inherit;
   text-decoration: none;
+
+  /* Ensure a >=24px tap target with adequate spacing (WCAG 2.5.8 target-size).
+     Negative inline margin keeps the visual row width unchanged. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding-inline: 2px;
+  margin-inline: -2px;
 }
 
 footer .footer .footer-legal-links a:hover {

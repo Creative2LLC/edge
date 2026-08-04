@@ -556,6 +556,9 @@ function isIgnoredFallbackText(text) {
     'left',
     'center',
     'right',
+    'outline',
+    'solid',
+    'inverted',
     'circle',
     'underline',
   ]);
@@ -981,6 +984,16 @@ function removeLeadingBreadcrumbText(richText) {
   }
 }
 
+function removeConfigArtifactText(richText) {
+  if (!richText) return;
+
+  [...richText.querySelectorAll('p, div, span')].forEach((node) => {
+    if (node.children.length) return;
+    if (!isIgnoredFallbackText(node.textContent)) return;
+    node.remove();
+  });
+}
+
 function buildMainRichText(block, fallbackHtml = '', hasBreadcrumb = false) {
   const field = readRichTextField(block, ['content_text', 'text']);
   const hasField = hasRichFieldContent(field);
@@ -989,6 +1002,7 @@ function buildMainRichText(block, fallbackHtml = '', hasBreadcrumb = false) {
     richText.className = 'hero-richtext richtext-preserve-spaces';
     if (hasField) moveRichField(field, richText, fallbackHtml);
     else appendHtmlValue(fallbackHtml, richText);
+    removeConfigArtifactText(richText);
     if (hasBreadcrumb) removeLeadingBreadcrumbText(richText);
     normalizeMainRichTextStructure(richText);
     if (!hasRenderableContent(richText)) return null;
@@ -999,6 +1013,7 @@ function buildMainRichText(block, fallbackHtml = '', hasBreadcrumb = false) {
   fallback.className = 'hero-richtext richtext-preserve-spaces';
   const fallbackNodes = getFallbackMainTextNodes(block);
   fallbackNodes.forEach((node) => fallback.append(node.cloneNode(true)));
+  removeConfigArtifactText(fallback);
   if (hasBreadcrumb) removeLeadingBreadcrumbText(fallback);
   normalizeMainRichTextStructure(fallback);
   if (!hasRenderableContent(fallback)) return null;

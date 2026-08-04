@@ -236,27 +236,39 @@ main > .section > .historical-reports-carousel-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 2px;
   margin-top: 18px;
 }
 
 .historical-reports-carousel .historical-reports-carousel-dot {
-  width: 8px;
-  height: 4px;
+  /* 24x24 hit target (WCAG 2.5.8 target-size); the visual dot is drawn by
+     ::before so the pagination stays visually small. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.historical-reports-carousel .historical-reports-carousel-dot::before {
+  content: "";
+  width: 8px;
+  height: 4px;
   border-radius: 999px;
   background: rgb(0 38 77 / 20%);
-  cursor: pointer;
   transition: width 0.3s ease, background-color 0.2s ease;
 }
 
-.historical-reports-carousel .historical-reports-carousel-dot.active {
+.historical-reports-carousel .historical-reports-carousel-dot.active::before {
   width: 28px;
   background: #00264d;
 }
 
-.historical-reports-carousel .historical-reports-carousel-dot:hover:not(.active) {
+.historical-reports-carousel .historical-reports-carousel-dot:hover:not(.active)::before {
   background: rgb(0 38 77 / 40%);
 }
 

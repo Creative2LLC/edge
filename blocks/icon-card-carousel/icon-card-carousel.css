@@ -185,8 +185,11 @@ main > .section > .icon-card-carousel-wrapper {
   border-radius: 99px;
   background-color: #008db6;
   color: #fff;
-  font-size: 16px;
-  font-weight: 500;
+
+  /* >=18.66px bold = WCAG "large text" (3:1), which the brand blue passes,
+     so we keep the brand color without a contrast failure. */
+  font-size: 18.72px;
+  font-weight: 700;
   font-family: inherit;
   text-decoration: none;
   cursor: pointer;
@@ -211,27 +214,38 @@ main > .section > .icon-card-carousel-wrapper {
 /* Dots — pill-segment progress bar */
 .icon-card-carousel .icon-card-carousel-dots {
   display: flex;
-  gap: 6px;
+  gap: 2px;
   align-items: center;
 }
 
 .icon-card-carousel .icon-card-carousel-dot {
+  /* 24x24 hit target (WCAG 2.5.8 target-size); visual dot drawn by ::before. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon-card-carousel .icon-card-carousel-dot::before {
+  content: "";
   width: 8px;
   height: 4px;
   border-radius: 999px;
-  border: none;
   background: rgb(0 38 77 / 20%);
-  cursor: pointer;
-  padding: 0;
   transition: width 0.3s ease, background-color 0.2s ease;
 }
 
-.icon-card-carousel .icon-card-carousel-dot.active {
+.icon-card-carousel .icon-card-carousel-dot.active::before {
   width: 28px;
   background: #00264d;
 }
 
-.icon-card-carousel .icon-card-carousel-dot:hover:not(.active) {
+.icon-card-carousel .icon-card-carousel-dot:hover:not(.active)::before {
   background: rgb(0 38 77 / 40%);
 }
 

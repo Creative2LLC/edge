@@ -19,6 +19,8 @@
     "audit:lighthouse": "node scripts/lighthouse-audit.mjs",
     "audit:pages": "node scripts/audit-pages.mjs",
     "audit:summarize": "node scripts/audit-summarize.mjs",
+    "gallery": "node scripts/build-review-gallery.mjs",
+    "spacing-audit": "node scripts/spacing-audit.mjs",
     "dev:css": "vite build --watch",
     "build:css": "vite build",
     "prepare": "husky"

@@ -295,7 +295,16 @@ function createMobileStackNavigator() {
 function appendMobileScreenFallback(targetList, sourceItem) {
   const item = document.createElement('li');
   item.className = 'nav-mobile-rich-card';
-  const content = sourceItem.cloneNode(true);
+  // sourceItem is a desktop mega-menu <li>. Re-home its contents into a <div>
+  // rather than cloning the <li> as-is: an <li> nested directly inside our
+  // <li> is invalid list markup and fails the a11y `listitem` audit. A <div>
+  // keeps the same nesting depth, so existing .nav-mobile-rich-card CSS is
+  // unaffected.
+  const clone = sourceItem.cloneNode(true);
+  const content = document.createElement('div');
+  content.className = 'nav-mobile-rich-card-content';
+  Object.entries(clone.dataset).forEach(([key, value]) => { content.dataset[key] = value; });
+  content.append(...clone.childNodes);
   const featuredLabel = content.querySelector(':scope > strong, :scope > em, :scope > .mega-subheader');
   const featuredHeading = content.querySelector(':scope > a:not(.button)');
 
@@ -2277,6 +2286,12 @@ export default async function decorate(block) {
   if (brandLink) {
     const brandImg = brandLink.querySelector('img');
     if (brandImg) {
+      // Intrinsic dimensions of the brand mark (viewBox 0 0 224 62). CSS controls
+      // the rendered size; these attributes give the browser an aspect ratio so it
+      // reserves space (fixes `unsized-images` + layout shift / CLS).
+      if (!brandImg.getAttribute('width')) brandImg.setAttribute('width', '224');
+      if (!brandImg.getAttribute('height')) brandImg.setAttribute('height', '62');
+
       const useFallbackLogo = () => {
         if (brandImg.src === FALLBACK_BRAND_LOGO) return;
         brandImg.src = FALLBACK_BRAND_LOGO;

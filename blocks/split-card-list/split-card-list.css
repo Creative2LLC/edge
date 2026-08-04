@@ -199,7 +199,16 @@
 
 @media (width <= 900px) {
   .split-card-list .scl-inner {
+    /* Stack the two 50% columns: the statement cards have fixed-width content
+       that overflows a half-width column below ~900px. */
+    flex-direction: column;
     gap: 32px;
+  }
+
+  .split-card-list .scl-content,
+  .split-card-list .scl-cards {
+    flex: none;
+    width: 100%;
   }
 
   .split-card-list .scl-heading {

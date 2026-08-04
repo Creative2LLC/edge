@@ -858,6 +858,43 @@ export function observeInlineColors(main) {
 }
 
 /**
+ * Leadership bio pages (/about/leadership/<name>) were authored with the content
+ * block named after the person (e.g. `<div class="blair-bjellos">`) instead of a
+ * real block name. EDS would therefore fetch a non-existent
+ * /blocks/<name>/<name>.{css,js} — producing 404s and console errors that hurt
+ * the Lighthouse "errors-in-console" (best-practices) audit.
+ *
+ * We can't rename the block (that lives in the source document, not the code),
+ * and the existing `leadership-profile` block relies on author-only field
+ * instrumentation that isn't present on published pages, so remapping to it
+ * would drop the job title / restructure the bio. Instead, mark the mis-named
+ * block as already loaded so the loader skips the fetch: the bio content already
+ * renders correctly as plain block content, and the 404s disappear.
+ *
+ * The proper fix is to rename the block to "Leadership Profile" in each source
+ * document; this is a resilient code-side fallback until then.
+ * @param {Element} main The main element (already run through decorateBlocks)
+ */
+function skipMisnamedLeadershipBlock(main) {
+  // Leaf bio page only, e.g. /about/leadership/john-e-bischoff (not the index).
+  const isLeafBioPage = /\/about\/leadership\/[^/]+$/.test(
+    window.location.pathname.replace(/\.html$/, '').replace(/\/$/, ''),
+  );
+  if (!isLeafBioPage) return;
+
+  // The bio block is named after the person (which varies from the URL slug -
+  // e.g. "dr-john-e-bischoff-iii"), so match it structurally: a block that is
+  // not the real `leadership-profile` block and carries the headshot. Marking it
+  // "loaded" makes the loader skip the (404-ing) fetch; the content renders as-is.
+  main.querySelectorAll('.block').forEach((block) => {
+    const name = block.dataset.blockName;
+    if (name && name !== 'leadership-profile' && block.querySelector('picture')) {
+      block.dataset.blockStatus = 'loaded';
+    }
+  });
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
@@ -870,6 +907,7 @@ export function decorateMain(main) {
   decorateSections(main);
   applySectionSpacing(main);
   decorateBlocks(main);
+  skipMisnamedLeadershipBlock(main);
   applyDefaultContentAuthorStyles(main);
   applyImageLinks(main);
   decoratePdfLinks(main);

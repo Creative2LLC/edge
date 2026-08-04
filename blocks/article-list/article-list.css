@@ -323,6 +323,7 @@
   z-index: 3;
   display: inline-flex;
   align-items: center;
+  min-height: 24px; /* WCAG 2.5.8 target-size */
   gap: 0.35rem;
   color: #0d6e8c;
   font-size: 0.93rem;

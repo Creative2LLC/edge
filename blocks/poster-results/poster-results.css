@@ -1702,7 +1702,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 }
 
 .poster-results:not(.is-poster-page) .poster-results-field select {
-  color: #77838c;
+  color: #6b767e; /* was #77838c (3.88:1); darkened for WCAG AA 4.5:1 */
 }
 
 .poster-results:not(.is-poster-page) .poster-results-radio-group {

@@ -216,26 +216,37 @@
 
 .numbered-cards-carousel-layout .numbered-cards-dots {
   display: flex;
-  gap: 8px;
+  gap: 2px;
   align-items: center;
 }
 
 .numbered-cards-carousel-layout .numbered-cards-dot {
+  /* 24x24 hit target (WCAG 2.5.8 target-size); visual dot drawn by ::before. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.numbered-cards-carousel-layout .numbered-cards-dot::before {
+  content: "";
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: none;
   background: #a1a1a1;
-  cursor: pointer;
-  padding: 0;
   transition: background-color 0.2s ease;
 }
 
-.numbered-cards-carousel-layout .numbered-cards-dot.active {
+.numbered-cards-carousel-layout .numbered-cards-dot.active::before {
   background: #00264d;
 }
 
-.numbered-cards-carousel-layout .numbered-cards-dot:hover {
+.numbered-cards-carousel-layout .numbered-cards-dot:hover::before {
   opacity: 0.8;
 }
 

@@ -160,12 +160,13 @@
 }
 
 /* ===========================================================================
-   Mobile (≤ 900px) — the desktop layout forces a fixed 1420px-wide row plus
-   fixed inner column widths, so it runs off the right edge on phones. Stack
-   everything into a single column and let widths flow. Mobile-only; the
-   desktop layout above is untouched.
+   Stacked layout (<= 1440px) - the desktop layout forces a fixed 1420px-wide
+   row plus fixed inner column widths, so it runs off the right edge on anything
+   narrower than ~1440px (phones through small desktops). Stack everything into
+   a single column and let widths flow. The wide two-column desktop layout above
+   applies only where its 1420px min width actually fits.
    =========================================================================== */
-@media (width <= 900px) {
+@media (width <= 1440px) {
   .amber-alert-info .amber-alert-info-container {
     flex-direction: column;
     min-width: 0;
