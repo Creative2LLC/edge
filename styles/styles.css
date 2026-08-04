@@ -65,6 +65,11 @@
   /* fluid section vertical rhythm - use for section padding to smooth the
      900-1280px "awkward desktop" band instead of hard px breakpoints */
   --space-section: clamp(40px, 6vw, 96px);
+
+  /* vertical gap BETWEEN sections. Tops out at the historical 40px so desktop is
+     unchanged, and scales down consistently on tablet/mobile (instead of the old
+     hard-zeroed mobile margin). */
+  --flow-section: clamp(28px, 5vw, 40px);
 }
 
 /* fallback fonts */
@@ -771,14 +776,9 @@ main .default-content-wrapper img.image-positioned.align-right {
 
 /* sections */
 main > .section {
-  margin: 40px 0;
-}
-
-@media (width < 768px) {
-  main > .section  {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-  }
+  /* Adjacent section margins collapse, so this yields one --flow-section gap
+     between sections. Responsive + no !important, so blocks/mobile can override. */
+  margin: var(--flow-section) 0;
 }
 
 main > .section.no-margin {
