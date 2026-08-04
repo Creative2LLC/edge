@@ -233,6 +233,7 @@
    Responsive: mobile (<=700px)
    ------------------------------------------------------- */
 @media (width <= 700px) {
+
   .impact-chain .impact-chain-heading {
     font-size: 32px;
     padding-bottom: 44px;
@@ -259,7 +260,6 @@
   .impact-chain .impact-chain-item-image {
     flex: none;
     min-height: 200px;
-    max-height: 220px;
     border-radius: 12px 12px 0 0 !important;
   }
 

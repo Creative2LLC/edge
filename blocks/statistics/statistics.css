@@ -185,6 +185,13 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0;
 }
+@media (width <= 700px) {
+    .statistics .statistics-list {
+
+        grid-template-columns: 1fr;
+  
+    }
+}
 
 .statistics .statistics-item {
   text-align: center;
@@ -390,6 +397,7 @@
 
   .statistics .statistics-inner {
     min-height: 100%;
+    padding: 0 !important;
   }
 
   /* Single column on mobile: drop the items' side padding so every stat

@@ -776,9 +776,18 @@ main .default-content-wrapper img.image-positioned.align-right {
 
 /* sections */
 main > .section {
-  /* Adjacent section margins collapse, so this yields one --flow-section gap
-     between sections. Responsive + no !important, so blocks/mobile can override. */
+  /* Mobile/tablet: uniform flow gap between sections. Authored per-section
+     spacing is intentionally ignored here so mobile/tablet stay consistent. */
   margin: var(--flow-section) 0;
+}
+
+@media (width >= 900px) {
+  main > .section {
+    /* Desktop only: honor authored per-section top/bottom spacing when set
+       (applySectionSpacing writes --section-margin-*), else fall back to flow. */
+    margin-top: var(--section-margin-top, var(--flow-section));
+    margin-bottom: var(--section-margin-bottom, var(--flow-section));
+  }
 }
 
 main > .section.no-margin {

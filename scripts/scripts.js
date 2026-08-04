@@ -757,9 +757,12 @@ export function applyImageLinks(main) {
   applyImageLinksFromRows(main);
 }
 
+// Authored per-section spacing is exposed as custom properties (not real
+// margins) so the stylesheet decides where they apply. styles.css consumes them
+// only on desktop (>=900px); mobile/tablet use the uniform --flow-section gap.
 const SPACING_FIELDS = [
-  { name: 'topSpacing', cssProp: 'margin-top' },
-  { name: 'bottomSpacing', cssProp: 'margin-bottom' },
+  { name: 'topSpacing', cssProp: '--section-margin-top' },
+  { name: 'bottomSpacing', cssProp: '--section-margin-bottom' },
 ];
 
 function normalizeSpacingValue(raw) {
@@ -787,6 +790,8 @@ export function applySectionSpacing(main) {
       delete section.dataset[lowerName];
 
       const value = normalizeSpacingValue(raw);
+      // Sets --section-margin-top / --section-margin-bottom; the stylesheet
+      // applies them on desktop only.
       if (value) section.style.setProperty(cssProp, value, 'important');
     });
   });

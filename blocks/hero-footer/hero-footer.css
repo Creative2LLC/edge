@@ -252,8 +252,9 @@
   }
 
   .hero-footer-btn {
-    font-size: 18px;
-    padding: 12px 26px;
+    font-size: 18px !important;
+    padding: 12px 26px !important;
+    width: 100%;
   }
 }
 
