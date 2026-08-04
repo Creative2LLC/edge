@@ -1,5 +1,5 @@
 main > .section > .ncmec-reprint-request-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .ncmec-reprint-request {

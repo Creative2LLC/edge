@@ -16,7 +16,7 @@
 }
 
 .section-title .section-title-inner {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   display: flex;
   align-items: center;

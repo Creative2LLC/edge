@@ -18,7 +18,7 @@
 
 /* Wrapper */
 .split-thin-carousel .stc-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 80px 24px;
 }
@@ -83,7 +83,7 @@ main > .section > .split-thin-carousel-wrapper {
   border-radius: 14px;
   overflow: hidden;
   max-height: 630px;
-  max-width: 1420px;
+  max-width: var(--container);
   background: #fff;
 }
 

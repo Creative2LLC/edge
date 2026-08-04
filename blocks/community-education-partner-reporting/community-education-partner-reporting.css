@@ -1,5 +1,5 @@
 main > .section > .community-education-partner-reporting-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .community-education-partner-reporting,

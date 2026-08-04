@@ -1,7 +1,7 @@
 @import url("../event-request-form/event-request-form.css");
 
 main > .section > .apply-for-training-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .apply-for-training .event-request-form-progress {

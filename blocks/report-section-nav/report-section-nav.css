@@ -13,7 +13,7 @@ main > .section:has(> div:only-child > .report-section-nav) {
   position: sticky;
   top: calc(var(--nav-height, 64px) + 10px);
   z-index: 8;
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 10px 0;
 }

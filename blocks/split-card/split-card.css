@@ -198,7 +198,7 @@ main > .section > .split-card-wrapper {
 
 /* Smaller-size variant */
 .split-card.split-card-size-smaller {
-  --split-card-max-width: 1420px;
+  --split-card-max-width: var(--container);
 }
 
 .split-card.split-card-size-smaller .split-card-inner {

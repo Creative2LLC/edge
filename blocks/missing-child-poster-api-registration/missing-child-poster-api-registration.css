@@ -1,5 +1,5 @@
 main > .section > .missing-child-poster-api-registration-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .missing-child-poster-api-registration {

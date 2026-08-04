@@ -11,7 +11,7 @@
   --cybertipline-geo-orange: #de8a2a;
   --cybertipline-geo-gold: #f5b51b;
 
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 72px 0;
   color: var(--cybertipline-geo-text);

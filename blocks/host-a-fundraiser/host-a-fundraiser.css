@@ -1,5 +1,5 @@
 main > .section > .host-a-fundraiser-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .host-a-fundraiser {

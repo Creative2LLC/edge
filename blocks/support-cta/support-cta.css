@@ -1,5 +1,5 @@
 main > .section > .support-cta-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
   padding-left: 0;
   padding-right: 0;
 }

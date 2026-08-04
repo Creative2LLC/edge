@@ -1,6 +1,6 @@
 /* Block root */
 .us-map.block {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 60px 24px;
 }

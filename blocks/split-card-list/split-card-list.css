@@ -1,7 +1,7 @@
 /* Split Card List Block */
 .split-card-list {
   padding: 0;
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
 }
 

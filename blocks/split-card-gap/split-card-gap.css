@@ -13,7 +13,7 @@
    image + content edges reach the full width. Side padding is restored on
    smaller screens so content doesn't touch the viewport edges. */
 main > .section > .split-card-gap-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
   padding-left: 0;
   padding-right: 0;
 }

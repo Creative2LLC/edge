@@ -19,7 +19,7 @@
 }
 
 .tabs .tabs-shell {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   display: grid;
   gap: 28px;

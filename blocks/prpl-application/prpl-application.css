@@ -1,5 +1,5 @@
 @import url("../event-request-form/event-request-form.css");
 
 main > .section > .prpl-application-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }

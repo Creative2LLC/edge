@@ -41,6 +41,30 @@
   /* nav height */
   --nav-height: 64px;
   --top-banner-height: 47px;
+
+  /* spacing scale (4px base) - snap ad-hoc padding/margin/gap to these */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-18: 72px;
+
+  /* content container widths - consolidate the ~20 ad-hoc max-widths to these */
+  --container: 1420px;
+  --container-narrow: 1040px;
+  --container-text: 760px;
+
+  /* fluid section vertical rhythm - use for section padding to smooth the
+     900-1280px "awkward desktop" band instead of hard px breakpoints */
+  --space-section: clamp(40px, 6vw, 96px);
 }
 
 /* fallback fonts */
@@ -750,12 +774,19 @@ main > .section {
   margin: 40px 0;
 }
 
+@media (width < 768px) {
+  main > .section  {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
 main > .section.no-margin {
   margin: 0;
 }
 
 main > .section > div {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: auto;
   padding: 0 24px;
 }

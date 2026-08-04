@@ -1,5 +1,5 @@
 main > .section > .faon-application-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .faon-application {

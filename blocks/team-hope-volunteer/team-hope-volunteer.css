@@ -1,5 +1,5 @@
 main > .section > .team-hope-volunteer-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .team-hope-volunteer {

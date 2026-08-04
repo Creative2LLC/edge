@@ -1,6 +1,6 @@
 .report-download {
   padding: 44px 0;
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
 }
 

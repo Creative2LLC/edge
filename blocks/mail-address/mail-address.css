@@ -2,7 +2,7 @@
 .mail-address.block {
   padding: 60px 0;
   margin: 0 auto;
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 /* Break out of section wrapper's 32px horizontal padding so the block fills

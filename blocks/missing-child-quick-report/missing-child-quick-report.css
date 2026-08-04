@@ -1,5 +1,5 @@
 main > .section > .missing-child-quick-report-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .missing-child-quick-report {

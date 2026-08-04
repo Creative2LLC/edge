@@ -1,5 +1,5 @@
 main > .section > .event-request-form-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .event-request-form {

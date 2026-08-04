@@ -331,7 +331,7 @@
    so left/right-aligned text lines up with the hero title's edge. */
 .statistics.statistics-align-left .statistics-inner,
 .statistics.statistics-align-right .statistics-inner {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
 }
 

@@ -17,7 +17,7 @@
 }
 
 .numbered-cards-custom .numbered-cards-custom-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 88px 24px 76px;
 }

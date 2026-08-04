@@ -6,7 +6,7 @@
   --impact-data-table-surface: #fff;
   --impact-data-table-wash: #f5f9fb;
 
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 64px 32px;
   color: var(--impact-data-table-text);

@@ -4,7 +4,7 @@
   --social-report-cta-gold: #fcb813;
   --social-report-cta-cream: #fffaf0;
 
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 44px auto;
 }
 

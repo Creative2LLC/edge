@@ -18,7 +18,7 @@
 
 /* Wrapper */
 .detailed-carousel .detailed-carousel-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 80px 24px;
 }

@@ -5,7 +5,7 @@
   gap: 48px;
   border-radius: 32px;
   min-height: 436px;
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 48px 88px;
   box-sizing: border-box;

@@ -1,7 +1,7 @@
 .report-breakdown {
   position: relative;
   padding: 84px 0 70px;
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   overflow-x: clip;
 }

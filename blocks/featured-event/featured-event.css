@@ -12,7 +12,7 @@ main > .section > .featured-event-wrapper {
 }
 
 .featured-event .featured-event-inner {
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   width: 100%;
 }

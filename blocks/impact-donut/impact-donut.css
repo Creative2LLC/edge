@@ -7,7 +7,7 @@
   --impact-donut-divider-color: #e5e1db;
 
   padding: 72px 0;
-  max-width: 1420px;
+  max-width: var(--container);
   margin: 0 auto;
   background: var(--impact-donut-surface);
 }

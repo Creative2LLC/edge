@@ -1,5 +1,5 @@
 main > .section > .training-sessions-wrapper {
-  max-width: 1420px;
+  max-width: var(--container);
 }
 
 .training-sessions {
