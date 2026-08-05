@@ -178,7 +178,7 @@
 @media (width <= 900px) {
   .logo-carousel {
     margin: 40px auto;
-    padding: 0 20px;
+    padding: 0 var(--gutter);
   }
 
   .logo-carousel-wrapper {

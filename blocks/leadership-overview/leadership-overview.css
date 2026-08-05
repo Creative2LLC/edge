@@ -218,7 +218,7 @@
 
 @media (width <= 900px) {
   .leadership-overview {
-    padding: 72px 20px 80px;
+    padding: 72px 0 80px;
   }
 
   .leadership-overview .leadership-overview-feature {
@@ -240,7 +240,7 @@
 
 @media (width <= 600px) {
   .leadership-overview {
-    padding: 60px 16px 64px;
+    padding: 60px 0 64px;
   }
 
   .leadership-overview .leadership-overview-subheading {

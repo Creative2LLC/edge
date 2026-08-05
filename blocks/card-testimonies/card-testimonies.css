@@ -171,6 +171,12 @@ main > .section > .card-testimonies-wrapper {
 
 /* Tablet */
 @media (width <= 900px) {
+  /* Keep the background full-bleed (wrapper padding stays 0) but give the
+     content a gutter so it isn't flush to the screen edge on mobile. */
+  .card-testimonies {
+    padding-inline: var(--gutter);
+  }
+
   .card-testimonies-title {
     font-size: 36px;
   }

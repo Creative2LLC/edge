@@ -352,7 +352,7 @@
 /* Responsive - mobile */
 @media (width <= 600px) {
   .us-map.block {
-    padding: 40px 16px;
+    padding: 40px 0;
   }
 
   .us-map-state-name {

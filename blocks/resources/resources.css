@@ -86,15 +86,15 @@ main > .section > .resources-wrapper {
   cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
-  margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (var(--resources-viewport-width) - 1420px) / 2));
+  margin-right: calc(var(--gutter) * -1);
+  width: calc(100% + var(--gutter) + max(0px, (var(--resources-viewport-width) - 1420px) / 2));
 
   /* Trailing gutter so the last card doesn't sit flush against the right edge
      when scrolled to the end. Mirrors the card's left inset at every width
      (24px, plus the full-width breakout amount on screens wider than 1420px).
      Padding on a scroll track only adds space after the last item, so it does
      not affect mid-scroll peeking. */
-  padding-right: calc(24px + max(0px, (var(--resources-viewport-width) - 1420px) / 2));
+  padding-right: calc(var(--gutter) + max(0px, (var(--resources-viewport-width) - 1420px) / 2));
   padding-bottom: 16px;
   box-sizing: border-box;
 }
@@ -313,7 +313,7 @@ main > .section > .resources-wrapper {
 /* Responsive */
 @media (width <= 700px) {
   .resources .resources-inner {
-    padding: 40px 20px;
+    padding: 40px var(--gutter);
   }
 
   .resources .resources-heading {
