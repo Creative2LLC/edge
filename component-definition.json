@@ -331,67 +331,6 @@
           }
         },
         {
-          "title": "Article Detail",
-          "id": "article-detail",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Article Detail",
-                  "model": "article-detail"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Article Details",
-          "id": "article-details",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Article Details",
-                  "model": "article-details",
-                  "filter": "article-details"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Article Body Text",
-          "id": "article-body-text",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Article Body Text",
-                  "model": "article-body-text"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Article Body Image",
-          "id": "article-body-image",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Article Body Image",
-                  "model": "article-body-image"
-                }
-              }
-            }
-          }
-        },
-        {
           "title": "Article List",
           "id": "article-list",
           "plugins": {
@@ -401,37 +340,6 @@
                 "template": {
                   "name": "Article List",
                   "model": "article-list"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Button Group",
-          "id": "btn-group",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Button Group",
-                  "model": "btn-group",
-                  "filter": "btn-group"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Button Group Item",
-          "id": "btn-group-item",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Button Group Item",
-                  "model": "btn-group-item"
                 }
               }
             }
@@ -587,35 +495,6 @@
                 "template": {
                   "name": "Card",
                   "model": "card"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Carousel",
-          "id": "carousel",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Carousel",
-                  "filter": "carousel"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Carousel Slide",
-          "id": "carousel-slide",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Carousel Slide"
                 }
               }
             }
@@ -1134,21 +1013,6 @@
                 "template": {
                   "name": "Gallery Grid Item",
                   "model": "gallery-grid-item"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Giving",
-          "id": "giving",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Giving",
-                  "model": "giving"
                 }
               }
             }
@@ -2215,36 +2079,6 @@
           }
         },
         {
-          "title": "Resource Detail",
-          "id": "resource-detail",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Resource Detail",
-                  "model": "resource-detail"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Resource Details",
-          "id": "resource-details",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Resource Details",
-                  "model": "resource-details"
-                }
-              }
-            }
-          }
-        },
-        {
           "title": "Resource Downloads",
           "id": "resource-downloads",
           "plugins": {
@@ -2315,21 +2149,6 @@
                 "template": {
                   "name": "Resource Video Hero",
                   "model": "resource-video-hero"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Resource Video Player",
-          "id": "resource-video-player",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Resource Video Player",
-                  "model": "resource-video-player"
                 }
               }
             }
@@ -2867,6 +2686,67 @@
                 "template": {
                   "name": "Video",
                   "model": "video"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Article Details",
+          "id": "article-details",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Article Details",
+                  "model": "article-details",
+                  "filter": "article-details"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Article Body Text",
+          "id": "article-body-text",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Article Body Text",
+                  "model": "article-body-text"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Article Body Image",
+          "id": "article-body-image",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Article Body Image",
+                  "model": "article-body-image"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Resource Details",
+          "id": "resource-details",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Resource Details",
+                  "model": "resource-details"
                 }
               }
             }

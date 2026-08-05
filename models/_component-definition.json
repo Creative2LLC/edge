@@ -77,7 +77,13 @@
       "id": "blocks",
       "components": [
         {
-          "...": "../blocks/!(general-inquiries|newsletter|missing-child-quick-report|missing-child-poster-api-registration|code-adam-kit|ncmec-reprint-request|team-hope-volunteer|host-a-fundraiser|faon-application|event-request-form|community-education-partner-reporting|prpl-application|apply-for-training)/_*.json#/definitions"
+          "...": "../blocks/!(general-inquiries|newsletter|missing-child-quick-report|missing-child-poster-api-registration|code-adam-kit|ncmec-reprint-request|team-hope-volunteer|host-a-fundraiser|faon-application|event-request-form|community-education-partner-reporting|prpl-application|apply-for-training|giving|resource-detail|article-detail|btn-group|carousel|resource-video-player)/_*.json#/definitions"
+        },
+        {
+          "...": "../blocks/article-details/_article-details.json#/definitions"
+        },
+        {
+          "...": "../blocks/resource-details/_resource-details.json#/definitions"
         }
       ]
     }
