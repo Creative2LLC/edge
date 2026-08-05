@@ -3,14 +3,6 @@
   padding: 24px 0;
 }
 
-/* Break out of the section wrapper's 24px inline padding so the buttons
-   sit flush with the page edges. Tablet+ only — mobile keeps breathing room. */
-@media (width >= 700px) {
-  .btn-group.block {
-    margin-inline: -24px;
-  }
-}
-
 /* Inner container */
 .btn-group-inner {
   display: flex;

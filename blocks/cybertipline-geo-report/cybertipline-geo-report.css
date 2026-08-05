@@ -22,18 +22,6 @@
   --cybertipline-geo-copy-color: #fff;
 }
 
-@media (width >= 700px) {
-  .cybertipline-geo-report {
-    margin-inline: -24px;
-  }
-}
-
-@media (width >= 900px) {
-  .cybertipline-geo-report {
-    margin-inline: -32px;
-  }
-}
-
 .cybertipline-geo-report .cybertipline-geo-report-inner {
   display: grid;
   gap: 34px;
@@ -613,7 +601,6 @@
   gap: 8px;
   align-items: baseline;
 }
-
 
 .cybertipline-geo-report .cybertipline-geo-report-detail-top-rank {
   color: var(--cybertipline-geo-orange);

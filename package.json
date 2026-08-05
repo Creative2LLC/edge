@@ -21,6 +21,8 @@
     "audit:summarize": "node scripts/audit-summarize.mjs",
     "gallery": "node scripts/build-review-gallery.mjs",
     "spacing-audit": "node scripts/spacing-audit.mjs",
+    "gutter-audit": "node scripts/gutter-audit.mjs",
+    "inner-padding-audit": "node scripts/inner-padding-audit.mjs",
     "dev:css": "vite build --watch",
     "build:css": "vite build",
     "prepare": "husky"

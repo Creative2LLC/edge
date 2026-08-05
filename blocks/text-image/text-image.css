@@ -10,11 +10,6 @@
 
 /* Break out of section wrapper's 32px horizontal padding so the block fills
    the full 1420px section width on desktop. Applies to all variants. */
-@media (width >= 900px) {
-  .text-image.block {
-    margin-inline: -32px;
-  }
-}
 
 .text-image.block .text-image-inner {
   display: flex;

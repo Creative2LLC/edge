@@ -5,11 +5,6 @@
 }
 
 /* Break out of the section's side padding so the block spans the full 1420px */
-@media (width >= 900px) {
-  .card-row.block {
-    margin: 0 -32px;
-  }
-}
 
 /* Grid container */
 .card-row-grid {

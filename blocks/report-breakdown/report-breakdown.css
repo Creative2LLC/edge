@@ -6,20 +6,6 @@
   overflow-x: clip;
 }
 
-/* Break out of the section wrapper's inline padding so the block spans
-   the full 1420px outer width. */
-@media (width >= 700px) {
-  .report-breakdown {
-    margin-inline: -24px;
-  }
-}
-
-@media (width >= 900px) {
-  .report-breakdown {
-    margin-inline: -32px;
-  }
-}
-
 .report-breakdown .report-breakdown-inner {
   display: grid;
   gap: 30px;
@@ -277,7 +263,6 @@
 .report-breakdown .report-breakdown-row.is-authoring-placeholder .report-breakdown-swatch {
   box-shadow: inset 0 0 0 1px rgb(17 58 103 / 10%);
 }
-
 
 .report-breakdown .report-breakdown-total {
   grid-template-columns: minmax(0, 1fr) auto;

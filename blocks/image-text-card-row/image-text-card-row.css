@@ -2,14 +2,6 @@
   padding: 60px 0;
 }
 
-/* Break out of the section wrapper's 32px horizontal padding so the block
-   fills the full 1420px section width on desktop and cards reach edge-to-edge. */
-@media (width >= 900px) {
-  .image-text-card-row {
-    margin-inline: -32px;
-  }
-}
-
 /* Grid layout */
 .image-text-card-row .image-text-card-row-grid {
   display: flex;

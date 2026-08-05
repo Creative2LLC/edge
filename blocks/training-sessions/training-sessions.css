@@ -6,14 +6,6 @@ main > .section > .training-sessions-wrapper {
   padding: clamp(36px, 5vw, 72px) 0;
 }
 
-/* Break out of the section wrapper's inline padding so the stack sits flush
-   with the 1420px outer edges (tablet+ only). */
-@media (width >= 700px) {
-  .training-sessions {
-    margin-inline: -24px;
-  }
-}
-
 /* ---------- Header ---------- */
 .training-sessions .training-sessions-header {
   margin: 0 0 clamp(24px, 3vw, 40px);

@@ -19,18 +19,6 @@
   --impact-bar-chart-copy-color: #fff;
 }
 
-@media (width >= 700px) {
-  .impact-bar-chart {
-    margin-inline: -24px;
-  }
-}
-
-@media (width >= 900px) {
-  .impact-bar-chart {
-    margin-inline: -32px;
-  }
-}
-
 .impact-bar-chart .impact-bar-chart-inner {
   display: grid;
   gap: 28px;
@@ -355,7 +343,6 @@
   left: 0;
   z-index: 1;
 }
-
 
 .impact-bar-chart .impact-bar-chart-table-wrap.is-multiseries th:first-child {
   z-index: 2;

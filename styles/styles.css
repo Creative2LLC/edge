@@ -70,6 +70,14 @@
      unchanged, and scales down consistently on tablet/mobile (instead of the old
      hard-zeroed mobile margin). */
   --flow-section: clamp(28px, 5vw, 40px);
+
+  /* vertical gap BETWEEN blocks within a section (mobile/tablet only) */
+  --flow-block: clamp(20px, 4vw, 32px);
+
+  /* horizontal gutter: where content sits from the viewport edge on mobile.
+     Full-bleed blocks should use this as their inner padding so content aligns.
+     (Desktop keeps the section wrapper's own 32px.) */
+  --gutter: 24px;
 }
 
 /* fallback fonts */
@@ -797,7 +805,22 @@ main > .section.no-margin {
 main > .section > div {
   max-width: var(--container);
   margin: auto;
-  padding: 0 24px;
+  padding: 0 var(--gutter);
+}
+
+/* Inter-block vertical rhythm within a section (mobile/tablet only; desktop
+   keeps each block's existing spacing, which is already fine there). */
+@media (width < 900px) {
+  main > .section > div + div {
+    margin-top: var(--flow-block);
+  }
+
+  /* Make that gap the single source of inter-block spacing by neutralizing each
+     block's own outer vertical margin. Internal content spacing is untouched.
+     Add exceptions as `main > .section > div > .some-block { margin-block: revert; }`. */
+  main > .section > div > .block {
+    margin-block: 0;
+  }
 }
 
 /* Sections with an inline background color (set via AEM section metadata):
@@ -806,8 +829,10 @@ main > .section > div {
    from collapsing up/out of the section. */
 main > .section[data-background-color],
 main > .section[data-background-gradient] {
-  padding-top: 40px;
-  padding-bottom: 40px;
+  /* ~24px on mobile up to 40px on desktop; non-zero keeps child margins from
+     collapsing out of the colored area. */
+  padding-top: clamp(24px, 5vw, 40px);
+  padding-bottom: clamp(24px, 5vw, 40px);
 }
 
 main > .section[data-background-gradient] {
@@ -831,7 +856,7 @@ main .section.light,
 main .section.highlight {
   background-color: var(--light-color);
   margin: 0;
-  padding: 40px 0;
+  padding: clamp(24px, 5vw, 40px) 0;
 }
 
 main > .section.padding-top-sm { padding-top: 24px; }

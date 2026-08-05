@@ -12,18 +12,6 @@
   color: var(--impact-data-table-text);
 }
 
-@media (width >= 700px) {
-  .impact-data-table {
-    margin-inline: -24px;
-  }
-}
-
-@media (width >= 900px) {
-  .impact-data-table {
-    margin-inline: -32px;
-  }
-}
-
 .impact-data-table .impact-data-table-inner {
   display: grid;
   gap: 28px;

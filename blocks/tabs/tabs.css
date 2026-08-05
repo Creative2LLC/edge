@@ -9,15 +9,6 @@
   padding: clamp(44px, 6vw, 76px) 0;
 }
 
-/* Break out of the section wrapper's 32px side padding at desktop so the block
-   reaches the same 1420px line as the section-title block above it. */
-@media (width >= 900px) {
-  .tabs {
-    margin-left: -32px;
-    margin-right: -32px;
-  }
-}
-
 .tabs .tabs-shell {
   max-width: var(--container);
   margin: 0 auto;

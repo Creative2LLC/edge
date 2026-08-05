@@ -106,13 +106,7 @@
   flex: 1 1 auto;
 }
 
-/* Break out of the section wrapper's 24px inline padding so first/last items
-   sit flush with the 1420px outer edges. Tablet+ only — mobile keeps
-   breathing room. */
 @media (width >= 700px) {
-  .statistics {
-    margin-inline: -24px;
-  }
 
   .columns .statistics {
     margin-inline: 0;
