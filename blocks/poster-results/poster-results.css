@@ -1397,7 +1397,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   }
 
   .poster-results-related + .poster-results-related {
-    padding-top: 22px;
+    padding-top: 24px;
     padding-left: 0;
     border-top: 1px solid #d9e1e6;
     border-left: 0;
@@ -1437,7 +1437,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
   .poster-results-detail-footer {
     grid-template-columns: 1fr;
-    padding: 26px 20px;
+    padding: 28px 20px;
   }
 
   .poster-results.is-poster-page .poster-results-detail-gallery {
@@ -1850,7 +1850,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 @media (width <= 700px) {
   .poster-results:not(.is-poster-page) {
-    padding: 42px 0 0;
+    padding: 44px 0 0;
   }
 
   .poster-results:not(.is-poster-page) .poster-results-inner {
@@ -1880,7 +1880,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   }
 
   .poster-results:not(.is-poster-page) .poster-results-form {
-    padding: 26px 20px 30px;
+    padding: 28px 20px 32px;
   }
 
   .poster-results-form-top,

@@ -973,7 +973,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding-right: 2px;
-    padding-bottom: 22px;
+    padding-bottom: 24px;
     pointer-events: auto;
     scrollbar-gutter: stable;
     transform: translateY(0);

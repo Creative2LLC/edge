@@ -224,7 +224,7 @@
   .report-archive .report-archive-panel-inner {
     flex-direction: column;
     gap: 16px;
-    padding: 0 18px 22px;
+    padding: 0 18px 24px;
   }
 
   .report-archive .report-archive-cover {

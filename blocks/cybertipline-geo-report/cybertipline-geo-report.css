@@ -957,7 +957,7 @@
   .cybertipline-geo-report .cybertipline-geo-report-map-card {
     gap: 18px;
     width: calc(100% - 32px);
-    padding: 22px;
+    padding: 24px;
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-map-card h3 {

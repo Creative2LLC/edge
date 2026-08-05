@@ -306,7 +306,7 @@
 
 @media (width <= 700px) {
   .historical-trends {
-    padding: 58px 0 48px;
+    padding: 60px 0 48px;
   }
 
   .historical-trends .historical-trends-inner {
@@ -336,7 +336,7 @@
   }
 
   .historical-trends .historical-trends-card-link {
-    padding-top: 22px;
+    padding-top: 24px;
   }
 }
 

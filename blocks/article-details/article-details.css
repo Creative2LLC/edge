@@ -224,7 +224,7 @@
 @media (width <= 768px) {
   .article-details .article-details-hero {
     min-height: 420px;
-    padding: 104px 18px 42px;
+    padding: 104px 18px 44px;
   }
 
   .article-details .article-details-title {

@@ -501,7 +501,7 @@ main > .section > .general-inquiries-wrapper {
 @media (width < 768px) {
   .general-inquiries {
     border-radius: 22px;
-    padding: 22px 18px;
+    padding: 24px 18px;
   }
 
   .general-inquiries .general-inquiries-form {

@@ -258,7 +258,7 @@
     bottom: 14px;
     max-width: min(270px, calc(100% - 28px));
     max-height: calc(100% - 28px);
-    padding: 22px 20px;
+    padding: 24px 20px;
   }
 
   .text-image.block .text-image-overlay-header {

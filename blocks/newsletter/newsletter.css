@@ -202,7 +202,7 @@ main > .section > .newsletter-wrapper {
 @media (width <= 700px) {
   .newsletter {
     min-height: 300px;
-    padding: 42px 18px;
+    padding: 44px 18px;
   }
 
   .newsletter .newsletter-subheading {

@@ -526,7 +526,7 @@
 @media (width <= 899px) {
   .hero {
     min-height: min(var(--hero-height, 420px), 420px);
-    padding: 38px 24px 28px;
+    padding: 40px 24px 28px;
   }
 
   .hero .hero-main.has-featured-image {
@@ -621,7 +621,7 @@
 @media (width <= 600px) {
   .hero {
     min-height: min(var(--hero-height, 360px), 360px);
-    padding: 26px 24px 22px;
+    padding: 28px 24px 24px;
   }
 
   .hero .hero-main.has-featured-image {

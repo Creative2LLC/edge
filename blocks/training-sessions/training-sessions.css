@@ -116,7 +116,7 @@ main > .section > .training-sessions-wrapper {
   .training-sessions .training-sessions-card {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px 24px;
-    padding: 22px 24px;
+    padding: 24px 24px;
   }
 
   /* Text columns stack on the left; the arrow spans the right edge. */

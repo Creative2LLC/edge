@@ -194,7 +194,7 @@
   .report-download .report-download-inner {
     grid-template-columns: 1fr;
     gap: 26px;
-    padding: 26px 22px 30px;
+    padding: 28px 22px 32px;
   }
 
   .report-download .report-download-media {

@@ -273,7 +273,7 @@
 @media (width <= 768px) {
   .resource-detail .resource-detail-hero {
     min-height: 420px;
-    padding: 104px 18px 42px;
+    padding: 104px 18px 44px;
   }
 
   .resource-detail .resource-detail-title {
