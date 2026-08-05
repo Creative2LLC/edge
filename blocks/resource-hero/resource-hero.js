@@ -333,6 +333,15 @@ function consumeTaxonomy(entries, group) {
   return entry?.text || '';
 }
 
+function consumeNumericField(entries) {
+  const entry = consumeMatching(entries, (candidate) => {
+    const tokens = candidate.tokens.map((token) => normalizeText(token));
+    return tokens.length > 0 && tokens.every((token) => /^\d+$/.test(token));
+  });
+
+  return entry?.tokens.find((token) => /^\d+$/.test(normalizeText(token))) || '';
+}
+
 function extensionFromPath(value) {
   const clean = normalizeText(value).split(/[?#]/)[0];
   const last = clean.split('/').pop() || '';
@@ -441,6 +450,12 @@ function parseFlattenedFields(block) {
   fields.programs = consumeTaxonomy(entries, 'programs');
   fields.gradeAges = consumeTaxonomy(entries, 'gradeAges');
   fields.length = consumeTaxonomy(entries, 'length');
+  if (fields.length) {
+    fields.weight = consumeNumericField(entries);
+  } else {
+    fields.durationMinutes = consumeNumericField(entries);
+    fields.weight = consumeNumericField(entries);
+  }
 
   return {
     ...fields,
@@ -995,6 +1010,26 @@ function readFields(block, aemFields) {
   const titleField = readTextField(block, 'pageTitle');
   const introField = readTextField(block, 'jcr:description');
   const bodyField = readRichTextField(block, 'resourceBody');
+  const resolvedTitle = titleField.value
+    || normalizeFieldValue(aemFields.pageTitle)
+    || flattened.pageTitle;
+  const resolvedIntro = introField.value
+    || normalizeFieldValue(aemFields['jcr:description'])
+    || flattened.description;
+  const resolvedBodyHtml = bodyField.html
+    || readRichHtml(block, aemFields, 'resourceBody', flattened.resourceBody);
+  const bodyText = normalizeText(new DOMParser()
+    .parseFromString(resolvedBodyHtml || '', 'text/html')
+    .body.textContent);
+  const promoteIntroToTitle = !resolvedTitle && resolvedIntro;
+  const promoteBodyToTitle = !resolvedTitle
+    && !resolvedIntro
+    && bodyText
+    && bodyText.length <= 140
+    && !/[.!?]\s/.test(bodyText);
+  let promotedTitle = resolvedTitle;
+  if (promoteIntroToTitle) promotedTitle = resolvedIntro;
+  else if (promoteBodyToTitle) promotedTitle = bodyText;
 
   return {
     variant: normalizeChoice(
@@ -1020,11 +1055,11 @@ function readFields(block, aemFields) {
       'show',
     ),
     breadcrumbs: readText(block, aemFields, 'content_breadcrumbs', flattened.content_breadcrumbs),
-    title: titleField.value || normalizeFieldValue(aemFields.pageTitle) || flattened.pageTitle,
+    title: promotedTitle,
     titleField,
-    intro: introField.value || normalizeFieldValue(aemFields['jcr:description']) || flattened.description,
+    intro: promoteIntroToTitle ? '' : resolvedIntro,
     introField,
-    bodyHtml: bodyField.html || readRichHtml(block, aemFields, 'resourceBody', flattened.resourceBody),
+    bodyHtml: promoteBodyToTitle ? '' : resolvedBodyHtml,
     bodyField,
     textColor: normalizeHexColor(readText(block, aemFields, 'content_textColor', flattened.content_textColor)),
     titleSize: normalizeToken(readText(block, aemFields, 'content_titleSize', flattened.content_titleSize), TITLE_SIZE_TOKENS),

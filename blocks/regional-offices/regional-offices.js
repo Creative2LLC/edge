@@ -21,7 +21,8 @@ function isRegionalOfficeItemRow(row) {
     row.querySelector('[data-aue-prop="image"]')
       || row.querySelector('[data-aue-prop="title"]')
       || row.querySelector('[data-aue-prop="buttonText"]')
-      || cols.length >= 5,
+      || cols.length >= 5
+      || (cols.length >= 3 && row.querySelector('picture, img')),
   );
 }
 
@@ -53,23 +54,27 @@ function getBlockRichField(block, name, rowIndex = BLOCK_ROW_INDEX[name], column
   return field.source || field.cell;
 }
 
+function getFallbackCellAt(row, index) {
+  return Number.isInteger(index) ? row.children[index] || null : null;
+}
+
 function getField(row, name, index) {
-  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  const field = readTextField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
   return { source: field.source, value: field.value };
 }
 
 function getLinkField(row, name, index) {
-  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  const field = readLinkField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
   return { source: field.source, value: field.value };
 }
 
 function getRichField(row, name, index) {
-  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  const field = readRichTextField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
   return field.source || field.cell;
 }
 
 function getImageField(row, name, index) {
-  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  const field = readImageField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
   return {
     source: field.source,
     picture: field.picture,
@@ -85,6 +90,15 @@ function isLikelyLinkValue(value) {
   return /^(?:#|\/|https?:\/\/|mailto:|tel:)/i.test(String(value || '').trim());
 }
 
+function isLikelyButtonText(value, imageAlts = []) {
+  const text = String(value || '').trim();
+  return /(?:learn more|view more|read more|contact us|office details|→)/i.test(text)
+    || (imageAlts.length > 0 && /office$/i.test(text) && !imageAlts.includes(text));
+}
+
+function normalizeCompactText(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
 function getCellLinkValue(cell) {
   if (!cell) return '';
   const anchor = cell.tagName === 'A' ? cell : cell.querySelector?.('a[href]');
@@ -105,19 +119,37 @@ function findRowLinkField(row, startIndex = 0) {
 
 function getItemColumnMap(row) {
   const hasInstrumentation = row.querySelector('[data-aue-prop], [data-richtext-prop]');
-  const imageAltCellValue = row.children[1]?.textContent.trim() || '';
-  const titleCellValue = row.children[2]?.textContent.trim() || '';
-  const secondCellLooksLikeTitle = imageAltCellValue && !titleCellValue;
+  const cells = [...row.children];
 
-  if (!hasInstrumentation && secondCellLooksLikeTitle) {
+  if (!hasInstrumentation) {
+    const imageAlts = [...row.querySelectorAll('img')]
+      .map((img) => normalizeCompactText(img.alt))
+      .filter(Boolean);
+    const textCells = cells
+      .map((cell, index) => ({
+        cell,
+        index,
+        text: normalizeCompactText(cell.textContent),
+      }))
+      .filter(({ index, text }) => index > 0 && text)
+      .filter(({ text }) => !isButtonStyleValue(text) && !isLikelyLinkValue(text));
+
+    const buttonTextCell = textCells.find(({ text }) => isLikelyButtonText(text, imageAlts));
+    const contentCells = textCells.filter((entry) => entry !== buttonTextCell);
+    const titleCell = contentCells.find(({ text }) => imageAlts.includes(text))
+      || [...contentCells].sort((a, b) => a.text.length - b.text.length)[0];
+    const bodyCell = contentCells
+      .filter((entry) => entry !== titleCell)
+      .sort((a, b) => b.text.length - a.text.length)[0];
+
     return {
       image: 0,
       imageAlt: null,
-      title: 1,
-      bodyText: 2,
-      buttonText: 3,
-      buttonLink: 4,
-      buttonStyle: 5,
+      title: titleCell?.index ?? 2,
+      bodyText: bodyCell?.index ?? 1,
+      buttonText: buttonTextCell?.index ?? null,
+      buttonLink: null,
+      buttonStyle: null,
     };
   }
 

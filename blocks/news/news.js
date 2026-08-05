@@ -322,15 +322,14 @@ function buildSmallCard(article, row, hidden) {
 }
 
 export default function decorate(block) {
+  const hasAuthoredFeaturedLayout = Boolean(block.querySelector('.news-featured'));
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
   const subheading = getBlockField(block, legacyMap, 'subheading');
   const headerButtonText = getBlockField(block, legacyMap, 'headerButtonText');
   const headerButtonLink = getBlockLinkField(block, legacyMap, 'headerButtonLink');
-  const featuredMode = getBlockField(block, legacyMap, 'featuredMode') || 'featured';
+  const featuredMode = getBlockField(block, legacyMap, 'featuredMode');
   const buttonText = getBlockField(block, legacyMap, 'button') || 'View More News';
-
-  const useFeatured = featuredMode !== 'none';
 
   // Remaining rows are article items
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -339,6 +338,10 @@ export default function decorate(block) {
     const article = parseArticleRow(row);
     if (article) articles.push({ data: article, row });
   });
+
+  const useFeatured = featuredMode
+    ? featuredMode !== 'none'
+    : hasAuthoredFeaturedLayout || articles.length > 3;
 
   const inner = document.createElement('div');
   inner.className = 'news-inner';
