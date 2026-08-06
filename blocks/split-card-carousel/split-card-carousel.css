@@ -70,6 +70,11 @@ main > .section > .split-card-carousel-wrapper {
   display: none;
 }
 
+.split-card-carousel .split-card-carousel-track:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 4px;
+}
+
 /* Each slide */
 .split-card-carousel .split-card-carousel-slide {
   flex: 0 0 85%;
@@ -225,28 +230,43 @@ main > .section > .split-card-carousel-wrapper {
 /* Dots — pill-segment progress bar */
 .split-card-carousel .split-card-carousel-dots {
   display: flex;
-  gap: 6px;
+  gap: 2px;
   align-items: center;
 }
 
 .split-card-carousel .split-card-carousel-dot {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.split-card-carousel .split-card-carousel-dot::before {
   width: 8px;
   height: 4px;
   border-radius: 999px;
-  border: none;
   background: rgb(0 38 77 / 20%);
-  cursor: pointer;
-  padding: 0;
+  content: '';
   transition: width 0.3s ease, background-color 0.2s ease;
 }
 
-.split-card-carousel .split-card-carousel-dot.active {
+.split-card-carousel .split-card-carousel-dot.active::before {
   width: 28px;
   background: #00264d;
 }
 
-.split-card-carousel .split-card-carousel-dot:hover:not(.active) {
+.split-card-carousel .split-card-carousel-dot:hover:not(.active)::before {
   background: rgb(0 38 77 / 40%);
+}
+
+.split-card-carousel .split-card-carousel-dot:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 2px;
 }
 
 /* Nav arrows - positioned right on the controls row */

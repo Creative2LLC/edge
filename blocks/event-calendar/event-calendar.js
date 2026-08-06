@@ -561,6 +561,7 @@ export default async function decorate(block) {
 
   const viewToggle = document.createElement('div');
   viewToggle.className = 'event-calendar-view-toggle';
+  viewToggle.setAttribute('role', 'group');
   viewToggle.setAttribute('aria-label', 'Event view');
 
   const calendarToggle = document.createElement('button');
@@ -626,8 +627,8 @@ export default async function decorate(block) {
     viewToggle.hidden = !(config.showCalendarView && config.showTableView);
     calendarPanel.hidden = !config.showCalendarView || isTable;
     tablePanel.hidden = !config.showTableView || !isTable;
-    calendarToggle.setAttribute('aria-selected', isTable ? 'false' : 'true');
-    tableToggle.setAttribute('aria-selected', isTable ? 'true' : 'false');
+    calendarToggle.setAttribute('aria-pressed', isTable ? 'false' : 'true');
+    tableToggle.setAttribute('aria-pressed', isTable ? 'true' : 'false');
   }
 
   function updateMonthLabel() {

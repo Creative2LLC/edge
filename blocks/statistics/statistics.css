@@ -107,7 +107,6 @@
 }
 
 @media (width >= 700px) {
-
   .columns .statistics {
     margin-inline: 0;
   }
@@ -179,9 +178,9 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0;
 }
+
 @media (width <= 700px) {
     .statistics .statistics-list {
-
         grid-template-columns: 1fr;
   
     }

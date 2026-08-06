@@ -202,6 +202,11 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   line-height: 1.55;
 }
 
+.missing-child-poster-api-registration-terms:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 3px;
+}
+
 .missing-child-poster-api-registration-terms > :first-child {
   margin-top: 0;
 }

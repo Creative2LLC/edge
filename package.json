@@ -18,6 +18,7 @@
     "audit:responsive": "node scripts/responsive-screenshots.mjs",
     "audit:lighthouse": "node scripts/lighthouse-audit.mjs",
     "audit:pages": "node scripts/audit-pages.mjs",
+    "audit:accessibility": "node scripts/accessibility-audit.mjs",
     "audit:summarize": "node scripts/audit-summarize.mjs",
     "gallery": "node scripts/build-review-gallery.mjs",
     "spacing-audit": "node scripts/spacing-audit.mjs",
@@ -39,6 +40,7 @@
   "homepage": "https://github.com/adobe/aem-boilerplate#readme",
   "devDependencies": {
     "@babel/eslint-parser": "7.28.5",
+    "axe-core": "4.12.1",
     "@playwright/test": "1.62.1",
     "autoprefixer": "10.4.21",
     "baseline-browser-mapping": "^2.10.0",

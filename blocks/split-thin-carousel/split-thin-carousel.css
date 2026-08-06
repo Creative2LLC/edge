@@ -237,28 +237,43 @@ main > .section > .split-thin-carousel-wrapper {
 /* Dots — pill-segment progress bar */
 .split-thin-carousel .stc-dots {
   display: flex;
-  gap: 6px;
+  gap: 2px;
   align-items: center;
 }
 
 .split-thin-carousel .stc-dot {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.split-thin-carousel .stc-dot::before {
   width: 8px;
   height: 4px;
   border-radius: 999px;
-  border: none;
   background: rgb(0 38 77 / 20%);
-  cursor: pointer;
-  padding: 0;
+  content: '';
   transition: width 0.3s ease, background-color 0.2s ease;
 }
 
-.split-thin-carousel .stc-dot.active {
+.split-thin-carousel .stc-dot.active::before {
   width: 28px;
   background: #00264d;
 }
 
-.split-thin-carousel .stc-dot:hover:not(.active) {
+.split-thin-carousel .stc-dot:hover:not(.active)::before {
   background: rgb(0 38 77 / 40%);
+}
+
+.split-thin-carousel .stc-dot:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 2px;
 }
 
 /* Nav arrows */

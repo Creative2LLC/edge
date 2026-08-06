@@ -65,6 +65,11 @@
   display: none;
 }
 
+.detailed-carousel .detailed-carousel-track:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 4px;
+}
+
 /* Slide */
 .detailed-carousel .detailed-carousel-slide {
   flex: 0 0 85%;
@@ -175,28 +180,43 @@
 /* Dots — pill-segment progress bar */
 .detailed-carousel .detailed-carousel-dots {
   display: flex;
-  gap: 6px;
+  gap: 2px;
   align-items: center;
 }
 
 .detailed-carousel .detailed-carousel-dot {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.detailed-carousel .detailed-carousel-dot::before {
   width: 8px;
   height: 4px;
   border-radius: 999px;
-  border: none;
   background: rgb(0 38 77 / 20%);
-  cursor: pointer;
-  padding: 0;
+  content: '';
   transition: width 0.3s ease, background-color 0.2s ease;
 }
 
-.detailed-carousel .detailed-carousel-dot.active {
+.detailed-carousel .detailed-carousel-dot.active::before {
   width: 28px;
   background: #00264d;
 }
 
-.detailed-carousel .detailed-carousel-dot:hover:not(.active) {
+.detailed-carousel .detailed-carousel-dot:hover:not(.active)::before {
   background: rgb(0 38 77 / 40%);
+}
+
+.detailed-carousel .detailed-carousel-dot:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 2px;
 }
 
 /* Nav arrows */

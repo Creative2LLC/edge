@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
+import focusScrollableRegion from '../../scripts/a11y-utils.js';
 
 const BLOCK_PROPS = [
   'title',
@@ -222,6 +223,7 @@ export default function decorate(block) {
   // Build cards container
   const cardsContainer = document.createElement('div');
   cardsContainer.className = 'numbered-cards-grid';
+  if (layout === 'carousel') focusScrollableRegion(cardsContainer, 'Numbered cards');
 
   if (layout === 'grid') {
     cardsContainer.style.setProperty('--cards-per-row', cardsPerRow);

@@ -181,7 +181,7 @@
   font-weight: 800;
 }
 
-.event-calendar .event-calendar-view-toggle button[aria-selected='true'] {
+.event-calendar .event-calendar-view-toggle button[aria-pressed='true'] {
   background: var(--event-calendar-ink);
   color: #fff;
 }

@@ -10,6 +10,7 @@ import {
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
+import focusScrollableRegion from '../../scripts/a11y-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 
 const BLOCK_PROPS = [
@@ -682,6 +683,7 @@ export default async function decorate(block) {
     cardsContainer.append(buildResourceCard(data, row));
   });
   inner.append(cardsContainer);
+  focusScrollableRegion(cardsContainer, 'Resource cards');
 
   const emptyState = document.createElement('p');
   emptyState.className = 'resources-empty';

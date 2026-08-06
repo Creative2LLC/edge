@@ -141,6 +141,11 @@
   display: none;
 }
 
+.numbered-cards-carousel-layout .numbered-cards-grid:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 4px;
+}
+
 .numbered-cards-carousel-layout .numbered-cards-card {
   flex: 0 0 400px;
   min-width: 0;

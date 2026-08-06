@@ -9,6 +9,7 @@ import {
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import focusScrollableRegion from '../../scripts/a11y-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -702,6 +703,7 @@ function buildForm() {
   const terms = buildSection('Terms of Service');
   const termsCopy = document.createElement('div');
   termsCopy.className = 'missing-child-poster-api-registration-terms';
+  focusScrollableRegion(termsCopy, 'Terms of Service');
   TERMS_TEXT.split('\n\n').forEach((paragraph) => {
     const p = document.createElement('p');
     p.textContent = paragraph.replace(/\s+/g, ' ').trim();

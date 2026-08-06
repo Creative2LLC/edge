@@ -36,12 +36,10 @@ function verticalPx(prop, value) {
   const pxOf = (t) => (t && /^-?[\d.]+px$/.test(t) ? parseFloat(t) : null);
   const out = [];
   if (['padding-top', 'padding-bottom', 'padding-block-start', 'padding-block-end'].includes(p)) out.push(pxOf(toks[0]));
-  else if (p === 'padding-block') { out.push(pxOf(toks[0])); if (toks[1]) out.push(pxOf(toks[1])); }
-  else if (p === 'padding') {
+  else if (p === 'padding-block') { out.push(pxOf(toks[0])); if (toks[1]) out.push(pxOf(toks[1])); } else if (p === 'padding') {
     if (toks.length === 1) out.push(pxOf(toks[0]));
     else if (toks.length === 2) out.push(pxOf(toks[0]));
-    else if (toks.length === 3) { out.push(pxOf(toks[0])); out.push(pxOf(toks[2])); }
-    else if (toks.length >= 4) { out.push(pxOf(toks[0])); out.push(pxOf(toks[2])); }
+    else if (toks.length === 3) { out.push(pxOf(toks[0])); out.push(pxOf(toks[2])); } else if (toks.length >= 4) { out.push(pxOf(toks[0])); out.push(pxOf(toks[2])); }
   }
   return out.filter((v) => v != null && v > 0);
 }
@@ -71,6 +69,6 @@ console.log(`\n${offScale.length} of ${rows.length} distinct values are OFF-scal
 console.log('off-scale values:', offScale.map(([px]) => `${px}->${nearest(px)}`).join('  '));
 
 fs.mkdirSync('audits', { recursive: true });
-fs.writeFileSync('audits/vpad.csv', ['value,count,nearest,token,off_scale',
-  ...rows.map(([px, c]) => `${px},${c},${nearest(px)},${TOKEN[nearest(px)] || ''},${nearest(px) !== px}`)].join('\n') + '\n');
+fs.writeFileSync('audits/vpad.csv', `${['value,count,nearest,token,off_scale',
+  ...rows.map(([px, c]) => `${px},${c},${nearest(px)},${TOKEN[nearest(px)] || ''},${nearest(px) !== px}`)].join('\n')}\n`);
 console.log('Wrote audits/vpad.csv');

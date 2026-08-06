@@ -334,23 +334,42 @@
 .numbered-cards-custom .numbered-cards-custom-dots {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
 }
 
 .numbered-cards-custom .numbered-cards-custom-dot {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.numbered-cards-custom .numbered-cards-custom-dot::before {
   width: 10px;
   height: 10px;
-  border: none;
   border-radius: 999px;
-  padding: 0;
   background: rgb(0 38 77 / 20%);
-  cursor: pointer;
+  content: '';
   transition: width 0.2s ease, background-color 0.2s ease;
 }
 
 .numbered-cards-custom .numbered-cards-custom-dot.active {
   width: 60px;
+}
+
+.numbered-cards-custom .numbered-cards-custom-dot.active::before {
+  width: 60px;
   background: rgb(0 38 77 / 36%);
+}
+
+.numbered-cards-custom .numbered-cards-custom-dot:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 2px;
 }
 
 .numbered-cards-custom .numbered-cards-custom-nav {

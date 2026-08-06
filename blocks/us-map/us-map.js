@@ -207,7 +207,8 @@ function buildViewToggle(onChange) {
 
   const toggle = document.createElement('div');
   toggle.className = 'us-map-view-toggle';
-  toggle.setAttribute('role', 'tablist');
+  toggle.setAttribute('role', 'group');
+  toggle.setAttribute('aria-label', 'Map display');
 
   const mapBtn = document.createElement('button');
   mapBtn.type = 'button';

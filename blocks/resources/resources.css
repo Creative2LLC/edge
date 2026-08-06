@@ -103,6 +103,11 @@ main > .section > .resources-wrapper {
   display: none;
 }
 
+.resources .resources-cards:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 4px;
+}
+
 /* Individual card */
 .resources .resources-card {
   flex: 0 0 346px;

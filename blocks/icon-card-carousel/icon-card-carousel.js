@@ -7,6 +7,7 @@ import {
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import attachDragScroll from '../../scripts/carousel-utils.js';
+import focusScrollableRegion from '../../scripts/a11y-utils.js';
 
 function getFieldText(row, colIndex, propName) {
   return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
@@ -254,6 +255,7 @@ export default function decorate(block) {
   });
 
   wrapper.append(track);
+  focusScrollableRegion(track, 'Carousel cards');
   attachDragScroll(track);
 
   // Controls: dots + nav arrows

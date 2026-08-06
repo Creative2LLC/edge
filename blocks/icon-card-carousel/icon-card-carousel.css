@@ -70,6 +70,11 @@ main > .section > .icon-card-carousel-wrapper {
   display: none;
 }
 
+.icon-card-carousel .icon-card-carousel-track:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 4px;
+}
+
 /* Each slide - sized so 2 full cards + partial 3rd are visible */
 .icon-card-carousel .icon-card-carousel-slide {
   flex: 0 0 600px;
