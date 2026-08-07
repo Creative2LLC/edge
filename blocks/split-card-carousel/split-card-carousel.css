@@ -57,6 +57,7 @@ main > .section > .split-card-carousel-wrapper {
   gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -79,6 +80,8 @@ main > .section > .split-card-carousel-wrapper {
 .split-card-carousel .split-card-carousel-slide {
   flex: 0 0 85%;
   min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /* Card - replicates split-card styling */
@@ -419,6 +422,28 @@ main > .section > .split-card-carousel-wrapper {
   }
 
   .split-card-carousel.variant-3 .split-card-carousel-content {
+    padding: 40px;
+  }
+
+  /* Variant 2 is fixed at 901px on desktop. Let it use the same responsive
+     slide width here so an entire card remains visible on tablet screens. */
+  .split-card-carousel.variant-2 .split-card-carousel-slide {
+    flex: 0 0 90%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-card {
+    width: auto;
+    height: auto;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-media {
+    flex-basis: 42%;
+    width: auto;
+    height: auto;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-content {
     padding: 40px;
   }
 }

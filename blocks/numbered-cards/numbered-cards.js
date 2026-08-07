@@ -1,6 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
+import { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 
 const BLOCK_PROPS = [
   'title',
@@ -337,7 +338,7 @@ export default function decorate(block) {
       current = ((index % total) + total) % total;
       const slideEl = cardsContainer.children[current];
       if (slideEl) {
-        cardsContainer.scrollTo({ left: slideEl.offsetLeft - cardsContainer.offsetLeft, behavior: 'smooth' });
+        scrollToCarouselItem(cardsContainer, slideEl);
       }
       updateDots(dots, current);
       updateActiveCard(cardsContainer, current);

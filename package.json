@@ -19,6 +19,8 @@
     "audit:lighthouse": "node scripts/lighthouse-audit.mjs",
     "audit:pages": "node scripts/audit-pages.mjs",
     "audit:accessibility": "node scripts/accessibility-audit.mjs",
+    "audit:contrast": "node scripts/accessibility-contrast-report.mjs",
+    "audit:manual-review": "node scripts/accessibility-manual-review-report.mjs",
     "audit:summarize": "node scripts/audit-summarize.mjs",
     "gallery": "node scripts/build-review-gallery.mjs",
     "spacing-audit": "node scripts/spacing-audit.mjs",

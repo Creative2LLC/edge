@@ -124,6 +124,15 @@ main > .section > .need-help-wrapper {
 
   .need-help-cards {
     gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .need-help-card {
+    /* Three content-heavy cards cannot maintain a readable measure at
+       tablet widths. Two columns leave room for headings, body copy, and
+       contact links; an odd final card naturally fills its own row. */
+    flex: 1 1 calc((100% - 20px) / 2);
+    min-width: 0;
   }
 }
 

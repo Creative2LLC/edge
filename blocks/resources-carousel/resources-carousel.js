@@ -4,7 +4,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll from '../../scripts/carousel-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import { decorateButtonText } from '../../scripts/button-utils.js';
 
 // Row index for each field in the published AEM delivery
@@ -203,12 +203,6 @@ function buildNavArrow(direction) {
 
 function wireCarousel(track, prevBtn, nextBtn, progressBar) {
   attachDragScroll(track);
-  const slideWidth = () => {
-    const slide = track.querySelector('.resources-carousel-slide');
-    if (!slide) return 0;
-    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
-    return slide.offsetWidth + gap;
-  };
 
   const updateProgress = () => {
     const max = track.scrollWidth - track.clientWidth;
@@ -216,21 +210,21 @@ function wireCarousel(track, prevBtn, nextBtn, progressBar) {
     if (progressBar) progressBar.style.width = `${Math.min(100, pct)}%`;
   };
 
+  const goToSlide = (index) => {
+    const slides = [...track.children];
+    if (!slides.length) return;
+    const targetIndex = ((index % slides.length) + slides.length) % slides.length;
+    scrollToCarouselItem(track, slides[targetIndex]);
+  };
+
   prevBtn?.addEventListener('click', () => {
-    if (track.scrollLeft <= 1) {
-      track.scrollTo({ left: track.scrollWidth - track.clientWidth, behavior: 'smooth' });
-    } else {
-      track.scrollBy({ left: -slideWidth(), behavior: 'smooth' });
-    }
+    const slides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, slides) - 1);
   });
 
   nextBtn?.addEventListener('click', () => {
-    const max = track.scrollWidth - track.clientWidth;
-    if (max > 0 && track.scrollLeft >= max - 1) {
-      track.scrollTo({ left: 0, behavior: 'smooth' });
-    } else {
-      track.scrollBy({ left: slideWidth(), behavior: 'smooth' });
-    }
+    const slides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, slides) + 1);
   });
 
   track.addEventListener('scroll', updateProgress, { passive: true });

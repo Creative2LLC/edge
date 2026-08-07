@@ -392,12 +392,12 @@
     position: relative;
     left: auto;
     bottom: auto;
-    order: 1;
+    order: 2;
     width: 100%;
   }
 
   .report-breakdown .report-breakdown-chart-shell {
-    order: 2;
+    order: 1;
     padding-top: 0;
   }
 

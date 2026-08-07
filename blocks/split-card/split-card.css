@@ -173,13 +173,10 @@ main > .section > .split-card-wrapper {
   margin-left: 12px;
 }
 
-/* Image-smaller variant: lock the whole row to 446px tall and the media to
-   500px wide. Media stretches to fill via the flex container's default
-   align-items: stretch, so the image fills the full 446px. Content fills
-   the remaining horizontal space. */
+/* Image-smaller variant: keep its compact desktop media width, but allow the
+   row to grow whenever authored content needs more vertical space. */
 .split-card.split-card-image-smaller .split-card-inner {
   min-height: 446px;
-  max-height: 446px;
 }
 
 .split-card.split-card-image-smaller .split-card-media {
@@ -202,7 +199,7 @@ main > .section > .split-card-wrapper {
 }
 
 .split-card.split-card-size-smaller .split-card-inner {
-  max-height: 564px;
+  max-height: none;
 }
 
 .split-card.split-card-size-smaller .split-card-heading {
@@ -260,6 +257,56 @@ main > .section > .split-card-wrapper {
   height: 226px;
   border-radius: 14px;
   object-fit: cover;
+}
+
+@media (width <= 900px) {
+  /* Restore symmetric padding (variant-2 zeroes the left padding on desktop). */
+  .split-card .split-card-content,
+  .split-card.split-card-variant-2 .split-card-content {
+    padding: 28px 24px;
+  }
+}
+
+/* At tablet / small-desktop widths the split columns leave too little room
+   for long headings and rich body copy. Keep the image prominent, then place
+   the content below it instead of clipping it or forcing unreadable lines. */
+@media (701px <= width <= 960px) {
+  .split-card .split-card-inner,
+  .split-card .split-card-inner.split-card-image-right {
+    flex-direction: column;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .split-card .split-card-media,
+  .split-card.split-card-image-smaller .split-card-media,
+  .split-card.split-card-variant-2 .split-card-media {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    height: clamp(280px, 42vw, 360px);
+  }
+
+  .split-card.split-card-variant-2 .split-card-media picture,
+  .split-card.split-card-variant-2 .split-card-media img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .split-card .split-card-content,
+  .split-card.split-card-variant-2 .split-card-content {
+    padding: 40px 48px;
+  }
+
+  .split-card .split-card-heading,
+  .split-card.split-card-size-smaller .split-card-heading,
+  .split-card.split-card-variant-2 .split-card-heading {
+    font-size: clamp(2.25rem, 5.2vw, 3.25rem);
+  }
+
+  .split-card.split-card-variant-2 .split-card-subheading {
+    font-size: 18px;
+  }
 }
 
 /* Responsive */

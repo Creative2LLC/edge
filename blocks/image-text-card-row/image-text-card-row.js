@@ -23,6 +23,19 @@ function getLinkUrl(row, propName, colIndex) {
   return readLinkField(row, propName, { fallbackCell: row.children[colIndex] }).value;
 }
 
+function markWideLogoImage(imageWrap) {
+  const image = imageWrap.querySelector('img');
+  if (!image) return;
+
+  const updateImageType = () => {
+    if (image.naturalHeight && image.naturalWidth / image.naturalHeight >= 2) {
+      imageWrap.classList.add('is-wide-logo');
+    }
+  };
+
+  if (image.complete) updateImageType();
+  else image.addEventListener('load', updateImageType, { once: true });
+}
 const IMAGE_STYLE_VALUES = new Set(['default', 'small']);
 const IMAGE_ALIGN_VALUES = new Set(['left', 'center', 'right']);
 
@@ -146,6 +159,7 @@ function buildCard(data, row) {
       imageWrap.append(pic);
     }
 
+    markWideLogoImage(imageWrap);
     card.append(imageWrap);
   }
 

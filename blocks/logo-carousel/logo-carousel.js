@@ -2,7 +2,7 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readImageField, readLinkField, readTextField, setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll from '../../scripts/carousel-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -119,14 +119,6 @@ function updateBarThumb(track, barTrack, barThumb) {
   barThumb.style.transform = `translateX(${offset}px)`;
 }
 
-function getStepDistance(track) {
-  // Scroll roughly one viewport at a time, but never less than one slide width.
-  const firstSlide = track.querySelector('.logo-carousel-slide');
-  const slideWidth = firstSlide ? firstSlide.getBoundingClientRect().width : 0;
-  const gapPx = parseFloat(window.getComputedStyle(track).columnGap || '0') || 0;
-  return Math.max(slideWidth + gapPx, track.clientWidth * 0.8);
-}
-
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
@@ -177,21 +169,21 @@ export default function decorate(block) {
   // Wire up interactions
   const refreshBar = () => updateBarThumb(track, barTrack, barThumb);
 
+  const goToSlide = (index) => {
+    const logoSlides = [...track.children];
+    if (!logoSlides.length) return;
+    const targetIndex = ((index % logoSlides.length) + logoSlides.length) % logoSlides.length;
+    scrollToCarouselItem(track, logoSlides[targetIndex]);
+  };
+
   prevBtn.addEventListener('click', () => {
-    if (track.scrollLeft <= 1) {
-      track.scrollTo({ left: track.scrollWidth - track.clientWidth, behavior: 'smooth' });
-    } else {
-      track.scrollBy({ left: -getStepDistance(track), behavior: 'smooth' });
-    }
+    const logoSlides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, logoSlides) - 1);
   });
 
   nextBtn.addEventListener('click', () => {
-    const max = track.scrollWidth - track.clientWidth;
-    if (max > 0 && track.scrollLeft >= max - 1) {
-      track.scrollTo({ left: 0, behavior: 'smooth' });
-    } else {
-      track.scrollBy({ left: getStepDistance(track), behavior: 'smooth' });
-    }
+    const logoSlides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, logoSlides) + 1);
   });
 
   track.addEventListener('scroll', refreshBar, { passive: true });

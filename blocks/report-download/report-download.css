@@ -175,6 +175,10 @@
     grid-column: 1 / -1;
     justify-content: flex-start;
   }
+
+  .report-download .report-download-content {
+    margin-left: 0;
+  }
 }
 
 @media (width <= 900px) {
@@ -186,7 +190,7 @@
   }
 }
 
-@media (width <= 760px) {
+@media (width <= 900px) {
   .report-download {
     padding: 24px 0;
   }

@@ -61,6 +61,7 @@ main > .section > .historical-reports-carousel-wrapper {
   gap: 28px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   cursor: grab;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -77,6 +78,8 @@ main > .section > .historical-reports-carousel-wrapper {
 .historical-reports-carousel .historical-reports-carousel-slide {
   flex: 0 0 348px;
   min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   opacity: 0;
   transform: translateY(20px);
   transition:
@@ -331,7 +334,19 @@ main > .section > .historical-reports-carousel-wrapper {
   }
 
   .historical-reports-carousel .historical-reports-carousel-nav {
-    display: none;
+    display: grid;
+    place-items: center;
+    z-index: 2;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .historical-reports-carousel .historical-reports-carousel-nav-prev {
+    left: 10px;
+  }
+
+  .historical-reports-carousel .historical-reports-carousel-nav-next {
+    right: 10px;
   }
 }
 
@@ -361,12 +376,16 @@ main > .section > .historical-reports-carousel-wrapper {
   }
 
   .historical-reports-carousel .historical-reports-carousel-card-media {
+    height: 260px;
+    aspect-ratio: auto;
+    align-items: center;
     margin-bottom: 20px;
   }
 
   .historical-reports-carousel .historical-reports-carousel-card-media picture,
   .historical-reports-carousel .historical-reports-carousel-card-media img,
   .historical-reports-carousel .historical-reports-carousel-card-media-placeholder {
-    max-width: 148px;
+    width: min(200px, 100%);
+    max-width: 200px;
   }
 }

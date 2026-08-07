@@ -540,6 +540,10 @@ export default async function decorate(block) {
   }
 
   const now = new Date();
+  const mobileViewQuery = window.matchMedia('(width <= 800px)');
+  const showFeaturedCards = () => config.showFeaturedCards || mobileViewQuery.matches;
+  const showCalendarView = () => config.showCalendarView && !mobileViewQuery.matches;
+  const showTableView = () => config.showTableView || mobileViewQuery.matches;
   const state = {
     year: now.getFullYear(),
     month: now.getMonth() + 1,
@@ -623,10 +627,11 @@ export default async function decorate(block) {
   block.replaceChildren(inner);
 
   function updateView() {
-    const isTable = state.view === 'table';
-    viewToggle.hidden = !(config.showCalendarView && config.showTableView);
-    calendarPanel.hidden = !config.showCalendarView || isTable;
-    tablePanel.hidden = !config.showTableView || !isTable;
+    const isTable = mobileViewQuery.matches || state.view === 'table';
+    viewToggle.hidden = mobileViewQuery.matches
+      || !(config.showCalendarView && config.showTableView);
+    calendarPanel.hidden = !showCalendarView() || isTable;
+    tablePanel.hidden = !showTableView() || !isTable;
     calendarToggle.setAttribute('aria-pressed', isTable ? 'false' : 'true');
     tableToggle.setAttribute('aria-pressed', isTable ? 'true' : 'false');
   }
@@ -666,13 +671,13 @@ export default async function decorate(block) {
     try {
       const events = activeListingEvents(await fetchEvents(config, { all: 1 }));
       setStatus(tableStatus, '', '');
-      if (config.showFeaturedCards) {
+      if (showFeaturedCards()) {
         renderFeaturedEvents(featured, events, config.featuredCount, openModal);
       } else {
         featured.replaceChildren();
         featured.hidden = true;
       }
-      if (config.showTableView) {
+      if (showTableView()) {
         renderTable(tableContainer, config.tableHeading, events, openModal, config.emptyMessage);
       }
     } catch {
@@ -703,8 +708,15 @@ export default async function decorate(block) {
     updateView();
   });
 
+  mobileViewQuery.addEventListener('change', () => {
+    if (!mobileViewQuery.matches && !config.showTableView) state.view = 'calendar';
+    updateView();
+    if (showCalendarView()) loadEvents();
+    if (showFeaturedCards() || showTableView()) loadEventListings();
+  });
+
   updateView();
   updateMonthLabel();
-  if (config.showCalendarView) loadEvents();
-  if (config.showFeaturedCards || config.showTableView) loadEventListings();
+  if (showCalendarView()) loadEvents();
+  if (showFeaturedCards() || showTableView()) loadEventListings();
 }

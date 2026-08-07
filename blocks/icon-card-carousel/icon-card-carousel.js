@@ -6,7 +6,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll from '../../scripts/carousel-utils.js';
+import attachDragScroll, { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
 
 function getFieldText(row, colIndex, propName) {
@@ -313,7 +313,7 @@ export default function decorate(block) {
     current = ((index % total) + total) % total;
     const slideEl = track.children[current];
     if (slideEl) {
-      track.scrollTo({ left: slideEl.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+      scrollToCarouselItem(track, slideEl);
     }
     updateDots(dots, current);
   }

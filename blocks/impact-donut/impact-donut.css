@@ -337,6 +337,20 @@
   }
 }
 
+@media (width > 700px) and (width <= 1100px) {
+  .impact-donut .impact-donut-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .impact-donut .impact-donut-button {
+    width: 100%;
+    padding: 0 20px;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+  }
+}
+
 @media (width <= 700px) {
   .impact-donut {
     padding: 56px 0;
@@ -344,10 +358,29 @@
 
   .impact-donut .impact-donut-stats {
     grid-template-columns: 1fr;
+    justify-items: center;
+    order: 3;
   }
+
+  .impact-donut .impact-donut-chart-side {
+    order: 2;
+  }
+
+  .impact-donut .impact-donut-copy {
+    display: contents;
+  }
+
+  .impact-donut .impact-donut-copy-intro {
+    order: 1;
+    text-align: center;
+  }
+
+
+
 
   .impact-donut .impact-donut-stat {
     padding: 24px 0;
+    text-align: center;
   }
 
   .impact-donut .impact-donut-stat:nth-child(2n) {
@@ -376,6 +409,7 @@
   }
 
   .impact-donut .impact-donut-actions {
+    order: 4;
     flex-direction: column;
     align-items: stretch;
   }

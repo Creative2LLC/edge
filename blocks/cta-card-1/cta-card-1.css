@@ -327,14 +327,16 @@
   .cta-card-1.block {
     flex-direction: column !important;
     align-items: stretch;
-    padding: 36px 24px;
-    gap: 28px;
+    min-height: 0;
+    padding: 32px 24px;
+    gap: 24px;
   }
 
   /* Both columns span the full card width so their children have room to wrap
      instead of shrink-wrapping to their narrowest content. */
   .cta-card-1 .cta-card-1-left,
   .cta-card-1 .cta-card-1-right {
+    flex: 0 0 auto !important;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -425,5 +427,62 @@
 
   .cta-card-1.cta-card-1-button2-left .cta-card-1-right.cta-card-1-right-inline .cta-card-1-below-button {
     align-self: stretch;
+  }
+}
+
+/* At tablet widths, fixed 550px actions leave the copy column too narrow. */
+@media (width > 900px) and (width <= 1100px) {
+  .cta-card-1.block {
+    flex-direction: column !important;
+    align-items: stretch;
+    min-height: 0;
+    padding: 44px 48px;
+    gap: 28px;
+  }
+
+  .cta-card-1 .cta-card-1-left,
+  .cta-card-1 .cta-card-1-right {
+    flex: 0 0 auto !important;
+    width: 100%;
+    max-width: 100% !important;
+  }
+
+  .cta-card-1 .cta-card-1-right {
+    align-items: stretch;
+  }
+
+  .cta-card-1 .cta-card-1-button {
+    width: 100%;
+  }
+}
+
+/* Keep a balanced two-column composition through the small-desktop range. */
+@media (width > 1100px) and (width < 1260px) {
+  .cta-card-1.block {
+    gap: 32px;
+    min-height: 0;
+    padding: 44px 48px;
+  }
+
+  .cta-card-1 .cta-card-1-left {
+    flex: 0 1 42% !important;
+    min-width: 280px;
+  }
+
+  .cta-card-1 .cta-card-1-right {
+    flex: 1 1 0 !important;
+    min-width: 360px;
+  }
+
+  .cta-card-1 .cta-card-1-button {
+    width: 100%;
+  }
+
+  .cta-card-1 .cta-card-1-title {
+    font-size: 32px !important;
+  }
+
+  .cta-card-1 .cta-card-1-subtitle {
+    font-size: 16px !important;
   }
 }

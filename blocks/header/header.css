@@ -766,8 +766,9 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 @media (width < 1260px) {
   /* stylelint-disable no-descending-specificity */
   header nav {
-    --nav-mobile-reveal-duration: 1.12s;
+    --nav-mobile-reveal-duration: 0.72s;
     --nav-mobile-reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --nav-mobile-content-delay: 0.22s;
 
     position: relative;
     gap: 0 16px;
@@ -831,12 +832,14 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   header nav .nav-brand {
     position: absolute;
     top: calc(var(--nav-height) / 2);
-    right: 16px;
-    left: 16px;
+    left: 50%;
     display: flex;
     justify-content: center;
-    transform: translateY(-50%);
-    width: auto;
+    transform: translate(-50%, -50%);
+    width: max-content;
+    max-width: calc(100vw - 136px);
+    margin: 0 !important;
+    padding: 0 !important;
     z-index: 2;
     pointer-events: none;
   }
@@ -848,10 +851,14 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     justify-content: center;
     position: relative;
     z-index: 3;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   header nav .nav-brand img {
-    width: 150px;
+    width: clamp(148px, 48vw, 184px);
+    max-width: calc(100vw - 136px);
+    min-width: 148px;
     filter: drop-shadow(0 8px 20px rgb(5 21 33 / 18%));
   }
 
@@ -1035,7 +1042,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   header nav[aria-expanded='true'] .nav-mobile-stack {
     opacity: 1;
     transform: translateY(0);
-    transition-delay: 0.16s;
+    transition-delay: var(--nav-mobile-content-delay);
   }
 
   header nav .nav-mobile-stack-viewport {
@@ -1045,7 +1052,10 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     width: 100%;
     flex: 1 1 auto;
     min-height: 0;
-    overflow: visible;
+
+    /* The stacked screens slide beyond this viewport during navigation. Keep
+       that animation contained so hidden screens never leak into page paint. */
+    overflow: clip;
   }
 
   header nav .nav-mobile-screen {
@@ -1239,6 +1249,11 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     margin-top: 14px;
   }
 
+  /* Featured desktop promos make nested mobile menus needlessly long. */
+  header nav .nav-mobile-screen:not(.is-root) .nav-mobile-rich-card {
+    display: none;
+  }
+
   header nav .nav-mobile-rich-card a {
     color: #10344f !important;
     text-decoration: none !important;
@@ -1340,7 +1355,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   header nav[aria-expanded='true'] .nav-mobile-meta {
     opacity: 1;
     transform: translateY(0);
-    transition-delay: 0.28s;
+    transition-delay: 0.32s;
   }
 
   header nav .nav-sections .default-content-wrapper > ul.nav-top-list .nav-drop > .nav-mega-panel {
@@ -1366,9 +1381,10 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   header nav[aria-expanded='true'] .nav-tools {
     position: static;
     max-height: 420px;
-    margin-top: 10px;
-    padding: 10px 0 max(12px, env(safe-area-inset-bottom));
-    background: transparent;
+    margin-top: 0;
+    padding: 14px 0 max(14px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(13 41 63 / 14%);
+    background: rgb(255 255 255 / 52%);
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
@@ -1404,11 +1420,12 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 
   header nav .nav-search {
     width: 100%;
-    margin-bottom: 6px;
+    margin-bottom: 12px;
   }
 
   header nav .nav-search-form {
     width: 100%;
+    height: 56px;
   }
 
   header nav .nav-search-input {
@@ -1421,6 +1438,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 
   header nav .nav-tools .nav-search a.button.nav-search-trigger {
     width: 100%;
+    height: 56px;
+    min-height: 56px;
     justify-content: center;
   }
 
@@ -1430,8 +1449,10 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 
   header nav .nav-tools a.button {
     width: 100%;
+    min-height: 56px;
     margin: 0;
-    padding: 12px 18px;
+    box-sizing: border-box;
+    padding: 0 18px;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
@@ -1450,6 +1471,10 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     background: #143654;
     color: #fff;
     border: 0;
+  }
+
+  header nav .nav-tools a.button.nav-tool-primary .icon img {
+    filter: brightness(0) invert(1);
   }
 
   header nav .nav-tools a.button.nav-tool-accent {

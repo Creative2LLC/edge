@@ -340,6 +340,26 @@
   }
 }
 
+/* Eleven four-digit years cannot form a readable axis on a phone. Keep every
+   other year plus the current year, spaced as intentional timeline markers. */
+@media (width <= 600px) {
+  .historical-trends .historical-trends-axis {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .historical-trends .historical-trends-axis-label {
+    justify-self: center;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  .historical-trends .historical-trends-axis-label:nth-child(even) {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .historical-trends .historical-trends-reveal,
   .historical-trends .historical-trends-chart-frame::before,

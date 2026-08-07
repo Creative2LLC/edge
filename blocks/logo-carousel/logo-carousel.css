@@ -58,6 +58,7 @@
   align-items: center;
   justify-content: center;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   min-height: 64px;
 }
 

@@ -1,7 +1,11 @@
 main > .section > .general-inquiries-wrapper {
-  max-width: var(--container);
-  padding-left: 0;
-  padding-right: 0;
+  /* Reserve a gutter on each side so the card keeps its side padding from mobile
+     through tablet, up to the cap. Desktop card still spans exactly
+     var(--container). */
+  max-width: calc(var(--container) + 2 * var(--gutter));
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  box-sizing: border-box;
 }
 
 .general-inquiries {

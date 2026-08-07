@@ -16,6 +16,7 @@
   align-items: stretch;
   gap: 0;
   height: 497px;
+  overflow-x: clip;
 }
 
 .text-image.block .text-image-content {
@@ -436,6 +437,30 @@
   border-radius: 14px;
 }
 
+/* The editorial copy in Variant 2 can be substantially longer than a
+   standard card. Stack it before the two columns become visually crowded on
+   small desktops. */
+@media (width <= 1100px) {
+  .text-image.block.text-image-variant-2 .text-image-inner {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .text-image.block.text-image-variant-2 .text-image-content {
+    width: 100%;
+  }
+
+  .text-image.block.text-image-variant-2 .text-image-media {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+
+  .text-image.block.text-image-variant-2 .text-image-media picture {
+    aspect-ratio: 459 / 400;
+  }
+}
+
 @media (width <= 900px) {
   .text-image.block.text-image-variant-2 .text-image-content {
     padding: 48px 24px;
@@ -618,8 +643,11 @@
   border-radius: 14px;
 }
 
-@media (width <= 900px) {
+/* Variant 4 has a fixed, wide image on desktop. Stack it before the image
+   crowds the copy into an unreadably narrow column on small desktops. */
+@media (width <= 1100px) {
   .text-image.block.text-image-variant-4 .text-image-inner {
+    flex-direction: column;
     gap: 32px;
   }
 
@@ -632,5 +660,39 @@
     width: 100%;
     max-width: 100%;
     height: auto;
+  }
+}
+
+/* Keep Variant 3 balanced while the viewport is too narrow for its fixed
+   623px image and 64px heading, but still wide enough for a two-column story. */
+@media (width > 900px) and (width <= 1200px) {
+  .text-image.block.text-image-variant-3 .text-image-inner {
+    align-items: center;
+    gap: clamp(32px, 4vw, 48px);
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-content {
+    flex: 1 1 42%;
+    min-width: 0;
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-heading {
+    max-width: none;
+    font-size: clamp(3rem, 5vw, 3.5rem);
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-body {
+    max-width: none;
+    font-size: 18px;
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-media {
+    flex: 1 1 58%;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 623 / 524;
   }
 }

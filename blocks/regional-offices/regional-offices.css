@@ -1,13 +1,3 @@
-/* Full-bleed 1420px on desktop: drop the wrapper's horizontal padding so the
-   block fills the section's 1420px max-width. Keep the gutter on mobile/tablet
-   so content isn't flush to the screen edge. */
-@media (width >= 900px) {
-  main > .section > .regional-offices-wrapper {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
 .regional-offices {
   padding: 72px 0 60px;
 }

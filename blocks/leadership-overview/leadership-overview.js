@@ -334,9 +334,10 @@ function buildLink(linkTextField, linkField, className, fallbackLabel = 'Learn M
 
   const label = document.createElement('span');
   label.className = `${className}-label`;
-  const labelText = linkTextField.value || fallbackLabel;
+  const labelText = stripTrailingArrow(linkTextField.value || fallbackLabel);
   if (linkTextField.source) {
     moveFieldContent(linkTextField, label, labelText);
+    removeTrailingArrow(label);
   } else {
     label.textContent = labelText;
   }
@@ -535,7 +536,7 @@ async function buildNavCard(row, index) {
     card.append(description);
   }
 
-  const linkLabel = linkTextField.value || (linkField.value ? 'Learn More' : '');
+  const linkLabel = stripTrailingArrow(linkTextField.value || (linkField.value ? 'Learn More' : ''));
   if (linkLabel) {
     const link = document.createElement('span');
     link.className = 'leadership-overview-nav-card-link';
@@ -545,6 +546,7 @@ async function buildNavCard(row, index) {
     label.className = 'leadership-overview-nav-card-link-label';
     if (linkTextField.source) {
       moveFieldContent(linkTextField, label, linkLabel);
+      removeTrailingArrow(label);
     } else {
       label.textContent = linkLabel;
     }
@@ -558,6 +560,19 @@ async function buildNavCard(row, index) {
   }
 
   return card;
+}
+
+function stripTrailingArrow(value) {
+  return String(value || '').replace(/\s*(?:→|➜|➔|⟶)\s*$/, '').trim();
+}
+
+function removeTrailingArrow(element) {
+  const textNodes = [];
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+  const lastTextNode = textNodes.at(-1);
+  if (lastTextNode) lastTextNode.nodeValue = stripTrailingArrow(lastTextNode.nodeValue);
 }
 
 export default async function decorate(block) {

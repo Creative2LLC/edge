@@ -61,6 +61,7 @@
 .resources-carousel .resources-carousel-slide {
   flex: 0 0 clamp(260px, 30vw, 320px);
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   display: flex;
 }
 

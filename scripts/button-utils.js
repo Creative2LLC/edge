@@ -15,7 +15,7 @@
 export function decorateButtonText(text, options = {}) {
   const {
     defaultText = 'Learn More',
-    arrowChar = ' →',
+    arrowChar = ' \u2192',
     forceAddArrow = false,
   } = options;
 
@@ -38,12 +38,11 @@ export function decorateButtonText(text, options = {}) {
     return processedText;
   }
 
-  // Add arrow if not already present
-  if (!processedText.includes('→')) {
-    return `${processedText}${arrowChar}`;
-  }
-
-  return processedText;
+  // Authoring occasionally includes its own arrow. Strip both the standard
+  // character and the legacy mojibake version, then add one consistent icon.
+  const trailingArrowPattern = /\s*(?:\u2192|\u00e2\u2020\u2019)\s*$/;
+  processedText = processedText.replace(trailingArrowPattern, '').trim();
+  return `${processedText}${arrowChar}`;
 }
 
 /**

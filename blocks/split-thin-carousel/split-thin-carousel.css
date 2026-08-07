@@ -58,6 +58,7 @@ main > .section > .split-thin-carousel-wrapper {
   gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -75,6 +76,8 @@ main > .section > .split-thin-carousel-wrapper {
 .split-thin-carousel .stc-slide {
   flex: 0 0 85%;
   min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /* Card */

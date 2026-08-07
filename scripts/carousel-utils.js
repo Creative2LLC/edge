@@ -1,4 +1,41 @@
 /**
+ * Scrolls a carousel item into the leading edge of its scroll viewport.
+ * Bounding rectangles account for breakout tracks, padding, and responsive
+ * card widths, unlike a fixed pixel scroll distance.
+ */
+export function scrollToCarouselItem(track, item, behavior = 'smooth') {
+  if (!track || !item) return;
+
+  const trackRect = track.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+  const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+  const targetLeft = Math.min(
+    maxScroll,
+    Math.max(0, track.scrollLeft + itemRect.left - trackRect.left),
+  );
+
+  track.scrollTo({ left: targetLeft, behavior });
+}
+
+/**
+ * Returns the card that is currently aligned with the leading edge of a
+ * scrollable carousel. The final card is considered active at the end stop,
+ * even when it cannot align perfectly because the track has reached its end.
+ */
+export function getCarouselItemIndex(track, items) {
+  if (!track || !items?.length) return -1;
+
+  const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+  if (track.scrollLeft >= maxScroll - 1) return items.length - 1;
+
+  const trackLeft = track.getBoundingClientRect().left;
+  return items.reduce((closestIndex, item, index) => {
+    const closestDistance = Math.abs(items[closestIndex].getBoundingClientRect().left - trackLeft);
+    const distance = Math.abs(item.getBoundingClientRect().left - trackLeft);
+    return distance < closestDistance ? index : closestIndex;
+  }, 0);
+}
+/**
  * Attaches pointer-drag scrolling to a carousel track element.
  *
  * Uses the Pointer Events API so a single handler covers both mouse and touch.

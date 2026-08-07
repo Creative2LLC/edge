@@ -13,7 +13,7 @@ import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
-const MOBILE_SUBNAV_TRANSITION_MS = 260;
+const MOBILE_SUBNAV_TRANSITION_MS = 460;
 const FALLBACK_BRAND_LOGO = new URL('./ncmec-brand-mark.svg', import.meta.url).href;
 const TOP_BANNER_LINK_CONFIGS = [
   {
@@ -484,7 +484,7 @@ function buildMobileNavStack(navSectionsList) {
   const rootScreen = navigator.createScreen({ root: true });
   const appendRootItem = (item) => {
     const index = rootScreen.list.children.length;
-    item.style.setProperty('--nav-mobile-item-delay', `${280 + (index * 88)}ms`);
+    item.style.setProperty('--nav-mobile-item-delay', `${340 + (index * 74)}ms`);
     rootScreen.list.append(item);
   };
   const appendRootLink = (label, href = '') => {
@@ -2305,12 +2305,8 @@ export default async function decorate(block) {
       brandImg.addEventListener('error', useFallbackLogo, { once: true });
     }
 
-    const pathParts = window.location.pathname.split('/').filter(Boolean);
-    const contentRoot = (pathParts[0] === 'content' && pathParts[1])
-      ? `/${pathParts[0]}/${pathParts[1]}`
-      : '';
-    brandLink.href = `${contentRoot}/index.html`;
-    brandLink.target = '_parent';
+    brandLink.href = '/';
+    brandLink.removeAttribute('target');
     brandLink.removeAttribute('rel');
   }
 

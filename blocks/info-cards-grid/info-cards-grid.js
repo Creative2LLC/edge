@@ -857,6 +857,8 @@ function setupMatchedHeights(block, grid) {
       frameId = 0;
       cards.forEach((card) => card.style.removeProperty('--info-card-matched-height'));
 
+      if (window.matchMedia('(max-width: 768px)').matches) return;
+
       const tallestHeight = Math.ceil(
         Math.max(0, ...cards.map((card) => card.getBoundingClientRect().height)),
       );

@@ -1,11 +1,3 @@
-/* Full-bleed 1420px: the section's default wrapper is already capped at
-   1420px, we just drop its horizontal padding so the block reaches the
-   full edges. */
-main > .section > .split-card-detail-wrapper {
-  padding-left: 0;
-  padding-right: 0;
-}
-
 /* Split Card Detailed Block */
 .split-card-detail.block {
   padding: 0;

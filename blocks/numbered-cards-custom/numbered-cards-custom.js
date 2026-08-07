@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import {
   getFieldSelector,
   readImageField,
@@ -485,10 +486,7 @@ export default async function decorate(block) {
 
       if (shouldScroll) {
         const targetCard = cardRefs[current].card;
-        cardsContainer.scrollTo({
-          left: targetCard.offsetLeft - cardsContainer.offsetLeft,
-          behavior: 'smooth',
-        });
+        scrollToCarouselItem(cardsContainer, targetCard);
       }
 
       updateDots(dots, current);

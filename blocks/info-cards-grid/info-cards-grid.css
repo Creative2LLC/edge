@@ -580,7 +580,7 @@
 }
 
 /* Responsive: Tablet */
-@media (width <= 900px) {
+@media (width <= 1024px) {
   .info-cards-grid-intro,
   .info-cards-grid-volunteer .info-cards-grid-intro {
     grid-template-columns: 1fr;
@@ -644,5 +644,44 @@
   .info-cards-grid-card-left-icon .info-cards-grid-card-content {
     grid-template-columns: 1fr;
     row-gap: 18px;
+  }
+}
+
+/* Two cards still fit above 768px, but their large icons need their own row
+   so body copy retains a usable measure. */
+@media (width > 768px) and (width <= 1024px) {
+  .info-cards-grid-card {
+    --info-card-title-size: 30px;
+
+    padding: 30px 28px;
+  }
+
+  .info-cards-grid-card-left-icon .info-cards-grid-card-content {
+    grid-template-columns: 1fr;
+    row-gap: 18px;
+  }
+}
+
+/* A one-column card is clearer than two compressed cards on tall phones and
+   small tablets. */
+@media (width > 600px) and (width <= 768px) {
+  .info-cards-grid-inner {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .info-cards-grid-card {
+    --info-card-title-size: 30px;
+
+    padding: 30px 28px;
+  }
+
+  .info-cards-grid-orphan-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .info-cards-grid-orphan-row > .info-cards-grid-card {
+    flex: 1 1 auto;
   }
 }

@@ -481,15 +481,19 @@ export default function decorate(block) {
   const copy = document.createElement('div');
   copy.className = 'impact-donut-copy impact-donut-reveal';
 
+  const copyIntro = document.createElement('div');
+  copyIntro.className = 'impact-donut-copy-intro';
+
   const heading = buildRichContent(headingSource, 'impact-donut-heading');
   if (heading) {
     heading.setAttribute('role', 'heading');
     heading.setAttribute('aria-level', '2');
-    copy.append(heading);
+    copyIntro.append(heading);
   }
 
   const body = buildRichContent(bodySource, 'impact-donut-body');
-  if (body) copy.append(body);
+  if (body) copyIntro.append(body);
+  if (copyIntro.childElementCount) copy.append(copyIntro);
 
   if (displayStats.length || isAuthoring) {
     const statsGrid = document.createElement('div');

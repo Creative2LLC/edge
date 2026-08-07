@@ -120,6 +120,20 @@ function reportHtml(metadata, issues, pages) {
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>WCAG 2.2 AA accessibility audit</title><style>body{font:15px/1.5 system-ui,sans-serif;margin:2rem;color:#18212b}table{border-collapse:collapse;width:100%;margin:1rem 0 2rem}th,td{border:1px solid #cbd5df;padding:.55rem;vertical-align:top;text-align:left}th{background:#edf2f7}code{display:block;font:12px ui-monospace,monospace;overflow-wrap:anywhere}.critical{color:#9b1c1c;font-weight:bold}.serious{color:#b45309;font-weight:bold}.moderate{color:#8a5800;font-weight:bold}.minor{color:#285e61;font-weight:bold}a{color:#075985}</style></head><body><h1>WCAG 2.2 Level A + AA accessibility audit</h1><p>Scanned ' + metadata.pagesScanned + ' pages on <a href="' + escapeHtml(metadata.base) + '">' + escapeHtml(metadata.base) + '</a> at ' + escapeHtml(metadata.generatedAt) + '. This is an automated axe-core report; manual accessibility testing is still required.</p><h2>Issues grouped by root cause</h2><p>' + issues.length + ' distinct issue types; ' + metadata.totalViolations + ' issue instances.</p><table><thead><tr><th>Impact</th><th>Issue</th><th>WCAG tag</th><th>Pages</th><th>Nodes</th><th>Examples</th></tr></thead><tbody>' + (issueRows || '<tr><td colspan="6">No automated WCAG A/AA violations found.</td></tr>') + '</tbody></table><h2>Pages</h2><table><thead><tr><th>Page</th><th>Issue types</th><th>Nodes</th><th>Manual review</th><th>Error</th></tr></thead><tbody>' + pageRows + '</tbody></table></body></html>';
 }
 
+async function connectToChrome(port) {
+  const endpoint = 'http://127.0.0.1:' + port;
+  let lastError;
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    try {
+      return await chromium.connectOverCDP(endpoint);
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => { setTimeout(resolve, 250); });
+    }
+  }
+  throw lastError;
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const urls = await readUrls(args);
@@ -129,7 +143,7 @@ async function main() {
   const chrome = await chromeLauncher.launch({
     chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
   });
-  const browser = await chromium.connectOverCDP('http://127.0.0.1:' + chrome.port);
+  const browser = await connectToChrome(chrome.port);
   const pages = [];
   console.log('WCAG 2.2 A + AA axe audit - ' + urls.length + ' pages');
   try {

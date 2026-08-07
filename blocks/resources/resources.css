@@ -83,6 +83,7 @@ main > .section > .resources-wrapper {
   gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -111,6 +112,8 @@ main > .section > .resources-wrapper {
 /* Individual card */
 .resources .resources-card {
   flex: 0 0 346px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   border-radius: 8px;
   overflow: hidden;
   display: flex;

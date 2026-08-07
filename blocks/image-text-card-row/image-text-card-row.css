@@ -72,6 +72,25 @@
   object-fit: contain;
 }
 
+/* Preserve logo artwork instead of cropping wide marks to fill a photo frame. */
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo {
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo picture,
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo img {
+  width: 100%;
+  height: 100%;
+}
+
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo img {
+  object-fit: contain;
+}
+
 /* Title */
 .image-text-card-row .image-text-card-row-card-title {
   font-size: 36px;

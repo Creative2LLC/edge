@@ -5,7 +5,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll from '../../scripts/carousel-utils.js';
+import attachDragScroll, { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -586,10 +586,7 @@ export default async function decorate(block) {
       if (!slides.length) return;
       currentIndex = ((targetIndex % slides.length) + slides.length) % slides.length;
       const slide = slides[currentIndex];
-      track.scrollTo({
-        left: slide.offsetLeft - track.offsetLeft,
-        behavior: 'smooth',
-      });
+      scrollToCarouselItem(track, slide);
       updateDots(dots, currentIndex);
     };
 

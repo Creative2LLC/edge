@@ -9,7 +9,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll from '../../scripts/carousel-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 
@@ -720,20 +720,20 @@ export default async function decorate(block) {
 
   attachDragScroll(cardsContainer);
 
+  const goToResourceCard = (index) => {
+    const cards = [...cardsContainer.children];
+    if (!cards.length) return;
+    const targetIndex = ((index % cards.length) + cards.length) % cards.length;
+    scrollToCarouselItem(cardsContainer, cards[targetIndex]);
+  };
+
   prevBtn.addEventListener('click', () => {
-    if (cardsContainer.scrollLeft <= 1) {
-      cardsContainer.scrollTo({ left: cardsContainer.scrollWidth - cardsContainer.clientWidth, behavior: 'smooth' });
-    } else {
-      cardsContainer.scrollBy({ left: -370, behavior: 'smooth' });
-    }
+    const cards = [...cardsContainer.children];
+    goToResourceCard(getCarouselItemIndex(cardsContainer, cards) - 1);
   });
   nextBtn.addEventListener('click', () => {
-    const max = cardsContainer.scrollWidth - cardsContainer.clientWidth;
-    if (max > 0 && cardsContainer.scrollLeft >= max - 1) {
-      cardsContainer.scrollTo({ left: 0, behavior: 'smooth' });
-    } else {
-      cardsContainer.scrollBy({ left: 370, behavior: 'smooth' });
-    }
+    const cards = [...cardsContainer.children];
+    goToResourceCard(getCarouselItemIndex(cardsContainer, cards) + 1);
   });
   cardsContainer.addEventListener('scroll', () => {
     updateScrollbar(scrollThumb, cardsContainer);

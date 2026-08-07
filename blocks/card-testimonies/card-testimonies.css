@@ -10,9 +10,13 @@ main > .section > .card-testimonies-wrapper {
   --card-testimonies-surface-bg: #fff;
   --card-testimonies-secondary-surface-bg: #ddd5cc52;
 
-  padding: 60px 0;
+  /* Cap content at the container width but reserve a gutter on each side so the
+     cards keep their side padding from mobile through tablet, up to the cap.
+     Desktop content still tops out at exactly var(--container). */
+  padding: 60px var(--gutter);
   margin: 0 auto;
-  max-width: var(--container);
+  max-width: calc(var(--container) + 2 * var(--gutter));
+  box-sizing: border-box;
 }
 
 /* ===== HEADER ===== */
@@ -171,12 +175,8 @@ main > .section > .card-testimonies-wrapper {
 
 /* Tablet */
 @media (width <= 900px) {
-  /* Keep the background full-bleed (wrapper padding stays 0) but give the
-     content a gutter so it isn't flush to the screen edge on mobile. */
-  .card-testimonies {
-    padding-inline: var(--gutter);
-  }
-
+  /* Side gutter now comes from the base rule (applies at every width up to the
+     container cap), so no horizontal override is needed here. */
   .card-testimonies-title {
     font-size: 36px;
   }
@@ -208,6 +208,10 @@ main > .section > .card-testimonies-wrapper {
 
 /* Mobile */
 @media (width <= 600px) {
+  .card-testimonies-header {
+    padding: 0 24px;
+  }
+
   .card-testimonies.block {
     padding: 40px 16px;
   }

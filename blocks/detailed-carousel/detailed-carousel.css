@@ -53,6 +53,7 @@
   overflow-x: auto;
   cursor: grab;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   -ms-overflow-style: none;
   scrollbar-width: none;
   margin-right: -24px;
@@ -74,6 +75,8 @@
 .detailed-carousel .detailed-carousel-slide {
   flex: 0 0 85%;
   min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /* Card */
