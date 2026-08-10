@@ -355,6 +355,9 @@ function derivePublishedFields(rows) {
   return {
     text: findValue((value) => !isPublishedControlValue(value)),
     textColor: findValue((value) => normalizeColorValue(value)),
+    blockBackgroundColor: values
+      .map((value) => normalizeColorValue(value))
+      .filter(Boolean)[1] || '',
     fontSize: findValue((value) => normalizeCssLength(value, 'font-size') && !/^(?:[1-9]00)$/u.test(value.trim())),
     fontWeight: findValue((value) => normalizeFontWeight(value)),
     horizontalAlign: findValue((value) => ['left', 'center', 'right', 'justify'].includes(value.trim().toLowerCase())),
@@ -444,7 +447,9 @@ export default function decorate(block) {
     isEditor,
     fallback(11),
   );
-  let blockBackgroundColor = normalizeColorValue(blockBgField.value);
+  let blockBackgroundColor = normalizeColorValue(
+    blockBgField.value || publishedFields.blockBackgroundColor,
+  );
   const dropShadowField = readField(
     block,
     'dropShadow',

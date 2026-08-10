@@ -135,7 +135,11 @@ function normalizeText(value) {
 }
 
 function normalizeApiBaseUrl(value) {
-  return normalizeText(value).replace(/\/+$/, '');
+  const rawValue = normalizeText(value);
+  // External-link decoration appends a visual arrow to link text before blocks
+  // decorate. Keep only the actual URL when a base URL is authored as a link.
+  const urlValue = rawValue.match(/https?:\/\/[^\s→]+/iu)?.[0] || rawValue;
+  return urlValue.replace(/\/+$/, '');
 }
 
 function normalizeToken(value) {

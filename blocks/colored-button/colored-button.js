@@ -173,6 +173,46 @@ function normalizeOption(value, allowedValues, fallback) {
   return allowedValues.includes(normalized) ? normalized : fallback;
 }
 
+function getPublishedCellText(row) {
+  return (fieldCell(row)?.textContent || row?.textContent || '').replace(/\s+/gu, ' ').trim();
+}
+
+function derivePublishedFields(rows) {
+  const values = rows.map(getPublishedCellText).filter(Boolean);
+  const colors = values.map((value) => normalizeColorValue(value)).filter(Boolean);
+  const findOption = (allowedValues) => values.find((value) => (
+    allowedValues.includes(value.trim().toLowerCase())
+  )) || '';
+  const verticalOptions = ['top', 'middle', 'bottom'];
+  const horizontalOptions = ['left', 'center', 'right', 'stretch'];
+  const iconOptions = ['left', 'right', 'none'];
+  const verticalIndex = values.reduce((lastIndex, value, index) => (
+    verticalOptions.includes(value.trim().toLowerCase()) ? index : lastIndex
+  ), -1);
+  const horizontalAlign = verticalIndex > 0
+    && horizontalOptions.includes(values[verticalIndex - 1].trim().toLowerCase())
+    ? values[verticalIndex - 1]
+    : findOption(horizontalOptions);
+  const iconPosition = [
+    ...values.slice(verticalIndex + 1),
+    ...values.slice(0, Math.max(0, verticalIndex - 1)).reverse(),
+  ].find((value) => iconOptions.includes(value.trim().toLowerCase())) || findOption(iconOptions);
+
+  return {
+    backgroundColor: colors[0] || '',
+    textColor: colors[1] || '',
+    borderColor: colors[2] || '',
+    blockBackgroundColor: colors[3] || '',
+    appearance: findOption(['solid', 'outlined', 'inverted']),
+    invertOnHover: findOption(['yes', 'no']),
+    horizontalAlign,
+    verticalAlign: verticalIndex >= 0 ? values[verticalIndex] : findOption(verticalOptions),
+    iconPosition,
+    layoutOptions: values.find((value) => (
+      /(?:padding|margin)-(?:all|vertical|horizontal|top|bottom)-(?:sm|md|lg)|shadow-(?:small|medium|large|highlight-(?:blue|navy|orange|gold)|white)/iu.test(value)
+    )) || '',
+  };
+}
 function hasInsertedBlockBackgroundRow(block, rows, rowIndex) {
   if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
   const currentValue = fieldCell(rows[rowIndex])?.textContent?.trim() || '';
@@ -276,6 +316,7 @@ export default function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
+  const publishedFields = isEditor ? {} : derivePublishedFields(rows);
   const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 5) ? 1 : 0;
 
   const labelField = readField(block, 'label', ['button text', 'text', 'label'], fieldCell(rows[0]), isEditor);
@@ -287,12 +328,18 @@ export default function decorate(block) {
     isEditor,
     fieldCell(rows[2]),
   );
-  const authoredBackgroundColor = normalizeColorValue(bgField.value);
+  const authoredBackgroundColor = normalizeColorValue(
+    isEditor ? bgField.value : (publishedFields.backgroundColor || bgField.value),
+  );
   const backgroundColor = authoredBackgroundColor || DEFAULT_BUTTON_BACKGROUND;
   const txtField = readColorField(block, 'textColor', ['text color'], isEditor, fieldCell(rows[3]));
-  const textColor = normalizeColorValue(txtField.value) || DEFAULT_BUTTON_TEXT;
+  const textColor = normalizeColorValue(
+    isEditor ? txtField.value : (publishedFields.textColor || txtField.value),
+  ) || DEFAULT_BUTTON_TEXT;
   const bdrField = readColorField(block, 'borderColor', ['border color'], isEditor, fieldCell(rows[4]));
-  const borderColor = normalizeColorValue(bdrField.value)
+  const borderColor = normalizeColorValue(
+    isEditor ? bdrField.value : (publishedFields.borderColor || bdrField.value),
+  )
     || authoredBackgroundColor
     || DEFAULT_BUTTON_BORDER;
   const blockBgField = readColorField(
@@ -302,14 +349,18 @@ export default function decorate(block) {
     isEditor,
     rowOffset ? fieldCell(rows[5]) : null,
   );
-  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
+  const blockBackgroundColor = normalizeColorValue(
+    isEditor ? blockBgField.value : (publishedFields.blockBackgroundColor || blockBgField.value),
+  );
   const appearance = normalizeOption(
-    readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[5 + rowOffset]), isEditor).value,
+    publishedFields.appearance
+      || readField(block, 'appearance', ['style', 'button style'], fieldCell(rows[5 + rowOffset]), isEditor).value,
     ['solid', 'outlined', 'inverted'],
     'solid',
   );
   const invertOnHover = normalizeOption(
-    readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[6 + rowOffset]), isEditor).value,
+    publishedFields.invertOnHover
+      || readField(block, 'invertOnHover', ['invert on hover'], fieldCell(rows[6 + rowOffset]), isEditor).value,
     ['yes', 'no'],
     'no',
   );
@@ -325,17 +376,20 @@ export default function decorate(block) {
   const iconName = readField(block, 'iconName', ['icon name'], fieldCell(rows[10 + rowOffset]), isEditor).value;
   const iconAlt = readField(block, 'iconAlt', ['icon alt', 'icon alt text'], fieldCell(rows[11 + rowOffset]), isEditor).value;
   const iconPosition = normalizeOption(
-    readField(block, 'iconPosition', ['icon position'], fieldCell(rows[12 + rowOffset]), isEditor).value,
+    publishedFields.iconPosition
+      || readField(block, 'iconPosition', ['icon position'], fieldCell(rows[12 + rowOffset]), isEditor).value,
     ['left', 'right', 'none'],
     'right',
   );
   const horizontalAlign = normalizeOption(
-    readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[13 + rowOffset]), isEditor).value,
+    publishedFields.horizontalAlign
+      || readField(block, 'horizontalAlign', ['horizontal alignment', 'button alignment'], fieldCell(rows[13 + rowOffset]), isEditor).value,
     ['left', 'center', 'right', 'stretch'],
     'left',
   );
   const verticalAlign = normalizeOption(
-    readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[14 + rowOffset]), isEditor).value,
+    publishedFields.verticalAlign
+      || readField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[14 + rowOffset]), isEditor).value,
     ['top', 'middle', 'bottom'],
     'top',
   );
@@ -355,7 +409,7 @@ export default function decorate(block) {
     `colored-button-appearance-${appearance}`,
   );
   applyColoredFieldLayoutOptions(block, 'colored-button', {
-    layoutOptions: layoutOptionsField.value,
+    layoutOptions: publishedFields.layoutOptions || layoutOptionsField.value,
   });
   if (invertOnHover === 'yes') block.classList.add('colored-button-invert-hover');
   if (fontSize) block.style.setProperty('--colored-button-font-size', fontSize);

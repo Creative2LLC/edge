@@ -805,6 +805,18 @@ function applyFlattenedStatisticsStyles(item) {
   const sizeField = (fieldName) => valueForField(fieldName, (value) => normalizeCssValue(value, 'font-size'));
   const weightField = (fieldName) => valueForField(fieldName, normalizeFontWeight);
   const minHeightField = (fieldName) => valueForField(fieldName, (value) => normalizeCssValue(value, 'min-height'));
+  const markerStyleIndex = rows.findIndex((row) => (
+    ['circle', 'underline'].includes(normalizeBlockName(row.textContent || ''))
+  ));
+  const markerTerms = markerStyleIndex >= 2
+    ? directRowText(item, markerStyleIndex - 2)
+    : '';
+  const markerColor = markerStyleIndex > 0
+    ? normalizeHexColorValue(directRowText(item, markerStyleIndex - 1))
+    : '';
+  const markerStyle = markerStyleIndex >= 0
+    ? normalizeOption(directRowText(item, markerStyleIndex), ['circle', 'underline'], '')
+    : '';
 
   setCssVarIfMissing(item, '--statistics-heading-color', colorField('headingTextColor'));
   setCssVarIfMissing(item, '--statistics-heading-size', sizeField('headingFontSize'));
@@ -820,6 +832,12 @@ function applyFlattenedStatisticsStyles(item) {
   setCssVarIfMissing(item, '--statistics-label-weight', weightField('labelFontWeight'));
   setCssVarIfMissing(item, '--statistics-min-height', minHeightField('minHeight'));
   setCssVarIfMissing(item, '--statistics-min-height-mobile', minHeightField('minHeightMobile'));
+  if (markerTerms) item.dataset.statisticsMarkerTerms = markerTerms;
+  else delete item.dataset.statisticsMarkerTerms;
+  if (markerColor) item.dataset.statisticsMarkerColor = markerColor;
+  else delete item.dataset.statisticsMarkerColor;
+  if (markerStyle) item.dataset.statisticsMarkerStyle = markerStyle;
+  else delete item.dataset.statisticsMarkerStyle;
 }
 
 function resetRowMarkerRuntime(row) {

@@ -2038,7 +2038,19 @@ export default function decorate(block) {
   legacyConfig.cleanupCompactRows();
 
   const values = normalizeStatValueLines(statValuesField, fieldFallback('statValues'));
-  const labels = normalizeStatLabelLines(statLabelsField, fieldFallback('statLabels'), values.length);
+  const markerTerms = fieldFallback('markerTerms') || block.dataset.statisticsMarkerTerms || markerTermsField.value;
+  const markerTermValues = markerTerms
+    .split(/\r?\n|\|/u)
+    .map((term) => term.trim().toLowerCase())
+    .filter(Boolean);
+  const parsedLabels = normalizeStatLabelLines(statLabelsField, fieldFallback('statLabels'), values.length);
+  const labels = parsedLabels.length === values.length
+    && parsedLabels.every((label, index) => (
+      label.trim().toLowerCase() === values[index]?.trim().toLowerCase()
+      && markerTermValues.includes(label.trim().toLowerCase())
+    ))
+    ? []
+    : parsedLabels;
   const effectiveValues = values.length ? values : looseLegacy.values;
   const effectiveLabels = labels.length ? labels : looseLegacy.labels;
   const effectiveBodyTextField = suppressDuplicateFallbackBody(
@@ -2194,9 +2206,9 @@ export default function decorate(block) {
     restoreRenderedHeading(wrapper, true);
   }
   applyAnimatedMarkers(wrapper, {
-    terms: markerTermsField.value || fieldFallback('markerTerms'),
-    color: resolvedMarkerColor,
-    style: markerStyleField.value || fieldFallback('markerStyle'),
+    terms: markerTerms,
+    color: block.dataset.statisticsMarkerColor || resolvedMarkerColor,
+    style: fieldFallback('markerStyle') || block.dataset.statisticsMarkerStyle || markerStyleField.value,
   });
   applyColoredFieldLayoutOptions(block, 'statistics', {
     paddingStyle: paddingStyleField.value || fieldFallback('paddingStyle'),

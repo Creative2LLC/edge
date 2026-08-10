@@ -774,7 +774,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     gap: 0 16px;
     padding: 0 16px;
     isolation: isolate;
-    overflow: clip;
+    overflow: hidden;
   }
 
   header nav::before,
@@ -813,7 +813,6 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
       'hamburger brand' var(--nav-height)
       'sections sections' minmax(0, 1fr)
       'tools tools' auto / auto 1fr;
-    align-items: stretch;
     height: 100dvh;
     min-height: 100dvh;
     overflow: hidden;
@@ -830,6 +829,9 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   }
 
   header nav .nav-brand {
+    /* An absolutely positioned grid item is positioned against its grid area.
+       Clear the inherited `brand` area so 50% refers to the full nav width. */
+    grid-area: auto;
     position: absolute;
     top: calc(var(--nav-height) / 2);
     left: 50%;
@@ -1055,7 +1057,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 
     /* The stacked screens slide beyond this viewport during navigation. Keep
        that animation contained so hidden screens never leak into page paint. */
-    overflow: clip;
+    overflow: hidden;
   }
 
   header nav .nav-mobile-screen {
@@ -1064,7 +1066,10 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    min-width: 0;
+    max-width: 100%;
     width: 100%;
+    box-sizing: border-box;
     opacity: 0;
     pointer-events: none;
     transform: translateX(calc(100% + 28px));
@@ -1098,6 +1103,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   header nav .nav-mobile-screen-header {
     display: flex;
     align-items: center;
+    min-width: 0;
     gap: 12px;
     padding: 6px 2px 0;
   }
@@ -1117,6 +1123,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   }
 
   header nav .nav-mobile-screen-title {
+    min-width: 0;
+    overflow-wrap: anywhere;
     color: #10344f;
     font-size: 1.12rem;
     font-weight: 700;

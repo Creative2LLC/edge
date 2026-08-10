@@ -21,7 +21,7 @@
 .colored-heading .colored-heading-inner {
   display: flex;
   width: 100%;
-  min-height: var(--colored-heading-min-height);
+  min-height: 0;
   background-color: var(--colored-heading-block-bg);
 }
 
@@ -97,9 +97,6 @@
     font-size: 32px;
   }
 
-  .colored-heading .colored-heading-inner {
-    min-height: var(--colored-heading-min-height-mobile);
-  }
 }
 
 .colored-heading.colored-heading-shadow-small .colored-heading-inner {

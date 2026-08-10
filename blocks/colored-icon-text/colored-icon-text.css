@@ -30,7 +30,7 @@
   gap: var(--colored-icon-text-gap);
   align-items: center;
   width: 100%;
-  min-height: var(--colored-icon-text-min-height);
+  min-height: 0;
   box-sizing: border-box;
   border-radius: 8px;
   background-color: var(--colored-icon-text-block-bg);
@@ -321,7 +321,7 @@
   .colored-icon-text .colored-icon-text-inner {
     flex-direction: column;
     align-items: flex-start;
-    min-height: var(--colored-icon-text-min-height-mobile);
+    min-height: 0;
   }
 
   .colored-icon-text.colored-icon-text-media-right .colored-icon-text-inner {

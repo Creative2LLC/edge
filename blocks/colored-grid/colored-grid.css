@@ -22,7 +22,7 @@
   gap: var(--colored-grid-rows-gap);
   width: 100%;
   max-width: var(--colored-grid-max-width);
-  min-height: var(--colored-grid-min-height);
+  min-height: 0;
   margin-inline: auto;
   padding: var(--colored-grid-padding);
   border-radius: var(--colored-grid-radius);
@@ -66,7 +66,7 @@
 .colored-grid .colored-grid-row-item {
   grid-column: span var(--colored-grid-item-column-span, 60);
   min-width: 0;
-  min-height: var(--colored-grid-row-min-height);
+  min-height: 0;
   padding: var(--colored-grid-row-padding);
   border-radius: var(--colored-grid-row-radius);
   background: var(--colored-grid-row-bg);
@@ -81,7 +81,7 @@
   display: grid;
   grid-template-columns: repeat(var(--colored-grid-row-columns, 2), minmax(0, 1fr));
   gap: var(--colored-grid-row-gap);
-  min-height: var(--colored-grid-row-min-height);
+  min-height: 0;
   padding: var(--colored-grid-row-padding);
   border-radius: var(--colored-grid-row-radius);
   background: var(--colored-grid-row-bg);
@@ -252,7 +252,12 @@
     var(--colored-field-padding-left, var(--colored-grid-row-padding, 0));
 }
 
-@media (width <= 700px) {
+/* Keep dense data rows in the single-column treatment through tablet widths. */
+@media (width <= 900px) {
+    .colored-grid .statistics {
+        padding: 30px;
+    }
+
   .colored-grid .colored-grid-row-item {
     grid-column: 1 / -1;
   }

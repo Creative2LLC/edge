@@ -185,6 +185,16 @@ function rowText(row) {
   return fieldCell(row)?.textContent?.trim() || '';
 }
 
+function derivePublishedCardStyleFields(row) {
+  const colors = [...row.children]
+    .map(rowText)
+    .map((value) => normalizeColorValue(value))
+    .filter(Boolean);
+
+  return {
+    cardBackgroundColor: colors[0] || '',
+  };
+}
 function hasOptionText(row, allowedValues) {
   return Boolean(normalizeOption(rowText(row), allowedValues, ''));
 }
@@ -713,6 +723,7 @@ function buildCard(row, isEditor) {
   // fallback is kept for true published pages, where there's no instrumentation to
   // name-match against at all.
   const fallback = (index) => (isEditor ? null : row.children[index]);
+  const publishedCardStyles = isEditor ? {} : derivePublishedCardStyleFields(row);
   // Hex-color "select" fields (regex-validated) render in the editor as a bare
   // <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
   // unlike every other field type, which does get real instrumentation whenever it has
@@ -757,7 +768,9 @@ function buildCard(row, isEditor) {
   const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: fallback(14) });
   const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: fallback(15) });
   applyCardStyles(li, {
-    cardBackgroundColor: cardBackgroundField.value,
+    cardBackgroundColor: isEditor
+      ? cardBackgroundField.value
+      : (publishedCardStyles.cardBackgroundColor || cardBackgroundField.value),
     cardTextColor: cardTextColorField.value,
     highlightTextColor: highlightTextColorField.value,
     cardTextSize: cardTextSizeField.value,
@@ -779,7 +792,8 @@ function buildCard(row, isEditor) {
   appendRichText(highlightField, 'cards-card-highlight', body);
   appendRichText(textField, 'cards-card-text', body);
 
-  if (disclaimerField.value || disclaimerField.source) {
+  const disclaimerText = disclaimerField.value || disclaimerField.source?.textContent?.trim() || '';
+  if (disclaimerText && !isConfigOnlyText(disclaimerText)) {
     const disclaimerEl = document.createElement('div');
     disclaimerEl.className = 'cards-card-disclaimer';
     if (disclaimerField.source) {

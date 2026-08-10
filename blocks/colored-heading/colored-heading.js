@@ -230,6 +230,9 @@ function derivePublishedFields(rows) {
     heading: findValue((value) => !isPublishedControlValue(value)),
     headingLevel: findValue((value) => /^h[1-6]$/iu.test(value.trim())),
     textColor: findValue((value) => normalizeColorValue(value)),
+    blockBackgroundColor: values
+      .map((value) => normalizeColorValue(value))
+      .filter(Boolean)[1] || '',
     fontSize: findValue((value) => normalizeCssLength(value, 'font-size') && !/^(?:[1-9]00)$/u.test(value.trim())),
     fontWeight: findValue((value) => normalizeFontWeight(value)),
     horizontalAlign: findValue((value) => ['left', 'center', 'right', 'justify'].includes(value.trim().toLowerCase())),
@@ -312,7 +315,9 @@ export default function decorate(block) {
     isEditor,
     fieldCell(rows[11]),
   );
-  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
+  const blockBackgroundColor = normalizeColorValue(
+    blockBgField.value || publishedFields.blockBackgroundColor,
+  );
   const dropShadowField = readField(
     block,
     'dropShadow',

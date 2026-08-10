@@ -25,7 +25,7 @@
 .colored-button .colored-button-inner {
   display: flex;
   width: 100%;
-  min-height: var(--colored-button-min-height);
+  min-height: 0;
   background-color: var(--colored-button-block-bg);
 }
 
