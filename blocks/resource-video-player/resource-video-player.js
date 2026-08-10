@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { currentSiteLocale } from '../../scripts/link-utils.js';
+import { fetchSignedUrl, isRegistered, openRegistrationModal } from '../../scripts/resource-gate.js';
 import {
   getBlockRows,
   readImageField,
@@ -285,10 +286,30 @@ function buildPlayer(video) {
   const frame = document.createElement('div');
   frame.className = 'resource-video-player-frame';
 
-  const loadEmbed = () => {
-    frame.replaceChildren(buildEmbed(video.videoUrl, video.title));
+  const embed = (url) => {
+    frame.replaceChildren(buildEmbed(url, video.title));
     playNativeVideo(frame);
     frame.classList.add('is-loaded');
+  };
+
+  const loadEmbed = () => {
+    if (video.videoUrl) {
+      embed(video.videoUrl);
+      return;
+    }
+
+    // S3-hosted video: mint a presigned URL per play (after the registration
+    // gate when the resource is gated).
+    const start = () => fetchSignedUrl(video.signedUrlEndpoint).then((url) => {
+      if (url) embed(url);
+    });
+    if (!video.gated || isRegistered()) {
+      start();
+      return;
+    }
+    openRegistrationModal({ resourceSlug: video.resourceSlug }).then((registration) => {
+      if (registration) start();
+    });
   };
 
   const placeholder = buildPlaceholder(video);
@@ -332,8 +353,15 @@ export default async function decorate(block) {
       resource = await fetchResource(config.apiBaseUrl, config.slug);
     }
 
+    const slug = resource?.slug || config.slug || '';
+    const requiresSignedUrl = Boolean(resource?.requires_signed_url) && slug && config.apiBaseUrl;
     const video = {
       videoUrl: config.videoUrl || resource?.video_url || '',
+      gated: Boolean(resource?.gated),
+      resourceSlug: slug,
+      signedUrlEndpoint: requiresSignedUrl
+        ? `${config.apiBaseUrl.replace(/\/+$/, '')}/api/resources/${encodeURIComponent(slug)}/download-url`
+        : '',
       title: config.title || resource?.title || '',
       posterImage: authoredPoster || (resource?.header_image || resource?.thumbnail ? {
         src: resource.header_image || resource.thumbnail,
@@ -341,7 +369,7 @@ export default async function decorate(block) {
       } : null),
     };
 
-    if (!video.videoUrl) {
+    if (!video.videoUrl && !video.signedUrlEndpoint) {
       block.replaceChildren(buildMessage('Missing video URL', 'Add a videoUrl or set a video URL on the resource record.'));
       return;
     }

@@ -20,6 +20,9 @@ import {
 const STORAGE_KEY = 'ncmec.resourceRegistration.v1';
 const REGISTRATION_TTL_MS = 183 * 24 * 60 * 60 * 1000; // ~6 months
 const REGISTERED_EVENT = 'ncmec:resource-gate:registered';
+// Server-signed proof of registration, sent when requesting presigned URLs
+// for gated S3 files. Name must match the backend ResourceGateToken::HEADER.
+const GATE_TOKEN_HEADER = 'X-Resource-Gate';
 
 // Values must match the backend ResourceAudience enum.
 const AUDIENCE_OPTIONS = [
@@ -48,6 +51,14 @@ function ensureStyles() {
   loadCSS(`${window.hlx?.codeBasePath || ''}/styles/resource-gate.css`);
 }
 
+function clearRegistration() {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Ignore — storage unavailable.
+  }
+}
+
 function readRegistration() {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -57,8 +68,19 @@ function readRegistration() {
     if (!data || typeof data !== 'object' || !data.registeredAt) return null;
 
     if (Date.now() - Number(data.registeredAt) > REGISTRATION_TTL_MS) {
-      window.localStorage.removeItem(STORAGE_KEY);
+      clearRegistration();
       return null;
+    }
+
+    // v2 records carry the server gate token; older records (or ones whose
+    // token has lapsed) count as unregistered so the visitor re-registers
+    // and receives a fresh token.
+    if (Number(data.version) >= 2) {
+      const tokenExpiry = Date.parse(data.gateTokenExpiresAt || '') || 0;
+      if (!data.gateToken || tokenExpiry <= Date.now()) {
+        clearRegistration();
+        return null;
+      }
     }
 
     return data;
@@ -81,6 +103,38 @@ export function getRegistration() {
 
 export function isRegistered() {
   return readRegistration() !== null;
+}
+
+export function getGateToken() {
+  return readRegistration()?.gateToken || '';
+}
+
+/**
+ * Ask the backend for the real download URL of an S3-backed file (presigned,
+ * ~1 hour) via its /download-url endpoint. Returns the URL or null. A 401
+ * means the stored token is no longer valid — the cached registration is
+ * cleared so the next click re-opens the registration modal.
+ */
+export async function fetchSignedUrl(endpoint) {
+  if (!endpoint) return null;
+
+  try {
+    const headers = { Accept: 'application/json' };
+    const token = getGateToken();
+    if (token) headers[GATE_TOKEN_HEADER] = token;
+
+    const response = await fetch(endpoint, { headers });
+    if (response.status === 401) {
+      clearRegistration();
+      return null;
+    }
+    if (!response.ok) return null;
+
+    const payload = await response.json().catch(() => null);
+    return payload?.data?.url || null;
+  } catch {
+    return null;
+  }
 }
 
 function fileExtension(value) {
@@ -143,9 +197,9 @@ export function recordDownload({
  * original link's target/download semantics. More reliable than window.open
  * after async work, which popup blockers are quick to eat.
  */
-function startDownload(link) {
+function startDownload(link, url = '') {
   const anchor = document.createElement('a');
-  anchor.href = link.href;
+  anchor.href = url || link.href;
   if (link.target) anchor.target = link.target;
   if (link.hasAttribute('download')) {
     anchor.setAttribute('download', link.getAttribute('download') || '');
@@ -199,6 +253,33 @@ function openInline(url, link) {
 function deliverFile(url, link) {
   if (isInlineViewable(url)) openInline(url, link);
   else startDownload(link);
+}
+
+/**
+ * Deliver a file whose URL arrives asynchronously (a presigned S3 URL). The
+ * viewing tab must be opened synchronously inside the click gesture or popup
+ * blockers eat it — so for inline types the tab opens first and navigates
+ * once the URL resolves. Presigned URLs carry their own inline/attachment
+ * Content-Disposition, so no blob fetch (and no CORS requirement) is needed.
+ */
+function deliverResolvedFile(resolveUrl, link, fileName = '') {
+  if (isInlineViewable(fileName)) {
+    const win = window.open('about:blank', '_blank');
+    if (win) win.opener = null;
+    resolveUrl().then((url) => {
+      if (!url) {
+        if (win) win.close();
+        return;
+      }
+      if (win) win.location.href = url;
+      else startDownload(link, url);
+    });
+    return;
+  }
+
+  resolveUrl().then((url) => {
+    if (url) startDownload(link, url);
+  });
 }
 
 function buildField({
@@ -390,9 +471,18 @@ function buildModal() {
         body: formData,
         headers: { Accept: 'application/json' },
       });
+      const payload = await response.clone().json().catch(() => null);
       const message = await extractApiMessage(response);
       if (!response.ok) {
         throw new Error(message || 'Something went wrong. Please try again.');
+      }
+
+      // The server-signed gate token unlocks presigned S3 downloads for the
+      // next 6 months; it rides along in the stored registration record.
+      if (payload?.gate_token) {
+        registration.version = 2;
+        registration.gateToken = payload.gate_token;
+        registration.gateTokenExpiresAt = payload.gate_token_expires_at || '';
       }
 
       writeRegistration(registration);
@@ -459,13 +549,30 @@ export function bindGatedLink(link, {
   fileName = '',
   lockedLabel = 'Locked',
   downloadLabel = '',
+  signedUrlEndpoint = '',
 } = {}) {
   if (!link) return;
 
-  const targetUrl = fileUrl || link.href || '';
+  // Signed-URL links carry no real href (nothing to leak in the DOM); the
+  // URL is requested from the API per click and expires within the hour.
+  const usesSignedUrl = Boolean(signedUrlEndpoint);
+  if (usesSignedUrl && !link.getAttribute('href')) link.setAttribute('href', '#');
+
+  const targetUrl = usesSignedUrl ? '' : (fileUrl || link.href || '');
   const track = () => recordDownload({
-    resourceSlug, fileUrl: targetUrl, fileName, gated,
+    resourceSlug,
+    // Never log a presigned URL — the file name + slug identify the download.
+    fileUrl: targetUrl || fileName || `s3:${resourceSlug}`,
+    fileName,
+    gated,
   });
+  const deliver = () => {
+    if (usesSignedUrl) {
+      deliverResolvedFile(() => fetchSignedUrl(signedUrlEndpoint), link, fileName);
+    } else {
+      deliverFile(targetUrl, link);
+    }
+  };
   // Leave modifier / middle clicks to the browser's native behavior.
   const isPlainClick = (event) => event.button === 0
     && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
@@ -475,7 +582,7 @@ export function bindGatedLink(link, {
       if (!isPlainClick(event)) return;
       event.preventDefault();
       track();
-      deliverFile(targetUrl, link);
+      deliver();
     });
     return;
   }
@@ -511,7 +618,7 @@ export function bindGatedLink(link, {
 
     if (isRegistered()) {
       track();
-      deliverFile(targetUrl, link);
+      deliver();
       return;
     }
 
@@ -519,7 +626,7 @@ export function bindGatedLink(link, {
       if (!registration) return;
       track();
       // Deliver the file the visitor originally asked for.
-      deliverFile(targetUrl, link);
+      deliver();
     });
   });
 }

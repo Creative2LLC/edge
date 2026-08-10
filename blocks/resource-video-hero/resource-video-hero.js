@@ -7,7 +7,12 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { bindGatedLink } from '../../scripts/resource-gate.js';
+import {
+  bindGatedLink,
+  fetchSignedUrl,
+  isRegistered,
+  openRegistrationModal,
+} from '../../scripts/resource-gate.js';
 
 const FIELD_COLUMN_INDEX = {
   apiBaseUrl: 0,
@@ -295,6 +300,18 @@ function buildActions(resource, config, videoSource) {
   const actions = document.createElement('div');
   actions.className = 'resource-video-hero-actions';
 
+  const slug = resource.slug || config.slug || '';
+  // S3-backed gated files expose no URL in the API; a presigned one is
+  // requested per click from the download-url endpoint.
+  const requiresSignedUrl = Boolean(resource.requires_signed_url) && slug && config.apiBaseUrl;
+  const signedUrlEndpoint = requiresSignedUrl
+    ? `${config.apiBaseUrl.replace(/\/+$/, '')}/api/resources/${encodeURIComponent(slug)}/download-url`
+    : '';
+  // Authored gated value overrides the API value; missing → API → open.
+  let gated = Boolean(resource.gated);
+  if (config.gated === 'true') gated = true;
+  if (config.gated === 'false') gated = false;
+
   if (videoSource) {
     const modal = buildModal(resource.title || config.title || 'Video');
     const watchBtn = document.createElement('button');
@@ -303,6 +320,45 @@ function buildActions(resource, config, videoSource) {
     watchBtn.textContent = config.watchLabel || 'Watch Video';
     watchBtn.addEventListener('click', () => modal.open(videoSource));
     actions.append(watchBtn);
+  } else if (signedUrlEndpoint) {
+    // S3-hosted video: mint the presigned URL on click (after the gate when
+    // registration is required), then play it in the modal.
+    const modal = buildModal(resource.title || config.title || 'Video');
+    const watchBtn = document.createElement('button');
+    watchBtn.type = 'button';
+    watchBtn.className = 'resource-video-hero-action is-primary';
+    watchBtn.textContent = config.watchLabel || 'Watch Video';
+    const play = () => fetchSignedUrl(signedUrlEndpoint).then((url) => {
+      if (url) modal.open(url);
+    });
+    watchBtn.addEventListener('click', () => {
+      if (!gated || isRegistered()) {
+        play();
+        return;
+      }
+      openRegistrationModal({ resourceSlug: slug }).then((registration) => {
+        if (registration) play();
+      });
+    });
+    actions.append(watchBtn);
+  }
+
+  if (signedUrlEndpoint) {
+    const download = document.createElement('a');
+    download.className = 'resource-video-hero-action is-secondary';
+    download.href = '#';
+    download.textContent = config.downloadLabel || 'Download Resource';
+
+    bindGatedLink(download, {
+      gated,
+      resourceSlug: slug,
+      fileName: resource.aem_asset_name || '',
+      downloadLabel: config.downloadLabel || 'Download Resource',
+      signedUrlEndpoint,
+    });
+
+    actions.append(download);
+    return actions;
   }
 
   // Download: prefer the uploaded DAM file, then API download_url / resource_url
@@ -321,11 +377,6 @@ function buildActions(resource, config, videoSource) {
       download.rel = 'noopener noreferrer';
     }
     download.textContent = config.downloadLabel || 'Download Resource';
-
-    // Authored gated value overrides the API value; missing → API → open.
-    let gated = Boolean(resource.gated);
-    if (config.gated === 'true') gated = true;
-    if (config.gated === 'false') gated = false;
 
     bindGatedLink(download, {
       gated,

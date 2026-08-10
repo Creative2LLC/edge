@@ -263,21 +263,39 @@ function resolveGated(resource, config) {
 
 function buildActions(resource, config) {
   const downloadUrl = resource.download_url || resource.resource_url;
-  if (!downloadUrl) return null;
+  const slug = resource.slug || config.slug || '';
+  // S3-backed gated files expose no URL — the gate requests a presigned one
+  // from the download-url endpoint per click.
+  const requiresSignedUrl = Boolean(resource.requires_signed_url) && slug;
+  if (!downloadUrl && !requiresSignedUrl) return null;
 
   const actions = document.createElement('div');
   actions.className = 'resource-detail-actions';
 
   const link = document.createElement('a');
   link.className = 'resource-detail-primary-action';
+  link.textContent = config.ctaLabel;
+
+  if (requiresSignedUrl) {
+    link.href = '#';
+    bindGatedLink(link, {
+      gated: resolveGated(resource, config),
+      resourceSlug: slug,
+      fileName: resource.aem_asset_name || '',
+      downloadLabel: config.ctaLabel,
+      signedUrlEndpoint: `${config.apiBaseUrl.replace(/\/+$/, '')}/api/resources/${encodeURIComponent(slug)}/download-url`,
+    });
+    actions.append(link);
+    return actions;
+  }
+
   link.href = downloadUrl;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  link.textContent = config.ctaLabel;
 
   bindGatedLink(link, {
     gated: resolveGated(resource, config),
-    resourceSlug: resource.slug || config.slug || '',
+    resourceSlug: slug,
     fileUrl: downloadUrl,
     fileName: resource.aem_asset_name || '',
     downloadLabel: config.ctaLabel,

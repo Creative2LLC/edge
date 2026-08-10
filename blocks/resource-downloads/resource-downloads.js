@@ -26,7 +26,12 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import { bindGatedLink, isRegistered, openRegistrationModal } from '../../scripts/resource-gate.js';
+import {
+  bindGatedLink,
+  fetchSignedUrl,
+  isRegistered,
+  openRegistrationModal,
+} from '../../scripts/resource-gate.js';
 import { trackEvent } from '../../scripts/analytics.js';
 
 const LOCKED_LABEL = 'Locked';
@@ -769,6 +774,16 @@ function resolveGated(item, itemResource, config, primaryResource, itemFile = nu
   return primaryGated !== null ? primaryGated : false;
 }
 
+// S3-backed gated files expose no URL in the API; the download-url endpoint
+// mints a presigned one per click (with the gate token when gated).
+function signedUrlEndpointFor(apiBaseUrl, slug, fileId) {
+  if (!slug) return '';
+  const base = (apiBaseUrl || DEFAULT_API_BASE_URL).replace(/\/+$/, '');
+  const endpoint = new URL(`${base}/api/resources/${encodeURIComponent(slug)}/download-url`);
+  if (fileId) endpoint.searchParams.set('file', fileId);
+  return endpoint.toString();
+}
+
 function resolveEntry(item, resource, config, primaryResource) {
   const matchedPrimaryResource = resource
     || (item.resourceSlug === config.slug ? primaryResource : null)
@@ -812,6 +827,11 @@ function resolveEntry(item, resource, config, primaryResource) {
     style = autoType === 'video' ? 'video' : 'type';
   }
 
+  const requiresSignedUrl = Boolean(
+    matchedFile ? matchedFile.requires_signed_url : matchedPrimaryResource?.requires_signed_url,
+  );
+  const slug = item.resourceSlug || matchedPrimaryResource?.slug || '';
+
   return {
     item,
     resource: matchedPrimaryResource,
@@ -820,6 +840,11 @@ function resolveEntry(item, resource, config, primaryResource) {
     theme: typeTheme(typeKey),
     downloadUrl,
     videoUrl,
+    requiresSignedUrl,
+    signedUrlEndpoint: requiresSignedUrl
+      ? signedUrlEndpointFor(config.apiBaseUrl, slug, matchedFile?.id)
+      : '',
+    videoPlayable: Boolean(videoUrl) || (requiresSignedUrl && typeKey === 'video'),
     extension: extension || (videoUrl ? 'video' : 'file'),
     gated: resolveGated(item, matchedPrimaryResource, config, primaryResource, matchedFile),
     title: item.title || matchedFile?.title || matchedPrimaryResource?.title
@@ -828,7 +853,7 @@ function resolveEntry(item, resource, config, primaryResource) {
     fallbackDescription: normalizeText(matchedPrimaryResource?.excerpt),
     imageSrc: item.imageSrc || matchedPrimaryResource?.thumbnail || '',
     imageEl: item.imageEl,
-    slug: item.resourceSlug || matchedPrimaryResource?.slug || '',
+    slug,
     fileName: fileNameFrom(downloadUrl)
       || matchedFile?.file_name
       || matchedPrimaryResource?.aem_asset_name
@@ -878,10 +903,26 @@ function buildImage(entry, width = 400) {
 function buildDownloadButton(entry) {
   const link = document.createElement('a');
   link.className = 'resource-downloads-item-button';
+  link.textContent = entry.item.buttonLabel || defaultButtonLabel(entry);
+
+  // S3-backed files: no real href (nothing to leak in the DOM); the gate
+  // requests a presigned URL from the API on each click.
+  if (entry.requiresSignedUrl) {
+    link.href = '#';
+    bindGatedLink(link, {
+      gated: entry.gated,
+      resourceSlug: entry.slug,
+      fileName: entry.fileName,
+      lockedLabel: LOCKED_LABEL,
+      downloadLabel: entry.item.buttonLabel || defaultButtonLabel(entry),
+      signedUrlEndpoint: entry.signedUrlEndpoint,
+    });
+    return link;
+  }
+
   link.href = isUrlLike(entry.downloadUrl)
     ? entry.downloadUrl
     : resolveSiteHref(entry.downloadUrl);
-  link.textContent = entry.item.buttonLabel || defaultButtonLabel(entry);
   if (entry.downloadUrl.includes('/content/dam/')) {
     link.setAttribute('download', '');
   } else {
@@ -912,7 +953,15 @@ function buildWatchButton(entry) {
       resource_slug: entry.slug,
       file_name: entry.fileName || fileNameFrom(entry.videoUrl),
     });
-    getVideoModal().open(entry.videoUrl, entry.title);
+    if (entry.videoUrl) {
+      getVideoModal().open(entry.videoUrl, entry.title);
+      return;
+    }
+    // S3-hosted video: mint a presigned URL (token already validated by the
+    // registration check below) and hand it to the modal player.
+    fetchSignedUrl(entry.signedUrlEndpoint).then((url) => {
+      if (url) getVideoModal().open(url, entry.title);
+    });
   };
 
   button.addEventListener('click', () => {
@@ -1011,10 +1060,14 @@ function usesInformativeWatchAction(entry) {
 function buildActions(entry, isEditor) {
   const actions = document.createElement('div');
   actions.className = 'resource-downloads-item-actions';
-  const useWatchAction = entry.videoUrl && (entry.style === 'video' || usesInformativeWatchAction(entry));
+  const useWatchAction = entry.videoPlayable
+    && (entry.style === 'video' || usesInformativeWatchAction(entry));
 
   if (useWatchAction) actions.append(buildWatchButton(entry));
-  if (entry.downloadUrl && !usesInformativeWatchAction(entry)) {
+  // A signed-URL video already has Watch as its action; the presigned
+  // download would duplicate it.
+  const hasDownload = entry.downloadUrl || (entry.requiresSignedUrl && !useWatchAction);
+  if (hasDownload && !usesInformativeWatchAction(entry)) {
     actions.append(buildDownloadButton(entry));
   }
   if (!actions.children.length && isEditor) actions.append(buildEmptyNotice(entry));
@@ -1130,7 +1183,7 @@ function buildVideoEntry(entry, isEditor) {
   chip.textContent = entry.theme.badgeLabel;
   media.append(chip);
 
-  if (entry.videoUrl) {
+  if (entry.videoPlayable) {
     const playButton = document.createElement('button');
     playButton.type = 'button';
     playButton.className = 'resource-downloads-play';
@@ -1442,7 +1495,8 @@ export default async function decorate(block) {
       resource = await fetchResourceByAsset(config.apiBaseUrl, item.fileHref);
     }
     return resolveEntry(item, resource, config, primaryResource);
-  }))).filter((entry) => entry.downloadUrl || entry.videoUrl || isEditor);
+  }))).filter((entry) => entry.downloadUrl || entry.videoUrl
+    || entry.requiresSignedUrl || isEditor);
 
   const list = document.createElement('div');
   list.className = 'resource-downloads-list';
