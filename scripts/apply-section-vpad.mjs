@@ -75,7 +75,13 @@ function parse(css) {
         if (/^@media/.test(top.prelude)) medias.push({ cond: top.prelude, bodyStart: top.bodyStart, bodyEnd: i });
         else {
           const media = [...stack].reverse().find((s) => /^@media/.test(s.prelude));
-          rules.push({ selector: top.prelude, media: media ? media.prelude : null, headStart: top.headStart, bodyStart: top.bodyStart, bodyEnd: i });
+          rules.push({
+            selector: top.prelude,
+            media: media ? media.prelude : null,
+            headStart: top.headStart,
+            bodyStart: top.bodyStart,
+            bodyEnd: i,
+          });
         }
       }
       i += 1; start = i; continue;
@@ -86,15 +92,6 @@ function parse(css) {
 }
 
 const hasVerticalPadding = (body) => /(^|[;{]|\s)padding(-top|-bottom|-block)?\s*:/.test(body);
-
-function walk(dir, out = []) {
-  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-    const p = path.join(dir, e.name);
-    if (e.isDirectory()) walk(p, out);
-    else if (e.name.endsWith('.css')) out.push(p);
-  }
-  return out;
-}
 
 const plan = [];
 const missing = [];
@@ -120,12 +117,21 @@ for (const name of INCLUDE) {
     .sort((a, b) => mobileWidth(a.media) - mobileWidth(b.media))[0];
 
   if (mobRule) {
-    plan.push({ file, name, padSel, action: 'modify', at: mobRule.bodyEnd, bp: mobRule.media });
+    plan.push({
+      file, name, padSel, action: 'modify', at: mobRule.bodyEnd, bp: mobRule.media,
+    });
   } else {
     // Inject into a mobile media block: prefer <=768, else nearest <=900, else any mobile.
     const mob = medias.filter((m) => isMobile(m.cond)).sort((a, b) => Math.abs(mobileWidth(a.cond) - 768) - Math.abs(mobileWidth(b.cond) - 768))[0];
-    if (mob) plan.push({ file, name, padSel, action: 'inject', at: mob.bodyEnd, bp: mob.cond });
-    else plan.push({ file, name, padSel, action: 'append', at: css.length, bp: NEW_BP });
+    if (mob) {
+      plan.push({
+        file, name, padSel, action: 'inject', at: mob.bodyEnd, bp: mob.cond,
+      });
+    } else {
+      plan.push({
+        file, name, padSel, action: 'append', at: css.length, bp: NEW_BP,
+      });
+    }
   }
 }
 

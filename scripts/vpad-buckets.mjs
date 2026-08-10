@@ -33,7 +33,10 @@ function cssFor(blockDir) {
 function verticalTB(prop, value) {
   const p = prop.toLowerCase();
   const toks = value.match(/calc\([^)]*\)|var\([^)]*\)|[^\s]+/g) || [];
-  const px = (t) => (t && /^-?[\d.]+px$/.test(t) ? parseFloat(t) : (t ? NaN : null));
+  const px = (token) => {
+    if (!token) return null;
+    return /^-?[\d.]+px$/.test(token) ? parseFloat(token) : NaN;
+  };
   if (p === 'padding') {
     if (toks.length === 1) return [px(toks[0]), px(toks[0])];
     if (toks.length === 2) return [px(toks[0]), px(toks[0])];
@@ -70,8 +73,9 @@ function analyze(css) {
     return out.get(sel);
   };
   const mergePad = (dst, tb) => {
-    if (tb[0] != null) dst[0] = tb[0];
-    if (tb[1] != null) dst[1] = tb[1];
+    const [top, bottom] = tb;
+    if (top != null) dst[0] = top;
+    if (bottom != null) dst[1] = bottom;
   };
   while (i < N) {
     if (css[i] === '/' && css[i + 1] === '*') { const e = css.indexOf('*/', i + 2); i = e === -1 ? N : e + 2; start = i; continue; }
@@ -110,7 +114,10 @@ function analyze(css) {
 
 const fmt = (pad) => {
   const [t, b] = pad;
-  const s = (x) => (x == null ? '·' : (Number.isNaN(x) ? 'var/clamp' : `${x}`));
+  const s = (value) => {
+    if (value == null) return '·';
+    return Number.isNaN(value) ? 'var/clamp' : `${value}`;
+  };
   if (t == null && b == null) return '—';
   return s(t) === s(b) ? s(t) : `${s(t)}/${s(b)}`;
 };
@@ -120,7 +127,7 @@ const plain = [];
 
 for (const e of fs.readdirSync(BLOCKS, { withFileTypes: true })) {
   if (!e.isDirectory()) continue;
-  const name = e.name;
+  const { name } = e;
   const file = cssFor(path.join(BLOCKS, name));
   if (!file) continue;
   const css = fs.readFileSync(file, 'utf8');
@@ -138,9 +145,13 @@ for (const e of fs.readdirSync(BLOCKS, { withFileTypes: true })) {
     if (r && (r.basePad[0] != null || r.basePad[1] != null)) { padSel = s; break; }
   }
   const r = padSel ? map.get(padSel) : null;
+  let background = '';
+  if (rootBg) {
+    background = rootBg.length > 22 ? `${rootBg.slice(0, 20)}…` : rootBg;
+  }
   const row = {
     name,
-    bg: rootBg ? (rootBg.length > 22 ? `${rootBg.slice(0, 20)}…` : rootBg) : '',
+    bg: background,
     base: r ? fmt(r.basePad) : '—',
     mob: r && r.mob ? fmt(r.mob.pad) : '—',
     on: padSel ? padSel.replace(`.${name}`, '&') : '',
