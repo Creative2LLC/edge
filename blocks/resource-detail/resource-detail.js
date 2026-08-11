@@ -255,6 +255,10 @@ function buildMeta(resource) {
 }
 
 function resolveGated(resource, config) {
+  // A signed-URL file is gated in the backend, which refuses to mint the
+  // presigned URL without the registration token — an authored "false" would
+  // only hide the modal and leave the visitor clicking a button that 401s.
+  if (resource.requires_signed_url) return true;
   // Authored block value overrides the API value; missing → API → open.
   if (config.gated === 'true') return true;
   if (config.gated === 'false') return false;

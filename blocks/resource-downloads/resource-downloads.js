@@ -757,7 +757,20 @@ function resolveResourceFile(resource, fileHref) {
   return primaryResourceFile(resource);
 }
 
-function resolveGated(item, itemResource, config, primaryResource, itemFile = null) {
+function resolveGated(
+  item,
+  itemResource,
+  config,
+  primaryResource,
+  itemFile = null,
+  requiresSignedUrl = false,
+) {
+  // A signed-URL file is gated in the backend, which refuses to mint the
+  // presigned URL without the registration token. An authored "Open" can't
+  // change that — honoring it would only hide the modal and leave the visitor
+  // clicking a button that 401s. Un-gating one of these is a Filament action.
+  if (requiresSignedUrl) return true;
+
   const itemOverride = normalizeGatedValue(item.gatedOverride);
   if (itemOverride !== null) return itemOverride;
 
@@ -846,7 +859,14 @@ function resolveEntry(item, resource, config, primaryResource) {
       : '',
     videoPlayable: Boolean(videoUrl) || (requiresSignedUrl && typeKey === 'video'),
     extension: extension || (videoUrl ? 'video' : 'file'),
-    gated: resolveGated(item, matchedPrimaryResource, config, primaryResource, matchedFile),
+    gated: resolveGated(
+      item,
+      matchedPrimaryResource,
+      config,
+      primaryResource,
+      matchedFile,
+      requiresSignedUrl,
+    ),
     title: item.title || matchedFile?.title || matchedPrimaryResource?.title
       || titleFromFileName(downloadUrl) || 'Download',
     description: item.description || matchedFile?.description || '',

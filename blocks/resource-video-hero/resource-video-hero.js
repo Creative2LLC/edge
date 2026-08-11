@@ -307,10 +307,13 @@ function buildActions(resource, config, videoSource) {
   const signedUrlEndpoint = requiresSignedUrl
     ? `${config.apiBaseUrl.replace(/\/+$/, '')}/api/resources/${encodeURIComponent(slug)}/download-url`
     : '';
-  // Authored gated value overrides the API value; missing → API → open.
+  // Authored gated value overrides the API value; missing → API → open. The
+  // exception is a signed-URL file: the backend refuses to mint its presigned
+  // URL without the registration token, so an authored "false" would only hide
+  // the modal and leave the visitor clicking a button that 401s.
   let gated = Boolean(resource.gated);
   if (config.gated === 'true') gated = true;
-  if (config.gated === 'false') gated = false;
+  if (config.gated === 'false' && !requiresSignedUrl) gated = false;
 
   if (videoSource) {
     const modal = buildModal(resource.title || config.title || 'Video');
