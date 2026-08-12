@@ -1039,13 +1039,18 @@ function formatPosterDate(value) {
   return text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim() || text;
 }
 
+function formatPosterLocation(value) {
+  return normalizeText(value)
+    .replace(/,\s*(?:US|USA|United States)$/i, '')
+    .trim();
+}
 function capitalizeWords(value) {
   return normalizeText(value).toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function participantFacts(person, unidentified) {
   const date = formatPosterDate(firstValue(person, ['missingDate', 'dateMissing', 'missingSince', 'dateFound', 'foundDate']));
-  const location = locationText(person);
+  const location = formatPosterLocation(locationText(person));
   const age = firstValue(person, ['approximateAge', 'age', 'ageNow']);
   const gender = firstValue(person, ['sex', 'gender']);
 
@@ -1330,7 +1335,7 @@ function amberSubjectFacts(person) {
   const facts = [];
   const missing = formatPosterDate(firstValue(person, ['missing_date', 'missingDate', 'dateMissing', 'missingSince']));
   if (missing) facts.push({ icon: 'date', label: 'Missing Since', value: missing });
-  const from = firstValue(person, ['missing_location', 'missingLocation']) || locationText(person);
+  const from = formatPosterLocation(firstValue(person, ['missing_location', 'missingLocation']) || locationText(person));
   if (from) facts.push({ icon: 'location', label: 'Missing From', value: from });
   const ageNow = firstValue(person, ['age', 'ageNow']);
   if (ageNow && `${ageNow}` !== '-1') {
@@ -1611,8 +1616,8 @@ function createResultCard(person) {
 
   const details = document.createElement('dl');
   [
-    ['Missing Since', person.missingDate],
-    ['Missing From', locationText(person)],
+    ['Missing Since', formatPosterDate(person.missingDate)],
+    ['Missing From', formatPosterLocation(locationText(person))],
     ['Age Now', person.age],
   ].forEach(([label, value]) => {
     if (!normalizeText(value)) return;
@@ -1706,7 +1711,7 @@ function createAmberSummaryCard(alert) {
   const details = document.createElement('dl');
   appendDetailRows(details, [
     ['Case', amberCaseNumber(alert)],
-    ['Missing From', firstValue(alert, ['missing_location', 'missingLocation']) || locationText(alert)],
+    ['Missing From', formatPosterLocation(firstValue(alert, ['missing_location', 'missingLocation']) || locationText(alert))],
     ['Issued For', firstValue(alert, ['issued_for', 'issuedFor'])],
   ]);
   const actions = document.createElement('div');

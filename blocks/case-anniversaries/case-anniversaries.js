@@ -25,8 +25,6 @@ const DEFAULTS = {
   emptyMessage: 'No case anniversaries match your current filters.',
 };
 
-const EXTERNAL_LINK_ICON = new URL('./link-off-logo.svg', import.meta.url).href;
-
 const FIELD_LABELS = {
   findHeading: ['find heading', 'results heading'],
   apiBaseUrl: ['api base url', 'api url', 'backend url'],
@@ -65,6 +63,17 @@ function normalizeApiBaseUrl(value) {
   return normalizeText(value).replace(/\/+$/, '');
 }
 
+function formatMissingDate(value) {
+  const text = normalizeText(value);
+  if (!text) return '';
+  return text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim() || text;
+}
+
+function formatMissingLocation(value) {
+  return normalizeText(value)
+    .replace(/,\s*(?:US|USA|United States)$/i, '')
+    .trim();
+}
 function findUrlLikeValue(value) {
   return normalizeText(value).match(/https?:\/\/[^\s<>"']+/i)?.[0] || '';
 }
@@ -332,24 +341,25 @@ function buildCard(item, config) {
   title.textContent = name;
   body.append(title);
 
+  const missingSince = formatMissingDate(
+    item.anniversary_date_label || item.missing_date_label || item.missing_date,
+  );
+  if (missingSince) {
+    const date = document.createElement('p');
+    date.className = 'case-anniversaries-card-date';
+    date.textContent = `Missing since: ${missingSince}`;
+    body.append(date);
+  }
+
   const highlight = document.createElement('p');
   highlight.className = 'case-anniversaries-card-highlight';
-  const location = normalizeText(item.missing_location);
+  const location = formatMissingLocation(item.missing_location);
   const ageNow = normalizeText(item.age_now || item.age || item.ageNow);
   highlight.textContent = [
     location ? `Missing from: ${location}` : '',
-    ageNow ? `Age now: ${ageNow} years old` : '',
+    ageNow && ageNow !== '-1' ? `Age now: ${ageNow} years old` : '',
   ].filter(Boolean).join('\n');
-  body.append(highlight);
-
-  const date = document.createElement('p');
-  date.className = 'case-anniversaries-card-date';
-  date.textContent = [
-    item.anniversary_date_label || item.missing_date_label || item.missing_date,
-    item.years_missing_label,
-  ].map(normalizeText).filter(Boolean).join('\n');
-  body.append(date);
-
+  if (highlight.textContent) body.append(highlight);
   const actions = document.createElement('div');
   actions.className = 'case-anniversaries-card-actions';
 
@@ -363,21 +373,6 @@ function buildCard(item, config) {
   }
   actions.append(link);
 
-  const external = document.createElement(href ? 'a' : 'span');
-  external.className = 'case-anniversaries-card-external';
-  const externalIcon = document.createElement('img');
-  externalIcon.src = EXTERNAL_LINK_ICON;
-  externalIcon.alt = '';
-  external.append(externalIcon);
-  if (href) {
-    external.href = href;
-    external.target = '_blank';
-    external.rel = 'noopener noreferrer';
-    external.setAttribute('aria-label', `View case for ${name}`);
-  } else {
-    external.setAttribute('aria-hidden', 'true');
-  }
-  actions.append(external);
   body.append(actions);
 
   card.append(body);

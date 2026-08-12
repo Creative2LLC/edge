@@ -399,14 +399,10 @@
 
 .case-anniversaries-card-date {
   min-height: 0;
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-left: 4px solid #f2b642;
-  border-radius: 0 6px 6px 0;
-  background: #fff7e9;
+  margin-bottom: 8px;
   color: #3f4b53;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   line-height: 1.35;
 }
 
@@ -439,22 +435,6 @@
 .case-anniversaries .case-anniversaries-card-link:hover {
   color: #007294 !important;
   text-decoration: underline;
-}
-
-.case-anniversaries-card-external {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  color: #007294;
-  text-decoration: none;
-}
-
-.case-anniversaries-card-external img {
-  display: block;
-  width: 16px;
-  height: 16px;
 }
 
 .case-anniversaries-footer {
@@ -559,7 +539,6 @@
 .case-anniversaries-timeframe-button:focus-visible,
 .case-anniversaries-chip:focus-visible,
 .case-anniversaries-clear:focus-visible,
-.case-anniversaries-card-external:focus-visible,
 .case-anniversaries-load-more:focus-visible,
 .case-anniversaries-pagination-button:focus-visible {
   outline: 2px solid #007294;
