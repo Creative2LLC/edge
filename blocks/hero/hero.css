@@ -52,7 +52,7 @@
   height: 100%;
 }
 
-/* Background video — drop-in replacement for the picture, same z-stack */
+/* Background video */
 .hero .hero-video {
   position: absolute;
   z-index: -2;
@@ -315,6 +315,30 @@
   padding: 28px 26px;
   background: #002a5a;
   box-shadow: 0 20px 40px rgb(0 0 0 / 14%);
+}
+
+.hero .hero-side-panel.is-image-only {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.hero .hero-side-panel-image {
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.hero .hero-side-panel-image picture,
+.hero .hero-side-panel-image img {
+  position: static;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+}
+
+.hero .hero-side-panel-image img {
+  object-fit: contain;
 }
 
 .hero .hero-side-panel-title {

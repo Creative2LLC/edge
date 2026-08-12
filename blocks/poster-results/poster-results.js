@@ -285,6 +285,32 @@ function createRadioGroup(labelText, name, options) {
 
   return fieldset;
 }
+function createSortToggle(options) {
+  const control = document.createElement('div');
+  control.className = 'poster-results-sort-toggle';
+  control.setAttribute('role', 'group');
+  control.setAttribute('aria-label', 'Sort results');
+
+  const label = document.createElement('span');
+  label.className = 'poster-results-sort-label';
+  label.textContent = 'Sort by';
+  control.append(label);
+
+  const buttons = document.createElement('div');
+  buttons.className = 'poster-results-sort-options';
+  options.forEach(([value, text], index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'poster-results-sort-option';
+    button.dataset.sort = value;
+    button.textContent = text;
+    button.setAttribute('aria-pressed', String(index === 0));
+    if (index === 0) button.classList.add('is-active');
+    buttons.append(button);
+  });
+  control.append(buttons);
+  return control;
+}
 
 function setStatus(node, message, type = '') {
   node.className = `poster-results-status${type ? ` is-${type}` : ''}`;
@@ -1071,7 +1097,7 @@ function participantPosterUrl(payload, person, isMain) {
   return buildCleanPosterPath({ provider, caseNumber, sequenceNumber: seq });
 }
 
-// Companions have no case of their own, so — like the legacy poster — their name
+// Companions have no case of their own, so
 // links to the poster they appear on (the current main person).
 function mainPosterUrl(payload) {
   const main = arrayItems(payload?.children)[0] || {};
@@ -1177,7 +1203,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   detail.append(back);
 
   // Missing child(ren) first, then any additional children as "Associated
-  // Child", then companions — matching the legacy poster's stacked sections.
+  // Child", then companions
   const entries = [
     ...children.map((person, index) => ({
       person,
@@ -1244,7 +1270,7 @@ function createAmberVehicleCard(payload, selectedPerson) {
 }
 
 // Modern alert banner: rounded amber band with the AMBER ALERT wordmark, the
-// issuing state, and the alert number — replaces the flat gray "Issued for" bar.
+// issuing state, and the alert number
 function createAmberBanner(payload, alert) {
   const banner = document.createElement('div');
   banner.className = 'poster-results-amber-banner';
@@ -1298,7 +1324,7 @@ function amberSpecRows(person) {
   ];
 }
 
-// Headline icon facts for an AMBER subject — the "story" of the alert, mirroring
+// Headline icon facts for an AMBER subject
 // the missing-kids poster's icon fact rows.
 function amberSubjectFacts(person) {
   const facts = [];
@@ -1933,7 +1959,7 @@ export default async function decorate(block) {
     ['companion', 'Companion'],
     ['unidentified', 'Unidentified'],
   ]);
-  const sort = createRadioGroup('Sort By', 'sort', [
+  const sort = createSortToggle([
     ['MostRecent', 'Most Recent'],
     ['AZ', 'A-Z'],
   ]);
@@ -1955,7 +1981,7 @@ export default async function decorate(block) {
   sortBar.className = 'poster-results-sort-bar';
   sortBar.hidden = true;
   sortBar.append(sort);
-  const getSortValue = () => sortBar.querySelector('input[name="sort"]:checked')?.value || '';
+  const getSortValue = () => sortBar.querySelector('.poster-results-sort-option.is-active')?.dataset.sort || '';
 
   const divider = document.createElement('div');
   divider.className = 'poster-results-form-divider';
@@ -2132,8 +2158,14 @@ export default async function decorate(block) {
 
   // Changing sort re-queries the current search (page 1) on the fly. The bar is
   // only visible once results exist, so this can't fire before an initial search.
-  sortBar.addEventListener('change', () => {
-    if (sortBar.hidden) return;
+  sortBar.addEventListener('click', (event) => {
+    const button = event.target.closest('.poster-results-sort-option');
+    if (!button || sortBar.hidden || button.classList.contains('is-active')) return;
+    sortBar.querySelectorAll('.poster-results-sort-option').forEach((option) => {
+      const active = option === button;
+      option.classList.toggle('is-active', active);
+      option.setAttribute('aria-pressed', String(active));
+    });
     searchPosters(1, currentNearSearch);
   });
 

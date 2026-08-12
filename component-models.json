@@ -13247,7 +13247,7 @@
         "valueType": "string",
         "name": "media_featuredImage",
         "label": "Featured Image (Optional)",
-        "description": "Optional image displayed to the right of the hero title/body, vertically centered. Max 202×200px.",
+        "description": "Optional image displayed to the right of the hero title/body, vertically centered. Max 202 x 200px.",
         "multi": false
       },
       {
@@ -13633,6 +13633,21 @@
         "value": "",
         "label": "Side Panel Footer Text",
         "valueType": "string"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "panel_image",
+        "label": "Side Panel Image (Optional)",
+        "description": "When this is the only panel content, the panel background becomes transparent.",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "panel_imageAlt",
+        "label": "Side Panel Image Alt",
+        "value": ""
       },
       {
         "component": "tab",

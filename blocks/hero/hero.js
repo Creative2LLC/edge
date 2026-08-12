@@ -22,11 +22,13 @@ const HERO_RESOURCE_FIELD_NAMES = [
   'markerTerms',
   'markerColor',
   'markerStyle',
+  'panel_image',
+  'panel_imageAlt',
 ];
 const resourceDataCache = new Map();
 
 // Indices below match _hero.json's ACTUAL current field order (fields were regrouped
-// under UI tabs by a later commit — the Layout tab, containing variant/content_height/
+// under UI tabs by a later commit
 // content_position, was placed BEFORE the Media tab, not after it as this table used
 // to assume; "tab" model entries are UI-only and consume no row).
 const HERO_FIELD_INDEX = {
@@ -62,9 +64,11 @@ const HERO_FIELD_INDEX = {
   panel_secondaryText: 29,
   panel_secondaryLink: 30,
   panel_footerText: 31,
-  markerTerms: 32,
-  markerColor: 33,
-  markerStyle: 34,
+  panel_image: 32,
+  panel_imageAlt: 33,
+  markerTerms: 34,
+  markerColor: 35,
+  markerStyle: 36,
 };
 
 function isVideoUrl(value) {
@@ -261,7 +265,7 @@ function isAemAuthorHost(hostname = window.location.hostname) {
 }
 
 // True inside Universal Editor. Unlike isAemAuthorHost(), this doesn't depend on
-// the hostname — in UE the page is rendered from the Edge Delivery origin, not
+// the hostname
 // adobeaemcloud.com, so the only reliable signal is the UE instrumentation.
 function isUniversalEditor() {
   return Boolean(document.querySelector('[data-aue-resource]'));
@@ -304,7 +308,7 @@ function getRowCells(block) {
 // markup at all, so a positional fallback can silently grab a completely different
 // field's value. In the editor, named data-aue-prop lookup is reliable whenever a
 // field actually has content, so a failed name lookup there means the field is
-// genuinely empty — never fall back to a position guess in that case. Positional
+// genuinely empty
 // fallback is only meaningful on true published pages (see cards.js /
 // colored-icon-text.js for the same pattern).
 function getHeroFieldCell(block, name) {
@@ -686,7 +690,7 @@ function readTextColor(block, fallbackValue = '') {
     });
   }
 
-  // Hide (don't remove) rows that still carry live Universal Editor instrumentation —
+  // Hide (don't remove) rows that still carry live Universal Editor instrumentation
   // permanently removing an aue-tracked node desyncs UE's resource tree from the DOM
   // and breaks live-patching of that field on the next decoration pass. Rows found via
   // the legacy label-matching branch above never had instrumentation to begin with, so
@@ -1202,7 +1206,7 @@ function buildStyledActionGroups(cells, startIndex) {
 
 // Some published exports flatten every action field (text/link/style x N) into a
 // SINGLE cell as sibling elements, instead of one cell per field. Detect that
-// cell — it holds the action-style values among its children — and group its
+// cell
 // children the same way we group row cells.
 function getGroupedActionCellGroups(cells, contentIndex) {
   const actionsCell = cells
@@ -1365,7 +1369,7 @@ function buildPanelButton(textField, linkField, className) {
   return button;
 }
 
-function buildSidePanel(block) {
+function buildSidePanel(block, panelImage = null) {
   const titleField = getFieldValue(block, ['panel_title', 'sidePanelTitle']);
   const textField = getFieldValue(block, ['panel_text', 'sidePanelText']);
   const primaryTextField = getFieldValue(block, ['panel_primaryText', 'sidePanelPrimaryText']);
@@ -1374,7 +1378,7 @@ function buildSidePanel(block) {
   const secondaryLinkField = getLinkFieldValue(block, ['panel_secondaryLink', 'sidePanelSecondaryLink']);
   const footerTextField = getFieldValue(block, ['panel_footerText', 'sidePanelFooterText']);
 
-  const hasPanelContent = [
+  const hasPanelTextContent = [
     titleField.value,
     textField.value,
     primaryTextField.value,
@@ -1384,10 +1388,15 @@ function buildSidePanel(block) {
     footerTextField.value,
   ].some(Boolean);
 
-  if (!hasPanelContent) return null;
+  if (!hasPanelTextContent && !panelImage) return null;
 
   const panel = document.createElement('aside');
   panel.className = 'hero-side-panel';
+  if (panelImage) {
+    panel.classList.add('has-panel-image');
+    if (!hasPanelTextContent) panel.classList.add('is-image-only');
+    panel.append(panelImage);
+  }
 
   const title = buildInstrumentedText(titleField, 'h3', 'hero-side-panel-title');
   if (title) panel.append(title);
@@ -1418,6 +1427,36 @@ function buildSidePanel(block) {
   if (footer) panel.append(footer);
 
   return panel;
+}
+
+function extractPanelPicture(block, exclude = []) {
+  const imageField = readImageField(block, ['panel_image', 'sidePanelImage'], {
+    fallbackCell: getHeroFieldCell(block, 'panel_image'),
+  });
+  const imageSource = imageField.source || imageField.cell;
+  let picture = imageField.picture && !exclude.includes(imageField.picture)
+    ? imageField.picture
+    : null;
+  picture = picture || [...(imageSource?.querySelectorAll('picture') || [])]
+    .find((candidate) => !exclude.includes(candidate)) || null;
+
+  if (!picture) return null;
+
+  if (imageSource && imageSource !== picture) {
+    moveFieldBinding(imageSource, picture);
+  }
+
+  const altField = getFieldValue(block, ['panel_imageAlt', 'sidePanelImageAlt']);
+  const img = picture.querySelector('img');
+  if (img) {
+    if (altField.value) img.alt = altField.value;
+    if (altField.source) moveFieldBinding(altField.source, img);
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'hero-side-panel-image';
+  wrapper.append(picture);
+  return wrapper;
 }
 
 function findVideoInElement(el, options = {}) {
@@ -1454,8 +1493,8 @@ function findVideoInElement(el, options = {}) {
       || innerVideo.querySelector('source')?.getAttribute('src') || '';
     if (src) return src;
   }
-  // 4. Any descendant anchor — prefer one whose href looks like a video,
-  //    otherwise fall back to the first anchor we see (the asset reference
+  // 4. Any descendant anchor; otherwise fall back to the first anchor we see
+  //    (the asset reference
   //    may be linked even if the URL doesn't carry an extension).
   const anchors = [...(el.querySelectorAll?.('a[href]') || [])];
   const videoAnchorMatch = anchors.find((a) => isPossibleVideoUrl(a.getAttribute('href') || ''));
@@ -1550,7 +1589,7 @@ function buildVideoElement(url, posterUrl) {
   const tryPlay = () => {
     const playPromise = video.play();
     if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(() => { /* autoplay blocked — leave poster visible */ });
+      playPromise.catch(() => { /* autoplay blocked; leave poster visible */ });
     }
   };
   if (video.readyState >= 2) tryPlay();
@@ -1561,12 +1600,6 @@ function buildVideoElement(url, posterUrl) {
   return video;
 }
 
-function pictureInSource(source, exclude) {
-  if (!source) return null;
-  if (source.tagName === 'PICTURE' && !exclude.includes(source)) return source;
-  return [...source.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
-}
-
 function extractPicture(block, exclude = []) {
   const imageField = readImageField(block, ['media_image', 'image'], {
     fallbackCell: getMediaCell(block),
@@ -1575,7 +1608,8 @@ function extractPicture(block, exclude = []) {
   let picture = imageField.picture && !exclude.includes(imageField.picture)
     ? imageField.picture
     : null;
-  picture = picture || pictureInSource(imageSource, exclude);
+  picture = picture || [...(imageSource?.querySelectorAll('picture') || [])]
+    .find((candidate) => !exclude.includes(candidate)) || null;
   if (!picture) {
     picture = [...block.querySelectorAll('picture')].find((p) => !exclude.includes(p)) || null;
   }
@@ -1616,7 +1650,8 @@ function extractFeaturedPicture(block, exclude = [], pictureCandidates = null) {
   picture = picture || (imageField.picture && !exclude.includes(imageField.picture)
     ? imageField.picture
     : null);
-  picture = picture || pictureInSource(imageSource, exclude);
+  picture = picture || [...(imageSource?.querySelectorAll('picture') || [])]
+    .find((candidate) => !exclude.includes(candidate)) || null;
   if (!picture) {
     picture = candidates.find((p) => p.isConnected && !exclude.includes(p))
       || candidates.find((p) => !exclude.includes(p))
@@ -1721,8 +1756,10 @@ export default async function decorate(block) {
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
   const markerConfig = readMarkerConfig(block, resourceData);
-  const picture = extractPicture(block);
-  const excludedPictures = picture ? [picture] : [];
+  const panelImage = extractPanelPicture(block);
+  const excludedPictures = panelImage ? [panelImage.querySelector('picture')] : [];
+  const picture = extractPicture(block, excludedPictures);
+  if (picture) excludedPictures.push(picture);
   const featuredImage = extractFeaturedPicture(block, excludedPictures, originalPictures);
   const { url: videoUrl, source: videoSource } = await extractVideoUrl(block);
   let videoEl = null;
@@ -1747,7 +1784,7 @@ export default async function decorate(block) {
   if (richText) {
     applyAccentBrackets(richText);
     applyAnimatedMarkers(richText, markerConfig);
-    // Run last so the {#hex}…{#hex} spans aren't clobbered by the innerHTML
+    // Run last so the {#hex}
     // rewrites above. Hero renders after the one-time global pass in
     // decorateMain(), so it has to apply the inline-color parser itself.
     decorateInlineColors(richText);
@@ -1757,7 +1794,7 @@ export default async function decorate(block) {
     applyAnimatedMarkers(htmlText, markerConfig);
     decorateInlineColors(htmlText);
   }
-  const sidePanel = buildSidePanel(block);
+  const sidePanel = buildSidePanel(block, panelImage);
 
   const main = document.createElement('div');
   main.className = 'hero-main';
@@ -1787,7 +1824,7 @@ export default async function decorate(block) {
   content.append(layout);
 
   // Rows hidden above (readTextColor/readHeight) instead of removed need to survive
-  // this replaceChildren call to stay live-trackable by Universal Editor — collect them
+  // this replaceChildren call to stay live-trackable by Universal Editor
   // into a hidden archive appended alongside the real content, matching the pattern used
   // in cards.js / colored-icon-text.js / colored-grid.js.
   const hiddenRows = [...block.querySelectorAll(':scope > div[hidden]')];

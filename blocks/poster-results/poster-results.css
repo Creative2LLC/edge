@@ -693,7 +693,7 @@
   line-height: 1.5;
 }
 
-/* Participant sections: missing child(ren) → associated child → companion */
+/* Participant sections. */
 .poster-results-participant + .poster-results-participant,
 .poster-results-detail-layout + .poster-results-participant {
   margin-top: 32px;
@@ -1057,7 +1057,7 @@
 }
 
 /* Companions: stacked participant sections (not boxed), each with its own type
-   heading — no separate group header, matching the missing-kids poster. */
+   heading. */
 .poster-results-amber-companion {
   max-width: 980px;
   margin-inline: auto;
@@ -1729,28 +1729,77 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   accent-color: #008db6;
 }
 
-/* Sort control, shown centered directly above the results and re-querying on change. */
+/* Sort control sits in the result header and uses a pressed-state button toggle,
+   so there are no radio controls once results are visible. */
 .poster-results-sort-bar {
   display: flex;
-  justify-content: center;
-  margin: 4px 0 20px;
+  justify-content: flex-end;
+  margin: -42px 0 20px;
 }
 
 .poster-results-sort-bar[hidden] {
   display: none;
 }
 
-.poster-results:not(.is-poster-page) .poster-results-sort-bar .poster-results-radio-group {
-  flex-wrap: wrap;
-  justify-content: center;
+.poster-results-sort-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 4px;
+  border: 1px solid #cbd6dd;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgb(36 56 70 / 8%);
 }
 
-.poster-results:not(.is-poster-page) .poster-results-sort-bar .poster-results-radio-group legend {
-  flex: 0 0 auto;
-  margin: 0 4px 0 0;
+.poster-results-sort-label {
+  padding-left: 10px;
   color: #243846;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 800;
+  white-space: nowrap;
+}
+
+.poster-results-sort-options {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.poster-results-sort-option {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #405260;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.poster-results-sort-option.is-active {
+  background: #06345d;
+  color: #fff;
+  box-shadow: 0 5px 12px rgb(6 52 93 / 18%);
+}
+
+
+
+
+
+@media (width <= 640px) {
+  .poster-results-sort-bar {
+    justify-content: flex-start;
+    margin: 0 0 16px;
+  }
+
+  .poster-results-sort-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .poster-results:not(.is-poster-page) .poster-results-actions {
