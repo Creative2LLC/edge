@@ -74,6 +74,23 @@ function formatMissingLocation(value) {
     .replace(/,\s*(?:US|USA|United States)$/i, '')
     .trim();
 }
+
+function caseValue(item, keys) {
+  return [item, item.childBean, item.child, item.person]
+    .filter(Boolean)
+    .flatMap((source) => keys.map((key) => normalizeText(source[key])))
+    .find(Boolean) || '';
+}
+
+function caseLocation(item) {
+  const direct = caseValue(item, ['missing_location', 'missingLocation']);
+  if (direct) return formatMissingLocation(direct);
+  return formatMissingLocation([
+    caseValue(item, ['missing_city', 'missingCity', 'city']),
+    caseValue(item, ['missing_state', 'missingState', 'state']),
+  ].filter(Boolean).join(', '));
+}
+
 function findUrlLikeValue(value) {
   return normalizeText(value).match(/https?:\/\/[^\s<>"']+/i)?.[0] || '';
 }
@@ -338,11 +355,19 @@ function buildCard(item, config) {
   body.className = 'case-anniversaries-card-body';
 
   const title = document.createElement('h3');
-  title.textContent = name;
+  const titleLink = document.createElement(href ? 'a' : 'span');
+  titleLink.className = 'case-anniversaries-card-title-link';
+  titleLink.textContent = name;
+  if (href) {
+    titleLink.href = href;
+    titleLink.target = '_blank';
+    titleLink.rel = 'noopener noreferrer';
+  }
+  title.append(titleLink);
   body.append(title);
 
   const missingSince = formatMissingDate(
-    item.anniversary_date_label || item.missing_date_label || item.missing_date,
+    caseValue(item, ['anniversary_date_label', 'missing_date_label', 'missing_date', 'missingDate', 'dateMissing']),
   );
   if (missingSince) {
     const date = document.createElement('p');
@@ -353,8 +378,8 @@ function buildCard(item, config) {
 
   const highlight = document.createElement('p');
   highlight.className = 'case-anniversaries-card-highlight';
-  const location = formatMissingLocation(item.missing_location);
-  const ageNow = normalizeText(item.age_now || item.age || item.ageNow);
+  const location = caseLocation(item);
+  const ageNow = caseValue(item, ['age_now', 'ageNow', 'age']);
   highlight.textContent = [
     location ? `Missing from: ${location}` : '',
     ageNow && ageNow !== '-1' ? `Age now: ${ageNow} years old` : '',

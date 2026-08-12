@@ -365,6 +365,21 @@
   padding: 18px 20px;
 }
 
+.case-anniversaries .case-anniversaries-card-title-link {
+  color: #007294;
+  text-decoration: none;
+}
+
+.case-anniversaries .case-anniversaries-card-title-link:hover {
+  color: #005f7a;
+  text-decoration: underline;
+}
+
+.case-anniversaries .case-anniversaries-card-title-link:focus-visible {
+  outline: 2px solid #007294;
+  outline-offset: 3px;
+}
+
 .case-anniversaries-card h3 {
   min-height: 0;
   margin: 0 0 14px;
@@ -375,10 +390,7 @@
   letter-spacing: 0;
 }
 
-.case-anniversaries-grid[data-view="list"] .case-anniversaries-card h3 {
-  min-height: 0;
-  font-size: 24px;
-}
+
 
 .case-anniversaries-card-highlight,
 .case-anniversaries-card-date {

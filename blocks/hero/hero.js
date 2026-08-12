@@ -1302,8 +1302,15 @@ function getFlattenedActionGroups(block) {
   const multilineGroups = getMultilineActionCellGroups(cells, contentIndex);
   if (multilineGroups.length) return multilineGroups;
 
-  const unstyledGroups = getUnstyledFlattenedActionGroups(cells, contentIndex);
-  return unstyledGroups.length ? unstyledGroups : getInlineFlattenedActionGroups(block);
+  // Published Hero exports omit empty fields, so generic text after the content can
+  // be layout values (for example, overlay opacity and gradient state). Only use an
+  // unstyled fallback when it contains an actual authored link.
+  const unstyledGroups = getUnstyledFlattenedActionGroups(cells, contentIndex)
+    .filter((group) => Boolean(group.link?.href));
+  if (unstyledGroups.length) return unstyledGroups;
+
+  return getInlineFlattenedActionGroups(block)
+    .filter((group) => Boolean(group.link?.href));
 }
 
 function getButtonStyle(block, name) {
@@ -1429,16 +1436,18 @@ function buildSidePanel(block, panelImage = null) {
   return panel;
 }
 
-function extractPanelPicture(block, exclude = []) {
-  const imageField = readImageField(block, ['panel_image', 'sidePanelImage'], {
-    fallbackCell: getHeroFieldCell(block, 'panel_image'),
-  });
+function extractPanelPicture(block, pictureCandidates = []) {
+  const imageField = readImageField(block, ['panel_image', 'sidePanelImage']);
   const imageSource = imageField.source || imageField.cell;
-  let picture = imageField.picture && !exclude.includes(imageField.picture)
-    ? imageField.picture
-    : null;
-  picture = picture || [...(imageSource?.querySelectorAll('picture') || [])]
-    .find((candidate) => !exclude.includes(candidate)) || null;
+  let picture = imageField.picture || null;
+  picture = picture || [...(imageSource?.querySelectorAll('picture') || [])][0] || null;
+
+  // Published markup only contains populated fields. A side-panel image is always
+  // emitted after the background and optional featured image, so its picture is the
+  // final one. This avoids fragile fixed cell positions when empty fields are omitted.
+  if (!picture && !isUniversalEditor() && pictureCandidates.length > 1) {
+    picture = pictureCandidates[pictureCandidates.length - 1];
+  }
 
   if (!picture) return null;
 
@@ -1756,7 +1765,7 @@ export default async function decorate(block) {
     findResourceFieldValue(resourceData, ['content_textColor', 'text_color']),
   );
   const markerConfig = readMarkerConfig(block, resourceData);
-  const panelImage = extractPanelPicture(block);
+  const panelImage = extractPanelPicture(block, originalPictures);
   const excludedPictures = panelImage ? [panelImage.querySelector('picture')] : [];
   const picture = extractPicture(block, excludedPictures);
   if (picture) excludedPictures.push(picture);
