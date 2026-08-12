@@ -278,6 +278,19 @@
   gap: 28px;
 }
 
+.case-anniversaries-decade-heading {
+  grid-column: 1 / -1;
+  margin: 14px 0 -6px;
+  color: #243846;
+  font-size: clamp(22px, 2.1vw, 30px);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.case-anniversaries-decade-heading:first-child {
+  margin-top: 0;
+}
+
 .case-anniversaries-grid[data-view="list"] {
   grid-template-columns: 1fr;
   gap: 14px;
@@ -382,45 +395,39 @@
 
 .case-anniversaries-card h3 {
   min-height: 0;
-  margin: 0 0 14px;
+  margin: 0 0 8px;
   color: #243846;
-  font-size: clamp(22px, 2.1vw, 28px);
-  font-weight: 800;
-  line-height: 1.15;
+  font-size: clamp(24px, 2vw, 30px);
+  font-weight: 700;
+  line-height: 1.1;
   letter-spacing: 0;
 }
 
-
-
-.case-anniversaries-card-highlight,
-.case-anniversaries-card-date {
+.case-anniversaries-card-body dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 4px;
   margin: 0;
-  white-space: pre-line;
 }
 
-.case-anniversaries-card-highlight {
-  min-height: 0;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-  color: #3f4b53;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.35;
+.case-anniversaries-card-body dt {
+  color: #3f4a52;
+  font-size: clamp(16px, 1.45vw, 20px);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
-.case-anniversaries-card-date {
-  min-height: 0;
-  margin-bottom: 8px;
-  color: #3f4b53;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.35;
+.case-anniversaries-card-body dt::after {
+  content: ':';
 }
 
-.case-anniversaries-grid[data-view="list"] .case-anniversaries-card-highlight,
-.case-anniversaries-grid[data-view="list"] .case-anniversaries-card-date {
-  min-height: 0;
+.case-anniversaries-card-body dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #3f4a52;
+  font-size: clamp(16px, 1.45vw, 20px);
+  line-height: 1.25;
 }
 
 .case-anniversaries-card-actions {

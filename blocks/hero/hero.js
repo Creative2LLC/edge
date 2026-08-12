@@ -1442,11 +1442,20 @@ function extractPanelPicture(block, pictureCandidates = []) {
   let picture = imageField.picture || null;
   picture = picture || [...(imageSource?.querySelectorAll('picture') || [])][0] || null;
 
-  // Published markup only contains populated fields. A side-panel image is always
-  // emitted after the background and optional featured image, so its picture is the
-  // final one. This avoids fragile fixed cell positions when empty fields are omitted.
-  if (!picture && !isUniversalEditor() && pictureCandidates.length > 1) {
-    picture = pictureCandidates[pictureCandidates.length - 1];
+  // Published markup omits empty fields. The Side Panel fields come after the
+  // action-style fields, whereas background/featured media comes before them. This
+  // lets us distinguish a panel-only Hero (one picture) from a background-only Hero
+  // without relying on a fixed row number.
+  if (!picture && !isUniversalEditor()) {
+    const cells = getRowCells(block);
+    const actionStyleIndex = cells.findIndex((cell) => (
+      Boolean(getChoiceFromCell(cell, ['outline', 'solid', 'inverted']))
+    ));
+    const panelPictures = cells
+      .slice(actionStyleIndex + 1)
+      .flatMap((cell) => [...cell.querySelectorAll('picture')]);
+    picture = panelPictures[panelPictures.length - 1]
+      || (pictureCandidates.length > 1 ? pictureCandidates[pictureCandidates.length - 1] : null);
   }
 
   if (!picture) return null;

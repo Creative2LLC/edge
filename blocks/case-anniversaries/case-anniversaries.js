@@ -69,6 +69,27 @@ function formatMissingDate(value) {
   return text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim() || text;
 }
 
+function anniversaryDecade(item) {
+  const date = caseValue(item, [
+    'missing_date', 'missing_date_label', 'missingDate', 'dateMissing',
+  ]);
+  const year = Number(date.match(/\b(\d{4})\b/)?.[1]);
+  const currentYear = new Date().getFullYear();
+  if (!Number.isInteger(year) || year > currentYear) return null;
+
+  const start = year - (year % 10);
+  const end = Math.min(start + 9, currentYear);
+  return { key: `${start}-${end}`, start, end };
+}
+
+function createDecadeHeading(timeframe, decade) {
+  const heading = document.createElement('h3');
+  heading.className = 'case-anniversaries-decade-heading';
+  const prefix = timeframe === 'today' ? 'Anniversaries this day' : 'Anniversaries this week';
+  heading.textContent = `${prefix} - ${decade.start} - ${decade.end}`;
+  return heading;
+}
+
 function formatMissingLocation(value) {
   return normalizeText(value)
     .replace(/,\s*(?:US|USA|United States)$/i, '')
@@ -366,25 +387,26 @@ function buildCard(item, config) {
   title.append(titleLink);
   body.append(title);
 
+  const details = document.createElement('dl');
   const missingSince = formatMissingDate(
     caseValue(item, ['anniversary_date_label', 'missing_date_label', 'missing_date', 'missingDate', 'dateMissing']),
   );
-  if (missingSince) {
-    const date = document.createElement('p');
-    date.className = 'case-anniversaries-card-date';
-    date.textContent = `Missing since: ${missingSince}`;
-    body.append(date);
-  }
-
-  const highlight = document.createElement('p');
-  highlight.className = 'case-anniversaries-card-highlight';
   const location = caseLocation(item);
   const ageNow = caseValue(item, ['age_now', 'ageNow', 'age']);
-  highlight.textContent = [
-    location ? `Missing from: ${location}` : '',
-    ageNow && ageNow !== '-1' ? `Age now: ${ageNow} years old` : '',
-  ].filter(Boolean).join('\n');
-  if (highlight.textContent) body.append(highlight);
+  [
+    ['Missing Since', missingSince],
+    ['Missing From', location],
+    ['Age Now', ageNow && ageNow !== '-1' ? ageNow : ''],
+  ].forEach(([label, value]) => {
+    if (!value) return;
+    const dt = document.createElement('dt');
+    dt.textContent = label;
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    details.append(dt, dd);
+  });
+  if (details.children.length) body.append(details);
+
   const actions = document.createElement('div');
   actions.className = 'case-anniversaries-card-actions';
 
@@ -562,6 +584,8 @@ export default function decorate(block) {
       caseType: '',
       yearsMissing: '',
     },
+    renderedCases: 0,
+    renderedDecades: new Set(),
   };
   let loadCases = () => {};
   let activeController = null;
@@ -619,6 +643,18 @@ export default function decorate(block) {
     });
   };
 
+  const renderCases = (cases = []) => {
+    cases.forEach((item) => {
+      const decade = anniversaryDecade(item);
+      if (decade && !state.renderedDecades.has(decade.key)) {
+        state.renderedDecades.add(decade.key);
+        layout.grid.append(createDecadeHeading(state.timeframe, decade));
+      }
+      layout.grid.append(buildCard(item, config));
+    });
+    state.renderedCases += cases.length;
+  };
+
   loadCases = async (reset = false, targetPage = null) => {
     if (!config.apiBaseUrl) return;
     if (state.loading && !reset && targetPage === null) return;
@@ -634,6 +670,8 @@ export default function decorate(block) {
       state.lastPage = 1;
       layout.grid.replaceChildren();
       layout.empty.hidden = true;
+      state.renderedCases = 0;
+      state.renderedDecades.clear();
     }
 
     state.loading = true;
@@ -661,8 +699,12 @@ export default function decorate(block) {
       const payload = await response.json();
       if (currentToken !== requestToken) return;
 
-      if (usePagination) layout.grid.replaceChildren();
-      (payload.data || []).forEach((item) => layout.grid.append(buildCard(item, config)));
+      if (usePagination) {
+        layout.grid.replaceChildren();
+        state.renderedCases = 0;
+        state.renderedDecades.clear();
+      }
+      renderCases(payload.data || []);
       state.page = payload.meta?.current_page || 1;
       state.lastPage = payload.meta?.last_page || 1;
       state.total = payload.meta?.total ?? payload.total_records ?? layout.grid.children.length;
@@ -675,11 +717,11 @@ export default function decorate(block) {
       }
       const shownEnd = usePagination
         ? Math.min(state.page * config.pageSize, state.total)
-        : layout.grid.children.length;
+        : state.renderedCases;
       layout.count.textContent = state.total
         ? `Showing ${shownStart}-${shownEnd} of ${state.total} case anniversaries`
         : 'Showing 0 case anniversaries';
-      layout.empty.hidden = layout.grid.children.length > 0;
+      layout.empty.hidden = state.renderedCases > 0;
       layout.loadMore.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
       updatePagination();
       setStatus(layout.status, '', '');
@@ -692,6 +734,7 @@ export default function decorate(block) {
         activeController = null;
         state.loading = false;
         layout.loadMore.disabled = false;
+        window.requestAnimationFrame(loadCasesWhenScrolled);
       }
     }
   };
@@ -731,6 +774,16 @@ export default function decorate(block) {
     loadCases(true);
   });
   layout.loadMore.addEventListener('click', () => loadCases(false));
+
+  const loadCasesWhenScrolled = () => {
+    if (usePagination || state.loading || layout.loadMore.hidden) return;
+    const loadMoreTop = layout.loadMore.getBoundingClientRect().top;
+    if (loadMoreTop <= window.innerHeight + 240) loadCases(false);
+  };
+
+  window.addEventListener('scroll', loadCasesWhenScrolled, { passive: true });
+  window.addEventListener('resize', loadCasesWhenScrolled);
+
   layout.viewButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const nextView = button.dataset.view === 'list' ? 'list' : 'grid';

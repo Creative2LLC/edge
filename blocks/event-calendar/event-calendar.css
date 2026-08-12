@@ -553,6 +553,10 @@
   line-height: 1.25;
 }
 
+.event-calendar .event-calendar-modal-chip[hidden] {
+  display: none;
+}
+
 .event-calendar .event-calendar-modal-description {
   margin: 24px 0 0;
   color: #3f4b53;
