@@ -658,6 +658,10 @@
   align-items: start;
 }
 
+.poster-results-detail-layout.is-no-photo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .poster-results-detail-media {
   overflow: hidden;
   border-radius: 8px;
@@ -1043,15 +1047,17 @@
 }
 
 .poster-results-amber-vehicle-list dt {
-  color: #6b7680;
-  font-size: 13px;
-  font-weight: 800;
+  color: #303030;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .poster-results-amber-vehicle-list dd {
   margin: 0;
-  color: #102a43;
-  font-size: 15px;
+  color: #303030;
+  font-size: 18px;
+  line-height: 1.45;
 }
 
 /* Companions: stacked participant sections (not boxed), each with its own type
@@ -1268,7 +1274,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 }
 
 .poster-results.is-poster-page .poster-results-detail-actions {
-  margin: 0 0 36px;
+  margin: 0 auto 36px;
 }
 
 .poster-results.is-poster-page .poster-results-detail-layout {

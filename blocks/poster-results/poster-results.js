@@ -1236,6 +1236,8 @@ function buildParticipantSection(payload, {
     img.loading = 'lazy';
     media.append(img);
     layout.append(media);
+  } else {
+    layout.classList.add('is-no-photo');
   }
 
   const body = document.createElement('div');
@@ -1521,6 +1523,9 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   subject.classList.add('poster-results-amber-subject');
   detail.append(subject);
 
+  const vehicleSection = createAmberVehicleSection(payload, alert);
+  if (vehicleSection) detail.append(vehicleSection);
+
   amberAssociatedChildren(payload, alert).forEach((person) => {
     detail.append(createAmberRelatedSection(payload, person, caseNumber, 'Associated Child'));
   });
@@ -1533,9 +1538,6 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
       readablePersonType(person),
     ));
   });
-
-  const vehicleSection = createAmberVehicleSection(payload, alert);
-  if (vehicleSection) detail.append(vehicleSection);
 
   detail.append(createDetailFooter(config, payload, alert));
   container.append(detail);
