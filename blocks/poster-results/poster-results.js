@@ -1649,6 +1649,12 @@ function directPosterRequest() {
 }
 
 function enterDirectPosterPage(block) {
+  // The global block-reveal observer runs after decorate() resolves. Direct
+  // poster mode hides every sibling section, so a block left at opacity: 0 by
+  // that observer makes the whole page appear blank. Poster detail pages are
+  // intentionally shown immediately instead of waiting for scroll reveal.
+  block.classList.add('no-scroll-reveal', 'is-visible');
+  block.classList.remove('scroll-reveal');
   document.body.classList.add('poster-results-direct-page');
 
   const section = block.closest('.section') || block.parentElement;
