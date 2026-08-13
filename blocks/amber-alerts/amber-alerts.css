@@ -69,9 +69,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 54px;
+  min-height: 44px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #007294;
   color: #fff;
   cursor: pointer;
@@ -132,8 +132,11 @@
 
 .amber-alerts-card {
   display: grid;
-  grid-template-columns: minmax(190px, 250px) minmax(0, 1fr);
-  min-height: 250px;
+  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
+  min-height: 230px;
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
 }
 
 .amber-alerts-card.is-no-media {
@@ -143,7 +146,7 @@
 .amber-alerts-card-media {
   display: block;
   height: 100%;
-  min-height: 250px;
+  min-height: 230px;
   background: #eef3f6;
 }
 
@@ -151,17 +154,26 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
+  object-fit: cover;
+  object-position: center top;
 }
 
-.amber-alerts-card-body,
-.amber-alerts-detail-content {
+.amber-alerts-card-body {
+  display: flex;
   min-width: 0;
-  padding: clamp(24px, 3vw, 32px);
+  flex-direction: column;
+  padding: 24px 26px 22px;
 }
 
-.amber-alerts-card h3,
+
+.amber-alerts-card h3 {
+  margin: 0 0 8px;
+  color: #243846;
+  font-size: clamp(24px, 2vw, 30px);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
 .amber-alerts-detail h3 {
   margin: 0 0 22px;
   color: #243846;
@@ -170,7 +182,13 @@
   line-height: 1.12;
 }
 
-.amber-alerts-card dl,
+.amber-alerts-card dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 4px;
+  margin: 0;
+}
+
 .amber-alerts-detail dl {
   display: grid;
   grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
@@ -178,14 +196,28 @@
   margin: 0;
 }
 
-.amber-alerts-card dt,
+.amber-alerts-card dt {
+  color: #3f4a52;
+  font-size: clamp(16px, 1.45vw, 20px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
 .amber-alerts-detail dt {
   color: #4c5964;
   font-size: 15px;
   font-weight: 900;
 }
 
-.amber-alerts-card dd,
+.amber-alerts-card dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #3f4a52;
+  font-size: clamp(16px, 1.45vw, 20px);
+  line-height: 1.25;
+}
+
 .amber-alerts-detail dd {
   margin: 0;
   color: #182b3a;
@@ -199,8 +231,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 28px;
+  margin-top: auto;
+  padding-top: 18px;
 }
+
 
 .amber-alerts-empty {
   grid-column: 1 / -1;

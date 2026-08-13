@@ -412,7 +412,7 @@ function buildCard(item, config) {
 
   const link = document.createElement(href ? 'a' : 'span');
   link.className = 'case-anniversaries-card-link';
-  link.textContent = 'View Case ->';
+  link.textContent = 'View Poster';
   if (href) {
     link.href = href;
     link.target = '_blank';

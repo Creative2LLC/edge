@@ -373,6 +373,7 @@ function posterReference(person) {
 
 function posterDetailUrl(person) {
   const [provider, caseNumber, seqNumber = '1'] = posterReference(person).split('/');
+  const personType = person?.isChild === false ? 'related' : '';
   return buildPosterDetailHref({
     provider,
     caseNumber,
@@ -388,6 +389,7 @@ function posterDetailUrl(person) {
       missing_date: normalizeText(person.missingDate || person.dateMissing || person.missingSince),
       age: normalizeText(person.age || person.ageNow),
       org_name: normalizeText(person.orgName),
+      person_type: personType,
     },
   });
 }
@@ -422,7 +424,8 @@ function replaceWithCanonicalPosterUrl(directRequest) {
   const canonicalPath = canonicalPosterPath(directRequest);
   if (!canonicalPath || !window.history?.replaceState) return;
 
-  const canonicalUrl = `${canonicalPath}${window.location.hash}`;
+  const personType = directRequest.personType === 'related' ? '?person_type=related' : '';
+  const canonicalUrl = `${canonicalPath}${personType}${window.location.hash}`;
   if (`${window.location.pathname}${window.location.hash}` !== canonicalUrl || window.location.search) {
     window.history.replaceState(null, '', canonicalUrl);
   }
@@ -1085,11 +1088,7 @@ function appendFactRows(container, facts) {
   });
 }
 
-// Link an associated person to their own poster. Associated children carry only
-// a seq number, so provider/case fall back to the case-level values. The main
-// person isn't linked (already shown); companions without their own case stay
-// plain text (matching the legacy poster).
-function participantPosterUrl(payload, person, isMain) {
+function participantPosterUrl(payload, person, isMain, personType = '') {
   if (isMain) return '';
   const provider = normalizeText(
     person.orgPrefix || payload?.organizationCode || payload?.orgPrefix,
@@ -1099,18 +1098,8 @@ function participantPosterUrl(payload, person, isMain) {
   );
   const seq = normalizeText(sequenceNumber(person));
   if (!provider || !caseNumber || !seq) return '';
-  return buildCleanPosterPath({ provider, caseNumber, sequenceNumber: seq });
-}
-
-// Companions have no case of their own, so
-// links to the poster they appear on (the current main person).
-function mainPosterUrl(payload) {
-  const main = arrayItems(payload?.children)[0] || {};
-  const provider = normalizeText(main.orgPrefix || payload?.organizationCode || payload?.orgPrefix);
-  const caseNumber = normalizeText(main.caseNumber || payload?.caseNumber || payload?.case_number);
-  const seq = normalizeText(sequenceNumber(main) || payload?.sequenceNumber) || '1';
-  if (!provider || !caseNumber) return '';
-  return buildCleanPosterPath({ provider, caseNumber, sequenceNumber: seq });
+  const href = buildCleanPosterPath({ provider, caseNumber, sequenceNumber: seq });
+  return personType === 'related' ? `${href}?person_type=related` : href;
 }
 
 function buildParticipantSection(payload, {
@@ -1148,7 +1137,7 @@ function buildParticipantSection(payload, {
   const title = createLinkedNameElement(
     'h3',
     name,
-    href ?? participantPosterUrl(payload, person, main),
+    href === undefined ? participantPosterUrl(payload, person, main) : href,
     'poster-results-detail-name',
   );
   body.append(title);
@@ -1189,14 +1178,18 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   const children = Array.isArray(payload?.children) && payload.children.length
     ? payload.children
     : [payload || {}];
+  const companions = arrayItems(payload?.companions);
   const mainChild = children[0] || {};
-  const unidentified = isUnidentifiedPoster(payload, mainChild);
+  const selectedRelated = payload?.selectedPersonType === 'related' && companions.length > 0;
+  const unidentified = !selectedRelated && isUnidentifiedPoster(payload, mainChild);
 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail';
 
   detail.append(
-    createMissingChildHeading(posterTypeLabel(children, unidentified)),
+    createMissingChildHeading(selectedRelated
+      ? readablePersonType(companions[0])
+      : posterTypeLabel(children, unidentified)),
     createActionBar(config),
   );
 
@@ -1207,34 +1200,40 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   back.addEventListener('click', onBack);
   detail.append(back);
 
-  // Missing child(ren) first, then any additional children as "Associated
-  // Child", then companions
-  const entries = [
-    ...children.map((person, index) => ({
+  const childEntries = children.map((person, index) => {
+    let heading = 'Associated Child';
+    if (index === 0) heading = selectedRelated ? 'Missing Child' : '';
+    return {
       person,
-      main: index === 0,
+      main: !selectedRelated && index === 0,
       unidentified,
-      heading: index === 0 ? '' : 'Associated Child',
-    })),
-    ...arrayItems(payload?.companions).map((person) => ({
-      person,
-      main: false,
-      unidentified: false,
-      heading: capitalizeWords(firstValue(person, ['companionType']) || 'Companion'),
-      href: mainPosterUrl(payload),
-    })),
-    ...[
-      ...arrayItems(payload?.suspects),
-      ...arrayItems(payload?.abductors),
-      ...arrayItems(payload?.related_people),
-      ...arrayItems(payload?.relatedPeople),
-    ].map((person) => ({
-      person,
-      main: false,
-      unidentified: false,
-      heading: readablePersonType(person),
-    })),
-  ];
+      heading,
+    };
+  });
+  const companionEntries = companions.map((person, index) => ({
+    person,
+    main: selectedRelated && index === 0,
+    unidentified: false,
+    heading: capitalizeWords(firstValue(person, ['companionType']) || 'Companion'),
+    href: selectedRelated && index === 0
+      ? ''
+      : participantPosterUrl(payload, person, false, 'related'),
+  }));
+  const otherRelatedEntries = [
+    ...arrayItems(payload?.suspects),
+    ...arrayItems(payload?.abductors),
+    ...arrayItems(payload?.related_people),
+    ...arrayItems(payload?.relatedPeople),
+  ].map((person) => ({
+    person,
+    main: false,
+    unidentified: false,
+    heading: readablePersonType(person),
+    href: participantPosterUrl(payload, person, false, 'related'),
+  }));
+  const entries = selectedRelated
+    ? [...companionEntries, ...childEntries, ...otherRelatedEntries]
+    : [...childEntries, ...companionEntries, ...otherRelatedEntries];
 
   uniqueItems(entries, (entry) => (
     personId(entry.person)
@@ -1245,22 +1244,19 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   container.append(detail);
 }
 
-// Modern vehicle card: a Lucide car icon header over a clean spec grid, echoing
-// the missing-kids poster's card feel while keeping AMBER's amber accent.
-function createAmberVehicleCard(payload, selectedPerson) {
+// Vehicle information is a peer section so AMBER posters follow the same
+// stacked structure as missing-child posters.
+function createAmberVehicleSection(payload, selectedPerson) {
   const vehicles = vehicleItems(payload, selectedPerson);
   if (!vehicles.length) return null;
 
-  const card = document.createElement('aside');
-  card.className = 'poster-results-amber-vehicle-card';
+  const section = document.createElement('section');
+  section.className = 'poster-results-participant poster-results-amber-vehicle-section';
 
-  const heading = document.createElement('div');
-  heading.className = 'poster-results-amber-vehicle-heading';
-  heading.append(posterFactIcon('vehicle'));
-  const headingText = document.createElement('h4');
-  headingText.textContent = 'Vehicle Information';
-  heading.append(headingText);
-  card.append(heading);
+  const heading = document.createElement('h4');
+  heading.className = 'poster-results-participant-heading';
+  heading.textContent = 'Vehicle Information';
+  section.append(heading);
 
   const list = document.createElement('div');
   list.className = 'poster-results-amber-vehicle-list';
@@ -1270,23 +1266,14 @@ function createAmberVehicleCard(payload, selectedPerson) {
     if (details.children.length) list.append(details);
   });
 
-  card.append(list);
-  return list.children.length ? card : null;
+  if (list.children.length) section.append(list);
+  return list.children.length ? section : null;
 }
 
-// Modern alert banner: rounded amber band with the AMBER ALERT wordmark, the
-// issuing state, and the alert number
+// AMBER alert metadata, shown below the red AMBER ALERT poster heading.
 function createAmberBanner(payload, alert) {
   const banner = document.createElement('div');
   banner.className = 'poster-results-amber-banner';
-
-  const brand = document.createElement('div');
-  brand.className = 'poster-results-amber-banner-brand';
-  const brandTop = document.createElement('span');
-  brandTop.textContent = 'AMBER';
-  const brandBottom = document.createElement('strong');
-  brandBottom.textContent = 'ALERT';
-  brand.append(brandTop, brandBottom);
 
   const meta = document.createElement('div');
   meta.className = 'poster-results-amber-banner-meta';
@@ -1309,7 +1296,7 @@ function createAmberBanner(payload, alert) {
     meta.append(caseText);
   }
 
-  banner.append(brand, meta);
+  banner.append(meta);
   return banner;
 }
 
@@ -1392,13 +1379,10 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   const detail = document.createElement('article');
   detail.className = 'poster-results-detail poster-results-amber-poster';
   detail.append(
+    createMissingChildHeading('AMBER Alert'),
     createAmberBanner(payload, alert),
     createActionBar(config, { includePrint: false }),
   );
-
-  // Subject alongside the vehicle card; the vehicle drops below on narrow views.
-  const overview = document.createElement('div');
-  overview.className = 'poster-results-amber-overview';
 
   const subject = document.createElement('section');
   subject.className = 'poster-results-participant is-main poster-results-amber-subject';
@@ -1442,11 +1426,10 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   layout.append(body);
   subject.append(layout);
   appendPhotoGallery(subject, alert, name);
-  overview.append(subject);
+  detail.append(subject);
 
-  const vehicleCard = createAmberVehicleCard(payload, alert);
-  if (vehicleCard) overview.append(vehicleCard);
-  detail.append(overview);
+  const vehicleSection = createAmberVehicleSection(payload, alert);
+  if (vehicleSection) detail.append(vehicleSection);
 
   const narrative = posterNarrative(payload, alert);
   if (narrative) {
@@ -1508,6 +1491,9 @@ function legacyPosterPathRequest() {
 
 function directPosterRequest() {
   const params = new URLSearchParams(window.location.search);
+  const personType = normalizeText(params.get('person_type')).toLowerCase() === 'related'
+    ? 'related'
+    : '';
   const poster = normalizeText(params.get('poster'));
   if (poster) {
     const [rawProvider, caseNumber, num = '1'] = poster.split('/').map(normalizeText);
@@ -1526,6 +1512,7 @@ function directPosterRequest() {
         provider,
         caseNumber,
         num,
+        personType,
       };
     }
   }
@@ -1549,10 +1536,12 @@ function directPosterRequest() {
       provider,
       caseNumber,
       num: normalizeText(params.get('num')) || '1',
+      personType,
     };
   }
 
-  return legacyPosterPathRequest();
+  const legacyRequest = legacyPosterPathRequest();
+  return legacyRequest ? { ...legacyRequest, personType } : null;
 }
 
 function enterDirectPosterPage(block) {
@@ -1628,6 +1617,17 @@ function createResultCard(person) {
     details.append(dt, dd);
   });
   body.append(details);
+
+  const actions = document.createElement('div');
+  actions.className = 'poster-results-card-actions';
+  const link = document.createElement('a');
+  link.className = 'poster-results-card-link';
+  link.href = detailUrl;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = 'View Poster';
+  actions.append(link);
+  body.append(actions);
 
   card.append(body);
   return card;
@@ -1906,6 +1906,9 @@ export default async function decorate(block) {
         ].map((segment) => encodeURIComponent(segment)).join('/')}`,
         `${config.apiBaseUrl}/`,
       );
+      if (directRequest.personType === 'related') {
+        url.searchParams.set('person_type', 'related');
+      }
       const response = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
       });

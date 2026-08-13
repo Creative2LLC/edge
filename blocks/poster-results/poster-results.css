@@ -403,8 +403,8 @@
 
 .poster-results-card {
   display: grid;
-  grid-template-columns: clamp(132px, 10vw, 170px) minmax(0, 1fr);
-  min-height: 176px;
+  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
+  min-height: 230px;
   overflow: hidden;
   border: 0;
   border-radius: 14px;
@@ -414,14 +414,14 @@
 
 .poster-results-card.no-photo {
   grid-template-columns: 1fr;
-  padding: 24px 28px;
+  padding: 24px 26px 22px;
 }
 
 .poster-results-photo {
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 176px;
+  min-height: 230px;
   padding: 0;
   border: 0;
   background: #dfe5e9;
@@ -432,7 +432,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 176px;
+  min-height: 230px;
   object-fit: cover;
   object-position: center top;
 }
@@ -441,7 +441,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 24px 28px;
+  padding: 24px 26px 22px;
   min-width: 0;
 }
 
@@ -493,6 +493,26 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+.poster-results-card-actions {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.poster-results .poster-results-card-link {
+  color: #007294;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.poster-results-card-link:hover {
+  color: #005f7a;
+  text-decoration: underline;
+}
+
 
 .poster-results-search-back,
 .poster-results-search-back:any-link {
@@ -592,8 +612,9 @@
 }
 
 .poster-results-detail-actions .poster-results-detail-action:last-child {
-  background: #fff;
-  color: #007294;
+  border-color: #b8e8f3;
+  background: #b8e8f3;
+  color: #005f7d;
 }
 
 .poster-results-detail-actions .poster-results-detail-action:hover,
@@ -1528,13 +1549,13 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 .poster-results-amber-card {
   display: grid;
-  grid-template-columns: minmax(190px, 250px) minmax(0, 1fr);
+  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
+  min-height: 230px;
   overflow: hidden;
-  min-height: 250px;
-  border: 1px solid #d6e0e7;
-  border-radius: 9px;
+  border: 0;
+  border-radius: 14px;
   background: #fff;
-  box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
 }
 
 .poster-results-amber-card.is-no-media {
@@ -1544,7 +1565,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 .poster-results-amber-card-media {
   display: block;
   height: 100%;
-  min-height: 250px;
+  min-height: 230px;
   background: #eef3f6;
 }
 
@@ -1552,13 +1573,15 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .poster-results-amber-card-body {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  padding: clamp(24px, 3vw, 32px);
+  padding: 24px 26px 22px;
 }
 
 .poster-results-amber-card-badge {
@@ -1606,7 +1629,8 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 28px;
+  margin-top: auto;
+  padding-top: 18px;
 }
 
 .poster-results-amber-card-action {

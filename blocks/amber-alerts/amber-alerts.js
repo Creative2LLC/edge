@@ -249,7 +249,7 @@ function createAlertCard(alert, config) {
     poster.href = posterUrl;
     poster.target = '_blank';
     poster.rel = 'noopener noreferrer';
-    poster.textContent = 'Open poster';
+    poster.textContent = config.detailLabel;
     actions.append(poster);
   }
 
