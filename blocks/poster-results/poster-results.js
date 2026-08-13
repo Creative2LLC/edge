@@ -1237,7 +1237,9 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
 
   uniqueItems(entries, (entry) => (
     personId(entry.person)
-      || sequenceNumber(entry.person)
+      || (sequenceNumber(entry.person)
+        ? `${entry.main ? 'main' : entry.heading}:${sequenceNumber(entry.person)}`
+        : '')
       || `${entry.heading}:${normalizedPersonName(entry.person)}`
   )).forEach((entry) => detail.append(buildParticipantSection(payload, entry)));
   detail.append(createDetailFooter(config, payload, mainChild));
