@@ -21,10 +21,16 @@
  * UE has no optgroup support, so grouping is simulated — options are sorted by
  * bucket folder and prefixed with it, which clusters each folder together.
  *
+ * No credentials needed: the endpoint serves the PUBLISHED catalog openly, and
+ * published files are the only ones an author can safely pick (the resource API
+ * 404s on unpublished rows, so picking one renders a dead item on live). Pass a
+ * token only to also list not-yet-published files for pre-staging a page.
+ *
  * Usage:
- *   RESOURCE_AUTHORING_OPTIONS_TOKEN=... node scripts/build-s3-options.mjs
+ *   node scripts/build-s3-options.mjs                       # production, published
+ *   node scripts/build-s3-options.mjs --dry-run             # preview, writes nothing
  *   node scripts/build-s3-options.mjs --base http://localhost:8000
- *   node scripts/build-s3-options.mjs --dry-run
+ *   node scripts/build-s3-options.mjs --token <value>       # include unpublished
  *
  * Reads .env from the repo root when present; real env vars win.
  */
@@ -35,6 +41,9 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// Mirrors DEFAULT_API_BASE_URL in blocks/resource-downloads/resource-downloads.js —
+// authored pages call production, so that is the catalog the options must match.
+const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
 const MODEL_FILE = path.join(repoRoot, 'blocks', 'resource-downloads', '_resource-downloads.json');
 const ITEM_MODEL_ID = 'resource-download-item';
 const FIELD_NAME = 's3File';
@@ -84,18 +93,25 @@ function sortOptions(options) {
 
 async function fetchCatalog(baseUrl, token) {
   const url = `${baseUrl.replace(/\/+$/, '')}/api/resources/authoring-options`;
+  // No token is the normal case: the endpoint then returns the published
+  // catalog, which is the only thing an author can safely pick anyway.
+  const headers = token ? { 'X-Authoring-Token': token } : {};
   let response;
   try {
-    response = await fetch(url, { headers: { 'X-Authoring-Token': token } });
+    response = await fetch(url, { headers });
   } catch (error) {
     throw new Error(`Could not reach ${url} — ${error.message}`);
   }
 
-  if (response.status === 401) {
-    throw new Error(`${url} rejected the token. Check RESOURCE_AUTHORING_OPTIONS_TOKEN matches the backend.`);
+  if (response.status === 401 && token) {
+    throw new Error(`${url} rejected the token. Either drop RESOURCE_AUTHORING_OPTIONS_TOKEN to list published files only, or make it match the backend env.`);
   }
-  if (response.status === 404) {
-    throw new Error(`${url} is disabled. Set RESOURCE_AUTHORING_OPTIONS_TOKEN in the backend env.`);
+  // A 401 when we sent nothing means the endpoint is demanding auth it should
+  // not — almost always a backend still running the token-required version of
+  // ResourceAuthoringOptionsController. Say so, rather than blaming a token
+  // the caller never supplied.
+  if (response.status === 401) {
+    throw new Error(`${url} returned 401 even though no token was sent. Redeploy the backend — the deployed ResourceAuthoringOptionsController predates the open published-catalog behavior. To use it as-is, pass --token <RESOURCE_AUTHORING_OPTIONS_TOKEN>.`);
   }
   if (!response.ok) {
     throw new Error(`${url} returned HTTP ${response.status}.`);
@@ -108,15 +124,11 @@ async function fetchCatalog(baseUrl, token) {
 
 async function main() {
   const env = { ...(await loadDotEnv()), ...process.env };
-  const baseUrl = argValue('--base') || env.RESOURCE_API_BASE_URL;
-  const token = argValue('--token') || env.RESOURCE_AUTHORING_OPTIONS_TOKEN;
+  const baseUrl = argValue('--base') || env.RESOURCE_API_BASE_URL || DEFAULT_API_BASE_URL;
+  // Optional: only needed to pre-stage pages against not-yet-published files.
+  const token = argValue('--token') || env.RESOURCE_AUTHORING_OPTIONS_TOKEN || '';
 
-  if (!baseUrl) {
-    throw new Error('Missing backend origin. Pass --base <url> or set RESOURCE_API_BASE_URL.');
-  }
-  if (!token) {
-    throw new Error('Missing token. Pass --token <value> or set RESOURCE_AUTHORING_OPTIONS_TOKEN.');
-  }
+  console.log(`Reading ${baseUrl}${token ? ' (with token: includes unpublished)' : ''}`);
 
   const catalog = await fetchCatalog(baseUrl, token);
   const options = [EMPTY_OPTION, ...sortOptions(catalog).map(toSelectOption)];

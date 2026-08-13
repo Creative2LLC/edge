@@ -23749,6 +23749,14 @@
           {
             "name": "None",
             "value": ""
+          },
+          {
+            "name": "Regular Resources › Sample 10Mb",
+            "value": "sample-10mb"
+          },
+          {
+            "name": "Regular Resources › Sample 5Mb",
+            "value": "sample-5mb"
           }
         ],
         "value": ""
