@@ -437,7 +437,8 @@ function canonicalPosterPath(directRequest) {
 }
 
 function replaceWithCanonicalPosterUrl(directRequest) {
-  if (directRequest?.type === 'amber' && (directRequest.personId || directRequest.name)) return;
+  if (directRequest?.preview
+    || (directRequest?.type === 'amber' && (directRequest.personId || directRequest.name))) return;
 
   const canonicalPath = canonicalPosterPath(directRequest);
   if (!canonicalPath || !window.history?.replaceState) return;
@@ -1422,6 +1423,13 @@ function createAmberBanner(payload, alert) {
     meta.append(caseText);
   }
 
+  if (payload?.preview === true) {
+    const preview = document.createElement('p');
+    preview.className = 'poster-results-amber-preview-notice';
+    preview.textContent = 'Archived staging preview - not an active alert';
+    banner.append(preview);
+  }
+
   banner.append(meta);
   return banner;
 }
@@ -1645,6 +1653,18 @@ function directPosterRequest() {
         personType,
       };
     }
+  }
+
+  const amberPreviewCase = normalizeText(params.get('amber_preview'));
+  if (amberPreviewCase) {
+    return {
+      type: 'amber',
+      preview: true,
+      caseNumber: amberPreviewCase,
+      seqNumber: normalizeText(params.get('seq')),
+      personId: normalizeText(params.get('person_id')),
+      name: normalizeText(params.get('name')),
+    };
   }
 
   const amberCase = normalizeText(params.get('amber_case'));
@@ -1958,10 +1978,14 @@ function createNearMeSection(onNearMe) {
 }
 
 export default async function decorate(block) {
+  const localApiOverride = window.location.hostname === 'localhost'
+    ? normalizeApiBaseUrl(new URLSearchParams(window.location.search).get('api_base_url'))
+    : '';
   const config = {
     heading: normalizePosterHeading(getFieldValue(block, 'heading', 0, DEFAULTS.heading)),
     eyebrow: getFieldValue(block, 'eyebrow', 1, DEFAULTS.eyebrow),
-    apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
+    apiBaseUrl: localApiOverride
+      || normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
     submitLabel: getFieldValue(block, 'submitLabel', 3, DEFAULTS.submitLabel),
     submitTipUrl: getFieldValue(block, 'submitTipUrl', 4, DEFAULTS.submitTipUrl),
     organizationLogo: getFieldValue(block, 'organizationLogo', 5, DEFAULTS.organizationLogo),
@@ -2004,7 +2028,7 @@ export default async function decorate(block) {
     try {
       if (directRequest.type === 'amber') {
         const url = new URL(
-          `/api/amber-alerts/${encodeURIComponent(directRequest.caseNumber)}`,
+          `/api/amber-alerts${directRequest.preview ? '/preview' : ''}/${encodeURIComponent(directRequest.caseNumber)}`,
           `${config.apiBaseUrl}/`,
         );
         const response = await fetch(url.toString(), {

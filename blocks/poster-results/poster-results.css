@@ -919,6 +919,18 @@
   text-align: right;
 }
 
+.poster-results-amber-preview-notice {
+  flex-basis: 100%;
+  order: -1;
+  margin: 0;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 .poster-results-amber-banner-issued {
   margin: 0;
   font-size: 18px;
