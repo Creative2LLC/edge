@@ -12,6 +12,7 @@
     "build:json:models": "merge-json-cli -i \"models/_component-models.json\" -o \"component-models.json\"",
     "build:json:definitions": "merge-json-cli -i \"models/_component-definition.json\" -o \"component-definition.json\"",
     "build:json:filters": "merge-json-cli -i \"models/_component-filters.json\" -o \"component-filters.json\"",
+    "build:s3-options": "node scripts/build-s3-options.mjs",
     "mock:forms": "node scripts/mock-form-server.mjs",
     "build:pagelist": "node scripts/build-page-list.mjs",
     "audit:blocks": "node scripts/block-inventory.mjs",

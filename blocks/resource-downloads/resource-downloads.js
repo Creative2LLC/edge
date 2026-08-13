@@ -269,7 +269,7 @@ function isEditorItemRow(row) {
   if (model) return model === 'resource-download-item';
   if (!row.hasAttribute('data-aue-resource')) return false;
   return Boolean(row.querySelector(
-    '[data-aue-prop="itemTitle"], [data-richtext-prop="itemDescription"], [data-aue-prop="resourceSlug"], [data-aue-prop="file"], [data-aue-prop="filePath"]',
+    '[data-aue-prop="itemTitle"], [data-richtext-prop="itemDescription"], [data-aue-prop="resourceSlug"], [data-aue-prop="file"], [data-aue-prop="filePath"], [data-aue-prop="s3File"]',
   )) || !row.querySelector('[data-aue-prop="apiBaseUrl"], [data-aue-prop="slug"]');
 }
 
@@ -320,7 +320,12 @@ function parseEditorItem(row) {
   item.title = normalizeText(readTextField(row, 'itemTitle').value);
   item.description = readRichTextField(row, 'itemDescription').html || '';
   item.buttonLabel = normalizeText(readTextField(row, 'buttonLabel').value);
-  item.resourceSlug = normalizeText(readTextField(row, 'resourceSlug').value);
+  // The S3 File dropdown stores a resource slug, so it feeds the same lookup.
+  // A hand-typed slug still wins — it is the escape hatch when the generated
+  // options are stale. (Published rows need no equivalent: the stamped cell is
+  // slug-like, so parsePublishedItem already picks it up as a slug candidate.)
+  item.resourceSlug = normalizeText(readTextField(row, 'resourceSlug').value)
+    || normalizeText(readTextField(row, 's3File').value);
   item.fileHref = normalizeText(
     readTextField(row, 'filePath').value || readLinkField(row, 'file').value,
   );

@@ -232,6 +232,7 @@ function createField(labelText, name, type = 'text', placeholder = '') {
   label.className = 'poster-results-field';
 
   const span = document.createElement('span');
+  span.className = 'poster-results-field-label';
   span.textContent = labelText;
 
   const input = document.createElement('input');
@@ -249,6 +250,7 @@ function createSelect(labelText, name, options) {
   label.className = 'poster-results-field';
 
   const span = document.createElement('span');
+  span.className = 'poster-results-field-label';
   span.textContent = labelText;
 
   const select = document.createElement('select');
@@ -264,6 +266,21 @@ function createSelect(labelText, name, options) {
   return select;
 }
 
+function createInfoTooltip(text) {
+  const tip = document.createElement('span');
+  tip.className = 'poster-results-near-me-tip';
+  tip.tabIndex = 0;
+  tip.setAttribute('aria-label', text);
+  tip.append(document.createTextNode('i'));
+
+  const tooltip = document.createElement('span');
+  tooltip.className = 'poster-results-near-me-tooltip';
+  tooltip.setAttribute('aria-hidden', 'true');
+  tooltip.textContent = text;
+  tip.append(tooltip);
+  return tip;
+}
+
 function createRadioGroup(labelText, name, options) {
   const fieldset = document.createElement('fieldset');
   fieldset.className = 'poster-results-radio-group';
@@ -272,7 +289,7 @@ function createRadioGroup(labelText, name, options) {
   legend.textContent = labelText;
   fieldset.append(legend);
 
-  options.forEach(([value, text], index) => {
+  options.forEach(([value, text, tooltipText], index) => {
     const label = document.createElement('label');
     const input = document.createElement('input');
     input.type = 'radio';
@@ -280,6 +297,7 @@ function createRadioGroup(labelText, name, options) {
     input.value = value;
     input.checked = index === 0;
     label.append(input, document.createTextNode(text));
+    if (tooltipText) label.append(createInfoTooltip(tooltipText));
     fieldset.append(label);
   });
 
@@ -633,18 +651,30 @@ function photoSource(photo) {
   return photo.url || photo.photoUrl || photo.photoUri || '';
 }
 
-function childPhotoSources(child) {
-  const galleries = ['photos', 'ageProgressionPhotos', 'extraPhotos']
+function photoSourcesForFields(child, fields) {
+  return fields
     .flatMap((key) => (Array.isArray(child?.[key]) ? child[key] : []))
-    .map(photoSource);
+    .map(photoSource)
+    .map(normalizeText)
+    .filter(Boolean);
+}
+
+function primaryPhotoSources(child) {
   return [
-    ...galleries,
+    ...photoSourcesForFields(child, ['photos']),
     child?.image_url,
     child?.thumbnail_url,
     child?.imageUrl,
     child?.thumbnailUrl,
     child?.image?.image_url,
   ].map(normalizeText).filter(Boolean);
+}
+
+function childPhotoSources(child) {
+  return [
+    ...photoSourcesForFields(child, ['photos', 'ageProgressionPhotos', 'extraPhotos']),
+    ...primaryPhotoSources(child),
+  ];
 }
 
 function createDetailRow(label, value) {
@@ -786,8 +816,8 @@ function amberVehicleRows(vehicle) {
   return rows;
 }
 
-function appendPhotoGallery(container, child, name) {
-  const photos = [...new Set(childPhotoSources(child))];
+function appendPhotoGallery(container, child, name, sources = childPhotoSources(child)) {
+  const photos = [...new Set(sources)];
   if (photos.length <= 1) return;
 
   const gallery = document.createElement('div');
@@ -808,6 +838,40 @@ function appendPhotoGallery(container, child, name) {
     gallery.append(button);
   });
   container.querySelector('.poster-results-detail-body')?.append(gallery);
+}
+
+function createSupplementaryPhotoSection(title, sources, name) {
+  const photos = [...new Set(sources)];
+  if (!photos.length) return null;
+
+  const section = document.createElement('section');
+  section.className = 'poster-results-participant poster-results-supplementary-photos';
+
+  const heading = document.createElement('h4');
+  heading.className = 'poster-results-participant-heading';
+  heading.textContent = title;
+  section.append(heading);
+
+  const layout = document.createElement('div');
+  layout.className = 'poster-results-detail-layout';
+  const media = document.createElement('div');
+  media.className = 'poster-results-detail-media';
+  const [firstPhoto] = photos;
+  const image = document.createElement('img');
+  image.src = firstPhoto;
+  image.alt = `${name} - ${title}`;
+  image.loading = 'lazy';
+  media.append(image);
+
+  const body = document.createElement('div');
+  body.className = 'poster-results-detail-body';
+  appendPhotoGallery({
+    querySelector: (selector) => (selector === '.poster-results-detail-media img' ? image : body),
+  }, null, name, photos);
+
+  layout.append(media, body);
+  section.append(layout);
+  return section;
 }
 
 function formatAgencyLine(payload, child) {
@@ -860,6 +924,29 @@ function formatAgencyLine(payload, child) {
     : agency;
 
   return { agency: agencyWithState, phone: formatPhoneNumber(phone) };
+}
+
+function agencyLines(payload, child) {
+  const contacts = uniqueItems([
+    ...arrayItems(child?.contacts),
+    ...arrayItems(payload?.contacts),
+  ], (contact) => [
+    normalizeText(contact.name),
+    normalizeText(contact.state),
+    firstArrayValue(contact.phoneNumbers),
+  ].join(':')).map((contact) => {
+    const name = normalizeText(contact.name);
+    const state = normalizeText(contact.state);
+    return {
+      agency: name && state && !name.includes(`(${state})`) ? `${name} (${state})` : name,
+      phone: formatPhoneNumber(firstArrayValue(contact.phoneNumbers)),
+    };
+  }).filter(({ agency, phone }) => agency || phone);
+
+  if (contacts.length) return contacts;
+
+  const fallback = formatAgencyLine(payload, child);
+  return fallback.agency || fallback.phone ? [fallback] : [];
 }
 
 function posterNarrative(payload, child) {
@@ -965,17 +1052,20 @@ function createDetailFooter(config, payload, child) {
   const info = document.createElement('div');
   info.className = 'poster-results-detail-footer-info';
 
-  const agencyLine = formatAgencyLine(payload, child);
-  if (agencyLine.agency || agencyLine.phone) {
+  const agencies = agencyLines(payload, child);
+  if (agencies.length) {
     const agency = document.createElement('p');
     agency.className = 'poster-results-detail-agency';
-    agency.textContent = agencyLine.agency || 'Law Enforcement Agency';
-    if (agencyLine.phone) {
-      const phone = document.createElement('a');
-      phone.href = `tel:${agencyLine.phone.replace(/[^\d+]/g, '')}`;
-      phone.textContent = agencyLine.phone;
-      agency.append(document.createTextNode(' '), phone);
-    }
+    agencies.forEach((entry, index) => {
+      if (index) agency.append(document.createTextNode(' or '));
+      agency.append(document.createTextNode(entry.agency || 'Law Enforcement Agency'));
+      if (entry.phone) {
+        const phone = document.createElement('a');
+        phone.href = `tel:${entry.phone.replace(/[^\d+]/g, '')}`;
+        phone.textContent = entry.phone;
+        agency.append(document.createTextNode(' '), phone);
+      }
+    });
     info.append(agency);
   }
 
@@ -1038,8 +1128,22 @@ function posterFactIcon(name) {
 function formatPosterDate(value) {
   const text = normalizeText(value);
   if (!text) return '';
-  // Drop a trailing "12:00:00 AM"-style time so only the date shows.
-  return text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim() || text;
+
+  const dateOnly = text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim();
+  const isoDate = dateOnly.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+  if (!isoDate) return dateOnly || text;
+
+  const [, year, month, day] = isoDate;
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  if (date.getUTCFullYear() !== Number(year) || date.getUTCMonth() !== Number(month) - 1
+    || date.getUTCDate() !== Number(day)) return dateOnly;
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
 }
 
 function formatPosterLocation(value) {
@@ -1143,10 +1247,14 @@ function buildParticipantSection(payload, {
   body.append(title);
 
   const ncic = firstValue(person, ['ncicNumber', 'ncic']);
-  if (ncic) {
+  const namus = firstValue(person, ['namus', 'namUs', 'namusNumber', 'namUsNumber']);
+  if (ncic || namus) {
     const ncicEl = document.createElement('p');
     ncicEl.className = 'poster-results-detail-ncic';
-    ncicEl.textContent = `NCIC# ${ncic}`;
+    ncicEl.textContent = [
+      ncic ? `NCIC# ${ncic}` : '',
+      namus ? `NamUs# ${namus}` : '',
+    ].filter(Boolean).join(', ');
     body.append(ncicEl);
   }
 
@@ -1167,7 +1275,9 @@ function buildParticipantSection(payload, {
 
   layout.append(body);
   section.append(layout);
-  appendPhotoGallery(section, person, name);
+  appendPhotoGallery(section, person, name, unidentified
+    ? primaryPhotoSources(person)
+    : childPhotoSources(person));
   return section;
 }
 
@@ -1242,6 +1352,20 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
         : '')
       || `${entry.heading}:${normalizedPersonName(entry.person)}`
   )).forEach((entry) => detail.append(buildParticipantSection(payload, entry)));
+  if (unidentified) {
+    const ageProgressionPhotos = createSupplementaryPhotoSection(
+      'Age-Progression Photos',
+      photoSourcesForFields(mainChild, ['ageProgressionPhotos']),
+      displayName(mainChild, 'Unidentified Person'),
+    );
+    const extraPhotos = createSupplementaryPhotoSection(
+      'Extra Photos',
+      photoSourcesForFields(mainChild, ['extraPhotos']),
+      displayName(mainChild, 'Unidentified Person'),
+    );
+    if (ageProgressionPhotos) detail.append(ageProgressionPhotos);
+    if (extraPhotos) detail.append(extraPhotos);
+  }
   detail.append(createDetailFooter(config, payload, mainChild));
   container.append(detail);
 }
@@ -1411,10 +1535,14 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   ));
 
   const ncic = firstValue(alert, ['ncicNumber', 'ncic']);
-  if (ncic) {
+  const namus = firstValue(alert, ['namus', 'namUs', 'namusNumber', 'namUsNumber']);
+  if (ncic || namus) {
     const ncicEl = document.createElement('p');
     ncicEl.className = 'poster-results-detail-ncic';
-    ncicEl.textContent = `NCIC# ${ncic}`;
+    ncicEl.textContent = [
+      ncic ? `NCIC# ${ncic}` : '',
+      namus ? `NamUs# ${namus}` : '',
+    ].filter(Boolean).join(', ');
     body.append(ncicEl);
   }
 
@@ -1798,6 +1926,14 @@ function appendParams(url, form) {
 
 const NEAR_ME_TOOLTIP = 'Search for children who have gone missing within 50 miles '
   + 'of your current location. (Location is estimated using your IP address.)';
+const COMPANION_TOOLTIP = 'Companion or Suspect. This is someone who is believed to be with a child.';
+const UNIDENTIFIED_TOOLTIP = "Cases of unidentified remains of children from NCMEC's Help ID Me program.";
+const LOCATION_TOOLTIP = 'Missing location and location found.';
+const DATE_TOOLTIP = 'Enter a date range when the child went missing or when the unidentified child was found.';
+
+function appendFieldTooltip(input, text) {
+  input.closest('label')?.querySelector('.poster-results-field-label')?.append(createInfoTooltip(text));
+}
 
 function createNearMeSection(onNearMe) {
   const wrap = document.createElement('div');
@@ -1816,20 +1952,7 @@ function createNearMeSection(onNearMe) {
   button.textContent = 'Search Near Me';
   button.addEventListener('click', onNearMe);
 
-  // Info affordance with a hover/focus tooltip explaining the location search.
-  const tip = document.createElement('span');
-  tip.className = 'poster-results-near-me-tip';
-  tip.tabIndex = 0;
-  tip.setAttribute('aria-label', NEAR_ME_TOOLTIP);
-  tip.append(document.createTextNode('i'));
-
-  const tooltip = document.createElement('span');
-  tooltip.className = 'poster-results-near-me-tooltip';
-  tooltip.setAttribute('aria-hidden', 'true');
-  tooltip.textContent = NEAR_ME_TOOLTIP;
-  tip.append(tooltip);
-
-  action.append(button, tip);
+  action.append(button, createInfoTooltip(NEAR_ME_TOOLTIP));
   wrap.append(divider, action);
   return { wrap, button };
 }
@@ -1959,6 +2082,9 @@ export default async function decorate(block) {
   const hairColor = createSelect('Hair Color', 'hair_color', HAIR_COLORS);
   const eyeColor = createSelect('Eye Color', 'eye_color', EYE_COLORS);
 
+  appendFieldTooltip(city, LOCATION_TOOLTIP);
+  appendFieldTooltip(fromDate, DATE_TOOLTIP);
+
   [ageNowMin, ageNowMax, ageMissingMin, ageMissingMax].forEach((input) => {
     input.min = '0';
     input.step = '1';
@@ -1966,8 +2092,8 @@ export default async function decorate(block) {
 
   const subject = createRadioGroup('Refine', 'subject', [
     ['child', 'Child'],
-    ['companion', 'Companion'],
-    ['unidentified', 'Unidentified'],
+    ['companion', 'Companion', COMPANION_TOOLTIP],
+    ['unidentified', 'Unidentified', UNIDENTIFIED_TOOLTIP],
   ]);
   const sort = createSortToggle([
     ['MostRecent', 'Most Recent'],
@@ -2055,6 +2181,9 @@ export default async function decorate(block) {
   status.hidden = true;
   const meta = document.createElement('p');
   meta.className = 'poster-results-meta';
+  const resultsToolbar = document.createElement('div');
+  resultsToolbar.className = 'poster-results-results-toolbar';
+  resultsToolbar.append(meta, sortBar);
   const results = document.createElement('div');
   results.className = 'poster-results-list';
   const backToSearch = document.createElement('button');
@@ -2082,9 +2211,8 @@ export default async function decorate(block) {
     header,
     form,
     status,
-    meta,
+    resultsToolbar,
     backToSearch,
-    sortBar,
     results,
     pagination,
   );
