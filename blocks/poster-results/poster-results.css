@@ -914,9 +914,12 @@
 }
 
 .poster-results-amber-banner-meta {
-  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
   color: #fff;
-  text-align: right;
 }
 
 .poster-results-amber-preview-notice {
@@ -942,18 +945,19 @@
 }
 
 .poster-results-amber-banner-case {
-  margin: 4px 0 0;
-  color: #c3ccd4;
+  margin: 0;
+  color: #ffc20e;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.08em;
+  text-align: right;
   text-transform: uppercase;
 }
 
 .poster-results-amber-poster .poster-results-detail-actions {
   max-width: 980px;
-  justify-content: flex-end;
-  margin: 0 auto 20px;
+  justify-content: center;
+  margin: 0 auto 36px;
 }
 
 .poster-results-amber-overview {
@@ -987,58 +991,6 @@
   font-weight: 800;
 }
 
-/* Physical-description spec card: clean stacked label/value cells so the icon
-   facts above stay the visual anchor. */
-.poster-results-amber-specs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 14px 22px;
-  margin: 24px 0 0;
-  padding: 20px 22px;
-  border: 1px solid #e6eaee;
-  border-radius: 12px;
-  background: #f7f9fb;
-}
-
-.poster-results-amber-spec {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0;
-}
-
-.poster-results-amber-spec dt {
-  color: #6b7680;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.poster-results-amber-spec dd {
-  margin: 0;
-  color: #102a43;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-/* Narrative as an amber-tinted alert callout. */
-.poster-results-amber-narrative {
-  max-width: 980px;
-  margin: 26px auto 0;
-  padding: 20px 24px;
-  border-left: 5px solid #ffc20e;
-  border-radius: 10px;
-  background: #fff8e6;
-}
-
-.poster-results-amber-narrative p {
-  margin: 0;
-  color: #4a3b12;
-  font-size: 17px;
-  line-height: 1.55;
-}
-
 /* Vehicle card: car icon header + clean spec grid, matching the poster's cards. */
 .poster-results-amber-vehicle-card {
   align-self: start;
@@ -1069,6 +1021,13 @@
   color: #243846;
   font-size: 19px;
   font-weight: 800;
+}
+
+.poster-results-amber-vehicle-section {
+  max-width: 980px;
+  margin: 32px auto 0;
+  padding-top: 30px;
+  border-top: 1px solid #e2e6ea;
 }
 
 .poster-results-amber-vehicle-list {
@@ -1264,7 +1223,7 @@
 
 .poster-results.is-poster-page {
   background: #eee;
-  padding: 30px 0 120px;
+  padding: 52px 0 120px;
   margin-top: 70px;
   margin-bottom: 70px;
 }

@@ -1130,7 +1130,9 @@ function formatPosterDate(value) {
   const text = normalizeText(value);
   if (!text) return '';
 
-  const dateOnly = text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim();
+  const dateOnly = text
+    .replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?(?:\s+[A-Za-z]+)?$/i, '')
+    .trim();
   const isoDate = dateOnly.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
   if (!isoDate) return dateOnly || text;
 
@@ -1434,70 +1436,62 @@ function createAmberBanner(payload, alert) {
   return banner;
 }
 
-// Physical-description spec rows shown for any AMBER person (subject or
-// companion). Kept as a clean typographic grid so the icon facts above stay the
-// visual focus, matching the modern poster's hierarchy.
-function amberSpecRows(person) {
-  return [
-    ['Date of Birth', formatPosterDate(firstValue(person, ['dateOfBirth', 'birthDate', 'dob']))],
-    ['Age Missing', firstValue(person, ['ageMissing', 'missingAge'])],
-    ['Gender', capitalizeWords(firstValue(person, ['sex', 'gender']))],
-    ['Race', capitalizeWords(firstValue(person, ['race', 'skinColor']))],
-    ['Hair', capitalizeWords(firstValue(person, ['hairColor']))],
-    ['Eyes', capitalizeWords(firstValue(person, ['eyeColor']))],
-    ['Height', joinValues([firstValue(person, ['height']), firstValue(person, ['heightTo'])], ' - ')],
-    ['Weight', joinValues([firstValue(person, ['weight']), firstValue(person, ['weightTo'])], ' - ')],
-  ];
-}
-
-// Headline icon facts for an AMBER subject
-// the missing-kids poster's icon fact rows.
+// AMBER uses the same icon-led fact rows as the other poster types. Keeping
+// the physical details in this sequence avoids a separate card and lets every
+// participant section share one visual language.
 function amberSubjectFacts(person) {
   const facts = [];
   const missing = formatPosterDate(firstValue(person, ['missing_date', 'missingDate', 'dateMissing', 'missingSince']));
   if (missing) facts.push({ icon: 'date', label: 'Missing Since', value: missing });
   const from = formatPosterLocation(firstValue(person, ['missing_location', 'missingLocation']) || locationText(person));
   if (from) facts.push({ icon: 'location', label: 'Missing From', value: from });
+
   const ageNow = firstValue(person, ['age', 'ageNow']);
   if (ageNow && `${ageNow}` !== '-1') {
-    facts.push({ icon: 'age', label: 'Age Now', value: `${ageNow} Years Old` });
+    const age = normalizeText(ageNow);
+    facts.push({
+      icon: 'age',
+      label: 'Age Now',
+      value: /(?:year|month|week|day|old)/i.test(age) ? age : `${age} Years Old`,
+    });
   }
+
+  [
+    ['Gender', capitalizeWords(firstValue(person, ['sex', 'gender']))],
+    ['Race', capitalizeWords(firstValue(person, ['race', 'skinColor']))],
+    ['Hair', capitalizeWords(firstValue(person, ['hairColor']))],
+    ['Eyes', capitalizeWords(firstValue(person, ['eyeColor']))],
+    ['Height', joinValues([firstValue(person, ['height']), firstValue(person, ['heightTo'])], ' - ')],
+    ['Weight', joinValues([firstValue(person, ['weight']), firstValue(person, ['weightTo'])], ' - ')],
+    ['Description', firstValue(person, ['description', 'physicalDescription', 'pictureDescription'])],
+  ].forEach(([label, value]) => {
+    if (normalizeText(value)) facts.push({ icon: 'info', label, value: normalizeText(value) });
+  });
+
   return facts;
 }
 
-function appendAmberSpecGrid(container, person) {
-  const rows = amberSpecRows(person).filter(([, value]) => normalizeText(value));
-  if (!rows.length) return;
-  const specs = document.createElement('dl');
-  specs.className = 'poster-results-amber-specs';
-  rows.forEach(([label, value]) => {
-    const cell = document.createElement('div');
-    cell.className = 'poster-results-amber-spec';
-    const dt = document.createElement('dt');
-    dt.textContent = label;
-    const dd = document.createElement('dd');
-    dd.textContent = Array.isArray(value)
-      ? value.map(normalizeText).filter(Boolean).join(', ')
-      : normalizeText(value);
-    cell.append(dt, dd);
-    specs.append(cell);
-  });
-  container.append(specs);
-}
-
-// Modern companion sections: same stacked, icon-led treatment as the subject,
-// so companions read as part of one poster instead of a boxed-off card.
-function createAmberCompanionSection(payload, person, caseNumber) {
+// Related people and associated children deliberately use the same participant
+// section as the primary subject, keeping AMBER posters consistent with missing
+// child posters.
+function createAmberRelatedSection(payload, person, caseNumber, heading) {
   const section = buildParticipantSection(payload, {
     person,
-    heading: readablePersonType(person),
+    heading,
     main: false,
     facts: amberSubjectFacts(person),
     href: amberPosterDetailUrl(person, caseNumber),
   });
   section.classList.add('poster-results-amber-companion');
-  appendAmberSpecGrid(section.querySelector('.poster-results-detail-body'), person);
   return section;
+}
+
+function amberAssociatedChildren(payload, selectedPerson) {
+  return uniqueItems(arrayItems(payload?.data)
+    .filter((person) => readablePersonType(person) === 'Missing Child')
+    .filter((person) => !samePerson(person, selectedPerson)), (person) => (
+    personId(person) || sequenceNumber(person) || normalizedPersonName(person)
+  ));
 }
 
 function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) {
@@ -1505,8 +1499,6 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   meta.textContent = '';
 
   const alert = matchingPerson(payload, sourceAlert);
-  const name = displayName(alert, 'AMBER Alert');
-  const imageSrc = childPhotoSources(alert)[0];
   const caseNumber = payload.case_number || payload.caseNumber
     || alert.case_number || alert.caseNumber;
 
@@ -1518,70 +1510,32 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     createActionBar(config, { includePrint: false }),
   );
 
-  const subject = document.createElement('section');
-  subject.className = 'poster-results-participant is-main poster-results-amber-subject';
-  const layout = document.createElement('div');
-  layout.className = 'poster-results-detail-layout';
-
-  if (imageSrc) {
-    const media = document.createElement('div');
-    media.className = 'poster-results-detail-media';
-    const img = document.createElement('img');
-    img.src = imageSrc;
-    img.alt = name;
-    media.append(img);
-    layout.append(media);
-  }
-
-  const body = document.createElement('div');
-  body.className = 'poster-results-detail-body';
-  body.append(createLinkedNameElement(
-    'h3',
-    name,
-    amberPosterDetailUrl(alert, caseNumber),
-    'poster-results-detail-name',
-  ));
-
-  const ncic = firstValue(alert, ['ncicNumber', 'ncic']);
-  const namus = firstValue(alert, ['namus', 'namUs', 'namusNumber', 'namUsNumber']);
-  if (ncic || namus) {
-    const ncicEl = document.createElement('p');
-    ncicEl.className = 'poster-results-detail-ncic';
-    ncicEl.textContent = [
-      ncic ? `NCIC# ${ncic}` : '',
-      namus ? `NamUs# ${namus}` : '',
-    ].filter(Boolean).join(', ');
-    body.append(ncicEl);
-  }
-
-  const factsEl = document.createElement('div');
-  factsEl.className = 'poster-results-detail-facts';
-  appendFactRows(factsEl, amberSubjectFacts(alert));
-  body.append(factsEl);
-
-  appendAmberSpecGrid(body, alert);
-
-  layout.append(body);
-  subject.append(layout);
-  appendPhotoGallery(subject, alert, name);
+  const subject = buildParticipantSection(payload, {
+    person: alert,
+    heading: '',
+    main: true,
+    unidentified: false,
+    facts: amberSubjectFacts(alert),
+    href: amberPosterDetailUrl(alert, caseNumber),
+  });
+  subject.classList.add('poster-results-amber-subject');
   detail.append(subject);
+
+  amberAssociatedChildren(payload, alert).forEach((person) => {
+    detail.append(createAmberRelatedSection(payload, person, caseNumber, 'Associated Child'));
+  });
+
+  relatedAmberPeople(payload, alert).forEach((person) => {
+    detail.append(createAmberRelatedSection(
+      payload,
+      person,
+      caseNumber,
+      readablePersonType(person),
+    ));
+  });
 
   const vehicleSection = createAmberVehicleSection(payload, alert);
   if (vehicleSection) detail.append(vehicleSection);
-
-  const narrative = posterNarrative(payload, alert);
-  if (narrative) {
-    const callout = document.createElement('div');
-    callout.className = 'poster-results-amber-narrative';
-    const copy = document.createElement('p');
-    copy.textContent = narrative;
-    callout.append(copy);
-    detail.append(callout);
-  }
-
-  relatedAmberPeople(payload, alert).forEach((person) => {
-    detail.append(createAmberCompanionSection(payload, person, caseNumber));
-  });
 
   detail.append(createDetailFooter(config, payload, alert));
   container.append(detail);
