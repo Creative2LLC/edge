@@ -73,12 +73,18 @@ async function loadDotEnv() {
 
 /** Label prefix that clusters a folder's files together once sorted. */
 function groupLabel(option) {
+  if (option.group) return option.group;
   const parts = [option.category_label || option.category || 'Uncategorized'];
   if (option.sub_folder) parts.push(...option.sub_folder.split('/').filter(Boolean));
   return parts.join(' › ');
 }
 
+// The backend now composes the label (ResourceDownloadOptionsService), so this
+// script and the managed sync job that commits the same file cannot drift.
+// The local fallback stays for older backends that predate the `label` field.
 function toSelectOption(option) {
+  if (option.label) return { name: option.label, value: option.slug };
+
   const suffix = option.is_published ? '' : ' (not published yet)';
   return {
     name: `${groupLabel(option)} › ${option.title}${suffix}`,

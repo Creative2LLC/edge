@@ -23510,7 +23510,7 @@
         "valueType": "string",
         "name": "gated",
         "label": "Gate Downloads (require registration)",
-        "description": "Controls the whole page's downloads unless an item overrides it. Synced with the backend resource.",
+        "description": "Default for every download on this page. An explicit choice here beats the backend resource setting; only an individual item's Gating Override beats this. Filled from the resource when the page is generated, so leaving it alone keeps them in sync. NOTE: files stored in S3 are always gated and ignore this — un-gate those in Filament.",
         "options": [
           {
             "name": "Inherit from resource",
@@ -23675,6 +23675,7 @@
         "valueType": "string",
         "name": "gated",
         "label": "Gating Override",
+        "description": "Overrides this one item's gating, beating both the page setting and the backend resource. NOTE: this has NO effect on files stored in S3 — those are always gated because the backend will not mint their download link without a registration token. Un-gate an S3 file in Filament instead. This value is not synced back to the backend.",
         "options": [
           {
             "name": "Inherit",

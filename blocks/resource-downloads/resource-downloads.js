@@ -776,17 +776,24 @@ function resolveGated(
   // clicking a button that 401s. Un-gating one of these is a Filament action.
   if (requiresSignedUrl) return true;
 
+  // Below that, AUTHORED values win over backend values, each ordered
+  // most-specific-first. The block field is literally labelled "Inherit from
+  // resource" for its empty option, so an explicit value there is a deliberate
+  // override and has to outrank the resource — it used to lose to it, which
+  // meant authors set it and saw nothing happen. The backend stamps this same
+  // field from Resource.gated when it builds the page, so the two normally
+  // agree and this ordering only matters once an author changes one.
   const itemOverride = normalizeGatedValue(item.gatedOverride);
   if (itemOverride !== null) return itemOverride;
+
+  const configGated = normalizeGatedValue(config.gated);
+  if (configGated !== null) return configGated;
 
   const fileGated = normalizeGatedValue(itemFile?.gated);
   if (fileGated !== null) return fileGated;
 
   const resourceGated = normalizeGatedValue(itemResource?.gated);
   if (resourceGated !== null) return resourceGated;
-
-  const configGated = normalizeGatedValue(config.gated);
-  if (configGated !== null) return configGated;
 
   const primaryGated = normalizeGatedValue(primaryResource?.gated);
   return primaryGated !== null ? primaryGated : false;
