@@ -33,6 +33,7 @@ import {
   openRegistrationModal,
 } from '../../scripts/resource-gate.js';
 import { trackEvent } from '../../scripts/analytics.js';
+import buildResourceAuthoringToolbar from '../../scripts/resource-authoring-toolbar.js';
 
 const LOCKED_LABEL = 'Locked';
 
@@ -1577,6 +1578,12 @@ export default async function decorate(block) {
   const children = [list];
 
   if (isEditor) {
+    // Upload / thumbnail deep links into the backend. Editor-only, and null on
+    // the live site — the Universal Editor cannot host an upload field itself,
+    // so the work happens in Laravel and attaches to this page's resource.
+    const toolbar = buildResourceAuthoringToolbar(block, { apiBaseUrl: config.apiBaseUrl });
+    if (toolbar) children.unshift(toolbar);
+
     // Preserve remaining instrumented rows for Universal Editor tracking
     // (hide-not-remove; item rows already handed their identity to cards).
     const archive = document.createElement('div');

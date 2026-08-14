@@ -937,3 +937,45 @@
     justify-content: center;
   }
 }
+
+/* ── Authoring toolbar ───────────────────────────────────────────────────────
+   Rendered only inside the Universal Editor (see scripts/resource-authoring-
+   toolbar.js, which returns null when no data-aue-resource is present), so this
+   never appears on the live site. */
+.resource-authoring-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: #f4f7fa;
+  border: 1px dashed #b7c4d2;
+  border-radius: 10px;
+}
+
+.resource-authoring-toolbar-note {
+  margin-right: 4px;
+  color: #5b6b7c;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.resource-authoring-toolbar-button {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #c3cedb;
+  border-radius: 6px;
+  color: #14405f;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.resource-authoring-toolbar-button:hover {
+  background: #e9f2f8;
+  border-color: #008eb7;
+}
