@@ -807,10 +807,12 @@ function readHeight(block) {
   const contentCell = getContentCell(block);
   rowsToRemove.forEach((row) => {
     // Published delivery groups this height value with the rich-text field.
-    // Remove just the numeric setting, never the heading's containing row.
+    // The Hero content parser still needs that original cell, so leave the
+    // standalone number in place; it is ignored by the rich-text renderer.
     if (!isEditor && contentCell?.contains(row)) {
-      row.remove();
-    } else if (isEditor && row.querySelector('[data-aue-prop], [data-richtext-prop]')) {
+      return;
+    }
+    if (isEditor && row.querySelector('[data-aue-prop], [data-richtext-prop]')) {
       row.hidden = true;
     } else {
       row.remove();
