@@ -185,6 +185,37 @@ function setStatus(node, message, type = '') {
   node.hidden = !message;
 }
 
+function setExpanded(item, expanded, immediate = false) {
+  const button = item.querySelector('.amber-still-missing-header');
+  const panel = item.querySelector('.amber-still-missing-panel');
+  if (!button || !panel) return;
+
+  if (expanded) {
+    panel.hidden = false;
+    window.requestAnimationFrame(() => {
+      item.classList.add('amber-still-missing-open');
+      button.setAttribute('aria-expanded', 'true');
+      panel.setAttribute('aria-hidden', 'false');
+    });
+    return;
+  }
+
+  item.classList.remove('amber-still-missing-open');
+  button.setAttribute('aria-expanded', 'false');
+  panel.setAttribute('aria-hidden', 'true');
+  if (immediate) {
+    panel.hidden = true;
+    return;
+  }
+
+  const onTransitionEnd = (event) => {
+    if (event.target !== panel) return;
+    if (!item.classList.contains('amber-still-missing-open')) panel.hidden = true;
+    panel.removeEventListener('transitionend', onTransitionEnd);
+  };
+  panel.addEventListener('transitionend', onTransitionEnd);
+}
+
 export default async function decorate(block) {
   const config = {
     intro: getFieldValue(block, 'intro', 0, DEFAULTS.intro),
@@ -202,20 +233,58 @@ export default async function decorate(block) {
   intro.className = 'amber-still-missing-intro';
   intro.textContent = config.intro;
 
-  const details = document.createElement('details');
-  details.className = 'amber-still-missing-accordion';
+  const accordion = document.createElement('article');
+  accordion.className = 'amber-still-missing-accordion';
 
-  const summary = document.createElement('summary');
-  summary.textContent = config.heading;
+  const headerId = 'amber-still-missing-heading';
+  const panelId = 'amber-still-missing-panel';
+
+  const header = document.createElement('button');
+  header.className = 'amber-still-missing-header';
+  header.type = 'button';
+  header.id = headerId;
+  header.setAttribute('aria-expanded', 'false');
+  header.setAttribute('aria-controls', panelId);
+
+  const question = document.createElement('span');
+  question.className = 'amber-still-missing-question';
+  question.textContent = config.heading;
+
+  const icon = document.createElement('span');
+  icon.className = 'amber-still-missing-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  header.append(question, icon);
+
+  const panel = document.createElement('div');
+  panel.className = 'amber-still-missing-panel';
+  panel.id = panelId;
+  panel.hidden = true;
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-labelledby', headerId);
+  panel.setAttribute('aria-hidden', 'true');
+
+  const panelInner = document.createElement('div');
+  panelInner.className = 'amber-still-missing-panel-inner';
+
+  const answer = document.createElement('div');
+  answer.className = 'amber-still-missing-answer';
 
   const status = document.createElement('p');
   status.hidden = true;
 
-  const panel = document.createElement('div');
-  panel.className = 'amber-still-missing-panel';
+  const content = document.createElement('div');
+  content.className = 'amber-still-missing-content';
 
-  details.append(summary, status, panel);
-  inner.append(intro, details);
+  answer.append(status, content);
+  panelInner.append(answer);
+  panel.append(panelInner);
+
+  header.addEventListener('click', () => {
+    setExpanded(accordion, header.getAttribute('aria-expanded') !== 'true');
+  });
+
+  accordion.append(header, panel);
+  inner.append(intro, accordion);
   block.replaceChildren(inner);
 
   setStatus(status, 'Loading children still missing from AMBER Alerts...', 'loading');
@@ -229,7 +298,7 @@ export default async function decorate(block) {
     const payload = await response.json();
     const rows = rowsFromPayload(payload, config.posterPagePath);
     setStatus(status, '', '');
-    renderTable(panel, rows, config);
+    renderTable(content, rows, config);
   } catch (error) {
     setStatus(status, 'Children still missing from AMBER Alerts are unavailable.', 'error');
   }

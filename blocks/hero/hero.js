@@ -809,7 +809,7 @@ function readHeight(block) {
     // Published delivery groups this height value with the rich-text field.
     // The Hero content parser still needs that original cell, so leave the
     // standalone number in place; it is ignored by the rich-text renderer.
-    if (!isEditor && contentCell?.contains(row)) {
+    if (!isEditor && row?.contains(contentCell)) {
       return;
     }
     if (isEditor && row.querySelector('[data-aue-prop], [data-richtext-prop]')) {

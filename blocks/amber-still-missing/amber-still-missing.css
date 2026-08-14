@@ -199,3 +199,190 @@
     padding: 0 20px 14px;
   }
 }
+
+/* FAQ-aligned AMBER disclosure */
+.amber-still-missing .amber-still-missing-accordion {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: #ddd5cc52;
+  box-shadow: 0 4px 14px rgb(17 58 103 / 0%);
+  transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.amber-still-missing .amber-still-missing-accordion::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: #007294;
+  content: "";
+  opacity: 0;
+  transform: scaleY(.3);
+  transform-origin: center;
+  transition: opacity 220ms ease, transform 280ms ease;
+}
+
+.amber-still-missing .amber-still-missing-accordion:hover {
+  border-color: rgb(0 114 148 / 25%);
+  background: #fff;
+  box-shadow: 0 10px 24px rgb(17 58 103 / 12%);
+  transform: translateY(-2px);
+}
+
+.amber-still-missing .amber-still-missing-accordion.amber-still-missing-open {
+  border-color: rgb(0 114 148 / 20%);
+  background: #fff;
+  box-shadow: 0 10px 24px rgb(17 58 103 / 10%);
+}
+
+.amber-still-missing .amber-still-missing-accordion.amber-still-missing-open::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.amber-still-missing .amber-still-missing-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  min-height: 80px;
+  border: 0;
+  background: transparent;
+  color: #404041;
+  cursor: pointer;
+  font: inherit;
+  padding: 26px 30px;
+  text-align: left;
+}
+
+.amber-still-missing .amber-still-missing-header:focus-visible {
+  outline: 3px solid #ffba42;
+  outline-offset: -3px;
+}
+
+.amber-still-missing .amber-still-missing-question {
+  color: #404041;
+  font-size: clamp(1.35rem, 1.95vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.22;
+}
+
+.amber-still-missing .amber-still-missing-icon {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px #404041;
+  transition: background-color 220ms ease, box-shadow 220ms ease, transform 260ms ease;
+}
+
+.amber-still-missing .amber-still-missing-icon::before,
+.amber-still-missing .amber-still-missing-icon::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 1.5px;
+  background: #404041;
+  content: "";
+  transform: translate(-50%, -50%);
+  transition: background-color 220ms ease, transform 260ms ease, opacity 220ms ease;
+}
+
+.amber-still-missing .amber-still-missing-icon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.amber-still-missing .amber-still-missing-open .amber-still-missing-icon {
+  background: #007294;
+  box-shadow: inset 0 0 0 1.5px #007294;
+  transform: rotate(45deg);
+}
+
+.amber-still-missing .amber-still-missing-open .amber-still-missing-icon::before,
+.amber-still-missing .amber-still-missing-open .amber-still-missing-icon::after {
+  background: #fff;
+}
+
+.amber-still-missing .amber-still-missing-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  padding: 0;
+  transition: grid-template-rows 320ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.amber-still-missing .amber-still-missing-open .amber-still-missing-panel {
+  grid-template-rows: 1fr;
+}
+
+.amber-still-missing .amber-still-missing-panel-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.amber-still-missing .amber-still-missing-answer {
+  padding: 0 30px 30px;
+  color: #4d4d52;
+  font-size: 1.03rem;
+  font-weight: 500;
+  line-height: 1.7;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 200ms ease, transform 260ms ease;
+}
+
+.amber-still-missing .amber-still-missing-open .amber-still-missing-answer {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.amber-still-missing .amber-still-missing-status {
+  padding: 0 0 18px;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .amber-still-missing .amber-still-missing-accordion,
+  .amber-still-missing .amber-still-missing-accordion::before,
+  .amber-still-missing .amber-still-missing-icon,
+  .amber-still-missing .amber-still-missing-icon::before,
+  .amber-still-missing .amber-still-missing-icon::after,
+  .amber-still-missing .amber-still-missing-panel,
+  .amber-still-missing .amber-still-missing-answer {
+    transition: none;
+  }
+}
+
+@media (width <= 800px) {
+  .amber-still-missing .amber-still-missing-header {
+    min-height: 68px;
+    padding: 24px;
+  }
+
+  .amber-still-missing .amber-still-missing-answer {
+    padding: 0 24px 24px;
+  }
+}
+
+@media (width < 600px) {
+  .amber-still-missing .amber-still-missing-header {
+    gap: 14px;
+    padding: 18px 20px;
+  }
+
+  .amber-still-missing .amber-still-missing-question {
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  .amber-still-missing .amber-still-missing-answer {
+    padding: 0 20px 20px;
+  }
+}
