@@ -805,6 +805,15 @@
   height: 100%;
 }
 
+.poster-results-detail-actions .poster-results-detail-report-sighting {
+  gap: 8px;
+}
+
+.poster-results-detail-actions .poster-results-detail-report-sighting svg {
+  width: 18px;
+  height: 18px;
+}
+
 .poster-results-fact-label {
   font-weight: 700;
 }

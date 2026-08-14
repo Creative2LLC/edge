@@ -981,6 +981,40 @@ function createActionLink(label, href) {
   return link;
 }
 
+function createReportSightingLink(childName) {
+  const url = new URL('/amber-alerts/missing-child-quick-report', window.location.origin);
+  url.searchParams.set('missingName', childName);
+  url.searchParams.set('posterUrl', window.location.href);
+
+  const link = createActionLink('REPORT A SIGHTING', url.pathname + url.search);
+  link.classList.add('poster-results-detail-report-sighting');
+
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.setAttribute('focusable', 'false');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z');
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', 'currentColor');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  path.setAttribute('stroke-width', '2');
+  icon.append(path);
+
+  const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  pupil.setAttribute('cx', '12');
+  pupil.setAttribute('cy', '12');
+  pupil.setAttribute('r', '2.75');
+  pupil.setAttribute('fill', 'none');
+  pupil.setAttribute('stroke', 'currentColor');
+  pupil.setAttribute('stroke-width', '2');
+  icon.append(pupil);
+
+  link.prepend(icon);
+  return link;
+}
 function createActionButton(label, onClick) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -1009,7 +1043,7 @@ function createShareButton() {
 }
 
 function createActionBar(config, options = {}) {
-  const { includePrint = true } = options;
+  const { includePrint = true, reportSightingName = '' } = options;
   const actions = document.createElement('div');
   actions.className = 'poster-results-detail-actions';
 
@@ -1017,6 +1051,9 @@ function createActionBar(config, options = {}) {
   actions.append(createActionLink('SUBMIT A TIP', config.submitTipUrl));
   if (includePrint) {
     actions.append(createActionButton('PRINT POSTER', () => window.print()));
+  }
+  if (reportSightingName) {
+    actions.append(createReportSightingLink(reportSightingName));
   }
   actions.append(createShareButton());
 
@@ -1509,7 +1546,10 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   detail.append(
     createMissingChildHeading('AMBER Alert'),
     createAmberBanner(payload, alert),
-    createActionBar(config, { includePrint: false }),
+    createActionBar(config, {
+      includePrint: false,
+      reportSightingName: displayName(alert, 'Missing Child'),
+    }),
   );
 
   const subject = buildParticipantSection(payload, {
