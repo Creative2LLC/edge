@@ -395,21 +395,24 @@ function getFieldValue(block, nameOrNames) {
   let fallbackValue = '';
 
   if (hasName('variant')) {
-    fallbackCell = getRowCells(block).find((cell) => (
+    fallbackCell = getHeroFieldCell(block, 'variant') || getRowCells(block).find((cell) => (
       isExactChoiceCell(cell, ['default', 'homepage'])
     ));
     fallbackValue = getCellText(fallbackCell);
+  } else if (hasName('content_height', 'height')) {
+    fallbackCell = getHeroFieldCell(block, 'content_height');
+    fallbackValue = getCellText(fallbackCell);
   } else if (hasName('media_overlayOpacity', 'overlayOpacity')) {
-    fallbackCell = getMediaCell(block);
+    fallbackCell = getHeroFieldCell(block, 'media_overlayOpacity') || getMediaCell(block);
     fallbackValue = getNumberFromCell(fallbackCell);
   } else if (hasName('media_gradientOverlay', 'gradientOverlay')) {
-    fallbackCell = getMediaCell(block);
+    fallbackCell = getHeroFieldCell(block, 'media_gradientOverlay') || getMediaCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
   } else if (hasName('content_position', 'contentPosition')) {
-    fallbackCell = getContentCell(block);
+    fallbackCell = getHeroFieldCell(block, 'content_position') || getContentCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['left', 'center', 'right']);
   } else if (hasName('content_showBreadcrumbs', 'showBreadcrumbs')) {
-    fallbackCell = getContentCell(block);
+    fallbackCell = getHeroFieldCell(block, 'content_showBreadcrumbs') || getContentCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
   } else if (hasName('action_1Style', 'action_2Style', 'action_3Style')) {
     const styleName = names.find((candidate) => (

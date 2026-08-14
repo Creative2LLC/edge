@@ -1685,6 +1685,18 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   line-height: 1.15;
 }
 
+/* Form labels target every span, including tooltip content. Restore the shared
+   tooltip treatment with an equally specific selector for City and From. */
+.poster-results:not(.is-poster-page) .poster-results-field .poster-results-near-me-tooltip {
+  width: 240px;
+  max-width: 70vw;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
 .poster-results:not(.is-poster-page) .poster-results-field input,
 .poster-results:not(.is-poster-page) .poster-results-field select {
   height: 44px;
