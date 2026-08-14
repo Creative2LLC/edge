@@ -69,6 +69,13 @@ function formatMissingDate(value) {
   return text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim() || text;
 }
 
+function caseValue(item, keys) {
+  return [item, item.childBean, item.child, item.person]
+    .filter(Boolean)
+    .flatMap((source) => keys.map((key) => normalizeText(source[key])))
+    .find(Boolean) || '';
+}
+
 function anniversaryDecade(item) {
   const date = caseValue(item, [
     'missing_date', 'missing_date_label', 'missingDate', 'dateMissing',
@@ -94,13 +101,6 @@ function formatMissingLocation(value) {
   return normalizeText(value)
     .replace(/,\s*(?:US|USA|United States)$/i, '')
     .trim();
-}
-
-function caseValue(item, keys) {
-  return [item, item.childBean, item.child, item.person]
-    .filter(Boolean)
-    .flatMap((source) => keys.map((key) => normalizeText(source[key])))
-    .find(Boolean) || '';
 }
 
 function caseLocation(item) {
@@ -655,6 +655,13 @@ export default function decorate(block) {
     state.renderedCases += cases.length;
   };
 
+  // Defined ahead of loadCases because loadCases schedules it in its `finally`.
+  const loadCasesWhenScrolled = () => {
+    if (usePagination || state.loading || layout.loadMore.hidden) return;
+    const loadMoreTop = layout.loadMore.getBoundingClientRect().top;
+    if (loadMoreTop <= window.innerHeight + 240) loadCases(false);
+  };
+
   loadCases = async (reset = false, targetPage = null) => {
     if (!config.apiBaseUrl) return;
     if (state.loading && !reset && targetPage === null) return;
@@ -774,12 +781,6 @@ export default function decorate(block) {
     loadCases(true);
   });
   layout.loadMore.addEventListener('click', () => loadCases(false));
-
-  const loadCasesWhenScrolled = () => {
-    if (usePagination || state.loading || layout.loadMore.hidden) return;
-    const loadMoreTop = layout.loadMore.getBoundingClientRect().top;
-    if (loadMoreTop <= window.innerHeight + 240) loadCases(false);
-  };
 
   window.addEventListener('scroll', loadCasesWhenScrolled, { passive: true });
   window.addEventListener('resize', loadCasesWhenScrolled);
