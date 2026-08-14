@@ -1543,8 +1543,13 @@ function normalizeFlattenedMultiTextColumn(column) {
   const verticalAlign = findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top');
   const fontSize = findFlattenedLengthValue(textConfigChildren, '27px');
   const textBlocks = [];
+  // A bold lead-in followed by a list is one authored rich-text field, not two
+  // independently styled blocks. Splitting it changes both hierarchy and styles
+  // on live delivery while author mode keeps the original single component.
+  const hasListContent = textChildren.some((child) => child.matches('ul, ol')
+    || child.querySelector('ul, ol'));
 
-  if (textChildren.some(isStrongOnlyParagraph)) {
+  if (textChildren.some(isStrongOnlyParagraph) && !hasListContent) {
     textChildren.forEach((textChild) => {
       const rows = [
         createBlockFieldRow('text', textChild),

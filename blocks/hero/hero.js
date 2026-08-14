@@ -371,6 +371,21 @@ function getNumberFromCell(cell) {
   return textNodes.find((value) => /^(?:100|[1-9]?[0-9])$/.test(value)) || '';
 }
 
+function getStandaloneNumberNode(cell) {
+  if (!cell) return null;
+  return [...cell.querySelectorAll('p, span')]
+    .find((node) => /^(?:100|[1-9]?[0-9])$/.test(node.textContent.trim())) || null;
+}
+
+function getPublishedOverlayCell(block) {
+  const contentCell = getContentCell(block);
+  return getRowCells(block).find((cell) => (
+    cell !== contentCell
+      && getStandaloneNumberNode(cell)
+      && getChoiceFromCell(cell, ['show', 'hide'])
+  )) || null;
+}
+
 function normalizeHeight(value) {
   if (!value) return null;
   const trimmed = value.trim().toLowerCase();
@@ -399,8 +414,11 @@ function getFieldValue(block, nameOrNames) {
       isExactChoiceCell(cell, ['default', 'homepage'])
     ));
     fallbackValue = getCellText(fallbackCell);
+  } else if (hasName('content_height', 'height')) {
+    fallbackCell = getStandaloneNumberNode(getContentCell(block));
+    fallbackValue = getCellText(fallbackCell);
   } else if (hasName('media_overlayOpacity', 'overlayOpacity')) {
-    fallbackCell = getMediaCell(block);
+    fallbackCell = getStandaloneNumberNode(getPublishedOverlayCell(block)) || getMediaCell(block);
     fallbackValue = getNumberFromCell(fallbackCell);
   } else if (hasName('media_gradientOverlay', 'gradientOverlay')) {
     fallbackCell = getMediaCell(block);
@@ -786,8 +804,13 @@ function readHeight(block) {
 
   // Same hide-not-remove rationale as readTextColor above.
   const isEditor = isUniversalEditor();
+  const contentCell = getContentCell(block);
   rowsToRemove.forEach((row) => {
-    if (isEditor && row.querySelector('[data-aue-prop], [data-richtext-prop]')) {
+    // Published delivery groups this height value with the rich-text field.
+    // Remove just the numeric setting, never the heading's containing row.
+    if (!isEditor && contentCell?.contains(row)) {
+      row.remove();
+    } else if (isEditor && row.querySelector('[data-aue-prop], [data-richtext-prop]')) {
       row.hidden = true;
     } else {
       row.remove();
