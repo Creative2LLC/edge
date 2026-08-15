@@ -19,6 +19,7 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import {
+  getAueResourcePath,
   getBlockRows,
   readImageField,
   readLinkField,
@@ -34,7 +35,8 @@ import {
 } from '../../scripts/resource-gate.js';
 import { trackEvent } from '../../scripts/analytics.js';
 import buildResourceAuthoringToolbar, {
-  buildItemUploadControl,
+  buildUploadControl,
+  buildUploadUnavailableNote,
   resolveUploadToken,
 } from '../../scripts/resource-authoring-toolbar.js';
 
@@ -1611,10 +1613,12 @@ export default async function decorate(block) {
 
   const children = [list];
 
+  let toolbar = null;
+
   if (isEditor) {
     // Block-level tools (thumbnail editor). Editor-only, and null on the live
     // site — data-aue-resource exists nowhere else.
-    const toolbar = buildResourceAuthoringToolbar(block, { apiBaseUrl: config.apiBaseUrl });
+    toolbar = buildResourceAuthoringToolbar(block, { apiBaseUrl: config.apiBaseUrl });
     if (toolbar) children.unshift(toolbar);
 
     // Preserve remaining instrumented rows for Universal Editor tracking
@@ -1633,14 +1637,37 @@ export default async function decorate(block) {
 
   block.replaceChildren(...children);
 
-  // Per-item upload, once the token is in hand. Attached AFTER the cards are in
-  // the DOM so instrumentation has settled, and resolved lazily so a page where
-  // uploads are not provisioned simply never grows the control.
-  if (isEditor && instrumentedCards.length) {
+  // Upload controls, once the token is in hand. Attached AFTER the cards are in
+  // the DOM so instrumentation has settled.
+  if (isEditor && toolbar) {
+    const scopePath = getAueResourcePath(block);
+
     resolveUploadToken().then((token) => {
-      if (!token) return;
+      if (!token) {
+        // Say so rather than rendering nothing — an invisible feature is
+        // indistinguishable from a broken one.
+        buildUploadUnavailableNote(toolbar);
+        return;
+      }
+
+      // Block level: appends a NEW Download Item. This is the only upload route
+      // when the block has no items yet, which is exactly how an author starts.
+      buildUploadControl(toolbar, {
+        apiBaseUrl: config.apiBaseUrl,
+        token,
+        scopePath,
+        label: 'Upload a new download',
+      });
+
+      // Per item: stamps the file onto that specific item.
       instrumentedCards.forEach((card) => {
-        buildItemUploadControl(card, card, { apiBaseUrl: config.apiBaseUrl, token });
+        buildUploadControl(card, {
+          apiBaseUrl: config.apiBaseUrl,
+          token,
+          scopePath: getAueResourcePath(card),
+          itemPath: getAueResourcePath(card),
+          label: 'Upload file to S3',
+        });
       });
     });
   }

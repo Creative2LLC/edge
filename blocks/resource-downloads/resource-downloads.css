@@ -1059,3 +1059,9 @@
 .resource-authoring-upload-choice:hover {
   background: #008eb7;
 }
+
+.resource-authoring-toolbar-warning {
+  color: #8a5a00;
+  font-size: 12px;
+  font-style: italic;
+}

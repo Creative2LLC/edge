@@ -98,17 +98,24 @@ async function putToS3(url, headers, file) {
 /**
  * An upload control bound to one Download Item.
  *
- * @param {Element} card the rendered card, used only to host the control
- * @param {Element} row the item's instrumented row, which carries its node path
- * @param {{apiBaseUrl?: string, token: string}} options
+ * @param {Element} host element to append the control to
+ * @param {{apiBaseUrl?: string, token: string, scopePath: string,
+ *          itemPath?: string|null, label?: string}} options
+ *   scopePath  any node path inside the page, used to derive the page path
+ *   itemPath   the Download Item to stamp; omit to APPEND a new item instead
  * @returns {Element|null}
  */
-export function buildItemUploadControl(card, row, { apiBaseUrl, token }) {
-  const itemPath = getAueResourcePath(row);
-  if (!itemPath || !token) return null;
+export function buildUploadControl(host, {
+  apiBaseUrl,
+  token,
+  scopePath,
+  itemPath = null,
+  label: buttonLabel = 'Upload file to S3',
+}) {
+  if (!scopePath || !token) return null;
 
   const origin = backendOrigin(apiBaseUrl);
-  const pagePath = pagePathFrom(itemPath);
+  const pagePath = pagePathFrom(scopePath);
 
   const wrapper = document.createElement('div');
   wrapper.className = 'resource-authoring-upload';
@@ -122,7 +129,7 @@ export function buildItemUploadControl(card, row, { apiBaseUrl, token }) {
   const label = document.createElement('label');
   label.className = 'resource-authoring-upload-button';
   label.setAttribute('for', input.id);
-  label.textContent = 'Upload file to S3';
+  label.textContent = buttonLabel;
 
   const status = document.createElement('span');
   status.className = 'resource-authoring-upload-status';
@@ -177,10 +184,12 @@ export function buildItemUploadControl(card, row, { apiBaseUrl, token }) {
       await putToS3(presigned.url, presigned.headers, file);
 
       say('Attaching…');
+      // With no itemPath the backend appends a fresh Download Item instead of
+      // stamping one — which is how an empty block gets its first download.
       const complete = (mode) => postJson(`${origin}/api/authoring/resource-uploads/complete`, token, {
         page_path: pagePath,
         key: presigned.key,
-        item_path: itemPath,
+        ...(itemPath ? { item_path: itemPath } : {}),
         ...(mode ? { mode } : {}),
       });
 
@@ -205,9 +214,28 @@ export function buildItemUploadControl(card, row, { apiBaseUrl, token }) {
 
   wrapper.append(label, input, status, choices);
 
-  card.append(wrapper);
+  host.append(wrapper);
 
   return wrapper;
+}
+
+/**
+ * Explains why no upload control appeared, instead of leaving the author
+ * staring at a block that silently lacks the feature. The token is missing
+ * whenever it has not been provisioned in AEM yet (see
+ * `php artisan app:provision-authoring-token`), or the node's permissions do
+ * not let this author read it.
+ *
+ * @param {Element} host
+ * @returns {Element}
+ */
+export function buildUploadUnavailableNote(host) {
+  const note = document.createElement('span');
+  note.className = 'resource-authoring-toolbar-warning';
+  note.textContent = 'File upload unavailable — the authoring token is not provisioned in AEM.';
+  host.append(note);
+
+  return note;
 }
 
 /**
