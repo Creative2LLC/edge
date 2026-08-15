@@ -40,14 +40,12 @@ function buildButton(label, href, title) {
   link.textContent = label;
   link.href = href;
   link.title = title;
-  link.target = 'ncmec-resource-authoring';
+  // A plain _blank anchor opens a TAB. Passing a feature string to window.open
+  // is what forces a popup window instead, so there is deliberately no click
+  // handler here — the editor canvas is an iframe, and the anchor's own target
+  // escapes it correctly.
+  link.target = '_blank';
   link.rel = 'noopener';
-  // The editor canvas is an iframe; a named window keeps repeated clicks in one
-  // popup instead of opening a new tab every time.
-  link.addEventListener('click', (event) => {
-    event.preventDefault();
-    window.open(href, 'ncmec-resource-authoring', 'width=760,height=860,noopener');
-  });
 
   return link;
 }

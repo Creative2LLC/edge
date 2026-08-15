@@ -249,6 +249,11 @@ function emptyItem(row = null) {
     buttonLabel: '',
     resourceSlug: '',
     fileHref: '',
+    // Set only by the "render one card per file" fallback below — never authored.
+    // Names an exact ResourceFile so a resource with several gated S3 downloads
+    // can expand into one card each; matching by URL cannot do that, because
+    // S3-backed files deliberately have no URL.
+    fileId: null,
     imageEl: null,
     imageSrc: '',
     videoUrl: '',
@@ -741,6 +746,11 @@ function resourceFileMatches(fileEntry, fileHref) {
     fileEntry.aem_asset_path,
     fileEntry.download_url,
     fileEntry.file_url,
+    // file_name is the ONLY handle an S3-backed file has: its URLs are all null
+    // by design (presigned links are never persisted), so without this an author
+    // could never point an item at one of several gated files. Typing the file
+    // name into "File Path (Manual)" targets it.
+    fileEntry.file_name,
   ].some((value) => {
     const normalized = normalizeText(value).split(/[?#]/)[0];
     return normalized && (
@@ -756,9 +766,10 @@ function primaryResourceFile(resource) {
   return files.find((file) => file?.is_primary) || files[0] || null;
 }
 
-function resolveResourceFile(resource, fileHref) {
+function resolveResourceFile(resource, fileHref, fileId = null) {
   const files = Array.isArray(resource?.files) ? resource.files : [];
   if (!files.length) return null;
+  if (fileId) return files.find((file) => file?.id === fileId) || null;
   if (fileHref) return files.find((file) => resourceFileMatches(file, fileHref)) || null;
   return primaryResourceFile(resource);
 }
@@ -814,7 +825,7 @@ function resolveEntry(item, resource, config, primaryResource) {
   const matchedPrimaryResource = resource
     || (item.resourceSlug === config.slug ? primaryResource : null)
     || (resourceMatchesFile(primaryResource, item.fileHref) ? primaryResource : null);
-  const matchedFile = resolveResourceFile(matchedPrimaryResource, item.fileHref);
+  const matchedFile = resolveResourceFile(matchedPrimaryResource, item.fileHref, item.fileId);
   const downloadUrl = matchedFile?.download_url
     || matchedFile?.file_url
     || matchedPrimaryResource?.download_url
@@ -1509,15 +1520,28 @@ export default async function decorate(block) {
     finalizePublishedText(item);
   }));
 
-  // If no download items are authored, fall back to the page resource's
-  // primary file. If authors added items, those items are the source of truth;
-  // adding the primary again would duplicate the same file on the frontend.
+  const primaryResource = await fetchResource(config.apiBaseUrl, config.slug);
+
+  // If no download items are authored, fall back to the page resource's own
+  // files. A resource can carry SEVERAL gated downloads (each an S3 object an
+  // author uploaded), so this expands to one card per file rather than showing
+  // only the primary and hiding the rest. If authors did add items, those items
+  // are the source of truth; adding these again would duplicate them.
   const workingItems = [...items];
   if (config.slug && workingItems.length === 0) {
-    workingItems.unshift({ ...emptyItem(), resourceSlug: config.slug });
+    const ownFiles = Array.isArray(primaryResource?.files) ? primaryResource.files : [];
+
+    if (ownFiles.length > 1) {
+      ownFiles.forEach((file) => workingItems.push({
+        ...emptyItem(),
+        resourceSlug: config.slug,
+        fileId: file.id,
+      }));
+    } else {
+      workingItems.unshift({ ...emptyItem(), resourceSlug: config.slug });
+    }
   }
 
-  const primaryResource = await fetchResource(config.apiBaseUrl, config.slug);
   const entries = (await Promise.all(workingItems.map(async (item) => {
     // Prefer a slug link; otherwise resolve the picked file to its resource
     // so file-only items still get the public URL + gated flag.
