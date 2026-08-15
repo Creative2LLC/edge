@@ -979,3 +979,83 @@
   background: #e9f2f8;
   border-color: #008eb7;
 }
+
+/* Per-item upload control — editor only (rendered only when the authoring token
+   resolves, which cannot happen on the published site). */
+.resource-authoring-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #c3cedb;
+}
+
+.resource-authoring-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.resource-authoring-upload-button {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #c3cedb;
+  border-radius: 6px;
+  color: #14405f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resource-authoring-upload-button:hover {
+  background: #e9f2f8;
+  border-color: #008eb7;
+}
+
+.resource-authoring-upload-button[aria-disabled='true'] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.resource-authoring-upload-status {
+  color: #5b6b7c;
+  font-size: 12px;
+}
+
+.resource-authoring-upload-status[data-state='done'] {
+  color: #16806a;
+  font-weight: 600;
+}
+
+.resource-authoring-upload-status[data-state='error'] {
+  color: #c95a42;
+  font-weight: 600;
+}
+
+.resource-authoring-upload-choices {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.resource-authoring-upload-choice {
+  padding: 4px 10px;
+  background: #14405f;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resource-authoring-upload-choice:hover {
+  background: #008eb7;
+}

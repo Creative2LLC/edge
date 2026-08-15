@@ -33,7 +33,10 @@ import {
   openRegistrationModal,
 } from '../../scripts/resource-gate.js';
 import { trackEvent } from '../../scripts/analytics.js';
-import buildResourceAuthoringToolbar from '../../scripts/resource-authoring-toolbar.js';
+import buildResourceAuthoringToolbar, {
+  buildItemUploadControl,
+  resolveUploadToken,
+} from '../../scripts/resource-authoring-toolbar.js';
 
 const LOCKED_LABEL = 'Locked';
 
@@ -1559,6 +1562,11 @@ export default async function decorate(block) {
   list.className = 'resource-downloads-list';
   if (config.layout === 'grid') list.classList.add('is-grid');
 
+  // Cards whose instrumentation names a real authored item node — the only ones
+  // an in-canvas upload can be bound to. Auto-expanded per-file cards have no
+  // node behind them, so they are deliberately absent.
+  const instrumentedCards = [];
+
   // Merge consecutive "grouped" entries into a single stacked-button card.
   let index = 0;
   while (index < entries.length) {
@@ -1574,6 +1582,7 @@ export default async function decorate(block) {
       groupCard.style.setProperty('--rd-accent', group[0].theme.accent);
       if (group[0].item.row && isEditor) {
         moveInstrumentation(group[0].item.row, groupCard);
+        instrumentedCards.push(groupCard);
       }
       setItemLabel(groupCard, [group[0].title]);
       list.append(groupCard);
@@ -1585,6 +1594,7 @@ export default async function decorate(block) {
       card.style.setProperty('--rd-accent', entry.theme.accent);
       if (entry.item.row && isEditor) {
         moveInstrumentation(entry.item.row, card);
+        instrumentedCards.push(card);
       }
       setItemLabel(card, [entry.title, entry.fileName]);
       list.append(card);
@@ -1602,9 +1612,8 @@ export default async function decorate(block) {
   const children = [list];
 
   if (isEditor) {
-    // Upload / thumbnail deep links into the backend. Editor-only, and null on
-    // the live site — the Universal Editor cannot host an upload field itself,
-    // so the work happens in Laravel and attaches to this page's resource.
+    // Block-level tools (thumbnail editor). Editor-only, and null on the live
+    // site — data-aue-resource exists nowhere else.
     const toolbar = buildResourceAuthoringToolbar(block, { apiBaseUrl: config.apiBaseUrl });
     if (toolbar) children.unshift(toolbar);
 
@@ -1623,6 +1632,18 @@ export default async function decorate(block) {
   }
 
   block.replaceChildren(...children);
+
+  // Per-item upload, once the token is in hand. Attached AFTER the cards are in
+  // the DOM so instrumentation has settled, and resolved lazily so a page where
+  // uploads are not provisioned simply never grows the control.
+  if (isEditor && instrumentedCards.length) {
+    resolveUploadToken().then((token) => {
+      if (!token) return;
+      instrumentedCards.forEach((card) => {
+        buildItemUploadControl(card, card, { apiBaseUrl: config.apiBaseUrl, token });
+      });
+    });
+  }
 
   // Reveal cards with a soft staggered rise as they enter the viewport. The
   // CSS only hides cards under prefers-reduced-motion: no-preference, so the
