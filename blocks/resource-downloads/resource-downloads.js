@@ -19,7 +19,6 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import {
-  getAueResourcePath,
   getBlockRows,
   readImageField,
   readLinkField,
@@ -34,11 +33,7 @@ import {
   openRegistrationModal,
 } from '../../scripts/resource-gate.js';
 import { trackEvent } from '../../scripts/analytics.js';
-import buildResourceAuthoringToolbar, {
-  buildUploadControl,
-  buildUploadUnavailableNote,
-  resolveUploadToken,
-} from '../../scripts/resource-authoring-toolbar.js';
+import buildResourceAuthoringToolbar from '../../scripts/resource-authoring-toolbar.js';
 
 const LOCKED_LABEL = 'Locked';
 
@@ -1564,11 +1559,6 @@ export default async function decorate(block) {
   list.className = 'resource-downloads-list';
   if (config.layout === 'grid') list.classList.add('is-grid');
 
-  // Cards whose instrumentation names a real authored item node — the only ones
-  // an in-canvas upload can be bound to. Auto-expanded per-file cards have no
-  // node behind them, so they are deliberately absent.
-  const instrumentedCards = [];
-
   // Merge consecutive "grouped" entries into a single stacked-button card.
   let index = 0;
   while (index < entries.length) {
@@ -1584,7 +1574,6 @@ export default async function decorate(block) {
       groupCard.style.setProperty('--rd-accent', group[0].theme.accent);
       if (group[0].item.row && isEditor) {
         moveInstrumentation(group[0].item.row, groupCard);
-        instrumentedCards.push(groupCard);
       }
       setItemLabel(groupCard, [group[0].title]);
       list.append(groupCard);
@@ -1596,7 +1585,6 @@ export default async function decorate(block) {
       card.style.setProperty('--rd-accent', entry.theme.accent);
       if (entry.item.row && isEditor) {
         moveInstrumentation(entry.item.row, card);
-        instrumentedCards.push(card);
       }
       setItemLabel(card, [entry.title, entry.fileName]);
       list.append(card);
@@ -1613,12 +1601,10 @@ export default async function decorate(block) {
 
   const children = [list];
 
-  let toolbar = null;
-
   if (isEditor) {
-    // Block-level tools (thumbnail editor). Editor-only, and null on the live
-    // site — data-aue-resource exists nowhere else.
-    toolbar = buildResourceAuthoringToolbar(block, { apiBaseUrl: config.apiBaseUrl });
+    // Deep links into the backend for gated uploads and the thumbnail editor.
+    // Editor-only — data-aue-resource exists nowhere else.
+    const toolbar = buildResourceAuthoringToolbar(block, { apiBaseUrl: config.apiBaseUrl });
     if (toolbar) children.unshift(toolbar);
 
     // Preserve remaining instrumented rows for Universal Editor tracking
@@ -1636,41 +1622,6 @@ export default async function decorate(block) {
   }
 
   block.replaceChildren(...children);
-
-  // Upload controls, once the token is in hand. Attached AFTER the cards are in
-  // the DOM so instrumentation has settled.
-  if (isEditor && toolbar) {
-    const scopePath = getAueResourcePath(block);
-
-    resolveUploadToken().then((token) => {
-      if (!token) {
-        // Say so rather than rendering nothing — an invisible feature is
-        // indistinguishable from a broken one.
-        buildUploadUnavailableNote(toolbar);
-        return;
-      }
-
-      // Block level: appends a NEW Download Item. This is the only upload route
-      // when the block has no items yet, which is exactly how an author starts.
-      buildUploadControl(toolbar, {
-        apiBaseUrl: config.apiBaseUrl,
-        token,
-        scopePath,
-        label: 'Upload a new download',
-      });
-
-      // Per item: stamps the file onto that specific item.
-      instrumentedCards.forEach((card) => {
-        buildUploadControl(card, {
-          apiBaseUrl: config.apiBaseUrl,
-          token,
-          scopePath: getAueResourcePath(card),
-          itemPath: getAueResourcePath(card),
-          label: 'Upload file to S3',
-        });
-      });
-    });
-  }
 
   // Reveal cards with a soft staggered rise as they enter the viewport. The
   // CSS only hides cards under prefers-reduced-motion: no-preference, so the

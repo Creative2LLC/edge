@@ -1,22 +1,28 @@
 /*
- * Authoring controls — Universal Editor only.
+ * Authoring toolbar — Universal Editor only.
  *
- * Uploading a gated download happens right here in the canvas: pick a file on a
- * Download Item card, it goes straight to S3, and the backend stamps it onto
- * that exact item node. No popup, no second tab.
+ * Two deep links into the Laravel backend, carrying the page path with them:
  *
- * Two constraints shaped this:
+ *   Upload download file → puts a gated file in the S3 folder matching the
+ *                          folder this page lives in, attaches it to this
+ *                          page's own resource, and adds a Download Item to
+ *                          this block with the style you pick.
+ *   Set card thumbnail   → the resource library's thumbnail editor.
  *
- * 1. Block JS cannot write into the Universal Editor model (see
- *    scripts/block-color-picker.js for the attempt that proved it), so the
- *    BACKEND writes the value onto the item's JCR node instead. The item's node
- *    path comes from its own data-aue-resource attribute.
+ * WHY A LINK AND NOT A FIELD. A real upload field in the properties rail — one
+ * sitting under "File" — needs an Adobe App Builder UIX extension; that is the
+ * only way to plug custom UI into the Universal Editor's rail. Doing it from
+ * block JS instead was tried and removed: the canvas cannot write into the UE
+ * model (see scripts/block-color-picker.js), and authenticating a direct upload
+ * from the canvas meant shipping a write-capable token, which would have
+ * published to the live site inside the block's own markup.
  *
- * 2. The upload token must never live in block content. Every field on a block
- *    model renders as a cell in the page HTML, so a token there would publish to
- *    the live site in plain sight. It lives in an AEM node outside the page tree
- *    instead, which the canvas reads same-origin with the author's own AEM
- *    session — and which is not replicated, so the published site cannot see it.
+ * Non-gated files need none of this — the item's "File" field is a normal DAM
+ * picker and keeps working exactly as before. This route exists only for gated
+ * files, which live in a private S3 bucket rather than the DAM.
+ *
+ * Editor-scoped: data-aue-resource exists nowhere else, so nothing renders on
+ * the live site.
  */
 
 import { getAueResourcePath } from './block-field-utils.js';
@@ -24,11 +30,8 @@ import { getAueResourcePath } from './block-field-utils.js';
 // Mirrors the block's own fallback, for pages authored before the backend
 // stamped apiBaseUrl onto the block.
 const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
-const TOKEN_NODE_PATH = '/conf/edge/authoring/upload-token';
 
-let tokenPromise = null;
-
-export function isUniversalEditor() {
+function isUniversalEditor() {
   return Boolean(document.querySelector('[data-aue-resource]'));
 }
 
@@ -40,217 +43,21 @@ function backendOrigin(apiBaseUrl) {
   }
 }
 
-/*
- * Read the token from AEM. Same-origin inside the editor, so the author's own
- * session authorizes it; `credentials: 'include'` is what carries that session.
- * Any failure (published page, missing node, tightened ACL) resolves to '' and
- * the upload control simply does not render — never an error in the author's
- * face for a feature that may not be provisioned.
- */
-function fetchUploadToken() {
-  if (tokenPromise) return tokenPromise;
+function buildButton(label, href, title) {
+  const link = document.createElement('a');
+  link.className = 'resource-authoring-toolbar-button';
+  link.textContent = label;
+  link.href = href;
+  link.title = title;
+  // A plain _blank anchor opens a TAB; passing a feature string to window.open
+  // is what would force a popup, so there is deliberately no click handler.
+  link.target = '_blank';
+  link.rel = 'noopener';
 
-  tokenPromise = fetch(`${TOKEN_NODE_PATH}.json`, { credentials: 'include', cache: 'no-store' })
-    .then((response) => (response.ok ? response.json() : null))
-    .then((payload) => (payload && typeof payload.token === 'string' ? payload.token : ''))
-    .catch(() => '');
-
-  return tokenPromise;
-}
-
-function pagePathFrom(scopePath) {
-  // The block and its items live under the page's jcr:content tree; the page
-  // itself is the part before it, and that is what names the S3 folder.
-  return scopePath.split('/jcr:content')[0];
-}
-
-async function postJson(url, token, body) {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'X-Authoring-Token': token,
-    },
-    body: JSON.stringify(body),
-  });
-
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    const error = new Error(payload.message || `Server error ${response.status}`);
-    error.code = payload.code;
-    throw error;
-  }
-
-  return payload;
-}
-
-async function putToS3(url, headers, file) {
-  const response = await fetch(url, { method: 'PUT', headers: headers || {}, body: file });
-
-  if (!response.ok) {
-    throw new Error(`S3 rejected the upload (HTTP ${response.status}). `
-      + 'If this persists, check the bucket CORS rule allows PUT from this origin.');
-  }
+  return link;
 }
 
 /**
- * An upload control bound to one Download Item.
- *
- * @param {Element} host element to append the control to
- * @param {{apiBaseUrl?: string, token: string, scopePath: string,
- *          itemPath?: string|null, label?: string}} options
- *   scopePath  any node path inside the page, used to derive the page path
- *   itemPath   the Download Item to stamp; omit to APPEND a new item instead
- * @returns {Element|null}
- */
-export function buildUploadControl(host, {
-  apiBaseUrl,
-  token,
-  scopePath,
-  itemPath = null,
-  label: buttonLabel = 'Upload file to S3',
-}) {
-  if (!scopePath || !token) return null;
-
-  const origin = backendOrigin(apiBaseUrl);
-  const pagePath = pagePathFrom(scopePath);
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'resource-authoring-upload';
-
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.className = 'resource-authoring-upload-input';
-  input.accept = '.pdf,.doc,.docx,.ppt,.pptx,.zip,.mp4,.mov';
-  input.id = `rd-upload-${Math.random().toString(36).slice(2)}`;
-
-  const label = document.createElement('label');
-  label.className = 'resource-authoring-upload-button';
-  label.setAttribute('for', input.id);
-  label.textContent = buttonLabel;
-
-  const status = document.createElement('span');
-  status.className = 'resource-authoring-upload-status';
-
-  const choices = document.createElement('span');
-  choices.className = 'resource-authoring-upload-choices';
-  choices.hidden = true;
-
-  const say = (message, state = '') => {
-    status.textContent = message;
-    status.dataset.state = state;
-  };
-
-  /*
-   * The page's resource already has a different primary download. A resource can
-   * hold several, so this is a question, not a failure — asked inline rather
-   * than through a blocking confirm() dialog, which the editor iframe handles
-   * poorly and which reads as an error.
-   */
-  const askAddOrReplace = (message) => new Promise((resolve) => {
-    say(message, 'error');
-    choices.replaceChildren();
-    choices.hidden = false;
-
-    [['Add alongside', 'add'], ['Make it primary', 'replace']].forEach(([text, mode]) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'resource-authoring-upload-choice';
-      button.textContent = text;
-      button.addEventListener('click', () => {
-        choices.hidden = true;
-        resolve(mode);
-      });
-      choices.append(button);
-    });
-  });
-
-  input.addEventListener('change', async () => {
-    const file = input.files && input.files[0];
-    if (!file) return;
-
-    label.setAttribute('aria-disabled', 'true');
-
-    try {
-      say(`Preparing ${file.name}…`);
-      const presigned = await postJson(`${origin}/api/authoring/resource-uploads/url`, token, {
-        page_path: pagePath,
-        filename: file.name,
-      });
-
-      say(`Uploading ${file.name}…`);
-      await putToS3(presigned.url, presigned.headers, file);
-
-      say('Attaching…');
-      // With no itemPath the backend appends a fresh Download Item instead of
-      // stamping one — which is how an empty block gets its first download.
-      const complete = (mode) => postJson(`${origin}/api/authoring/resource-uploads/complete`, token, {
-        page_path: pagePath,
-        key: presigned.key,
-        ...(itemPath ? { item_path: itemPath } : {}),
-        ...(mode ? { mode } : {}),
-      });
-
-      try {
-        await complete(null);
-      } catch (err) {
-        if (err.code !== 'already_attached') throw err;
-
-        const mode = await askAddOrReplace(`${err.message} Add this one alongside, or make it primary?`);
-        say(`Attaching ${file.name}…`);
-        await complete(mode);
-      }
-
-      say(`${file.name} attached — reload the page to see it.`, 'done');
-    } catch (err) {
-      say(err.message || 'The upload failed.', 'error');
-    } finally {
-      label.removeAttribute('aria-disabled');
-      input.value = '';
-    }
-  });
-
-  wrapper.append(label, input, status, choices);
-
-  host.append(wrapper);
-
-  return wrapper;
-}
-
-/**
- * Explains why no upload control appeared, instead of leaving the author
- * staring at a block that silently lacks the feature. The token is missing
- * whenever it has not been provisioned in AEM yet (see
- * `php artisan app:provision-authoring-token`), or the node's permissions do
- * not let this author read it.
- *
- * @param {Element} host
- * @returns {Element}
- */
-export function buildUploadUnavailableNote(host) {
-  const note = document.createElement('span');
-  note.className = 'resource-authoring-toolbar-warning';
-  note.textContent = 'File upload unavailable — the authoring token is not provisioned in AEM.';
-  host.append(note);
-
-  return note;
-}
-
-/**
- * Resolves the upload token once per page load, so every item control shares it.
- *
- * @returns {Promise<string>} '' when uploads are not available here
- */
-export function resolveUploadToken() {
-  return isUniversalEditor() ? fetchUploadToken() : Promise.resolve('');
-}
-
-/**
- * Block-level tools: the thumbnail editor still lives in the backend, because
- * cropping needs a real UI and a login.
- *
  * @param {Element} block the block being decorated
  * @param {{apiBaseUrl?: string}} options block config; apiBaseUrl names the backend
  * @returns {Element|null} the toolbar, or null when not in the Universal Editor
@@ -261,8 +68,11 @@ export default function buildResourceAuthoringToolbar(block, { apiBaseUrl } = {}
   const scopePath = getAueResourcePath(block);
   if (!scopePath) return null;
 
+  // The block sits inside the page's jcr:content tree; the page itself is the
+  // part before it, and that is what names the S3 folder.
+  const pagePath = scopePath.split('/jcr:content')[0];
   const origin = backendOrigin(apiBaseUrl);
-  const query = `?page_path=${encodeURIComponent(pagePathFrom(scopePath))}`;
+  const query = `?page_path=${encodeURIComponent(pagePath)}`;
 
   const toolbar = document.createElement('div');
   toolbar.className = 'resource-authoring-toolbar';
@@ -272,16 +82,18 @@ export default function buildResourceAuthoringToolbar(block, { apiBaseUrl } = {}
   note.textContent = 'Authoring tools (editor only)';
   toolbar.append(note);
 
-  const link = document.createElement('a');
-  link.className = 'resource-authoring-toolbar-button';
-  link.textContent = 'Set card thumbnail';
-  link.href = `${origin}/admin/resource-by-page${query}`;
-  link.title = 'Open this resource in the library to crop or upload its card thumbnail.';
-  // A plain _blank anchor opens a TAB; passing a feature string to window.open
-  // is what would force a popup, so there is deliberately no click handler.
-  link.target = '_blank';
-  link.rel = 'noopener';
-  toolbar.append(link);
+  toolbar.append(buildButton(
+    'Upload gated download',
+    `${origin}/admin/upload-resource-file${query}`,
+    'Upload a gated file into this folder’s S3 location and add it to this block. '
+      + 'Non-gated files go in the item’s File field instead.',
+  ));
+
+  toolbar.append(buildButton(
+    'Set card thumbnail',
+    `${origin}/admin/resource-by-page${query}`,
+    'Open this resource in the library to crop or upload its card thumbnail.',
+  ));
 
   return toolbar;
 }
