@@ -98,28 +98,6 @@
           "name": "videoUrl",
           "label": "Video URL (YouTube / Vimeo override)",
           "description": "Optional. YouTube or Vimeo URL. Overrides the DAM file for playback only; download still uses the DAM file."
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "gated",
-          "label": "Gate Download (require registration)",
-          "description": "Synced with the backend resource. Inherit uses the backend value.",
-          "options": [
-            {
-              "name": "Inherit from resource",
-              "value": ""
-            },
-            {
-              "name": "Gated (registration required)",
-              "value": "true"
-            },
-            {
-              "name": "Open (no registration)",
-              "value": "false"
-            }
-          ],
-          "value": ""
         }
       ]
     }

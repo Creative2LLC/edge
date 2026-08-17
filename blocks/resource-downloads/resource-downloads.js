@@ -426,6 +426,11 @@ function parsePublishedItem(row) {
       return;
     }
 
+    // resolveGated no longer reads this — gating comes from the backend, which
+    // is the only thing that knows where the file is stored. Still parsed so
+    // the cell is CONSUMED: pages authored before the field went inert carry a
+    // "gated"/"open" cell here, and letting it fall through would let a later
+    // heuristic mistake it for a title or a display style.
     if (/^(gated|open)$/i.test(text)) {
       item.gatedOverride = text.toLowerCase();
       return;
@@ -516,6 +521,8 @@ function readPublishedContent(block) {
       return;
     }
 
+    // Consumed but unused, same as the item's gating cell above: kept so an
+    // older page's stamped true/false does not fall through to another rule.
     if (!config.gated && /^(true|false)$/i.test(text)) {
       config.gated = text.toLowerCase();
       return;
@@ -774,33 +781,25 @@ function resolveResourceFile(resource, fileHref, fileId = null) {
   return primaryResourceFile(resource);
 }
 
-function resolveGated(
-  item,
-  itemResource,
-  config,
-  primaryResource,
-  itemFile = null,
-  requiresSignedUrl = false,
-) {
+/**
+ * Whether this entry needs the registration modal.
+ *
+ * Gating is decided by STORAGE, and only the backend knows where a file lives,
+ * so every source here is a backend one. The authored "Gating Override" fields
+ * used to outrank them and no longer participate at all: an authored value can
+ * be stale — a page stamped "open" before its file moved into S3 would have
+ * un-gated a gated file — and it could never have gated a DAM file anyway,
+ * because AEM serves the DAM publicly. Both block fields are now inert and
+ * kept only so the informative fields keep their cell positions.
+ */
+function resolveGated(itemResource, primaryResource, itemFile = null, requiresSignedUrl = false) {
   // A signed-URL file is gated in the backend, which refuses to mint the
-  // presigned URL without the registration token. An authored "Open" can't
-  // change that — honoring it would only hide the modal and leave the visitor
-  // clicking a button that 401s. Un-gating one of these is a Filament action.
+  // presigned URL without the registration token. Showing it as open would only
+  // hide the modal and leave the visitor clicking a button that 401s.
   if (requiresSignedUrl) return true;
 
-  // Below that, AUTHORED values win over backend values, each ordered
-  // most-specific-first. The block field is literally labelled "Inherit from
-  // resource" for its empty option, so an explicit value there is a deliberate
-  // override and has to outrank the resource — it used to lose to it, which
-  // meant authors set it and saw nothing happen. The backend stamps this same
-  // field from Resource.gated when it builds the page, so the two normally
-  // agree and this ordering only matters once an author changes one.
-  const itemOverride = normalizeGatedValue(item.gatedOverride);
-  if (itemOverride !== null) return itemOverride;
-
-  const configGated = normalizeGatedValue(config.gated);
-  if (configGated !== null) return configGated;
-
+  // Most specific first: the exact file, then the resource it belongs to, then
+  // the page's primary resource.
   const fileGated = normalizeGatedValue(itemFile?.gated);
   if (fileGated !== null) return fileGated;
 
@@ -884,9 +883,7 @@ function resolveEntry(item, resource, config, primaryResource) {
     videoPlayable: Boolean(videoUrl) || (requiresSignedUrl && typeKey === 'video'),
     extension: extension || (videoUrl ? 'video' : 'file'),
     gated: resolveGated(
-      item,
       matchedPrimaryResource,
-      config,
       primaryResource,
       matchedFile,
       requiresSignedUrl,

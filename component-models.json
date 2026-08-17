@@ -23153,28 +23153,6 @@
         "name": "ctaLabel",
         "label": "Primary CTA Label",
         "value": "Open Resource"
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "gated",
-        "label": "Gate Download (require registration)",
-        "description": "Synced with the backend resource. Inherit uses the backend value.",
-        "options": [
-          {
-            "name": "Inherit from resource",
-            "value": ""
-          },
-          {
-            "name": "Gated (registration required)",
-            "value": "true"
-          },
-          {
-            "name": "Open (no registration)",
-            "value": "false"
-          }
-        ],
-        "value": ""
       }
     ]
   },
@@ -23509,20 +23487,12 @@
         "component": "select",
         "valueType": "string",
         "name": "gated",
-        "label": "Gate Downloads (require registration)",
-        "description": "Default for every download on this page. An explicit choice here beats the backend resource setting; only an individual item's Gating Override beats this. Filled from the resource when the page is generated, so leaving it alone keeps them in sync. NOTE: files stored in S3 are always gated and ignore this — un-gate those in Filament.",
+        "label": "Gating (managed automatically)",
+        "description": "Gating follows where each file is stored, not this field: files in the private S3 bucket require registration, files in the AEM DAM are public. Set per file when you upload it, or change it in the backend admin.",
         "options": [
           {
-            "name": "Inherit from resource",
+            "name": "Managed automatically",
             "value": ""
-          },
-          {
-            "name": "Gated (registration required)",
-            "value": "true"
-          },
-          {
-            "name": "Open (no registration)",
-            "value": "false"
           }
         ],
         "value": ""
@@ -23674,20 +23644,12 @@
         "component": "select",
         "valueType": "string",
         "name": "gated",
-        "label": "Gating Override",
-        "description": "Overrides this one item's gating, beating both the page setting and the backend resource. NOTE: this has NO effect on files stored in S3 — those are always gated because the backend will not mint their download link without a registration token. Un-gate an S3 file in Filament instead. This value is not synced back to the backend.",
+        "label": "Gating (managed automatically)",
+        "description": "Gating follows where the file is stored, not this field. A file in the private S3 bucket requires registration; a file in the AEM DAM is public and cannot be gated, because AEM publishes it to the public tier as soon as a page referencing it is published. To gate a file that is already open, migrate it in the backend admin — no re-upload needed. This field stays here, with nothing to choose, because the published-page parser reads the informative fields below by cell position and removing it would shift every one of them.",
         "options": [
           {
-            "name": "Inherit",
+            "name": "Managed automatically",
             "value": ""
-          },
-          {
-            "name": "Gated (registration required)",
-            "value": "gated"
-          },
-          {
-            "name": "Open (no registration)",
-            "value": "open"
           }
         ],
         "value": ""
@@ -24843,28 +24805,6 @@
         "name": "videoUrl",
         "label": "Video URL (YouTube / Vimeo override)",
         "description": "Optional. YouTube or Vimeo URL. Overrides the DAM file for playback only; download still uses the DAM file."
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "gated",
-        "label": "Gate Download (require registration)",
-        "description": "Synced with the backend resource. Inherit uses the backend value.",
-        "options": [
-          {
-            "name": "Inherit from resource",
-            "value": ""
-          },
-          {
-            "name": "Gated (registration required)",
-            "value": "true"
-          },
-          {
-            "name": "Open (no registration)",
-            "value": "false"
-          }
-        ],
-        "value": ""
       }
     ]
   },

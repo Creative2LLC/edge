@@ -9,6 +9,21 @@ import {
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
 
+// A /content/dam/ path is served ONLY by the AEM publish tier — the site host
+// 404s it (verified 2026-08-16 on both aem.page and aem.live). An author who
+// points a link at a DAM asset gets a working link in the editor, where their
+// AEM session resolves it against the author host, and a broken one for every
+// visitor. Same rewrite as related-articles/resource-downloads.
+const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+
+function resolveDamUrl(url) {
+  const value = `${url || ''}`.trim();
+  if (!value) return '';
+  const match = value.match(/\/content\/dam\/[^?#"'\s]+/);
+  if (match) return `${PUBLISH_BASE_URL}${match[0]}`;
+  return value;
+}
+
 const BLOCK_FIELDS = [
   'heading',
   'subheading',
@@ -329,7 +344,7 @@ function buildLink(linkTextField, linkField, className, fallbackLabel = 'Learn M
 
   const link = document.createElement('a');
   link.className = className;
-  link.href = linkField.value;
+  link.href = resolveDamUrl(linkField.value);
   if (linkField.source) moveInstrumentation(linkField.source, link);
 
   const label = document.createElement('span');
@@ -493,7 +508,7 @@ async function buildNavCard(row, index) {
 
   const card = document.createElement(linkField.value ? 'a' : 'div');
   card.className = 'leadership-overview-nav-card';
-  if (linkField.value) card.href = linkField.value;
+  if (linkField.value) card.href = resolveDamUrl(linkField.value);
   card.dataset.index = `${index}`;
   card.style.backgroundColor = cardBackgroundColorField.value || '#00264d';
   if (row) moveInstrumentation(row, card);

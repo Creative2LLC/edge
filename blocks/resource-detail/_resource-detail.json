@@ -50,28 +50,6 @@
           "name": "ctaLabel",
           "label": "Primary CTA Label",
           "value": "Open Resource"
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "gated",
-          "label": "Gate Download (require registration)",
-          "description": "Synced with the backend resource. Inherit uses the backend value.",
-          "options": [
-            {
-              "name": "Inherit from resource",
-              "value": ""
-            },
-            {
-              "name": "Gated (registration required)",
-              "value": "true"
-            },
-            {
-              "name": "Open (no registration)",
-              "value": "false"
-            }
-          ],
-          "value": ""
         }
       ]
     }
