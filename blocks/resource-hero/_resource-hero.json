@@ -317,20 +317,12 @@
           "component": "select",
           "valueType": "string",
           "name": "gated",
-          "label": "Gate Download (require registration)",
-          "description": "Synced with the backend resource. Inherit keeps the backend value.",
+          "label": "Gating (not set here)",
+          "description": "This block cannot gate a download. It renders whatever URL you give it above, so the link is in the page for anyone to read — a gate here was never enforced. It also has nothing to choose from now because gating follows where a file is stored, which only the backend knows. Put gated downloads in a Resource Downloads block instead: it asks the API per file and never puts the URL in the page. The field stays here, empty, because the published-page parser reads every field after it by position.",
           "options": [
             {
-              "name": "Inherit from resource",
+              "name": "Not applicable",
               "value": ""
-            },
-            {
-              "name": "Gated (registration required)",
-              "value": "true"
-            },
-            {
-              "name": "Open (no registration)",
-              "value": "false"
             }
           ],
           "value": ""

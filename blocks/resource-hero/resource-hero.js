@@ -955,8 +955,16 @@ function buildActions(fields) {
       download.rel = 'noopener noreferrer';
     }
 
+    // Never gated, deliberately. This block renders a download from an authored
+    // URL and makes no API call, so it cannot know where the file is stored —
+    // and gating is decided by storage. What it used to do was set a real href
+    // on the anchor and then draw a padlock over it from an authored string,
+    // which stopped nobody who could read the markup. Gated downloads belong in
+    // the resource-downloads block, which resolves them against the API and
+    // never puts a URL in the DOM. bindGatedLink still runs here for the
+    // download tracking it does either way.
     bindGatedLink(download, {
-      gated: fields.gated === 'true',
+      gated: false,
       resourceSlug: getSlugFromPathname(),
       fileUrl: href,
       fileName: fileNameFromUrl(href),
