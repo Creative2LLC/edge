@@ -732,6 +732,12 @@ function resourceMatchesFile(resource, fileHref) {
       item.aem_asset_path,
       item.download_url,
       item.file_url,
+      // Must match resourceFileMatches(), which has always included this. An
+      // S3-backed file has NO urls and no asset path — file_name is its only
+      // handle — so leaving it out here meant this never recognised a gated
+      // file, resolveEntry() gave up on finding the resource, and the item
+      // rendered the bare file name as a relative href with no gate.
+      item.file_name,
     ])
     : [];
 
@@ -825,12 +831,25 @@ function resolveEntry(item, resource, config, primaryResource) {
     || (item.resourceSlug === config.slug ? primaryResource : null)
     || (resourceMatchesFile(primaryResource, item.fileHref) ? primaryResource : null);
   const matchedFile = resolveResourceFile(matchedPrimaryResource, item.fileHref, item.fileId);
-  const downloadUrl = matchedFile?.download_url
-    || matchedFile?.file_url
-    || matchedPrimaryResource?.download_url
-    || matchedPrimaryResource?.resource_url
-    || resolveDamUrl(item.fileHref)
-    || '';
+  // Only ever an href we can actually navigate to. A DAM path or a real URL
+  // qualifies; a bare "guide.pdf" from File Path (Manual) does NOT — that names
+  // a file, and emitting it verbatim produced a relative link resolving against
+  // the current page, which 404s.
+  const authoredHref = isUrlLike(item.fileHref) || item.fileHref.includes('/content/dam/')
+    ? resolveDamUrl(item.fileHref)
+    : '';
+
+  // Once a specific file is matched it answers for itself. Null URLs on it are
+  // MEANINGFUL — a gated S3 file is masked on purpose and its link comes from
+  // the download-url endpoint — so falling back to the resource here would hand
+  // out a different file on a resource holding both an open and a gated
+  // download, unguarded.
+  const downloadUrl = matchedFile
+    ? (matchedFile.download_url || matchedFile.file_url || '')
+    : (matchedPrimaryResource?.download_url
+      || matchedPrimaryResource?.resource_url
+      || authoredHref
+      || '');
   const videoUrl = resolveDamUrl(item.videoUrl
     || matchedPrimaryResource?.video_url
     || (VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : ''));
