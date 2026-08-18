@@ -428,10 +428,17 @@ function parsePublishedItem(row) {
 
     // resolveGated no longer reads this — gating comes from the backend, which
     // is the only thing that knows where the file is stored. Still parsed so
-    // the cell is CONSUMED: pages authored before the field went inert carry a
-    // "gated"/"open" cell here, and letting it fall through would let a later
-    // heuristic mistake it for a title or a display style.
-    if (/^(gated|open)$/i.test(text)) {
+    // the cell is CONSUMED: letting it fall through would let a later heuristic
+    // mistake it for a title or a display style.
+    //
+    // All four spellings, because two eras of authoring wrote this cell. Older
+    // pages carry "gated"/"open"; the backend stamps "true"/"false", matching
+    // the select's option values so the Universal Editor can show the right
+    // label. Missing the true/false pair put the literal word "true" on the
+    // download button — it reached finalizePublishedText as a short plain cell,
+    // which is exactly the shape of a button label. The block-level parser
+    // below and resource-hero.js have always taken all four.
+    if (/^(gated|open|true|false)$/i.test(text)) {
       item.gatedOverride = text.toLowerCase();
       return;
     }
