@@ -19,8 +19,9 @@
 
 .article-detail .article-detail-hero.is-without-image {
   background:
-    radial-gradient(circle at top left, rgb(31 141 184 / 18%) 0%, rgb(31 141 184 / 0%) 44%),
-    linear-gradient(135deg, #eef7fb 0%, #f7fbfd 52%, #edf4f8 100%);
+    radial-gradient(ellipse at 84% 14%, rgb(61 173 207 / 48%) 0%, rgb(102 199 224 / 20%) 44%, transparent 76%),
+    radial-gradient(circle at 93% 84%, rgb(255 184 28 / 15%) 0%, transparent 18rem),
+    linear-gradient(135deg, #eefbff 0%, #f9fcfd 52%, #edf4f8 100%);
 }
 
 .article-detail .article-detail-hero-media,
@@ -50,8 +51,8 @@
 
 .article-detail .article-detail-hero.is-without-image .article-detail-hero-overlay {
   background:
-    linear-gradient(180deg, rgb(246 251 253 / 92%) 0%, rgb(246 251 253 / 96%) 100%),
-    linear-gradient(90deg, rgb(13 110 140 / 8%) 0%, rgb(13 110 140 / 0%) 100%);
+    linear-gradient(180deg, rgb(246 251 253 / 78%) 0%, rgb(246 251 253 / 88%) 100%),
+    linear-gradient(90deg, rgb(13 110 140 / 10%) 0%, rgb(13 110 140 / 0%) 100%);
 }
 
 .article-detail .article-detail-hero-content {

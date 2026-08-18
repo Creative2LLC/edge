@@ -1154,3 +1154,8 @@ main > .section.padding-y-lg {
   > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner, .statistics-inner) {
   box-shadow: 0 21px 36px 0 rgb(0 0 0 / 24%);
 }
+
+/* Retain eyebrow markup for future use while suppressing those labels site-wide. */
+[class*="eyebrow"] {
+  display: none !important;
+}

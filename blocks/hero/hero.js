@@ -1822,6 +1822,10 @@ export default async function decorate(block) {
       block.querySelector('[data-aue-prop="media_video"]').outerHTML,
     );
   }
+  // This class is presentation-only: it lets CSS supply the no-image treatment
+  // without changing the authored block structure or content extraction.
+  block.classList.toggle('hero-no-media', !picture && !videoEl);
+
   const breadcrumb = await buildBreadcrumbs(block);
   const richText = buildMainRichText(block, resourceRichText, Boolean(breadcrumb));
   if (richText) {
