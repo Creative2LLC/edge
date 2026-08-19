@@ -368,7 +368,7 @@
   display: grid;
   aspect-ratio: 16 / 9;
   place-items: center;
-  background: #fff;
+  /* background: #fff; */
 }
 
 .hero .hero-side-panel-image picture,
@@ -377,7 +377,8 @@
   display: block;
   width: 100%;
   height: auto;
-  max-height: 520px;
+  max-height: 250px;
+  z-index: 1;
 }
 
 .hero .hero-side-panel-image img {

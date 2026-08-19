@@ -330,6 +330,14 @@ function parseEditorItem(row) {
   // A hand-typed slug still wins — it is the escape hatch when the generated
   // options are stale. (Published rows need no equivalent: the stamped cell is
   // slug-like, so parsePublishedItem already picks it up as a slug candidate.)
+  //
+  // The `s3File` FIELD is currently removed from _resource-downloads.json —
+  // authors attach gated files through the backend uploader instead, which
+  // writes the item itself. This read is kept deliberately: pages authored
+  // while the dropdown existed still carry the value, and restoring the field
+  // is then a model-only change. It must go back as the LAST field on the
+  // model — everything before it binds by cell index on published pages.
+  // Generator: `npm run build:s3-options`, or the download_options managed job.
   item.resourceSlug = normalizeText(readTextField(row, 'resourceSlug').value)
     || normalizeText(readTextField(row, 's3File').value);
   item.fileHref = normalizeText(
