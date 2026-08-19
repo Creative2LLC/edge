@@ -50,7 +50,7 @@
           "name": "defaultView",
           "label": "Default View",
           "description": "Choose whether visitors first see the calendar or event table.",
-          "value": "calendar",
+          "value": "table",
           "options": [
             {
               "name": "Calendar",

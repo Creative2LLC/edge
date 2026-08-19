@@ -8,7 +8,7 @@ const DEFAULTS = {
   heading: '',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   emptyMessage: 'No events this month.',
-  defaultView: 'calendar',
+  defaultView: 'table',
   tableHeading: 'Upcoming NCMEC Events',
   featuredCount: 2,
   showFeaturedCards: 'show',
