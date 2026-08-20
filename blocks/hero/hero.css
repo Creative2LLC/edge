@@ -368,6 +368,7 @@
   display: grid;
   aspect-ratio: 16 / 9;
   place-items: center;
+
   /* background: #fff; */
 }
 
