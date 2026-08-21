@@ -2027,6 +2027,15 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   color: #005f7d;
 }
 
+.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:hover,
+.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:focus-visible,
+.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:any-link:hover,
+.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:any-link:focus-visible {
+  border-color: #005f7d;
+  background: #005f7d;
+  color: #fff;
+}
+
 .poster-results-amber-poster .poster-results-detail-media.is-fallback-media {
   background: #302d2b;
 }
