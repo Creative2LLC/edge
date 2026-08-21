@@ -23579,7 +23579,7 @@
         "valueType": "string",
         "name": "image",
         "label": "Image / Poster",
-        "description": "Thumbnail for Document cards or poster for Video items. Slug-backed items fall back to the resource thumbnail.",
+        "description": "Thumbnail for Document cards or poster for Video items. Optional — a card with no picture shows colour-coded art for the file type instead. This is per download; the resource's own thumbnail is the image on its library card, and is no longer repeated onto every download here.",
         "rootPath": "/content/dam/edge",
         "multi": false
       },

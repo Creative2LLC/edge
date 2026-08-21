@@ -926,7 +926,14 @@ function resolveEntry(item, resource, config, primaryResource) {
       || titleFromFileName(downloadUrl) || 'Download',
     description: item.description || matchedFile?.description || '',
     fallbackDescription: normalizeText(matchedPrimaryResource?.excerpt),
-    imageSrc: item.imageSrc || matchedPrimaryResource?.thumbnail || '',
+    // Only an image authored ON THIS ITEM. It used to fall back to the
+    // resource's thumbnail, which meant every download on a resource rendered
+    // the same picture — one video still repeated down a stack of PDF cards,
+    // saying nothing about any of them. The resource thumbnail is the LIBRARY
+    // card's image; a download card without its own picture gets the type's
+    // decorative art instead (see buildDefaultArt below), which at least
+    // encodes the file type.
+    imageSrc: item.imageSrc || '',
     imageEl: item.imageEl,
     slug,
     fileName: fileNameFrom(downloadUrl)
