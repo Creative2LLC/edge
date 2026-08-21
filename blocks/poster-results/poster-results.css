@@ -2018,3 +2018,52 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     background: #fff;
   }
 }
+
+/* stylelint-disable no-descending-specificity -- AMBER action controls intentionally share the same light-blue treatment while overriding shared poster controls. */
+.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action,
+.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:any-link {
+  border-color: #b8e8f3;
+  background: #b8e8f3;
+  color: #005f7d;
+}
+
+.poster-results-amber-poster .poster-results-detail-media.is-fallback-media {
+  background: #302d2b;
+}
+
+.poster-results-amber-poster .poster-results-detail-media.is-fallback-media img {
+  object-fit: contain;
+}
+
+.poster-results-amber-vehicle {
+  display: grid;
+  grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 18px;
+  border: 1px solid #e6eaee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.poster-results-amber-vehicle .poster-results-detail-media {
+  align-self: start;
+  border-radius: 8px;
+}
+
+.poster-results-amber-vehicle .poster-results-detail-media img {
+  width: 100%;
+  object-fit: contain;
+}
+
+/* stylelint-enable no-descending-specificity */
+
+@media (width <= 700px) {
+  .poster-results-amber-vehicle {
+    grid-template-columns: 1fr;
+  }
+
+  .poster-results-amber-vehicle .poster-results-detail-media {
+    width: min(100%, 220px);
+  }
+}

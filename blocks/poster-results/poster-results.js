@@ -17,6 +17,10 @@ const DEFAULTS = {
   qrCodeLabel: 'this QR Code',
 };
 
+const AMBER_NO_PHOTO_IMAGE = new URL('./no-photo.jpg', import.meta.url).href;
+const AMBER_ORGANIZATION_LOGO = new URL('./ncmec-full-color-amber-alert.png', import.meta.url).href;
+const AMBER_ORGANIZATION_LOGO_ALT = 'National Center for Missing & Exploited Children AMBER Alert';
+
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
   eyebrow: ['eyebrow', 'label'],
@@ -678,6 +682,46 @@ function childPhotoSources(child) {
   ];
 }
 
+function vehiclePhotoSources(vehicle) {
+  return [
+    ...photoSourcesForFields(vehicle, ['photos', 'images']),
+    vehicle?.image_url,
+    vehicle?.thumbnail_url,
+    vehicle?.imageUrl,
+    vehicle?.thumbnailUrl,
+    vehicle?.vehicleImage,
+    vehicle?.vehiclePhoto,
+    vehicle?.image?.image_url,
+  ].map(normalizeText).filter(Boolean);
+}
+
+function createDetailMedia(image, alt, fallbackImage = '') {
+  const source = normalizeText(image) || normalizeText(fallbackImage);
+  if (!source) return null;
+
+  const media = document.createElement('div');
+  media.className = 'poster-results-detail-media';
+  if (!normalizeText(image)) media.classList.add('is-fallback-media');
+
+  const img = document.createElement('img');
+  img.src = source;
+  img.alt = normalizeText(image) ? alt : 'No photo submitted by investigating agency';
+  img.loading = 'lazy';
+
+  if (normalizeText(image) && normalizeText(fallbackImage)) {
+    img.addEventListener('error', () => {
+      if (img.dataset.fallbackApplied === 'true') return;
+      img.dataset.fallbackApplied = 'true';
+      img.src = fallbackImage;
+      img.alt = 'No photo submitted by investigating agency';
+      media.classList.add('is-fallback-media');
+    });
+  }
+
+  media.append(img);
+  return media;
+}
+
 function createDetailRow(label, value) {
   // Some fields (e.g. unidentified `races`) arrive as arrays; render them joined.
   const display = Array.isArray(value)
@@ -1247,7 +1291,7 @@ function participantPosterUrl(payload, person, isMain, personType = '') {
 }
 
 function buildParticipantSection(payload, {
-  person, heading, main, unidentified, facts, href,
+  person, heading, main, unidentified, facts, href, fallbackImage = '',
 }) {
   const section = document.createElement('section');
   section.className = `poster-results-participant${main ? ' is-main' : ''}`;
@@ -1264,14 +1308,8 @@ function buildParticipantSection(payload, {
 
   const name = displayName(person, heading || 'Missing Child');
   const image = childPhotoSources(person)[0];
-  if (image) {
-    const media = document.createElement('div');
-    media.className = 'poster-results-detail-media';
-    const img = document.createElement('img');
-    img.src = image;
-    img.alt = name;
-    img.loading = 'lazy';
-    media.append(img);
+  const media = createDetailMedia(image, name, fallbackImage);
+  if (media) {
     layout.append(media);
   } else {
     layout.classList.add('is-no-photo');
@@ -1429,9 +1467,21 @@ function createAmberVehicleSection(payload, selectedPerson) {
   const list = document.createElement('div');
   list.className = 'poster-results-amber-vehicle-list';
   vehicles.forEach((vehicle) => {
+    const vehicleRow = document.createElement('div');
+    vehicleRow.className = 'poster-results-amber-vehicle';
+
+    const media = createDetailMedia(
+      vehiclePhotoSources(vehicle)[0],
+      vehicleSummary(vehicle) || 'Vehicle',
+      AMBER_NO_PHOTO_IMAGE,
+    );
+    if (media) vehicleRow.append(media);
+
     const details = document.createElement('dl');
     appendDetailRows(details, amberVehicleRows(vehicle));
-    if (details.children.length) list.append(details);
+    if (!details.children.length) return;
+    vehicleRow.append(details);
+    list.append(vehicleRow);
   });
 
   if (list.children.length) section.append(list);
@@ -1520,6 +1570,7 @@ function createAmberRelatedSection(payload, person, caseNumber, heading) {
     main: false,
     facts: amberSubjectFacts(person),
     href: amberPosterDetailUrl(person, caseNumber),
+    fallbackImage: AMBER_NO_PHOTO_IMAGE,
   });
   section.classList.add('poster-results-amber-companion');
   return section;
@@ -1559,6 +1610,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     unidentified: false,
     facts: amberSubjectFacts(alert),
     href: amberPosterDetailUrl(alert, caseNumber),
+    fallbackImage: AMBER_NO_PHOTO_IMAGE,
   });
   subject.classList.add('poster-results-amber-subject');
   detail.append(subject);
@@ -1579,7 +1631,11 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     ));
   });
 
-  detail.append(createDetailFooter(config, payload, alert));
+  detail.append(createDetailFooter({
+    ...config,
+    organizationLogo: AMBER_ORGANIZATION_LOGO,
+    organizationLogoAlt: AMBER_ORGANIZATION_LOGO_ALT,
+  }, payload, alert));
   container.append(detail);
 }
 
