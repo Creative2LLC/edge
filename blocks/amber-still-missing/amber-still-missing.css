@@ -209,34 +209,36 @@
   border-radius: 8px;
   background-color: #ddd5cc52;
   box-shadow: 0 4px 14px rgb(17 58 103 / 0%);
-  transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
 }
 
 .amber-still-missing .amber-still-missing-accordion::before {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0 auto 0 0;
   width: 4px;
-  background: #007294;
+  background: #1491bf;
   content: "";
   opacity: 0;
-  transform: scaleY(.3);
+  transform: scaleY(0.3);
   transform-origin: center;
-  transition: opacity 220ms ease, transform 280ms ease;
+  transition: opacity 220ms ease, transform 280ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .amber-still-missing .amber-still-missing-accordion:hover {
-  border-color: rgb(0 114 148 / 25%);
-  background: #fff;
-  box-shadow: 0 10px 24px rgb(17 58 103 / 12%);
+  border-color: rgb(20 145 191 / 16%);
+  background-color: rgb(244 240 236 / 88%);
+  box-shadow: 0 12px 24px rgb(17 58 103 / 8%);
   transform: translateY(-2px);
 }
 
 .amber-still-missing .amber-still-missing-accordion.amber-still-missing-open {
-  border-color: rgb(0 114 148 / 20%);
-  background: #fff;
-  box-shadow: 0 10px 24px rgb(17 58 103 / 10%);
+  border-color: rgb(20 145 191 / 20%);
+  background-color: #fff;
+  box-shadow: 0 14px 28px rgb(17 58 103 / 10%);
 }
 
 .amber-still-missing .amber-still-missing-accordion.amber-still-missing-open::before {
@@ -250,37 +252,58 @@
   align-items: center;
   gap: 20px;
   width: 100%;
-  min-height: 80px;
+  max-width: none;
+  margin: 0;
   border: 0;
-  background: transparent;
-  color: #404041;
-  cursor: pointer;
-  font: inherit;
+  border-radius: 0;
   padding: 26px 30px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
   text-align: left;
+  white-space: normal;
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+.amber-still-missing .amber-still-missing-header:hover,
+.amber-still-missing .amber-still-missing-header:focus,
+.amber-still-missing .amber-still-missing-header:focus-visible {
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+.amber-still-missing .amber-still-missing-header:focus {
+  outline: none;
 }
 
 .amber-still-missing .amber-still-missing-header:focus-visible {
-  outline: 3px solid #ffba42;
-  outline-offset: -3px;
+  outline: 2px solid #e38b22;
+  outline-offset: -2px;
 }
 
 .amber-still-missing .amber-still-missing-question {
   color: #404041;
   font-size: clamp(1.35rem, 1.95vw, 2rem);
   font-weight: 700;
-  letter-spacing: -.02em;
   line-height: 1.22;
+  letter-spacing: -0.03em;
 }
 
 .amber-still-missing .amber-still-missing-icon {
   position: relative;
-  display: inline-block;
+  display: grid;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1.5px #404041;
-  transition: background-color 220ms ease, box-shadow 220ms ease, transform 260ms ease;
+  flex: 0 0 16px;
+  border-radius: 999px;
+  padding: 8px;
+  place-items: center;
+  background: rgb(255 255 255 / 72%);
+  box-shadow: 0 4px 10px rgb(17 58 103 / 10%);
+  transition: background-color 220ms ease, box-shadow 220ms ease, transform 280ms ease;
 }
 
 .amber-still-missing .amber-still-missing-icon::before,
@@ -288,22 +311,31 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 8px;
-  height: 1.5px;
-  background: #404041;
+  background: #113a67;
   content: "";
   transform: translate(-50%, -50%);
-  transition: background-color 220ms ease, transform 260ms ease, opacity 220ms ease;
+  transition: opacity 180ms ease, transform 220ms ease, background-color 220ms ease;
+}
+
+.amber-still-missing .amber-still-missing-icon::before {
+  width: 16px;
+  height: 2px;
 }
 
 .amber-still-missing .amber-still-missing-icon::after {
-  transform: translate(-50%, -50%) rotate(90deg);
+  width: 2px;
+  height: 16px;
+}
+
+.amber-still-missing .amber-still-missing-open .amber-still-missing-icon::after {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg) scaleY(0.3);
 }
 
 .amber-still-missing .amber-still-missing-open .amber-still-missing-icon {
-  background: #007294;
-  box-shadow: inset 0 0 0 1.5px #007294;
-  transform: rotate(45deg);
+  background: #1491bf;
+  box-shadow: 0 8px 16px rgb(20 145 191 / 25%);
+  transform: rotate(90deg);
 }
 
 .amber-still-missing .amber-still-missing-open .amber-still-missing-icon::before,
@@ -315,7 +347,7 @@
   display: grid;
   grid-template-rows: 0fr;
   padding: 0;
-  transition: grid-template-rows 320ms cubic-bezier(.2, .8, .2, 1);
+  transition: grid-template-rows 320ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .amber-still-missing .amber-still-missing-open .amber-still-missing-panel {
@@ -335,7 +367,7 @@
   line-height: 1.7;
   opacity: 0;
   transform: translateY(-8px);
-  transition: opacity 200ms ease, transform 260ms ease;
+  transition: opacity 220ms ease 80ms, transform 280ms cubic-bezier(0.25, 1, 0.5, 1) 80ms;
 }
 
 .amber-still-missing .amber-still-missing-open .amber-still-missing-answer {
@@ -343,14 +375,22 @@
   transform: translateY(0);
 }
 
+.amber-still-missing .amber-still-missing-answer > :first-child {
+  margin-top: 0;
+}
+
+.amber-still-missing .amber-still-missing-answer > :last-child {
+  margin-bottom: 0;
+}
+
 .amber-still-missing .amber-still-missing-status {
   padding: 0 0 18px;
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   .amber-still-missing .amber-still-missing-accordion,
   .amber-still-missing .amber-still-missing-accordion::before,
+  .amber-still-missing .amber-still-missing-header,
   .amber-still-missing .amber-still-missing-icon,
   .amber-still-missing .amber-still-missing-icon::before,
   .amber-still-missing .amber-still-missing-icon::after,
@@ -360,10 +400,13 @@
   }
 }
 
-@media (width <= 800px) {
+@media (width < 900px) {
   .amber-still-missing .amber-still-missing-header {
-    min-height: 68px;
-    padding: 24px;
+    padding: 24px 22px 24px 24px;
+  }
+
+  .amber-still-missing .amber-still-missing-question {
+    font-size: 1.35rem;
   }
 
   .amber-still-missing .amber-still-missing-answer {
@@ -374,7 +417,7 @@
 @media (width < 600px) {
   .amber-still-missing .amber-still-missing-header {
     gap: 14px;
-    padding: 18px 20px;
+    padding: 18px 18px 18px 20px;
   }
 
   .amber-still-missing .amber-still-missing-question {
@@ -384,5 +427,6 @@
 
   .amber-still-missing .amber-still-missing-answer {
     padding: 0 20px 20px;
+    font-size: 0.98rem;
   }
 }
