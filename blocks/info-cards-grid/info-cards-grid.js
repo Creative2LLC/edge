@@ -279,6 +279,28 @@ function normalizeCssSize(value) {
   return normalizedValue;
 }
 
+/**
+ * Per-instance type sizing is OFF: the global scale in styles/styles.css owns
+ * typography (see audits/typography-audit.md). Flip this to true to hand size
+ * control back to authors.
+ *
+ * titleFontSize / subtitleFontSize / bodyFontSize are deliberately still read and
+ * still occupy their rows — deleting them from the model would shift every later
+ * field's index on already-published pages.
+ */
+const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
+
+function applyAuthoredTypeSizes(card, fields) {
+  const sizes = [
+    ['titleFontSize', '--info-card-title-size'],
+    ['subtitleFontSize', '--info-card-subtitle-size'],
+    ['bodyFontSize', '--info-card-body-size'],
+  ];
+  sizes.forEach(([field, cssVar]) => {
+    if (fields[field]) card.style.setProperty(cssVar, normalizeCssSize(fields[field]));
+  });
+}
+
 function normalizeStyleLines(value) {
   return normalizeLines(String(value || '').replace(/\s+(?=[a-z][a-z\s-]*(?:\||:))/giu, '\n'));
 }
@@ -655,17 +677,8 @@ function syncCardStyles(resourcePath, card, content, data, variant) {
         card.style.setProperty('--info-card-subtitle-color', fields.subtitleColor);
       }
       if (fields.bodyColor) card.style.setProperty('--info-card-body-color', fields.bodyColor);
-      if (fields.titleFontSize) {
-        card.style.setProperty('--info-card-title-size', normalizeCssSize(fields.titleFontSize));
-      }
-      if (fields.subtitleFontSize) {
-        card.style.setProperty(
-          '--info-card-subtitle-size',
-          normalizeCssSize(fields.subtitleFontSize),
-        );
-      }
-      if (fields.bodyFontSize) {
-        card.style.setProperty('--info-card-body-size', normalizeCssSize(fields.bodyFontSize));
+      if (ALLOW_AUTHOR_TYPE_OVERRIDES) {
+        applyAuthoredTypeSizes(card, fields);
       }
       if (fields.cardIconSize) {
         card.style.setProperty('--info-card-icon-size', normalizeCssSize(fields.cardIconSize));

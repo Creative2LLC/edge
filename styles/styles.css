@@ -10,7 +10,12 @@
  * governing permissions and limitations under the License.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap");
+/* Figtree is the ONLY family on the site. Loaded as a variable font across the full
+   300-900 weight axis so every weight blocks ask for (700, 800, 900, and the odd
+   650/750/820/850) renders as a real cut instead of browser-synthesized fake bold.
+   The face itself is preconnected + <link>ed from head.html; this @import is the
+   fallback for contexts that load styles.css directly. */
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&display=swap");
 
 :root {
   /* colors */
@@ -22,15 +27,59 @@
   --link-hover-color: #1d3ecf;
 
   /* fonts */
-  --body-font-family: "Figtree", sans-serif;
-  --heading-font-family: "Figtree", sans-serif;
+  --body-font-family: "Figtree", figtree-fallback, sans-serif;
+  --heading-font-family: "Figtree", figtree-fallback, sans-serif;
+
+  /* ------------------------------------------------------------------
+     TYPE SCALE — single source of truth for h1-h6 and body copy.
+     Change a value here and every heading on the site follows.
+
+     These are fluid (clamp) so there is ONE definition per level rather
+     than a mobile value plus a desktop override. Do not add breakpoint
+     overrides for these; widen the clamp instead.
+
+     The values are fitted to the sizes the design had already converged
+     on by hand across 143 blocks — each level matches the largest
+     existing cluster, so the fewest blocks move:
+       h1  4 blocks matched   h2  15 blocks matched   h3  9 blocks matched
+     ------------------------------------------------------------------ */
+  --heading-1-size: clamp(2.65rem, 6vw, 4.9rem);      /* 42 -> 78px */
+  --heading-2-size: clamp(2.125rem, 4vw, 3rem);       /* 34 -> 48px */
+  --heading-3-size: clamp(1.35rem, 1.8vw, 1.5rem);    /* 22 -> 24px */
+  --heading-4-size: clamp(1.125rem, 1.4vw, 1.25rem);  /* 18 -> 20px */
+  --heading-5-size: clamp(1rem, 1.2vw, 1.125rem);     /* 16 -> 18px */
+  --heading-6-size: clamp(0.9375rem, 1vw, 1rem);      /* 15 -> 16px */
+
+  /* The design also uses one size between h2 (48px) and h3 (24px) — the 36px
+     card/section title. It is a real step, so it gets a name here rather than
+     being hardcoded in the handful of block variants that need it. Reach for it
+     via .u-display-sm; do not re-declare 36px in a block. */
+  --display-sm-size: clamp(1.75rem, 3vw, 2.25rem);    /* 28 -> 36px */
+
+  /* Above h1: the homepage hero headline, which is deliberately larger than a
+     page title. One token so it still follows a global change. */
+  --display-lg-size: clamp(3.5rem, 8vw, 6rem);        /* 56 -> 96px */
+
+  /* Per-level weight / tracking / leading. Blocks overwhelmingly used 700
+     with slight negative tracking on the large sizes; that is now the default. */
+  --heading-weight: 700;
+
+  /* A few blocks deliberately set a lighter heading (card-testimonies variant 2).
+     Named here so "make all headings lighter" is still a one-line change. */
+  --heading-weight-light: 500;
+  --heading-line-height: 1.15;
+  --heading-line-height-tight: 1.08;
+  --heading-tracking-tight: -0.02em;
+  --heading-tracking: 0;
 
   /* body sizes */
   --body-font-size-m: 22px;
   --body-font-size-s: 19px;
   --body-font-size-xs: 17px;
 
-  /* heading sizes */
+  /* Legacy heading tokens. Superseded by --heading-N-size above; kept because
+     header.css and resource-downloads.css still reference them. Do not use in
+     new code. */
   --heading-font-size-xxl: 55px;
   --heading-font-size-xl: 44px;
   --heading-font-size-l: 34px;
@@ -84,16 +133,15 @@
   --gutter: 24px;
 }
 
-/* fallback fonts */
+/* Metric-matched fallback for Figtree.
+   size-adjust brings Arial's x-height close to Figtree's so the swap when the webfont
+   arrives does not reflow the page. The two Roboto fallbacks that used to live here
+   were left over from the Adobe boilerplate and matched a family the site never used. */
 @font-face {
-  font-family: roboto-condensed-fallback;
-  size-adjust: 88.82%;
-  src: local('Arial');
-}
-
-@font-face {
-  font-family: roboto-fallback;
-  size-adjust: 99.529%;
+  font-family: figtree-fallback;
+  size-adjust: 96.5%;
+  ascent-override: 95%;
+  descent-override: 24%;
   src: local('Arial');
 }
 
@@ -269,60 +317,127 @@ header.is-shell-loading::after {
   }
 }
 
+/* ====================================================================
+   UNIVERSAL TYPE CONTRACT
+   These element rules are the single definition of what a heading looks
+   like. They apply everywhere, including inside blocks.
+
+   Margins are deliberately ZERO here. Blocks lay their own content out
+   with flex/grid `gap`, and 98 of them were relying on Tailwind
+   Preflight's `margin: 0` before this file was moved ahead of it.
+   Vertical rhythm is restored below, scoped to authored prose regions
+   only (.default-content-wrapper / richtext), where it belongs.
+   ==================================================================== */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  margin-top: 0.8em;
-  margin-bottom: 0.25em;
+  margin: 0;
   font-family: var(--heading-font-family);
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: var(--heading-weight);
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
   scroll-margin: 40px;
+  text-wrap: balance;
 }
 
-h1 { font-size: var(--heading-font-size-xxl); }
-h2 { font-size: var(--heading-font-size-xl); }
-h3 { font-size: var(--heading-font-size-l); }
-h4 { font-size: var(--heading-font-size-m); }
-h5 { font-size: var(--heading-font-size-s); }
-h6 { font-size: var(--heading-font-size-xs); }
-
-/* Title component defaults */
-main .section .default-content-wrapper > h1,
-main .section .default-content-wrapper > h2,
-main .section .default-content-wrapper > h3,
-main .section .default-content-wrapper > h4,
-main .section .default-content-wrapper > h5,
-main .section .default-content-wrapper > h6 {
-  margin-top: 0;
-  margin-bottom: 0.35em;
-  font-weight: 700;
-  line-height: 1.15;
+h1 {
+  font-size: var(--heading-1-size);
+  line-height: var(--heading-line-height-tight);
+  letter-spacing: var(--heading-tracking-tight);
 }
 
-main .section .default-content-wrapper > h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
-main .section .default-content-wrapper > h2 { font-size: clamp(2rem, 4.2vw, 3.2rem); }
-main .section .default-content-wrapper > h3 { font-size: clamp(1.7rem, 3.5vw, 2.6rem); }
-main .section .default-content-wrapper > h4 { font-size: clamp(1.45rem, 2.8vw, 2.1rem); }
-main .section .default-content-wrapper > h5 { font-size: clamp(1.2rem, 2.2vw, 1.75rem); }
-main .section .default-content-wrapper > h6 { font-size: clamp(1.05rem, 1.8vw, 1.45rem); }
+h2 {
+  font-size: var(--heading-2-size);
+  letter-spacing: var(--heading-tracking-tight);
+}
 
+h3 { font-size: var(--heading-3-size); }
+h4 { font-size: var(--heading-4-size); }
+h5 { font-size: var(--heading-5-size); }
+h6 { font-size: var(--heading-6-size); }
+
+/* Visual level != semantic level.
+   Use these when the outline demands one heading level but the design calls
+   for the size of another (a card title that is semantically an h3 but should
+   read as an h5, say). This is the sanctioned alternative to a block
+   re-declaring font-size on its own class — which is what caused the drift
+   this contract exists to fix. */
+.u-h1,
+.u-h2,
+.u-h3,
+.u-h4,
+.u-h5,
+.u-h6 {
+  font-family: var(--heading-font-family);
+  font-weight: var(--heading-weight);
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
+}
+
+.u-h1 {
+  font-size: var(--heading-1-size);
+  line-height: var(--heading-line-height-tight);
+  letter-spacing: var(--heading-tracking-tight);
+}
+
+.u-h2 {
+  font-size: var(--heading-2-size);
+  letter-spacing: var(--heading-tracking-tight);
+}
+
+.u-h3 { font-size: var(--heading-3-size); }
+.u-h4 { font-size: var(--heading-4-size); }
+.u-h5 { font-size: var(--heading-5-size); }
+.u-h6 { font-size: var(--heading-6-size); }
+.u-display-sm { font-size: var(--display-sm-size); }
+.u-display-lg { font-size: var(--display-lg-size); }
+
+/* Same reasoning as headings: zero by default, rhythm restored in prose. */
 p,
 dl,
 ol,
 ul,
 pre,
 blockquote {
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------
+   Vertical rhythm for AUTHORED PROSE ONLY.
+   Scoped to the wrappers AEM puts around free-text content so blocks
+   keep full control of their own internal spacing.
+   -------------------------------------------------------------------- */
+main .default-content-wrapper :is(h1, h2, h3, h4, h5, h6) {
+  margin-bottom: 0.35em;
+}
+
+main .default-content-wrapper :is(h1, h2, h3, h4, h5, h6):not(:first-child) {
   margin-top: 0.8em;
+}
+
+main .default-content-wrapper :is(p, dl, ol, ul, pre, blockquote) {
   margin-bottom: 0.25em;
+}
+
+main .default-content-wrapper :is(p, dl, ol, ul, pre, blockquote):not(:first-child) {
+  margin-top: 0.8em;
 }
 
 main .default-content-wrapper p + p {
   margin-top: 1.1em;
 }
+
+/* Preflight strips list markers globally and nothing restored them, so authored
+   bullets/numbers have not been rendering in prose. Restore them here only. */
+main .default-content-wrapper :is(ul, ol) {
+  padding-left: 1.5em;
+}
+
+main .default-content-wrapper ul { list-style: disc; }
+main .default-content-wrapper ol { list-style: decimal; }
 
 .text-marker {
   position: relative;

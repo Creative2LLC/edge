@@ -42,8 +42,6 @@
 .site-search .site-search-heading {
   margin: 0;
   color: #113652;
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  line-height: 1;
 }
 
 .site-search .site-search-controls {
@@ -281,8 +279,6 @@
 
 .site-search .site-search-card-title {
   margin: 0;
-  font-size: 1.4rem;
-  line-height: 1.15;
 }
 
 .site-search .site-search-card-title a,

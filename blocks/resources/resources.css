@@ -40,11 +40,8 @@ main > .section > .resources-wrapper {
 }
 
 .resources .resources-heading {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0;
-  line-height: 1.1;
 }
 
 .resources .resources-subheading {
@@ -212,11 +209,8 @@ main > .section > .resources-wrapper {
 
 /* Card title */
 .resources .resources-card-title {
-  font-size: 24px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 8px;
-  line-height: 1.15;
 }
 
 /* Card subheading */
@@ -322,10 +316,6 @@ main > .section > .resources-wrapper {
 @media (width <= 700px) {
   .resources .resources-inner {
     padding: 40px var(--gutter);
-  }
-
-  .resources .resources-heading {
-    font-size: 32px;
   }
 
   .resources .resources-header {

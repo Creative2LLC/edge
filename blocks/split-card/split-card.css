@@ -58,11 +58,8 @@ main > .section > .split-card-wrapper {
 
 /* Heading */
 .split-card .split-card-heading {
-  font-size: 64px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 12px;
-  line-height: 1.15;
   max-width: 540px;
 }
 
@@ -202,11 +199,6 @@ main > .section > .split-card-wrapper {
   max-height: none;
 }
 
-.split-card.split-card-size-smaller .split-card-heading {
-  font-size: 40px;
-  font-weight: 700;
-}
-
 .split-card.split-card-size-smaller .split-card-button {
   font-weight: 500;
 }
@@ -226,8 +218,7 @@ main > .section > .split-card-wrapper {
 }
 
 .split-card.split-card-variant-2 .split-card-heading {
-  font-size: 36px;
-  font-weight: 700;
+  font-size: var(--display-sm-size);
   color: #404041;
 }
 
@@ -298,11 +289,6 @@ main > .section > .split-card-wrapper {
     padding: 40px 48px;
   }
 
-  .split-card .split-card-heading,
-  .split-card.split-card-size-smaller .split-card-heading,
-  .split-card.split-card-variant-2 .split-card-heading {
-    font-size: clamp(2.25rem, 5.2vw, 3.25rem);
-  }
 
   .split-card.split-card-variant-2 .split-card-subheading {
     font-size: 18px;
@@ -347,13 +333,8 @@ main > .section > .split-card-wrapper {
     padding: 28px 24px;
   }
 
-  /* Shrink headings for every variant (size-smaller/variant-2 set larger sizes
-     at higher specificity, so they're named here too). */
-  .split-card .split-card-heading,
-  .split-card.split-card-size-smaller .split-card-heading,
-  .split-card.split-card-variant-2 .split-card-heading {
-    font-size: 28px;
-  }
+  /* Headings shrink on their own — the global h1-h6 scale is fluid, so no
+     per-breakpoint override is needed here. */
 
   .split-card.split-card-variant-2 .split-card-subheading {
     font-size: 16px;

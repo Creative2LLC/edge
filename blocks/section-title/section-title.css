@@ -50,11 +50,8 @@
 }
 
 .section-title .section-title-heading {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0;
-  line-height: 1.2;
 }
 
 .section-title .section-title-subtitle {
@@ -128,10 +125,6 @@
 
   .section-title .section-title-inner.section-title-align-center {
     align-items: center;
-  }
-
-  .section-title .section-title-heading {
-    font-size: 32px;
   }
 
   .section-title .section-title-subtitle {

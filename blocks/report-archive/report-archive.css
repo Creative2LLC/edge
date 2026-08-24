@@ -9,10 +9,6 @@
 .report-archive .report-archive-heading {
   margin: 0 0 28px;
   color: #002e5d;
-  font-size: clamp(1.7rem, 4vw, 2.4rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
 }
 
 /* Accordion container */

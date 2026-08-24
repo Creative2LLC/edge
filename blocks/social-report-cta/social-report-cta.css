@@ -64,10 +64,6 @@
 .social-report-cta .social-report-cta-report-heading {
   margin: 0;
   color: var(--social-report-cta-navy);
-  font-size: clamp(2.25rem, 4vw, 4rem);
-  font-weight: 800;
-  line-height: 1.03;
-  letter-spacing: -0.045em;
 }
 
 .social-report-cta .social-report-cta-intro {
@@ -334,10 +330,6 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-}
-
-.social-report-cta .social-report-cta-report-heading {
-  font-size: clamp(2rem, 3.5vw, 3.6rem);
 }
 
 .social-report-cta .social-report-cta-report-body {

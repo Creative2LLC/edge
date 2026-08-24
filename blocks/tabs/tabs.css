@@ -24,10 +24,6 @@
 .tabs .tabs-heading {
   margin: 0;
   color: var(--tabs-navy);
-  font-size: clamp(2rem, 3.2vw, 2.6rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0;
 }
 
 .tabs .tabs-heading > :first-child,
@@ -170,10 +166,6 @@
 .tabs .tabs-card-title {
   margin: 0;
   color: var(--tabs-navy);
-  font-size: clamp(1.15rem, 1.4vw, 1.35rem);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0;
 }
 
 .tabs .tabs-card-title > :first-child,

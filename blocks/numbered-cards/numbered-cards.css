@@ -41,11 +41,8 @@
 }
 
 .numbered-cards .numbered-cards-heading {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0;
-  line-height: 1.2;
 }
 
 .numbered-cards .numbered-cards-subtitle {
@@ -311,10 +308,6 @@
 @media (width <= 768px) {
   .numbered-cards .numbered-cards-wrapper {
     padding: 48px var(--gutter);
-  }
-
-  .numbered-cards .numbered-cards-heading {
-    font-size: 32px;
   }
 
   .numbered-cards .numbered-cards-subtitle {

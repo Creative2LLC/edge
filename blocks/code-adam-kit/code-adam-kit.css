@@ -48,10 +48,6 @@ main > .section > .code-adam-kit-wrapper {
 .code-adam-kit-heading {
   margin: 0;
   color: #00264d;
-  font-size: clamp(2.15rem, 4.1vw, 3.75rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0;
 }
 
 .code-adam-kit-intro {

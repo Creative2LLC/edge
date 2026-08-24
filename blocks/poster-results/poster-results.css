@@ -25,8 +25,6 @@
 .poster-results-heading {
   margin: 0;
   color: #243846;
-  font-size: 44px;
-  line-height: 1.08;
 }
 
 .poster-results-form {
@@ -458,9 +456,6 @@
 .poster-results-card-body h3 {
   margin: 0 0 8px;
   color: #243846;
-  font-size: clamp(24px, 2vw, 30px);
-  font-weight: 700;
-  line-height: 1.1;
 }
 
 .poster-results-card-title-link {
@@ -573,9 +568,6 @@
 .poster-results-missing-child-heading h1 {
   margin: 0;
   color: #b51f24;
-  font-size: 58px;
-  font-weight: 800;
-  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -677,8 +669,6 @@
 .poster-results-detail-body h3 {
   margin: 0 0 18px;
   color: #243846;
-  font-size: 34px;
-  line-height: 1.12;
 }
 
 .poster-results-detail-subcase {
@@ -735,8 +725,6 @@
 .poster-results-participant-heading {
   margin: 0 0 24px;
   color: #243846;
-  font-size: 22px;
-  font-weight: 800;
   text-align: center;
 }
 
@@ -753,9 +741,6 @@
 .poster-results-detail-body h3.poster-results-detail-name {
   margin: 0 0 6px;
   color: #1b8db5;
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1.14;
 }
 
 .poster-results-linked-name {
@@ -843,8 +828,6 @@
 .poster-results-related h4 {
   margin: 0 0 14px;
   color: #243846;
-  font-size: 22px;
-  line-height: 1.2;
 }
 
 .poster-results-related-list {
@@ -871,8 +854,6 @@
 .poster-results-related-person h5 {
   margin: 0 0 4px;
   color: #243846;
-  font-size: 18px;
-  line-height: 1.2;
 }
 
 .poster-results-related-person p {
@@ -1000,8 +981,6 @@
 
 .poster-results-amber-poster .poster-results-detail-body h3.poster-results-detail-name {
   margin-bottom: 8px;
-  font-size: clamp(30px, 3vw, 40px);
-  font-weight: 800;
 }
 
 /* Vehicle card: car icon header + clean spec grid, matching the poster's cards. */
@@ -1032,8 +1011,6 @@
 .poster-results-amber-vehicle-heading h4 {
   margin: 0;
   color: #243846;
-  font-size: 19px;
-  font-weight: 800;
 }
 
 .poster-results-amber-vehicle-section {
@@ -1329,11 +1306,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     width: min(1180px, calc(100% - 24px));
   }
 
-  .poster-results-heading {
-    font-size: 32px;
-  }
-
-  .poster-results-form,
+.poster-results-form,
   .poster-results-list {
     grid-template-columns: 1fr;
   }
@@ -1366,11 +1339,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     padding: 14px;
   }
 
-  .poster-results-card-body h3 {
-    font-size: 20px;
-  }
-
-  .poster-results-detail-layout,
+.poster-results-detail-layout,
   .poster-results-amber-overview,
   .poster-results-amber-overview .poster-results-detail-layout {
     grid-template-columns: 1fr;
@@ -1394,10 +1363,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
   .poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action {
     width: 100%;
-  }
-
-  .poster-results-detail-body h3 {
-    font-size: 26px;
   }
 
   .poster-results-detail-body dl {
@@ -1444,10 +1409,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     height: 6px;
   }
 
-  .poster-results-missing-child-heading h1 {
-    font-size: 34px;
-  }
-
   .poster-results-detail-footer {
     grid-template-columns: 1fr;
     padding: 28px 20px;
@@ -1486,10 +1447,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 .poster-results:not(.is-poster-page) .poster-results-heading {
   margin: 0;
   color: #304656;
-  font-size: clamp(38px, 3vw, 48px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
 }
 
 .poster-results-amber-summary {
@@ -1518,10 +1475,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 .poster-results-amber-summary-header h2 {
   margin: 0;
   color: #304656;
-  font-size: clamp(38px, 3vw, 48px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
 }
 
 .poster-results-amber-summary-copy {

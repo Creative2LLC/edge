@@ -15,10 +15,6 @@
 .leadership-overview .leadership-overview-heading {
   margin: 0;
   color: #00264d;
-  font-size: clamp(42px, 5vw, 62px);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.05em;
 }
 
 .leadership-overview .leadership-overview-subheading {
@@ -186,10 +182,6 @@
 
 .leadership-overview .leadership-overview-nav-card-title {
   margin: 0;
-  font-size: clamp(32px, 2.3vw, 40px);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.04em;
 }
 
 .leadership-overview .leadership-overview-nav-card-description {

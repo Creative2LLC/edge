@@ -48,10 +48,6 @@
 .cybertipline-geo-report .cybertipline-geo-report-heading {
   margin: 0;
   color: var(--cybertipline-geo-heading-color);
-  font-size: 4rem;
-  font-weight: 800;
-  line-height: 1.04;
-  letter-spacing: 0;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-intro {
@@ -365,10 +361,6 @@
   padding-bottom: 22px;
   border-bottom: 1px solid rgb(17 58 103 / 20%);
   color: var(--cybertipline-geo-ink);
-  font-size: 2.25rem;
-  font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: 0;
   text-align: center;
 }
 
@@ -518,10 +510,6 @@
 .cybertipline-geo-report .cybertipline-geo-report-detail-title {
   margin: 0;
   color: var(--cybertipline-geo-ink);
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: 0;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-detail-value {
@@ -658,10 +646,6 @@
   border-radius: 8px 8px 0 0;
   background: #fff;
   color: var(--cybertipline-geo-ink);
-  font-size: 1.45rem;
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: 0;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-view-panel.is-table .cybertipline-geo-report-table-title {
@@ -960,10 +944,6 @@
     padding: 24px;
   }
 
-  .cybertipline-geo-report .cybertipline-geo-report-map-card h3 {
-    font-size: 1.65rem;
-  }
-
   .cybertipline-geo-report .cybertipline-geo-report-map-card-metrics {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -976,16 +956,8 @@
     font-size: 1.7rem;
   }
 
-  .cybertipline-geo-report .cybertipline-geo-report-heading {
-    font-size: 2.35rem;
-  }
-
   .cybertipline-geo-report .cybertipline-geo-report-intro {
     font-size: 1rem;
-  }
-
-  .cybertipline-geo-report .cybertipline-geo-report-detail-title {
-    font-size: 1.45rem;
   }
 
   .cybertipline-geo-report .cybertipline-geo-report-detail-value {

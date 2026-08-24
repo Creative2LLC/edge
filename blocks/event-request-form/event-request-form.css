@@ -47,10 +47,6 @@ main > .section > .event-request-form-wrapper {
 .event-request-form-heading {
   margin: 0;
   color: #00264d;
-  font-size: clamp(2.15rem, 4.1vw, 3.75rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0;
 }
 
 .event-request-form-intro {
@@ -206,9 +202,6 @@ main > .section > .event-request-form-wrapper {
 .event-request-form-step-title {
   margin: 0;
   color: #00264d;
-  font-size: clamp(1.35rem, 2vw, 1.8rem);
-  font-weight: 850;
-  line-height: 1.15;
 }
 
 .event-request-form-step-copy {

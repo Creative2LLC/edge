@@ -167,6 +167,13 @@ function normalizeColorValue(value) {
   return hexMatch ? hexMatch[0] : '';
 }
 
+/**
+ * Per-instance type sizing is OFF: the global scale in styles/styles.css owns
+ * typography (see audits/typography-audit.md). Flip to true to restore the authored
+ * disclaimerFontSize override.
+ */
+const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
+
 function normalizeCssLength(value, propertyName) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -480,7 +487,12 @@ function applyCardStyles(li, fields = {}, partial = false) {
     );
   }
 
-  if (!partial || hasOwnField(fields, 'disclaimerFontSize')) {
+  /* Per-instance type sizing is OFF: the global scale in styles/styles.css owns
+     typography (see audits/typography-audit.md). Flip ALLOW_AUTHOR_TYPE_OVERRIDES
+     to restore it. disclaimerFontSize is deliberately still read and still occupies
+     its row — deleting it from the model would shift every later field's index on
+     already-published pages. */
+  if (ALLOW_AUTHOR_TYPE_OVERRIDES && (!partial || hasOwnField(fields, 'disclaimerFontSize'))) {
     setCssVariable(
       li,
       '--cards-card-disclaimer-size',

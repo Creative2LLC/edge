@@ -24,11 +24,8 @@
 }
 
 .cta-card-1 .cta-card-1-title {
-  font-size: 36px !important;
-  font-weight: 700 !important;
   color: #00264d;
   margin: 0 0 16px;
-  line-height: 1.15;
 }
 
 .cta-card-1 .cta-card-1-subtitle {
@@ -131,8 +128,7 @@
 }
 
 .cta-card-1.cta-card-1-variant-2 .cta-card-1-title {
-  font-size: 24px !important;
-  font-weight: 700 !important;
+  font-size: var(--heading-3-size) !important;
   max-width: 905.36px;
 }
 
@@ -163,10 +159,6 @@
 .cta-card-1.cta-card-1-button2-left.block {
   padding: 40px 64px;
   min-height: 0;
-}
-
-.cta-card-1.cta-card-1-button2-left .cta-card-1-title {
-  font-size: 36px !important;
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-subtitle {
@@ -286,8 +278,8 @@
 }
 
 .cta-card-1.cta-card-1-variant-4 .cta-card-1-title {
-  font-size: 24px !important;
-  font-weight: 700 !important;
+  font-size: var(--heading-3-size) !important;
+
 }
 
 /* Right side: two buttons sit side-by-side. */
@@ -350,11 +342,6 @@
     overflow-wrap: break-word;
   }
 
-  .cta-card-1 .cta-card-1-title {
-    font-size: 30px !important;
-    line-height: 1.2;
-  }
-
   .cta-card-1 .cta-card-1-subtitle {
     font-size: 16px !important;
   }
@@ -402,12 +389,6 @@
   .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary).has-subtext {
     width: 100%;
     align-self: stretch;
-  }
-
-  /* --- Button 2 Location: Left --- undo the fixed subtitle width and the
-     desktop right offset, and stack the inline button + below-text row. --- */
-  .cta-card-1.cta-card-1-button2-left .cta-card-1-title {
-    font-size: 28px !important;
   }
 
   .cta-card-1.cta-card-1-button2-left .cta-card-1-subtitle {
@@ -476,10 +457,6 @@
 
   .cta-card-1 .cta-card-1-button {
     width: 100%;
-  }
-
-  .cta-card-1 .cta-card-1-title {
-    font-size: 32px !important;
   }
 
   .cta-card-1 .cta-card-1-subtitle {

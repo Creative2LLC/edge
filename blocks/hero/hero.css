@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
-
 .hero-container .hero-wrapper {
   max-width: unset;
   padding: 0;
@@ -171,24 +169,12 @@
 .hero .hero-richtext h5,
 .hero .hero-richtext h6 {
   margin: 0;
-  font-family: Inter, sans-serif;
-  font-weight: 700;
-  line-height: 1.1;
   white-space: pre-line;
   color: #00264d;
 }
 
-.hero .hero-richtext h1 {
-  font-size: 64px;
-}
-
 .hero .hero-richtext h2 {
   margin-top: 8px;
-  font-size: 36px;
-}
-
-.hero .hero-richtext h3 {
-  font-size: 36px;
 }
 
 .hero .hero-richtext > h3:not(:first-child) {
@@ -198,7 +184,6 @@
 .hero .hero-richtext p {
   margin: 24px 0 0;
   max-width: 960px;
-  font-family: Inter, sans-serif;
   font-size: clamp(18px, 2.3vw, 24px);
   line-height: 1.35;
   color: #404041;
@@ -207,7 +192,6 @@
 .hero .hero-text-html {
   margin-top: 18px;
   max-width: 760px;
-  font-family: Inter, sans-serif;
   font-size: 24px;
   font-weight: 500;
   line-height: 1.45;
@@ -243,7 +227,6 @@
 }
 
 .hero .hero-breadcrumbs li span {
-  font-family: Inter, sans-serif;
   font-size: 15px;
   font-weight: 500;
   color: #515b67;
@@ -255,7 +238,6 @@
 
 .hero .hero-breadcrumbs li a,
 .hero .hero-breadcrumbs li a:any-link {
-  font-family: Inter, sans-serif;
   font-size: 15px;
   font-weight: 500;
   color: #515b67;
@@ -272,7 +254,6 @@
 }
 
 .hero .hero-breadcrumbs li.separator {
-  font-family: Inter, sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #6f7883;
@@ -293,7 +274,6 @@
   padding: 11px 22px;
   border-radius: 999px;
   border: 2px solid #008eb7;
-  font-family: Inter, sans-serif;
   font-size: 16px;
   font-weight: 500;
   line-height: 1.2;
@@ -388,7 +368,6 @@
 
 .hero .hero-side-panel-title {
   margin: 0;
-  font-family: Inter, sans-serif;
   font-size: clamp(28px, 3.4vw, 40px);
   font-weight: 700;
   line-height: 1.15;
@@ -401,7 +380,6 @@
 
 .hero .hero-side-panel-text p {
   margin: 0;
-  font-family: Inter, sans-serif;
   font-size: 16px;
   font-weight: 500;
   line-height: 1.35;
@@ -422,7 +400,6 @@
 
 .hero .hero-side-panel-footer p {
   margin: 0;
-  font-family: Inter, sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.45;
@@ -443,7 +420,6 @@
 .hero .hero-side-panel-btn,
 .hero .hero-side-panel-btn:any-link {
   text-decoration: none;
-  font-family: Inter, sans-serif;
 }
 
 .hero .hero-side-panel-btn-primary,
@@ -525,19 +501,16 @@
   color: #008eb7;
 }
 
-.hero.hero-variant-homepage .hero-richtext h1,
-.hero.hero-variant-homepage .hero-richtext h2,
-.hero.hero-variant-homepage .hero-richtext h3,
-.hero.hero-variant-homepage .hero-richtext h4,
-.hero.hero-variant-homepage .hero-richtext h5,
-.hero.hero-variant-homepage .hero-richtext h6 {
-  font-size: clamp(56px, 8vw, 96px);
-  font-weight: 700;
-}
-
 .hero.hero-variant-homepage .hero-text-html {
   font-size: 24px;
   font-weight: 500;
+}
+
+/* The homepage headline sits deliberately above the h1 scale. It reads from a
+   token so a change to the type system still reaches it — do not hardcode a px
+   or clamp() value here. */
+.hero.hero-variant-homepage .hero-richtext :is(h1, h2, h3, h4, h5, h6) {
+  font-size: var(--display-lg-size);
 }
 
 @media (width >= 900px) {
@@ -563,18 +536,6 @@
 
   .hero .hero-layout {
     gap: 24px;
-  }
-
-  .hero .hero-richtext h1 {
-    font-size: clamp(38px, 5.8vw, 50px);
-  }
-
-  .hero .hero-richtext h2 {
-    font-size: clamp(30px, 4.8vw, 42px);
-  }
-
-  .hero .hero-richtext h3 {
-    font-size: 32px;
   }
 
   .hero .hero-richtext p {
@@ -607,17 +568,8 @@
     align-items: start;
   }
 
-  .hero .hero-richtext h1 {
-    font-size: clamp(34px, 8vw, 44px);
-  }
-
   .hero .hero-richtext h2 {
     margin-top: 6px;
-    font-size: clamp(26px, 6.7vw, 36px);
-  }
-
-  .hero .hero-richtext h3 {
-    font-size: 30px;
   }
 
   .hero .hero-richtext p {
@@ -705,18 +657,6 @@
 
   .hero.hero-pos-right .hero-main.has-featured-image {
     align-items: flex-end;
-  }
-
-  .hero .hero-richtext h1 {
-    font-size: clamp(30px, 10vw, 40px);
-  }
-
-  .hero .hero-richtext h2 {
-    font-size: clamp(24px, 8vw, 32px);
-  }
-
-  .hero .hero-richtext h3 {
-    font-size: 28px;
   }
 
   .hero .hero-richtext p {

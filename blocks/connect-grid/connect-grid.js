@@ -200,6 +200,30 @@ function normalizeIconSize(value) {
   return ['32px', '48px', '64px', '80px', '96px'].includes(size) ? size : '';
 }
 
+/**
+ * Per-instance type sizing is OFF: the global scale in styles/styles.css owns
+ * typography (see audits/typography-audit.md). Flip this to true to hand size
+ * control back to authors.
+ *
+ * The titleFontSize / descriptionFontSize / contactLabelFontSize /
+ * contactValueFontSize fields are deliberately still read and still occupy their
+ * rows — deleting them from the model would shift every later field's index on
+ * already-published pages.
+ */
+const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
+
+function applyAuthoredTypeSizes(card, fields) {
+  const sizes = [
+    ['titleFontSize', '--connect-grid-title-size'],
+    ['descriptionFontSize', '--connect-grid-description-size'],
+    ['contactLabelFontSize', '--connect-grid-method-label-size'],
+    ['contactValueFontSize', '--connect-grid-method-value-size'],
+  ];
+  sizes.forEach(([field, cssVar]) => {
+    if (fields[field]) card.style.setProperty(cssVar, normalizeCssSize(fields[field]));
+  });
+}
+
 // Hex-color "select" fields (regex-validated) render in the editor as a bare
 // <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
 // unlike every other field type, which does get real instrumentation whenever it has
@@ -514,26 +538,8 @@ function syncCardStyles(resourcePath, card) {
       if (fields.contactValueColor) {
         card.style.setProperty('--connect-grid-method-value-color', fields.contactValueColor);
       }
-      if (fields.titleFontSize) {
-        card.style.setProperty('--connect-grid-title-size', normalizeCssSize(fields.titleFontSize));
-      }
-      if (fields.descriptionFontSize) {
-        card.style.setProperty(
-          '--connect-grid-description-size',
-          normalizeCssSize(fields.descriptionFontSize),
-        );
-      }
-      if (fields.contactLabelFontSize) {
-        card.style.setProperty(
-          '--connect-grid-method-label-size',
-          normalizeCssSize(fields.contactLabelFontSize),
-        );
-      }
-      if (fields.contactValueFontSize) {
-        card.style.setProperty(
-          '--connect-grid-method-value-size',
-          normalizeCssSize(fields.contactValueFontSize),
-        );
+      if (ALLOW_AUTHOR_TYPE_OVERRIDES) {
+        applyAuthoredTypeSizes(card, fields);
       }
       const iconSize = normalizeIconSize(fields.iconSize);
       if (iconSize) {
@@ -563,26 +569,8 @@ function applyCardStyles(card, item) {
     card.style.setProperty('--connect-grid-method-value-color', item.contactValueColor);
   }
 
-  if (item.titleFontSize) {
-    card.style.setProperty('--connect-grid-title-size', normalizeCssSize(item.titleFontSize));
-  }
-  if (item.descriptionFontSize) {
-    card.style.setProperty(
-      '--connect-grid-description-size',
-      normalizeCssSize(item.descriptionFontSize),
-    );
-  }
-  if (item.contactLabelFontSize) {
-    card.style.setProperty(
-      '--connect-grid-method-label-size',
-      normalizeCssSize(item.contactLabelFontSize),
-    );
-  }
-  if (item.contactValueFontSize) {
-    card.style.setProperty(
-      '--connect-grid-method-value-size',
-      normalizeCssSize(item.contactValueFontSize),
-    );
+  if (ALLOW_AUTHOR_TYPE_OVERRIDES) {
+    applyAuthoredTypeSizes(card, item);
   }
   const iconSize = normalizeIconSize(item.iconSize);
   if (iconSize) {

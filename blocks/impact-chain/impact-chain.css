@@ -10,12 +10,9 @@
 
 /* Heading */
 .impact-chain .impact-chain-heading {
-  font-size: 34px;
-  font-weight: 500;
   color: #404041;
   max-width: 890px;
   margin: 0 auto 32px;
-  line-height: 1.1;
   text-align: center;
   position: relative;
   padding-bottom: 72px;
@@ -213,11 +210,8 @@
 
 /* Card title */
 .impact-chain .impact-chain-item-title {
-  font-size: 22px;
-  font-weight: 700;
   color: #008eb7;
   margin: 0 0 8px;
-  line-height: 1.2;
 }
 
 /* Card description */
@@ -234,7 +228,6 @@
    ------------------------------------------------------- */
 @media (width <= 700px) {
   .impact-chain .impact-chain-heading {
-    font-size: 32px;
     padding-bottom: 44px;
   }
 

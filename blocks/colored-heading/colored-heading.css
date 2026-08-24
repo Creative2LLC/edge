@@ -80,24 +80,12 @@
   font-weight: 400;
 }
 
-@media (width <= 900px) {
-  .colored-heading .colored-heading-title:is(h2) {
-    font-size: 40px;
-  }
-
-  .colored-heading .colored-heading-title:is(h3) {
-    font-size: 32px;
-  }
-
-  .colored-heading.has-custom-size .colored-heading-title:is(h2) {
-    font-size: 40px;
-  }
-
-  .colored-heading.has-custom-size .colored-heading-title:is(h3) {
-    font-size: 32px;
-  }
-
-}
+/* No mobile size overrides here on purpose.
+   The title inherits the global fluid h1-h6 scale from styles.css, which already
+   ramps down on small viewports — and when an author sets a size, .has-custom-size
+   must win at every width. The previous rules hardcoded 40px/32px below 900px
+   *including* for .has-custom-size, which silently discarded the author's override
+   on mobile and broke this block's inherit-by-default contract. */
 
 .colored-heading.colored-heading-shadow-small .colored-heading-inner {
   box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);

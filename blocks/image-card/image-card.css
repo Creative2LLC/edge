@@ -38,11 +38,8 @@
 
 /* Heading */
 .image-card .image-card-heading {
-  font-size: 48px;
-  font-weight: 500;
   color: #ededed;
   margin: 0 0 32px;
-  line-height: 1.15;
   max-width: 1200px;
 }
 
@@ -109,10 +106,6 @@
 
   .image-card .image-card-content {
     padding: 0 24px;
-  }
-
-  .image-card .image-card-heading {
-    font-size: 24px;
   }
 
   .image-card .image-card-btn {

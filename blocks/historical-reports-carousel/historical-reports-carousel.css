@@ -30,10 +30,6 @@ main > .section > .historical-reports-carousel-wrapper {
 .historical-reports-carousel .historical-reports-carousel-heading {
   margin: 0 0 18px;
   color: #002e5d;
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 1.04;
-  letter-spacing: -0.03em;
 }
 
 .historical-reports-carousel .historical-reports-carousel-subheading {
@@ -151,8 +147,6 @@ main > .section > .historical-reports-carousel-wrapper {
 .historical-reports-carousel .historical-reports-carousel-card-year {
   margin: 0 0 16px;
   color: #404041;
-  font-size: 1.55rem;
-  line-height: 1.06;
 }
 
 .historical-reports-carousel .historical-reports-carousel-card-count {

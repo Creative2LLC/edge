@@ -25,9 +25,6 @@
 .case-anniversaries-heading {
   margin: 0;
   color: #06345d;
-  font-size: 32px;
-  line-height: 1.1;
-  letter-spacing: 0;
 }
 
 .case-anniversaries-view-toggle {
@@ -282,9 +279,6 @@
   grid-column: 1 / -1;
   margin: 14px 0 -6px;
   color: #243846;
-  font-size: clamp(22px, 2.1vw, 30px);
-  font-weight: 800;
-  line-height: 1.15;
 }
 
 .case-anniversaries-decade-heading:first-child {
@@ -397,10 +391,6 @@
   min-height: 0;
   margin: 0 0 8px;
   color: #243846;
-  font-size: clamp(24px, 2vw, 30px);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: 0;
 }
 
 .case-anniversaries-card-body dl {

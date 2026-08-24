@@ -18,7 +18,6 @@
 .resource-video-hero .resource-video-hero-message h2 {
   margin: 0;
   color: #122f4a;
-  font-size: clamp(2rem, 4vw, 3rem);
 }
 
 .resource-video-hero .resource-video-hero-message p {
@@ -57,9 +56,6 @@
 .resource-video-hero .resource-video-hero-title {
   margin: 0;
   color: #00264d;
-  font-size: clamp(2.4rem, 6vw, 4.25rem);
-  font-weight: 800;
-  line-height: 0.98;
 }
 
 .resource-video-hero .resource-video-hero-description {

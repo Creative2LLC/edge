@@ -37,11 +37,8 @@
 }
 
 .cta-banner-title {
-  font-size: 36px;
-  font-weight: 700;
   color: #404041;
   margin: 0;
-  line-height: 1.15;
 }
 
 .cta-banner-subtitle {
@@ -84,12 +81,7 @@
   .cta-banner-card {
     padding: 28px 32px;
     gap: 24px;
-  }
-
-  .cta-banner-title {
-    font-size: 28px;
-  }
-}
+  }}
 
 /* Responsive — mobile */
 @media (width <= 600px) {
@@ -98,10 +90,6 @@
     align-items: flex-start;
     padding: 24px;
     gap: 20px;
-  }
-
-  .cta-banner-title {
-    font-size: 24px;
   }
 
   .cta-banner-button {

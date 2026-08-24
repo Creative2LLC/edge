@@ -113,9 +113,6 @@
   margin: 0;
   color: #173147;
   font-family: var(--body-font-family);
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1.3;
 }
 
 .get-help .get-help-list {
@@ -218,10 +215,6 @@
     border-top: 1px solid #d3d8de;
     padding-left: 0;
     padding-top: 24px;
-  }
-
-  .get-help .get-help-column-heading {
-    font-size: 1.2rem;
   }
 
   .get-help .get-help-item-link {

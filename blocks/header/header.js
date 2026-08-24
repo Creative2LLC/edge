@@ -2644,7 +2644,6 @@ export default async function decorate(block) {
           'pt-4',
           'text-[#FCB813]',
           'text-[20px]',
-          'font-["Inter"]',
           'font-bold',
           'leading-[1.48]',
         );

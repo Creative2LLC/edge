@@ -29,7 +29,6 @@ footer .footer .footer-brand {
   gap: 22px;
   padding-bottom: 32px;
   color: #404041;
-  font-family: Inter, var(--body-font-family);
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -201,7 +200,6 @@ footer .footer .footer-column .colored-text-content .footer-link-list > li + li 
 
 footer .footer .footer-column a {
   color: #404041;
-  font-family: Inter, var(--body-font-family);
   font-size: 16px;
   font-style: normal;
   font-weight: 500;

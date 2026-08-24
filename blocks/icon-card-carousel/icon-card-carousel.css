@@ -32,11 +32,8 @@ main > .section > .icon-card-carousel-wrapper {
 
 /* Section title */
 .icon-card-carousel .icon-card-carousel-title {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 40px;
-  line-height: 1.1;
 }
 
 /* Section subtitle */
@@ -144,11 +141,8 @@ main > .section > .icon-card-carousel-wrapper {
 
 /* Heading */
 .icon-card-carousel .icon-card-carousel-heading {
-  font-size: 36px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 12px;
-  line-height: 1.2;
 }
 
 /* Rich-text paragraphs inside heading/body should preserve authored line
@@ -304,16 +298,7 @@ main > .section > .icon-card-carousel-wrapper {
     height: auto;
     min-height: 320px;
     padding: 28px 24px;
-  }
-
-  .icon-card-carousel .icon-card-carousel-heading {
-    font-size: 28px;
-  }
-
-  .icon-card-carousel .icon-card-carousel-title {
-    font-size: 36px;
-  }
-}
+  }}
 
 /* Responsive - mobile */
 @media (width <= 700px) {
@@ -325,7 +310,6 @@ main > .section > .icon-card-carousel-wrapper {
   }
 
   .icon-card-carousel .icon-card-carousel-title {
-    font-size: 32px;
     margin-bottom: 24px;
   }
 
@@ -347,10 +331,6 @@ main > .section > .icon-card-carousel-wrapper {
   .icon-card-carousel .icon-card-carousel-icon {
     width: 72px;
     height: 72px;
-  }
-
-  .icon-card-carousel .icon-card-carousel-heading {
-    font-size: 24px;
   }
 
   .icon-card-carousel .icon-card-carousel-nav {

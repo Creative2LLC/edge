@@ -252,11 +252,8 @@
 
 /* Title */
 .info-cards-grid-card-title {
-  font-size: var(--info-card-title-size);
-  font-weight: 600;
   color: var(--info-card-title-color);
   margin: 0 0 var(--info-card-title-bottom-gap);
-  line-height: 1.15;
 }
 
 .info-cards-grid-card-title > p {

@@ -70,11 +70,8 @@
 }
 
 .leadership-profile-name {
-  font-size: 64px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 8px;
-  line-height: 1.1;
 }
 
 .leadership-profile-title {
@@ -133,10 +130,6 @@
     aspect-ratio: 331 / 348;
   }
 
-  .leadership-profile-name {
-    font-size: 40px;
-  }
-
   .leadership-profile-title {
     font-size: 20px;
   }
@@ -163,10 +156,6 @@
   .leadership-profile-breadcrumb li a,
   .leadership-profile-breadcrumb .breadcrumb-current span {
     font-size: 13px;
-  }
-
-  .leadership-profile-name {
-    font-size: 32px;
   }
 
   .leadership-profile-title {

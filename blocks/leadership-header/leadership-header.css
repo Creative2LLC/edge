@@ -18,11 +18,8 @@
 }
 
 .leadership-header-heading {
-  font-size: 64px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 16px;
-  line-height: 1.1;
 }
 
 .leadership-header-subheading {
@@ -35,12 +32,7 @@
 }
 
 /* Mobile responsive */
-@media (width <= 900px) {
-  .leadership-header-heading {
-    font-size: 40px;
-  }
-
-  .leadership-header-subheading {
+@media (width <= 900px) {.leadership-header-subheading {
     font-size: 18px;
   }
 }

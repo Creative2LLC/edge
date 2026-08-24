@@ -18,11 +18,8 @@
 
 /* Heading */
 .news .news-heading {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0;
-  line-height: 1.1;
 }
 
 .news .news-subheading {
@@ -93,11 +90,8 @@
 }
 
 .news .news-featured-title {
-  font-size: 36px;
-  font-weight: 700;
   color: #404041;
   margin: 12px 0 8px;
-  line-height: 1.2;
 }
 
 .news .news-featured-subheading {
@@ -181,11 +175,8 @@
 }
 
 .news .news-card-title {
-  font-size: 24px;
-  font-weight: 700;
   color: #404041;
   margin: 12px 0 8px;
-  line-height: 1.2;
 }
 
 .news .news-card-subheading {
@@ -242,11 +233,7 @@
     gap: 16px;
   }
 
-  .news .news-heading {
-    font-size: 32px;
-  }
-
-  .news .news-header-button,
+.news .news-header-button,
   .news .news-header-button:any-link {
     align-self: stretch;
   }
@@ -257,10 +244,6 @@
 
   .news .news-featured-image {
     min-height: 200px;
-  }
-
-  .news .news-featured-title {
-    font-size: 28px;
   }
 
   .news .news-cards {

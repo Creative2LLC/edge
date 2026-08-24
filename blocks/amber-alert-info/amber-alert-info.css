@@ -54,11 +54,8 @@
 }
 
 .amber-alert-info .amber-alert-info-title {
-  font-size: 40px;
-  font-weight: 700;
   color: #fff;
   margin: 0 0 16px;
-  line-height: 1.15;
   text-align: left;
 }
 
@@ -199,13 +196,7 @@
   .amber-alert-info .amber-alert-info-title,
   .amber-alert-info .amber-alert-info-subtitle {
     overflow-wrap: break-word;
-  }
-
-  .amber-alert-info .amber-alert-info-title {
-    font-size: 30px;
-  }
-
-  /* Let the button label wrap rather than forcing a single nowrap line. */
+  }/* Let the button label wrap rather than forcing a single nowrap line. */
   .amber-alert-info .amber-alert-info-button {
     white-space: normal;
     text-align: center;

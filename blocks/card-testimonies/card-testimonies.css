@@ -31,11 +31,8 @@ main > .section > .card-testimonies-wrapper {
 }
 
 .card-testimonies-title {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 16px;
-  line-height: 1.15;
 }
 
 .card-testimonies-subtitle {
@@ -97,7 +94,7 @@ main > .section > .card-testimonies-wrapper {
 }
 
 .card-testimonies-main-quote {
-  font-size: 36px;
+  font-size: var(--display-sm-size);
   font-weight: 600;
   color: #404041;
   margin: 0 0 24px;
@@ -160,8 +157,8 @@ main > .section > .card-testimonies-wrapper {
 }
 
 .card-testimonies-variant-2 .card-testimonies-title {
-  font-size: 36px;
-  font-weight: 500;
+  font-size: var(--display-sm-size);
+  font-weight: var(--heading-weight-light);
   color: #404041;
 }
 
@@ -174,14 +171,7 @@ main > .section > .card-testimonies-wrapper {
 /* ===== RESPONSIVE ===== */
 
 /* Tablet */
-@media (width <= 900px) {
-  /* Side gutter now comes from the base rule (applies at every width up to the
-     container cap), so no horizontal override is needed here. */
-  .card-testimonies-title {
-    font-size: 36px;
-  }
-
-  .card-testimonies-subtitle {
+@media (width <= 900px) {.card-testimonies-subtitle {
     font-size: 20px;
   }
 
@@ -214,10 +204,6 @@ main > .section > .card-testimonies-wrapper {
 
   .card-testimonies.block {
     padding: 40px 16px;
-  }
-
-  .card-testimonies-title {
-    font-size: 28px;
   }
 
   .card-testimonies-subtitle {

@@ -30,10 +30,6 @@
 .regional-offices .regional-offices-heading {
   margin: 0 0 14px;
   color: #113a67;
-  font-size: clamp(2.5rem, 4vw, 4.2rem);
-  font-weight: 700;
-  line-height: 1.06;
-  letter-spacing: -0.03em;
 }
 
 .regional-offices .regional-offices-subheading {
@@ -122,9 +118,6 @@
 .regional-offices .regional-offices-card-title {
   margin: 0 0 14px;
   color: #404041;
-  font-size: clamp(1.7rem, 2.6vw, 2.2rem);
-  font-weight: 700;
-  line-height: 1.15;
 }
 
 .regional-offices .regional-offices-card-body {
@@ -210,8 +203,6 @@
 
 .regional-offices.regional-offices-boxed .regional-offices-card-title {
   margin: 0 0 8px;
-  font-size: 24px;
-  font-weight: 700;
 }
 
 .regional-offices.regional-offices-boxed .regional-offices-card-body {

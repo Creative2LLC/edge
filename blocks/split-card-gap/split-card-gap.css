@@ -65,9 +65,6 @@ main > .section > .split-card-gap-wrapper {
 .split-card-gap .split-card-gap-heading {
   margin: 0 0 18px;
   color: #143967;
-  font-size: clamp(2rem, 3vw, 2.75rem);
-  font-weight: 700;
-  line-height: 1.1;
 }
 
 .split-card-gap .split-card-gap-body {
@@ -188,7 +185,7 @@ main > .section > .split-card-gap-wrapper {
 .split-card-gap .split-card-gap-benefit-title {
   margin: 0;
   color: #404041;
-  font-size: 20px;
+  font-size: var(--heading-4-size);
   font-weight: 700;
   line-height: 1.25;
 }
@@ -278,8 +275,7 @@ main > .section > .split-card-gap-wrapper {
 .split-card-gap-variant-2 .split-card-gap-heading {
   max-width: 412px;
   color: #404041;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: var(--heading-4-size);
 }
 
 .split-card-gap-variant-2 .split-card-gap-body {

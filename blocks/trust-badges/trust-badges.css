@@ -19,10 +19,6 @@
   max-width: 920px;
   margin: 0;
   color: #00264d;
-  font-size: clamp(44px, 5vw, 64px);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.05em;
 }
 
 .trust-badges .trust-badges-cta {
@@ -166,10 +162,6 @@
 @media (width <= 600px) {
   .trust-badges {
     padding: 64px 16px 56px;
-  }
-
-  .trust-badges .trust-badges-heading {
-    font-size: 34px;
   }
 
   .trust-badges .trust-badges-cta {

@@ -26,10 +26,6 @@
 .amber-alerts h2 {
   margin: 0;
   color: #304656;
-  font-size: clamp(38px, 3vw, 48px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
 }
 
 .amber-alerts-copy {
@@ -169,17 +165,11 @@
 .amber-alerts-card h3 {
   margin: 0 0 8px;
   color: #243846;
-  font-size: clamp(24px, 2vw, 30px);
-  font-weight: 700;
-  line-height: 1.1;
 }
 
 .amber-alerts-detail h3 {
   margin: 0 0 22px;
   color: #243846;
-  font-size: clamp(28px, 2.5vw, 36px);
-  font-weight: 500;
-  line-height: 1.12;
 }
 
 .amber-alerts-card dl {
@@ -315,8 +305,6 @@
 .amber-alerts-related h4 {
   margin: 0 0 14px;
   color: #243846;
-  font-size: 22px;
-  line-height: 1.2;
 }
 
 .amber-alerts-related-list,
@@ -344,8 +332,6 @@
 .amber-alerts-related-person h5 {
   margin: 0 0 4px;
   color: #243846;
-  font-size: 18px;
-  line-height: 1.2;
 }
 
 .amber-alerts-related-person p {
@@ -388,11 +374,7 @@
     width: min(1400px, calc(100% - 24px));
   }
 
-  .amber-alerts h2 {
-    font-size: 38px;
-  }
-
-  .amber-alerts-list,
+.amber-alerts-list,
   .amber-alerts-card,
   .amber-alerts-detail-body {
     grid-template-columns: 1fr;

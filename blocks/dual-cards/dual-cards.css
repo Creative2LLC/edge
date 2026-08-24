@@ -35,11 +35,8 @@
 }
 
 .dual-cards-title {
-  font-size: 36px;
-  font-weight: 700;
   color: #404041;
   margin: 0;
-  line-height: 1.15;
   text-align: left;
 }
 
@@ -69,12 +66,7 @@
   .dual-cards-card {
     padding: 28px;
     gap: 18px;
-  }
-
-  .dual-cards-title {
-    font-size: 28px;
-  }
-}
+  }}
 
 /* Responsive — mobile */
 @media (width <= 600px) {
@@ -85,9 +77,4 @@
 
   .dual-cards-card {
     padding: 24px;
-  }
-
-  .dual-cards-title {
-    font-size: 24px;
-  }
-}
+  }}

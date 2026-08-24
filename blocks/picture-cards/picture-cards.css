@@ -16,9 +16,6 @@
 .picture-cards .picture-cards-heading {
   margin: 0 0 0.5rem;
   color: #00264d;
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.1;
 }
 
 .picture-cards .picture-cards-subheading {
@@ -95,9 +92,6 @@ a.picture-card:hover .picture-card-overlay {
 
 .picture-cards .picture-card-title {
   margin: 0 0 0.6rem;
-  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
-  font-weight: 700;
-  line-height: 1.2;
   color: #fff;
 }
 

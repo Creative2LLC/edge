@@ -31,11 +31,8 @@ main > .section > .split-thin-carousel-wrapper {
 
 /* Section title */
 .split-thin-carousel .stc-title {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 40px;
-  line-height: 1.1;
 }
 
 /* Section description */
@@ -124,11 +121,8 @@ main > .section > .split-thin-carousel-wrapper {
 
 /* Heading */
 .split-thin-carousel .stc-heading {
-  font-size: 40px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 16px;
-  line-height: 1.15;
 }
 
 /* Subheading / body (rich text) */
@@ -315,12 +309,7 @@ main > .section > .split-thin-carousel-wrapper {
 @media (width <= 900px) {
   .split-thin-carousel .stc-slide {
     flex: 0 0 90%;
-  }
-
-  .split-thin-carousel .stc-title {
-    font-size: 36px;
-  }
-}
+  }}
 
 /* Responsive — mobile */
 @media (width <= 700px) {
@@ -331,7 +320,6 @@ main > .section > .split-thin-carousel-wrapper {
   }
 
   .split-thin-carousel .stc-title {
-    font-size: 32px;
     margin-bottom: 24px;
   }
 
@@ -355,10 +343,6 @@ main > .section > .split-thin-carousel-wrapper {
   .split-thin-carousel .stc-content {
     flex: 1 1 auto;
     padding: 28px 24px;
-  }
-
-  .split-thin-carousel .stc-heading {
-    font-size: 28px;
   }
 
   .split-thin-carousel .stc-nav {

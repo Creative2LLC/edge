@@ -17,8 +17,6 @@
 .poster-map-header h2 {
   margin: 0 0 16px;
   color: #243846;
-  font-size: 42px;
-  line-height: 1.08;
 }
 
 .poster-map-header p {
@@ -42,8 +40,6 @@
 .poster-map-content h3 {
   margin: 0 0 18px;
   color: #111827;
-  font-size: 26px;
-  line-height: 1.15;
 }
 
 .poster-map-viewer {
@@ -149,11 +145,7 @@
     width: min(1180px, calc(100% - 24px));
   }
 
-  .poster-map-header h2 {
-    font-size: 32px;
-  }
-
-  .poster-map-header p,
+.poster-map-header p,
   .poster-map-viewer p {
     font-size: 16px;
   }

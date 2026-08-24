@@ -96,10 +96,6 @@
   max-width: 516px;
   margin: 0 0 18px;
   color: #113a67;
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
 }
 
 .report-download .report-download-body {
@@ -222,10 +218,6 @@
     max-width: none;
     margin-left: 0;
     justify-content: flex-start;
-  }
-
-  .report-download .report-download-heading {
-    font-size: clamp(1.8rem, 8vw, 2.5rem);
   }
 
   .report-download .report-download-body {

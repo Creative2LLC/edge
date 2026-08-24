@@ -30,11 +30,8 @@ main > .section > .need-help-wrapper {
 
 /* Heading */
 .need-help-heading {
-  font-size: 64px;
-  font-weight: 600;
   color: #008db6;
   margin: 0 0 16px;
-  line-height: 1.1;
   text-align: center;
 }
 
@@ -72,11 +69,8 @@ main > .section > .need-help-wrapper {
 
 /* Card title */
 .need-help-card-title {
-  font-size: 24px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 8px;
-  line-height: 1.2;
 }
 
 /* Card subheading */
@@ -114,10 +108,6 @@ main > .section > .need-help-wrapper {
     padding: 48px 32px;
   }
 
-  .need-help-heading {
-    font-size: 44px;
-  }
-
   .need-help-subheading {
     font-size: 20px;
   }
@@ -141,10 +131,6 @@ main > .section > .need-help-wrapper {
   .need-help.block {
     padding: 36px 20px;
     border-radius: 20px;
-  }
-
-  .need-help-heading {
-    font-size: 32px;
   }
 
   .need-help-subheading {

@@ -28,10 +28,6 @@
 .impact-data-table .impact-data-table-heading {
   margin: 0;
   color: var(--impact-data-table-ink);
-  font-size: clamp(2.25rem, 4.3vw, 4rem);
-  font-weight: 800;
-  line-height: 1.04;
-  letter-spacing: 0;
 }
 
 .impact-data-table .impact-data-table-intro {

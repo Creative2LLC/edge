@@ -109,11 +109,8 @@
 
 /* Vertical title */
 .card-row-vertical .card-row-card-title {
-  font-size: 28px;
-  font-weight: 700;
   color: #404041;
   margin: 0;
-  line-height: 1.2;
   text-align: center;
   max-width: 241px;
 }
@@ -173,12 +170,7 @@
   .card-row-vertical .card-row-card {
     width: calc(50% - 12px);
     min-height: 420px;
-  }
-
-  .card-row-vertical .card-row-card-title {
-    font-size: 24px;
-  }
-}
+  }}
 
 /* Mobile */
 @media (width <= 600px) {
@@ -190,9 +182,4 @@
   .card-row-vertical .card-row-card {
     width: 100%;
     min-height: auto;
-  }
-
-  .card-row-vertical .card-row-card-title {
-    font-size: 22px;
-  }
-}
+  }}

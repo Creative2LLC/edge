@@ -67,12 +67,9 @@
 }
 
 .leadership-team-section-heading {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   text-align: center;
   margin: 0 0 40px;
-  line-height: 1.1;
 }
 
 /* -------------------------------------------------------
@@ -145,12 +142,9 @@
 
 /* Card name */
 .leadership-team-card-name {
-  font-size: 24px;
-  font-weight: 600;
   color: #404041;
   margin: 0 0 4px;
   padding: 0;
-  line-height: 1.3;
   text-align: left;
   width: 100%;
   max-width: 194px;
@@ -212,12 +206,7 @@
 /* -------------------------------------------------------
    Responsive: Small tablet (<=900px) — 3 columns
    ------------------------------------------------------- */
-@media (width <= 900px) {
-  .leadership-team-section-heading {
-    font-size: 36px;
-  }
-
-  .leadership-team-grid {
+@media (width <= 900px) {.leadership-team-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 24px 16px;
   }
@@ -251,17 +240,9 @@
     margin-inline: 0;
   }
 
-  .leadership-team-section-heading {
-    font-size: 28px;
-  }
-
   .leadership-team-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px 12px;
-  }
-
-  .leadership-team-card-name {
-    font-size: 18px;
   }
 
   .leadership-team-card-bio {

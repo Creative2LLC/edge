@@ -25,11 +25,8 @@
 
 /* Heading */
 .split-card-list .scl-heading {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 16px;
-  line-height: 1.15;
 }
 
 /* Body text (rich text) */
@@ -105,11 +102,8 @@
 }
 
 .split-card-list .scl-statement-title {
-  font-size: 20px;
-  font-weight: 700;
   color: #00264d;
   margin: 0;
-  line-height: 1.3;
 }
 
 .split-card-list .scl-statement-subtitle {
@@ -163,11 +157,8 @@
 
 /* Email card title */
 .split-card-list .scl-email-title {
-  font-size: 24px;
-  font-weight: 700;
   color: #fff;
   margin: 0 0 12px;
-  line-height: 1.3;
 }
 
 /* Email row: icon + text */
@@ -213,10 +204,6 @@
     width: 100%;
   }
 
-  .split-card-list .scl-heading {
-    font-size: 36px;
-  }
-
   .split-card-list .scl-body {
     font-size: 20px;
   }
@@ -239,10 +226,6 @@
   .split-card-list .scl-cards {
     flex: none;
     width: 100%;
-  }
-
-  .split-card-list .scl-heading {
-    font-size: 32px;
   }
 
   .split-card-list .scl-body {

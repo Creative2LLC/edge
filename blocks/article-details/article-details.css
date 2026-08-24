@@ -67,10 +67,6 @@
   margin: 0;
   color: #16324a;
   max-width: 14ch;
-  font-size: clamp(2.65rem, 6vw, 4.9rem);
-  font-weight: 800;
-  line-height: 0.96;
-  letter-spacing: -0.04em;
 }
 
 .article-details .article-details-meta {
@@ -127,15 +123,6 @@
 .article-details .article-details-body h4 {
   margin: 2rem 0 1rem;
   color: #16324a;
-  line-height: 1.15;
-}
-
-.article-details .article-details-body h2 {
-  font-size: clamp(1.8rem, 3.5vw, 2.45rem);
-}
-
-.article-details .article-details-body h3 {
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
 }
 
 .article-details .article-details-body p,

@@ -27,10 +27,6 @@ main > .section > .faq-wrapper {
   z-index: 1;
   margin: 0 0 clamp(18px, 2.8vw, 34px);
   color: #404041;
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 1.04;
-  letter-spacing: -0.045em;
 }
 
 .faq .faq-item {
@@ -310,9 +306,6 @@ main > .section > .faq-wrapper {
 .faq .faq-item-answer > h3 {
   margin: 0;
   color: #00264d;
-  font-size: 1.15rem;
-  font-weight: 800;
-  line-height: 1.25;
 }
 
 .faq .faq-amber-faq p {
@@ -335,10 +328,6 @@ main > .section > .faq-wrapper {
 @media (width < 900px) {
   .faq {
     padding: 28px 0 52px;
-  }
-
-  .faq .faq-heading {
-    font-size: clamp(2rem, 8vw, 3rem);
   }
 
   .faq .faq-item-header {

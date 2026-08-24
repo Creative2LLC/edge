@@ -104,11 +104,8 @@
 
 /* Heading */
 .split-card-info-heading {
-  font-size: 40px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 16px;
-  line-height: 1.2;
 }
 
 /* Subheading with Number */
@@ -209,10 +206,6 @@
     border-radius: 0;
   }
 
-  .split-card-info-heading {
-    font-size: 32px;
-  }
-
   .split-card-info-number {
     font-size: 20px;
   }
@@ -233,10 +226,6 @@
 
   .split-card-info-content {
     padding: 24px 20px;
-  }
-
-  .split-card-info-heading {
-    font-size: 28px;
   }
 
   .split-card-info-logo {

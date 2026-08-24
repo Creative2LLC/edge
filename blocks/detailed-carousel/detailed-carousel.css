@@ -25,11 +25,8 @@
 
 /* Section title */
 .detailed-carousel .detailed-carousel-title {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 40px;
-  line-height: 1.1;
 }
 
 /* Section description */
@@ -131,11 +128,8 @@
 }
 
 .detailed-carousel .detailed-carousel-stat-title {
-  font-size: 17px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 6px;
-  line-height: 1.3;
 }
 
 .detailed-carousel .detailed-carousel-stat-body {
@@ -260,10 +254,6 @@
     flex: 0 0 90%;
   }
 
-  .detailed-carousel .detailed-carousel-title {
-    font-size: 36px;
-  }
-
   .detailed-carousel .detailed-carousel-stats {
     gap: 20px;
   }
@@ -276,7 +266,6 @@
   }
 
   .detailed-carousel .detailed-carousel-title {
-    font-size: 32px;
     margin-bottom: 24px;
   }
 

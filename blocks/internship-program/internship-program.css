@@ -43,11 +43,8 @@
 
 /* Title */
 .internship-program-title {
-  font-size: 40px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 12px;
-  line-height: 1.15;
 }
 
 /* Richtext shared paragraph styles — grouped to satisfy no-descending-specificity */
@@ -91,11 +88,8 @@
 
 /* Section header */
 .internship-program-section-header {
-  font-size: 17px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 8px;
-  line-height: 1.4;
 }
 
 /* Section text (richtext) */
@@ -127,11 +121,8 @@
 }
 
 .internship-program-card-title {
-  font-size: 24px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 8px;
-  line-height: 1.25;
 }
 
 .internship-program-card-text {
@@ -144,11 +135,8 @@
 
 /* Bottom header */
 .internship-program-bottom-header {
-  font-size: 24px;
-  font-weight: 700;
   color: #404041;
   margin: 24px 0 8px;
-  line-height: 1.25;
 }
 
 /* Bottom text (richtext) */
@@ -197,12 +185,7 @@
 
   .internship-program-content {
     padding: 32px;
-  }
-
-  .internship-program-title {
-    font-size: 32px;
-  }
-}
+  }}
 
 /* Responsive: Mobile */
 @media (width <= 600px) {
@@ -212,10 +195,6 @@
 
   .internship-program-content {
     padding: 24px 20px;
-  }
-
-  .internship-program-title {
-    font-size: 28px;
   }
 
   .internship-program-cards {

@@ -49,10 +49,6 @@ main > .section > .missing-child-quick-report-wrapper {
 .missing-child-quick-report-heading {
   margin: 0;
   color: #00264d;
-  font-size: clamp(2.3rem, 4.5vw, 4rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0;
 }
 
 .missing-child-quick-report-intro {
@@ -88,10 +84,6 @@ main > .section > .missing-child-quick-report-wrapper {
 .missing-child-quick-report-emergency-heading {
   margin: 0 0 8px;
   color: #00264d;
-  font-size: 1.25rem;
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: 0;
 }
 
 .missing-child-quick-report-emergency-copy {

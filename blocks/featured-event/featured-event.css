@@ -90,9 +90,6 @@ main > .section > .featured-event-wrapper {
 
 .featured-event .featured-event-card-title {
   margin: 0;
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 1.2;
   color: #404041;
 }
 
@@ -231,12 +228,7 @@ main > .section > .featured-event-wrapper {
 
   .featured-event .featured-event-card-body {
     padding: 32px 28px 36px;
-  }
-
-  .featured-event .featured-event-card-title {
-    font-size: 28px;
-  }
-}
+  }}
 
 @media (width <= 560px) {
   .featured-event .featured-event-details {

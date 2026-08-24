@@ -28,10 +28,7 @@
 
 .split-card-offices .split-card-offices-heading {
   margin: 0;
-  font-size: 36px;
-  font-weight: 700;
   color: #404041;
-  line-height: 1.2;
 }
 
 /* CTA buttons row — sit side-by-side at the bottom */
@@ -138,10 +135,7 @@
 
 .split-card-offices .split-card-offices-feature-heading {
   margin: 0;
-  font-size: 24px;
-  font-weight: 700;
   color: #404041;
-  line-height: 1.25;
 }
 
 .split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text {
@@ -180,16 +174,7 @@
     flex: none;
     margin-left: 0;
     padding: 28px 24px;
-  }
-
-  .split-card-offices .split-card-offices-heading {
-    font-size: 30px;
-  }
-
-  .split-card-offices .split-card-offices-feature-heading {
-    font-size: 20px;
-  }
-}
+  }}
 
 @media (width <= 600px) {
   /* Stack the CTA buttons one per line so their labels aren't squeezed/clipped
@@ -203,9 +188,4 @@
     padding: 12px 14px;
     font-size: 14px;
     gap: 8px;
-  }
-
-  .split-card-offices .split-card-offices-heading {
-    font-size: 26px;
-  }
-}
+  }}

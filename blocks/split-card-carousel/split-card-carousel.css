@@ -30,11 +30,8 @@ main > .section > .split-card-carousel-wrapper {
 
 /* Section title - top left */
 .split-card-carousel .split-card-carousel-title {
-  font-size: 48px;
-  font-weight: 700;
   color: #00264d;
   margin: 0 0 40px;
-  line-height: 1.1;
 }
 
 /* Section description */
@@ -126,11 +123,8 @@ main > .section > .split-card-carousel-wrapper {
 
 /* Heading */
 .split-card-carousel .split-card-carousel-heading {
-  font-size: 40px;
-  font-weight: 700;
   color: #404041;
   margin: 0 0 12px;
-  line-height: 1.15;
   max-width: 540px;
 }
 
@@ -385,8 +379,6 @@ main > .section > .split-card-carousel-wrapper {
 }
 
 .split-card-carousel.variant-3 .split-card-carousel-heading {
-  font-size: 40px;
-  font-weight: 700;
   max-width: 587px;
 }
 
@@ -400,13 +392,7 @@ main > .section > .split-card-carousel-wrapper {
 @media (width <= 900px) {
   .split-card-carousel .split-card-carousel-slide {
     flex: 0 0 90%;
-  }
-
-  .split-card-carousel .split-card-carousel-title {
-    font-size: 36px;
-  }
-
-  /* Variant 3's fixed 1200px would overflow — let it fill the slide instead. */
+  }/* Variant 3's fixed 1200px would overflow — let it fill the slide instead. */
   .split-card-carousel.variant-3 .split-card-carousel-slide {
     flex: 0 0 90%;
     max-width: none;
@@ -457,7 +443,6 @@ main > .section > .split-card-carousel-wrapper {
   }
 
   .split-card-carousel .split-card-carousel-title {
-    font-size: 32px;
     margin-bottom: 24px;
   }
 
@@ -477,13 +462,7 @@ main > .section > .split-card-carousel-wrapper {
 
   .split-card-carousel .split-card-carousel-content {
     padding: 28px 24px;
-  }
-
-  .split-card-carousel .split-card-carousel-heading {
-    font-size: 28px;
-  }
-
-  /* Stack multiple buttons one per line on mobile (all style variants).
+  }/* Stack multiple buttons one per line on mobile (all style variants).
      variant-2 is named too since it forces nowrap on desktop. */
   .split-card-carousel .split-card-carousel-buttons,
   .split-card-carousel.variant-2 .split-card-carousel-buttons {

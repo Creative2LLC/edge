@@ -23,10 +23,6 @@ main > .section > .terms-content-wrapper {
 .terms-content-title {
   margin: 0 0 clamp(32px, 5vw, 64px);
   color: #00264d;
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: 0;
 }
 
 .terms-content-body {
@@ -47,20 +43,14 @@ main > .section > .terms-content-wrapper {
 .terms-content-body h2,
 .terms-content-body h3 {
   color: #00264d;
-  font-weight: 700;
-  letter-spacing: 0;
 }
 
 .terms-content-body h2 {
   margin: 48px 0 14px;
-  font-size: clamp(1.75rem, 2.8vw, 2.5rem);
-  line-height: 1.16;
 }
 
 .terms-content-body h3 {
   margin: 34px 0 12px;
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
-  line-height: 1.22;
 }
 
 .terms-content-body h4,
@@ -68,8 +58,6 @@ main > .section > .terms-content-wrapper {
 .terms-content-body h6 {
   margin: 28px 0 10px;
   color: #404041;
-  font-weight: 700;
-  line-height: 1.25;
 }
 
 .terms-content-body p,
@@ -148,7 +136,6 @@ main > .section > .terms-content-wrapper {
 
   .terms-content-title {
     margin-bottom: 30px;
-    font-size: 40px;
   }
 
   .terms-content-body {

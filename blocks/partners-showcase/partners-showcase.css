@@ -26,10 +26,6 @@ main > .section > .partners-showcase-wrapper {
 .partners-showcase .partners-showcase-heading {
   margin: 0;
   color: #00264d;
-  font-size: clamp(42px, 5vw, 62px);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.05em;
 }
 
 .partners-showcase .partners-showcase-subheading {

@@ -5,7 +5,19 @@
 >
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Figtree is the site's only typeface. Loaded here rather than via @import inside a
+     block stylesheet: an @import in lazily-loaded block CSS is render-blocking at the
+     worst possible moment. Full 300-900 variable axis so weights like 800/900 are real
+     cuts, not synthesized. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&display=swap">
 <script nonce="aem" src="/scripts/aem.js" type="module"></script>
 <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
-<link rel="stylesheet" href="/styles/styles.css"/>
+<!-- Tailwind FIRST. Its Preflight resets h1-h6 to `font-size: inherit; font-weight:
+     inherit` at specificity (0,0,1) — identical to our own `h1 { ... }` rules. Loaded
+     after styles.css it silently won, which is why the global type scale never applied
+     and every block hardcoded its own heading sizes. Preflight's other resets
+     (box-sizing, img display) still apply; only our element rules now win. -->
 <link rel="stylesheet" href="/styles/tailwind.css"/>
+<link rel="stylesheet" href="/styles/styles.css"/>

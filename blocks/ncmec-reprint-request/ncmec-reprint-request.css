@@ -47,10 +47,6 @@ main > .section > .ncmec-reprint-request-wrapper {
 .ncmec-reprint-request-heading {
   margin: 0;
   color: #00264d;
-  font-size: clamp(2.15rem, 4.1vw, 3.75rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0;
 }
 
 .ncmec-reprint-request-intro {
@@ -213,8 +209,6 @@ main > .section > .ncmec-reprint-request-wrapper {
 .ncmec-reprint-request-terms h3 {
   margin: 0;
   color: #00264d;
-  font-size: 1rem;
-  line-height: 1.35;
 }
 
 .ncmec-reprint-request-terms ul {

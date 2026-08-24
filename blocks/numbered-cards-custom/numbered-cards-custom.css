@@ -50,10 +50,6 @@
 
 .numbered-cards-custom .numbered-cards-custom-heading {
   margin: 0;
-  font-size: clamp(48px, 7vw, 76px);
-  font-weight: 700;
-  line-height: 0.98;
-  letter-spacing: -0.05em;
   color: #00264d;
 }
 
@@ -436,10 +432,6 @@
     margin-bottom: 22px;
   }
 
-  .numbered-cards-custom .numbered-cards-custom-heading {
-    font-size: 42px;
-  }
-
   .numbered-cards-custom .numbered-cards-custom-subtitle {
     margin-top: 18px;
     font-size: 20px;
@@ -488,10 +480,6 @@
 @media (width <= 560px) {
   .numbered-cards-custom .numbered-cards-custom-wrapper {
     padding: 48px 16px 44px;
-  }
-
-  .numbered-cards-custom .numbered-cards-custom-heading {
-    font-size: 34px;
   }
 
   .numbered-cards-custom .numbered-cards-custom-subtitle {

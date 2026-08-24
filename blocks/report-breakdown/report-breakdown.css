@@ -34,11 +34,7 @@
   max-width: 1100px;
   margin: 0;
   color: #113a67;
-  font-size: 64px;
-  font-weight: 700;
-  line-height: 1.02;
   text-align: center;
-  letter-spacing: -0.04em;
 }
 
 .report-breakdown .report-breakdown-body-text {
@@ -407,13 +403,7 @@
   }
 }
 
-@media (width <= 900px) {
-  .report-breakdown .report-breakdown-heading {
-    font-size: 40px;
-    letter-spacing: 0;
-  }
-
-  .report-breakdown .report-breakdown-body-text {
+@media (width <= 900px) {.report-breakdown .report-breakdown-body-text {
     font-size: 18px;
   }
 }
