@@ -43,18 +43,50 @@ const ALLOWLIST = new Set([
 // A value is fine if it defers to the scale rather than restating a number.
 const isDeferred = (v) => v.startsWith('var(') || v === 'inherit' || v === 'unset' || v === 'revert';
 
+const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
+
+/**
+ * Classes this block puts on a real <h1>-<h6>.
+ *
+ * Deliberately argument-order agnostic. Blocks build headings inconsistently —
+ * `buildTextElement('h2', 'cta-card-1-title', field)` puts the tag first while
+ * `buildTextElement(field, 'h2', 'text-image-heading')` puts it second. An earlier
+ * version of this guard only matched tag-first and silently missed six blocks.
+ * If you add a new heading-building helper, check it is caught here.
+ */
 function headingClassesFor(dir, files) {
   const classes = new Set();
   for (const jf of files.filter((f) => f.endsWith('.js'))) {
     const js = fs.readFileSync(path.join(dir, jf), 'utf8');
-    // const h = document.createElement('h2'); ... h.className = 'foo'
-    const reCreate = /(?:const|let|var)\s+(\w+)\s*=\s*document\.createElement\(\s*['"](h[1-6])['"]\s*\)([\s\S]{0,500}?)\1\.(?:className\s*=\s*|classList\.add\()\s*[`'"]([^`'"]+)/g;
-    // buildTextElement('h2', 'foo-title', ...)
-    const reBuild = /\(\s*['"](h[1-6])['"]\s*,\s*['"]([a-z0-9-]+)['"]/gi;
     let m;
+
+    // createElement('hN') ... el.className = 'foo' / el.classList.add('foo')
+    const reCreate = /(?:const|let|var)\s+(\w+)\s*=\s*document\.createElement\(\s*['"](h[1-6])['"]\s*\)([\s\S]{0,600}?)\1\.(?:className\s*=\s*|classList\.add\()\s*[`'"]([^`'"]+)/g;
     while ((m = reCreate.exec(js))) m[4].trim().split(/\s+/).forEach((c) => classes.add(c));
-    while ((m = reBuild.exec(js))) classes.add(m[2]);
+
+    // createElement(headingLevel) — tag chosen at runtime
+    const reVar = /(?:const|let|var)\s+(\w+)\s*=\s*document\.createElement\(\s*([A-Za-z_$][\w$]*)\s*\)([\s\S]{0,600}?)\1\.(?:className\s*=\s*|classList\.add\()\s*[`'"]([^`'"]+)/g;
+    while ((m = reVar.exec(js))) {
+      if (!/level|tag|heading/i.test(m[2])) continue;
+      m[4].trim().split(/\s+/).forEach((c) => classes.add(c));
+    }
+
+    // any helper call carrying an 'hN' literal — every kebab-case literal in the
+    // same call is a candidate class, whatever the parameter order
+    const reCall = /\b[A-Za-z_$][\w$]*\s*\(([^()]{0,300})\)/g;
+    while ((m = reCall.exec(js))) {
+      if (!/['"]h[1-6]['"]/.test(m[1])) continue;
+      (m[1].match(/['"]([^'"]+)['"]/g) || [])
+        .map((l) => l.slice(1, -1))
+        .filter((l) => KEBAB.test(l))
+        .forEach((c) => classes.add(c));
+    }
+
+    // template-literal markup: <h2 class="foo">
+    const reMarkup = /<h[1-6][^>]*\sclass=["']([^"']+)["']/gi;
+    while ((m = reMarkup.exec(js))) m[1].split(/\s+/).forEach((c) => classes.add(c));
   }
+  classes.delete('');
   return classes;
 }
 

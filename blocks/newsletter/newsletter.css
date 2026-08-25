@@ -156,6 +156,7 @@ main > .section > .newsletter-wrapper {
   padding: 4px;
   cursor: pointer;
   line-height: 0;
+  margin: 0 !important;
 }
 
 .newsletter .newsletter-send-icon:focus-visible {

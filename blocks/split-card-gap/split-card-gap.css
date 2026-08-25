@@ -302,6 +302,10 @@ main > .section > .split-card-gap-wrapper {
     padding: 48px 0;
   }
 
+  .split-card-gap .split-card-gap-benefit{
+    align-items: center;
+  }
+  
   .split-card-gap .split-card-gap-inner {
     grid-template-columns: 1fr;
     gap: 32px;

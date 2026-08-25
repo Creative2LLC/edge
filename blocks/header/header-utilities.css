@@ -1,0 +1,223 @@
+/*
+ * Local utility layer for the mega-nav.
+ *
+ * The nav markup in header.js is built with utility class names that used to come
+ * from Tailwind. Tailwind has been removed from the project (its Preflight reset was
+ * silently overriding the global type scale — see audits/typography-audit.md), so the
+ * ~100 utilities the nav actually uses are declared here instead.
+ *
+ * These are deliberately NOT global. They are scoped to <header> so they cannot
+ * leak into blocks and start a second, parallel styling system. If you need one of
+ * these effects elsewhere, write it in that block's own CSS.
+ *
+ * Tailwind's versions of shadow/ring/transform/space-y were built on a set of
+ * --tw-* custom properties initialized by Preflight. Those are written out as plain
+ * declarations here rather than dragging the variable machinery along.
+ *
+ * Do not add to this file. It exists to retire a dependency, not to grow a utility
+ * framework. New nav styling belongs in header.css with a semantic class name.
+ */
+
+/* stylelint-disable selector-class-pattern -- utility names are fixed by header.js markup. */
+
+/* ---------- position ---------- */
+header .\!static { position: static !important; }
+header .absolute { position: absolute; }
+header .relative { position: relative; }
+header .left-1\/2 { left: 50%; }
+header .top-full { top: 100%; }
+header .isolate { isolation: isolate; }
+header .z-50 { z-index: 50; }
+header .-translate-x-1\/2 { transform: translateX(-50%); }
+
+/* ---------- display ---------- */
+header .block { display: block; }
+header .inline-flex { display: inline-flex; }
+header .table { display: table; }
+header .grid { display: grid; }
+header .hidden { display: none; }
+
+/* ---------- grid ---------- */
+header .grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+header .col-span-1 { grid-column: span 1 / span 1; }
+header .col-span-2 { grid-column: span 2 / span 2; }
+header .col-span-3 { grid-column: span 3 / span 3; }
+header .col-span-4 { grid-column: span 4 / span 4; }
+header .col-span-5 { grid-column: span 5 / span 5; }
+header .col-span-6 { grid-column: span 6 / span 6; }
+header .col-span-7 { grid-column: span 7 / span 7; }
+header .col-span-8 { grid-column: span 8 / span 8; }
+header .col-span-9 { grid-column: span 9 / span 9; }
+header .col-span-10 { grid-column: span 10 / span 10; }
+header .col-span-11 { grid-column: span 11 / span 11; }
+header .col-span-12 { grid-column: span 12 / span 12; }
+
+/* ---------- flex / alignment ---------- */
+header .items-center { align-items: center; }
+header .self-start { align-self: flex-start; }
+header .gap-2 { gap: 0.5rem; }
+header .gap-8 { gap: 2rem; }
+
+/* ---------- sizing ---------- */
+header .h-auto { height: auto; }
+header .w-full { width: 100%; }
+header .w-\[calc\(100vw-2rem\)\] { width: calc(100vw - 2rem); }
+header .max-w-\[900px\] { max-width: 900px; }
+header .overflow-hidden { overflow: hidden; }
+header .resize { resize: both; }
+header .object-cover { object-fit: cover; }
+
+/* ---------- margin ---------- */
+header .mb-2 { margin-bottom: 0.5rem; }
+header .ml-2 { margin-left: 0.5rem; }
+header .mt-2 { margin-top: 0.5rem; }
+header .mt-3 { margin-top: 0.75rem; }
+header .mt-4 { margin-top: 1rem; }
+header .mt-\[-7px\] { margin-top: -7px; }
+header .\!mt-0 { margin-top: 0 !important; }
+header .\!mt-\[10px\] { margin-top: 10px !important; }
+header .\!mb-\[30px\] { margin-bottom: 30px !important; }
+
+/* ---------- padding ---------- */
+header .px-0 {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+header .px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+header .px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+header .py-0 {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+header .py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+header .py-7 {
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
+}
+header .pl-3 { padding-left: 0.75rem; }
+header .pl-4 { padding-left: 1rem; }
+header .pt-4 { padding-top: 1rem; }
+
+/* ---------- stack spacing (Tailwind space-y-*) ---------- */
+header .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.375rem; }
+header .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+header .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+
+/* ---------- type ---------- */
+header .text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+header .text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+header .text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+header .text-\[20px\] { font-size: 20px; }
+header .font-semibold { font-weight: 600; }
+header .font-bold { font-weight: 700; }
+header .leading-snug { line-height: 1.375; }
+header .leading-\[1\.48\] { line-height: 1.48; }
+header .tracking-\[0\.18em\] { letter-spacing: 0.18em; }
+header .uppercase { text-transform: uppercase; }
+header .whitespace-normal { white-space: normal; }
+header .\!whitespace-normal { white-space: normal !important; }
+header .underline { text-decoration-line: underline; }
+header .underline-offset-4 { text-underline-offset: 4px; }
+header .decoration-white\/40 { text-decoration-color: rgb(255 255 255 / 40%); }
+header .decoration-\[\#FCB813\]\/60 { text-decoration-color: rgb(252 184 19 / 60%); }
+
+/* ---------- color ---------- */
+header .text-white { color: #fff; }
+header .text-white\/60 { color: rgb(255 255 255 / 60%); }
+header .text-white\/70 { color: rgb(255 255 255 / 70%); }
+header .text-white\/80 { color: rgb(255 255 255 / 80%); }
+header .text-white\/90 { color: rgb(255 255 255 / 90%); }
+header .text-\[\#FCB813\] { color: #fcb813; }
+
+/* Used only in the mega-footer template markup in header.js, which is why it is
+   easy to miss when grepping for classList.add() calls. */
+header .text-yellow-300 { color: rgb(253 224 71); }
+header .bg-\[\#143654\] { background-color: #143654; }
+header .bg-\[\#0ea5c6\] { background-color: #0ea5c6; }
+
+/* ---------- border / radius ---------- */
+header .border-t { border-top-width: 1px; }
+header .border-none { border-style: none; }
+header .border-white\/10 { border-color: rgb(255 255 255 / 10%); }
+header .rounded-xl { border-radius: 0.75rem; }
+header .rounded-2xl { border-radius: 1rem; }
+header .rounded-full { border-radius: 9999px; }
+header .rounded-\[28px\] { border-radius: 28px; }
+
+/* ---------- shadow / ring ----------
+   Tailwind composed these through --tw-ring-shadow / --tw-shadow. Written out
+   directly; .ring-1 and .ring-white/10 are always used together in header.js. */
+header .shadow-\[0_20px_60px_rgba\(0\,0\,0\,0\.25\)\] {
+  box-shadow: 0 20px 60px rgb(0 0 0 / 25%);
+}
+
+header .ring-1.ring-white\/10 {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
+}
+
+header .shadow-\[0_20px_60px_rgba\(0\,0\,0\,0\.25\)\].ring-1.ring-white\/10 {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 10%),
+    0 20px 60px rgb(0 0 0 / 25%);
+}
+
+/* ---------- transition ---------- */
+header .transition {
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke,
+    opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+}
+
+header .duration-200 { transition-duration: 0.2s; }
+
+/* ---------- hover ---------- */
+header .hover\:text-white:hover { color: #fff; }
+header .hover\:underline:hover { text-decoration-line: underline; }
+header .hover\:decoration-white:hover { text-decoration-color: #fff; }
+
+/* ---------- hover bridge pseudo-element ----------
+   Invisible strip above the dropdown so the pointer can travel from the top-level
+   link into the panel without the panel closing underneath it. */
+header .after\:absolute::after { position: absolute; }
+header .after\:content-\[\"\"\]::after { content: ""; }
+header .after\:-top-3::after { top: -0.75rem; }
+header .after\:left-0::after { left: 0; }
+header .after\:right-0::after { right: 0; }
+header .after\:h-3::after { height: 0.75rem; }
+header .after\:bg-transparent::after { background-color: transparent; }
+
+/* ---------- dropdown open state ----------
+   THE mega-nav mechanism: the panel is display:none until its .group ancestor is
+   hovered, focused within, or aria-expanded. If dropdowns stop opening, look here. */
+header .group:hover .group-hover\:grid,
+header .group:focus-within .group-focus-within\:grid,
+header .group[aria-expanded="true"] .group-aria-expanded\:grid {
+  display: grid;
+}

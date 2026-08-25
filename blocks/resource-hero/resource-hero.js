@@ -62,6 +62,18 @@ const TITLE_SIZE_TOKENS = ['title-sm', 'title-md', 'title-lg', 'title-xl'];
 const TITLE_COLOR_TOKENS = ['title-white', 'title-navy', 'title-blue', 'title-brand', 'title-grey', 'title-orange', 'title-red'];
 const TITLE_WEIGHT_TOKENS = ['title-bold', 'title-black'];
 
+/**
+ * Per-instance title sizing is OFF: the global scale in styles/styles.css owns
+ * typography (see audits/typography-audit.md). The title-sm/md/lg/xl and
+ * title-bold/title-black classes were a second, block-local type scale competing
+ * with the global one. Flip this to true to hand size control back to authors.
+ *
+ * content_titleSize / content_titleWeight are deliberately still read and still
+ * occupy their rows — deleting them from the model would shift every later
+ * field's index on already-published pages. Title COLOR is unaffected.
+ */
+const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
+
 const RESOURCE_FIELD_NAMES = Object.keys(FIELD_INDEX);
 
 const TAXONOMY_LABELS = {
@@ -1151,9 +1163,11 @@ export default async function decorate(block) {
     fields.title || 'Resource title',
   );
   if (title) {
-    if (fields.titleSize) title.classList.add(fields.titleSize);
+    if (ALLOW_AUTHOR_TYPE_OVERRIDES) {
+      if (fields.titleSize) title.classList.add(fields.titleSize);
+      if (fields.titleWeight) title.classList.add(fields.titleWeight);
+    }
     if (fields.titleColor) title.classList.add(fields.titleColor);
-    if (fields.titleWeight) title.classList.add(fields.titleWeight);
     main.append(title);
   }
 

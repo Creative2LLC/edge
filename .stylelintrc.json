@@ -1,9 +1,5 @@
 {
-  "extends": ["stylelint-config-standard"],
-  "ignoreFiles": ["styles/tailwind.css", "styles/tailwind.src.css"],
-  "rules": {
-    "at-rule-no-unknown": [true, {
-      "ignoreAtRules": ["tailwind", "apply", "layer", "config", "screen"]
-    }]
-  }
+  "extends": [
+    "stylelint-config-standard"
+  ]
 }

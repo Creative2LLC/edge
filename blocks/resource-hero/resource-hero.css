@@ -320,20 +320,18 @@
   max-width: 13ch;
   margin: 0;
   color: inherit;
-  font-size: clamp(3.25rem, 8vw, 7rem);
-  line-height: 0.92;
-  letter-spacing: -0.065em;
+
+  /* This is a hero headline, so it sits on the display scale rather than the
+     plain h1 size — same token the homepage hero uses. */
+  font-size: var(--display-lg-size);
 }
 
-/* Optional per-title font-size override (Title Style tab) */
-.resource-hero-title.title-sm { font-size: clamp(2rem, 4.5vw, 3.25rem); }
-.resource-hero-title.title-md { font-size: clamp(2.5rem, 6vw, 4.5rem); }
-.resource-hero-title.title-lg { font-size: clamp(3rem, 7vw, 5.75rem); }
-.resource-hero-title.title-xl { font-size: clamp(3.75rem, 9vw, 8rem); }
-
-/* Optional per-title font weight */
-.resource-hero-title.title-bold { font-weight: 700; }
-.resource-hero-title.title-black { font-weight: 900; }
+/* The authored title-sm/md/lg/xl and title-bold/title-black size classes used to
+   be defined here. They were a second, block-local type scale competing with the
+   global one, so they no longer apply — resource-hero.js stops adding them (see
+   ALLOW_AUTHOR_TYPE_OVERRIDES there). The content_titleSize / content_titleWeight
+   fields stay in the model: removing them would shift every later field's index
+   on already-published pages. Color overrides below are unaffected. */
 
 /* Optional per-title color override (wins over the general Text Color) */
 .resource-hero-title.title-white { color: #fff; }
@@ -504,7 +502,6 @@
 
   .resource-hero-title {
     max-width: 100%;
-    font-size: clamp(3rem, 16vw, 4.8rem);
   }
 
   .resource-hero-actions,

@@ -286,6 +286,7 @@
 .impact-donut .impact-donut-legend-item {
   padding: 8px 22px 0;
   transition-delay: calc(220ms + (var(--stagger-index, 0) * 90ms));
+  text-align: center;
 }
 
 .impact-donut .impact-donut-legend-item + .impact-donut-legend-item {
@@ -355,6 +356,10 @@
   .impact-donut {
     padding: 56px 0;
   }
+
+    .impact-donut .impact-donut-legend-label{
+        margin: 15px 0;
+    }
 
   .impact-donut .impact-donut-stats {
     grid-template-columns: 1fr;

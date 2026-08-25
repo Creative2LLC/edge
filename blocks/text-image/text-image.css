@@ -44,10 +44,6 @@
 
 .text-image.block .text-image-heading {
   margin: 0 0 24px;
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
   color: #00264d;
   text-align: left;
   opacity: 0;
@@ -220,10 +216,6 @@
     font-size: 18px;
   }
 
-  .text-image.block .text-image-heading {
-    font-size: 32px;
-  }
-
   .text-image.block .text-image-body {
     font-size: 18px;
   }
@@ -388,8 +380,7 @@
 
 .text-image.block.text-image-variant-2 .text-image-heading {
   max-width: 700px;
-  font-size: 48px;
-  font-weight: 700;
+  font-size: var(--heading-2-size);
 }
 
 .text-image.block.text-image-variant-2 .text-image-body {
@@ -491,8 +482,7 @@
 
 .text-image.block.text-image-variant-3 .text-image-heading {
   max-width: 658px;
-  font-size: 64px;
-  font-weight: 700;
+  font-size: var(--heading-1-size);
 }
 
 .text-image.block.text-image-variant-3 .text-image-body {
@@ -549,10 +539,6 @@
     padding: 48px 24px;
   }
 
-  .text-image.block.text-image-variant-3 .text-image-heading {
-    font-size: 40px;
-  }
-
   .text-image.block.text-image-variant-3 .text-image-media {
     flex: none;
     width: 100%;
@@ -603,8 +589,7 @@
 
 .text-image.block.text-image-variant-4 .text-image-heading {
   max-width: 662px;
-  font-size: 48px;
-  font-weight: 700;
+  font-size: var(--heading-2-size);
 }
 
 .text-image.block.text-image-variant-4 .text-image-body {
@@ -678,7 +663,6 @@
 
   .text-image.block.text-image-variant-3 .text-image-heading {
     max-width: none;
-    font-size: clamp(3rem, 5vw, 3.5rem);
   }
 
   .text-image.block.text-image-variant-3 .text-image-body {

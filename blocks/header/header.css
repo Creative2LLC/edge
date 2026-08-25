@@ -1,3 +1,8 @@
+/* The mega-nav markup in header.js uses utility class names that used to be
+   provided by Tailwind. Tailwind is gone (see audits/typography-audit.md); these
+   are now declared locally, scoped to <header>. */
+@import url("./header-utilities.css");
+
 /* header and nav layout */
 header .nav-wrapper {
   --nav-mobile-surface:

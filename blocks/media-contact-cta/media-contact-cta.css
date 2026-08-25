@@ -64,9 +64,6 @@
 .media-contact-cta-heading {
   margin: 0 0 20px;
   color: #fff;
-  font-size: 34px;
-  line-height: 1.08;
-  letter-spacing: 0;
 }
 
 .media-contact-cta-copy {
@@ -116,10 +113,6 @@
   .media-contact-cta-inner {
     width: min(1420px, calc(100% - 24px));
     padding: 28px 22px;
-  }
-
-  .media-contact-cta-heading {
-    font-size: 28px;
   }
 
   .media-contact-cta-copy {

@@ -16,9 +16,6 @@
 .media-reporting-info-heading {
   margin: 0 0 10px;
   color: #06345d;
-  font-size: 48px;
-  line-height: 1.05;
-  letter-spacing: 0;
 }
 
 .media-reporting-info-intro {
@@ -37,9 +34,6 @@
 .media-reporting-info-item-heading {
   margin: 0 0 24px;
   color: #404041;
-  font-size: 34px;
-  line-height: 1.1;
-  letter-spacing: 0;
 }
 
 .media-reporting-info-item-copy {
@@ -62,10 +56,6 @@
     margin-bottom: 40px;
   }
 
-  .media-reporting-info-heading {
-    font-size: 38px;
-  }
-
   .media-reporting-info-grid {
     grid-template-columns: 1fr;
     gap: 34px;
@@ -73,7 +63,6 @@
 
   .media-reporting-info-item-heading {
     margin-bottom: 12px;
-    font-size: 28px;
   }
 }
 
@@ -84,10 +73,6 @@
 
   .media-reporting-info-inner {
     width: min(1420px, calc(100% - 24px));
-  }
-
-  .media-reporting-info-heading {
-    font-size: 34px;
   }
 
   .media-reporting-info-item-copy {

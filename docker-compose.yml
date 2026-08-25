@@ -1,3 +1,7 @@
+# The `css` service used to run `npm run dev:css` (vite --watch) to rebuild
+# styles/tailwind.css. Tailwind was removed — all CSS is now hand-authored and
+# served directly, so there is no build step and nothing to watch.
+# See audits/typography-audit.md.
 services:
     edge:
         build:
@@ -10,18 +14,3 @@ services:
             - '.:/app'
         working_dir: /app
         command: ['aem', 'up', '--addr', '*', '--port', '3000']
-    css:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        image: 'ncmec-edge'
-        volumes:
-            - '.:/app'
-            - 'node-modules:/app/node_modules'
-        working_dir: /app
-        environment:
-            CHOKIDAR_USEPOLLING: '1'
-        command: ['sh', '-lc', 'npm ci && npm run dev:css']
-volumes:
-    node-modules:
-        driver: local
