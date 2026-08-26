@@ -98,6 +98,12 @@ main > .section > .resources-browser-wrapper {
   justify-content: center;
   width: 40px;
   height: 40px;
+
+  /* styles.css gives every bare <button> a CTA's margin (12px 0) and padding
+     (0.5em 1.2em). Inside a fixed-size icon button that padding left the icon
+     0px wide — the toggle rendered with no visible indicator at all. */
+  margin: 0;
+  padding: 0;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -542,9 +548,16 @@ main > .section > .resources-browser-wrapper {
   background: currentcolor;
 }
 
+/* Title and description share a 5-line budget, with the title served first.
+   resources-browser.js measures how many lines the title actually took and
+   hands the remainder to the subtitle via --rb-subtitle-lines. */
 .resources-browser .resources-browser-card-title {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
   color: #404041;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--rb-title-lines, 5);
 }
 
 .resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-title {
@@ -563,12 +576,17 @@ main > .section > .resources-browser-wrapper {
   font-size: 14px;
   line-height: 1.45;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: var(--rb-subtitle-lines, 3);
+}
+
+/* Title used the whole budget: nothing left for the description. Needs to beat
+   the -webkit-box display above, which would otherwise defeat [hidden]. */
+.resources-browser .resources-browser-card-subtitle[hidden] {
+  display: none;
 }
 
 .resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-subtitle {
   max-width: 760px;
-  -webkit-line-clamp: 4;
 }
 
 .resources-browser .resources-browser-card-link {

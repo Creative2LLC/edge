@@ -942,45 +942,13 @@
           "component": "select",
           "valueType": "string",
           "name": "titleFontSize",
-          "label": "Title Font Size",
-          "description": "Optional title font size.",
+          "label": "Title Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
           "value": "",
           "options": [
             {
-              "name": "Default",
+              "name": "Set by site styles",
               "value": ""
-            },
-            {
-              "name": "Small (14px)",
-              "value": "14px"
-            },
-            {
-              "name": "Base (16px)",
-              "value": "16px"
-            },
-            {
-              "name": "Large (18px)",
-              "value": "18px"
-            },
-            {
-              "name": "XL (20px)",
-              "value": "20px"
-            },
-            {
-              "name": "2XL (24px)",
-              "value": "24px"
-            },
-            {
-              "name": "3XL (28px)",
-              "value": "28px"
-            },
-            {
-              "name": "4XL (32px)",
-              "value": "32px"
-            },
-            {
-              "name": "5XL (40px)",
-              "value": "40px"
             }
           ]
         },
@@ -988,45 +956,13 @@
           "component": "select",
           "valueType": "string",
           "name": "descriptionFontSize",
-          "label": "Description Font Size",
-          "description": "Optional description font size.",
+          "label": "Description Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
           "value": "",
           "options": [
             {
-              "name": "Default",
+              "name": "Set by site styles",
               "value": ""
-            },
-            {
-              "name": "Small (14px)",
-              "value": "14px"
-            },
-            {
-              "name": "Base (16px)",
-              "value": "16px"
-            },
-            {
-              "name": "Large (18px)",
-              "value": "18px"
-            },
-            {
-              "name": "XL (20px)",
-              "value": "20px"
-            },
-            {
-              "name": "2XL (24px)",
-              "value": "24px"
-            },
-            {
-              "name": "3XL (28px)",
-              "value": "28px"
-            },
-            {
-              "name": "4XL (32px)",
-              "value": "32px"
-            },
-            {
-              "name": "5XL (40px)",
-              "value": "40px"
             }
           ]
         },
@@ -1034,45 +970,13 @@
           "component": "select",
           "valueType": "string",
           "name": "contactLabelFontSize",
-          "label": "Contact Label Font Size",
-          "description": "Optional contact label font size.",
+          "label": "Contact Label Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
           "value": "",
           "options": [
             {
-              "name": "Default",
+              "name": "Set by site styles",
               "value": ""
-            },
-            {
-              "name": "Small (14px)",
-              "value": "14px"
-            },
-            {
-              "name": "Base (16px)",
-              "value": "16px"
-            },
-            {
-              "name": "Large (18px)",
-              "value": "18px"
-            },
-            {
-              "name": "XL (20px)",
-              "value": "20px"
-            },
-            {
-              "name": "2XL (24px)",
-              "value": "24px"
-            },
-            {
-              "name": "3XL (28px)",
-              "value": "28px"
-            },
-            {
-              "name": "4XL (32px)",
-              "value": "32px"
-            },
-            {
-              "name": "5XL (40px)",
-              "value": "40px"
             }
           ]
         },
@@ -1080,45 +984,13 @@
           "component": "select",
           "valueType": "string",
           "name": "contactValueFontSize",
-          "label": "Contact Value Font Size",
-          "description": "Optional contact value font size.",
+          "label": "Contact Value Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
           "value": "",
           "options": [
             {
-              "name": "Default",
+              "name": "Set by site styles",
               "value": ""
-            },
-            {
-              "name": "Small (14px)",
-              "value": "14px"
-            },
-            {
-              "name": "Base (16px)",
-              "value": "16px"
-            },
-            {
-              "name": "Large (18px)",
-              "value": "18px"
-            },
-            {
-              "name": "XL (20px)",
-              "value": "20px"
-            },
-            {
-              "name": "2XL (24px)",
-              "value": "24px"
-            },
-            {
-              "name": "3XL (28px)",
-              "value": "28px"
-            },
-            {
-              "name": "4XL (32px)",
-              "value": "32px"
-            },
-            {
-              "name": "5XL (40px)",
-              "value": "40px"
             }
           ]
         },

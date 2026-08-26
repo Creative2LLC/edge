@@ -3827,12 +3827,18 @@
         "value": ""
       },
       {
-        "component": "text",
+        "component": "select",
         "valueType": "string",
         "name": "disclaimerFontSize",
-        "label": "Disclaimer Font Size",
-        "description": "Optional CSS length such as 12px or 0.75rem.",
-        "value": ""
+        "label": "Disclaimer Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in cards.js and restore this field's options.",
+        "value": "",
+        "options": [
+          {
+            "name": "Set by site styles",
+            "value": ""
+          }
+        ]
       },
       {
         "component": "tab",
@@ -9860,45 +9866,13 @@
         "component": "select",
         "valueType": "string",
         "name": "titleFontSize",
-        "label": "Title Font Size",
-        "description": "Optional title font size.",
+        "label": "Title Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small (14px)",
-            "value": "14px"
-          },
-          {
-            "name": "Base (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (18px)",
-            "value": "18px"
-          },
-          {
-            "name": "XL (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "2XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "3XL (28px)",
-            "value": "28px"
-          },
-          {
-            "name": "4XL (32px)",
-            "value": "32px"
-          },
-          {
-            "name": "5XL (40px)",
-            "value": "40px"
           }
         ]
       },
@@ -9906,45 +9880,13 @@
         "component": "select",
         "valueType": "string",
         "name": "descriptionFontSize",
-        "label": "Description Font Size",
-        "description": "Optional description font size.",
+        "label": "Description Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small (14px)",
-            "value": "14px"
-          },
-          {
-            "name": "Base (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (18px)",
-            "value": "18px"
-          },
-          {
-            "name": "XL (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "2XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "3XL (28px)",
-            "value": "28px"
-          },
-          {
-            "name": "4XL (32px)",
-            "value": "32px"
-          },
-          {
-            "name": "5XL (40px)",
-            "value": "40px"
           }
         ]
       },
@@ -9952,45 +9894,13 @@
         "component": "select",
         "valueType": "string",
         "name": "contactLabelFontSize",
-        "label": "Contact Label Font Size",
-        "description": "Optional contact label font size.",
+        "label": "Contact Label Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small (14px)",
-            "value": "14px"
-          },
-          {
-            "name": "Base (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (18px)",
-            "value": "18px"
-          },
-          {
-            "name": "XL (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "2XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "3XL (28px)",
-            "value": "28px"
-          },
-          {
-            "name": "4XL (32px)",
-            "value": "32px"
-          },
-          {
-            "name": "5XL (40px)",
-            "value": "40px"
           }
         ]
       },
@@ -9998,45 +9908,13 @@
         "component": "select",
         "valueType": "string",
         "name": "contactValueFontSize",
-        "label": "Contact Value Font Size",
-        "description": "Optional contact value font size.",
+        "label": "Contact Value Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small (14px)",
-            "value": "14px"
-          },
-          {
-            "name": "Base (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (18px)",
-            "value": "18px"
-          },
-          {
-            "name": "XL (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "2XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "3XL (28px)",
-            "value": "28px"
-          },
-          {
-            "name": "4XL (32px)",
-            "value": "32px"
-          },
-          {
-            "name": "5XL (40px)",
-            "value": "40px"
           }
         ]
       },
@@ -17848,45 +17726,13 @@
         "component": "select",
         "valueType": "string",
         "name": "titleFontSize",
-        "label": "Title Font Size",
-        "description": "Optional title font size.",
+        "label": "Title Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in info-cards-grid.js and restore this field's options.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small (14px)",
-            "value": "14px"
-          },
-          {
-            "name": "Base (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (18px)",
-            "value": "18px"
-          },
-          {
-            "name": "XL (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "2XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "3XL (28px)",
-            "value": "28px"
-          },
-          {
-            "name": "4XL (32px)",
-            "value": "32px"
-          },
-          {
-            "name": "5XL (40px)",
-            "value": "40px"
           }
         ]
       },
@@ -17894,45 +17740,13 @@
         "component": "select",
         "valueType": "string",
         "name": "subtitleFontSize",
-        "label": "Subtitle Font Size",
-        "description": "Optional subtitle font size.",
+        "label": "Subtitle Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in info-cards-grid.js and restore this field's options.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small (14px)",
-            "value": "14px"
-          },
-          {
-            "name": "Base (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (18px)",
-            "value": "18px"
-          },
-          {
-            "name": "XL (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "2XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "3XL (28px)",
-            "value": "28px"
-          },
-          {
-            "name": "4XL (32px)",
-            "value": "32px"
-          },
-          {
-            "name": "5XL (40px)",
-            "value": "40px"
           }
         ]
       },
@@ -17940,45 +17754,13 @@
         "component": "select",
         "valueType": "string",
         "name": "bodyFontSize",
-        "label": "Body Font Size",
-        "description": "Optional body font size.",
+        "label": "Body Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in info-cards-grid.js and restore this field's options.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small (14px)",
-            "value": "14px"
-          },
-          {
-            "name": "Base (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (18px)",
-            "value": "18px"
-          },
-          {
-            "name": "XL (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "2XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "3XL (28px)",
-            "value": "28px"
-          },
-          {
-            "name": "4XL (32px)",
-            "value": "32px"
-          },
-          {
-            "name": "5XL (40px)",
-            "value": "40px"
           }
         ]
       },
@@ -23259,7 +23041,7 @@
         ]
       },
       {
-        "component": "select",
+        "component": "multiselect",
         "name": "issue",
         "label": "Resource Tags - Topic",
         "options": [
@@ -23334,7 +23116,7 @@
         ]
       },
       {
-        "component": "select",
+        "component": "multiselect",
         "name": "resourceType",
         "label": "Resource Tags - Resource Type",
         "options": [
@@ -24111,7 +23893,7 @@
         ]
       },
       {
-        "component": "select",
+        "component": "multiselect",
         "name": "issue",
         "label": "Topic",
         "options": [
@@ -24186,7 +23968,7 @@
         ]
       },
       {
-        "component": "select",
+        "component": "multiselect",
         "name": "resourceType",
         "label": "Resource Type",
         "options": [
@@ -24377,27 +24159,12 @@
         "component": "select",
         "valueType": "string",
         "name": "content_titleSize",
-        "label": "Title Font Size",
+        "label": "Title Font Size (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in resource-hero.js and restore this field's options.",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Small",
-            "value": "title-sm"
-          },
-          {
-            "name": "Medium",
-            "value": "title-md"
-          },
-          {
-            "name": "Large",
-            "value": "title-lg"
-          },
-          {
-            "name": "Extra Large",
-            "value": "title-xl"
           }
         ],
         "value": ""
@@ -24448,19 +24215,12 @@
         "component": "select",
         "valueType": "string",
         "name": "content_titleWeight",
-        "label": "Title Weight",
+        "label": "Title Weight (set by site styles)",
+        "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in resource-hero.js and restore this field's options.",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "Bold",
-            "value": "title-bold"
-          },
-          {
-            "name": "Extra Bold",
-            "value": "title-black"
           }
         ],
         "value": ""
@@ -24526,7 +24286,7 @@
         ]
       },
       {
-        "component": "select",
+        "component": "multiselect",
         "name": "issue",
         "label": "Topic",
         "options": [
@@ -24601,7 +24361,7 @@
         ]
       },
       {
-        "component": "select",
+        "component": "multiselect",
         "name": "resourceType",
         "label": "Resource Type",
         "options": [

@@ -408,7 +408,7 @@
           ]
         },
         {
-          "component": "select",
+          "component": "multiselect",
           "name": "issue",
           "label": "Topic",
           "options": [
@@ -483,7 +483,7 @@
           ]
         },
         {
-          "component": "select",
+          "component": "multiselect",
           "name": "resourceType",
           "label": "Resource Type",
           "options": [
@@ -674,13 +674,10 @@
           "component": "select",
           "valueType": "string",
           "name": "content_titleSize",
-          "label": "Title Font Size",
+          "label": "Title Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in resource-hero.js and restore this field's options.",
           "options": [
-            { "name": "Default", "value": "" },
-            { "name": "Small", "value": "title-sm" },
-            { "name": "Medium", "value": "title-md" },
-            { "name": "Large", "value": "title-lg" },
-            { "name": "Extra Large", "value": "title-xl" }
+            { "name": "Set by site styles", "value": "" }
           ],
           "value": ""
         },
@@ -706,11 +703,10 @@
           "component": "select",
           "valueType": "string",
           "name": "content_titleWeight",
-          "label": "Title Weight",
+          "label": "Title Weight (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in resource-hero.js and restore this field's options.",
           "options": [
-            { "name": "Default", "value": "" },
-            { "name": "Bold", "value": "title-bold" },
-            { "name": "Extra Bold", "value": "title-black" }
+            { "name": "Set by site styles", "value": "" }
           ],
           "value": ""
         }

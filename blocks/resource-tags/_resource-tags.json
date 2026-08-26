@@ -40,7 +40,7 @@
           ]
         },
         {
-          "component": "select",
+          "component": "multiselect",
           "name": "issue",
           "label": "Topic",
           "options": [
@@ -64,7 +64,7 @@
           ]
         },
         {
-          "component": "select",
+          "component": "multiselect",
           "name": "resourceType",
           "label": "Resource Type",
           "options": [

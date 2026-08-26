@@ -605,6 +605,27 @@
   }
 }
 
+/* A real still from YouTube/Vimeo fills the frame. The padding, gradient,
+   decorative rings and float animation all exist to flatter the generic brand
+   mark; none of them should be applied to an actual video thumbnail. */
+.resource-downloads-default-video-poster.has-provider-poster {
+  padding: 0;
+  background: #00264d;
+}
+
+.resource-downloads-default-video-poster.has-provider-poster::before,
+.resource-downloads-default-video-poster.has-provider-poster::after {
+  content: none;
+}
+
+.resource-downloads-item.is-video .has-provider-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  animation: none;
+}
+
 /* Type chip pinned to the media corner */
 .resource-downloads-video-chip {
   position: absolute;

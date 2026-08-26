@@ -387,6 +387,18 @@
   background: var(--info-card-hover-bg);
 }
 
+/* No authored hover colour: nudge the card's own background rather than jumping
+   to a fixed brand blue. The tint direction is picked in JS from the card's
+   luminance, so light cards darken and dark cards lighten by the same amount. */
+.info-cards-grid-card-default.info-cards-grid-card-has-default-hover:hover,
+.info-cards-grid-card-default.info-cards-grid-card-has-default-hover:focus-within {
+  background: color-mix(
+    in srgb,
+    var(--info-card-bg) calc(100% - var(--info-card-hover-mix, 10%)),
+    var(--info-card-hover-tint, #000) var(--info-card-hover-mix, 10%)
+  );
+}
+
 .info-cards-grid-card-button {
   display: inline-flex;
   align-items: center;

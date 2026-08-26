@@ -236,6 +236,9 @@
   border: none;
   cursor: pointer;
   color: #1e2f47;
+
+  /* margin too: the global <button> rule adds 12px top/bottom. */
+  margin: 0;
   padding: 0;
   border-radius: 5.57px;
   font: inherit;

@@ -909,12 +909,18 @@
           "value": ""
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "disclaimerFontSize",
-          "label": "Disclaimer Font Size",
-          "description": "Optional CSS length such as 12px or 0.75rem.",
-          "value": ""
+          "label": "Disclaimer Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in cards.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
         },
         {
           "component": "tab",

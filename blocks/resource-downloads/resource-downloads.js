@@ -625,21 +625,33 @@ function resolveSlugCandidates(item, apiBaseUrl) {
 
 let videoModal = null;
 
+/**
+ * YouTube/Vimeo id extraction, shared by the embed and the poster so that any
+ * URL we can play is also one we can pull a still from.
+ */
+function parseVideoProvider(url) {
+  const value = String(url || '');
+  const youtube = value.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  if (youtube) return { provider: 'youtube', id: youtube[1] };
+  const vimeo = value.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if (vimeo) return { provider: 'vimeo', id: vimeo[1] };
+  return { provider: '', id: '' };
+}
+
 function buildVideoEmbed(url, title) {
-  const youtube = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
-  if (youtube) {
+  const { provider, id } = parseVideoProvider(url);
+  if (provider === 'youtube') {
     const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube-nocookie.com/embed/${youtube[1]}?autoplay=1&rel=0`;
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
     iframe.title = title || 'Video';
     iframe.allow = 'autoplay; fullscreen; picture-in-picture';
     iframe.allowFullscreen = true;
     return iframe;
   }
 
-  const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
-  if (vimeo) {
+  if (provider === 'vimeo') {
     const iframe = document.createElement('iframe');
-    iframe.src = `https://player.vimeo.com/video/${vimeo[1]}?autoplay=1`;
+    iframe.src = `https://player.vimeo.com/video/${id}?autoplay=1`;
     iframe.title = title || 'Video';
     iframe.allow = 'autoplay; fullscreen; picture-in-picture';
     iframe.allowFullscreen = true;
@@ -963,6 +975,50 @@ function defaultButtonLabel(entry) {
   return entry.theme?.title || 'Download';
 }
 
+/**
+ * Swap the generic brand-mark poster for the video host's own still when the
+ * item points at YouTube or Vimeo and the author attached no image of their own.
+ * A plain mp4 has no thumbnail to ask for, so it keeps the existing default.
+ *
+ * The default poster stays in the DOM as the fallback: the image is only shown
+ * once it has actually loaded, so a missing still or a blocked request leaves
+ * the card exactly as it is today rather than showing a broken frame.
+ */
+function applyProviderPoster(poster, entry) {
+  const { provider, id } = parseVideoProvider(entry.videoUrl);
+  if (!provider) return;
+
+  const image = poster.querySelector('img');
+  if (!image) return;
+
+  const show = (src) => {
+    image.src = src;
+    poster.classList.add('has-provider-poster');
+  };
+
+  if (provider === 'youtube') {
+    // maxresdefault does not exist for every upload; hqdefault always does.
+    const max = `https://i.ytimg.com/vi/${encodeURIComponent(id)}/maxresdefault.jpg`;
+    const hq = `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`;
+    const probe = new Image();
+    probe.addEventListener('load', () => {
+      // YouTube serves a 120x90 grey placeholder instead of a 404 when a
+      // resolution is missing, so check the decoded size rather than the status.
+      show(probe.naturalWidth > 200 ? max : hq);
+    }, { once: true });
+    probe.addEventListener('error', () => show(hq), { once: true });
+    probe.src = max;
+    return;
+  }
+
+  fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${id}`)}`)
+    .then((response) => (response.ok ? response.json() : null))
+    .then((data) => {
+      if (data && data.thumbnail_url) show(data.thumbnail_url);
+    })
+    .catch(() => {});
+}
+
 function buildDefaultVideoPoster(title = 'NCMEC video') {
   const poster = document.createElement('div');
   poster.className = 'resource-downloads-default-video-poster';
@@ -1282,7 +1338,13 @@ function buildVideoEntry(entry, isEditor) {
   const media = document.createElement('div');
   media.className = 'resource-downloads-item-media';
   const image = buildImage(entry, 800);
-  media.append(image || buildDefaultVideoPoster(entry.title));
+  if (image) {
+    media.append(image);
+  } else {
+    const poster = buildDefaultVideoPoster(entry.title);
+    media.append(poster);
+    applyProviderPoster(poster, entry);
+  }
 
   const chip = document.createElement('span');
   chip.className = 'resource-downloads-video-chip';

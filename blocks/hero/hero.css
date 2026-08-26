@@ -193,6 +193,42 @@
   color: #404041;
 }
 
+/* A subtitle line that hero.js demoted out of the heading outline. It must keep
+   the size it had as an h2/h3 — the point is a correct outline, not a redesign —
+   so it mirrors the global heading contract and re-states its level's token.
+   Declared after `.hero .hero-richtext p` deliberately: it has to out-specify it. */
+.hero .hero-richtext .hero-richtext-subtitle {
+  margin: 8px 0 0;
+  max-width: none;
+  color: #00264d;
+  font-family: var(--heading-font-family);
+  font-weight: var(--heading-weight);
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
+  white-space: pre-line;
+  text-wrap: balance;
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="2"] {
+  font-size: var(--heading-2-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="3"] {
+  font-size: var(--heading-3-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="4"] {
+  font-size: var(--heading-4-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="5"] {
+  font-size: var(--heading-5-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="6"] {
+  font-size: var(--heading-6-size);
+}
+
 .hero .hero-text-html {
   margin-top: 18px;
   max-width: 760px;
@@ -510,7 +546,8 @@
 /* The homepage headline sits deliberately above the h1 scale. It reads from a
    token so a change to the type system still reaches it — do not hardcode a px
    or clamp() value here. */
-.hero.hero-variant-homepage .hero-richtext :is(h1, h2, h3, h4, h5, h6) {
+.hero.hero-variant-homepage .hero-richtext :is(h1, h2, h3, h4, h5, h6),
+.hero.hero-variant-homepage .hero-richtext .hero-richtext-subtitle {
   font-size: var(--display-lg-size);
 }
 

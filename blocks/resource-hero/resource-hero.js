@@ -71,6 +71,15 @@ const TITLE_WEIGHT_TOKENS = ['title-bold', 'title-black'];
  * content_titleSize / content_titleWeight are deliberately still read and still
  * occupy their rows — deleting them from the model would shift every later
  * field's index on already-published pages. Title COLOR is unaffected.
+ *
+ * TO RESTORE (two steps, both required):
+ *   1. Set this constant to true.
+ *   2. Put the field's real `options` back in the block's _*.json model and drop
+ *      the "(set by site styles)" label suffix + the "Locked." description.
+ *      The pre-lock definitions are in git — see the commit that added this note.
+ * Step 2 alone does nothing (the JS still ignores the value); step 1 alone leaves
+ * the author staring at a control with one inert choice. Never DELETE the field:
+ * its cell index is load-bearing on already-published pages.
  */
 const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
 

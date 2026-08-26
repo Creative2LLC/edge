@@ -43,6 +43,12 @@
   justify-content: center;
   width: 42px;
   height: 42px;
+
+  /* styles.css gives every bare <button> a CTA's margin (12px 0) and padding
+     (0.5em 1.2em). Inside a fixed-size icon button that padding left the icon
+     0px wide — the toggle rendered with no visible indicator at all. */
+  margin: 0;
+  padding: 0;
   border: 0;
   border-radius: 999px;
   background: transparent;

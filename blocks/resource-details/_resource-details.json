@@ -120,7 +120,7 @@
           ]
         },
         {
-          "component": "select",
+          "component": "multiselect",
           "name": "issue",
           "label": "Resource Tags - Topic",
           "options": [
@@ -195,7 +195,7 @@
           ]
         },
         {
-          "component": "select",
+          "component": "multiselect",
           "name": "resourceType",
           "label": "Resource Tags - Resource Type",
           "options": [

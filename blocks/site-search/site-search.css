@@ -93,6 +93,9 @@
   justify-content: center;
   width: 46px;
   min-height: 46px;
+
+  /* margin too: the global <button> rule adds 12px top/bottom. */
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 999px;

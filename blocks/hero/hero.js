@@ -538,6 +538,68 @@ function normalizeMainRichTextStructure(richText) {
   }
 }
 
+/**
+ * The hero title is authored in ONE richtext field, so every time an author
+ * presses Enter the editor emits ANOTHER heading element. That shipped pages
+ * with two <h1>s (one sentence cut in half — "Every Child Deserves" /
+ * "a Safe Childhood.") and elsewhere an h1 followed by an h2/h3 that is really a
+ * subtitle. Both are ADA faults: duplicate top-level headings, a split heading a
+ * screen reader announces as two, and a skipped level (h1 -> h3).
+ *
+ * Exactly one <h1> survives. A continuation line at the SAME level folds into it
+ * as a <br> — those already render at the same size, so nothing moves visually.
+ * A LOWER-level line becomes a paragraph that keeps its old heading size, so it
+ * looks identical but stops claiming a place in the document outline.
+ *
+ * Not run in the editor: the UE richtext editor round-trips the DOM it is bound
+ * to, so restructuring there could persist back into the authored content.
+ */
+function collapseHeroTitleHeadings(richText) {
+  if (!richText || isUniversalEditor()) return;
+
+  const headings = [...richText.children].filter((el) => /^H[1-6]$/.test(el.tagName));
+  if (headings.length < 2) return;
+
+  const [first, ...rest] = headings;
+  const baseLevel = Number(first.tagName[1]);
+
+  let title = first;
+  if (title.tagName !== 'H1') {
+    const h1 = document.createElement('h1');
+    [...title.attributes].forEach((attr) => h1.setAttribute(attr.name, attr.value));
+    while (title.firstChild) h1.append(title.firstChild);
+    title.replaceWith(h1);
+    title = h1;
+  }
+
+  rest.forEach((node) => {
+    const level = Number(node.tagName[1]);
+    if (level === baseLevel) {
+      // A space BEFORE the <br>: accessible-name computation gives <br> no
+      // whitespace of its own, so without it the two lines concatenate into
+      // "Every Child Deservesa Safe Childhood." for a screen reader. The
+      // richtext is white-space: pre-line, which collapses it at the line end,
+      // so nothing shifts visually.
+      title.append(document.createTextNode(' '));
+      title.append(document.createElement('br'));
+      while (node.firstChild) title.append(node.firstChild);
+      node.remove();
+      return;
+    }
+
+    const line = document.createElement('p');
+    // The old id is dropped on purpose: it described a heading that no longer
+    // exists, and duplicating it would collide with nothing useful.
+    [...node.attributes].forEach((attr) => {
+      if (attr.name !== 'id' && attr.name !== 'class') line.setAttribute(attr.name, attr.value);
+    });
+    line.className = ['hero-richtext-subtitle', ...node.classList].join(' ');
+    line.dataset.headingLevel = String(level);
+    while (node.firstChild) line.append(node.firstChild);
+    node.replaceWith(line);
+  });
+}
+
 function getLinkFieldValue(block, name) {
   const textField = getFieldValue(block, name);
   const linkField = readLinkField(block, name);
@@ -1034,6 +1096,7 @@ function buildMainRichText(block, fallbackHtml = '', hasBreadcrumb = false) {
     removeConfigArtifactText(richText);
     if (hasBreadcrumb) removeLeadingBreadcrumbText(richText);
     normalizeMainRichTextStructure(richText);
+    collapseHeroTitleHeadings(richText);
     if (!hasRenderableContent(richText)) return null;
     return richText;
   }
@@ -1045,6 +1108,7 @@ function buildMainRichText(block, fallbackHtml = '', hasBreadcrumb = false) {
   removeConfigArtifactText(fallback);
   if (hasBreadcrumb) removeLeadingBreadcrumbText(fallback);
   normalizeMainRichTextStructure(fallback);
+  collapseHeroTitleHeadings(fallback);
   if (!hasRenderableContent(fallback)) return null;
   return fallback;
 }

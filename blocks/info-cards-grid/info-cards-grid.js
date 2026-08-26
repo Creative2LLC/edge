@@ -17,7 +17,36 @@ import {
 // shifts. A per-card fetch of the resource's own JSON, keyed by field NAME, sidesteps
 // row position entirely and is the authoritative correction. Matches the pattern already
 // proven in cards.js's syncResourceCardStyles/applyCardStyles.
-const DEFAULT_CARD_HOVER_BG = '#008DB6';
+/**
+ * Unstyled cards used to hover to a flat brand blue (#008DB6) no matter what
+ * they looked like at rest, so a light-grey card flipped to saturated blue and
+ * an already-blue card did not visibly change at all. The default is now a
+ * subtle shift of the card's OWN background: light cards darken, dark cards
+ * lighten. An authored Card Hover Background still wins outright and is applied
+ * exactly as before. Set DEFAULT_HOVER_MIX to 0 to drop the default entirely.
+ */
+const DEFAULT_HOVER_MIX = 10;
+
+function hoverTintFor(background) {
+  const value = String(background || '').trim();
+  const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  let channels = null;
+  if (hex) {
+    const raw = hex[1].length === 3 ? hex[1].replace(/./g, (c) => c + c) : hex[1];
+    channels = [0, 2, 4].map((i) => parseInt(raw.slice(i, i + 2), 16));
+  } else {
+    const rgb = value.match(/rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/i);
+    if (rgb) channels = rgb.slice(1, 4).map(Number);
+  }
+  // Unparseable (or transparent): assume a light surface and darken, which is
+  // the safe direction on this site's mostly-light sections.
+  if (!channels) return '#000';
+  const [r, g, b] = channels.map((c) => {
+    const n = c / 255;
+    return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+  });
+  return ((0.2126 * r) + (0.7152 * g) + (0.0722 * b)) < 0.3 ? '#fff' : '#000';
+}
 
 const CARD_COLOR_FIELD_NAMES = [
   'iconColor',
@@ -287,6 +316,15 @@ function normalizeCssSize(value) {
  * titleFontSize / subtitleFontSize / bodyFontSize are deliberately still read and
  * still occupy their rows — deleting them from the model would shift every later
  * field's index on already-published pages.
+ *
+ * TO RESTORE (two steps, both required):
+ *   1. Set this constant to true.
+ *   2. Put the field's real `options` back in the block's _*.json model and drop
+ *      the "(set by site styles)" label suffix + the "Locked." description.
+ *      The pre-lock definitions are in git — see the commit that added this note.
+ * Step 2 alone does nothing (the JS still ignores the value); step 1 alone leaves
+ * the author staring at a control with one inert choice. Never DELETE the field:
+ * its cell index is load-bearing on already-published pages.
  */
 const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
 
@@ -657,6 +695,11 @@ function syncCardStyles(resourcePath, card, content, data, variant) {
         card.style.setProperty('--info-card-bg', fields.cardBackgroundColor);
       }
       if (fields.cardHoverBackgroundColor) {
+        // This late correction can land on a card that already took the subtle
+        // default. Both rules have the same specificity and the default is
+        // declared second, so it would win — drop it before the authored colour
+        // is applied.
+        card.classList.remove('info-cards-grid-card-has-default-hover');
         card.classList.add('info-cards-grid-card-has-hover-bg');
         card.style.setProperty('--info-card-hover-bg', fields.cardHoverBackgroundColor);
       }
@@ -773,10 +816,13 @@ function buildCard(data, index, variant, isEditor) {
   }
 
   card.style.setProperty('--info-card-bg', cardBg);
-  const cardHoverBg = data.cardHoverBg || (isVolunteerVariant ? '' : DEFAULT_CARD_HOVER_BG);
-  if (cardHoverBg) {
+  if (data.cardHoverBg) {
     card.classList.add('info-cards-grid-card-has-hover-bg');
-    card.style.setProperty('--info-card-hover-bg', cardHoverBg);
+    card.style.setProperty('--info-card-hover-bg', data.cardHoverBg);
+  } else if (!isVolunteerVariant && DEFAULT_HOVER_MIX > 0) {
+    card.classList.add('info-cards-grid-card-has-default-hover');
+    card.style.setProperty('--info-card-hover-tint', hoverTintFor(cardBg));
+    card.style.setProperty('--info-card-hover-mix', `${DEFAULT_HOVER_MIX}%`);
   }
   applyTextStyles(card, data.textStyles);
 

@@ -556,7 +556,10 @@ export default function decorate(block) {
         legendEntries.push(legendItem);
       });
 
-      if (legend.childElementCount) chartSide.append(legend);
+      // Legend above the donut at every width: it reads better, and putting it
+      // first in the DOM (rather than reordering in CSS) keeps the visual order
+      // and the screen-reader order the same.
+      if (legend.childElementCount) chartSide.prepend(legend);
     }
 
     const inner = document.createElement('div');
