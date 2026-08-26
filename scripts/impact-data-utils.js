@@ -25,8 +25,23 @@ export function normalizeToken(value) {
     .replace(/[^a-z0-9_-]/g, '');
 }
 
+/**
+ * Pull the URL out of an authored cell and drop anything after it.
+ *
+ * A plain `.trim()` is not enough: decorateButtons used to append a " →" CTA arrow
+ * to auto-linked bare URLs, so the cell could read `https://api.example.com →`.
+ * Chrome's URL parser accepts that and punycodes the space into the hostname
+ * (`...on-vapor.xn--com%20-nn2c`), so every request 404s at DNS with no visible
+ * error — while Node's parser throws, which is why no unit test caught it.
+ *
+ * The root cause is fixed in scripts/aem.js (isBareUrlAutolink), but this stays as
+ * the second line of defence for any other decoration that touches a config cell.
+ * cybertipline-geo-report.js has carried the same guard for a while.
+ */
 export function normalizeApiBaseUrl(value) {
-  return normalizeText(value).replace(/\/+$/, '');
+  const text = normalizeText(value);
+  const url = text.match(/https?:\/\/[^\s→›➜➔⟶]+/iu)?.[0] || text;
+  return url.replace(/\/+$/, '');
 }
 
 export function parseNumber(value) {

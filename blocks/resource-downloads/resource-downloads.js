@@ -865,9 +865,15 @@ function resolveEntry(item, resource, config, primaryResource) {
       || matchedPrimaryResource?.resource_url
       || authoredHref
       || '');
-  const videoUrl = resolveDamUrl(item.videoUrl
-    || matchedPrimaryResource?.video_url
-    || (VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : ''));
+  // A PREVIEW source is a video that is NOT the gated file itself — an authored
+  // YouTube/Vimeo/MP4 URL, or the resource's video_url. Its presence is what
+  // lets a gated resource be watched for free: the form guards the FILE, not
+  // the content, and a preview stream hands out neither.
+  const previewUrl = resolveDamUrl(item.videoUrl || matchedPrimaryResource?.video_url || '');
+  // Falling back to the download itself keeps plain DAM videos playable. That
+  // file IS the gated one when gated, so it never counts as a preview source.
+  const videoUrl = previewUrl
+    || resolveDamUrl(VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : '');
   const extension = fileExtensionFrom(downloadUrl)
     || fileExtensionFrom(matchedFile?.file_name || '')
     || fileExtensionFrom(matchedPrimaryResource?.aem_asset_name || '');
@@ -910,6 +916,7 @@ function resolveEntry(item, resource, config, primaryResource) {
     theme: typeTheme(typeKey),
     downloadUrl,
     videoUrl,
+    hasPreviewSource: Boolean(previewUrl),
     requiresSignedUrl,
     signedUrlEndpoint: requiresSignedUrl
       ? signedUrlEndpointFor(config.apiBaseUrl, slug, matchedFile?.id)
@@ -946,7 +953,11 @@ function resolveEntry(item, resource, config, primaryResource) {
 // ── Rendering ────────────────────────────────────────────────────────────────
 
 function defaultButtonLabel(entry) {
-  if (entry.style === 'video' && !entry.downloadUrl) return 'Watch Video';
+  // A gated video has no downloadUrl — it stays masked until presigned — but
+  // its button is still the download beside Watch, not a second Watch.
+  if (entry.style === 'video' && !entry.downloadUrl && !entry.requiresSignedUrl) {
+    return 'Watch Video';
+  }
   // On a video, the download button (if any) sits next to a Watch button.
   if (entry.typeKey === 'video') return 'Download';
   return entry.theme?.title || 'Download';
@@ -982,10 +993,15 @@ function buildImage(entry, width = 400) {
   return null;
 }
 
-function buildDownloadButton(entry) {
+function buildDownloadButton(entry, withWatch = false) {
   const link = document.createElement('a');
   link.className = 'resource-downloads-item-button';
-  link.textContent = entry.item.buttonLabel || defaultButtonLabel(entry);
+  // "Button Label" is documented as the override for the item's single action
+  // ("Download PDF, Download PowerPoint, Watch Video..."), so on a video item it
+  // names the Watch button. When both render, Watch keeps the authored label and
+  // the download falls back to its type default rather than echoing it.
+  const label = (!withWatch && entry.item.buttonLabel) || defaultButtonLabel(entry);
+  link.textContent = label;
 
   // S3-backed files: no real href (nothing to leak in the DOM); the gate
   // requests a presigned URL from the API on each click.
@@ -996,7 +1012,7 @@ function buildDownloadButton(entry) {
       resourceSlug: entry.slug,
       fileName: entry.fileName,
       lockedLabel: LOCKED_LABEL,
-      downloadLabel: entry.item.buttonLabel || defaultButtonLabel(entry),
+      downloadLabel: label,
       signedUrlEndpoint: entry.signedUrlEndpoint,
     });
     return link;
@@ -1018,7 +1034,7 @@ function buildDownloadButton(entry) {
     fileUrl: entry.downloadUrl,
     fileName: entry.fileName,
     lockedLabel: LOCKED_LABEL,
-    downloadLabel: entry.item.buttonLabel || defaultButtonLabel(entry),
+    downloadLabel: label,
   });
 
   return link;
@@ -1047,7 +1063,11 @@ function buildWatchButton(entry) {
   };
 
   button.addEventListener('click', () => {
-    if (!entry.gated || isRegistered()) {
+    // Watching is free whenever a separate preview source exists: gating covers
+    // possession of the file, not the content. Without one, the only thing
+    // Watch can play is the gated object itself, and presigning that for an
+    // unregistered visitor would hand out the download in all but name.
+    if (!entry.gated || entry.hasPreviewSource || isRegistered()) {
       play();
       return;
     }
@@ -1145,13 +1165,17 @@ function buildActions(entry, isEditor) {
   const useWatchAction = entry.videoPlayable
     && (entry.style === 'video' || usesInformativeWatchAction(entry));
 
+  // A signed-URL video whose Watch action IS the presigned file would only
+  // duplicate itself with a download button. Once the preview comes from a
+  // separate source, the gated download is a genuinely different action —
+  // watch it here, or fill the form and keep the file — so both must render.
+  // Informative cards use the same Watch action, so they get the same pair;
+  // they used to be watch-only, which left their file unreachable.
+  const showDownload = Boolean(entry.downloadUrl
+    || (entry.requiresSignedUrl && (!useWatchAction || entry.hasPreviewSource)));
+
   if (useWatchAction) actions.append(buildWatchButton(entry));
-  // A signed-URL video already has Watch as its action; the presigned
-  // download would duplicate it.
-  const hasDownload = entry.downloadUrl || (entry.requiresSignedUrl && !useWatchAction);
-  if (hasDownload && !usesInformativeWatchAction(entry)) {
-    actions.append(buildDownloadButton(entry));
-  }
+  if (showDownload) actions.append(buildDownloadButton(entry, useWatchAction));
   if (!actions.children.length && isEditor) actions.append(buildEmptyNotice(entry));
 
   return actions.children.length ? actions : null;

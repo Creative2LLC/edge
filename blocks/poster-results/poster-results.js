@@ -18,7 +18,7 @@ const DEFAULTS = {
 };
 
 const AMBER_NO_PHOTO_IMAGE = new URL('./no-photo.jpg', import.meta.url).href;
-const AMBER_ORGANIZATION_LOGO = new URL('./ncmec-full-color-amber-alert.png', import.meta.url).href;
+const AMBER_ORGANIZATION_LOGO = new URL('./amber-alert-logo-transparent.png', import.meta.url).href;
 const AMBER_ORGANIZATION_LOGO_ALT = 'National Center for Missing & Exploited Children AMBER Alert';
 
 const FIELD_LABELS = {
@@ -1025,6 +1025,7 @@ function createActionLink(label, href) {
   return link;
 }
 
+// eslint-disable-next-line no-unused-vars -- Retained while the action is temporarily disabled.
 function createReportSightingLink(childName) {
   const url = new URL('/amber-alerts/missing-child-quick-report', window.location.origin);
   url.searchParams.set('missingName', childName);
@@ -1097,7 +1098,7 @@ function createActionBar(config, options = {}) {
     actions.append(createActionButton('PRINT POSTER', () => window.print()));
   }
   if (reportSightingName) {
-    actions.append(createReportSightingLink(reportSightingName));
+    // actions.append(createReportSightingLink(reportSightingName));
   }
   actions.append(createShareButton());
 
@@ -1155,6 +1156,15 @@ function createDetailFooter(config, payload, child) {
     || payload?.case_number
     || child.caseNumber
     || child.case_number;
+  const alertNumber = firstValue(child, [
+    'alert_number', 'alertNumber', 'amber_alert_number', 'amberAlertNumber',
+  ]) || amberCaseNumber(child);
+  if (alertNumber) {
+    const alert = document.createElement('p');
+    alert.className = 'poster-results-detail-alert-number';
+    alert.textContent = `Alert #: ${alertNumber}`;
+    info.append(alert);
+  }
   if (caseNumber) {
     const ncmec = document.createElement('p');
     ncmec.className = 'poster-results-detail-case';
@@ -1489,6 +1499,7 @@ function createAmberVehicleSection(payload, selectedPerson) {
 }
 
 // AMBER alert metadata, shown below the red AMBER ALERT poster heading.
+// eslint-disable-next-line no-unused-vars -- Replaced by ordered poster facts.
 function createAmberBanner(payload, alert) {
   const banner = document.createElement('div');
   banner.className = 'poster-results-amber-banner';
@@ -1528,11 +1539,30 @@ function createAmberBanner(payload, alert) {
 // AMBER uses the same icon-led fact rows as the other poster types. Keeping
 // the physical details in this sequence avoids a separate card and lets every
 // participant section share one visual language.
-function amberSubjectFacts(person) {
+function amberSubjectFacts(person, alert = null) {
   const facts = [];
+  if (alert) {
+    const alertNumber = firstValue(alert, [
+      'alert_number', 'alertNumber', 'amber_alert_number', 'amberAlertNumber',
+    ]) || amberCaseNumber(alert);
+    if (alertNumber) facts.push({ icon: 'info', label: 'Alert #', value: alertNumber });
+
+    const issuedFor = firstValue(alert, ['issued_for', 'issuedFor'])
+      || firstArrayValue(
+        alert?.targetList || alert?.childBean?.targetList || alert?.targets || alert?.alertAreas,
+      )
+      || firstValue(alert, ['state', 'missing_state', 'missingState'])
+      || firstValue(person, ['issued_for', 'issuedFor']);
+    if (issuedFor) facts.push({ icon: 'location', label: 'Issued For', value: issuedFor });
+  }
+
   const missing = formatPosterDate(firstValue(person, ['missing_date', 'missingDate', 'dateMissing', 'missingSince']));
   if (missing) facts.push({ icon: 'date', label: 'Missing Since', value: missing });
-  const from = formatPosterLocation(firstValue(person, ['missing_location', 'missingLocation']) || locationText(person));
+  const from = formatPosterLocation(
+    firstValue(person, ['missing_location', 'missingLocation', 'missingFrom'])
+      || firstValue(alert, ['missing_location', 'missingLocation', 'missingFrom'])
+      || locationText(person) || locationText(alert),
+  );
   if (from) facts.push({ icon: 'location', label: 'Missing From', value: from });
 
   const ageNow = firstValue(person, ['age', 'ageNow']);
@@ -1546,7 +1576,6 @@ function amberSubjectFacts(person) {
   }
 
   [
-    ['Gender', capitalizeWords(firstValue(person, ['sex', 'gender']))],
     ['Race', capitalizeWords(firstValue(person, ['race', 'skinColor']))],
     ['Hair', capitalizeWords(firstValue(person, ['hairColor']))],
     ['Eyes', capitalizeWords(firstValue(person, ['eyeColor']))],
@@ -1558,6 +1587,13 @@ function amberSubjectFacts(person) {
   });
 
   return facts;
+}
+
+function createAmberSafetyNotice() {
+  const notice = document.createElement('p');
+  notice.className = 'poster-results-amber-safety-notice';
+  notice.textContent = 'Please call 911 immediately with tips and sightings.';
+  return notice;
 }
 
 // Related people and associated children deliberately use the same participant
@@ -1596,11 +1632,11 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   detail.className = 'poster-results-detail poster-results-amber-poster';
   detail.append(
     createMissingChildHeading('AMBER Alert'),
-    createAmberBanner(payload, alert),
     createActionBar(config, {
       includePrint: false,
       reportSightingName: displayName(alert, 'Missing Child'),
     }),
+    createAmberSafetyNotice(),
   );
 
   const subject = buildParticipantSection(payload, {
@@ -1608,7 +1644,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     heading: '',
     main: true,
     unidentified: false,
-    facts: amberSubjectFacts(alert),
+    facts: amberSubjectFacts(alert, payload),
     href: amberPosterDetailUrl(alert, caseNumber),
     fallbackImage: AMBER_NO_PHOTO_IMAGE,
   });

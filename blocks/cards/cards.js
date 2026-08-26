@@ -263,20 +263,33 @@ function getLegacySettingCells(rows) {
     ...radiusShadowRows.map(({ index }) => index),
     scanRows.length,
   ].filter((index) => index > textAlignmentIndex).sort((a, b) => a - b)[0];
-  const colorRows = scanRows
-    .slice(textAlignmentIndex + 1, colorEndIndex)
-    .filter((row) => normalizeColorValue(rowText(row)));
+  // The three default colour fields are adjacent in the model
+  // (defaultCardBackgroundColor, defaultCardTextColor, defaultHighlightTextColor),
+  // so their POSITION in this region identifies them. Filtering the empties out
+  // first destroys that: a block that leaves defaultHighlightTextColor blank yields
+  // only two rows, the `>= 3` guard below then refuses to assign the text colour,
+  // and the card renders with no --cards-card-text-default at all.
+  const colorRegion = scanRows.slice(textAlignmentIndex + 1, colorEndIndex);
+  const colorAt = (position) => {
+    const row = colorRegion[position];
+    return row && normalizeColorValue(rowText(row)) ? row : null;
+  };
+  const colorRows = colorRegion.filter((row) => normalizeColorValue(rowText(row)));
   const defaultCardTextSizeRow = scanRows.find((row, index) => (
     index > textAlignmentIndex && isExplicitCssLength(rowText(row))
   ));
 
   return {
     textAlignment: fieldCell(scanRows[textAlignmentIndex]),
-    defaultCardBackgroundColor: fieldCell(colorRows[0]),
-    defaultCardTextColor: colorRows.length >= 3 ? fieldCell(colorRows[1]) : null,
-    defaultHighlightTextColor: colorRows.length >= 2
-      ? fieldCell(colorRows[colorRows.length - 1])
-      : null,
+    // Position first; the old count-based heuristic stays as the fallback for rows
+    // whose colour region doesn't line up with the current model order.
+    defaultCardBackgroundColor: fieldCell(colorAt(0) || colorRows[0]),
+    defaultCardTextColor: fieldCell(
+      colorAt(1) || (colorRows.length >= 3 ? colorRows[1] : null),
+    ),
+    defaultHighlightTextColor: fieldCell(
+      colorAt(2) || (colorRows.length >= 2 ? colorRows[colorRows.length - 1] : null),
+    ),
     buttonDisplay: fieldCell(scanRows[buttonDisplayIndex]),
     imageDisplay: fieldCell(scanRows[imageDisplayIndex]),
     cardBorderRadius: fieldCell(radiusShadowRows[0]?.row),
@@ -745,6 +758,33 @@ function buildCard(row, isEditor) {
   // be read in the editor).
   const fallbackColor = (index) => row.children[index];
 
+  // Cards published before `disclaimer` was added carry one fewer cell ahead of the
+  // colour block, and their marker/size fields sit in a different order afterwards.
+  // Both revisions appear on the SAME page, so this is decided per card, not per page.
+  //
+  // The tell is cell 3: in the current order that is `disclaimer` (free text), in the
+  // older one it is `cardBackgroundColor` (a hex). A hex there is unambiguous.
+  const legacyCardOrder = !isEditor && Boolean(normalizeColorValue(rowText(row.children[3])));
+  const LEGACY_CARD_INDEXES = {
+    cardBackgroundColor: 3,
+    cardTextColor: 4,
+    highlightTextColor: 5,
+    cardAlignment: 6,
+    cardTextSize: 7,
+    markerTerms: 8,
+    markerColor: 9,
+    markerStyle: 10,
+    highlightTextSize: 11,
+    cardPaddingStyle: 12,
+  };
+  // -1 can never match a child, so fields absent from the older revision read empty
+  // instead of picking up a neighbour's value.
+  const cardIndex = (name, currentIndex) => {
+    if (!legacyCardOrder) return currentIndex;
+    const mapped = LEGACY_CARD_INDEXES[name];
+    return Number.isInteger(mapped) ? mapped : -1;
+  };
+
   const imageField = readImageField(row, 'image', { fallbackCell: fallback(0) });
   const textField = readRichTextField(row, 'text', { fallbackCell: fallback(1) });
   setItemLabel(li, [fieldText(textField)]);
@@ -764,25 +804,26 @@ function buildCard(row, isEditor) {
   // cardBackgroundColor, cardTextColor, highlightTextColor, cardTextSize, highlightTextSize,
   // disclaimerFontSize, markerTerms, markerColor, markerStyle, cardAlignment,
   // cardPaddingStyle, imageAlt. "tab" model entries are UI-only and consume no row.
-  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: fallback(3) });
-  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: fallbackColor(4) });
-  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: fallbackColor(5) });
+  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: fallback(cardIndex('disclaimer', 3)) });
+  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: fallbackColor(cardIndex('cardBackgroundColor', 4)) });
+  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: fallbackColor(cardIndex('cardTextColor', 5)) });
   const highlightTextColorField = readTextField(row, 'highlightTextColor', {
-    fallbackCell: fallbackColor(6),
+    fallbackCell: fallbackColor(cardIndex('highlightTextColor', 6)),
   });
-  const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: fallback(7) });
-  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: fallback(8) });
-  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: fallback(9) });
-  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: fallback(10) });
-  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: fallbackColor(11) });
-  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: fallback(12) });
-  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: fallback(13) });
-  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: fallback(14) });
-  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: fallback(15) });
+  const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: fallback(cardIndex('cardTextSize', 7)) });
+  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: fallback(cardIndex('highlightTextSize', 8)) });
+  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: fallback(cardIndex('disclaimerFontSize', 9)) });
+  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: fallback(cardIndex('markerTerms', 10)) });
+  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: fallbackColor(cardIndex('markerColor', 11)) });
+  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: fallback(cardIndex('markerStyle', 12)) });
+  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: fallback(cardIndex('cardAlignment', 13)) });
+  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: fallback(cardIndex('cardPaddingStyle', 14)) });
+  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: fallback(cardIndex('imageAlt', 15)) });
+  const resolvedCardBackground = isEditor
+    ? cardBackgroundField.value
+    : (publishedCardStyles.cardBackgroundColor || cardBackgroundField.value);
   applyCardStyles(li, {
-    cardBackgroundColor: isEditor
-      ? cardBackgroundField.value
-      : (publishedCardStyles.cardBackgroundColor || cardBackgroundField.value),
+    cardBackgroundColor: resolvedCardBackground,
     cardTextColor: cardTextColorField.value,
     highlightTextColor: highlightTextColorField.value,
     cardTextSize: cardTextSizeField.value,
@@ -828,13 +869,17 @@ function buildCard(row, isEditor) {
 
   if (body.childElementCount || body.textContent.trim()) li.append(body);
 
-  // Marker application (specifically its dark-background detection, which reads
-  // computed styles) needs the card attached to the document to work correctly —
-  // stash the config and apply it after this card is in the DOM, not here.
+  // Pass the card's OWN resolved background rather than leaving the marker to infer
+  // darkness from computed styles. Attaching the card first (see below) is necessary
+  // but not sufficient: in the editor the computed background can still read as
+  // transparent at this point, so the card kept the light-background marker — a thin,
+  // washed-out circle — on a navy card. An explicit colour removes the timing
+  // dependency entirely; detection still runs when no colour is resolvable.
   li.cardsMarkerConfig = {
     terms: markerTermsField.value,
     color: markerColorField.value,
     style: markerStyleField.value,
+    background: resolvedCardBackground,
   };
 
   // `row` itself is discarded after this point (only `li` gets attached to the DOM), but

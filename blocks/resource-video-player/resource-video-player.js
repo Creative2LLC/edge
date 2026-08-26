@@ -357,7 +357,10 @@ export default async function decorate(block) {
     const requiresSignedUrl = Boolean(resource?.requires_signed_url) && slug && config.apiBaseUrl;
     const video = {
       videoUrl: config.videoUrl || resource?.video_url || '',
-      gated: Boolean(resource?.gated),
+      // Bucket-backed ⟹ gated whatever the column says: the download-url
+      // endpoint asks requiresSignedUrl() and 401s without a token, so a
+      // "false" here would just make the placeholder click do nothing.
+      gated: Boolean(resource?.gated || requiresSignedUrl),
       resourceSlug: slug,
       signedUrlEndpoint: requiresSignedUrl
         ? `${config.apiBaseUrl.replace(/\/+$/, '')}/api/resources/${encodeURIComponent(slug)}/download-url`

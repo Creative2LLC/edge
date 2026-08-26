@@ -150,6 +150,59 @@ const LEGACY_IMAGE_MODE_OFFSETS = {
   disclaimerFontSize: 33,
 };
 
+// A third published revision, sitting between the two above: the head reads like
+// CURRENT (statValues/statLabels immediately after the icon fields) but
+// verticalDividers still trails the button fields, and the tail reads like LEGACY
+// (marker fields before contentSpacing/paddingStyle/borderRadius/dropShadow).
+//
+// Both orders occur on the SAME published page — the Mental Health statistics match
+// CURRENT while the Sex Offender ones match this — because each row froze whatever
+// field order existed the last time its page was published. Without this table the
+// trust check scored 1/6 on those rows, so the block fell back to the compact
+// heuristics, never found blockBackgroundColor, and rendered #007294 value text and
+// #0D273B labels straight onto the dark blue section with no white card behind them.
+const MARKER_BEFORE_SPACING_OFFSETS = {
+  iconMaxWidth: 1,
+  iconMaxHeight: 2,
+  statValues: 3,
+  statLabels: 4,
+  defaultButtonText: 5,
+  defaultButtonLink: 6,
+  defaultButtonTarget: 7,
+  verticalDividers: 8,
+  blockBackgroundColor: 9,
+  headingTextColor: 10,
+  headingFontSize: 11,
+  headingFontWeight: 12,
+  bodyTextColor: 13,
+  bodyFontSize: 14,
+  bodyFontWeight: 15,
+  valueTextColor: 16,
+  valueFontSize: 17,
+  valueFontWeight: 18,
+  labelTextColor: 19,
+  labelFontSize: 20,
+  labelFontWeight: 21,
+  minHeight: 22,
+  minHeightMobile: 23,
+  markerTerms: 24,
+  markerColor: 25,
+  markerStyle: 26,
+  contentSpacing: 27,
+  paddingStyle: 28,
+  borderRadius: 29,
+  dropShadow: 30,
+  disclaimer: 31,
+  disclaimerFontSize: 32,
+};
+
+// Ordered most-current first; the first table that passes the trust check wins.
+const PUBLISHED_OFFSET_MAPS = [
+  CURRENT_IMAGE_MODE_OFFSETS,
+  MARKER_BEFORE_SPACING_OFFSETS,
+  LEGACY_IMAGE_MODE_OFFSETS,
+];
+
 function directRowOf(block, element) {
   let rowEl = element;
   while (rowEl && rowEl.parentElement !== block) {
@@ -934,14 +987,16 @@ function snapshotPublishedFieldValues(rows) {
   const imageModeIndex = alignmentIndex >= 0
     ? findLegacyImageModeIndex(rows, alignmentIndex)
     : -1;
-  if (
-    imageModeIndex < 0
-    || !hasTrustedLegacyOffsets(rows, imageModeIndex, CURRENT_IMAGE_MODE_OFFSETS)
-  ) {
-    return {};
-  }
+  if (imageModeIndex < 0) return {};
 
-  return Object.entries(CURRENT_IMAGE_MODE_OFFSETS).reduce((values, [name, offset]) => {
+  // Try every known published order, not just the current one — a row frozen under
+  // an older revision still has a snapshot worth taking, and reading it through the
+  // wrong table is what produced scrambled values rather than no values.
+  const offsets = PUBLISHED_OFFSET_MAPS
+    .find((candidate) => hasTrustedLegacyOffsets(rows, imageModeIndex, candidate));
+  if (!offsets) return {};
+
+  return Object.entries(offsets).reduce((values, [name, offset]) => {
     const value = rowText(rows[imageModeIndex + offset]);
     if (value) values[name] = value;
     return values;
@@ -1120,10 +1175,8 @@ function getLegacyConfig(rows) {
   const labelColorRow = resolvedColorCount >= 2
     ? resolvedStyleColorRows[resolvedColorCount - 1]
     : null;
-  const trustedOffsetMaps = [
-    CURRENT_IMAGE_MODE_OFFSETS,
-    LEGACY_IMAGE_MODE_OFFSETS,
-  ].filter((offsets) => hasTrustedLegacyOffsets(rows, imageModeIndex, offsets));
+  const trustedOffsetMaps = PUBLISHED_OFFSET_MAPS
+    .filter((offsets) => hasTrustedLegacyOffsets(rows, imageModeIndex, offsets));
   const offsetRow = (offset, predicate) => {
     if (imageModeIndex < 0 || !Number.isInteger(offset)) return null;
     const row = rows[imageModeIndex + offset];

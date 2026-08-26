@@ -18,6 +18,86 @@ const DEFAULT_TEXT_COLOR = '#00264D';
 const DEFAULT_BACKGROUND_COLOR = '#E9F7FA';
 const DEFAULT_TEXT2_COLOR = '#404041';
 
+// Field name for each offset the call sites below use, measured from the imageMode
+// anchor in the CURRENT model order. Keep in sync with the offsets in decorate().
+const CURRENT_OFFSET_FIELDS = {
+  '-7': 'label',
+  '-6': 'labelPart2',
+  '-5': 'text',
+  '-4': 'text2',
+  '-3': 'image',
+  '-2': 'imageAlt',
+  '-1': 'imagePosition',
+  0: 'imageMode',
+  1: 'imageSize',
+  2: 'buttonText',
+  3: 'buttonLink',
+  4: 'buttonTarget',
+  5: 'textColor',
+  6: 'labelColor',
+  7: 'labelColor2',
+  8: 'labelFontSize',
+  9: 'fontSize',
+  10: 'fontWeight',
+  11: 'text2Color',
+  12: 'text2FontSize',
+  13: 'blockBackgroundColor',
+  14: 'horizontalAlign',
+  15: 'verticalAlign',
+  16: 'gap',
+  17: 'minHeight',
+  18: 'minHeightMobile',
+  19: 'paddingStyle',
+  20: 'marginStyle',
+  21: 'dropShadow',
+};
+
+// The flat, pre-tabs field order, also measured from the imageMode anchor. Rows
+// published under it carry 28 cells (it has no imageAlt) and read, from index 0:
+// image, label, text, blockBackgroundColor, textColor, labelColor, labelPart2,
+// labelColor2, labelFontSize, horizontalAlign, verticalAlign, imagePosition,
+// imageMode, imageSize, fontSize, fontWeight, gap, minHeight, minHeightMobile,
+// paddingStyle, marginStyle, dropShadow, text2, text2Color, text2FontSize,
+// buttonText, buttonLink, buttonTarget.
+const PRE_TABS_OFFSETS = {
+  image: -12,
+  label: -11,
+  text: -10,
+  // textColor precedes blockBackgroundColor here, confirmed against the editor's own
+  // resolved values for this component: the card is #FFFFFF with #00264D text. Reading
+  // them the other way round rendered navy text on a navy card inside a navy grid.
+  textColor: -9,
+  blockBackgroundColor: -8,
+  labelColor: -7,
+  labelPart2: -6,
+  labelColor2: -5,
+  labelFontSize: -4,
+  horizontalAlign: -3,
+  verticalAlign: -2,
+  imagePosition: -1,
+  imageMode: 0,
+  imageSize: 1,
+  fontSize: 2,
+  fontWeight: 3,
+  gap: 4,
+  minHeight: 5,
+  minHeightMobile: 6,
+  paddingStyle: 7,
+  marginStyle: 8,
+  dropShadow: 9,
+  text2: 10,
+  text2Color: 11,
+  text2FontSize: 12,
+  buttonText: 13,
+  buttonLink: 14,
+  buttonTarget: 15,
+};
+
+function optionAt(row, allowedValues) {
+  if (!row) return false;
+  return allowedValues.includes(String(row.textContent || '').trim().toLowerCase());
+}
+
 function directRowOf(block, element) {
   let rowEl = element;
   while (rowEl && rowEl.parentElement !== block) {
@@ -28,7 +108,16 @@ function directRowOf(block, element) {
 
 function fieldCell(row) {
   if (!row) return null;
-  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+  if (row.children.length > 1) return row.children[1];
+
+  // Only descend into a structural <div> wrapper. In a flattened item the row IS the
+  // cell and its single child is the authored content itself — descending into that
+  // and reading innerHTML drops the element, which is how an authored
+  // `<h3><strong>…</strong></h3>` reached live as a bare <strong> with the heading
+  // (and its type scale) gone.
+  const only = row.children[0];
+  if (!only) return row;
+  return only.tagName === 'DIV' ? only : row;
 }
 
 // Fields with no authored value frequently don't get their own row in the exported
@@ -239,6 +328,13 @@ function buildButton(buttonTextField, buttonLinkField, buttonTargetField) {
     const target = normalizeButtonTarget(buttonTargetField.value);
     button.target = target;
     if (target === '_blank') button.rel = 'noopener noreferrer';
+
+    // The external-link glyph is CSS-driven off this class. A link is "external" when
+    // it opens a new tab or points at another origin — a site-relative path never is,
+    // however it was authored.
+    const isOffSite = /^(?:https?:)?\/\//i.test(href)
+      && !href.startsWith(window.location.origin);
+    if (target === '_blank' || isOffSite) button.classList.add('is-external-link');
   }
   if (buttonLinkField.source) moveInstrumentation(buttonLinkField.source, button);
 
@@ -386,9 +482,45 @@ export default function decorate(block) {
         String(fieldCell(row)?.textContent || '').trim().toLowerCase(),
       )
   ));
-  const cellAt = (relativeOffset, absoluteFallback) => fieldCell(
-    rows[imageModeIndex >= 0 ? imageModeIndex + relativeOffset : absoluteFallback],
-  );
+  // ...but the anchor only protects the fields AFTER it. Everything before it still
+  // depends on how many cells precede the anchor, and that count is not fixed:
+  // `imageAlt` was added to the model later, so rows published before that carry one
+  // fewer pre-anchor cell (label, labelPart2, text, text2, image, imagePosition =
+  // anchor at 6) than current rows (…, image, imageAlt, imagePosition = anchor at 7).
+  //
+  // Empty fields still emit a cell, so a low anchor index means a genuinely absent
+  // field rather than an unfilled one — which makes the anchor index itself the
+  // reliable signal. Without this, legacy rows read label from rows[-1] and the block
+  // rendered its own labelColor value ("teal") glued onto the label text.
+  const preAnchorShift = imageModeIndex >= 7 ? 0 : 1;
+
+  // A shift alone can only describe a revision that ADDED or REMOVED fields. The
+  // pre-tabs revision REORDERED them: it grouped each label with its own colour
+  // (label, labelColor, labelPart2, labelColor2) and put the alignment pair
+  // immediately before imagePosition, where the current model has image/imageAlt.
+  // No offset arithmetic maps one order onto the other, so that revision needs its
+  // own table. Its signature is the alignment pair at anchor-3/anchor-2: in the
+  // current order those cells hold the image reference and its alt text, neither
+  // of which can ever read as an alignment token.
+  const isPreTabsOrder = imageModeIndex >= 3
+    && optionAt(rows[imageModeIndex - 3], ['left', 'center', 'right', 'justify'])
+    && optionAt(rows[imageModeIndex - 2], ['top', 'middle', 'bottom']);
+
+  const cellAt = (relativeOffset, absoluteFallback) => {
+    if (imageModeIndex < 0) return fieldCell(rows[absoluteFallback]);
+
+    if (isPreTabsOrder) {
+      const name = CURRENT_OFFSET_FIELDS[relativeOffset];
+      const legacyOffset = PRE_TABS_OFFSETS[name];
+      // imageAlt post-dates this revision and simply has no cell to read.
+      if (!Number.isInteger(legacyOffset)) return null;
+      return fieldCell(rows[imageModeIndex + legacyOffset]);
+    }
+
+    return fieldCell(
+      rows[imageModeIndex + relativeOffset + (relativeOffset < 0 ? preAnchorShift : 0)],
+    );
+  };
 
   // Offsets below match _colored-icon-text.json's ACTUAL current field order (fields were
   // regrouped under UI tabs by a later commit — tabs don't consume a row, but the reorder

@@ -75,13 +75,49 @@ function hasAuthoringContext(scope) {
   );
 }
 
+// Index of the first field added after some pages were published. Everything from
+// here on sits one cell earlier in those rows.
+const REPORT_IMAGE_ALT_INDEX = FIELD_INDEX.reportImageAlt;
+
+const PANEL_DISPLAY_VALUES = ['auto', 'show', 'hide'];
+
+/**
+ * True when the block's rows predate `reportImageAlt`.
+ *
+ * Decided by VALUE, not by row count: reportPanelDisplay can only ever hold
+ * auto/show/hide, so finding one of those a cell EARLIER than the current model
+ * expects — and not where it expects — is unambiguous.
+ *
+ * Getting this wrong is not cosmetic. Read at the current indices, an older row hands
+ * reportButtonLink the string "auto" (really reportPanelDisplay). That is truthy, so
+ * the report panel counts as having content and renders — turning a social-only block
+ * into a two-column layout with an empty second panel.
+ */
+function usesPreImageAltOrder(block) {
+  const rows = directRows(block);
+  const textAt = (index) => (fieldCell(rows[index])?.textContent || '').trim().toLowerCase();
+  return PANEL_DISPLAY_VALUES.includes(textAt(FIELD_INDEX.reportPanelDisplay - 1))
+    && !PANEL_DISPLAY_VALUES.includes(textAt(FIELD_INDEX.reportPanelDisplay));
+}
+
+function fieldIndex(block, name, isEditor) {
+  const index = FIELD_INDEX[name];
+  if (isEditor || index < REPORT_IMAGE_ALT_INDEX) return index;
+  if (!usesPreImageAltOrder(block)) return index;
+  // reportImageAlt itself has no cell in that revision.
+  return name === 'reportImageAlt' ? -1 : index - 1;
+}
+
 function fieldOptions(block, name, isEditor) {
   if (isEditor) return {};
 
-  const fallbackCell = fieldCell(directRows(block)[FIELD_INDEX[name]]);
+  const index = fieldIndex(block, name, isEditor);
+  if (index < 0) return {};
+
+  const fallbackCell = fieldCell(directRows(block)[index]);
   return fallbackCell
     ? { fallbackCell }
-    : { rowIndex: FIELD_INDEX[name], columnIndex: 0 };
+    : { rowIndex: index, columnIndex: 0 };
 }
 
 function getTextField(block, name, isEditor) {
@@ -195,6 +231,14 @@ function moveFieldContent(field, target, fallbackValue = '') {
   if (field?.source) {
     moveInstrumentation(field.source, target);
     while (field.source.firstChild) target.append(field.source.firstChild);
+
+    // Every target here is itself a <p>/<h2>. On a published page the field "source"
+    // is the raw cell, whose bare text aem.js has already wrapped in a <p>, so moving
+    // it nests a block element inside another — markup the parser repairs by closing
+    // the outer element early, splitting it in two. The editor never hits this because
+    // there the source is the instrumented field, holding a plain text node.
+    const only = target.childElementCount === 1 ? target.firstElementChild : null;
+    if (only?.tagName === 'P') only.replaceWith(...only.childNodes);
     return;
   }
 

@@ -2,6 +2,11 @@
   --gallery-grid-columns: 2;
   --gallery-grid-gap: 24px;
   --gallery-grid-radius: 0;
+
+  /* Cell shape. Every tile is at least this ratio tall, so the gallery's rhythm is
+     set by the layout rather than by whatever text a Statistics tile happens to
+     hold. Override per block instance if a section wants taller or shorter tiles. */
+  --gallery-grid-aspect: 3 / 2;
 }
 
 .gallery-grid .gallery-grid-inner {
@@ -12,13 +17,55 @@
 }
 
 .gallery-grid .gallery-grid-item {
+  /* Single-area grid: the ::before below establishes a height floor and every real
+     child is laid into the SAME area on top of it, so content never has to be sized
+     by a percentage-height chain (which silently fails to resolve when an ancestor
+     row is auto-sized — that is what left the navy stat tile short while the image
+     beside it ran full height). */
+  display: grid;
+  grid-template-areas: "cell";
   min-width: 0;
   overflow: hidden;
   border-radius: var(--gallery-grid-radius);
 }
 
-.gallery-grid .gallery-grid-item .statistics{
-    padding: 0 !important;
+.gallery-grid .gallery-grid-item::before {
+  content: "";
+  grid-area: cell;
+  aspect-ratio: var(--gallery-grid-aspect);
+}
+
+/* Real content overlays the spacer and fills it. A tile whose content is TALLER than
+   the ratio still grows, and the grid row (and therefore the image beside it) grows
+   with it — the floor is a minimum, not a cap. */
+.gallery-grid .gallery-grid-item > * {
+  grid-area: cell;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.gallery-grid .gallery-grid-item .statistics {
+  padding: 0 !important;
+}
+
+/* A nested block paints its background on an INNER wrapper, not on the block itself,
+   so sizing only the block leaves the tile the right height with its colour stopping
+   where the text ends — the white gap under the navy stat tile.
+   Stretching via flex rather than a percentage height on purpose: "min-height: 100%"
+   here resolves against a parent whose own height depends on this child, and the
+   circularity made tiles drift to different heights (545px vs 624px) row to row. A
+   flex container's default align-items: stretch has no such dependency. */
+.gallery-grid .gallery-grid-item .statistics,
+.gallery-grid .gallery-grid-item .cards {
+  display: flex;
+}
+
+.gallery-grid .gallery-grid-item .statistics > *,
+.gallery-grid .gallery-grid-item .cards > * {
+  flex: 1;
+  min-width: 0;
 }
 
 .gallery-grid.gallery-grid-radius-small {
@@ -34,32 +81,27 @@
 }
 
 .gallery-grid .gallery-grid-image {
+  position: relative;
   width: 100%;
   height: 100%;
   min-height: 220px;
+  overflow: hidden;
   line-height: 0;
 }
 
+/* Taken out of flow deliberately. An in-flow replaced element contributes its NATURAL
+   height when the grid sizes the row, so a tall photo overrode the tile ratio and
+   every row ended up a different height (545px, 624px, 614px...). Positioned, the
+   photo contributes nothing to sizing and simply covers whatever the tile turns out
+   to be — so the ratio governs, and a text tile that needs more room still wins. */
 .gallery-grid .gallery-grid-image picture,
 .gallery-grid .gallery-grid-image img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-/* The nested Statistics/Cards component fills the slot edge-to-edge and stretches
-   to match the tallest item in its grid row (CSS Grid's default row-stretch
-   behavior on .gallery-grid-item already handles the row height itself). */
-.gallery-grid .gallery-grid-item-content {
-  display: flex;
-  height: 100%;
-}
-
-.gallery-grid .gallery-grid-item-content > * {
-  width: 100%;
-  height: 100%;
-  margin: 0;
 }
 
 .gallery-grid .gallery-grid-text {

@@ -161,6 +161,16 @@
   margin-bottom: 0;
 }
 
+/* The divider is generated INSIDE the label (a flex item), after the label's own
+   content. Authored rich text arrives wrapped in a block-level <p>, which pushes the
+   divider onto its own line underneath the text — the stray "|" floating below
+   "CASE SPOTLIGHT". Rendering the label's paragraphs inline keeps the text and the
+   divider on one baseline. */
+.colored-icon-text .colored-icon-text-label-row .colored-icon-text-label > p {
+  display: inline;
+  margin: 0;
+}
+
 .colored-icon-text.colored-icon-text-h-left .colored-icon-text-text-wrapper {
   text-align: left;
 }
@@ -261,7 +271,10 @@
     color 150ms linear;
 }
 
-.colored-icon-text .colored-icon-text-button::after {
+/* Scoped to links that actually leave the page. This used to apply to every button,
+   so an internal link like /blog/... carried an external-link glyph next to the
+   standard text arrow — two trailing indicators, one of them untrue. */
+.colored-icon-text .colored-icon-text-button.is-external-link::after {
   content: "";
   flex: 0 0 18px;
   width: 18px;

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console -- CLI audit progress output. */
-/* eslint-disable no-await-in-loop, no-restricted-syntax, no-continue -- Sequential page scan is intentional. */
+/* eslint-disable no-await-in-loop, no-restricted-syntax, no-continue --
+   Sequential page scan is intentional. */
 
 /**
  * Button & link inventory — from the RENDERED page, not from CSS source.
@@ -92,7 +93,7 @@ function collectControls() {
       text: (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 60),
       classes: el.className && typeof el.className === 'string' ? el.className.trim() : '',
       href: el.getAttribute('href') || '',
-      block: blockEl ? blockEl.dataset.blockName : (sectionEl ? '(section content)' : '(page)'),
+      block: (blockEl && blockEl.dataset.blockName) || (sectionEl ? '(section content)' : '(page)'),
       blockClasses: blockEl ? blockEl.className.trim() : '',
       hasIcon: !!el.querySelector('img, svg, .icon'),
       w: Math.round(rect.width),
@@ -176,8 +177,14 @@ async function main() {
       const sig = signatureOf(r);
       if (!variants.has(sig)) {
         variants.set(sig, {
-          sig, kind: kindOf(r), style: r.style, ctxBg: r.ctxBg, count: 0,
-          examples: [], blocks: new Set(), pages: new Set(),
+          sig,
+          kind: kindOf(r),
+          style: r.style,
+          ctxBg: r.ctxBg,
+          count: 0,
+          examples: [],
+          blocks: new Set(),
+          pages: new Set(),
         });
       }
       const v = variants.get(sig);
@@ -186,11 +193,18 @@ async function main() {
       v.pages.add(p);
       if (v.examples.length < 4) {
         v.examples.push({
-          text: r.text, tag: r.tag, classes: r.classes, page: p, block: r.block, hasIcon: r.hasIcon, w: r.w, h: r.h,
+          text: r.text,
+          tag: r.tag,
+          classes: r.classes,
+          page: p,
+          block: r.block,
+          hasIcon: r.hasIcon,
+
         });
       }
     }
-    console.log(`  ${String(scanned).padStart(3)}/${pages.length}  ${p}  (${found.length} controls, ${variants.size} variants so far)`);
+    console.log(`  ${String(scanned).padStart(3)}/${pages.length}  ${p}`
+      + `  (${found.length} controls, ${variants.size} variants)`);
   }
 
   await browser.close();

@@ -41,6 +41,32 @@ function parseComputedColor(value) {
   };
 }
 
+/**
+ * Darkness of an explicitly supplied colour, or null when there isn't one to judge.
+ *
+ * Returning null (rather than false) for an absent/unparseable colour is what lets
+ * the caller fall back to reading computed styles, instead of silently asserting
+ * "light" and washing out the marker.
+ */
+function isDarkColorValue(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+
+  const hex = raw.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)?.[1];
+  let channels = null;
+  if (hex) {
+    const full = hex.length === 3 ? [...hex].map((d) => `${d}${d}`) : [hex.slice(0, 2), hex.slice(2, 4), hex.slice(4, 6)];
+    channels = full.map((part) => Number.parseInt(part, 16));
+  } else {
+    const parsed = parseComputedColor(raw);
+    if (parsed && parsed.alpha > 0.05) channels = [parsed.red, parsed.green, parsed.blue];
+  }
+  if (!channels) return null;
+
+  const [red, green, blue] = channels;
+  return (((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) / 255) < 0.42;
+}
+
 function hasDarkBackground(element) {
   if (!element || typeof window === 'undefined' || !window.getComputedStyle) return false;
 
@@ -341,7 +367,12 @@ function applyMarkerState(root, config) {
 
   root.style.setProperty('--text-marker-color', config.color);
   root.classList.add(`has-text-marker-${config.style}`);
-  root.classList.toggle('has-dark-text-marker-background', hasDarkBackground(root));
+  // An explicitly supplied background wins over reading computed styles, which is
+  // only reliable once every ancestor has painted.
+  const isDark = typeof config.darkBackground === 'boolean'
+    ? config.darkBackground
+    : hasDarkBackground(root);
+  root.classList.toggle('has-dark-text-marker-background', isDark);
   wrapMatches(root, config.terms, config.style);
   revealMarkers(root);
 }
@@ -354,6 +385,7 @@ export function applyAnimatedMarkers(root, options = {}) {
     terms,
     color: normalizeMarkerColor(options.color),
     style: normalizeMarkerStyle(options.style),
+    darkBackground: isDarkColorValue(options.background),
   };
 
   root.animatedMarkerConfig = config;

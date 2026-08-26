@@ -6,6 +6,7 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
+import { resolveAlignAnchoredFields } from '../../scripts/flattened-item-utils.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 import {
   applyColoredFieldLayoutOptions,
@@ -352,16 +353,34 @@ function derivePublishedFields(rows) {
   const values = rows.map(getPublishedCellText).filter(Boolean);
   const findValue = (predicate) => values.find((value) => predicate(value)) || '';
 
+  // Value-shape search resolves the fields whose vocabularies are disjoint. It
+  // CANNOT separate paddingStyle from marginStyle (identical option sets), so those
+  // are taken positionally from the alignment anchor instead — see
+  // resolveAlignAnchoredFields. Note this reads the UNFILTERED rows: empty cells
+  // still occupy a position, so dropping them would break every offset.
+  const anchored = resolveAlignAnchoredFields(rows.map(getPublishedCellText));
+  const alignAnchored = Boolean(anchored);
+
   return {
+    alignAnchored,
     text: findValue((value) => !isPublishedControlValue(value)),
     textColor: findValue((value) => normalizeColorValue(value)),
-    blockBackgroundColor: values
+    blockBackgroundColor: (anchored ? anchored.blockBackgroundColor : '') || values
       .map((value) => normalizeColorValue(value))
       .filter(Boolean)[1] || '',
     fontSize: findValue((value) => normalizeCssLength(value, 'font-size') && !/^(?:[1-9]00)$/u.test(value.trim())),
     fontWeight: findValue((value) => normalizeFontWeight(value)),
     horizontalAlign: findValue((value) => ['left', 'center', 'right', 'justify'].includes(value.trim().toLowerCase())),
     verticalAlign: findValue((value) => ['top', 'middle', 'bottom'].includes(value.trim().toLowerCase())),
+    minHeight: (anchored ? anchored.minHeight : '') || '',
+    minHeightMobile: (anchored ? anchored.minHeightMobile : '') || '',
+    paddingStyle: (anchored ? anchored.paddingStyle : '') || '',
+    contentPaddingStyle: (anchored ? anchored.contentPaddingStyle : '') || '',
+    marginStyle: (anchored ? anchored.marginStyle : '') || '',
+    dropShadow: (anchored ? anchored.dropShadow : '') || '',
+    markerTerms: (anchored ? anchored.markerTerms : '') || '',
+    markerColor: (anchored ? anchored.markerColor : '') || '',
+    markerStyle: (anchored ? anchored.markerStyle : '') || '',
   };
 }
 
@@ -417,8 +436,20 @@ export default function decorate(block) {
     ['top', 'middle', 'bottom'],
     'top',
   );
-  const minHeight = normalizeCssLength(readField(block, 'minHeight', ['minimum height', 'min height'], fallback(6), isEditor).value, 'min-height');
-  const minHeightMobile = normalizeCssLength(readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fallback(7), isEditor).value, 'min-height');
+  // See colored-heading.js: a recognised published layout wins even when the value
+  // is empty, because the current-model index points at a different field entirely.
+  const minHeight = normalizeCssLength(
+    publishedFields.alignAnchored
+      ? publishedFields.minHeight
+      : readField(block, 'minHeight', ['minimum height', 'min height'], fallback(6), isEditor).value,
+    'min-height',
+  );
+  const minHeightMobile = normalizeCssLength(
+    publishedFields.alignAnchored
+      ? publishedFields.minHeightMobile
+      : readField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fallback(7), isEditor).value,
+    'min-height',
+  );
   const paddingStyleField = readField(
     block,
     'paddingStyle',
@@ -426,6 +457,7 @@ export default function decorate(block) {
     fallback(8),
     isEditor,
   );
+  if (publishedFields.alignAnchored) paddingStyleField.value = publishedFields.paddingStyle;
   const marginStyleField = readField(
     block,
     'marginStyle',
@@ -433,6 +465,7 @@ export default function decorate(block) {
     fallback(9),
     isEditor,
   );
+  if (publishedFields.alignAnchored) marginStyleField.value = publishedFields.marginStyle;
   const contentPaddingStyleField = readField(
     block,
     'contentPaddingStyle',
@@ -440,6 +473,9 @@ export default function decorate(block) {
     fallback(10),
     isEditor,
   );
+  if (publishedFields.alignAnchored) {
+    contentPaddingStyleField.value = publishedFields.contentPaddingStyle;
+  }
   const blockBgField = readColorField(
     block,
     'blockBackgroundColor',
@@ -447,8 +483,14 @@ export default function decorate(block) {
     isEditor,
     fallback(11),
   );
+  // A recognised published layout is authoritative here too. The positional read
+  // lands on dropShadow in that layout, and its literal "none" is TRUTHY — so the
+  // || below never reached the resolved value and an authored #92D6E3 card
+  // rendered with no background at all.
   let blockBackgroundColor = normalizeColorValue(
-    blockBgField.value || publishedFields.blockBackgroundColor,
+    publishedFields.alignAnchored
+      ? publishedFields.blockBackgroundColor
+      : blockBgField.value || publishedFields.blockBackgroundColor,
   );
   const dropShadowField = readField(
     block,

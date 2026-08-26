@@ -292,13 +292,31 @@ function flattenedContentTexts(row) {
     .filter((text) => text && !isConfigOnlyText(text));
 }
 
+/**
+ * Find an adjacent horizontalAlign/verticalAlign pair near the start of a row.
+ *
+ * Anchoring on the PAIR instead of two fixed indices is what makes this survive a
+ * model change. Published rows authored before a field was added carry one fewer
+ * cell, so everything after it shifts — a reader pinned to absolute indices then
+ * fails, the row never gets a block name, and its raw config cells ("left",
+ * "circle", "_self", "18px") render as visible text on the page.
+ */
+function findAlignPairIndex(row, rows, maxStart = 4) {
+  return rows.findIndex((_, index) => (
+    index >= 1
+    && index <= maxStart
+    && index + 1 < rows.length
+    && isOptionAt(row, index, ['left', 'center', 'right'])
+    && isOptionAt(row, index + 1, ['top', 'middle', 'bottom'])
+  ));
+}
+
 function isFlattenedStatisticsItem(row) {
   const rows = directRows(row);
   const texts = flattenedContentTexts(row);
 
   return rows.length >= 12
-    && isOptionAt(row, 1, ['left', 'center', 'right'])
-    && isOptionAt(row, 2, ['top', 'middle', 'bottom'])
+    && findAlignPairIndex(row, rows) >= 1
     && texts.length >= 2
     && texts.some((text) => /\d/u.test(text));
 }
@@ -338,8 +356,18 @@ function isFlattenedColoredHeadingItem(row) {
     && isOptionAt(row, 5, ['top', 'middle', 'bottom']);
 }
 
-// imageMode (circle/square/icon) preceded by imagePosition/verticalAlign/horizontalAlign
-// in sequence is unique to colored-icon-text among the nested block models.
+/**
+ * imageMode (circle/square/icon) is unique to colored-icon-text among the nested
+ * block models, and imagePosition (left/right/none) always sits immediately before
+ * it — in the current model (image, imageAlt, imagePosition, imageMode) and in rows
+ * published before imageAlt existed (image, imagePosition, imageMode) alike.
+ *
+ * This used to also require verticalAlign at -2 and horizontalAlign at -3. Those
+ * moved to the Layout tab (model indices 21/22) and the cells at -2/-3 are now
+ * `imageAlt` and `image`, so the check could never pass. Every affected row was
+ * left undecorated and dumped its raw config cells onto the page as visible text.
+ * Anchor on the adjacent pair only.
+ */
 function isFlattenedColoredIconTextItem(row) {
   const rows = directRows(row);
   if (rows.length < 14) return false;
@@ -349,9 +377,7 @@ function isFlattenedColoredIconTextItem(row) {
   ));
   if (imageModeIndex < 3) return false;
 
-  return isOptionAt(row, imageModeIndex - 1, ['left', 'right', 'none'])
-    && isOptionAt(row, imageModeIndex - 2, ['top', 'middle', 'bottom'])
-    && isOptionAt(row, imageModeIndex - 3, ['left', 'center', 'right', 'justify']);
+  return isOptionAt(row, imageModeIndex - 1, ['left', 'right', 'none']);
 }
 
 function normalizeFlattenedRowItem(item) {

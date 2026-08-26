@@ -559,6 +559,26 @@ h6 { font-size: var(--heading-6-size); }
   letter-spacing: var(--heading-tracking);
 }
 
+/* Author-sized rich-text slots.
+ *
+ * These slots take their size from a PER-INSTANCE authored value
+ * (--cards-card-highlight-size, --colored-text-size, --colored-icon-text-size), so a
+ * heading an author typed inside one has to adopt the slot's size rather than the
+ * global scale. Without this, a stat authored at 96px renders at the h2 size of 48px
+ * purely because the author made it a heading instead of a paragraph.
+ *
+ * Tailwind Preflight used to do this globally via `h1-h6 { font-size: inherit }`,
+ * which is why it only became visible once Preflight was removed. Restated narrowly
+ * here: the scale still owns every heading that is NOT inside an author-sized slot.
+ * `inherit` is the guard's own first-choice escape hatch (scripts/typography-guard.mjs).
+ */
+.cards-card-highlight :is(h1, h2, h3, h4, h5, h6),
+.colored-text-content :is(h1, h2, h3, h4, h5, h6),
+.colored-icon-text-content :is(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
 .u-h1 {
   font-size: var(--heading-1-size);
   line-height: var(--heading-line-height-tight);

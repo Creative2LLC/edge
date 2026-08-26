@@ -312,6 +312,11 @@ function buildActions(resource, config, videoSource) {
   // URL without the registration token, so an authored "false" would only hide
   // the modal and leave the visitor clicking a button that 401s.
   let gated = Boolean(resource.gated);
+  // A bucket-backed file is gated whatever the column says: the download-url
+  // endpoint asks requiresSignedUrl() and 401s without a token, so treating it
+  // as open would skip the modal and leave the visitor on a dead click. The
+  // free-preview branch above is unaffected — it never touches the endpoint.
+  if (requiresSignedUrl) gated = true;
   if (config.gated === 'true') gated = true;
   if (config.gated === 'false' && !requiresSignedUrl) gated = false;
 

@@ -68,8 +68,15 @@ export function getFallbackCell(scope, options = {}) {
     labels,
     fallbackCell,
   } = normalizeOptions(options);
-  if (fallbackCell) return fallbackCell;
-
+  // A LABELLED row is checked before the positional fallback, because a name match is
+  // strictly stronger evidence than a position guess. aem.js reconstructs flattened
+  // `columns` cells into labelled rows (createBlockFieldRow) precisely so blocks can
+  // find fields by name — but with the positional fallback taking precedence, those
+  // labels were never read and e.g. an authored `padding style: vertical-md` was
+  // silently replaced by whatever sat at the guessed index.
+  //
+  // Genuine published rows are unaffected: they carry no label cell, and the
+  // `children.length < 2` guard skips them.
   if (labels) {
     const accepted = (Array.isArray(labels) ? labels : [labels]).map(normalizeLabel);
     const row = getBlockRows(scope).find((candidate) => {
@@ -78,6 +85,8 @@ export function getFallbackCell(scope, options = {}) {
     });
     if (row) return row.children[1] || null;
   }
+
+  if (fallbackCell) return fallbackCell;
 
   if (rowIndex === undefined || rowIndex === null) return null;
   const row = getBlockRows(scope)[rowIndex];

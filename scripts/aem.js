@@ -624,9 +624,29 @@ function isAemColorValueLink(link) {
   );
 }
 
+/**
+ * True when a link is just an auto-linked bare URL — the shape AEM emits for a
+ * config field holding a URL (an API base, a feed endpoint) rather than a real CTA.
+ *
+ * The naive check `a.href !== a.textContent` does NOT catch these: `a.href` is the
+ * browser-RESOLVED value, which appends a trailing slash to a bare origin, so
+ * `https://api.example.com` (text) and `https://api.example.com/` (href) compare as
+ * different. decorateButtons then treated the config cell as a CTA and appended
+ * " →" to it, corrupting every URL built from that cell. Compare the raw attribute
+ * and ignore a trailing slash.
+ */
+function isBareUrlAutolink(link) {
+  const attr = (link.getAttribute('href') || '').trim();
+  const text = (link.textContent || '').trim();
+  if (!attr || !text) return false;
+  const strip = (s) => s.replace(/\/+$/, '');
+  return strip(attr) === strip(text);
+}
+
 function decorateButtons(element) {
   element.querySelectorAll('a').forEach((a) => {
     if (isAemColorValueLink(a)) return;
+    if (isBareUrlAutolink(a)) return;
 
     if (a.href !== a.textContent) {
       const up = a.parentElement;
@@ -1117,6 +1137,14 @@ function normalizeFlattenedConfigToken(value) {
     .replace(/^-|-$/g, '');
 }
 
+// {edge}-{size}, optionally prefixed with the property name — the shape every
+// paddingStyle / marginStyle / contentPaddingStyle option in the models takes.
+const SPACING_STYLE_TOKEN = /^(?:(?:padding|margin)-)?(?:all|vertical|horizontal|top|bottom|left|right)-(?:sm|md|lg)$/u;
+
+// dropShadow and borderRadius share {size} and highlight-{hue}. 'none' and
+// 'default' are already covered by the literal list above.
+const SHADOW_STYLE_TOKEN = /^(?:small|medium|large|highlight-(?:blue|navy|orange|gold))$/u;
+
 function isFlattenedConfigText(value) {
   const normalized = normalizeFlattenedConfigToken(value);
 
@@ -1166,7 +1194,15 @@ function isFlattenedConfigText(value) {
   ].includes(normalized)
     || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
     || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(String(value || '').trim())
-    || /^(?:[1-9]00)$/u.test(String(value || '').trim());
+    || /^(?:[1-9]00)$/u.test(String(value || '').trim())
+    // The spacing and shadow vocabularies are generated families, not a handful of
+    // one-off words: paddingStyle, marginStyle and contentPaddingStyle share
+    // {edge}-{size} (optionally prefixed by the property, as colored-button emits),
+    // and dropShadow/borderRadius share {size}|highlight-{hue}. Listing members
+    // individually is what let "vertical-md" render as body copy on live — every
+    // new size or hue added to a model would leak until someone noticed.
+    || SPACING_STYLE_TOKEN.test(normalized)
+    || SHADOW_STYLE_TOKEN.test(normalized);
 }
 
 function isFlattenedButtonArtifactText(value) {
@@ -1276,6 +1312,24 @@ function normalizeFlattenedOption(value, allowedValues, fallback) {
 function findFlattenedOptionValue(children, allowedValues, fallback = '') {
   const match = children.find((child) => normalizeFlattenedOption(childTextRaw(child), allowedValues, ''));
   return match ? normalizeFlattenedOption(childTextRaw(match), allowedValues, fallback) : fallback;
+}
+
+/**
+ * First strict {edge}-{size} spacing token among a cell's config paragraphs.
+ *
+ * paddingStyle, marginStyle and contentPaddingStyle share one option vocabulary, so
+ * they cannot be told apart by value — but paddingStyle comes FIRST in field order,
+ * and 'default'/'none' are deliberately excluded because those are also dropShadow
+ * and borderRadius values. That leaves only the unambiguous {edge}-{size} form,
+ * which is the one that actually changes the rendering. Without this, a column whose
+ * author set 'vertical-md' padding rendered with no padding at all on live.
+ */
+function findFlattenedPaddingValue(children, fallback = '') {
+  const match = children.find((child) => (
+    /^(?:all|vertical|horizontal|top|bottom|left|right)-(?:sm|md|lg)$/u
+      .test(normalizeFlattenedConfigToken(childTextRaw(child)))
+  ));
+  return match ? normalizeFlattenedConfigToken(childTextRaw(match)) : fallback;
 }
 
 function findFlattenedHexValue(children, fallback = '') {
@@ -1542,6 +1596,7 @@ function normalizeFlattenedMultiTextColumn(column) {
   const horizontalAlign = findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left');
   const verticalAlign = findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top');
   const fontSize = findFlattenedLengthValue(textConfigChildren, '27px');
+  const paddingStyle = findFlattenedPaddingValue(textConfigChildren);
   const textBlocks = [];
   // A bold lead-in followed by a list is one authored rich-text field, not two
   // independently styled blocks. Splitting it changes both hierarchy and styles
@@ -1564,6 +1619,7 @@ function normalizeFlattenedMultiTextColumn(column) {
         createBlockFieldRow('horizontal alignment', horizontalAlign),
         createBlockFieldRow('vertical alignment', verticalAlign),
         createBlockFieldRow('font size', fontSize),
+        createBlockFieldRow('padding style', paddingStyle),
       );
 
       if (isStrongOnlyParagraph(textChild)) {
@@ -1595,6 +1651,7 @@ function normalizeFlattenedMultiTextColumn(column) {
       createBlockFieldRow('horizontal alignment', horizontalAlign),
       createBlockFieldRow('vertical alignment', verticalAlign),
       createBlockFieldRow('font size', fontSize),
+      createBlockFieldRow('padding style', paddingStyle),
     );
     textBlocks.push(createFlattenedBlock('colored-text', rows));
   }
@@ -1687,6 +1744,7 @@ function normalizeFlattenedSingleTextColumn(column) {
       textConfigChildren,
       isCallout ? '700' : '',
     )),
+    createBlockFieldRow('padding style', findFlattenedPaddingValue(textConfigChildren)),
     createBlockFieldRow('minimum height', isCallout ? '550px' : ''),
     createBlockFieldRow('mobile min height', isCallout ? '100px' : ''),
   );
@@ -1738,51 +1796,37 @@ function createLabeledFlattenedStatisticsRows(children) {
     && normalizeHexColorValue(childTextRaw(children[markerStyleIndex - 1]))
     ? children[markerStyleIndex - 1]
     : null;
-  const trailingConfigChildren = markerStyleIndex >= 0
-    ? children.slice(markerStyleIndex + 1)
-    : children;
-  const borderRadiusChild = [...trailingConfigChildren].reverse()
-    .find((child) => normalizeFlattenedOption(
-      childTextRaw(child),
-      ['none', 'small', 'medium', 'large'],
-      '',
-    )) || null;
-  const paddingStyleChild = [...trailingConfigChildren].reverse()
-    .find((child) => (
-      child !== borderRadiusChild
-        && normalizeFlattenedOption(
-          childTextRaw(child),
-          [
-            'default',
-            'none',
-            'all-sm',
-            'all-md',
-            'all-lg',
-            'vertical-sm',
-            'vertical-md',
-            'vertical-lg',
-            'horizontal-sm',
-            'horizontal-md',
-            'horizontal-lg',
-            'top-sm',
-            'top-md',
-            'top-lg',
-            'bottom-sm',
-            'bottom-md',
-            'bottom-lg',
-          ],
-          '',
-        )
-    )) || null;
-  const contentSpacingChild = trailingConfigChildren.find((child) => (
-    child !== paddingStyleChild
-      && child !== borderRadiusChild
-      && normalizeFlattenedOption(
-        childTextRaw(child),
-        ['none', 'content-spacing-small', 'content-spacing-medium', 'content-spacing-large'],
-        '',
-      )
-  )) || null;
+  // Spacing / radius / shadow are NOT reliably after the marker fields. In the field
+  // order these pages were published under they come BEFORE them
+  // (contentSpacing, paddingStyle, borderRadius, dropShadow, markerTerms, markerColor,
+  // markerStyle), so slicing to "everything after markerStyle" produced an EMPTY list
+  // and every one of them silently resolved to its default — square corners, no
+  // padding and no shadow on a card authored with medium/all-md/highlight-navy.
+  // Search all children instead, claiming each field by its distinctive vocabulary.
+  const markerChildren = new Set([markerStyleChild, markerColorChild].filter(Boolean));
+  const configCandidates = children.filter((child) => !markerChildren.has(child));
+  const configToken = (child) => normalizeFlattenedConfigToken(childTextRaw(child));
+
+  const contentSpacingChild = configCandidates
+    .find((child) => /^content-spacing-(small|medium|large)$/u.test(configToken(child))) || null;
+
+  // {edge}-{size} is unique to the spacing vocabulary; bare default/none are ambiguous
+  // with borderRadius/dropShadow, so they are left to the size-word pass below.
+  const paddingStyleChild = configCandidates
+    .find((child) => SPACING_STYLE_TOKEN.test(configToken(child))) || null;
+
+  // highlight-* is unique to dropShadow. Otherwise fall back to ordering: borderRadius
+  // precedes dropShadow in the model, so of the remaining size words the first is the
+  // radius and the second the shadow.
+  const claimed = new Set([contentSpacingChild, paddingStyleChild].filter(Boolean));
+  const sizeWordChildren = configCandidates.filter((child) => (
+    !claimed.has(child) && /^(none|small|medium|large|white)$/u.test(configToken(child))
+  ));
+  const highlightShadowChild = configCandidates
+    .find((child) => /^highlight-(blue|navy|orange|gold)$/u.test(configToken(child))) || null;
+  const dropShadowChild = highlightShadowChild || sizeWordChildren[1] || null;
+  const borderRadiusChild = sizeWordChildren.find((child) => child !== dropShadowChild) || null;
+
   const colorChildren = children.filter((child) => (
     child !== markerColorChild && normalizeHexColorValue(childTextRaw(child))
   ));
@@ -1888,6 +1932,7 @@ function createLabeledFlattenedStatisticsRows(children) {
     createBlockFieldRow('content spacing', childTextRaw(contentSpacingChild)),
     createBlockFieldRow('padding style', childTextRaw(paddingStyleChild)),
     createBlockFieldRow('border radius', childTextRaw(borderRadiusChild)),
+    createBlockFieldRow('drop shadow', childTextRaw(dropShadowChild)),
   ];
 }
 

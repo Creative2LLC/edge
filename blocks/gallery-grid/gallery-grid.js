@@ -8,6 +8,10 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  isFlattenedStatisticsItem,
+  looksFlattenedComponent,
+} from '../../scripts/flattened-item-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 
 const SETTING_NAMES = ['columns', 'gap', 'borderRadius'];
@@ -87,6 +91,45 @@ function readSetting(block, name, labels = [], fallbackCell = null, isEditor = f
   return field.value;
 }
 
+/**
+ * Settings on a PUBLISHED page.
+ *
+ * isSettingRow() below can only recognise a setting by its data-aue-prop, which no
+ * published page carries — so every setting fell through to its default: a gallery
+ * authored with borderRadius "medium" rendered square, and `columns` only looked
+ * right because 2 happens to be the default too.
+ *
+ * The settings are the model's leading single-cell rows, in field order
+ * (columns, gap, borderRadius). Each candidate is validated against what that field
+ * can actually hold, and scanning stops at the first row that doesn't fit — an item
+ * row is never a lone cell holding "medium", so this cannot swallow content.
+ */
+function readPublishedSettings(block) {
+  const validators = [
+    ['columns', (v) => /^[1-6]$/.test(v)],
+    ['gap', (v) => /^-?d+(.d+)?(px|rem|em|%)$/i.test(v)],
+    ['borderRadius', (v) => ['none', 'small', 'medium', 'large'].includes(v.toLowerCase())],
+  ];
+
+  const settings = {};
+  const consumed = [];
+  let cursor = 0;
+
+  validators.forEach(([name, isValid]) => {
+    const row = block.children[cursor];
+    if (!row || row.children.length !== 1) return;
+    const value = (row.textContent || '').trim();
+    // An empty cell is a real, unset setting — consume it and move on.
+    if (value && !isValid(value)) return;
+    if (value) settings[name] = value;
+    consumed.push(row);
+    cursor += 1;
+  });
+
+  consumed.forEach((row) => row.remove());
+  return settings;
+}
+
 function isSettingRow(row) {
   const isContentBlock = [...NESTED_BLOCK_NAMES].some((name) => (
     row.classList.contains(name)
@@ -138,12 +181,19 @@ function getContentBlockName(element) {
   const segments = resource.split('/').filter(Boolean);
   const fromResource = segments[segments.length - 1] || '';
 
-  return String(element.dataset.blockName || element.getAttribute('data-aue-model') || fromResource)
+  const name = String(element.dataset.blockName || element.getAttribute('data-aue-model') || fromResource)
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/-\d{4,}$/u, '')
     .replace(/^-|-$/g, '');
+
+  // Published pages carry none of the three sources above, so an authored
+  // Statistics item arrives as an anonymous row of flattened field cells. Without
+  // this the row fell through to the plain-item path and rendered its
+  // verticalAlignment cell as a text card — the stat never appeared on live at all.
+  if (name) return name;
+  return isFlattenedStatisticsItem(element) ? 'statistics' : '';
 }
 
 async function loadNestedBlock(element) {
@@ -228,8 +278,26 @@ async function buildItem(row, isEditor) {
     return item;
   }
 
-  const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
-  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: row.children[1] });
+  // gallery-grid-item gained `imageAlt` after some pages were published, so a row from
+  // before that carries four cells (image, text, backgroundColor, textColor) rather than
+  // five. Reading `text` at the current index then lands on backgroundColor, which is
+  // empty — and an item with no image and no text is dropped, so the whole tile silently
+  // vanished from the grid rather than merely looking wrong.
+  const cellCount = row.children.length;
+  const hasImageAltCell = cellCount >= 5;
+  const at = (name) => {
+    const index = {
+      image: 0,
+      imageAlt: hasImageAltCell ? 1 : -1,
+      text: hasImageAltCell ? 2 : 1,
+      backgroundColor: hasImageAltCell ? 3 : 2,
+      textColor: hasImageAltCell ? 4 : 3,
+    }[name];
+    return index >= 0 ? row.children[index] : null;
+  };
+
+  const imageField = readImageField(row, 'image', { fallbackCell: at('image') });
+  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: at('imageAlt') });
 
   if (imageField.img) {
     const wrapper = document.createElement('div');
@@ -256,9 +324,13 @@ async function buildItem(row, isEditor) {
     return item;
   }
 
-  const textField = readRichTextField(row, 'text', { fallbackCell: row.children[2] });
-  const backgroundColorField = readTextField(row, 'backgroundColor', { fallbackCell: row.children[3] });
-  const textColorField = readTextField(row, 'textColor', { fallbackCell: row.children[4] });
+  // An unrecognised flattened component must not fall through to the text-card
+  // path below: its cells are config, not authored copy.
+  if (!isAuthoringItem && looksFlattenedComponent(row)) return null;
+
+  const textField = readRichTextField(row, 'text', { fallbackCell: at('text') });
+  const backgroundColorField = readTextField(row, 'backgroundColor', { fallbackCell: at('backgroundColor') });
+  const textColorField = readTextField(row, 'textColor', { fallbackCell: at('textColor') });
 
   if (textField.text || textField.source) {
     const textCard = document.createElement('div');
@@ -322,11 +394,11 @@ export default async function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
 
-  applySettings(block, {
+  applySettings(block, isEditor ? {
     columns: readSetting(block, 'columns', ['columns'], null, isEditor),
     gap: readSetting(block, 'gap', ['gap', 'grid gap'], null, isEditor),
     borderRadius: readSetting(block, 'borderRadius', ['item border radius', 'border radius'], null, isEditor),
-  });
+  } : readPublishedSettings(block));
 
   const itemRows = [...block.children].filter((row) => {
     if (isSettingRow(row)) {
