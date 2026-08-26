@@ -5,7 +5,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -582,10 +582,25 @@ export default async function decorate(block) {
 
     let currentIndex = 0;
 
+    // The nav owns the index. Where the slides nearly fit, ONE click reaches the
+    // end stop — and getCarouselItemIndex correctly reports the LAST slide there,
+    // which makes a single click jump the dots to the end. Re-sync from scroll
+    // position only when the VISITOR scrolls, not while our smooth scroll settles.
+    let programmaticScroll = false;
+    let scrollSettleTimer;
+    const beginProgrammaticScroll = () => {
+      programmaticScroll = true;
+      window.clearTimeout(scrollSettleTimer);
+      scrollSettleTimer = window.setTimeout(() => {
+        programmaticScroll = false;
+      }, 500);
+    };
+
     const goToSlide = (targetIndex) => {
       if (!slides.length) return;
       currentIndex = ((targetIndex % slides.length) + slides.length) % slides.length;
       const slide = slides[currentIndex];
+      beginProgrammaticScroll();
       scrollToCarouselItem(track, slide);
       updateDots(dots, currentIndex);
     };
@@ -598,11 +613,9 @@ export default async function decorate(block) {
     updateDots(dots, currentIndex);
 
     track.addEventListener('scroll', () => {
-      const slideWidth = slides[0]?.offsetWidth || 1;
-      const styles = getComputedStyle(track);
-      const gap = Number.parseFloat(styles.columnGap || styles.gap || '0');
-      const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
-      if (scrollIndex >= 0 && scrollIndex < slides.length && scrollIndex !== currentIndex) {
+      if (programmaticScroll) return;
+      const scrollIndex = getCarouselItemIndex(track, slides);
+      if (scrollIndex >= 0 && scrollIndex !== currentIndex) {
         currentIndex = scrollIndex;
         updateDots(dots, currentIndex);
       }

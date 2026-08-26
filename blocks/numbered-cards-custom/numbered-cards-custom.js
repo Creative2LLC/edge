@@ -1,6 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import {
   getFieldSelector,
   readImageField,
@@ -479,6 +479,21 @@ export default async function decorate(block) {
 
     let current = 0;
 
+    // The nav owns the index. At desktop widths these cards very nearly fit, so
+    // ONE click reaches the end stop — where getCarouselItemIndex correctly
+    // reports the LAST card, which made a single click jump the dots from 1 to 4.
+    // Re-sync from scroll position only when the VISITOR scrolls (drag, wheel,
+    // touch), never while our own smooth scroll is still settling.
+    let programmaticScroll = false;
+    let scrollSettleTimer;
+    const beginProgrammaticScroll = () => {
+      programmaticScroll = true;
+      window.clearTimeout(scrollSettleTimer);
+      scrollSettleTimer = window.setTimeout(() => {
+        programmaticScroll = false;
+      }, 500);
+    };
+
     const setActiveCard = (index, shouldScroll = false) => {
       const total = cardRefs.length;
       if (!total) return;
@@ -486,6 +501,7 @@ export default async function decorate(block) {
 
       if (shouldScroll) {
         const targetCard = cardRefs[current].card;
+        beginProgrammaticScroll();
         scrollToCarouselItem(cardsContainer, targetCard);
       }
 
@@ -504,17 +520,18 @@ export default async function decorate(block) {
       card.addEventListener('click', () => setActiveCard(index, true));
     });
 
+    // Index from the real card positions, not scrollLeft / (width + gap).
+    // Those two disagree whenever the track cannot scroll a full card — here the
+    // track has 356px of range against a 432px step, so the arithmetic pinned
+    // current to 1 forever and the nav spent two clicks going nowhere.
+    // getCarouselItemIndex measures the cards themselves and reports the LAST
+    // card at the end stop, which is what scrollToCarouselItem actually lands on.
+    attachDragScroll(cardsContainer);
+
     cardsContainer.addEventListener('scroll', () => {
-      const firstCard = cardRefs[0]?.card;
-      if (!firstCard) return;
-
-      const styles = window.getComputedStyle(cardsContainer);
-      const gap = Number.parseFloat(styles.columnGap || styles.gap || '0');
-      const step = firstCard.offsetWidth + gap;
-      if (!step) return;
-
-      const scrollIndex = Math.round(cardsContainer.scrollLeft / step);
-      if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < cardRefs.length) {
+      if (programmaticScroll) return;
+      const scrollIndex = getCarouselItemIndex(cardsContainer, cardRefs.map(({ card }) => card));
+      if (scrollIndex !== current && scrollIndex >= 0) {
         current = scrollIndex;
         updateDots(dots, current);
         applyCarouselState(cardRefs, current);

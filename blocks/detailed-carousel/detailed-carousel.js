@@ -6,7 +6,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
 
 function getField(row, name, index) {
@@ -258,12 +258,27 @@ export default function decorate(block) {
 
     let current = 0;
 
+    // The nav owns the index. Where the slides nearly fit, ONE click reaches the
+    // end stop — and getCarouselItemIndex correctly reports the LAST slide there,
+    // which makes a single click jump the dots to the end. Re-sync from scroll
+    // position only when the VISITOR scrolls, not while our smooth scroll settles.
+    let programmaticScroll = false;
+    let scrollSettleTimer;
+    const beginProgrammaticScroll = () => {
+      programmaticScroll = true;
+      window.clearTimeout(scrollSettleTimer);
+      scrollSettleTimer = window.setTimeout(() => {
+        programmaticScroll = false;
+      }, 500);
+    };
+
     const goToSlide = (index) => {
       const total = slides.length;
       if (total === 0) return;
       current = ((index % total) + total) % total;
       const slideEl = track.children[current];
       if (slideEl) {
+        beginProgrammaticScroll();
         scrollToCarouselItem(track, slideEl);
       }
       dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
@@ -274,10 +289,9 @@ export default function decorate(block) {
     dots.forEach((dot, i) => dot.addEventListener('click', () => goToSlide(i)));
 
     track.addEventListener('scroll', () => {
-      const slideWidth = track.children[0]?.offsetWidth || 1;
-      const gap = parseFloat(getComputedStyle(track).columnGap) || 24;
-      const scrollIndex = Math.round(track.scrollLeft / (slideWidth + gap));
-      if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < slides.length) {
+      if (programmaticScroll) return;
+      const scrollIndex = getCarouselItemIndex(track, [...track.children]);
+      if (scrollIndex !== current && scrollIndex >= 0) {
         current = scrollIndex;
         dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
       }

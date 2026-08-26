@@ -1,7 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
-import { scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 
 const BLOCK_PROPS = [
   'title',
@@ -332,12 +332,28 @@ export default function decorate(block) {
     let current = 0;
     updateActiveCard(cardsContainer, current);
 
+    // The nav owns the index. At desktop widths these cards very nearly fit, so
+    // ONE click reaches the end stop — where getCarouselItemIndex correctly
+    // reports the LAST card, which made a single click jump the dots from 1 to 4.
+    // Re-sync from scroll position only when the VISITOR scrolls (drag, wheel,
+    // touch), never while our own smooth scroll is still settling.
+    let programmaticScroll = false;
+    let scrollSettleTimer;
+    const beginProgrammaticScroll = () => {
+      programmaticScroll = true;
+      window.clearTimeout(scrollSettleTimer);
+      scrollSettleTimer = window.setTimeout(() => {
+        programmaticScroll = false;
+      }, 500);
+    };
+
     const goToSlide = (index) => {
       const total = cards.length;
       if (total === 0) return;
       current = ((index % total) + total) % total;
       const slideEl = cardsContainer.children[current];
       if (slideEl) {
+        beginProgrammaticScroll();
         scrollToCarouselItem(cardsContainer, slideEl);
       }
       updateDots(dots, current);
@@ -350,11 +366,14 @@ export default function decorate(block) {
       dot.addEventListener('click', () => goToSlide(i));
     });
 
+    // This block never had drag scrolling — every other carousel on the site
+    // does. Mouse users could only move it with the nav buttons.
+    attachDragScroll(cardsContainer);
+
     cardsContainer.addEventListener('scroll', () => {
-      const slideWidth = cardsContainer.children[0]?.offsetWidth || 1;
-      const gap = 24;
-      const scrollIndex = Math.round(cardsContainer.scrollLeft / (slideWidth + gap));
-      if (scrollIndex !== current && scrollIndex >= 0 && scrollIndex < cards.length) {
+      if (programmaticScroll) return;
+      const scrollIndex = getCarouselItemIndex(cardsContainer, [...cardsContainer.children]);
+      if (scrollIndex !== current && scrollIndex >= 0) {
         current = scrollIndex;
         updateDots(dots, current);
         updateActiveCard(cardsContainer, current);
