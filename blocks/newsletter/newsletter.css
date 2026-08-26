@@ -1,8 +1,3 @@
-/* Override section max-width for wider block */
-main > .section > .newsletter-wrapper {
-  max-width: 1612px;
-}
-
 .newsletter {
   position: relative;
   z-index: 0;

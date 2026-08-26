@@ -1,13 +1,6 @@
-/* Override the global section max-width (styles.css caps `main > .section > div`
-   at 1200px) so this block can run up to its 1420px design width. */
-main > .section > .featured-event-wrapper {
-  max-width: none;
-  padding: 0;
-}
-
 .featured-event {
   margin: 80px auto;
-  padding: 0 32px;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -206,7 +199,7 @@ main > .section > .featured-event-wrapper {
 @media (width <= 900px) {
   .featured-event {
     margin: 56px auto;
-    padding: 0 20px;
+    padding: 0;
   }
 
   .featured-event .featured-event-header {

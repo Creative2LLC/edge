@@ -1,7 +1,11 @@
 /* Split Card Offices Block */
 .split-card-offices {
   margin: 112px auto;
-  padding: 0 32px;
+  padding: 0;
+
+  /* The section wrapper is display:flex, so without an explicit width this
+     block sizes to its content and the auto margins centre it off the grid. */
+  width: 100%;
   max-width: var(--container);
   box-sizing: border-box;
 }
@@ -157,7 +161,7 @@
 @media (width <= 900px) {
   .split-card-offices {
     margin: 72px auto;
-    padding: 0 20px;
+    padding: 0;
   }
 
   .split-card-offices .split-card-offices-container {

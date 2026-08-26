@@ -1,6 +1,6 @@
 .amber-alert-info .amber-alert-info-container {
   display: flex;
-  min-width: 1420px;
+  max-width: 1420px;
   border-radius: 14px;
   overflow: hidden;
   box-sizing: border-box;

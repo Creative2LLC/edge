@@ -100,7 +100,11 @@
 
 .hero .hero-content {
   width: 100%;
-  max-width: var(--container);
+
+  /* The column width, not the container width: .hero already supplies side
+     padding, so capping at --container put hero copy 32px outside the edge
+     every in-container block uses. */
+  max-width: var(--container-content);
   margin: 0 auto;
 }
 

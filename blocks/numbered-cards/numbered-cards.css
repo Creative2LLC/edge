@@ -19,12 +19,11 @@
 }
 
 .numbered-cards .numbered-cards-wrapper {
-  /* Cap content at the container width but reserve a gutter on each side so the
-     block keeps its side padding from mobile through tablet, up to the cap.
-     Desktop content still tops out at exactly var(--container). */
-  max-width: calc(var(--container) + 2 * var(--gutter));
+  /* Mirrors `main > .section > div` so this full-bleed block's content lands on
+     the same edge as every in-container block. */
+  max-width: var(--container);
   margin: 0 auto;
-  padding: 80px var(--gutter);
+  padding: 80px var(--section-pad);
   box-sizing: border-box;
 }
 

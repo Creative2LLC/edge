@@ -1,7 +1,6 @@
 .resource-downloads {
-  max-width: 960px;
   margin: 0 auto;
-  padding: 8px 16px 32px;
+  padding: 8px 0 32px;
 }
 
 .resource-downloads-list {

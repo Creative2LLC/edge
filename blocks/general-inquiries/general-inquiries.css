@@ -1,13 +1,3 @@
-main > .section > .general-inquiries-wrapper {
-  /* Reserve a gutter on each side so the card keeps its side padding from mobile
-     through tablet, up to the cap. Desktop card still spans exactly
-     var(--container). */
-  max-width: calc(var(--container) + 2 * var(--gutter));
-  padding-left: var(--gutter);
-  padding-right: var(--gutter);
-  box-sizing: border-box;
-}
-
 .general-inquiries {
   --general-inquiries-surface: #efe9e4;
   --general-inquiries-support-cta: #008db6;

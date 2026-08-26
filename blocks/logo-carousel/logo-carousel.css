@@ -1,7 +1,7 @@
 /* Logo Carousel Block */
 .logo-carousel {
   margin: 64px auto;
-  padding: 0 32px;
+  padding: 0;
 
   /* The EDS section wrapper shares the `logo-carousel-wrapper` class with the
      inner div, so it picks up `display: flex` and treats this block as a flex
@@ -179,7 +179,7 @@
 @media (width <= 900px) {
   .logo-carousel {
     margin: 40px auto;
-    padding: 0 var(--gutter);
+    padding: 0;
   }
 
   .logo-carousel-wrapper {

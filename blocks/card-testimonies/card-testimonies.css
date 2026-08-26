@@ -1,21 +1,12 @@
-/* Cancel the global section-wrapper side padding (24px / 32px in styles.css)
-   so the block background extends to the full 1420px content width. */
-main > .section > .card-testimonies-wrapper {
-  padding-left: 0;
-  padding-right: 0;
-}
-
 /* Card Testimonies Block */
 .card-testimonies.block {
   --card-testimonies-surface-bg: #fff;
   --card-testimonies-secondary-surface-bg: #ddd5cc52;
 
-  /* Cap content at the container width but reserve a gutter on each side so the
-     cards keep their side padding from mobile through tablet, up to the cap.
-     Desktop content still tops out at exactly var(--container). */
-  padding: 60px var(--gutter);
+  /* The section wrapper already supplies the side gutter, so the cards sit
+     directly on the shared content edge with no horizontal padding here. */
+  padding: 60px 0;
   margin: 0 auto;
-  max-width: calc(var(--container) + 2 * var(--gutter));
   box-sizing: border-box;
 }
 
@@ -203,7 +194,7 @@ main > .section > .card-testimonies-wrapper {
   }
 
   .card-testimonies.block {
-    padding: 40px 16px;
+    padding: 40px 0;
   }
 
   .card-testimonies-subtitle {

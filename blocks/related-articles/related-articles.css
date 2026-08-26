@@ -1,5 +1,5 @@
 .related-articles {
-  width: min(100% - 32px, 1120px);
+  width: 100%;
   margin: 0 auto;
   padding: clamp(2.5rem, 5vw, 4rem) 0;
 }

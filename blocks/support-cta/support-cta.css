@@ -1,13 +1,3 @@
-main > .section > .support-cta-wrapper {
-  /* Reserve a gutter on each side so the card keeps its side padding from mobile
-     through tablet, up to the cap. Desktop card still spans exactly
-     var(--container). */
-  max-width: calc(var(--container) + 2 * var(--gutter));
-  padding-left: var(--gutter);
-  padding-right: var(--gutter);
-  box-sizing: border-box;
-}
-
 .support-cta.block {
   --support-cta-background-start: #f3efea;
   --support-cta-background-end: #ece8e3;

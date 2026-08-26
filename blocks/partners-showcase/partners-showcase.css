@@ -1,6 +1,6 @@
 .partners-showcase {
   width: 100vw;
-  padding: 96px 24px 92px;
+  padding: 96px 0 92px;
   position: relative;
   transform: translateX(-50%);
   box-sizing: border-box;
@@ -14,7 +14,13 @@ main > .section > .partners-showcase-wrapper {
 }
 
 .partners-showcase .partners-showcase-shell {
+  /* Mirrors `main > .section > div` so the band's content lines up with every
+     in-container block while the white band itself stays full-bleed. */
   width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--section-pad);
+  box-sizing: border-box;
 }
 
 .partners-showcase .partners-showcase-header {
@@ -280,7 +286,7 @@ main > .section > .partners-showcase-wrapper {
 
 @media (width <= 900px) {
   .partners-showcase {
-    padding: 76px 20px 80px;
+    padding: 76px 0 80px;
   }
 
   .partners-showcase .partners-showcase-logo-band {
@@ -303,7 +309,7 @@ main > .section > .partners-showcase-wrapper {
 
 @media (width <= 600px) {
   .partners-showcase {
-    padding: 60px 16px 64px;
+    padding: 60px 0 64px;
   }
 
   .partners-showcase .partners-showcase-subheading {

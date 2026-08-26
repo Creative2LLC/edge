@@ -127,10 +127,19 @@
   /* vertical gap BETWEEN blocks within a section (mobile/tablet only) */
   --flow-block: clamp(20px, 4vw, 32px);
 
-  /* horizontal gutter: where content sits from the viewport edge on mobile.
-     Full-bleed blocks should use this as their inner padding so content aligns.
-     (Desktop keeps the section wrapper's own 32px.) */
+  /* horizontal gutter: where content sits from the viewport edge on mobile. */
   --gutter: 24px;
+
+  /* The section wrapper's ACTUAL horizontal padding (24px here, 32px from 900px
+     up). A full-bleed block that re-establishes the content column must mirror
+     `main > .section > div` using THIS, not --gutter: capping at --container and
+     padding by --gutter yields a 1420px column while the rest of the site runs
+     1356px, which is exactly where the old 32px-per-side drift came from. */
+  --section-pad: var(--gutter);
+
+  /* The real content column width. Use when the PARENT already supplies the
+     side padding and the child just needs to match the column. */
+  --container-content: calc(var(--container) - 2 * var(--section-pad));
 }
 
 /* Metric-matched fallback for Figtree.
@@ -147,6 +156,9 @@
 
 @media (width >= 900px) {
   :root {
+    /* Matches the section wrapper's desktop padding — see --section-pad. */
+    --section-pad: 32px;
+
     /* body sizes */
     --body-font-size-m: 18px;
     --body-font-size-s: 16px;
@@ -1126,7 +1138,7 @@ main > .section.no-margin {
 main > .section > div {
   max-width: var(--container);
   margin: auto;
-  padding: 0 var(--gutter);
+  padding: 0 var(--section-pad);
 }
 
 /* Inter-block vertical rhythm within a section (mobile/tablet only; desktop
@@ -1164,12 +1176,6 @@ main > .section[data-background-gradient] {
 
 main > .section:first-of-type {
   margin-top: 0;
-}
-
-@media (width >= 900px) {
-  main > .section > div {
-    padding: 0 32px;
-  }
 }
 
 /* section metadata */

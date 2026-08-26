@@ -13,8 +13,11 @@ main > .section > .resources-browser-wrapper {
 }
 
 .resources-browser .resources-browser-inner {
-  width: min(1420px, calc(100% - 56px));
+  /* Mirrors `main > .section > div` so the browser lines up with the rest. */
+  width: min(var(--container), 100%);
   margin: 0 auto;
+  padding-inline: var(--section-pad);
+  box-sizing: border-box;
 }
 
 .resources-browser .resources-browser-header {
@@ -744,10 +747,6 @@ main > .section > .resources-browser-wrapper {
 @media (width <= 680px) {
   .resources-browser {
     padding: 28px 0 44px;
-  }
-
-  .resources-browser .resources-browser-inner {
-    width: min(1420px, calc(100% - 24px));
   }
 
   .resources-browser .resources-browser-header-top {

@@ -1,15 +1,7 @@
-/* Override the global section max-width (set in styles.css to 1200px on
-   `main > .section > div`) so this block can run wider than the default. */
-main > .section > .dark-feature-cards-wrapper {
-  max-width: 1612px;
-  padding: 0;
-}
-
 /* Dark Feature Cards Block */
 .dark-feature-cards {
   margin: 112px auto;
-  padding: 0 32px;
-  max-width: 1612px;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -209,7 +201,7 @@ main > .section > .dark-feature-cards-wrapper {
 @media (width <= 900px) {
   .dark-feature-cards {
     margin: 72px auto;
-    padding: 0 20px;
+    padding: 0;
   }
 
   .dark-feature-cards .dark-feature-cards-inner {
