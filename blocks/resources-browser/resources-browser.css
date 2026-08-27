@@ -365,10 +365,15 @@ main > .section > .resources-browser-wrapper {
   display: none;
 }
 
+/* 1.2:1 is the thumbnail master ratio, not an arbitrary choice — every asset in
+   the legacy missingkids.org library is exactly 1.2 (346x289 / 461x385, zero
+   variance across all 38), and the backend now stores thumbnails at 1200x1000
+   to match. Holding the card at the same ratio means an imported or generated
+   thumbnail is never cropped here at all. Was 1.1:1, which clipped ~8%. */
 .resources-browser .resources-browser-card-image {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 1.1 / 1;
+  aspect-ratio: 1.2 / 1;
   background: #a9a8a6;
 }
 
@@ -802,6 +807,6 @@ main > .section > .resources-browser-wrapper {
 
   .resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-image {
     min-height: 0;
-    aspect-ratio: 1.1 / 1;
+    aspect-ratio: 1.2 / 1;
   }
 }

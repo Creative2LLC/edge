@@ -188,15 +188,43 @@ function buildRichContent(source, className) {
   return content.childNodes.length ? content : null;
 }
 
-function buildButton(buttonTextField, buttonLinkField, buttonStyle, index) {
-  if (!buttonTextField.value && !buttonLinkField.value) return null;
+function isUniversalEditor() {
+  return Boolean(document.querySelector('[data-aue-resource]'));
+}
 
-  const button = document.createElement(buttonLinkField.value ? 'a' : 'span');
+/**
+ * A button with no destination is not a button. This used to fall back to a
+ * <span> wearing the button styles: it looked interactive to a sighted mouse
+ * user, but it could not be focused, carried no role, and was announced as
+ * plain text — so keyboard and screen-reader users got a control that did not
+ * exist, and everyone else got one that did nothing. (The stylesheet even has a
+ * :focus rule a <span> can never trigger.)
+ *
+ * A real <a> is rendered when there is somewhere to go. When there is not,
+ * nothing ships to the live page, and the editor gets an obviously-inert notice
+ * so the author can see the link is missing rather than the site pretending.
+ */
+function buildButton(buttonTextField, buttonLinkField, buttonStyle, index) {
+  const label = buttonTextField.value;
+  const href = buttonLinkField.value;
+  if (!label && !href) return null;
+
+  if (!href) {
+    if (!isUniversalEditor()) return null;
+
+    const notice = document.createElement('p');
+    notice.className = 'regional-offices-button-missing-link';
+    notice.textContent = `"${label}" has no Button Link yet, so it is hidden on the live page.`;
+    if (buttonTextField.source) moveInstrumentation(buttonTextField.source, notice);
+    return notice;
+  }
+
+  const button = document.createElement('a');
   button.className = `regional-offices-button regional-offices-button-${buttonStyle || 'outlined'} regional-offices-reveal`;
   button.style.setProperty('--stagger-index', index + 1.4);
-  button.textContent = buttonTextField.value || 'Learn More';
+  button.textContent = label || 'Learn More';
+  button.href = href;
 
-  if (buttonLinkField.value) button.href = buttonLinkField.value;
   if (buttonTextField.source || buttonLinkField.source) {
     moveInstrumentation(buttonTextField.source || buttonLinkField.source, button);
   }

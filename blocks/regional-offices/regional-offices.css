@@ -170,6 +170,25 @@
   transform: translateY(-1px);
 }
 
+/* Now that this is a real anchor it can actually be tabbed to, so it needs a
+   focus indicator that does not rely on the transform above. */
+.regional-offices .regional-offices-button:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 3px;
+}
+
+/* Editor-only: the author set button text but no link. Deliberately not styled
+   as a button — it is a note, not a control. */
+.regional-offices .regional-offices-button-missing-link {
+  margin: auto 0 0;
+  padding: 10px 12px;
+  border: 1px dashed #b4451f;
+  border-radius: 8px;
+  color: #b4451f;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
 .regional-offices .regional-offices-button-solid {
   background: #1491bf;
   color: #fff;
