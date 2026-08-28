@@ -920,6 +920,13 @@ function resolveEntry(item, resource, config, primaryResource) {
   );
   const slug = item.resourceSlug || matchedPrimaryResource?.slug || '';
 
+  // Whether this item is about the resource the PAGE is about. Compared by slug
+  // rather than object identity: a per-item slug lookup can return a different
+  // object for the very same resource.
+  const pageSlug = normalizeText(primaryResource?.slug || config.slug).toLowerCase();
+  const matchedSlug = normalizeText(matchedPrimaryResource?.slug).toLowerCase();
+  const describesThisPage = Boolean(matchedSlug) && matchedSlug === pageSlug;
+
   return {
     item,
     resource: matchedPrimaryResource,
@@ -944,7 +951,19 @@ function resolveEntry(item, resource, config, primaryResource) {
     title: item.title || matchedFile?.title || matchedPrimaryResource?.title
       || titleFromFileName(downloadUrl) || 'Download',
     description: item.description || matchedFile?.description || '',
-    fallbackDescription: normalizeText(matchedPrimaryResource?.excerpt),
+    // The resource excerpt, but ONLY when this item points at some OTHER
+    // resource.
+    //
+    // `excerpt` is sourced from the resource-hero's own description field
+    // (ResourceAemSyncService reads resourceHeroBlock['jcr:description'] first),
+    // so on the resource's own landing page the hero is already showing this
+    // exact copy — and with several downloads it was showing it again on every
+    // card. Same category error as the image fallback two properties up: the
+    // excerpt describes the RESOURCE, not this file.
+    //
+    // Kept for the cross-page case, where a downloads block on a hub page names
+    // another resource by slug and its excerpt is the only description there is.
+    fallbackDescription: describesThisPage ? '' : normalizeText(matchedPrimaryResource?.excerpt),
     // An image authored ON THIS ITEM, else THIS FILE's own thumbnail from the
     // API. Still never the resource's thumbnail: that is the LIBRARY card's
     // image, and falling back to it meant every download on a resource rendered
@@ -1050,6 +1069,50 @@ function buildImage(entry, width = 400) {
   }
 
   return null;
+}
+
+/**
+ * A thumbnail presented as a DOCUMENT rather than as a photograph.
+ *
+ * Backend thumbnails are first-page covers — an AEM rendition of a PDF, the
+ * preview PowerPoint embeds in its own file — so a bare <img> reads as "some
+ * picture" and throws away the two things the card used to say clearly: that
+ * this is a multi-page document, and what type it is.
+ *
+ * So the cover sits on a sheet (CSS gives it stacked paper edges) and keeps a
+ * corner chip carrying the type abbreviation. That is the whole trick: the old
+ * site's thumbnails are recognisable but say nothing about format, and the
+ * current type art says the format but nothing about content. This says both.
+ *
+ * Returns null when there is no image, so every caller keeps its existing
+ * fallback — the decorative type art, or a plain icon on a compact row.
+ */
+function buildPreview(entry, width = 400) {
+  const image = buildImage(entry, width);
+  if (!image) return null;
+
+  const preview = document.createElement('div');
+  preview.className = 'resource-downloads-preview';
+  preview.dataset.type = entry.typeKey;
+
+  const sheet = document.createElement('div');
+  sheet.className = 'resource-downloads-preview-sheet';
+  sheet.append(image);
+  preview.append(sheet);
+
+  // A video still is not a document: no paper edges, and the play affordance
+  // its own card already draws is a better signal than a format chip.
+  if (entry.typeKey !== 'video' && entry.theme?.abbr) {
+    const badge = document.createElement('span');
+    badge.className = 'resource-downloads-preview-badge';
+    badge.textContent = entry.theme.abbr;
+    // Decorative: the format is already announced in the card's text, so a
+    // screen reader repeating it here would only add noise.
+    badge.setAttribute('aria-hidden', 'true');
+    preview.append(badge);
+  }
+
+  return preview;
 }
 
 function buildDownloadButton(entry, withWatch = false) {
@@ -1243,7 +1306,18 @@ function buildActions(entry, isEditor) {
 function buildRowEntry(entry, isEditor) {
   const card = document.createElement('article');
   card.className = 'resource-downloads-item is-row';
-  card.append(buildTypeIcon(entry));
+
+  // A stack of compact rows is the hardest layout to scan, and a real cover
+  // distinguishes them far better than the same type glyph repeated down the
+  // page. Falls back to that glyph whenever there is no thumbnail, so a row
+  // never loses its leading element.
+  const preview = buildPreview(entry, 160);
+  if (preview) {
+    preview.classList.add('is-row-preview');
+    card.append(preview);
+  } else {
+    card.append(buildTypeIcon(entry));
+  }
 
   const body = document.createElement('div');
   body.className = 'resource-downloads-item-body';
@@ -1295,7 +1369,7 @@ function buildTypeCard(entry, isEditor) {
   card.className = 'resource-downloads-item is-type';
   card.dataset.type = entry.typeKey;
 
-  const image = buildImage(entry);
+  const image = buildPreview(entry);
   if (image) {
     const media = document.createElement('div');
     media.className = 'resource-downloads-item-media';
@@ -1389,7 +1463,7 @@ function buildGroupEntry(entries, isEditor) {
   const card = document.createElement('article');
   card.className = 'resource-downloads-item is-group';
 
-  const image = buildImage(lead);
+  const image = buildPreview(lead);
   if (image) {
     const media = document.createElement('div');
     media.className = 'resource-downloads-item-media';
@@ -1550,6 +1624,18 @@ function buildInformativeStackedEntry(entry, isEditor) {
   const card = document.createElement('article');
   card.className = 'resource-downloads-item is-informative-stacked';
   card.dataset.type = entry.typeKey;
+
+  // Informative cards lead with audience/time/format metadata, so the cover
+  // goes ABOVE that block rather than beside it — the picture identifies the
+  // download, the meta rows qualify it. No thumbnail leaves the card exactly as
+  // it was.
+  const preview = buildPreview(entry, 600);
+  if (preview) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media is-informative-media';
+    media.append(preview);
+    card.append(media);
+  }
 
   const head = document.createElement('div');
   head.className = 'resource-downloads-type-head';

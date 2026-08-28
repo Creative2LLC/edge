@@ -132,9 +132,118 @@
   border-left: 5px solid var(--rd-accent, #008db6);
 }
 
+/* ── Document preview ──────────────────────────────────────────────────────
+   Backend thumbnails are first-page covers, so they are presented as a
+   document rather than as a photograph: a sheet with stacked paper edges, and
+   a corner chip carrying the file type. The old site's thumbnails are
+   recognisable but say nothing about format; the type art says the format but
+   nothing about content. This says both. */
+.resource-downloads-preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.resource-downloads-preview-sheet {
+  position: relative;
+
+  /* Above the stack layers below. Deliberately a POSITIVE z-index on the sheet
+     rather than a negative one on the layers: `position: relative` alone does
+     not create a stacking context, so `z-index: -1` children would escape the
+     preview and paint behind the card's own white background — invisible. */
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(13 39 59 / 18%);
+}
+
+.resource-downloads-preview-sheet picture,
+.resource-downloads-preview-sheet img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The paper stack. Two offset layers behind the sheet, which is what makes a
+   cover read instantly as "multi-page document" instead of "image". Drawn on
+   the container so they sit outside the sheet's own overflow clip. */
+.resource-downloads-preview:not([data-type="video"])::before,
+.resource-downloads-preview:not([data-type="video"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(13 39 59 / 14%);
+}
+
+.resource-downloads-preview:not([data-type="video"])::before {
+  transform: translate(4px, 4px);
+}
+
+.resource-downloads-preview:not([data-type="video"])::after {
+  transform: translate(8px, 8px);
+  opacity: 0.6;
+}
+
+.resource-downloads-preview-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  border-radius: 3px;
+
+  /* --rd-accent is set per card in JS from the type theme, so the chip carries
+     the same colour as the rest of that type's styling (PDF red, PPT orange,
+     ...) rather than a second, unrelated palette. */
+  background: var(--rd-accent, #0d273b);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Compact rows lead with a small cover instead of the type glyph, so a stack
+   of downloads is scannable. The paper edges are dropped at this size — they
+   would read as clutter rather than as depth. */
+.resource-downloads-preview.is-row-preview {
+  flex: 0 0 auto;
+  width: 62px;
+  height: 52px;
+}
+
+.resource-downloads-preview.is-row-preview::before,
+.resource-downloads-preview.is-row-preview::after {
+  content: none;
+}
+
+.resource-downloads-preview.is-row-preview .resource-downloads-preview-badge {
+  display: none;
+}
+
+/* Informative cards lead with metadata, so the cover sits above it full-width
+   at the shared 1.2:1 thumbnail ratio. */
+.resource-downloads-item-media.is-informative-media {
+  width: 100%;
+  margin-bottom: 16px;
+  aspect-ratio: 1.2 / 1;
+}
+
+/* Padded so the cover sits ON the accent panel like a document on a mat,
+   rather than bleeding to the card edge. Two reasons beyond looks: `.is-type`
+   sets `overflow: hidden`, so an edge-to-edge preview would have its paper
+   edges clipped away at the bottom, and the accent border reads better as a
+   surface than as a frame. */
 .resource-downloads-item.is-type .resource-downloads-item-media {
   flex: 0 0 230px;
   min-height: 180px;
+  padding: 18px 22px 18px 18px;
   background: var(--rd-accent, #eaf4f8);
 }
 
