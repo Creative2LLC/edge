@@ -853,6 +853,44 @@ function signedUrlEndpointFor(apiBaseUrl, slug, fileId) {
   return endpoint.toString();
 }
 
+/**
+ * Let a download borrow its RESOURCE's thumbnail — but only when doing so
+ * cannot repeat a picture.
+ *
+ * The blanket fallback was removed because a resource with four downloads
+ * rendered the same image on all four cards, saying nothing about any of them.
+ * Removing it outright went too far the other way: a resource whose asset is
+ * held at resource level has no ResourceFile at all (`files: []`, common for
+ * older DAM-ingested rows), and a resource with a single download has nothing
+ * to repeat against. In both cases the resource thumbnail simply IS that
+ * download's picture, and suppressing it left authors staring at a card with no
+ * image after they had plainly set one.
+ *
+ * So the rule is per-resource, not global: an entry may borrow only when it is
+ * the ONLY entry on the page pointing at that resource. Repetition becomes
+ * impossible by construction rather than by judgement.
+ *
+ * A file's own thumbnail always wins — this only fills genuine blanks.
+ */
+function applyResourceThumbnailFallback(entries) {
+  const countBySlug = new Map();
+
+  entries.forEach((entry) => {
+    const key = entry.resource?.slug;
+    if (key) countBySlug.set(key, (countBySlug.get(key) || 0) + 1);
+  });
+
+  entries.forEach((entry) => {
+    if (entry.imageSrc || entry.imageEl) return;
+
+    const key = entry.resource?.slug;
+    if (!key || countBySlug.get(key) !== 1) return;
+
+    const thumbnail = normalizeText(entry.resource.thumbnail);
+    if (thumbnail) entry.imageSrc = thumbnail;
+  });
+}
+
 function resolveEntry(item, resource, config, primaryResource) {
   const matchedPrimaryResource = resource
     || (item.resourceSlug === config.slug ? primaryResource : null)
@@ -1592,6 +1630,16 @@ function buildInformativeEntry(entry, isEditor) {
   panel.dataset.resourceType = entry.typeKey;
   panel.append(buildInformativeTypeBadge(theme));
 
+  // Between the type badge and the title: the badge already names the format,
+  // so the cover's job here is to identify this particular download.
+  const preview = buildPreview(entry, 600);
+  if (preview) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media is-informative-media';
+    media.append(preview);
+    panel.append(media);
+  }
+
   const title = document.createElement('h3');
   title.className = 'resource-downloads-item-title';
   title.textContent = entry.item.title || theme.title;
@@ -1689,6 +1737,14 @@ function buildInformativeBannerEntry(entry, isEditor) {
   card.dataset.type = entry.typeKey;
   card.append(buildInformativeTypeBadge(entry.theme));
 
+  // The banner is a horizontal strip, so the cover leads it at row height
+  // rather than sitting full-width above — hence the row sizing.
+  const preview = buildPreview(entry, 240);
+  if (preview) {
+    preview.classList.add('is-banner-preview');
+    card.append(preview);
+  }
+
   const body = document.createElement('div');
   body.className = 'resource-downloads-item-body';
   body.append(buildTitleEl(entry));
@@ -1772,6 +1828,8 @@ export default async function decorate(block) {
     return resolveEntry(item, resource, config, primaryResource);
   }))).filter((entry) => entry.downloadUrl || entry.videoUrl
     || entry.requiresSignedUrl || isEditor);
+
+  applyResourceThumbnailFallback(entries);
 
   const list = document.createElement('div');
   list.className = 'resource-downloads-list';

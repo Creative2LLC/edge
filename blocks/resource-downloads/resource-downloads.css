@@ -253,6 +253,19 @@ main > .section > div.resource-downloads-wrapper {
   aspect-ratio: 1.2 / 1;
 }
 
+/* The banner variant is a horizontal strip, so its cover leads the row at row
+   height instead of stacking full-width above the text. */
+.resource-downloads-preview.is-banner-preview {
+  flex: 0 0 auto;
+  width: 108px;
+  height: 90px;
+}
+
+.resource-downloads-preview.is-banner-preview::before,
+.resource-downloads-preview.is-banner-preview::after {
+  content: none;
+}
+
 /* Padded so the cover sits ON the accent panel like a document on a mat,
    rather than bleeding to the card edge. Two reasons beyond looks: `.is-type`
    sets `overflow: hidden`, so an edge-to-edge preview would have its paper
