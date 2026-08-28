@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import {
   getFieldSelector,
@@ -410,16 +410,23 @@ function buildResourceCard(resource, row) {
     imageWrap.append(resource.imagePicture);
     const img = resource.imagePicture.querySelector('img');
     if (img) {
-      const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '400' }]);
-      moveInstrumentation(img, optimized.querySelector('img'));
-      resource.imagePicture.replaceWith(optimized);
+      const optimized = createRemoteSafePicture(img.src, img.alt, false, [{ width: '400' }]);
+      // Null only when the src is empty; keeping the authored picture is the
+      // better failure than replacing it with nothing.
+      if (optimized) {
+        moveInstrumentation(img, optimized.querySelector('img'));
+        resource.imagePicture.replaceWith(optimized);
+      }
     }
     card.append(imageWrap);
   } else if (resource.imgSrc) {
-    const imageWrap = document.createElement('div');
-    imageWrap.className = 'resources-card-image';
-    imageWrap.append(createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '400' }]));
-    card.append(imageWrap);
+    const picture = createRemoteSafePicture(resource.imgSrc, resource.imageAlt, false, [{ width: '400' }]);
+    if (picture) {
+      const imageWrap = document.createElement('div');
+      imageWrap.className = 'resources-card-image';
+      imageWrap.append(picture);
+      card.append(imageWrap);
+    }
   }
 
   const content = document.createElement('div');

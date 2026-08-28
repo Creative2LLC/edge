@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import { decorateButtonText } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
@@ -733,17 +733,27 @@ function appendResourceCardImage(card, resource) {
     imageWrap.append(resource.imagePicture);
     const img = resource.imagePicture.querySelector('img');
     if (img) {
-      const optimized = createOptimizedPicture(
+      const optimized = createRemoteSafePicture(
         img.src,
         resource.imageAlt || img.alt,
         false,
         [{ width: '800' }],
       );
-      moveInstrumentation(img, optimized.querySelector('img'));
-      resource.imagePicture.replaceWith(optimized);
+      // Null only when the src is empty, which createOptimizedPicture used to
+      // paper over by returning a broken <picture>. Leaving the authored one in
+      // place is the better failure.
+      if (optimized) {
+        moveInstrumentation(img, optimized.querySelector('img'));
+        resource.imagePicture.replaceWith(optimized);
+      }
     }
   } else if (resource.imgSrc) {
-    imageWrap.append(createOptimizedPicture(resource.imgSrc, resource.imageAlt, false, [{ width: '800' }]));
+    const picture = createRemoteSafePicture(resource.imgSrc, resource.imageAlt, false, [{ width: '800' }]);
+    if (picture) imageWrap.append(picture);
+    else {
+      imageWrap.classList.add('is-placeholder');
+      imageWrap.setAttribute('aria-hidden', 'true');
+    }
   } else {
     imageWrap.classList.add('is-placeholder');
     imageWrap.setAttribute('aria-hidden', 'true');

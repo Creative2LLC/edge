@@ -1,3 +1,21 @@
+/* Deliberate exception to the shared 1420px container.
+   Download cards are full-width rows — a fixed-width media panel on the left,
+   then title, description and buttons — so at 1420px the text runs to an
+   uncomfortable measure and the buttons drift far from the content they belong
+   to. Capped on the WRAPPER rather than the block so the section keeps its
+   normal --section-pad behaviour and only the list narrows.
+   Uses the existing --container-narrow token rather than a new magic number;
+   change it here if a different width is wanted.
+
+   The selector has to out-specify `main > .section > div { max-width:
+   var(--container) }` in styles.css, which also matches this wrapper — a bare
+   `.resource-downloads-wrapper` (0,1,0) loses to that (0,1,2) and silently did
+   nothing. */
+main > .section > div.resource-downloads-wrapper {
+  max-width: var(--container-narrow, 1040px);
+  margin-inline: auto;
+}
+
 .resource-downloads {
   margin: 0 auto;
   padding: 8px 0 32px;

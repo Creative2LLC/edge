@@ -15,7 +15,7 @@
  * first item when it auto-creates a landing page for a DAM asset.
  */
 
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import {
@@ -1054,18 +1054,23 @@ function buildDefaultVideoPoster(title = 'NCMEC video') {
   return poster;
 }
 
+// createRemoteSafePicture, not createOptimizedPicture: backend thumbnails live
+// on the AEM publish tier, and the optimizer drops the origin — so an image that
+// resolves perfectly well was being requested from the EDS host and 404ing.
 function buildImage(entry, width = 400) {
   if (entry.imageEl?.tagName === 'PICTURE') {
     const img = entry.imageEl.querySelector('img');
     if (img?.src && !isVideoFile(img.src) && !isFileHref(img.src)) {
-      const optimized = createOptimizedPicture(img.src, entry.title, false, [{ width: `${width}` }]);
-      moveInstrumentation(img, optimized.querySelector('img'));
-      return optimized;
+      const optimized = createRemoteSafePicture(img.src, entry.title, false, [{ width: `${width}` }]);
+      if (optimized) {
+        moveInstrumentation(img, optimized.querySelector('img'));
+        return optimized;
+      }
     }
   }
 
   if (entry.imageSrc && !isVideoFile(entry.imageSrc) && !isFileHref(entry.imageSrc)) {
-    return createOptimizedPicture(entry.imageSrc, entry.title, false, [{ width: `${width}` }]);
+    return createRemoteSafePicture(entry.imageSrc, entry.title, false, [{ width: `${width}` }]);
   }
 
   return null;
