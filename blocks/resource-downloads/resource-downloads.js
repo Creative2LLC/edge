@@ -1444,9 +1444,15 @@ function buildTypeCard(entry, isEditor) {
   if (actions) body.append(actions);
   card.append(body);
 
-  // No authored thumbnail: fill the open side with the type's decorative art
-  // instead of leaving the card half empty.
-  if (!image) card.append(buildTypeArt(entry));
+  // The decorative art now renders ALONGSIDE a cover rather than only standing
+  // in for a missing one. It was the card's personality — the floating glyph and
+  // the big type watermark — and adding thumbnails quietly deleted it from every
+  // card that had one. Cover on the left, art on the right, text between.
+  //
+  // The class lets the art give up width when it is sharing the card, so the
+  // body does not get squeezed between two panels.
+  if (image) card.classList.add('has-preview');
+  card.append(buildTypeArt(entry));
 
   return card;
 }

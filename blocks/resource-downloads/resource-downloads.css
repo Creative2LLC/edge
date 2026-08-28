@@ -254,11 +254,21 @@ main > .section > div.resource-downloads-wrapper {
 }
 
 /* The banner variant is a horizontal strip, so its cover leads the row at row
-   height instead of stacking full-width above the text. */
+   height instead of stacking full-width above the text. Sized to fill that row
+   rather than float in it — at 108x90 it read as a stray icon. */
 .resource-downloads-preview.is-banner-preview {
   flex: 0 0 auto;
-  width: 108px;
-  height: 90px;
+  width: 168px;
+  height: 140px;
+  align-self: center;
+}
+
+/* Stacked cards are grid TILES — `width: 100%` is right at tile width (~280px)
+   but blew up to 918x765 when one renders standalone in a full-width card, so
+   the picture dwarfed everything under it. The cap only bites when there is too
+   much room; inside a real grid tile 100% is already below it. */
+.resource-downloads-item.is-informative-stacked .resource-downloads-item-media.is-informative-media {
+  max-width: 300px;
 }
 
 .resource-downloads-preview.is-banner-preview::before,
@@ -272,9 +282,9 @@ main > .section > div.resource-downloads-wrapper {
    edges clipped away at the bottom, and the accent border reads better as a
    surface than as a frame. */
 .resource-downloads-item.is-type .resource-downloads-item-media {
-  flex: 0 0 230px;
-  min-height: 180px;
-  padding: 18px 22px 18px 18px;
+  flex: 0 0 300px;
+  min-height: 232px;
+  padding: 20px;
   background: var(--rd-accent, #eaf4f8);
 }
 
@@ -374,6 +384,12 @@ main > .section > div.resource-downloads-wrapper {
 
 .resource-downloads-list.is-grid .resource-downloads-type-art-glyph {
   width: 76px;
+}
+
+/* Sharing the card with a cover: the art yields width so the text between them
+   is not squeezed. On its own it keeps the full panel. */
+.resource-downloads-item.is-type.has-preview .resource-downloads-type-art {
+  flex: 0 0 156px;
 }
 
 .resource-downloads-item.is-type:hover .resource-downloads-type-art-glyph {
@@ -694,8 +710,17 @@ main > .section > div.resource-downloads-wrapper {
    exactly — same ratio, nothing to letterbox — so this costs that case nothing,
    and the dark backdrop makes the bars read as a video player rather than as a
    mistake. */
+
+/* Absolutely positioned, not just `height: 100%`. The media declares
+   `aspect-ratio: 16 / 9`, but that only sets a PREFERRED size — a percentage
+   height resolves against an indefinite height, falls back to the image's
+   intrinsic size, and grows the box past the ratio. With a 1.2:1 thumbnail as
+   the poster that made a 16:9 slot render 974x812 and the card 935px tall.
+   Taking the image out of flow pins it to the ratio box. */
 .resource-downloads-item.is-video .resource-downloads-item-media picture,
 .resource-downloads-item.is-video .resource-downloads-item-media img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
