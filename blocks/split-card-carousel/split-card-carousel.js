@@ -221,11 +221,17 @@ function buildSlide(data, row) {
     contentSide.style.setProperty('background-color', data.backgroundColor, 'important');
   }
 
+  // h3, not h2. The slide heading sits UNDER the section title, which is
+  // already an h2 (see split-card-carousel-title below), so h3 is the correct
+  // level — and it inherits --heading-3-size instead of the much larger
+  // --heading-2-size the slide was picking up purely from its tag. Sizing is
+  // fixed by using the right element rather than by overriding font-size on the
+  // class, which is what left 143 blocks hardcoding sizes elsewhere.
   if (data.heading) {
-    const h2 = document.createElement('h2');
-    h2.className = 'split-card-carousel-heading';
-    h2.innerHTML = data.heading;
-    contentSide.append(h2);
+    const slideHeading = document.createElement('h3');
+    slideHeading.className = 'split-card-carousel-heading';
+    slideHeading.innerHTML = data.heading;
+    contentSide.append(slideHeading);
   }
 
   if (data.subheading) {

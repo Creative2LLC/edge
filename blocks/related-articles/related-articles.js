@@ -1,4 +1,5 @@
 import resolveSiteHref from '../../scripts/link-utils.js';
+import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import {
   getBlockRows,
   readLinkField,
@@ -292,20 +293,113 @@ function buildCard(item, config) {
   return card;
 }
 
+function buildNavButton(direction) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = `related-articles-nav-btn related-articles-nav-${direction}`;
+  btn.setAttribute('aria-label', direction === 'prev' ? 'Previous resources' : 'Next resources');
+  btn.innerHTML = direction === 'prev'
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  return btn;
+}
+
+/**
+ * Wire the track to its dots and arrows.
+ *
+ * Slides come from `[...track.children]` rather than a stored list, and the
+ * current index from getCarouselItemIndex() — both deliberate. Deriving the
+ * index from scrollLeft / (width + gap) drifts once a slide is a different
+ * width or the gap changes, which is what left nav clicks doing nothing in the
+ * other carousels.
+ */
+function wireCarousel(track, dots, prevBtn, nextBtn) {
+  attachDragScroll(track);
+
+  const sync = () => {
+    const slides = [...track.children];
+    const index = getCarouselItemIndex(track, slides);
+    dots.forEach((dot, i) => {
+      const current = i === index;
+      dot.classList.toggle('is-active', current);
+      dot.setAttribute('aria-current', current ? 'true' : 'false');
+    });
+
+    // A track that fits its content has nothing to scroll to, so neither the
+    // arrows nor the dots mean anything — three dots that can never change are
+    // worse than no dots. Recomputed on resize rather than at build time,
+    // because whether it scrolls depends on the viewport.
+    const scrollable = track.scrollWidth - track.clientWidth > 1;
+    [prevBtn, nextBtn].forEach((btn) => btn.classList.toggle('is-hidden', !scrollable));
+    dots[0]?.parentElement?.classList.toggle('is-hidden', !scrollable);
+  };
+
+  const goTo = (target) => {
+    const slides = [...track.children];
+    const clamped = Math.max(0, Math.min(target, slides.length - 1));
+    if (slides[clamped]) scrollToCarouselItem(track, slides[clamped]);
+  };
+
+  dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+  prevBtn.addEventListener('click', () => goTo(getCarouselItemIndex(track, [...track.children]) - 1));
+  nextBtn.addEventListener('click', () => goTo(getCarouselItemIndex(track, [...track.children]) + 1));
+  track.addEventListener('scroll', sync, { passive: true });
+  window.addEventListener('resize', sync);
+
+  sync();
+}
+
 function buildView(items, config) {
   const fragment = document.createDocumentFragment();
+
+  const head = document.createElement('div');
+  head.className = 'related-articles-head';
 
   if (config.heading) {
     const heading = document.createElement('h2');
     heading.className = 'related-articles-heading';
     heading.textContent = config.heading;
-    fragment.append(heading);
+    head.append(heading);
   }
 
-  const grid = document.createElement('div');
-  grid.className = 'related-articles-grid';
-  items.forEach((item) => grid.append(buildCard(item, config)));
-  fragment.append(grid);
+  const prevBtn = buildNavButton('prev');
+  const nextBtn = buildNavButton('next');
+  const nav = document.createElement('div');
+  nav.className = 'related-articles-nav';
+  nav.append(prevBtn, nextBtn);
+  head.append(nav);
+  fragment.append(head);
+
+  // A horizontal track, not a grid. Keeps the class name `-grid` off the
+  // element so the old three-column rules cannot apply to it by accident.
+  const track = document.createElement('div');
+  track.className = 'related-articles-track';
+  items.forEach((item) => {
+    const card = buildCard(item, config);
+    card.classList.add('related-articles-slide');
+    track.append(card);
+  });
+  fragment.append(track);
+
+  const dotsWrap = document.createElement('div');
+  dotsWrap.className = 'related-articles-dots';
+  dotsWrap.setAttribute('role', 'tablist');
+  dotsWrap.setAttribute('aria-label', 'Related resources');
+  const dots = items.map((item, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'related-articles-dot';
+    dot.setAttribute('aria-label', `Go to resource ${i + 1}`);
+    dotsWrap.append(dot);
+    return dot;
+  });
+  if (dots.length > 1) fragment.append(dotsWrap);
+
+  // Wiring has to wait until the track is measurable — scrollWidth is 0 while
+  // the fragment is still detached, so every dot would look active and the
+  // arrows would hide themselves.
+  requestAnimationFrame(() => wireCarousel(track, dots, prevBtn, nextBtn));
+
   return fragment;
 }
 

@@ -256,10 +256,14 @@ function buildSlide(data, row) {
   }
 
   if (data.heading) {
-    const h2 = document.createElement('h2');
-    h2.className = 'stc-heading';
-    h2.textContent = data.heading;
-    contentSide.append(h2);
+    // h3: the slide heading sits under the section title (.stc-title), which is
+    // the h2. Same fix as split-card-carousel — the slide was only picking up
+    // --heading-2-size from its tag, and icon-card-carousel / resources-carousel
+    // already use this h2-section / h3-slide pairing.
+    const slideHeading = document.createElement('h3');
+    slideHeading.className = 'stc-heading';
+    slideHeading.textContent = data.heading;
+    contentSide.append(slideHeading);
   }
 
   if (data.subheading) {

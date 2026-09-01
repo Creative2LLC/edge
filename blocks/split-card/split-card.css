@@ -1,3 +1,17 @@
+/* Full-bleed: escape the shared 1420px section cap so the card runs edge to
+   edge. Same pattern icon-card-carousel and historical-reports-carousel use —
+   the `main > .section >` prefix is required, because styles.css caps this same
+   wrapper with `main > .section > div` (0,1,2) and a bare `.split-card-wrapper`
+   (0,1,0) would lose and silently do nothing.
+
+   The block itself already defaults to `max-width: none`, so it fills the
+   wrapper; the `split-card-size-smaller` variant still opts back in to
+   --container via --split-card-max-width. */
+main > .section > .split-card-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
 /* Block root */
 .split-card {
   width: 100%;

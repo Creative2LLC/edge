@@ -18,7 +18,7 @@ const DEFAULTS = {
 };
 
 const AMBER_NO_PHOTO_IMAGE = new URL('./no-photo.jpg', import.meta.url).href;
-const AMBER_ORGANIZATION_LOGO = new URL('./amber-alert-logo-transparent.png', import.meta.url).href;
+const AMBER_ORGANIZATION_LOGO = new URL('./ncmec-full-color-amber-alert.png', import.meta.url).href;
 const AMBER_ORGANIZATION_LOGO_ALT = 'National Center for Missing & Exploited Children AMBER Alert';
 
 const FIELD_LABELS = {

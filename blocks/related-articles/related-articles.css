@@ -4,15 +4,108 @@
   padding: clamp(2.5rem, 5vw, 4rem) 0;
 }
 
-.related-articles .related-articles-heading {
-  margin: 0 0 1.75rem;
-  color: #16324a;
-  text-align: center;
+/* Heading left, arrows right, on one line above the track. Was a centred
+   heading with nothing beside it. */
+.related-articles .related-articles-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
 }
 
-.related-articles .related-articles-grid {
-  display: grid;
+.related-articles .related-articles-heading {
+  margin: 0;
+  color: #16324a;
+  text-align: left;
+}
+
+.related-articles .related-articles-nav {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+.related-articles .related-articles-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #cfdae2;
+  border-radius: 50%;
+  background: #fff;
+  color: #16324a;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.related-articles .related-articles-nav-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.related-articles .related-articles-nav-btn:hover {
+  background: #16324a;
+  color: #fff;
+}
+
+/* Hidden rather than removed: whether the track scrolls depends on viewport
+   width, so the arrows come back on resize without a rebuild. */
+.related-articles .related-articles-nav-btn.is-hidden {
+  display: none;
+}
+
+/* The track. `overflow-x: auto` with scroll-snap is the same mechanism
+   resources-carousel uses, so drag, keyboard and trackpad all behave the same
+   way across the site. */
+.related-articles .related-articles-track {
+  display: flex;
   gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  cursor: grab;
+}
+
+.related-articles .related-articles-track::-webkit-scrollbar {
+  display: none;
+}
+
+.related-articles .related-articles-slide {
+  flex: 0 0 clamp(240px, 26vw, 300px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.related-articles .related-articles-dots {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.related-articles .related-articles-dots.is-hidden {
+  display: none;
+}
+
+.related-articles .related-articles-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #c7d3dc;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.related-articles .related-articles-dot.is-active {
+  background: #16324a;
+  transform: scale(1.25);
 }
 
 .related-articles .related-articles-card {
@@ -152,8 +245,15 @@
   color: #516272;
 }
 
-@media (width >= 768px) {
-  .related-articles .related-articles-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+/* The three-column grid rule that used to live here is gone with the grid
+   itself — the cards are a scrolling track now, sized by the slide's flex
+   basis rather than by column count. */
+@media (width <= 767px) {
+  .related-articles .related-articles-head {
+    align-items: flex-start;
+  }
+
+  .related-articles .related-articles-slide {
+    flex-basis: min(78vw, 300px);
   }
 }

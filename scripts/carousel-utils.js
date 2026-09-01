@@ -26,7 +26,13 @@ export function getCarouselItemIndex(track, items) {
   if (!track || !items?.length) return -1;
 
   const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
-  if (track.scrollLeft >= maxScroll - 1) return items.length - 1;
+
+  // `maxScroll > 0` guard matters: when the track is NOT scrollable at all —
+  // few enough cards to fit, or a wide viewport — maxScroll is 0, so the
+  // end-stop test `0 >= -1` passed and reported the LAST card as active while
+  // the first one was plainly sitting at the leading edge. Every consumer that
+  // paints a dot or a progress bar from this showed the wrong position.
+  if (maxScroll > 0 && track.scrollLeft >= maxScroll - 1) return items.length - 1;
 
   const trackLeft = track.getBoundingClientRect().left;
   return items.reduce((closestIndex, item, index) => {
