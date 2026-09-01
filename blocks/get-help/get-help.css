@@ -110,12 +110,11 @@
   margin: 0;
   color: #173147;
   font-family: var(--body-font-family);
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: var(--heading-5-size);
 }
 
 .get-help .is-contact-column .get-help-column-heading {
-  font-size: 1.75rem;
+  font-size: var(--heading-font-size-m);
 }
 
 .get-help .get-help-list {
