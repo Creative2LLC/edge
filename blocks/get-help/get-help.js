@@ -4,13 +4,23 @@ import { loadFragment } from '../fragment/fragment.js';
 const DEFAULT_HELP_PATH = '/get-help';
 const DEFAULT_TRIGGER_LABEL = 'Get Help Now';
 
+/* Canonical targets for panel links whose authored/fallback hrefs are
+   placeholders. Matched against the link label (case/whitespace-insensitive),
+   same pattern as scripts/nav-link-overrides.js. */
+const LINK_OVERRIDES = [
+  {
+    labels: ['take it down'],
+    href: 'https://takeitdown.ncmec.org',
+  },
+];
+
 const FALLBACK_COLUMNS = {
   left: {
     heading: 'Other Ways We Can Help',
     items: [
       {
         label: 'Take It Down',
-        href: '/take-it-down',
+        href: 'https://takeitdown.ncmec.org',
         description: 'Remove explicit images of yourself shared online.',
       },
       {
@@ -202,6 +212,20 @@ function createFallbackColumn(config, { contact = false } = {}) {
   return column;
 }
 
+function applyLinkOverrides(layout) {
+  layout.querySelectorAll('a').forEach((link) => {
+    const normalized = link.textContent.trim().toLowerCase().replace(/\s+/g, ' ');
+    const override = LINK_OVERRIDES.find(({ labels }) => labels.includes(normalized));
+    if (!override) return;
+
+    link.href = override.href;
+    if (new URL(override.href, window.location.href).origin !== window.location.origin) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+  });
+}
+
 function getColumnsFromFragment(fragment) {
   const row = fragment?.querySelector('.columns > div');
   if (row) {
@@ -363,6 +387,7 @@ export default async function decorate(block) {
 
   const fragment = await loadFragment(helpPath);
   const layout = buildLayout(fragment);
+  applyLinkOverrides(layout);
   const {
     trigger,
     overlay,
