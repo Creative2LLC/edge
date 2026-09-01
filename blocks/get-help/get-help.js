@@ -90,10 +90,10 @@ function decorateContactLink(link) {
   let iconName = '';
 
   if (text.startsWith('call')) {
-    iconName = 'phone';
+    iconName = 'phone-out';
     link.classList.add('is-call');
   } else if (text.startsWith('text')) {
-    iconName = 'message-square';
+    iconName = 'smartphone';
     link.classList.add('is-text');
   }
 
