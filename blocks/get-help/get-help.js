@@ -1,8 +1,30 @@
 import { decorateIcons, getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
 
 const DEFAULT_HELP_PATH = '/get-help';
 const DEFAULT_TRIGGER_LABEL = 'Get Help Now';
+
+/* Canonical targets for panel links whose authored/fallback hrefs are
+   placeholders. Matched against the link label (case/whitespace-insensitive),
+   same pattern as scripts/nav-link-overrides.js. */
+const LINK_OVERRIDES = [
+  {
+    labels: ['take it down'],
+    href: 'https://takeitdown.ncmec.org',
+  },
+  {
+    labels: ['cybertipline', 'cyber tipline'],
+    href: 'https://report.cybertip.org',
+  },
+  {
+    labels: ['team hope'],
+    href: '/get-help/survivor-victim-and-family-support/team_hope',
+  },
+];
+
+/* Panel items hidden from the menu even if present in the authored fragment. */
+const REMOVED_ITEMS = ['netsmartz'];
 
 const FALLBACK_COLUMNS = {
   left: {
@@ -10,22 +32,17 @@ const FALLBACK_COLUMNS = {
     items: [
       {
         label: 'Take It Down',
-        href: '/take-it-down',
+        href: 'https://takeitdown.ncmec.org',
         description: 'Remove explicit images of yourself shared online.',
       },
       {
         label: 'CyberTipline',
-        href: '/cybertipline',
+        href: 'https://report.cybertip.org',
         description: 'Report suspected child exploitation or online abuse.',
       },
       {
-        label: 'NetSmartz',
-        href: '/netsmartz',
-        description: 'Safety education for kids and parents.',
-      },
-      {
         label: 'Team HOPE',
-        href: '/team-hope',
+        href: '/get-help/survivor-victim-and-family-support/team_hope',
         description: 'Connect with others who have shared your experience.',
       },
     ],
@@ -73,10 +90,10 @@ function decorateContactLink(link) {
   let iconName = '';
 
   if (text.startsWith('call')) {
-    iconName = 'phone';
+    iconName = 'phone-out';
     link.classList.add('is-call');
   } else if (text.startsWith('text')) {
-    iconName = 'message-square';
+    iconName = 'smartphone';
     link.classList.add('is-text');
   }
 
@@ -200,6 +217,39 @@ function createFallbackColumn(config, { contact = false } = {}) {
   }
 
   return column;
+}
+
+function normalizeLabel(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function applyLinkOverrides(layout) {
+  layout.querySelectorAll('a').forEach((link) => {
+    const normalized = normalizeLabel(link.textContent);
+    const override = LINK_OVERRIDES.find(({ labels }) => labels.includes(normalized));
+    if (!override) return;
+
+    const resolved = resolveSiteHref(override.href);
+    link.href = resolved;
+    if (new URL(resolved, window.location.href).origin !== window.location.origin) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+  });
+}
+
+function removeHiddenItems(layout) {
+  layout.querySelectorAll('.get-help-item-link').forEach((link) => {
+    if (!REMOVED_ITEMS.includes(normalizeLabel(link.textContent))) return;
+
+    const item = link.closest('.get-help-item');
+    if (!item) return;
+
+    /* flow-content rows keep their description in a sibling element */
+    const next = item.nextElementSibling;
+    if (next && next.classList.contains('get-help-item-description')) next.remove();
+    item.remove();
+  });
 }
 
 function getColumnsFromFragment(fragment) {
@@ -363,6 +413,8 @@ export default async function decorate(block) {
 
   const fragment = await loadFragment(helpPath);
   const layout = buildLayout(fragment);
+  removeHiddenItems(layout);
+  applyLinkOverrides(layout);
   const {
     trigger,
     overlay,

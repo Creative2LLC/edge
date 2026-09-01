@@ -41,13 +41,6 @@
   bottom: -76px;
 }
 
-/* Black label + bubble icon on the orange trigger for WCAG AA contrast
-   (white text on #e38b22 is ~2.3:1; black is ~8:1). The bubble SVG is recolored
-   to black in icons/help-bubble.svg (used only here). */
-.get-help .get-help-trigger {
-  color: #000;
-}
-
 .get-help .get-help-trigger:hover,
 .get-help .get-help-close:hover {
   background: #cd7b1a;
@@ -86,7 +79,11 @@
 
 .get-help .get-help-panel {
   width: min(1040px, calc(100vw - 48px));
-  margin-top: min(14vh, 110px);
+
+  /* auto top/left margins pin the panel bottom-right but still allow the
+     overlay to scroll when the panel is taller than the viewport; the bottom
+     margin reserves the strip where the close pill sits (bottom: -76px) */
+  margin: auto 0 76px auto;
   position: relative;
 }
 
@@ -113,14 +110,24 @@
   margin: 0;
   color: #173147;
   font-family: var(--body-font-family);
+  font-size: var(--heading-5-size);
+}
+
+.get-help .is-contact-column .get-help-column-heading {
+  font-size: var(--heading-font-size-m);
 }
 
 .get-help .get-help-list {
   list-style: none;
-  margin: 20px 0 0;
+  margin: 24px 0 0;
   padding: 0;
   display: grid;
-  gap: 18px;
+  gap: 26px;
+}
+
+.get-help .is-contact-column .get-help-list {
+  margin-top: 40px;
+  gap: 48px;
 }
 
 .get-help .get-help-item {
@@ -130,10 +137,10 @@
 .get-help .get-help-item-link {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 20px;
   color: #173147;
   font-family: var(--body-font-family);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.25;
   text-decoration: none;
@@ -143,34 +150,34 @@
   content: '\203a';
   margin-left: auto;
   color: #173147;
-  font-size: 3rem;
-  font-weight: 500;
+  font-size: 2.25rem;
+  font-weight: 400;
   line-height: 0.8;
 }
 
+/* contact icon color lives in the SVG files (phone-out.svg / smartphone.svg)
+   because decorateIcons loads them as <img>, so CSS color can't reach them */
 .get-help .get-help-item-link .icon {
-  width: 26px;
-  height: 26px;
-  flex: 0 0 26px;
-}
-
-.get-help .get-help-item-link.is-call .icon {
-  color: #ee7062;
-}
-
-.get-help .get-help-item-link.is-text .icon {
-  color: #f2a040;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
 }
 
 .get-help .get-help-item-description {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: #546475;
   font-family: var(--body-font-family);
   font-weight: var(--body-weight-medium);
 }
 
+/* indent past the 44px icon + 20px gap so the number aligns under the title */
+.get-help .is-contact-column .get-help-item-description {
+  margin-left: 64px;
+  color: #173147;
+}
+
 .get-help .get-help-note {
-  margin: 24px 0 0;
+  margin: 48px 0 0;
   color: #7c8691;
   font-family: var(--body-font-family);
   font-weight: var(--body-weight-medium);
@@ -194,7 +201,7 @@
 
   .get-help .get-help-panel {
     width: min(640px, calc(100vw - 16px));
-    margin-top: 26px;
+    margin: auto 0 0 auto;
   }
 
   .get-help .get-help-card {
@@ -214,11 +221,29 @@
   }
 
   .get-help .get-help-item-link {
-    font-size: 1.25rem;
+    font-size: 1.375rem;
   }
 
   .get-help .get-help-item-link::after {
-    font-size: 2.2rem;
+    font-size: 1.75rem;
+  }
+
+  .get-help .get-help-item-link .icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+  }
+
+  .get-help .get-help-item-description {
+    font-size: 1.05rem;
+  }
+
+  .get-help .is-contact-column .get-help-item-description {
+    margin-left: 54px;
+  }
+
+  .get-help .get-help-note {
+    font-size: 1rem;
   }
 
   .get-help .get-help-close {
