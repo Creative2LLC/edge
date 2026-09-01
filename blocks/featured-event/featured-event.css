@@ -92,9 +92,8 @@
 
 .featured-event .featured-event-card-description {
   margin: 12px 0 0;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.5;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
 }
 
@@ -150,16 +149,16 @@
 }
 
 .featured-event .featured-event-detail-label {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.35;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
   color: #404041;
 }
 
 .featured-event .featured-event-detail-value {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
+  line-height: var(--caption-line-height);
   color: #404041;
 }
 

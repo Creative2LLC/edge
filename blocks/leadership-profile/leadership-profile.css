@@ -86,10 +86,8 @@
 }
 
 .leadership-profile-bio p {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
-  line-height: 1.6;
   margin: 0 0 16px;
 }
 
@@ -137,10 +135,6 @@
   .leadership-profile-bio {
     max-width: 100%;
   }
-
-  .leadership-profile-bio p {
-    font-size: 16px;
-  }
 }
 
 /* Small mobile */
@@ -164,7 +158,6 @@
   }
 
   .leadership-profile-bio p {
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: var(--body-sm-size);
   }
 }

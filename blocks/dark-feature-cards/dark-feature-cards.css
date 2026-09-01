@@ -29,10 +29,7 @@
 
 .dark-feature-cards .dark-feature-cards-subtitle {
   margin: 0;
-  font-size: 17px;
-  font-weight: 400;
   color: #fff;
-  line-height: 1.55;
   max-width: 731px;
 }
 
@@ -101,10 +98,8 @@
 
 .dark-feature-cards .dark-feature-cards-card-subtitle {
   margin: 0;
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #fff;
-  line-height: 1.5;
 }
 
 .dark-feature-cards .dark-feature-cards-card-title p,

@@ -36,8 +36,6 @@ main > .section > .historical-reports-carousel-wrapper {
   max-width: 48rem;
   margin: 0 0 42px;
   color: #404041;
-  font-size: 1rem;
-  line-height: 1.45;
 }
 
 .historical-reports-carousel .historical-reports-carousel-subheading > *:first-child {

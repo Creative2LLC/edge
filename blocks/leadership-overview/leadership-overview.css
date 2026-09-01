@@ -1,5 +1,5 @@
 .leadership-overview {
-  padding: 88px 24px 96px;
+  padding: 88px 0 96px;
   background: #f4f1ec;
 }
 
@@ -20,9 +20,6 @@
 .leadership-overview .leadership-overview-subheading {
   margin-top: 16px;
   color: #404041;
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1.45;
 }
 
 .leadership-overview .leadership-overview-subheading > :first-child {
@@ -71,7 +68,7 @@
 .leadership-overview .leadership-overview-feature-quote {
   color: #404041;
   font-size: clamp(28px, 3.3vw, 40px);
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   line-height: 1.18;
   letter-spacing: -0.03em;
 }
@@ -124,8 +121,6 @@
   padding-top: 28px;
   font-size: 17px;
 }
-
-
 
 .leadership-overview .leadership-overview-feature-link:hover,
 .leadership-overview .leadership-overview-feature-link:focus-visible,
@@ -187,12 +182,8 @@
 .leadership-overview .leadership-overview-nav-card-description {
   margin: 18px 0 0;
   max-width: 290px;
-  font-size: 17px;
-  font-weight: 400;
-  line-height: 1.35;
+  line-height: var(--caption-line-height);
 }
-
-
 
 @media (width <= 1100px) {
   .leadership-overview .leadership-overview-feature {
@@ -233,10 +224,6 @@
 @media (width <= 600px) {
   .leadership-overview {
     padding: 60px 0 64px;
-  }
-
-  .leadership-overview .leadership-overview-subheading {
-    font-size: 17px;
   }
 
   .leadership-overview .leadership-overview-feature-media {

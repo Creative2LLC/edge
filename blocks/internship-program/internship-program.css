@@ -79,10 +79,8 @@
 
 /* Subtitle (richtext) */
 .internship-program-subtitle {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
-  line-height: 1.5;
   margin: 0 0 24px;
 }
 
@@ -94,10 +92,8 @@
 
 /* Section text (richtext) */
 .internship-program-section-text {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
-  line-height: 1.5;
   margin: 0 0 24px;
 }
 
@@ -126,10 +122,8 @@
 }
 
 .internship-program-card-text {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
-  line-height: 1.5;
   margin: 0;
 }
 
@@ -141,10 +135,8 @@
 
 /* Bottom text (richtext) */
 .internship-program-bottom-text {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
-  line-height: 1.5;
   margin: 0 0 24px;
 }
 

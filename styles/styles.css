@@ -22,9 +22,22 @@
   --background-color: #f6f6f6;
   --light-color: #f8f8f8;
   --dark-color: #505050;
-  --text-color: #131313;
+
+  /* The site's real body colour. This was #131313 — stock Adobe boilerplate that
+     no block ever used — while 48 blocks hardcoded #404041 and 606 rendered
+     elements carried it. Both greys were shipping at once. See
+     audits/body-copy-audit.md finding 02. */
+  --text-color: #404041;
   --link-color: #3b63fb;
   --link-hover-color: #1d3ecf;
+
+  /* Semantic aliases for body copy. Per-block colour overrides are deliberately
+     NOT part of this pass — 380 declarations across 117 values get their own
+     effort. These exist so a bare paragraph is right, and so the later colour
+     pass has somewhere to land. */
+  --body-color: var(--text-color);
+  --body-muted-color: #516272;
+  --body-on-dark-color: #fff;
 
   /* fonts */
   --body-font-family: "Figtree", figtree-fallback, sans-serif;
@@ -72,10 +85,71 @@
   --heading-tracking-tight: -0.02em;
   --heading-tracking: 0;
 
-  /* body sizes */
-  --body-font-size-m: 22px;
-  --body-font-size-s: 19px;
-  --body-font-size-xs: 17px;
+  /* ------------------------------------------------------------------
+     BODY SCALE — the counterpart to the heading scale above, and the single
+     source of truth for paragraph type. Change a value here and every
+     paragraph on the site follows.
+
+     Fitted to the sizes the design had already converged on (see
+     audits/body-copy-audit.md): 97% of the 370 hardcoded body sizes across
+     100 blocks landed on one of these five steps.
+
+     Fluid in the SHRINK-ON-MOBILE direction. That is not a style choice —
+     of the 51 responsive body overrides block authors wrote by hand, 50
+     shrink on mobile and 0 grow. The old --body-font-size-* ramp did the
+     opposite and is corrected below.
+
+     px equivalents are in the comments deliberately: the unit stays rem so
+     the scale keeps honouring a reader's browser font-size setting, which
+     px would ignore.
+     ------------------------------------------------------------------ */
+
+  /* Each preferred value is a real linear interpolation (intercept + slope*vw)
+     fitted to hit the min at 390px and the max at 1200px, so the token is fully
+     saturated on any normal desktop. A bare `Nvw` preferred value — the form the
+     heading tokens use — does NOT work at these sizes: 1.15vw is only 16.6px at
+     1440px, so `clamp(1rem, 1.15vw, 1.125rem)` would never reach 18px until a
+     1565px viewport. Verified with audits/verify-body.mjs. */
+
+  /* The tier between a heading and body copy — the subheading/intro under a
+     section title. 44 blocks invented their own; this is the one token. */
+  --deck-size:    clamp(1.125rem, 0.945rem + 0.741vw, 1.5rem);    /* 18 -> 24px */
+  --body-lg-size: clamp(1.0625rem, 0.9725rem + 0.37vw, 1.25rem);  /* 17 -> 20px */
+  --body-size:    clamp(1rem, 0.94rem + 0.247vw, 1.125rem);       /* 16 -> 18px */
+  --body-sm-size: 0.9375rem;                                      /* 15px */
+  --caption-size: 0.8125rem;                                      /* 13px */
+  --body-line-height: 1.5;      /* 45 blocks had already converged on exactly this */
+  --deck-line-height: 1.35;
+  --caption-line-height: 1.4;
+
+  /* Four steps, because body copy genuinely uses four. Measured across 217
+     declarations: 500 (80), 700 (41), 800 (33), 600 (27), 400 (19). 400 is the
+     default because that is what inherits today and what 399 rendered elements
+     carry; 500 is a real second step, not drift. The 800/900/650/850 outliers are
+     display text mis-filed as body copy and snap to bold. */
+  --body-weight: 400;
+  --body-weight-medium: 500;
+  --body-weight-strong: 600;
+  --body-weight-bold: 700;
+  --body-tracking: 0;
+
+  /* The one tracking value blocks actually converged on, for uppercase labels
+     and eyebrows: 9 blocks used exactly 0.06em. */
+  --label-tracking: 0.06em;
+
+  /* Measure. Body copy was running at a median 113 characters per line on
+     desktop; comfortable is 45-75. `ch` is the only unit that controls this. */
+  --measure: 68ch;
+  --measure-narrow: 52ch;
+  --measure-wide: 78ch;
+
+  /* Legacy body tokens, now ALIASES of the scale above.
+     They used to carry their own values AND scale backwards (22px mobile ->
+     18px desktop). Seven call sites still reference them; aliasing keeps those
+     working and kills the inverted ramp in one move. Do not use in new code. */
+  --body-font-size-m: var(--body-size);
+  --body-font-size-s: var(--body-sm-size);
+  --body-font-size-xs: var(--caption-size);
 
   /* Legacy heading tokens. Superseded by --heading-N-size above; kept because
      header.css and resource-downloads.css still reference them. Do not use in
@@ -113,7 +187,7 @@
   /* content container widths - consolidate the ~20 ad-hoc max-widths to these */
   --container: 1420px;
   --container-narrow: 1040px;
-  --container-text: 760px;
+  --container-text: var(--measure);   /* was a dead 760px (~84ch); now the real measure */
 
   /* fluid section vertical rhythm - use for section padding to smooth the
      900-1280px "awkward desktop" band instead of hard px breakpoints */
@@ -159,10 +233,9 @@
     /* Matches the section wrapper's desktop padding — see --section-pad. */
     --section-pad: 32px;
 
-    /* body sizes */
-    --body-font-size-m: 18px;
-    --body-font-size-s: 16px;
-    --body-font-size-xs: 14px;
+    /* Body sizes used to be re-declared here, LARGER on mobile than desktop.
+       They are fluid clamp() tokens now and must not be overridden per
+       breakpoint — see the BODY SCALE block above. */
 
     /* heading sizes */
     --heading-font-size-xxl: 45px;
@@ -316,11 +389,15 @@ hr {
 
 b,
 strong {
-  font-weight: bolder;
+  /* bold, not strong: this replaced the UA/reset `bolder`, which computes to 700
+     from a 400 parent. Using 600 here would have quietly lightened every bold
+     word on the site. */
+  font-weight: var(--body-weight-bold);
 }
 
 small {
-  font-size: 80%;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
 }
 
 sub,
@@ -361,10 +438,12 @@ body {
   margin: 0;
   overflow-x: clip;
   background-color: var(--background-color);
-  color: var(--text-color);
+  color: var(--body-color);
   font-family: var(--body-font-family);
-  font-size: var(--body-font-size-m);
-  line-height: 1.6;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-tracking);
 }
 
 body.appear {
@@ -619,6 +698,68 @@ blockquote {
   margin: 0;
 }
 
+/* ====================================================================
+   BODY TYPE CONTRACT
+   The counterpart to the heading contract above. Body copy inherits its
+   type from `body`; these rules exist for the cases inheritance cannot
+   reach and for the deliberate steps off the default.
+
+   A block must NOT re-declare font-size / line-height / font-weight /
+   letter-spacing on body copy. Rewriting a block rule to point at a token
+   does not help — a class selector (0,1,0) beats `body`/`p` (0,0,1)
+   regardless of what is inside it. The declaration has to be GONE.
+   scripts/typography-guard.mjs enforces this.
+
+   Need a different step? Use the .u-* utilities below.
+   ==================================================================== */
+
+/* Visual step != semantic element, same idea as .u-h1-.u-h6.
+   This is the sanctioned way for a block to say "this paragraph is the deck"
+   or "this is a caption" without re-inventing a size. */
+.u-deck,
+.u-body-lg,
+.u-body,
+.u-body-sm,
+.u-caption {
+  font-family: var(--body-font-family);
+  font-weight: var(--body-weight);
+  letter-spacing: var(--body-tracking);
+}
+
+.u-deck {
+  font-size: var(--deck-size);
+  line-height: var(--deck-line-height);
+}
+
+.u-body-lg {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-line-height);
+}
+
+.u-body {
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+}
+
+.u-body-sm {
+  font-size: var(--body-sm-size);
+  line-height: var(--body-line-height);
+}
+
+.u-caption {
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+.u-body-strong { font-weight: var(--body-weight-strong); }
+.u-body-muted { color: var(--body-muted-color); }
+
+/* Measure. Long-form paragraphs were running at a median 113 characters per
+   line; 54% of them exceeded 90. Apply to a container, not to each paragraph. */
+.u-measure { max-width: var(--measure); }
+.u-measure-narrow { max-width: var(--measure-narrow); }
+.u-measure-wide { max-width: var(--measure-wide); }
+
 /* --------------------------------------------------------------------
    Vertical rhythm for AUTHORED PROSE ONLY.
    Scoped to the wrappers AEM puts around free-text content so blocks
@@ -642,6 +783,16 @@ main .default-content-wrapper :is(p, dl, ol, ul, pre, blockquote):not(:first-chi
 
 main .default-content-wrapper p + p {
   margin-top: 1.1em;
+}
+
+/* Measure for authored prose. Rare on this site — a live sweep of 40 pages found
+   exactly one such region, running at 151 characters per line — but it is the
+   correct home for the rule, and free. Long-form copy inside blocks is capped by
+   each block, since that is where this site's prose actually lives.
+   Left-aligned deliberately: authored prose here computes to `text-align: start`,
+   so a max-width alone gives the right reading column. */
+main > .section > .default-content-wrapper > :is(p, ul, ol, dl, blockquote) {
+  max-width: var(--measure);
 }
 
 /* Preflight strips list markers globally and nothing restored them, so authored

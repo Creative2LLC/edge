@@ -69,8 +69,7 @@
 .media-contact-cta-copy {
   margin: 0;
   color: #fff;
-  font-size: 18px;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 .media-contact-cta-copy a,
@@ -87,8 +86,8 @@
 .media-contact-cta-note {
   margin: 8px 0 0;
   color: rgb(255 255 255 / 72%);
-  font-size: 15px;
-  line-height: 1.4;
+  font-size: var(--body-sm-size);
+  line-height: var(--caption-line-height);
 }
 
 .media-contact-cta-visual:focus-visible,
@@ -113,9 +112,5 @@
   .media-contact-cta-inner {
     width: min(1420px, calc(100% - 24px));
     padding: 28px 22px;
-  }
-
-  .media-contact-cta-copy {
-    font-size: 16px;
   }
 }

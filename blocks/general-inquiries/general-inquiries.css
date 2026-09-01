@@ -39,8 +39,7 @@
   max-width: 1324px;
   margin: 16px 0 0;
   color: #4b4b4f;
-  font-size: clamp(1rem, 1.2vw, 1.25rem);
-  line-height: 1.45;
+  font-size: var(--body-lg-size);
 }
 
 .general-inquiries .general-inquiries-form {
@@ -342,9 +341,6 @@
   max-width: 1228px;
   margin: 0;
   color: #404041;
-  font-size: 17px;
-  font-weight: 400;
-  line-height: 1.5;
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-support-cta {
@@ -376,10 +372,8 @@
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-support-cta-label {
   color: #fff;
-  font-size: 18.18px;
-  font-weight: 600;
+  font-weight: var(--body-weight-strong);
   line-height: 1;
-  letter-spacing: 0;
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-copy {
@@ -403,9 +397,9 @@
   max-width: 689px;
   margin: 12px 0 0;
   color: #404041;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.4;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-field {
@@ -524,6 +518,6 @@
   }
 
   .general-inquiries.general-inquiries-support-mode .general-inquiries-subheading {
-    font-size: 20px;
+    font-size: var(--body-lg-size);
   }
 }

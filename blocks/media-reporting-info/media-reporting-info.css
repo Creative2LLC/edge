@@ -21,8 +21,6 @@
 .media-reporting-info-intro {
   margin: 0;
   color: #404041;
-  font-size: 16px;
-  line-height: 1.45;
 }
 
 .media-reporting-info-grid {
@@ -38,9 +36,8 @@
 
 .media-reporting-info-item-copy {
   color: #404041;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.42;
+  font-weight: var(--body-weight-strong);
+  line-height: var(--caption-line-height);
 }
 
 .media-reporting-info-item-copy p {
@@ -73,9 +70,5 @@
 
   .media-reporting-info-inner {
     width: min(1420px, calc(100% - 24px));
-  }
-
-  .media-reporting-info-item-copy {
-    font-size: 16px;
   }
 }

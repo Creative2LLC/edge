@@ -7,7 +7,12 @@
    content edge with the other blocks (body has overflow-x: clip). */
 main > .section > .resources-browser-wrapper {
   max-width: none;
-  width: 100vw;
+
+  /* width:100% not 100vw — 100vw includes the classic scrollbar, so the block
+     overhangs the usable width and body{overflow-x:clip} hides the scrollbar.
+     The wrapper already clears max-width/padding, so 100% IS full-bleed.
+     See audits/body-copy-audit.md / partners-showcase for the full write-up. */
+  width: 100%;
   padding: 0;
   margin-inline: calc(50% - 50vw);
 }
@@ -43,9 +48,8 @@ main > .section > .resources-browser-wrapper {
   max-width: 880px;
   margin: -4px 0 2px;
   color: #404041;
-  font-size: clamp(16px, 1.35vw, 20px);
-  font-weight: 500;
-  line-height: 1.55;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   overflow-wrap: anywhere;
   white-space: break-spaces;
 }
@@ -319,8 +323,8 @@ main > .section > .resources-browser-wrapper {
 
 .resources-browser .resources-browser-source-debug-text {
   margin: 8px 0 0;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
 }
 
 .resources-browser .resources-browser-source-debug-list {
@@ -422,7 +426,7 @@ main > .section > .resources-browser-wrapper {
   justify-content: space-between;
   gap: 12px;
   color: #243846;
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
 }
@@ -578,8 +582,7 @@ main > .section > .resources-browser-wrapper {
   margin: 0;
   overflow: hidden;
   color: #54504d;
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: var(--caption-size);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--rb-subtitle-lines, 3);
 }

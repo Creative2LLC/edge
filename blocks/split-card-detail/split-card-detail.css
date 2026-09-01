@@ -66,11 +66,9 @@
 
 /* Subtitle */
 .split-card-detail-card-subtitle {
-  font-size: 15px;
-  font-weight: 400;
+  font-size: var(--body-sm-size);
   color: #6b6b6b;
   margin: 0;
-  line-height: 1.5;
 }
 
 /* Authoring placeholder for empty items in the editor */
@@ -82,7 +80,7 @@
 }
 
 .split-card-detail-card-placeholder {
-  font-size: 14px;
+  font-size: var(--caption-size);
   color: #999;
   margin: 0;
   text-align: center;

@@ -21,8 +21,6 @@
 .picture-cards .picture-cards-subheading {
   margin: 0;
   color: #516272;
-  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
-  line-height: 1.6;
 }
 
 .picture-cards .picture-cards-grid {
@@ -97,8 +95,7 @@ a.picture-card:hover .picture-card-overlay {
 
 .picture-cards .picture-card-description {
   margin: 0;
-  font-size: clamp(0.82rem, 1.2vw, 0.95rem);
-  line-height: 1.55;
+  font-size: var(--body-sm-size);
   color: rgb(255 255 255 / 88%);
 }
 

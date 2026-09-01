@@ -76,13 +76,11 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'support-cta-content';
 
-  const heading = document.createElement('div');
+  const heading = document.createElement('h2');
   heading.className = 'support-cta-heading';
-  heading.setAttribute('role', 'heading');
-  heading.setAttribute('aria-level', '2');
   moveText(headingField, heading, DEFAULTS.heading);
 
-  const subheading = document.createElement('div');
+  const subheading = document.createElement('p');
   subheading.className = 'support-cta-subheading';
   moveText(subheadingField, subheading, DEFAULTS.subheading);
 

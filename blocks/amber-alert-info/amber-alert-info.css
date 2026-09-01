@@ -68,11 +68,11 @@
 }
 
 .amber-alert-info .amber-alert-info-subtitle {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
   color: #fff;
   margin: 0 0 32px;
-  line-height: 1.5;
+  line-height: var(--body-line-height);
   text-align: left;
 }
 
@@ -97,8 +97,7 @@
   border-radius: 99px;
   background-color: #fff;
   color: #e13e30;
-  font-size: 16px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   font-family: inherit;
   text-decoration: none;
   cursor: pointer;
@@ -134,7 +133,7 @@
 
 .amber-alert-info .amber-alert-info-stat-number {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   color: #fff;
   line-height: 1.1;
   text-align: left;
@@ -142,10 +141,10 @@
 }
 
 .amber-alert-info .amber-alert-info-stat-text {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   color: #fff;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
   text-align: left;
 }
 

@@ -129,17 +129,125 @@ for (const block of fs.readdirSync(BLOCKS)) {
   }
 }
 
-if (violations.length) {
-  console.error(`\n✖ typography-guard: ${violations.length} heading override(s) found.\n`);
-  for (const v of violations) {
-    console.error(`  ${v.file}:${v.line}`);
-    console.error(`    ${v.sel.slice(0, 88)}`);
-    console.error(`      ${v.prop}: ${v.value}\n`);
+/* ==========================================================================
+   BODY COPY
+   Same invariant, second half of the contract: styles/styles.css is the only
+   place that sizes, weights, leads or tracks a paragraph.
+
+   Body copy differs from headings in one way that matters. A heading can just
+   have its declaration deleted, because the global `h2 {}` rule then gives the
+   right answer. A paragraph cannot always: `<p>` carries no information about
+   whether it is prose, a deck or a caption, so a deliberate non-default step
+   has to say so by pointing at a token. Both are accepted here; a hardcoded
+   number is not.
+
+   Known pre-existing exceptions live in the baseline file. They are the
+   declarations the migration deliberately left for a human (off-scale sizes,
+   display weights, bespoke tracking). New ones are failures.
+   See audits/body-copy-audit.md.
+   ========================================================================== */
+
+const BASELINE_FILE = 'scripts/typography-guard-baseline.json';
+const WRITE_BASELINE = process.argv.includes('--update-baseline');
+
+const BODYISH = /(^|-)(body|description|desc|text|copy|content|paragraph|para|subhead|subheading|subtitle|intro|lede|lead|summary|excerpt|blurb|answer|bio|message|detail|details|info|quote|testimonial|disclaimer|caption|note|meta|byline|date|category|label|eyebrow|kicker)(-|$)/;
+const HEADINGISH = /(^|-)(heading|title|headline)(-|$)/;
+
+function isBodySelector(sel) {
+  if (/(^|[\s,>+~(])(a|button|input|select|textarea)(\b|[\s,>+~:.[])/.test(sel)) return false;
+  if (/(^|[\s,>+~(])h[1-6](\b|[\s,>+~:.[])/.test(sel)) return false;
+  const tokens = (sel.match(/\.[a-zA-Z0-9_-]+/g) || []).map((c) => c.slice(1));
+  if (tokens.some((c) => HEADINGISH.test(c))) return false;
+  if (/(^|[\s,>+~(])p(\b|[\s,>+~:.[])/.test(sel)) return true;
+  return tokens.some((c) => BODYISH.test(c));
+}
+
+const bodyViolations = [];
+
+for (const block of fs.readdirSync(BLOCKS)) {
+  if (ALLOWLIST.has(block) || block === 'cards') continue;
+  const dir = path.join(BLOCKS, block);
+  let files = [];
+  try { files = fs.readdirSync(dir); } catch { continue; }
+
+  for (const cf of files.filter((f) => f.endsWith('.css'))) {
+    const raw = fs.readFileSync(path.join(dir, cf), 'utf8');
+    const css = raw.replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, ' '));
+    const re = /([^{}]+)\{([^{}]*)\}/g;
+    let m;
+    while ((m = re.exec(css))) {
+      const sel = m[1].replace(/\s+/g, ' ').replace(/^[^}]*}/, '').trim();
+      if (!sel || sel.startsWith('@')) continue;
+      if (!isBodySelector(sel)) continue;
+
+      for (const prop of PROPS) {
+        const d = new RegExp(`(?:^|[;{])\\s*${prop}\\s*:\\s*([^;]+)`).exec(m[2]);
+        if (!d) continue;
+        const value = d[1].trim();
+        if (isDeferred(value)) continue;
+        bodyViolations.push({
+          file: `${dir}/${cf}`.replace(/\\/g, '/'),
+          line: css.slice(0, m.index).split('\n').length,
+          sel,
+          prop,
+          value,
+        });
+      }
+    }
   }
-  console.error('Headings are sized once, in styles/styles.css. Use .u-h1-.u-h6 /');
-  console.error('.u-display-sm / .u-display-lg, or reference a --heading-*-size token.');
-  console.error('See audits/typography-audit.md.\n');
+}
+
+/* Baseline is keyed WITHOUT the line number, so unrelated edits above a known
+   exception do not turn it into a false failure. */
+const keyOf = (v) => `${v.file}|${v.sel}|${v.prop}|${v.value}`;
+
+if (WRITE_BASELINE) {
+  const baseline = bodyViolations.map(keyOf).sort();
+  fs.writeFileSync(BASELINE_FILE, `${JSON.stringify(baseline, null, 1)}\n`);
+  console.log(`✔ typography-guard: baseline written — ${baseline.length} accepted body exceptions.`);
+  process.exit(0);
+}
+
+let baseline = new Set();
+try {
+  baseline = new Set(JSON.parse(fs.readFileSync(BASELINE_FILE, 'utf8')));
+} catch {
+  console.error(`✖ typography-guard: missing ${BASELINE_FILE}. Run with --update-baseline.`);
   process.exit(1);
 }
 
+const newBody = bodyViolations.filter((v) => !baseline.has(keyOf(v)));
+
+if (violations.length || newBody.length) {
+  if (violations.length) {
+    console.error(`\n✖ typography-guard: ${violations.length} heading override(s) found.\n`);
+    for (const v of violations) {
+      console.error(`  ${v.file}:${v.line}`);
+      console.error(`    ${v.sel.slice(0, 88)}`);
+      console.error(`      ${v.prop}: ${v.value}\n`);
+    }
+    console.error('Headings are sized once, in styles/styles.css. Use .u-h1-.u-h6 /');
+    console.error('.u-display-sm / .u-display-lg, or reference a --heading-*-size token.');
+    console.error('See audits/typography-audit.md.\n');
+  }
+  if (newBody.length) {
+    console.error(`\n✖ typography-guard: ${newBody.length} NEW body-copy override(s) found.\n`);
+    for (const v of newBody) {
+      console.error(`  ${v.file}:${v.line}`);
+      console.error(`    ${v.sel.slice(0, 88)}`);
+      console.error(`      ${v.prop}: ${v.value}\n`);
+    }
+    console.error('Body copy is sized once, in styles/styles.css.');
+    console.error('  - default step? delete the declaration and let it inherit');
+    console.error('  - deliberate step? use .u-deck / .u-body-lg / .u-body / .u-body-sm /');
+    console.error('    .u-caption, or reference --deck-size / --body-*-size / --caption-size');
+    console.error('  - genuinely a one-off? add it deliberately:');
+    console.error('      node scripts/typography-guard.mjs --update-baseline');
+    console.error('See audits/body-copy-audit.md.\n');
+  }
+  process.exit(1);
+}
+
+const stale = [...baseline].filter((k) => !bodyViolations.some((v) => keyOf(v) === k)).length;
 console.log('✔ typography-guard: no heading overrides. The scale owns h1-h6.');
+console.log(`✔ typography-guard: no new body overrides. ${baseline.size - stale} accepted exceptions${stale ? `, ${stale} now fixed (rerun --update-baseline to prune)` : ''}.`);

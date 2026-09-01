@@ -940,6 +940,42 @@ function observeBlockReveal(block) {
  * Loads JS and CSS for a block.
  * @param {Element} block The block element
  */
+/**
+ * Pull flow content back out of headings.
+ *
+ * 19 blocks build a heading by moving an authored richtext field's CHILD NODES into
+ * it (`applyRichText`, `buildRichTextElement`, `while (source.firstChild) …`) or by
+ * assigning its HTML. AEM wraps authored richtext in `<p>`, so the `<p>` travels
+ * inside the `<h2>`. A live sweep of all 68 pages found 179 of these — `resources`
+ * alone accounted for 87. See audits/body-copy-audit.md finding 03.
+ *
+ * Two problems: `<p>` is flow content and is not allowed inside a heading's phrasing
+ * content model, and those paragraphs inherit heading type, which puts them out of
+ * reach of every body-copy rule.
+ *
+ * It only fires when the authored value is real richtext — a plain text cell arrives
+ * as a bare text node — which is why it looks fine on some pages and not others.
+ *
+ * Fixed centrally rather than in 19 block files: it is one behaviour, and doing it
+ * here also covers blocks written later.
+ *
+ * Deliberately SKIPS instrumented nodes. In the Universal Editor the `<p>` carries
+ * `data-aue-*`, and unwrapping would drop the field's editing handle. Published
+ * pages carry no instrumentation, so the fix lands exactly where the problem is.
+ */
+function unwrapFlowContentInHeadings(scope) {
+  const headings = scope.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading) => {
+    const flow = [...heading.children].filter((el) => el.tagName === 'P' || el.tagName === 'DIV');
+    flow.forEach((el, index) => {
+      if ([...el.attributes].some((a) => a.name.startsWith('data-aue'))) return;
+      if (index > 0) heading.insertBefore(document.createTextNode(' '), el);
+      while (el.firstChild) heading.insertBefore(el.firstChild, el);
+      el.remove();
+    });
+  });
+}
+
 async function loadBlock(block) {
   const status = block.dataset.blockStatus;
   if (status !== 'loading' && status !== 'loaded') {
@@ -977,6 +1013,7 @@ async function loadBlock(block) {
         captureError('block', error);
       }
     }
+    unwrapFlowContentInHeadings(block);
     block.dataset.blockStatus = 'loaded';
     observeBlockReveal(block);
     // eslint-disable-next-line no-use-before-define

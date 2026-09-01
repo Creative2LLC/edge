@@ -100,29 +100,24 @@
 
 /* Subtitle */
 .image-text-card-row .image-text-card-row-card-subtitle {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 8px;
-  line-height: 1.5;
   text-align: left;
 }
 
 /* Body text */
 .image-text-card-row .image-text-card-row-card-body {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 16px;
-  line-height: 1.5;
   text-align: left;
 }
 
 /* Link */
 .image-text-card-row .image-text-card-row-card-link {
   color: #007294;
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   text-decoration: none;
   margin-top: auto;
 }

@@ -86,11 +86,11 @@
 /* subheading */
 .footer-banner-subheading {
   font-size: 34px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   max-width: 861px;
   margin: 24px 0 0;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 /* ── responsive ── */
@@ -109,6 +109,6 @@
   }
 
   .footer-banner-subheading {
-    font-size: 22px;
+    font-size: var(--deck-size);
   }
 }

@@ -231,7 +231,7 @@ header .top-banner-links li {
 }
 
 header nav .nav-sections .default-content-wrapper > ul > li {
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
 }
 
 header nav .nav-sections .default-content-wrapper > ul > li > ul {
@@ -239,7 +239,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul {
 }
 
 header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
-  font-weight: 400;
+  font-weight: var(--body-weight);
 }
 
 @media (width >= 1260px) {
@@ -450,8 +450,8 @@ header nav .nav-search-all-results {
 
 header nav .nav-search-result-summary {
   color: rgb(17 54 82 / 78%);
-  font-size: 0.92rem;
-  line-height: 1.35;
+  font-size: var(--body-sm-size);
+  line-height: var(--caption-line-height);
 }
 
 header nav .nav-search-result-title mark,
@@ -920,8 +920,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     display: flex;
     min-width: 0;
     color: #173d59;
-    font-size: 0.86rem;
-    font-weight: 600;
+    font-size: var(--caption-size);
+    font-weight: var(--body-weight-strong);
     line-height: 1.2;
   }
 
@@ -972,8 +972,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     background: #fff;
     padding: 6px 10px;
     color: #173d59;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: var(--caption-size);
+    font-weight: var(--body-weight-strong);
   }
 
   header nav[aria-expanded='true'] .nav-sections {
@@ -1322,8 +1322,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 
   header nav .nav-mobile-rich-card p {
     margin: 0;
-    font-size: 0.96rem;
-    line-height: 1.45;
+    font-size: var(--body-sm-size);
   }
 
   header nav .nav-mobile-rich-card a.button {

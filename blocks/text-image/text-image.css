@@ -30,8 +30,8 @@
 
 .text-image.block .text-image-subhead {
   margin: 0 0 20px;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-strong);
   line-height: 1.2;
   color: #6b6b6f;
   text-align: left;
@@ -55,9 +55,8 @@
 }
 
 .text-image.block .text-image-body {
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.55;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   text-align: left;
   opacity: 0;
@@ -104,8 +103,7 @@
   background: #008db6;
   box-shadow: 0 18px 36px rgb(0 141 182 / 22%);
   color: #fff;
-  font-size: 16px;
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   line-height: 1.1;
   text-decoration: none;
   opacity: 0;
@@ -174,8 +172,8 @@
 
 .text-image.block .text-image-overlay-header {
   margin: 0 0 8px;
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-bold);
   line-height: 1.15;
   letter-spacing: -0.02em;
   color: #163b61;
@@ -183,19 +181,19 @@
 
 .text-image.block .text-image-overlay-text {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-strong);
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: #163b61;
 }
 
 .text-image.block .text-image-overlay.text-small .text-image-overlay-header {
-  font-size: 21px;
+  font-size: var(--deck-size);
 }
 
 .text-image.block .text-image-overlay.text-small .text-image-overlay-text {
-  font-size: 17px;
+  font-size: var(--body-size);
 }
 
 @media (width <= 900px) {
@@ -213,11 +211,6 @@
 
   .text-image.block .text-image-subhead {
     margin-bottom: 16px;
-    font-size: 18px;
-  }
-
-  .text-image.block .text-image-body {
-    font-size: 18px;
   }
 
   .text-image.block .text-image-body > * + * {
@@ -255,19 +248,11 @@
   }
 
   .text-image.block .text-image-overlay-header {
-    font-size: 22px;
-  }
-
-  .text-image.block .text-image-overlay-text {
-    font-size: 18px;
+    font-size: var(--deck-size);
   }
 
   .text-image.block .text-image-overlay.text-small .text-image-overlay-header {
-    font-size: 19px;
-  }
-
-  .text-image.block .text-image-overlay.text-small .text-image-overlay-text {
-    font-size: 16px;
+    font-size: var(--body-lg-size);
   }
 }
 
@@ -281,19 +266,15 @@
   }
 
   .text-image.block .text-image-overlay-header {
-    font-size: 20px;
-  }
-
-  .text-image.block .text-image-overlay-text {
-    font-size: 17px;
+    font-size: var(--body-lg-size);
   }
 
   .text-image.block .text-image-overlay.text-small .text-image-overlay-header {
-    font-size: 18px;
+    font-size: var(--body-size);
   }
 
   .text-image.block .text-image-overlay.text-small .text-image-overlay-text {
-    font-size: 15px;
+    font-size: var(--body-sm-size);
   }
 }
 
@@ -373,8 +354,8 @@
 }
 
 .text-image.block.text-image-variant-2 .text-image-subhead {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-strong);
   color: #404041;
 }
 
@@ -385,8 +366,8 @@
 
 .text-image.block.text-image-variant-2 .text-image-body {
   max-width: 700px;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 /* Prose paragraph spacing for variant 2: every paragraph / list / element
@@ -487,8 +468,8 @@
 
 .text-image.block.text-image-variant-3 .text-image-body {
   max-width: 658px;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   text-align: left;
 }
 
@@ -516,8 +497,8 @@
 }
 
 .text-image.block.text-image-variant-3 .text-image-overlay .text-image-overlay-text {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
 }
 
@@ -528,9 +509,9 @@
 
 .text-image.block.text-image-variant-3 .text-image-overlay-subtext {
   margin: 12px 0 0;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.3;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
+  line-height: var(--caption-line-height);
   color: #404041;
 }
 
@@ -582,8 +563,8 @@
 
 .text-image.block.text-image-variant-4 .text-image-subhead {
   max-width: 662px;
-  font-size: 24px;
-  font-weight: 600;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-strong);
   color: #404041;
 }
 
@@ -594,8 +575,8 @@
 
 .text-image.block.text-image-variant-4 .text-image-body {
   max-width: 662px;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .text-image.block.text-image-variant-4 .text-image-body,
@@ -667,7 +648,6 @@
 
   .text-image.block.text-image-variant-3 .text-image-body {
     max-width: none;
-    font-size: 18px;
   }
 
   .text-image.block.text-image-variant-3 .text-image-media {

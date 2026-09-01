@@ -39,11 +39,11 @@ main > .section > .missing-child-quick-report-wrapper {
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
   color: #007294;
-  font-size: 0.86rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--label-tracking);
 }
 
 .missing-child-quick-report-heading {
@@ -54,9 +54,8 @@ main > .section > .missing-child-quick-report-wrapper {
 .missing-child-quick-report-intro {
   max-width: 56rem;
   color: #4b4b4f;
-  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
-  font-weight: 500;
-  line-height: 1.5;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .missing-child-quick-report-intro > :first-child {
@@ -88,9 +87,8 @@ main > .section > .missing-child-quick-report-wrapper {
 
 .missing-child-quick-report-emergency-copy {
   color: #45484d;
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: 1.5;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-strong);
 }
 
 .missing-child-quick-report-emergency-copy > :first-child {
@@ -148,7 +146,7 @@ main > .section > .missing-child-quick-report-wrapper {
 
 .missing-child-quick-report-context-label {
   color: #66717d;
-  font-size: 0.82rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.2;
   text-transform: uppercase;
@@ -181,7 +179,7 @@ main > .section > .missing-child-quick-report-wrapper {
 
 .missing-child-quick-report-label {
   color: #32363b;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 800;
   line-height: 1.25;
 }

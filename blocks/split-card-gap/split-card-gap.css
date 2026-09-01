@@ -69,9 +69,8 @@ main > .section > .split-card-gap-wrapper {
 
 .split-card-gap .split-card-gap-body {
   color: #404041;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.55;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .split-card-gap .split-card-gap-body > :first-child {
@@ -280,14 +279,14 @@ main > .section > .split-card-gap-wrapper {
 
 .split-card-gap-variant-2 .split-card-gap-body {
   max-width: 412px;
-  font-size: 17px;
-  font-weight: 600;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-strong);
 }
 
 /* stylelint-disable-next-line no-descending-specificity */
 .split-card-gap-variant-2 .split-card-gap-body li {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
 }
 
 /* stylelint-disable-next-line no-descending-specificity */

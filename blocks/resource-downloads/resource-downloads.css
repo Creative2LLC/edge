@@ -113,7 +113,6 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-item-description {
   color: #445;
   font-size: var(--body-font-size-xs, 14px);
-  line-height: 1.5;
 }
 
 .resource-downloads-item-description p {
@@ -565,16 +564,16 @@ main > .section > div.resource-downloads-wrapper {
 
 .resource-downloads-meta-label {
   color: #404041;
-  font-size: 13px;
+  font-size: var(--caption-size);
   line-height: 1;
 }
 
 .resource-downloads-meta-value {
   color: #404041;
   font-family: var(--heading-font-family, sans-serif);
-  font-size: 14px;
+  font-size: var(--caption-size);
   font-weight: 800;
-  line-height: 1.3;
+  line-height: var(--caption-line-height);
 }
 
 /* ── Informative: stacked card variant ───────────────────────────────────── */
@@ -622,11 +621,11 @@ main > .section > div.resource-downloads-wrapper {
 }
 
 .resource-downloads-meta-panel.is-inline .resource-downloads-meta-label {
-  font-size: 12px;
+  font-size: var(--caption-size);
 }
 
 .resource-downloads-meta-panel.is-inline .resource-downloads-meta-value {
-  font-size: 13px;
+  font-size: var(--caption-size);
 }
 
 /* ── Informative: full-width banner variant ──────────────────────────────── */
@@ -679,13 +678,13 @@ main > .section > div.resource-downloads-wrapper {
 
 .resource-downloads-meta-panel.is-chips .resource-downloads-meta-label {
   color: #7a8590;
-  font-size: 11px;
+  font-size: var(--caption-size);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .resource-downloads-meta-panel.is-chips .resource-downloads-meta-value {
-  font-size: 13px;
+  font-size: var(--caption-size);
 }
 
 /* ── Video ───────────────────────────────────────────────────────────────── */
@@ -1143,8 +1142,8 @@ main > .section > div.resource-downloads-wrapper {
 .resource-authoring-toolbar-note {
   margin-right: 4px;
   color: #5b6b7c;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }

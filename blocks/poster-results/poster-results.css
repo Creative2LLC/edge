@@ -16,9 +16,8 @@
 .poster-results-eyebrow {
   margin: 0 0 8px;
   color: #007294;
-  font-size: 14px;
+  font-size: var(--caption-size);
   font-weight: 800;
-  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -310,7 +309,7 @@
 .poster-results-meta {
   margin: 0 0 18px;
   color: #3f4b53;
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   font-weight: 800;
 }
 
@@ -477,8 +476,8 @@
 
 .poster-results-card-body dt {
   color: #3f4a52;
-  font-size: clamp(16px, 1.45vw, 20px);
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   line-height: 1.25;
 }
 
@@ -489,7 +488,7 @@
 .poster-results-card-body dd {
   margin: 0;
   color: #3f4a52;
-  font-size: clamp(16px, 1.45vw, 20px);
+  font-size: var(--body-lg-size);
   line-height: 1.25;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -513,7 +512,6 @@
   color: #005f7a;
   text-decoration: underline;
 }
-
 
 .poster-results-search-back,
 .poster-results-search-back:any-link {
@@ -595,7 +593,7 @@
   color: #fff;
   cursor: pointer;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--caption-size);
   font-weight: 800;
   text-decoration: none;
   overflow: visible;
@@ -635,7 +633,7 @@
   color: #243846;
   cursor: pointer;
   font: inherit;
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   font-weight: 800;
 }
 
@@ -674,7 +672,7 @@
 .poster-results-detail-subcase {
   margin: -8px 0 18px;
   color: #5f6a72;
-  font-size: 15px;
+  font-size: var(--body-sm-size);
 }
 
 .poster-results-detail-body > dl {
@@ -690,28 +688,25 @@
 
 .poster-results-detail-body dt {
   color: #5f6a72;
-  font-size: 14px;
+  font-size: var(--caption-size);
   font-weight: 800;
 }
 
 .poster-results-detail-body dd {
   margin: 0;
   color: #303030;
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   overflow-wrap: anywhere;
 }
 
 .poster-results-detail-seen {
   margin: 18px 0 0;
   color: #303030;
-  font-size: 16px;
 }
 
 .poster-results-detail-copy {
   margin: 22px 0 0;
   color: #303030;
-  font-size: 17px;
-  line-height: 1.5;
 }
 
 /* Participant sections. */
@@ -756,8 +751,8 @@
 .poster-results-detail-ncic {
   margin: 0 0 18px;
   color: #6b7680;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
 }
 
 .poster-results-detail-facts {
@@ -800,7 +795,7 @@
 }
 
 .poster-results-fact-label {
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
 }
 
 .poster-results-related-grid {
@@ -859,7 +854,7 @@
 .poster-results-related-person p {
   margin: 0 0 10px;
   color: #b42318;
-  font-size: 13px;
+  font-size: var(--caption-size);
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -867,9 +862,8 @@
 .poster-results-related-person p.poster-results-related-copy {
   margin: 8px 0 0;
   color: #475467;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.5;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight);
   text-transform: none;
 }
 
@@ -1131,7 +1125,7 @@
 }
 
 .poster-results-detail-logo span {
-  font-size: 16px;
+  font-size: var(--body-size);
   line-height: 1;
 }
 
@@ -1145,7 +1139,7 @@
   justify-items: center;
   gap: 24px;
   color: #404041;
-  font-size: 19px;
+  font-size: var(--body-lg-size);
   font-weight: 800;
   text-align: center;
 }
@@ -1447,7 +1441,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 .poster-results:not(.is-poster-page) .poster-results-eyebrow {
   margin: 0 0 8px;
   color: #008db6;
-  font-size: 13px;
+  font-size: var(--caption-size);
   font-weight: 900;
   letter-spacing: 0.02em;
   line-height: 1.1;
@@ -1475,7 +1469,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 .poster-results-amber-summary-header > p:first-child {
   margin: 0 0 12px;
   color: #b42318;
-  font-size: 16px;
   font-weight: 900;
   letter-spacing: 0.02em;
   line-height: 1.1;
@@ -1491,8 +1484,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   max-width: 1120px;
   margin: 16px 0 0;
   color: #304656;
-  font-size: 18px;
-  line-height: 1.5;
 }
 
 .poster-results-amber-summary-list {
@@ -1760,7 +1751,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 .poster-results-sort-label {
   padding-left: 10px;
   color: #243846;
-  font-size: 13px;
+  font-size: var(--caption-size);
   font-weight: 800;
   white-space: nowrap;
 }
@@ -1789,10 +1780,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   color: #fff;
   box-shadow: 0 5px 12px rgb(6 52 93 / 18%);
 }
-
-
-
-
 
 @media (width <= 640px) {
   .poster-results-results-toolbar {

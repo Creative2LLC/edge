@@ -88,11 +88,10 @@
 
 /* Subheading */
 .card-row-compact-card-subheading {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
-  line-height: 1.5;
 }
 
 /* Link */

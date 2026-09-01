@@ -94,12 +94,11 @@
 }
 
 .hero-footer-subheading {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   max-width: 100%;
   margin: 24px 0 0;
-  line-height: 1.5;
   opacity: 0;
   transform: translateY(26px);
   transition:
@@ -162,8 +161,8 @@
 .hero-footer.hero-footer-variant-2 .hero-footer-subheading {
   width: auto;
   max-width: 701px;
-  font-size: 24px;
-  font-weight: 500;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .hero-footer.hero-footer-variant-2 .hero-footer-btn {
@@ -199,7 +198,6 @@
 
   .hero-footer-subheading {
     width: 100%;
-    font-size: 18px;
   }
 
   .hero-footer-btn {
@@ -236,7 +234,6 @@
   .hero-footer-subheading,
   .hero-footer.hero-footer-variant-2 .hero-footer-subheading {
     margin-top: 18px;
-    font-size: 16px;
   }
 
   .hero-footer-buttons {

@@ -39,9 +39,7 @@
 .tabs .tabs-subheading {
   max-width: 82ch;
   color: var(--tabs-text);
-  font-size: clamp(1rem, 1.4vw, 1.12rem);
-  font-weight: 500;
-  line-height: 1.5;
+  font-weight: var(--body-weight-medium);
 }
 
 /* ── Tab bar ──────────────────────────────────────────────────────────────── */
@@ -180,9 +178,8 @@
 
 .tabs .tabs-card-body {
   color: var(--tabs-muted);
-  font-size: 0.95rem;
-  font-weight: 500;
-  line-height: 1.5;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .tabs .tabs-card-body ul,

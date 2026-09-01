@@ -75,8 +75,8 @@
   gap: 0.65rem;
   align-items: center;
   color: #637788;
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-strong);
 }
 
 .article-details .article-details-meta-separator {
@@ -87,7 +87,6 @@
   margin: 0;
   color: #516272;
   max-width: 58rem;
-  font-size: 1.08rem;
   line-height: 1.75;
 }
 
@@ -109,7 +108,6 @@
 
 .article-details .article-details-body {
   color: #304555;
-  font-size: 1rem;
   line-height: 1.78;
 }
 
@@ -164,7 +162,7 @@
   background: #eef4f7;
   border-radius: 8px;
   display: flex;
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   justify-content: center;
   min-height: 180px;
 }
@@ -185,8 +183,7 @@
   margin: 0.75rem auto 0;
   max-width: 42rem;
   color: #637788;
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-size: var(--body-sm-size);
 }
 
 .article-details .article-details-message {

@@ -38,12 +38,12 @@ main > .section > .icon-card-carousel-wrapper {
 
 /* Section subtitle */
 .icon-card-carousel .icon-card-carousel-subtitle {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   max-width: 843px;
   margin: 0 0 40px;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 /* Carousel track - extends to the right edge */
@@ -162,11 +162,9 @@ main > .section > .icon-card-carousel-wrapper {
 
 /* Body */
 .icon-card-carousel .icon-card-carousel-body {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
-  line-height: 1.5;
 }
 
 /* Spacer pushes button to the bottom */

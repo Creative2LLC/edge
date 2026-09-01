@@ -165,10 +165,10 @@ function moveFieldContent(field, target, fallbackValue = '') {
   }
 }
 
-function buildRichContent(source, className) {
+function buildRichContent(source, className, tag = 'div') {
   if (!source) return null;
 
-  const content = document.createElement('div');
+  const content = document.createElement(tag);
   content.className = className;
   moveInstrumentation(source, content);
   while (source.firstChild) content.append(source.firstChild);
@@ -484,10 +484,8 @@ export default function decorate(block) {
   const copyIntro = document.createElement('div');
   copyIntro.className = 'impact-donut-copy-intro';
 
-  const heading = buildRichContent(headingSource, 'impact-donut-heading');
+  const heading = buildRichContent(headingSource, 'impact-donut-heading', 'h2');
   if (heading) {
-    heading.setAttribute('role', 'heading');
-    heading.setAttribute('aria-level', '2');
     copyIntro.append(heading);
   }
 

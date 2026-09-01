@@ -408,8 +408,8 @@
 
 .case-anniversaries-card-body dt {
   color: #3f4a52;
-  font-size: clamp(16px, 1.45vw, 20px);
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   line-height: 1.25;
 }
 
@@ -422,7 +422,7 @@
   margin: 0;
   overflow-wrap: anywhere;
   color: #3f4a52;
-  font-size: clamp(16px, 1.45vw, 20px);
+  font-size: var(--body-lg-size);
   line-height: 1.25;
 }
 
@@ -563,8 +563,6 @@
 .case-anniversaries-pagination-button:hover:not(:disabled, .is-active) {
   background: #eef3f6;
 }
-
-
 
 @media (width <= 920px) {
   .case-anniversaries-primary-row {

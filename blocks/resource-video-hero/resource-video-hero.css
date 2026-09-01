@@ -24,7 +24,6 @@
   max-width: 46rem;
   margin: 0.75rem 0 0;
   color: #34495a;
-  line-height: 1.55;
 }
 
 .resource-video-hero .resource-video-hero-breadcrumb {
@@ -62,8 +61,6 @@
   max-width: 52rem;
   margin: 1rem 0 0;
   color: #243846;
-  font-size: clamp(1rem, 2vw, 1.14rem);
-  line-height: 1.65;
 }
 
 .resource-video-hero .resource-video-hero-taxonomy,

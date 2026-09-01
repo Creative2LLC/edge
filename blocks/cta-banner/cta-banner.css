@@ -42,11 +42,9 @@
 }
 
 .cta-banner-subtitle {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
-  line-height: 1.5;
 }
 
 .cta-banner-button {

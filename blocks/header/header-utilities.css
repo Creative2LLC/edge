@@ -119,20 +119,19 @@ header .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
 
 /* ---------- type ---------- */
 header .text-xs {
-  font-size: 0.75rem;
+  font-size: var(--caption-size);
   line-height: 1rem;
 }
 
 header .text-sm {
-  font-size: 0.875rem;
+  font-size: var(--caption-size);
   line-height: 1.25rem;
 }
 
 header .text-base {
-  font-size: 1rem;
   line-height: 1.5rem;
 }
-header .text-\[20px\] { font-size: 20px; }
+header .text-\[20px\] { font-size: var(--body-lg-size); }
 header .font-semibold { font-weight: 600; }
 header .font-bold { font-weight: 700; }
 header .leading-snug { line-height: 1.375; }

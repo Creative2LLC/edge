@@ -3379,12 +3379,18 @@
         "value": "none"
       },
       {
-        "component": "text",
+        "component": "select",
         "valueType": "string",
         "name": "defaultCardTextSize",
-        "label": "Default Card Text Size",
-        "description": "Optional CSS length such as 20px, 1.25rem, or clamp(1rem, 2vw, 1.5rem). Individual cards can override this value.",
-        "value": ""
+        "label": "Default Card Text Size (set by site styles)",
+        "description": "Locked. Card body text size comes from the site-wide body scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_CARD_TEXT_SIZE = true in cards.js and restore this field's options.",
+        "value": "",
+        "options": [
+          {
+            "name": "Set by site styles",
+            "value": ""
+          }
+        ]
       },
       {
         "component": "text",
@@ -3811,12 +3817,18 @@
         }
       },
       {
-        "component": "text",
+        "component": "select",
         "valueType": "string",
         "name": "cardTextSize",
-        "label": "Card Text Size",
-        "description": "Optional CSS length override for this card, such as 18px, 1.125rem, or clamp(1rem, 2vw, 1.4rem).",
-        "value": ""
+        "label": "Card Text Size (set by site styles)",
+        "description": "Locked. Card body text size comes from the site-wide body scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_CARD_TEXT_SIZE = true in cards.js and restore this field's options.",
+        "value": "",
+        "options": [
+          {
+            "name": "Set by site styles",
+            "value": ""
+          }
+        ]
       },
       {
         "component": "text",
@@ -22692,11 +22704,17 @@
         "value": "No report data available."
       },
       {
-        "component": "text",
+        "component": "select",
         "valueType": "string",
         "name": "bodyTextSize",
-        "label": "Body Text Font Size",
-        "description": "Optional CSS length for the body text, such as 1.25rem, 20px, or 125%. Leave blank for the default."
+        "label": "Body Text Font Size (set by site styles)",
+        "description": "Locked. Body text size comes from the site-wide body scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in report-breakdown.js and restore this field.",
+        "options": [
+          {
+            "name": "Set by site styles",
+            "value": ""
+          }
+        ]
       },
       {
         "component": "select",

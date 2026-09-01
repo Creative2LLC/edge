@@ -302,7 +302,7 @@ function buildSmallCard(article, row, hidden) {
   const tagsEl = buildTagsContainer(tags);
   if (tagsEl) content.append(tagsEl);
 
-  const titleEl = document.createElement('h4');
+  const titleEl = document.createElement('h3');
   titleEl.className = 'news-card-title';
   titleEl.textContent = article.title;
   content.append(titleEl);

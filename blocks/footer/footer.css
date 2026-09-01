@@ -56,7 +56,6 @@ footer .footer .footer-brand .image-positioned {
   text-align: left;
 }
 
-
 footer .footer .footer-brand a {
   color: inherit;
 }
@@ -126,7 +125,6 @@ footer .footer .footer-social .icon {
   height: 20px;
 }
 
-
 footer .footer .footer-column {
   min-width: 0;
   display: block;
@@ -163,8 +161,7 @@ footer .footer .footer-brand > .colored-text > .colored-text-inner > .colored-te
 }
 
 footer .footer .footer-brand > .colored-text {
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: var(--caption-size);
 }
 
 footer .footer .footer-column ul,

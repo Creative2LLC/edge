@@ -38,11 +38,11 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
   color: #007294;
-  font-size: 0.86rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--label-tracking);
 }
 
 .missing-child-poster-api-registration-heading {
@@ -53,9 +53,8 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 .missing-child-poster-api-registration-intro {
   max-width: 56rem;
   color: #4b4b4f;
-  font-size: clamp(1.04rem, 1.25vw, 1.2rem);
-  font-weight: 500;
-  line-height: 1.5;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .missing-child-poster-api-registration-intro > :first-child {
@@ -125,7 +124,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration-label {
   color: #32363b;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 800;
   line-height: 1.25;
 }
@@ -328,9 +327,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 .missing-child-poster-api-registration-docs {
   margin: 0;
   color: #45484d;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.5;
+  font-weight: var(--body-weight-strong);
 }
 
 .missing-child-poster-api-registration-tokens {
@@ -345,7 +342,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration-token-label {
   color: #32363b;
-  font-size: 0.9rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.2;
 }

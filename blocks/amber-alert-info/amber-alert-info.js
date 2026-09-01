@@ -146,7 +146,7 @@ export default function decorate(block) {
       stat.appendChild(num);
     }
     if (text) {
-      const t = document.createElement('div');
+      const t = document.createElement('p');
       t.className = 'amber-alert-info-stat-text';
       t.textContent = text;
       stat.appendChild(t);

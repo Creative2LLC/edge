@@ -34,8 +34,6 @@
 .info-cards-grid-section-subheading {
   margin: 0;
   color: #355069;
-  font-size: 1rem;
-  line-height: 1.55;
 }
 
 /* The section heading and subheading are richtext fields, so AEM wraps the
@@ -89,8 +87,6 @@
   max-width: 820px;
   margin: 0;
   color: #355069;
-  font-size: 1rem;
-  line-height: 1.55;
 }
 
 .info-cards-grid-section-button,
@@ -112,8 +108,8 @@
   border-radius: 999px;
   background: var(--info-cards-section-button-bg);
   color: #fff;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-strong);
   line-height: 1;
   box-shadow: 0 12px 22px rgb(0 141 182 / 20%);
 }
@@ -134,10 +130,8 @@
   border-radius: 999px;
   background: #3B4E5E;
   color: #DFE1E3;
-  font-size: 16px;
-  font-weight: 600;
+  font-weight: var(--body-weight-strong);
   line-height: 1;
-  letter-spacing: 0;
   white-space: nowrap;
   box-shadow: 0 8px 18px rgb(12 34 54 / 12%);
 }
@@ -259,10 +253,8 @@
 /* Subtitle */
 .info-cards-grid-card-subtitle {
   font-size: var(--info-card-subtitle-size);
-  font-weight: 400;
   color: var(--info-card-subtitle-color);
   margin: 0 0 var(--info-card-text-bottom-gap);
-  line-height: 1.5;
 }
 
 .info-cards-grid-card-subtitle > p {
@@ -272,9 +264,7 @@
 /* Body content (text, bullet list, or numbered list) */
 .info-cards-grid-card-body {
   font-size: var(--info-card-body-size);
-  font-weight: 400;
   color: var(--info-card-body-color);
-  line-height: 1.5;
   margin: 0 0 var(--info-card-text-bottom-gap);
 }
 
@@ -405,7 +395,6 @@
   justify-content: center;
   padding: 12px 28px;
   border-radius: 99px;
-  font-size: 18px;
   font-weight: bold;
   font-family: inherit;
   cursor: pointer;
@@ -461,7 +450,7 @@
 
 .info-cards-grid-volunteer .info-cards-grid-section-subheading {
   max-width: 74ch;
-  font-size: 0.98rem;
+  font-size: var(--body-sm-size);
 }
 
 .info-cards-grid-volunteer .info-cards-grid-inner {
@@ -511,8 +500,8 @@
 
 .info-cards-grid-volunteer .info-cards-grid-card-button {
   padding: 10px 18px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
   box-shadow: 0 10px 20px rgb(0 141 182 / 16%);
 }
 
@@ -526,7 +515,7 @@
 
 .info-cards-grid-volunteer .info-cards-grid-footer-text {
   max-width: 860px;
-  font-size: 0.98rem;
+  font-size: var(--body-sm-size);
 }
 
 /* --- Icon Size: Large ---
@@ -549,7 +538,6 @@
 
 .info-cards-grid-button-top .info-cards-grid-section-subheading {
   font-size: 32px;
-  font-weight: 400;
   line-height: 1.25;
   max-width: 1055px;
 }
@@ -562,8 +550,7 @@
 .info-cards-grid-button-top .info-cards-grid-intro-button {
   background: #008db6;
   color: #fff;
-  font-size: 16px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   border-color: transparent;
 }
 

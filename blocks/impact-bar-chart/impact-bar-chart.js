@@ -431,7 +431,7 @@ function buildChart(rows, config) {
 
   rows.forEach((row, index) => {
     const item = document.createElement('div');
-    const label = document.createElement('div');
+    const label = document.createElement('p');
     const track = document.createElement('div');
     const value = document.createElement('div');
     const { description } = row;

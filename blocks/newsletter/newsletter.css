@@ -49,9 +49,6 @@
   padding-top: 104px;
   max-width: 1080px;
   color: #008eb7;
-  font-size: clamp(2rem, 5vw, 4rem);
-  font-weight: 600;
-  line-height: 1.1;
 }
 
 .newsletter .newsletter-heading > :first-child {
@@ -66,8 +63,6 @@
   margin: 14px auto 0;
   max-width: 760px;
   color: #404041;
-  font-size: 1.05rem;
-  line-height: 1.5;
 }
 
 .newsletter .newsletter-subheading > :first-child {
@@ -202,7 +197,7 @@
   }
 
   .newsletter .newsletter-subheading {
-    font-size: 0.95rem;
+    font-size: var(--body-sm-size);
   }
 
   .newsletter .newsletter-form {

@@ -85,7 +85,8 @@ function buildSlide(data, row) {
     col.className = 'detailed-carousel-stat';
 
     if (stat.title) {
-      const h4 = document.createElement('h4');
+      // h3, not h4: this sits directly under the block's h2 and an h4 here skips a level.
+      const h4 = document.createElement('h3');
       h4.className = 'detailed-carousel-stat-title';
       h4.textContent = stat.title;
       col.append(h4);

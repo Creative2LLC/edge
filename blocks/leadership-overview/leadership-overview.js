@@ -381,7 +381,7 @@ function buildHeader(headingField, subheadingField) {
   }
 
   if (subheadingField.text || subheadingField.source) {
-    const subheading = document.createElement('div');
+    const subheading = document.createElement('p');
     subheading.className = 'leadership-overview-subheading';
     if (subheadingField.source) {
       moveFieldContent(subheadingField, subheading, subheadingField.text);
@@ -427,7 +427,7 @@ function buildFeaturedPanel(fields) {
   content.className = 'leadership-overview-feature-content';
 
   if (fields.featuredQuote.text || fields.featuredQuote.source) {
-    const quote = document.createElement('div');
+    const quote = document.createElement('p');
     quote.className = 'leadership-overview-feature-quote';
     if (fields.featuredQuote.source) {
       moveFieldContent(fields.featuredQuote, quote, fields.featuredQuote.text);

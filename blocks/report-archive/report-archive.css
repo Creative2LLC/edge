@@ -68,8 +68,8 @@
 
 .report-archive .report-archive-trigger-text {
   color: #002e5d;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-bold);
   line-height: 1.15;
 }
 
@@ -211,10 +211,6 @@
 @media (width <= 640px) {
   .report-archive .report-archive-trigger {
     padding: 16px 18px;
-  }
-
-  .report-archive .report-archive-trigger-text {
-    font-size: 1.1rem;
   }
 
   .report-archive .report-archive-panel-inner {

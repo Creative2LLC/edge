@@ -183,6 +183,27 @@ function normalizeColorValue(value) {
  */
 const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
 
+/**
+ * Card BODY text sizing is OFF: the body scale in styles/styles.css owns it
+ * (see audits/body-copy-audit.md). Gates `cardTextSize` and `defaultCardTextSize`.
+ *
+ * This is deliberately a SEPARATE flag from ALLOW_AUTHOR_TYPE_OVERRIDES above.
+ * `cards` is otherwise an author-sized block: `highlightTextSize` must keep working,
+ * because it drives `.cards-card-highlight` — the 96px stat figures on
+ * /data-and-impact/our-impact-report — and styles.css carries a deliberate rule
+ * letting headings inside those slots adopt the slot size. Folding this into the
+ * existing flag would take the highlight figures down with the body text, which is
+ * not what was asked for.
+ *
+ * TO RESTORE (two steps, both required):
+ *   1. Set this constant to true.
+ *   2. Put the real `options`/`component: text` back for `cardTextSize` and
+ *      `defaultCardTextSize` in _cards.json and drop the "(set by site styles)"
+ *      label suffix + the "Locked." description.
+ * Never DELETE either field: their cell indices are load-bearing on published pages.
+ */
+const ALLOW_AUTHOR_CARD_TEXT_SIZE = false;
+
 function normalizeCssLength(value, propertyName) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -435,7 +456,7 @@ function applySettings(block, settings = {}) {
     block.style.removeProperty('--cards-card-highlight-default');
   }
 
-  if (defaultCardTextSize) {
+  if (ALLOW_AUTHOR_CARD_TEXT_SIZE && defaultCardTextSize) {
     block.style.setProperty('--cards-card-text-size-default', defaultCardTextSize);
   } else {
     block.style.removeProperty('--cards-card-text-size-default');
@@ -497,8 +518,17 @@ function applyCardStyles(li, fields = {}, partial = false) {
     setCssVariable(li, '--cards-card-highlight', normalizeColorValue(fields.highlightTextColor));
   }
 
+  /* Card body text is owned by the global body scale — see ALLOW_AUTHOR_CARD_TEXT_SIZE.
+     Highlight sizing below is deliberately still live.
+     When disabled we pass '' rather than skipping, so an inline value left over from a
+     previous render is actively cleared — partial re-renders in the editor otherwise keep
+     a stale --cards-card-text-size on the element forever. */
   if (!partial || hasOwnField(fields, 'cardTextSize')) {
-    setCssVariable(li, '--cards-card-text-size', normalizeCssLength(fields.cardTextSize, 'font-size'));
+    setCssVariable(
+      li,
+      '--cards-card-text-size',
+      ALLOW_AUTHOR_CARD_TEXT_SIZE ? normalizeCssLength(fields.cardTextSize, 'font-size') : '',
+    );
   }
 
   if (!partial || hasOwnField(fields, 'highlightTextSize')) {

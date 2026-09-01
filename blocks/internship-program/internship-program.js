@@ -208,7 +208,8 @@ export default function decorate(block) {
 
   /* Section header */
   if (sectionHeaderField.value) {
-    const h4 = document.createElement('h4');
+    // h3, not h4: this sits directly under the block's h2 and an h4 here skips a level.
+    const h4 = document.createElement('h3');
     h4.className = 'internship-program-section-header';
     h4.textContent = sectionHeaderField.value;
     if (sectionHeaderField.source) moveInstrumentation(sectionHeaderField.source, h4);

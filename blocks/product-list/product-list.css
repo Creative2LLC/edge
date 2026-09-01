@@ -60,10 +60,8 @@
 
 /* Description */
 .product-list-card-description {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
-  line-height: 1.6;
   text-align: left;
 }
 

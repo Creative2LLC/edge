@@ -59,11 +59,9 @@
 
 /* Subheading */
 .card-row-detailed-subheading {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
-  line-height: 1.5;
   text-align: left;
 }
 
@@ -123,11 +121,9 @@
 
 /* Additional text (same style as subheading) */
 .card-row-detailed-additional-text {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
-  line-height: 1.5;
   text-align: left;
 }
 

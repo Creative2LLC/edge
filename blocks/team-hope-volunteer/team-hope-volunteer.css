@@ -37,11 +37,11 @@ main > .section > .team-hope-volunteer-wrapper {
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
   color: #007294;
-  font-size: 0.86rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--label-tracking);
 }
 
 .team-hope-volunteer-heading {
@@ -52,9 +52,8 @@ main > .section > .team-hope-volunteer-wrapper {
 .team-hope-volunteer-intro {
   max-width: 56rem;
   color: #4b4b4f;
-  font-size: clamp(1.04rem, 1.25vw, 1.2rem);
-  font-weight: 500;
-  line-height: 1.5;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .team-hope-volunteer-intro > :first-child {
@@ -198,7 +197,7 @@ main > .section > .team-hope-volunteer-wrapper {
 
 .team-hope-volunteer-label {
   color: #32363b;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 800;
   line-height: 1.25;
 }
@@ -284,9 +283,8 @@ main > .section > .team-hope-volunteer-wrapper {
   padding: 12px 14px;
   background: rgb(0 141 182 / 7%);
   color: #34404a;
-  font-size: 0.98rem;
-  font-weight: 700;
-  line-height: 1.45;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-bold);
 }
 
 .team-hope-volunteer-reference-wrap,

@@ -36,12 +36,12 @@ main > .section > .split-card-carousel-wrapper {
 
 /* Section description */
 .split-card-carousel .split-card-carousel-description {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   max-width: 680px;
   margin: 0 0 40px;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 .split-card-carousel .split-card-carousel-title + .split-card-carousel-description {
@@ -130,11 +130,9 @@ main > .section > .split-card-carousel-wrapper {
 
 /* Subheading */
 .split-card-carousel .split-card-carousel-subheading {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 24px;
-  line-height: 1.5;
   max-width: 540px;
 }
 
@@ -384,8 +382,7 @@ main > .section > .split-card-carousel-wrapper {
 }
 
 .split-card-carousel.variant-3 .split-card-carousel-subheading {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   max-width: 587px;
 }
 

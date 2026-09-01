@@ -27,9 +27,7 @@ main > .section > .terms-content-wrapper {
 
 .terms-content-body {
   color: #404041;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.62;
+  font-weight: var(--body-weight-medium);
 }
 
 .terms-content-body > :first-child {
@@ -89,7 +87,7 @@ main > .section > .terms-content-wrapper {
 
 .terms-content-body strong,
 .terms-content-body b {
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
 }
 
 .terms-content-body hr {
@@ -120,8 +118,6 @@ main > .section > .terms-content-wrapper {
 .terms-content-placeholder-body {
   margin-top: 8px;
   color: #5f6e7f;
-  font-size: 16px;
-  line-height: 1.5;
 }
 
 @media (width <= 700px) {
@@ -136,10 +132,5 @@ main > .section > .terms-content-wrapper {
 
   .terms-content-title {
     margin-bottom: 30px;
-  }
-
-  .terms-content-body {
-    font-size: 16px;
-    line-height: 1.58;
   }
 }

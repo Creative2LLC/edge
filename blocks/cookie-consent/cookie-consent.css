@@ -37,8 +37,7 @@
 .cookie-consent-text {
   margin: 10px 0 0;
   color: #3f5567;
-  font-size: 0.96rem;
-  line-height: 1.48;
+  font-size: var(--body-sm-size);
 }
 
 .cookie-consent-text a {
@@ -141,8 +140,8 @@
 
 .cookie-consent-choice-description {
   color: #546475;
-  font-size: 0.88rem;
-  line-height: 1.42;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
 }
 
 .cookie-consent-switch {

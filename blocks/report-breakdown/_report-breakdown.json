@@ -104,11 +104,17 @@
           "value": "No report data available."
         },
         {
-          "component": "text",
+          "component": "select",
           "valueType": "string",
           "name": "bodyTextSize",
-          "label": "Body Text Font Size",
-          "description": "Optional CSS length for the body text, such as 1.25rem, 20px, or 125%. Leave blank for the default."
+          "label": "Body Text Font Size (set by site styles)",
+          "description": "Locked. Body text size comes from the site-wide body scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in report-breakdown.js and restore this field.",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
         },
         {
           "component": "select",

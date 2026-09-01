@@ -315,7 +315,7 @@ function buildHeader(fields) {
   }
 
   if (fields.subheading.text || fields.subheading.source) {
-    const subheading = document.createElement('div');
+    const subheading = document.createElement('p');
     subheading.className = 'partners-showcase-subheading';
     if (fields.subheading.source) {
       moveFieldContent(fields.subheading, subheading, fields.subheading.text);

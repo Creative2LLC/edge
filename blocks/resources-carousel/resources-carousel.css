@@ -95,8 +95,7 @@
 .resources-carousel .resources-carousel-card-subtitle {
   margin: 0;
   color: #516272;
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: var(--caption-size);
 }
 
 .resources-carousel .resources-carousel-spacer {
@@ -191,7 +190,7 @@
 .resources-carousel .resources-carousel-message {
   padding: 1.5rem;
   color: #516272;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
 }
 
 @media (width <= 700px) {

@@ -34,8 +34,7 @@
 
 .regional-offices .regional-offices-subheading {
   color: #404041;
-  font-size: 1.3rem;
-  line-height: 1.45;
+  font-size: var(--body-lg-size);
 }
 
 .regional-offices .regional-offices-subheading > :first-child {
@@ -124,8 +123,7 @@
   max-width: 370px;
   margin-bottom: 24px;
   color: #404041;
-  font-size: 1.05rem;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 .regional-offices .regional-offices-card-body > :first-child {
@@ -226,8 +224,7 @@
 
 .regional-offices.regional-offices-boxed .regional-offices-card-body {
   margin: 0;
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
 }
 
 @keyframes regional-offices-float {

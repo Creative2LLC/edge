@@ -34,9 +34,9 @@
 
 .connect-grid .connect-grid-subheading {
   color: #404041;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.42;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
 }
 
 .connect-grid .connect-grid-subheading > :first-child {
@@ -163,7 +163,6 @@
 
 .connect-grid .connect-grid-card-description {
   color: var(--connect-grid-description-color);
-  line-height: 1.45;
 }
 
 /* Rich-text description: first paragraph small, subsequent paragraphs
@@ -171,12 +170,12 @@
 .connect-grid .connect-grid-card-description > * {
   margin: 0;
   font-size: var(--connect-grid-description-size);
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
 }
 
 .connect-grid .connect-grid-card-description > * + * {
   margin-top: 16px;
-  font-size: 24px;
+  font-size: var(--deck-size);
 }
 
 .connect-grid .connect-grid-card-divider {
@@ -205,7 +204,7 @@
   margin: 0;
   color: var(--connect-grid-method-label-color);
   font-size: var(--connect-grid-method-label-size);
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   line-height: 1.2;
 }
 

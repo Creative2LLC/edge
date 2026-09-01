@@ -57,8 +57,8 @@
   max-width: 840px;
   margin: 24px 0 0;
   font-size: clamp(21px, 2.8vw, 32px);
-  font-weight: 500;
-  line-height: 1.35;
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
   color: #404041;
 }
 
@@ -159,7 +159,7 @@
 .numbered-cards-custom-carousel-layout .numbered-cards-custom-number-text {
   display: inline-block;
   font-size: 54px;
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   line-height: 1;
   letter-spacing: -0.04em;
   color: var(--numbered-cards-custom-number-color, #12a0ca);
@@ -192,9 +192,7 @@
 .numbered-cards-custom .numbered-cards-custom-card-body {
   flex: 1 0 auto;
   margin-top: 16px;
-  font-size: 17px;
-  font-weight: 500;
-  line-height: 1.5;
+  font-weight: var(--body-weight-medium);
   color: var(--numbered-cards-custom-body-color, #fff);
   transition: color 0.25s ease;
 }
@@ -434,7 +432,7 @@
 
   .numbered-cards-custom .numbered-cards-custom-subtitle {
     margin-top: 18px;
-    font-size: 20px;
+    font-size: var(--body-lg-size);
   }
 
   .numbered-cards-custom-grid-layout .numbered-cards-custom-grid {
@@ -468,10 +466,6 @@
     font-size: 22px;
   }
 
-  .numbered-cards-custom .numbered-cards-custom-card-body {
-    font-size: 16px;
-  }
-
   .numbered-cards-custom .numbered-cards-custom-card-cta {
     margin-top: 20px;
   }
@@ -480,10 +474,6 @@
 @media (width <= 560px) {
   .numbered-cards-custom .numbered-cards-custom-wrapper {
     padding: 48px 16px 44px;
-  }
-
-  .numbered-cards-custom .numbered-cards-custom-subtitle {
-    font-size: 18px;
   }
 
   .numbered-cards-custom .numbered-cards-custom-controls {

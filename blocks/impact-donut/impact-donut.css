@@ -40,10 +40,6 @@
   max-width: 825px;
   margin: 0 0 24px;
   color: var(--impact-donut-heading-color);
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
 }
 
 .impact-donut .impact-donut-heading > :first-child {
@@ -58,9 +54,8 @@
   max-width: 825px;
   margin-bottom: 40px;
   color: var(--impact-donut-body-color);
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 1.35;
+  font-size: var(--body-lg-size);
+  line-height: var(--caption-line-height);
 }
 
 .impact-donut .impact-donut-body > :first-child {
@@ -151,8 +146,7 @@
 .impact-donut .impact-donut-placeholder-body {
   margin: 0;
   color: #5f6e7f;
-  font-size: 0.98rem;
-  line-height: 1.5;
+  font-size: var(--body-sm-size);
 }
 
 .impact-donut .impact-donut-stat-value {
@@ -167,8 +161,6 @@
 .impact-donut .impact-donut-stat-label {
   margin: 0;
   color: var(--impact-donut-stat-label-color);
-  font-size: 1rem;
-  line-height: 1.45;
 }
 
 .impact-donut .impact-donut-actions {
@@ -319,8 +311,7 @@
 .impact-donut .impact-donut-legend-label {
   margin: 0;
   color: var(--impact-donut-stat-label-color);
-  font-size: 1rem;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 @media (width <= 1100px) {
@@ -376,9 +367,6 @@
     order: 1;
     text-align: center;
   }
-
-
-
 
   .impact-donut .impact-donut-stat {
     padding: 24px 0;

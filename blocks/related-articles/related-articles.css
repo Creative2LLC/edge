@@ -164,8 +164,8 @@
 .related-articles .related-articles-card-date {
   margin: 0;
   color: #6b7c8d;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
 }
 
 .related-articles .related-articles-card-title {
@@ -176,8 +176,7 @@
 .related-articles .related-articles-card-excerpt {
   margin: 0;
   color: #516272;
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: var(--body-sm-size);
 }
 
 .related-articles .related-articles-card-link {

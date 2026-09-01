@@ -33,11 +33,11 @@
 
 /* Subheading */
 .need-help-subheading {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 40px;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
   text-align: center;
   max-width: 885px;
 }
@@ -71,11 +71,9 @@
 
 /* Card subheading */
 .need-help-card-subheading {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 16px;
-  line-height: 1.5;
 }
 
 /* Card link */
@@ -105,7 +103,7 @@
   }
 
   .need-help-subheading {
-    font-size: 20px;
+    font-size: var(--body-lg-size);
   }
 
   .need-help-cards {
@@ -130,7 +128,6 @@
   }
 
   .need-help-subheading {
-    font-size: 18px;
     margin-bottom: 28px;
   }
 

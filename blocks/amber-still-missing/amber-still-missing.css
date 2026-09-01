@@ -11,9 +11,7 @@
 .amber-still-missing-intro {
   margin: 0 0 16px;
   color: #3f4b53;
-  font-size: 16px;
   font-style: italic;
-  line-height: 1.55;
 }
 
 .amber-still-missing-accordion {
@@ -362,8 +360,7 @@
 .amber-still-missing .amber-still-missing-answer {
   padding: 0 30px 30px;
   color: #4d4d52;
-  font-size: 1.03rem;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   line-height: 1.7;
   opacity: 0;
   transform: translateY(-8px);
@@ -427,6 +424,6 @@
 
   .amber-still-missing .amber-still-missing-answer {
     padding: 0 20px 20px;
-    font-size: 0.98rem;
+    font-size: var(--body-sm-size);
   }
 }

@@ -114,9 +114,7 @@
   padding: 40px;
   background: var(--gallery-grid-text-bg, #007294);
   color: var(--gallery-grid-text-color, #fff);
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1.5;
+  font-weight: var(--body-weight-bold);
 }
 
 .gallery-grid .gallery-grid-text > :first-child {

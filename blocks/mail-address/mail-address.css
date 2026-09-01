@@ -50,10 +50,8 @@
 }
 
 .mail-address-content {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
-  line-height: 1.6;
   text-align: left;
 }
 
@@ -62,7 +60,7 @@
 }
 
 .mail-address-content p:first-child {
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
 }
 
 /* ===== RESPONSIVE ===== */

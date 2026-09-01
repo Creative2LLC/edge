@@ -66,8 +66,8 @@
   gap: 0.45rem;
   margin-bottom: 1rem;
   color: #0d6e8c;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-bold);
   text-decoration: none;
 }
 
@@ -95,8 +95,8 @@
   align-items: center;
   margin-top: 1rem;
   color: #41505e;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-strong);
 }
 
 .article-detail .article-detail-meta-separator {
@@ -107,7 +107,6 @@
   max-width: 58rem;
   margin: 1.15rem 0 0;
   color: #475564;
-  font-size: clamp(1rem, 2vw, 1.15rem);
   line-height: 1.75;
 }
 
@@ -119,8 +118,8 @@
   border-radius: 999px;
   background: rgb(238 244 247 / 92%);
   color: #30424d;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
   text-decoration: none;
 }
 
@@ -160,7 +159,7 @@
 
 .article-detail .article-detail-body {
   color: #293847;
-  font-size: 1rem;
+  font-size: var(--body-size);
   line-height: 1.8;
 }
 
@@ -213,8 +212,8 @@
 
 .article-detail .article-detail-body figcaption {
   color: #678;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: var(--caption-size);
+  line-height: var(--body-line-height);
   text-align: center;
 }
 

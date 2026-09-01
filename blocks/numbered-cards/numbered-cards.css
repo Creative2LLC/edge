@@ -45,11 +45,11 @@
 }
 
 .numbered-cards .numbered-cards-subtitle {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 12px 0 0;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
   transition-delay: 70ms;
 }
 
@@ -114,10 +114,8 @@
 }
 
 .numbered-cards-grid-layout .numbered-cards-card-body {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #fff;
-  line-height: 1.5;
 }
 
 .numbered-cards-grid-layout .numbered-cards-card-body p {
@@ -168,7 +166,7 @@
 
 .numbered-cards-carousel-layout .numbered-cards-number-text {
   font-size: 48px;
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   color: #fff;
 }
 
@@ -185,10 +183,8 @@
 }
 
 .numbered-cards-carousel-layout .numbered-cards-card-body {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #fff;
-  line-height: 1.5;
 }
 
 .numbered-cards-carousel-layout .numbered-cards-card-body p {
@@ -307,10 +303,6 @@
 @media (width <= 768px) {
   .numbered-cards .numbered-cards-wrapper {
     padding: 48px var(--gutter);
-  }
-
-  .numbered-cards .numbered-cards-subtitle {
-    font-size: 18px;
   }
 
   .numbered-cards .numbered-cards-header {

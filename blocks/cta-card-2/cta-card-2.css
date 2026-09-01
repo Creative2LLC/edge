@@ -47,7 +47,7 @@
   font-weight: 500 !important;
   color: #404041;
   margin: 0;
-  line-height: 1.5;
+  line-height: var(--body-line-height);
 }
 
 .cta-card-2 .cta-card-2-subtitle p {

@@ -70,8 +70,7 @@
 .image .image-caption {
   margin-top: 10px;
   color: #555;
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: var(--body-sm-size);
 }
 
 .image.caption-align-left .image-caption {

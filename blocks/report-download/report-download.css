@@ -77,8 +77,7 @@
   border: 1px dashed #c5d5df;
   border-radius: 18px;
   color: #5f6e7f;
-  font-size: 0.98rem;
-  line-height: 1.5;
+  font-size: var(--body-sm-size);
   text-align: center;
   background: rgb(20 145 191 / 4%);
 }
@@ -101,9 +100,9 @@
 .report-download .report-download-body {
   max-width: 516px;
   color: #404041;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.35;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
 }
 
 .report-download .report-download-body > :first-child {
@@ -218,10 +217,6 @@
     max-width: none;
     margin-left: 0;
     justify-content: flex-start;
-  }
-
-  .report-download .report-download-body {
-    font-size: 1.12rem;
   }
 
   .report-download .report-download-button,

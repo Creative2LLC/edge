@@ -165,12 +165,9 @@
 
 /* Card bio */
 .leadership-team-card-bio {
-  font-size: 17px;
-  font-weight: 400;
   color: #404041;
   margin: 0 0 8px;
   padding: 0;
-  line-height: 1.5;
   text-align: left;
   width: 100%;
   max-width: 194px;
@@ -246,6 +243,6 @@
   }
 
   .leadership-team-card-bio {
-    font-size: 15px;
+    font-size: var(--body-sm-size);
   }
 }

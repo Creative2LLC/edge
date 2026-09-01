@@ -186,6 +186,19 @@ function hasTableLabels(value) {
   return String(value || '').split('|').some((part) => part.trim());
 }
 
+/**
+ * Per-instance body sizing is OFF: the body scale in styles/styles.css owns it
+ * (see audits/body-copy-audit.md). Gates `bodyTextSize`.
+ *
+ * TO RESTORE (two steps, both required):
+ *   1. Set this constant to true.
+ *   2. Put `component: "text"` and the original description back for `bodyTextSize`
+ *      in _report-breakdown.json and drop the "(set by site styles)" label suffix.
+ * Step 2 alone does nothing; step 1 alone leaves a one-choice dropdown.
+ * Never DELETE the field — its cell index is load-bearing on published pages.
+ */
+const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
+
 function normalizeCssLength(value) {
   const normalized = String(value || '').trim();
   if (!normalized) return '';
@@ -673,7 +686,7 @@ function buildTableRow(entry, index) {
     setItemLabel(row, [entry.reportType, entry.year]);
   }
 
-  const type = document.createElement('div');
+  const type = document.createElement('p');
   type.className = 'report-breakdown-type';
 
   const count = document.createElement('div');
@@ -951,7 +964,9 @@ export default async function decorate(block) {
   const tableStyleField = getField(block, 'tableStyle', BLOCK_ROW_INDEX);
   const rows = [...block.querySelectorAll(':scope > div')];
   const requestedYear = defaultYearField.value || DEFAULTS.defaultYear;
-  const bodyTextSize = normalizeCssLength(bodyTextSizeField.value);
+  const bodyTextSize = ALLOW_AUTHOR_TYPE_OVERRIDES
+    ? normalizeCssLength(bodyTextSizeField.value)
+    : '';
   const tableStyle = normalizeTableStyle(tableStyleField.value);
   const {
     entries: authoredEntries,

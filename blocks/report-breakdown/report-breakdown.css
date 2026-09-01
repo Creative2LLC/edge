@@ -41,9 +41,7 @@
   max-width: 760px;
   margin-inline: auto;
   color: #404041;
-  font-size: var(--report-breakdown-body-font-size, clamp(1rem, 1.3vw, 1.15rem));
-  font-weight: 400;
-  line-height: 1.6;
+  font-size: var(--body-size);
   text-align: center;
 }
 
@@ -274,7 +272,7 @@
 .report-breakdown .report-breakdown-total-label {
   color: #113a67;
   font-size: clamp(1.35rem, 2vw, 1.8rem);
-  font-weight: 700;
+  font-weight: var(--body-weight-bold);
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
@@ -355,8 +353,6 @@
 .report-breakdown .report-breakdown-empty-body {
   margin: 0;
   color: #5f6e7f;
-  font-size: 1rem;
-  line-height: 1.5;
 }
 
 @media (width <= 1280px) {
@@ -400,11 +396,6 @@
   .report-breakdown .report-breakdown-chart {
     width: min(100%, 1200px);
     transform: none;
-  }
-}
-
-@media (width <= 900px) {.report-breakdown .report-breakdown-body-text {
-    font-size: 18px;
   }
 }
 

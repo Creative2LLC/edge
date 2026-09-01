@@ -23,16 +23,10 @@
 }
 
 .leadership-header-subheading {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 auto;
   max-width: 1275px;
-  line-height: 1.5;
 }
 
-/* Mobile responsive */
-@media (width <= 900px) {.leadership-header-subheading {
-    font-size: 18px;
-  }
-}

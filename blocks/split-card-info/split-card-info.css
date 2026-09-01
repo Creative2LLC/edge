@@ -114,28 +114,25 @@
 /* Subheading with Number */
 .split-card-info-subheading {
   margin: 0 0 16px;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 .split-card-info-number {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-bold);
   color: #404041;
 }
 
 .split-card-info-text {
-  font-size: 17px;
-  font-weight: 600;
+  font-weight: var(--body-weight-strong);
   color: #404041;
 }
 
 /* Body Text */
 .split-card-info-body {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 24px;
-  line-height: 1.6;
 }
 
 .split-card-info-body p {
@@ -165,8 +162,7 @@
   border-radius: 99px;
   background-color: #008db6;
   color: #fff;
-  font-size: 16px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   font-family: inherit;
   text-decoration: none;
   cursor: pointer;
@@ -210,15 +206,15 @@
   }
 
   .split-card-info-number {
-    font-size: 20px;
+    font-size: var(--body-lg-size);
   }
 
   .split-card-info-text {
-    font-size: 15px;
+    font-size: var(--body-sm-size);
   }
 
   .split-card-info-body {
-    font-size: 15px;
+    font-size: var(--body-sm-size);
   }
 }
 

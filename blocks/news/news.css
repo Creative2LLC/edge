@@ -23,11 +23,8 @@
 }
 
 .news .news-subheading {
-  font-size: 17px;
-  font-weight: 400;
   color: #404041;
   margin: 8px 0 0;
-  line-height: 1.5;
 }
 
 .news .news-header-button,
@@ -95,11 +92,9 @@
 }
 
 .news .news-featured-subheading {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 16px;
-  line-height: 1.5;
 }
 
 /* Tag badges */
@@ -180,11 +175,9 @@
 }
 
 .news .news-card-subheading {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 16px;
-  line-height: 1.5;
 }
 
 /* Hidden cards */

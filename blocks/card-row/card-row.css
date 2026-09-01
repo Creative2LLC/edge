@@ -59,11 +59,9 @@
 
 /* Horizontal body text */
 .card-row-horizontal .card-row-card-body {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
-  line-height: 1.5;
   text-align: center;
   max-width: 314px;
   width: 100%;
@@ -117,11 +115,9 @@
 
 /* Vertical body text */
 .card-row-vertical .card-row-card-body {
-  font-size: 17px;
-  font-weight: 500;
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
-  line-height: 1.5;
   text-align: center;
   max-width: 241px;
 }

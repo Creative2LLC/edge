@@ -39,7 +39,7 @@
   max-width: 780px;
   color: #404041;
   font-size: clamp(1.25rem, 2vw, 1.9rem);
-  line-height: 1.38;
+  line-height: var(--caption-line-height);
 }
 
 .historical-trends .historical-trends-subheading > :first-child {
@@ -162,8 +162,7 @@
 
 .historical-trends .historical-trends-axis-label {
   color: #404041;
-  font-size: 1rem;
-  font-weight: 600;
+  font-weight: var(--body-weight-strong);
   line-height: 1.2;
 }
 
@@ -239,8 +238,6 @@
 .historical-trends .historical-trends-card-body {
   margin: 0;
   color: #404041;
-  font-size: 1.08rem;
-  line-height: 1.5;
 }
 
 .historical-trends .historical-trends-card-body > :first-child {
@@ -306,7 +303,7 @@
   }
 
   .historical-trends .historical-trends-axis-label {
-    font-size: 0.76rem;
+    font-size: var(--caption-size);
   }
 
   .historical-trends .historical-trends-cards {
@@ -337,7 +334,7 @@
 
   .historical-trends .historical-trends-axis-label {
     justify-self: center;
-    font-size: 0.78rem;
+    font-size: var(--caption-size);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.01em;
   }

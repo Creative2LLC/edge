@@ -22,8 +22,7 @@
 .poster-map-header p {
   margin: 0;
   color: #243846;
-  font-size: 18px;
-  line-height: 1.4;
+  line-height: var(--caption-line-height);
 }
 
 .poster-map-body {
@@ -74,8 +73,7 @@
 .poster-map-viewer p {
   margin: 16px 0 0;
   color: #243846;
-  font-size: 18px;
-  line-height: 1.35;
+  line-height: var(--caption-line-height);
 }
 
 .poster-map-media img {
@@ -143,11 +141,6 @@
 
   .poster-map-inner {
     width: min(1180px, calc(100% - 24px));
-  }
-
-.poster-map-header p,
-  .poster-map-viewer p {
-    font-size: 16px;
   }
 
   .poster-map-footer {

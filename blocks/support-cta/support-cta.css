@@ -45,10 +45,6 @@
   max-width: 1228px;
   margin: 0;
   color: #002e5d;
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 1.06;
-  letter-spacing: -0.04em;
   opacity: 0;
   transform: translateY(22px);
   transition:
@@ -67,9 +63,8 @@
   max-width: 1228px;
   margin: 26px 0 0;
   color: #404041;
-  font-size: 24px;
-  font-weight: 400;
-  line-height: 1.38;
+  font-size: var(--deck-size);
+  line-height: var(--caption-line-height);
   opacity: 0;
   transform: translateY(22px);
   transition:
@@ -118,8 +113,7 @@
 }
 
 .support-cta .support-cta-button-label {
-  font-size: 18.18px;
-  font-weight: 600;
+  font-weight: var(--body-weight-strong);
   line-height: 1.15;
 }
 

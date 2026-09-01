@@ -1,8 +1,26 @@
+/* Full-bleed WITHOUT viewport units.
+ *
+ * This used to be `width: 100vw` + `transform: translateX(-50%)`, which was wrong
+ * twice over:
+ *
+ * 1. `100vw` is the viewport INCLUDING the classic scrollbar, while the usable
+ *    width excludes it. On stock Windows Chrome that is ~15px of overhang to the
+ *    right, and `body { overflow-x: clip }` swallows the scrollbar that would
+ *    otherwise reveal it — so the block silently ran off-page. It does not
+ *    reproduce in headless Chrome, which uses zero-width overlay scrollbars.
+ * 2. The `translateX(-50%)` had no matching `left: 50%`, so it was only ever
+ *    harmless because `main .block.scroll-reveal` (0,3,1) overrides transform and
+ *    beats this rule (0,1,0). Had the block ever rendered without scroll-reveal it
+ *    would have jumped half its own width to the left.
+ *
+ * `main > .section > .partners-showcase-wrapper` below already clears the
+ * container's max-width and padding, so the wrapper IS the usable width and
+ * `width: 100%` is true full-bleed — and immune to the scrollbar.
+ */
 .partners-showcase {
-  width: 100vw;
+  width: 100%;
   padding: 96px 0 92px;
   position: relative;
-  transform: translateX(-50%);
   box-sizing: border-box;
   background: #fff;
   overflow: hidden;
@@ -38,7 +56,6 @@ main > .section > .partners-showcase-wrapper {
   margin-top: 20px;
   color: #404041;
   font-size: clamp(20px, 2.4vw, 32px);
-  font-weight: 400;
   line-height: 1.2;
 }
 
@@ -52,12 +69,13 @@ main > .section > .partners-showcase-wrapper {
   margin-bottom: 0;
 }
 
+/* Its parent .partners-showcase is already the full usable width, so the
+   break-out idiom is unnecessary here — and `100vw` carried the same scrollbar
+   overhang described above. */
 .partners-showcase .partners-showcase-logo-band {
   position: relative;
-  left: 50%;
-  width: 100vw;
+  width: 100%;
   margin-top: 72px;
-  transform: translateX(-50%);
 }
 
 .partners-showcase .partners-showcase-logo-marquee {
@@ -198,18 +216,15 @@ main > .section > .partners-showcase-wrapper {
 .partners-showcase .partners-showcase-testimonial-quote {
   margin-top: 26px;
   color: #404041;
-  font-size: clamp(18px, 1.9vw, 26px);
-  font-weight: 400;
-  line-height: 1.42;
+  font-size: var(--deck-size);
+  line-height: var(--caption-line-height);
 }
 
 .partners-showcase .partners-showcase-testimonial-attribution {
   margin: auto 0 0;
   padding-top: 28px;
   color: #404041;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.45;
+  font-weight: var(--body-weight-bold);
 }
 
 .partners-showcase .partners-showcase-testimonial-attribution::before {
@@ -314,8 +329,7 @@ main > .section > .partners-showcase-wrapper {
 
   .partners-showcase .partners-showcase-subheading {
     margin-top: 16px;
-    font-size: 18px;
-    line-height: 1.35;
+    line-height: var(--caption-line-height);
   }
 
   .partners-showcase .partners-showcase-logo-band {
@@ -351,13 +365,12 @@ main > .section > .partners-showcase-wrapper {
 
   .partners-showcase .partners-showcase-testimonial-quote {
     margin-top: 22px;
-    font-size: 20px;
-    line-height: 1.45;
+    font-size: var(--body-lg-size);
   }
 
   .partners-showcase .partners-showcase-testimonial-attribution {
     padding-top: 24px;
-    font-size: 15px;
+    font-size: var(--body-sm-size);
   }
 
   .partners-showcase .partners-showcase-footer {

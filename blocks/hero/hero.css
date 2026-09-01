@@ -188,8 +188,8 @@
 .hero .hero-richtext p {
   margin: 24px 0 0;
   max-width: 960px;
-  font-size: clamp(18px, 2.3vw, 24px);
-  line-height: 1.35;
+  font-size: var(--deck-size);
+  line-height: var(--caption-line-height);
   color: #404041;
 }
 
@@ -232,9 +232,8 @@
 .hero .hero-text-html {
   margin-top: 18px;
   max-width: 760px;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.45;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   white-space: break-spaces;
   overflow-wrap: anywhere;
@@ -417,9 +416,9 @@
 
 .hero .hero-side-panel-text p {
   margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.35;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
   color: rgb(255 255 255 / 92%);
 }
 
@@ -437,22 +436,20 @@
 
 .hero .hero-side-panel-footer p {
   margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.45;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-medium);
   color: rgb(255 255 255 / 78%);
 }
 
 .hero .hero-side-panel-text p:first-child {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-bold);
 }
 
 .hero .hero-text-html p:empty,
 .hero .hero-text-html p:has(br:only-child) {
   min-height: 1em;
 }
-
 
 .hero .hero-side-panel-btn,
 .hero .hero-side-panel-btn:any-link {
@@ -539,8 +536,8 @@
 }
 
 .hero.hero-variant-homepage .hero-text-html {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
 }
 
 /* The homepage headline sits deliberately above the h1 scale. It reads from a
@@ -578,11 +575,7 @@
 
   .hero .hero-richtext p {
     margin-top: 18px;
-    font-size: clamp(17px, 2.4vw, 20px);
-  }
-
-  .hero .hero-text-html {
-    font-size: 18px;
+    font-size: var(--body-lg-size);
   }
 
   .hero .hero-side-panel {
@@ -612,12 +605,11 @@
 
   .hero .hero-richtext p {
     margin-top: 14px;
-    font-size: clamp(16px, 5vw, 20px);
+    font-size: var(--body-lg-size);
   }
 
   .hero .hero-text-html {
     margin-top: 14px;
-    font-size: 16px;
   }
 
   .hero .hero-breadcrumbs {
@@ -665,10 +657,6 @@
     padding: 20px 18px;
   }
 
-  .hero .hero-side-panel-text p {
-    font-size: 16px;
-  }
-
   .hero .hero-side-panel-btn-primary,
   .hero .hero-side-panel-btn-primary:any-link,
   .hero .hero-side-panel-btn-secondary,
@@ -698,8 +686,8 @@
   }
 
   .hero .hero-richtext p {
-    font-size: 15px;
-    line-height: 1.4;
+    font-size: var(--body-sm-size);
+    line-height: var(--caption-line-height);
   }
 
   .hero .hero-breadcrumbs {
@@ -713,5 +701,4 @@
     font-size: 12px;
   }
 }
-
 

@@ -38,11 +38,11 @@ main > .section > .code-adam-kit-wrapper {
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
   color: #007294;
-  font-size: 0.86rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--label-tracking);
 }
 
 .code-adam-kit-heading {
@@ -53,9 +53,8 @@ main > .section > .code-adam-kit-wrapper {
 .code-adam-kit-intro {
   max-width: 56rem;
   color: #4b4b4f;
-  font-size: clamp(1.04rem, 1.25vw, 1.2rem);
-  font-weight: 500;
-  line-height: 1.5;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .code-adam-kit-intro > :first-child {
@@ -133,7 +132,7 @@ main > .section > .code-adam-kit-wrapper {
 
 .code-adam-kit-label {
   color: #32363b;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 800;
   line-height: 1.25;
 }

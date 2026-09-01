@@ -105,10 +105,14 @@ function getLiveFallbacks(block) {
   };
 }
 
-function buildRich(className, field) {
+/**
+ * `tag` defaults to div only because the two headline slots are still divs —
+ * see the note at their call sites. Text slots should pass a real element.
+ */
+function buildRich(className, field, tag = 'div') {
   if (!field?.source && !field?.html && !field?.text) return null;
 
-  const el = document.createElement('div');
+  const el = document.createElement(tag);
   el.className = className;
 
   if (field.source) {
@@ -196,13 +200,20 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-footer-content';
 
+  /* These two are still <div>s, and that is a known gap rather than an oversight.
+     They render one sentence split across two visual sizes — "Every child
+     deserves" at 60px, "a safe childhood." at 96px — so the correct markup is a
+     SINGLE heading with a span for the second line, not two headings. Merging
+     them changes the authored field structure, so it needs a decision rather
+     than a rename. Neither size maps to a scale token either (60px has no token;
+     96px is --display-lg-size). See audits/body-copy-audit.md. */
   const h1 = buildRich('hero-footer-heading-1', headingField);
   if (h1) content.append(h1);
 
   const h2 = buildRich('hero-footer-heading-2', headingLargeField);
   if (h2) content.append(h2);
 
-  const sub = buildRich('hero-footer-subheading', headingSubtextField);
+  const sub = buildRich('hero-footer-subheading', headingSubtextField, 'p');
   if (sub) content.append(sub);
 
   /* buttons */

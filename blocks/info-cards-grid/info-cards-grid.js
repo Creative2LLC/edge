@@ -483,7 +483,7 @@ function buildTitle(content, data) {
 function buildSubtitle(content, data) {
   if (!hasFieldContent(data.subtitleField)) return;
 
-  const subtitle = document.createElement('div');
+  const subtitle = document.createElement('p');
   subtitle.className = 'info-cards-grid-card-subtitle';
   moveFieldContent(data.subtitleField, subtitle);
   if (!subtitle.textContent.trim()) return;

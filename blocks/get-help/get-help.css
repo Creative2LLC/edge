@@ -166,18 +166,14 @@
   margin: 4px 0 0;
   color: #546475;
   font-family: var(--body-font-family);
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.45;
+  font-weight: var(--body-weight-medium);
 }
 
 .get-help .get-help-note {
   margin: 24px 0 0;
   color: #7c8691;
   font-family: var(--body-font-family);
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.45;
+  font-weight: var(--body-weight-medium);
 }
 
 @media (width < 900px) {
@@ -223,14 +219,6 @@
 
   .get-help .get-help-item-link::after {
     font-size: 2.2rem;
-  }
-
-  .get-help .get-help-item-description {
-    font-size: 1.05rem;
-  }
-
-  .get-help .get-help-note {
-    font-size: 1rem;
   }
 
   .get-help .get-help-close {
