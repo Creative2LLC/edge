@@ -3,6 +3,7 @@ import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import { decorateButtonText } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
+import { showSkeleton, clearSkeleton, setButtonLoading } from '../../scripts/skeleton.js';
 import {
   DEFAULT_LIST_SORT,
   getListSortOptions,
@@ -1892,10 +1893,23 @@ function renderApiBrowser(block, config) {
     }
 
     state.loading = true;
-    if (!cardsContainer.children.length) {
+    // Placeholders only when the grid is empty. Appending a page under existing
+    // cards is a "Load more", where a wall of bones below real content reads as
+    // the list having broken; the button's own beacon is the signal there.
+    const isInitialFill = !cardsContainer.children.length;
+    if (isInitialFill) {
       count.textContent = 'Loading resources...';
+      showSkeleton(cardsContainer, {
+        count: Math.min(config.pageSize, 8),
+        item: 'resources-browser-card',
+        media: 'resources-browser-card-image',
+        body: 'resources-browser-card-content',
+        lines: ['pill', 'title', 'title-sm', 'text', 'text-sm'],
+        label: 'Loading resources',
+      });
     }
     loadMoreButton.disabled = true;
+    const restoreLoadMore = isInitialFill ? null : setButtonLoading(loadMoreButton);
     pagination.nav.querySelectorAll('button').forEach((button) => {
       button.disabled = true;
     });
@@ -1943,6 +1957,7 @@ function renderApiBrowser(block, config) {
       if (currentToken !== requestToken) return;
 
       if (usePagination) cardsContainer.replaceChildren();
+      clearSkeleton(cardsContainer);
       (payload.data || []).forEach((item) => {
         cardsContainer.append(buildResourceCard(mapApiResource(item), null, applyFacetValue));
       });
@@ -1969,12 +1984,16 @@ function renderApiBrowser(block, config) {
       loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
       updatePagination();
     } catch (error) {
+      // An abort means a newer request is already in flight and owns the
+      // placeholders, so they deliberately stay up rather than flashing out.
       if (error.name === 'AbortError') return;
+      clearSkeleton(cardsContainer);
       count.textContent = error?.message || 'Resources unavailable.';
       emptyState.hidden = cardsContainer.children.length > 0;
     } finally {
       if (currentToken === requestToken) {
         activeController = null;
+        if (restoreLoadMore) restoreLoadMore();
         loadMoreButton.disabled = false;
         state.loading = false;
       }

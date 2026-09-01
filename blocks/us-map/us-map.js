@@ -1,3 +1,5 @@
+import { showLoader, clearLoader } from '../../scripts/skeleton.js';
+
 /* Abbreviation → full name lookup */
 export const STATE_NAMES = {
   AL: 'Alabama',
@@ -505,7 +507,12 @@ export default async function decorate(block) {
     }) || legacySheetUrl,
   };
 
+  // Two link sources are tried in sequence, so this can be two round trips
+  // before anything is drawn. A map has no card shape worth faking, so the
+  // beacon stands in rather than a skeleton.
+  showLoader(block, { label: 'Loading state map' });
   const stateLinks = await loadStateLinks(config);
+  clearLoader(block);
 
   /* Load SVG map */
   const mapWrap = document.createElement('div');

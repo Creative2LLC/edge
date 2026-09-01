@@ -214,6 +214,32 @@
   /* The real content column width. Use when the PARENT already supplies the
      side padding and the child just needs to match the column. */
   --container-content: calc(var(--container) - 2 * var(--section-pad));
+
+  /* ------------------------------------------------------------------
+     LOADING STATES — see the LOADING SYSTEM section at the foot of this
+     file, and scripts/skeleton.js for the markup these style.
+
+     The highlight in the sweep is deliberately NOT white. A plain grey
+     shimmer is the one loading state every site has; running the light
+     through the brand teal on its way to white is what makes a NCMEC
+     skeleton recognisable as ours at a glance, and it costs nothing but
+     two extra colour stops.
+     ------------------------------------------------------------------ */
+  --skeleton-base: #e4e8ec;
+  --skeleton-highlight: #f8fbfc;
+  --skeleton-tint: rgb(0 141 182 / 16%);
+  --skeleton-radius: 6px;
+
+  /* One sweep across a bone. Slow enough to read as breathing rather than
+     as a progress bar promising imminent arrival. */
+  --skeleton-sweep: 1.7s;
+
+  /* Offset between neighbouring items in the cascade. At 90ms a four-column
+     grid puts each row a third of a cycle behind the one above it, which is
+     what produces the diagonal travel. */
+  --skeleton-cascade-step: 90ms;
+  --beacon-color: #007294;
+  --beacon-size: 56px;
 }
 
 /* Metric-matched fallback for Figtree.
@@ -1632,4 +1658,379 @@ main > .section.padding-y-lg {
 /* Retain eyebrow markup for future use while suppressing those labels site-wide. */
 [class*="eyebrow"] {
   display: none !important;
+}
+
+/* ====================================================================
+   LOADING SYSTEM
+   Skeleton placeholders + the beacon spinner. Markup comes from
+   scripts/skeleton.js; the tokens are in :root at the top of this file.
+
+   The identity is in two moves, both cheap, neither of which any block
+   has to opt into:
+
+   1. The sweep's highlight passes through brand teal on its way to
+      white. A flat grey shimmer is the loading state every site has;
+      the tint is what makes this one read as NCMEC's.
+
+   2. The sweep CASCADES across a grid rather than every tile pulsing in
+      lockstep. Each item carries --skeleton-index, which becomes a
+      NEGATIVE animation-delay below. Negative matters: the animation
+      starts mid-cycle, so the wave is already travelling on the first
+      painted frame instead of after a dead beat. In a four-column grid
+      the row below is four steps behind, which tilts the wave into a
+      diagonal for free — no JS needs to know the column count.
+
+   Block geometry is NEVER restated here. A skeleton wears the block's
+   own card / media / body classes on its WRAPPERS (see
+   createSkeletonItem) so it inherits that block's real grid, radius,
+   aspect-ratio and padding. Bones themselves stay class-free so their
+   shimmer is not overridden by the block's flat placeholder colours.
+   ==================================================================== */
+
+/* Content exposed to assistive tech only. The site had exactly one copy of
+   this, block-scoped inside general-inquiries; loading states need it in
+   several places, so it is a real utility now. */
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+/* --- Skeleton item ------------------------------------------------- */
+.skeleton-item {
+  /* Flash protection. A request that resolves inside 120ms removes the
+     skeleton before this delay elapses, so it never paints at all —
+     which is why call sites can stay synchronous and skip a minimum
+     display timer. `both` holds opacity 0 through the delay. */
+  animation: skeleton-fade-in 240ms ease-out 120ms both;
+}
+
+/* Generic layout, applied ONLY when there was no block class to borrow.
+   It cannot be a plain fallback on .skeleton-item: a borrowed card class
+   that happens not to declare `display` would still inherit this, and a
+   default gap between the media and the body opens a seam the real card
+   does not have (article-list's card is exactly that shape). */
+.skeleton-item.is-bare,
+.skeleton-body.is-bare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-body.is-bare {
+  flex: 1;
+}
+
+/* Holds the block's media geometry; the bone inside it does the shimmer. */
+.skeleton-media {
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- Bones ---------------------------------------------------------- */
+.skeleton-bone {
+  display: block;
+  flex: none;
+  width: 100%;
+  height: 1em;
+  border-radius: var(--skeleton-radius);
+  background-color: var(--skeleton-base);
+
+  /* Two tinted stops flanking the white core: the light reads as teal on
+     the way in and on the way out, white only at its peak. One tinted
+     stop looks like a rendering error; two looks intentional. */
+  background-image:
+    linear-gradient(
+      100deg,
+      var(--skeleton-base) 0%,
+      var(--skeleton-base) 32%,
+      var(--skeleton-tint) 42%,
+      var(--skeleton-highlight) 50%,
+      var(--skeleton-tint) 58%,
+      var(--skeleton-base) 68%,
+      var(--skeleton-base) 100%
+    );
+  background-repeat: no-repeat;
+  background-size: 220% 100%;
+  animation: skeleton-sweep var(--skeleton-sweep) linear infinite;
+
+  /* The cascade. Negative, so every bone is already mid-sweep on frame one. */
+  animation-delay: calc(var(--skeleton-index, 0) * var(--skeleton-cascade-step) * -1);
+}
+
+.skeleton-bone.is-title {
+  width: 78%;
+  height: 22px;
+}
+
+.skeleton-bone.is-title-sm {
+  width: 52%;
+  height: 22px;
+}
+
+.skeleton-bone.is-text {
+  height: 13px;
+}
+
+.skeleton-bone.is-text-sm {
+  width: 66%;
+  height: 13px;
+}
+
+.skeleton-bone.is-label {
+  width: 38%;
+  height: 11px;
+}
+
+.skeleton-bone.is-pill {
+  width: 96px;
+  height: 20px;
+  border-radius: 999px;
+}
+
+.skeleton-bone.is-button {
+  width: 150px;
+  height: 44px;
+  border-radius: 999px;
+}
+
+.skeleton-bone.is-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+
+.skeleton-bone.is-block {
+  height: 100%;
+  min-height: 180px;
+  border-radius: 10px;
+}
+
+/* Fills whatever .skeleton-media is sized to, so the wrapper keeps the
+   block's real aspect-ratio and this never has to guess one.
+
+   The highlight is pulled back here. A sweep tuned to read on a 13px
+   text bone becomes a hard glare when the same gradient is stretched
+   over a 320x270 card image — the band is simply much bigger, so the
+   same contrast lands far heavier. Dimming the highlight and widening
+   the background keeps one wave across the card instead of a spotlight
+   on the picture area. */
+.skeleton-bone.is-media {
+  --skeleton-highlight: #eef3f5;
+  --skeleton-tint: rgb(0 141 182 / 10%);
+
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background-size: 300% 100%;
+}
+
+/* A slow brand wash over the image area only. Bare shimmer on a large
+   rectangle reads as an empty box; this reads as a picture not yet
+   there, and it is the one place with room for a gradient to show. */
+.skeleton-bone.is-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 18%, rgb(0 141 182 / 12%), transparent 58%),
+    linear-gradient(135deg, rgb(0 38 77 / 7%), transparent 52%);
+}
+
+/* --- Beacon --------------------------------------------------------
+   For containers with no card shape worth faking: a map about to draw,
+   a form mid-submit, a panel whose height is unknown until data lands.
+   Rings pulse outward from a solid brand dot — a signal going out,
+   which is the right metaphor for this organisation and reads as
+   deliberate rather than as a stock spinner. */
+.skeleton-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: var(--space-10) 0;
+}
+
+.skeleton-beacon {
+  position: relative;
+  display: inline-block;
+  width: var(--beacon-size);
+  height: var(--beacon-size);
+}
+
+/* The core dot. Breathes slightly so the centre is never fully static
+   between ring emissions. */
+.skeleton-beacon::before {
+  content: "";
+  position: absolute;
+  inset: 38%;
+  border-radius: 50%;
+  background: var(--beacon-color);
+  animation: beacon-core 2.1s ease-in-out infinite;
+}
+
+.skeleton-beacon-ring {
+  position: absolute;
+  inset: 0;
+  border: 2.5px solid var(--beacon-color);
+  border-radius: 50%;
+  opacity: 0;
+  animation: beacon-pulse 2.1s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+/* Thirds of the cycle, so one ring is always mid-flight. */
+.skeleton-beacon-ring:nth-child(2) {
+  animation-delay: 0.7s;
+}
+
+.skeleton-beacon-ring:nth-child(3) {
+  animation-delay: 1.4s;
+}
+
+/* --- Inline / button states ---------------------------------------- */
+.skeleton-button-beacon {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.55em;
+  vertical-align: baseline;
+  border-radius: 50%;
+  background: currentcolor;
+  animation: beacon-core 1.2s ease-in-out infinite;
+}
+
+button.is-loading {
+  cursor: progress;
+}
+
+/* Indeterminate bar for a panel refreshing in place, where swapping the
+   content for a skeleton would throw away scroll position. */
+.skeleton-progress {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(0 114 148 / 14%);
+}
+
+.skeleton-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 38%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #00264d, var(--beacon-color), #008db6);
+  animation: skeleton-progress-slide 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+/* --- On dark surfaces ----------------------------------------------
+   Same construction, inverted. Several blocks sit on the navy, where
+   the light palette would glow like a lightbox. */
+.skeleton-on-dark,
+.skeleton-beacon.is-on-dark {
+  --skeleton-base: rgb(255 255 255 / 10%);
+  --skeleton-highlight: rgb(255 255 255 / 30%);
+  --skeleton-tint: rgb(0 190 232 / 22%);
+  --beacon-color: #6fd4ef;
+}
+
+/* --- Reduced motion -------------------------------------------------
+   Everything above is decorative motion carrying no information, so it
+   can stop outright. The bones stay visible — they still say "content
+   is coming" — and the beacon holds one static ring so it does not
+   vanish entirely. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-item,
+  .skeleton-bone,
+  .skeleton-beacon::before,
+  .skeleton-beacon-ring,
+  .skeleton-button-beacon,
+  .skeleton-progress::after {
+    animation: none;
+  }
+
+  .skeleton-bone {
+    background-image: none;
+  }
+
+  .skeleton-beacon-ring {
+    opacity: 0.35;
+  }
+
+  .skeleton-beacon-ring:nth-child(2),
+  .skeleton-beacon-ring:nth-child(3) {
+    display: none;
+  }
+
+  .skeleton-progress::after {
+    width: 100%;
+  }
+}
+
+@keyframes skeleton-sweep {
+  from {
+    background-position: 120% 0;
+  }
+
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@keyframes skeleton-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes beacon-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.34);
+  }
+
+  16% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes beacon-core {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(0.86);
+  }
+}
+
+@keyframes skeleton-progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
 }

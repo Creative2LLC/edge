@@ -322,7 +322,8 @@
 }
 
 /* Poster-shaped placeholder shown while the poster API responds. Mirrors the
-   .poster-results-detail-layout grid so the real content lands in place. */
+   .poster-results-detail-layout grid so the real content lands in place. Worn
+   by a shared skeleton item — see renderPosterSkeleton. */
 .poster-results-skeleton {
   display: grid;
   grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
@@ -342,50 +343,11 @@
   padding-top: 6px;
 }
 
-.poster-results-skeleton-line {
-  display: block;
-  height: 16px;
-  border-radius: 6px;
-}
-
-.poster-results-skeleton-line.is-title {
-  width: 62%;
-  height: 34px;
-  margin-bottom: 6px;
-}
-
-.poster-results-skeleton-line.is-sub {
-  width: 40%;
-  height: 15px;
-  margin-bottom: 10px;
-}
-
-.poster-results-skeleton-line.is-row {
-  width: 85%;
-}
-
-.poster-results-skeleton-line.is-row:nth-of-type(even) {
-  width: 70%;
-}
-
-.poster-results-skeleton-photo,
-.poster-results-skeleton-line {
-  background: linear-gradient(100deg, #e7ecef 30%, #f3f6f8 50%, #e7ecef 70%);
-  background-size: 200% 100%;
-  animation: poster-results-skeleton-shimmer 1.3s ease-in-out infinite;
-}
-
-@keyframes poster-results-skeleton-shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .poster-results-skeleton-photo,
-  .poster-results-skeleton-line {
-    animation: none;
-  }
-}
+/* No shimmer paint here on purpose. These three classes now supply GEOMETRY
+   only — the bones inside them are drawn by the shared loading system in
+   styles.css (see scripts/skeleton.js). This block used to carry the site's
+   only hand-built skeleton, complete with its own gradient, keyframes and
+   reduced-motion block; all three are gone rather than duplicated. */
 
 @media (width <= 700px) {
   .poster-results-skeleton {

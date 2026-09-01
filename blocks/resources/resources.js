@@ -12,6 +12,7 @@ import {
 import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
+import { showSkeleton } from '../../scripts/skeleton.js';
 
 const BLOCK_PROPS = [
   'heading',
@@ -47,6 +48,14 @@ const RESOURCE_ACTION_LABELS = {
 };
 
 const DEFAULT_HEADER_BUTTON_TEXT = 'Find other resources';
+
+/**
+ * Smallest headerMaxWidth worth honouring. Belt to hasAuthoringProps' braces:
+ * an author capping the header at under 160px is not expressing a layout, and
+ * a stray value that parses to a small number should never be able to wrap the
+ * heading one word per line again.
+ */
+const MIN_HEADER_MAX_WIDTH = 160;
 const CONFIG_ROW_INDEX = {
   heading: 0,
   subheading: 1,
@@ -151,10 +160,36 @@ function findLabeledConfigCell(configRows, name) {
   return configRowCell(row);
 }
 
+/**
+ * True when these rows were rendered by the Universal Editor, i.e. they carry
+ * data-aue-prop / data-richtext-prop instrumentation.
+ *
+ * This gates the POSITIONAL fallbacks below. Those exist for PUBLISHED pages,
+ * where instrumentation is stripped and a field's only identity is its position
+ * — that is what the two-revision index pairs like [3, 2] are for. Inside the
+ * editor the props are authoritative: a field carrying no prop is genuinely
+ * empty, and guessing by position instead lands on whatever row or cell happens
+ * to occupy that index.
+ *
+ * That is the homepage bug. headerMaxWidth is unset on that page, so on
+ * .aem.page and .aem.live it correctly resolved to '' and no max-width was
+ * applied — both verified. In the editor CONFIG_ROW_INDEX.headerMaxWidth = 2
+ * indexed into a configRows array of a different shape and yielded a value
+ * parseInt() read as 6, so the heading got `max-width: 6px` and the whole
+ * header collapsed to one word per line.
+ */
+function hasAuthoringProps(configRows) {
+  return configRows.some((row) => row.querySelector('[data-aue-prop], [data-richtext-prop]'));
+}
+
 function readSeparateConfigCell(configRows, name) {
   if (!configRows || configRows.length <= 1) return null;
   const labeledCell = findLabeledConfigCell(configRows, name);
   if (labeledCell) return labeledCell;
+
+  // The exact-match label lookup above is safe anywhere. The row-index guess
+  // below is not — see hasAuthoringProps.
+  if (hasAuthoringProps(configRows)) return null;
 
   const index = CONFIG_ROW_INDEX[name];
   return Number.isInteger(index) ? configRowCell(configRows[index]) : null;
@@ -178,6 +213,9 @@ function readConfigField(configRows, name, columnIndexes = []) {
   const separateValue = textFromCell(separateCell);
   if (separateValue) return separateValue;
 
+  // Column position is meaningful only on published pages — see hasAuthoringProps.
+  if (hasAuthoringProps(configRows)) return '';
+
   const cols = [...(configRows[0]?.children || [])];
   const value = columnIndexes
     .map((index) => cols[index]?.textContent.trim())
@@ -196,6 +234,9 @@ function readConfigLinkField(configRows, name, columnIndexes = []) {
 
   const separateValue = hrefFromCell(readSeparateConfigCell(configRows, name));
   if (separateValue) return separateValue;
+
+  // Column position is meaningful only on published pages — see hasAuthoringProps.
+  if (hasAuthoringProps(configRows)) return '';
 
   const cols = [...(configRows[0]?.children || [])];
   const value = columnIndexes
@@ -633,6 +674,26 @@ export default async function decorate(block) {
     .filter(Boolean);
 
   if (config.apiBaseUrl) {
+    // This block builds its whole DOM only after the API answers, so without a
+    // placeholder the section is simply absent for the length of the request.
+    // The rows are safe to detach here: they were parsed into `resources`
+    // above, and moveInstrumentation only reads attributes off them, so the
+    // authored fallback below still works on the detached references.
+    const shell = document.createElement('div');
+    shell.className = 'resources-inner';
+    const shellCards = document.createElement('div');
+    shellCards.className = 'resources-cards';
+    shell.append(shellCards);
+    block.replaceChildren(shell);
+    showSkeleton(shellCards, {
+      count: 4,
+      item: 'resources-card',
+      media: 'resources-card-image',
+      body: 'resources-card-content',
+      lines: ['pill', 'title', 'text', 'text-sm'],
+      label: 'Loading resources',
+    });
+
     try {
       resources = await loadApiResources(config);
     } catch (error) {
@@ -649,7 +710,8 @@ export default async function decorate(block) {
   headerLeft.className = 'resources-header-left';
 
   const headerMaxWidthPx = parseInt(config.headerMaxWidth, 10);
-  const headerMaxWidth = Number.isFinite(headerMaxWidthPx) && headerMaxWidthPx > 0
+  const headerMaxWidth = Number.isFinite(headerMaxWidthPx)
+    && headerMaxWidthPx >= MIN_HEADER_MAX_WIDTH
     ? `${headerMaxWidthPx}px`
     : '';
 

@@ -1,4 +1,5 @@
 import { moveInstrumentation, decoratePdfLinks } from '../../scripts/scripts.js';
+import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
 import { readImageField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 
 function hasAuthoringContext(scope) {
@@ -242,6 +243,20 @@ export default async function decorate(block) {
   const accordion = document.createElement('div');
   accordion.className = 'report-archive-accordion';
 
+  // Cover images can require a per-item resource-JSON round trip, and this
+  // Promise.all gates the whole accordion on the slowest of them. One
+  // placeholder row per authored item keeps the block at its real height while
+  // that resolves, so nothing below it shifts when the rows land.
+  wrapper.append(accordion);
+  block.replaceChildren(wrapper);
+  showSkeleton(accordion, {
+    count: itemRows.length,
+    item: 'report-archive-item',
+    body: 'report-archive-trigger',
+    lines: ['title-sm'],
+    label: 'Loading reports',
+  });
+
   const items = await Promise.all(
     itemRows.map(async (row, index) => {
       const data = await parseItemRow(row, isAuthoring);
@@ -249,8 +264,6 @@ export default async function decorate(block) {
     }),
   );
 
+  clearSkeleton(accordion);
   (await Promise.all(items)).forEach((item) => accordion.append(item));
-
-  wrapper.append(accordion);
-  block.replaceChildren(wrapper);
 }

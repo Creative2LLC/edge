@@ -3,6 +3,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
 
 const DEFAULTS = {
   heading: '',
@@ -376,6 +377,24 @@ function renderFeaturedEvents(container, events, count, openModal) {
   });
 }
 
+/**
+ * A month of empty day cells while the events request is in flight. Borrowing
+ * .event-calendar-day means the placeholder keeps the real 7-column grid, cell
+ * height and dividers, so the calendar does not resize when the data lands —
+ * which is the whole reason this is a skeleton and not a spinner.
+ */
+function renderCalendarSkeleton(grid) {
+  const days = document.createElement('div');
+  days.className = 'event-calendar-days';
+  grid.replaceChildren(days);
+  showSkeleton(days, {
+    count: 35,
+    item: 'event-calendar-day',
+    lines: ['label:30'],
+    label: 'Loading events',
+  });
+}
+
 function renderGrid(grid, events, year, month, openModal) {
   grid.replaceChildren();
 
@@ -644,7 +663,7 @@ export default async function decorate(block) {
     setStatus(status, 'Loading events...', 'loading');
     prev.disabled = true;
     next.disabled = true;
-    grid.replaceChildren();
+    renderCalendarSkeleton(grid);
 
     try {
       const events = await fetchEvents(config, { year: state.year, month: state.month });
@@ -657,6 +676,7 @@ export default async function decorate(block) {
         grid.append(empty);
       }
     } catch {
+      grid.replaceChildren();
       setStatus(status, 'Events are unavailable at this time.', 'error');
     } finally {
       prev.disabled = false;
@@ -666,11 +686,29 @@ export default async function decorate(block) {
 
   async function loadEventListings() {
     setStatus(tableStatus, 'Loading events...', 'loading');
-    tableContainer.replaceChildren();
+    if (showFeaturedCards()) {
+      featured.hidden = false;
+      showSkeleton(featured, {
+        count: config.featuredCount,
+        item: 'event-calendar-featured-card',
+        media: 'event-calendar-featured-image',
+        body: 'event-calendar-featured-content',
+        lines: ['label', 'title', 'text', 'text-sm'],
+        label: 'Loading featured events',
+      });
+    }
+    // The container is already a grid with a gap, so bare rows stack correctly.
+    showSkeleton(tableContainer, {
+      count: 6,
+      lines: ['title:38', 'text:72'],
+      label: 'Loading events',
+    });
 
     try {
       const events = activeListingEvents(await fetchEvents(config, { all: 1 }));
       setStatus(tableStatus, '', '');
+      clearSkeleton(featured);
+      clearSkeleton(tableContainer);
       if (showFeaturedCards()) {
         renderFeaturedEvents(featured, events, config.featuredCount, openModal);
       } else {
@@ -681,6 +719,9 @@ export default async function decorate(block) {
         renderTable(tableContainer, config.tableHeading, events, openModal, config.emptyMessage);
       }
     } catch {
+      clearSkeleton(featured);
+      clearSkeleton(tableContainer);
+      tableContainer.replaceChildren();
       featured.hidden = true;
       setStatus(tableStatus, 'Events are unavailable at this time.', 'error');
     }

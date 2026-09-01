@@ -4,6 +4,7 @@ import {
   buildPosterDetailHref,
   currentPosterPagePath,
 } from '../../scripts/poster-link-utils.js';
+import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
 
 const DEFAULTS = {
   heading: 'Poster Results',
@@ -343,25 +344,23 @@ function setStatus(node, message, type = '') {
 // The poster API can take a couple of seconds to respond (photos are encoded
 // server-side), so paint a poster-shaped placeholder immediately instead of
 // leaving the visitor on a blank page. renderPosterDetail/renderAmberPosterDetail
-// both replaceChildren() on the same container, so this clears itself on render.
+// both replaceChildren() on the same container, so the bones clear themselves on
+// render; clearSkeleton still runs on the error path to drop aria-busy.
+//
+// The three -skeleton classes below survive in poster-results.css for their
+// GEOMETRY only (the 3:4 photo, the line stack, the 700px reflow). Their shimmer
+// paint and keyframes were deleted when this moved onto the shared system: this
+// block had the only hand-built skeleton on the site, and a second copy of the
+// animation is exactly how it drifts out of sync with everything else.
 function renderPosterSkeleton(container) {
-  const skeleton = document.createElement('div');
-  skeleton.className = 'poster-results-skeleton';
-  skeleton.setAttribute('aria-hidden', 'true');
-
-  const photo = document.createElement('div');
-  photo.className = 'poster-results-skeleton-photo';
-
-  const lines = document.createElement('div');
-  lines.className = 'poster-results-skeleton-lines';
-  ['title', 'sub', 'row', 'row', 'row', 'row'].forEach((variant) => {
-    const line = document.createElement('span');
-    line.className = `poster-results-skeleton-line is-${variant}`;
-    lines.append(line);
+  showSkeleton(container, {
+    count: 1,
+    item: 'poster-results-skeleton',
+    media: 'poster-results-skeleton-photo',
+    body: 'poster-results-skeleton-lines',
+    lines: ['title', 'label', 'text:85', 'text:70', 'text:85', 'text:70'],
+    label: 'Loading poster',
   });
-
-  skeleton.append(photo, lines);
-  container.append(skeleton);
 }
 
 function fullName(person) {
@@ -2163,6 +2162,7 @@ export default async function decorate(block) {
       renderPosterDetail(results, meta, renderPayload, config, () => window.history.back());
       return;
     } catch (error) {
+      clearSkeleton(results);
       results.replaceChildren();
       setStatus(status, 'Poster details are unavailable.', 'error');
       return;

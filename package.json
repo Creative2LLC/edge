@@ -28,7 +28,8 @@
     "spacing-audit": "node scripts/spacing-audit.mjs",
     "gutter-audit": "node scripts/gutter-audit.mjs",
     "inner-padding-audit": "node scripts/inner-padding-audit.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "audit:skeletons": "node scripts/skeleton-check.mjs"
   },
   "repository": {
     "type": "git",

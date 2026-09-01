@@ -163,6 +163,11 @@
   flex: 0 0 44px;
 }
 
+/* No font-size here or in the mobile block on purpose. These inherit
+   --body-size, which is already fluid (16px at 390px -> 18px at 1200px), so the
+   hardcoded 1.05rem/1rem mobile overrides that came in with the Figma pass were
+   hand-rolling the shrink the token does by itself — and landed inside the same
+   16-17.3px band it produces. Sized once, in styles.css. */
 .get-help .get-help-item-description {
   margin: 2px 0 0;
   color: #546475;
@@ -234,16 +239,8 @@
     flex: 0 0 34px;
   }
 
-  .get-help .get-help-item-description {
-    font-size: 1.05rem;
-  }
-
   .get-help .is-contact-column .get-help-item-description {
     margin-left: 54px;
-  }
-
-  .get-help .get-help-note {
-    font-size: 1rem;
   }
 
   .get-help .get-help-close {

@@ -1802,6 +1802,143 @@ function readOverlayOpacity(block) {
   return `${num}%`;
 }
 
+/** Breathing room left above the target section, on top of the header chrome. */
+const SCROLL_LANDING_GAP = 48;
+
+/**
+ * Bottom edge of the fixed header chrome, in viewport pixels.
+ *
+ * Explicitly NOT `header.getBoundingClientRect().height`. The <header> element
+ * is a position:relative 47px spacer that scrolls away with the page; the
+ * visible bar is two position:fixed children of it. Measuring the wrapper
+ * returns 47 while the real chrome ends at 153, which parked every scroll
+ * target a hundred pixels underneath the nav.
+ *
+ * The bars stack (banner 0-48, nav 47-153), so this walks down from the top of
+ * the viewport and only extends through bars that actually touch the stack.
+ * That stops it being fooled by an opened mega-nav panel, which is also fixed
+ * but is not part of the resting bar.
+ */
+function fixedChromeBottom() {
+  const header = document.querySelector('header');
+  if (!header) return 0;
+
+  const bars = [header, ...header.querySelectorAll('*')]
+    .filter((el) => {
+      const cs = getComputedStyle(el);
+      if (cs.position !== 'fixed' && cs.position !== 'sticky') return false;
+      return cs.visibility !== 'hidden' && cs.display !== 'none';
+    })
+    .map((el) => el.getBoundingClientRect())
+    .filter((r) => r.height >= 1)
+    .sort((a, b) => a.top - b.top);
+
+  let bottom = 0;
+  bars.forEach((r) => {
+    if (r.top <= bottom + 2 && r.bottom > bottom) bottom = r.bottom;
+  });
+  return bottom;
+}
+
+/**
+ * The section the scroll cue jumps to: the first sibling section after the
+ * hero's own that actually has height.
+ *
+ * Resolved at CLICK time, not when the cue is built. Sections exist in the DOM
+ * by the time a block decorates, but they are still empty shells — a block that
+ * has not loaded yet measures zero, so a decorate-time lookup would skip right
+ * past the real next section and land somewhere further down the page.
+ */
+function findScrollTarget(block) {
+  const section = block.closest('.section') || block.parentElement;
+  let next = section?.nextElementSibling;
+  while (next) {
+    if (!next.hidden && next.getBoundingClientRect().height > 1) return next;
+    next = next.nextElementSibling;
+  }
+  return null;
+}
+
+/**
+ * Scroll indicator for the homepage hero, which is ~1100px tall and otherwise
+ * gives no sign that anything follows it.
+ *
+ * The motion is deliberately the same idea as the loading system's beacon and
+ * skeleton sweep — a bright brand segment travelling along a track — so the
+ * site has one vocabulary for "something is moving here" instead of a shimmer
+ * language for loading and an unrelated bouncing arrow for scrolling.
+ *
+ * Icon-only on purpose: a visible "Scroll" label would be one more string to
+ * localise, and the site already runs multi-locale. The accessible name is
+ * carried by visually hidden text instead.
+ */
+function buildScrollCue(block) {
+  const cue = document.createElement('button');
+  cue.className = 'hero-scroll-cue';
+  cue.type = 'button';
+
+  const track = document.createElement('span');
+  track.className = 'hero-scroll-cue-track';
+  track.setAttribute('aria-hidden', 'true');
+
+  const arrow = document.createElement('span');
+  arrow.className = 'hero-scroll-cue-arrow';
+  arrow.setAttribute('aria-hidden', 'true');
+
+  const label = document.createElement('span');
+  label.className = 'u-sr-only';
+  label.textContent = 'Scroll to content';
+
+  cue.append(track, arrow, label);
+
+  cue.addEventListener('click', () => {
+    const target = findScrollTarget(block);
+    if (!target) return;
+
+    const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      ? 'auto'
+      : 'smooth';
+    // Stop clear of the header rather than flush against it: landing exactly on
+    // the chrome edge pins the section heading to the nav with no air above it.
+    const landing = () => target.getBoundingClientRect().top + window.scrollY
+      - fixedChromeBottom() - SCROLL_LANDING_GAP;
+
+    window.scrollTo({ top: Math.max(0, landing()), behavior });
+
+    // The nav GROWS when it goes sticky past 12px of scroll (64px -> 106px), so
+    // the chrome measured at click time — while the page is still at the top —
+    // is short by exactly that growth, and the heading lands under the bar.
+    // Re-measuring once the scroll settles takes up the slack whatever the
+    // header does, without this file having to know about its sticky class.
+    const settle = () => {
+      const drift = landing() - window.scrollY;
+      // Ignore a large drift: that means the visitor scrolled away themselves
+      // mid-animation, and yanking them back would fight them.
+      if (Math.abs(drift) > 2 && Math.abs(drift) < 240) {
+        window.scrollBy({ top: drift, behavior });
+      }
+    };
+    if ('onscrollend' in window) window.addEventListener('scrollend', settle, { once: true });
+    else window.setTimeout(settle, 700);
+  });
+
+  // Fade the cue out once the visitor has started scrolling — past that point
+  // it has done its job, and on a tall hero it would otherwise sit over content.
+  let ticking = false;
+  const syncVisibility = () => {
+    ticking = false;
+    cue.classList.toggle('is-hidden', window.scrollY > 80);
+  };
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(syncVisibility);
+  }, { passive: true });
+  syncVisibility();
+
+  return cue;
+}
+
 export default async function decorate(block) {
   block.classList.add('no-scroll-reveal', 'is-visible');
   block.classList.remove('scroll-reveal');
@@ -1946,17 +2083,22 @@ export default async function decorate(block) {
   }
   const archiveNodes = archive ? [archive] : [];
 
+  // Homepage only. The default hero is short enough that what follows it is
+  // already visible, so a cue there would just be decoration.
+  const scrollCue = variant === 'homepage' ? buildScrollCue(block) : null;
+  const cueNodes = scrollCue ? [scrollCue] : [];
+
   if (videoEl) {
     if (picture) {
-      block.replaceChildren(picture, videoEl, content, ...archiveNodes);
+      block.replaceChildren(picture, videoEl, content, ...cueNodes, ...archiveNodes);
     } else {
-      block.replaceChildren(videoEl, content, ...archiveNodes);
+      block.replaceChildren(videoEl, content, ...cueNodes, ...archiveNodes);
     }
     return;
   }
   if (picture) {
-    block.replaceChildren(picture, content, ...archiveNodes);
+    block.replaceChildren(picture, content, ...cueNodes, ...archiveNodes);
     return;
   }
-  block.replaceChildren(content, ...archiveNodes);
+  block.replaceChildren(content, ...cueNodes, ...archiveNodes);
 }

@@ -522,7 +522,11 @@
 .hero.hero-variant-homepage {
   --hero-height: 1117px;
 
-  padding-bottom: clamp(160px, 18vw, 240px);
+  /* Named so the scroll cue can stay inside this band and never ride up into
+     the headline. Changing the padding moves the cue with it. */
+  --hero-pad-bottom: clamp(160px, 18vw, 240px);
+
+  padding-bottom: var(--hero-pad-bottom);
 }
 
 .hero.hero-authoring.hero-variant-homepage {
@@ -702,3 +706,136 @@
   }
 }
 
+
+/* ====================================================================
+   HOMEPAGE SCROLL CUE
+   Only on .hero-variant-homepage, which runs ~1100px tall and otherwise
+   gives no sign that anything follows it. Markup from buildScrollCue().
+
+   The motion is the loading system's idea reused: a bright brand segment
+   travelling along a track, the same read as the skeleton sweep and the
+   beacon. One vocabulary for "something is moving here" beats a shimmer
+   language for loading plus an unrelated bouncing arrow for scrolling.
+   ==================================================================== */
+.hero .hero-scroll-cue {
+  position: absolute;
+
+  /* Pinned to the first SCREENFUL, and to the RIGHT of the copy column.
+     Both parts are forced by the same measurement. This hero is a fixed
+     1117px against a ~900px laptop viewport, so anchoring the cue to the
+     hero's base left it entirely below the fold — the one thing a scroll cue
+     must not be. Pulling it up into the fold then put it on top of the
+     headline, because the hero's copy sits in the bottom ~240px band.
+     The copy is left-aligned and caps at 900px, so the right edge is the only
+     region that is empty at every viewport size. Measured in
+     audits/hero-cue-heights.mjs.
+
+     `100%` is the hero's own height: on a hero shorter than the viewport the
+     calc goes negative and max() falls back to sitting above the hero's base,
+     which is what mobile gets. svh (not vh) so mobile browser chrome counts. */
+  bottom: max(clamp(32px, 5vw, 56px), calc(100% - 100vh + 150px));
+  bottom: max(clamp(32px, 5vw, 56px), calc(100% - 100svh + 150px));
+  right: clamp(20px, 3vw, 48px);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 0;
+  background: none;
+  color: #00264d;
+  cursor: pointer;
+
+  /* Fades out on scroll rather than disappearing; see .is-hidden. */
+  transition: opacity 0.32s ease, transform 0.32s ease;
+}
+
+/* Past the first 80px the cue has done its job, and on a hero this tall it
+   would otherwise hang over the content the visitor scrolled to. */
+.hero .hero-scroll-cue.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.hero .hero-scroll-cue-track {
+  position: relative;
+  overflow: hidden;
+  width: 1px;
+  height: clamp(32px, 4vw, 44px);
+  background: rgb(0 38 77 / 16%);
+}
+
+/* The travelling segment. Starts above the track and runs off the bottom, so
+   the eye is pulled downward — the direction the cue is asking you to go. */
+.hero .hero-scroll-cue-track::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 46%;
+  background: linear-gradient(180deg, rgb(0 114 148 / 0%), var(--beacon-color, #007294));
+  animation: hero-scroll-cue-travel 2.3s cubic-bezier(0.55, 0, 0.45, 1) infinite;
+}
+
+/* Chevron drawn from two borders. The global reset zeroes border-width and
+   sets border-style: solid, so both have to be restated here. */
+.hero .hero-scroll-cue-arrow {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform 0.24s ease;
+}
+
+.hero .hero-scroll-cue:hover {
+  color: var(--beacon-color, #007294);
+}
+
+.hero .hero-scroll-cue:hover .hero-scroll-cue-arrow {
+  transform: rotate(45deg) translate(1px, 1px);
+}
+
+.hero .hero-scroll-cue:focus-visible {
+  outline: 2px solid var(--beacon-color, #007294);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+@keyframes hero-scroll-cue-travel {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(220%);
+  }
+}
+
+/* The travel and the arrow nudge are decorative and carry no information the
+   chevron does not already give, so they stop outright. The segment is left
+   sitting in the track so the cue still reads as a deliberate mark. */
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-scroll-cue,
+  .hero .hero-scroll-cue-arrow {
+    transition: none;
+  }
+
+  .hero .hero-scroll-cue-track::after {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

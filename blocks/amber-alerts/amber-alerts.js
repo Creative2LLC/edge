@@ -3,6 +3,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
 import { buildAmberPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
@@ -347,7 +348,17 @@ export default async function decorate(block) {
 
   const loadAlerts = async () => {
     setStatus(status, 'Loading active AMBER Alerts...', 'loading');
-    list.replaceChildren();
+    // This block fans out a second request per alert to backfill missing
+    // photos, so the wait here is routinely longer than a single round trip —
+    // it is the block on the site that most needs a placeholder.
+    showSkeleton(list, {
+      count: 3,
+      item: 'amber-alerts-card',
+      media: 'amber-alerts-card-media',
+      body: 'amber-alerts-card-body',
+      lines: ['pill', 'title', 'text', 'text-sm', 'button'],
+      label: 'Loading active AMBER Alerts',
+    });
 
     try {
       const url = new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
@@ -377,8 +388,11 @@ export default async function decorate(block) {
         }
       }));
       setStatus(status, '', '');
+      clearSkeleton(list);
       renderAlerts(list, payload, config);
     } catch (error) {
+      clearSkeleton(list);
+      list.replaceChildren();
       setStatus(status, 'AMBER Alerts are unavailable.', 'error');
     }
   };

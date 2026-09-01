@@ -1,6 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
+import { showSkeleton, clearSkeleton, setButtonLoading } from '../../scripts/skeleton.js';
 import {
   DEFAULT_LIST_SORT,
   getListSortOptions,
@@ -724,8 +725,22 @@ function renderApiList(block, config) {
     }
 
     state.loading = true;
-    if (!cardsContainer.children.length) count.textContent = 'Loading articles...';
+    // Placeholders only while the grid is empty; a "Load more" appends under
+    // real cards, where the button's own beacon is the right signal.
+    const isInitialFill = !cardsContainer.children.length;
+    if (isInitialFill) {
+      count.textContent = 'Loading articles...';
+      showSkeleton(cardsContainer, {
+        count: Math.min(config.pageSize, 6),
+        item: 'article-list-card',
+        media: 'article-list-card-media',
+        body: 'article-list-card-body',
+        lines: ['label', 'title', 'title-sm', 'text', 'text-sm'],
+        label: 'Loading articles',
+      });
+    }
     loadMoreButton.disabled = true;
+    const restoreLoadMore = isInitialFill ? null : setButtonLoading(loadMoreButton);
     pagination.nav.querySelectorAll('button').forEach((button) => {
       button.disabled = true;
     });
@@ -753,6 +768,7 @@ function renderApiList(block, config) {
       if (currentToken !== requestToken) return;
 
       if (usePagination) cardsContainer.replaceChildren();
+      clearSkeleton(cardsContainer);
       const startIndex = cardsContainer.children.length;
       (payload.data || []).forEach((article, index) => {
         cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue, config));
@@ -777,12 +793,15 @@ function renderApiList(block, config) {
       loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
       updatePagination();
     } catch (error) {
+      // An abort means a newer request already owns the placeholders.
       if (error.name === 'AbortError') return;
+      clearSkeleton(cardsContainer);
       count.textContent = error?.message || 'Articles unavailable.';
       emptyState.hidden = cardsContainer.children.length > 0;
     } finally {
       if (currentToken === requestToken) {
         activeController = null;
+        if (restoreLoadMore) restoreLoadMore();
         loadMoreButton.disabled = false;
         state.loading = false;
       }

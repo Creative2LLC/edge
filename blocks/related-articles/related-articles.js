@@ -6,6 +6,7 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
+import { showSkeleton } from '../../scripts/skeleton.js';
 
 const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
@@ -349,6 +350,39 @@ function wireCarousel(track, dots, prevBtn, nextBtn) {
   sync();
 }
 
+/**
+ * The carousel's own shape while the related-content request is in flight.
+ * Borrowing -card and -slide keeps the real card width and snap behaviour, so
+ * the row does not jump when the articles arrive.
+ */
+function buildSkeletonView(config) {
+  const fragment = document.createDocumentFragment();
+
+  if (config.heading) {
+    const head = document.createElement('div');
+    head.className = 'related-articles-head';
+    const heading = document.createElement('h2');
+    heading.className = 'related-articles-heading';
+    heading.textContent = config.heading;
+    head.append(heading);
+    fragment.append(head);
+  }
+
+  const track = document.createElement('div');
+  track.className = 'related-articles-track';
+  fragment.append(track);
+  showSkeleton(track, {
+    count: config.limit,
+    item: 'related-articles-card related-articles-slide',
+    media: 'related-articles-card-media',
+    body: 'related-articles-card-body',
+    lines: ['label', 'title', 'text', 'text-sm'],
+    label: 'Loading related articles',
+  });
+
+  return fragment;
+}
+
 function buildView(items, config) {
   const fragment = document.createDocumentFragment();
 
@@ -431,7 +465,7 @@ export default async function decorate(block) {
     detailBasePath: getFieldValue(block, 'detailBasePath'),
   };
 
-  block.replaceChildren(buildMessage('Loading related articles...', ''));
+  block.replaceChildren(buildSkeletonView(config));
 
   if (!config.apiBaseUrl) {
     block.replaceChildren(buildMessage('Missing API configuration', 'Set apiBaseUrl on this block so it can load related content.'));
