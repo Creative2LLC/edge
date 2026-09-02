@@ -94,6 +94,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+
+  /* keep the top of the frame in view: the hero's height is fixed, so on wide
+     viewports cover-cropping otherwise trims both edges equally and pushes
+     faces near the top of the frame off screen */
+  object-position: center top;
   display: block;
   pointer-events: none;
 }
