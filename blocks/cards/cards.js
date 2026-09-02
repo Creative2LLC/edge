@@ -734,13 +734,46 @@ function isIconLikeImage(src) {
   }
 }
 
+/**
+ * Ratio past which a card image is treated as a logo rather than a photograph.
+ *
+ * isIconLikeImage() above can only ever fire in the EDITOR: EDS renames
+ * published media to media_<hash>.<ext>, which destroys the "logo"/"icon"
+ * filename signal entirely. Published markup does keep the intrinsic size on
+ * the <img> though, so a pathologically wide wordmark can still be recognised —
+ * a 742x150 logo was being forced into the 4/3 object-fit:cover box and cropped
+ * to a smear.
+ *
+ * 2.5 sits above every photographic ratio in use (16:9 is 1.78) and below the
+ * 4.95 wordmarks that were breaking. It deliberately does NOT try to separate a
+ * squarer logo from a photo — measured, the two overlap around 1.6-2.0 and
+ * nothing in the published markup can tell them apart. For a block whose images
+ * are all logos, set the block's Image Display to "Logo": that is deterministic
+ * and renders identically in both environments.
+ */
+const ICON_ASPECT_RATIO = 2.5;
+
+/**
+ * Intrinsic ratio from the source <img>'s width/height attributes. Published
+ * markup carries them; the editor's DAM markup does not, which is exactly the
+ * split that makes this the right complement to the filename test.
+ */
+function hasIconLikeAspect(img) {
+  const w = Number.parseFloat(img?.getAttribute('width'));
+  const h = Number.parseFloat(img?.getAttribute('height'));
+  if (!Number.isFinite(w) || !Number.isFinite(h) || h <= 0) return false;
+  return w / h >= ICON_ASPECT_RATIO;
+}
+
 function buildImage(imageField, forceIcon = false, altVal = '') {
   const sourceImg = imageField?.img;
   if (!sourceImg) return null;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'cards-card-image';
-  if (forceIcon || isIconLikeImage(sourceImg.src)) wrapper.classList.add('cards-card-image-icon');
+  if (forceIcon || isIconLikeImage(sourceImg.src) || hasIconLikeAspect(sourceImg)) {
+    wrapper.classList.add('cards-card-image-icon');
+  }
 
   const optimizedPic = createOptimizedPicture(sourceImg.src, altVal || sourceImg.alt, false, [{ width: '750' }]);
   const optimizedImg = optimizedPic.querySelector('img');

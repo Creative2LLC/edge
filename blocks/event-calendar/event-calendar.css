@@ -109,7 +109,7 @@
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
-.event-calendar .event-calendar-featured-card:hover .event-calendar-featured-image,
+.event-calendar .event-calendar-featured-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .event-calendar-featured-image,
 .event-calendar .event-calendar-featured-card:focus-visible .event-calendar-featured-image {
   transform: translateY(-4px) rotate(-1deg);
   box-shadow: 0 20px 42px rgb(6 38 80 / 18%);

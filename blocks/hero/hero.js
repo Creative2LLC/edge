@@ -326,8 +326,41 @@ function isExactChoiceCell(cell, allowed) {
   return allowed.includes(value);
 }
 
+/** content_position's option family. Unique to that field across the model. */
+const CONTENT_POSITION_CHOICES = ['left', 'center', 'right'];
+
+/**
+ * Local copy of the getChoiceFromCell test, declared here because
+ * getContentCell runs above that helper's definition.
+ */
+function cellHasContentPositionChoice(cell) {
+  return [...cell.querySelectorAll('p, div, span')]
+    .some((node) => CONTENT_POSITION_CHOICES.includes(node.textContent.trim().toLowerCase()));
+}
+
+/**
+ * The cell holding the content-tab fields.
+ *
+ * "Contains a heading element" is not a safe anchor on its own. content_text is
+ * a richtext, and when an author types the headline as ordinary paragraph text
+ * instead of styling it Heading 1, the PUBLISHED cell contains only <p> — the
+ * <h1> you see in the editor is one this block promotes at render time, which
+ * hides the difference from the author.
+ *
+ * On those pages this returned null and every content-tab field silently fell
+ * back to its default. content_showBreadcrumbs became 'hide', so the breadcrumb
+ * nav disappeared AND removeLeadingBreadcrumbText() never ran, leaving the trail
+ * to be promoted into the headline ("Resources>Prevention Education"). Measured
+ * on 4 of 48 published heroes; see audits/hero-field-sweep.mjs.
+ *
+ * The position choice is the durable anchor: left|center|right is unique to
+ * content_position across the whole model, and a select always publishes a
+ * value. The heading lookup stays first so no page that works today moves.
+ */
 function getContentCell(block) {
-  return getRowCells(block).find((cell) => cell.querySelector('h1, h2, h3, h4, h5, h6'))
+  const cells = getRowCells(block);
+  return cells.find((cell) => cell.querySelector('h1, h2, h3, h4, h5, h6'))
+    || cells.find(cellHasContentPositionChoice)
     || null;
 }
 
@@ -1161,7 +1194,10 @@ function isLikelyBodyValue(value) {
 }
 
 function getContentCellIndex(cells) {
-  return cells.findIndex((cell) => cell.querySelector('h1, h2, h3, h4, h5, h6'));
+  const headingIndex = cells.findIndex((cell) => cell.querySelector('h1, h2, h3, h4, h5, h6'));
+  if (headingIndex !== -1) return headingIndex;
+  // Same fallback as getContentCell — keep the two in step.
+  return cells.findIndex(cellHasContentPositionChoice);
 }
 
 function resolveFlattenedAction(candidates, isFirstGroup, style) {

@@ -372,7 +372,7 @@
   padding: 60px 52px 36px;
 }
 
-.info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:hover,
+.info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
 .info-cards-grid-card-default.info-cards-grid-card-has-hover-bg:focus-within {
   background: var(--info-card-hover-bg);
 }
@@ -380,7 +380,7 @@
 /* No authored hover colour: nudge the card's own background rather than jumping
    to a fixed brand blue. The tint direction is picked in JS from the card's
    luminance, so light cards darken and dark cards lighten by the same amount. */
-.info-cards-grid-card-default.info-cards-grid-card-has-default-hover:hover,
+.info-cards-grid-card-default.info-cards-grid-card-has-default-hover:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
 .info-cards-grid-card-default.info-cards-grid-card-has-default-hover:focus-within {
   background: color-mix(
     in srgb,

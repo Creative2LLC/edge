@@ -231,14 +231,20 @@
   background: linear-gradient(180deg, #fff 0%, #fbfdfe 100%);
   border: 1px solid rgb(201 220 229 / 70%);
   box-shadow: 0 20px 48px rgb(22 50 74 / 10%);
-  animation: article-list-rise 0.45s ease both;
+
+  /* backwards, not both: `both` keeps applying the animation's final
+     transform after it finishes, and animated values beat normal declarations
+     — which silently killed this card's own :hover lift. `backwards` holds the
+     pre-start state and releases transform once the reveal is done. */
+  animation: article-list-rise 0.45s ease backwards;
   animation-delay: calc(var(--article-card-index, 0) * 45ms);
   transition: transform 0.24s ease, box-shadow 0.24s ease;
 }
 
-.article-list .article-list-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 26px 56px rgb(22 50 74 / 14%);
+.article-list .article-list-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+.article-list .article-list-card:focus-within {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
 }
 
 .article-list .article-list-grid[data-view="list"] .article-list-card {

@@ -19,7 +19,7 @@
 .numbered-cards-custom .numbered-cards-custom-wrapper {
   max-width: var(--container);
   margin: 0 auto;
-  padding: 88px 24px 76px;
+  padding: 88px var(--section-pad) 76px;
 }
 
 .numbered-cards-custom .numbered-cards-custom-header {
@@ -85,8 +85,12 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (var(--numbered-cards-custom-viewport-width) - 1440px) / 2));
+  margin-right: calc(var(--section-pad) * -1);
+
+  /* --container, not 1440: the wrapper above caps at var(--container) = 1420,
+     so a 1440 here under-computes the breakout by (1440-1420)/2 and leaves the
+     track 10px short of the viewport edge instead of running off it. */
+  width: calc(100% + var(--section-pad) + max(0px, (var(--numbered-cards-custom-viewport-width) - var(--container)) / 2));
   margin-top: -12px;
   padding-top: 12px;
   padding-right: 56px;
@@ -287,7 +291,7 @@
 }
 
 @media (hover: hover) {
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:hover {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
     transform: translateY(-10px);
     box-shadow: 0 22px 44px rgb(0 38 77 / 18%);
     background: var(
@@ -296,24 +300,24 @@
     );
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:hover .numbered-cards-custom-number-box {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-number-box {
     color: var(--numbered-cards-custom-number-color-active, #fff);
     border-color: var(--numbered-cards-custom-number-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:hover .numbered-cards-custom-number-text {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-number-text {
     color: var(--numbered-cards-custom-number-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:hover .numbered-cards-custom-card-title {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-title {
     color: var(--numbered-cards-custom-title-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:hover .numbered-cards-custom-card-body {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-body {
     color: var(--numbered-cards-custom-body-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:hover .numbered-cards-custom-card-cta {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-cta {
     background: var(--numbered-cards-custom-cta-bg-active, #fff);
     color: var(--numbered-cards-custom-cta-text-active, #00264d);
     transform: translateY(-1px);
@@ -402,7 +406,9 @@
 
 @media (width <= 1200px) {
   .numbered-cards-custom .numbered-cards-custom-wrapper {
-    padding: 72px 24px 64px;
+    /* --section-pad, not 24px: this breakpoint reaches up to 1200, so a literal
+       here would leave every 900-1200px laptop 8px off the column. */
+    padding: 72px var(--section-pad) 64px;
   }
 
   .numbered-cards-custom-carousel-layout .numbered-cards-custom-card {

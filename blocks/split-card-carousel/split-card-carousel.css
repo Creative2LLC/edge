@@ -19,7 +19,7 @@
 .split-card-carousel .split-card-carousel-wrapper {
   max-width: var(--container);
   margin: 0 auto;
-  padding: 80px 24px;
+  padding: 80px var(--section-pad);
 }
 
 /* Override section max-width so full-width breakout works */
@@ -58,8 +58,8 @@ main > .section > .split-card-carousel-wrapper {
   cursor: grab;
   -ms-overflow-style: none;
   scrollbar-width: none;
-  margin-right: -24px;
-  width: calc(100% + 24px + max(0px, (var(--split-card-carousel-viewport-width) - 1420px) / 2));
+  margin-right: calc(var(--section-pad) * -1);
+  width: calc(100% + var(--section-pad) + max(0px, (var(--split-card-carousel-viewport-width) - 1420px) / 2));
   padding-right: 40px;
   box-sizing: border-box;
 }

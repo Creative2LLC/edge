@@ -202,11 +202,9 @@
   transition-delay: calc(var(--numbered-card-index, 0) * 70ms + 130ms);
 }
 
-.numbered-cards-carousel-layout .numbered-cards-card:hover,
-.numbered-cards-carousel-layout .numbered-cards-card:focus-within,
-.numbered-cards-carousel-layout .numbered-cards-card.active {
+.numbered-cards-carousel-layout .numbered-cards-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
   background-color: #008eb7 !important;
-  box-shadow: 0 18px 36px rgb(0 38 77 / 14%);
+  box-shadow: var(--shadow-3);
 }
 
 .numbered-cards-carousel-layout .numbered-cards-controls {

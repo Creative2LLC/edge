@@ -3,10 +3,14 @@
   padding: 0;
 }
 
+/* The wrapper above is max-width:none/padding:0, so this block rebuilds the
+   content column itself. --container + --section-pad is the same pair the
+   section rule uses, which is what puts it on the shared 1356px column; the
+   1200px it replaced was an ad-hoc width matching no token. */
 .picture-cards {
-  max-width: 1200px;
+  max-width: var(--container);
   margin: 0 auto;
-  padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem);
+  padding: clamp(3rem, 6vw, 5rem) var(--section-pad);
 }
 
 .picture-cards .picture-cards-header {

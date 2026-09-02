@@ -119,6 +119,37 @@ function getSlideFieldMap(row) {
     };
   }
 
+  // Published rows, current model shape. imageAlt does NOT occupy a cell here:
+  // the publishing pipeline folds it into the <img alt> attribute, so a 14-field
+  // model emits 13 cells and every field after the image sits one slot earlier.
+  //
+  // The <= 8 branch above already encodes that same fact for the older shape
+  // (imageAlt: -1, heading: 1); this is the same rule for the shape in use now.
+  // Without it a 13-cell row fell through to the model map below and read
+  // subheading as the heading, buttonText as the subheading, and lost the
+  // buttons entirely — verified against the published cells, where the two
+  // "default" values land on 6 and 10 exactly as this map expects.
+  if (!hasNamedHeading && hasPicture && columnCount >= 9) {
+    return {
+      image: 0,
+      imageAlt: -1,
+      heading: 1,
+      subheading: 2,
+      buttonText: 3,
+      buttonLink: 4,
+      buttonColor: 5,
+      buttonStyle: 6,
+      button2Text: 7,
+      button2Link: 8,
+      button2Color: 9,
+      button2Style: 10,
+      backgroundColor: 11,
+      contentAlign: 12,
+    };
+  }
+
+  // Editor rows, where every field including imageAlt is a real instrumented
+  // cell and the model order holds exactly.
   return {
     image: 0,
     imageAlt: 1,

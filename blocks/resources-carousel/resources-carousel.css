@@ -1,7 +1,10 @@
+/* In-flow block: main > .section > div already caps at --container and pads by
+   --section-pad, so anything here is ON TOP of the shared column. The old
+   1200px cap plus side padding pulled it 78px in from every neighbouring
+   block; vertical padding is the block's own business and stays. */
 .resources-carousel {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem);
+  padding: clamp(2.5rem, 5vw, 4rem) 0;
 }
 
 /* Header: heading left, find-all right */
@@ -83,7 +86,7 @@
   border-radius: inherit;
 }
 
-.resources-carousel .resources-carousel-card:hover {
+.resources-carousel .resources-carousel-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
   box-shadow: 0 8px 28px rgb(0 38 77 / 14%);
 }
 

@@ -212,13 +212,10 @@
     border-color 260ms ease;
 }
 
-.historical-trends .historical-trends-card:hover,
-.historical-trends .historical-trends-card:focus-within {
-  transform: translateY(-4px);
+.historical-trends .historical-trends-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
   border-color: rgb(20 145 191 / 18%);
-  box-shadow:
-    0 10px 22px rgb(17 58 103 / 9%),
-    0 22px 42px rgb(17 58 103 / 12%);
+  box-shadow: var(--shadow-3);
 }
 
 .historical-trends .historical-trends-card.is-authoring-placeholder {

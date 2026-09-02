@@ -61,9 +61,10 @@ main > .section > div.resource-downloads-wrapper {
     animation-delay: var(--rd-reveal-delay, 0ms);
   }
 
-  .resource-downloads-item:not(.is-informative):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgb(0 20 40 / 12%);
+  .resource-downloads-item:not(.is-informative):hover,
+.resource-downloads-item:not(.is-informative):focus-within {
+    transform: translateY(var(--hover-lift-row));
+    box-shadow: var(--shadow-3);
   }
 }
 

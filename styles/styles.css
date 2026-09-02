@@ -240,6 +240,52 @@
   --skeleton-cascade-step: 90ms;
   --beacon-color: #007294;
   --beacon-size: 56px;
+
+  /* ------------------------------------------------------------------
+     ELEVATION
+     Four steps fitted to the clusters already in the block CSS, which
+     carried 229 shadow declarations across 156 distinct values. Each
+     step below is the centre of a real cluster, not a new invention:
+       y1/blur2   7 uses      y8/blur18-24  10 uses
+       y14/blur24-28  26 uses     y24/blur60  13 uses
+
+     The colour is the brand navy at low alpha. The stylesheets were
+     already reaching for it by hand — rgb(17 54 82), rgb(22 50 74) and
+     rgb(36 56 70) are all approximations of the same navy tint.
+     ------------------------------------------------------------------ */
+  --shadow-1: 0 1px 2px rgb(0 38 77 / 6%);
+  --shadow-2: 0 8px 20px rgb(0 38 77 / 8%);
+  --shadow-3: 0 14px 28px rgb(0 38 77 / 12%);
+  --shadow-4: 0 24px 48px rgb(0 38 77 / 16%);
+
+  /* ------------------------------------------------------------------
+     HOVER
+     Three tiers, not one. The -1px lift is already the site's dominant
+     value and sits almost entirely on pills, filters and search fields;
+     flattening it into the card lift would erase a real distinction.
+
+     A card's hover COLOUR is deliberately not here. It is semantic to
+     the block — a navy card lightens, an orange CTA deepens, a card on
+     a photo goes translucent — so blocks supply it through
+     --hover-surface and the system owns only the mechanics.
+     ------------------------------------------------------------------ */
+  --hover-lift-card: -4px;
+  --hover-lift-row: -2px;
+  --hover-lift-control: -1px;
+
+  /* Media inside a card, never the card itself: the image must move less
+     than its container or the lift reads as a zoom instead of depth. */
+  --hover-media-scale: 1.03;
+
+  /* 180ms and 0.18s were the same value written two ways, 187 uses
+     between them. ease was already near-universal at 524 of 539. */
+  --hover-duration: 180ms;
+  --hover-ease: ease;
+  --hover-transition:
+    transform var(--hover-duration) var(--hover-ease),
+    box-shadow var(--hover-duration) var(--hover-ease),
+    border-color var(--hover-duration) var(--hover-ease),
+    background-color var(--hover-duration) var(--hover-ease);
 }
 
 /* Metric-matched fallback for Figtree.
@@ -1658,6 +1704,97 @@ main > .section.padding-y-lg {
 /* Retain eyebrow markup for future use while suppressing those labels site-wide. */
 [class*="eyebrow"] {
   display: none !important;
+}
+
+/* ====================================================================
+   HOVER SYSTEM
+   Three tiers of "you can interact with this", for surfaces that are
+   NOT buttons or links. Buttons have their own standard and are
+   deliberately out of scope here.
+
+   Tokens live in :root at the top of this file. A block adopts a tier
+   either by adding the class to its element, or — where the block's own
+   selector is already doing the work — by pointing that selector at the
+   same tokens.
+
+   Every tier pairs :hover with a focus state. That is the main reason
+   this is centralised: of the site's non-button hover rules, almost all
+   answered a mouse and nothing else. Cards that already contain a link
+   get a keyboard state here for free, in one place, instead of in 21
+   separate stylesheets that each have to remember.
+
+   :focus-within (not :focus-visible) for card and row, because the thing
+   that receives focus is the LINK inside the card, not the card itself.
+   Controls use :focus-visible since they are focusable in their own
+   right and should not light up on a mouse click.
+   ==================================================================== */
+.u-hover-card,
+.u-hover-row,
+.u-hover-control {
+  transition: var(--hover-transition);
+}
+
+/* A card only earns a hover if it actually contains something to click.
+   Many blocks have an OPTIONAL cta or link field, so the same block is
+   clickable on one page and inert on the next — a lift on the inert one
+   promises a click that is not there. :has() settles it per instance, at
+   render time, with no JS and no authoring flag to remember.
+
+   Only :hover needs the guard. :focus-within cannot fire unless something
+   inside can hold focus, so it is already self-limiting. */
+.u-hover-card:focus-within,
+.u-hover-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+
+  /* Opt-in and block-supplied. A block that wants no colour shift never
+     sets it and simply inherits, while still getting the lift, shadow,
+     timing and keyboard state. */
+  background: var(--hover-surface, inherit);
+}
+
+.u-hover-row:focus-within,
+.u-hover-row:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  background: var(--hover-surface, inherit);
+}
+
+.u-hover-control:hover,
+.u-hover-control:focus-visible {
+  transform: translateY(var(--hover-lift-control));
+  background: var(--hover-surface, inherit);
+}
+
+/* Media inside a hovered card. Scoped to the card tier so a bare image
+   never picks this up on its own. */
+.u-hover-card :is(img, picture) {
+  transition: transform var(--hover-duration) var(--hover-ease);
+}
+
+.u-hover-card:has(:is(a[href], button, [role="button"])):hover :is(img, picture) {
+  transform: scale(var(--hover-media-scale));
+}
+
+/* The movement stops; the affordance does not. Dropping the shadow and
+   colour too would leave a reduced-motion visitor with no hover feedback
+   at all, which is a worse outcome than a static lift. */
+@media (prefers-reduced-motion: reduce) {
+  .u-hover-card,
+  .u-hover-row,
+  .u-hover-control,
+  .u-hover-card :is(img, picture) {
+    transition: none;
+  }
+
+  .u-hover-card:hover,
+  .u-hover-card:focus-within,
+  .u-hover-row:hover,
+  .u-hover-row:focus-within,
+  .u-hover-control:hover,
+  .u-hover-control:focus-visible,
+  .u-hover-card:hover :is(img, picture) {
+    transform: none;
+  }
 }
 
 /* ====================================================================
