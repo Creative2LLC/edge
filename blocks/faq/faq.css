@@ -56,7 +56,7 @@ main > .section > .faq-wrapper {
   transition: opacity 220ms ease, transform 280ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.faq .faq-item:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+.faq .faq-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
 .faq .faq-item:focus-within {
   border-color: rgb(20 145 191 / 16%);
   background-color: rgb(244 240 236 / 88%);

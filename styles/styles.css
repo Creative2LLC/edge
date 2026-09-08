@@ -277,6 +277,15 @@
      than its container or the lift reads as a zoom instead of depth. */
   --hover-media-scale: 1.03;
 
+  /* The tint tier's wash, mixed from the card's own TEXT colour.
+     A fixed white value only works on a dark card, and several blocks let an
+     author choose the card background — cards, colored-grid, connect-grid and
+     job-postings all expose one — so a white wash would vanish the moment
+     somebody picked a light colour. currentColor contrasts with its own
+     surface by definition, so this lightens a dark card and darkens a light
+     one without anything to configure or freeze. */
+  --hover-tint-wash: color-mix(in srgb, currentcolor 8%, transparent);
+
   /* 180ms and 0.18s were the same value written two ways, 187 uses
      between them. ease was already near-universal at 524 of 539. */
   --hover-duration: 180ms;
@@ -286,6 +295,33 @@
     box-shadow var(--hover-duration) var(--hover-ease),
     border-color var(--hover-duration) var(--hover-ease),
     background-color var(--hover-duration) var(--hover-ease);
+
+  /* The edge tier draws the site's marker underline rather than a plain rule.
+     Same hand-drawn bezier animated-marker.js uses for style="underline", as a
+     MASK so the colour stays a token — a data-URI fill cannot read one. Colour
+     falls back to --text-marker-color, so a block that themes its marker
+     themes this too. */
+  --hover-edge-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath d='M4 21 C30 9 68 26 116 12' fill='none' stroke='%23000' stroke-width='11' stroke-linecap='round'/%3E%3C/svg%3E");
+
+  /* A marker is a stroke under a PHRASE, not a rule across a container. Left
+     full-bleed it stretched the hand-drawn wobble flat and ran through the
+     caption, because on these tiles the text's bottom sits on the card's
+     bottom. So: capped and centred rather than edge to edge, tall enough that
+     the stroke reads as a brush, and nudged below the baseline.
+     stroke-width is 11 rather than 7 to survive the vertical squash — the mask
+     scales to the box, so a 22px box renders 11/32 of it as roughly 7.5px. */
+
+  /* clamp, not a flat cap: these tiles range from a 108px logo to a 1356px
+     row, and one fixed width looks lost under the wide one and oversized under
+     the small one. 56% tracks the card, with floor and ceiling so it stays a
+     marker rather than a rule. */
+  --hover-edge-width: clamp(96px, 56%, 320px);
+  --hover-edge-height: 22px;
+  --hover-edge-offset: -14px;
+
+  /* Slower than the other tiers: a pen stroke that lands in 180ms reads as a
+     flicker rather than as drawing. */
+  --hover-edge-duration: 320ms;
 }
 
 /* Metric-matched fallback for Figtree.
@@ -1743,7 +1779,7 @@ main > .section.padding-y-lg {
    Only :hover needs the guard. :focus-within cannot fire unless something
    inside can hold focus, so it is already self-limiting. */
 .u-hover-card:focus-within,
-.u-hover-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+.u-hover-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
   transform: translateY(var(--hover-lift-card));
   box-shadow: var(--shadow-3);
 
@@ -1754,7 +1790,7 @@ main > .section.padding-y-lg {
 }
 
 .u-hover-row:focus-within,
-.u-hover-row:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+.u-hover-row:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
   transform: translateY(var(--hover-lift-row));
   background: var(--hover-surface, inherit);
 }
@@ -1773,6 +1809,91 @@ main > .section.padding-y-lg {
 
 .u-hover-card:has(:is(a[href], button, [role="button"])):hover :is(img, picture) {
   transform: scale(var(--hover-media-scale));
+}
+
+/* --- TINT: dark and photographic cards -----------------------------
+   A drop shadow under a dark card is invisible, and a lift makes it
+   look detached from its own background. So this tier does not move
+   the card at all — it brightens the surface with a translucent wash
+   and lets the media inside creep forward.
+
+   The wash is a background-IMAGE layer rather than a pseudo-element,
+   so it composites over whatever background the block already set
+   without needing position:relative or a spare ::after. */
+.u-hover-tint {
+  transition: var(--hover-transition);
+}
+
+.u-hover-tint :is(img, picture) {
+  transition: transform var(--hover-duration) var(--hover-ease);
+}
+
+.u-hover-tint:focus-within,
+.u-hover-tint:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  background-image: linear-gradient(var(--hover-tint-wash), var(--hover-tint-wash));
+}
+
+.u-hover-tint:focus-within :is(img, picture),
+.u-hover-tint:where(:has(:is(a[href], button, [role="button"]))):hover :is(img, picture) {
+  transform: scale(var(--hover-media-scale));
+}
+
+/* --- EDGE: flat tiles, logos and badges ----------------------------
+   A logo tile has no elevation to add to — lifting one off the page
+   reads as a rendering fault rather than as an affordance. Instead a
+   brand rule draws in along the bottom edge, left to right.
+
+   That is the same gesture as the skeleton sweep and the hero scroll
+   cue: a bright brand segment travelling a track. Using it here means
+   the site has one motion idea rather than three unrelated ones. */
+.u-hover-edge {
+  position: relative;
+  transition: var(--hover-transition);
+}
+
+.u-hover-edge::after {
+  content: "";
+  position: absolute;
+  bottom: var(--hover-edge-offset);
+  left: 50%;
+  width: var(--hover-edge-width);
+  height: var(--hover-edge-height);
+  translate: -50% 0;
+  background: var(--hover-edge-color, var(--text-marker-color, #f5c84b));
+  mask-image: var(--hover-edge-mark);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+
+  /* clip-path, not scaleX: a wipe draws the stroke in like a pen, where a
+     scale would stretch the brush shape as it grows. */
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--hover-edge-duration) var(--hover-ease);
+}
+
+.u-hover-edge:focus-within::after,
+.u-hover-edge:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .u-hover-tint,
+  .u-hover-tint :is(img, picture),
+  .u-hover-edge,
+  .u-hover-edge::after {
+    transition: none;
+  }
+
+  .u-hover-tint:focus-within :is(img, picture),
+  .u-hover-tint:hover :is(img, picture) {
+    transform: none;
+  }
+
+  /* The rule still appears, it just does not draw. Removing it entirely
+     would leave this tier with no hover feedback at all. */
+  .u-hover-edge:focus-within::after,
+  .u-hover-edge:hover::after {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 /* The movement stops; the affordance does not. Dropping the shadow and

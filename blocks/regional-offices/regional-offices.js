@@ -122,6 +122,26 @@ function getItemColumnMap(row) {
   const cells = [...row.children];
 
   if (!hasInstrumentation) {
+    // Current published shape. imageAlt is folded into the <img alt> attribute
+    // and takes no cell of its own, so the 7-field model emits 6 cells and
+    // every field after the image sits one slot earlier than the model says.
+    //
+    // Worth stating explicitly rather than leaving to the heuristic below: that
+    // path hard-codes buttonLink to null, so an authored link could never
+    // resolve from it, and it discards any cell that looks like a URL before it
+    // starts matching — which is exactly the cell the link lives in.
+    if (cells.length === 6) {
+      return {
+        image: 0,
+        imageAlt: null,
+        title: 1,
+        bodyText: 2,
+        buttonText: 3,
+        buttonLink: 4,
+        buttonStyle: 5,
+      };
+    }
+
     const imageAlts = [...row.querySelectorAll('img')]
       .map((img) => normalizeCompactText(img.alt))
       .filter(Boolean);
@@ -142,14 +162,23 @@ function getItemColumnMap(row) {
       .filter((entry) => entry !== titleCell)
       .sort((a, b) => b.text.length - a.text.length)[0];
 
+    const linkCell = cells.findIndex((c, i) => i > 0 && getCellLinkValue(c));
+    const linkCellIndex = linkCell >= 0 ? linkCell : null;
+    const styleCell = cells
+      .findIndex((c, i) => i > 0 && isButtonStyleValue(normalizeCompactText(c.textContent)));
+    const styleCellIndex = styleCell >= 0 ? styleCell : null;
+
     return {
       image: 0,
       imageAlt: null,
       title: titleCell?.index ?? 2,
       bodyText: bodyCell?.index ?? 1,
       buttonText: buttonTextCell?.index ?? null,
-      buttonLink: null,
-      buttonStyle: null,
+      // Was hard-coded null, which meant an authored link on any older cell
+      // shape could never render. findRowLinkField already knows how to spot
+      // the link cell; use it rather than giving up.
+      buttonLink: linkCellIndex,
+      buttonStyle: styleCellIndex,
     };
   }
 

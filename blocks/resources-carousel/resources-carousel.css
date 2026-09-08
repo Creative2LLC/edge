@@ -86,7 +86,7 @@
   border-radius: inherit;
 }
 
-.resources-carousel .resources-carousel-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+.resources-carousel .resources-carousel-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
   box-shadow: 0 8px 28px rgb(0 38 77 / 14%);
 }
 

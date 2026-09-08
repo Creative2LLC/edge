@@ -237,3 +237,29 @@
     font-size: 18px;
   }
 }
+
+/* HOVER — tint tier (wash, no lift). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.cards .cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.cards .cards-card:focus-within,
+.cards .cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  background-image: linear-gradient(var(--hover-tint-wash), var(--hover-tint-wash));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cards .cards-card:focus-within,
+  .cards .cards-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

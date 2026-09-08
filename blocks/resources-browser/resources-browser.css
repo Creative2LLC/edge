@@ -620,17 +620,17 @@ main > .section > .resources-browser-wrapper {
     transition: box-shadow 0.28s ease, transform 0.28s ease;
   }
 
-  .resources-browser .resources-browser-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+  .resources-browser .resources-browser-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
 .resources-browser .resources-browser-card:focus-within {
     box-shadow: var(--shadow-3);
     transform: translateY(var(--hover-lift-card));
   }
 
-  .resources-browser .resources-browser-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .resources-browser-card-image img {
+  .resources-browser .resources-browser-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .resources-browser-card-image img {
     transform: scale(1.055);
   }
 
-  .resources-browser .resources-browser-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .resources-browser-card-type-icon {
+  .resources-browser .resources-browser-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .resources-browser-card-type-icon {
     transform: rotate(-4deg) translateY(-1px);
   }
 }

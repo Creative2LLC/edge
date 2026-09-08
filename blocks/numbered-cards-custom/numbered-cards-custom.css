@@ -291,7 +291,7 @@
 }
 
 @media (hover: hover) {
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
     transform: translateY(-10px);
     box-shadow: 0 22px 44px rgb(0 38 77 / 18%);
     background: var(
@@ -300,24 +300,24 @@
     );
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-number-box {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-number-box {
     color: var(--numbered-cards-custom-number-color-active, #fff);
     border-color: var(--numbered-cards-custom-number-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-number-text {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-number-text {
     color: var(--numbered-cards-custom-number-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-title {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-title {
     color: var(--numbered-cards-custom-title-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-body {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-body {
     color: var(--numbered-cards-custom-body-color-active, #fff);
   }
 
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-cta {
+  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-cta {
     background: var(--numbered-cards-custom-cta-bg-active, #fff);
     color: var(--numbered-cards-custom-cta-text-active, #00264d);
     transform: translateY(-1px);

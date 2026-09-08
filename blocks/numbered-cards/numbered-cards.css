@@ -202,7 +202,7 @@
   transition-delay: calc(var(--numbered-card-index, 0) * 70ms + 130ms);
 }
 
-.numbered-cards-carousel-layout .numbered-cards-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+.numbered-cards-carousel-layout .numbered-cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
   background-color: #008eb7 !important;
   box-shadow: var(--shadow-3);
 }
