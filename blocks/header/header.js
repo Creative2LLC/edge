@@ -9,6 +9,7 @@ import resolveSiteHref, {
   localizedCurrentPageHref,
 } from '../../scripts/link-utils.js';
 import applyNavLinkOverrides from '../../scripts/nav-link-overrides.js';
+import { markDonateTrigger } from '../../scripts/classy-donate.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
@@ -800,6 +801,10 @@ function isNavSearchTrigger(button) {
   return button.classList.contains('nav-search-trigger')
     || !!button.querySelector('.icon-search')
     || label === 'search';
+}
+
+function isNavDonateTrigger(button) {
+  return normalizeNavToolLabel(button.textContent).startsWith('donate');
 }
 
 function stripTrailingNavToolArrow(button) {
@@ -2765,6 +2770,10 @@ export default async function decorate(block) {
     if (searchTrigger) {
       headerSearch.bindExternalTrigger(searchTrigger);
     }
+
+    // Donate opens the Classy embedded checkout rather than navigating anywhere.
+    const donateTrigger = toolButtons.find(isNavDonateTrigger);
+    if (donateTrigger) markDonateTrigger(donateTrigger);
   }
 
   const navWrapper = document.createElement('div');

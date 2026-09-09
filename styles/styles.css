@@ -376,10 +376,19 @@
   border-color: #e5e7eb;
 }
 
+/* The viewport takes its overflow from html, falling back to body only while html is
+   visible. Pinning the horizontal clip here rather than relying on the body rule below
+   keeps it out of reach of third-party scripts: the Classy checkout SDK writes an inline
+   `overflow: inherit` onto body to lock scrolling and leaves `overflow-x: inherit` behind
+   when it closes, which used to hand the viewport back to body and expose the full-bleed
+   100vw overhang as a horizontal scrollbar that never went away.
+   clip, not hidden — hidden would force overflow-y to auto and make html a scroll
+   container, which breaks the fixed header and scroll anchoring. */
 html {
   line-height: 1.5;
   tab-size: 4;
   text-size-adjust: 100%;
+  overflow-x: clip;
   -webkit-tap-highlight-color: transparent;
 }
 

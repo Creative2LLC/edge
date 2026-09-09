@@ -17,6 +17,7 @@ const ALLOWED_PARAM_KEYS = [
   'file_extension',
   'gated',
   'audience',
+  'campaign_id',
   'page_location',
 ];
 
