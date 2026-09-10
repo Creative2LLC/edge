@@ -45,16 +45,12 @@
   font-weight: 700;
 }
 
-.cookie-consent-actions,
-.cookie-consent-detail-actions {
+.cookie-consent-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
   margin-top: 18px;
-}
-
-.cookie-consent-detail-actions {
-  justify-content: flex-end;
 }
 
 .cookie-consent-button {
@@ -85,24 +81,33 @@
   background: #007294;
 }
 
-.cookie-consent-button.secondary,
-.cookie-consent-button.ghost {
+/* Accept and Reject must read as equals. The old .ghost variant — transparent border
+   over a pale fill — made refusing visibly weaker than accepting, which is the dark
+   pattern EU regulators fine for. Both refusal buttons now carry a full-strength
+   border at the same size and weight as Accept All. */
+.cookie-consent-button.secondary {
   border: 2px solid #143654;
   background: #fff;
   color: #143654;
 }
 
-.cookie-consent-button.ghost {
-  border-color: transparent;
-  background: #eef5fb;
-}
-
 .cookie-consent-button.secondary:hover,
-.cookie-consent-button.secondary:focus,
-.cookie-consent-button.ghost:hover,
-.cookie-consent-button.ghost:focus {
+.cookie-consent-button.secondary:focus {
   background: #143654;
   color: #fff;
+}
+
+/* styles.css hides [hidden] via a zero-specificity :where(), which a plain class
+   selector outranks — so .cookie-consent-button{display:inline-flex} kept rendering
+   buttons the script had already marked hidden. Restate it at class specificity. */
+.cookie-consent-button[hidden] {
+  display: none;
+}
+
+/* Customize/Save sits apart on the left; Reject and Accept stay paired on the right so
+   the two consent choices are read together and weighed against each other. */
+.cookie-consent-actions .cookie-consent-button:first-child {
+  margin-right: auto;
 }
 
 .cookie-consent-details {
@@ -244,8 +249,7 @@
     overflow: auto;
   }
 
-  .cookie-consent-actions,
-  .cookie-consent-detail-actions {
+  .cookie-consent-actions {
     display: grid;
     grid-template-columns: 1fr;
   }

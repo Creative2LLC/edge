@@ -10,6 +10,7 @@ import resolveSiteHref, {
 } from '../../scripts/link-utils.js';
 import applyNavLinkOverrides from '../../scripts/nav-link-overrides.js';
 import { markDonateTrigger } from '../../scripts/classy-donate.js';
+import { trackEvent } from '../../scripts/analytics.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // desktop nav should apply at standard desktop breakpoints
@@ -718,6 +719,7 @@ function buildHeaderSearch({ apiBaseUrl, resultsPath, placeholder }) {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const query = input.value.trim();
+    if (query) trackEvent('site_search', { search_term: query });
 
     if (!isDesktop.matches) {
       window.location.href = buildResultsLink(query);

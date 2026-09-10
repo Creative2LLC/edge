@@ -144,14 +144,20 @@ function fileExtension(value) {
 }
 
 /**
- * Record a download: GA4 event (no PII) + backend event tied to the cached
+ * Record a download: analytics event (no PII) + backend event tied to the cached
  * registration email when present. Fire-and-forget.
+ *
+ * @param {boolean} [recordedByServer] true when the file's URL is minted by the
+ *   /download-url endpoint, which writes its own — authoritative — row. Posting from
+ *   here as well would double-count the same download. The analytics event is still
+ *   raised either way, because the tag layer needs the browser's session context.
  */
 export function recordDownload({
   resourceSlug = '',
   fileUrl = '',
   fileName = '',
   gated = false,
+  recordedByServer = false,
 } = {}) {
   const name = fileName || (String(fileUrl).split(/[?#]/)[0].split('/').pop() || '');
 
@@ -161,6 +167,8 @@ export function recordDownload({
     file_extension: fileExtension(name || fileUrl),
     gated: gated ? 'true' : 'false',
   });
+
+  if (recordedByServer) return;
 
   const action = resolveFormAction('resource-download');
   if (!action || !fileUrl) return;
@@ -565,6 +573,8 @@ export function bindGatedLink(link, {
     fileUrl: targetUrl || fileName || `s3:${resourceSlug}`,
     fileName,
     gated,
+    // The /download-url endpoint records these itself, from the server side.
+    recordedByServer: usesSignedUrl,
   });
   const deliver = () => {
     if (usesSignedUrl) {

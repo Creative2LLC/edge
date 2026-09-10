@@ -5,12 +5,29 @@ const CONSENT_ID_KEY = 'ncmec.cookieConsentId';
 const DEFAULT_CONFIG = Object.freeze({
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/cookie-consent',
-  policyVersion: '2026-05-28',
+  // Bumped when the Marketing category was added: a stored consent that predates it
+  // never answered the advertising question, so it must be collected again.
+  policyVersion: '2026-09-09',
+  // Consent is not forever. EU guidance converges on re-asking about once a year;
+  // after this the banner returns even though the policy version has not moved.
+  consentMaxAgeDays: 365,
   privacyPolicyUrl: '',
 });
 const DEFAULT_PRIVACY_POLICY_AUTHOR_PATH = '/content/edge/footer/privacypolicy.html';
 const DEFAULT_PRIVACY_POLICY_LIVE_PATH = '/footer/privacypolicy';
 const DISABLED_VALUES = new Set(['0', 'false', 'no', 'off', 'disabled']);
+
+/**
+ * Global Privacy Control: a browser-level "do not sell or share" signal. Honouring it
+ * is a legal requirement in California (CPRA), Colorado and Connecticut, not a courtesy
+ * — enforcement actions have turned on exactly this. We treat it as a standing refusal
+ * of advertising consent: the Marketing toggle is forced off and locked, while Analytics
+ * is still asked normally, since GPC is an opt-out of sale/sharing rather than of
+ * measurement.
+ */
+function hasGlobalPrivacyControl() {
+  return navigator.globalPrivacyControl === true;
+}
 
 function compactConfig(config = {}) {
   return Object.fromEntries(
@@ -73,6 +90,7 @@ function readStoredConsent() {
     preferences: {
       essential: true,
       analytics: Boolean(stored.preferences.analytics),
+      marketing: Boolean(stored.preferences.marketing),
     },
   };
 }
@@ -98,6 +116,7 @@ function resolveConfig() {
     apiBaseUrl: normalizeApiBaseUrl(merged.apiBaseUrl),
     endpointPath: merged.endpointPath || DEFAULT_CONFIG.endpointPath,
     policyVersion: `${merged.policyVersion || DEFAULT_CONFIG.policyVersion}`.trim(),
+    consentMaxAgeDays: Number(merged.consentMaxAgeDays) || DEFAULT_CONFIG.consentMaxAgeDays,
     privacyPolicyUrl: `${merged.privacyPolicyUrl || getDefaultPrivacyPolicyUrl()}`.trim(),
     enabled: !DISABLED_VALUES.has(enabledValue),
   };
@@ -109,12 +128,16 @@ function applyConsent(consent) {
     preferences: {
       essential: true,
       analytics: Boolean(consent?.preferences?.analytics),
+      marketing: Boolean(consent?.preferences?.marketing),
     },
   };
 
   window.hlx = window.hlx || {};
   window.hlx.cookieConsent = normalized;
   document.documentElement.dataset.cookieAnalytics = normalized.preferences.analytics
+    ? 'accepted'
+    : 'declined';
+  document.documentElement.dataset.cookieMarketing = normalized.preferences.marketing
     ? 'accepted'
     : 'declined';
   window.dispatchEvent(new CustomEvent('ncmec:cookie-consent', { detail: normalized }));
@@ -125,6 +148,7 @@ function getConsentPayload(consent) {
     preferences: {
       essential: true,
       analytics: Boolean(consent.preferences.analytics),
+      marketing: Boolean(consent.preferences.marketing),
     },
     policyVersion: consent.policyVersion,
     action: consent.action || 'custom',
@@ -160,6 +184,7 @@ async function syncConsent(consent, config) {
     preferences: {
       essential: true,
       analytics: Boolean(data.preferences?.analytics ?? consent.preferences.analytics),
+      marketing: Boolean(data.preferences?.marketing ?? consent.preferences.marketing),
     },
     policyVersion: data.policyVersion || consent.policyVersion,
     action: data.action || consent.action,
@@ -183,7 +208,7 @@ function createButton(text, className, onClick) {
 
 function buildPolicyText(config) {
   const text = createElement('p', 'cookie-consent-text');
-  text.append('We use essential cookies to keep the site working. With your permission, analytics cookies help us understand traffic and improve the experience. Learn more in our ');
+  text.append('We use essential cookies to keep the site working. With your permission, analytics cookies help us understand traffic and marketing cookies help us measure our advertising. Learn more in our ');
 
   const link = createElement('a', '', 'Privacy Policy');
   link.href = config.privacyPolicyUrl;
@@ -253,12 +278,15 @@ function persistConsent(block, consent, config) {
     });
 }
 
-function createConsent(action, analytics, config, existingConsent = null) {
+function createConsent(action, prefs, config, existingConsent = null) {
   return {
     consentId: existingConsent?.consentId || readConsentId(),
     preferences: {
       essential: true,
-      analytics: Boolean(analytics),
+      analytics: Boolean(prefs?.analytics),
+      // A GPC signal overrides the UI: even 'Accept All' cannot turn advertising on
+      // while the browser is broadcasting a refusal to sell or share.
+      marketing: hasGlobalPrivacyControl() ? false : Boolean(prefs?.marketing),
     },
     policyVersion: config.policyVersion,
     action,
@@ -270,6 +298,7 @@ function renderConsentBanner(block, config, existingConsent = null, forceDetails
   removeConsentUi(block);
 
   const initialAnalytics = Boolean(existingConsent?.preferences?.analytics);
+  const initialMarketing = Boolean(existingConsent?.preferences?.marketing);
   const shell = createElement('div', 'cookie-consent-shell');
   const panel = createElement('section', 'cookie-consent-panel');
   const header = createElement('div', 'cookie-consent-header');
@@ -291,6 +320,16 @@ function renderConsentBanner(block, config, existingConsent = null, forceDetails
     checked: initialAnalytics,
     disabled: false,
   });
+  const gpc = hasGlobalPrivacyControl();
+  const { row: marketingRow, input: marketingInput } = buildToggle({
+    id: 'cookie-consent-marketing',
+    label: 'Marketing',
+    description: gpc
+      ? 'Turned off automatically because your browser sends a Global Privacy Control signal.'
+      : 'Lets us measure our advertising and show relevant messages about our mission on other sites.',
+    checked: gpc ? false : initialMarketing,
+    disabled: gpc,
+  });
 
   heading.id = 'cookie-consent-heading';
   policyText.id = 'cookie-consent-description';
@@ -300,37 +339,50 @@ function renderConsentBanner(block, config, existingConsent = null, forceDetails
   panel.setAttribute('aria-describedby', policyText.id);
   details.hidden = !forceDetails;
 
-  const customizeButton = createButton('Customize', 'cookie-consent-button secondary', () => {
-    details.hidden = false;
-    analyticsInput.focus();
-  });
+  const acceptAll = { analytics: true, marketing: !gpc };
   const acceptAllButton = createButton('Accept All', 'cookie-consent-button primary', () => {
-    persistConsent(block, createConsent('accept_all', true, config, existingConsent), config);
+    persistConsent(block, createConsent('accept_all', acceptAll, config, existingConsent), config);
   });
-  const okButton = createButton('OK', 'cookie-consent-button ghost', () => {
-    persistConsent(block, createConsent('essential_only', false, config, existingConsent), config);
+  // Refusing must be exactly as easy, and as visible, as accepting — same size, same
+  // legibility, no softer styling. A pale 'OK' next to a solid 'Accept All' is the
+  // dark pattern EU regulators have repeatedly fined for.
+  const rejectButton = createButton('Reject All', 'cookie-consent-button secondary', () => {
+    persistConsent(block, createConsent('essential_only', {}, config, existingConsent), config);
   });
-  okButton.setAttribute('aria-label', 'Keep essential cookies only');
+  rejectButton.setAttribute('aria-label', 'Reject all optional cookies');
 
-  const saveButton = createButton('Save Preferences', 'cookie-consent-button primary', () => {
+  const saveButton = createButton('Save Preferences', 'cookie-consent-button secondary', () => {
     persistConsent(
       block,
-      createConsent('custom', analyticsInput.checked, config, existingConsent),
+      createConsent(
+        'custom',
+        { analytics: analyticsInput.checked, marketing: marketingInput.checked },
+        config,
+        existingConsent,
+      ),
       config,
     );
   });
-  const detailAcceptAllButton = createButton('Accept All', 'cookie-consent-button secondary', () => {
-    analyticsInput.checked = true;
-    persistConsent(block, createConsent('accept_all', true, config, existingConsent), config);
+
+  // Customize and Save Preferences share one slot in one row: the first is the way into
+  // the detail toggles, the second the way out. Exactly one is ever visible.
+  //
+  // These used to be two separate rows — an always-visible row and a second row inside
+  // the details — so opening Customize showed the visitor two Accept All buttons and a
+  // Customize they had already used. Three choices, presented once, is the whole point.
+  const customizeButton = createButton('Customize', 'cookie-consent-button secondary', () => {
+    details.hidden = false;
+    customizeButton.hidden = true;
+    saveButton.hidden = false;
+    analyticsInput.focus();
   });
+  customizeButton.hidden = forceDetails;
+  saveButton.hidden = !forceDetails;
 
   header.append(heading);
-  details.append(essentialRow, analyticsRow);
-  actions.append(customizeButton, acceptAllButton, okButton);
-  const detailActions = createElement('div', 'cookie-consent-detail-actions');
-  detailActions.append(saveButton, detailAcceptAllButton);
+  details.append(essentialRow, analyticsRow, marketingRow);
+  actions.append(customizeButton, saveButton, rejectButton, acceptAllButton);
 
-  details.append(detailActions);
   panel.append(header, policyText, details, actions);
   shell.append(panel);
   block.append(shell);
@@ -369,9 +421,20 @@ function retryFooterPreferenceLink(block, config) {
   window.setTimeout(() => addFooterPreferenceLink(block, config), 1000);
 }
 
+function consentHasExpired(storedConsent, config) {
+  const days = Number(config.consentMaxAgeDays);
+  if (!days || !storedConsent?.savedAt) return false;
+
+  const savedAt = Date.parse(storedConsent.savedAt);
+  if (Number.isNaN(savedAt)) return false;
+
+  return Date.now() - savedAt > days * 24 * 60 * 60 * 1000;
+}
+
 function shouldShowBanner(storedConsent, config) {
   if (!storedConsent) return true;
-  return storedConsent.policyVersion !== config.policyVersion;
+  if (storedConsent.policyVersion !== config.policyVersion) return true;
+  return consentHasExpired(storedConsent, config);
 }
 
 function retryPendingSync(storedConsent, config) {
