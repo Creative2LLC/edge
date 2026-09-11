@@ -7,21 +7,93 @@
           "component": "text",
           "valueType": "string",
           "name": "jcr:title",
-          "label": "Title"
+          "label": "Page Title",
+          "description": "Shown as the tab name and as the headline in Google results. Aim for under 60 characters — Google truncates past that. Put the distinctive words first; every page needs its own."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "jcr:description",
-          "label": "Description"
+          "label": "Meta Description",
+          "description": "The grey summary under the link in Google results, and the text shown when the page is shared. Aim for 120-160 characters — under 50 is too thin to be useful, over 160 gets cut off mid-sentence. Write a sentence that would make someone click, not a list of keywords."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "keywords",
           "multi": true,
-          "label": "Keywords"
+          "label": "Keywords",
+          "description": "Used by this site's own search, not by Google — search engines have ignored this tag for years. Add the words a visitor might type to find this page."
         },
+
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "og:image",
+          "label": "Social Share Image",
+          "multi": false,
+          "description": "The picture shown when this page is shared on Facebook, LinkedIn, X or in a text message. Use 1200x630. If left empty the first image on the page is used, which is often a cropped or decorative one — set it deliberately on any page you expect to be shared. (Alt text for this image cannot be set here: og:image:alt needs two colons and an AEM property name allows only one. It is set in the bulk metadata sheet instead — see docs/seo-and-social.md.)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "og:title",
+          "label": "Social Share Title (optional)",
+          "description": "Overrides the Page Title when shared on social media. Leave empty to reuse the Page Title. Worth setting when the SEO title is keyword-led but the shareable version should be more human."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "og:description",
+          "label": "Social Share Description (optional)",
+          "description": "Overrides the Meta Description when shared on social media. Leave empty to reuse it."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "og:type",
+          "label": "Content Type",
+          "description": "How social platforms categorise this page. Use Article for news, blog posts and dated content; Website for everything else.",
+          "options": [
+            { "name": "Website", "value": "website" },
+            { "name": "Article", "value": "article" }
+          ],
+          "value": "website"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "og:locale",
+          "label": "Language",
+          "description": "The language of this page, for social platforms. Set to Spanish on pages under /es.",
+          "options": [
+            { "name": "English (US)", "value": "en_US" },
+            { "name": "Spanish", "value": "es_ES" }
+          ],
+          "value": "en_US"
+        },
+
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "robots",
+          "label": "Search Engine Visibility",
+          "description": "Leave as Index unless there is a reason not to. Choose No Index for thank-you pages, internal test pages and anything duplicated elsewhere — it removes the page from Google without unpublishing it.",
+          "options": [
+            { "name": "Index — show in search results", "value": "index, follow" },
+            { "name": "No Index — hide from search results", "value": "noindex, nofollow" },
+            { "name": "No Index, follow links", "value": "noindex, follow" }
+          ],
+          "value": "index, follow"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "canonical",
+          "label": "Canonical URL (optional)",
+          "description": "Only needed when this page duplicates another. Point it at the version that should rank, so the two do not compete with each other in search. Leave empty otherwise — the page's own URL is used."
+        },
+
         {
           "component": "text",
           "valueType": "string",
