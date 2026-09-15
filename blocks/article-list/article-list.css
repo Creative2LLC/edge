@@ -41,7 +41,7 @@
 
 .article-list .article-list-filter-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.8rem;
   align-items: center;
 }
@@ -69,6 +69,33 @@
 
 .article-list .article-list-sort {
   min-width: 0;
+}
+
+.article-list .article-list-area-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.article-list .article-list-area-pill {
+  min-height: 2.5rem;
+  margin: 0;
+  border: 1px solid #b9cbd5;
+  border-radius: 999px;
+  background: #fff;
+  color: #16324a;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.article-list .article-list-area-pill.is-active {
+  border-color: #0d3c50;
+  background: #0d3c50;
+  color: #fff;
 }
 
 .article-list .article-list-meta {
@@ -181,10 +208,10 @@
 .article-list .article-list-card {
   position: relative;
   overflow: hidden;
-  border-radius: 24px;
-  background: linear-gradient(180deg, #fff 0%, #fbfdfe 100%);
-  border: 1px solid rgb(201 220 229 / 70%);
-  box-shadow: 0 20px 48px rgb(22 50 74 / 10%);
+  border-radius: 8px;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 8%);
 
   /* backwards, not both: `both` keeps applying the animation's final
      transform after it finishes, and animated values beat normal declarations
@@ -212,7 +239,7 @@
 }
 
 .article-list .article-list-card-media {
-  aspect-ratio: 16 / 10;
+  height: 300px;
   overflow: hidden;
   background: linear-gradient(135deg, #dfe9ee 0%, #cfdde6 100%);
 }
@@ -234,9 +261,11 @@
 
 .article-list .article-list-card-body {
   position: relative;
-  display: grid;
-  gap: 0.85rem;
-  padding: 1.15rem 1.15rem 1.3rem;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 20px;
 }
 
 .article-list .article-list-grid[data-view="list"] .article-list-card-body {
@@ -262,7 +291,7 @@
 
 .article-list .article-list-card-title {
   margin: 0;
-  color: #16324a;
+  color: #404041;
 }
 
 .article-list .article-list-grid[data-view="list"] .article-list-card-title {
@@ -271,7 +300,8 @@
 
 .article-list .article-list-card-excerpt {
   margin: 0;
-  color: #516272;
+  color: #404041;
+  font-weight: var(--body-weight-medium);
   font-size: var(--body-sm-size);
 }
 
@@ -282,7 +312,8 @@
   align-items: center;
   min-height: 24px; /* WCAG 2.5.8 target-size */
   gap: 0.35rem;
-  color: #0d6e8c;
+  margin-top: auto;
+  color: #0d3c50;
   font-size: 0.93rem;
   font-weight: 700;
   text-decoration: none;
@@ -349,6 +380,11 @@
   outline-offset: 3px;
 }
 
+.article-list .article-list-area-pill:focus-visible {
+  outline: 2px solid #0d6e8c;
+  outline-offset: 3px;
+}
+
 @keyframes article-list-rise {
   from {
     opacity: 0;
@@ -399,6 +435,10 @@
 
   .article-list .article-list-filter-row {
     grid-template-columns: 1fr;
+  }
+
+  .article-list .article-list-card-media {
+    height: 200px;
   }
 
   .article-list .article-list-load-more {

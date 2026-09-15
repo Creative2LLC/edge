@@ -92,9 +92,11 @@
   color: #b42318;
 }
 
+/* auto-fill (not auto-fit) keeps the empty column, so a lone alert stays
+   one column wide instead of stretching across the whole row. */
 .amber-alerts-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
   gap: 24px;
   width: min(1280px, 100%);
 }
@@ -148,6 +150,17 @@
   color: #243846;
 }
 
+/* Same linked-name treatment as the poster search result cards. */
+.amber-alerts-card-title-link {
+  color: #1b8db5;
+  text-decoration: none;
+}
+
+.amber-alerts-card-title-link:hover,
+.amber-alerts-card-title-link:focus-visible {
+  text-decoration: underline;
+}
+
 .amber-alerts-detail h3 {
   margin: 0 0 22px;
   color: #243846;
@@ -167,11 +180,16 @@
   margin: 0;
 }
 
+/* Label/value type matches .poster-results-card-body dt/dd. */
 .amber-alerts-card dt {
   color: #3f4a52;
-  font-size: clamp(16px, 1.45vw, 20px);
-  font-weight: 500;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   line-height: 1.25;
+}
+
+.amber-alerts-card dt::after {
+  content: ':';
 }
 
 .amber-alerts-detail dt {
@@ -185,7 +203,7 @@
   margin: 0;
   overflow-wrap: anywhere;
   color: #3f4a52;
-  font-size: clamp(16px, 1.45vw, 20px);
+  font-size: var(--body-lg-size);
   line-height: 1.25;
 }
 
@@ -369,7 +387,7 @@
     max-height: 280px;
   }
 
-  .amber-alerts-card dl,
+  /* Cards keep "Label: value" on one line on mobile, like the poster cards. */
   .amber-alerts-detail dl {
     grid-template-columns: 1fr;
     gap: 6px;

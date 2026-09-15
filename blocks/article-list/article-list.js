@@ -350,23 +350,19 @@ function buildCard(article, index = 0, onFacetActivate = null, config = {}) {
 
   const body = document.createElement('div');
   body.className = 'article-list-card-body';
-  const taxonomyEntries = [
-    ...((article.audience_labels || []).map((label, entryIndex) => ({
-      facet: 'audience',
-      label,
-      value: article.audience_values?.[entryIndex] || label,
-    }))),
-    ...(article.issue_label ? [{
-      facet: 'issue',
-      label: article.issue_label,
-      value: article.issue || article.issue_label,
-    }] : []),
-    ...(article.resource_type_label ? [{
-      facet: 'type',
-      label: article.resource_type_label,
-      value: article.resource_type || article.resource_type_label,
-    }] : []),
-  ].filter((entry) => normalizeText(entry.label) && normalizeText(entry.value));
+  const facetByGroup = {
+    primary_area: 'audience',
+    topic: 'issue',
+    story_type: 'type',
+    program_series: 'tags',
+  };
+  const taxonomyEntries = (article.blog_taxonomy || [])
+    .map((entry) => ({
+      facet: facetByGroup[entry.group],
+      label: entry.name,
+      value: entry.slug,
+    }))
+    .filter((entry) => entry.facet && normalizeText(entry.label) && normalizeText(entry.value));
 
   if (taxonomyEntries.length) {
     const taxonomy = document.createElement('div');
@@ -461,18 +457,21 @@ function buildShell(config) {
   searchWrap.append(searchInput);
   primaryRow.append(searchWrap);
 
-  const audienceSelect = createFilterSelect('Audience');
-  const issueSelect = createFilterSelect('Issue');
-  const typeSelect = createFilterSelect('Type');
-  const tagSelect = createFilterSelect('Tag');
+  const areaPills = document.createElement('div');
+  areaPills.className = 'article-list-area-pills';
+  areaPills.setAttribute('aria-label', 'Explore by topic');
+  const issueSelect = createFilterSelect('Topics');
+  const typeSelect = createFilterSelect('Story type');
+  const tagSelect = createFilterSelect('Programs & series');
   const sortSelect = createSortSelect('Sort articles');
   primaryRow.append(sortSelect);
   controls.append(primaryRow);
 
   const filterRow = document.createElement('div');
   filterRow.className = 'article-list-filter-row';
-  filterRow.append(audienceSelect, issueSelect, typeSelect, tagSelect);
+  filterRow.append(issueSelect, typeSelect, tagSelect);
   controls.append(filterRow);
+  controls.append(areaPills);
   header.append(controls);
   inner.append(header);
 
@@ -509,7 +508,7 @@ function buildShell(config) {
   return {
     inner,
     searchInput,
-    audienceSelect,
+    areaPills,
     issueSelect,
     typeSelect,
     tagSelect,
@@ -530,7 +529,7 @@ function renderApiList(block, config) {
   const {
     inner,
     searchInput,
-    audienceSelect,
+    areaPills,
     issueSelect,
     typeSelect,
     tagSelect,
@@ -574,22 +573,22 @@ function renderApiList(block, config) {
   state.hasExplicitSort = locationState.hasSort;
   state.sort = locationState.hasSort ? normalizeListSort(locationState.sort) : '';
   state.selectedAudience = new Set(
-    locationState.audiences.present
-      ? locationState.audiences.values
+    locationState.areas.present
+      ? locationState.areas.values
       : defaultState.selectedAudience,
   );
   state.selectedIssue = new Set(
-    locationState.issues.present
-      ? locationState.issues.values
+    locationState.topics.present
+      ? locationState.topics.values
       : defaultState.selectedIssue,
   );
   state.selectedType = new Set(
-    locationState.types.present
-      ? locationState.types.values
+    locationState.storyTypes.present
+      ? locationState.storyTypes.values
       : defaultState.selectedType,
   );
   state.selectedTags = new Set(
-    locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
+    locationState.programs.present ? locationState.programs.values : defaultState.selectedTags,
   );
   const optionLabels = {
     audience: new Map(),
@@ -600,16 +599,15 @@ function renderApiList(block, config) {
   const syncUrlState = (replace = true) => {
     writeListFilterState({
       query: state.query,
-      audiences: [...state.selectedAudience],
-      issues: [...state.selectedIssue],
-      types: [...state.selectedType],
-      tags: [...state.selectedTags],
+      areas: [...state.selectedAudience],
+      topics: [...state.selectedIssue],
+      storyTypes: [...state.selectedType],
+      programs: [...state.selectedTags],
       sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
   };
   const syncFilterControls = () => {
-    syncSelectValue(audienceSelect, state.selectedAudience);
     syncSelectValue(issueSelect, state.selectedIssue);
     syncSelectValue(typeSelect, state.selectedType);
     syncSelectValue(tagSelect, state.selectedTags);
@@ -619,17 +617,13 @@ function renderApiList(block, config) {
   };
 
   const updateFilters = (filters = {}) => {
-    const audiences = filters.audiences || [];
-    const issues = filters.issues || [];
-    const types = filters.types || [];
-    const tags = (filters.tags || []).map((tag) => ({
-      value: tag.slug,
-      label: tag.name,
-    }));
-    setFilterOptions(audienceSelect, 'Audience', audiences);
-    setFilterOptions(issueSelect, 'Issue', issues);
-    setFilterOptions(typeSelect, 'Type', types);
-    setFilterOptions(tagSelect, 'Tag', tags);
+    const audiences = filters.areas || [];
+    const issues = filters.topics || [];
+    const types = filters.story_types || [];
+    const tags = filters.programs || [];
+    setFilterOptions(issueSelect, 'Topics', issues);
+    setFilterOptions(typeSelect, 'Story type', types);
+    setFilterOptions(tagSelect, 'Programs & series', tags);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
@@ -642,6 +636,26 @@ function renderApiList(block, config) {
     optionLabels.tags = new Map(
       tags.map((option) => [normalizeToken(option.value), option.label]),
     );
+    areaPills.replaceChildren();
+    const allAreas = [{ value: '', label: 'All articles' }, ...audiences];
+    allAreas.forEach((option) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'article-list-area-pill';
+      const active = option.value === ''
+        ? state.selectedAudience.size === 0
+        : state.selectedAudience.has(normalizeToken(option.value));
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+      button.textContent = option.label;
+      button.addEventListener('click', () => {
+        state.selectedAudience.clear();
+        if (option.value) state.selectedAudience.add(normalizeToken(option.value));
+        syncUrlState(false);
+        refreshArticles(true);
+      });
+      areaPills.append(button);
+    });
     syncFilterControls();
   };
   const updateSorting = (sorting = {}, appliedSort = DEFAULT_LIST_SORT) => {
@@ -750,10 +764,10 @@ function renderApiList(block, config) {
     url.searchParams.set('page', String(targetPage || (reset ? 1 : state.page + 1)));
     if (state.query.trim()) url.searchParams.set('search', state.query.trim());
     if (state.hasExplicitSort && state.sort) url.searchParams.set('sort', state.sort);
-    state.selectedAudience.forEach((value) => url.searchParams.append('audiences[]', value));
-    state.selectedIssue.forEach((value) => url.searchParams.append('issues[]', value));
-    state.selectedType.forEach((value) => url.searchParams.append('types[]', value));
-    state.selectedTags.forEach((value) => url.searchParams.append('tags[]', value));
+    state.selectedAudience.forEach((value) => url.searchParams.append('areas[]', value));
+    state.selectedIssue.forEach((value) => url.searchParams.append('topics[]', value));
+    state.selectedType.forEach((value) => url.searchParams.append('story_types[]', value));
+    state.selectedTags.forEach((value) => url.searchParams.append('programs[]', value));
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
     excluded.forEach((value) => url.searchParams.append('exclude_slugs[]', value));
@@ -824,9 +838,6 @@ function renderApiList(block, config) {
     syncUrlState();
     loadArticles(true);
   }));
-  audienceSelect.addEventListener('change', () => {
-    applyFacet(audienceSelect, state.selectedAudience);
-  });
   issueSelect.addEventListener('change', () => {
     applyFacet(issueSelect, state.selectedIssue);
   });

@@ -45,6 +45,9 @@ export function readListFilterState(search = window.location.search) {
     issues: readFacetState(params, ['issues', 'issues[]', 'issue']),
     types: readFacetState(params, ['types', 'types[]', 'type']),
     tags: readFacetState(params, ['tags', 'tags[]', 'tag']),
+    areas: readFacetState(params, ['areas', 'areas[]', 'area']),
+    topics: readFacetState(params, ['topics', 'topics[]', 'topic']),
+    storyTypes: readFacetState(params, ['story_types', 'story_types[]', 'story_type']),
     languages: readFacetState(params, ['languages', 'languages[]', 'language']),
     programs: readFacetState(params, ['programs', 'programs[]', 'program']),
     gradeAges: readFacetState(params, ['grade_ages', 'grade_ages[]', 'grade_age', 'grades']),
@@ -61,6 +64,9 @@ export function writeListFilterState({
   issues = [],
   types = [],
   tags = [],
+  areas = [],
+  topics = [],
+  storyTypes = [],
   languages = [],
   programs = [],
   gradeAges = [],
@@ -81,6 +87,9 @@ export function writeListFilterState({
   writeFacetState(url.searchParams, 'issues', ['issues[]', 'issue'], issues);
   writeFacetState(url.searchParams, 'types', ['types[]', 'type'], types);
   writeFacetState(url.searchParams, 'tags', ['tags[]', 'tag'], tags);
+  writeFacetState(url.searchParams, 'areas', ['areas[]', 'area'], areas);
+  writeFacetState(url.searchParams, 'topics', ['topics[]', 'topic'], topics);
+  writeFacetState(url.searchParams, 'story_types', ['story_types[]', 'story_type'], storyTypes);
   writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
   writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
   writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);
@@ -101,6 +110,9 @@ export function buildListFilterHref(basePath, {
   issues = [],
   types = [],
   tags = [],
+  areas = [],
+  topics = [],
+  storyTypes = [],
   languages = [],
   programs = [],
   gradeAges = [],
@@ -118,6 +130,9 @@ export function buildListFilterHref(basePath, {
   writeFacetState(url.searchParams, 'issues', ['issues[]', 'issue'], issues);
   writeFacetState(url.searchParams, 'types', ['types[]', 'type'], types);
   writeFacetState(url.searchParams, 'tags', ['tags[]', 'tag'], tags);
+  writeFacetState(url.searchParams, 'areas', ['areas[]', 'area'], areas);
+  writeFacetState(url.searchParams, 'topics', ['topics[]', 'topic'], topics);
+  writeFacetState(url.searchParams, 'story_types', ['story_types[]', 'story_type'], storyTypes);
   writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
   writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
   writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);

@@ -151,6 +151,14 @@ function alertName(alert) {
     || 'AMBER Alert';
 }
 
+// The live list sends the date as `alertDate` ("Sep 6, 2026 12:00:00 AM") and
+// leaves `missing_date` blank, so read both and drop the midnight timestamp.
+function alertDate(alert) {
+  return normalizeText(
+    alert.alert_date || alert.alertDate || alert.missing_date || alert.missingDate,
+  ).replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '');
+}
+
 function amberPosterUrl(alert, posterPagePath) {
   return buildAmberPosterDetailHref({
     caseNumber: caseNumber(alert),
@@ -232,20 +240,30 @@ function createAlertCard(alert, config) {
   badge.className = 'amber-alerts-card-badge';
   badge.textContent = 'AMBER Alert';
 
+  const posterUrl = amberPosterUrl(alert, config.posterPagePath);
   const title = document.createElement('h3');
-  title.textContent = alertName(alert);
+  if (posterUrl) {
+    const titleLink = document.createElement('a');
+    titleLink.href = posterUrl;
+    titleLink.target = '_blank';
+    titleLink.rel = 'noopener noreferrer';
+    titleLink.className = 'amber-alerts-card-title-link';
+    titleLink.textContent = alertName(alert);
+    title.append(titleLink);
+  } else {
+    title.textContent = alertName(alert);
+  }
 
   const details = document.createElement('dl');
   appendDetailRows(details, [
+    ['Alert Date', alertDate(alert)],
     ['Case', caseNumber(alert)],
     ['Missing From', alert.missing_location || alert.missingLocation],
-    ['Alert Date', alert.missing_date || alert.missingDate],
     ['Issued For', alert.issued_for || alert.issuedFor],
   ]);
 
   const actions = document.createElement('div');
   actions.className = 'amber-alerts-card-actions';
-  const posterUrl = amberPosterUrl(alert, config.posterPagePath);
   if (posterUrl) {
     const poster = document.createElement('a');
     poster.href = posterUrl;

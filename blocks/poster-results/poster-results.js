@@ -1907,133 +1907,6 @@ function renderResults(container, meta, payload) {
   people.forEach((person) => container.append(createResultCard(person)));
 }
 
-function amberSummaryImage(alert) {
-  return childPhotoSources(alert)[0]
-    || deepFirstValue(alert, ['image_url', 'thumbnail_url', 'imageUrl', 'thumbnailUrl']);
-}
-
-function createAmberCardAction(label, href) {
-  const action = document.createElement('a');
-  action.href = href;
-  action.target = '_blank';
-  action.rel = 'noopener noreferrer';
-  action.className = 'poster-results-amber-card-action';
-  action.textContent = label;
-  return applyButtonStyle(action, 'amber');
-}
-
-function createAmberSummaryCard(alert) {
-  const card = document.createElement('article');
-  card.className = 'poster-results-amber-card';
-  const href = amberPosterDetailUrl(alert);
-  const imageUrl = amberSummaryImage(alert);
-
-  if (imageUrl) {
-    const media = document.createElement(href ? 'a' : 'div');
-    media.className = 'poster-results-amber-card-media';
-    if (href) {
-      media.href = href;
-      media.target = '_blank';
-      media.rel = 'noopener noreferrer';
-    }
-    const img = document.createElement('img');
-    img.src = imageUrl;
-    img.alt = displayName(alert, 'AMBER Alert');
-    img.loading = 'lazy';
-    media.append(img);
-    card.append(media);
-  } else {
-    card.classList.add('is-no-media');
-  }
-
-  const body = document.createElement('div');
-  body.className = 'poster-results-amber-card-body';
-  const badge = document.createElement('p');
-  badge.className = 'poster-results-amber-card-badge';
-  badge.textContent = 'AMBER Alert';
-  const title = createLinkedNameElement(
-    'h3',
-    displayName(alert, 'AMBER Alert'),
-    href,
-    'poster-results-amber-card-title',
-  );
-  const details = document.createElement('dl');
-  appendDetailRows(details, [
-    ['Case', amberCaseNumber(alert)],
-    ['Missing From', formatPosterLocation(firstValue(alert, ['missing_location', 'missingLocation']) || locationText(alert))],
-    ['Issued For', firstValue(alert, ['issued_for', 'issuedFor'])],
-  ]);
-  const actions = document.createElement('div');
-  actions.className = 'poster-results-amber-card-actions';
-  if (href) {
-    actions.append(createAmberCardAction('Open poster', href));
-  }
-
-  body.append(badge, title);
-  if (details.children.length) body.append(details);
-  if (actions.children.length) body.append(actions);
-  card.append(body);
-  return card;
-}
-
-function createAmberSummarySection() {
-  const section = document.createElement('section');
-  section.className = 'poster-results-amber-summary';
-  section.hidden = true;
-
-  const header = document.createElement('div');
-  header.className = 'poster-results-amber-summary-header';
-  const eyebrow = document.createElement('p');
-  eyebrow.textContent = 'AMBER Alert';
-  const heading = document.createElement('h2');
-  heading.textContent = 'Active AMBER Alerts';
-  const copy = document.createElement('p');
-  copy.className = 'poster-results-amber-summary-copy';
-  copy.textContent = 'Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle.';
-  header.append(eyebrow, heading, copy);
-
-  const list = document.createElement('div');
-  list.className = 'poster-results-amber-summary-list';
-  section.append(header, list);
-  return { section, list };
-}
-
-async function loadAmberSummary(config, list, section) {
-  try {
-    const url = new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
-    const response = await fetch(url.toString(), {
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
-    const alerts = Array.isArray(payload?.data) ? payload.data : [];
-    if (!alerts.length) return;
-    await Promise.all(alerts.map(async (alert) => {
-      if (amberSummaryImage(alert) || !amberCaseNumber(alert)) return;
-      try {
-        const detailUrl = new URL(
-          `/api/amber-alerts/${encodeURIComponent(amberCaseNumber(alert))}`,
-          `${config.apiBaseUrl}/`,
-        );
-        const detailResponse = await fetch(detailUrl.toString(), {
-          headers: { Accept: 'application/json' },
-        });
-        if (!detailResponse.ok) return;
-        const detailPayload = await detailResponse.json();
-        const detailAlert = matchingPerson(detailPayload, alert);
-        const image = amberSummaryImage(detailAlert) || amberSummaryImage(detailPayload);
-        if (image) alert.image_url = image;
-      } catch (error) {
-        // The card remains usable without an image.
-      }
-    }));
-    list.replaceChildren(...alerts.slice(0, 3).map(createAmberSummaryCard));
-    section.hidden = false;
-  } catch (error) {
-    section.hidden = true;
-  }
-}
-
 function appendParams(url, form) {
   const formData = new FormData(form);
   [...formData.entries()].forEach(([key, value]) => {
@@ -2127,6 +2000,9 @@ export default async function decorate(block) {
 
     try {
       if (directRequest.type === 'amber') {
+        // AMBER posters render on the Missing Children Posters page, so the tab
+        // would otherwise keep that page's authored title.
+        document.title = 'AMBER Alert Poster';
         const url = new URL(
           `/api/amber-alerts${directRequest.preview ? '/preview' : ''}/${encodeURIComponent(directRequest.caseNumber)}`,
           `${config.apiBaseUrl}/`,
@@ -2331,10 +2207,8 @@ export default async function decorate(block) {
   let currentNearSearch = false;
   let renderPagination = () => {};
 
-  const amberSummary = createAmberSummarySection();
-
+  // Active AMBER Alerts are the amber-alerts block's job; this block is search only.
   inner.append(
-    amberSummary.section,
     header,
     form,
     status,
@@ -2344,7 +2218,6 @@ export default async function decorate(block) {
     pagination,
   );
   block.replaceChildren(inner);
-  loadAmberSummary(config, amberSummary.list, amberSummary.section);
 
   renderPagination = () => {
     pagination.replaceChildren();
