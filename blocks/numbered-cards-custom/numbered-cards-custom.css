@@ -201,34 +201,10 @@
   transition: color 0.25s ease;
 }
 
+/* CTA: styled by the button standard in styles/styles.css; this only places it. */
 .numbered-cards-custom .numbered-cards-custom-card-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   align-self: flex-start;
   margin-top: 24px;
-  padding: 8px 12px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--numbered-cards-custom-cta-bg, #008db6);
-  color: var(--numbered-cards-custom-cta-text, #fff);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.03em;
-  text-decoration: none;
-  white-space: nowrap;
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease,
-    transform 0.25s ease;
-}
-
-.numbered-cards-custom .numbered-cards-custom-card-cta::after {
-  content: '\203A';
-  font-size: 12px;
-  line-height: 1;
 }
 
 .numbered-cards-custom .numbered-cards-custom-card-cta-label {
@@ -251,11 +227,6 @@
 
 .numbered-cards-custom .numbered-cards-custom-card.is-active .numbered-cards-custom-card-body {
   color: var(--numbered-cards-custom-body-color-active, #fff);
-}
-
-.numbered-cards-custom .numbered-cards-custom-card.is-active .numbered-cards-custom-card-cta {
-  background: var(--numbered-cards-custom-cta-bg-active, #008db6);
-  color: var(--numbered-cards-custom-cta-text-active, #fff);
 }
 
 .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:focus-within {
@@ -284,12 +255,6 @@
   color: var(--numbered-cards-custom-body-color-active, #fff);
 }
 
-.numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:focus-within .numbered-cards-custom-card-cta {
-  background: var(--numbered-cards-custom-cta-bg-active, #fff);
-  color: var(--numbered-cards-custom-cta-text-active, #00264d);
-  transform: translateY(-1px);
-}
-
 @media (hover: hover) {
   .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
     transform: translateY(-10px);
@@ -316,12 +281,6 @@
   .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-body {
     color: var(--numbered-cards-custom-body-color-active, #fff);
   }
-
-  .numbered-cards-custom.numbered-cards-custom-invert-mode .numbered-cards-custom-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .numbered-cards-custom-card-cta {
-    background: var(--numbered-cards-custom-cta-bg-active, #fff);
-    color: var(--numbered-cards-custom-cta-text-active, #00264d);
-    transform: translateY(-1px);
-  }
 }
 
 .numbered-cards-custom .numbered-cards-custom-controls {
@@ -332,76 +291,10 @@
   margin-top: 34px;
 }
 
-.numbered-cards-custom .numbered-cards-custom-dots {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.numbered-cards-custom .numbered-cards-custom-dot {
-  display: inline-flex;
-  width: 24px;
-  height: 24px;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.numbered-cards-custom .numbered-cards-custom-dot::before {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: rgb(0 38 77 / 20%);
-  content: '';
-  transition: width 0.2s ease, background-color 0.2s ease;
-}
-
-.numbered-cards-custom .numbered-cards-custom-dot.active {
-  width: 60px;
-}
-
-.numbered-cards-custom .numbered-cards-custom-dot.active::before {
-  width: 60px;
-  background: rgb(0 38 77 / 36%);
-}
-
-.numbered-cards-custom .numbered-cards-custom-dot:focus-visible {
-  outline: 3px solid #00264d;
-  outline-offset: 2px;
-}
-
 .numbered-cards-custom .numbered-cards-custom-nav {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.numbered-cards-custom .numbered-cards-custom-nav-btn {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  background: rgb(0 38 77 / 24%);
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.numbered-cards-custom .numbered-cards-custom-nav-btn:hover {
-  background: rgb(0 38 77 / 34%);
-  transform: translateY(-1px);
-}
-
-.numbered-cards-custom .numbered-cards-custom-nav-btn svg {
-  width: 18px;
-  height: 18px;
 }
 
 @media (width <= 1200px) {

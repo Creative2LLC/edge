@@ -207,39 +207,9 @@
   background: rgb(20 145 191 / 5%);
 }
 
+/* Chart / Table is the shared .tab-list (styles.css); only its placement is here. */
 .impact-bar-chart .impact-bar-chart-view-toggle {
-  display: inline-grid;
-  grid-template-columns: repeat(2, minmax(92px, 1fr));
-  gap: 4px;
   justify-self: center;
-  padding: 4px;
-  border: 1px solid var(--impact-bar-chart-border);
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 8px 18px rgb(17 58 103 / 8%);
-}
-
-.impact-bar-chart .impact-bar-chart-view-toggle button {
-  min-height: 42px;
-  padding: 8px 18px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  color: var(--impact-bar-chart-ink);
-  font: inherit;
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.impact-bar-chart .impact-bar-chart-view-toggle button[aria-selected='true'] {
-  background: var(--impact-bar-chart-ink);
-  color: #fff;
-}
-
-.impact-bar-chart .impact-bar-chart-view-toggle button:focus-visible {
-  outline: 3px solid #f7941d;
-  outline-offset: 2px;
 }
 
 .impact-bar-chart .impact-bar-chart-view-panel[hidden] {

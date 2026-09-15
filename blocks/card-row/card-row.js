@@ -2,6 +2,12 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readImageField, readLinkField, readTextField, setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -24,6 +30,7 @@ function buildCard(data, variant) {
 
   const cardBg = data.cardBg || '#ffffff';
   card.style.setProperty('background-color', cardBg, 'important');
+  markButtonSurface(card, isDarkSurface(cardBg));
 
   const content = document.createElement('div');
   content.className = 'card-row-card-content';
@@ -76,13 +83,9 @@ function buildCard(data, variant) {
     moveInstrumentation(data.buttonTextField.source, btn);
   }
 
-  const btnColor = data.buttonColor;
-  const btnTextColor = data.buttonTextColor;
-  if (btnColor) {
-    btn.style.setProperty('background-color', btnColor, 'important');
-    btn.style.setProperty('border', `2px solid ${btnColor}`, 'important');
-  }
-  if (btnTextColor) btn.style.setProperty('--btn-text-color', btnTextColor);
+  // The look comes from the button standard. With no colour chosen this button was an
+  // outline, so that stays Secondary; a chosen colour picks the nearest style.
+  applyButtonStyle(btn, resolveButtonStyle(data.buttonColor, 'secondary'));
 
   card.append(btn);
 
@@ -110,7 +113,6 @@ export default function decorate(block) {
     const buttonTextField = getField(row, 'buttonText', 3);
     const buttonLinkField = getLinkField(row, 'buttonLink', 4);
     const buttonColorField = getField(row, 'buttonColor', 5);
-    const buttonTextColorField = getField(row, 'buttonTextColor', 6);
     const cardBgField = getField(row, 'cardBackgroundColor', 7);
     const textColorField = getField(row, 'textColor', 8);
 
@@ -121,7 +123,6 @@ export default function decorate(block) {
       buttonTextField,
       buttonLinkField,
       buttonColor: buttonColorField.value,
-      buttonTextColor: buttonTextColorField.value,
       cardBg: cardBgField.value,
       textColor: textColorField.value,
       row,

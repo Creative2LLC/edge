@@ -86,61 +86,6 @@ main > .section > .resources-browser-wrapper {
   align-items: center;
 }
 
-.resources-browser .resources-browser-view-toggle {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px;
-  border: 1px solid #dedbd8;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 14px 32px rgb(36 56 70 / 10%);
-}
-
-.resources-browser .resources-browser-view-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-
-  /* styles.css gives every bare <button> a CTA's margin (12px 0) and padding
-     (0.5em 1.2em). Inside a fixed-size icon button that padding left the icon
-     0px wide — the toggle rendered with no visible indicator at all. */
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: #7b7b7b;
-  cursor: pointer;
-  transition:
-    background-color 0.18s ease,
-    color 0.18s ease,
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.resources-browser .resources-browser-view-button.is-active {
-  background: #243846;
-  color: #fff;
-  box-shadow: 0 10px 22px rgb(36 56 70 / 20%);
-}
-
-.resources-browser .resources-browser-view-button:hover {
-  transform: translateY(-1px);
-}
-
-.resources-browser .resources-browser-view-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.resources-browser .resources-browser-view-icon svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 .resources-browser .resources-browser-search-wrap {
   display: block;
   min-width: 0;
@@ -597,22 +542,10 @@ main > .section > .resources-browser-wrapper {
   max-width: 760px;
 }
 
+/* Card link: the Text link style from the button standard; this only places it. */
 .resources-browser .resources-browser-card-link {
-  display: inline-flex;
-  align-items: center;
   width: fit-content;
   margin-top: auto;
-  color: #008db6;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1;
-  text-decoration: none;
-  transition: color 0.18s ease, transform 0.18s ease;
-}
-
-.resources-browser .resources-browser-card-link:hover {
-  color: #006f8f;
-  transform: translateX(4px);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -651,99 +584,15 @@ main > .section > .resources-browser-wrapper {
   justify-content: center;
 }
 
-.resources-browser .resources-browser-load-more {
-  border: 0;
-  border-radius: 999px;
-  background: #243846;
-  color: #fff;
-  padding: 12px 24px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.resources-browser .resources-browser-load-more:hover {
-  opacity: 0.92;
-}
-
-.resources-browser .resources-browser-pagination {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.resources-browser .resources-browser-pagination[hidden] {
-  display: none;
-}
-
-.resources-browser .resources-browser-pagination-label {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.resources-browser .resources-browser-pagination-pages {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.resources-browser .resources-browser-pagination-button {
-  min-height: 42px;
-  border: 1px solid #d8e1e7;
-  border-radius: 999px;
-  background: #fff;
-  color: #243846;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  padding: 0 18px;
-}
-
-.resources-browser .resources-browser-pagination-page {
-  min-width: 42px;
-  padding-inline: 12px;
-}
-
-.resources-browser .resources-browser-pagination-page.is-active {
-  border-color: #007294;
-  background: #007294;
-  color: #fff;
-}
-
-.resources-browser .resources-browser-pagination-ellipsis {
-  min-width: 20px;
-  color: #64788a;
-  font-weight: 700;
-  text-align: center;
-}
-
-.resources-browser .resources-browser-pagination-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
+/* Load more: styled by the button standard in styles/styles.css. */
 
 .resources-browser .resources-browser-search:focus-visible,
 .resources-browser .resources-browser-filter:focus-visible:not(:disabled),
-.resources-browser .resources-browser-view-button:focus-visible,
-.resources-browser .resources-browser-load-more:focus-visible,
-.resources-browser .resources-browser-pagination-button:focus-visible,
 .resources-browser .resources-browser-tag.is-clickable:focus-visible,
 .resources-browser .resources-browser-active-chip:focus-visible,
 .resources-browser .resources-browser-clear-all:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
-}
-
-.resources-browser .resources-browser-pagination-button:hover:not(:disabled, .is-active) {
-  background: #eef3f6;
 }
 
 @media (width <= 1280px) {

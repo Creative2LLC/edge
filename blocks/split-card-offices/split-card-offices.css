@@ -44,41 +44,10 @@
   margin: 0;
 }
 
+/* CTA buttons: styled by the button standard in styles/styles.css; this only sizes them. */
 .split-card-offices .split-card-offices-cta-btn {
   flex: 1 1 0;
   min-width: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 18px;
-  margin: 0;
-  border: 2px solid #008db6;
-  border-radius: 99px;
-  background-color: transparent;
-  color: #008db6;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  box-sizing: border-box;
-  outline: none;
-  box-shadow: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s ease;
-}
-
-.split-card-offices .split-card-offices-cta-btn:hover,
-.split-card-offices .split-card-offices-cta-btn:focus,
-.split-card-offices .split-card-offices-cta-btn:focus-visible,
-.split-card-offices .split-card-offices-cta-btn:active {
-  background-color: transparent;
-  color: #008db6;
-  border-color: #008db6;
-  opacity: 0.85;
-  outline: none;
-  box-shadow: none;
 }
 
 .split-card-offices .split-card-offices-cta-btn-icon {
@@ -187,9 +156,4 @@
     flex-direction: column;
     gap: 12px;
   }
-
-  .split-card-offices .split-card-offices-cta-btn {
-    padding: 12px 14px;
-    font-size: 14px;
-    gap: 8px;
-  }}
+}

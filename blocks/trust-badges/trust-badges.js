@@ -7,6 +7,15 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_FIELDS = ['heading', 'ctaText', 'ctaLink', 'backgroundColor'];
 
@@ -16,8 +25,6 @@ const LEGACY_BLOCK_LABELS = {
   ctaLink: ['cta link', 'button link', 'link url', 'link'],
   backgroundColor: ['background color', 'section background color'],
 };
-
-const ARROW_SVG = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
@@ -240,14 +247,21 @@ function buildHeading(field) {
   return heading;
 }
 
-function buildCta(textField, linkField) {
+function buildCta(textField, linkField, isAuthoring) {
   if (!textField.value && !textField.source && !linkField.value) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!linkField.value && !isAuthoring) return null;
 
-  const cta = document.createElement(linkField.value ? 'a' : 'button');
+  const cta = document.createElement(linkField.value ? 'a' : 'span');
   cta.className = 'trust-badges-cta';
 
-  if (linkField.value) cta.href = linkField.value;
-  if (!linkField.value) cta.type = 'button';
+  if (linkField.value) {
+    cta.href = linkField.value;
+  } else {
+    cta.setAttribute('aria-disabled', 'true');
+    cta.title = 'Add a link to publish this button';
+  }
   if (linkField.source) moveInstrumentation(linkField.source, cta);
 
   const label = document.createElement('span');
@@ -258,12 +272,9 @@ function buildCta(textField, linkField) {
     label.textContent = textField.value || 'Learn More';
   }
 
-  const icon = document.createElement('span');
-  icon.className = 'trust-badges-cta-icon';
-  icon.innerHTML = ARROW_SVG;
-
-  cta.append(label, icon);
-  return cta;
+  cta.append(label);
+  // The look comes from the button standard (Secondary); it no longer draws an arrow.
+  return applyButtonStyle(cta, 'secondary');
 }
 
 function buildBadge(row, index) {
@@ -315,7 +326,7 @@ function buildBadge(row, index) {
   return badge;
 }
 
-export default async function decorate(block) {
+async function decorateBlock(block) {
   const legacyMap = collectLegacyBlockFields(block);
   const headingField = readBlockField(block, legacyMap, 'heading');
   const ctaTextField = readBlockField(block, legacyMap, 'ctaText');
@@ -338,8 +349,10 @@ export default async function decorate(block) {
   const heading = buildHeading(headingField);
   if (heading) header.append(heading);
 
-  const cta = buildCta(ctaTextField, ctaLinkField);
+  const cta = buildCta(ctaTextField, ctaLinkField, hasAuthoringContext(block));
   if (cta) header.append(cta);
+  const ctaSurface = backgroundColorField.value;
+  markButtonSurface(header, ctaSurface ? isDarkSurface(ctaSurface) : isOnDarkSection(block));
 
   if (header.children.length) {
     inner.append(header);
@@ -363,4 +376,20 @@ export default async function decorate(block) {
   if (grid.children.length) inner.append(grid);
 
   block.replaceChildren(inner);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [ctaStyle] = readAppendedStyles(
+    block,
+    ['ctaStyle'],
+    getParentRows(block),
+  );
+  await decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.trust-badges-cta': ctaStyle,
+  });
 }

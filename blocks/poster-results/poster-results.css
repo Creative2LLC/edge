@@ -112,7 +112,9 @@
   gap: 10px;
 }
 
-.poster-results-form button {
+/* Form buttons that are not on the button standard (the sort toggles). Submit, Reset
+   and Near Me carry .button, and :where() keeps this rule's specificity unchanged. */
+.poster-results-form button:where(:not(.button)) {
   height: 46px;
   border: 0;
   border-radius: 6px;
@@ -124,19 +126,6 @@
   padding: 0 22px;
   cursor: pointer;
   white-space: nowrap;
-}
-
-.poster-results-pagination button {
-  height: 42px;
-  border: 1px solid #c7d1d8;
-  border-radius: 6px;
-  background: #fff;
-  color: #243846;
-  font: inherit;
-  font-size: 15px;
-  font-weight: 800;
-  padding: 0 18px;
-  cursor: pointer;
 }
 
 .poster-results-back-to-search {
@@ -166,46 +155,13 @@
   display: none;
 }
 
-.poster-results-near-me-action button {
-  min-height: 36px;
-  min-width: 150px;
-  padding: 0 18px;
-  border: 1px solid #8a6500;
-  border-radius: 6px;
-  background: #ffb71b;
-  color: #243846;
-  cursor: pointer;
-  font: inherit;
-  font-size: 16px;
-}
-
-.poster-results-form button:disabled {
+.poster-results-form button:where(:not(.button)):disabled {
   cursor: wait;
   opacity: 0.65;
 }
 
-.poster-results-near-me-action button:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-
-.poster-results-pagination button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.poster-results-form button:hover {
+.poster-results-form button:where(:not(.button)):hover {
   background: #005f7d;
-}
-
-.poster-results-form .poster-results-reset {
-  border: 1px solid #c7d1d8;
-  background: #fff;
-  color: #243846;
-}
-
-.poster-results-form .poster-results-reset:hover {
-  background: #eef3f6;
 }
 
 .poster-results-near-me {
@@ -233,10 +189,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-
-.poster-results-near-me-action button:hover {
-  background: #f0a900;
 }
 
 .poster-results-near-me-tip {
@@ -463,17 +415,7 @@
   padding-top: 18px;
 }
 
-.poster-results .poster-results-card-link {
-  color: #007294;
-  font-size: 14px;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.poster-results-card-link:hover {
-  color: #005f7a;
-  text-decoration: underline;
-}
+/* Card link: the Text link style from the button standard. */
 
 .poster-results-search-back,
 .poster-results-search-back:any-link {
@@ -538,6 +480,8 @@
   margin: -22px -22px 30px;
 }
 
+/* The poster page's action bar is a named exception to the button standard (see BUTTONS
+   in styles/styles.css): CALL 911 red, the tip and print actions teal, share light blue. */
 .poster-results-detail-actions .poster-results-detail-action,
 .poster-results-detail-actions .poster-results-detail-action:any-link {
   display: inline-flex;
@@ -586,21 +530,7 @@
 }
 
 .poster-results-detail-back {
-  min-height: 42px;
   margin-bottom: 20px;
-  padding: 0 18px;
-  border: 1px solid #c7d1d8;
-  border-radius: 6px;
-  background: #fff;
-  color: #243846;
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--body-sm-size);
-  font-weight: 800;
-}
-
-.poster-results-detail-back:hover {
-  background: #eef3f6;
 }
 
 .poster-results-detail-layout {
@@ -1139,7 +1069,6 @@
 .poster-results-qr a:focus-visible,
 .poster-results-detail-back:focus-visible,
 .poster-results-detail-thumb:focus-visible,
-.poster-results-pagination button:focus-visible,
 .poster-results-card-link:focus-visible,
 .poster-results-photo:focus-visible {
   outline: 2px solid #007294;
@@ -1153,26 +1082,10 @@
   font-weight: 800;
 }
 
+/* The shared .pagination (styles.css); only its placement is here. */
 .poster-results-pagination {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
   margin-top: 24px;
-}
-
-.poster-results-pagination[hidden] {
-  display: none;
-}
-
-.poster-results-pagination span {
-  color: #3f4b53;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.poster-results-pagination button:hover:not(:disabled) {
-  background: #eef3f6;
 }
 
 .poster-results-back-to-search:hover {
@@ -1541,26 +1454,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   padding-top: 18px;
 }
 
-.poster-results-amber-card-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 54px;
-  border: 1px solid #007294;
-  border-radius: 8px;
-  padding: 0 24px;
-  background: #007294;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.poster-results-amber-card-action:hover,
-.poster-results-amber-card-action:focus-visible {
-  background: #005f7d;
-}
-
 .poster-results:not(.is-poster-page) .poster-results-form {
   display: block;
   margin: 0 0 34px;
@@ -1771,45 +1664,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
 .poster-results:not(.is-poster-page) .poster-results-actions > button,
 .poster-results:not(.is-poster-page) .poster-results-near-me-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
   width: 174px;
-  height: 46px;
-  min-height: 0;
-  padding: 0 22px;
-  border-radius: 999px;
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.poster-results:not(.is-poster-page) .poster-results-submit {
-  color: #fff;
-  background: #0083a6;
-  border: 1px solid #0083a6;
-}
-
-.poster-results:not(.is-poster-page) .poster-results-submit:hover,
-.poster-results:not(.is-poster-page) .poster-results-submit:focus-visible {
-  background: #006f8e;
-  border-color: #006f8e;
-}
-
-.poster-results:not(.is-poster-page) .poster-results-reset {
-  color: #404041;
-  background: #fff;
-  border: 2px solid #7a7a7a;
-}
-
-.poster-results:not(.is-poster-page) .poster-results-reset:hover,
-.poster-results:not(.is-poster-page) .poster-results-reset:focus-visible {
-  color: #00264d;
-  background: #f6f7f8;
-  border-color: #00264d;
 }
 
 .poster-results:not(.is-poster-page) .poster-results-near-me {
@@ -1826,19 +1681,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   font-size: 13px;
   font-weight: 800;
   line-height: 1;
-}
-
-.poster-results:not(.is-poster-page) .poster-results-near-me-button {
-  color: #304656;
-  background: #ffbd42;
-  border: 1px solid #ffbd42;
-  cursor: pointer;
-}
-
-.poster-results:not(.is-poster-page) .poster-results-near-me-button:hover,
-.poster-results:not(.is-poster-page) .poster-results-near-me-button:focus-visible {
-  background: #f5ad25;
-  border-color: #f5ad25;
 }
 
 @media (width <= 1100px) {

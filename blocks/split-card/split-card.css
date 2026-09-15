@@ -107,62 +107,7 @@
   text-align: left;
 }
 
-/* Button */
-.split-card .split-card-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  border-radius: 99px;
-  background-color: #008db6;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-/* Smaller buttons when two are present */
-.split-card .split-card-buttons-duo .split-card-button {
-  padding: 12px 24px;
-  font-size: 15px;
-}
-
-.split-card .split-card-button:hover {
-  opacity: 0.9;
-  text-decoration: none;
-}
-
-/* Outlined variant — inline colors set via JS, base hook here */
-.split-card .split-card-button.is-outlined {
-  box-shadow: none;
-}
-
-/* Link variant — strips the pill look */
-.split-card .split-card-button.is-link {
-  padding: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.split-card .split-card-button.is-link:hover,
-.split-card .split-card-button.is-link:focus {
-  text-decoration: underline;
-  opacity: 1;
-}
-
-/* When a link-style button follows another button, add breathing room.
-   The .is-link variant has padding: 0, so the 12px container gap feels
-   tight compared to spacing between two padded buttons. */
-.split-card .split-card-button + .split-card-button.is-link {
-  margin-left: 12px;
-}
+/* Buttons: styled by the button standard in styles/styles.css. */
 
 /* Image-smaller variant: keep its compact desktop media width, but allow the
    row to grow whenever authored content needs more vertical space. */
@@ -191,10 +136,6 @@
 
 .split-card.split-card-size-smaller .split-card-inner {
   max-height: none;
-}
-
-.split-card.split-card-size-smaller .split-card-button {
-  font-weight: 500;
 }
 
 /* Styling Variant 2:

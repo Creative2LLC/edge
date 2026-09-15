@@ -208,13 +208,13 @@ function buildViewToggle(onChange) {
   row.className = 'us-map-toggle-row';
 
   const toggle = document.createElement('div');
-  toggle.className = 'us-map-view-toggle';
+  toggle.className = 'us-map-view-toggle view-toggle';
   toggle.setAttribute('role', 'group');
   toggle.setAttribute('aria-label', 'Map display');
 
   const mapBtn = document.createElement('button');
   mapBtn.type = 'button';
-  mapBtn.className = 'us-map-view-toggle-btn selected';
+  mapBtn.className = 'us-map-view-toggle-btn view-toggle-button selected';
   mapBtn.dataset.view = 'map';
   mapBtn.setAttribute('aria-label', 'Map view');
   mapBtn.setAttribute('aria-pressed', 'true');
@@ -222,7 +222,7 @@ function buildViewToggle(onChange) {
 
   const listBtn = document.createElement('button');
   listBtn.type = 'button';
-  listBtn.className = 'us-map-view-toggle-btn';
+  listBtn.className = 'us-map-view-toggle-btn view-toggle-button';
   listBtn.dataset.view = 'list';
   listBtn.setAttribute('aria-label', 'List view');
   listBtn.setAttribute('aria-pressed', 'false');

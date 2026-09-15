@@ -6,8 +6,14 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+  setCurrentCarouselDot,
+} from '../../scripts/carousel-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
+import { applyButtonStyle, resolveButtonStyle } from '../../scripts/button-utils.js';
 
 function getField(row, name, index) {
   const field = readTextField(row, name, { fallbackCell: row.children[index] });
@@ -110,9 +116,8 @@ function buildSlide(data, row) {
     btn.className = 'detailed-carousel-button';
     btn.href = data.buttonLink;
     btn.textContent = data.buttonText;
-    if (data.buttonColor) {
-      btn.style.setProperty('background-color', data.buttonColor, 'important');
-    }
+    // The look comes from the button standard; the old colour picker only chooses the style.
+    applyButtonStyle(btn, resolveButtonStyle(data.buttonColor));
     content.append(btn);
   }
 
@@ -226,13 +231,13 @@ export default function decorate(block) {
     controls.className = 'detailed-carousel-controls';
 
     const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'detailed-carousel-dots';
+    dotsContainer.className = 'detailed-carousel-dots carousel-dots';
     const dots = slides.map((_, i) => {
       const dot = document.createElement('button');
-      dot.className = 'detailed-carousel-dot';
+      dot.className = 'detailed-carousel-dot carousel-dot';
       dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
       dot.type = 'button';
-      if (i === 0) dot.classList.add('active');
+      if (i === 0) dot.setAttribute('aria-current', 'true');
       dotsContainer.append(dot);
       return dot;
     });
@@ -241,17 +246,15 @@ export default function decorate(block) {
     const nav = document.createElement('div');
     nav.className = 'detailed-carousel-nav';
 
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'detailed-carousel-nav-btn';
-    prevBtn.setAttribute('aria-label', 'Previous slide');
-    prevBtn.type = 'button';
-    prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+    const prevBtn = createCarouselArrow('prev', {
+      className: 'detailed-carousel-nav-btn',
+      label: 'Previous slide',
+    });
 
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'detailed-carousel-nav-btn';
-    nextBtn.setAttribute('aria-label', 'Next slide');
-    nextBtn.type = 'button';
-    nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+    const nextBtn = createCarouselArrow('next', {
+      className: 'detailed-carousel-nav-btn',
+      label: 'Next slide',
+    });
 
     nav.append(prevBtn, nextBtn);
     controls.append(nav);
@@ -282,7 +285,7 @@ export default function decorate(block) {
         beginProgrammaticScroll();
         scrollToCarouselItem(track, slideEl);
       }
-      dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+      setCurrentCarouselDot(dots, current);
     };
 
     prevBtn.addEventListener('click', () => goToSlide(current - 1));
@@ -294,7 +297,7 @@ export default function decorate(block) {
       const scrollIndex = getCarouselItemIndex(track, [...track.children]);
       if (scrollIndex !== current && scrollIndex >= 0) {
         current = scrollIndex;
-        dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+        setCurrentCarouselDot(dots, current);
       }
     }, { passive: true });
   }

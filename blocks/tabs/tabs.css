@@ -52,62 +52,6 @@
   margin-top: 4px;
 }
 
-.tabs .tabs-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 42px;
-  margin: 0;
-  padding: 9px 18px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--tabs-muted);
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 180ms ease,
-    color 180ms ease;
-}
-
-.tabs .tabs-tab:hover {
-  background: rgb(0 38 77 / 6%);
-}
-
-.tabs .tabs-tab.is-active {
-  background: var(--tabs-navy);
-  color: #fff;
-}
-
-.tabs .tabs-tab:focus-visible {
-  outline: 2px solid var(--tabs-accent);
-  outline-offset: 2px;
-}
-
-.tabs .tabs-tab-icon {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-}
-
-.tabs .tabs-tab-icon :is(img, picture, svg) {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Uploaded (img) icons carry a baked color; force them white on the active
-   navy pill. The built-in inline svg uses currentColor and recolors on its own. */
-.tabs .tabs-tab.is-active .tabs-tab-icon img {
-  filter: brightness(0) invert(1);
-}
-
 /* Horizontal scroller when there are many tabs (set by JS past the threshold). */
 .tabs .tabs-tablist.is-scroll {
   flex-wrap: nowrap;
@@ -200,29 +144,12 @@
   margin-top: 0.25em;
 }
 
+/* Card link: the Text link style from the button standard (which draws the
+   arrow); this only places it. */
 .tabs .tabs-card-link {
-  display: block;
   align-self: flex-start;
   margin-top: auto;
   padding-top: 22px;
-  color: #007294;
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  white-space: normal;
-  cursor: pointer;
-}
-
-.tabs .tabs-card-link::after {
-  content: " \2192";
-}
-
-.tabs a.tabs-card-link:hover,
-.tabs a.tabs-card-link:focus-visible {
-  color: #005d78;
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
 }
 
 .tabs .tabs-empty {

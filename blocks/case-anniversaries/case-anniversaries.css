@@ -27,69 +27,6 @@
   color: #06345d;
 }
 
-.case-anniversaries-view-toggle {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px;
-  border: 1px solid #d8d8d8;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 94%);
-  box-shadow: 0 10px 24px rgb(0 0 0 / 7%);
-}
-
-.case-anniversaries-view-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-
-  /* styles.css gives every bare <button> a CTA's margin (12px 0) and padding
-     (0.5em 1.2em). Inside a fixed-size icon button that padding left the icon
-     0px wide — the toggle rendered with no visible indicator at all. */
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: #303030;
-  cursor: pointer;
-  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.case-anniversaries-view-button.is-active {
-  background: #243846;
-  color: #fff;
-  box-shadow: 0 10px 22px rgb(36 56 70 / 18%);
-}
-
-.case-anniversaries .case-anniversaries-view-button:focus-visible {
-  outline: 2px solid #007294;
-  outline-offset: 2px;
-}
-
-.case-anniversaries .case-anniversaries-view-button:hover {
-  background: transparent;
-  color: #303030;
-  transform: translateY(-1px);
-}
-
-.case-anniversaries .case-anniversaries-view-button.is-active:hover {
-  background: #243846;
-  color: #fff;
-}
-
-.case-anniversaries-view-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.case-anniversaries-view-icon svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 .case-anniversaries-controls {
   display: grid;
   gap: 10px;
@@ -117,34 +54,6 @@
   font-size: 14px;
   font-weight: 800;
   white-space: nowrap;
-}
-
-.case-anniversaries-timeframe-toggle {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px;
-  border: 1px solid #d8d8d8;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 94%);
-  box-shadow: 0 10px 24px rgb(0 0 0 / 7%);
-}
-
-.case-anniversaries-timeframe-button {
-  min-height: 34px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: #303030;
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.case-anniversaries-timeframe-button.is-active {
-  background: #243846;
-  color: #fff;
 }
 
 .case-anniversaries-filter-row {
@@ -484,85 +393,13 @@
   opacity: 0.7;
 }
 
-.case-anniversaries-pagination {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.case-anniversaries-pagination[hidden] {
-  display: none;
-}
-
-.case-anniversaries-pagination-label {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.case-anniversaries-pagination-pages {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.case-anniversaries-pagination-button {
-  min-height: 38px;
-  padding: 0 18px;
-  border: 1px solid #d5dde2;
-  border-radius: 999px;
-  background: #fff;
-  color: #243846;
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 800;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
-}
-
-.case-anniversaries-pagination-page {
-  min-width: 38px;
-  padding-inline: 12px;
-}
-
-.case-anniversaries-pagination-page.is-active {
-  border-color: #007294;
-  background: #007294;
-  color: #fff;
-}
-
-.case-anniversaries-pagination-ellipsis {
-  min-width: 20px;
-  color: #64788a;
-  font-weight: 800;
-  text-align: center;
-}
-
-.case-anniversaries-pagination-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
 .case-anniversaries-search:focus-visible,
 .case-anniversaries-filter:focus-visible,
-.case-anniversaries-timeframe-button:focus-visible,
 .case-anniversaries-chip:focus-visible,
 .case-anniversaries-clear:focus-visible,
-.case-anniversaries-load-more:focus-visible,
-.case-anniversaries-pagination-button:focus-visible {
+.case-anniversaries-load-more:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
-}
-
-.case-anniversaries-pagination-button:hover:not(:disabled, .is-active) {
-  background: #eef3f6;
 }
 
 @media (width <= 920px) {

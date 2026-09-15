@@ -5,7 +5,17 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+  setCurrentCarouselDot,
+} from '../../scripts/carousel-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -58,7 +68,9 @@ function getItemColumns(row) {
   const cols = [...row.children];
   const secondValue = cols[1]?.textContent?.trim() || '';
 
-  if (cols.length < 6 && isLikelyYear(secondValue)) {
+  // An appended Link Style cell makes a year-first row six cells long, so the cell count
+  // alone no longer tells the two shapes apart.
+  if (isLikelyYear(secondValue) && (cols.length < 6 || !isLikelyYear(cols[2]?.textContent))) {
     return {
       coverImage: 0,
       coverImageAlt: null,
@@ -453,9 +465,11 @@ function buildSlide(data, row, cardBackgroundColor) {
 
   body.append(year, count);
 
+  const [linkStyle] = row ? readAppendedStyles(row, ['linkStyle'], [...row.children]) : [''];
   if (data.linkUrlField.value) {
     const link = document.createElement('a');
     link.className = 'historical-reports-carousel-card-link';
+    applyButtonStyle(link, linkStyle || 'text-link');
     link.href = data.linkUrlField.value;
     link.textContent = normalizeLinkLabel(data.linkTextField.value) || DEFAULTS.linkText;
     if (data.linkTextField.source?.matches?.('[data-aue-prop]')) {
@@ -466,6 +480,7 @@ function buildSlide(data, row, cardBackgroundColor) {
   } else if (hasAuthoringContext(row) && data.linkTextField.value) {
     const linkPlaceholder = document.createElement('span');
     linkPlaceholder.className = 'historical-reports-carousel-card-link is-placeholder';
+    applyButtonStyle(linkPlaceholder, linkStyle || 'text-link');
     moveFieldContent(data.linkTextField, linkPlaceholder, DEFAULTS.linkText);
     body.append(linkPlaceholder);
   }
@@ -492,12 +507,12 @@ function buildEmptyState() {
 }
 
 function updateDots(dots, activeIndex) {
-  dots.forEach((dot, index) => {
-    dot.classList.toggle('active', index === activeIndex);
-  });
+  setCurrentCarouselDot(dots, activeIndex);
 }
 
 export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
   const subheadingField = getField(block, 'subheading', BLOCK_ROW_INDEX);
   const blockBackgroundColorField = getField(block, 'blockBackgroundColor', BLOCK_ROW_INDEX);
@@ -555,29 +570,27 @@ export default async function decorate(block) {
   wrapper.append(stage);
 
   if (slides.length > 1) {
-    const prevButton = document.createElement('button');
-    prevButton.className = 'historical-reports-carousel-nav historical-reports-carousel-nav-prev';
-    prevButton.type = 'button';
-    prevButton.setAttribute('aria-label', 'Previous report');
-    prevButton.innerHTML = '<span aria-hidden="true">&#8249;</span>';
+    const prevButton = createCarouselArrow('prev', {
+      className: 'historical-reports-carousel-nav historical-reports-carousel-nav-prev',
+      label: 'Previous report',
+    });
 
-    const nextButton = document.createElement('button');
-    nextButton.className = 'historical-reports-carousel-nav historical-reports-carousel-nav-next';
-    nextButton.type = 'button';
-    nextButton.setAttribute('aria-label', 'Next report');
-    nextButton.innerHTML = '<span aria-hidden="true">&#8250;</span>';
+    const nextButton = createCarouselArrow('next', {
+      className: 'historical-reports-carousel-nav historical-reports-carousel-nav-next',
+      label: 'Next report',
+    });
 
     stage.append(prevButton, nextButton);
 
     const dots = slides.map((_, index) => {
       const dot = document.createElement('button');
-      dot.className = 'historical-reports-carousel-dot';
+      dot.className = 'historical-reports-carousel-dot carousel-dot';
       dot.type = 'button';
       dot.setAttribute('aria-label', `Go to report ${index + 1}`);
       return dot;
     });
     const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'historical-reports-carousel-dots';
+    dotsContainer.className = 'historical-reports-carousel-dots carousel-dots';
     dots.forEach((dot) => dotsContainer.append(dot));
 
     let currentIndex = 0;

@@ -311,73 +311,17 @@ main > .section > .community-education-partner-reporting-wrapper {
   color: #a13a31;
 }
 
+/* Back, next and submit: styled by the button standard in styles/styles.css. */
 .cep-reporting-prev,
 .cep-reporting-next,
 .cep-reporting-submit {
   margin: 0;
-  border: 0;
-  border-radius: 999px;
-  padding: 14px 24px;
-  background: #e38b22;
-  color: #fff;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: 0 16px 28px rgb(227 139 34 / 22%);
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
 }
 
-.cep-reporting-prev {
-  background: #fff;
-  color: #007294;
-  box-shadow: inset 0 0 0 2px rgb(0 114 148 / 28%);
-}
-
-.cep-reporting-next {
-  background: #007294;
-  box-shadow: 0 14px 24px rgb(0 114 148 / 18%);
-}
-
-.cep-reporting-prev:hover,
-.cep-reporting-prev:focus-visible,
-.cep-reporting-next:hover,
-.cep-reporting-next:focus-visible,
-.cep-reporting-submit:hover,
-.cep-reporting-submit:focus-visible {
-  outline: 0;
-  transform: translateY(-1px);
-}
-
-.cep-reporting-submit:hover,
-.cep-reporting-submit:focus-visible {
-  background: #d17f1d;
-  box-shadow: 0 18px 34px rgb(209 127 29 / 30%);
-}
-
-.cep-reporting-next:hover,
-.cep-reporting-next:focus-visible {
-  background: #00627f;
-  box-shadow: 0 16px 30px rgb(0 98 127 / 22%);
-}
-
-.cep-reporting-prev:hover,
-.cep-reporting-prev:focus-visible {
-  background: #f8fbfc;
-}
-
-.cep-reporting-prev:disabled,
-.cep-reporting-submit:disabled,
 .community-education-partner-reporting.is-submitting .cep-reporting-submit,
 .cep-reporting.is-submitting .cep-reporting-submit {
-  transform: none;
-  opacity: 0.58;
-  box-shadow: none;
-  cursor: not-allowed;
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .community-education-partner-reporting.is-visible .cep-reporting-header,

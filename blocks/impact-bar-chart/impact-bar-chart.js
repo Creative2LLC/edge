@@ -17,6 +17,7 @@ import {
   rowDisplayValue,
   rowNumericValue,
 } from '../../scripts/impact-data-utils.js';
+import { markButtonSurface } from '../../scripts/button-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -564,16 +565,18 @@ function buildViewSwitcher(chart, table) {
   const chartId = `impact-bar-chart-view-${viewInstance}`;
   const tableId = `impact-bar-table-view-${viewInstance}`;
 
-  controls.className = 'impact-bar-chart-view-toggle';
+  controls.className = 'impact-bar-chart-view-toggle tab-list';
   controls.setAttribute('role', 'tablist');
   controls.setAttribute('aria-label', 'Data display');
 
   chartButton.type = 'button';
+  chartButton.className = 'tab';
   chartButton.textContent = 'Chart';
   chartButton.setAttribute('role', 'tab');
   chartButton.setAttribute('aria-controls', chartId);
 
   tableButton.type = 'button';
+  tableButton.className = 'tab';
   tableButton.textContent = 'Table';
   tableButton.setAttribute('role', 'tab');
   tableButton.setAttribute('aria-controls', tableId);
@@ -688,6 +691,8 @@ export default async function decorate(block) {
 
   block.classList.add(`impact-bar-chart-style-${chartStyleClass(chartStyleField.value)}`);
   block.classList.toggle('impact-bar-chart-text-light', textModeClass(textModeField.value) === 'light');
+  // Light text is the dark-surface setting, so the Chart / Table tabs take their dark form.
+  markButtonSurface(block, textModeClass(textModeField.value) === 'light');
   block.classList.toggle('impact-bar-chart-multiseries', metrics.length > 1);
   inner.className = 'impact-bar-chart-inner';
 

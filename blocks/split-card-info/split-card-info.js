@@ -1,5 +1,12 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { readLinkField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
 
 /**
  * Extracts a number from the start of text and returns both parts
@@ -41,6 +48,13 @@ function normalizeColorValue(value) {
   if (hexMatch) return hexMatch[0];
   if (/^(?:rgb|hsl)a?\(/i.test(normalized) || /^var\(/i.test(normalized)) return normalized;
   return '';
+}
+
+// The button colour field is now the Button Style dropdown. A style word is kept as it
+// is; an older page's colour still maps to the nearest style when the button is built.
+function normalizeButtonColorValue(value) {
+  const normalized = normalizeJsonFieldValue(value).toLowerCase();
+  return BUTTON_STYLES.includes(normalized) ? normalized : normalizeColorValue(value);
 }
 
 async function getBlockResourceData(block) {
@@ -112,8 +126,11 @@ function getCleanText(node) {
   return (node?.textContent || '').replace(/\s+/g, ' ').trim();
 }
 
+// The button colour row may now hold a style word from the Button Style dropdown. It
+// sits in the same slot, so it sorts with the colours, not the content.
 function isColorToken(value) {
-  return /^(#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})|rgba?\()/i.test(value || '');
+  return /^(#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})|rgba?\()/i.test(value || '')
+    || BUTTON_STYLES.includes(String(value || '').trim().toLowerCase());
 }
 
 // A translucent color (8-digit hex or rgba with alpha < 1) is the card background,
@@ -277,9 +294,9 @@ export default async function decorate(block) {
   // Color fields: try the resource JSON first (most reliable for hex values
   // since EDS doesn't mangle them there), then DOM by name, then fall back
   // to positionally walking orphaned auto-linked rows.
-  let buttonColor = normalizeColorValue(resourceData.buttonColor)
-    || normalizeColorValue(publishedFields.buttonColor)
-    || normalizeColorValue(getField(block, 'buttonColor'));
+  let buttonColor = normalizeButtonColorValue(resourceData.buttonColor)
+    || normalizeButtonColorValue(publishedFields.buttonColor)
+    || normalizeButtonColorValue(getField(block, 'buttonColor'));
   let buttonTextColor = normalizeColorValue(resourceData.buttonTextColor)
     || normalizeColorValue(publishedFields.buttonTextColor)
     || normalizeColorValue(getField(block, 'buttonTextColor'));
@@ -291,7 +308,7 @@ export default async function decorate(block) {
     const orphans = collectOrphanedColorValues(block);
     // The three color fields appear in this order in _split-card-info.json:
     //   buttonColor, buttonTextColor, contentBackgroundColor
-    if (!buttonColor) buttonColor = normalizeColorValue(orphans[0] || '');
+    if (!buttonColor) buttonColor = normalizeButtonColorValue(orphans[0] || '');
     if (!buttonTextColor) buttonTextColor = normalizeColorValue(orphans[1] || '');
     if (!contentBackgroundColor) contentBackgroundColor = normalizeColorValue(orphans[2] || '');
   }
@@ -325,6 +342,7 @@ export default async function decorate(block) {
   if (contentBackgroundColor) {
     contentSection.style.setProperty('background-color', contentBackgroundColor, 'important');
   }
+  markButtonSurface(contentSection, isDarkSurface(contentBackgroundColor));
 
   if (topLogoPicture) {
     const logoDiv = document.createElement('div');
@@ -380,17 +398,22 @@ export default async function decorate(block) {
     contentSection.appendChild(bodyDiv);
   }
 
-  // Button — render whenever button text exists; link is optional.
-  // Use <a> when there's a real link, <span> otherwise (matches split-card.js
-  // pattern; avoids native <button> styling that looks disabled).
-  if (buttonText) {
+  // Button. One with nowhere to go is not published; in the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (buttonText && (buttonLink || isEditor)) {
     const button = document.createElement(buttonLink ? 'a' : 'span');
     button.className = 'split-card-info-button';
-    if (buttonLink) button.href = buttonLink;
+    if (buttonLink) {
+      button.href = buttonLink;
+    } else {
+      button.setAttribute('aria-disabled', 'true');
+      button.title = 'Add a link to publish this button';
+    }
     button.textContent = buttonText;
 
-    button.style.setProperty('background-color', buttonColor || '#008db6', 'important');
-    button.style.setProperty('color', buttonTextColor || '#ffffff', 'important');
+    // The look comes from the button standard; the old colour picker only chooses the style.
+    applyButtonStyle(button, resolveButtonStyle(buttonColor));
 
     contentSection.appendChild(button);
   }

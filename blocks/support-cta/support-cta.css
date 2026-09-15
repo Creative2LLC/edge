@@ -1,8 +1,6 @@
 .support-cta.block {
   --support-cta-background-start: #f3efea;
   --support-cta-background-end: #ece8e3;
-  --support-cta-button-color: #0f94bf;
-  --support-cta-button-text-color: #fff;
   --support-cta-reveal-duration: 0.55s;
   --support-cta-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -83,38 +81,21 @@
   margin-top: 0.6em;
 }
 
+/* Colours, type, padding and hover come from the button standard. This keeps the
+   two-line label (number underneath) and the reveal animation. */
 .support-cta .support-cta-button {
   min-width: min(100%, 294px);
   margin-top: 40px;
   display: inline-grid;
   justify-items: center;
   gap: 4px;
-  padding: 18px 48px 14px;
-  border-radius: 999px;
-  background: var(--support-cta-button-color);
-  color: var(--support-cta-button-text-color);
-  text-decoration: none;
-  box-shadow: 0 14px 24px rgb(15 148 191 / 20%);
   opacity: 0;
   transform: translateY(22px);
   transition:
     opacity 0.5s var(--support-cta-reveal-ease),
     transform 0.5s var(--support-cta-reveal-ease),
-    box-shadow 0.22s ease,
-    filter 0.22s ease;
-  transition-delay: 140ms;
-}
-
-.support-cta .support-cta-button:hover,
-.support-cta .support-cta-button:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 18px 30px rgb(15 148 191 / 24%);
-  filter: saturate(1.04);
-}
-
-.support-cta .support-cta-button-label {
-  font-weight: var(--body-weight-strong);
-  line-height: 1.15;
+    background-color var(--hover-duration) var(--hover-ease);
+  transition-delay: 140ms, 140ms, 0s;
 }
 
 .support-cta .support-cta-button-subtext {

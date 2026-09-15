@@ -6,6 +6,13 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -176,15 +183,23 @@ function buildRichContent(source, className, tag = 'div') {
   return content.childNodes.length ? content : null;
 }
 
-function buildButton(labelField, linkField, variant) {
+function buildButton(labelField, linkField, style, isAuthoring) {
   const label = labelField.value.trim();
   const href = linkField.value.trim();
 
   if (!label) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!href && !isAuthoring) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
-  button.className = `impact-donut-button ${variant}`;
-  if (href) button.href = href;
+  button.className = 'impact-donut-button';
+  if (href) {
+    button.href = href;
+  } else {
+    button.setAttribute('aria-disabled', 'true');
+    button.title = 'Add a link to publish this button';
+  }
   if (href && linkField.source) moveInstrumentation(linkField.source, button);
 
   if (labelField.source) {
@@ -193,7 +208,9 @@ function buildButton(labelField, linkField, variant) {
     button.textContent = label;
   }
 
-  return button.textContent.trim() ? button : null;
+  if (!button.textContent.trim()) return null;
+  // The look comes from the button standard.
+  return applyButtonStyle(button, style);
 }
 
 function normalizeItemType(value) {
@@ -387,6 +404,14 @@ function animateChart(block, chart, chartSegments, legendEntries) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  // Style dropdowns appended to the model; read before any row is consumed.
+  const [primaryButtonStyle, secondaryButtonStyle] = readAppendedStyles(
+    block,
+    ['primaryButtonStyle', 'secondaryButtonStyle'],
+    [...block.children].filter((row) => !isImpactItemRow(row)),
+  );
   const isAuthoring = hasAuthoringContext(block);
   const headingSource = getBlockRichField(block, 'heading');
   const bodySource = getBlockRichField(block, 'bodyText');
@@ -515,10 +540,24 @@ export default function decorate(block) {
 
   const actions = document.createElement('div');
   actions.className = 'impact-donut-actions impact-donut-reveal';
-  const primaryButton = buildButton(primaryButtonTextField, primaryButtonLinkField, 'primary');
-  const secondaryButton = buildButton(secondaryButtonTextField, secondaryButtonLinkField, 'secondary');
+  const primaryButton = buildButton(
+    primaryButtonTextField,
+    primaryButtonLinkField,
+    primaryButtonStyle || 'primary',
+    isAuthoring,
+  );
+  const secondaryButton = buildButton(
+    secondaryButtonTextField,
+    secondaryButtonLinkField,
+    secondaryButtonStyle || 'secondary',
+    isAuthoring,
+  );
   if (primaryButton) actions.append(primaryButton);
   if (secondaryButton) actions.append(secondaryButton);
+  // Light text means the author chose a dark surface; the buttons follow it.
+  const actionsOnDark = block.classList.contains('impact-donut-text-light')
+    || isDarkSurface(surfaceColorField.value);
+  markButtonSurface(actions, actionsOnDark);
   if (actions.childElementCount) copy.append(actions);
 
   const chartSide = document.createElement('div');

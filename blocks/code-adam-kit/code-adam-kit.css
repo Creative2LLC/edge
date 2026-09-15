@@ -223,36 +223,14 @@ main > .section > .code-adam-kit-wrapper {
   color: #a13a31;
 }
 
+/* Submit: styled by the button standard in styles/styles.css. */
 .code-adam-kit-submit {
   margin: 0 0 0 auto;
-  border: 0;
-  border-radius: 999px;
-  padding: 15px 28px;
-  background: #e38b22;
-  color: #fff;
-  font: inherit;
-  font-size: 1.02rem;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: 0 16px 28px rgb(227 139 34 / 26%);
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
 }
 
-.code-adam-kit-submit:hover,
-.code-adam-kit-submit:focus-visible {
-  background: #d17f1d;
-  transform: translateY(-1px);
-  box-shadow: 0 18px 34px rgb(209 127 29 / 30%);
-}
-
-.code-adam-kit-submit:disabled,
 .code-adam-kit.is-submitting .code-adam-kit-submit {
-  transform: none;
-  background: #e1b984;
-  box-shadow: none;
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .code-adam-kit.is-visible .code-adam-kit-header,

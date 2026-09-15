@@ -5,6 +5,11 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
@@ -401,8 +406,13 @@ function buildAxis(points) {
 function buildCardLink(linkTextField, linkUrlField) {
   if (!linkTextField.value && !linkTextField.source && !linkUrlField.value) return null;
 
+  // A link with nowhere to go is not published; the editor still shows it, disabled.
+  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (!linkUrlField.value && !inEditor) return null;
+
   const link = document.createElement(linkUrlField.value ? 'a' : 'span');
   link.className = 'historical-trends-card-link';
+  if (!linkUrlField.value) link.setAttribute('aria-disabled', 'true');
 
   if (linkUrlField.value) link.href = linkUrlField.value;
   if (linkUrlField.source) moveInstrumentation(linkUrlField.source, link);
@@ -413,6 +423,7 @@ function buildCardLink(linkTextField, linkUrlField) {
     link.textContent = linkTextField.value || 'Read More';
   }
 
+  applyButtonStyle(link, 'text-link');
   return link;
 }
 
@@ -449,6 +460,10 @@ function buildCard(item, index) {
   if (body) card.append(body);
 
   const link = buildCardLink(item.linkTextField, item.linkUrlField);
+  const [linkStyle] = item.row
+    ? readAppendedStyles(item.row, ['linkStyle'], [...item.row.children])
+    : [''];
+  if (link && linkStyle) applyButtonStyle(link, linkStyle);
   if (link) card.append(link);
 
   return card;
@@ -474,6 +489,8 @@ function enableReveal(block) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const isAuthoring = hasAuthoringContext(block);
   const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
   const subheadingSource = getRichField(block, 'subheading', BLOCK_ROW_INDEX);

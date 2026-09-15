@@ -121,30 +121,7 @@
   transition-delay: 270ms;
 }
 
-.hero-footer-btn,
-.hero-footer-btn:any-link,
-.hero-footer-btn:hover {
-  font-size: 25px;
-  color: rgb(255 255 255 / 83%);
-  padding: 14px 40px;
-  border-radius: 9999px;
-  text-decoration: none;
-  display: inline-block;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.hero-footer-btn:hover {
-  opacity: 0.9;
-}
-
-.hero-footer-btn-primary {
-  background-color: #008eb7;
-}
-
-.hero-footer-btn-secondary {
-  background-color: rgb(64 64 65 / 80%);
-}
+/* Buttons: styled by the button standard in styles/styles.css. */
 
 /* ===== Variant 2 ===== */
 .hero-footer.hero-footer-variant-2 .hero-footer-heading-1 {
@@ -163,11 +140,6 @@
   max-width: 701px;
   font-size: var(--deck-size);
   font-weight: var(--body-weight-medium);
-}
-
-.hero-footer.hero-footer-variant-2 .hero-footer-btn {
-  font-size: 25px;
-  font-weight: 600;
 }
 
 @media (width <= 900px) {
@@ -198,11 +170,6 @@
 
   .hero-footer-subheading {
     width: 100%;
-  }
-
-  .hero-footer-btn {
-    font-size: 20px;
-    padding: 12px 32px;
   }
 
   .hero-footer-bg picture {
@@ -242,8 +209,6 @@
   }
 
   .hero-footer-btn {
-    font-size: 18px !important;
-    padding: 12px 26px !important;
     width: 100%;
   }
 }

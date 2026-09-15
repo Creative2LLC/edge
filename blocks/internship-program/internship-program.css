@@ -140,29 +140,7 @@
   margin: 0 0 24px;
 }
 
-/* Button */
-.internship-program-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border: none;
-  border-radius: 99px;
-  background-color: #008db6;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-.internship-program-button:hover,
-.internship-program-button:focus {
-  opacity: 0.85;
-}
+/* Button: styled by the button standard in styles/styles.css. */
 
 /* Responsive: Tablet */
 @media (width <= 900px) {

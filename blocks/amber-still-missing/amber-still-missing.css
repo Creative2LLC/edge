@@ -14,67 +14,6 @@
   font-style: italic;
 }
 
-.amber-still-missing-accordion {
-  overflow: hidden;
-  border-radius: 8px;
-  background-color: #ddd5cc52;
-}
-
-.amber-still-missing-accordion summary {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 20px;
-  min-height: 80px;
-  background: transparent;
-  color: #404041;
-  cursor: pointer;
-  font-size: clamp(1.35rem, 1.95vw, 2rem);
-  font-weight: 700;
-  line-height: 1.22;
-  list-style: none;
-  padding: 26px 64px 26px 30px;
-}
-
-.amber-still-missing-accordion summary::-webkit-details-marker {
-  display: none;
-}
-
-.amber-still-missing-accordion summary:hover,
-.amber-still-missing-accordion summary:focus,
-.amber-still-missing-accordion summary:focus-visible {
-  background: transparent;
-  color: #404041;
-  text-decoration: none;
-}
-
-.amber-still-missing-accordion summary::before,
-.amber-still-missing-accordion summary::after {
-  position: absolute;
-  top: 50%;
-  right: 30px;
-  width: 16px;
-  height: 2px;
-  background: #404041;
-  content: "";
-  transform: translateY(-50%);
-}
-
-.amber-still-missing-accordion summary::after {
-  width: 2px;
-  height: 16px;
-  right: 37px;
-}
-
-.amber-still-missing-accordion[open] summary::after {
-  opacity: 0;
-}
-
-.amber-still-missing-panel {
-  padding: 0 30px 30px;
-}
-
 .amber-still-missing-status {
   margin: 0;
   padding: 0 30px 18px;
@@ -138,7 +77,6 @@
   text-decoration: underline;
 }
 
-.amber-still-missing summary:focus-visible,
 .amber-still-missing a:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;
@@ -153,16 +91,6 @@
     width: min(1120px, calc(100% - 24px));
   }
 
-  .amber-still-missing-accordion summary {
-    min-height: 68px;
-    padding: 24px 56px 24px 24px;
-    font-size: 1.35rem;
-  }
-
-  .amber-still-missing-panel {
-    padding: 0 24px 24px;
-  }
-
   .amber-still-missing-status {
     padding: 0 24px 16px;
   }
@@ -174,188 +102,9 @@
 }
 
 @media (width < 600px) {
-  .amber-still-missing-accordion summary {
-    gap: 14px;
-    padding: 18px 52px 18px 20px;
-    font-size: 1.1rem;
-    line-height: 1.3;
-  }
-
-  .amber-still-missing-accordion summary::before {
-    right: 22px;
-  }
-
-  .amber-still-missing-accordion summary::after {
-    right: 29px;
-  }
-
-  .amber-still-missing-panel {
-    padding: 0 20px 20px;
-  }
-
   .amber-still-missing-status {
     padding: 0 20px 14px;
   }
-}
-
-/* FAQ-aligned AMBER disclosure */
-.amber-still-missing .amber-still-missing-accordion {
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background-color: #ddd5cc52;
-  box-shadow: 0 4px 14px rgb(17 58 103 / 0%);
-  transition:
-    border-color 220ms ease,
-    background-color 220ms ease,
-    box-shadow 220ms ease,
-    transform 220ms ease;
-}
-
-.amber-still-missing .amber-still-missing-accordion::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: #1491bf;
-  content: "";
-  opacity: 0;
-  transform: scaleY(0.3);
-  transform-origin: center;
-  transition: opacity 220ms ease, transform 280ms cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.amber-still-missing .amber-still-missing-accordion:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
-.amber-still-missing .amber-still-missing-accordion:focus-within {
-  border-color: rgb(20 145 191 / 16%);
-  background-color: rgb(244 240 236 / 88%);
-  box-shadow: var(--shadow-3);
-  transform: translateY(var(--hover-lift-row));
-}
-
-.amber-still-missing .amber-still-missing-accordion.amber-still-missing-open {
-  border-color: rgb(20 145 191 / 20%);
-  background-color: #fff;
-  box-shadow: 0 14px 28px rgb(17 58 103 / 10%);
-}
-
-.amber-still-missing .amber-still-missing-accordion.amber-still-missing-open::before {
-  opacity: 1;
-  transform: scaleY(1);
-}
-
-.amber-still-missing .amber-still-missing-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  padding: 26px 30px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-family: inherit;
-  line-height: 1;
-  text-align: left;
-  white-space: normal;
-  transition: background-color 220ms ease, color 220ms ease;
-}
-
-.amber-still-missing .amber-still-missing-header:hover,
-.amber-still-missing .amber-still-missing-header:focus,
-.amber-still-missing .amber-still-missing-header:focus-visible {
-  background: transparent;
-  color: inherit;
-  text-decoration: none;
-}
-
-.amber-still-missing .amber-still-missing-header:focus {
-  outline: none;
-}
-
-.amber-still-missing .amber-still-missing-header:focus-visible {
-  outline: 2px solid #e38b22;
-  outline-offset: -2px;
-}
-
-.amber-still-missing .amber-still-missing-question {
-  color: #404041;
-  font-size: clamp(1.35rem, 1.95vw, 2rem);
-  font-weight: 700;
-  line-height: 1.22;
-  letter-spacing: -0.03em;
-}
-
-.amber-still-missing .amber-still-missing-icon {
-  position: relative;
-  display: grid;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
-  border-radius: 999px;
-  padding: 8px;
-  place-items: center;
-  background: rgb(255 255 255 / 72%);
-  box-shadow: 0 4px 10px rgb(17 58 103 / 10%);
-  transition: background-color 220ms ease, box-shadow 220ms ease, transform 280ms ease;
-}
-
-.amber-still-missing .amber-still-missing-icon::before,
-.amber-still-missing .amber-still-missing-icon::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  background: #113a67;
-  content: "";
-  transform: translate(-50%, -50%);
-  transition: opacity 180ms ease, transform 220ms ease, background-color 220ms ease;
-}
-
-.amber-still-missing .amber-still-missing-icon::before {
-  width: 16px;
-  height: 2px;
-}
-
-.amber-still-missing .amber-still-missing-icon::after {
-  width: 2px;
-  height: 16px;
-}
-
-.amber-still-missing .amber-still-missing-open .amber-still-missing-icon::after {
-  opacity: 0;
-  transform: translate(-50%, -50%) rotate(90deg) scaleY(0.3);
-}
-
-.amber-still-missing .amber-still-missing-open .amber-still-missing-icon {
-  background: #1491bf;
-  box-shadow: 0 8px 16px rgb(20 145 191 / 25%);
-  transform: rotate(90deg);
-}
-
-.amber-still-missing .amber-still-missing-open .amber-still-missing-icon::before,
-.amber-still-missing .amber-still-missing-open .amber-still-missing-icon::after {
-  background: #fff;
-}
-
-.amber-still-missing .amber-still-missing-panel {
-  display: grid;
-  grid-template-rows: 0fr;
-  padding: 0;
-  transition: grid-template-rows 320ms cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.amber-still-missing .amber-still-missing-open .amber-still-missing-panel {
-  grid-template-rows: 1fr;
-}
-
-.amber-still-missing .amber-still-missing-panel-inner {
-  min-height: 0;
-  overflow: hidden;
 }
 
 .amber-still-missing .amber-still-missing-answer {
@@ -386,43 +135,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .amber-still-missing .amber-still-missing-accordion,
-  .amber-still-missing .amber-still-missing-accordion::before,
-  .amber-still-missing .amber-still-missing-header,
-  .amber-still-missing .amber-still-missing-icon,
-  .amber-still-missing .amber-still-missing-icon::before,
-  .amber-still-missing .amber-still-missing-icon::after,
-  .amber-still-missing .amber-still-missing-panel,
   .amber-still-missing .amber-still-missing-answer {
     transition: none;
   }
 }
 
 @media (width < 900px) {
-  .amber-still-missing .amber-still-missing-header {
-    padding: 24px 22px 24px 24px;
-  }
-
-  .amber-still-missing .amber-still-missing-question {
-    font-size: 1.35rem;
-  }
-
   .amber-still-missing .amber-still-missing-answer {
     padding: 0 24px 24px;
   }
 }
 
 @media (width < 600px) {
-  .amber-still-missing .amber-still-missing-header {
-    gap: 14px;
-    padding: 18px 18px 18px 20px;
-  }
-
-  .amber-still-missing .amber-still-missing-question {
-    font-size: 1.1rem;
-    line-height: 1.3;
-  }
-
   .amber-still-missing .amber-still-missing-answer {
     padding: 0 20px 20px;
     font-size: var(--body-sm-size);

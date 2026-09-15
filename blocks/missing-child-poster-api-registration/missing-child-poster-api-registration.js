@@ -10,6 +10,7 @@ import {
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -449,6 +450,7 @@ function createCredentialRow(label, value, type = 'text') {
   const copy = document.createElement('button');
   copy.type = 'button';
   copy.className = 'missing-child-poster-api-registration-token-button';
+  applyButtonStyle(copy, 'secondary');
   copy.textContent = 'Copy';
   copy.addEventListener('click', async () => {
     await navigator.clipboard?.writeText(input.value);
@@ -463,6 +465,7 @@ function createCredentialRow(label, value, type = 'text') {
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'missing-child-poster-api-registration-token-button';
+    applyButtonStyle(toggle, 'secondary');
     toggle.textContent = 'Show';
     toggle.addEventListener('click', () => {
       const isHidden = input.type === 'password';
@@ -789,6 +792,7 @@ export default function decorate(block) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.className = 'missing-child-poster-api-registration-submit';
+  applyButtonStyle(submitButton, 'primary');
   moveText(getTextField(block, 'buttonText'), submitButton, DEFAULTS.buttonText);
 
   actions.append(status, submitButton);

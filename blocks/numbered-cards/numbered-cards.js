@@ -1,7 +1,12 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+  setCurrentCarouselDot,
+} from '../../scripts/carousel-utils.js';
 
 const BLOCK_PROPS = [
   'title',
@@ -115,9 +120,7 @@ function getTextField(row, name, index) {
 }
 
 function updateDots(dots, activeIndex) {
-  dots.forEach((dot, i) => {
-    dot.classList.toggle('active', i === activeIndex);
-  });
+  setCurrentCarouselDot(dots, activeIndex);
 }
 
 function updateActiveCard(cardsContainer, activeIndex) {
@@ -293,14 +296,14 @@ export default function decorate(block) {
 
     // Dots
     const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'numbered-cards-dots';
+    dotsContainer.className = 'numbered-cards-dots carousel-dots';
     const dots = [];
     cards.forEach((_, i) => {
       const dot = document.createElement('button');
-      dot.className = 'numbered-cards-dot';
+      dot.className = 'numbered-cards-dot carousel-dot';
       dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
       dot.type = 'button';
-      if (i === 0) dot.classList.add('active');
+      if (i === 0) dot.setAttribute('aria-current', 'true');
       dots.push(dot);
       dotsContainer.append(dot);
     });
@@ -310,17 +313,15 @@ export default function decorate(block) {
     const nav = document.createElement('div');
     nav.className = 'numbered-cards-nav';
 
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'numbered-cards-nav-btn';
-    prevBtn.setAttribute('aria-label', 'Previous slide');
-    prevBtn.type = 'button';
-    prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+    const prevBtn = createCarouselArrow('prev', {
+      className: 'numbered-cards-nav-btn',
+      label: 'Previous slide',
+    });
 
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'numbered-cards-nav-btn';
-    nextBtn.setAttribute('aria-label', 'Next slide');
-    nextBtn.type = 'button';
-    nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+    const nextBtn = createCarouselArrow('next', {
+      className: 'numbered-cards-nav-btn',
+      label: 'Next slide',
+    });
 
     nav.append(prevBtn);
     nav.append(nextBtn);

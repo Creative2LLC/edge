@@ -12,11 +12,6 @@
   --statistics-value-weight: 700;
   --statistics-label-size: 1.1rem;
   --statistics-label-weight: 400;
-  --statistics-button-bg: #092348;
-  --statistics-button-color: #fff;
-  --statistics-button-icon-color: #14b4cf;
-  --statistics-button-ring-color: #f7941d;
-  --statistics-button-ring-offset: #fff;
   --statistics-block-bg: transparent;
   --statistics-icon-max-width: 136px;
   --statistics-icon-max-height: 96px;
@@ -278,52 +273,10 @@
   margin-bottom: 0;
 }
 
+/* Button: styled by the button standard in styles/styles.css, including the external-link
+   glyph; this only places it. */
 .statistics .statistics-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  min-width: min(292px, 100%);
-  min-height: 60px;
   margin-top: calc(28px + var(--statistics-content-spacing));
-  padding: 14px 28px;
-  border-radius: 8px;
-  background: var(--statistics-button-bg);
-  color: var(--statistics-button-color);
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: center;
-  text-decoration: none;
-  box-shadow: none;
-  transition:
-    background-color 150ms linear,
-    box-shadow 150ms linear,
-    color 150ms linear;
-}
-
-.statistics .statistics-button::after {
-  content: "";
-  flex: 0 0 18px;
-  width: 18px;
-  height: 18px;
-  background: var(--statistics-button-icon-color);
-  mask: url("../../icons/external-link.svg") center / contain no-repeat;
-}
-
-.statistics .statistics-button:hover,
-.statistics .statistics-button:focus {
-  cursor: pointer;
-  background-color: rgb(9 35 72 / 90%);
-  color: var(--statistics-button-color);
-  text-decoration: none;
-  box-shadow:
-    0 0 0 2px var(--statistics-button-ring-offset),
-    0 0 0 4px var(--statistics-button-ring-color);
-}
-
-.statistics .statistics-button:focus-visible {
-  outline: none;
 }
 
 /* Content Alignment: Left / Right variants

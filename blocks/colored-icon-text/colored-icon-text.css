@@ -249,54 +249,8 @@
   margin-top: clamp(20px, 3vw, 32px);
 }
 
-.colored-icon-text .colored-icon-text-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  min-width: min(292px, 100%);
-  min-height: 60px;
-  padding: 14px 28px;
-  border-radius: 8px;
-  background: #092348;
-  color: #fff;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: center;
-  text-decoration: none;
-  transition:
-    background-color 150ms linear,
-    box-shadow 150ms linear,
-    color 150ms linear;
-}
-
-/* Scoped to links that actually leave the page. This used to apply to every button,
-   so an internal link like /blog/... carried an external-link glyph next to the
-   standard text arrow — two trailing indicators, one of them untrue. */
-.colored-icon-text .colored-icon-text-button.is-external-link::after {
-  content: "";
-  flex: 0 0 18px;
-  width: 18px;
-  height: 18px;
-  background: #14b4cf;
-  mask: url("../../icons/external-link.svg") center / contain no-repeat;
-}
-
-.colored-icon-text .colored-icon-text-button:hover,
-.colored-icon-text .colored-icon-text-button:focus {
-  cursor: pointer;
-  background-color: rgb(9 35 72 / 90%);
-  color: #fff;
-  text-decoration: none;
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 0 4px #f7941d;
-}
-
-.colored-icon-text .colored-icon-text-button:focus-visible {
-  outline: none;
-}
+/* Button: styled by the button standard in styles/styles.css, including the
+   external-link glyph on links that leave the site. */
 
 .colored-icon-text.colored-icon-text-shadow-small .colored-icon-text-inner {
   box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
@@ -371,11 +325,5 @@
 
   .colored-icon-text .colored-icon-text-button {
     width: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .colored-icon-text .colored-icon-text-button {
-    transition: none;
   }
 }

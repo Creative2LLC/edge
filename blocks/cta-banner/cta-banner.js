@@ -5,6 +5,12 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   icon: 0,
@@ -82,7 +88,7 @@ function buildIcon(iconField, iconColor) {
   return wrap;
 }
 
-export default function decorate(block) {
+function decorateBlock(block) {
   const rows = getBlockRows(block);
 
   const iconField = getImageField(block, rows, 'icon', FIELD_INDEX.icon);
@@ -115,12 +121,21 @@ export default function decorate(block) {
 
   const btnLabel = buttonTextField.value;
   const btnHref = buttonLinkField.value;
-  if (btnLabel || btnHref) {
-    const btn = document.createElement(btnHref ? 'a' : 'button');
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (btnHref || (btnLabel && inEditor)) {
+    const btn = document.createElement(btnHref ? 'a' : 'span');
     btn.className = 'cta-banner-button';
     btn.textContent = btnLabel || 'Learn More';
-    if (btnHref) btn.href = btnHref;
-    if (!btnHref) btn.type = 'button';
+    if (btnHref) {
+      btn.href = btnHref;
+    } else {
+      btn.setAttribute('aria-disabled', 'true');
+      btn.title = 'Add a link to publish this button';
+    }
+    // The look comes from the button standard (Secondary).
+    applyButtonStyle(btn, 'secondary');
     if (buttonTextField.source) moveInstrumentation(buttonTextField.source, btn);
     if (buttonLinkField.source && buttonLinkField.source !== buttonTextField.source) {
       moveInstrumentation(buttonLinkField.source, btn);
@@ -129,4 +144,20 @@ export default function decorate(block) {
   }
 
   block.replaceChildren(card);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [buttonStyle] = readAppendedStyles(
+    block,
+    ['buttonStyle'],
+    getBlockRows(block),
+  );
+  decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.cta-banner-button': buttonStyle,
+  });
 }

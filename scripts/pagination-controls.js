@@ -1,3 +1,5 @@
+import { createChevronIcon } from './carousel-utils.js';
+
 export function normalizePaginationMode(value, fallback = 'load-more') {
   const normalized = `${value || ''}`.trim().toLowerCase();
   if (!normalized) return fallback;
@@ -37,37 +39,43 @@ function scrollToPaginationTop(nav, className) {
   });
 }
 
+/* The look is the shared .pagination control in styles.css; the block-prefixed
+   classes stay for layout hooks only. */
+function paginationButton(className, extra = '') {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `${className}-pagination-button pagination-button${extra ? ` ${extra}` : ''}`;
+  return button;
+}
+
+function stepButton(className, direction, label) {
+  const button = paginationButton(className, 'pagination-step');
+  button.setAttribute('aria-label', label);
+  button.append(createChevronIcon(direction));
+  return button;
+}
+
 export function createPaginationControls(className, ariaLabel = 'Pagination') {
   const nav = document.createElement('nav');
-  nav.className = `${className}-pagination`;
+  nav.className = `${className}-pagination pagination`;
   nav.setAttribute('aria-label', ariaLabel);
   nav.hidden = true;
 
   const pageLabel = document.createElement('span');
-  pageLabel.className = `${className}-pagination-label`;
+  pageLabel.className = `${className}-pagination-label pagination-label`;
   pageLabel.setAttribute('aria-live', 'polite');
 
-  const first = document.createElement('button');
-  first.type = 'button';
-  first.className = `${className}-pagination-button`;
+  const first = paginationButton(className);
   first.textContent = 'First';
 
-  const previous = document.createElement('button');
-  previous.type = 'button';
-  previous.className = `${className}-pagination-button`;
-  previous.textContent = 'Previous';
+  const previous = stepButton(className, 'prev', 'Previous page');
 
   const pages = document.createElement('span');
-  pages.className = `${className}-pagination-pages`;
+  pages.className = `${className}-pagination-pages pagination-pages`;
 
-  const next = document.createElement('button');
-  next.type = 'button';
-  next.className = `${className}-pagination-button`;
-  next.textContent = 'Next';
+  const next = stepButton(className, 'next', 'Next page');
 
-  const last = document.createElement('button');
-  last.type = 'button';
-  last.className = `${className}-pagination-button`;
+  const last = paginationButton(className);
   last.textContent = 'Last';
 
   nav.append(first, previous, pages, pageLabel, next, last);
@@ -100,16 +108,14 @@ export function createPaginationControls(className, ariaLabel = 'Pagination') {
       paginationRange(currentPage, totalPages).forEach((entry, index) => {
         if (entry === 'ellipsis') {
           const ellipsis = document.createElement('span');
-          ellipsis.className = `${className}-pagination-ellipsis`;
+          ellipsis.className = `${className}-pagination-ellipsis pagination-ellipsis`;
           ellipsis.textContent = '...';
           ellipsis.setAttribute('aria-hidden', 'true');
           pages.append(ellipsis);
           return;
         }
 
-        const pageButton = document.createElement('button');
-        pageButton.type = 'button';
-        pageButton.className = `${className}-pagination-button ${className}-pagination-page`;
+        const pageButton = paginationButton(className, `${className}-pagination-page pagination-page`);
         pageButton.textContent = String(entry);
         pageButton.setAttribute('aria-label', `Page ${entry}`);
         if (entry === currentPage) {

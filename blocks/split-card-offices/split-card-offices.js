@@ -4,6 +4,12 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isAppendedStyleValue,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 /* ---------- AEM resource + field helpers (mirrors split-card-info.js) ---------- */
 
@@ -136,7 +142,8 @@ function isConfigLike(value) {
   const normalized = normalizeText(value).toLowerCase();
   return !normalized
     || isColorLike(normalized)
-    || ['solid', 'outlined', 'default', 'hide', 'show'].includes(normalized);
+    || ['solid', 'outlined', 'default', 'hide', 'show'].includes(normalized)
+    || isAppendedStyleValue(normalized);
 }
 
 function isLikelyLinkValue(value) {
@@ -266,6 +273,14 @@ function buildPlainIcon(picture, size, className) {
 /* ---------------------------------- decorate ---------------------------------- */
 
 export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  // Style dropdowns appended to the model; read before any row is consumed.
+  const [button1Style, button2Style] = readAppendedStyles(
+    block,
+    ['button1Style', 'button2Style'],
+    getRows(block),
+  );
   const resourceData = await getBlockResourceData(block);
   const publishedFields = getPublishedFieldSnapshot(block);
   const usePublishedFields = Object.keys(publishedFields).length > 0;
@@ -366,11 +381,20 @@ export default async function decorate(block) {
   const buttonRow = document.createElement('div');
   buttonRow.className = 'split-card-offices-buttons';
 
+  const inEditor = isAuthorMarkup(block);
   function buildCtaButton(picture, label, href) {
     if (!label && !picture) return null;
+    // A button with nowhere to go is not published. In the editor it still shows,
+    // disabled, so the author can see the link is missing.
+    if (!href && !inEditor) return null;
     const btn = document.createElement(href ? 'a' : 'span');
     btn.className = 'split-card-offices-cta-btn';
-    if (href) btn.href = href;
+    if (href) {
+      btn.href = href;
+    } else {
+      btn.setAttribute('aria-disabled', 'true');
+      btn.title = 'Add a link to publish this button';
+    }
 
     const iconEl = buildPlainIcon(picture, 24, 'split-card-offices-cta-btn-icon');
     btn.append(iconEl);
@@ -381,11 +405,14 @@ export default async function decorate(block) {
       labelEl.textContent = label;
       btn.append(labelEl);
     }
-    return btn;
+    // The look comes from the button standard (Secondary); the icon stays.
+    return applyButtonStyle(btn, 'secondary');
   }
 
   const btn1 = buildCtaButton(button1Picture, button1Text, button1Link);
   const btn2 = buildCtaButton(button2Picture, button2Text, button2Link);
+  if (btn1 && button1Style) applyButtonStyle(btn1, button1Style);
+  if (btn2 && button2Style) applyButtonStyle(btn2, button2Style);
   if (btn1) buttonRow.append(btn1);
   if (btn2) buttonRow.append(btn2);
 

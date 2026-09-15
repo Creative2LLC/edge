@@ -40,25 +40,9 @@
   text-align: left;
 }
 
+/* Link: styled by the button standard in styles/styles.css (Text link); this only places it. */
 .dual-cards-link {
   margin-top: auto;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-family: inherit;
-  font-size: 17px;
-  font-weight: 500;
-  color: #007294;
-  text-decoration: none;
-  cursor: pointer;
-  text-align: left;
-  transition: opacity 0.2s ease;
-}
-
-.dual-cards-link:hover,
-.dual-cards-link:focus {
-  text-decoration: underline;
-  opacity: 0.9;
 }
 
 /* Responsive — tablet */

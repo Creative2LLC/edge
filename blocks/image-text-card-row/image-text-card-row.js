@@ -3,6 +3,11 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
   readImageField, readLinkField, readTextField, setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 function getFieldText(row, colIndex, propName) {
   return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
@@ -219,6 +224,8 @@ function buildCard(data, row) {
   if (data.linkUrl) {
     const link = document.createElement('a');
     link.className = 'image-text-card-row-card-link';
+    const [linkStyle] = row ? readAppendedStyles(row, ['linkStyle'], [...row.children]) : [''];
+    applyButtonStyle(link, linkStyle || 'text-link');
     link.href = data.linkUrl;
     link.textContent = data.linkText || 'Learn More';
     content.append(link);
@@ -237,6 +244,8 @@ function directRowOf(block, el) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const { settings, consumedRows } = readPublishedSettings(block);
 
   // Read columns setting

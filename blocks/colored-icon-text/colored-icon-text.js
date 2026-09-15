@@ -12,7 +12,15 @@ import {
   applyColoredFieldLayoutOptions,
   syncColoredFieldLayoutOptions,
 } from '../../scripts/colored-field-options.js';
-import { decorateButtonText } from '../../scripts/button-utils.js';
+import {
+  applyButtonStyle,
+  decorateButtonText,
+  isDarkSurface,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const DEFAULT_TEXT_COLOR = '#00264D';
 const DEFAULT_BACKGROUND_COLOR = '#E9F7FA';
@@ -313,10 +321,13 @@ function isConfigLikeText(value) {
     || ['left', 'right', 'none', 'top', 'middle', 'bottom', 'circle', 'square', 'icon', 'transparent'].includes(text.toLowerCase());
 }
 
-function buildButton(buttonTextField, buttonLinkField, buttonTargetField) {
+function buildButton(buttonTextField, buttonLinkField, buttonTargetField, isEditor) {
   const text = isConfigLikeText(buttonTextField.value) ? '' : buttonTextField.value.trim();
   const href = isConfigLikeText(buttonLinkField.value) ? '' : buttonLinkField.value.trim();
   if (!text && !href) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!href && !isEditor) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
   button.className = 'colored-icon-text-button';
@@ -335,10 +346,14 @@ function buildButton(buttonTextField, buttonLinkField, buttonTargetField) {
     const isOffSite = /^(?:https?:)?\/\//i.test(href)
       && !href.startsWith(window.location.origin);
     if (target === '_blank' || isOffSite) button.classList.add('is-external-link');
+  } else {
+    button.setAttribute('aria-disabled', 'true');
+    button.title = 'Add a link to publish this button';
   }
   if (buttonLinkField.source) moveInstrumentation(buttonLinkField.source, button);
 
-  return button;
+  // The look comes from the button standard (Primary), including the glyph.
+  return applyButtonStyle(button, 'primary');
 }
 
 // Only style/CSS-var fields are synced from the fetched resource JSON — content fields
@@ -466,7 +481,7 @@ function buildMedia(imageField, imageMode, imageAlt, isAuthoring) {
   return media;
 }
 
-export default function decorate(block) {
+function decorateBlock(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
   const resourcePath = getAueResourcePath(block);
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -676,11 +691,12 @@ export default function decorate(block) {
   if (textWrapper.children.length) inner.append(textWrapper);
   if (media && imagePosition === 'right') inner.append(media);
 
-  const button = buildButton(buttonTextField, buttonLinkField, buttonTargetField);
+  const button = buildButton(buttonTextField, buttonLinkField, buttonTargetField, isEditor);
   if (button) {
     const buttonRow = document.createElement('div');
     buttonRow.className = 'colored-icon-text-button-row';
     buttonRow.append(button);
+    markButtonSurface(buttonRow, isDarkSurface(backgroundColor));
     inner.append(buttonRow);
   }
 
@@ -722,4 +738,20 @@ export default function decorate(block) {
 
   syncResourceColorFields(resourcePath, block);
   syncColoredFieldLayoutOptions(resourcePath, block, 'colored-icon-text');
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [buttonStyle] = readAppendedStyles(
+    block,
+    ['buttonStyle'],
+    [...block.children],
+  );
+  decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.colored-icon-text-button': buttonStyle,
+  });
 }

@@ -9,6 +9,11 @@ import {
   resourcePathFromAueResource,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 // Beyond this many tabs the tablist becomes a single horizontal scroller
 // instead of wrapping onto multiple rows.
 const TAB_SCROLL_THRESHOLD = 9;
@@ -443,7 +448,7 @@ async function readCard(row, index) {
 
 function tabIconWrap() {
   const wrap = document.createElement('span');
-  wrap.className = 'tabs-tab-icon';
+  wrap.className = 'tabs-tab-icon tab-icon';
   wrap.setAttribute('aria-hidden', 'true');
   return wrap;
 }
@@ -482,9 +487,14 @@ function buildCardLink(card) {
   const label = card.linkTextField.value;
   if (!href && !label && !card.linkTextField.source && !card.linkField.source) return null;
 
+  // A link with nowhere to go is not published; the editor still shows it, disabled.
+  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (!href && !inEditor) return null;
+
   const link = document.createElement(href ? 'a' : 'span');
   link.className = 'tabs-card-link';
   if (href) link.href = href;
+  else link.setAttribute('aria-disabled', 'true');
   if (card.linkField.source) moveInstrumentation(card.linkField.source, link);
 
   const labelElement = document.createElement('span');
@@ -494,6 +504,8 @@ function buildCardLink(card) {
   appendTextField(card.linkTextField, labelElement, label || 'Learn more');
   stripTrailingArrow(labelElement);
   link.append(labelElement);
+  const [linkStyle] = card.row ? readAppendedStyles(card.row, ['linkStyle'], directRows(card.row)) : [''];
+  applyButtonStyle(link, linkStyle || 'text-link');
 
   return link;
 }
@@ -794,6 +806,8 @@ function createTabPanel(tab, index, instanceId, isAuthoring) {
 }
 
 export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const isAuthoring = hasAuthoringContext(block);
   const allBlockRows = directRows(block);
   const tabLabelRows = flatTabLabelRows(allBlockRows);
@@ -885,7 +899,7 @@ export default async function decorate(block) {
 
   const instanceId = `tabs-${Math.random().toString(36).slice(2, 9)}`;
   const tablist = document.createElement('div');
-  tablist.className = 'tabs-tablist';
+  tablist.className = 'tabs-tablist tab-list';
   tablist.setAttribute('role', 'tablist');
   tablist.setAttribute('aria-label', 'Card categories');
   // Many tabs wrap onto several rows and look cluttered; switch to a single
@@ -910,7 +924,7 @@ export default async function decorate(block) {
     panels.append(panelState.panel);
 
     const button = document.createElement('button');
-    button.className = 'tabs-tab';
+    button.className = 'tabs-tab tab';
     button.type = 'button';
     button.id = `${instanceId}-tab-${tab.key || index}`;
     button.setAttribute('role', 'tab');

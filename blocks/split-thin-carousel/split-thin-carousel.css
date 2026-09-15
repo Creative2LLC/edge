@@ -158,65 +158,17 @@ main > .section > .split-thin-carousel-wrapper {
   display: list-item;
 }
 
-/* Button */
-.split-thin-carousel .stc-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 99px;
-  background-color: #008db6;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-  box-sizing: border-box;
-}
-
-.split-thin-carousel .stc-button:hover {
-  opacity: 0.85;
-  text-decoration: none;
-}
-
-.split-thin-carousel .stc-button.is-link {
-  padding: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  border: none;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.split-thin-carousel .stc-button.is-link:hover {
-  text-decoration: underline;
-  opacity: 1;
-}
-
-/* Link below button */
+/* The button and the link below it are styled by the button standard in
+   styles/styles.css. These rules only place them. */
 .split-thin-carousel .stc-link {
-  display: inline-flex;
   margin-top: 20px;
-  margin-left: 28px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #008db6;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
+
+  /* Line the link text up with the button label above it. */
+  margin-left: var(--button-padding-inline);
 }
 
-.split-thin-carousel .stc-link:hover {
-  text-decoration: underline;
-}
-
-/* When the button above is rendered as a plain link (no padding),
-   align the link flush-left to match the button text position. */
-.split-thin-carousel .stc-button.is-link + .stc-link {
+/* A text-link button above has no padding, so align flush-left instead. */
+.split-thin-carousel .stc-button.text-link + .stc-link {
   margin-left: 0;
 }
 
@@ -229,78 +181,12 @@ main > .section > .split-thin-carousel-wrapper {
   position: relative;
 }
 
-/* Dots — pill-segment progress bar */
-.split-thin-carousel .stc-dots {
-  display: flex;
-  gap: 2px;
-  align-items: center;
-}
-
-.split-thin-carousel .stc-dot {
-  display: inline-flex;
-  width: 24px;
-  height: 24px;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-}
-
-.split-thin-carousel .stc-dot::before {
-  width: 8px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgb(0 38 77 / 20%);
-  content: '';
-  transition: width 0.3s ease, background-color 0.2s ease;
-}
-
-.split-thin-carousel .stc-dot.active::before {
-  width: 28px;
-  background: #00264d;
-}
-
-.split-thin-carousel .stc-dot:hover:not(.active)::before {
-  background: rgb(0 38 77 / 40%);
-}
-
-.split-thin-carousel .stc-dot:focus-visible {
-  outline: 3px solid #00264d;
-  outline-offset: 2px;
-}
-
 /* Nav arrows */
 .split-thin-carousel .stc-nav {
   display: flex;
   gap: 12px;
   position: absolute;
   right: 0;
-}
-
-.split-thin-carousel .stc-nav-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #a1a1a1;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: opacity 0.2s ease;
-}
-
-.split-thin-carousel .stc-nav-btn:hover {
-  opacity: 0.85;
-}
-
-.split-thin-carousel .stc-nav-btn svg {
-  width: 22px;
-  height: 22px;
-  color: rgb(255 255 255 / 83%);
 }
 
 /* Responsive — tablet */

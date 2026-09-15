@@ -6,6 +6,12 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isAppendedStyleValue,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const VARIANT_VALUES = ['default', 'variant-2'];
 const HREF_TEXT_RE = /^(?:https?:\/\/|mailto:|tel:|\/(?!\/)|\.{1,2}\/|#)/i;
@@ -84,7 +90,7 @@ function hasLinkCell(cell) {
 function getLiveFallbacks(block) {
   const rowCells = getRowCells(block);
   const textCells = rowCells
-    .filter((cell) => textFrom(cell) && !hasMedia(cell))
+    .filter((cell) => textFrom(cell) && !hasMedia(cell) && !isAppendedStyleValue(textFrom(cell)))
     .flatMap(splitCellContent);
   const variantCell = textCells.find(isVariantCell) || null;
   const linkCells = textCells.filter((cell) => !isVariantCell(cell) && hasLinkCell(cell));
@@ -157,6 +163,14 @@ function buildButton(className, textField, linkField) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  // Style dropdowns appended to the model; read before any row is consumed.
+  const [button1Style, button2Style] = readAppendedStyles(
+    block,
+    ['button1Style', 'button2Style'],
+    [...block.children],
+  );
   const fallback = getLiveFallbacks(block);
   const imageField = readImageField(block, 'image', { fallbackCell: fallback.imageCell });
   const imageAltField = readTextField(block, 'imageAlt');
@@ -220,11 +234,13 @@ export default function decorate(block) {
   const btnWrap = document.createElement('div');
   btnWrap.className = 'hero-footer-buttons';
 
+  // The look comes from the button standard: the first button is Primary, the second
+  // Secondary. The background art is light, so neither needs its dark form.
   const btn1 = buildButton('hero-footer-btn hero-footer-btn-primary', btn1TextField, btn1LinkField);
-  if (btn1) btnWrap.append(btn1);
+  if (btn1) btnWrap.append(applyButtonStyle(btn1, button1Style || 'primary'));
 
   const btn2 = buildButton('hero-footer-btn hero-footer-btn-secondary', btn2TextField, btn2LinkField);
-  if (btn2) btnWrap.append(btn2);
+  if (btn2) btnWrap.append(applyButtonStyle(btn2, button2Style || 'secondary'));
 
   if (btnWrap.children.length) content.append(btnWrap);
 

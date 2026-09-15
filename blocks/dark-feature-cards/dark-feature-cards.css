@@ -115,61 +115,13 @@
   margin-top: 8px;
 }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons ----------
+   Styled by the button standard in styles/styles.css — dark form, since the
+   cards are dark — which also restores the focus ring this block used to hide. */
 .dark-feature-cards .dark-feature-cards-card-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 12px 24px;
-  border-radius: 99px;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  outline: none;
-  box-shadow: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s ease;
   align-self: flex-start;
   max-width: 100%;
-}
-
-.dark-feature-cards .dark-feature-cards-card-btn-outlined {
-  background-color: transparent;
-  color: #fff;
-  border: 1px solid #fff;
-}
-
-.dark-feature-cards .dark-feature-cards-card-btn-solid {
-  background-color: #fff;
-  color: #008db6;
-  border: 1px solid #fff;
-}
-
-.dark-feature-cards .dark-feature-cards-card-btn-outlined:hover,
-.dark-feature-cards .dark-feature-cards-card-btn-outlined:focus,
-.dark-feature-cards .dark-feature-cards-card-btn-outlined:focus-visible,
-.dark-feature-cards .dark-feature-cards-card-btn-outlined:active {
-  background-color: transparent;
-  color: #fff;
-  border-color: #fff;
-  opacity: 0.85;
-  outline: none;
-  box-shadow: none;
-}
-
-.dark-feature-cards .dark-feature-cards-card-btn-solid:hover,
-.dark-feature-cards .dark-feature-cards-card-btn-solid:focus,
-.dark-feature-cards .dark-feature-cards-card-btn-solid:focus-visible,
-.dark-feature-cards .dark-feature-cards-card-btn-solid:active {
-  background-color: #fff;
-  color: #008db6;
-  border-color: #fff;
-  opacity: 0.85;
-  outline: none;
-  box-shadow: none;
+  margin: 0;
 }
 
 /* Pushes the button to the bottom of the card so cards line up */

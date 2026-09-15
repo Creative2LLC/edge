@@ -31,6 +31,8 @@
 }
 
 .leadership-team-nav-btn {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
   font-size: 15px;
   font-weight: 600;
   color: #00000080;
@@ -173,23 +175,7 @@
   max-width: 194px;
 }
 
-/* Read bio link */
-.leadership-team-card-link,
-.leadership-team-card-link:any-link {
-  font-size: 17px;
-  font-weight: 400;
-  color: #007294;
-  text-decoration: none;
-  display: inline-block;
-  width: 100%;
-  max-width: 194px;
-  text-align: left;
-}
-
-.leadership-team-card-link:hover {
-  color: #007294;
-  text-decoration: underline;
-}
+/* Read bio link: the Text link style from the button standard. */
 
 /* -------------------------------------------------------
    Responsive: Tablet (<=1200px) — 4 columns
@@ -273,3 +259,9 @@
 }
 
 /* stylelint-enable no-descending-specificity */
+
+/* The card is centred, so its stretched text link centres its label (the button standard
+   leaves a text link aligned with the copy around it). */
+.leadership-team-card-link {
+  justify-content: center;
+}

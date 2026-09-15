@@ -5,6 +5,13 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_ROW_INDEX = {
   locationIcon: 0,
@@ -69,17 +76,10 @@ function getImageField(scope, name) {
   }).img;
 }
 
-function styleButton(btn, color, textColor, style) {
-  const bgColor = color || '#008db6';
-  if (style === 'outlined') {
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('color', bgColor, 'important');
-    btn.style.setProperty('border', `2px solid ${bgColor}`, 'important');
-  } else {
-    btn.style.setProperty('background-color', bgColor, 'important');
-    btn.style.setProperty('color', textColor || '#ffffff', 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  }
+// The look comes from the button standard. The old colour picker only chooses the style
+// now (gold -> AMBER, red -> Emergency); the text colour picker is ignored.
+function styleButton(btn, color, style) {
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(style, color));
 }
 
 function buildMetaItem(text, iconImg) {
@@ -109,6 +109,7 @@ function buildCard(data, icons) {
 
   const bgColor = data.cardBg || '#DDD5CC52';
   card.style.setProperty('background-color', bgColor, 'important');
+  markButtonSurface(card, isDarkSurface(bgColor));
 
   const hasContent = data.positionName || data.location
     || data.category || data.employmentType;
@@ -157,7 +158,7 @@ function buildCard(data, icons) {
     btn.textContent = btnLabel || 'Apply';
     if (btnHref) btn.href = btnHref;
     if (!btnHref) btn.type = 'button';
-    styleButton(btn, data.buttonColor, data.buttonTextColor, data.buttonStyle);
+    styleButton(btn, data.buttonColor, data.buttonStyle);
     card.append(btn);
   }
 
@@ -181,7 +182,6 @@ export default function decorate(block) {
   const bottomBtnTextField = getField(block, 'bottomButtonText');
   const bottomBtnLinkField = getLinkField(block, 'bottomButtonLink');
   const bottomBtnColorField = getField(block, 'bottomButtonColor');
-  const bottomBtnTextColorField = getField(block, 'bottomButtonTextColor');
   const bottomBtnStyleField = getField(block, 'bottomButtonStyle');
 
   /* Collect job posting items */
@@ -198,7 +198,6 @@ export default function decorate(block) {
     const buttonTextField = getField(row, 'buttonText', 4);
     const buttonLinkField = getLinkField(row, 'buttonLink', 5);
     const buttonColorField = getField(row, 'buttonColor', 6);
-    const buttonTextColorField = getField(row, 'buttonTextColor', 7);
     const buttonStyleField = getField(row, 'buttonStyle', 8);
     const cardBgField = getField(row, 'cardBackgroundColor', 9);
 
@@ -216,7 +215,6 @@ export default function decorate(block) {
       buttonText: buttonTextField.value,
       buttonLink: buttonLinkField.value,
       buttonColor: buttonColorField.value,
-      buttonTextColor: buttonTextColorField.value,
       buttonStyle: buttonStyleField.value,
       cardBg: cardBgField.value,
       isAuthoring: authoring && !hasContent,
@@ -245,12 +243,9 @@ export default function decorate(block) {
     bottomBtn.textContent = bottomLabel || 'View All Positions';
     if (bottomHref) bottomBtn.href = bottomHref;
     if (!bottomHref) bottomBtn.type = 'button';
-    styleButton(
-      bottomBtn,
-      bottomBtnColorField.value,
-      bottomBtnTextColorField.value,
-      bottomBtnStyleField.value,
-    );
+    styleButton(bottomBtn, bottomBtnColorField.value, bottomBtnStyleField.value);
+    // The bottom button sits on the section, not on a card.
+    markButtonSurface(bottomBtn, isOnDarkSection(block));
     wrapper.append(bottomBtn);
   }
 

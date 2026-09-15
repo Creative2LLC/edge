@@ -8,6 +8,7 @@ import {
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -517,12 +518,13 @@ function buildReferencesPanel() {
 
 function buildPanel(index, id, title, content, isFinal = false) {
   const panel = document.createElement('section');
-  panel.className = 'team-hope-volunteer-panel';
+  panel.className = 'team-hope-volunteer-panel accordion';
+  if (index === 0) panel.classList.add('is-open');
   panel.dataset.panelIndex = String(index);
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'team-hope-volunteer-panel-trigger';
+  button.className = 'team-hope-volunteer-panel-trigger accordion-trigger';
   button.id = `team-hope-volunteer-${id}-trigger`;
   button.setAttribute('aria-expanded', index === 0 ? 'true' : 'false');
   button.setAttribute('aria-controls', `team-hope-volunteer-${id}-panel`);
@@ -532,20 +534,19 @@ function buildPanel(index, id, title, content, isFinal = false) {
   number.textContent = String(index + 1).padStart(2, '0');
 
   const text = document.createElement('span');
-  text.className = 'team-hope-volunteer-panel-title';
+  text.className = 'team-hope-volunteer-panel-title accordion-label';
   text.textContent = title;
 
   const icon = document.createElement('span');
-  icon.className = 'team-hope-volunteer-panel-icon';
+  icon.className = 'team-hope-volunteer-panel-icon accordion-icon';
   icon.setAttribute('aria-hidden', 'true');
 
   button.append(number, text, icon);
 
   const body = document.createElement('div');
-  body.className = 'team-hope-volunteer-panel-body';
+  body.className = 'team-hope-volunteer-panel-body accordion-panel';
   body.id = `team-hope-volunteer-${id}-panel`;
   body.setAttribute('aria-labelledby', button.id);
-  if (index !== 0) body.hidden = true;
 
   const inner = document.createElement('div');
   inner.className = 'team-hope-volunteer-panel-inner';
@@ -557,6 +558,7 @@ function buildPanel(index, id, title, content, isFinal = false) {
     const next = document.createElement('button');
     next.type = 'button';
     next.className = 'team-hope-volunteer-continue';
+    applyButtonStyle(next, 'primary');
     next.textContent = DEFAULTS.continueText;
     footer.append(next);
     inner.append(footer);
@@ -586,8 +588,6 @@ function openPanel(form, index) {
     panel.classList.toggle('is-open', isOpen);
     panel.querySelector('.team-hope-volunteer-panel-trigger')
       ?.setAttribute('aria-expanded', String(isOpen));
-    const body = panel.querySelector('.team-hope-volunteer-panel-body');
-    if (body) body.hidden = !isOpen;
   });
 }
 
@@ -767,6 +767,7 @@ export default function decorate(block) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.className = 'team-hope-volunteer-submit';
+  applyButtonStyle(submitButton, 'primary');
   moveText(getTextField(block, 'buttonText'), submitButton, DEFAULTS.buttonText);
 
   actions.append(status, submitButton);

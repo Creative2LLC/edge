@@ -8,6 +8,7 @@ import {
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -541,6 +542,7 @@ export default function decorate(block) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.className = 'code-adam-kit-submit';
+  applyButtonStyle(submitButton, 'primary');
   moveText(getTextField(block, 'buttonText'), submitButton, DEFAULTS.buttonText);
 
   actions.append(status, submitButton);

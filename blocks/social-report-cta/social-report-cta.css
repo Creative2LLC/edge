@@ -223,9 +223,9 @@
   font-weight: 650;
 }
 
-.social-report-cta .social-report-cta-social-arrow,
-.social-report-cta .social-report-cta-report-button-icon {
+.social-report-cta .social-report-cta-social-arrow {
   position: relative;
+  z-index: 2;
   display: inline-grid;
   place-items: center;
   width: 26px;
@@ -239,10 +239,6 @@
     transform 180ms ease;
 }
 
-.social-report-cta .social-report-cta-social-arrow {
-  z-index: 2;
-}
-
 .social-report-cta .social-report-cta-social:not(.is-empty):hover
   .social-report-cta-social-arrow,
 .social-report-cta .social-report-cta-social:not(.is-empty):focus-visible
@@ -252,8 +248,7 @@
   transform: translateX(3px);
 }
 
-.social-report-cta .social-report-cta-social-arrow::before,
-.social-report-cta .social-report-cta-report-button-icon::before {
+.social-report-cta .social-report-cta-social-arrow::before {
   content: '';
   width: 8px;
   height: 8px;
@@ -336,49 +331,9 @@
   color: #404041;
 }
 
+/* Report button: styled by the button standard in styles/styles.css; this only places it. */
 .social-report-cta .social-report-cta-report-button {
-  display: inline-flex;
-  gap: 14px;
-  align-items: center;
-  justify-content: center;
-  min-height: 58px;
   margin-top: clamp(24px, 3vw, 34px);
-  padding: 0 24px;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 1.08rem;
-  font-weight: 800;
-  background: var(--social-report-cta-navy);
-  box-shadow: 0 18px 30px rgb(9 35 72 / 24%);
-  text-decoration: none;
-  transition:
-    transform 220ms ease,
-    background 220ms ease,
-    box-shadow 220ms ease;
-}
-
-.social-report-cta .social-report-cta-report-button:not(.is-empty):hover,
-.social-report-cta .social-report-cta-report-button:not(.is-empty):focus-visible {
-  transform: translateY(-2px);
-  background-color: rgb(9 35 72 / 90%);
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 0 4px var(--social-report-cta-gold),
-    0 20px 34px rgb(9 35 72 / 22%);
-  text-decoration: none;
-}
-
-.social-report-cta .social-report-cta-report-button-icon {
-  flex: 0 0 auto;
-  color: #00aeef;
-}
-
-.social-report-cta .social-report-cta-report-button:not(.is-empty):hover
-  .social-report-cta-report-button-icon,
-.social-report-cta .social-report-cta-report-button:not(.is-empty):focus-visible
-  .social-report-cta-report-button-icon {
-  color: var(--social-report-cta-gold);
-  transform: translateX(3px);
 }
 
 .social-report-cta .social-report-cta-placeholder {
@@ -447,9 +402,7 @@
   .social-report-cta .social-report-cta-social::after,
   .social-report-cta .social-report-cta-social-icon,
   .social-report-cta .social-report-cta-social-arrow,
-  .social-report-cta .social-report-cta-report-button-icon,
-  .social-report-cta .social-report-cta-social,
-  .social-report-cta .social-report-cta-report-button {
+  .social-report-cta .social-report-cta-social {
     animation: none;
     transition: none;
   }

@@ -6,6 +6,12 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
 
 const HEX_RE = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 
@@ -91,6 +97,9 @@ export default function decorate(block) {
     contentSection.style.setProperty('--amber-alert-info-bg', backgroundColor);
     contentSection.style.setProperty('background-color', backgroundColor, 'important');
   }
+  // The panel is always coloured (red by default), so its button takes the dark form
+  // unless an author chose a light background.
+  markButtonSurface(contentSection, isDarkSurface(backgroundColor || '#e13e30'));
 
   // Left column of right side
   const mainCol = document.createElement('div');
@@ -122,11 +131,19 @@ export default function decorate(block) {
     mainCol.appendChild(subtitle);
   }
 
-  if (buttonText) {
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (buttonText && (buttonLink || hasAuthorProps)) {
     const button = document.createElement(buttonLink ? 'a' : 'span');
     button.className = `amber-alert-info-button amber-alert-info-button-${buttonStyle}`;
-    if (buttonLink) button.href = buttonLink;
+    if (buttonLink) {
+      button.href = buttonLink;
+    } else {
+      button.setAttribute('aria-disabled', 'true');
+      button.title = 'Add a link to publish this button';
+    }
     button.textContent = buttonText;
+    applyButtonStyle(button, resolveButtonStyle(buttonStyle));
     mainCol.appendChild(button);
   }
 

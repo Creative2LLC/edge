@@ -15,6 +15,14 @@ import {
   applyColoredFieldLayoutOptions,
   syncColoredFieldLayoutOptions,
 } from '../../scripts/colored-field-options.js';
+import {
+  APPENDED_STYLE_VALUES,
+  applyButtonStyle,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const HEX_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const TARGET_OPTION_VALUES = ['self', 'blank', 'same-tab', 'new-tab'];
@@ -58,6 +66,7 @@ const CONFIG_OPTION_VALUES = [
   'solid',
   'outlined',
   'inverted',
+  ...APPENDED_STYLE_VALUES,
   'none',
   'yes',
   'no',
@@ -1789,7 +1798,10 @@ function buildItem(itemData) {
   const buttonText = normalizeButtonValue(rawButtonText);
   const buttonLink = normalizeButtonValue(rawButtonLink);
 
-  const hasButton = buttonText || buttonLink;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const hasButton = buttonLink || (buttonText && inEditor);
 
   if (hasButton) {
     const button = document.createElement(buttonLink ? 'a' : 'span');
@@ -1804,12 +1816,26 @@ function buildItem(itemData) {
       button.href = buttonLink;
       button.target = normalizeTarget(itemData.buttonTarget);
       if (button.target === '_blank') button.rel = 'noopener noreferrer';
+      // As in colored-icon-text: only a link that leaves the site or opens a new tab
+      // carries the external-link glyph, which the button standard draws.
+      const isOffSite = /^(?:https?:)?\/\//i.test(buttonLink)
+        && !buttonLink.startsWith(window.location.origin);
+      if (button.target === '_blank' || isOffSite) button.classList.add('is-external-link');
+    } else {
+      button.setAttribute('aria-disabled', 'true');
+      button.title = 'Add a link to publish this button';
     }
 
     if (itemData.buttonLinkField.source) {
       moveInstrumentation(itemData.buttonLinkField.source, button);
     }
-    item.append(button);
+    // The look comes from the button standard: the item's own Button Style, else the
+    // block's Default Button Style (applied after decoration), else Primary.
+    const [itemButtonStyle] = itemData.row
+      ? readAppendedStyles(itemData.row, ['buttonStyle'], [...itemData.row.children])
+      : [''];
+    if (itemButtonStyle) button.dataset.itemStyle = itemButtonStyle;
+    item.append(applyButtonStyle(button, itemButtonStyle || 'primary'));
   }
 
   if (!item.children.length && itemData.isAuthoringPlaceholder) {
@@ -1820,7 +1846,7 @@ function buildItem(itemData) {
   return item.children.length ? item : null;
 }
 
-export default function decorate(block) {
+function decorateBlock(block) {
   if (block.querySelector(':scope > .statistics-inner')) {
     normalizeRenderedStatistics(block);
     syncResourceStyles(getAueResourcePath(block), block);
@@ -2281,6 +2307,11 @@ export default function decorate(block) {
     },
   ]);
 
+  // Buttons take their dark form on a dark block background, or on a dark section or
+  // colored-grid cell when the block has no background of its own.
+  const buttonSurface = blockBackgroundColor || getNearestBackgroundColor(block);
+  markButtonSurface(list, isDarkColor(buttonSurface));
+
   block.querySelectorAll('.statistics-value').forEach((valueEl, index) => {
     animateCountUpOnVisible(valueEl, {
       displayValue: valueEl.dataset.finalValue,
@@ -2290,4 +2321,20 @@ export default function decorate(block) {
 
   syncResourceStyles(resourcePath, block);
   syncColoredFieldLayoutOptions(resourcePath, block, 'statistics');
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [defaultButtonStyle] = readAppendedStyles(
+    block,
+    ['defaultButtonStyle'],
+    [...block.children].filter((row) => !isItemRow(row)),
+  );
+  decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.statistics-button:not([data-item-style])': defaultButtonStyle,
+  });
 }

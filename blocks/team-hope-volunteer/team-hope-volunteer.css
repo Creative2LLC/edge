@@ -81,46 +81,9 @@ main > .section > .team-hope-volunteer-wrapper {
   transition-delay: 90ms;
 }
 
-.team-hope-volunteer-panel {
-  overflow: hidden;
-  border: 1px solid rgb(0 38 77 / 12%);
-  border-radius: 8px;
-  background: rgb(255 255 255 / 68%);
-  box-shadow: 0 10px 24px rgb(17 54 82 / 5%);
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.team-hope-volunteer-panel.is-open {
-  border-color: rgb(0 114 148 / 34%);
-  box-shadow: 0 18px 38px rgb(17 54 82 / 9%);
-}
-
+/* Each step is the shared .accordion (styles.css). A finished step keeps its green edge. */
 .team-hope-volunteer-panel.is-complete {
   border-color: rgb(31 106 58 / 28%);
-}
-
-.team-hope-volunteer-panel-trigger {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  width: 100%;
-  border: 0;
-  padding: 18px 20px;
-  background: transparent;
-  color: #00264d;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.team-hope-volunteer-panel-trigger:hover,
-.team-hope-volunteer-panel-trigger:focus-visible {
-  outline: 0;
-  background: rgb(0 141 182 / 7%);
 }
 
 .team-hope-volunteer-panel-number {
@@ -140,46 +103,9 @@ main > .section > .team-hope-volunteer-wrapper {
   background: #1f6a3a;
 }
 
-.team-hope-volunteer-panel-title {
-  min-width: 0;
-  font-size: clamp(1.05rem, 1.6vw, 1.28rem);
-  font-weight: 850;
-  line-height: 1.2;
-}
-
-.team-hope-volunteer-panel-icon {
-  position: relative;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: rgb(227 139 34 / 14%);
-}
-
-.team-hope-volunteer-panel-icon::before,
-.team-hope-volunteer-panel-icon::after {
-  content: "";
-  position: absolute;
-  inset: 10px 5px auto;
-  height: 2px;
-  border-radius: 999px;
-  background: #d17f1d;
-  transition: transform 180ms ease;
-}
-
-.team-hope-volunteer-panel-icon::after {
-  transform: rotate(90deg);
-}
-
-.team-hope-volunteer-panel.is-open .team-hope-volunteer-panel-icon::after {
-  transform: rotate(0deg);
-}
-
-.team-hope-volunteer-panel-body {
-  border-top: 1px solid rgb(0 38 77 / 10%);
-}
-
 .team-hope-volunteer-panel-inner {
   display: grid;
+  border-top: 1px solid rgb(0 38 77 / 10%);
   gap: 22px;
   padding: clamp(18px, 3vw, 28px);
 }
@@ -317,39 +243,10 @@ main > .section > .team-hope-volunteer-wrapper {
   padding-top: 22px;
 }
 
-.team-hope-volunteer-continue,
-.team-hope-volunteer-submit {
-  border: 0;
-  border-radius: 999px;
-  padding: 14px 26px;
-  background: #e38b22;
-  color: #fff;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 850;
-  line-height: 1;
-  box-shadow: 0 16px 28px rgb(227 139 34 / 24%);
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
-}
-
-.team-hope-volunteer-continue:hover,
-.team-hope-volunteer-continue:focus-visible,
-.team-hope-volunteer-submit:hover,
-.team-hope-volunteer-submit:focus-visible {
-  outline: 0;
-  background: #d17f1d;
-  transform: translateY(-1px);
-  box-shadow: 0 18px 34px rgb(209 127 29 / 30%);
-}
-
-.team-hope-volunteer-submit:disabled,
+/* Continue and submit: styled by the button standard in styles/styles.css. */
 .team-hope-volunteer.is-submitting .team-hope-volunteer-submit {
-  transform: none;
-  background: #e1b984;
-  box-shadow: none;
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .team-hope-volunteer-status {
@@ -386,10 +283,6 @@ main > .section > .team-hope-volunteer-wrapper {
 
   .team-hope-volunteer-form {
     padding: 14px;
-  }
-
-  .team-hope-volunteer-panel-trigger {
-    padding: 15px 14px;
   }
 
   .team-hope-volunteer-panel-number {

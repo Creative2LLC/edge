@@ -463,7 +463,8 @@ function normalizeButtonType(value) {
     .replace(/^-|-$/g, '');
 
   if (['primary', 'secondary'].includes(normalizedValue)) return normalizedValue;
-  if (['download', 'pdf', 'download-pdf', 'pdf-download'].includes(normalizedValue)) return 'download';
+  // The Download style was retired with the button standard; those links are Primary.
+  if (['download', 'pdf', 'download-pdf', 'pdf-download'].includes(normalizedValue)) return 'primary';
   return '';
 }
 

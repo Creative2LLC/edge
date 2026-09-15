@@ -1744,7 +1744,9 @@ function buildMegaNavList(menus) {
 
       if (entry.button?.label) {
         const button = document.createElement('a');
-        button.classList.add('button');
+        // Donate Now's colours at the standard size (styles.css .nav-accent). The mobile
+        // rich card clones this item, so it carries the class too.
+        button.classList.add('button', 'nav-accent');
         button.textContent = entry.button.label;
         if (entry.button.href) button.href = entry.button.href;
         featuredLi.append(button);
@@ -2101,7 +2103,7 @@ function buildDummyMegaMenu(label) {
           </picture>
           <a href="/team-hope-peer-support">Team HOPE Peer Support</a>
           <p>Connect with families who understand what you're going through.</p>
-          <a href="/get-support" class="button">Get Support</a>
+          <a href="/get-support" class="button nav-accent">Get Support</a>
         </li>
       `;
     case 'resources':
@@ -2151,7 +2153,7 @@ function buildDummyMegaMenu(label) {
           </picture>
           <a href="/ncmec-connect">NCMEC Connect</a>
           <p>Free on-demand training for law enforcement, educators, and child-serving professionals.</p>
-          <a href="/create-account" class="button">Create Free Account</a>
+          <a href="/create-account" class="button nav-accent">Create Free Account</a>
         </li>
       `;
     case 'dataandimpact':
@@ -2173,7 +2175,7 @@ function buildDummyMegaMenu(label) {
           </picture>
           <a href="/cybertipline-report-2024">2024 CyberTipline Report</a>
           <p>36.2M reports processed with 99.99% accuracy. See the latest data on online child exploitation.</p>
-          <a href="/view-report" class="button">View Report</a>
+          <a href="/view-report" class="button nav-accent">View Report</a>
         </li>
       `;
     case 'about':
@@ -2199,7 +2201,7 @@ function buildDummyMegaMenu(label) {
           </picture>
           <a href="/careers">Join Our Team</a>
           <p>We're hiring mission-driven professionals ready to protect children.</p>
-          <a href="/open-positions" class="button">View Open Positions</a>
+          <a href="/open-positions" class="button nav-accent">View Open Positions</a>
         </li>
       `;
     case 'support':
@@ -2220,7 +2222,7 @@ function buildDummyMegaMenu(label) {
           </picture>
           <a href="/your-gift-at-work">Your Gift at Work</a>
           <p>In 2023, NCMEC helped resolve 27,542 missing children cases and processed 36.2M CyberTipline reports.</p>
-          <a href="/donate" class="button">Donate Now</a>
+          <a href="/donate" class="button nav-accent">Donate Now</a>
         </li>
       `;
     default:
@@ -2693,20 +2695,10 @@ export default async function decorate(block) {
         const featuredButton = featured.querySelector('a.button')
           || featuredLinks[featuredLinks.length - 1];
         if (featuredButton) {
-          featuredButton.classList.add('button');
-          featuredButton.classList.add(
-            'mt-4',
-            'inline-flex',
-            'items-center',
-            'gap-2',
-            'rounded-full',
-            'bg-[#0ea5c6]',
-            'px-4',
-            'py-2',
-            'text-sm',
-            'font-semibold',
-            'text-white',
-          );
+          // Look and size come from the button standard (.nav-accent, Donate Now's colours);
+          // only placement utilities are added here.
+          featuredButton.classList.add('button', 'nav-accent');
+          featuredButton.classList.add('mt-4', 'inline-flex', 'items-center', 'gap-2');
         }
       }
     });

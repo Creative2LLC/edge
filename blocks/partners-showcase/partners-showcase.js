@@ -9,6 +9,15 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_FIELDS = [
   'heading',
@@ -30,14 +39,6 @@ const LEGACY_BLOCK_LABELS = {
     'card background color',
   ],
 };
-
-const ARROW_SVG = [
-  '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">',
-  '<path d="M4.167 10h11.666M10.833 5l5 5-5 5" ',
-  'stroke="currentColor" stroke-width="1.67" ',
-  'stroke-linecap="round" stroke-linejoin="round"/>',
-  '</svg>',
-].join('');
 
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
@@ -345,12 +346,9 @@ function buildCta(textField, linkField, fallbackLabel = 'Learn More') {
     label.textContent = labelText;
   }
 
-  const icon = document.createElement('span');
-  icon.className = 'partners-showcase-cta-icon';
-  icon.innerHTML = ARROW_SVG;
-
-  cta.append(label, icon);
-  return cta;
+  cta.append(label);
+  // The look comes from the button standard (Secondary); it no longer draws an arrow.
+  return applyButtonStyle(cta, 'secondary');
 }
 
 function buildLogoItem(data, clone = false) {
@@ -575,7 +573,7 @@ function createShell(className) {
   return shell;
 }
 
-export default async function decorate(block) {
+async function decorateBlock(block) {
   const legacyMap = collectLegacyBlockFields(block);
 
   const fields = {
@@ -671,10 +669,28 @@ export default async function decorate(block) {
     const footer = document.createElement('div');
     footer.className = 'partners-showcase-footer';
     footer.append(cta);
+    const ctaSurface = fields.backgroundColor.value;
+    markButtonSurface(footer, ctaSurface ? isDarkSurface(ctaSurface) : isOnDarkSection(block));
     contentShell.append(footer);
   }
 
   if (contentShell.children.length) fragments.push(contentShell);
 
   block.replaceChildren(...fragments);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [ctaStyle] = readAppendedStyles(
+    block,
+    ['ctaStyle'],
+    getParentRows(block),
+  );
+  await decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.partners-showcase-cta': ctaStyle,
+  });
 }

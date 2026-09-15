@@ -5,6 +5,7 @@ import {
 } from '../../scripts/block-field-utils.js';
 import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
 import { buildAmberPosterDetailHref } from '../../scripts/poster-link-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const DEFAULTS = {
   heading: 'Active AMBER Alerts',
@@ -251,7 +252,8 @@ function createAlertCard(alert, config) {
     poster.target = '_blank';
     poster.rel = 'noopener noreferrer';
     poster.textContent = config.detailLabel;
-    actions.append(poster);
+    // The look comes from the button standard (AMBER).
+    actions.append(applyButtonStyle(poster, 'amber'));
   }
 
   body.append(badge, title, details);

@@ -220,55 +220,6 @@
   border-top: 1px solid rgb(0 38 77 / 9%);
 }
 
-.resource-hero-meta-details summary {
-  display: flex;
-  gap: 0.42rem;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 2.35rem;
-  padding: 0.42rem 0.8rem;
-  color: rgb(0 38 77 / 72%);
-  background: rgb(255 255 255 / 22%);
-  border: 0;
-  font-size: var(--caption-size);
-  font-weight: 900;
-  line-height: 1.2;
-  list-style: none;
-  cursor: pointer;
-  transition:
-    background-color 180ms ease,
-    color 180ms ease;
-}
-
-.resource-hero-meta-details summary::-webkit-details-marker {
-  display: none;
-}
-
-.resource-hero-meta-details summary::after {
-  display: grid;
-  width: 1rem;
-  height: 1rem;
-  place-items: center;
-  color: var(--resource-hero-blue);
-  border: 1.5px solid currentcolor;
-  border-radius: 999px;
-  font-size: var(--caption-size);
-  line-height: 1;
-  content: "+";
-}
-
-.resource-hero-meta-details[open] summary,
-.resource-hero-meta-details summary:hover,
-.resource-hero-meta-details summary:focus-visible {
-  color: var(--resource-hero-blue);
-  background: rgb(255 255 255 / 42%);
-}
-
-.resource-hero-meta-details[open] summary::after {
-  content: "-";
-}
-
 .resource-hero-meta-panel {
   display: grid;
   width: 100%;
@@ -370,63 +321,7 @@
   margin-top: 0.3rem;
 }
 
-.resource-hero-action {
-  position: relative;
-  display: inline-flex;
-  gap: 0.65rem;
-  align-items: center;
-  justify-content: center;
-  min-height: 3.25rem;
-  padding: 0.9rem 1.35rem;
-  border: 0;
-  border-radius: 999px;
-  box-shadow: 0 18px 34px rgb(0 38 77 / 18%);
-  font: inherit;
-  font-weight: 900;
-  line-height: 1;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease,
-    color 180ms ease;
-}
-
-.resource-hero-action::after {
-  display: inline-grid;
-  width: 1.45rem;
-  height: 1.45rem;
-  place-items: center;
-  border: 2px solid currentcolor;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  line-height: 1;
-  content: "›";
-}
-
-.resource-hero-action.is-watch {
-  color: #fff;
-  background: #00264d;
-}
-
-.resource-hero-action.is-download {
-  color: #00264d;
-  background: var(--resource-hero-gold);
-}
-
-.resource-hero-action:hover,
-.resource-hero-action:focus-visible {
-  transform: translateY(-3px);
-  box-shadow:
-    0 20px 38px rgb(0 38 77 / 20%),
-    0 0 0 5px rgb(255 184 28 / 26%);
-}
-
-.resource-hero-action.is-locked {
-  color: #fff;
-  background: #e13e30;
-}
+/* Watch and Download: styled by the button standard in styles/styles.css. */
 
 .resource-hero-modal[hidden] {
   display: none;
@@ -530,10 +425,6 @@
   .resource-hero-meta-details,
   .resource-hero-meta-details summary {
     width: 100%;
-  }
-
-  .resource-hero-meta-details summary {
-    justify-content: center;
   }
 
   .resource-hero-meta-item {

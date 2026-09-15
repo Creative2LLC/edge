@@ -917,71 +917,9 @@ main > .section > div.resource-downloads-wrapper {
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 
-.resource-downloads-item-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 24px 11px 42px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--rd-accent, #008db6);
-  color: #fff;
-  font-family: inherit;
-  font-weight: 600;
-  font-size: 15px;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgb(0 38 77 / 18%);
-  transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.resource-downloads-item-button:not(.is-locked)::before {
-  content: "";
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  width: 15px;
-  height: 15px;
-  transform: translateY(-50%);
-  background-color: currentcolor;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4l3.3 3.3V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1z'/%3E%3C/svg%3E") no-repeat center / contain;
-}
-
-.resource-downloads-watch-button:not(.is-locked)::before {
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M8 5.5a1 1 0 0 1 1.5-.9l10 6.5a1 1 0 0 1 0 1.8l-10 6.5A1 1 0 0 1 8 18.5z'/%3E%3C/svg%3E") no-repeat center / contain;
-}
-
-.resource-downloads-item-button:hover,
-.resource-downloads-item-button:focus-visible {
-  color: #fff;
-  filter: brightness(0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgb(0 38 77 / 25%);
-}
-
-.resource-downloads-item-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgb(0 38 77 / 18%);
-}
-
-.resource-downloads-item-button:focus-visible {
-  outline: 2px solid #00264d;
-  outline-offset: 2px;
-}
-
-/* Locked state: the shared gate stylesheet swaps the icon for a padlock */
-.resource-downloads-item-button.is-locked {
-  background: #5a6b7d;
-  box-shadow: none;
-}
-
-.resource-downloads-item-button.is-locked:hover,
-.resource-downloads-item-button.is-locked:focus-visible {
-  background: #46566a;
-  transform: none;
-}
+/* Download and Watch buttons: styled by the button standard in styles/styles.css.
+   They no longer take the file-type colour or draw an icon; a locked (gated)
+   download keeps the padlock from styles/resource-gate.css. */
 
 .resource-downloads-item.is-group .resource-downloads-item-actions.is-stacked .resource-downloads-item-button {
   justify-content: flex-start;

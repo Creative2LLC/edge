@@ -5,6 +5,8 @@ import {
   currentPosterPagePath,
 } from '../../scripts/poster-link-utils.js';
 import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
+import { createChevronIcon } from '../../scripts/carousel-utils.js';
 
 const DEFAULTS = {
   heading: 'Poster Results',
@@ -1016,6 +1018,8 @@ function posterNarrative(payload, child) {
   return detailDeepValue(payload, child, keys);
 }
 
+// The poster page's action bar keeps its own look: a named exception to the button
+// standard (see BUTTONS in styles/styles.css), styled in poster-results.css.
 function createActionLink(label, href) {
   const link = document.createElement('a');
   link.className = 'poster-results-detail-action';
@@ -1396,6 +1400,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   back.type = 'button';
   back.className = 'poster-results-detail-back';
   back.textContent = 'Back to results';
+  applyButtonStyle(back, 'secondary');
   back.addEventListener('click', onBack);
   detail.append(back);
 
@@ -1865,6 +1870,7 @@ function createResultCard(person) {
   actions.className = 'poster-results-card-actions';
   const link = document.createElement('a');
   link.className = 'poster-results-card-link';
+  applyButtonStyle(link, 'text-link');
   link.href = detailUrl;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
@@ -1913,7 +1919,7 @@ function createAmberCardAction(label, href) {
   action.rel = 'noopener noreferrer';
   action.className = 'poster-results-amber-card-action';
   action.textContent = label;
-  return action;
+  return applyButtonStyle(action, 'amber');
 }
 
 function createAmberSummaryCard(alert) {
@@ -2063,6 +2069,7 @@ function createNearMeSection(onNearMe) {
   button.type = 'button';
   button.className = 'poster-results-near-me-button';
   button.textContent = 'Search Near Me';
+  applyButtonStyle(button, 'soft');
   button.addEventListener('click', onNearMe);
 
   action.append(button, createInfoTooltip(NEAR_ME_TOOLTIP));
@@ -2286,10 +2293,12 @@ export default async function decorate(block) {
   reset.type = 'reset';
   reset.className = 'poster-results-reset';
   reset.textContent = 'Reset';
+  applyButtonStyle(reset, 'secondary');
   const submit = document.createElement('button');
   submit.type = 'submit';
   submit.className = 'poster-results-submit';
   submit.textContent = config.submitLabel;
+  applyButtonStyle(submit, 'primary');
   const nearMe = createNearMeSection(() => searchPosters(1, true));
   submitRow.append(submit, reset, nearMe.wrap);
 
@@ -2314,7 +2323,7 @@ export default async function decorate(block) {
     firstName.focus({ preventScroll: true });
   });
   const pagination = document.createElement('nav');
-  pagination.className = 'poster-results-pagination';
+  pagination.className = 'poster-results-pagination pagination';
   pagination.setAttribute('aria-label', 'Poster search pagination');
 
   let currentPage = 1;
@@ -2344,16 +2353,21 @@ export default async function decorate(block) {
 
     const prev = document.createElement('button');
     prev.type = 'button';
-    prev.textContent = 'Previous';
+    prev.className = 'pagination-button pagination-step';
+    prev.setAttribute('aria-label', 'Previous page');
+    prev.append(createChevronIcon('prev'));
     prev.disabled = currentPage <= 1;
     prev.addEventListener('click', () => searchPosters(currentPage - 1, currentNearSearch));
 
     const label = document.createElement('span');
+    label.className = 'pagination-status';
     label.textContent = `Page ${currentPage} of ${totalPages}`;
 
     const next = document.createElement('button');
     next.type = 'button';
-    next.textContent = 'Next';
+    next.className = 'pagination-button pagination-step';
+    next.setAttribute('aria-label', 'Next page');
+    next.append(createChevronIcon('next'));
     next.disabled = currentPage >= totalPages;
     next.addEventListener('click', () => searchPosters(currentPage + 1, currentNearSearch));
 

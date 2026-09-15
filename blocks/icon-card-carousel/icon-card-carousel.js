@@ -6,8 +6,19 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+  setCurrentCarouselDot,
+} from '../../scripts/carousel-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
 
 function getFieldText(row, colIndex, propName) {
   return readTextField(row, propName, { fallbackCell: row.children[colIndex] }).value;
@@ -120,6 +131,7 @@ function buildSlide(data, row) {
   if (data.backgroundColor) {
     card.style.backgroundColor = data.backgroundColor;
   }
+  markButtonSurface(card, isDarkSurface(data.backgroundColor));
 
   // Icon
   const iconImg = data.iconPicture
@@ -184,12 +196,8 @@ function buildSlide(data, row) {
     btn.className = 'icon-card-carousel-button';
     btn.href = data.buttonLink;
     btn.textContent = data.buttonText;
-    if (data.buttonColor) {
-      btn.style.backgroundColor = data.buttonColor;
-    }
-    if (data.buttonTextColor) {
-      btn.style.color = data.buttonTextColor;
-    }
+    // The look comes from the button standard; the old colour picker only chooses the style.
+    applyButtonStyle(btn, resolveButtonStyle(data.buttonColor));
     card.append(btn);
   }
 
@@ -198,9 +206,7 @@ function buildSlide(data, row) {
 }
 
 function updateDots(dots, activeIndex) {
-  dots.forEach((dot, i) => {
-    dot.classList.toggle('active', i === activeIndex);
-  });
+  setCurrentCarouselDot(dots, activeIndex);
 }
 
 export default function decorate(block) {
@@ -264,14 +270,14 @@ export default function decorate(block) {
 
   // Dots
   const dotsContainer = document.createElement('div');
-  dotsContainer.className = 'icon-card-carousel-dots';
+  dotsContainer.className = 'icon-card-carousel-dots carousel-dots';
   const dots = [];
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
-    dot.className = 'icon-card-carousel-dot';
+    dot.className = 'icon-card-carousel-dot carousel-dot';
     dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
     dot.type = 'button';
-    if (i === 0) dot.classList.add('active');
+    if (i === 0) dot.setAttribute('aria-current', 'true');
     dots.push(dot);
     dotsContainer.append(dot);
   });
@@ -281,17 +287,15 @@ export default function decorate(block) {
   const nav = document.createElement('div');
   nav.className = 'icon-card-carousel-nav';
 
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'icon-card-carousel-nav-btn';
-  prevBtn.setAttribute('aria-label', 'Previous slide');
-  prevBtn.type = 'button';
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  const prevBtn = createCarouselArrow('prev', {
+    className: 'icon-card-carousel-nav-btn',
+    label: 'Previous slide',
+  });
 
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'icon-card-carousel-nav-btn';
-  nextBtn.setAttribute('aria-label', 'Next slide');
-  nextBtn.type = 'button';
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+  const nextBtn = createCarouselArrow('next', {
+    className: 'icon-card-carousel-nav-btn',
+    label: 'Next slide',
+  });
 
   nav.append(prevBtn);
   nav.append(nextBtn);

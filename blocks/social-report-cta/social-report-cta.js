@@ -9,6 +9,12 @@ import {
   readTextField,
   resourcePathFromAueResource,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -372,8 +378,14 @@ function buildReportButton(labelField, linkField, showEmptyButton = false) {
 
   const button = document.createElement(href ? 'a' : 'span');
   button.className = 'social-report-cta-report-button';
-  if (href) button.href = href;
-  else button.classList.add('is-empty');
+  if (href) {
+    button.href = href;
+  } else {
+    // Editor only: shown disabled so the author can see the link is missing.
+    button.classList.add('is-empty');
+    button.setAttribute('aria-disabled', 'true');
+    button.title = 'Add a link to publish this button';
+  }
   if (linkField.source) moveInstrumentation(linkField.source, button);
 
   const text = document.createElement('span');
@@ -383,15 +395,12 @@ function buildReportButton(labelField, linkField, showEmptyButton = false) {
     text.textContent = label || 'Add PDF button text';
   }
 
-  const icon = document.createElement('span');
-  icon.className = 'social-report-cta-report-button-icon';
-  icon.setAttribute('aria-hidden', 'true');
-
-  button.append(text, icon);
-  return button;
+  button.append(text);
+  // The look comes from the button standard (Primary); it no longer draws an arrow.
+  return applyButtonStyle(button, 'primary');
 }
 
-export default function decorate(block) {
+function decorateBlock(block) {
   const isEditor = hasAuthoringContext(block);
   const resourcePath = getAueResourcePath(block);
   const eyebrowField = getTextField(block, 'eyebrow', isEditor);
@@ -517,4 +526,20 @@ export default function decorate(block) {
       });
     });
   }
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [reportButtonStyle] = readAppendedStyles(
+    block,
+    ['reportButtonStyle'],
+    directRows(block),
+  );
+  decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.social-report-cta-report-button': reportButtonStyle,
+  });
 }

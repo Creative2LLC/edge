@@ -9,6 +9,7 @@ import {
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -606,11 +607,11 @@ function buildTerms() {
 
 function buildPanel(index, title, children, open = false) {
   const panel = document.createElement('section');
-  panel.className = 'faon-application-panel';
+  panel.className = 'faon-application-panel accordion';
   if (open) panel.classList.add('is-open');
 
   const trigger = document.createElement('button');
-  trigger.className = 'faon-application-panel-trigger';
+  trigger.className = 'faon-application-panel-trigger accordion-trigger';
   trigger.type = 'button';
   trigger.id = `faon-application-panel-${index}-trigger`;
   trigger.setAttribute('aria-controls', `faon-application-panel-${index}`);
@@ -621,15 +622,15 @@ function buildPanel(index, title, children, open = false) {
   number.textContent = String(index).padStart(2, '0');
 
   const text = document.createElement('span');
-  text.className = 'faon-application-panel-title';
+  text.className = 'faon-application-panel-title accordion-label';
   text.textContent = title;
 
   const icon = document.createElement('span');
-  icon.className = 'faon-application-panel-icon';
+  icon.className = 'faon-application-panel-icon accordion-icon';
   icon.setAttribute('aria-hidden', 'true');
 
   const body = document.createElement('div');
-  body.className = 'faon-application-panel-body';
+  body.className = 'faon-application-panel-body accordion-panel';
   body.id = `faon-application-panel-${index}`;
   body.setAttribute('aria-labelledby', trigger.id);
 
@@ -642,6 +643,7 @@ function buildPanel(index, title, children, open = false) {
 
   const next = document.createElement('button');
   next.className = 'faon-application-continue';
+  applyButtonStyle(next, 'primary');
   next.type = 'button';
   next.textContent = index === 5 ? 'Review Application' : 'Continue';
   footer.append(next);
@@ -903,12 +905,11 @@ function buildForm() {
   return form;
 }
 
+// The shared .accordion animates the panel open, so no height is measured here.
 function refreshPanel(panel, open) {
   const trigger = panel.querySelector('.faon-application-panel-trigger');
-  const body = panel.querySelector('.faon-application-panel-body');
   panel.classList.toggle('is-open', open);
   trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-  body.style.maxHeight = open ? `${body.scrollHeight}px` : '0px';
 }
 
 function bindPanels(form) {
@@ -930,22 +931,6 @@ function bindPanels(form) {
         next.querySelector('.faon-application-panel-trigger').focus({ preventScroll: true });
         next.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    });
-  });
-
-  form.addEventListener('input', (event) => {
-    const panel = event.target.closest?.('.faon-application-panel');
-    if (panel?.classList.contains('is-open')) refreshPanel(panel, true);
-  });
-
-  form.addEventListener('change', (event) => {
-    const panel = event.target.closest?.('.faon-application-panel');
-    if (panel?.classList.contains('is-open')) refreshPanel(panel, true);
-  });
-
-  window.addEventListener('resize', () => {
-    panels.forEach((panel) => {
-      if (panel.classList.contains('is-open')) refreshPanel(panel, true);
     });
   });
 }
@@ -1183,6 +1168,7 @@ export default function decorate(block) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.className = 'faon-application-submit';
+  applyButtonStyle(submitButton, 'primary');
   moveText(getTextField(block, 'buttonText'), submitButton, DEFAULTS.buttonText);
 
   actions.append(status, submitButton);

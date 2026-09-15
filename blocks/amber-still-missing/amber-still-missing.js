@@ -193,14 +193,14 @@ function setExpanded(item, expanded, immediate = false) {
   if (expanded) {
     panel.hidden = false;
     window.requestAnimationFrame(() => {
-      item.classList.add('amber-still-missing-open');
+      item.classList.add('amber-still-missing-open', 'is-open');
       button.setAttribute('aria-expanded', 'true');
       panel.setAttribute('aria-hidden', 'false');
     });
     return;
   }
 
-  item.classList.remove('amber-still-missing-open');
+  item.classList.remove('amber-still-missing-open', 'is-open');
   button.setAttribute('aria-expanded', 'false');
   panel.setAttribute('aria-hidden', 'true');
   if (immediate) {
@@ -234,29 +234,29 @@ export default async function decorate(block) {
   intro.textContent = config.intro;
 
   const accordion = document.createElement('article');
-  accordion.className = 'amber-still-missing-accordion';
+  accordion.className = 'amber-still-missing-accordion accordion';
 
   const headerId = 'amber-still-missing-heading';
   const panelId = 'amber-still-missing-panel';
 
   const header = document.createElement('button');
-  header.className = 'amber-still-missing-header';
+  header.className = 'amber-still-missing-header accordion-trigger';
   header.type = 'button';
   header.id = headerId;
   header.setAttribute('aria-expanded', 'false');
   header.setAttribute('aria-controls', panelId);
 
   const question = document.createElement('span');
-  question.className = 'amber-still-missing-question';
+  question.className = 'amber-still-missing-question accordion-label';
   question.textContent = config.heading;
 
   const icon = document.createElement('span');
-  icon.className = 'amber-still-missing-icon';
+  icon.className = 'amber-still-missing-icon accordion-icon';
   icon.setAttribute('aria-hidden', 'true');
   header.append(question, icon);
 
   const panel = document.createElement('div');
-  panel.className = 'amber-still-missing-panel';
+  panel.className = 'amber-still-missing-panel accordion-panel';
   panel.id = panelId;
   panel.hidden = true;
   panel.setAttribute('role', 'region');

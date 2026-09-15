@@ -1,6 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+  setCurrentCarouselDot,
+} from '../../scripts/carousel-utils.js';
 import {
   getFieldSelector,
   readImageField,
@@ -9,6 +14,13 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const CARD_PROPS = [
   'cardNumber',
@@ -33,8 +45,6 @@ const DEFAULTS = {
   invertNumberColor: '#00264d',
   invertTitleColor: '#00264d',
   invertBodyColor: '#355069',
-  ctaBackgroundColor: '#008db6',
-  ctaTextColor: '#ffffff',
 };
 
 const resourceDataCache = new Map();
@@ -169,26 +179,31 @@ function buildOptimizedPicture(imageField, altText, width) {
 }
 
 function updateDots(dots, activeIndex) {
-  dots.forEach((dot, index) => {
-    dot.classList.toggle('active', index === activeIndex);
-  });
+  setCurrentCarouselDot(dots, activeIndex);
 }
 
 function applyCarouselState(cardRefs, activeIndex) {
-  cardRefs.forEach(({ card }, index) => {
+  cardRefs.forEach(({ card, syncSurface }, index) => {
     const isActive = index === activeIndex;
     card.classList.toggle('is-active', isActive);
     card.setAttribute('aria-current', isActive ? 'true' : 'false');
+    if (syncSurface) syncSurface();
   });
 }
 
-function buildCardCta(labelText, href) {
+function buildCardCta(labelText, href, isAuthoring) {
   if (!labelText && !href) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!href && !isAuthoring) return null;
 
   const cta = document.createElement(href ? 'a' : 'span');
   cta.className = 'numbered-cards-custom-card-cta';
   if (href) {
     cta.href = href;
+  } else {
+    cta.setAttribute('aria-disabled', 'true');
+    cta.title = 'Add a link to publish this button';
   }
 
   const label = document.createElement('span');
@@ -196,10 +211,13 @@ function buildCardCta(labelText, href) {
   label.textContent = labelText || 'Learn More';
   cta.append(label);
 
-  return cta;
+  // The look comes from the button standard (Primary).
+  return applyButtonStyle(cta, 'primary');
 }
 
 export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const blockData = await getResourceData(block);
   const titleField = getBlockField(block, 'title');
   const subtitleField = getBlockField(block, 'subtitle');
@@ -334,6 +352,8 @@ export default async function decorate(block) {
   }
 
   const cardRefs = [];
+  const isAuthoring = Boolean(document.querySelector('[data-aue-resource]'));
+  const canHover = window.matchMedia('(hover: hover)').matches;
 
   cards.forEach((data, index) => {
     const card = document.createElement('div');
@@ -359,7 +379,6 @@ export default async function decorate(block) {
     const normalBodyColor = data.bodyColor
       || (isInvertMode ? DEFAULTS.invertBodyColor : '#ffffff');
     const activeBodyColor = isInvertMode ? '#ffffff' : normalBodyColor;
-    const activeCtaTextColor = isInvertMode ? cardBg : DEFAULTS.ctaTextColor;
 
     card.style.setProperty('--numbered-cards-custom-card-bg', normalCardBackground);
     card.style.setProperty('--numbered-cards-custom-card-bg-active', activeCardBackground);
@@ -377,22 +396,6 @@ export default async function decorate(block) {
     card.style.setProperty(
       '--numbered-cards-custom-body-color-active',
       activeBodyColor,
-    );
-    card.style.setProperty(
-      '--numbered-cards-custom-cta-bg',
-      DEFAULTS.ctaBackgroundColor,
-    );
-    card.style.setProperty(
-      '--numbered-cards-custom-cta-bg-active',
-      isInvertMode ? '#ffffff' : DEFAULTS.ctaBackgroundColor,
-    );
-    card.style.setProperty(
-      '--numbered-cards-custom-cta-text',
-      DEFAULTS.ctaTextColor,
-    );
-    card.style.setProperty(
-      '--numbered-cards-custom-cta-text-active',
-      activeCtaTextColor,
     );
 
     const numberWrap = document.createElement('div');
@@ -427,13 +430,34 @@ export default async function decorate(block) {
       card.append(body);
     }
 
-    const cta = buildCardCta(data.ctaText, data.ctaLink);
+    const cta = buildCardCta(data.ctaText, data.ctaLink, isAuthoring);
+    const [ctaStyle] = data.row
+      ? readAppendedStyles(data.row, ['ctaStyle'], [...data.row.children])
+      : [''];
+    if (cta && ctaStyle) applyButtonStyle(cta, ctaStyle);
     if (cta) {
       card.append(cta);
     }
 
+    // The button follows the card onto its dark form. The card changes colour while
+    // active, and in invert mode also on hover and focus, so the mark is re-synced then.
+    const darkNormal = isDarkSurface(normalCardBackground);
+    const darkActive = isDarkSurface(activeCardBackground);
+    const syncSurface = () => {
+      const lit = card.classList.contains('is-active') || (isInvertMode && (
+        card.matches(':focus-within') || (canHover && card.matches(':hover'))
+      ));
+      markButtonSurface(card, lit ? darkActive : darkNormal);
+    };
+    syncSurface();
+    if (darkActive !== darkNormal) {
+      ['mouseenter', 'mouseleave', 'focusin', 'focusout'].forEach((type) => {
+        card.addEventListener(type, () => requestAnimationFrame(syncSurface));
+      });
+    }
+
     cardsContainer.append(card);
-    cardRefs.push({ card });
+    cardRefs.push({ card, syncSurface });
   });
 
   wrapper.append(cardsContainer);
@@ -443,10 +467,10 @@ export default async function decorate(block) {
     controls.className = 'numbered-cards-custom-controls';
 
     const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'numbered-cards-custom-dots';
+    dotsContainer.className = 'numbered-cards-custom-dots carousel-dots';
     const dots = cardRefs.map((_, index) => {
       const dot = document.createElement('button');
-      dot.className = 'numbered-cards-custom-dot';
+      dot.className = 'numbered-cards-custom-dot carousel-dot';
       dot.type = 'button';
       dot.setAttribute('aria-label', `Go to card ${index + 1}`);
       dotsContainer.append(dot);
@@ -457,21 +481,15 @@ export default async function decorate(block) {
     const nav = document.createElement('div');
     nav.className = 'numbered-cards-custom-nav';
 
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'numbered-cards-custom-nav-btn';
-    prevBtn.type = 'button';
-    prevBtn.setAttribute('aria-label', 'Previous card');
-    prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
-      + 'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
-      + '<polyline points="15 18 9 12 15 6"></polyline></svg>';
+    const prevBtn = createCarouselArrow('prev', {
+      className: 'numbered-cards-custom-nav-btn',
+      label: 'Previous card',
+    });
 
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'numbered-cards-custom-nav-btn';
-    nextBtn.type = 'button';
-    nextBtn.setAttribute('aria-label', 'Next card');
-    nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
-      + 'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
-      + '<polyline points="9 6 15 12 9 18"></polyline></svg>';
+    const nextBtn = createCarouselArrow('next', {
+      className: 'numbered-cards-custom-nav-btn',
+      label: 'Next card',
+    });
 
     nav.append(prevBtn, nextBtn);
     controls.append(nav);

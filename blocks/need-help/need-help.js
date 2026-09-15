@@ -1,5 +1,10 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readLinkField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -110,11 +115,18 @@ function buildCard(data) {
 
   const linkText = data.linkTextField.value;
   const linkHref = data.linkUrlField.value;
-  if (linkText) {
+  // A link with nowhere to go is not published; the editor still shows it, disabled.
+  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (linkText && (linkHref || inEditor)) {
     const link = document.createElement(linkHref ? 'a' : 'span');
     link.className = 'need-help-card-link';
     link.innerHTML = formatLinkText(linkText);
     if (linkHref) link.href = linkHref;
+    else link.setAttribute('aria-disabled', 'true');
+    const [linkStyle] = data.row
+      ? readAppendedStyles(data.row, ['linkStyle'], [...data.row.children])
+      : [''];
+    applyButtonStyle(link, linkStyle || 'text-link');
     if (data.linkTextField.source) {
       moveInstrumentation(data.linkTextField.source, link);
     }
@@ -125,6 +137,8 @@ function buildCard(data) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const rows = [...block.querySelectorAll(':scope > div')];
 
   const headingField = readParentText(block, rows, 'heading', ['heading', 'title'], 0);

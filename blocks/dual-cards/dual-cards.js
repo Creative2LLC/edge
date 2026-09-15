@@ -2,6 +2,11 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readImageField, readLinkField, readTextField, setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -84,12 +89,22 @@ function buildCard(row) {
 
   const btnLabel = buttonTextField.value;
   const btnHref = buttonLinkField.value;
-  if (btnLabel || btnHref) {
-    const link = document.createElement(btnHref ? 'a' : 'button');
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (btnHref || (btnLabel && inEditor)) {
+    const link = document.createElement(btnHref ? 'a' : 'span');
     link.className = 'dual-cards-link';
     link.textContent = btnLabel || 'Learn More';
-    if (btnHref) link.href = btnHref;
-    if (!btnHref) link.type = 'button';
+    if (btnHref) {
+      link.href = btnHref;
+    } else {
+      link.setAttribute('aria-disabled', 'true');
+      link.title = 'Add a link to publish this button';
+    }
+    // The look comes from the button standard: Text link unless a Button Style was picked.
+    const [buttonStyle] = readAppendedStyles(row, ['buttonStyle'], [...row.children]);
+    applyButtonStyle(link, buttonStyle || 'text-link');
     if (buttonTextField.source) moveInstrumentation(buttonTextField.source, link);
     if (buttonLinkField.source && buttonLinkField.source !== buttonTextField.source) {
       moveInstrumentation(buttonLinkField.source, link);
@@ -101,6 +116,8 @@ function buildCard(row) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const rows = [...block.querySelectorAll(':scope > div')];
 
   const grid = document.createElement('div');

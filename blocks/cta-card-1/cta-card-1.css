@@ -53,52 +53,23 @@
   gap: 18px;
 }
 
+/* Buttons: colours, type, padding, radius and hover come from the button
+   standard. These rules keep only this block's layout — the wide 550px CTA and
+   the two-line label with subtext. */
 .cta-card-1 .cta-card-1-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 550px;
   max-width: 100%;
-  height: 70px;
-  border-radius: 99px;
-  font-size: 18.18px;
-  font-weight: 600;
-  padding: 0 36px;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-  white-space: nowrap;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-  box-sizing: border-box;
 }
 
 .cta-card-1 .cta-card-1-button.has-subtext {
   flex-direction: column;
-  height: auto;
-  padding: 14px 36px 12px;
   gap: 2px;
-}
-
-.cta-card-1 .cta-card-1-button-main {
-  font-size: 18.18px;
-  font-weight: 600;
-  line-height: 1.2;
 }
 
 .cta-card-1 .cta-card-1-button-subtext {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.3;
-}
-
-.cta-card-1 .cta-card-1-button:hover,
-.cta-card-1 .cta-card-1-button:focus {
-  opacity: 0.85;
-}
-
-.cta-card-1 .cta-card-1-button-secondary {
-  border: 1px solid currentcolor;
 }
 
 .cta-card-1 .cta-card-1-below-button {
@@ -139,19 +110,6 @@
 
 .cta-card-1.cta-card-1-variant-2 .cta-card-1-button {
   width: auto;
-  height: auto;
-  padding: 14.55px 21.82px;
-  font-size: 18.18px;
-  font-weight: 600;
-}
-
-.cta-card-1.cta-card-1-variant-2 .cta-card-1-button.has-subtext {
-  padding: 14.55px 21.82px;
-}
-
-.cta-card-1.cta-card-1-variant-2 .cta-card-1-button-main {
-  font-size: 18.18px;
-  font-weight: 600;
 }
 
 /* --- Button 2 Location: Left variant --- */
@@ -168,12 +126,6 @@
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-button {
   width: auto;
-  height: auto;
-  padding: 10px 22px;
-}
-
-.cta-card-1.cta-card-1-button2-left .cta-card-1-button.has-subtext {
-  padding: 8px 22px;
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-right {
@@ -182,21 +134,7 @@
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-left .cta-card-1-button-secondary {
-  display: inline-flex;
   margin-top: 24px;
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.cta-card-1.cta-card-1-button2-left .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.cta-card-1.cta-card-1-button2-left .cta-card-1-right .cta-card-1-button-main,
-.cta-card-1.cta-card-1-button2-left .cta-card-1-right .cta-card-1-button-subtext {
-  font-size: 15px;
-  font-weight: 600;
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-below-button > *:nth-child(1) {
@@ -239,24 +177,13 @@
 /* Second button is solid here (no outline), unlike the other variants. */
 .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button-secondary {
   order: 3;
-  border: none;
 }
 
-/* Top button: larger 25px label, smaller 20px/30px padding. Sizes to its
-   content (overriding the shared 550px width) so the reduced padding shows. */
+/* Top button sizes to its content instead of the shared 550px width. */
 .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary),
 .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary).has-subtext {
   width: auto;
-  height: auto;
   align-self: flex-start;
-  padding: 20px 30px;
-  font-size: 25px;
-  font-weight: 600;
-}
-
-.cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary) .cta-card-1-button-main {
-  font-size: 25px;
-  font-weight: 600;
 }
 
 /* --- Style Type: Variant 4 --- */
@@ -287,25 +214,17 @@
   align-items: center;
 }
 
-/* Right-side buttons size to content with the requested padding. */
+/* Right-side buttons size to content. */
 .cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button,
 .cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button.has-subtext {
   width: auto;
-  height: auto;
-  padding: 14.55px 21.82px;
 }
 
-/* Button 3: outlined red, left-aligned under the subtitle. */
+/* Button 3: left-aligned under the subtitle, in the Secondary style. */
 .cta-card-1.cta-card-1-variant-4 .cta-card-1-left .cta-card-1-button-tertiary {
-  display: inline-flex;
   align-self: flex-start;
   width: auto;
-  height: auto;
   margin-top: 24px;
-  padding: 14px 16px;
-  background-color: transparent;
-  color: #e13e30;
-  border: 1px solid #e13e30;
 }
 
 /* ===========================================================================
@@ -354,10 +273,6 @@
   .cta-card-1 .cta-card-1-button {
     width: 100%;
     max-width: 100%;
-    height: auto;
-    min-height: 56px;
-    white-space: normal;
-    padding: 14px 20px;
   }
 
   /* below-button text: full width + centered to match the centered buttons

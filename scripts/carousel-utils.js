@@ -1,3 +1,63 @@
+import { applyButtonStyle } from './button-utils.js';
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const CHEVRON_POINTS = {
+  prev: '15 18 9 12 15 6',
+  next: '9 6 15 12 9 18',
+};
+
+/**
+ * The one chevron every carousel arrow and pagination step draws.
+ * @param {'prev'|'next'} direction
+ * @returns {SVGSVGElement}
+ */
+export function createChevronIcon(direction) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2.5');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const line = document.createElementNS(SVG_NS, 'polyline');
+  line.setAttribute('points', direction === 'prev' ? CHEVRON_POINTS.prev : CHEVRON_POINTS.next);
+  svg.append(line);
+  return svg;
+}
+
+/**
+ * Builds a carousel arrow on the button standard: the Icon style with the chevron.
+ * The block's class stays on it for layout only.
+ * @param {'prev'|'next'} direction
+ * @param {Object} [options]
+ * @param {string} [options.className] The block's own classes
+ * @param {string} [options.label] Accessible name
+ * @returns {HTMLButtonElement}
+ */
+export function createCarouselArrow(direction, { className = '', label = '' } = {}) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  if (className) button.className = className;
+  button.setAttribute('aria-label', label || (direction === 'prev' ? 'Previous' : 'Next'));
+  applyButtonStyle(button, 'icon');
+  button.append(createChevronIcon(direction));
+  return button;
+}
+
+/**
+ * Marks the current carousel dot. The shared .carousel-dot style reads aria-current.
+ * @param {HTMLElement[]} dots
+ * @param {number} index
+ */
+export function setCurrentCarouselDot(dots, index) {
+  dots.forEach((dot, i) => {
+    if (i === index) dot.setAttribute('aria-current', 'true');
+    else dot.removeAttribute('aria-current');
+  });
+}
+
 /**
  * Scrolls a carousel item into the leading edge of its scroll viewport.
  * Bounding rectangles account for breakout tracks, padding, and responsive

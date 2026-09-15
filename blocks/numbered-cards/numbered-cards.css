@@ -157,7 +157,6 @@
   align-items: flex-start;
   height: 346px;
   box-sizing: border-box;
-
 }
 
 .numbered-cards-carousel-layout .numbered-cards-number {
@@ -215,71 +214,11 @@
   position: relative;
 }
 
-.numbered-cards-carousel-layout .numbered-cards-dots {
-  display: flex;
-  gap: 2px;
-  align-items: center;
-}
-
-.numbered-cards-carousel-layout .numbered-cards-dot {
-  /* 24x24 hit target (WCAG 2.5.8 target-size); visual dot drawn by ::before. */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-}
-
-.numbered-cards-carousel-layout .numbered-cards-dot::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #a1a1a1;
-  transition: background-color 0.2s ease;
-}
-
-.numbered-cards-carousel-layout .numbered-cards-dot.active::before {
-  background: #00264d;
-}
-
-.numbered-cards-carousel-layout .numbered-cards-dot:hover::before {
-  opacity: 0.8;
-}
-
 .numbered-cards-carousel-layout .numbered-cards-nav {
   display: flex;
   gap: 12px;
   position: absolute;
   right: 0;
-}
-
-.numbered-cards-carousel-layout .numbered-cards-nav-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #a1a1a1;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: opacity 0.2s ease;
-}
-
-.numbered-cards-carousel-layout .numbered-cards-nav-btn:hover {
-  opacity: 0.85;
-}
-
-.numbered-cards-carousel-layout .numbered-cards-nav-btn svg {
-  width: 16px;
-  height: 16px;
-  color: rgb(255 255 255 / 83%);
 }
 
 .numbered-cards.is-visible .numbered-cards-header > *,

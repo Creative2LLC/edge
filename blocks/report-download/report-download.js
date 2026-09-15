@@ -6,6 +6,13 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isAppendedStyleValue,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const FIELD_ROW_INDEX = {
   backImage: 0,
@@ -75,7 +82,10 @@ function isLinkOnlyRow(row) {
 function getFlattenedFields(block) {
   const rows = directRows(block);
   const imageRows = rows.filter(rowHasImage);
-  const textRows = rows.filter((row) => !rowHasImage(row) && rowText(row));
+  // An appended Button Style cell is a setting, not copy.
+  const textRows = rows.filter((row) => (
+    !rowHasImage(row) && rowText(row) && !isAppendedStyleValue(rowText(row))
+  ));
   const contentRows = textRows.filter((row) => !isLinkOnlyRow(row));
   const headingRow = contentRows[0] || null;
   const remainingRows = contentRows.slice(1);
@@ -219,15 +229,23 @@ function buildAuthoringPlaceholder(className, text) {
   return placeholder;
 }
 
-function buildButton(labelField, linkField) {
+function buildButton(labelField, linkField, isAuthoring) {
   const label = labelField.value.trim();
   const href = linkField.value.trim();
 
   if (!label) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!href && !isAuthoring) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
   button.className = 'report-download-button report-download-reveal';
-  if (href) button.href = href;
+  if (href) {
+    button.href = href;
+  } else {
+    button.setAttribute('aria-disabled', 'true');
+    button.title = 'Add a link to publish this button';
+  }
   if (href && linkField.source) moveInstrumentation(linkField.source, button);
 
   if (labelField.source?.matches?.('[data-aue-prop]')) {
@@ -236,10 +254,12 @@ function buildButton(labelField, linkField) {
     button.textContent = label;
   }
 
-  return button.textContent.trim() ? button : null;
+  if (!button.textContent.trim()) return null;
+  // The look comes from the button standard (Primary).
+  return applyButtonStyle(button, 'primary');
 }
 
-export default function decorate(block) {
+function decorateBlock(block) {
   const isAuthoring = hasAuthoringContext(block);
   const flattenedFields = getFlattenedFields(block);
   const backImageField = getImageField(block, 'backImage', FIELD_ROW_INDEX.backImage, 0, flattenedFields.backImageCell);
@@ -314,7 +334,7 @@ export default function decorate(block) {
 
   const actions = document.createElement('div');
   actions.className = 'report-download-actions';
-  const button = buildButton(buttonTextField, buttonLinkField);
+  const button = buildButton(buttonTextField, buttonLinkField, isAuthoring);
   if (button) {
     actions.append(button);
   } else if (isAuthoring) {
@@ -328,4 +348,20 @@ export default function decorate(block) {
 
   inner.append(actions);
   block.replaceChildren(inner);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [buttonStyle] = readAppendedStyles(
+    block,
+    ['buttonStyle'],
+    directRows(block),
+  );
+  decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.report-download-button': buttonStyle,
+  });
 }

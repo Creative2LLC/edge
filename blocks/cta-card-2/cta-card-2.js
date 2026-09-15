@@ -5,6 +5,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle, resolveButtonStyle } from '../../scripts/button-utils.js';
 
 function getField(block, rows, name, index) {
   return readTextField(block, name, { fallbackCell: rows[index] });
@@ -37,7 +38,6 @@ export default function decorate(block) {
   const buttonTextField = getField(block, rows, 'buttonText', 4);
   const buttonLinkField = getLinkField(block, rows, 'buttonLink', 5);
   const buttonColorField = getField(block, rows, 'buttonColor', 6);
-  const buttonTextColorField = getField(block, rows, 'buttonTextColor', 7);
 
   // Apply background color at 32% opacity
   const bgHex = bgColorField.value || '#000000';
@@ -94,10 +94,8 @@ export default function decorate(block) {
     buttonTextField.source.remove();
   }
 
-  const btnColor = buttonColorField.value;
-  const btnTextColor = buttonTextColorField.value;
-  if (btnColor) btn.style.setProperty('background-color', btnColor, 'important');
-  if (btnTextColor) btn.style.setProperty('color', btnTextColor, 'important');
+  // The look comes from the button standard; the old colour picker only chooses the style.
+  applyButtonStyle(btn, resolveButtonStyle(buttonColorField.value));
   right.append(btn);
 
   block.replaceChildren(left, right);

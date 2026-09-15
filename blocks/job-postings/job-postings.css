@@ -87,49 +87,15 @@
   flex-shrink: 0;
 }
 
-/* Apply button (per-card) */
+/* Buttons are styled by the button standard in styles/styles.css.
+   These rules only place them. */
 .job-postings-card-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
   flex-shrink: 0;
   margin-left: 24px;
 }
 
-.job-postings-card-button:hover,
-.job-postings-card-button:focus {
-  opacity: 0.85;
-}
-
-/* Bottom button */
 .job-postings-bottom-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
   margin-top: 32px;
-}
-
-.job-postings-bottom-button:hover,
-.job-postings-bottom-button:focus {
-  opacity: 0.85;
 }
 
 /* Responsive: Tablet */

@@ -57,26 +57,7 @@ main > .section > .resources-wrapper {
   line-height: var(--caption-line-height);
 }
 
-.resources .resources-button {
-  background: rgb(13 39 59 / 80%);
-  color: rgb(255 255 255 / 83%);
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 99px;
-  padding: 12px 32px;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-}
-
-.resources .resources-button:hover {
-  opacity: 0.9;
-}
+/* Header button: styled by the button standard in styles/styles.css. */
 
 /* Cards horizontal scroll */
 .resources .resources-cards {
@@ -238,17 +219,9 @@ main > .section > .resources-wrapper {
   margin-top: 0.5em;
 }
 
-/* Card link */
+/* Card link: the Text link style from the button standard; this only places it. */
 .resources .resources-card-link {
-  color: #007294;
-  font-size: 17px;
-  font-weight: 500;
-  text-decoration: none;
   margin-top: auto;
-}
-
-.resources .resources-card-link:hover {
-  text-decoration: underline;
 }
 
 .resources .resources-empty {
@@ -290,29 +263,6 @@ main > .section > .resources-wrapper {
 .resources .resources-nav {
   display: flex;
   gap: 12px;
-}
-
-.resources .resources-nav-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #a1a1a1;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.resources .resources-nav-btn:hover {
-  opacity: 0.85;
-}
-
-.resources .resources-nav-btn svg {
-  width: 16px;
-  height: 16px;
-  color: rgb(255 255 255 / 83%);
 }
 
 /* Responsive */

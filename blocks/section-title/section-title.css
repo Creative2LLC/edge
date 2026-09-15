@@ -78,35 +78,10 @@
 }
 
 /* ---------- Optional button ----------
-   Compound selector beats global `button:hover` cascade in styles.css */
+   Styled by the button standard in styles/styles.css; this only places it. */
 .section-title .section-title-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex: 0 0 auto;
   margin: 0;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: inherit;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  outline: none;
-  box-shadow: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s ease;
-}
-
-.section-title .section-title-button:hover,
-.section-title .section-title-button:focus,
-.section-title .section-title-button:focus-visible,
-.section-title .section-title-button:active {
-  opacity: 0.85;
-  outline: none;
-  box-shadow: none;
-  text-decoration: none;
 }
 
 .section-title .section-title-inner.section-title-align-center .section-title-button {

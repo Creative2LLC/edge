@@ -101,46 +101,16 @@
   line-height: 1.35;
 }
 
-.leadership-overview .leadership-overview-feature-link,
-.leadership-overview .leadership-overview-nav-card-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  font-weight: 500;
-}
-
+/* Both links wear the Text link style from the button standard (arrow drawn by
+   CSS). These rules only place them. */
 .leadership-overview .leadership-overview-feature-link {
   margin-top: 34px;
-  color: #008db6;
-  font-size: 18px;
 }
 
 .leadership-overview .leadership-overview-nav-card-link {
+  justify-content: center;
   margin-top: auto;
   padding-top: 28px;
-  font-size: 17px;
-}
-
-.leadership-overview .leadership-overview-feature-link:hover,
-.leadership-overview .leadership-overview-feature-link:focus-visible,
-.leadership-overview .leadership-overview-nav-card-link:hover,
-.leadership-overview .leadership-overview-nav-card-link:focus-visible {
-  text-decoration: none;
-  opacity: 0.85;
-}
-
-.leadership-overview .leadership-overview-feature-link-icon,
-.leadership-overview .leadership-overview-nav-card-link-icon {
-  display: inline-flex;
-  align-items: center;
-  line-height: 0;
-}
-
-.leadership-overview .leadership-overview-feature-link-icon svg,
-.leadership-overview .leadership-overview-nav-card-link-icon svg {
-  width: 18px;
-  height: 18px;
 }
 
 .leadership-overview .leadership-overview-nav-grid {

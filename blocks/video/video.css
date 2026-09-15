@@ -45,6 +45,11 @@
 }
 
 .video .video-placeholder-play button {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
+  border: 2px solid transparent;
+  background-color: #008eb7;
+  color: var(--background-color);
   position: relative;
   display: block;
   width: 44px;

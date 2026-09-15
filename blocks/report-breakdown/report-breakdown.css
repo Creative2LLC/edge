@@ -59,45 +59,6 @@
   transition-delay: 80ms;
 }
 
-.report-breakdown .report-breakdown-tabs {
-  display: inline-flex;
-  gap: 6px;
-  padding: 8px;
-  border-radius: 999px;
-  background: #4a4f55;
-  box-shadow: 0 16px 30px rgb(17 58 103 / 10%);
-}
-
-.report-breakdown .report-breakdown-tab {
-  min-width: 74px;
-  min-height: 50px;
-  padding: 0 18px;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: rgb(255 255 255 / 78%);
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    background-color 220ms ease,
-    color 220ms ease,
-    transform 220ms ease;
-}
-
-.report-breakdown .report-breakdown-tab.is-active {
-  background: #1491bf;
-  color: #fff;
-}
-
-.report-breakdown .report-breakdown-tab:hover,
-.report-breakdown .report-breakdown-tab:focus-visible {
-  color: #fff;
-  outline: none;
-  transform: translateY(-1px);
-}
-
 .report-breakdown .report-breakdown-panels {
   transition-delay: 160ms;
 }
@@ -416,13 +377,6 @@
     overflow-x: auto;
   }
 
-  .report-breakdown .report-breakdown-tab {
-    min-width: 66px;
-    min-height: 46px;
-    padding: 0 14px;
-    font-size: 0.95rem;
-  }
-
   .report-breakdown .report-breakdown-table-head,
   .report-breakdown .report-breakdown-row {
     grid-template-columns: minmax(0, 1fr) minmax(86px, 104px) 22px;
@@ -453,7 +407,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .report-breakdown .report-breakdown-reveal,
-  .report-breakdown .report-breakdown-tab,
   .report-breakdown .report-breakdown-chart-shell::before,
   .report-breakdown .report-breakdown-chart-shell::after {
     transition: none;

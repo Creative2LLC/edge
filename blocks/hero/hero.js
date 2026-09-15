@@ -6,6 +6,12 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
 
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
 const IMAGE_EXT_RE = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?(#.*)?$/i;
@@ -328,6 +334,9 @@ function isExactChoiceCell(cell, allowed) {
 
 /** content_position's option family. Unique to that field across the model. */
 const CONTENT_POSITION_CHOICES = ['left', 'center', 'right'];
+// Button style values: the legacy three plus the seven the style dropdown now stores.
+// Published cells carry no field names, so style cells are recognised by value.
+const ACTION_STYLE_VALUES = ['outline', 'solid', 'inverted', ...BUTTON_STYLES];
 
 /**
  * Local copy of the getChoiceFromCell test, declared here because
@@ -366,7 +375,7 @@ function getContentCell(block) {
 
 function getActionStyleCellAt(block, name) {
   const cell = getHeroFieldCell(block, name);
-  if (cell && isExactChoiceCell(cell, ['outline', 'solid', 'inverted'])) return cell;
+  if (cell && isExactChoiceCell(cell, ACTION_STYLE_VALUES)) return cell;
   return null;
 }
 
@@ -469,7 +478,7 @@ function getFieldValue(block, nameOrNames) {
         || candidate === 'action_3Style'
     ));
     fallbackCell = getActionStyleCellAt(block, styleName);
-    fallbackValue = getChoiceFromCell(fallbackCell, ['outline', 'solid', 'inverted'])
+    fallbackValue = getChoiceFromCell(fallbackCell, ACTION_STYLE_VALUES)
       || fallbackCell?.textContent.trim()
       || '';
   }
@@ -676,6 +685,7 @@ function isIgnoredFallbackText(text) {
     'outline',
     'solid',
     'inverted',
+    ...BUTTON_STYLES,
     'circle',
     'underline',
   ]);
@@ -685,7 +695,7 @@ function isIgnoredFallbackText(text) {
   const tokens = normalizedLower.split(/\s+/).filter(Boolean);
   if (
     tokens.length > 1
-    && tokens.every((token) => ['outline', 'solid', 'inverted'].includes(token))
+    && tokens.every((token) => ACTION_STYLE_VALUES.includes(token))
   ) {
     return true;
   }
@@ -1161,6 +1171,11 @@ function buildActionButton(textField, linkField, style) {
   if (textField.source) moveFieldBinding(textField.source, label);
   button.append(label);
 
+  // Solid -> Primary, Outline -> Secondary. "Inverted" was how an author asked for the
+  // white button on a dark hero, which is now Primary in its dark form.
+  applyButtonStyle(button, resolveButtonStyle(style));
+  if (style === 'inverted') markButtonSurface(button, true);
+
   if (linkField.source) moveFieldBinding(linkField.source, button);
   return button;
 }
@@ -1172,7 +1187,7 @@ function getCellHrefValue(cell) {
 }
 
 function isActionStyleValue(value) {
-  return ['outline', 'solid', 'inverted'].includes(String(value || '').trim().toLowerCase());
+  return ACTION_STYLE_VALUES.includes(String(value || '').trim().toLowerCase());
 }
 
 function hasNonActionFieldContent(cell) {
@@ -1441,7 +1456,7 @@ function getFlattenedActionGroups(block) {
 function getButtonStyle(block, name) {
   return normalizeChoice(
     getFieldValue(block, [name]).value,
-    ['outline', 'solid', 'inverted'],
+    ACTION_STYLE_VALUES,
     'solid',
   );
 }
@@ -1487,7 +1502,7 @@ function buildActions(block) {
   return actions;
 }
 
-function buildPanelButton(textField, linkField, className) {
+function buildPanelButton(textField, linkField, className, style) {
   const labelValue = textField.value || linkField.value;
   const hrefValue = linkField.href || linkField.value;
   if (!labelValue && !hrefValue) return null;
@@ -1496,6 +1511,7 @@ function buildPanelButton(textField, linkField, className) {
   button.className = className;
   button.href = hrefValue || '#';
   button.textContent = labelValue || hrefValue || 'Learn More';
+  applyButtonStyle(button, style);
   if (textField.source) moveFieldBinding(textField.source, button);
   if (linkField.source) moveFieldBinding(linkField.source, button);
   return button;
@@ -1538,11 +1554,14 @@ function buildSidePanel(block, panelImage = null) {
 
   const actions = document.createElement('div');
   actions.className = 'hero-side-panel-actions';
+  // The side panel is always navy, so its buttons take the dark form.
+  markButtonSurface(actions, true);
 
   const primaryButton = buildPanelButton(
     primaryTextField,
     primaryLinkField,
     'hero-side-panel-btn hero-side-panel-btn-primary',
+    'primary',
   );
   if (primaryButton) actions.append(primaryButton);
 
@@ -1550,6 +1569,7 @@ function buildSidePanel(block, panelImage = null) {
     secondaryTextField,
     secondaryLinkField,
     'hero-side-panel-btn hero-side-panel-btn-secondary',
+    'text-link',
   );
   if (secondaryButton) actions.append(secondaryButton);
 
@@ -1574,7 +1594,7 @@ function extractPanelPicture(block, pictureCandidates = []) {
   if (!picture && !isUniversalEditor()) {
     const cells = getRowCells(block);
     const actionStyleIndex = cells.findIndex((cell) => (
-      Boolean(getChoiceFromCell(cell, ['outline', 'solid', 'inverted']))
+      Boolean(getChoiceFromCell(cell, ACTION_STYLE_VALUES))
     ));
     const panelPictures = cells
       .slice(actionStyleIndex + 1)

@@ -62,11 +62,7 @@
   gap: 14px;
 }
 
-.giving .giving-actions .button.secondary {
-  background: transparent;
-  border-color: currentcolor;
-  color: inherit;
-}
+/* Buttons: styled by the button standard in styles/styles.css (dark form). */
 
 @media (width >= 900px) {
   .giving {

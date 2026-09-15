@@ -6,7 +6,13 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import { decorateButtonText } from '../../scripts/button-utils.js';
+import {
+  applyButtonStyle,
+  decorateButtonText,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const DEFAULT_HEADING = 'NCMEC News';
 
@@ -229,7 +235,12 @@ function buildTagsContainer(tags) {
   return container;
 }
 
-function buildReadMore(url) {
+// The article's appended Link Style; "" keeps the text link.
+function articleLinkStyle(row) {
+  return row ? readAppendedStyles(row, ['linkStyle'], [...row.children])[0] : '';
+}
+
+function buildReadMore(url, style = '') {
   if (!url) return null;
   const a = document.createElement('a');
   a.className = 'news-read-more';
@@ -237,6 +248,7 @@ function buildReadMore(url) {
   a.target = '_blank';
   a.rel = 'noopener noreferrer';
   a.textContent = decorateButtonText('Read more');
+  applyButtonStyle(a, style || 'text-link');
   return a;
 }
 
@@ -265,7 +277,7 @@ function buildFeaturedCard(article, row) {
     content.append(sub);
   }
 
-  const readMore = buildReadMore(article.linkUrl);
+  const readMore = buildReadMore(article.linkUrl, articleLinkStyle(row));
   if (readMore) content.append(readMore);
 
   featured.append(content);
@@ -314,14 +326,14 @@ function buildSmallCard(article, row, hidden) {
     content.append(sub);
   }
 
-  const readMore = buildReadMore(article.linkUrl);
+  const readMore = buildReadMore(article.linkUrl, articleLinkStyle(row));
   if (readMore) content.append(readMore);
 
   li.append(content);
   return li;
 }
 
-export default function decorate(block) {
+function decorateBlock(block) {
   const hasAuthoredFeaturedLayout = Boolean(block.querySelector('.news-featured'));
   const legacyMap = collectLegacyBlockFields(block);
   const heading = getBlockField(block, legacyMap, 'heading');
@@ -372,13 +384,21 @@ export default function decorate(block) {
 
     if (headerLeft.childElementCount) header.append(headerLeft);
 
-    if (headerButtonText || headerButtonLink) {
-      const headerBtn = document.createElement(headerButtonLink ? 'a' : 'button');
+    // A button with nowhere to go is not published. In the editor it still shows,
+    // disabled, so the author can see the link is missing.
+    const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+    if (headerButtonLink || (headerButtonText && inEditor)) {
+      const headerBtn = document.createElement(headerButtonLink ? 'a' : 'span');
       headerBtn.className = 'news-header-button';
       headerBtn.textContent = headerButtonText || 'Learn More';
-      if (headerButtonLink) headerBtn.href = headerButtonLink;
-      else headerBtn.type = 'button';
-      header.append(headerBtn);
+      if (headerButtonLink) {
+        headerBtn.href = headerButtonLink;
+      } else {
+        headerBtn.setAttribute('aria-disabled', 'true');
+        headerBtn.title = 'Add a link to publish this button';
+      }
+      // The look comes from the button standard (Primary).
+      header.append(applyButtonStyle(headerBtn, 'primary'));
     }
 
     inner.append(header);
@@ -413,6 +433,7 @@ export default function decorate(block) {
       const btn = document.createElement('button');
       btn.className = 'news-button';
       btn.textContent = buttonText;
+      applyButtonStyle(btn, 'primary');
       btn.addEventListener('click', () => {
         const expanded = block.classList.toggle('news-expanded');
         btn.textContent = expanded ? 'Show Less' : buttonText;
@@ -423,4 +444,20 @@ export default function decorate(block) {
   }
 
   block.replaceChildren(inner);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [headerButtonStyle] = readAppendedStyles(
+    block,
+    ['headerButtonStyle'],
+    [...block.children].filter((row) => row.children.length <= 1 && !row.querySelector('picture')),
+  );
+  decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.news-header-button': headerButtonStyle,
+  });
 }

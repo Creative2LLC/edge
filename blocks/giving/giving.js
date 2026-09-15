@@ -1,6 +1,12 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  markButtonSurface,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const FALLBACK_OVERLAY_COLOR = '#000000';
 const FALLBACK_OVERLAY_OPACITY = 0.6;
@@ -43,7 +49,8 @@ function extractLinkData(sourceEl) {
 function buildButton(linkData, variant) {
   if (!linkData?.href) return null;
   const btn = document.createElement('a');
-  btn.className = `button${variant ? ` ${variant}` : ''}`;
+  // The look comes from the button standard.
+  applyButtonStyle(btn, variant || 'primary');
   btn.textContent = linkData.label || linkData.href;
   btn.href = linkData.href || '#';
   btn.target = '_blank';
@@ -95,6 +102,14 @@ function readMetadata(block) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  // Style dropdowns appended to the model; read before any row is consumed.
+  const [primaryButtonStyle, secondaryButtonStyle] = readAppendedStyles(
+    block,
+    ['primaryButtonStyle', 'secondaryButtonStyle'],
+    [...block.children],
+  );
   const introSource = getField(block, 'intro');
   const primaryButtonSource = getField(block, 'primaryButton');
   const secondaryButtonSource = getField(block, 'secondaryButton');
@@ -119,10 +134,19 @@ export default function decorate(block) {
 
   const actions = document.createElement('div');
   actions.className = 'giving-actions';
-  const primaryBtn = buildButton(extractLinkData(primaryButtonSource), 'primary');
-  const secondaryBtn = buildButton(extractLinkData(secondaryButtonSource), 'secondary');
+  const primaryBtn = buildButton(
+    extractLinkData(primaryButtonSource),
+    primaryButtonStyle || 'primary',
+  );
+  const secondaryBtn = buildButton(
+    extractLinkData(secondaryButtonSource),
+    secondaryButtonStyle || 'secondary',
+  );
   if (primaryBtn) actions.append(primaryBtn);
   if (secondaryBtn) actions.append(secondaryBtn);
+  // The background image sits under a dark overlay (the copy is white), so the
+  // buttons take their dark form.
+  markButtonSurface(actions, true);
   if (actions.children.length) content.append(actions);
 
   const newChildren = [];

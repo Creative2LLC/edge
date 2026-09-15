@@ -28,6 +28,29 @@ const BASE = process.env.AUDIT_BASE_URL || 'https://test--edge--creative2llc.aem
 const OUT_DIR = 'audits/controls';
 const PAGE_LIST = 'audits/page-list.txt';
 
+// --local: serve scripts/blocks/styles/icons from the working tree instead of the deployed
+// branch, and write a separate report so the deployed measurement is kept for comparison.
+const LOCAL = process.argv.includes('--local');
+const TYPES = {
+  '.js': 'text/javascript',
+  '.mjs': 'text/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.svg': 'image/svg+xml',
+};
+
+async function serveWorkingTree(route) {
+  const u = new URL(route.request().url());
+  const ext = path.extname(u.pathname);
+  const file = path.join(process.cwd(), u.pathname);
+  if (!/^\/(scripts|blocks|styles|icons)\//.test(u.pathname) || !TYPES[ext] || !fs.existsSync(file)) {
+    await route.continue();
+    return;
+  }
+  await route.fulfill({ status: 200, contentType: TYPES[ext], body: fs.readFileSync(file) });
+}
+const OUT_NAME = LOCAL ? 'controls-local.json' : 'controls.json';
+
 function parseArgs(argv) {
   const paths = [];
   let limit = 0;
@@ -139,6 +162,7 @@ async function main() {
   const browser = await chromium.launch({ channel: 'chrome' });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
+  if (LOCAL) await context.route('**/*', serveWorkingTree);
 
   const variants = new Map();
   let scanned = 0;
@@ -223,14 +247,14 @@ async function main() {
     linkVariants: list.filter((v) => v.kind === 'link').length,
     failed,
   };
-  fs.writeFileSync(path.join(OUT_DIR, 'controls.json'), JSON.stringify(result, null, 2));
+  fs.writeFileSync(path.join(OUT_DIR, OUT_NAME), JSON.stringify(result, null, 2));
 
   console.log('');
   console.log(`pages scanned : ${scanned}${failed.length ? ` (${failed.length} failed)` : ''}`);
   console.log(`controls seen : ${controls}`);
   console.log(`unique button variants : ${result.buttonVariants}`);
   console.log(`unique link variants   : ${result.linkVariants}`);
-  console.log(`→ ${path.join(OUT_DIR, 'controls.json')}`);
+  console.log(`→ ${path.join(OUT_DIR, OUT_NAME)}`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

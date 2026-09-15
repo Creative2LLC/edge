@@ -7,6 +7,13 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -83,7 +90,9 @@ function getImageField(row, name, index) {
 }
 
 function isButtonStyleValue(value) {
-  return ['solid', 'outlined'].includes(String(value || '').trim().toLowerCase());
+  // Legacy values plus the seven the style dropdown now stores.
+  const style = String(value || '').trim().toLowerCase();
+  return ['solid', 'outlined', ...BUTTON_STYLES].includes(style);
 }
 
 function isLikelyLinkValue(value) {
@@ -250,6 +259,8 @@ function buildButton(buttonTextField, buttonLinkField, buttonStyle, index) {
 
   const button = document.createElement('a');
   button.className = `regional-offices-button regional-offices-button-${buttonStyle || 'outlined'} regional-offices-reveal`;
+  // Outlined was this block's default, so an unset style stays Secondary.
+  applyButtonStyle(button, resolveButtonStyle(buttonStyle, 'secondary'));
   button.style.setProperty('--stagger-index', index + 1.4);
   button.textContent = label || 'Learn More';
   button.href = href;
@@ -380,6 +391,8 @@ export default function decorate(block) {
   const grid = document.createElement('div');
   grid.className = 'regional-offices-grid';
   grid.style.setProperty('--regional-offices-columns', columnsField.value || '3');
+  // The cards are transparent, so their buttons sit straight on the section.
+  markButtonSurface(grid, isOnDarkSection(block));
 
   offices.forEach((office, index) => {
     grid.append(buildOfficeCard(office, index, variant));

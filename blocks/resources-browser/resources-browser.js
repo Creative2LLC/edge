@@ -1,7 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
-import { decorateButtonText } from '../../scripts/button-utils.js';
+import { applyButtonStyle, decorateButtonText } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 import { showSkeleton, clearSkeleton, setButtonLoading } from '../../scripts/skeleton.js';
 import {
@@ -847,6 +847,7 @@ function buildResourceCard(resource, row = null) {
       link.rel = 'noopener noreferrer';
     }
     link.textContent = decorateButtonText(action.label);
+    applyButtonStyle(link, 'text-link');
     if (action.isDownload) {
       bindGatedLink(link, {
         gated: resource.gated,
@@ -889,7 +890,7 @@ function createViewIcon(view) {
 function createViewToggleButton(label, view, activeView) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'resources-browser-view-button';
+  button.className = 'resources-browser-view-button view-toggle-button';
   button.dataset.view = view;
   button.setAttribute('aria-label', `${label} view`);
   button.title = label;
@@ -1077,7 +1078,7 @@ function buildShell(config) {
   }
 
   const viewToggle = document.createElement('div');
-  viewToggle.className = 'resources-browser-view-toggle';
+  viewToggle.className = 'resources-browser-view-toggle view-toggle';
   const gridButton = createViewToggleButton('Grid', 'grid', 'grid');
   const listButton = createViewToggleButton('List', 'list', 'grid');
   viewToggle.append(gridButton, listButton);
@@ -1162,6 +1163,7 @@ function buildShell(config) {
   loadMoreButton.className = 'resources-browser-load-more';
   loadMoreButton.type = 'button';
   loadMoreButton.textContent = loadMoreText;
+  applyButtonStyle(loadMoreButton, 'primary');
   const pagination = createPaginationControls('resources-browser', 'Resource results pagination');
   footer.append(loadMoreButton, pagination.nav);
 

@@ -7,6 +7,15 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  cleanButtonLabel,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+  resolveExplicitButtonStyle,
+} from '../../scripts/button-utils.js';
 
 // Hex-color select fields never get data-aue-prop instrumentation in the editor, so their
 // positional fallback is only as reliable as the fixed index it's given — which breaks
@@ -18,6 +27,13 @@ const COLOR_FIELD_NAMES = ['gradientLeft', 'gradientRight', 'buttonColor', 'butt
 
 function isValidHexColor(value) {
   return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
+}
+
+// The button colour pickers are now style dropdowns, so a published colour slot may
+// hold a style word. It counts like a colour there, keeping every later field in place.
+function isButtonColorSlotValue(value) {
+  return isValidHexColor(value)
+    || BUTTON_STYLES.includes(String(value || '').trim().toLowerCase());
 }
 
 function fieldCell(row) {
@@ -41,7 +57,8 @@ function isTextFieldValue(value) {
   return Boolean(value)
     && !isValidHexColor(value)
     && !isButtonLocation(value)
-    && !isStyleType(value);
+    && !isStyleType(value)
+    && !BUTTON_STYLES.includes(String(value).trim().toLowerCase());
 }
 
 function rowAt(rows, index) {
@@ -106,7 +123,7 @@ function readPublishedFallbackCells(rows) {
   cells.buttonLink = rowAt(rows, index);
   index += 1;
 
-  if (isValidHexColor(values[index])) {
+  if (isButtonColorSlotValue(values[index])) {
     cells.buttonColor = rowAt(rows, index);
     index += 1;
   }
@@ -127,7 +144,7 @@ function readPublishedFallbackCells(rows) {
     if (isTextFieldValue(values[index])) cells.buttonSubtext = rowAt(rows, index);
     if (isTextFieldValue(values[index + 1])) cells.button2Text = rowAt(rows, index + 1);
     if (values[index + 2]) cells.button2Link = rowAt(rows, index + 2);
-    if (isValidHexColor(values[index + 3])) cells.button2Color = rowAt(rows, index + 3);
+    if (isButtonColorSlotValue(values[index + 3])) cells.button2Color = rowAt(rows, index + 3);
     if (isValidHexColor(values[index + 4])) {
       cells.button2BackgroundColor = rowAt(rows, index + 4);
     }
@@ -167,7 +184,7 @@ function readPublishedFallbackCells(rows) {
     cells.button2Text = findButton2TextCell(rows, values, index, beforeLocation);
   }
 
-  if (beforeLocation > index && !isValidHexColor(values[beforeLocation - 1])) {
+  if (beforeLocation > index && !isButtonColorSlotValue(values[beforeLocation - 1])) {
     cells.button2Subtext = rowAt(rows, beforeLocation - 1);
     beforeLocation -= 1;
   }
@@ -175,7 +192,7 @@ function readPublishedFallbackCells(rows) {
     cells.button2BackgroundColor = rowAt(rows, beforeLocation - 1);
     beforeLocation -= 1;
   }
-  if (beforeLocation > index && isValidHexColor(values[beforeLocation - 1])) {
+  if (beforeLocation > index && isButtonColorSlotValue(values[beforeLocation - 1])) {
     cells.button2Color = rowAt(rows, beforeLocation - 1);
     beforeLocation -= 1;
   }
@@ -310,14 +327,31 @@ function buildRichTextElement(tag, className, field) {
 // block already rendered with its best synchronous guess; only touches fields the fetch
 // actually returned a valid hex value for, so a malformed/unexpected API response can't
 // corrupt an already-correct render.
-function syncColors(block, styleType, defaultLeftColor, defaultRightColor) {
+// Buttons take their dark form when the gradient behind them is dark.
+function markSurfaces(block, leftColor, rightColor) {
+  markButtonSurface(block.querySelector('.cta-card-1-left'), isDarkSurface(leftColor));
+  markButtonSurface(block.querySelector('.cta-card-1-right'), isDarkSurface(rightColor));
+}
+
+// Button 2's first picker is now its style dropdown, and a style picked there wins.
+// Otherwise button 2 was an outline unless an author gave it a fill: a missing, white
+// or transparent fill stays Secondary; any other fill picks the nearest style.
+function secondaryButtonStyle(backgroundColor, style = '') {
+  const picked = resolveExplicitButtonStyle(style, '');
+  if (picked) return picked;
+  const value = String(backgroundColor || '').trim().toLowerCase();
+  if (!value || ['#fff', '#ffffff', 'transparent'].includes(value)) return 'secondary';
+  return resolveButtonStyle(value, 'secondary');
+}
+
+function syncColors(block, defaultLeftColor, defaultRightColor) {
   const resourcePath = getAueResourcePath(block);
   if (!resourcePath) return;
 
   readAueResourceFields(resourcePath, COLOR_FIELD_NAMES)
     .then((fields) => {
       Object.keys(fields).forEach((key) => {
-        if (!isValidHexColor(fields[key])) delete fields[key];
+        if (!isButtonColorSlotValue(fields[key])) delete fields[key];
       });
       if (!Object.keys(fields).length) return;
 
@@ -325,27 +359,23 @@ function syncColors(block, styleType, defaultLeftColor, defaultRightColor) {
         const leftColor = fields.gradientLeft || defaultLeftColor;
         const rightColor = fields.gradientRight || defaultRightColor;
         block.style.setProperty('background', `linear-gradient(to right, ${leftColor}, ${rightColor})`, 'important');
+        markSurfaces(block, leftColor, rightColor);
       }
 
+      // Colours only choose the style now; the look comes from the button standard.
       const primaryBtn = block.querySelector(
         '.cta-card-1-button:not(.cta-card-1-button-secondary):not(.cta-card-1-button-tertiary)',
       );
-      if (primaryBtn) {
-        if (fields.buttonColor) primaryBtn.style.setProperty('background-color', fields.buttonColor, 'important');
-        if (fields.buttonTextColor) primaryBtn.style.setProperty('color', fields.buttonTextColor, 'important');
+      if (primaryBtn && fields.buttonColor) {
+        applyButtonStyle(primaryBtn, resolveButtonStyle(fields.buttonColor));
       }
 
       const secondaryBtn = block.querySelector('.cta-card-1-button-secondary');
-      if (secondaryBtn) {
-        if (fields.button2Color) {
-          if (styleType !== 'variant-3') {
-            secondaryBtn.style.setProperty('border', `1px solid ${fields.button2Color}`, 'important');
-          }
-          secondaryBtn.style.setProperty('color', fields.button2Color, 'important');
-        }
-        if (fields.button2BackgroundColor) {
-          secondaryBtn.style.setProperty('background-color', fields.button2BackgroundColor, 'important');
-        }
+      if (secondaryBtn && (fields.button2Color || fields.button2BackgroundColor)) {
+        applyButtonStyle(
+          secondaryBtn,
+          secondaryButtonStyle(fields.button2BackgroundColor, fields.button2Color),
+        );
       }
     });
 }
@@ -374,7 +404,6 @@ export default function decorate(block) {
   const buttonTextField = getField(block, 'buttonText', fallbackCell('buttonText', 5), isEditor);
   const buttonLinkField = getLinkField(block, 'buttonLink', fallbackCell('buttonLink', 6), isEditor);
   const buttonColorField = getColorField(block, 'buttonColor', fallbackCell('buttonColor', 7));
-  const buttonTextColorField = getColorField(block, 'buttonTextColor', fallbackCell('buttonTextColor', 8));
   const buttonSubtextField = getField(block, 'buttonSubtext', fallbackCell('buttonSubtext', 9), isEditor);
   const button2TextField = getField(block, 'button2Text', fallbackCell('button2Text', 10), isEditor);
   const button2LinkField = getLinkField(block, 'button2Link', fallbackCell('button2Link', 11), isEditor);
@@ -430,7 +459,9 @@ export default function decorate(block) {
       moveInstrumentation(button3TextField.source, btn3);
       button3TextField.source.remove();
     }
-    btn3.textContent = btn3Label;
+    btn3.textContent = cleanButtonLabel(btn3Label);
+    // Was an outlined red link; the closest standard style is Secondary.
+    applyButtonStyle(btn3, 'secondary');
     left.append(btn3);
   } else {
     removeOrHideField(block, button3TextField.source, isEditor);
@@ -457,7 +488,7 @@ export default function decorate(block) {
     btn.classList.add('has-subtext');
     const mainSpan = document.createElement('span');
     mainSpan.className = 'cta-card-1-button-main';
-    mainSpan.textContent = btnLabel;
+    mainSpan.textContent = cleanButtonLabel(btnLabel);
     const subSpan = document.createElement('span');
     subSpan.className = 'cta-card-1-button-subtext';
     subSpan.textContent = btnSubtext;
@@ -467,13 +498,12 @@ export default function decorate(block) {
     }
     btn.append(mainSpan, subSpan);
   } else {
-    btn.textContent = btnLabel;
+    btn.textContent = cleanButtonLabel(btnLabel);
   }
 
-  const btnColor = buttonColorField.value;
-  const btnTextColor = buttonTextColorField.value;
-  if (btnColor) btn.style.setProperty('background-color', btnColor, 'important');
-  if (btnTextColor) btn.style.setProperty('color', btnTextColor, 'important');
+  // The look comes from the button standard; the old colour picker only chooses the style
+  // (red -> Emergency for the "Call 911" cards).
+  applyButtonStyle(btn, resolveButtonStyle(buttonColorField.value));
   right.append(btn);
 
   // Second button (optional — outline style)
@@ -494,7 +524,7 @@ export default function decorate(block) {
       btn2.classList.add('has-subtext');
       const mainSpan = document.createElement('span');
       mainSpan.className = 'cta-card-1-button-main';
-      mainSpan.textContent = btn2Label;
+      mainSpan.textContent = cleanButtonLabel(btn2Label);
       const subSpan = document.createElement('span');
       subSpan.className = 'cta-card-1-button-subtext';
       subSpan.textContent = btn2Subtext;
@@ -504,19 +534,13 @@ export default function decorate(block) {
       }
       btn2.append(mainSpan, subSpan);
     } else {
-      btn2.textContent = btn2Label;
+      btn2.textContent = cleanButtonLabel(btn2Label);
     }
 
-    const btn2Color = button2ColorField.value;
-    if (btn2Color) {
-      // Variant 3 renders this button solid (no outline); other variants keep the border.
-      if (styleType !== 'variant-3') {
-        btn2.style.setProperty('border', `1px solid ${btn2Color}`, 'important');
-      }
-      btn2.style.setProperty('color', btn2Color, 'important');
-    }
-    const btn2BgColor = button2BackgroundColorField.value;
-    btn2.style.setProperty('background-color', btn2BgColor || 'transparent', 'important');
+    applyButtonStyle(
+      btn2,
+      secondaryButtonStyle(button2BackgroundColorField.value, button2ColorField.value),
+    );
     if (button2Location === 'left') left.append(btn2);
     else right.append(btn2);
   }
@@ -557,7 +581,9 @@ export default function decorate(block) {
     block.replaceChildren(left, right);
   }
 
+  markSurfaces(block, leftColor, rightColor);
+
   if (isEditor) {
-    syncColors(block, styleType, leftColor, rightColor);
+    syncColors(block, leftColor, rightColor);
   }
 }

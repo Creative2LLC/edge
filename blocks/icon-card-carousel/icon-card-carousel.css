@@ -176,31 +176,8 @@ main > .section > .icon-card-carousel-wrapper {
   flex: 0 0 24px;
 }
 
-/* Button */
-.icon-card-carousel .icon-card-carousel-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  border-radius: 99px;
-  background-color: #008db6;
-  color: #fff;
-
-  /* >=18.66px bold = WCAG "large text" (3:1), which the brand blue passes,
-     so we keep the brand color without a contrast failure. */
-  font-size: 18.72px;
-  font-weight: 700;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-.icon-card-carousel .icon-card-carousel-button:hover {
-  opacity: 0.9;
-  text-decoration: none;
-}
+/* Button: styled by the button standard in styles/styles.css. The standard's blue
+   passes normal-text contrast, so the old 18.72px bold "large text" workaround is gone. */
 
 /* Controls row: dots centered, nav arrows right */
 .icon-card-carousel .icon-card-carousel-controls {
@@ -211,74 +188,12 @@ main > .section > .icon-card-carousel-wrapper {
   position: relative;
 }
 
-/* Dots — pill-segment progress bar */
-.icon-card-carousel .icon-card-carousel-dots {
-  display: flex;
-  gap: 2px;
-  align-items: center;
-}
-
-.icon-card-carousel .icon-card-carousel-dot {
-  /* 24x24 hit target (WCAG 2.5.8 target-size); visual dot drawn by ::before. */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-}
-
-.icon-card-carousel .icon-card-carousel-dot::before {
-  content: "";
-  width: 8px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgb(0 38 77 / 20%);
-  transition: width 0.3s ease, background-color 0.2s ease;
-}
-
-.icon-card-carousel .icon-card-carousel-dot.active::before {
-  width: 28px;
-  background: #00264d;
-}
-
-.icon-card-carousel .icon-card-carousel-dot:hover:not(.active)::before {
-  background: rgb(0 38 77 / 40%);
-}
-
 /* Nav arrows */
 .icon-card-carousel .icon-card-carousel-nav {
   display: flex;
   gap: 12px;
   position: absolute;
   right: 0;
-}
-
-.icon-card-carousel .icon-card-carousel-nav-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #a1a1a1;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: opacity 0.2s ease;
-}
-
-.icon-card-carousel .icon-card-carousel-nav-btn:hover {
-  opacity: 0.85;
-}
-
-.icon-card-carousel .icon-card-carousel-nav-btn svg {
-  width: 20px;
-  height: 20px;
-  color: rgb(255 255 255 / 83%);
 }
 
 /* Responsive - tablet */

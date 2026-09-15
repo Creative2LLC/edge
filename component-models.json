@@ -717,17 +717,38 @@
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       }
     ]
   },
@@ -1360,17 +1381,38 @@
         "valueType": "string",
         "name": "style",
         "label": "Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       }
     ]
   },
@@ -1734,87 +1776,43 @@
         "component": "select",
         "valueType": "string",
         "name": "linkColor",
-        "label": "Link Text Color",
-        "description": "Defaults to #007294 if left empty",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. Block default keeps the text link.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
@@ -2074,171 +2072,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "text",
@@ -2262,171 +2146,57 @@
         "component": "select",
         "valueType": "string",
         "name": "button2Color",
-        "label": "Second Button Background Color",
+        "label": "Second Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "button2TextColor",
-        "label": "Second Button Text Color",
+        "label": "Second Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       }
     ]
   },
@@ -2528,171 +2298,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
@@ -6953,6 +6609,53 @@
           }
         ],
         "value": "none"
+      },
+      {
+        "component": "tab",
+        "name": "tabButtonStyle",
+        "label": "Button Style"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -10261,6 +9964,48 @@
         "component": "aem-content",
         "name": "buttonLink",
         "label": "Button Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -10327,171 +10072,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Color",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "text",
@@ -10514,171 +10145,57 @@
         "component": "select",
         "valueType": "string",
         "name": "button2Color",
-        "label": "Button 2 Color",
+        "label": "Button 2 Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "button2BackgroundColor",
-        "label": "Button 2 Background Color",
+        "label": "Button 2 Background Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "text",
@@ -10868,171 +10385,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Color",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       }
     ]
   },
@@ -11330,17 +10733,38 @@
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "secondary",
         "options": [
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "outlined"
+        ]
       },
       {
         "component": "select",
@@ -11453,86 +10877,43 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       }
     ]
   },
@@ -11654,6 +11035,48 @@
         "component": "aem-content",
         "name": "buttonLink",
         "label": "Link URL"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -12514,6 +11937,48 @@
         "name": "imageAlt",
         "label": "Image Alt Text",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "ctaStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -13031,6 +12496,48 @@
         "name": "hero_backgroundImage",
         "label": "Support Background Image",
         "multi": false
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "heroButtonStyle",
+        "label": "Support Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -13066,6 +12573,90 @@
         "name": "backgroundImageAlt",
         "label": "Background Image Alt Text",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "primaryButtonStyle",
+        "label": "Primary Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "secondaryButtonStyle",
+        "label": "Secondary Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button2-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button2-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button2-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button2-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button2-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button2-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button2-giving"
+          }
+        ]
       }
     ]
   },
@@ -13148,6 +12739,90 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "button1Style",
+        "label": "Button 1 Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "button2Style",
+        "label": "Button 2 Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button2-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button2-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button2-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button2-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button2-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button2-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button2-giving"
+          }
+        ]
       }
     ]
   },
@@ -13476,21 +13151,38 @@
         "component": "select",
         "name": "action_1Style",
         "label": "Button 1 Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outline",
-            "value": "outline"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Inverted",
-            "value": "inverted"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "text",
@@ -13510,21 +13202,38 @@
         "component": "select",
         "name": "action_2Style",
         "label": "Button 2 Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outline",
-            "value": "outline"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Inverted",
-            "value": "inverted"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "text",
@@ -13544,21 +13253,38 @@
         "component": "select",
         "name": "action_3Style",
         "label": "Button 3 Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outline",
-            "value": "outline"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Inverted",
-            "value": "inverted"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "tab",
@@ -13976,6 +13702,48 @@
         "component": "aem-content",
         "name": "linkUrl",
         "label": "Link URL"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "linkStyle",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -14303,6 +14071,48 @@
         "component": "aem-content",
         "name": "linkUrl",
         "label": "Link URL"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "linkStyle",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -14639,171 +14449,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
@@ -15508,6 +15204,48 @@
         "name": "imageAlt",
         "label": "Image Alt Text",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "linkStyle",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -16388,6 +16126,90 @@
           }
         ],
         "value": "dark"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "primaryButtonStyle",
+        "label": "Primary Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "secondaryButtonStyle",
+        "label": "Secondary Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button2-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button2-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button2-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button2-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button2-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button2-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button2-giving"
+          }
+        ]
       }
     ]
   },
@@ -17047,111 +16869,56 @@
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "default",
         "options": [
           {
-            "name": "Default",
+            "name": "Block default",
             "value": "default"
           },
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Link",
-            "value": "link"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "default"
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonBackgroundColor",
-        "label": "Button Background Color",
-        "description": "Solid: fills the button. Outlined: used for the outline and text color.",
+        "label": "Button Background Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "text",
@@ -17169,111 +16936,56 @@
         "valueType": "string",
         "name": "button2Style",
         "label": "Button 2 Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "default",
         "options": [
           {
-            "name": "Default",
+            "name": "Block default",
             "value": "default"
           },
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Link",
-            "value": "link"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "default"
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "button2BackgroundColor",
-        "label": "Button 2 Background Color",
-        "description": "Solid: fills the button. Outlined: used for the outline and text color.",
+        "label": "Button 2 Background Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "tab",
@@ -17963,41 +17675,13 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonSpacing",
-        "label": "Button Spacing",
-        "description": "Spacing between buttons when a card has multiple buttons.",
+        "label": "Button Spacing (set by site styles)",
+        "description": "Locked. The space between buttons comes from site styles.",
         "value": "",
         "options": [
           {
-            "name": "Default",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "None (0px)",
-            "value": "0px"
-          },
-          {
-            "name": "Tight (8px)",
-            "value": "8px"
-          },
-          {
-            "name": "Small (12px)",
-            "value": "12px"
-          },
-          {
-            "name": "Medium (16px)",
-            "value": "16px"
-          },
-          {
-            "name": "Large (20px)",
-            "value": "20px"
-          },
-          {
-            "name": "XL (24px)",
-            "value": "24px"
-          },
-          {
-            "name": "2XL (32px)",
-            "value": "32px"
           }
         ]
       },
@@ -18230,190 +17914,67 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Color",
-        "description": "Defaults to #008db6",
+        "label": "Button Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
-        "description": "Defaults to #ffffff",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "tab",
@@ -18550,190 +18111,67 @@
         "component": "select",
         "valueType": "string",
         "name": "bottomButtonColor",
-        "label": "Bottom Button Color",
-        "description": "Defaults to #008db6",
+        "label": "Bottom Button Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "bottomButtonTextColor",
-        "label": "Bottom Button Text Color",
-        "description": "Defaults to #ffffff for solid, button color for outlined",
+        "label": "Bottom Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "bottomButtonStyle",
         "label": "Bottom Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       }
     ]
   },
@@ -18780,190 +18218,67 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Apply Button Color",
-        "description": "Defaults to #008db6",
+        "label": "Apply Button Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Apply Button Text Color",
-        "description": "Defaults to #ffffff for solid, button color for outlined",
+        "label": "Apply Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Apply Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "select",
@@ -19422,87 +18737,43 @@
         "component": "select",
         "valueType": "string",
         "name": "linkColor",
-        "label": "Link Color",
-        "description": "Defaults to #00A0CA",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. Block default keeps the text link.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       }
     ]
   },
@@ -20358,6 +19629,48 @@
         "component": "aem-content",
         "name": "linkUrl",
         "label": "Link URL"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "linkStyle",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -20411,6 +19724,48 @@
         "valueType": "string",
         "name": "button",
         "label": "View More Button Text"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "headerButtonStyle",
+        "label": "Header Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -20454,6 +19809,48 @@
         "name": "imageAlt",
         "label": "Image Alt Text",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "linkStyle",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -21206,6 +20603,48 @@
         "component": "aem-content",
         "name": "ctaLink",
         "label": "CTA Link (Optional)"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "ctaStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -22026,6 +21465,48 @@
           }
         ],
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "ctaStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -22523,17 +22004,38 @@
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "secondary",
         "options": [
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "outlined"
+        ]
       }
     ]
   },
@@ -22987,6 +22489,48 @@
         "component": "aem-content",
         "name": "buttonLink",
         "label": "Button Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -24989,6 +24533,90 @@
         "name": "programs",
         "label": "Preset Programs Filter",
         "description": "Comma-separated program values to pre-filter results, e.g. kidsmartz or netsmartz"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "findAllStyle",
+        "label": "Find All Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "learnMoreStyle",
+        "label": "Card Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button2-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button2-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button2-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button2-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button2-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button2-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button2-giving"
+          }
+        ]
       }
     ]
   },
@@ -25048,6 +24676,48 @@
         "name": "limit",
         "label": "Resource Limit",
         "value": "6"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -25189,6 +24859,48 @@
         "name": "imageAlt",
         "label": "Image Alt Text",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "linkStyle",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -25340,189 +25052,66 @@
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background / Border Color",
-        "description": "Defaults to #008db6",
+        "label": "Button Background / Border Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
-        "description": "Defaults to #ffffff for solid, or matches the border color for outlined",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "text",
@@ -25744,6 +25333,48 @@
         "label": "Background Gradient (Optional)",
         "description": "CSS background value. Overrides Background Color when set.",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "reportButtonStyle",
+        "label": "Report Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -25830,103 +25461,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
+        "label": "Button Background Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "default",
         "options": [
           {
-            "name": "Default",
+            "name": "Block default",
             "value": "default"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Primary",
+            "value": "primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "default"
+        ]
       },
       {
         "component": "text",
@@ -25943,103 +25528,57 @@
         "component": "select",
         "valueType": "string",
         "name": "button2Color",
-        "label": "Button 2 Background Color",
+        "label": "Button 2 Background Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "button2Style",
         "label": "Button 2 Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "default",
         "options": [
           {
-            "name": "Default",
+            "name": "Block default",
             "value": "default"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Primary",
+            "value": "primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "default"
+        ]
       },
       {
         "component": "select",
@@ -26531,6 +26070,90 @@
           }
         ],
         "value": "default"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "primaryButtonStyle",
+        "label": "Primary Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "secondaryButtonStyle",
+        "label": "Secondary Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button2-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button2-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button2-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button2-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button2-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button2-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button2-giving"
+          }
+        ]
       }
     ]
   },
@@ -26727,173 +26350,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
-        "description": "Defaults to #008db6",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
-        "description": "Defaults to #ffffff",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
@@ -27013,190 +26520,67 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Color",
-        "description": "Defaults to #008db6",
+        "label": "Button Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
-        "description": "Defaults to #ffffff for solid, button color for outlined",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "select",
@@ -27254,189 +26638,67 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Color",
-        "description": "Defaults to #008db6",
+        "label": "Button Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "reference",
@@ -27825,6 +27087,90 @@
         "component": "aem-content",
         "name": "button2Link",
         "label": "Button 2 Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "button1Style",
+        "label": "Button 1 Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "button2Style",
+        "label": "Button 2 Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button2-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button2-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button2-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button2-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button2-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button2-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button2-giving"
+          }
+        ]
       }
     ]
   },
@@ -27918,111 +27264,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
+        "label": "Button Background Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "default",
         "options": [
           {
-            "name": "Default",
+            "name": "Block default",
             "value": "default"
           },
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Link",
-            "value": "link"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "default"
+        ]
       },
       {
         "component": "text",
@@ -28046,111 +27338,57 @@
         "component": "select",
         "valueType": "string",
         "name": "button2Color",
-        "label": "Second Button Color (Optional)",
+        "label": "Second Button Color (Optional) (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "button2Style",
         "label": "Second Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "default",
         "options": [
           {
-            "name": "Default",
+            "name": "Block default",
             "value": "default"
           },
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Link",
-            "value": "link"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "default"
+        ]
       },
       {
         "component": "text",
@@ -28632,193 +27870,67 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Background Color",
-        "description": "Defaults to #008db6",
+        "label": "Button Background Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonStyle",
         "label": "Button Style",
+        "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+        "value": "primary",
         "options": [
           {
-            "name": "Solid",
-            "value": "solid"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Outlined",
-            "value": "outlined"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Link",
-            "value": "link"
+            "name": "Soft",
+            "value": "soft"
+          },
+          {
+            "name": "Text link",
+            "value": "text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "solid"
+        ]
       },
       {
         "component": "text",
@@ -28835,87 +27947,15 @@
         "component": "select",
         "valueType": "string",
         "name": "linkColor",
-        "label": "Link Color",
-        "description": "Defaults to #008db6",
+        "label": "Link Color (set by site styles)",
+        "description": "Locked. Link colour comes from the site button standard.",
+        "value": "",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Set by site styles",
             "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": ""
+        ]
       },
       {
         "component": "select",
@@ -30170,6 +29210,53 @@
         "label": "Disclaimer Font Size",
         "description": "Optional CSS length such as 12px or 0.75rem.",
         "value": ""
+      },
+      {
+        "component": "tab",
+        "name": "tabButtonStyle",
+        "label": "Button Style"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "defaultButtonStyle",
+        "label": "Default Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -30276,6 +29363,48 @@
         "label": "Stat Top Label (Optional)",
         "description": "Optional label displayed above the stat value.",
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "buttonStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -30340,171 +29469,57 @@
         "component": "select",
         "valueType": "string",
         "name": "buttonColor",
-        "label": "Button Color",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+        "value": "primary",
         "options": [
           {
-            "name": "Default / None",
+            "name": "Block default",
             "value": ""
           },
           {
-            "name": "White (#FFFFFF)",
-            "value": "#FFFFFF"
+            "name": "Primary",
+            "value": "primary"
           },
           {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
+            "name": "Secondary",
+            "value": "secondary"
           },
           {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
+            "name": "Soft",
+            "value": "soft"
           },
           {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
+            "name": "Text link",
+            "value": "text-link"
           },
           {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
+            "name": "AMBER",
+            "value": "amber"
           },
           {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
+            "name": "Emergency",
+            "value": "emergency"
           },
           {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
+            "name": "Giving",
+            "value": "giving"
           }
-        ],
-        "value": "#0F94BF"
+        ]
       },
       {
         "component": "select",
         "valueType": "string",
         "name": "buttonTextColor",
-        "label": "Button Text Color",
+        "label": "Button Text Color (set by site styles)",
+        "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+        "value": "#FFFFFF",
         "options": [
           {
-            "name": "Default / None",
-            "value": ""
-          },
-          {
-            "name": "White (#FFFFFF)",
+            "name": "Set by site styles",
             "value": "#FFFFFF"
-          },
-          {
-            "name": "Primary Blue 1 (#00264D)",
-            "value": "#00264D"
-          },
-          {
-            "name": "Primary Blue 2 (#007294)",
-            "value": "#007294"
-          },
-          {
-            "name": "Primary Blue 3 (#008EB7)",
-            "value": "#008EB7"
-          },
-          {
-            "name": "Brand Blue (#008DB6)",
-            "value": "#008DB6"
-          },
-          {
-            "name": "Primary Grey 1 (#404041)",
-            "value": "#404041"
-          },
-          {
-            "name": "Primary Grey 2 (#0D273B)",
-            "value": "#0D273B"
-          },
-          {
-            "name": "Primary Grey 3 (#A1A1A1)",
-            "value": "#A1A1A1"
-          },
-          {
-            "name": "Orange (#E07E27)",
-            "value": "#E07E27"
-          },
-          {
-            "name": "Light Orange (#FAAB60)",
-            "value": "#FAAB60"
-          },
-          {
-            "name": "Peach (#FCBC7E)",
-            "value": "#FCBC7E"
-          },
-          {
-            "name": "Green (#7BC581)",
-            "value": "#7BC581"
-          },
-          {
-            "name": "Primary Red 1 (#E13E30)",
-            "value": "#E13E30"
-          },
-          {
-            "name": "Primary Red 2 (#F58A80)",
-            "value": "#F58A80"
-          },
-          {
-            "name": "Light Blue (#92D6E3)",
-            "value": "#92D6E3"
-          },
-          {
-            "name": "Light Grey 1 (#F6F6F6)",
-            "value": "#F6F6F6"
-          },
-          {
-            "name": "Light Grey 2 (#E7E4E1)",
-            "value": "#E7E4E1"
-          },
-          {
-            "name": "Light Grey 3 (#DDD5CC)",
-            "value": "#DDD5CC"
           }
-        ],
-        "value": "#FFFFFF"
+        ]
       }
     ]
   },
@@ -30664,6 +29679,48 @@
         "component": "aem-content",
         "name": "link",
         "label": "Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "linkStyle",
+        "label": "Link Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -31043,6 +30100,48 @@
             "value": "variant-4"
           }
         ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "ctaStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },
@@ -31252,6 +30351,48 @@
           }
         ],
         "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "ctaStyle",
+        "label": "Button Style",
+        "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+        "value": "",
+        "options": [
+          {
+            "name": "Block default",
+            "value": ""
+          },
+          {
+            "name": "Primary",
+            "value": "button-primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "button-secondary"
+          },
+          {
+            "name": "Soft",
+            "value": "button-soft"
+          },
+          {
+            "name": "Text link",
+            "value": "button-text-link"
+          },
+          {
+            "name": "AMBER",
+            "value": "button-amber"
+          },
+          {
+            "name": "Emergency",
+            "value": "button-emergency"
+          },
+          {
+            "name": "Giving",
+            "value": "button-giving"
+          }
+        ]
       }
     ]
   },

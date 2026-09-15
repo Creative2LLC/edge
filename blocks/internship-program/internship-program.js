@@ -6,6 +6,12 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   image: 0,
@@ -134,21 +140,10 @@ function readHex(value) {
   return HEX_COLOR.test(trimmed) ? trimmed : '';
 }
 
-function styleButton(btn, color, textColor, style) {
-  const bgHex = readHex(color);
-  const fgHex = readHex(textColor);
-  const normalizedStyle = (style || '').trim().toLowerCase();
-
-  if (normalizedStyle === 'outlined') {
-    const accent = bgHex || '#008db6';
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('color', accent, 'important');
-    btn.style.setProperty('border', `2px solid ${accent}`, 'important');
-    return;
-  }
-
-  if (bgHex) btn.style.setProperty('background-color', bgHex, 'important');
-  if (fgHex) btn.style.setProperty('color', fgHex, 'important');
+// The look comes from the button standard. The old colour picker only chooses the style
+// now (gold -> AMBER, red -> Emergency); the text colour picker is ignored.
+function styleButton(btn, color, style) {
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(style, readHex(color)));
 }
 
 export default function decorate(block) {
@@ -169,7 +164,6 @@ export default function decorate(block) {
   const buttonTextField = getTextField(block, 'buttonText');
   const buttonLinkField = getLinkField(block, 'buttonLink');
   const buttonColorField = getTextField(block, 'buttonColor');
-  const buttonTextColorField = getTextField(block, 'buttonTextColor');
   const buttonStyleField = getTextField(block, 'buttonStyle');
   const contentBgField = getTextField(block, 'contentBackgroundColor');
 
@@ -193,6 +187,7 @@ export default function decorate(block) {
   content.className = 'internship-program-content';
   const bgColor = contentBgField.value || '#DDD5CC52';
   content.style.setProperty('background-color', bgColor, 'important');
+  markButtonSurface(content, isDarkSurface(bgColor));
 
   /* Title */
   if (titleField.value) {
@@ -273,12 +268,7 @@ export default function decorate(block) {
     if (btnHref) btn.href = btnHref;
     if (!btnHref) btn.type = 'button';
     if (buttonTextField.source) moveInstrumentation(buttonTextField.source, btn);
-    styleButton(
-      btn,
-      buttonColorField.value,
-      buttonTextColorField.value,
-      buttonStyleField.value,
-    );
+    styleButton(btn, buttonColorField.value, buttonStyleField.value);
     content.append(btn);
   }
 

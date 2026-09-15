@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readLinkField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle, resolveButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   heading: 0,
@@ -23,8 +24,6 @@ const DEFAULTS = {
   helperText: "You'll be connected with a volunteer who understands what you're going through.",
   backgroundStart: '#f3efea',
   backgroundEnd: '#ece8e3',
-  buttonColor: '#0f94bf',
-  buttonTextColor: '#ffffff',
 };
 
 function moveText(field, target, fallbackValue = '') {
@@ -51,7 +50,6 @@ export default function decorate(block) {
   const backgroundStartField = readTextField(block, 'backgroundStart', FIELD_INDEX.backgroundStart);
   const backgroundEndField = readTextField(block, 'backgroundEnd', FIELD_INDEX.backgroundEnd);
   const buttonColorField = readTextField(block, 'buttonColor', FIELD_INDEX.buttonColor);
-  const buttonTextColorField = readTextField(block, 'buttonTextColor', FIELD_INDEX.buttonTextColor);
 
   block.style.setProperty(
     '--support-cta-background-start',
@@ -60,14 +58,6 @@ export default function decorate(block) {
   block.style.setProperty(
     '--support-cta-background-end',
     backgroundEndField.value || DEFAULTS.backgroundEnd,
-  );
-  block.style.setProperty(
-    '--support-cta-button-color',
-    buttonColorField.value || DEFAULTS.buttonColor,
-  );
-  block.style.setProperty(
-    '--support-cta-button-text-color',
-    buttonTextColorField.value || DEFAULTS.buttonTextColor,
   );
 
   const card = document.createElement('div');
@@ -102,6 +92,8 @@ export default function decorate(block) {
   moveText(buttonSubtextField, ctaSubtext, DEFAULTS.buttonSubtext);
 
   cta.append(ctaLabel, ctaSubtext);
+  // The look comes from the button standard; the old colour picker only chooses the style.
+  applyButtonStyle(cta, resolveButtonStyle(buttonColorField.value));
 
   const helperText = document.createElement('p');
   helperText.className = 'support-cta-helper';

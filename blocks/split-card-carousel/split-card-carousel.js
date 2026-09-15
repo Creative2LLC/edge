@@ -7,7 +7,18 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+  setCurrentCarouselDot,
+} from '../../scripts/carousel-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
 
 function getField(row, name, index) {
@@ -168,37 +179,26 @@ function getSlideFieldMap(row) {
   };
 }
 
-function normalizeButtonStyle(value) {
-  const v = String(value || '').trim().toLowerCase();
-  if (v.includes('outline') || v.includes('border')) return 'outlined';
-  return 'default';
-}
-
-function applyButtonStyle(button, backgroundColor, style) {
-  const normalized = normalizeButtonStyle(style);
-  const accent = backgroundColor || '#008db6';
-  button.style.setProperty('--btn-accent', accent);
-
-  if (normalized === 'outlined') {
-    button.classList.add('is-outlined');
-    button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', accent, 'important');
-    button.style.setProperty('border', `1px solid ${accent}`, 'important');
-    return;
-  }
-
-  if (backgroundColor) {
-    button.style.setProperty('background-color', backgroundColor, 'important');
-  }
-}
-
 function buildButton(text, href, backgroundColor, style) {
   if (!text && !href) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (!href && !isEditor) return null;
+
   const btn = document.createElement(href ? 'a' : 'span');
   btn.className = 'split-card-carousel-button';
-  if (href) btn.href = href;
+  if (href) {
+    btn.href = href;
+  } else {
+    btn.setAttribute('aria-disabled', 'true');
+    btn.title = 'Add a link to publish this button';
+  }
   btn.textContent = text || 'Learn More';
-  applyButtonStyle(btn, backgroundColor, style);
+
+  // The look comes from the button standard. The style dropdown wins; a default style
+  // falls back to the old colour picker (gold -> AMBER, red -> Emergency).
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(style, backgroundColor));
   return btn;
 }
 
@@ -251,6 +251,7 @@ function buildSlide(data, row) {
   if (data.backgroundColor) {
     contentSide.style.setProperty('background-color', data.backgroundColor, 'important');
   }
+  markButtonSurface(contentSide, isDarkSurface(data.backgroundColor));
 
   // h3, not h2. The slide heading sits UNDER the section title, which is
   // already an h2 (see split-card-carousel-title below), so h3 is the correct
@@ -294,9 +295,7 @@ function buildSlide(data, row) {
 }
 
 function updateDots(dots, activeIndex) {
-  dots.forEach((dot, i) => {
-    dot.classList.toggle('active', i === activeIndex);
-  });
+  setCurrentCarouselDot(dots, activeIndex);
 }
 
 export default function decorate(block) {
@@ -420,14 +419,14 @@ export default function decorate(block) {
   controls.className = 'split-card-carousel-controls';
 
   const dotsContainer = document.createElement('div');
-  dotsContainer.className = 'split-card-carousel-dots';
+  dotsContainer.className = 'split-card-carousel-dots carousel-dots';
   const dots = [];
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
-    dot.className = 'split-card-carousel-dot';
+    dot.className = 'split-card-carousel-dot carousel-dot';
     dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
     dot.type = 'button';
-    if (i === 0) dot.classList.add('active');
+    if (i === 0) dot.setAttribute('aria-current', 'true');
     dots.push(dot);
     dotsContainer.append(dot);
   });
@@ -436,17 +435,15 @@ export default function decorate(block) {
   const nav = document.createElement('div');
   nav.className = 'split-card-carousel-nav';
 
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'split-card-carousel-nav-btn';
-  prevBtn.setAttribute('aria-label', 'Previous slide');
-  prevBtn.type = 'button';
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  const prevBtn = createCarouselArrow('prev', {
+    className: 'split-card-carousel-nav-btn',
+    label: 'Previous slide',
+  });
 
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'split-card-carousel-nav-btn';
-  nextBtn.setAttribute('aria-label', 'Next slide');
-  nextBtn.type = 'button';
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+  const nextBtn = createCarouselArrow('next', {
+    className: 'split-card-carousel-nav-btn',
+    label: 'Next slide',
+  });
 
   nav.append(prevBtn);
   nav.append(nextBtn);

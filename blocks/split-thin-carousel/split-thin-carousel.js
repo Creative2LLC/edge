@@ -7,7 +7,19 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+  setCurrentCarouselDot,
+} from '../../scripts/carousel-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 function extractHexColor(el) {
   if (!el) return '';
@@ -88,7 +100,9 @@ function getCellColor(cell) {
 }
 
 function isButtonStyle(value) {
-  return ['solid', 'outlined', 'link'].includes(String(value || '').trim().toLowerCase());
+  // Legacy values plus the seven the style dropdown now stores.
+  const style = String(value || '').trim().toLowerCase();
+  return ['solid', 'outlined', 'link', ...BUTTON_STYLES].includes(style);
 }
 
 function readAuthoredSlideData(row) {
@@ -189,27 +203,10 @@ function readSlideData(row) {
   return hasAuthoringContext(row) ? readAuthoredSlideData(row) : readLiveSlideData(row);
 }
 
-function styleButton(btn, color, textColor, style) {
-  const bgColor = color || '#008db6';
-
-  if (style === 'link') {
-    btn.classList.add('is-link');
-    btn.style.setProperty('color', bgColor, 'important');
-    return;
-  }
-
-  if (style === 'outlined') {
-    btn.classList.add('is-outlined');
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('color', bgColor, 'important');
-    btn.style.setProperty('border', `2px solid ${bgColor}`, 'important');
-    return;
-  }
-
-  btn.classList.add('is-solid');
-  btn.style.setProperty('background-color', bgColor, 'important');
-  btn.style.setProperty('color', textColor || '#ffffff', 'important');
-  btn.style.setProperty('border', 'none', 'important');
+// The look comes from the button standard. The old colour picker only chooses the style
+// now (gold -> AMBER, red -> Emergency); the text colour picker is ignored.
+function styleButton(btn, color, style) {
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(style, color));
 }
 
 function buildSlide(data, row) {
@@ -254,6 +251,7 @@ function buildSlide(data, row) {
   if (data.contentBackgroundColor) {
     contentSide.style.setProperty('background-color', data.contentBackgroundColor, 'important');
   }
+  markButtonSurface(contentSide, isDarkSurface(data.contentBackgroundColor));
 
   if (data.heading) {
     // h3: the slide heading sits under the section title (.stc-title), which is
@@ -280,19 +278,23 @@ function buildSlide(data, row) {
     btn.textContent = data.buttonText || 'Learn More';
     if (data.buttonLink) btn.href = data.buttonLink;
     if (!data.buttonLink) btn.type = 'button';
-    styleButton(btn, data.buttonColor, data.buttonTextColor, data.buttonStyle);
+    styleButton(btn, data.buttonColor, data.buttonStyle);
     contentSide.append(btn);
   }
 
-  /* Link */
-  if (data.linkText || data.linkUrl) {
+  /* Link — the Text link style. One with nowhere to go is not published; in the
+     editor it still shows, disabled, so the author can see the URL is missing. */
+  if ((data.linkText || data.linkUrl) && (data.linkUrl || hasAuthoringContext(row))) {
     const link = document.createElement(data.linkUrl ? 'a' : 'span');
     link.className = 'stc-link';
     link.textContent = data.linkText || 'Learn More';
-    if (data.linkUrl) link.href = data.linkUrl;
-    if (data.linkColor) {
-      link.style.setProperty('color', data.linkColor, 'important');
+    if (data.linkUrl) {
+      link.href = data.linkUrl;
+    } else {
+      link.setAttribute('aria-disabled', 'true');
+      link.title = 'Add a URL to publish this link';
     }
+    applyButtonStyle(link, 'text-link');
     contentSide.append(link);
   }
 
@@ -302,9 +304,7 @@ function buildSlide(data, row) {
 }
 
 function updateDots(dots, activeIndex) {
-  dots.forEach((dot, i) => {
-    dot.classList.toggle('active', i === activeIndex);
-  });
+  setCurrentCarouselDot(dots, activeIndex);
 }
 
 export default function decorate(block) {
@@ -373,14 +373,14 @@ export default function decorate(block) {
   controls.className = 'stc-controls';
 
   const dotsContainer = document.createElement('div');
-  dotsContainer.className = 'stc-dots';
+  dotsContainer.className = 'stc-dots carousel-dots';
   const dots = [];
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
-    dot.className = 'stc-dot';
+    dot.className = 'stc-dot carousel-dot';
     dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
     dot.type = 'button';
-    if (i === 0) dot.classList.add('active');
+    if (i === 0) dot.setAttribute('aria-current', 'true');
     dots.push(dot);
     dotsContainer.append(dot);
   });
@@ -389,17 +389,12 @@ export default function decorate(block) {
   const nav = document.createElement('div');
   nav.className = 'stc-nav';
 
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'stc-nav-btn';
-  prevBtn.setAttribute('aria-label', 'Previous slide');
-  prevBtn.type = 'button';
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  const prevBtn = createCarouselArrow('prev', {
+    className: 'stc-nav-btn',
+    label: 'Previous slide',
+  });
 
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'stc-nav-btn';
-  nextBtn.setAttribute('aria-label', 'Next slide');
-  nextBtn.type = 'button';
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+  const nextBtn = createCarouselArrow('next', { className: 'stc-nav-btn', label: 'Next slide' });
 
   nav.append(prevBtn);
   nav.append(nextBtn);

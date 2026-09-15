@@ -78,7 +78,8 @@ header nav p {
   line-height: 1;
 }
 
-header nav a:any-link {
+/* The mega nav's featured buttons take their label colour from the button standard. */
+header nav a:any-link:where(:not(.nav-accent)) {
   color: currentcolor;
 }
 
@@ -1267,7 +1268,8 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     display: none;
   }
 
-  header nav .nav-mobile-rich-card a {
+  /* not the card's button: its colours come from the button standard (.nav-accent) */
+  header nav .nav-mobile-rich-card a:not(.button) {
     color: #10344f !important;
     text-decoration: none !important;
   }
@@ -1325,19 +1327,11 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     font-size: var(--body-sm-size);
   }
 
+  /* Colours and size come from the button standard (.button.nav-accent, Donate Now's
+     colours); the card only stretches it. */
   header nav .nav-mobile-rich-card a.button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     margin-top: 12px;
-    border-radius: 999px;
-    padding: 11px 16px;
-    font-size: 0.94rem;
-    background: #143654 !important;
-    color: #fff !important;
-    border: 0 !important;
-    box-shadow: none;
   }
 
   header nav .nav-mobile-meta,

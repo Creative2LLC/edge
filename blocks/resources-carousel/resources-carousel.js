@@ -4,8 +4,17 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
-import { decorateButtonText } from '../../scripts/button-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+} from '../../scripts/carousel-utils.js';
+import {
+  applyButtonStyle,
+  decorateButtonText,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 // Row index for each field in the published AEM delivery
 // (each field is one row with a single cell when data-aue-prop is stripped).
@@ -76,6 +85,12 @@ function readConfig(block) {
     return anchor?.getAttribute('href') || normalizeText(cell?.textContent) || '';
   }
 
+  const [findAllStyle, learnMoreStyle] = readAppendedStyles(
+    block,
+    ['findAllStyle', 'learnMoreStyle'],
+    rows,
+  );
+
   return {
     heading: textFieldValue('heading') || 'Related Resources',
     apiBaseUrl: normalizeApiBaseUrl(textFieldValue('apiBaseUrl')),
@@ -86,6 +101,8 @@ function readConfig(block) {
     learnMoreLabel: textFieldValue('learnMoreLabel') || 'Learn more',
     limit: Math.max(1, Math.min(20, parseInt(textFieldValue('limit'), 10) || 8)),
     programs: textFieldValue('programs'),
+    findAllStyle,
+    learnMoreStyle,
   };
 }
 
@@ -149,7 +166,7 @@ async function fetchItems(config) {
 
 // ── DOM builders ─────────────────────────────────────────────────────────────
 
-function buildCard(item, learnMoreLabel) {
+function buildCard(item, learnMoreLabel, learnMoreStyle = '') {
   const slide = document.createElement('div');
   slide.className = 'resources-carousel-slide';
 
@@ -176,6 +193,7 @@ function buildCard(item, learnMoreLabel) {
   link.className = 'resources-carousel-card-link';
   link.href = item.href || '#';
   link.textContent = decorateButtonText(learnMoreLabel);
+  applyButtonStyle(link, learnMoreStyle || 'text-link');
   card.append(link);
 
   // Cover link for full-card clickability
@@ -191,14 +209,10 @@ function buildCard(item, learnMoreLabel) {
 }
 
 function buildNavArrow(direction) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = `resources-carousel-nav-btn resources-carousel-nav-${direction}`;
-  btn.setAttribute('aria-label', direction === 'prev' ? 'Previous' : 'Next');
-  btn.innerHTML = direction === 'prev'
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
-  return btn;
+  return createCarouselArrow(direction, {
+    className: `resources-carousel-nav-btn resources-carousel-nav-${direction}`,
+    label: direction === 'prev' ? 'Previous' : 'Next',
+  });
 }
 
 function wireCarousel(track, prevBtn, nextBtn, progressBar) {
@@ -235,6 +249,8 @@ function wireCarousel(track, prevBtn, nextBtn, progressBar) {
 // ── Block entry ───────────────────────────────────────────────────────────────
 
 export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   const config = readConfig(block);
   block.replaceChildren();
 
@@ -252,7 +268,8 @@ export default async function decorate(block) {
     findAll.className = 'resources-carousel-find-all';
     findAll.href = resolveSiteHref(config.findAllHref);
     findAll.textContent = config.findAllLabel;
-    header.append(findAll);
+    // The look comes from the button standard (Primary).
+    header.append(applyButtonStyle(findAll, config.findAllStyle || 'primary'));
   }
 
   block.append(header);
@@ -304,7 +321,9 @@ export default async function decorate(block) {
       return;
     }
 
-    items.forEach((item) => track.append(buildCard(item, config.learnMoreLabel)));
+    items.forEach((item) => {
+      track.append(buildCard(item, config.learnMoreLabel, config.learnMoreStyle));
+    });
     wireCarousel(track, prevBtn, nextBtn, progressBar);
   } catch {
     track.append((() => {

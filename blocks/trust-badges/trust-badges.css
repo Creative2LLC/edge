@@ -21,41 +21,9 @@
   color: #00264d;
 }
 
+/* CTA: styled by the button standard in styles/styles.css; this only places it. */
 .trust-badges .trust-badges-cta {
   margin-top: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 18px;
-  border: 2px solid #008db6;
-  border-radius: 999px;
-  background: transparent;
-  color: #008db6;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  box-sizing: border-box;
-}
-
-.trust-badges .trust-badges-cta:hover,
-.trust-badges .trust-badges-cta:focus-visible {
-  background: #008db6;
-  color: #fff;
-  text-decoration: none;
-}
-
-.trust-badges .trust-badges-cta-icon {
-  display: inline-flex;
-  align-items: center;
-  line-height: 0;
-}
-
-.trust-badges .trust-badges-cta-icon svg {
-  width: 18px;
-  height: 18px;
 }
 
 .trust-badges .trust-badges-grid {

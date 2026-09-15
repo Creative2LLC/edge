@@ -89,58 +89,11 @@
   color: #355069;
 }
 
-.info-cards-grid-section-button,
-.info-cards-grid-intro-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-.info-cards-grid-section-button {
-  min-height: 44px;
-  padding: 0 20px;
-  border-radius: 999px;
-  background: var(--info-cards-section-button-bg);
-  color: #fff;
-  font-size: var(--body-sm-size);
-  font-weight: var(--body-weight-strong);
-  line-height: 1;
-  box-shadow: 0 12px 22px rgb(0 141 182 / 20%);
-}
-
-.info-cards-grid-section-button:hover,
-.info-cards-grid-section-button:focus {
-  background: var(--info-cards-section-button-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 16px 26px rgb(0 141 182 / 24%);
-}
-
+/* Intro and section buttons are styled by the button standard in
+   styles/styles.css. These rules only place them. */
 .info-cards-grid-intro-button {
   place-self: center end;
-  min-height: 44px;
   margin-top: 0;
-  padding: 12px 20px;
-  border: 1px solid rgb(12 34 54 / 12%);
-  border-radius: 999px;
-  background: #3B4E5E;
-  color: #DFE1E3;
-  font-weight: var(--body-weight-strong);
-  line-height: 1;
-  white-space: nowrap;
-  box-shadow: 0 8px 18px rgb(12 34 54 / 12%);
-}
-
-.info-cards-grid-intro-button:hover,
-.info-cards-grid-intro-button:focus {
-  background: #2f3f4c;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgb(12 34 54 / 16%);
 }
 
 /* Grid container */
@@ -389,44 +342,9 @@
   );
 }
 
+/* Card buttons: styled by the button standard; this only places them. */
 .info-cards-grid-card-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-weight: bold;
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-  box-sizing: border-box;
   align-self: flex-start;
-}
-
-.info-cards-grid-card-button:hover,
-.info-cards-grid-card-button:focus {
-  opacity: 0.85;
-}
-
-.info-cards-grid-card-button.is-outlined {
-  box-shadow: none;
-}
-
-.info-cards-grid-card-button.is-link {
-  padding: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.info-cards-grid-card-button.is-link:hover,
-.info-cards-grid-card-button.is-link:focus {
-  text-decoration: underline;
-  opacity: 1;
 }
 
 .info-cards-grid-volunteer.block {
@@ -498,13 +416,6 @@
   color: var(--info-card-body-color, #2f485d);
 }
 
-.info-cards-grid-volunteer .info-cards-grid-card-button {
-  padding: 10px 18px;
-  font-size: var(--caption-size);
-  font-weight: var(--body-weight-strong);
-  box-shadow: 0 10px 20px rgb(0 141 182 / 16%);
-}
-
 .info-cards-grid-volunteer .info-cards-grid-inner-align-center .info-cards-grid-card {
   padding: 52px 42px 30px;
 }
@@ -545,18 +456,6 @@
 /* Extra breathing room between the subheading and the cards below. */
 .info-cards-grid-button-top .info-cards-grid-inner {
   margin-top: 20px;
-}
-
-.info-cards-grid-button-top .info-cards-grid-intro-button {
-  background: #008db6;
-  color: #fff;
-  font-weight: var(--body-weight-medium);
-  border-color: transparent;
-}
-
-.info-cards-grid-button-top .info-cards-grid-intro-button:hover,
-.info-cards-grid-button-top .info-cards-grid-intro-button:focus {
-  background: #007ca1;
 }
 
 .info-cards-grid.is-visible .info-cards-grid-card {

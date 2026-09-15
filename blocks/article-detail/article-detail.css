@@ -192,6 +192,22 @@
   margin-top: 0.5rem;
 }
 
+.article-detail .article-detail-body ul {
+  list-style: disc outside;
+}
+
+.article-detail .article-detail-body ol {
+  list-style: decimal outside;
+}
+
+.article-detail .article-detail-body ul ul {
+  list-style-type: circle;
+}
+
+.article-detail .article-detail-body ul ul ul {
+  list-style-type: square;
+}
+
 .article-detail .article-detail-body a {
   color: #0d6e8c;
   font-weight: 600;

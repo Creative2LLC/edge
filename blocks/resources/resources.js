@@ -9,10 +9,22 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+} from '../../scripts/carousel-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 import { showSkeleton } from '../../scripts/skeleton.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_PROPS = [
   'heading',
@@ -66,6 +78,7 @@ const CONFIG_ROW_INDEX = {
   apiBaseUrl: 6,
   selected: 7,
   limit: 8,
+  buttonStyle: 9,
 };
 const CONFIG_FIELD_LABELS = {
   heading: ['heading'],
@@ -77,6 +90,7 @@ const CONFIG_FIELD_LABELS = {
   apiBaseUrl: ['api base url'],
   selected: ['selected', 'selected resource slugs or ids'],
   limit: ['limit', 'resource limit'],
+  buttonStyle: ['button style'],
 };
 
 function resourceActionLabels() {
@@ -538,9 +552,11 @@ function buildResourceCard(resource, row) {
     });
   }
 
+  const [linkStyle] = row ? readAppendedStyles(row, ['linkStyle'], [...row.children]) : [''];
   actions.forEach((action) => {
     const link = document.createElement('a');
     link.className = 'resources-card-link';
+    applyButtonStyle(link, linkStyle || 'text-link');
     link.href = resolveSiteHref(action.href);
     if (action.isDownload) {
       link.target = '_blank';
@@ -626,7 +642,7 @@ async function loadApiResources(config) {
     .map((item) => ({ data: mapApiResource(item), row: null }));
 }
 
-export default async function decorate(block) {
+async function decorateBlock(block) {
   const configRows = extractConfigRows(block);
   const settings = parseKeyValueLines(readConfigField(configRows, 'settings', [5, 4]));
   const config = {
@@ -735,14 +751,23 @@ export default async function decorate(block) {
 
   const buttonText = config.buttonText || (resources.length ? DEFAULT_HEADER_BUTTON_TEXT : '');
 
-  if (buttonText) {
-    const button = document.createElement(config.buttonLink ? 'a' : 'button');
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (buttonText && (config.buttonLink || inEditor)) {
+    const button = document.createElement(config.buttonLink ? 'a' : 'span');
     button.className = 'resources-button';
     button.textContent = buttonText;
-    if (config.buttonLink) button.href = config.buttonLink;
-    else button.type = 'button';
-    header.append(button);
+    if (config.buttonLink) {
+      button.href = config.buttonLink;
+    } else {
+      button.setAttribute('aria-disabled', 'true');
+      button.title = 'Add a link to publish this button';
+    }
+    // The look comes from the button standard (Primary).
+    header.append(applyButtonStyle(button, 'primary'));
   }
+  markButtonSurface(header, isDarkSurface(config.backgroundColor));
 
   inner.append(header);
 
@@ -773,15 +798,15 @@ export default async function decorate(block) {
 
   const nav = document.createElement('div');
   nav.className = 'resources-nav';
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'resources-nav-btn resources-nav-prev';
-  prevBtn.setAttribute('aria-label', 'Previous');
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  const prevBtn = createCarouselArrow('prev', {
+    className: 'resources-nav-btn resources-nav-prev',
+    label: 'Previous',
+  });
 
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'resources-nav-btn resources-nav-next';
-  nextBtn.setAttribute('aria-label', 'Next');
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+  const nextBtn = createCarouselArrow('next', {
+    className: 'resources-nav-btn resources-nav-next',
+    label: 'Next',
+  });
 
   nav.append(prevBtn, nextBtn);
   footer.append(nav);
@@ -810,4 +835,20 @@ export default async function decorate(block) {
   requestAnimationFrame(() => updateScrollbar(scrollThumb, cardsContainer));
 
   block.replaceChildren(inner);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [buttonStyle] = readAppendedStyles(
+    block,
+    ['buttonStyle'],
+    extractConfigRows(block),
+  );
+  await decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.resources-button': buttonStyle,
+  });
 }

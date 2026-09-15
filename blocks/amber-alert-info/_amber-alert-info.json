@@ -186,17 +186,38 @@
           "valueType": "string",
           "name": "buttonStyle",
           "label": "Button Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
           "options": [
             {
-              "name": "Solid",
-              "value": "solid"
+              "name": "Primary",
+              "value": "primary"
             },
             {
-              "name": "Outlined",
-              "value": "outlined"
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
             }
-          ],
-          "value": "solid"
+          ]
         }
       ]
     }

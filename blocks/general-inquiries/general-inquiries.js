@@ -9,6 +9,12 @@ import {
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveAttributes } from '../../scripts/scripts.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const resourceDataCache = new Map();
 
@@ -804,6 +810,7 @@ function buildSupportIntro(
   const ctaHref = heroButtonLinkField.value || DEFAULTS.heroButtonLink;
   const cta = document.createElement(ctaHref ? 'a' : 'div');
   cta.className = 'general-inquiries-support-cta';
+  applyButtonStyle(cta, 'primary');
   if (ctaHref) cta.href = ctaHref;
   if (heroButtonLinkField.source) moveFieldBinding(heroButtonLinkField.source, cta);
 
@@ -817,7 +824,7 @@ function buildSupportIntro(
   return support;
 }
 
-export default async function decorate(block) {
+async function decorateBlock(block) {
   const resourceData = await getBlockResourceData(block);
   const isAuthoring = hasAuthoringContext(block);
   const placeholderFields = buildPlaceholderFields(block);
@@ -949,6 +956,7 @@ export default async function decorate(block) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.className = 'general-inquiries-submit';
+  applyButtonStyle(submitButton, 'primary');
   moveFieldContent(buttonTextField, submitButton, DEFAULTS.buttonText);
   actions.append(submitButton);
 
@@ -978,4 +986,20 @@ export default async function decorate(block) {
     errorMessage: messages.error,
     isAuthoring,
   }, formSession);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [heroButtonStyle] = readAppendedStyles(
+    block,
+    ['heroButtonStyle'],
+    [...block.children],
+  );
+  await decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.general-inquiries-support-cta': heroButtonStyle,
+  });
 }

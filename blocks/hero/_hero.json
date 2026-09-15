@@ -342,21 +342,38 @@
           "component": "select",
           "name": "action_1Style",
           "label": "Button 1 Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
           "options": [
             {
-              "name": "Solid",
-              "value": "solid"
+              "name": "Primary",
+              "value": "primary"
             },
             {
-              "name": "Outline",
-              "value": "outline"
+              "name": "Secondary",
+              "value": "secondary"
             },
             {
-              "name": "Inverted",
-              "value": "inverted"
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
             }
-          ],
-          "value": "solid"
+          ]
         },
         {
           "component": "text",
@@ -376,21 +393,38 @@
           "component": "select",
           "name": "action_2Style",
           "label": "Button 2 Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
           "options": [
             {
-              "name": "Solid",
-              "value": "solid"
+              "name": "Primary",
+              "value": "primary"
             },
             {
-              "name": "Outline",
-              "value": "outline"
+              "name": "Secondary",
+              "value": "secondary"
             },
             {
-              "name": "Inverted",
-              "value": "inverted"
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
             }
-          ],
-          "value": "solid"
+          ]
         },
         {
           "component": "text",
@@ -410,21 +444,38 @@
           "component": "select",
           "name": "action_3Style",
           "label": "Button 3 Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
           "options": [
             {
-              "name": "Solid",
-              "value": "solid"
+              "name": "Primary",
+              "value": "primary"
             },
             {
-              "name": "Outline",
-              "value": "outline"
+              "name": "Secondary",
+              "value": "secondary"
             },
             {
-              "name": "Inverted",
-              "value": "inverted"
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
             }
-          ],
-          "value": "solid"
+          ]
         },
         {
           "component": "tab",

@@ -92,32 +92,7 @@
   display: list-item;
 }
 
-/* Button (matches card-row button style exactly) */
-.card-row-detailed-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-  box-sizing: border-box;
-  border: 2px solid #008db6;
-  background-color: transparent;
-  color: var(--btn-text-color, #404041);
-}
-
-.card-row-detailed-button:hover,
-.card-row-detailed-button:focus {
-  opacity: 0.85;
-  background-color: #008db6 !important;
-  color: #fff !important;
-}
+/* Button: styled by the button standard in styles/styles.css. */
 
 /* Additional text (same style as subheading) */
 .card-row-detailed-additional-text {

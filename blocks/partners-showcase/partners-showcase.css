@@ -241,43 +241,7 @@ main > .section > .partners-showcase-wrapper {
   justify-content: center;
 }
 
-.partners-showcase .partners-showcase-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 18px;
-  border: 2px solid #008db6;
-  border-radius: 999px;
-  background: transparent;
-  color: #008db6;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  box-sizing: border-box;
-}
-
-.partners-showcase .partners-showcase-cta:hover,
-.partners-showcase .partners-showcase-cta:focus-visible {
-  background: #008db6;
-  color: #fff;
-  text-decoration: none;
-}
-
-.partners-showcase .partners-showcase-cta-icon {
-  display: inline-flex;
-  align-items: center;
-  line-height: 0;
-}
-
-.partners-showcase .partners-showcase-cta-icon svg {
-  width: 18px;
-  height: 18px;
-}
+/* CTA: styled by the button standard in styles/styles.css. */
 
 @keyframes partners-showcase-marquee {
   from {
@@ -380,7 +344,6 @@ main > .section > .partners-showcase-wrapper {
   .partners-showcase .partners-showcase-cta {
     width: 100%;
     max-width: 360px;
-    white-space: normal;
   }
 }
 

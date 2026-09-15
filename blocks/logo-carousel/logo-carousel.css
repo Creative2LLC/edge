@@ -140,41 +140,6 @@
   flex: 0 0 auto;
 }
 
-.logo-carousel .logo-carousel-nav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26.67px;
-  height: 26.67px;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-radius: 99px;
-  background-color: #a1a1a1;
-  color: #ffffffd4;
-  cursor: pointer;
-  outline: none;
-  box-shadow: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s ease;
-}
-
-.logo-carousel .logo-carousel-nav-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
-.logo-carousel .logo-carousel-nav-btn:hover,
-.logo-carousel .logo-carousel-nav-btn:focus,
-.logo-carousel .logo-carousel-nav-btn:focus-visible,
-.logo-carousel .logo-carousel-nav-btn:active {
-  background-color: #a1a1a1;
-  color: #ffffffd4;
-  opacity: 0.85;
-  outline: none;
-  box-shadow: none;
-}
-
 /* Responsive */
 @media (width <= 900px) {
   .logo-carousel {
@@ -208,11 +173,6 @@
   .logo-carousel-logo img {
     max-height: 48px;
     max-width: 140px;
-  }
-
-  .logo-carousel-nav-btn {
-    width: 40px;
-    height: 40px;
   }
 }
 

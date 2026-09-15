@@ -6,6 +6,16 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isAppendedStyleValue,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const LEGACY_FIELD_INDEX = {
   subhead: 0,
@@ -107,7 +117,7 @@ function getPublishedImageAdjacentCell(block, name) {
   const textRows = rows
     .slice(imageIndex + 1, endIndex)
     .map((row, offset) => ({ row, index: imageIndex + 1 + offset, value: getFieldCellText(row) }))
-    .filter(({ value }) => value && !isStyleVariantValue(value));
+    .filter(({ value }) => value && !isStyleVariantValue(value) && !isAppendedStyleValue(value));
 
   const first = textRows[0];
   const second = textRows[1];
@@ -255,15 +265,22 @@ function moveText(field, element) {
   }
 }
 
-function buildCta(textField, linkField) {
+function buildCta(textField, linkField, isAuthoring) {
   if (!textField.value && !textField.source) return null;
 
   const href = linkField.value;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!href && !isAuthoring) return null;
+
   const cta = document.createElement(href ? 'a' : 'span');
   cta.className = 'text-image-cta';
 
   if (href) {
     cta.href = href;
+  } else {
+    cta.setAttribute('aria-disabled', 'true');
+    cta.title = 'Add a link to publish this button';
   }
 
   if (linkField.source) {
@@ -277,7 +294,8 @@ function buildCta(textField, linkField) {
   if (!label.textContent.trim()) return null;
 
   cta.append(label);
-  return cta;
+  // The look comes from the button standard (Primary).
+  return applyButtonStyle(cta, 'primary');
 }
 
 function buildPicture(imageField, imageAltField) {
@@ -318,7 +336,7 @@ function buildPicture(imageField, imageAltField) {
   return optimized;
 }
 
-export default async function decorate(block) {
+async function decorateBlock(block) {
   const subheadField = getTextField(block, 'subhead');
   const headingField = getTextField(block, 'heading');
   const bodyTextField = getRichTextField(block, 'bodyText');
@@ -377,8 +395,11 @@ export default async function decorate(block) {
   const body = buildRichTextElement(bodyTextField, 'text-image-body');
   if (body) contentSide.append(body);
 
-  const cta = buildCta(ctaTextField, ctaLinkField);
+  const isAuthoring = Boolean(document.querySelector('[data-aue-resource]'));
+  const cta = buildCta(ctaTextField, ctaLinkField, isAuthoring);
   if (cta) contentSide.append(cta);
+  const ctaOnDark = backgroundColor ? isDarkSurface(backgroundColor) : isOnDarkSection(block);
+  markButtonSurface(contentSide, ctaOnDark);
 
   inner.append(contentSide);
 
@@ -409,4 +430,20 @@ export default async function decorate(block) {
 
   inner.append(mediaSide);
   block.replaceChildren(inner);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [ctaStyle] = readAppendedStyles(
+    block,
+    ['ctaStyle'],
+    [...block.children],
+  );
+  await decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.text-image-cta': ctaStyle,
+  });
 }

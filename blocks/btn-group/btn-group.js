@@ -1,5 +1,11 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readLinkField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -19,19 +25,9 @@ function buildButton(data) {
   if (!href) btn.type = 'button';
   if (data.textField.source) moveInstrumentation(data.textField.source, btn);
 
-  const bgColor = data.bgColor || '#008db6';
-  const textColor = data.textColor || '#ffffff';
-  const outlined = data.style === 'outlined';
-
-  if (outlined) {
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('color', bgColor, 'important');
-    btn.style.setProperty('border', `2px solid ${bgColor}`, 'important');
-  } else {
-    btn.style.setProperty('background-color', bgColor, 'important');
-    btn.style.setProperty('color', textColor, 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  }
+  // The look comes from the button standard. The old colour picker only chooses the
+  // style now (gold -> AMBER, red -> Emergency); the text colour picker is ignored.
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(data.style, data.bgColor));
 
   return btn;
 }
@@ -55,7 +51,6 @@ export default function decorate(block) {
     const textField = getField(row, 'text', 0);
     const linkField = getLinkField(row, 'link', 1);
     const bgColorField = getField(row, 'bgColor', 2);
-    const textColorField = getField(row, 'textColor', 3);
     const styleField = getField(row, 'style', 4);
 
     const wrapper = document.createElement('div');
@@ -67,7 +62,6 @@ export default function decorate(block) {
       textField,
       linkField,
       bgColor: bgColorField.value,
-      textColor: textColorField.value,
       style: styleField.value,
     });
 
@@ -75,5 +69,7 @@ export default function decorate(block) {
     container.append(wrapper);
   });
 
+  // The group has no surface of its own; its buttons sit straight on the section.
+  markButtonSurface(container, isOnDarkSection(block));
   block.replaceChildren(container);
 }

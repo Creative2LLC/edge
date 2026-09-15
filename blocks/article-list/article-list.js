@@ -221,7 +221,7 @@ function createViewIcon(view) {
 function createViewToggleButton(label, view, activeView) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'article-list-view-button';
+  button.className = 'article-list-view-button view-toggle-button';
   button.dataset.view = view;
   button.setAttribute('aria-label', `${label} view`);
   button.title = label;
@@ -441,7 +441,7 @@ function buildShell(config) {
   }
 
   const viewToggle = document.createElement('div');
-  viewToggle.className = 'article-list-view-toggle';
+  viewToggle.className = 'article-list-view-toggle view-toggle';
   const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
   const listButton = createViewToggleButton('List', 'list', config.defaultView);
   viewToggle.append(gridButton, listButton);

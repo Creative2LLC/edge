@@ -182,37 +182,7 @@ main > .section > .split-card-carousel-wrapper {
   align-items: center;
 }
 
-/* Button */
-.split-card-carousel .split-card-carousel-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  border-radius: 99px;
-  background-color: #008db6;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-.split-card-carousel .split-card-carousel-button:hover {
-  opacity: 0.9;
-  text-decoration: none;
-}
-
-/* Outlined variant — 1px border + matching text color, default #008DB6.
-   The JS overrides --btn-accent when a custom button color is provided. */
-.split-card-carousel .split-card-carousel-button.is-outlined {
-  background-color: transparent !important;
-  color: var(--btn-accent, #008db6) !important;
-  border: 1px solid var(--btn-accent, #008db6) !important;
-  box-shadow: none;
-}
+/* Button: styled by the button standard in styles/styles.css. */
 
 /* Controls row: dots centered, nav arrows right */
 .split-card-carousel .split-card-carousel-controls {
@@ -223,78 +193,12 @@ main > .section > .split-card-carousel-wrapper {
   position: relative;
 }
 
-/* Dots — pill-segment progress bar */
-.split-card-carousel .split-card-carousel-dots {
-  display: flex;
-  gap: 2px;
-  align-items: center;
-}
-
-.split-card-carousel .split-card-carousel-dot {
-  display: inline-flex;
-  width: 24px;
-  height: 24px;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-}
-
-.split-card-carousel .split-card-carousel-dot::before {
-  width: 8px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgb(0 38 77 / 20%);
-  content: '';
-  transition: width 0.3s ease, background-color 0.2s ease;
-}
-
-.split-card-carousel .split-card-carousel-dot.active::before {
-  width: 28px;
-  background: #00264d;
-}
-
-.split-card-carousel .split-card-carousel-dot:hover:not(.active)::before {
-  background: rgb(0 38 77 / 40%);
-}
-
-.split-card-carousel .split-card-carousel-dot:focus-visible {
-  outline: 3px solid #00264d;
-  outline-offset: 2px;
-}
-
 /* Nav arrows - positioned right on the controls row */
 .split-card-carousel .split-card-carousel-nav {
   display: flex;
   gap: 12px;
   position: absolute;
   right: 0;
-}
-
-.split-card-carousel .split-card-carousel-nav-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #a1a1a1;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: opacity 0.2s ease;
-}
-
-.split-card-carousel .split-card-carousel-nav-btn:hover {
-  opacity: 0.85;
-}
-
-.split-card-carousel .split-card-carousel-nav-btn svg {
-  width: 16px;
-  height: 16px;
-  color: rgb(255 255 255 / 83%);
 }
 
 /* ============================================================
@@ -340,15 +244,10 @@ main > .section > .split-card-carousel-wrapper {
   margin-bottom: 0;
 }
 
-/* Keep both buttons on one line in variant 2 — tighten padding + font so they fit. */
+/* Variant 2 used to shrink its buttons below the standard to force them onto
+   one line. Buttons are one size now, so the row wraps when two don't fit. */
 .split-card-carousel.variant-2 .split-card-carousel-buttons {
-  flex-wrap: nowrap;
   gap: 8px;
-}
-
-.split-card-carousel.variant-2 .split-card-carousel-button {
-  padding: 10px 18px;
-  font-size: 14px;
 }
 
 /* ============================================================

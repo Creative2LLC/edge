@@ -7,6 +7,12 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_FIELDS = [
   'heading',
@@ -93,17 +99,10 @@ function getImageField(scope, name, index) {
   return readImageField(scope, name, { fallbackCell: scope.children[index] }).img;
 }
 
-function styleButton(btn, color, textColor, style) {
-  const bgColor = color || '#008db6';
-  if (style === 'outlined') {
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('color', bgColor, 'important');
-    btn.style.setProperty('border', `2px solid ${bgColor}`, 'important');
-  } else {
-    btn.style.setProperty('background-color', bgColor, 'important');
-    btn.style.setProperty('color', textColor || '#ffffff', 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  }
+// The look comes from the button standard. The old colour picker only chooses the style
+// now (gold -> AMBER, red -> Emergency); the text colour picker is ignored.
+function styleButton(btn, color, style) {
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(style, color));
 }
 
 function buildStatementCard(data) {
@@ -146,7 +145,7 @@ function buildStatementCard(data) {
     btn.textContent = btnLabel || 'View';
     if (btnHref) btn.href = btnHref;
     if (!btnHref) btn.type = 'button';
-    styleButton(btn, data.buttonColor, data.buttonTextColor, data.buttonStyle);
+    styleButton(btn, data.buttonColor, data.buttonStyle);
     card.append(btn);
   }
 
@@ -198,7 +197,6 @@ export default function decorate(block) {
   const btnText = getField(block, 'buttonText');
   const btnLink = getLinkField(block, 'buttonLink');
   const btnColor = getField(block, 'buttonColor');
-  const btnTextColor = getField(block, 'buttonTextColor');
   const btnStyle = getField(block, 'buttonStyle');
   const layout = getField(block, 'layout') || 'statements';
 
@@ -218,7 +216,6 @@ export default function decorate(block) {
       buttonText: getField(row, 'buttonText', 3),
       buttonLink: getLinkField(row, 'buttonLink', 4),
       buttonColor: getField(row, 'buttonColor', 5),
-      buttonTextColor: getField(row, 'buttonTextColor', 6),
       buttonStyle: getField(row, 'buttonStyle', 7),
       icon: getImageField(row, 'icon', 8),
       emailText: getField(row, 'emailText', 9),
@@ -254,7 +251,9 @@ export default function decorate(block) {
     btn.textContent = btnText || 'Learn More';
     if (btnLink) btn.href = btnLink;
     if (!btnLink) btn.type = 'button';
-    styleButton(btn, btnColor, btnTextColor, btnStyle);
+    styleButton(btn, btnColor, btnStyle);
+    // This button sits straight on the section; the statement-card buttons sit on white.
+    markButtonSurface(btn, isOnDarkSection(block));
     leftSide.append(btn);
   }
 

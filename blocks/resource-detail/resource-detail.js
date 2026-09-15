@@ -7,6 +7,7 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url'],
@@ -279,6 +280,8 @@ function buildActions(resource, config) {
   const link = document.createElement('a');
   link.className = 'resource-detail-primary-action';
   link.textContent = config.ctaLabel;
+  // The look comes from the button standard (Primary).
+  applyButtonStyle(link, 'primary');
 
   if (requiresSignedUrl) {
     link.href = '#';

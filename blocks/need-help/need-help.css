@@ -76,17 +76,9 @@
   margin: 0 0 16px;
 }
 
-/* Card link */
+/* Card link: the Text link style from the button standard; this only places it. */
 .need-help-card-link {
-  font-size: 17px;
-  font-weight: 400;
-  color: #007294;
-  text-decoration: none;
   margin-top: auto;
-}
-
-.need-help-card-link:hover {
-  text-decoration: underline;
 }
 
 /* Parenthesized text in link */

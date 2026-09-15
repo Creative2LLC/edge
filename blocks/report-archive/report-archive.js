@@ -70,47 +70,30 @@ async function resolveImageSrc(imageCell) {
   }
 }
 
-function openPanel(panel, panelInner) {
-  const targetH = panelInner.scrollHeight;
-  panel.style.height = `${targetH}px`;
-  panel.addEventListener('transitionend', () => {
-    if (!panel.classList.contains('is-collapsed')) panel.style.height = 'auto';
-  }, { once: true });
-}
-
-function closePanel(panel) {
-  // Snapshot current rendered height before transition to 0
-  panel.style.height = `${panel.offsetHeight}px`;
-  requestAnimationFrame(() => {
-    panel.style.height = '0';
-  });
-}
-
 async function buildAccordionItem(data, row, index, isAuthoring) {
   const item = document.createElement('div');
-  item.className = index === 0 ? 'report-archive-item is-open' : 'report-archive-item';
+  item.className = `report-archive-item accordion is-card${index === 0 ? ' is-open' : ''}`;
   moveInstrumentation(row, item);
   setItemLabel(item, [data.year]);
 
   const trigger = document.createElement('button');
   trigger.type = 'button';
-  trigger.className = 'report-archive-trigger';
+  trigger.className = 'report-archive-trigger accordion-trigger';
   trigger.setAttribute('aria-expanded', String(index === 0));
 
   const triggerText = document.createElement('span');
-  triggerText.className = 'report-archive-trigger-text';
+  triggerText.className = 'report-archive-trigger-text accordion-label';
   if (data.yearCell) moveInstrumentation(data.yearCell, triggerText);
   triggerText.textContent = data.year || 'Year';
 
   const icon = document.createElement('span');
-  icon.className = 'report-archive-icon';
+  icon.className = 'report-archive-icon accordion-icon';
   icon.setAttribute('aria-hidden', 'true');
 
   trigger.append(triggerText, icon);
 
   const panel = document.createElement('div');
-  panel.className = 'report-archive-panel';
-  panel.style.height = index === 0 ? 'auto' : '0';
+  panel.className = 'report-archive-panel accordion-panel';
 
   const panelInner = document.createElement('div');
   panelInner.className = 'report-archive-panel-inner';
@@ -164,12 +147,6 @@ async function buildAccordionItem(data, row, index, isAuthoring) {
   trigger.addEventListener('click', () => {
     const open = item.classList.toggle('is-open');
     trigger.setAttribute('aria-expanded', String(open));
-    panel.classList.toggle('is-collapsed', !open);
-    if (open) {
-      openPanel(panel, panelInner);
-    } else {
-      closePanel(panel);
-    }
   });
 
   return item;

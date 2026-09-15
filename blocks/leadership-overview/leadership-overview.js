@@ -8,6 +8,12 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveExplicitButtonStyle,
+} from '../../scripts/button-utils.js';
 
 // A /content/dam/ path is served ONLY by the AEM publish tier — the site host
 // 404s it (verified 2026-08-16 on both aem.page and aem.live). An author who
@@ -64,14 +70,6 @@ const LIVE_BLOCK_FIELD_INDEX = {
   featuredLinkText: 6,
   featuredLink: 6,
 };
-
-const ARROW_SVG = [
-  '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">',
-  '<path d="M4.167 10h11.666M10.833 5l5 5-5 5" '
-    + 'stroke="currentColor" stroke-width="1.67" '
-    + 'stroke-linecap="round" stroke-linejoin="round"/>',
-  '</svg>',
-].join('');
 
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
@@ -357,11 +355,9 @@ function buildLink(linkTextField, linkField, className, fallbackLabel = 'Learn M
     label.textContent = labelText;
   }
 
-  const icon = document.createElement('span');
-  icon.className = `${className}-icon`;
-  icon.innerHTML = ARROW_SVG;
-
-  link.append(label, icon);
+  link.append(label);
+  // The Text link style from the button standard; CSS draws the arrow.
+  applyButtonStyle(link, 'text-link');
   return link;
 }
 
@@ -411,7 +407,9 @@ function buildFeaturedPanel(fields) {
 
   const panel = document.createElement('div');
   panel.className = 'leadership-overview-feature';
-  panel.style.backgroundColor = fields.featuredCardBackgroundColor.value || '#ffffff';
+  const panelBackground = fields.featuredCardBackgroundColor.value || '#ffffff';
+  panel.style.backgroundColor = panelBackground;
+  markButtonSurface(panel, isDarkSurface(panelBackground));
 
   const media = document.createElement('div');
   media.className = 'leadership-overview-feature-media';
@@ -484,7 +482,7 @@ async function buildNavCard(row, index) {
   const cardBackgroundColorField = readRowTextField(row, 'cardBackgroundColor', 4);
   const titleColorField = readRowTextField(row, 'titleColor', 5);
   const descriptionColorField = readRowTextField(row, 'descriptionColor', 6);
-  const linkColorField = readRowTextField(row, 'linkColor', 7);
+  const linkStyleField = readRowTextField(row, 'linkColor', 7);
 
   if (!linkField.value) {
     const compactLinkField = findRowLinkField(row, 2);
@@ -510,7 +508,9 @@ async function buildNavCard(row, index) {
   card.className = 'leadership-overview-nav-card';
   if (linkField.value) card.href = resolveDamUrl(linkField.value);
   card.dataset.index = `${index}`;
-  card.style.backgroundColor = cardBackgroundColorField.value || '#00264d';
+  const cardBackground = cardBackgroundColorField.value || '#00264d';
+  card.style.backgroundColor = cardBackground;
+  markButtonSurface(card, isDarkSurface(cardBackground));
   if (row) moveInstrumentation(row, card);
   setItemLabel(card, [titleField.value, descriptionField.value]);
 
@@ -553,9 +553,10 @@ async function buildNavCard(row, index) {
 
   const linkLabel = stripTrailingArrow(linkTextField.value || (linkField.value ? 'Learn More' : ''));
   if (linkLabel) {
+    // The whole card is the link; this label wears the Text link style unless a style
+    // was picked in Link Style (the old link colour field, whose hex values are ignored).
     const link = document.createElement('span');
     link.className = 'leadership-overview-nav-card-link';
-    link.style.color = linkColorField.value || '#00a0ca';
 
     const label = document.createElement('span');
     label.className = 'leadership-overview-nav-card-link-label';
@@ -566,11 +567,8 @@ async function buildNavCard(row, index) {
       label.textContent = linkLabel;
     }
 
-    const icon = document.createElement('span');
-    icon.className = 'leadership-overview-nav-card-link-icon';
-    icon.innerHTML = ARROW_SVG;
-
-    link.append(label, icon);
+    link.append(label);
+    applyButtonStyle(link, resolveExplicitButtonStyle(linkStyleField.value, 'text-link'));
     card.append(link);
   }
 

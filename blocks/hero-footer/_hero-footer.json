@@ -96,6 +96,90 @@
             }
           ],
           "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "button1Style",
+          "label": "Button 1 Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "button2Style",
+          "label": "Button 2 Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button2-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button2-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button2-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button2-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button2-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button2-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button2-giving"
+            }
+          ]
         }
       ]
     }

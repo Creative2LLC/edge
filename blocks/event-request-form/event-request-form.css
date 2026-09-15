@@ -102,6 +102,8 @@ main > .section > .event-request-form-wrapper {
 }
 
 .event-request-form-progress-step {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 10px;
@@ -353,72 +355,16 @@ main > .section > .event-request-form-wrapper {
   color: #a13a31;
 }
 
+/* Back, next and submit: styled by the button standard in styles/styles.css. */
 .event-request-form-prev,
 .event-request-form-next,
 .event-request-form-submit {
   margin: 0;
-  border: 0;
-  border-radius: 999px;
-  padding: 14px 24px;
-  background: #e38b22;
-  color: #fff;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: 0 16px 28px rgb(227 139 34 / 22%);
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
 }
 
-.event-request-form-prev {
-  background: #fff;
-  color: #007294;
-  box-shadow: inset 0 0 0 2px rgb(0 114 148 / 28%);
-}
-
-.event-request-form-next {
-  background: #007294;
-  box-shadow: 0 14px 24px rgb(0 114 148 / 18%);
-}
-
-.event-request-form-prev:hover,
-.event-request-form-prev:focus-visible,
-.event-request-form-next:hover,
-.event-request-form-next:focus-visible,
-.event-request-form-submit:hover,
-.event-request-form-submit:focus-visible {
-  outline: 0;
-  transform: translateY(-1px);
-}
-
-.event-request-form-submit:hover,
-.event-request-form-submit:focus-visible {
-  background: #d17f1d;
-  box-shadow: 0 18px 34px rgb(209 127 29 / 30%);
-}
-
-.event-request-form-next:hover,
-.event-request-form-next:focus-visible {
-  background: #00627f;
-  box-shadow: 0 16px 30px rgb(0 98 127 / 22%);
-}
-
-.event-request-form-prev:hover,
-.event-request-form-prev:focus-visible {
-  background: #f8fbfc;
-}
-
-.event-request-form-prev:disabled,
-.event-request-form-submit:disabled,
 .event-request-form.is-submitting .event-request-form-submit {
-  transform: none;
-  opacity: 0.58;
-  box-shadow: none;
-  cursor: not-allowed;
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .event-request-form.is-visible .event-request-form-header,

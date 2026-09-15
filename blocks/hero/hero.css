@@ -310,63 +310,8 @@
   margin-top: 28px;
 }
 
-.hero .hero-action-btn,
-.hero .hero-action-btn:any-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 22px;
-  border-radius: 999px;
-  border: 2px solid #008eb7;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-.hero .hero-action-btn::after {
-  content: "\2192";
-  font-size: 0.88em;
-  line-height: 1;
-}
-
-.hero .hero-action-btn-outline,
-.hero .hero-action-btn-outline:any-link {
-  background-color: transparent;
-  color: #008eb7;
-}
-
-.hero .hero-action-btn-solid,
-.hero .hero-action-btn-solid:any-link {
-  background-color: #008eb7;
-  color: #fff;
-}
-
-.hero .hero-action-btn-inverted,
-.hero .hero-action-btn-inverted:any-link {
-  background-color: #fff;
-  border-color: #fff;
-  color: #008eb7;
-}
-
-.hero .hero-action-btn:hover {
-  text-decoration: none;
-}
-
-.hero .hero-action-btn-outline:hover {
-  background-color: #008eb7;
-  color: #fff;
-}
-
-.hero .hero-action-btn-solid:hover {
-  background-color: #00739a;
-  border-color: #00739a;
-}
-
-.hero .hero-action-btn-inverted:hover {
-  background-color: #f2f7fb;
-}
+/* Action buttons: styled by the button standard in styles/styles.css.
+   No arrow — the client dropped it from these styles. */
 
 .hero .hero-side-panel {
   width: 100%;
@@ -456,42 +401,7 @@
   min-height: 1em;
 }
 
-.hero .hero-side-panel-btn,
-.hero .hero-side-panel-btn:any-link {
-  text-decoration: none;
-}
-
-.hero .hero-side-panel-btn-primary,
-.hero .hero-side-panel-btn-primary:any-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 26px;
-  border-radius: 999px;
-  border: 2px solid #00a0cd;
-  background: #00a0cd;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.15;
-}
-
-.hero .hero-side-panel-btn-primary:hover {
-  background: #008eb7;
-  border-color: #008eb7;
-}
-
-.hero .hero-side-panel-btn-secondary,
-.hero .hero-side-panel-btn-secondary:any-link {
-  color: #00b4e6;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.15;
-}
-
-.hero .hero-side-panel-btn-secondary:hover {
-  text-decoration: underline;
-}
+/* Side panel buttons: styled by the button standard (dark form — the panel is navy). */
 
 .hero.hero-pos-center .hero-layout {
   justify-items: center;
@@ -655,22 +565,9 @@
     margin-top: 16px;
   }
 
-  .hero .hero-action-btn,
-  .hero .hero-action-btn:any-link {
-    font-size: 15px;
-    padding: 9px 14px;
-  }
-
   .hero .hero-side-panel {
     max-width: none;
     padding: 20px 18px;
-  }
-
-  .hero .hero-side-panel-btn-primary,
-  .hero .hero-side-panel-btn-primary:any-link,
-  .hero .hero-side-panel-btn-secondary,
-  .hero .hero-side-panel-btn-secondary:any-link {
-    font-size: 15px;
   }
 }
 
@@ -746,8 +643,12 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
   padding: 10px 16px;
   border: 0;
+  border-radius: 2.4em;
   background: none;
   color: #00264d;
   cursor: pointer;

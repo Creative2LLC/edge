@@ -7,7 +7,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import { decorateButtonText } from '../../scripts/button-utils.js';
+import { applyButtonStyle, decorateButtonText } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   sectionName: 0,
@@ -179,6 +179,7 @@ function buildLeaderCard(leader) {
     linkEl.className = 'leadership-team-card-link';
     linkEl.href = resolveSiteHref(leader.link);
     linkEl.textContent = decorateButtonText('Read bio');
+    applyButtonStyle(linkEl, 'text-link');
     textWrap.appendChild(linkEl);
   }
 

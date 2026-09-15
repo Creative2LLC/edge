@@ -6,7 +6,12 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import { decorateButtonText } from '../../scripts/button-utils.js';
+import {
+  applyButtonStyle,
+  decorateButtonText,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 /* ---------- Field helpers ---------- */
 
@@ -131,14 +136,24 @@ function buildCard(data) {
     body.append(grid);
   }
 
-  // CTA button
-  if (data.ctaText) {
+  // CTA button. One with nowhere to go is not published; in the editor it still
+  // shows, disabled, so the author can see the link is missing.
+  if (data.ctaText && (data.ctaLink || data.isAuthoring)) {
     const cta = document.createElement(data.ctaLink ? 'a' : 'span');
     cta.className = 'featured-event-cta';
-    if (data.ctaLink) cta.href = data.ctaLink;
+    if (data.ctaLink) {
+      cta.href = data.ctaLink;
+    } else {
+      cta.setAttribute('aria-disabled', 'true');
+      cta.title = 'Add a link to publish this button';
+    }
     if (data.ctaTextSource) moveInstrumentation(data.ctaTextSource, cta);
     cta.textContent = decorateButtonText(data.ctaText);
-    body.append(cta);
+    // The look comes from the button standard: Primary unless a Button Style was picked.
+    const [ctaStyle] = data.row
+      ? readAppendedStyles(data.row, ['ctaStyle'], [...data.row.children])
+      : [''];
+    body.append(applyButtonStyle(cta, ctaStyle || 'primary'));
   }
 
   card.append(body);
@@ -148,6 +163,8 @@ function buildCard(data) {
 /* ---------- decorate ---------- */
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
   // Pull the block-level header out and remove its row so it isn't parsed as a card.
   // Walk up to the direct child of `block` (`:scope` in closest() won't match here).
   const directRowOf = (el) => {
@@ -213,6 +230,7 @@ export default function decorate(block) {
       ctaText: ctaTextField.value,
       ctaTextSource: ctaTextField.source,
       ctaLink: ctaLinkField.value,
+      isAuthoring,
       row,
     });
   });

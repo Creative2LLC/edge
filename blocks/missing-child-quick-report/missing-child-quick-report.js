@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -407,6 +408,7 @@ export default function decorate(block) {
   const button = document.createElement('button');
   button.type = 'submit';
   button.className = 'missing-child-quick-report-submit';
+  applyButtonStyle(button, 'primary');
   moveText(getTextField(block, 'buttonText'), button, DEFAULTS.buttonText);
 
   actions.append(status, button);

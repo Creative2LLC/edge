@@ -86,6 +86,12 @@
 }
 
 
+/* A <button> link inherited this margin from the old global button rule, dropped with the
+   controls pass. colored-button is a named exception, so it keeps it exactly. */
+.colored-button button.colored-button-link {
+  margin: 12px 0;
+}
+
 .colored-button.colored-button-shadow-small .colored-button-link {
   box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
 }

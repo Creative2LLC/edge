@@ -6,6 +6,12 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
 
 /* ---------- Field helpers (mirror card-row-detailed.js) ---------- */
 
@@ -69,6 +75,7 @@ function buildCard(data) {
 
   const bg = data.cardBackgroundColor || '#0f3357';
   card.style.setProperty('background-color', bg, 'important');
+  markButtonSurface(card, isDarkSurface(bg));
 
   // Top image (optional, full-width, max-height 178px)
   if (data.imageField.picture) {
@@ -116,18 +123,27 @@ function buildCard(data) {
     body.append(sub);
   }
 
-  // Optional button
-  if (data.buttonText) {
+  // Optional button. One with nowhere to go is not published; in the editor it still
+  // shows, disabled, so the author can see the link is missing.
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (data.buttonText && (data.buttonLink || isEditor)) {
     const btn = document.createElement(data.buttonLink ? 'a' : 'span');
     const styleClass = data.buttonStyle === 'solid'
       ? 'dark-feature-cards-card-btn-solid'
       : 'dark-feature-cards-card-btn-outlined';
     btn.className = `dark-feature-cards-card-btn ${styleClass}`;
-    if (data.buttonLink) btn.href = data.buttonLink;
+    if (data.buttonLink) {
+      btn.href = data.buttonLink;
+    } else {
+      btn.setAttribute('aria-disabled', 'true');
+      btn.title = 'Add a link to publish this button';
+    }
     btn.textContent = data.buttonText;
     if (data.buttonTextSource) {
       moveInstrumentation(data.buttonTextSource, btn);
     }
+    // Outlined was this block's default, so an unset style stays Secondary.
+    applyButtonStyle(btn, resolveButtonStyle(data.buttonStyle, 'secondary'));
     body.append(btn);
   }
 

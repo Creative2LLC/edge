@@ -22,23 +22,9 @@
   color: #00264d;
 }
 
+/* Find all: styled by the button standard in styles/styles.css; this only places it. */
 .resources-carousel .resources-carousel-find-all {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.6rem 1.25rem;
-  border-radius: 999px;
-  background: #00264d;
-  color: #fff;
-  font-size: 0.88rem;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
   flex-shrink: 0;
-  transition: opacity 0.15s ease;
-}
-
-.resources-carousel .resources-carousel-find-all:hover {
-  opacity: 0.85;
 }
 
 /* Scrollable track */
@@ -106,25 +92,12 @@
   min-height: 1rem;
 }
 
+/* Card link: the Text link style from the button standard. This keeps it above
+   the full-card cover link. */
 .resources-carousel .resources-carousel-card-link {
   position: relative;
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
   margin-top: 1rem;
-  color: #0d6e8c;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.resources-carousel .resources-carousel-card-link::after {
-  content: '\2192';
-}
-
-.resources-carousel .resources-carousel-card-link:hover {
-  text-decoration: underline;
 }
 
 /* Controls row */
@@ -158,36 +131,6 @@
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
-}
-
-.resources-carousel .resources-carousel-nav-btn {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: #00264d;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  color: #fff;
-  transition: opacity 0.15s ease;
-}
-
-.resources-carousel .resources-carousel-nav-btn:hover {
-  opacity: 0.8;
-}
-
-.resources-carousel .resources-carousel-nav-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.resources-carousel .resources-carousel-nav-btn svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  stroke: currentcolor;
 }
 
 .resources-carousel .resources-carousel-message {

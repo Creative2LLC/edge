@@ -170,47 +170,7 @@
   transition-delay: 520ms;
 }
 
-.impact-donut .impact-donut-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60px;
-  padding: 0 30px;
-  border-radius: 999px;
-  font-size: 1.15rem;
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    transform 220ms ease,
-    box-shadow 220ms ease,
-    opacity 220ms ease;
-}
-
-.impact-donut .impact-donut-button::after {
-  content: '\2192';
-  margin-left: 10px;
-  font-size: 1.1em;
-  line-height: 1;
-}
-
-.impact-donut .impact-donut-button:hover,
-.impact-donut .impact-donut-button:focus {
-  text-decoration: none;
-  transform: translateY(-1px);
-}
-
-.impact-donut .impact-donut-button.primary {
-  background: #1491bf;
-  color: #fff;
-  box-shadow: 0 20px 34px rgb(20 145 191 / 18%);
-}
-
-.impact-donut .impact-donut-button.secondary {
-  background: #6f6f73;
-  color: #fff;
-  box-shadow: 0 20px 34px rgb(64 64 65 / 14%);
-}
+/* Buttons: styled by the button standard in styles/styles.css. */
 
 .impact-donut .impact-donut-chart-side {
   display: grid;
@@ -339,8 +299,6 @@
 
   .impact-donut .impact-donut-button {
     width: 100%;
-    padding: 0 20px;
-    font-size: clamp(1rem, 2vw, 1.15rem);
   }
 }
 
@@ -433,8 +391,7 @@
 @media (prefers-reduced-motion: reduce) {
   .impact-donut .impact-donut-reveal,
   .impact-donut .impact-donut-chart-shell::before,
-  .impact-donut .impact-donut-chart,
-  .impact-donut .impact-donut-button {
+  .impact-donut .impact-donut-chart {
     transition: none;
   }
 }

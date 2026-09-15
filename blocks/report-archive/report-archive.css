@@ -21,81 +21,11 @@
 
 /* Individual item */
 
-.report-archive .report-archive-item {
-  border: 1px solid rgb(0 46 93 / 14%);
-  border-radius: 16px;
-  background: #fff;
-  overflow: hidden;
-}
-
 /* Trigger button */
-
-.report-archive .report-archive-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  width: 100%;
-  padding: 20px 24px;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  border-radius: inherit;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.report-archive .report-archive-trigger:hover,
-.report-archive .report-archive-trigger:focus,
-.report-archive .report-archive-trigger:focus-visible {
-  background: rgb(0 46 93 / 4%);
-  outline: none !important;
-}
-
-/* outline (not box-shadow) so the ring follows the item's rounded corners
-   instead of getting clipped into a jagged edge by the overflow: hidden card */
-.report-archive .report-archive-trigger:focus-visible {
-  outline: 2px solid #1491bf;
-  outline-offset: -2px;
-}
-
-.report-archive .report-archive-item.is-open .report-archive-trigger {
-  border-bottom-color: rgb(0 46 93 / 10%);
-}
-
-.report-archive .report-archive-trigger-text {
-  color: #002e5d;
-  font-size: var(--body-lg-size);
-  font-weight: var(--body-weight-bold);
-  line-height: 1.15;
-}
 
 /* Chevron icon (pure CSS) */
 
-.report-archive .report-archive-icon {
-  flex-shrink: 0;
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-right: 2.5px solid #002e5d;
-  border-bottom: 2.5px solid #002e5d;
-  transform: rotate(45deg) translate(-2px, -2px);
-  transition: transform 0.32s ease;
-}
-
-.report-archive .report-archive-item.is-open .report-archive-icon {
-  transform: rotate(-135deg) translate(-2px, -2px);
-}
-
 /* Panel — JS sets height explicitly; CSS only provides the transition */
-
-.report-archive .report-archive-panel {
-  overflow: hidden;
-  transition: height 0.35s ease;
-}
 
 .report-archive .report-archive-panel-inner {
   display: flex;
@@ -209,10 +139,6 @@
 /* Mobile */
 
 @media (width <= 640px) {
-  .report-archive .report-archive-trigger {
-    padding: 16px 18px;
-  }
-
   .report-archive .report-archive-panel-inner {
     flex-direction: column;
     gap: 16px;
@@ -230,8 +156,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .report-archive .report-archive-panel,
-  .report-archive .report-archive-icon,
   .report-archive .report-archive-links a,
   .report-archive .report-archive-links a::after {
     transition: none;

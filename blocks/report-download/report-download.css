@@ -118,47 +118,31 @@
   justify-content: flex-end;
 }
 
-.report-download .report-download-button,
+/* Button: styled by the button standard in styles/styles.css. This keeps its delayed
+   reveal alongside the standard's colour transition. */
+.report-download .report-download-button {
+  transition:
+    opacity 220ms ease 220ms,
+    transform 220ms ease 220ms,
+    var(--button-transition);
+}
+
+/* The editor's stand-in when no button text is set. It is not a button, so it keeps
+   the look it has always had. */
 .report-download .report-download-button-placeholder {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 58px;
   padding: 0 28px;
+  border: 1px dashed rgb(255 255 255 / 55%);
   border-radius: 999px;
   background: #1491bf;
   color: #fff;
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 1;
-  text-decoration: none;
   white-space: nowrap;
-  box-shadow: 0 18px 28px rgb(20 145 191 / 20%);
-  transition:
-    transform 220ms ease,
-    box-shadow 220ms ease,
-    opacity 220ms ease;
-  transition-delay: 220ms;
-}
-
-.report-download .report-download-button::after {
-  content: '\2192';
-  margin-left: 10px;
-  font-size: 1.05em;
-  line-height: 1;
-}
-
-.report-download .report-download-button:hover,
-.report-download .report-download-button:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 20px 32px rgb(20 145 191 / 24%);
-  text-decoration: none;
-}
-
-.report-download .report-download-button-placeholder {
-  min-height: 58px;
-  border: 1px dashed rgb(255 255 255 / 55%);
-  box-shadow: none;
 }
 
 @media (width <= 1100px) {
@@ -177,7 +161,6 @@
 }
 
 @media (width <= 900px) {
-  .report-download .report-download-button,
   .report-download .report-download-button-placeholder {
     min-height: 52px;
     padding: 0 20px;

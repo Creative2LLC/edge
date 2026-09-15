@@ -247,14 +247,14 @@ function setExpanded(item, expanded, immediate = false) {
   if (expanded) {
     panel.hidden = false;
     window.requestAnimationFrame(() => {
-      item.classList.add('faq-item-open');
+      item.classList.add('faq-item-open', 'is-open');
       button.setAttribute('aria-expanded', 'true');
       panel.setAttribute('aria-hidden', 'false');
     });
     return;
   }
 
-  item.classList.remove('faq-item-open');
+  item.classList.remove('faq-item-open', 'is-open');
   button.setAttribute('aria-expanded', 'false');
   panel.setAttribute('aria-hidden', 'true');
 
@@ -283,7 +283,7 @@ function buildFaqItem(row, index, items) {
   if (!hasVisibleContent && !isAuthoringPlaceholder) return null;
 
   const item = document.createElement('article');
-  item.className = 'faq-item';
+  item.className = 'faq-item accordion';
   item.style.setProperty('--faq-index', index);
   moveInstrumentation(row, item);
   // Label the item in the Universal Editor content tree by its own question so
@@ -291,7 +291,7 @@ function buildFaqItem(row, index, items) {
   setItemLabel(item, [questionField.text]);
 
   if (isAuthoringPlaceholder) {
-    item.classList.add('is-authoring-placeholder', 'faq-item-open');
+    item.classList.add('accordion', 'is-authoring-placeholder', 'faq-item-open', 'is-open');
 
     const body = document.createElement('div');
     body.className = 'faq-item-placeholder';
@@ -313,24 +313,24 @@ function buildFaqItem(row, index, items) {
   const panelId = `faq-panel-${Math.random().toString(36).slice(2, 9)}`;
 
   const header = document.createElement('button');
-  header.className = 'faq-item-header';
+  header.className = 'faq-item-header accordion-trigger';
   header.type = 'button';
   header.id = questionId;
   header.setAttribute('aria-expanded', 'false');
   header.setAttribute('aria-controls', panelId);
 
   const questionEl = document.createElement('span');
-  questionEl.className = 'faq-item-question';
+  questionEl.className = 'faq-item-question accordion-label';
   moveText(questionField, questionEl, questionField.text);
 
   const icon = document.createElement('span');
-  icon.className = 'faq-item-icon';
+  icon.className = 'faq-item-icon accordion-icon';
   icon.setAttribute('aria-hidden', 'true');
 
   header.append(questionEl, icon);
 
   const panel = document.createElement('div');
-  panel.className = 'faq-item-panel';
+  panel.className = 'faq-item-panel accordion-panel';
   panel.id = panelId;
   panel.hidden = true;
   panel.setAttribute('role', 'region');
@@ -360,7 +360,7 @@ function buildFaqItem(row, index, items) {
 
 function buildPlaceholderItem() {
   const item = document.createElement('article');
-  item.className = 'faq-item is-authoring-placeholder faq-item-open';
+  item.className = 'faq-item accordion is-authoring-placeholder faq-item-open is-open';
   item.style.setProperty('--faq-index', '0');
 
   const body = document.createElement('div');
@@ -467,30 +467,30 @@ function appendAmberFaqs(target) {
 
 function buildStaticFaqItem(data, index, items) {
   const item = document.createElement('article');
-  item.className = 'faq-item';
+  item.className = 'faq-item accordion';
   item.style.setProperty('--faq-index', index);
 
   const questionId = `faq-question-${Math.random().toString(36).slice(2, 9)}`;
   const panelId = `faq-panel-${Math.random().toString(36).slice(2, 9)}`;
 
   const header = document.createElement('button');
-  header.className = 'faq-item-header';
+  header.className = 'faq-item-header accordion-trigger';
   header.type = 'button';
   header.id = questionId;
   header.setAttribute('aria-expanded', 'false');
   header.setAttribute('aria-controls', panelId);
 
   const questionEl = document.createElement('span');
-  questionEl.className = 'faq-item-question';
+  questionEl.className = 'faq-item-question accordion-label';
   questionEl.textContent = data.question;
 
   const icon = document.createElement('span');
-  icon.className = 'faq-item-icon';
+  icon.className = 'faq-item-icon accordion-icon';
   icon.setAttribute('aria-hidden', 'true');
   header.append(questionEl, icon);
 
   const panel = document.createElement('div');
-  panel.className = 'faq-item-panel';
+  panel.className = 'faq-item-panel accordion-panel';
   panel.id = panelId;
   panel.hidden = true;
   panel.setAttribute('role', 'region');

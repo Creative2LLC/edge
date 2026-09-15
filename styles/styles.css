@@ -28,8 +28,8 @@
      elements carried it. Both greys were shipping at once. See
      audits/body-copy-audit.md finding 02. */
   --text-color: #404041;
-  --link-color: #3b63fb;
-  --link-hover-color: #1d3ecf;
+  --link-color: #007294;
+  --link-hover-color: #005771;
 
   /* Semantic aliases for body copy. Per-block colour overrides are deliberately
      NOT part of this pass — 380 declarations across 117 values get their own
@@ -322,6 +322,75 @@
   /* Slower than the other tiers: a pen stroke that lands in 180ms reads as a
      flicker rather than as drawing. */
   --hover-edge-duration: 320ms;
+
+  /* ------------------------------------------------------------------
+     BUTTONS — the approved standard. Rules live in the BUTTONS section
+     below; these are the only values it reads.
+
+     Label contrast on its fill: primary 5.48 (8.07 on hover), soft 6.94,
+     amber 6.55, emergency 6.54, giving 5.25. Each is at or near the AA
+     line on purpose — do not lighten a fill or a label.
+     ------------------------------------------------------------------ */
+  --button-font-size: 1rem; /* 16px */
+  --button-font-weight: 600;
+  --button-line-height: 1.2;
+  --button-padding-block: 9px; /* with 16px x 1.2 line-height = 37px tall */
+  --button-padding-inline: 21px;
+  --button-gap: 0.45em;
+  --button-radius: 999px;
+  --button-ring-width: 2px;
+  --button-icon-size: 38px;
+  --button-transition:
+    background-color var(--hover-duration) var(--hover-ease),
+    color var(--hover-duration) var(--hover-ease),
+    box-shadow var(--hover-duration) var(--hover-ease);
+  --button-primary: #007294;
+  --button-primary-hover: #005771;
+  --button-tint: #e3f0f5;
+  --button-tint-hover: #cfe5ee;
+  --button-navy: #00264d;
+  --button-on-dark-link-hover: #dcebf4;
+  --button-amber: #e38b22;
+  --button-amber-hover: #c9761a;
+  --button-amber-label: #1b1b1b;
+  --button-emergency: #b3261e;
+  --button-emergency-hover: #8f1f18;
+  --button-emergency-tint: #fbeae9;
+  --button-giving: #2f7a4a;
+  --button-giving-hover: #256140;
+  --button-giving-tint: #e5f2ec;
+  --button-disabled: #e9eef1;
+  --button-disabled-label: #5c6b75;
+
+  /* ------------------------------------------------------------------
+     CONTROLS — accordions, tabs, view toggles, pagination, carousel dots.
+     The rules are in the CONTROLS section below the buttons. Teal is the
+     one selected colour; the accordion values reproduce the FAQ exactly.
+     ------------------------------------------------------------------ */
+  --control-selected: var(--button-primary);
+  --control-selected-label: #fff;
+  --control-hover: var(--button-tint);
+  --control-focus: var(--button-primary);
+  --control-duration: 180ms;
+  --accordion-label-color: #404041;
+  --accordion-label-size: clamp(1.35rem, 1.95vw, 2rem);
+  --accordion-label-weight: 700;
+  --accordion-label-line-height: 1.22;
+  --accordion-padding: 26px 30px;
+  --accordion-gap: 20px;
+  --accordion-accent: #1491bf;
+  --accordion-icon-size: 16px;
+  --accordion-icon-ink: #113a67;
+  --accordion-focus: #e38b22;
+  --accordion-duration: 220ms;
+  --accordion-icon-duration: 280ms;
+  --accordion-panel-duration: 320ms;
+  --accordion-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --tab-ink: #404041;
+  --tab-font-size: 15px;
+  --tab-font-weight: 600;
+  --tab-padding: 9px 18px;
+  --carousel-dot-idle: #6b8394;
 }
 
 /* Metric-matched fallback for Figtree.
@@ -1229,9 +1298,40 @@ a:hover {
   text-decoration: underline;
 }
 
-/* buttons */
-a.button:any-link,
-button {
+/* ====================================================================
+   BUTTONS
+   Approved by the client 2026-09-13 — "Button & Control Standard".
+
+   Two populations, kept apart on purpose:
+
+   1. `.button` is the standard: every authored call to action. The style
+      classes (secondary, soft, text-link, amber, emergency, giving, icon)
+      and the surface (.is-on-dark) set ONLY per-element --btn-* values,
+      all at one specificity so source order decides. A single painting
+      rule reads them. A state is therefore one declaration, a block never
+      repaints a button, and the exemption list lives in one selector.
+
+   2. A bare <button> without `.button` gets no look from this file: the
+      form-control reset only zeroes it. Accordions, tabs, view toggles,
+      pagination and carousel dots wear the shared CONTROLS below, and
+      carousel arrows are `.button.icon`.
+
+   EXEMPT — buttons the client asked to leave exactly as they are. The
+   header tools wear `.button`, so they are held on the old rule here.
+   Change this list here and in scripts/button-guard.mjs, nowhere else.
+     .nav-tool-accent     header Donate Now
+     .nav-search-trigger  header Search
+   Get Help Now, the image-card buttons and the poster page's action bar
+   (.poster-results-detail-action: CALL 911, tip, print, share) never wear
+   `.button`; their exceptions live in their own block stylesheets.
+
+   Authors pick the style; the surface picks the form. Blocks mark a dark
+   surface — or a single button — with `.is-on-dark`; decorateSections marks the default content
+   of sections whose background colour is dark.
+   ==================================================================== */
+
+/* ---- the exempt header tools keep the rule that painted them before ---- */
+a.button:any-link:where(.nav-tool-accent, .nav-search-trigger) {
   box-sizing: border-box;
   display: inline-block;
   max-width: 100%;
@@ -1253,54 +1353,860 @@ button {
   white-space: nowrap;
 }
 
-a.button:hover,
-a.button:focus {
+a.button:where(.nav-tool-accent, .nav-search-trigger):hover,
+a.button:where(.nav-tool-accent, .nav-search-trigger):focus {
   background-color: var(--link-hover-color);
   cursor: pointer;
 }
 
-button:hover {
-  cursor: pointer;
-}
-
-button:focus,
-button:focus-visible {
-  /* outline: 2px solid currentcolor;
-  outline-offset: 2px; */
-  cursor: pointer;
-}
-
-button:disabled,
-button:disabled:hover {
-  background-color: var(--light-color);
-  cursor: unset;
-}
-
-a.button.secondary,
-button.secondary {
+a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
   background-color: unset;
   border: 2px solid currentcolor;
   color: var(--text-color);
 }
 
-a.button.download,
-a.button.pdf {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45em;
-  white-space: normal;
+/* ---- the standard: per-element values, light forms ---- */
+:where(.button) {
+  --btn-bg: var(--button-primary);
+  --btn-bg-hover: var(--button-primary-hover);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+  --btn-ring: transparent;
+  --btn-ring-hover: transparent;
+  --btn-focus: var(--button-primary);
 }
 
-a.button.download::before,
-a.button.pdf::before {
-  content: '';
+:where(.button).secondary {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--button-tint);
+  --btn-fg: var(--button-primary);
+  --btn-fg-hover: var(--button-primary-hover);
+  --btn-ring: currentcolor;
+  --btn-ring-hover: currentcolor;
+}
+
+:where(.button).soft {
+  --btn-bg: var(--button-tint);
+  --btn-bg-hover: var(--button-tint-hover);
+  --btn-fg: var(--button-primary-hover);
+  --btn-fg-hover: var(--button-primary-hover);
+}
+
+:where(.button).text-link {
+  --btn-bg: transparent;
+  --btn-bg-hover: transparent;
+  --btn-fg: var(--button-primary);
+  --btn-fg-hover: var(--button-primary-hover);
+  --btn-pad-inline: 0;
+  --btn-hover-decoration: underline;
+}
+
+:where(.button).amber {
+  --btn-bg: var(--button-amber);
+  --btn-bg-hover: var(--button-amber-hover);
+  --btn-fg: var(--button-amber-label);
+  --btn-fg-hover: var(--button-amber-label);
+}
+
+:where(.button).emergency {
+  --btn-bg: var(--button-emergency);
+  --btn-bg-hover: var(--button-emergency-hover);
+}
+
+:where(.button).giving {
+  --btn-bg: var(--button-giving);
+  --btn-bg-hover: var(--button-giving-hover);
+}
+
+:where(.button).icon {
+  --btn-pad-block: 0;
+  --btn-pad-inline: 0;
+  --btn-radius: 50%;
+}
+
+/* ---- dark forms. AMBER has none: gold with a dark label works anywhere ---- */
+:where(.is-on-dark .button, .button.is-on-dark) {
+  --btn-bg: #fff;
+  --btn-bg-hover: var(--button-tint);
+  --btn-fg: var(--button-navy);
+  --btn-fg-hover: var(--button-navy);
+  --btn-focus: #fff;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark).secondary {
+  --btn-bg: transparent;
+  --btn-bg-hover: rgb(255 255 255 / 16%);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark).soft {
+  --btn-bg: rgb(255 255 255 / 18%);
+  --btn-bg-hover: rgb(255 255 255 / 28%);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark).text-link {
+  --btn-bg: transparent;
+  --btn-bg-hover: transparent;
+  --btn-fg: #fff;
+  --btn-fg-hover: var(--button-on-dark-link-hover);
+}
+
+/* A red or green fill disappears against navy (2.34:1 and 2.92:1), so on
+   dark these become white with an outline and label in their own colour. */
+:where(.is-on-dark .button, .button.is-on-dark).emergency {
+  --btn-bg: #fff;
+  --btn-bg-hover: var(--button-emergency-tint);
+  --btn-fg: var(--button-emergency);
+  --btn-fg-hover: var(--button-emergency);
+  --btn-ring: var(--button-emergency);
+  --btn-ring-hover: var(--button-emergency);
+}
+
+:where(.is-on-dark .button, .button.is-on-dark).giving {
+  --btn-bg: #fff;
+  --btn-bg-hover: var(--button-giving-tint);
+  --btn-fg: var(--button-giving);
+  --btn-fg-hover: var(--button-giving);
+  --btn-ring: var(--button-giving);
+  --btn-ring-hover: var(--button-giving);
+}
+
+/* ---- header mega nav: Donate Now's colours at the standard size ----
+   Not an author style. The mega nav's featured buttons wear .nav-accent so they match
+   the Donate Now button in the header, which does not change colour on hover either. */
+:where(.button).nav-accent {
+  --btn-bg: #008eb7;
+  --btn-bg-hover: #008eb7;
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+  --btn-ring: transparent;
+  --btn-ring-hover: transparent;
+  --btn-focus: #008eb7;
+}
+
+/* ---- disabled: a state of any style, so it comes last ----
+   A locked gated download also carries aria-disabled, but it still opens the
+   registration form, so it keeps its style and shows the padlock instead. */
+:where(.button):is(:disabled, [aria-disabled="true"]):not(.is-locked) {
+  --btn-bg: var(--button-disabled);
+  --btn-bg-hover: var(--button-disabled);
+  --btn-fg: var(--button-disabled-label);
+  --btn-fg-hover: var(--button-disabled-label);
+  --btn-ring: transparent;
+  --btn-ring-hover: transparent;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark):is(:disabled, [aria-disabled="true"]):not(.is-locked) {
+  --btn-bg: rgb(255 255 255 / 15%);
+  --btn-bg-hover: rgb(255 255 255 / 15%);
+  --btn-fg: rgb(255 255 255 / 75%);
+  --btn-fg-hover: rgb(255 255 255 / 75%);
+}
+
+/* ---- the one painting rule ---- */
+
+/* Where the label sits is layout, so it is a zero-specificity default a block can
+   override: centred on a button, and on a text link the alignment of the copy around it
+   (left in a left column). A block that wants a stretched text link centred sets
+   justify-content: center on it. */
+:where(.button:is(a, button, span, div, input):not(.nav-tool-accent, .nav-search-trigger)) {
+  justify-content: center;
+  text-align: center;
+}
+
+:where(.button.text-link:is(a, button, span, div, input)) {
+  justify-content: flex-start;
+  text-align: inherit;
+}
+
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--button-gap);
+  max-width: 100%;
+  border: 0;
+  border-radius: var(--btn-radius, var(--button-radius));
+  padding:
+    var(--btn-pad-block, var(--button-padding-block))
+    var(--btn-pad-inline, var(--button-padding-inline));
+  font-family: var(--body-font-family);
+  font-size: var(--button-font-size);
+  font-style: normal;
+  font-weight: var(--button-font-weight);
+  line-height: var(--button-line-height);
+  letter-spacing: normal;
+  text-decoration: none;
+  text-transform: none;
+  white-space: normal;
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  box-shadow: inset 0 0 0 var(--button-ring-width) var(--btn-ring);
+  cursor: pointer;
+  transition: var(--button-transition);
+}
+
+/* Layout, not look: default-content buttons have always had this spacing. */
+:where(.button-container) > .button:is(a, button):not(:where(.nav-tool-accent, .nav-search-trigger)) {
+  margin: 12px 0;
+}
+
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)):hover {
+  background-color: var(--btn-bg-hover);
+  color: var(--btn-fg-hover);
+  box-shadow: inset 0 0 0 var(--button-ring-width) var(--btn-ring-hover);
+  text-decoration: var(--btn-hover-decoration, none);
+  text-underline-offset: 4px;
+}
+
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)):focus-visible {
+  outline: 2px solid var(--btn-focus);
+  outline-offset: 2px;
+}
+
+/* A loading button keeps the progress cursor from the skeleton styles, and a locked
+   download the pointer from the gate styles. */
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)):is(:disabled, [aria-disabled="true"]):not(.is-loading, .is-locked) {
+  cursor: not-allowed;
+}
+
+.button.icon:is(a, button, span, div):not(:where(.nav-tool-accent, .nav-search-trigger)) {
   flex-shrink: 0;
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+}
+
+:where(.button).icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Text link is the only style that draws an arrow. It is never typed into
+   the label: decorateButtonText strips any the author or a block adds. */
+:where(.button).text-link::after {
+  content: "\2192";
+  display: inline-block;
+  transition: transform var(--hover-duration) var(--hover-ease);
+}
+
+:where(.button).text-link:hover::after {
+  transform: translateX(3px);
+}
+
+/* A link that leaves the site or opens a new tab carries the external-link glyph
+   after its label, in the label colour; on a text link it takes the arrow's place.
+   Blocks only add .is-external-link, so every button draws it the same way. */
+:where(.button).is-external-link::after {
+  content: "";
+  flex: 0 0 1em;
+  width: 1em;
+  height: 1em;
+  background: currentcolor;
+  mask: url("../icons/external-link.svg") center / contain no-repeat;
+}
+
+/* The painting rule's own selector: a :where() here would lose to its transition. */
+@media (prefers-reduced-motion: reduce) {
+  .button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)),
+  :where(.button).text-link::after {
+    transition: none;
+  }
+}
+
+/* ====================================================================
+   CONTROLS
+   Approved with the buttons 2026-09-13 — "Button & Control Standard".
+
+   Six shared controls. A block adds the class and keeps only layout
+   (placement, position, margins, scrolling); the look, the states and the
+   timing live here, so one edit reaches every instance.
+
+     .accordion (+ .is-card)  faq, amber-still-missing, faon-application,
+                              team-hope-volunteer; report-archive as a card
+     .disclosure              resource-hero "More details"
+     .tab-list > .tab         tabs, report-breakdown, impact-bar-chart and the
+                              case-anniversaries timeframe. Not `.tabs`: that
+                              is the tabs block's own class.
+     .view-toggle             grid/list and map/table switches
+     .pagination              scripts/pagination-controls.js, poster-results
+     .carousel-dots           slide dots. Carousel ARROWS are buttons —
+                              .button.icon with the chevron from
+                              scripts/carousel-utils.js.
+
+   State comes from the attribute assistive tech reads: aria-selected (or
+   aria-pressed) for a tab, aria-pressed for a view, aria-current for a page
+   or a dot, and .is-open / [open] for an accordion or disclosure. Teal is
+   the one selected colour.
+   ==================================================================== */
+
+/* The --control-*, --accordion-* and --tab-* tokens live in :root at the top of this file. */
+@media (width < 900px) {
+  :root {
+    --accordion-padding: 24px 22px 24px 24px;
+    --accordion-label-size: 1.35rem;
+  }
+}
+
+@media (width < 600px) {
+  :root {
+    --accordion-padding: 18px 18px 18px 20px;
+    --accordion-gap: 14px;
+    --accordion-label-size: 1.1rem;
+    --accordion-label-line-height: 1.3;
+  }
+}
+
+/* ---- accordion: .accordion > .accordion-trigger + .accordion-panel ---- */
+.accordion {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: #ddd5cc52;
+  box-shadow: 0 4px 14px rgb(17 58 103 / 0%);
+  transition:
+    border-color var(--accordion-duration) ease,
+    background-color var(--accordion-duration) ease,
+    box-shadow var(--accordion-duration) ease,
+    transform var(--accordion-duration) ease;
+}
+
+.accordion::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--accordion-accent);
+  opacity: 0;
+  transform: scaleY(0.3);
+  transform-origin: center;
+  transition:
+    opacity var(--accordion-duration) ease,
+    transform var(--accordion-icon-duration) var(--accordion-ease);
+}
+
+/* An authoring placeholder wears the card but has nothing to open, so it never lifts. */
+.accordion:where(:has(.accordion-trigger)):hover,
+.accordion:focus-within {
+  border-color: rgb(20 145 191 / 16%);
+  background-color: rgb(244 240 236 / 88%);
+  box-shadow: var(--shadow-3);
+  transform: translateY(var(--hover-lift-row));
+}
+
+/* Open wins over hover and focus, so the card a visitor just opened is white. */
+.accordion.is-open {
+  border-color: rgb(20 145 191 / 20%);
+  background-color: #fff;
+  box-shadow: 0 14px 28px rgb(17 58 103 / 10%);
+}
+
+.accordion.is-open::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--accordion-gap);
+  width: 100%;
+  padding: var(--accordion-padding);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+  text-align: left;
+  transition:
+    background-color var(--accordion-duration) ease,
+    border-color var(--accordion-duration) ease,
+    color var(--accordion-duration) ease;
+}
+
+/* A mouse click focuses the trigger; only keyboard focus draws the ring. */
+.accordion-trigger:focus {
+  outline: none;
+}
+
+.accordion-trigger:focus-visible {
+  outline: 2px solid var(--accordion-focus);
+  outline-offset: -2px;
+}
+
+.accordion-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--accordion-label-color);
+  font-size: var(--accordion-label-size);
+  font-weight: var(--accordion-label-weight);
+  line-height: var(--accordion-label-line-height);
+  letter-spacing: -0.03em;
+}
+
+.accordion-icon {
+  position: relative;
+  display: grid;
+  flex: 0 0 var(--accordion-icon-size);
+  width: var(--accordion-icon-size);
+  height: var(--accordion-icon-size);
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 72%);
+  box-shadow: 0 4px 10px rgb(17 58 103 / 10%);
+  transition:
+    background-color var(--accordion-duration) ease,
+    box-shadow var(--accordion-duration) ease,
+    transform var(--accordion-icon-duration) ease;
+}
+
+.accordion-icon::before,
+.accordion-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--accordion-icon-ink);
+  transform: translate(-50%, -50%);
+  transition:
+    opacity 180ms ease,
+    transform var(--accordion-duration) ease,
+    background-color var(--accordion-duration) ease;
+}
+
+.accordion-icon::before {
+  width: var(--accordion-icon-size);
+  height: 2px;
+}
+
+.accordion-icon::after {
+  width: 2px;
+  height: var(--accordion-icon-size);
+}
+
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon {
+  background: var(--accordion-accent);
+  box-shadow: 0 8px 16px rgb(20 145 191 / 25%);
+  transform: rotate(90deg);
+}
+
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon::before,
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon::after {
+  background: #fff;
+}
+
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon::after {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg) scaleY(0.3);
+}
+
+/* A closed panel is also invisible, so nothing inside it takes keyboard focus. */
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--accordion-panel-duration) var(--accordion-ease),
+    visibility 0s linear var(--accordion-panel-duration);
+}
+
+/* The collapse is a 0fr grid row, which cannot shrink a child below its own padding and
+   border. Forms and cards pad that child, so a closed panel folds those away too. */
+.accordion-panel > * {
+  min-height: 0;
+  overflow: hidden;
+  transition:
+    padding-block var(--accordion-panel-duration) var(--accordion-ease),
+    border-block-width var(--accordion-panel-duration) var(--accordion-ease);
+}
+
+.accordion:not(.is-open) .accordion-panel > * {
+  padding-block: 0;
+  border-block-width: 0;
+}
+
+.accordion.is-open .accordion-panel {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows var(--accordion-panel-duration) var(--accordion-ease);
+}
+
+/* ---- accordion, card form: shares the type, icon and timing ---- */
+.accordion.is-card {
+  --accordion-padding: 20px 24px;
+
+  border-color: rgb(0 46 93 / 14%);
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: none;
+  transform: none;
+}
+
+.accordion.is-card::before {
+  display: none;
+}
+
+.accordion.is-card .accordion-trigger {
+  border-bottom: 1px solid transparent;
+}
+
+.accordion.is-card .accordion-trigger:hover {
+  background-color: rgb(0 46 93 / 4%);
+}
+
+.accordion.is-card.is-open .accordion-trigger {
+  border-bottom-color: rgb(0 46 93 / 10%);
+}
+
+@media (width <= 640px) {
+  .accordion.is-card {
+    --accordion-padding: 16px 18px;
+  }
+}
+
+/* ---- disclosure: a <details> that shares the accordion icon and timing ---- */
+.disclosure > summary {
+  --accordion-icon-size: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  min-height: 2.35rem;
+  padding: 0.42rem 0.8rem;
+  background: rgb(255 255 255 / 22%);
+  color: rgb(0 38 77 / 72%);
+  font-size: var(--caption-size);
+  font-weight: 900;
+  line-height: 1.2;
+  list-style: none;
+  cursor: pointer;
+  transition:
+    background-color var(--accordion-duration) ease,
+    color var(--accordion-duration) ease;
+}
+
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure > summary:hover,
+.disclosure[open] > summary {
+  background: rgb(255 255 255 / 42%);
+  color: var(--button-primary);
+}
+
+.disclosure > summary:focus-visible {
+  outline: 2px solid var(--accordion-focus);
+  outline-offset: -2px;
+}
+
+/* ---- tabs: .tab-list > .tab ---- */
+.tab-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: var(--tab-padding);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tab-ink);
+  font-size: var(--tab-font-size);
+  font-weight: var(--tab-font-weight);
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--control-duration) ease,
+    color var(--control-duration) ease;
+}
+
+.tab:hover {
+  background-color: var(--control-hover);
+}
+
+.tab:is([aria-selected="true"], [aria-pressed="true"]) {
+  background-color: var(--control-selected);
+  color: var(--control-selected-label);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.tab-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
   width: 20px;
-  height: 21px;
-  background-color: currentcolor;
-  mask:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 20 21' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.4997 1.78125H4.99967C4.55765 1.78125 4.13372 1.95684 3.82116 2.26941C3.5086 2.58197 3.33301 3.00589 3.33301 3.44792V16.7812C3.33301 17.2233 3.5086 17.6472 3.82116 17.9598C4.13372 18.2723 4.55765 18.4479 4.99967 18.4479H14.9997C15.4417 18.4479 15.8656 18.2723 16.1782 17.9598C16.4907 17.6472 16.6663 17.2233 16.6663 16.7812V5.94792L12.4997 1.78125Z' stroke='black' stroke-width='1.45833' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M11.667 1.78125V5.11458C11.667 5.55661 11.8426 5.98053 12.1551 6.29309C12.4677 6.60566 12.8916 6.78125 13.3337 6.78125H16.667' stroke='black' stroke-width='1.45833' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 15.1133V10.1133' stroke='black' stroke-width='1.45833' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M7.5 12.6133L10 15.1133L12.5 12.6133' stroke='black' stroke-width='1.45833' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
-    no-repeat center / contain;
+  height: 20px;
+}
+
+.tab-icon :is(img, picture, svg) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Authored tab icons are dark artwork; on the teal pill they turn white. */
+.tab:is([aria-selected="true"], [aria-pressed="true"]) .tab-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* On a dark surface (marked .is-on-dark, as for buttons) the idle label is white and the
+   selected pill is white with a navy label: teal on navy does not read. */
+.is-on-dark .tab {
+  color: #fff;
+}
+
+.is-on-dark .tab:hover {
+  background-color: rgb(255 255 255 / 16%);
+}
+
+.is-on-dark .tab:is([aria-selected="true"], [aria-pressed="true"]) {
+  background-color: #fff;
+  color: var(--button-navy);
+}
+
+.is-on-dark .tab:focus-visible {
+  outline-color: #fff;
+}
+
+.is-on-dark .tab:is([aria-selected="true"], [aria-pressed="true"]) .tab-icon {
+  filter: none;
+}
+
+/* ---- view toggle: .view-toggle > .view-toggle-button[aria-pressed] ---- */
+.view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #d8e1e7;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgb(22 50 74 / 7%);
+}
+
+.view-toggle-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: transparent;
+  color: #5a6b7d;
+  cursor: pointer;
+  transition:
+    background-color var(--control-duration) ease,
+    color var(--control-duration) ease;
+}
+
+.view-toggle-button:hover {
+  background-color: var(--control-hover);
+}
+
+.view-toggle-button[aria-pressed="true"] {
+  background-color: var(--control-selected);
+  color: var(--control-selected-label);
+}
+
+.view-toggle-button:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.view-toggle-button > span {
+  display: grid;
+  place-items: center;
+}
+
+.view-toggle-button svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+/* ---- pagination ---- */
+.pagination {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pagination[hidden] {
+  display: none;
+}
+
+.pagination-pages {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pagination-label {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pagination-status {
+  color: #3f4b53;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #d8e1e7;
+  border-radius: 999px;
+  background: #fff;
+  color: #243846;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color var(--control-duration) ease,
+    border-color var(--control-duration) ease,
+    color var(--control-duration) ease;
+}
+
+.pagination-page {
+  padding-inline: 12px;
+}
+
+.pagination-step {
+  padding: 0;
+}
+
+.pagination-step svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pagination-button[aria-current="page"] {
+  border-color: var(--control-selected);
+  background-color: var(--control-selected);
+  color: var(--control-selected-label);
+}
+
+.pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.pagination-button:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.pagination-button:hover:not(:disabled, [aria-current="page"]) {
+  background-color: #eef3f6;
+}
+
+.pagination-ellipsis {
+  min-width: 20px;
+  color: #64788a;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---- carousel dots: a 24px target drawing a small bar; the current one is long and teal ---- */
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.carousel-dot {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.carousel-dot::before {
+  content: "";
+  width: 8px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--carousel-dot-idle);
+  transition:
+    width 300ms ease,
+    background-color 200ms ease;
+}
+
+.carousel-dot:hover::before {
+  background: #4f6576;
+}
+
+.carousel-dot[aria-current="true"]::before {
+  width: 28px;
+  background: var(--control-selected);
+}
+
+.carousel-dot:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.is-on-dark .carousel-dot::before {
+  background: rgb(255 255 255 / 55%);
+}
+
+.is-on-dark .carousel-dot[aria-current="true"]::before {
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion,
+  .accordion::before,
+  .accordion-trigger,
+  .accordion-icon,
+  .accordion-icon::before,
+  .accordion-icon::after,
+  .accordion-panel,
+  .disclosure > summary,
+  .tab,
+  .view-toggle-button,
+  .pagination-button,
+  .carousel-dot::before {
+    transition: none;
+  }
 }
 
 main img {

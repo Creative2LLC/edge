@@ -9,6 +9,16 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isAppendedStyleValue,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const BLOCK_FIELD_NAMES = [
   'image',
@@ -74,7 +84,8 @@ function getFallbackCell(scope, index) {
   const plainTextCells = parentCells.filter((cell) => {
     const text = cell.textContent.trim();
     if (!text || cell.querySelector('picture') || cell.querySelector('a[href]')) return false;
-    return !COLOR_PATTERN.test(text) && !SIZE_PATTERN.test(text) && !STYLING_PATTERN.test(text);
+    return !COLOR_PATTERN.test(text) && !SIZE_PATTERN.test(text) && !STYLING_PATTERN.test(text)
+      && !isAppendedStyleValue(text);
   });
   const colorCells = parentCells.filter((cell) => COLOR_PATTERN.test(cell.textContent.trim()));
   const linkCells = parentCells.filter((cell) => {
@@ -220,31 +231,50 @@ function buildBody(bodySource, textColor) {
   return body.textContent.trim() ? body : null;
 }
 
-function buildButton(textField, linkField, className) {
+function buildButton(textField, linkField, className, style, isAuthoring) {
   const href = linkField.value;
   const label = textField.value || href;
   if (!label) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!href && !isAuthoring) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
   button.className = className;
-  if (href) button.href = href;
+  if (href) {
+    button.href = href;
+  } else {
+    button.setAttribute('aria-disabled', 'true');
+    button.title = 'Add a link to publish this button';
+  }
 
   moveFieldContent(textField, button, label);
   if (linkField.source) moveInstrumentation(linkField.source, button);
 
-  return button;
+  // The look comes from the button standard.
+  return applyButtonStyle(button, style);
 }
 
-function buildActions(primaryTextField, primaryLinkField, secondaryTextField, secondaryLinkField) {
+function buildActions(
+  primaryTextField,
+  primaryLinkField,
+  secondaryTextField,
+  secondaryLinkField,
+  isAuthoring,
+) {
   const primaryButton = buildButton(
     primaryTextField,
     primaryLinkField,
     'split-card-gap-button split-card-gap-button-primary',
+    'primary',
+    isAuthoring,
   );
   const secondaryButton = buildButton(
     secondaryTextField,
     secondaryLinkField,
     'split-card-gap-button split-card-gap-button-secondary',
+    'secondary',
+    isAuthoring,
   );
 
   if (!primaryButton && !secondaryButton) return null;
@@ -351,7 +381,7 @@ function buildBenefitItem(data, textColor) {
   return item;
 }
 
-export default function decorate(block) {
+function decorateBlock(block) {
   const imageField = getImageField(block, 'image', 0);
   const imageAltField = getField(block, 'imageAlt', 1);
   const headingSource = getRichField(block, 'heading', 2);
@@ -441,9 +471,30 @@ export default function decorate(block) {
     primaryButtonLinkField,
     secondaryButtonTextField,
     secondaryButtonLinkField,
+    hasAuthoringContext(block),
   );
   if (actions) content.append(actions);
+  // Variant 2's panel is transparent, so its buttons sit on the section colour.
+  const contentDark = isVariant2 ? isOnDarkSection(block) : isDarkSurface(contentBackgroundColor);
+  markButtonSurface(content, contentDark);
 
   inner.append(content);
   block.replaceChildren(inner);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [primaryButtonStyle, secondaryButtonStyle] = readAppendedStyles(
+    block,
+    ['primaryButtonStyle', 'secondaryButtonStyle'],
+    getParentRows(block),
+  );
+  decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.split-card-gap-button-primary': primaryButtonStyle,
+    '.split-card-gap-button-secondary': secondaryButtonStyle,
+  });
 }

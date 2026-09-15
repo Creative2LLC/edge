@@ -94,17 +94,9 @@
   margin: 0;
 }
 
-/* Link */
+/* Link: the Text link style from the button standard; this only places it. */
 .card-row-compact-card-link {
-  font-size: 15px;
-  font-weight: 400;
-  color: #007294;
-  text-decoration: none;
   margin-top: auto;
-}
-
-.card-row-compact-card-link:hover {
-  text-decoration: underline;
 }
 
 /* === Responsive === */

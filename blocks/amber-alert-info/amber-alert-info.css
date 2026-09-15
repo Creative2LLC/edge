@@ -89,34 +89,8 @@
   margin-bottom: 0;
 }
 
-.amber-alert-info .amber-alert-info-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  border-radius: 99px;
-  background-color: #fff;
-  color: #e13e30;
-  font-weight: var(--body-weight-medium);
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-  border: 1px solid transparent;
-  box-sizing: border-box;
-  transition: opacity 0.2s ease;
-}
-
-.amber-alert-info .amber-alert-info-button-outlined {
-  background-color: transparent;
-  color: #fff;
-  border: 1px solid #fff;
-}
-
-.amber-alert-info .amber-alert-info-button:hover {
-  opacity: 0.9;
-  text-decoration: none;
-}
+/* Button: styled by the button standard in styles/styles.css (dark form, since
+   the panel is coloured). */
 
 /* Right column of the right side (stats) */
 .amber-alert-info .amber-alert-info-stats {
@@ -195,9 +169,5 @@
   .amber-alert-info .amber-alert-info-title,
   .amber-alert-info .amber-alert-info-subtitle {
     overflow-wrap: break-word;
-  }/* Let the button label wrap rather than forcing a single nowrap line. */
-  .amber-alert-info .amber-alert-info-button {
-    white-space: normal;
-    text-align: center;
   }
 }

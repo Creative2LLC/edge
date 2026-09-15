@@ -9,6 +9,14 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 // Hex-color "select" fields never get data-aue-prop instrumentation in the editor (see
 // getColorField below), so their positional fallback is only as reliable as the fixed
@@ -267,6 +275,9 @@ function hasKnownCardStyle(value) {
 }
 
 function normalizeButtonStyle(value) {
+  // A style picked from the new dropdown passes straight through.
+  const picked = String(value || '').trim().toLowerCase();
+  if (BUTTON_STYLES.includes(picked)) return picked;
   const normalizedValue = normalizeStyleKey(value);
 
   if (['outline', 'outlined', 'border', 'bordered'].includes(normalizedValue)) {
@@ -298,7 +309,8 @@ function hasKnownButtonStyle(value) {
     'text',
     'plain',
   ]
-    .includes(normalizeStyleKey(value));
+    .includes(normalizeStyleKey(value))
+    || BUTTON_STYLES.includes(String(value || '').trim().toLowerCase());
 }
 
 function normalizeCssSize(value) {
@@ -501,59 +513,15 @@ function buildBody(content, data) {
   content.append(body);
 }
 
-function styleCardButton(btn, buttonBg, buttonStyle, cardBg, variant) {
-  const isVolunteerVariant = variant === 'volunteer';
-  const normalizedStyle = normalizeButtonStyle(buttonStyle);
-
-  btn.classList.remove('is-solid', 'is-outlined', 'is-link');
-
-  if (normalizedStyle === 'link') {
-    const linkColor = buttonBg || '#008db6';
-    btn.classList.add('is-link');
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('color', linkColor, 'important');
-    btn.style.setProperty('border', 'none', 'important');
-    return;
-  }
-
-  if (normalizedStyle === 'outlined') {
-    const accentColor = buttonBg || (isVolunteerVariant ? '#008db6' : '#ffffff');
-    btn.classList.add('is-outlined');
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('color', accentColor, 'important');
-    btn.style.setProperty('border', `2px solid ${accentColor}`, 'important');
-    return;
-  }
-
-  if (normalizedStyle === 'solid') {
-    const solidBg = buttonBg || '#008db6';
-    const solidText = buttonBg && !isVolunteerVariant ? cardBg : '#ffffff';
-    btn.classList.add('is-solid');
-    btn.style.setProperty('background-color', solidBg, 'important');
-    btn.style.setProperty('color', solidText, 'important');
-    btn.style.setProperty('border', 'none', 'important');
-    return;
-  }
-
-  if (buttonBg) {
-    btn.classList.add('is-solid');
-    btn.style.setProperty('background-color', buttonBg, 'important');
-    btn.style.setProperty('color', isVolunteerVariant ? '#ffffff' : cardBg, 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  } else if (isVolunteerVariant) {
-    btn.classList.add('is-solid');
-    btn.style.setProperty('background-color', '#008db6', 'important');
-    btn.style.setProperty('color', '#ffffff', 'important');
-    btn.style.setProperty('border', 'none', 'important');
-  } else {
-    btn.classList.add('is-outlined');
-    btn.style.setProperty('background-color', cardBg, 'important');
-    btn.style.setProperty('color', '#ffffff', 'important');
-    btn.style.setProperty('border', '2px solid #ffffff', 'important');
-  }
+// The look comes from the button standard. The style dropdown wins; a default style
+// falls back to the old colour picker (gold -> AMBER, red -> Emergency). With neither,
+// volunteer cards keep their solid button and other cards their outlined one.
+function styleCardButton(btn, buttonBg, buttonStyle, variant) {
+  const fallback = variant === 'volunteer' ? 'primary' : 'secondary';
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(buttonStyle, buttonBg, fallback));
 }
 
-function buildCardButton(buttonData, cardBg, variant) {
+function buildCardButton(buttonData, variant) {
   const btnLabel = buttonData.textField.value;
   const btnHref = buttonData.linkField.value;
   if (!btnLabel && !btnHref) return null;
@@ -566,7 +534,7 @@ function buildCardButton(buttonData, cardBg, variant) {
   if (buttonData.textField.source) moveInstrumentation(buttonData.textField.source, btn);
   if (buttonData.linkField.source) moveInstrumentation(buttonData.linkField.source, btn);
 
-  styleCardButton(btn, buttonData.backgroundColor, buttonData.style, cardBg, variant);
+  styleCardButton(btn, buttonData.backgroundColor, buttonData.style, variant);
   return btn;
 }
 
@@ -577,19 +545,21 @@ function buildButtons(card, data, cardBg, variant) {
       linkField: data.buttonLinkField,
       backgroundColor: data.buttonBg,
       style: data.buttonStyle,
-    }, cardBg, variant),
+    }, variant),
     buildCardButton({
       textField: data.button2TextField,
       linkField: data.button2LinkField,
       backgroundColor: data.button2Bg,
       style: data.button2Style,
-    }, cardBg, variant),
+    }, variant),
   ].filter(Boolean);
 
   if (!buttons.length) return;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'info-cards-grid-card-buttons';
+  // Cards default to dark navy, so their buttons usually take the dark form.
+  markButtonSurface(wrapper, isDarkSurface(cardBg));
   buttons.forEach((button) => wrapper.append(button));
   card.append(wrapper);
 }
@@ -605,7 +575,12 @@ function buildSectionText(field, tagName, className) {
   return element;
 }
 
-function buildSectionButton(textField, linkField, className = 'info-cards-grid-section-button') {
+function buildSectionButton(
+  textField,
+  linkField,
+  className = 'info-cards-grid-section-button',
+  style = 'primary',
+) {
   const label = textField?.value || '';
   const href = linkField?.value || '';
   if (!label && !href) return null;
@@ -618,6 +593,7 @@ function buildSectionButton(textField, linkField, className = 'info-cards-grid-s
   if (textField?.source) moveInstrumentation(textField.source, button);
   if (linkField?.source) moveInstrumentation(linkField.source, button);
 
+  applyButtonStyle(button, style);
   return button;
 }
 
@@ -1112,15 +1088,23 @@ export default function decorate(block) {
   introContent.className = 'info-cards-grid-intro-content';
   const introHeading = buildSectionText(sectionHeadingField, 'h2', 'info-cards-grid-section-heading');
   const introSubheading = buildSectionText(sectionSubheadingField, 'p', 'info-cards-grid-section-subheading');
+  // The intro button was slate (greys are Secondary now) unless Button Top made it blue.
   const introButton = buildSectionButton(
     introButtonTextField,
     introButtonLinkField,
     'info-cards-grid-intro-button',
+    styleVariantField.value === 'button-top' ? 'primary' : 'secondary',
   );
   if (introHeading) introContent.append(introHeading);
   if (introSubheading) introContent.append(introSubheading);
   if (introContent.childElementCount) intro.append(introContent);
-  if (introButton) intro.append(introButton);
+  // Intro and footer buttons sit on the block, which is transparent except in the
+  // volunteer style (a light panel).
+  const onDarkSection = variant !== 'volunteer' && isOnDarkSection(block);
+  if (introButton) {
+    markButtonSurface(introButton, onDarkSection);
+    intro.append(introButton);
+  }
   if (intro.childElementCount) shell.append(intro);
 
   const grid = document.createElement('div');
@@ -1148,7 +1132,10 @@ export default function decorate(block) {
   const footerText = buildSectionText(footerTextField, 'p', 'info-cards-grid-footer-text');
   const sectionButton = buildSectionButton(sectionButtonTextField, sectionButtonLinkField);
   if (footerText) footer.append(footerText);
-  if (sectionButton) footer.append(sectionButton);
+  if (sectionButton) {
+    markButtonSurface(sectionButton, onDarkSection);
+    footer.append(sectionButton);
+  }
   if (footer.childElementCount) shell.append(footer);
 
   block.replaceChildren(shell);

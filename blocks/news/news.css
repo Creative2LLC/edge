@@ -27,31 +27,9 @@
   margin: 8px 0 0;
 }
 
-.news .news-header-button,
-.news .news-header-button:any-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* Header and View More buttons: styled by the button standard in styles/styles.css. */
+.news .news-header-button {
   flex-shrink: 0;
-  padding: 12px 24px;
-  border: 0;
-  border-radius: 99px;
-  background-color: #3b5060;
-  color: #dfe1e3;
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.news .news-header-button:hover,
-.news .news-header-button:focus {
-  opacity: 0.9;
-  text-decoration: none;
 }
 
 /* Featured card (horizontal) */
@@ -114,17 +92,9 @@
   display: inline-block;
 }
 
-/* Read more link */
+/* Read more link: the Text link style from the button standard; this only places it. */
 .news .news-read-more {
-  color: #007294;
-  font-weight: 600;
-  text-decoration: none;
   margin-top: auto;
-  font-size: 15px;
-}
-
-.news .news-read-more:hover {
-  text-decoration: underline;
 }
 
 /* Small cards grid */
@@ -193,22 +163,6 @@
 .news .news-button-wrapper {
   text-align: center;
   margin-top: 32px;
-}
-
-.news .news-button {
-  background: #0d273b;
-  color: rgb(255 255 255 / 83%);
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 99px;
-  padding: 12px 32px;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-}
-
-.news .news-button:hover {
-  opacity: 0.9;
 }
 
 /* Responsive */

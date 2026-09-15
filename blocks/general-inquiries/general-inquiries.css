@@ -95,6 +95,8 @@
 }
 
 .general-inquiries .general-inquiries-dropdown-trigger {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -214,36 +216,15 @@
   color: #a13a31;
 }
 
+/* Submit: styled by the button standard in styles/styles.css. It was AMBER gold;
+   the client reserves AMBER for AMBER Alerts, so it is Primary now. */
 .general-inquiries .general-inquiries-submit {
   margin: 0 0 0 auto;
-  border: 0;
-  border-radius: 999px;
-  padding: 16px 28px;
-  background: #e38b22;
-  color: #fff;
-  font-family: var(--body-font-family);
-  font-size: 1.08rem;
-  font-weight: 700;
-  line-height: 1;
-  box-shadow: 0 16px 28px rgb(227 139 34 / 26%);
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
 }
 
-.general-inquiries .general-inquiries-submit:hover,
-.general-inquiries .general-inquiries-submit:focus-visible {
-  background: #d17f1d;
-  transform: translateY(-1px);
-  box-shadow: 0 18px 34px rgb(209 127 29 / 30%);
-}
-
-.general-inquiries.is-submitting .general-inquiries-submit,
-.general-inquiries .general-inquiries-submit:disabled {
-  transform: none;
-  background: #e1b984;
-  box-shadow: none;
+.general-inquiries.is-submitting .general-inquiries-submit {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .general-inquiries .general-inquiries-sr-only {
@@ -343,37 +324,9 @@
   color: #404041;
 }
 
+/* Support CTA: styled by the button standard in styles/styles.css; this only places it. */
 .general-inquiries.general-inquiries-support-mode .general-inquiries-support-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   margin: 36px 0 32px;
-  padding: 14.55px 48px;
-  border-radius: 999px;
-  background: #008db6;
-  color: #fff;
-  text-decoration: none;
-  transition:
-    transform 180ms ease,
-    background-color 180ms ease;
-}
-
-.general-inquiries.general-inquiries-support-mode .general-inquiries-support-cta::after {
-  content: none;
-}
-
-.general-inquiries.general-inquiries-support-mode .general-inquiries-support-cta:hover,
-.general-inquiries.general-inquiries-support-mode .general-inquiries-support-cta:focus-visible {
-  background: #007ca1;
-  transform: translateY(-1px);
-  box-shadow: none;
-}
-
-.general-inquiries.general-inquiries-support-mode .general-inquiries-support-cta-label {
-  color: #fff;
-  font-weight: var(--body-weight-strong);
-  line-height: 1;
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-copy {
@@ -465,17 +418,6 @@
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-actions {
   justify-content: flex-end;
-}
-
-.general-inquiries.general-inquiries-support-mode .general-inquiries-submit {
-  background: #008DB6;
-  box-shadow: 0 16px 28px rgb(0 141 182 / 22%);
-}
-
-.general-inquiries.general-inquiries-support-mode .general-inquiries-submit:hover,
-.general-inquiries.general-inquiries-support-mode .general-inquiries-submit:focus-visible {
-  background: #007ca1;
-  box-shadow: 0 18px 34px rgb(0 141 182 / 26%);
 }
 
 @media (width < 768px) {

@@ -1,5 +1,12 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readLinkField, readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   title: 0,
@@ -44,7 +51,9 @@ function isTextAlignValue(value) {
 }
 
 function isButtonStyleValue(value) {
-  return /^(?:solid|outlined)$/i.test(String(value || '').trim());
+  // Legacy values plus the seven the style dropdown now stores.
+  const style = String(value || '').trim().toLowerCase();
+  return ['solid', 'outlined', ...BUTTON_STYLES].includes(style);
 }
 
 function isLengthSettingValue(value) {
@@ -211,31 +220,30 @@ function buildButton(block, fallbackCells, isEditor) {
   const buttonLinkField = getLinkField(block, fallbackCells, 'buttonLink', isEditor);
   const buttonStyleField = getField(block, fallbackCells, 'buttonStyle', isEditor, true);
   const buttonColorField = getField(block, fallbackCells, 'buttonColor', isEditor, true);
-  const buttonTextColorField = getField(block, fallbackCells, 'buttonTextColor', isEditor, true);
+
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  const href = buttonLinkField.value;
+  if (!href && !isEditor) return null;
 
   const style = (buttonStyleField.value || 'solid').toLowerCase();
-  const bgColor = normalizeColorValue(buttonColorField.value) || '#008db6';
-  const textColor = normalizeColorValue(buttonTextColorField.value)
-    || (style === 'outlined' ? bgColor : '#ffffff');
-
-  const href = buttonLinkField.value;
   const btn = document.createElement(href ? 'a' : 'span');
   btn.className = `section-title-button section-title-button-${style}`;
-  if (href) btn.href = href;
+  if (href) {
+    btn.href = href;
+  } else {
+    btn.setAttribute('aria-disabled', 'true');
+    btn.title = 'Add a link to publish this button';
+  }
   btn.textContent = buttonTextField.value;
   if (buttonTextField.source) {
     moveInstrumentation(buttonTextField.source, btn);
   }
 
-  if (style === 'outlined') {
-    btn.style.setProperty('background-color', 'transparent', 'important');
-    btn.style.setProperty('border', `1.5px solid ${bgColor}`, 'important');
-    btn.style.setProperty('color', textColor, 'important');
-  } else {
-    btn.style.setProperty('background-color', bgColor, 'important');
-    btn.style.setProperty('border', `1.5px solid ${bgColor}`, 'important');
-    btn.style.setProperty('color', textColor, 'important');
-  }
+  // The look comes from the button standard; the old colour picker only chooses the style.
+  const color = normalizeColorValue(buttonColorField.value);
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(style, color));
+  markButtonSurface(btn, isOnDarkSection(block));
 
   return btn;
 }

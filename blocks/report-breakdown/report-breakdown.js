@@ -1050,7 +1050,7 @@ export default async function decorate(block) {
   tabsShell.className = 'report-breakdown-tabs-shell report-breakdown-reveal';
 
   const tabList = document.createElement('div');
-  tabList.className = 'report-breakdown-tabs';
+  tabList.className = 'report-breakdown-tabs tab-list';
   tabList.setAttribute('role', 'tablist');
   tabList.setAttribute('aria-label', 'Report years');
 
@@ -1060,7 +1060,7 @@ export default async function decorate(block) {
     const isActive = dataset.year === state.activeYear;
 
     button.type = 'button';
-    button.className = 'report-breakdown-tab';
+    button.className = 'report-breakdown-tab tab';
     button.id = `${state.instanceId}-tab-${sanitizedYear}`;
     button.textContent = dataset.year;
     button.setAttribute('role', 'tab');

@@ -130,23 +130,7 @@
   margin-top: 1.5rem;
 }
 
-.resource-detail .resource-detail-primary-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3rem;
-  padding: 0.85rem 1.4rem;
-  border-radius: 999px;
-  background: #f2a44d;
-  color: #1f2933;
-  font-weight: var(--body-weight-bold);
-  text-decoration: none;
-  box-shadow: 0 14px 28px rgb(242 164 77 / 24%);
-}
-
-.resource-detail .resource-detail-primary-action:hover {
-  background: #e7963c;
-}
+/* Download button: styled by the button standard in styles/styles.css. */
 
 .resource-detail .resource-detail-article {
   position: relative;

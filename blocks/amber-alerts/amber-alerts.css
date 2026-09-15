@@ -56,33 +56,21 @@
   padding: 8px 12px;
 }
 
-.amber-alerts-card-actions a,
+/* Card action: styled by the button standard in styles/styles.css (AMBER). */
 .amber-alerts-detail-back {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  border: 0;
-  border-radius: 6px;
-  background: #007294;
-  color: #fff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 18px;
-  font-weight: 900;
+  margin-bottom: 20px;
   padding: 0 24px;
-  text-decoration: none;
-}
-
-.amber-alerts-detail-back {
   border: 1px solid #c7d1d8;
+  border-radius: 6px;
   background: #fff;
   color: #243846;
-  margin-bottom: 20px;
-}
-
-.amber-alerts-card-actions a:hover {
-  background: #005f7d;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
 }
 
 .amber-alerts-detail-back:hover {
@@ -349,7 +337,6 @@
 }
 
 .amber-alerts-filter select:focus-visible,
-.amber-alerts-card-actions a:focus-visible,
 .amber-alerts-detail-back:focus-visible {
   outline: 2px solid #007294;
   outline-offset: 2px;

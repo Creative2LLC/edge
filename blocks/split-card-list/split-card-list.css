@@ -45,26 +45,7 @@
   margin-bottom: 0;
 }
 
-/* Left side button */
-.split-card-list .scl-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-.split-card-list .scl-button:hover {
-  opacity: 0.85;
-  text-decoration: none;
-}
+/* Left side button: styled by the button standard in styles/styles.css. */
 
 /* Right side — cards container */
 .split-card-list .scl-cards {
@@ -122,26 +103,9 @@
   flex-shrink: 0;
 }
 
-/* Statement card button */
+/* Statement card button: styled by the button standard; this only places it. */
 .split-card-list .scl-statement-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
   flex-shrink: 0;
-}
-
-.split-card-list .scl-statement-button:hover {
-  opacity: 0.85;
-  text-decoration: none;
 }
 
 /* Email card style */

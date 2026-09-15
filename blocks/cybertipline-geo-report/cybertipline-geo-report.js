@@ -886,7 +886,7 @@ function setActiveGeoView(shell, view) {
 
 function buildViewToggle(shell) {
   const toggle = document.createElement('div');
-  toggle.className = 'cybertipline-geo-report-view-toggle';
+  toggle.className = 'cybertipline-geo-report-view-toggle view-toggle';
   toggle.setAttribute('role', 'group');
   toggle.setAttribute('aria-label', 'Choose geography view');
 
@@ -896,7 +896,7 @@ function buildViewToggle(shell) {
   ].forEach(([view, label]) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'cybertipline-geo-report-view-toggle-button';
+    button.className = 'cybertipline-geo-report-view-toggle-button view-toggle-button';
     button.dataset.view = view;
     button.setAttribute('aria-label', label);
     button.setAttribute('aria-pressed', 'false');

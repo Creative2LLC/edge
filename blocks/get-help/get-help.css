@@ -30,7 +30,11 @@
   font-weight: 700;
   line-height: 1;
   background: #e38b22;
-  color: #fff;
+
+  /* Client exception: this button keeps its own look, except the label is dark
+     whether the panel is closed or open. White on this orange is 2.67:1;
+     #1b1b1b is 7.98:1. The icons are dark copies for the same reason. */
+  color: #1b1b1b;
   box-shadow: 0 14px 32px rgb(0 0 0 / 35%);
   transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
 }

@@ -114,16 +114,9 @@
   text-align: left;
 }
 
-/* Link */
+/* Link: the Text link style from the button standard; this only places it. */
 .image-text-card-row .image-text-card-row-card-link {
-  color: #007294;
-  font-weight: var(--body-weight-medium);
-  text-decoration: none;
   margin-top: auto;
-}
-
-.image-text-card-row .image-text-card-row-card-link:hover {
-  text-decoration: underline;
 }
 
 /* ---------- Image alignment (object-position) ---------- */

@@ -34,6 +34,7 @@ import {
 } from '../../scripts/resource-gate.js';
 import { trackEvent } from '../../scripts/analytics.js';
 import buildResourceAuthoringToolbar from '../../scripts/resource-authoring-toolbar.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const LOCKED_LABEL = 'Locked';
 
@@ -1161,6 +1162,9 @@ function buildPreview(entry, width = 400) {
 function buildDownloadButton(entry, withWatch = false) {
   const link = document.createElement('a');
   link.className = 'resource-downloads-item-button';
+  // The look comes from the button standard; beside a Watch button the download is
+  // Secondary. The card keeps its file-type colour, the button no longer uses it.
+  applyButtonStyle(link, withWatch ? 'secondary' : 'primary');
   // "Button Label" is documented as the override for the item's single action
   // ("Download PDF, Download PowerPoint, Watch Video..."), so on a video item it
   // names the Watch button. When both render, Watch keeps the authored label and
@@ -1209,6 +1213,7 @@ function buildWatchButton(entry) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'resource-downloads-item-button resource-downloads-watch-button';
+  applyButtonStyle(button, 'primary');
   button.textContent = entry.item.buttonLabel || 'Watch Video';
 
   const play = () => {

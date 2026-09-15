@@ -73,6 +73,8 @@
 }
 
 .event-calendar .event-calendar-featured-card {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
   display: grid;
   gap: 0;
   min-width: 0;
@@ -166,6 +168,9 @@
 }
 
 .event-calendar .event-calendar-view-toggle button {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
+  border-radius: 2.4em;
   min-width: 118px;
   border: 0;
   padding: 12px 20px;

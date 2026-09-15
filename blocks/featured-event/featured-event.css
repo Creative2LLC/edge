@@ -162,36 +162,16 @@
   color: #404041;
 }
 
-/* ---------- CTA button ---------- */
+/* ---------- CTA button: styled by the button standard in styles/styles.css;
+   this only places it. ---------- */
 .featured-event .featured-event-cta {
   align-self: flex-start;
   margin-top: auto;
-  display: inline-flex;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 99px;
-  background-color: #008db6;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
 }
 
 /* Space between the details grid and the button when the card body isn't full. */
 .featured-event .featured-event-details + .featured-event-cta {
   margin-top: 28px;
-}
-
-.featured-event .featured-event-cta:hover,
-.featured-event .featured-event-cta:focus,
-.featured-event .featured-event-cta:focus-visible {
-  color: #fff;
-  opacity: 0.9;
-  outline: none;
 }
 
 /* ---------- Responsive ---------- */

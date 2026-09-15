@@ -6,6 +6,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle, resolveButtonStyle } from '../../scripts/button-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -25,18 +26,16 @@ function getRichTextField(row, name, index) {
   return { source: field.source, value: field.html };
 }
 
-function buildButton(label, href, color, textColor, sourceEl) {
+function buildButton(label, href, color, sourceEl) {
   const btn = document.createElement(href ? 'a' : 'button');
   btn.className = 'card-row-detailed-button';
   btn.textContent = label;
   if (href) btn.href = href;
   if (!href) btn.type = 'button';
   if (sourceEl) moveInstrumentation(sourceEl, btn);
-  if (color) {
-    btn.style.setProperty('background-color', color, 'important');
-    btn.style.setProperty('border', `2px solid ${color}`, 'important');
-  }
-  if (textColor) btn.style.setProperty('--btn-text-color', textColor);
+  // The look comes from the button standard. With no colour chosen this button was an
+  // outline, so that stays Secondary; a chosen colour picks the nearest style.
+  applyButtonStyle(btn, resolveButtonStyle(color, 'secondary'));
   return btn;
 }
 
@@ -118,13 +117,7 @@ function buildCard(data) {
   const btnLabel = data.buttonTextField.value;
   const btnHref = data.buttonLinkField.value;
   if (btnLabel) {
-    const btn = buildButton(
-      btnLabel,
-      btnHref,
-      data.buttonColor,
-      data.buttonTextColor,
-      data.buttonTextField.source,
-    );
+    const btn = buildButton(btnLabel, btnHref, data.buttonColor, data.buttonTextField.source);
     content.append(btn);
   }
 
@@ -147,13 +140,7 @@ function buildCard(data) {
   const btn2Label = data.button2TextField.value;
   const btn2Href = data.button2LinkField.value;
   if (btn2Label) {
-    const btn2 = buildButton(
-      btn2Label,
-      btn2Href,
-      data.button2Color,
-      data.button2TextColor,
-      data.button2TextField.source,
-    );
+    const btn2 = buildButton(btn2Label, btn2Href, data.button2Color, data.button2TextField.source);
     content.append(btn2);
   }
 
@@ -180,12 +167,10 @@ export default function decorate(block) {
     const buttonTextField = getField(row, 'buttonText', 5);
     const buttonLinkField = getLinkField(row, 'buttonLink', 6);
     const buttonColorField = getField(row, 'buttonColor', 7);
-    const buttonTextColorField = getField(row, 'buttonTextColor', 8);
     const additionalTextField = getField(row, 'additionalText', 9);
     const button2TextField = getField(row, 'button2Text', 10);
     const button2LinkField = getLinkField(row, 'button2Link', 11);
     const button2ColorField = getField(row, 'button2Color', 12);
-    const button2TextColorField = getField(row, 'button2TextColor', 13);
 
     cards.push({
       iconField,
@@ -196,12 +181,10 @@ export default function decorate(block) {
       buttonTextField,
       buttonLinkField,
       buttonColor: buttonColorField.value,
-      buttonTextColor: buttonTextColorField.value,
       additionalTextField,
       button2TextField,
       button2LinkField,
       button2Color: button2ColorField.value,
-      button2TextColor: button2TextColorField.value,
       row,
     });
   });

@@ -13,6 +13,7 @@ import {
   isRegistered,
   openRegistrationModal,
 } from '../../scripts/resource-gate.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_COLUMN_INDEX = {
   apiBaseUrl: 0,
@@ -325,6 +326,7 @@ function buildActions(resource, config, videoSource) {
     const watchBtn = document.createElement('button');
     watchBtn.type = 'button';
     watchBtn.className = 'resource-video-hero-action is-primary';
+    applyButtonStyle(watchBtn, 'primary');
     watchBtn.textContent = config.watchLabel || 'Watch Video';
     watchBtn.addEventListener('click', () => modal.open(videoSource));
     actions.append(watchBtn);
@@ -335,6 +337,7 @@ function buildActions(resource, config, videoSource) {
     const watchBtn = document.createElement('button');
     watchBtn.type = 'button';
     watchBtn.className = 'resource-video-hero-action is-primary';
+    applyButtonStyle(watchBtn, 'primary');
     watchBtn.textContent = config.watchLabel || 'Watch Video';
     const play = () => fetchSignedUrl(signedUrlEndpoint).then((url) => {
       if (url) modal.open(url);
@@ -354,6 +357,7 @@ function buildActions(resource, config, videoSource) {
   if (signedUrlEndpoint) {
     const download = document.createElement('a');
     download.className = 'resource-video-hero-action is-secondary';
+    applyButtonStyle(download, 'soft');
     download.href = '#';
     download.textContent = config.downloadLabel || 'Download Resource';
 
@@ -377,6 +381,7 @@ function buildActions(resource, config, videoSource) {
       : resolveSiteHref(downloadUrl);
     const download = document.createElement('a');
     download.className = 'resource-video-hero-action is-secondary';
+    applyButtonStyle(download, 'soft');
     download.href = downloadHref;
     if (isDamAssetUrl(downloadUrl)) {
       download.setAttribute('download', '');

@@ -11,6 +11,7 @@ import {
 } from '../../scripts/block-field-utils.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const AEM_PUBLISH_ASSET_ORIGIN = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
@@ -914,10 +915,15 @@ function buildTaxonomy(fields) {
 
   if (detailGroups.length) {
     const details = document.createElement('details');
-    details.className = 'resource-hero-meta-details';
+    details.className = 'resource-hero-meta-details disclosure';
 
     const summary = document.createElement('summary');
-    summary.textContent = 'More details';
+    const summaryLabel = document.createElement('span');
+    summaryLabel.textContent = 'More details';
+    const summaryIcon = document.createElement('span');
+    summaryIcon.className = 'accordion-icon';
+    summaryIcon.setAttribute('aria-hidden', 'true');
+    summary.append(summaryLabel, summaryIcon);
     details.append(summary);
 
     const panel = document.createElement('dl');
@@ -958,6 +964,7 @@ function buildActions(fields) {
     watch.type = 'button';
     watch.className = 'resource-hero-action is-watch';
     watch.textContent = fields.watchLabel || 'Watch Video';
+    applyButtonStyle(watch, 'primary');
     watch.addEventListener('click', () => modal.open(videoSource));
     actions.append(watch);
   }
@@ -970,6 +977,8 @@ function buildActions(fields) {
     download.className = 'resource-hero-action is-download';
     download.href = href;
     download.textContent = label;
+    // The look comes from the button standard: Primary alone, Secondary beside Watch.
+    applyButtonStyle(download, videoSource ? 'secondary' : 'primary');
     if (isDamAssetUrl(downloadSource)) download.setAttribute('download', '');
     else {
       download.target = '_blank';

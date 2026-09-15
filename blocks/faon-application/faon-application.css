@@ -82,43 +82,7 @@ main > .section > .faon-application-wrapper {
   transition-delay: 90ms;
 }
 
-.faon-application-panel {
-  overflow: hidden;
-  border: 1px solid rgb(0 38 77 / 12%);
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 10px 26px rgb(17 54 82 / 5%);
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.faon-application-panel.is-open {
-  border-color: rgb(0 114 148 / 28%);
-  box-shadow: 0 18px 38px rgb(17 54 82 / 9%);
-}
-
-.faon-application-panel-trigger {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  width: 100%;
-  border: 0;
-  padding: 18px 20px;
-  background: #fff;
-  color: #00264d;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.faon-application-panel-trigger:hover,
-.faon-application-panel-trigger:focus-visible {
-  outline: 0;
-  background: #f8fbfc;
-}
-
+/* Each step is the shared .accordion (styles.css); the step number is this form's own. */
 .faon-application-panel-number {
   display: inline-grid;
   place-items: center;
@@ -130,47 +94,6 @@ main > .section > .faon-application-wrapper {
   font-size: 0.86rem;
   font-weight: 900;
   line-height: 1;
-}
-
-.faon-application-panel-title {
-  min-width: 0;
-  font-size: clamp(1.02rem, 1.35vw, 1.2rem);
-  font-weight: 850;
-  line-height: 1.25;
-}
-
-.faon-application-panel-icon {
-  position: relative;
-  width: 18px;
-  height: 18px;
-}
-
-.faon-application-panel-icon::before,
-.faon-application-panel-icon::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 16px;
-  height: 2px;
-  border-radius: 999px;
-  background: #de8a2a;
-  content: "";
-  transform: translate(-50%, -50%);
-  transition: transform 180ms ease;
-}
-
-.faon-application-panel-icon::after {
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-.faon-application-panel.is-open .faon-application-panel-icon::after {
-  transform: translate(-50%, -50%) rotate(0deg);
-}
-
-.faon-application-panel-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 260ms ease;
 }
 
 .faon-application-panel-inner {
@@ -367,57 +290,15 @@ main > .section > .faon-application-wrapper {
   color: #a13a31;
 }
 
+/* Continue and submit: styled by the button standard in styles/styles.css. */
 .faon-application-continue,
 .faon-application-submit {
   margin: 0;
-  border: 0;
-  border-radius: 999px;
-  padding: 14px 24px;
-  background: #e38b22;
-  color: #fff;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: 0 16px 28px rgb(227 139 34 / 22%);
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
 }
 
-.faon-application-continue {
-  background: #007294;
-  box-shadow: 0 14px 24px rgb(0 114 148 / 18%);
-}
-
-.faon-application-continue:hover,
-.faon-application-continue:focus-visible,
-.faon-application-submit:hover,
-.faon-application-submit:focus-visible {
-  outline: 0;
-  transform: translateY(-1px);
-}
-
-.faon-application-submit:hover,
-.faon-application-submit:focus-visible {
-  background: #d17f1d;
-  box-shadow: 0 18px 34px rgb(209 127 29 / 30%);
-}
-
-.faon-application-continue:hover,
-.faon-application-continue:focus-visible {
-  background: #00627f;
-  box-shadow: 0 16px 30px rgb(0 98 127 / 22%);
-}
-
-.faon-application-submit:disabled,
 .faon-application.is-submitting .faon-application-submit {
-  transform: none;
-  background: #e1b984;
-  box-shadow: none;
   cursor: wait;
+  opacity: 0.6;
 }
 
 .faon-application.is-visible .faon-application-header,
@@ -437,10 +318,6 @@ main > .section > .faon-application-wrapper {
 
   .faon-application-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .faon-application-panel-trigger {
-    padding: 16px 14px;
   }
 
   .faon-application-panel-inner {

@@ -2,6 +2,12 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readImageField, readLinkField, readTextField, setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveExplicitButtonStyle,
+} from '../../scripts/button-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -73,6 +79,7 @@ function buildCard(data) {
 
   const cardBg = data.cardBg || '#ffffff';
   card.style.setProperty('background-color', cardBg, 'important');
+  markButtonSurface(card, isDarkSurface(cardBg));
 
   const content = document.createElement('div');
   content.className = 'card-row-compact-card-content';
@@ -125,15 +132,23 @@ function buildCard(data) {
     content.append(p);
   }
 
-  // Link
+  // Link — Text link unless a style was picked in Link Style (the old link colour field,
+  // whose hex values are ignored). One with nowhere to go is not published; in the
+  // editor it still shows, disabled, so the author can see the URL is missing.
   const linkText = data.linkTextField.value;
   const linkHref = data.linkUrlField.value;
-  if (linkText) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (linkText && (linkHref || isEditor)) {
     const link = document.createElement(linkHref ? 'a' : 'span');
     link.className = 'card-row-compact-card-link';
     link.textContent = linkText;
-    if (linkHref) link.href = linkHref;
-    if (data.linkColor) link.style.color = data.linkColor;
+    if (linkHref) {
+      link.href = linkHref;
+    } else {
+      link.setAttribute('aria-disabled', 'true');
+      link.title = 'Add a URL to publish this link';
+    }
+    applyButtonStyle(link, resolveExplicitButtonStyle(data.linkStyle, 'text-link'));
     if (data.linkTextField.source) moveInstrumentation(data.linkTextField.source, link);
     content.append(link);
   }
@@ -170,7 +185,7 @@ export default function decorate(block) {
     const subheadingColorField = isCompactLiveRow ? emptyField() : getField(row, 'subheadingColor', 5);
     const linkTextField = getField(row, 'linkText', isCompactLiveRow ? 4 : 6);
     const linkUrlField = getLinkField(row, 'linkUrl', isCompactLiveRow ? 5 : 7);
-    const linkColorField = getField(row, 'linkColor', isCompactLiveRow ? 6 : 8);
+    const linkStyleField = getField(row, 'linkColor', isCompactLiveRow ? 6 : 8);
     const cardBgField = getField(row, 'cardBackgroundColor', isCompactLiveRow ? 7 : 9);
 
     cards.push({
@@ -182,7 +197,7 @@ export default function decorate(block) {
       subheadingColor: subheadingColorField.value,
       linkTextField,
       linkUrlField,
-      linkColor: linkColorField.value,
+      linkStyle: linkStyleField.value,
       cardBg: cardBgField.value,
       row,
     });

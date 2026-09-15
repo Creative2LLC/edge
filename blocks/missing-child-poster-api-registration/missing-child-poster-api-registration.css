@@ -261,49 +261,20 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   color: #a13a31;
 }
 
-.missing-child-poster-api-registration-submit,
-.missing-child-poster-api-registration-token-button {
-  border: 0;
-  border-radius: 999px;
-  background: #e38b22;
-  color: #fff;
-  font: inherit;
-  font-weight: 800;
-  line-height: 1;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
-}
-
+/* Submit and token buttons: styled by the button standard in styles/styles.css.
+   The submit was AMBER gold; the client reserves AMBER for AMBER Alerts. */
 .missing-child-poster-api-registration-submit {
   margin: 0 0 0 auto;
-  padding: 15px 28px;
-  font-size: 1.02rem;
-  box-shadow: 0 16px 28px rgb(227 139 34 / 26%);
 }
 
 .missing-child-poster-api-registration-token-button {
   flex: 0 0 auto;
   min-width: 74px;
-  padding: 12px 16px;
-  font-size: 0.9rem;
-  box-shadow: 0 10px 20px rgb(227 139 34 / 18%);
 }
 
-.missing-child-poster-api-registration-submit:hover,
-.missing-child-poster-api-registration-submit:focus-visible,
-.missing-child-poster-api-registration-token-button:hover,
-.missing-child-poster-api-registration-token-button:focus-visible {
-  background: #d17f1d;
-  transform: translateY(-1px);
-}
-
-.missing-child-poster-api-registration-submit:disabled,
 .missing-child-poster-api-registration.is-submitting .missing-child-poster-api-registration-submit {
-  transform: none;
-  background: #e1b984;
-  box-shadow: none;
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .missing-child-poster-api-registration-credentials {

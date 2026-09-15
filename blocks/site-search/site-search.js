@@ -18,6 +18,7 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -214,7 +215,8 @@ function buildResultCard(result, index = 0) {
   cta.className = 'site-search-card-link';
   cta.href = href;
   cta.textContent = 'Open Result';
-  body.append(cta);
+  // The look comes from the button standard (Text link).
+  body.append(applyButtonStyle(cta, 'text-link'));
 
   article.append(body);
   return article;
@@ -223,7 +225,7 @@ function buildResultCard(result, index = 0) {
 function createViewToggleButton(label, view, activeView) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'site-search-view-button';
+  button.className = 'site-search-view-button view-toggle-button';
   button.dataset.view = view;
   button.setAttribute('aria-label', `${label} view`);
   button.title = label;
@@ -306,7 +308,7 @@ function buildShell(config) {
   headerActions.append(typeSelect);
 
   const viewToggle = document.createElement('div');
-  viewToggle.className = 'site-search-view-toggle';
+  viewToggle.className = 'site-search-view-toggle view-toggle';
   const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
   const listButton = createViewToggleButton('List', 'list', config.defaultView);
   viewToggle.append(gridButton, listButton);
@@ -353,6 +355,7 @@ function buildShell(config) {
   loadMoreButton.className = 'site-search-load-more';
   loadMoreButton.type = 'button';
   loadMoreButton.textContent = config.loadMoreText;
+  applyButtonStyle(loadMoreButton, 'primary');
   const pagination = createPaginationControls('site-search', 'Search results pagination');
   footer.append(loadMoreButton, pagination.nav);
   inner.append(cardsContainer, message, footer);

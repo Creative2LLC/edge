@@ -9,6 +9,7 @@ import {
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const FIELD_INDEX = {
   eyebrow: 0,
@@ -1014,16 +1015,19 @@ export default function decorate(block) {
   const previousButton = document.createElement('button');
   previousButton.type = 'button';
   previousButton.className = 'event-request-form-prev';
+  applyButtonStyle(previousButton, 'secondary');
   previousButton.textContent = 'Back';
 
   const nextButton = document.createElement('button');
   nextButton.type = 'button';
   nextButton.className = 'event-request-form-next';
+  applyButtonStyle(nextButton, 'primary');
   nextButton.textContent = 'Next';
 
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.className = 'event-request-form-submit';
+  applyButtonStyle(submitButton, 'primary');
   moveText(getTextField(block, 'buttonText'), submitButton, DEFAULTS.buttonText);
 
   actions.append(status, previousButton, nextButton, submitButton);

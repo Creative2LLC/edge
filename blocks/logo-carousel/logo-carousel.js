@@ -2,7 +2,11 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   readImageField, readLinkField, readTextField, setItemLabel,
 } from '../../scripts/block-field-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+} from '../../scripts/carousel-utils.js';
 
 function getField(row, name, index) {
   return readTextField(row, name, { fallbackCell: row.children[index] });
@@ -80,17 +84,15 @@ function buildControls() {
   const nav = document.createElement('div');
   nav.className = 'logo-carousel-nav';
 
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'logo-carousel-nav-btn logo-carousel-prev';
-  prevBtn.type = 'button';
-  prevBtn.setAttribute('aria-label', 'Previous logos');
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  const prevBtn = createCarouselArrow('prev', {
+    className: 'logo-carousel-nav-btn logo-carousel-prev',
+    label: 'Previous logos',
+  });
 
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'logo-carousel-nav-btn logo-carousel-next';
-  nextBtn.type = 'button';
-  nextBtn.setAttribute('aria-label', 'Next logos');
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+  const nextBtn = createCarouselArrow('next', {
+    className: 'logo-carousel-nav-btn logo-carousel-next',
+    label: 'Next logos',
+  });
 
   nav.append(prevBtn, nextBtn);
   controls.append(bar, nav);

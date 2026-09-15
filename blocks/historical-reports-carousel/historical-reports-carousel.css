@@ -155,63 +155,20 @@ main > .section > .historical-reports-carousel-wrapper {
   font-weight: 700;
 }
 
+/* Card link: the Text link style from the button standard; this only places it. */
 .historical-reports-carousel .historical-reports-carousel-card-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
   margin-top: auto;
-  color: #008db6;
-  text-decoration: none;
-  font-size: 0.98rem;
-  line-height: 1.2;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.historical-reports-carousel .historical-reports-carousel-card-link::after {
-  content: '\2192';
-  display: inline-block;
-  flex: 0 0 auto;
-  transition: transform 0.2s ease;
-}
-
-.historical-reports-carousel .historical-reports-carousel-card-link:hover,
-.historical-reports-carousel .historical-reports-carousel-card-link:focus-visible {
-  color: #006b89;
-  text-decoration: none;
-}
-
-.historical-reports-carousel .historical-reports-carousel-card-link:hover::after,
-.historical-reports-carousel .historical-reports-carousel-card-link:focus-visible::after {
-  transform: translateX(3px);
 }
 
 .historical-reports-carousel .historical-reports-carousel-card-link.is-placeholder {
   cursor: default;
 }
 
+/* The arrows are .button.icon and the dots .carousel-dots (styles.css); placement only here. */
 .historical-reports-carousel .historical-reports-carousel-nav {
-  width: 42px;
-  height: 42px;
   position: absolute;
   top: 42%;
-  border: 0;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 74%);
-  color: #a8a8aa;
-  box-shadow: 0 6px 18px rgb(64 64 65 / 10%);
   transform: translateY(-50%);
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.historical-reports-carousel .historical-reports-carousel-nav:hover,
-.historical-reports-carousel .historical-reports-carousel-nav:focus-visible {
-  color: #6e6e72;
-  background: rgb(255 255 255 / 96%);
 }
 
 .historical-reports-carousel .historical-reports-carousel-nav-prev {
@@ -222,49 +179,9 @@ main > .section > .historical-reports-carousel-wrapper {
   right: -56px;
 }
 
-.historical-reports-carousel .historical-reports-carousel-nav span {
-  font-size: 1.8rem;
-  line-height: 1;
-}
-
 .historical-reports-carousel .historical-reports-carousel-dots {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 2px;
   margin-top: 18px;
-}
-
-.historical-reports-carousel .historical-reports-carousel-dot {
-  /* 24x24 hit target (WCAG 2.5.8 target-size); the visual dot is drawn by
-     ::before so the pagination stays visually small. */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.historical-reports-carousel .historical-reports-carousel-dot::before {
-  content: "";
-  width: 8px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgb(0 38 77 / 20%);
-  transition: width 0.3s ease, background-color 0.2s ease;
-}
-
-.historical-reports-carousel .historical-reports-carousel-dot.active::before {
-  width: 28px;
-  background: #00264d;
-}
-
-.historical-reports-carousel .historical-reports-carousel-dot:hover:not(.active)::before {
-  background: rgb(0 38 77 / 40%);
 }
 
 .historical-reports-carousel .historical-reports-carousel-empty-state {
@@ -326,8 +243,6 @@ main > .section > .historical-reports-carousel-wrapper {
   }
 
   .historical-reports-carousel .historical-reports-carousel-nav {
-    display: grid;
-    place-items: center;
     z-index: 2;
     top: 50%;
     transform: translateY(-50%);

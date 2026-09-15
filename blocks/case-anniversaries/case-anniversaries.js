@@ -282,7 +282,7 @@ function createViewIcon(view) {
 function createViewToggleButton(label, view, activeView) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'case-anniversaries-view-button';
+  button.className = 'case-anniversaries-view-button view-toggle-button';
   button.dataset.view = view;
   button.setAttribute('aria-label', `${label} view`);
   button.setAttribute('aria-pressed', String(view === activeView));
@@ -304,7 +304,7 @@ function applyResultView(cardsContainer, buttons, view) {
 function createTimeframeButton(label, timeframe, activeTimeframe) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'case-anniversaries-timeframe-button';
+  button.className = 'case-anniversaries-timeframe-button tab';
   button.dataset.timeframe = timeframe;
   button.textContent = label;
   button.setAttribute('aria-pressed', String(timeframe === activeTimeframe));
@@ -440,7 +440,7 @@ function buildShell(config) {
   headerTop.append(findHeading);
 
   const viewToggle = document.createElement('div');
-  viewToggle.className = 'case-anniversaries-view-toggle';
+  viewToggle.className = 'case-anniversaries-view-toggle view-toggle';
   const gridButton = createViewToggleButton('Grid', 'grid', 'grid');
   const listButton = createViewToggleButton('List', 'list', 'grid');
   viewToggle.append(gridButton, listButton);
@@ -470,7 +470,7 @@ function buildShell(config) {
   timeframeLabel.className = 'case-anniversaries-timeframe-label';
   timeframeLabel.textContent = 'View anniversaries for:';
   const timeframeToggle = document.createElement('div');
-  timeframeToggle.className = 'case-anniversaries-timeframe-toggle';
+  timeframeToggle.className = 'case-anniversaries-timeframe-toggle tab-list';
   const weekButton = createTimeframeButton('This Week', 'thisWeek', config.timeframe);
   const dayButton = createTimeframeButton('This Day', 'today', config.timeframe);
   timeframeToggle.append(weekButton, dayButton);

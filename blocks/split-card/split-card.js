@@ -2,6 +2,14 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
   readImageField, readLinkField, readRichTextField, readTextField,
 } from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
 
 function resourcePathFromUrn(resource) {
   if (!resource) return '';
@@ -70,7 +78,9 @@ function normalizeSizeValue(value) {
   return normalized;
 }
 
-const BUTTON_STYLE_VALUES = ['default', 'solid', 'outlined', 'outline', 'link'];
+// Legacy values plus the seven the style dropdown now stores. Published cells are
+// matched by value.
+const BUTTON_STYLE_VALUES = ['default', 'solid', 'outlined', 'outline', 'link', ...BUTTON_STYLES];
 const CONTENT_ALIGN_VALUES = ['left', 'center', 'right'];
 const IMAGE_POSITION_VALUES = ['left', 'right'];
 const IMAGE_SIZE_VALUES = ['even', 'smaller'];
@@ -435,46 +445,11 @@ function resolveFlattenedColors(colorValues, hasPrimaryButton, hasSecondaryButto
   };
 }
 
-function normalizeButtonStyle(value) {
-  const v = String(value || '').trim().toLowerCase();
-  if (['outline', 'outlined', 'border', 'bordered'].includes(v)) return 'outlined';
-  if (['solid', 'filled', 'fill'].includes(v)) return 'solid';
-  if (['link', 'text', 'plain'].includes(v)) return 'link';
-  return 'default';
-}
-
-function applyButtonStyle(button, backgroundColor, style, textColor) {
-  const normalized = normalizeButtonStyle(style);
-  const accent = backgroundColor || '#008db6';
-
-  if (normalized === 'link') {
-    button.classList.add('is-link');
-    button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', textColor || accent, 'important');
-    button.style.setProperty('border', 'none', 'important');
-    return;
-  }
-
-  if (normalized === 'outlined') {
-    button.classList.add('is-outlined');
-    button.style.setProperty('background-color', 'transparent', 'important');
-    button.style.setProperty('color', textColor || accent, 'important');
-    button.style.setProperty('border', `2px solid ${accent}`, 'important');
-    return;
-  }
-
-  // default + solid share behavior: keep existing solid look
-  if (normalized === 'solid') button.classList.add('is-solid');
-  if (backgroundColor) {
-    button.style.setProperty('background-color', backgroundColor, 'important');
-  }
-  if (textColor) {
-    button.style.setProperty('color', textColor, 'important');
-  }
-}
-
-function buildButton(text, href, backgroundColor, style, textColor) {
+function buildButton(text, href, backgroundColor, style, isEditor) {
   if (!text && !href) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!href && !isEditor) return null;
 
   const button = document.createElement(href ? 'a' : 'span');
   button.className = 'split-card-button';
@@ -482,9 +457,14 @@ function buildButton(text, href, backgroundColor, style, textColor) {
 
   if (href) {
     button.href = href;
+  } else {
+    button.setAttribute('aria-disabled', 'true');
+    button.title = 'Add a link to publish this button';
   }
 
-  applyButtonStyle(button, backgroundColor, style, textColor);
+  // The look comes from the button standard. The style dropdown wins; a default or
+  // solid style falls back to the old colour picker (gold -> AMBER, green -> Giving).
+  applyButtonStyle(button, resolveAuthoredButtonStyle(style, backgroundColor));
 
   return button;
 }
@@ -674,6 +654,11 @@ export default async function decorate(block) {
   if (backgroundColor) {
     contentSide.style.setProperty('background-color', backgroundColor, 'important');
   }
+  // Buttons take the dark form on a dark content panel. Variant 2 has no card of its
+  // own, so with no authored colour its buttons sit straight on the section.
+  markButtonSurface(contentSide, backgroundColor
+    ? isDarkSurface(backgroundColor)
+    : (stylingVariant === 'variant-2' && isOnDarkSection(block)));
 
   if (heading) {
     const h2 = document.createElement('h2');
@@ -691,19 +676,13 @@ export default async function decorate(block) {
     contentSide.append(sub);
   }
 
-  const primaryButton = buildButton(
-    buttonText,
-    buttonLink,
-    buttonColor,
-    buttonStyle,
-    effectiveTextColor,
-  );
+  const primaryButton = buildButton(buttonText, buttonLink, buttonColor, buttonStyle, isEditor);
   const secondaryButton = buildButton(
     button2Text,
     button2Link,
     button2Color,
     button2Style,
-    effectiveTextColor,
+    isEditor,
   );
 
   const wrapButtonWithSubtext = (button, subtext) => {
