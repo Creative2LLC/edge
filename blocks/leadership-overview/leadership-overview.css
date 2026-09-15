@@ -70,7 +70,6 @@
   font-size: clamp(28px, 3.3vw, 40px);
   font-weight: var(--body-weight-bold);
   line-height: 1.18;
-  letter-spacing: -0.03em;
 }
 
 .leadership-overview .leadership-overview-feature-quote > :first-child {

@@ -155,7 +155,6 @@
   font-size: clamp(3rem, 5vw, 4.5rem);
   font-weight: 700;
   line-height: 0.95;
-  letter-spacing: -0.04em;
 }
 
 .impact-donut .impact-donut-stat-label {

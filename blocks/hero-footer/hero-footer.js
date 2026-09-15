@@ -220,7 +220,7 @@ export default function decorate(block) {
      SINGLE heading with a span for the second line, not two headings. Merging
      them changes the authored field structure, so it needs a decision rather
      than a rename. Neither size maps to a scale token either (60px has no token;
-     96px is --display-lg-size). See audits/body-copy-audit.md. */
+     96px matches --heading-1-home-size). See audits/body-copy-audit.md. */
   const h1 = buildRich('hero-footer-heading-1', headingField);
   if (h1) content.append(h1);
 

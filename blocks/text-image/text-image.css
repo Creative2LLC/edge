@@ -162,7 +162,6 @@
   font-size: var(--deck-size);
   font-weight: var(--body-weight-bold);
   line-height: 1.15;
-  letter-spacing: -0.02em;
   color: #163b61;
 }
 
@@ -171,7 +170,6 @@
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-strong);
   line-height: 1.2;
-  letter-spacing: -0.02em;
   color: #163b61;
 }
 

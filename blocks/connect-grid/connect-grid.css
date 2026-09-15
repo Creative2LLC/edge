@@ -148,7 +148,6 @@
   font-size: var(--connect-grid-title-size);
   font-weight: 700;
   line-height: 1.06;
-  letter-spacing: -0.04em;
 }
 
 /* Rich-text title may contain <p> children — collapse the outer margins so

@@ -113,10 +113,9 @@ main.error > .section > div {
   margin: 0;
   max-width: 11ch;
   color: var(--error-accent-deep);
-  font-size: clamp(2.9rem, 6vw, 5.2rem);
+  font-size: var(--heading-1-size);
   font-weight: 700;
   line-height: 0.96;
-  letter-spacing: -0.05em;
 }
 
 .error-page-description {
@@ -257,7 +256,6 @@ main.error > .section > div {
   font-size: clamp(8rem, 26vw, 18rem);
   font-weight: 800;
   line-height: 0.9;
-  letter-spacing: -0.1em;
 }
 
 .error-page-code {

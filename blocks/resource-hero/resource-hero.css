@@ -272,9 +272,8 @@
   margin: 0;
   color: inherit;
 
-  /* This is a hero headline, so it sits on the display scale rather than the
-     plain h1 size — same token the homepage hero uses. */
-  font-size: var(--display-lg-size);
+  /* No font-size: this is a real <h1>, so it takes the global h1 size. Only the
+     homepage hero uses the larger home size. */
 }
 
 /* The authored title-sm/md/lg/xl and title-bold/title-black size classes used to

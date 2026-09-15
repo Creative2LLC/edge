@@ -1237,7 +1237,6 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   header nav .nav-mobile-root-list > li .nav-mobile-screen-trigger {
     min-height: 118px;
     font-size: 1.5rem;
-    letter-spacing: -0.02em;
     line-height: 1.08;
     padding: 28px 26px;
   }

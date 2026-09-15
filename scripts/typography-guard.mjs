@@ -18,7 +18,7 @@
  *
  * Escape hatches, in order of preference:
  *   1. Don't. Headings inherit; that is the point.
- *   2. Need a different size? Use .u-h1-.u-h6 / .u-display-sm / .u-display-lg.
+ *   2. Need a different size? Use .u-h1-home / .u-h1-.u-h7 / .u-display-sm.
  *   3. Genuinely need a one-off? Point at a token: font-size: var(--heading-3-size).
  *   4. Author-controlled size? Only colored-* and statistics do that (see ALLOWLIST).
  *
@@ -226,8 +226,8 @@ if (violations.length || newBody.length) {
       console.error(`    ${v.sel.slice(0, 88)}`);
       console.error(`      ${v.prop}: ${v.value}\n`);
     }
-    console.error('Headings are sized once, in styles/styles.css. Use .u-h1-.u-h6 /');
-    console.error('.u-display-sm / .u-display-lg, or reference a --heading-*-size token.');
+    console.error('Headings are sized once, in styles/styles.css. Use .u-h1-home /');
+    console.error('.u-h1-.u-h7 / .u-display-sm, or reference a --heading-*-size token.');
     console.error('See audits/typography-audit.md.\n');
   }
   if (newBody.length) {

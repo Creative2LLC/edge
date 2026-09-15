@@ -44,37 +44,37 @@
   --heading-font-family: "Figtree", figtree-fallback, sans-serif;
 
   /* ------------------------------------------------------------------
-     TYPE SCALE — single source of truth for h1-h6 and body copy.
+     TYPE SCALE — single source of truth for headings and body copy.
      Change a value here and every heading on the site follows.
 
      These are fluid (clamp) so there is ONE definition per level rather
      than a mobile value plus a desktop override. Do not add breakpoint
      overrides for these; widen the clamp instead.
 
-     The values are fitted to the sizes the design had already converged
-     on by hand across 143 blocks — each level matches the largest
-     existing cluster, so the fewest blocks move:
-       h1  4 blocks matched   h2  15 blocks matched   h3  9 blocks matched
+     Desktop sizes come from the design (2026-09-15). Each preferred value is
+     a linear interpolation, the same form as the body scale below: the min at
+     a 390px viewport, the max from 1200px up. Big steps shrink more on mobile
+     than small ones so the hierarchy still reads on a phone.
      ------------------------------------------------------------------ */
-  --heading-1-size: clamp(2.65rem, 6vw, 4.9rem);      /* 42 -> 78px */
-  --heading-2-size: clamp(2.125rem, 4vw, 3rem);       /* 34 -> 48px */
-  --heading-3-size: clamp(1.35rem, 1.8vw, 1.5rem);    /* 22 -> 24px */
-  --heading-4-size: clamp(1.125rem, 1.4vw, 1.25rem);  /* 18 -> 20px */
-  --heading-5-size: clamp(1rem, 1.2vw, 1.125rem);     /* 16 -> 18px */
-  --heading-6-size: clamp(0.9375rem, 1vw, 1rem);      /* 15 -> 16px */
 
-  /* The design also uses one size between h2 (48px) and h3 (24px) — the 36px
-     card/section title. It is a real step, so it gets a name here rather than
-     being hardcoded in the handful of block variants that need it. Reach for it
-     via .u-display-sm; do not re-declare 36px in a block. */
-  --display-sm-size: clamp(1.75rem, 3vw, 2.25rem);    /* 28 -> 36px */
+  /* Two h1 sizes. Only the homepage hero uses the home size; every other hero
+     (default hero, resource hero, video hero, detail pages) uses the plain h1. */
+  --heading-1-home-size: clamp(3.5rem, 2.296rem + 4.938vw, 6rem);    /* 56 -> 96px */
+  --heading-1-size: clamp(2.625rem, 1.602rem + 4.198vw, 4.75rem);    /* 42 -> 76px */
+  --heading-2-size: clamp(2.125rem, 1.704rem + 1.728vw, 3rem);       /* 34 -> 48px */
+  --heading-3-size: clamp(1.625rem, 1.324rem + 1.235vw, 2.25rem);    /* 26 -> 36px */
+  --heading-4-size: clamp(1.3125rem, 1.192rem + 0.494vw, 1.5625rem); /* 21 -> 25px */
+  --heading-5-size: clamp(1.125rem, 1.065rem + 0.247vw, 1.25rem);    /* 18 -> 20px */
+  --heading-6-size: clamp(1rem, 0.94rem + 0.247vw, 1.125rem);        /* 16 -> 18px */
 
-  /* Above h1: the homepage hero headline, which is deliberately larger than a
-     page title. One token so it still follows a global change. */
-  --display-lg-size: clamp(3.5rem, 8vw, 6rem);        /* 56 -> 96px */
+  /* HTML stops at h6, so level 7 is a visual step only: use .u-h7. */
+  --heading-7-size: clamp(0.9375rem, 0.907rem + 0.123vw, 1rem);      /* 15 -> 16px */
 
-  /* Per-level weight / tracking / leading. Blocks overwhelmingly used 700
-     with slight negative tracking on the large sizes; that is now the default. */
+  /* The 36px card/section title used to sit between h2 and h3. h3 is now 36px,
+     so it is the same step; kept as an alias for the blocks that reference it. */
+  --display-sm-size: var(--heading-3-size);
+
+  /* Per-level weight / leading. No level uses negative tracking. */
   --heading-weight: 700;
 
   /* A few blocks deliberately set a lighter heading (card-testimonies variant 2).
@@ -82,7 +82,6 @@
   --heading-weight-light: 500;
   --heading-line-height: 1.15;
   --heading-line-height-tight: 1.08;
-  --heading-tracking-tight: -0.02em;
   --heading-tracking: 0;
 
   /* ------------------------------------------------------------------
@@ -107,7 +106,7 @@
   /* Each preferred value is a real linear interpolation (intercept + slope*vw)
      fitted to hit the min at 390px and the max at 1200px, so the token is fully
      saturated on any normal desktop. A bare `Nvw` preferred value — the form the
-     heading tokens use — does NOT work at these sizes: 1.15vw is only 16.6px at
+     heading tokens used before 2026-09-15 — does NOT work at these sizes: 1.15vw is only 16.6px at
      1440px, so `clamp(1rem, 1.15vw, 1.125rem)` would never reach 18px until a
      1565px viewport. Verified with audits/verify-body.mjs. */
 
@@ -805,14 +804,9 @@ h6 {
 h1 {
   font-size: var(--heading-1-size);
   line-height: var(--heading-line-height-tight);
-  letter-spacing: var(--heading-tracking-tight);
 }
 
-h2 {
-  font-size: var(--heading-2-size);
-  letter-spacing: var(--heading-tracking-tight);
-}
-
+h2 { font-size: var(--heading-2-size); }
 h3 { font-size: var(--heading-3-size); }
 h4 { font-size: var(--heading-4-size); }
 h5 { font-size: var(--heading-5-size); }
@@ -824,12 +818,14 @@ h6 { font-size: var(--heading-6-size); }
    read as an h5, say). This is the sanctioned alternative to a block
    re-declaring font-size on its own class — which is what caused the drift
    this contract exists to fix. */
+.u-h1-home,
 .u-h1,
 .u-h2,
 .u-h3,
 .u-h4,
 .u-h5,
-.u-h6 {
+.u-h6,
+.u-h7 {
   font-family: var(--heading-font-family);
   font-weight: var(--heading-weight);
   line-height: var(--heading-line-height);
@@ -856,23 +852,20 @@ h6 { font-size: var(--heading-6-size); }
   font-weight: inherit;
 }
 
+.u-h1-home,
 .u-h1 {
-  font-size: var(--heading-1-size);
   line-height: var(--heading-line-height-tight);
-  letter-spacing: var(--heading-tracking-tight);
 }
 
-.u-h2 {
-  font-size: var(--heading-2-size);
-  letter-spacing: var(--heading-tracking-tight);
-}
-
+.u-h1-home { font-size: var(--heading-1-home-size); }
+.u-h1 { font-size: var(--heading-1-size); }
+.u-h2 { font-size: var(--heading-2-size); }
 .u-h3 { font-size: var(--heading-3-size); }
 .u-h4 { font-size: var(--heading-4-size); }
 .u-h5 { font-size: var(--heading-5-size); }
 .u-h6 { font-size: var(--heading-6-size); }
+.u-h7 { font-size: var(--heading-7-size); }
 .u-display-sm { font-size: var(--display-sm-size); }
-.u-display-lg { font-size: var(--display-lg-size); }
 
 /* Same reasoning as headings: zero by default, rhythm restored in prose. */
 p,
@@ -1745,7 +1738,6 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
   font-size: var(--accordion-label-size);
   font-weight: var(--accordion-label-weight);
   line-height: var(--accordion-label-line-height);
-  letter-spacing: -0.03em;
 }
 
 .accordion-icon {

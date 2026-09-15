@@ -186,7 +186,6 @@
   font-size: 1.05rem;
   font-weight: 500;
   line-height: 1.28;
-  letter-spacing: -0.01em;
 }
 
 .report-breakdown .report-breakdown-count {
@@ -235,7 +234,6 @@
   font-size: clamp(1.35rem, 2vw, 1.8rem);
   font-weight: var(--body-weight-bold);
   line-height: 1.1;
-  letter-spacing: -0.02em;
 }
 
 .report-breakdown .report-breakdown-total-value {
@@ -243,7 +241,6 @@
   font-size: clamp(1.9rem, 2.2vw, 2.5rem);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.03em;
 }
 
 .report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-table-head {

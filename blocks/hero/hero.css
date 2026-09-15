@@ -459,12 +459,12 @@
   font-weight: var(--body-weight-medium);
 }
 
-/* The homepage headline sits deliberately above the h1 scale. It reads from a
-   token so a change to the type system still reaches it — do not hardcode a px
-   or clamp() value here. */
+/* The homepage hero is the only place that uses the home h1 size; every other
+   hero keeps the global h1. It reads from a token so a change to the type
+   system still reaches it — do not hardcode a px or clamp() value here. */
 .hero.hero-variant-homepage .hero-richtext :is(h1, h2, h3, h4, h5, h6),
 .hero.hero-variant-homepage .hero-richtext .hero-richtext-subtitle {
-  font-size: var(--display-lg-size);
+  font-size: var(--heading-1-home-size);
 }
 
 @media (width >= 900px) {

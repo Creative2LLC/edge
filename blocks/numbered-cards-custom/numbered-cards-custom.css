@@ -165,7 +165,6 @@
   font-size: 54px;
   font-weight: var(--body-weight-bold);
   line-height: 1;
-  letter-spacing: -0.04em;
   color: var(--numbered-cards-custom-number-color, #12a0ca);
   transition: color 0.25s ease;
 }
