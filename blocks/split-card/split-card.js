@@ -1,6 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import {
-  readImageField, readLinkField, readRichTextField, readTextField,
+  readImageField, readLinkField, readRichTextField, readTextField, takeHeadingLevel,
 } from '../../scripts/block-field-utils.js';
 import {
   BUTTON_STYLES,
@@ -122,10 +122,16 @@ const LEGACY_FIELD_INDEX = {
   subheading: 2,
   buttonText: 3,
   buttonLink: 4,
+  buttonColor: 5,
   buttonStyle: 6,
   button2Text: 7,
   button2Link: 8,
+  button2Color: 9,
   button2Style: 10,
+  backgroundColor: 11,
+  headingColor: 12,
+  subheadingColor: 13,
+  textColor: 14,
   contentAlign: 15,
   imagePosition: 16,
   imageSize: 17,
@@ -406,6 +412,41 @@ function collectColorValues(block) {
   return { values };
 }
 
+const COLOR_FIELD_NAMES = [
+  'buttonColor',
+  'button2Color',
+  'backgroundColor',
+  'headingColor',
+  'subheadingColor',
+  'textColor',
+];
+
+/**
+ * Published pages carry no field names, so colours were guessed from the order their hex
+ * values appear in (resolveFlattenedColors). A leftover Second Button Color on a card with
+ * no second button shifted that guess by one: the background became the heading colour and
+ * was never painted. Rows keep their empty fields, so read each colour at its own position
+ * with the same current/legacy map the heading and buttons use. The positions are trusted
+ * only when they account for exactly the colours in the block; otherwise returns null and
+ * the order-based guess still applies.
+ */
+function readPositionalColors(block, fieldIndex, isEditor) {
+  if (isEditor || COLOR_FIELD_NAMES.some((name) => fieldIndex[name] === undefined)) return null;
+
+  const cells = getRowCells(block);
+  const colors = {};
+  const eachSlotIsAColour = COLOR_FIELD_NAMES.every((name) => {
+    const cell = cells[fieldIndex[name]];
+    const text = cell?.textContent?.trim() || '';
+    colors[name] = text ? extractHexColor(cell) : '';
+    return !text || Boolean(colors[name]);
+  });
+  const read = COLOR_FIELD_NAMES.map((name) => colors[name]).filter(Boolean).sort().join();
+  const present = collectColorValues(block).values.slice().sort().join();
+
+  return eachSlotIsAColour && read === present ? colors : null;
+}
+
 function resolveFlattenedColors(colorValues, hasPrimaryButton, hasSecondaryButton) {
   const buttonCount = (hasPrimaryButton ? 1 : 0) + (hasSecondaryButton ? 1 : 0);
   const remaining = colorValues.slice(buttonCount);
@@ -471,8 +512,10 @@ function buildButton(text, href, backgroundColor, style, isEditor) {
 
 export default async function decorate(block) {
   const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
-  const wrapper = block.closest('.split-card-wrapper') || block.parentElement;
   const resourceData = await getBlockResourceData(block);
+  // Read first: on a published page the appended Heading Level row is found by value and
+  // removed, so the positional and flattened readers below never mistake it for text.
+  const headingLevel = takeHeadingLevel(block, { resourceValue: resourceData.headingLevel });
   const picture = getImage(block);
   const fieldIndex = getFallbackIndexMap(block, isEditor);
   const flattened = parseFlattenedFields(block, isEditor);
@@ -539,27 +582,28 @@ export default async function decorate(block) {
   const colorValues = colors.values || [];
   const hasPrimaryButton = Boolean(buttonText || buttonLink);
   const hasSecondaryButton = Boolean(button2Text || button2Link);
-  const flattenedColors = resolveFlattenedColors(
-    colorValues,
-    hasPrimaryButton,
-    hasSecondaryButton,
-  );
-  const buttonColor = (hasPrimaryButton ? colorValues[0] : '')
+  // Colours by position first; the order-based guess only when positions don't fit this page.
+  const publishedColors = readPositionalColors(block, fieldIndex, isEditor) || {
+    buttonColor: hasPrimaryButton ? colorValues[0] || '' : '',
+    button2Color: hasSecondaryButton ? colorValues[hasPrimaryButton ? 1 : 0] || '' : '',
+    ...resolveFlattenedColors(colorValues, hasPrimaryButton, hasSecondaryButton),
+  };
+  const buttonColor = publishedColors.buttonColor
     || normalizeColorValue(resourceData.buttonColor);
-  const button2Color = (hasSecondaryButton ? colorValues[hasPrimaryButton ? 1 : 0] : '')
+  const button2Color = publishedColors.button2Color
     || normalizeColorValue(resourceData.button2Color);
   const backgroundColor = normalizeColorValue(getField(block, 'backgroundColor')
-    || resourceData.backgroundColor) || flattenedColors.backgroundColor;
+    || resourceData.backgroundColor) || publishedColors.backgroundColor;
   const sharedTextColor = normalizeColorValue(getField(block, 'textColor')
-    || resourceData.textColor) || flattenedColors.textColor;
+    || resourceData.textColor) || publishedColors.textColor;
   const fallbackTextColor = !sharedTextColor && isDarkHexColor(backgroundColor) ? '#fff' : '';
   const effectiveTextColor = sharedTextColor || fallbackTextColor;
   const headingColor = normalizeColorValue(getField(block, 'headingColor') || resourceData.headingColor)
-    || flattenedColors.headingColor
+    || publishedColors.headingColor
     || effectiveTextColor;
   const subheadingColor = normalizeColorValue(
     getField(block, 'subheadingColor') || resourceData.subheadingColor,
-  ) || flattenedColors.subheadingColor || effectiveTextColor;
+  ) || publishedColors.subheadingColor || effectiveTextColor;
 
   const contentAlign = normalizeOptionValue(
     getFieldWithFallback(block, 'contentAlign', fieldIndex.contentAlign, isEditor)
@@ -616,18 +660,13 @@ export default async function decorate(block) {
   block.classList.toggle('split-card-image-smaller', imageSize === 'smaller');
   block.classList.toggle('split-card-variant-2', stylingVariant === 'variant-2');
 
+  // The block's own max-width narrows it inside the section's content column. The wrapper
+  // is left alone: forcing it to `max-width: none` pushed smaller cards past the column
+  // every other block aligns to (1376px at x 32 instead of 1356px at x 42 on a 1440 screen).
   if (maxWidth) {
     block.style.setProperty('--split-card-max-width', maxWidth);
   } else {
     block.style.removeProperty('--split-card-max-width');
-  }
-
-  if (maxWidth || blockSize === 'smaller') {
-    if (wrapper) {
-      wrapper.style.maxWidth = 'none';
-    }
-  } else if (wrapper) {
-    wrapper.style.removeProperty('max-width');
   }
 
   const card = document.createElement('div');
@@ -661,11 +700,13 @@ export default async function decorate(block) {
     : (stylingVariant === 'variant-2' && isOnDarkSection(block)));
 
   if (heading) {
-    const h2 = document.createElement('h2');
-    h2.className = 'split-card-heading';
-    h2.textContent = heading;
-    if (headingColor) h2.style.setProperty('color', headingColor, 'important');
-    contentSide.append(h2);
+    // The tag is authored (h3 by default, h2 when the card starts its own section);
+    // the size is the h3 step either way.
+    const headingEl = document.createElement(headingLevel);
+    headingEl.className = 'split-card-heading';
+    headingEl.textContent = heading;
+    if (headingColor) headingEl.style.setProperty('color', headingColor, 'important');
+    contentSide.append(headingEl);
   }
 
   if (subheadingHtml) {

@@ -649,6 +649,24 @@
             }
           ],
           "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingLevel",
+          "label": "Heading Level",
+          "description": "For screen readers and the page outline; the heading looks the same either way. Keep H3 when this card sits under a section heading. Choose H2 when it starts its own section, with only the page title above it.",
+          "value": "heading-h3",
+          "options": [
+            {
+              "name": "H3 (default)",
+              "value": "heading-h3"
+            },
+            {
+              "name": "H2 (starts its own section)",
+              "value": "heading-h2"
+            }
+          ]
         }
       ]
     }

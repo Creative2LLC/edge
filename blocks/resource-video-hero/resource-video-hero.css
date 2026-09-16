@@ -33,7 +33,7 @@
   align-items: center;
   margin-bottom: 1.25rem;
   color: #5c6f7d;
-  font-size: 0.83rem;
+  font-size: var(--caption-size);
   font-weight: 700;
 }
 
@@ -79,7 +79,7 @@
   border-radius: 999px;
   background: #ecf6fa;
   color: #0d6e8c;
-  font-size: 0.82rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   text-decoration: none;
 }

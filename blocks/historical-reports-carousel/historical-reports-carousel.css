@@ -36,6 +36,8 @@ main > .section > .historical-reports-carousel-wrapper {
   max-width: 48rem;
   margin: 0 0 42px;
   color: #404041;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .historical-reports-carousel .historical-reports-carousel-subheading > *:first-child {
@@ -131,7 +133,7 @@ main > .section > .historical-reports-carousel-wrapper {
   border-radius: 10px;
   background: linear-gradient(180deg, rgb(255 255 255 / 90%), rgb(238 233 227 / 92%));
   color: #4e6377;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 600;
 }
 
@@ -150,9 +152,9 @@ main > .section > .historical-reports-carousel-wrapper {
 .historical-reports-carousel .historical-reports-carousel-card-count {
   margin: 0 0 24px;
   color: #404041;
-  font-size: 1rem;
+  font-size: var(--body-size);
   line-height: 1.35;
-  font-weight: 700;
+  font-weight: var(--body-weight-medium);
 }
 
 /* Card link: the Text link style from the button standard; this only places it. */
@@ -164,24 +166,26 @@ main > .section > .historical-reports-carousel-wrapper {
   cursor: default;
 }
 
-/* The arrows are .button.icon and the dots .carousel-dots (styles.css); placement only here. */
+/* The arrows are .button.icon and the dots .carousel-dots (styles.css); placement only here.
+   Controls row under the track: dots centred, arrows pinned right. Matches
+   icon-card-carousel, split-card-carousel and detailed-carousel. */
+.historical-reports-carousel .historical-reports-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  position: relative;
+}
+
 .historical-reports-carousel .historical-reports-carousel-nav {
+  display: flex;
+  gap: 12px;
   position: absolute;
-  top: 42%;
-  transform: translateY(-50%);
-}
-
-.historical-reports-carousel .historical-reports-carousel-nav-prev {
-  left: -56px;
-}
-
-.historical-reports-carousel .historical-reports-carousel-nav-next {
-  right: -56px;
+  right: 0;
 }
 
 .historical-reports-carousel .historical-reports-carousel-dots {
   justify-content: center;
-  margin-top: 18px;
 }
 
 .historical-reports-carousel .historical-reports-carousel-empty-state {
@@ -194,7 +198,7 @@ main > .section > .historical-reports-carousel-wrapper {
 .historical-reports-carousel .historical-reports-carousel-empty-title {
   margin: 0 0 8px;
   color: #002e5d;
-  font-size: 1.1rem;
+  font-size: var(--heading-6-size);
   font-weight: 700;
 }
 
@@ -210,16 +214,6 @@ main > .section > .historical-reports-carousel-wrapper {
 
 .historical-reports-carousel.historical-reports-carousel-no-header .historical-reports-carousel-wrapper {
   padding-top: 40px;
-}
-
-@media (width <= 1300px) {
-  .historical-reports-carousel .historical-reports-carousel-nav-prev {
-    left: -22px;
-  }
-
-  .historical-reports-carousel .historical-reports-carousel-nav-next {
-    right: -22px;
-  }
 }
 
 @media (width <= 900px) {
@@ -240,20 +234,6 @@ main > .section > .historical-reports-carousel-wrapper {
   .historical-reports-carousel .historical-reports-carousel-card {
     min-height: 360px;
     padding: 28px 24px;
-  }
-
-  .historical-reports-carousel .historical-reports-carousel-nav {
-    z-index: 2;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  .historical-reports-carousel .historical-reports-carousel-nav-prev {
-    left: 10px;
-  }
-
-  .historical-reports-carousel .historical-reports-carousel-nav-next {
-    right: 10px;
   }
 }
 

@@ -36,9 +36,10 @@ main > .section > .icon-card-carousel-wrapper {
   margin: 0 0 40px;
 }
 
-/* Section subtitle */
+/* Section subtitle: a p under the h2 title, so it is body copy at --body-lg-size
+   (not --deck-size), matching split-card-carousel and detailed-carousel. */
 .icon-card-carousel .icon-card-carousel-subtitle {
-  font-size: var(--deck-size);
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
   max-width: 843px;

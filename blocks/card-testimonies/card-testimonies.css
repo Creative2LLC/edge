@@ -27,7 +27,7 @@
 }
 
 .card-testimonies-subtitle {
-  font-size: var(--deck-size);
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
@@ -93,7 +93,7 @@
 }
 
 .card-testimonies-main-author {
-  font-size: 24px;
+  font-size: var(--deck-size);
   font-weight: 600;
   color: #404041;
   margin: 0;
@@ -133,7 +133,7 @@
 }
 
 .card-testimonies-small-author {
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   font-weight: 600;
   color: #404041;
   margin: 0;
@@ -154,8 +154,8 @@
 }
 
 .card-testimonies-variant-2 .card-testimonies-subtitle {
-  font-size: var(--caption-size);
-  font-weight: var(--body-weight-strong);
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
 }
 
@@ -171,11 +171,11 @@
   }
 
   .card-testimonies-main-quote {
-    font-size: 28px;
+    font-size: var(--heading-3-size);
   }
 
   .card-testimonies-main-author {
-    font-size: 20px;
+    font-size: var(--deck-size);
   }
 
   .card-testimonies-small-inner {
@@ -221,7 +221,7 @@
   }
 
   .card-testimonies-main-author {
-    font-size: 18px;
+    font-size: var(--body-lg-size);
   }
 
   .card-testimonies-small-row {

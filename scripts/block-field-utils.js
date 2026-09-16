@@ -145,6 +145,45 @@ export function readTextField(scope, name, options = {}) {
   };
 }
 
+/* ---- "Heading Level" select appended to a block model after its pages were published ----
+   Its values are namespaced (heading-h2, heading-h3) so a published page, which carries no
+   field names, can be read by value. The row is then removed, so a block's positional and
+   flattened readers never mistake it for text. */
+const HEADING_LEVEL_RE = /^heading-(h[2-6])$/;
+
+function parseHeadingLevel(value) {
+  const match = String(value ?? '').trim().toLowerCase().match(HEADING_LEVEL_RE);
+  return match ? match[1] : '';
+}
+
+/**
+ * Reads a block's appended Heading Level select and returns the tag to build.
+ * Call it before the block reads any other field.
+ * @param {HTMLElement} block
+ * @param {{ fallback?: string, resourceValue?: string }} [options]
+ *   fallback: the tag when nothing was authored; resourceValue: the stored value from the
+ *   block's resource JSON, for blocks that already fetch it in the editor
+ * @returns {string} 'h2' … 'h6'
+ */
+export function takeHeadingLevel(block, { fallback = 'h3', resourceValue = '' } = {}) {
+  const named = block?.querySelector?.('[data-aue-prop="headingLevel"]');
+  const authored = parseHeadingLevel(named?.textContent) || parseHeadingLevel(resourceValue);
+  if (authored) return authored;
+  if (!block || block.matches('[data-aue-resource]') || block.querySelector('[data-aue-prop]')) {
+    return fallback;
+  }
+
+  let level = '';
+  [...block.children].forEach((row) => {
+    if (row.querySelector('picture, a[href]')) return;
+    const parsed = parseHeadingLevel(row.textContent);
+    if (!parsed) return;
+    if (!level) level = parsed;
+    row.remove();
+  });
+  return level || fallback;
+}
+
 export function readLinkField(scope, name, options = {}) {
   const source = scope.querySelector(getDataPropSelector(name));
   const fallbackCell = source ? null : getFallbackCell(scope, options);

@@ -34,7 +34,7 @@
 
 .connect-grid .connect-grid-subheading {
   color: #404041;
-  font-size: var(--deck-size);
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   line-height: var(--caption-line-height);
 }
@@ -64,10 +64,9 @@
   --connect-grid-description-color: #404041;
   --connect-grid-method-label-color: #5e5f63;
   --connect-grid-method-value-color: #008db6;
-  --connect-grid-title-size: 36px;
-  --connect-grid-description-size: 17px;
-  --connect-grid-method-label-size: 0.92rem;
-  --connect-grid-method-value-size: 1.04rem;
+  --connect-grid-description-size: var(--body-size);
+  --connect-grid-method-label-size: var(--body-sm-size);
+  --connect-grid-method-value-size: var(--body-size);
   --connect-grid-methods-gap: 20px;
 
   display: flex;
@@ -142,12 +141,10 @@
   object-fit: cover;
 }
 
+/* A real <h3>: size, weight and leading come from the global h3. */
 .connect-grid .connect-grid-card-title {
   margin: 0 0 var(--connect-grid-card-title-gap);
   color: var(--connect-grid-title-color);
-  font-size: var(--connect-grid-title-size);
-  font-weight: 700;
-  line-height: 1.06;
 }
 
 /* Rich-text title may contain <p> children — collapse the outer margins so
@@ -164,8 +161,8 @@
   color: var(--connect-grid-description-color);
 }
 
-/* Rich-text description: first paragraph small, subsequent paragraphs
-   larger with a space between (per design). */
+/* Rich-text description: every paragraph under the card's h3 is body size,
+   with a space between. */
 .connect-grid .connect-grid-card-description > * {
   margin: 0;
   font-size: var(--connect-grid-description-size);
@@ -174,7 +171,6 @@
 
 .connect-grid .connect-grid-card-description > * + * {
   margin-top: 16px;
-  font-size: var(--deck-size);
 }
 
 .connect-grid .connect-grid-card-divider {
@@ -207,11 +203,11 @@
   line-height: 1.2;
 }
 
+/* A contact value with no link (a phone number, an address). */
 .connect-grid .connect-grid-method-value {
   color: var(--connect-grid-method-value-color);
   font-size: var(--connect-grid-method-value-size);
   line-height: 1.35;
-  text-decoration: none;
 }
 
 .connect-grid .connect-grid-method-value > p {
@@ -219,19 +215,10 @@
   margin: 0;
 }
 
-.connect-grid .connect-grid-method-value.with-arrow::after {
-  display: inline-block;
-  content: '\2192';
-  margin-left: 8px;
-  font-size: 1.05em;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.connect-grid a.connect-grid-method-value:hover,
-.connect-grid a.connect-grid-method-value:focus {
-  color: #113a67;
-  text-decoration: none;
+/* A linked value is the standard Text link: styles.css paints it and draws the
+   arrow, so only placement lives here. */
+.connect-grid .connect-grid-method-link {
+  justify-self: start;
 }
 
 @media (width <= 1180px) {
@@ -262,10 +249,6 @@
   .connect-grid .connect-grid-card-media.is-image {
     width: calc(100% + 44px);
     margin: -24px -22px 22px;
-  }
-
-  .connect-grid .connect-grid-card-title {
-    font-size: clamp(1.9rem, 9vw, 2.6rem);
   }
 
   .connect-grid .connect-grid-card-divider {

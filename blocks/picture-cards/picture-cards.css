@@ -99,8 +99,9 @@ a.picture-card:hover .picture-card-overlay {
 
 .picture-cards .picture-card-description {
   margin: 0;
-  font-size: var(--body-sm-size);
+  font-size: var(--body-size);
   color: rgb(255 255 255 / 88%);
+  font-weight: var(--body-weight-medium);
 }
 
 @media (width <= 900px) {

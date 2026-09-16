@@ -33,7 +33,7 @@
 
 /* Subheading */
 .need-help-subheading {
-  font-size: var(--deck-size);
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 40px;
@@ -83,7 +83,7 @@
 
 /* Parenthesized text in link */
 .need-help-card-link-small {
-  font-size: 14px;
+  font-size: var(--body-sm-size);
 }
 
 /* === Responsive === */

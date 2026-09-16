@@ -234,7 +234,7 @@
 
 @media (width <= 900px) {
   .cards .cards-card-text {
-    font-size: 18px;
+    font-size: var(--body-lg-size);
   }
 }
 

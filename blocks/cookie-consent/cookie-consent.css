@@ -67,7 +67,7 @@
 
   /* >=18.66px bold qualifies as WCAG "large text" (3:1 contrast threshold),
      which the brand blue passes, so we keep brand colors without a contrast fail. */
-  font-size: 1.1875rem;
+  font-size: var(--button-font-size);
   font-weight: 700;
   line-height: 1.1;
   white-space: normal;
@@ -141,7 +141,7 @@
 
 .cookie-consent-choice-title {
   color: #143654;
-  font-size: 0.98rem;
+  font-size: var(--heading-7-size);
   font-weight: 700;
   line-height: 1.25;
 }

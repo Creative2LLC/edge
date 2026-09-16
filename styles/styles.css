@@ -27,8 +27,8 @@
      no block ever used — while 48 blocks hardcoded #404041 and 606 rendered
      elements carried it. Both greys were shipping at once. See
      audits/body-copy-audit.md finding 02. */
-  --text-color: #404041;
-  --link-color: #007294;
+  --text-color: #414042;
+  --link-color: #006D90;
   --link-hover-color: #005771;
 
   /* Semantic aliases for body copy. Per-block colour overrides are deliberately
@@ -327,7 +327,7 @@
      below; these are the only values it reads.
 
      Label contrast on its fill: primary 5.48 (8.07 on hover), soft 6.94,
-     amber 6.55, emergency 6.54, giving 5.25. Each is at or near the AA
+     amber 7.18 (6.09 on hover, black label), emergency 6.54, giving 6.10 (7.34 on hover). Each is at or near the AA
      line on purpose — do not lighten a fill or a label.
      ------------------------------------------------------------------ */
   --button-font-size: 1rem; /* 16px */
@@ -343,19 +343,19 @@
     background-color var(--hover-duration) var(--hover-ease),
     color var(--hover-duration) var(--hover-ease),
     box-shadow var(--hover-duration) var(--hover-ease);
-  --button-primary: #007294;
+  --button-primary: #006D90;
   --button-primary-hover: #005771;
   --button-tint: #e3f0f5;
   --button-tint-hover: #cfe5ee;
   --button-navy: #00264d;
   --button-on-dark-link-hover: #dcebf4;
-  --button-amber: #e38b22;
+  --button-amber: #F7941D;
   --button-amber-hover: #c9761a;
-  --button-amber-label: #1b1b1b;
-  --button-emergency: #b3261e;
+  --button-amber-label: #000;
+  --button-emergency: #AE1B1F;
   --button-emergency-hover: #8f1f18;
   --button-emergency-tint: #fbeae9;
-  --button-giving: #2f7a4a;
+  --button-giving: #356E3A;
   --button-giving-hover: #256140;
   --button-giving-tint: #e5f2ec;
   --button-disabled: #e9eef1;
@@ -371,21 +371,21 @@
   --control-hover: var(--button-tint);
   --control-focus: var(--button-primary);
   --control-duration: 180ms;
-  --accordion-label-color: #404041;
+  --accordion-label-color: #414042;
   --accordion-label-size: clamp(1.35rem, 1.95vw, 2rem);
   --accordion-label-weight: 700;
   --accordion-label-line-height: 1.22;
   --accordion-padding: 26px 30px;
   --accordion-gap: 20px;
-  --accordion-accent: #1491bf;
+  --accordion-accent: #008EB7;
   --accordion-icon-size: 16px;
-  --accordion-icon-ink: #113a67;
-  --accordion-focus: #e38b22;
+  --accordion-icon-ink: #006D90;
+  --accordion-focus: #F7941D;
   --accordion-duration: 220ms;
   --accordion-icon-duration: 280ms;
   --accordion-panel-duration: 320ms;
   --accordion-ease: cubic-bezier(0.25, 1, 0.5, 1);
-  --tab-ink: #404041;
+  --tab-ink: #414042;
   --tab-font-size: 15px;
   --tab-font-weight: 600;
   --tab-padding: 9px 18px;
@@ -1304,6 +1304,13 @@ a:hover {
       rule reads them. A state is therefore one declaration, a block never
       repaints a button, and the exemption list lives in one selector.
 
+      SIZE is per-element in the same way: --btn-font-size, --btn-pad-block,
+      --btn-pad-inline and --btn-radius each fall back to the shared
+      --button-* token. A block with a button size of its own (cta-card-1's
+      550px CTA) sets those and keeps taking its colours from the author's
+      style choice. Setting font-size, padding or height directly instead
+      takes the button off the standard — that is what the guard catches.
+
    2. A bare <button> without `.button` gets no look from this file: the
       form-control reset only zeroes it. Accordions, tabs, view toggles,
       pagination and carousel dots wear the shared CONTROLS below, and
@@ -1333,6 +1340,10 @@ a.button:any-link:where(.nav-tool-accent, .nav-search-trigger) {
   border-radius: 2.4em;
   padding: 0.5em 1.2em;
   font-family: var(--body-font-family);
+
+  /* Matches the Get Help Now pill (1.1875rem) so the three header actions read at
+     one size. They inherited --body-size (18px at 1440) before. Size only. */
+  font-size: 1.1875rem;
   font-style: normal;
   font-weight: 500;
   line-height: 1.25;
@@ -1447,8 +1458,8 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
   --btn-fg-hover: var(--button-on-dark-link-hover);
 }
 
-/* A red or green fill disappears against navy (2.34:1 and 2.92:1), so on
-   dark these become white with an outline and label in their own colour. */
+/* A red fill disappears against navy (2.34:1), so on dark Emergency becomes white
+   with an outline and label in its own colour. */
 :where(.is-on-dark .button, .button.is-on-dark).emergency {
   --btn-bg: #fff;
   --btn-bg-hover: var(--button-emergency-tint);
@@ -1458,13 +1469,14 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
   --btn-ring-hover: var(--button-emergency);
 }
 
+/* Giving keeps its green fill and white label on dark too: the client's green gives the
+   label 6.10:1 (7.34:1 on hover). The label is restated here, or the generic dark form
+   above would put a navy label on the green. */
 :where(.is-on-dark .button, .button.is-on-dark).giving {
-  --btn-bg: #fff;
-  --btn-bg-hover: var(--button-giving-tint);
-  --btn-fg: var(--button-giving);
-  --btn-fg-hover: var(--button-giving);
-  --btn-ring: var(--button-giving);
-  --btn-ring-hover: var(--button-giving);
+  --btn-bg: var(--button-giving);
+  --btn-bg-hover: var(--button-giving-hover);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
 }
 
 /* ---- header mega nav: Donate Now's colours at the standard size ----
@@ -1527,7 +1539,7 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
     var(--btn-pad-block, var(--button-padding-block))
     var(--btn-pad-inline, var(--button-padding-inline));
   font-family: var(--body-font-family);
-  font-size: var(--button-font-size);
+  font-size: var(--btn-font-size, var(--button-font-size));
   font-style: normal;
   font-weight: var(--button-font-weight);
   line-height: var(--button-line-height);

@@ -21,7 +21,7 @@
 }
 
 .leadership-profile-breadcrumb li a {
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   font-weight: 500;
   color: #000;
   text-decoration: none;
@@ -37,7 +37,7 @@
 }
 
 .leadership-profile-breadcrumb .breadcrumb-current span {
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   font-weight: 500;
   color: #008eb7;
 }
@@ -75,7 +75,7 @@
 }
 
 .leadership-profile-title {
-  font-size: 24px;
+  font-size: var(--deck-size);
   font-weight: 600;
   color: #404041;
   margin: 0 0 24px;
@@ -129,7 +129,7 @@
   }
 
   .leadership-profile-title {
-    font-size: 20px;
+    font-size: var(--deck-size);
   }
 
   .leadership-profile-bio {
@@ -149,11 +149,11 @@
 
   .leadership-profile-breadcrumb li a,
   .leadership-profile-breadcrumb .breadcrumb-current span {
-    font-size: 13px;
+    font-size: var(--caption-size);
   }
 
   .leadership-profile-title {
-    font-size: 18px;
+    font-size: var(--heading-5-size);
     margin-bottom: 20px;
   }
 

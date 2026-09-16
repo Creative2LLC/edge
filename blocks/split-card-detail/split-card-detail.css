@@ -66,9 +66,10 @@
 
 /* Subtitle */
 .split-card-detail-card-subtitle {
-  font-size: var(--body-sm-size);
+  font-size: var(--body-size);
   color: #6b6b6b;
   margin: 0;
+  font-weight: var(--body-weight-medium);
 }
 
 /* Authoring placeholder for empty items in the editor */

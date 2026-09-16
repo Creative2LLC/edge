@@ -300,7 +300,7 @@ function buildWidget(label, layout) {
   trigger.setAttribute('aria-haspopup', 'dialog');
   trigger.setAttribute('aria-expanded', 'false');
   trigger.innerHTML = `
-    <span class="icon icon-help-bubble-dark" aria-hidden="true"></span>
+    <span class="icon icon-help-bubble" aria-hidden="true"></span>
     <span>${label}</span>
   `;
 
@@ -334,7 +334,7 @@ function buildWidget(label, layout) {
   closeButton.className = 'get-help-close';
   closeButton.setAttribute('aria-label', 'Close get help panel');
   closeButton.innerHTML = `
-    <span class="icon icon-x-circle-dark" aria-hidden="true"></span>
+    <span class="icon icon-x-circle" aria-hidden="true"></span>
     <span>Close</span>
   `;
 

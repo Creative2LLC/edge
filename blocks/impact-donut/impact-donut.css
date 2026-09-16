@@ -138,7 +138,7 @@
 .impact-donut .impact-donut-placeholder-title {
   margin: 0;
   color: var(--impact-donut-heading-color);
-  font-size: 1.125rem;
+  font-size: var(--heading-6-size);
   font-weight: 700;
   line-height: 1.3;
 }
@@ -152,7 +152,7 @@
 .impact-donut .impact-donut-stat-value {
   margin-bottom: 10px;
   color: var(--impact-donut-stat-color, #1491bf);
-  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-size: var(--heading-1-size);
   font-weight: 700;
   line-height: 0.95;
 }
@@ -262,7 +262,7 @@
 
 .impact-donut .impact-donut-legend-value {
   margin: 0 0 8px;
-  font-size: 1.9rem;
+  font-size: var(--heading-4-size);
   font-weight: 700;
   line-height: 1;
 }

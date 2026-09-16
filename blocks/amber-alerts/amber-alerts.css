@@ -41,7 +41,7 @@
 
 .amber-alerts-filter span {
   color: #3f4b53;
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   font-weight: 800;
 }
 
@@ -52,7 +52,7 @@
   background: #fff;
   color: #243846;
   font: inherit;
-  font-size: 15px;
+  font-size: var(--body-size);
   padding: 8px 12px;
 }
 
@@ -80,7 +80,7 @@
 .amber-alerts-status {
   margin: 0 0 18px;
   color: #3f4b53;
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   font-weight: 800;
 }
 
@@ -232,14 +232,14 @@
   border-radius: 8px;
   background: #fff;
   color: #404041;
-  font-size: 17px;
+  font-size: var(--body-size);
   font-weight: 800;
 }
 
 .amber-alerts-disclosure {
   margin: 28px 0 0;
   color: #304656;
-  font-size: 17px;
+  font-size: var(--body-size);
   line-height: 1.5;
 }
 

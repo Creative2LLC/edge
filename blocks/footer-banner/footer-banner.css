@@ -83,9 +83,9 @@
   object-fit: contain;
 }
 
-/* subheading */
+/* subheading — body copy under the banner's h2, so the large body step */
 .footer-banner-subheading {
-  font-size: 34px;
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
   max-width: 861px;
@@ -106,9 +106,5 @@
   .footer-banner-logo picture {
     width: 130px;
     height: 78px;
-  }
-
-  .footer-banner-subheading {
-    font-size: var(--deck-size);
   }
 }

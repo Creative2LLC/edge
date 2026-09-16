@@ -241,10 +241,23 @@ export default function decorate(block) {
   inner.className = 'featured-event-inner';
 
   if (headerHtml && headerHtml.trim()) {
-    const header = document.createElement('div');
+    // The header is the block's title, so it is a real <h2> (the cards below are
+    // <h3>). The field is rich text, and a heading may only hold inline content,
+    // so authored paragraphs are unwrapped and joined with a line break.
+    const header = document.createElement('h2');
     header.className = 'featured-event-header';
     if (headerSource) moveInstrumentation(headerSource, header);
-    header.innerHTML = headerHtml;
+    const authored = document.createElement('div');
+    authored.innerHTML = headerHtml;
+    const lines = [...authored.children];
+    if (lines.length && lines.every((el) => /^(P|DIV|H[1-6])$/.test(el.tagName))) {
+      lines.forEach((el, index) => {
+        if (index) header.append(document.createElement('br'));
+        header.append(...el.childNodes);
+      });
+    } else {
+      header.innerHTML = headerHtml;
+    }
     inner.append(header);
   }
 

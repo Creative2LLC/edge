@@ -101,7 +101,7 @@ main > .section > .resources-browser-wrapper {
   box-shadow: 0 10px 24px rgb(36 56 70 / 6%);
   color: #404041;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--caption-size);
   font-weight: 700;
   line-height: 1;
   transition:
@@ -173,7 +173,7 @@ main > .section > .resources-browser-wrapper {
   color: var(--resource-chip-color, #404041);
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
   transition:
@@ -203,7 +203,7 @@ main > .section > .resources-browser-wrapper {
   align-items: center;
   border-radius: 999px;
   padding: 3px 8px;
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -234,7 +234,7 @@ main > .section > .resources-browser-wrapper {
   color: #404041;
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 800;
   padding: 0 4px;
 }
@@ -246,7 +246,7 @@ main > .section > .resources-browser-wrapper {
 .resources-browser .resources-browser-count {
   margin: 0 0 0 auto;
   color: #6b6763;
-  font-size: 13px;
+  font-size: var(--caption-size);
   font-weight: 800;
   white-space: nowrap;
 }
@@ -275,12 +275,12 @@ main > .section > .resources-browser-wrapper {
 .resources-browser .resources-browser-source-debug-list {
   margin: 8px 0 0;
   padding-left: 18px;
-  font-size: 12px;
+  font-size: var(--caption-size);
   line-height: 1.4;
 }
 
 .resources-browser .resources-browser-source-debug-list code {
-  font-size: 12px;
+  font-size: var(--caption-size);
 }
 
 .resources-browser .resources-browser-cards {
@@ -527,9 +527,10 @@ main > .section > .resources-browser-wrapper {
   margin: 0;
   overflow: hidden;
   color: #54504d;
-  font-size: var(--caption-size);
+  font-size: var(--body-size);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--rb-subtitle-lines, 3);
+  font-weight: var(--body-weight-medium);
 }
 
 /* Title used the whole budget: nothing left for the description. Needs to beat
@@ -572,7 +573,7 @@ main > .section > .resources-browser-wrapper {
   margin: 28px 0;
   text-align: center;
   color: #4f4f4f;
-  font-size: 16px;
+  font-size: var(--body-sm-size);
 }
 
 .resources-browser .resources-browser-footer {

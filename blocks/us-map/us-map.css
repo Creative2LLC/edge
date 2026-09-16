@@ -84,7 +84,7 @@
   color: #fff;
   border: none;
   border-radius: 999px;
-  font-size: 16px;
+  font-size: var(--button-font-size);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -132,7 +132,7 @@
 .us-map-dropdown-list li {
   padding: 10px 20px;
   color: #fff;
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
@@ -164,7 +164,7 @@
 }
 
 .us-map-link-bar-name {
-  font-size: 17px;
+  font-size: var(--heading-6-size);
   font-weight: 700;
   color: #404041;
   margin: 0;
@@ -184,7 +184,7 @@
 }
 
 .us-map-link-bar-url a {
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   font-weight: 400;
   color: #404041;
   text-decoration: underline;
@@ -251,7 +251,7 @@
 }
 
 .us-map-list-row-name {
-  font-size: 17px;
+  font-size: var(--heading-6-size);
   font-weight: 700;
   color: #404041;
   flex-shrink: 0;
@@ -265,7 +265,7 @@
 
 /* stylelint-disable-next-line no-descending-specificity */
 .us-map-list-row-url a {
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   font-weight: 400;
   color: #404041;
   text-decoration: underline;
@@ -277,7 +277,7 @@
 }
 
 .us-map-list-row-empty {
-  font-size: 15px;
+  font-size: var(--body-sm-size);
   color: #999;
   font-style: italic;
 }

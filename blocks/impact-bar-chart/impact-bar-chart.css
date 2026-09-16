@@ -65,7 +65,7 @@
   margin: 0;
   padding: 0;
   color: var(--impact-bar-chart-copy-color);
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   list-style: none;
 }
@@ -151,7 +151,7 @@
 
 .impact-bar-chart .impact-bar-chart-value {
   color: var(--impact-bar-chart-text);
-  font-size: 1.05rem;
+  font-size: var(--heading-7-size);
   font-weight: 800;
   line-height: 1.2;
   text-align: right;
@@ -173,7 +173,7 @@
   margin: -5px 0 0;
   padding: 0;
   color: var(--impact-bar-chart-text);
-  font-size: 0.82rem;
+  font-size: var(--caption-size);
   line-height: 1.25;
   list-style: none;
 }
@@ -263,7 +263,7 @@
 .impact-bar-chart .impact-bar-chart-table th {
   background: #f5f9fb;
   color: #147da8;
-  font-size: 0.76rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -293,7 +293,7 @@
 .impact-bar-chart .impact-bar-chart-table caption {
   padding: 12px 18px;
   color: var(--impact-bar-chart-muted);
-  font-size: 0.85rem;
+  font-size: var(--caption-size);
   text-align: left;
   caption-side: bottom;
 }
@@ -365,7 +365,7 @@
   border-radius: 8px;
   background: rgb(20 145 191 / 5%);
   color: #113a67;
-  font-size: 1.1rem;
+  font-size: var(--body-size);
   font-weight: 700;
   text-align: center;
 }
@@ -441,7 +441,7 @@
 
   .impact-bar-chart .impact-bar-chart-table td::before {
     color: #147da8;
-    font-size: 0.75rem;
+    font-size: var(--caption-size);
     font-weight: 800;
     text-align: left;
     text-transform: uppercase;

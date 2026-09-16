@@ -29,8 +29,8 @@
 }
 
 .cta-card-1 .cta-card-1-subtitle {
-  font-size: 17px !important;
-  font-weight: 400 !important;
+  font-size: var(--body-lg-size) !important;
+  font-weight: var(--body-weight-medium) !important;
   color: #404041;
   margin: 0;
   max-width: 554px;
@@ -53,27 +53,39 @@
   gap: 18px;
 }
 
-/* Buttons: colours, type, padding, radius and hover come from the button
-   standard. These rules keep only this block's layout — the wide 550px CTA and
-   the two-line label with subtext. */
+/* Buttons: colour, weight and hover come from the button standard, so the author's
+   Button Style dropdown still picks them. This block's own SIZE is set through the
+   standard's per-element hooks — never a bare font-size/padding/height, which would
+   take the button off the standard and out of reach of the style.
+   --btn-pad-block replaces the design's fixed 70px height: 18.18px x 1.2 line-height
+   + 24px top and bottom = 69.8px, and it grows rather than clipping a wrapped label. */
 .cta-card-1 .cta-card-1-button {
+  --btn-font-size: 18.18px;
+  --btn-pad-block: 24px;
+  --btn-pad-inline: 36px;
+
   width: 550px;
   max-width: 100%;
+  align-self: normal !important;
+  white-space: nowrap;
 }
 
+/* Two-line label: 13px block padding holds the same 65px the 14px/12px pair did. */
 .cta-card-1 .cta-card-1-button.has-subtext {
+  --btn-pad-block: 13px;
+
   flex-direction: column;
   gap: 2px;
 }
 
 .cta-card-1 .cta-card-1-button-subtext {
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 400;
   line-height: 1.3;
 }
 
 .cta-card-1 .cta-card-1-below-button {
-  font-size: 17px;
+  font-size: var(--body-size);
   font-weight: 400;
   color: #404041;
   margin: 0;
@@ -103,12 +115,15 @@
 }
 
 .cta-card-1.cta-card-1-variant-2 .cta-card-1-subtitle {
-  font-size: 17px !important;
-  font-weight: 400 !important;
+  font-size: var(--body-lg-size) !important;
+  font-weight: var(--body-weight-medium) !important;
   max-width: 905.36px;
 }
 
 .cta-card-1.cta-card-1-variant-2 .cta-card-1-button {
+  --btn-pad-block: 14.55px;
+  --btn-pad-inline: 21.82px;
+
   width: auto;
 }
 
@@ -119,13 +134,22 @@
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-subtitle {
-  font-size: 17px !important;
+  font-size: var(--body-lg-size) !important;
   width: 367px;
   max-width: 367px;
 }
 
+/* Compact variant: a smaller 15px label on tighter padding. */
 .cta-card-1.cta-card-1-button2-left .cta-card-1-button {
+  --btn-font-size: 15px;
+  --btn-pad-block: 10px;
+  --btn-pad-inline: 22px;
+
   width: auto;
+}
+
+.cta-card-1.cta-card-1-button2-left .cta-card-1-button.has-subtext {
+  --btn-pad-block: 8px;
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-right {
@@ -138,12 +162,12 @@
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-below-button > *:nth-child(1) {
-  font-size: 20px;
+  font-size: var(--body-lg-size);
   font-weight: 700;
 }
 
 .cta-card-1.cta-card-1-button2-left .cta-card-1-below-button > *:nth-child(2) {
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   font-weight: 700;
 }
 
@@ -179,11 +203,18 @@
   order: 3;
 }
 
-/* Top button sizes to its content instead of the shared 550px width. */
+/* Top button: the largest label on the card (25px), sized to its content instead of
+   the shared 550px width so the tighter padding reads. */
 .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary),
 .cta-card-1.cta-card-1-variant-3 .cta-card-1-right .cta-card-1-button:not(.cta-card-1-button-secondary).has-subtext {
+  --btn-pad-block: 20px;
+  --btn-pad-inline: 30px;
+
   width: auto;
-  align-self: flex-start;
+
+  /* !important only to beat the base rule's own align-self: normal !important —
+     without it the button stretches to the 550px column and width: auto never shows. */
+  align-self: flex-start !important;
 }
 
 /* --- Style Type: Variant 4 --- */
@@ -217,11 +248,17 @@
 /* Right-side buttons size to content. */
 .cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button,
 .cta-card-1.cta-card-1-variant-4.block .cta-card-1-right .cta-card-1-button.has-subtext {
+  --btn-pad-block: 14.55px;
+  --btn-pad-inline: 21.82px;
+
   width: auto;
 }
 
 /* Button 3: left-aligned under the subtitle, in the Secondary style. */
 .cta-card-1.cta-card-1-variant-4 .cta-card-1-left .cta-card-1-button-tertiary {
+  --btn-pad-block: 14px;
+  --btn-pad-inline: 16px;
+
   align-self: flex-start;
   width: auto;
   margin-top: 24px;
@@ -261,7 +298,7 @@
   }
 
   .cta-card-1 .cta-card-1-subtitle {
-    font-size: 16px !important;
+    font-size: var(--body-lg-size) !important;
   }
 
   /* Buttons stretch to fill the column and wrap their label, instead of holding
@@ -271,8 +308,12 @@
   }
 
   .cta-card-1 .cta-card-1-button {
+    --btn-pad-block: 17px;
+    --btn-pad-inline: 20px;
+
     width: 100%;
     max-width: 100%;
+    white-space: normal;
   }
 
   /* below-button text: full width + centered to match the centered buttons
@@ -374,6 +415,6 @@
   }
 
   .cta-card-1 .cta-card-1-subtitle {
-    font-size: 16px !important;
+    font-size: var(--body-lg-size) !important;
   }
 }

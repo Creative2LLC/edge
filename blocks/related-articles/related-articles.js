@@ -154,7 +154,7 @@ function getFieldValue(block, name, fallback = '') {
     || fallback;
 }
 
-function parseLimit(value, fallback = 3) {
+function parseLimit(value, fallback = 6) {
   const parsed = parseInt(value, 10);
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
 }
@@ -200,12 +200,16 @@ function buildTaxonomy(item) {
 }
 
 function buildItemHref(item, config) {
+  const sourceUrl = item.primary_url || item.detail_path || item.page_path;
+  const canonicalHref = normalizeEdgeContentPath(sourceUrl);
+  if (canonicalHref) return canonicalHref;
+
   const detailBasePath = normalizeContentBasePath(config.detailBasePath);
   if (detailBasePath && normalizeText(item.slug)) {
     return normalizeEdgeContentPath(`${detailBasePath}/${item.slug}`);
   }
 
-  return normalizeEdgeContentPath(item.primary_url || item.detail_path || item.page_path);
+  return '';
 }
 
 function buildCard(item, config) {
@@ -437,8 +441,9 @@ function buildView(items, config) {
   return fragment;
 }
 
-async function fetchItem(apiBaseUrl, sourceType, slug) {
+async function fetchItem(apiBaseUrl, sourceType, slug, relatedLimit) {
   const endpoint = new URL(`/api/${sourceType}/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
+  endpoint.searchParams.set('related_limit', String(relatedLimit));
   const response = await fetch(endpoint.toString(), {
     headers: { Accept: 'application/json' },
   });
@@ -461,7 +466,7 @@ export default async function decorate(block) {
     sourceType,
     slug: normalizeSlug(getFieldValue(block, 'slug')) || getSlugFromPathname(),
     heading: getFieldValue(block, 'heading', 'Related Articles') || 'Related Articles',
-    limit: parseLimit(getFieldValue(block, 'limit', '3'), 3),
+    limit: Math.max(6, parseLimit(getFieldValue(block, 'limit', '6'), 6)),
     detailBasePath: getFieldValue(block, 'detailBasePath'),
   };
 
@@ -478,7 +483,7 @@ export default async function decorate(block) {
   }
 
   try {
-    const item = await fetchItem(config.apiBaseUrl, config.sourceType, config.slug);
+    const item = await fetchItem(config.apiBaseUrl, config.sourceType, config.slug, config.limit);
     const related = (item?.related_articles || []).slice(0, config.limit);
 
     if (!related.length) {

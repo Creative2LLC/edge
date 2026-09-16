@@ -26,15 +26,16 @@
   border-radius: 999px;
   padding: 14px 22px;
   font-family: var(--body-font-family);
-  font-size: 1rem;
+
+  /* Client exception: white on orange. It passes only as WCAG LARGE text (19px+ bold
+     needs 3:1): white on #DD7C26 is 3.01:1, on the #C77022 hover 3.64:1. Keep the label
+     at least 1.1875rem / 700 and the orange no lighter, or it fails (the client's
+     #E07E27 is 2.92:1). The phone badge's white icon needs 3:1 too, and gets it. */
+  font-size: 1.1875rem;
   font-weight: 700;
   line-height: 1;
-  background: #e38b22;
-
-  /* Client exception: this button keeps its own look, except the label is dark
-     whether the panel is closed or open. White on this orange is 2.67:1;
-     #1b1b1b is 7.98:1. The icons are dark copies for the same reason. */
-  color: #1b1b1b;
+  background: #DD7C26;
+  color: #fff;
   box-shadow: 0 14px 32px rgb(0 0 0 / 35%);
   transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
 }
@@ -47,7 +48,7 @@
 
 .get-help .get-help-trigger:hover,
 .get-help .get-help-close:hover {
-  background: #cd7b1a;
+  background: #C77022;
 }
 
 .get-help .get-help-trigger .icon,
@@ -144,7 +145,7 @@
   gap: 20px;
   color: #173147;
   font-family: var(--body-font-family);
-  font-size: 1.75rem;
+  font-size: var(--heading-4-size);
   font-weight: 700;
   line-height: 1.25;
   text-decoration: none;
@@ -200,7 +201,7 @@
 
   .get-help .get-help-trigger,
   .get-help .get-help-close {
-    font-size: 1rem;
+    font-size: 1.1875rem; /* never below 19px bold: the white label relies on large-text contrast */
     padding: 12px 18px;
   }
 
@@ -230,7 +231,7 @@
   }
 
   .get-help .get-help-item-link {
-    font-size: 1.375rem;
+    font-size: var(--deck-size);
   }
 
   .get-help .get-help-item-link::after {

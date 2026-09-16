@@ -29,9 +29,10 @@
   margin: 0 0 16px;
 }
 
-/* Body text (rich text) */
+/* Body text (rich text): sits directly under the h2 heading, so it is body copy
+   at --body-lg-size rather than the --deck-size tier. */
 .split-card-list .scl-body {
-  font-size: var(--deck-size);
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 24px;
@@ -87,7 +88,7 @@
 }
 
 .split-card-list .scl-statement-subtitle {
-  font-size: var(--body-sm-size);
+  font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0;
@@ -96,7 +97,7 @@
 
 /* Year */
 .split-card-list .scl-statement-year {
-  font-size: 17px;
+  font-size: var(--body-size);
   font-weight: 600;
   color: #00264d;
   white-space: nowrap;

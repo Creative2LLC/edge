@@ -82,6 +82,7 @@
   font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 24px;
+  font-size: var(--body-lg-size);
 }
 
 /* Section header */

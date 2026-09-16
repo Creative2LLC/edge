@@ -53,7 +53,7 @@ main > .section:has(> div:only-child > .report-section-nav) {
   padding: 0 16px;
   border-radius: 999px;
   color: #113a67;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 750;
   line-height: 1.1;
   text-decoration: none;
@@ -98,7 +98,7 @@ main > .section:has(> div:only-child > .report-section-nav) {
     background: #fff;
     color: #113a67;
     font: inherit;
-    font-size: 1rem;
+    font-size: var(--body-size);
     font-weight: 700;
   }
 }

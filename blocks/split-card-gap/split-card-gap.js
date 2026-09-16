@@ -8,6 +8,7 @@ import {
   readRichTextField,
   readTextField,
   setItemLabel,
+  takeHeadingLevel,
 } from '../../scripts/block-field-utils.js';
 import {
   applyButtonStyle,
@@ -183,10 +184,12 @@ function moveFieldContent(field, target, fallbackValue = '') {
   }
 }
 
-function buildHeading(headingSource, textColor) {
+function buildHeading(headingSource, textColor, level = 'h3') {
   if (!headingSource) return null;
 
-  const headingEl = document.createElement('h2');
+  // The tag is authored (h3 by default, h2 when the block starts its own section);
+  // the size is the h3 step either way.
+  const headingEl = document.createElement(level);
   headingEl.className = 'split-card-gap-heading';
   if (textColor) headingEl.style.color = textColor;
 
@@ -381,7 +384,7 @@ function buildBenefitItem(data, textColor) {
   return item;
 }
 
-function decorateBlock(block) {
+function decorateBlock(block, headingLevel = 'h3') {
   const imageField = getImageField(block, 'image', 0);
   const imageAltField = getField(block, 'imageAlt', 1);
   const headingSource = getRichField(block, 'heading', 2);
@@ -453,7 +456,7 @@ function decorateBlock(block) {
     content.style.backgroundColor = contentBackgroundColor;
   }
 
-  const headingEl = buildHeading(headingSource, textColor);
+  const headingEl = buildHeading(headingSource, textColor, headingLevel);
   if (headingEl) content.append(headingEl);
 
   const body = buildBody(bodySource, textColor);
@@ -485,14 +488,16 @@ function decorateBlock(block) {
 // Style dropdowns appended to this block's model after its pages were published. They
 // are read before the block rebuilds its markup, then applied to the finished buttons.
 export default function decorate(block) {
-  // Appended style dropdowns come out of the published markup first; see button-utils.
+  // Appended dropdowns come out of the published markup first, before the positional
+  // readers run: the Heading Level select (see block-field-utils), then the button styles.
+  const headingLevel = takeHeadingLevel(block);
   takeAppendedStyleCells(block);
   const [primaryButtonStyle, secondaryButtonStyle] = readAppendedStyles(
     block,
     ['primaryButtonStyle', 'secondaryButtonStyle'],
     getParentRows(block),
   );
-  decorateBlock(block);
+  decorateBlock(block, headingLevel);
   restyleAppendedButtons(block, {
     '.split-card-gap-button-primary': primaryButtonStyle,
     '.split-card-gap-button-secondary': secondaryButtonStyle,

@@ -10,12 +10,9 @@
   width: 100%;
 }
 
-/* ---------- Header ---------- */
+/* ---------- Header: a real <h2>, sized by the global h2 ---------- */
 .featured-event .featured-event-header {
   margin: 0 0 40px;
-  font-size: 40px;
-  font-weight: 700;
-  line-height: 1.15;
   color: #00264d;
 }
 
@@ -92,7 +89,7 @@
 
 .featured-event .featured-event-card-description {
   margin: 12px 0 0;
-  font-size: var(--caption-size);
+  font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
 }
@@ -182,7 +179,6 @@
   }
 
   .featured-event .featured-event-header {
-    font-size: 32px;
     margin-bottom: 28px;
   }
 

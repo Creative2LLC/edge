@@ -49,7 +49,7 @@ main > .section > .resources-wrapper {
 }
 
 .resources .resources-subheading {
-  font-size: var(--deck-size);
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 8px 0 0;
@@ -187,7 +187,7 @@ main > .section > .resources-wrapper {
   background: #e8f1f5;
   color: #0d3c50;
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -227,7 +227,7 @@ main > .section > .resources-wrapper {
 .resources .resources-empty {
   margin: 0;
   color: #404041;
-  font-size: 18px;
+  font-size: var(--body-size);
   line-height: 1.5;
 }
 

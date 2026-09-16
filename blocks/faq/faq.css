@@ -48,7 +48,7 @@ main > .section > .faq-wrapper {
 .faq .faq-item-placeholder-title {
   margin: 0;
   color: #113a67;
-  font-size: 1.2rem;
+  font-size: var(--heading-5-size);
   font-weight: 700;
   line-height: 1.3;
 }
@@ -101,7 +101,7 @@ main > .section > .faq-wrapper {
   width: 100%;
   min-width: 720px;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
 }
 
 .faq .faq-amber-table th,
@@ -114,7 +114,7 @@ main > .section > .faq-wrapper {
 
 .faq .faq-amber-table thead th {
   color: #00264d;
-  font-size: 0.82rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -184,11 +184,11 @@ main > .section > .faq-wrapper {
 
   .faq .faq-item-answer {
     padding: 0 20px 20px;
-    font-size: var(--body-sm-size);
+    font-size: var(--body-size);
   }
 
   .faq .faq-amber-table {
     min-width: 620px;
-    font-size: 0.9rem;
+    font-size: var(--body-sm-size);
   }
 }

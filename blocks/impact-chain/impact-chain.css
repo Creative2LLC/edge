@@ -218,6 +218,7 @@
 .impact-chain .impact-chain-item-description {
   color: #404041;
   margin: 0;
+  font-weight: var(--body-weight-medium);
 }
 
 /* -------------------------------------------------------

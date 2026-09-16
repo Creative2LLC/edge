@@ -86,7 +86,7 @@
   border-radius: 99px;
   padding: 4px 12px;
   color: rgb(255 255 255 / 83%);
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 700;
   line-height: 1.4;
   display: inline-block;

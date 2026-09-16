@@ -7,6 +7,7 @@ import {
   readTextField,
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 // Hex-color select fields never get data-aue-prop instrumentation in the editor, so their
 // positional fallback is only as reliable as the fixed index it's given — which breaks
@@ -293,15 +294,24 @@ function moveFieldContent(field, target, fallbackValue = '') {
   }
 }
 
-function buildRichContent(source, className) {
+function buildRichContent(source, className, tagName = 'div') {
   if (!source) return null;
 
-  const content = document.createElement('div');
+  const content = document.createElement(tagName);
   content.className = className;
   moveInstrumentation(source, content);
   while (source.firstChild) content.append(source.firstChild);
 
   return content.childNodes.length ? content : null;
+}
+
+// A heading may only hold inline content, so authored paragraphs are unwrapped
+// (and joined with a line break when there are several).
+function unwrapParagraphs(element) {
+  [...element.children].filter((child) => child.tagName === 'P').forEach((paragraph, index) => {
+    if (index) paragraph.before(document.createElement('br'));
+    paragraph.replaceWith(...paragraph.childNodes);
+  });
 }
 
 function unwrapSingleParagraph(element) {
@@ -392,11 +402,6 @@ function getStructuredContactMethods(row, isEditor, itemColumnIndex) {
   return methods;
 }
 
-function shouldUseArrow(url) {
-  if (!url) return false;
-  return !url.startsWith('mailto:') && !url.startsWith('tel:');
-}
-
 function shouldShowDivider(value) {
   const normalizedValue = String(value || DEFAULTS.showDivider).trim().toLowerCase();
   return !['hide', 'hidden', 'off', 'false', 'no', 'none'].includes(normalizedValue);
@@ -467,16 +472,18 @@ function buildMethod(method) {
     wrapper.append(label);
   }
 
+  // A linked value is the standard Text link (styles.css paints it and draws the
+  // arrow); a value with no link keeps the block's own contact styling.
   const value = document.createElement(method.link ? 'a' : 'span');
-  value.className = 'connect-grid-method-value';
   moveFieldContent(method.textField, value, method.text);
   unwrapSingleParagraph(value);
 
   if (method.link) {
+    value.className = 'connect-grid-method-link';
     value.href = method.link;
-    if (shouldUseArrow(method.link)) {
-      value.classList.add('with-arrow');
-    }
+    applyButtonStyle(value, 'text-link');
+  } else {
+    value.className = 'connect-grid-method-value';
   }
 
   if (method.linkField?.source) {
@@ -620,7 +627,7 @@ function buildCard(item, index, isEditor) {
   if (item.isAuthoringPlaceholder) {
     card.classList.add('is-authoring-placeholder');
 
-    const title = document.createElement('div');
+    const title = document.createElement('h3');
     title.className = 'connect-grid-card-title';
     title.textContent = 'New connect card';
 
@@ -635,8 +642,12 @@ function buildCard(item, index, isEditor) {
   const media = buildMedia(item);
   if (media) card.append(media);
 
-  const title = buildRichContent(item.titleSource, 'connect-grid-card-title');
-  if (title) card.append(title);
+  // The card title is a real <h3> under the section's <h2>.
+  const title = buildRichContent(item.titleSource, 'connect-grid-card-title', 'h3');
+  if (title) {
+    unwrapParagraphs(title);
+    card.append(title);
+  }
 
   const description = buildRichContent(item.descriptionSource, 'connect-grid-card-description');
   if (description) card.append(description);

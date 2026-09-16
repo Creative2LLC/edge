@@ -97,10 +97,12 @@
   color: #113a67;
 }
 
+/* Sits directly under the h2 heading, so it is body copy at --body-lg-size
+   rather than the --deck-size tier. */
 .report-download .report-download-body {
   max-width: 516px;
   color: #404041;
-  font-size: var(--deck-size);
+  font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   line-height: var(--caption-line-height);
 }
@@ -139,7 +141,7 @@
   border-radius: 999px;
   background: #1491bf;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: var(--body-lg-size);
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -164,7 +166,7 @@
   .report-download .report-download-button-placeholder {
     min-height: 52px;
     padding: 0 20px;
-    font-size: 18px;
+    font-size: var(--body-lg-size);
   }
 }
 

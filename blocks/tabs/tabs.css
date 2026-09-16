@@ -122,7 +122,7 @@
 
 .tabs .tabs-card-body {
   color: var(--tabs-muted);
-  font-size: var(--body-sm-size);
+  font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
 }
 
@@ -155,7 +155,7 @@
 .tabs .tabs-empty {
   margin: 0;
   color: var(--tabs-muted);
-  font-size: 1rem;
+  font-size: var(--body-sm-size);
   font-weight: 600;
 }
 

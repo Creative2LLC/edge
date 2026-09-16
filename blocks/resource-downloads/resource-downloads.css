@@ -91,7 +91,7 @@ main > .section > div.resource-downloads-wrapper {
   background: var(--rd-accent, #00264d);
   color: #fff;
   font-family: var(--heading-font-family, sans-serif);
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   font-weight: 800;
   letter-spacing: 0.04em;
   box-shadow: 0 4px 12px rgb(0 20 40 / 18%);
@@ -113,7 +113,8 @@ main > .section > div.resource-downloads-wrapper {
 
 .resource-downloads-item-description {
   color: #445;
-  font-size: var(--body-font-size-xs, 14px);
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .resource-downloads-item-description p {
@@ -220,7 +221,7 @@ main > .section > div.resource-downloads-wrapper {
      ...) rather than a second, unrelated palette. */
   background: var(--rd-accent, #0d273b);
   color: #fff;
-  font-size: 11px;
+  font-size: var(--caption-size);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
@@ -318,7 +319,7 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-type-format {
   color: var(--rd-accent, #667);
   font-family: var(--heading-font-family, sans-serif);
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -455,7 +456,7 @@ main > .section > div.resource-downloads-wrapper {
   padding: 6px 10px 6px 6px;
   color: #00264d;
   font-family: var(--heading-font-family, sans-serif);
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 800;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -492,7 +493,7 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-contains-label {
   margin: 0;
   color: #737373; /* was #8a8a8a (3.45:1); darkened for WCAG AA 4.5:1 */
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-style: italic;
 }
 
@@ -500,8 +501,9 @@ main > .section > div.resource-downloads-wrapper {
   max-width: 260px;
   margin: 0;
   color: #404041;
-  font-size: 14px;
+  font-size: var(--body-size);
   line-height: 1.45;
+  font-weight: var(--body-weight-medium);
 }
 
 .resource-downloads-item.is-informative .resource-downloads-item-contents p {
@@ -590,8 +592,9 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-item.is-informative-stacked .resource-downloads-item-contents {
   margin: 0;
   color: #404041;
-  font-size: 14px;
+  font-size: var(--body-size);
   line-height: 1.45;
+  font-weight: var(--body-weight-medium);
 }
 
 .resource-downloads-item.is-informative-stacked .resource-downloads-item-actions {
@@ -808,7 +811,7 @@ main > .section > div.resource-downloads-wrapper {
   background: rgb(255 255 255 / 88%);
   color: var(--rd-accent, #008db6);
   font-family: var(--heading-font-family, sans-serif);
-  font-size: 11px;
+  font-size: var(--caption-size);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -930,7 +933,7 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-item-notice {
   margin: 0;
   color: #8a5a00;
-  font-size: 13px;
+  font-size: var(--caption-size);
   font-style: italic;
   max-width: 240px;
 }
@@ -942,7 +945,7 @@ main > .section > div.resource-downloads-wrapper {
   border-radius: 12px;
   color: #667;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--body-sm-size);
 }
 
 /* ── Video modal ─────────────────────────────────────────────────────────── */
@@ -1093,7 +1096,7 @@ main > .section > div.resource-downloads-wrapper {
   border: 1px solid #c3cedb;
   border-radius: 6px;
   color: #14405f;
-  font-size: 13px;
+  font-size: var(--button-font-size);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;

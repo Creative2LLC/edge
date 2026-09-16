@@ -72,10 +72,8 @@
   text-decoration: none;
 }
 
-/* Primary button. Client exception: keeps its own size and shape, but takes the
-   Giving green. The label is full white — 83% white on this green is 4.16:1. */
 .image-card .image-card-btn-primary {
-  background-color: #2f7a4a;
+  background-color: #AE1B1F;
   color: #fff;
   border: none;
 }

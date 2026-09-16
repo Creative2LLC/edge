@@ -33,7 +33,7 @@
 .leadership-team-nav-btn {
   /* Inherited from the old global button rule, dropped with the controls pass. */
   margin: 12px 0;
-  font-size: 15px;
+  font-size: var(--button-font-size);
   font-weight: 600;
   color: #00000080;
   background: none;
@@ -154,8 +154,8 @@
 
 /* Card title */
 .leadership-team-card-title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
   color: #404041;
   margin: 0 0 8px;
   padding: 0;
@@ -173,6 +173,7 @@
   text-align: left;
   width: 100%;
   max-width: 194px;
+  font-weight: var(--body-weight-medium);
 }
 
 /* Read bio link: the Text link style from the button standard. */
@@ -229,7 +230,7 @@
   }
 
   .leadership-team-card-bio {
-    font-size: var(--body-sm-size);
+    font-size: var(--body-size);
   }
 }
 

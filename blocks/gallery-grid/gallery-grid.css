@@ -135,7 +135,7 @@
   border-radius: inherit;
   background: rgb(20 145 191 / 4%);
   color: #6b6b6b;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-style: italic;
   text-align: center;
 }
@@ -149,7 +149,7 @@
   border: 1px dashed rgb(0 38 77 / 24%);
   border-radius: 8px;
   color: #6b6b6b;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-style: italic;
 }
 

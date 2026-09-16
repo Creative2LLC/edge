@@ -33,7 +33,7 @@
 .event-calendar .event-calendar-status {
   margin: 0;
   color: var(--event-calendar-muted);
-  font-size: 1rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   text-align: center;
 }
@@ -54,7 +54,7 @@
   border-radius: 16px;
   background: rgb(20 145 191 / 6%);
   color: var(--event-calendar-ink);
-  font-size: 1.1rem;
+  font-size: var(--body-size);
   font-weight: 700;
   text-align: center;
 }
@@ -105,7 +105,7 @@
   border-radius: 6px 6px 0 0;
   background: var(--event-calendar-navy);
   color: #fff;
-  font-size: 1.45rem;
+  font-size: var(--deck-size);
   font-weight: 900;
   letter-spacing: 0.08em;
   transition: transform 180ms ease, box-shadow 180ms ease;
@@ -147,7 +147,7 @@
 
 .event-calendar .event-calendar-featured-title {
   color: #2e3138;
-  font-size: 1.22rem;
+  font-size: var(--heading-5-size);
   font-weight: 800;
   line-height: 1.12;
 }
@@ -178,7 +178,7 @@
   color: var(--event-calendar-ink);
   cursor: pointer;
   font: inherit;
-  font-size: 0.92rem;
+  font-size: var(--button-font-size);
   font-weight: 800;
 }
 
@@ -266,7 +266,7 @@
 .event-calendar .event-calendar-weekday {
   padding: 12px 10px;
   color: #fff;
-  font-size: 0.78rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   text-align: center;
   text-transform: uppercase;
@@ -302,7 +302,7 @@
   margin-bottom: 8px;
   border-radius: 999px;
   color: #3f4b53;
-  font-size: 0.86rem;
+  font-size: var(--caption-size);
   font-weight: 800;
 }
 
@@ -322,7 +322,7 @@
   color: #fff;
   cursor: pointer;
   font: inherit;
-  font-size: 0.75rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.25;
   overflow: hidden;
@@ -402,7 +402,7 @@
 .event-calendar .event-calendar-table th {
   background: #929497;
   color: #fff;
-  font-size: 0.78rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.2;
 }
@@ -420,7 +420,7 @@
 }
 
 .event-calendar .event-calendar-table td {
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-weight: 550;
   line-height: 1.35;
 }
@@ -543,7 +543,7 @@
   padding: 9px 13px;
   background: var(--event-calendar-soft);
   color: var(--event-calendar-ink);
-  font-size: 0.92rem;
+  font-size: var(--body-sm-size);
   font-weight: 800;
   line-height: 1.25;
 }
@@ -568,7 +568,7 @@
   background: var(--event-calendar-navy);
   color: #fff;
   font: inherit;
-  font-size: 1rem;
+  font-size: var(--body-sm-size);
   font-weight: 900;
   text-decoration: none;
   box-shadow: 0 16px 34px rgb(6 38 80 / 20%);
@@ -683,7 +683,7 @@
 
   .event-calendar .event-calendar-table td::before {
     color: var(--event-calendar-blue);
-    font-size: 0.75rem;
+    font-size: var(--caption-size);
     font-weight: 900;
     line-height: 1.2;
     text-align: left;

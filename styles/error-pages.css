@@ -95,7 +95,7 @@ main.error > .section > div {
   gap: 10px;
   margin: 0 0 16px;
   color: var(--error-accent-deep);
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -122,7 +122,7 @@ main.error > .section > div {
   margin: 20px 0 0;
   max-width: 37rem;
   color: #404041;
-  font-size: clamp(1.05rem, 2.1vw, 1.28rem);
+  font-size: var(--body-lg-size);
   line-height: 1.55;
 }
 
@@ -138,7 +138,7 @@ main.error > .section > div {
   position: relative;
   padding-left: 20px;
   color: #404041;
-  font-size: 17px;
+  font-size: var(--body-size);
   line-height: 1.5;
 }
 
@@ -173,7 +173,7 @@ main.error > .section > div {
   background: var(--error-accent);
   color: #fff;
   font-family: var(--body-font-family);
-  font-size: 16px;
+  font-size: var(--button-font-size);
   font-weight: 600;
   line-height: 1.1;
   text-decoration: none;
@@ -216,7 +216,7 @@ main.error > .section > div {
 .error-page-meta {
   margin: 18px 0 0;
   color: #667685;
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -338,7 +338,7 @@ main.error > .section > div {
   display: block;
   margin-bottom: 6px;
   color: #667685;
-  font-size: 12px;
+  font-size: var(--caption-size);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -347,7 +347,7 @@ main.error > .section > div {
 .error-page-panel-value {
   display: block;
   color: var(--error-accent-deep);
-  font-size: 19px;
+  font-size: var(--heading-5-size);
   font-weight: 700;
   line-height: 1.25;
 }
@@ -448,11 +448,11 @@ main.error[data-error-code='500'] .error-page-points li::before {
   }
 
   .error-page-description {
-    font-size: 18px;
+    font-size: var(--body-lg-size);
   }
 
   .error-page-points li {
-    font-size: 16px;
+    font-size: var(--body-size);
   }
 
   .error-page-actions {
@@ -474,7 +474,7 @@ main.error[data-error-code='500'] .error-page-points li::before {
   }
 
   .error-page-panel-value {
-    font-size: 17px;
+    font-size: var(--body-lg-size);
   }
 
   .error-page-dots {

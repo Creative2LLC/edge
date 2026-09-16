@@ -115,6 +115,8 @@
 .split-card-info-subheading {
   margin: 0 0 16px;
   line-height: var(--caption-line-height);
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .split-card-info-number {

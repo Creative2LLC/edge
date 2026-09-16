@@ -571,16 +571,14 @@ export default async function decorate(block) {
 
   if (slides.length > 1) {
     const prevButton = createCarouselArrow('prev', {
-      className: 'historical-reports-carousel-nav historical-reports-carousel-nav-prev',
+      className: 'historical-reports-carousel-nav-btn historical-reports-carousel-nav-prev',
       label: 'Previous report',
     });
 
     const nextButton = createCarouselArrow('next', {
-      className: 'historical-reports-carousel-nav historical-reports-carousel-nav-next',
+      className: 'historical-reports-carousel-nav-btn historical-reports-carousel-nav-next',
       label: 'Next report',
     });
-
-    stage.append(prevButton, nextButton);
 
     const dots = slides.map((_, index) => {
       const dot = document.createElement('button');
@@ -634,7 +632,18 @@ export default async function decorate(block) {
       }
     }, { passive: true });
 
-    wrapper.append(dotsContainer);
+    // One controls row under the track — dots centred, arrows pinned right — the
+    // same arrangement icon-card-carousel, split-card-carousel and detailed-carousel
+    // use. The arrows used to float outside the stage at mid-height.
+    const controls = document.createElement('div');
+    controls.className = 'historical-reports-carousel-controls';
+
+    const nav = document.createElement('div');
+    nav.className = 'historical-reports-carousel-nav';
+    nav.append(prevButton, nextButton);
+
+    controls.append(dotsContainer, nav);
+    wrapper.append(controls);
   }
 
   if (!headingField.value && !subheadingField.value) {

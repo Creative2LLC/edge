@@ -87,8 +87,8 @@ main > .section > .missing-child-quick-report-wrapper {
 
 .missing-child-quick-report-emergency-copy {
   color: #45484d;
-  font-size: var(--body-sm-size);
-  font-weight: var(--body-weight-strong);
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .missing-child-quick-report-emergency-copy > :first-child {
@@ -156,7 +156,7 @@ main > .section > .missing-child-quick-report-wrapper {
 .missing-child-quick-report-context-name {
   margin-top: 4px;
   color: #00264d;
-  font-size: 1.15rem;
+  font-size: var(--heading-6-size);
   font-weight: 800;
   line-height: 1.2;
 }
@@ -165,7 +165,7 @@ main > .section > .missing-child-quick-report-wrapper {
   display: inline-flex;
   margin-top: 8px;
   color: #007294;
-  font-size: 0.94rem;
+  font-size: var(--body-sm-size);
   font-weight: 800;
   text-decoration: underline;
   text-underline-offset: 0.16em;
@@ -197,7 +197,7 @@ main > .section > .missing-child-quick-report-wrapper {
   background: #fff;
   color: #26292d;
   font: inherit;
-  font-size: 1rem;
+  font-size: var(--body-size);
   line-height: 1.35;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
   transition:
@@ -235,7 +235,7 @@ main > .section > .missing-child-quick-report-wrapper {
   padding: 0 16px;
   background: #fff;
   color: #32363b;
-  font-size: 0.98rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   cursor: pointer;
   transition:
@@ -271,7 +271,7 @@ main > .section > .missing-child-quick-report-wrapper {
   flex: 1 1 260px;
   min-height: 1.5em;
   margin: 0;
-  font-size: 0.98rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   line-height: 1.45;
 }
@@ -303,7 +303,7 @@ main > .section > .missing-child-quick-report-wrapper {
   border-top: 1px solid rgb(0 38 77 / 12%);
   padding-top: 18px;
   color: #00264d;
-  font-size: 1rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   line-height: 1.45;
 }

@@ -20,6 +20,8 @@
 .leadership-overview .leadership-overview-subheading {
   margin-top: 16px;
   color: #404041;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .leadership-overview .leadership-overview-subheading > :first-child {
@@ -67,7 +69,7 @@
 
 .leadership-overview .leadership-overview-feature-quote {
   color: #404041;
-  font-size: clamp(28px, 3.3vw, 40px);
+  font-size: var(--heading-3-size);
   font-weight: var(--body-weight-bold);
   line-height: 1.18;
 }
@@ -87,7 +89,7 @@
 .leadership-overview .leadership-overview-feature-name {
   margin: 0;
   color: #404041;
-  font-size: 27px;
+  font-size: var(--heading-4-size);
   font-weight: 700;
   line-height: 1.15;
 }
@@ -95,7 +97,7 @@
 .leadership-overview .leadership-overview-feature-title {
   margin: 6px 0 0;
   color: #404041;
-  font-size: 16px;
+  font-size: var(--heading-7-size);
   font-weight: 600;
   line-height: 1.35;
 }

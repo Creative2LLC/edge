@@ -14,7 +14,7 @@ main > .section > .training-sessions-wrapper {
 .training-sessions .training-sessions-title {
   margin: 0;
   color: #00264d;
-  font-size: 48px;
+  font-size: var(--heading-2-size);
   font-weight: 700;
   line-height: 1.1;
 }
@@ -61,7 +61,7 @@ main > .section > .training-sessions-wrapper {
 /* ---------- Columns ---------- */
 .training-sessions .training-sessions-col {
   min-width: 0;
-  font-size: 17px;
+  font-size: var(--body-size);
   line-height: 1.4;
   text-align: left;
 }
@@ -82,7 +82,7 @@ main > .section > .training-sessions-wrapper {
 }
 
 .training-sessions .training-sessions-status {
-  font-size: 17px;
+  font-size: var(--body-size);
   font-weight: 600;
   line-height: 1.4;
 }
@@ -107,7 +107,7 @@ main > .section > .training-sessions-wrapper {
 /* ---------- Responsive ---------- */
 @media (width < 900px) {
   .training-sessions .training-sessions-title {
-    font-size: clamp(2rem, 7vw, 3rem);
+    font-size: var(--heading-2-size);
   }
 
   .training-sessions .training-sessions-card {

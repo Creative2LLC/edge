@@ -112,7 +112,7 @@
 }
 
 .split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text {
-  font-size: 17px;
+  font-size: var(--body-size);
   font-weight: 500;
   color: #404041;
   line-height: 1.5;

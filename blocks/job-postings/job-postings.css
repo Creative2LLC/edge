@@ -38,7 +38,7 @@
 }
 
 .job-postings-card-placeholder {
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   color: #999;
   margin: 0;
 }

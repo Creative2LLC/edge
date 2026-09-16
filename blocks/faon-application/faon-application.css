@@ -91,7 +91,7 @@ main > .section > .faon-application-wrapper {
   border-radius: 999px;
   background: rgb(0 141 182 / 12%);
   color: #007294;
-  font-size: 0.86rem;
+  font-size: var(--caption-size);
   font-weight: 900;
   line-height: 1;
 }
@@ -152,7 +152,7 @@ main > .section > .faon-application-wrapper {
   background: #fff;
   color: #26292d;
   font: inherit;
-  font-size: 1rem;
+  font-size: var(--body-size);
   line-height: 1.35;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
   transition:
@@ -199,7 +199,7 @@ main > .section > .faon-application-wrapper {
   padding: 13px 14px;
   background: #fff;
   color: #32363b;
-  font-size: 0.98rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   line-height: 1.35;
   transition:
@@ -273,7 +273,7 @@ main > .section > .faon-application-wrapper {
   flex: 1 1 280px;
   min-height: 1.5em;
   margin: 0;
-  font-size: 0.98rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
   line-height: 1.45;
 }

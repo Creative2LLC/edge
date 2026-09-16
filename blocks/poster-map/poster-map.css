@@ -34,6 +34,7 @@
 
 .poster-map-content {
   text-align: center;
+  font-weight: var(--body-weight-medium);
 }
 
 .poster-map-content h3 {
@@ -61,7 +62,7 @@
   border-radius: 8px;
   background: #fff;
   color: #243846;
-  font-size: 24px;
+  font-size: var(--deck-size);
   line-height: 1.1;
   text-decoration: none;
 }
@@ -94,9 +95,10 @@
   padding-top: 40px;
   border-top: 1px solid rgb(36 56 70 / 45%);
   color: #243846;
-  font-size: 16px;
+  font-size: var(--body-sm-size);
   line-height: 1.5;
   text-align: center;
+  font-weight: var(--body-weight-medium);
 }
 
 .poster-map-footer p {
@@ -146,12 +148,12 @@
   .poster-map-footer {
     margin-top: 40px;
     padding-top: 32px;
-    font-size: 15px;
+    font-size: var(--body-sm-size);
   }
 
   .poster-map-viewer a {
     min-width: 0;
     width: 100%;
-    font-size: 20px;
+    font-size: var(--deck-size);
   }
 }

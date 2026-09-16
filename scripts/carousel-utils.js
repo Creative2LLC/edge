@@ -119,6 +119,7 @@ export default function attachDragScroll(track) {
 
   track.addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
+    if (e.target.closest('a, button, input, select, textarea')) return;
     active = true;
     didDrag = false;
     startX = e.clientX;

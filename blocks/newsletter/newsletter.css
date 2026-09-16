@@ -63,6 +63,8 @@
   margin: 14px auto 0;
   max-width: 760px;
   color: #404041;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 .newsletter .newsletter-subheading > :first-child {
@@ -95,7 +97,7 @@
   padding: 12px 42px 12px 18px;
   background-color: rgb(64 64 65 / 78%);
   color: rgb(255 255 255 / 90%);
-  font-size: 0.95rem;
+  font-size: var(--body-size);
   font-family: inherit;
   line-height: 1.2;
   appearance: none;
@@ -126,7 +128,7 @@
   padding: 12px 44px 12px 18px;
   background: linear-gradient(90deg, #838788, #868786);
   color: rgb(255 255 255 / 90%);
-  font-size: 0.95rem;
+  font-size: var(--body-size);
   font-family: inherit;
   line-height: 1.2;
   box-sizing: border-box;
@@ -177,7 +179,7 @@
   padding: 12px 20px;
   background: #008eb7;
   color: #fff;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   font-family: inherit;
   font-weight: 600;
   line-height: 1.2;
@@ -197,7 +199,7 @@
   }
 
   .newsletter .newsletter-subheading {
-    font-size: var(--body-sm-size);
+    font-size: var(--body-lg-size);
   }
 
   .newsletter .newsletter-form {
@@ -213,7 +215,7 @@
   width: min(420px, 100%);
   margin: 2px auto 0;
   color: #404041;
-  font-size: 0.95rem;
+  font-size: var(--body-sm-size);
   line-height: 1.45;
 }
 

@@ -22,7 +22,7 @@ main > .section > .apply-for-training-wrapper {
   grid-column: 1 / -1;
   margin: 0;
   color: #4b4b4f;
-  font-size: 1rem;
+  font-size: var(--body-sm-size);
   font-weight: 600;
   line-height: 1.55;
 }

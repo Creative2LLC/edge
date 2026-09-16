@@ -202,7 +202,7 @@
   border-radius: 999px;
   background: rgb(0 141 182 / 12%);
   color: #005f79;
-  font-size: 0.82rem;
+  font-size: var(--caption-size);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -212,6 +212,12 @@
 .site-search .site-search-card-summary {
   margin: 0;
   color: var(--site-search-muted);
+}
+
+/* Card copy under the result's h3 carries the shared body weight; the date beside it
+   keeps the lighter default. */
+.site-search .site-search-card-summary {
+  font-weight: var(--body-weight-medium);
 }
 
 .site-search .site-search-card-title mark,

@@ -67,7 +67,7 @@
 
 /* Bullet list */
 .card-row-detailed-list {
-  font-size: 17px;
+  font-size: var(--body-size);
   font-weight: 400;
   color: #404041;
   line-height: 1.6;

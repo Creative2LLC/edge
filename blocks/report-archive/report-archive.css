@@ -77,7 +77,7 @@
   align-items: baseline;
   gap: 7px;
   color: #006fa6;
-  font-size: 1rem;
+  font-size: var(--body-sm-size);
   font-weight: 500;
   line-height: 1.35;
   text-decoration: none;
@@ -121,7 +121,7 @@
   border-radius: 8px;
   background: rgb(0 46 93 / 2%);
   color: #5f6e7f;
-  font-size: 0.9rem;
+  font-size: var(--body-sm-size);
   font-style: italic;
 }
 
@@ -132,7 +132,7 @@
 
 @media (width <= 900px) {
   .report-archive .report-archive-links a {
-    font-size: 18px;
+    font-size: var(--body-lg-size);
   }
 }
 

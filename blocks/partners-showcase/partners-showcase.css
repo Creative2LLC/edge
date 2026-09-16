@@ -55,8 +55,9 @@ main > .section > .partners-showcase-wrapper {
 .partners-showcase .partners-showcase-subheading {
   margin-top: 20px;
   color: #404041;
-  font-size: clamp(20px, 2.4vw, 32px);
-  line-height: 1.2;
+  font-size: var(--body-lg-size);
+  line-height: var(--body-line-height);
+  font-weight: var(--body-weight-medium);
 }
 
 .partners-showcase .partners-showcase-subheading > :first-child,
@@ -149,7 +150,7 @@ main > .section > .partners-showcase-wrapper {
 
 .partners-showcase .partners-showcase-item-placeholder {
   color: #5f6f7f;
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   line-height: 1.4;
   text-align: center;
 }

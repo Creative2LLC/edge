@@ -110,7 +110,7 @@ main > .section > .terms-content-wrapper {
 
 .terms-content-placeholder-title {
   color: #00264d;
-  font-size: 20px;
+  font-size: var(--heading-5-size);
   font-weight: 700;
   line-height: 1.3;
 }

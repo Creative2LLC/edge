@@ -62,14 +62,16 @@ main > .section > .split-card-gap-wrapper {
   background: #fff;
 }
 
+/* The author picks h2 or h3 for the outline; it is sized as h3 either way. */
 .split-card-gap .split-card-gap-heading {
   margin: 0 0 18px;
+  font-size: var(--heading-3-size);
   color: #143967;
 }
 
 .split-card-gap .split-card-gap-body {
   color: #404041;
-  font-size: var(--deck-size);
+  font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
 }
 
@@ -171,7 +173,7 @@ main > .section > .split-card-gap-wrapper {
 .split-card-gap .split-card-gap-benefit-placeholder,
 .split-card-gap .split-card-gap-benefit-title-placeholder {
   color: #5f6f7f;
-  font-size: 14px;
+  font-size: var(--body-sm-size);
   line-height: 1.4;
   text-align: center;
 }
@@ -184,8 +186,8 @@ main > .section > .split-card-gap-wrapper {
 .split-card-gap .split-card-gap-benefit-title {
   margin: 0;
   color: #404041;
-  font-size: var(--heading-4-size);
-  font-weight: 700;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
   line-height: 1.25;
 }
 
@@ -225,13 +227,12 @@ main > .section > .split-card-gap-wrapper {
 .split-card-gap-variant-2 .split-card-gap-heading {
   max-width: 412px;
   color: #404041;
-  font-size: var(--heading-4-size);
 }
 
 .split-card-gap-variant-2 .split-card-gap-body {
   max-width: 412px;
   font-size: var(--body-size);
-  font-weight: var(--body-weight-strong);
+  font-weight: var(--body-weight-medium);
 }
 
 /* stylelint-disable-next-line no-descending-specificity */
@@ -314,7 +315,7 @@ main > .section > .split-card-gap-wrapper {
   }
 
   .split-card-gap .split-card-gap-benefit-title {
-    font-size: 18px;
+    font-size: var(--body-size);
   }
 
   .split-card-gap .split-card-gap-actions {

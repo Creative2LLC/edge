@@ -70,7 +70,7 @@
 .impact-data-table th {
   background: var(--impact-data-table-wash);
   color: #147da8;
-  font-size: 0.78rem;
+  font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.2;
   text-transform: uppercase;
@@ -78,7 +78,7 @@
 }
 
 .impact-data-table td {
-  font-size: 1rem;
+  font-size: var(--body-sm-size);
   font-weight: 650;
   line-height: 1.35;
 }
@@ -91,7 +91,7 @@
 .impact-data-table caption {
   padding: 14px 22px 18px;
   color: var(--impact-data-table-muted);
-  font-size: 0.92rem;
+  font-size: var(--body-sm-size);
   line-height: 1.45;
   text-align: left;
   caption-side: bottom;
@@ -170,7 +170,7 @@
   border-radius: 8px;
   background: rgb(20 145 191 / 5%);
   color: #113a67;
-  font-size: 1.1rem;
+  font-size: var(--body-size);
   font-weight: 700;
   text-align: center;
 }
@@ -227,7 +227,7 @@
 
   .impact-data-table td::before {
     color: #147da8;
-    font-size: 0.75rem;
+    font-size: var(--caption-size);
     font-weight: 800;
     line-height: 1.2;
     text-align: left;

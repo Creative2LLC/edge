@@ -99,7 +99,7 @@
   margin: 0;
   list-style: none;
   color: rgb(0 38 77 / 72%);
-  font-size: 0.98rem;
+  font-size: var(--body-sm-size);
   font-weight: 700;
 }
 
@@ -198,7 +198,7 @@
 
 .resource-hero-meta-fact-label {
   color: rgb(64 64 65 / 64%);
-  font-size: 0.58rem;
+  font-size: var(--caption-size);
   font-weight: 900;
   letter-spacing: 0.1em;
   line-height: 1;

@@ -53,7 +53,7 @@
 }
 
 .hero-footer-heading-1 {
-  font-size: 60px;
+  font-size: var(--heading-2-size);
   font-weight: 700;
   color: #00264d;
   margin: 0;
@@ -66,7 +66,7 @@
 }
 
 .hero-footer-heading-2 {
-  font-size: 96px;
+  font-size: var(--heading-1-home-size);
   font-weight: 700;
   color: #00264d;
   margin: 0;
@@ -125,13 +125,13 @@
 
 /* ===== Variant 2 ===== */
 .hero-footer.hero-footer-variant-2 .hero-footer-heading-1 {
-  font-size: 24px;
+  font-size: var(--deck-size);
   font-weight: 700;
   color: #E13E30;
 }
 
 .hero-footer.hero-footer-variant-2 .hero-footer-heading-2 {
-  font-size: 60px;
+  font-size: var(--heading-2-size);
   font-weight: 700;
 }
 
@@ -161,11 +161,11 @@
   }
 
   .hero-footer-heading-1 {
-    font-size: 36px;
+    font-size: var(--heading-2-size);
   }
 
   .hero-footer-heading-2 {
-    font-size: 56px;
+    font-size: var(--heading-1-size);
   }
 
   .hero-footer-subheading {
@@ -190,12 +190,12 @@
   /* Scale headings with the viewport so they never overrun small screens.
      Variant-2 selectors are repeated here to beat their higher specificity. */
   .hero-footer-heading-1 {
-    font-size: clamp(20px, 7.5vw, 30px);
+    font-size: var(--heading-3-size);
   }
 
   .hero-footer-heading-2,
   .hero-footer.hero-footer-variant-2 .hero-footer-heading-2 {
-    font-size: clamp(32px, 11vw, 46px);
+    font-size: var(--heading-1-size);
   }
 
   .hero-footer-subheading,

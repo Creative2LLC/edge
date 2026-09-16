@@ -31,9 +31,11 @@
   color: #00264d;
 }
 
+/* The paragraph under the section's h2: body copy, on the large body step. */
 .info-cards-grid-section-subheading {
   margin: 0;
-  color: #355069;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
 }
 
 /* The section heading and subheading are richtext fields, so AEM wraps the
@@ -106,9 +108,9 @@
 
 /* Individual card */
 .info-cards-grid-card {
-  --info-card-title-size: 32px;
-  --info-card-subtitle-size: 17px;
-  --info-card-body-size: 17px;
+  --info-card-title-size: var(--heading-3-size);
+  --info-card-subtitle-size: var(--body-size);
+  --info-card-body-size: var(--body-size);
   --info-card-title-color: #fff;
   --info-card-subtitle-color: #fff;
   --info-card-body-color: #fff;
@@ -208,6 +210,7 @@
   font-size: var(--info-card-subtitle-size);
   color: var(--info-card-subtitle-color);
   margin: 0 0 var(--info-card-text-bottom-gap);
+  font-weight: var(--body-weight-medium);
 }
 
 .info-cards-grid-card-subtitle > p {
@@ -219,6 +222,7 @@
   font-size: var(--info-card-body-size);
   color: var(--info-card-body-color);
   margin: 0 0 var(--info-card-text-bottom-gap);
+  font-weight: var(--body-weight-medium);
 }
 
 .info-cards-grid-card-body p {
@@ -368,7 +372,6 @@
 
 .info-cards-grid-volunteer .info-cards-grid-section-subheading {
   max-width: 74ch;
-  font-size: var(--body-sm-size);
 }
 
 .info-cards-grid-volunteer .info-cards-grid-inner {
@@ -376,9 +379,8 @@
 }
 
 .info-cards-grid-volunteer .info-cards-grid-card {
-  --info-card-title-size: 32px;
-  --info-card-subtitle-size: 16px;
-  --info-card-body-size: 15px;
+  --info-card-subtitle-size: var(--body-size);
+  --info-card-body-size: var(--body-size);
 
   padding: 30px 26px;
   border-radius: 12px;
@@ -448,8 +450,6 @@
 }
 
 .info-cards-grid-button-top .info-cards-grid-section-subheading {
-  font-size: 32px;
-  line-height: 1.25;
   max-width: 1055px;
 }
 
@@ -485,10 +485,6 @@
     gap: 20px;
   }
 
-  .info-cards-grid-card {
-    --info-card-title-size: 32px;
-  }
-
   .info-cards-grid-orphan-row {
     gap: 20px;
   }
@@ -506,8 +502,6 @@
   }
 
   .info-cards-grid-card {
-    --info-card-title-size: 28px;
-
     max-width: 100%;
     padding: 28px 24px;
   }
@@ -535,8 +529,6 @@
    so body copy retains a usable measure. */
 @media (width > 768px) and (width <= 1024px) {
   .info-cards-grid-card {
-    --info-card-title-size: 30px;
-
     padding: 30px 28px;
   }
 
@@ -555,8 +547,6 @@
   }
 
   .info-cards-grid-card {
-    --info-card-title-size: 30px;
-
     padding: 30px 28px;
   }
 
