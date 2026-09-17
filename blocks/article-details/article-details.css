@@ -11,7 +11,7 @@
   position: relative;
   display: flex;
   min-height: clamp(360px, 58vw, 620px);
-  padding: clamp(112px, 16vw, 164px) 24px 56px;
+  padding: clamp(112px, 16vw, 164px) var(--section-pad) 56px;
   overflow: hidden;
   isolation: isolate;
   align-items: flex-end;
@@ -84,6 +84,27 @@
   color: #9aa9b5;
 }
 
+/* The blog's own tags, injected into the hero once the API answers — they are
+   decoration here, not filters (the blog listing has no deep-linked tag
+   parameter to send them to), so plain spans and no interactive affordance. */
+.article-details .article-details-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.article-details .article-details-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
+}
+
 .article-details .article-details-excerpt {
   margin: 0;
   color: #516272;
@@ -91,10 +112,14 @@
   line-height: 1.75;
 }
 
+/* Same column as `main > .section > div`: the wrapper above is full-bleed
+   (max-width/padding are unset at the top of this file), so the card has to
+   re-establish the column itself — capped at --container-content and inset by
+   --section-pad, NOT --gutter, or it lands 64px wider than the rest of the page. */
 .article-details .article-details-content {
   position: relative;
   z-index: 1;
-  width: 100%;
+  width: min(100% - 2 * var(--section-pad), var(--container-content));
   margin: clamp(1.5rem, 4vw, 3rem) auto 0;
   padding: clamp(1.75rem, 4vw, 3rem);
   border-radius: 28px;
@@ -209,16 +234,15 @@
 @media (width <= 768px) {
   .article-details .article-details-hero {
     min-height: 420px;
-    padding: 104px 18px 44px;
+    padding: 104px var(--section-pad) 44px;
   }
 
   .article-details .article-details-title {
     max-width: none;
   }
 
-  .article-details .article-details-content,
   .article-details .article-details-message {
-    width: calc(100% - 24px);
+    width: calc(100% - 2 * var(--section-pad));
   }
 
   .article-details .article-details-content {

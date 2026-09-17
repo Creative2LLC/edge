@@ -48,7 +48,7 @@
           "valueType": "string",
           "name": "heading",
           "label": "Heading",
-          "value": "Related Articles"
+          "value": "Related Blogs"
         },
         {
           "component": "text",

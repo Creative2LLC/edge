@@ -1,5 +1,4 @@
 import resolveSiteHref from '../../scripts/link-utils.js';
-import attachDragScroll, { getCarouselItemIndex, scrollToCarouselItem } from '../../scripts/carousel-utils.js';
 import {
   getBlockRows,
   readLinkField,
@@ -27,6 +26,17 @@ const FIELD_LABELS = {
   heading: ['heading', 'title'],
   limit: ['limit', 'item limit', 'count'],
   detailBasePath: ['detail base path', 'article detail base path', 'article base path', 'blog base path'],
+};
+
+// Every blog imported before the rename has "Related Articles" authored into the
+// heading cell. Re-importing 400 pages to change one string is not worth it, so
+// the legacy default is treated as "unset" and replaced with the per-source
+// default below. An author who wants a different heading types one and it wins.
+const LEGACY_HEADINGS = ['related articles', 'related resources'];
+
+const DEFAULT_HEADINGS = {
+  articles: 'Related Blogs',
+  resources: 'Related Resources',
 };
 
 const FIELD_COLUMN_INDEX = {
@@ -154,7 +164,14 @@ function getFieldValue(block, name, fallback = '') {
     || fallback;
 }
 
-function parseLimit(value, fallback = 6) {
+function resolveHeading(value, sourceType) {
+  const heading = normalizeText(value);
+  const fallback = DEFAULT_HEADINGS[sourceType] || DEFAULT_HEADINGS.articles;
+  if (!heading || LEGACY_HEADINGS.includes(heading.toLowerCase())) return fallback;
+  return heading;
+}
+
+function parseLimit(value, fallback = 3) {
   const parsed = parseInt(value, 10);
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
 }
@@ -185,17 +202,31 @@ function buildPill(label, className = '') {
   return pill;
 }
 
-function buildTaxonomy(item) {
-  const values = [
+/**
+ * The item's own tags, which is what the blog and resource libraries filter on.
+ * The taxonomy labels are the fallback only: every blog carries the same
+ * resource_type_label ("Blog Post"), so on a blog page that pill said nothing.
+ */
+function taxonomyLabels(item) {
+  const tagNames = (item.tags || [])
+    .map((tag) => normalizeText(tag?.name || tag))
+    .filter(Boolean);
+  if (tagNames.length) return tagNames;
+
+  return [
     item.resource_type_label,
     item.audience_label,
     item.issue_label,
-  ].filter(Boolean);
+  ].map(normalizeText).filter(Boolean);
+}
+
+function buildTaxonomy(item) {
+  const values = taxonomyLabels(item);
   if (!values.length) return null;
 
   const wrap = document.createElement('div');
   wrap.className = 'related-articles-taxonomy';
-  values.slice(0, 2).forEach((value) => wrap.append(buildPill(value, 'is-taxonomy')));
+  values.slice(0, 3).forEach((value) => wrap.append(buildPill(value, 'is-taxonomy')));
   return wrap;
 }
 
@@ -298,66 +329,9 @@ function buildCard(item, config) {
   return card;
 }
 
-function buildNavButton(direction) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = `related-articles-nav-btn related-articles-nav-${direction}`;
-  btn.setAttribute('aria-label', direction === 'prev' ? 'Previous resources' : 'Next resources');
-  btn.innerHTML = direction === 'prev'
-    ? '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'
-    : '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
-  return btn;
-}
-
 /**
- * Wire the track to its dots and arrows.
- *
- * Slides come from `[...track.children]` rather than a stored list, and the
- * current index from getCarouselItemIndex() — both deliberate. Deriving the
- * index from scrollLeft / (width + gap) drifts once a slide is a different
- * width or the gap changes, which is what left nav clicks doing nothing in the
- * other carousels.
- */
-function wireCarousel(track, dots, prevBtn, nextBtn) {
-  attachDragScroll(track);
-
-  const sync = () => {
-    const slides = [...track.children];
-    const index = getCarouselItemIndex(track, slides);
-    dots.forEach((dot, i) => {
-      const current = i === index;
-      dot.classList.toggle('is-active', current);
-      dot.setAttribute('aria-current', current ? 'true' : 'false');
-    });
-
-    // A track that fits its content has nothing to scroll to, so neither the
-    // arrows nor the dots mean anything — three dots that can never change are
-    // worse than no dots. Recomputed on resize rather than at build time,
-    // because whether it scrolls depends on the viewport.
-    const scrollable = track.scrollWidth - track.clientWidth > 1;
-    [prevBtn, nextBtn].forEach((btn) => btn.classList.toggle('is-hidden', !scrollable));
-    dots[0]?.parentElement?.classList.toggle('is-hidden', !scrollable);
-  };
-
-  const goTo = (target) => {
-    const slides = [...track.children];
-    const clamped = Math.max(0, Math.min(target, slides.length - 1));
-    if (slides[clamped]) scrollToCarouselItem(track, slides[clamped]);
-  };
-
-  dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
-  prevBtn.addEventListener('click', () => goTo(getCarouselItemIndex(track, [...track.children]) - 1));
-  nextBtn.addEventListener('click', () => goTo(getCarouselItemIndex(track, [...track.children]) + 1));
-  track.addEventListener('scroll', sync, { passive: true });
-  window.addEventListener('resize', sync);
-
-  sync();
-}
-
-/**
- * The carousel's own shape while the related-content request is in flight.
- * Borrowing -card and -slide keeps the real card width and snap behaviour, so
- * the row does not jump when the articles arrive.
+ * The grid's own shape while the related-content request is in flight, so the
+ * row does not jump when the articles arrive.
  */
 function buildSkeletonView(config) {
   const fragment = document.createDocumentFragment();
@@ -372,12 +346,12 @@ function buildSkeletonView(config) {
     fragment.append(head);
   }
 
-  const track = document.createElement('div');
-  track.className = 'related-articles-track';
-  fragment.append(track);
-  showSkeleton(track, {
+  const grid = document.createElement('div');
+  grid.className = 'related-articles-grid';
+  fragment.append(grid);
+  showSkeleton(grid, {
     count: config.limit,
-    item: 'related-articles-card related-articles-slide',
+    item: 'related-articles-card',
     media: 'related-articles-card-media',
     body: 'related-articles-card-body',
     lines: ['label', 'title', 'text', 'text-sm'],
@@ -390,53 +364,20 @@ function buildSkeletonView(config) {
 function buildView(items, config) {
   const fragment = document.createDocumentFragment();
 
-  const head = document.createElement('div');
-  head.className = 'related-articles-head';
-
   if (config.heading) {
+    const head = document.createElement('div');
+    head.className = 'related-articles-head';
     const heading = document.createElement('h2');
     heading.className = 'related-articles-heading';
     heading.textContent = config.heading;
     head.append(heading);
+    fragment.append(head);
   }
 
-  const prevBtn = buildNavButton('prev');
-  const nextBtn = buildNavButton('next');
-  const nav = document.createElement('div');
-  nav.className = 'related-articles-nav';
-  nav.append(prevBtn, nextBtn);
-  head.append(nav);
-  fragment.append(head);
-
-  // A horizontal track, not a grid. Keeps the class name `-grid` off the
-  // element so the old three-column rules cannot apply to it by accident.
-  const track = document.createElement('div');
-  track.className = 'related-articles-track';
-  items.forEach((item) => {
-    const card = buildCard(item, config);
-    card.classList.add('related-articles-slide');
-    track.append(card);
-  });
-  fragment.append(track);
-
-  const dotsWrap = document.createElement('div');
-  dotsWrap.className = 'related-articles-dots';
-  dotsWrap.setAttribute('role', 'tablist');
-  dotsWrap.setAttribute('aria-label', 'Related resources');
-  const dots = items.map((item, i) => {
-    const dot = document.createElement('button');
-    dot.type = 'button';
-    dot.className = 'related-articles-dot';
-    dot.setAttribute('aria-label', `Go to resource ${i + 1}`);
-    dotsWrap.append(dot);
-    return dot;
-  });
-  if (dots.length > 1) fragment.append(dotsWrap);
-
-  // Wiring has to wait until the track is measurable — scrollWidth is 0 while
-  // the fragment is still detached, so every dot would look active and the
-  // arrows would hide themselves.
-  requestAnimationFrame(() => wireCarousel(track, dots, prevBtn, nextBtn));
+  const grid = document.createElement('div');
+  grid.className = 'related-articles-grid';
+  items.forEach((item) => grid.append(buildCard(item, config)));
+  fragment.append(grid);
 
   return fragment;
 }
@@ -465,8 +406,8 @@ export default async function decorate(block) {
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl')),
     sourceType,
     slug: normalizeSlug(getFieldValue(block, 'slug')) || getSlugFromPathname(),
-    heading: getFieldValue(block, 'heading', 'Related Articles') || 'Related Articles',
-    limit: Math.max(6, parseLimit(getFieldValue(block, 'limit', '6'), 6)),
+    heading: resolveHeading(getFieldValue(block, 'heading'), sourceType),
+    limit: parseLimit(getFieldValue(block, 'limit', '3'), 3),
     detailBasePath: getFieldValue(block, 'detailBasePath'),
   };
 

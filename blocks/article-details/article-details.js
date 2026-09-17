@@ -1,4 +1,4 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import { createOptimizedPicture, getMetadata } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   getBlockRows,
@@ -22,6 +22,13 @@ const FIELD_COLUMN_INDEX = {
 };
 
 const resourceDataCache = new Map();
+
+// Tags live in the backend, not in the authored block — nothing in the AEM
+// model carries them, and adding a field would mean re-authoring every blog.
+// This is the same backend the related-articles block on these pages calls.
+const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
+
+const MAX_HERO_TAGS = 6;
 
 function isDebugEnabled() {
   try {
@@ -457,6 +464,103 @@ function getImageField(block, name, resourceData = {}) {
   return null;
 }
 
+function normalizeApiBaseUrl(value) {
+  return normalizeText(value).replace(/\/+$/, '');
+}
+
+/**
+ * Where to ask for this article's tags. Page metadata wins, then the
+ * related-articles block that sits further down every blog page (its API base
+ * is already authored there, so a blog imported before this change still
+ * resolves), then the shared default.
+ */
+function resolveApiBaseUrl() {
+  const fromMetadata = normalizeApiBaseUrl(getMetadata('article-api-base-url'));
+  if (fromMetadata) return fromMetadata;
+
+  const siblingCell = document.querySelector('.related-articles > div:first-child > div:first-child');
+  const fromSibling = normalizeApiBaseUrl(
+    siblingCell?.querySelector('a')?.getAttribute('href') || siblingCell?.textContent,
+  );
+  if (/^https?:\/\//i.test(fromSibling)) return fromSibling;
+
+  return DEFAULT_API_BASE_URL;
+}
+
+function getArticleSlug(pathname = window.location.pathname) {
+  const segments = normalizeText(pathname)
+    .replace(/[?#].*$/, '')
+    .replace(/\.html$/i, '')
+    .split('/')
+    .filter(Boolean);
+  const slug = segments[segments.length - 1] || '';
+
+  try {
+    return decodeURIComponent(slug);
+  } catch (e) {
+    return slug;
+  }
+}
+
+/**
+ * The article's own tag names, falling back to its blog taxonomy so a blog that
+ * was only categorised (and never tagged) still shows something.
+ */
+async function fetchArticleTags() {
+  const slug = getArticleSlug();
+  if (!slug) return [];
+
+  try {
+    const response = await fetch(`${resolveApiBaseUrl()}/api/articles/${encodeURIComponent(slug)}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return [];
+
+    const payload = await response.json();
+    const article = payload?.data || {};
+    const tags = (article.tags || []).map((tag) => normalizeText(tag?.name)).filter(Boolean);
+    if (tags.length) return tags.slice(0, MAX_HERO_TAGS);
+
+    return (article.blog_taxonomy || [])
+      .map((entry) => normalizeText(entry?.name))
+      .filter(Boolean)
+      .slice(0, MAX_HERO_TAGS);
+  } catch (e) {
+    return [];
+  }
+}
+
+function buildTags(labels) {
+  const wrap = document.createElement('div');
+  wrap.className = 'article-details-tags';
+
+  labels.forEach((label) => {
+    const tag = document.createElement('span');
+    tag.className = 'article-details-tag';
+    tag.textContent = label;
+    wrap.append(tag);
+  });
+
+  return wrap;
+}
+
+/**
+ * Fired without awaiting so the tag request never holds up first paint — the
+ * hero renders, then the row appears under the byline when the API answers.
+ */
+async function appendHeroTags(block) {
+  const labels = await fetchArticleTags();
+  if (!labels.length) return;
+
+  const heroContent = block.querySelector('.article-details-hero-content');
+  if (!heroContent || heroContent.querySelector('.article-details-tags')) return;
+
+  const tags = buildTags(labels);
+  const meta = heroContent.querySelector('.article-details-meta');
+  if (meta) meta.after(tags);
+  else heroContent.querySelector('.article-details-title')?.after(tags);
+}
+
 function buildMessage(title, description) {
   const wrapper = document.createElement('div');
   wrapper.className = 'article-details-message';
@@ -725,4 +829,6 @@ export default async function decorate(block) {
   if (body) fragment.append(body);
 
   block.replaceChildren(fragment);
+
+  appendHeroTags(block);
 }
