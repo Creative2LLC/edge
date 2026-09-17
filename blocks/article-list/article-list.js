@@ -615,6 +615,10 @@ function renderApiList(block, config) {
   const syncSortControl = () => {
     sortSelect.value = state.sort || '';
   };
+  let refreshArticles = () => {};
+  let loadArticles = async () => {};
+  let activeController = null;
+  let requestToken = 0;
 
   const updateFilters = (filters = {}) => {
     const audiences = filters.areas || [];
@@ -669,10 +673,6 @@ function renderApiList(block, config) {
     }
     syncSortControl();
   };
-  let refreshArticles = () => {};
-  let loadArticles = async () => {};
-  let activeController = null;
-  let requestToken = 0;
   const applyFacetValue = (facet, rawValue) => {
     const value = normalizeToken(rawValue);
     if (!value) return;

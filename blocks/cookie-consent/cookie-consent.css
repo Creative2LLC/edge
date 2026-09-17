@@ -65,9 +65,10 @@
   border-radius: 999px;
   padding: 10px 18px;
 
-  /* >=18.66px bold qualifies as WCAG "large text" (3:1 contrast threshold),
-     which the brand blue passes, so we keep brand colors without a contrast fail. */
-  font-size: var(--button-font-size);
+  /* Named exception to the button standard (see BUTTONS in styles/styles.css).
+     >=18.66px bold qualifies as WCAG "large text" (3:1 contrast threshold), which
+     white on #008eb7 (3.78) passes. At the standard 16px it needs 4.5 and fails. */
+  font-size: 1.1875rem; /* 19px */
   font-weight: 700;
   line-height: 1.1;
   white-space: normal;

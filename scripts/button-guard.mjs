@@ -28,6 +28,7 @@
  *   .get-help-trigger, .get-help-close       Get Help Now
  *   .image-card-btn(-primary|-secondary)     the image-card buttons
  *   .poster-results-detail-action            the poster page's action bar (CALL 911, tip, …)
+ *   .cookie-consent-button                   the cookie banner (19px so it passes as large text)
  *
  * Rules that predate the guard live in scripts/button-guard-baseline.json, keyed without
  * line numbers. New ones fail. After fixing one, prune the baseline:
@@ -55,6 +56,7 @@ const EXEMPT_CLASSES = new Set([
   'image-card-btn-primary',
   'image-card-btn-secondary',
   'poster-results-detail-action',
+  'cookie-consent-button',
 ]);
 
 const SHARED_CLASSES = new Set([

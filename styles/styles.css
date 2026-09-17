@@ -13,9 +13,31 @@
 /* Figtree is the ONLY family on the site. Loaded as a variable font across the full
    300-900 weight axis so every weight blocks ask for (700, 800, 900, and the odd
    650/750/820/850) renders as a real cut instead of browser-synthesized fake bold.
-   The face itself is preconnected + <link>ed from head.html; this @import is the
-   fallback for contexts that load styles.css directly. */
-@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&display=swap");
+
+   Self-hosted: these are the exact Google Fonts files (Figtree v9, SIL OFL) with Google's
+   own subsets and unicode-ranges. Loading them from fonts.googleapis.com meant a
+   render-blocking stylesheet plus two extra origins to connect to before first paint
+   (~0.4s on throttled mobile). head.html preloads the latin file, so text rarely paints
+   in the fallback first; declaring the faces here also covers the static error pages,
+   which link styles.css directly. The browser downloads latin-ext only when a page uses
+   one of its characters. */
+@font-face {
+  font-family: Figtree;
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("../fonts/figtree-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: Figtree;
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("../fonts/figtree-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
   /* colors */
@@ -719,88 +741,82 @@ main .block.scroll-reveal.is-visible {
   }
 }
 
+/* Header skeleton: shown from the moment the page appears until the header block has loaded,
+   which scripts.js starts only once the first section is on screen.
+
+   It sets NO height. The loaded header's box is the `header` rule above (64px, or just the
+   47px top banner from 900px, with the nav floating over the page), and anything taller here
+   pushes the page down until the real header swaps in (the old 76px / 139px skeleton did).
+   The two shapes sit where the loaded header's pieces sit (measured at 412-1440px) and
+   overflow the box instead of growing it. */
 header.is-shell-loading {
-  overflow: hidden;
+  z-index: 20;
 }
 
 header.is-shell-loading::before,
 header.is-shell-loading::after {
   content: '';
   position: absolute;
-  left: 16px;
-  right: 16px;
-  border-radius: 999px;
-  background:
-    linear-gradient(
-      90deg,
-      rgb(255 255 255 / 32%) 0%,
-      rgb(255 255 255 / 72%) 50%,
-      rgb(255 255 255 / 32%) 100%
-    );
-  background-size: 200% 100%;
-  animation: header-shell-shimmer 1.8s ease-in-out infinite;
+  top: 8px;
+  height: 48px;
+  animation: header-shell-pulse 1.6s ease-in-out infinite;
   pointer-events: none;
 }
 
+/* Below the desktop nav (header.js switches at 1260px): menu button left, logo centred. */
 header.is-shell-loading::before {
-  top: 10px;
-  width: min(240px, calc(100% - 32px));
-  height: 18px;
+  left: 16px;
+  width: 48px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 84%);
+  box-shadow: 0 6px 18px rgb(17 54 82 / 12%);
 }
 
 header.is-shell-loading::after {
-  top: 36px;
-  height: 52px;
-  box-shadow: 0 16px 34px rgb(17 54 82 / 8%);
+  left: calc(50% - 92px);
+  width: 184px;
+  border-radius: 12px;
+  background: rgb(15 51 87 / 9%);
 }
 
-@media (width < 900px) {
+/* Desktop nav: navy top banner, then the logo and the nav pill floating below it. */
+@media (width >= 1260px) {
   header.is-shell-loading {
-    height: 76px;
+    background: #0b1f33;
   }
 
   header.is-shell-loading::before {
-    top: 14px;
-    width: 108px;
-    height: 16px;
-  }
-
-  header.is-shell-loading::after {
-    top: 18px;
-    left: 140px;
-    right: 16px;
-    height: 40px;
-  }
-}
-
-@media (width >= 900px) {
-  header.is-shell-loading {
-    height: calc(var(--top-banner-height) + 92px);
-  }
-
-  header.is-shell-loading::before {
-    top: 14px;
+    top: calc(var(--top-banner-height) + 25px);
     left: 48px;
-    right: auto;
-    width: 360px;
+    width: clamp(206px, 15.5vw, 224px);
+    height: 62px;
+    border-radius: 12px;
+    background: rgb(15 51 87 / 9%);
+    box-shadow: none;
   }
 
   header.is-shell-loading::after {
-    top: 52px;
-    left: 32px;
-    right: 32px;
-    height: 84px;
-    border-radius: 32px;
+    top: calc(var(--top-banner-height) + 33px);
+    left: clamp(286px, 25vw, 360px);
+    width: auto;
+    right: 48px;
+    height: 46px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 84%);
+    box-shadow: 0 6px 18px rgb(17 54 82 / 12%);
   }
 }
 
-@keyframes header-shell-shimmer {
-  0% {
-    background-position: 200% 0;
+@media (prefers-reduced-motion: reduce) {
+  header.is-shell-loading::before,
+  header.is-shell-loading::after {
+    animation: none;
   }
+}
 
-  100% {
-    background-position: -200% 0;
+@keyframes header-shell-pulse {
+  50% {
+    opacity: 0.55;
   }
 }
 
@@ -1350,9 +1366,11 @@ a:hover {
    Change this list here and in scripts/button-guard.mjs, nowhere else.
      .nav-tool-accent     header Donate Now
      .nav-search-trigger  header Search
-   Get Help Now, the image-card buttons and the poster page's action bar
-   (.poster-results-detail-action: CALL 911, tip, print, share) never wear
-   `.button`; their exceptions live in their own block stylesheets.
+   Get Help Now, the image-card buttons, the poster page's action bar
+   (.poster-results-detail-action: CALL 911, tip, print, share) and the cookie
+   banner (.cookie-consent-button: 19px bold, so its white-on-#008eb7 label is
+   WCAG large text) never wear `.button`; their exceptions live in their own
+   block stylesheets.
 
    Authors pick the style; the surface picks the form. Blocks mark a dark
    surface — or a single button — with `.is-on-dark`; decorateSections marks the default content

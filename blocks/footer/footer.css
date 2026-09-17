@@ -125,6 +125,15 @@ footer .footer .footer-social .icon {
   height: 20px;
 }
 
+/* An author who picked "fit to image size" keeps the image's own size (the brand logo is
+   authored at 164x40) instead of the clamp on `.footer-brand img`. columns.css says the
+   same, but at that clamp's specificity, so whichever stylesheet loaded last used to win
+   and the logo size depended on load order. */
+footer .footer .footer-brand .image-fit-container img,
+footer .footer .footer-brand img.image-fit-container {
+  width: auto;
+}
+
 footer .footer .footer-column {
   min-width: 0;
   display: block;

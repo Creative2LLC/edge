@@ -1,8 +1,8 @@
 /* Lazily loaded by scripts.js after LCP (see loadFonts()).
 
    Intentionally empty of @font-face rules. Figtree — the site's only typeface — is
-   loaded as a proper <link> in head.html so it is discoverable by the preload scanner
-   rather than arriving late from a deferred stylesheet.
+   self-hosted, declared in styles.css and preloaded from head.html, so it is not left
+   to arrive late from a deferred stylesheet.
 
    This file previously declared four Roboto / Roboto Condensed faces pointing at
    /fonts/*.woff2. Nothing in the codebase referenced those families, so they were dead

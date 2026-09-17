@@ -45,13 +45,11 @@
   }]
 }
 </script>
-<!-- Figtree is the site's only typeface. Loaded here rather than via @import inside a
-     block stylesheet: an @import in lazily-loaded block CSS is render-blocking at the
-     worst possible moment. Full 300-900 variable axis so weights like 800/900 are real
-     cuts, not synthesized. -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&display=swap">
+<!-- Figtree is the site's only typeface, self-hosted and declared in styles.css. Preloading
+     the latin file starts the download while the HTML parses, so it usually arrives before
+     first paint and text does not swap from the fallback. It replaces a render-blocking
+     Google Fonts stylesheet that cost two extra connections on every page. -->
+<link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script nonce="aem" src="/scripts/aem.js" type="module"></script>
 <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
 <link rel="stylesheet" href="/styles/styles.css"/>

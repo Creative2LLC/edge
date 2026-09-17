@@ -10,13 +10,18 @@ import resolveSiteHref, {
 } from '../../scripts/link-utils.js';
 import applyNavLinkOverrides from '../../scripts/nav-link-overrides.js';
 import { markDonateTrigger } from '../../scripts/classy-donate.js';
-import { trackEvent } from '../../scripts/analytics.js';
 import { loadFragment } from '../fragment/fragment.js';
+
+// Loaded on first use, not with the header: see the matching note in classy-donate.js.
+const trackEvent = (name, params) => import('../../scripts/analytics.js')
+  .then((analytics) => analytics.trackEvent(name, params))
+  .catch(() => {});
 
 // desktop nav should apply at standard desktop breakpoints
 const isDesktop = window.matchMedia('(min-width: 1260px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 460;
 const FALLBACK_BRAND_LOGO = new URL('./ncmec-brand-mark.svg', import.meta.url).href;
+const BRAND_LOGO_ALT = 'National Center for Missing & Exploited Children';
 const TOP_BANNER_LINK_CONFIGS = [
   {
     labels: ['cybertipline'],
@@ -2295,6 +2300,10 @@ export default async function decorate(block) {
   if (brandLink) {
     const brandImg = brandLink.querySelector('img');
     if (brandImg) {
+      // The logo is the link's only content, so its alt is the link's accessible name.
+      // The authored nav image has no alt text, which leaves the home link unnamed.
+      brandImg.alt = BRAND_LOGO_ALT;
+
       // Intrinsic dimensions of the brand mark (viewBox 0 0 224 62). CSS controls
       // the rendered size; these attributes give the browser an aspect ratio so it
       // reserves space (fixes `unsized-images` + layout shift / CLS).
@@ -2304,7 +2313,6 @@ export default async function decorate(block) {
       const useFallbackLogo = () => {
         if (brandImg.src === FALLBACK_BRAND_LOGO) return;
         brandImg.src = FALLBACK_BRAND_LOGO;
-        brandImg.alt = brandImg.alt || 'NCMEC';
       };
 
       if (brandImg.getAttribute('src') === 'about:error') {

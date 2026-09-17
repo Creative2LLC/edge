@@ -941,15 +941,40 @@ function startHeaderLoad(doc) {
 }
 
 /**
+ * Paints the header skeleton straight away. The header block itself starts loading in
+ * loadLazy, once the first section is on screen: started alongside it, the header's scripts
+ * and the nav fragment competed with the first section and its image on slow connections
+ * (~0.5s later LCP on mobile).
+ */
+function showHeaderShell(doc) {
+  if (window.isErrorPage) return;
+  const header = doc.querySelector('header');
+  if (header && !header.querySelector('.header')) header.classList.add('is-shell-loading');
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
-  startHeaderLoad(doc);
+  showHeaderShell(doc);
   const main = doc.querySelector('main');
   if (main) {
+    // The delivered markup marks every image loading="lazy", and waitForFirstImage() only
+    // flips the LCP candidate to eager once the first section's blocks have loaded. Flag the
+    // same image (the first one in the first section) now, at high priority, so it downloads
+    // while those blocks load instead of after them. Only the first section: a page whose first
+    // section has no image (the home video hero) must not pull one up from further down. And
+    // not an icon-sized source (the markup carries the asset's own width): article-details'
+    // 48px icon would be fetched at high priority and then thrown away. Heroes and the
+    // leadership headshots (331-342px) are all well above the cut-off.
+    const lcpCandidate = main.querySelector(':scope > div')?.querySelector('img');
+    if (lcpCandidate && Number(lcpCandidate.getAttribute('width')) >= 200) {
+      lcpCandidate.loading = 'eager';
+      lcpCandidate.fetchPriority = 'high';
+    }
     decorateMain(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
@@ -976,7 +1001,6 @@ async function loadLazy(doc) {
   startHeaderLoad(doc);
 
   if (!window.isErrorPage) {
-    loadFooter(doc.querySelector('footer'));
     let getHelpHost = doc.querySelector('.get-help-host');
     if (!getHelpHost) {
       getHelpHost = doc.createElement('div');
@@ -996,6 +1020,11 @@ async function loadLazy(doc) {
 
   if (main) observeInlineColors(main);
   await loadSections(main);
+
+  // The footer loads after the sections, as in the Adobe boilerplate. Loaded before them it
+  // rendered straight under the first section and was pushed down as each later section
+  // appeared: up to 0.9 CLS on mobile. Cookie consent waits for ncmec:footer-ready.
+  if (!window.isErrorPage) loadFooter(doc.querySelector('footer'));
   if (main) decorateInlineColors(main);
   if (main) decoratePdfLinks(main);
   if (main) removeAemBlockFieldArtifacts(main);

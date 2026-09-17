@@ -20,7 +20,13 @@
  */
 
 import resolveSiteHref from './link-utils.js';
-import { trackEvent } from './analytics.js';
+
+// analytics.js (and the config it imports) arrives with delayed.js. A static import here
+// fetched both while the header was still loading, in front of the page's hero image.
+// trackEvent only queues until initAnalytics() runs, so loading it on first use changes nothing.
+const trackEvent = (name, params) => import('./analytics.js')
+  .then((analytics) => analytics.trackEvent(name, params))
+  .catch(() => {});
 
 // NCMEC's Classy organization. Same id the AEM site loads.
 const ORG_ID = '28352';
