@@ -654,7 +654,7 @@ async function decorateBlock(block) {
   if (testimonials.length) {
     const testimonialsGrid = document.createElement('div');
     testimonialsGrid.className = 'partners-showcase-testimonials';
-    const cardBackgroundColor = fields.testimonialCardBackgroundColor.value || '#f4f0ea';
+    const cardBackgroundColor = fields.testimonialCardBackgroundColor.value || '#F4F1EC';
 
     testimonials.forEach((data) => {
       const card = buildTestimonialCard(data, cardBackgroundColor);

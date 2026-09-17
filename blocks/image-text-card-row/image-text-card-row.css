@@ -44,7 +44,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  background-color: #DDD5CC52;
+  background-color: var(--ncmec-warm-gray);
 }
 
 /* Icon (optional) */
@@ -93,7 +93,7 @@
 
 /* Title */
 .image-text-card-row .image-text-card-row-card-title {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 8px;
   text-align: left;
 }
@@ -101,7 +101,7 @@
 /* Subtitle */
 .image-text-card-row .image-text-card-row-card-subtitle {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 8px;
   text-align: left;
 }
@@ -109,7 +109,7 @@
 /* Body text */
 .image-text-card-row .image-text-card-row-card-body {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 16px;
   text-align: left;
 }
@@ -137,7 +137,7 @@
    padding around it. The card itself takes on the background color and
    padding so the inner content area no longer wraps the bg. */
 .image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card {
-  background-color: #DDD5CC52;
+  background-color: var(--ncmec-warm-gray);
   padding: 40px;
   display: flex;
   flex-direction: column;

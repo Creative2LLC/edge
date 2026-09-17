@@ -266,7 +266,7 @@ export default function decorate(block) {
     'bullet',
   );
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
-  const textColor = normalizeColorValue(txtField.value) || '#404041';
+  const textColor = normalizeColorValue(txtField.value) || '#414042';
   const mrkField = readColorField(
     block,
     'markerColor',
@@ -274,7 +274,7 @@ export default function decorate(block) {
     isEditor,
     fieldCell(rows[2]),
   );
-  const markerColor = normalizeColorValue(mrkField.value) || '#008DB6';
+  const markerColor = normalizeColorValue(mrkField.value) || '#008EB7';
   const mrkTxtField = readColorField(
     block,
     'markerTextColor',

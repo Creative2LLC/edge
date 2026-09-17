@@ -30,7 +30,7 @@ function getImageField(row, name, index) {
 function buildIcon(content, iconField, iconColor) {
   if (!iconField.img) return;
 
-  const color = iconColor || '#404041';
+  const color = iconColor || '#414042';
   const normalized = color.toLowerCase();
   const isWhite = normalized === '#ffffff' || normalized === '#fff' || normalized === 'white';
 

@@ -1,9 +1,9 @@
 .tabs {
   --tabs-columns: 4;
   --tabs-navy: #00264d;
-  --tabs-text: #404041;
+  --tabs-text: var(--ncmec-gray-dark);
   --tabs-muted: #5b6570;
-  --tabs-accent: #008db6;
+  --tabs-accent: var(--ncmec-blue-medium);
   --tabs-card-border: #e6e9ee;
 
   padding: clamp(44px, 6vw, 76px) 0;

@@ -24,7 +24,7 @@ import {
 
 const DEFAULT_TEXT_COLOR = '#00264D';
 const DEFAULT_BACKGROUND_COLOR = '#E9F7FA';
-const DEFAULT_TEXT2_COLOR = '#404041';
+const DEFAULT_TEXT2_COLOR = '#414042';
 
 // Field name for each offset the call sites below use, measured from the imageMode
 // anchor in the CURRENT model order. Keep in sync with the offsets in decorate().
@@ -286,12 +286,17 @@ function watchBlockBackgroundField(source, block) {
 }
 
 const LABEL_COLOR_MAP = {
+  white: '#FFFFFF',
+  navy: '#00264D',
+  'navy-medium': '#004B76',
+  'blue-dark': '#006D90',
+  grey: '#414042',
+  'gray-lightest': '#F1F2F2',
+  red: '#AE1B1F',
+  // No longer offered (they fail as text), still rendered for pages that use them.
   teal: '#008EB7',
   orange: '#F7941D',
-  navy: '#00264D',
-  'dark-navy': '#092348',
-  white: '#FFFFFF',
-  grey: '#404041',
+  'dark-navy': '#00264D',
 };
 
 function applyLabelColor(block, value, cssVar = '--colored-icon-text-label-color') {

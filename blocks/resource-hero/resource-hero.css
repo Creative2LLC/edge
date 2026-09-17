@@ -7,9 +7,9 @@
   --resource-hero-min-height: 34rem;
   --resource-hero-overlay-opacity: 0.5;
   --resource-hero-ink: #00264d;
-  --resource-hero-muted: #404041;
-  --resource-hero-blue: #008db6;
-  --resource-hero-gold: #ffb81c;
+  --resource-hero-muted: var(--ncmec-gray-dark);
+  --resource-hero-blue: var(--ncmec-blue-medium);
+  --resource-hero-gold: var(--ncmec-yellow);
 
   position: relative;
   isolation: isolate;
@@ -284,13 +284,17 @@
    on already-published pages. Color overrides below are unaffected. */
 
 /* Optional per-title color override (wins over the general Text Color) */
-.resource-hero-title.title-white { color: #fff; }
-.resource-hero-title.title-navy { color: #00264d; }
-.resource-hero-title.title-blue { color: #007294; }
-.resource-hero-title.title-brand { color: #008db6; }
-.resource-hero-title.title-grey { color: #404041; }
-.resource-hero-title.title-orange { color: #e07e27; }
-.resource-hero-title.title-red { color: #e13e30; }
+.resource-hero-title.title-white { color: var(--ncmec-white); }
+.resource-hero-title.title-navy { color: var(--ncmec-navy-dark); }
+.resource-hero-title.title-navy-medium { color: var(--ncmec-navy-medium); }
+.resource-hero-title.title-blue { color: var(--ncmec-blue-dark); }
+.resource-hero-title.title-grey { color: var(--ncmec-gray-dark); }
+.resource-hero-title.title-gray-lightest { color: var(--ncmec-gray-lightest); }
+.resource-hero-title.title-red { color: var(--ncmec-red); }
+
+/* No longer offered (they fail as text), kept for pages that already use them. */
+.resource-hero-title.title-brand { color: var(--ncmec-blue-medium); }
+.resource-hero-title.title-orange { color: var(--ncmec-yellow-dark); }
 
 .resource-hero-intro {
   max-width: 760px;

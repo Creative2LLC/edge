@@ -214,10 +214,10 @@ function parseTags(tagsStr) {
       const color = line.slice(sep + 1).trim();
       return {
         name: line.slice(0, sep).trim(),
-        color: TAG_COLOR_RE.test(color) ? color : '#a1a1a1',
+        color: TAG_COLOR_RE.test(color) ? color : '#939598',
       };
     }
-    return { name: line, color: '#a1a1a1' };
+    return { name: line, color: '#939598' };
   });
 }
 

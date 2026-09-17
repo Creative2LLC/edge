@@ -148,7 +148,7 @@ main > .section > div.resource-downloads-wrapper {
   align-items: stretch;
   padding: 0;
   overflow: hidden;
-  border-left: 5px solid var(--rd-accent, #008db6);
+  border-left: 5px solid var(--rd-accent, var(--ncmec-blue-medium));
 }
 
 /* ── Document preview ──────────────────────────────────────────────────────
@@ -219,7 +219,7 @@ main > .section > div.resource-downloads-wrapper {
   /* --rd-accent is set per card in JS from the type theme, so the chip carries
      the same colour as the rest of that type's styling (PDF red, PPT orange,
      ...) rather than a second, unrelated palette. */
-  background: var(--rd-accent, #0d273b);
+  background: var(--rd-accent, var(--ncmec-navy-medium));
   color: #fff;
   font-size: var(--caption-size);
   font-weight: 700;
@@ -286,7 +286,7 @@ main > .section > div.resource-downloads-wrapper {
   flex: 0 0 300px;
   min-height: 232px;
   padding: 20px;
-  background: var(--rd-accent, #eaf4f8);
+  background: var(--rd-accent, var(--ncmec-blue-tint));
 }
 
 .resource-downloads-item.is-type .resource-downloads-item-media picture,
@@ -340,7 +340,7 @@ main > .section > div.resource-downloads-wrapper {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  color: var(--rd-accent, #008db6);
+  color: var(--rd-accent, var(--ncmec-blue-medium));
   background: linear-gradient(115deg, rgb(255 255 255 / 0%) 0%, color-mix(in srgb, var(--rd-accent, #008db6) 7%, #fff) 55%, color-mix(in srgb, var(--rd-accent, #008db6) 15%, #fff) 100%);
 }
 
@@ -369,7 +369,7 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-type-art-glyph {
   position: relative;
   width: 104px;
-  filter: drop-shadow(0 10px 14px color-mix(in srgb, var(--rd-accent, #008db6) 25%, transparent));
+  filter: drop-shadow(0 10px 14px color-mix(in srgb, var(--rd-accent, var(--ncmec-blue-medium)) 25%, transparent));
   transition: transform 0.25s ease;
 }
 
@@ -475,7 +475,7 @@ main > .section > div.resource-downloads-wrapper {
   font-size: 11px;
   font-weight: 800;
   line-height: 1;
-  background: var(--rd-accent, #008db6);
+  background: var(--rd-accent, var(--ncmec-blue-medium));
   border-radius: 999px;
 }
 
@@ -485,7 +485,7 @@ main > .section > div.resource-downloads-wrapper {
 
 .resource-downloads-item.is-informative .resource-downloads-item-title {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--heading-3-size);
   line-height: var(--heading-line-height-tight);
 }
@@ -500,7 +500,7 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-item.is-informative .resource-downloads-item-contents {
   max-width: 260px;
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   line-height: 1.45;
   font-weight: var(--body-weight-medium);
@@ -529,7 +529,7 @@ main > .section > div.resource-downloads-wrapper {
   align-items: center;
   gap: 24px;
   padding: 18px 22px;
-  background: #ece8e3;
+  background: var(--ncmec-warm-gray);
   border-radius: 8px;
 }
 
@@ -538,7 +538,7 @@ main > .section > div.resource-downloads-wrapper {
   display: inline-flex;
   width: 34px;
   height: 34px;
-  color: #007294;
+  color: var(--ncmec-blue-dark);
 }
 
 .resource-downloads-meta-row[data-meta="audience"] .resource-downloads-meta-icon {
@@ -566,13 +566,13 @@ main > .section > div.resource-downloads-wrapper {
 }
 
 .resource-downloads-meta-label {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--caption-size);
   line-height: 1;
 }
 
 .resource-downloads-meta-value {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-family: var(--heading-font-family, sans-serif);
   font-size: var(--caption-size);
   font-weight: 800;
@@ -586,12 +586,12 @@ main > .section > div.resource-downloads-wrapper {
   align-items: flex-start;
   gap: 12px;
   padding: 26px 28px 24px;
-  border-top: 4px solid var(--rd-accent, #008db6);
+  border-top: 4px solid var(--rd-accent, var(--ncmec-blue-medium));
 }
 
 .resource-downloads-item.is-informative-stacked .resource-downloads-item-contents {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   line-height: 1.45;
   font-weight: var(--body-weight-medium);
@@ -637,7 +637,7 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-item.is-informative-banner {
   flex-wrap: wrap;
   gap: 18px 26px;
-  border-left: 5px solid var(--rd-accent, #008db6);
+  border-left: 5px solid var(--rd-accent, var(--ncmec-blue-medium));
   background: linear-gradient(100deg, color-mix(in srgb, var(--rd-accent, #008db6) 6%, #fff) 0%, #fff 50%);
 }
 
@@ -703,7 +703,7 @@ main > .section > div.resource-downloads-wrapper {
 .resource-downloads-item.is-video .resource-downloads-item-media {
   position: relative;
   aspect-ratio: 16 / 9;
-  background: #0d273b;
+  background: var(--ncmec-navy-medium);
 }
 
 /* contain, not cover. Backend thumbnails are stored at 1.2:1 (the ratio the
@@ -748,7 +748,7 @@ main > .section > div.resource-downloads-wrapper {
   content: "";
   position: absolute;
   border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--rd-accent, #008db6) 22%, transparent);
+  border: 2px solid color-mix(in srgb, var(--rd-accent, var(--ncmec-blue-medium)) 22%, transparent);
 }
 
 .resource-downloads-default-video-poster::before {
@@ -809,7 +809,7 @@ main > .section > div.resource-downloads-wrapper {
   padding: 5px 12px;
   border-radius: 999px;
   background: rgb(255 255 255 / 88%);
-  color: var(--rd-accent, #008db6);
+  color: var(--rd-accent, var(--ncmec-blue-medium));
   font-family: var(--heading-font-family, sans-serif);
   font-size: var(--caption-size);
   font-weight: 800;
@@ -906,7 +906,7 @@ main > .section > div.resource-downloads-wrapper {
   flex: 0 0 200px;
   border-radius: 10px;
   overflow: hidden;
-  background: #eaf4f8;
+  background: var(--ncmec-blue-tint);
   align-self: center;
 }
 
@@ -1076,7 +1076,7 @@ main > .section > div.resource-downloads-wrapper {
   gap: 8px;
   margin-bottom: 16px;
   padding: 10px 12px;
-  background: #f4f7fa;
+  background: var(--ncmec-gray-lightest);
   border: 1px dashed #b7c4d2;
   border-radius: 10px;
 }

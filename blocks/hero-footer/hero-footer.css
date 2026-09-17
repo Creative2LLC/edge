@@ -96,7 +96,7 @@
 .hero-footer-subheading {
   font-size: var(--deck-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   max-width: 100%;
   margin: 24px 0 0;
   opacity: 0;
@@ -127,7 +127,7 @@
 .hero-footer.hero-footer-variant-2 .hero-footer-heading-1 {
   font-size: var(--deck-size);
   font-weight: 700;
-  color: #E13E30;
+  color: var(--ncmec-red);
 }
 
 .hero-footer.hero-footer-variant-2 .hero-footer-heading-2 {

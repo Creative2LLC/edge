@@ -2,8 +2,8 @@
   --impact-donut-surface: #fff;
   --impact-donut-track: #edf1f3;
   --impact-donut-heading-color: #113a67;
-  --impact-donut-body-color: #404041;
-  --impact-donut-stat-label-color: #404041;
+  --impact-donut-body-color: var(--ncmec-gray-dark);
+  --impact-donut-stat-label-color: var(--ncmec-gray-dark);
   --impact-donut-divider-color: #e5e1db;
 
   padding: 72px 0;
@@ -151,7 +151,7 @@
 
 .impact-donut .impact-donut-stat-value {
   margin-bottom: 10px;
-  color: var(--impact-donut-stat-color, #1491bf);
+  color: var(--impact-donut-stat-color, var(--ncmec-blue-medium));
   font-size: var(--heading-1-size);
   font-weight: 700;
   line-height: 0.95;

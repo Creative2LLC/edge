@@ -1,6 +1,6 @@
 .general-inquiries {
-  --general-inquiries-surface: #efe9e4;
-  --general-inquiries-support-cta: #008db6;
+  --general-inquiries-surface: var(--ncmec-warm-gray);
+  --general-inquiries-support-cta: var(--ncmec-blue-medium);
   --general-inquiries-support-cta-hover: #007ca1;
 
   position: relative;
@@ -32,13 +32,13 @@
 
 .general-inquiries .general-inquiries-heading {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .general-inquiries .general-inquiries-subheading {
   max-width: 1324px;
   margin: 16px 0 0;
-  color: #4b4b4f;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -61,7 +61,7 @@
   border-radius: 14px;
   padding: 15px 18px;
   background: #fff;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 65%);
   transition:
     border-color 180ms ease,
@@ -107,7 +107,7 @@
   border-radius: 14px;
   padding: 15px 18px;
   background: #fff;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-family: inherit;
   font-size: var(--body-size);
   font-weight: 500;
@@ -119,7 +119,7 @@
 }
 
 .general-inquiries .general-inquiries-dropdown-trigger:focus-visible {
-  outline: 2px solid #008db6;
+  outline: 2px solid var(--ncmec-blue-medium);
   outline-offset: 2px;
 }
 
@@ -167,7 +167,7 @@
 .general-inquiries-dropdown-option {
   padding: 12px 14px;
   border-radius: 9px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-sm-size);
   font-weight: 500;
   line-height: 1.35;
@@ -179,7 +179,7 @@
 }
 
 .general-inquiries-dropdown-option[aria-selected="true"] {
-  color: #008db6;
+  color: var(--ncmec-blue-medium);
   font-weight: 600;
 }
 
@@ -322,7 +322,7 @@
 .general-inquiries.general-inquiries-support-mode .general-inquiries-support-subheading {
   max-width: 1228px;
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 /* Support CTA: styled by the button standard in styles/styles.css; this only places it. */
@@ -344,13 +344,13 @@
 .general-inquiries.general-inquiries-support-mode .general-inquiries-heading {
   max-width: 689px;
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .general-inquiries.general-inquiries-support-mode .general-inquiries-subheading {
   max-width: 689px;
   margin: 12px 0 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   line-height: var(--caption-line-height);
@@ -367,7 +367,7 @@
   border-radius: 8px;
   padding: 14px 16px;
   background-color: #fff;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   font-weight: 500;
   box-shadow: none;
@@ -396,7 +396,7 @@
   align-items: center;
   padding: 14px 16px;
   pointer-events: none;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   font-weight: 500;
   line-height: 1.4;

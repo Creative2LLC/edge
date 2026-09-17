@@ -65,7 +65,7 @@
   align-items: center;
   gap: 0.45rem;
   margin-bottom: 1rem;
-  color: #0d6e8c;
+  color: var(--ncmec-blue-dark);
   font-size: var(--body-sm-size);
   font-weight: var(--body-weight-bold);
   text-decoration: none;
@@ -125,7 +125,7 @@
 
 .article-detail .article-detail-pill.is-taxonomy {
   background: #f2f7fb;
-  color: #0d6e8c;
+  color: var(--ncmec-blue-dark);
 }
 
 .article-detail .article-detail-pill.is-linked {
@@ -209,7 +209,7 @@
 }
 
 .article-detail .article-detail-body a {
-  color: #0d6e8c;
+  color: var(--ncmec-blue-dark);
   font-weight: 600;
 }
 
@@ -235,7 +235,7 @@
 
 .article-detail .article-detail-body blockquote {
   padding: 1.1rem 1.25rem;
-  border-left: 4px solid #0d6e8c;
+  border-left: 4px solid var(--ncmec-blue-dark);
   border-radius: 0 14px 14px 0;
   background: #f2f7fb;
   color: #355068;

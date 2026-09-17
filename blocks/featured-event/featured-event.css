@@ -74,13 +74,13 @@
   display: flex;
   flex-direction: column;
   padding: 40px 48px 48px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   box-sizing: border-box;
 }
 
 .featured-event .featured-event-card-title {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .featured-event .featured-event-card-title p {
@@ -91,7 +91,7 @@
   margin: 12px 0 0;
   font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .featured-event .featured-event-card-description p {
@@ -133,7 +133,7 @@
   flex: 0 0 32px;
   width: 32px;
   height: 32px;
-  background-color: #008db6;
+  background-color: var(--ncmec-blue-medium);
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;
@@ -149,14 +149,14 @@
   font-size: var(--caption-size);
   font-weight: var(--body-weight-medium);
   line-height: var(--caption-line-height);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .featured-event .featured-event-detail-value {
   font-size: var(--caption-size);
   font-weight: var(--body-weight-strong);
   line-height: var(--caption-line-height);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 /* ---------- CTA button: styled by the button standard in styles/styles.css;

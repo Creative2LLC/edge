@@ -55,7 +55,7 @@
 /* Heading — the author picks h2 or h3 for the outline; it is sized as h3 either way. */
 .split-card .split-card-heading {
   font-size: var(--heading-3-size);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 12px;
   max-width: 540px;
 }
@@ -63,7 +63,7 @@
 /* Subheading */
 .split-card .split-card-subheading {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 24px;
   max-width: 540px;
 }
@@ -154,13 +154,13 @@
 }
 
 .split-card.split-card-variant-2 .split-card-heading {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .split-card.split-card-variant-2 .split-card-subheading {
   font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   max-width: 820px;
 }
 

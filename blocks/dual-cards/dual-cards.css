@@ -35,7 +35,7 @@
 }
 
 .dual-cards-title {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   text-align: left;
 }

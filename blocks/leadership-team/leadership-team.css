@@ -25,7 +25,7 @@
   list-style: none;
   padding: 4px;
   margin: 0;
-  background-color: #ddd5cc6b;
+  background-color: var(--ncmec-warm-gray);
   border-radius: 9999px;
   height: 42px;
 }
@@ -144,7 +144,7 @@
 
 /* Card name */
 .leadership-team-card-name {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 4px;
   padding: 0;
   text-align: left;
@@ -156,7 +156,7 @@
 .leadership-team-card-title {
   font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 8px;
   padding: 0;
   line-height: 1.4;
@@ -167,7 +167,7 @@
 
 /* Card bio */
 .leadership-team-card-bio {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 8px;
   padding: 0;
   text-align: left;

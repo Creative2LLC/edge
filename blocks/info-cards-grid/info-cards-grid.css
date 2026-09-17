@@ -1,6 +1,6 @@
 /* Info Cards Grid Block */
 .info-cards-grid.block {
-  --info-cards-section-button-bg: #008db6;
+  --info-cards-section-button-bg: var(--ncmec-blue-medium);
   --info-cards-section-button-hover: #007ca1;
 
   padding: 60px 0;

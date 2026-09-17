@@ -88,7 +88,7 @@ const TYPE_THEMES = {
     contains: 'This bundle contains:',
   },
   video: {
-    accent: '#008db6',
+    accent: '#008eb7',
     abbr: 'PLAY',
     badgeLabel: 'Video',
     title: 'Watch Video',

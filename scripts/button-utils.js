@@ -1,3 +1,5 @@
+import { resolveBrandColor } from './color-tokens.js';
+
 /**
  * Button utilities for the approved button standard.
  * The look lives in the BUTTONS section of styles/styles.css; these helpers only decide
@@ -67,6 +69,13 @@ const SWATCH_STYLES = {
   '#F58A80': 'emergency',
   '#7BC581': 'giving',
 };
+
+/* Pages are remapped to the current palette before a block reads its colours
+   (scripts/color-tokens.js), so each old swatch's successor carries the same style. */
+Object.entries(SWATCH_STYLES).forEach(([hex, style]) => {
+  const next = resolveBrandColor(hex);
+  if (!SWATCH_STYLES[next]) SWATCH_STYLES[next] = style;
+});
 
 /**
  * Removes a trailing arrow and a "[no arrow]" suffix from a label.

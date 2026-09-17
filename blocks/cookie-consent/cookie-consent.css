@@ -31,7 +31,7 @@
 
 .cookie-consent-heading {
   margin: 0;
-  color: #143654;
+  color: var(--ncmec-navy-raised);
 }
 
 .cookie-consent-text {
@@ -41,7 +41,7 @@
 }
 
 .cookie-consent-text a {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-weight: 700;
 }
 
@@ -81,7 +81,7 @@
 
 .cookie-consent-button.primary:hover,
 .cookie-consent-button.primary:focus {
-  background: #007294;
+  background: var(--ncmec-blue-dark);
 }
 
 /* Accept and Reject must read as equals. The old .ghost variant — transparent border
@@ -89,9 +89,9 @@
    pattern EU regulators fine for. Both refusal buttons now carry a full-strength
    border at the same size and weight as Accept All. */
 .cookie-consent-button.secondary {
-  border: 2px solid #143654;
+  border: 2px solid var(--ncmec-navy-raised);
   background: #fff;
-  color: #143654;
+  color: var(--ncmec-navy-raised);
 }
 
 .cookie-consent-button.secondary:hover,
@@ -131,7 +131,7 @@
   border: 1px solid rgb(20 54 84 / 12%);
   border-radius: 8px;
   padding: 14px 16px;
-  background: #f8fbfe;
+  background: var(--ncmec-white);
 }
 
 .cookie-consent-choice-copy {
@@ -140,7 +140,7 @@
 }
 
 .cookie-consent-choice-title {
-  color: #143654;
+  color: var(--ncmec-navy-raised);
   font-size: var(--heading-7-size);
   font-weight: 700;
   line-height: 1.25;

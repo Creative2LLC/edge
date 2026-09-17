@@ -31,7 +31,7 @@
 .cta-card-1 .cta-card-1-subtitle {
   font-size: var(--body-lg-size) !important;
   font-weight: var(--body-weight-medium) !important;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   max-width: 554px;
 }
@@ -87,7 +87,7 @@
 .cta-card-1 .cta-card-1-below-button {
   font-size: var(--body-size);
   font-weight: 400;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   text-align: left;
   max-width: 394px;

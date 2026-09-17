@@ -70,7 +70,7 @@ main > .section > .split-card-gap-wrapper {
 }
 
 .split-card-gap .split-card-gap-body {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
 }
@@ -138,7 +138,7 @@ main > .section > .split-card-gap-wrapper {
   justify-content: center;
   width: 48px;
   height: 48px;
-  background-color: #008db6;
+  background-color: var(--ncmec-blue-medium);
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;
@@ -185,7 +185,7 @@ main > .section > .split-card-gap-wrapper {
 
 .split-card-gap .split-card-gap-benefit-title {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
   line-height: 1.25;
@@ -226,7 +226,7 @@ main > .section > .split-card-gap-wrapper {
 
 .split-card-gap-variant-2 .split-card-gap-heading {
   max-width: 412px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .split-card-gap-variant-2 .split-card-gap-body {

@@ -1,10 +1,10 @@
 .impact-data-table {
   --impact-data-table-ink: #113a67;
-  --impact-data-table-text: #404041;
+  --impact-data-table-text: var(--ncmec-gray-dark);
   --impact-data-table-muted: #667784;
   --impact-data-table-border: rgb(17 58 103 / 13%);
   --impact-data-table-surface: #fff;
-  --impact-data-table-wash: #f5f9fb;
+  --impact-data-table-wash: var(--ncmec-gray-lightest);
 
   max-width: var(--container);
   margin: 0 auto;

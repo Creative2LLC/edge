@@ -4,7 +4,7 @@ body[data-error-code] footer {
 }
 
 main.error {
-  --error-accent: #008db6;
+  --error-accent: var(--ncmec-blue-medium);
   --error-accent-deep: #00264d;
   --error-surface: rgb(255 255 255 / 90%);
   --error-border: rgb(0 38 77 / 9%);
@@ -121,7 +121,7 @@ main.error > .section > div {
 .error-page-description {
   margin: 20px 0 0;
   max-width: 37rem;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   line-height: 1.55;
 }
@@ -137,7 +137,7 @@ main.error > .section > div {
 .error-page-points li {
   position: relative;
   padding-left: 20px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   line-height: 1.5;
 }

@@ -11,9 +11,9 @@ import {
 const STATUSES = {
   'accepting-applications': { label: 'Accepting Applications', color: '#338739' },
   'limited-seats': { label: 'Limited Seats', color: '#AC6005' },
-  'coming-soon': { label: 'Coming Soon', color: '#404041' },
+  'coming-soon': { label: 'Coming Soon', color: '#414042' },
   closed: { label: 'Closed', color: '#B3261E' },
-  'waitlist-open': { label: 'Waitlist Open', color: '#007294' },
+  'waitlist-open': { label: 'Waitlist Open', color: '#006D90' },
 };
 
 function getField(row, name, index) {

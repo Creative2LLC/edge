@@ -160,7 +160,7 @@
 .article-details .article-details-body-image-placeholder {
   align-items: center;
   aspect-ratio: 16 / 9;
-  background: #eef4f7;
+  background: var(--ncmec-gray-lightest);
   border-radius: 8px;
   display: flex;
   font-weight: var(--body-weight-bold);

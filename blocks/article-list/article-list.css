@@ -129,8 +129,8 @@
   min-height: 1.95rem;
   padding: 0.34rem 0.78rem;
   border-radius: 999px;
-  background: #eef5f8;
-  color: #0d6e8c;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -147,7 +147,7 @@
 }
 
 .article-list .article-list-pill.is-taxonomy {
-  background: #e7f4fa;
+  background: var(--ncmec-blue-tint);
   color: #0b6b86;
 }
 
@@ -174,7 +174,7 @@
   width: 1.4rem;
   height: 1.4rem;
   border-radius: 999px;
-  background: #0d6e8c;
+  background: var(--ncmec-blue-dark);
   color: #fff;
   font-size: 0.78rem;
   font-weight: 700;
@@ -183,7 +183,7 @@
 .article-list .article-list-clear-all {
   border: 0;
   background: transparent;
-  color: #0d6e8c;
+  color: var(--ncmec-blue-dark);
   font-size: var(--body-sm-size);
   font-weight: 700;
   cursor: pointer;
@@ -291,7 +291,7 @@
 
 .article-list .article-list-card-title {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .article-list .article-list-grid[data-view="list"] .article-list-card-title {
@@ -300,7 +300,7 @@
 
 .article-list .article-list-card-excerpt {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-weight: var(--body-weight-medium);
   font-size: var(--body-size);
 }

@@ -1,5 +1,5 @@
 .media-contact-cta {
-  background: #f4f5f5;
+  background: var(--ncmec-gray-lightest);
   padding: 38px 0 88px;
 }
 
@@ -23,7 +23,7 @@
   display: block;
   width: 54px;
   height: 54px;
-  color: #9ee3f0;
+  color: var(--ncmec-blue-light);
 }
 
 .media-contact-cta-visual:any-link {

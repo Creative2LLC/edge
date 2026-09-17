@@ -11,7 +11,7 @@
   gap: 32px;
   padding: 32px 40px;
   border-radius: 14px;
-  background-color: #edebe9;
+  background-color: var(--ncmec-warm-gray);
   box-sizing: border-box;
 }
 
@@ -37,13 +37,13 @@
 }
 
 .cta-banner-title {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
 }
 
 .cta-banner-subtitle {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
 }
 

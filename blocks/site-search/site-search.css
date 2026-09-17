@@ -1,10 +1,10 @@
 .site-search {
-  --site-search-surface: #f3efe9;
+  --site-search-surface: var(--ncmec-warm-off-white);
   --site-search-card: #fff;
   --site-search-border: rgb(19 54 84 / 12%);
   --site-search-text: #173d59;
   --site-search-muted: rgb(23 61 89 / 72%);
-  --site-search-accent: #008db6;
+  --site-search-accent: var(--ncmec-blue-medium);
   --site-search-accent-hover: #00769a;
 
   padding: clamp(28px, 4vw, 56px);

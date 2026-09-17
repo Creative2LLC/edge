@@ -10,7 +10,7 @@
 
 /* Heading */
 .impact-chain .impact-chain-heading {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   max-width: 890px;
   margin: 0 auto 32px;
   text-align: center;
@@ -46,7 +46,7 @@
   align-items: stretch;
   max-width: 65%;
   width: 65%;
-  background: #f5f0eb;
+  background: var(--ncmec-warm-gray);
   border-radius: 12px;
   position: relative;
 }
@@ -216,7 +216,7 @@
 
 /* Card description */
 .impact-chain .impact-chain-item-description {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   font-weight: var(--body-weight-medium);
 }

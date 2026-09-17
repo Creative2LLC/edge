@@ -95,7 +95,7 @@
 .get-help .get-help-card {
   border-radius: 10px;
   border: 1px solid rgb(18 38 56 / 14%);
-  background: #eef1f5;
+  background: var(--ncmec-gray-lightest);
   padding: 34px 30px;
   box-shadow: 0 26px 60px rgb(0 0 0 / 45%);
 }

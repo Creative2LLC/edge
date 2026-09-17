@@ -29,7 +29,7 @@ main > .section > .faq-wrapper {
   position: relative;
   z-index: 1;
   margin: 0 0 clamp(18px, 2.8vw, 34px);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .faq .faq-item.is-authoring-placeholder {
@@ -82,7 +82,7 @@ main > .section > .faq-wrapper {
 }
 
 .faq .faq-item-answer a {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   text-decoration: underline;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 0.16em;

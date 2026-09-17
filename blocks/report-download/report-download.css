@@ -101,7 +101,7 @@
    rather than the --deck-size tier. */
 .report-download .report-download-body {
   max-width: 516px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   line-height: var(--caption-line-height);
@@ -139,7 +139,7 @@
   padding: 0 28px;
   border: 1px dashed rgb(255 255 255 / 55%);
   border-radius: 999px;
-  background: #1491bf;
+  background: var(--ncmec-blue-medium);
   color: #fff;
   font-size: var(--body-lg-size);
   font-weight: 600;

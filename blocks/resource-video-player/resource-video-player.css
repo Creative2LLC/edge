@@ -4,7 +4,7 @@
 }
 
 .resource-video-player {
-  background: #f3f2f0;
+  background: var(--ncmec-warm-off-white);
   color: #122f4a;
 }
 

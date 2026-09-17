@@ -43,7 +43,7 @@ function buildTintedIcon(imageField, color) {
   const src = img?.src || img?.currentSrc;
   if (!src) return wrap;
 
-  const tint = color || '#008DB6';
+  const tint = color || '#008EB7';
   wrap.style.setProperty('background-color', tint);
   wrap.style.setProperty('-webkit-mask-image', `url('${src}')`);
   wrap.style.setProperty('mask-image', `url('${src}')`);

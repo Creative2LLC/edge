@@ -34,7 +34,7 @@
 .split-card-list .scl-body {
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 24px;
 }
 
@@ -67,7 +67,7 @@
   background: #fff;
   border-radius: 12px;
   padding: 24px 28px;
-  box-shadow: 0 4px 10px 0 #40404133;
+  box-shadow: 0 4px 10px 0 #41404233;
   box-sizing: border-box;
   width: 100%;
   gap: 16px;
@@ -90,7 +90,7 @@
 .split-card-list .scl-statement-subtitle {
   font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   line-height: var(--caption-line-height);
 }

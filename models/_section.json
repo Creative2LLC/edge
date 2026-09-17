@@ -85,12 +85,62 @@
                                                       ]
                                       },
                                       {
-                                          "component":  "text",
+                                          "component":  "select",
                                           "valueType":  "string",
                                           "name":  "backgroundColor",
                                           "label":  "Background Color",
-                                          "description":  "Any valid CSS color value, for example #f4f1ec",
-                                          "value":  ""
+                                          "description":  "Colour behind the whole section: white, the palette greys and navys, and the site surface steps (Warm Off-White, Warm Gray, Blue Tint, Navy Raised). Sections saved with another colour keep it until one is picked here.",
+                                          "value":  "",
+                                          "options":  [
+                                                          {
+                                                              "name":  "Default / None",
+                                                              "value":  ""
+                                                          },
+                                                          {
+                                                              "name":  "White (#FFFFFF)",
+                                                              "value":  "#FFFFFF"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Lightest (#F1F2F2)",
+                                                              "value":  "#F1F2F2"
+                                                          },
+                                                          {
+                                                              "name":  "Warm Off-White (#F4F1EC)",
+                                                              "value":  "#F4F1EC"
+                                                          },
+                                                          {
+                                                              "name":  "Warm Gray (#ECE8E3)",
+                                                              "value":  "#ECE8E3"
+                                                          },
+                                                          {
+                                                              "name":  "Blue Tint (#E9F7FA)",
+                                                              "value":  "#E9F7FA"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Light (#C7C8CA)",
+                                                              "value":  "#C7C8CA"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Medium (#939598)",
+                                                              "value":  "#939598"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Dark (#414042)",
+                                                              "value":  "#414042"
+                                                          },
+                                                          {
+                                                              "name":  "Navy Medium (#004B76)",
+                                                              "value":  "#004B76"
+                                                          },
+                                                          {
+                                                              "name":  "Navy Raised (#0F3357)",
+                                                              "value":  "#0F3357"
+                                                          },
+                                                          {
+                                                              "name":  "Navy Dark (#00264D)",
+                                                              "value":  "#00264D"
+                                                          }
+                                                      ]
                                       },
                                       {
                                           "component":  "text",

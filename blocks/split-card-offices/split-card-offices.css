@@ -32,7 +32,7 @@
 
 .split-card-offices .split-card-offices-heading {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 /* CTA buttons row — sit side-by-side at the bottom */
@@ -79,7 +79,7 @@
   margin-left: 32px;
   padding: 36px;
   border-radius: 14px;
-  background-color: #ddd5cc52;
+  background-color: var(--ncmec-warm-gray);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -103,18 +103,18 @@
 .split-card-offices .split-card-offices-feature-text {
   flex: 1 1 auto;
   min-width: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .split-card-offices .split-card-offices-feature-heading {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text {
   font-size: var(--body-size);
   font-weight: 500;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   line-height: 1.5;
 }
 

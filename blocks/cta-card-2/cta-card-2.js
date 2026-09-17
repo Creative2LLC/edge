@@ -6,6 +6,11 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { applyButtonStyle, resolveButtonStyle } from '../../scripts/button-utils.js';
+import { LIGHT_SURFACES } from '../../scripts/color-tokens.js';
+
+// The light site steps are finished surface tints (the old 32% #DDD5CC arrives as Warm Gray),
+// so they paint solid; any other pick keeps the block's 32% wash.
+const SOLID_BACKGROUNDS = new Set(LIGHT_SURFACES.map((swatch) => swatch.hex));
 
 function getField(block, rows, name, index) {
   return readTextField(block, name, { fallbackCell: rows[index] });
@@ -41,7 +46,8 @@ export default function decorate(block) {
 
   // Apply background color at 32% opacity
   const bgHex = bgColorField.value || '#000000';
-  block.style.setProperty('background-color', hexToRgba(bgHex, 0.32), 'important');
+  const solidHex = bgHex.slice(0, 7).toUpperCase();
+  block.style.setProperty('background-color', SOLID_BACKGROUNDS.has(solidHex) ? solidHex : hexToRgba(bgHex, 0.32), 'important');
 
   // Build left side — icon
   const left = document.createElement('div');

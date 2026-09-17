@@ -1,5 +1,5 @@
 .colored-text {
-  --colored-text-color: #404041;
+  --colored-text-color: var(--ncmec-gray-dark);
   --colored-text-size: 1.125rem;
   --colored-text-weight: inherit;
   --colored-text-min-height: 100%;

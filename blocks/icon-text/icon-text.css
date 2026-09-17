@@ -9,7 +9,7 @@
 }
 
 .icon-text .icon-text-heading {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   text-align: center;
   margin: 0 0 32px;
 }
@@ -46,7 +46,7 @@
 }
 
 .icon-text .icon-text-red {
-  color: #e13e30;
+  color: var(--ncmec-red);
 }
 
 .icon-text .icon-text-blue {

@@ -1,3 +1,5 @@
+import { GRADIENT_STOP_FIELDS, remapColorValue } from './color-tokens.js';
+
 function normalizeNames(name) {
   return (Array.isArray(name) ? name : [name])
     .filter((value) => value !== undefined && value !== null);
@@ -125,7 +127,9 @@ export async function readAueResourceFields(resourcePath, names = []) {
     return normalizeNames(names)
       .reduce((fields, name) => {
         if (data[name] !== undefined && data[name] !== null) {
-          fields[name] = data[name];
+          // Author JSON never passes through remapLegacyColors(), so remap here too.
+          const value = data[name];
+          fields[name] = GRADIENT_STOP_FIELDS.has(name) ? value : remapColorValue(value);
         }
         return fields;
       }, {});

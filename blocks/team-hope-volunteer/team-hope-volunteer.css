@@ -8,7 +8,7 @@ main > .section > .team-hope-volunteer-wrapper {
   --team-hope-volunteer-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   padding: var(--team-hope-volunteer-top-padding) 0 clamp(52px, 7vw, 96px);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .team-hope-volunteer-shell {
@@ -36,7 +36,7 @@ main > .section > .team-hope-volunteer-wrapper {
   border-radius: 999px;
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
@@ -51,7 +51,7 @@ main > .section > .team-hope-volunteer-wrapper {
 
 .team-hope-volunteer-intro {
   max-width: 56rem;
-  color: #4b4b4f;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -200,12 +200,12 @@ main > .section > .team-hope-volunteer-wrapper {
 .team-hope-volunteer-radio {
   width: 18px;
   height: 18px;
-  accent-color: #007294;
+  accent-color: var(--ncmec-blue-dark);
 }
 
 .team-hope-volunteer-section-intro {
   margin: 0;
-  border-left: 4px solid #007294;
+  border-left: 4px solid var(--ncmec-blue-dark);
   padding: 12px 14px;
   background: rgb(0 141 182 / 7%);
   color: #34404a;

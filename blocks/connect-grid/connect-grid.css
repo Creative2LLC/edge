@@ -33,7 +33,7 @@
 }
 
 .connect-grid .connect-grid-subheading {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
   line-height: var(--caption-line-height);
@@ -60,10 +60,10 @@
   --connect-grid-card-divider-top-gap: 18px;
   --connect-grid-card-divider-bottom-gap: 20px;
   --connect-grid-card-methods-top-gap: 0;
-  --connect-grid-title-color: #404041;
-  --connect-grid-description-color: #404041;
+  --connect-grid-title-color: var(--ncmec-gray-dark);
+  --connect-grid-description-color: var(--ncmec-gray-dark);
   --connect-grid-method-label-color: #5e5f63;
-  --connect-grid-method-value-color: #008db6;
+  --connect-grid-method-value-color: var(--ncmec-blue-medium);
   --connect-grid-description-size: var(--body-size);
   --connect-grid-method-label-size: var(--body-sm-size);
   --connect-grid-method-value-size: var(--body-size);
@@ -74,7 +74,7 @@
   min-height: var(--connect-grid-card-matched-height, 0);
   padding: 30px 28px 26px;
   border-radius: 18px;
-  background: var(--connect-grid-card-bg, #f4f0ec);
+  background: var(--connect-grid-card-bg, var(--ncmec-warm-off-white));
   box-shadow: 0 10px 24px rgb(17 58 103 / 6%);
 }
 

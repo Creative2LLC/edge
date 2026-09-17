@@ -25,7 +25,7 @@
 .leadership-header-subheading {
   font-size: var(--deck-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 auto;
   max-width: 1275px;
 }

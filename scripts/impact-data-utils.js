@@ -1,5 +1,5 @@
 const DEFAULT_COLORS = [
-  '#008db6',
+  '#008eb7',
   '#ffad5b',
   '#72c679',
   '#f45b97',

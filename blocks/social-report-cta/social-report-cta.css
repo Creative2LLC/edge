@@ -1,7 +1,7 @@
 .social-report-cta {
-  --social-report-cta-navy: #092348;
-  --social-report-cta-blue: #1491bf;
-  --social-report-cta-gold: #fcb813;
+  --social-report-cta-navy: var(--ncmec-navy-dark);
+  --social-report-cta-blue: var(--ncmec-blue-medium);
+  --social-report-cta-gold: var(--ncmec-yellow);
   --social-report-cta-cream: #fffaf0;
 
   max-width: var(--container);
@@ -69,7 +69,7 @@
 .social-report-cta .social-report-cta-intro {
   max-width: 660px;
   margin-top: 18px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -329,7 +329,7 @@
 .social-report-cta .social-report-cta-report-body {
   max-width: 560px;
   margin-top: 16px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 /* Report button: styled by the button standard in styles/styles.css; this only places it. */

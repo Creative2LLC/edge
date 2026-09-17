@@ -1,6 +1,6 @@
 .colored-list {
-  --colored-list-text-color: #404041;
-  --colored-list-marker-color: #008db6;
+  --colored-list-text-color: var(--ncmec-gray-dark);
+  --colored-list-marker-color: var(--ncmec-blue-medium);
   --colored-list-marker-text-color: #fff;
   --colored-list-font-size: 1.125rem;
   --colored-list-font-weight: inherit;

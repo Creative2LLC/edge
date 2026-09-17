@@ -26,7 +26,7 @@ const BLOCK_ROW_INDEX = {
   textMode: 8,
 };
 
-const DEFAULT_SEGMENT_COLOR = '#008DB6';
+const DEFAULT_SEGMENT_COLOR = '#008EB7';
 const DEFAULT_STAT_COLOR = '#1491bf';
 const DEFAULT_SURFACE_COLOR = '#ffffff';
 const DEFAULT_TRACK_COLOR = '#edf1f3';

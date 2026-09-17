@@ -60,7 +60,11 @@ const FIELD_INDEX = {
 };
 
 const TITLE_SIZE_TOKENS = ['title-sm', 'title-md', 'title-lg', 'title-xl'];
-const TITLE_COLOR_TOKENS = ['title-white', 'title-navy', 'title-blue', 'title-brand', 'title-grey', 'title-orange', 'title-red'];
+const TITLE_COLOR_TOKENS = [
+  'title-white', 'title-navy', 'title-navy-medium', 'title-blue', 'title-grey', 'title-gray-lightest', 'title-red',
+  // No longer offered, still rendered for pages that use them.
+  'title-brand', 'title-orange',
+];
 const TITLE_WEIGHT_TOKENS = ['title-bold', 'title-black'];
 
 /**

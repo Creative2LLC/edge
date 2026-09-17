@@ -57,7 +57,7 @@
 .text-image.block .text-image-body {
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   text-align: left;
   opacity: 0;
   transform: translateY(24px);
@@ -323,7 +323,7 @@
 .text-image.block.text-image-variant-2 .text-image-subhead {
   font-size: var(--deck-size);
   font-weight: var(--body-weight-strong);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .text-image.block.text-image-variant-2 .text-image-heading {
@@ -466,7 +466,7 @@
 .text-image.block.text-image-variant-3 .text-image-overlay .text-image-overlay-text {
   font-size: var(--deck-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .text-image.block.text-image-variant-3 .text-image-overlay .text-image-overlay-text p {
@@ -479,7 +479,7 @@
   font-size: var(--caption-size);
   font-weight: var(--body-weight-strong);
   line-height: var(--caption-line-height);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 @media (width <= 900px) {
@@ -532,7 +532,7 @@
   max-width: 662px;
   font-size: var(--deck-size);
   font-weight: var(--body-weight-strong);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .text-image.block.text-image-variant-4 .text-image-heading {

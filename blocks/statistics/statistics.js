@@ -792,7 +792,7 @@ function defaultColorForContext(block, fallback) {
 
 function defaultValueColorForContext(block, hasBodyText) {
   if (!hasBodyText && block.closest('.colored-grid') && isDarkColor(getNearestBackgroundColor(block))) {
-    return '#039ab5';
+    return '#008eb7';
   }
 
   return defaultColorForContext(block, '#00264d');
@@ -2169,7 +2169,7 @@ function decorateBlock(block) {
   const bodyColor = normalizeColorValue(explicitFieldValue(bodyColorField, 'bodyTextColor'))
     || normalizeColorValue(looseLegacyStyles.bodyTextColor)
     || textColors.body
-    || defaultColorForContext(block, '#404041');
+    || defaultColorForContext(block, '#414042');
   const valueColor = normalizeColorValue(explicitFieldValue(valueColorField, 'valueTextColor'))
     || normalizeColorValue(looseLegacyStyles.valueTextColor)
     || textColors.value

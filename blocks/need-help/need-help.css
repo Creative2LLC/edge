@@ -26,7 +26,7 @@
 
 /* Heading */
 .need-help-heading {
-  color: #008db6;
+  color: var(--ncmec-blue-medium);
   margin: 0 0 16px;
   text-align: center;
 }
@@ -35,7 +35,7 @@
 .need-help-subheading {
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 40px;
   line-height: var(--caption-line-height);
   text-align: center;
@@ -65,14 +65,14 @@
 
 /* Card title */
 .need-help-card-title {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 8px;
 }
 
 /* Card subheading */
 .need-help-card-subheading {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 16px;
 }
 

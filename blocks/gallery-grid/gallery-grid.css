@@ -112,7 +112,7 @@
   height: 100%;
   min-height: 220px;
   padding: 40px;
-  background: var(--gallery-grid-text-bg, #007294);
+  background: var(--gallery-grid-text-bg, var(--ncmec-blue-dark));
   color: var(--gallery-grid-text-color, #fff);
   font-weight: var(--body-weight-bold);
 }

@@ -41,7 +41,7 @@ main > .section > .icon-card-carousel-wrapper {
 .icon-card-carousel .icon-card-carousel-subtitle {
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   max-width: 843px;
   margin: 0 0 40px;
   line-height: var(--caption-line-height);
@@ -95,7 +95,7 @@ main > .section > .icon-card-carousel-wrapper {
   max-height: 649px;
   flex: 1;
   background: #fff;
-  box-shadow: 0 4px 10px 0 #40404133;
+  box-shadow: 0 4px 10px 0 #41404233;
   padding: 40px 32px;
   box-sizing: border-box;
 }
@@ -142,7 +142,7 @@ main > .section > .icon-card-carousel-wrapper {
 
 /* Heading */
 .icon-card-carousel .icon-card-carousel-heading {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 12px;
 }
 
@@ -164,7 +164,7 @@ main > .section > .icon-card-carousel-wrapper {
 /* Body */
 .icon-card-carousel .icon-card-carousel-body {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
 }
 

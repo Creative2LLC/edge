@@ -1,7 +1,7 @@
 .statistics {
   --statistics-heading-color: #00264d;
-  --statistics-body-color: #404041;
-  --statistics-subheading-color: #404041;
+  --statistics-body-color: var(--ncmec-gray-dark);
+  --statistics-subheading-color: var(--ncmec-gray-dark);
   --statistics-value-color: #00264d;
   --statistics-label-color: #6b6b6b;
   --statistics-heading-size: var(--heading-2-size); /* global h2; an authored size set inline on the block still wins */

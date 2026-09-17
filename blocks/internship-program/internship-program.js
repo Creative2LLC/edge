@@ -185,7 +185,7 @@ export default function decorate(block) {
   /* Right — content */
   const content = document.createElement('div');
   content.className = 'internship-program-content';
-  const bgColor = contentBgField.value || '#DDD5CC52';
+  const bgColor = contentBgField.value || '#ECE8E3';
   content.style.setProperty('background-color', bgColor, 'important');
   markButtonSurface(content, isDarkSurface(bgColor));
 

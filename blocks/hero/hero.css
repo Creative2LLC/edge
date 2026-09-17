@@ -195,7 +195,7 @@
   max-width: 960px;
   font-size: var(--deck-size);
   line-height: var(--caption-line-height);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 /* A subtitle line that hero.js demoted out of the heading outline. It must keep
@@ -239,7 +239,7 @@
   max-width: 760px;
   font-size: var(--deck-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   white-space: break-spaces;
   overflow-wrap: anywhere;
 }
@@ -697,7 +697,7 @@
 }
 
 .hero .hero-scroll-cue:hover {
-  color: var(--beacon-color, #007294);
+  color: var(--beacon-color, var(--ncmec-blue-dark));
 }
 
 .hero .hero-scroll-cue:hover .hero-scroll-cue-arrow {
@@ -705,7 +705,7 @@
 }
 
 .hero .hero-scroll-cue:focus-visible {
-  outline: 2px solid var(--beacon-color, #007294);
+  outline: 2px solid var(--beacon-color, var(--ncmec-blue-dark));
   outline-offset: 4px;
   border-radius: 6px;
 }

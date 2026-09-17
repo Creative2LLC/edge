@@ -354,7 +354,7 @@ function buildBenefitItem(data, textColor) {
     if (data.iconField.source) moveInstrumentation(data.iconField.source, img);
 
     const imgSrc = img.currentSrc || img.src;
-    const color = data.iconColor || '#008DB6';
+    const color = data.iconColor || '#008EB7';
     if (imgSrc) {
       icon.style.setProperty('background-color', color, 'important');
       icon.style.setProperty('-webkit-mask-image', `url("${imgSrc}")`, 'important');

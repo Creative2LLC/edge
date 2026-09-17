@@ -135,7 +135,7 @@
 }
 
 .resource-gate-form-status.is-error {
-  color: #b3261e;
+  color: var(--ncmec-red);
 }
 
 .resource-gate-form-status.is-success {

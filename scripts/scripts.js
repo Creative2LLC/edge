@@ -13,6 +13,7 @@ import {
   loadSections,
   loadCSS,
 } from './aem.js';
+import { remapLegacyColors, resolveBrandColor } from './color-tokens.js';
 
 /**
  * Moves all the attributes from a given elmenet to another given element.
@@ -831,7 +832,7 @@ export function decorateInlineColors(main) {
         frag.appendChild(document.createTextNode(text.slice(last, match.index)));
       }
       const span = document.createElement('span');
-      span.style.color = color;
+      span.style.color = resolveBrandColor(color);
       span.textContent = inner;
       frag.appendChild(span);
       last = match.index + full.length;
@@ -906,6 +907,8 @@ function skipMisnamedLeadershipBlock(main) {
  */
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
+  // Before anything reads an authored colour: published pages still carry the old palette.
+  remapLegacyColors(main);
   // hopefully forward compatible button decoration
   decorateButtons(main);
   decorateIcons(main);

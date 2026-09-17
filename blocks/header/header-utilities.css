@@ -151,12 +151,12 @@ header .text-white\/60 { color: rgb(255 255 255 / 60%); }
 header .text-white\/70 { color: rgb(255 255 255 / 70%); }
 header .text-white\/80 { color: rgb(255 255 255 / 80%); }
 header .text-white\/90 { color: rgb(255 255 255 / 90%); }
-header .text-\[\#FCB813\] { color: #fcb813; }
+header .text-\[\#FCB813\] { color: var(--ncmec-yellow); }
 
 /* Used only in the mega-footer template markup in header.js, which is why it is
    easy to miss when grepping for classList.add() calls. */
 header .text-yellow-300 { color: rgb(253 224 71); }
-header .bg-\[\#143654\] { background-color: #143654; }
+header .bg-\[\#143654\] { background-color: var(--ncmec-navy-raised); }
 header .bg-\[\#0ea5c6\] { background-color: #0ea5c6; }
 
 /* ---------- border / radius ---------- */

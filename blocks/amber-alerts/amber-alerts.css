@@ -1,5 +1,5 @@
 .amber-alerts {
-  background: #f5f7f8;
+  background: var(--ncmec-gray-lightest);
   padding: 72px 0 76px;
 }
 
@@ -85,7 +85,7 @@
 }
 
 .amber-alerts-status.is-loading {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
 }
 
 .amber-alerts-status.is-error {
@@ -127,7 +127,7 @@
   display: block;
   height: 100%;
   min-height: 230px;
-  background: #eef3f6;
+  background: var(--ncmec-gray-lightest);
 }
 
 .amber-alerts-card-media img {
@@ -152,7 +152,7 @@
 
 /* Same linked-name treatment as the poster search result cards. */
 .amber-alerts-card-title-link {
-  color: #1b8db5;
+  color: var(--ncmec-blue-medium);
   text-decoration: none;
 }
 
@@ -231,7 +231,7 @@
   border: 1px solid #d9e1e6;
   border-radius: 8px;
   background: #fff;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   font-weight: 800;
 }
@@ -356,7 +356,7 @@
 
 .amber-alerts-filter select:focus-visible,
 .amber-alerts-detail-back:focus-visible {
-  outline: 2px solid #007294;
+  outline: 2px solid var(--ncmec-blue-dark);
   outline-offset: 2px;
 }
 

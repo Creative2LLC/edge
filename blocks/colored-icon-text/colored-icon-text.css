@@ -7,7 +7,7 @@
   --colored-icon-text-min-height: 0;
   --colored-icon-text-min-height-mobile: var(--colored-icon-text-min-height);
   --colored-icon-text-block-bg: #e9f7fa;
-  --colored-icon-text-text2-color: #404041;
+  --colored-icon-text-text2-color: var(--ncmec-gray-dark);
   --colored-icon-text-text2-size: 1.25rem;
   --colored-icon-text-label-size: 1.75rem;
 

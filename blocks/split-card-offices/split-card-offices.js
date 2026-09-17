@@ -359,8 +359,8 @@ export default async function decorate(block) {
 
   // Defaults
   feature1IconColor = feature1IconColor || '#FAAB60';
-  feature2IconColor = feature2IconColor || '#008DB6';
-  feature3IconColor = feature3IconColor || '#008DB6';
+  feature2IconColor = feature2IconColor || '#008EB7';
+  feature3IconColor = feature3IconColor || '#008EB7';
 
   /* ---------- build the new DOM ---------- */
 

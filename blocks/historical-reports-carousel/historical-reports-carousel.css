@@ -35,7 +35,7 @@ main > .section > .historical-reports-carousel-wrapper {
 .historical-reports-carousel .historical-reports-carousel-subheading {
   max-width: 48rem;
   margin: 0 0 42px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -94,7 +94,7 @@ main > .section > .historical-reports-carousel-wrapper {
   display: flex;
   flex-direction: column;
   padding: 30px 32px 32px;
-  background: #f4f0ec;
+  background: var(--ncmec-warm-off-white);
   border-radius: 18px;
   box-shadow: 0 10px 22px rgb(64 64 65 / 10%);
 }
@@ -146,12 +146,12 @@ main > .section > .historical-reports-carousel-wrapper {
 
 .historical-reports-carousel .historical-reports-carousel-card-year {
   margin: 0 0 16px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .historical-reports-carousel .historical-reports-carousel-card-count {
   margin: 0 0 24px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   line-height: 1.35;
   font-weight: var(--body-weight-medium);
@@ -204,7 +204,7 @@ main > .section > .historical-reports-carousel-wrapper {
 
 .historical-reports-carousel .historical-reports-carousel-empty-copy {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .historical-reports-carousel .historical-reports-carousel-slide.is-authoring-placeholder .historical-reports-carousel-card {

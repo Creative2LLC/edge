@@ -107,7 +107,7 @@ function buildCard(data, icons) {
   if (data.row) moveInstrumentation(data.row, card);
   setItemLabel(card, [data.positionName, data.location]);
 
-  const bgColor = data.cardBg || '#DDD5CC52';
+  const bgColor = data.cardBg || '#ECE8E3';
   card.style.setProperty('background-color', bgColor, 'important');
   markButtonSurface(card, isDarkSurface(bgColor));
 

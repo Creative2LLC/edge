@@ -105,7 +105,7 @@
 .trust-badges .trust-badges-item-caption {
   max-width: 280px;
   margin: 20px 0 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   line-height: 1.25;
   text-wrap: balance;
 }

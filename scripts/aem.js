@@ -1488,7 +1488,7 @@ function normalizeFlattenedHeadingTextColumn(column) {
     createBlockFieldRow('text', textValue),
     createBlockFieldRow(
       'text color',
-      findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041')),
+      findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#414042')),
     ),
   ];
   const textBackgroundColor = shouldRestoreFlattenedCardBackground(
@@ -1635,7 +1635,7 @@ function normalizeFlattenedMultiTextColumn(column) {
   const { children, textChildren } = parts;
   const lastTextIndex = children.indexOf(textChildren[textChildren.length - 1]);
   const textConfigChildren = children.slice(lastTextIndex + 1);
-  const textColor = findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#404041'));
+  const textColor = findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#414042'));
   const horizontalAlign = findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left');
   const verticalAlign = findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top');
   const fontSize = findFlattenedLengthValue(textConfigChildren, '27px');
@@ -1747,12 +1747,13 @@ function normalizeFlattenedSingleTextColumn(column) {
   const textConfigColors = findFlattenedHexValues(textConfigChildren);
   const loneCalloutBackground = isCallout
     && textConfigColors.length === 1
-    && textConfigColors[0].toLowerCase() === '#c5eaf2';
-  let textColor = textConfigColors[0] || defaultTextColorForBackground(column, '#404041');
+    // The old pale blue, which published pages now carry as its successor (color-tokens.js).
+    && ['#c5eaf2', '#92d6e3'].includes(textConfigColors[0].toLowerCase());
+  let textColor = textConfigColors[0] || defaultTextColorForBackground(column, '#414042');
   let blockBackgroundColor = findFlattenedBackgroundColor(textConfigChildren);
 
   if (isCallout) {
-    textColor = loneCalloutBackground ? '#404041' : textConfigColors[0] || '#F7941D';
+    textColor = loneCalloutBackground ? '#414042' : textConfigColors[0] || '#F7941D';
     blockBackgroundColor = loneCalloutBackground
       ? textConfigColors[0]
       : textConfigColors[1] || '';
@@ -2058,7 +2059,7 @@ function normalizeFlattenedPromoColumn(column) {
       createBlockFieldRow('text', title),
       createBlockFieldRow('text color', findFlattenedHexValue(
         titleConfigChildren,
-        defaultTextColorForBackground(column, '#404041'),
+        defaultTextColorForBackground(column, '#414042'),
       )),
       createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
         titleConfigChildren,
@@ -2080,9 +2081,9 @@ function normalizeFlattenedPromoColumn(column) {
     const buttonBlock = createFlattenedBlock('colored-button', [
       createBlockFieldRow('label', button),
       createBlockFieldRow('link', ''),
-      createBlockFieldRow('background color', buttonColors[0] || '#008DB6'),
+      createBlockFieldRow('background color', buttonColors[0] || '#008EB7'),
       createBlockFieldRow('text color', buttonColors[1] || '#FFFFFF'),
-      createBlockFieldRow('border color', buttonColors[2] || buttonColors[0] || '#008DB6'),
+      createBlockFieldRow('border color', buttonColors[2] || buttonColors[0] || '#008EB7'),
       createBlockFieldRow('block background color', ''),
       createBlockFieldRow('appearance', findFlattenedOptionValue(
         buttonConfigChildren,

@@ -11,7 +11,7 @@ main > .section > .terms-content-wrapper {
 
   margin-top: var(--terms-content-top-margin);
   padding: var(--terms-content-top-padding) 0 var(--terms-content-bottom-padding);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   background: var(--background-color);
 }
 
@@ -26,7 +26,7 @@ main > .section > .terms-content-wrapper {
 }
 
 .terms-content-body {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-weight: var(--body-weight-medium);
 }
 
@@ -55,7 +55,7 @@ main > .section > .terms-content-wrapper {
 .terms-content-body h5,
 .terms-content-body h6 {
   margin: 28px 0 10px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .terms-content-body p,
@@ -74,7 +74,7 @@ main > .section > .terms-content-wrapper {
 }
 
 .terms-content-body a {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-weight: 700;
   text-decoration: underline;
   text-decoration-thickness: 1.5px;

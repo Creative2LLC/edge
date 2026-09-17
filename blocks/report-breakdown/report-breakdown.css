@@ -40,7 +40,7 @@
 .report-breakdown .report-breakdown-body-text {
   max-width: 760px;
   margin-inline: auto;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   text-align: center;
 }
@@ -191,7 +191,7 @@
 .report-breakdown .report-breakdown-count {
   min-width: 0;
   justify-self: start;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--heading-7-size);
   font-weight: 500;
   line-height: 1.2;
@@ -225,7 +225,7 @@
   padding: 20px var(--report-breakdown-table-side-padding);
   border: 1px solid rgb(17 58 103 / 12%);
   border-radius: 12px;
-  background: #f7f9fb;
+  background: var(--ncmec-white);
   box-shadow: 0 12px 24px rgb(17 58 103 / 8%);
 }
 
@@ -237,7 +237,7 @@
 }
 
 .report-breakdown .report-breakdown-total-value {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--heading-3-size);
   font-weight: 700;
   line-height: 1;

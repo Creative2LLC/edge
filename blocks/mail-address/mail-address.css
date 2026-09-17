@@ -12,7 +12,7 @@
   display: flex;
   align-items: flex-start;
   border-radius: 14px;
-  background-color: #ddd5cc52;
+  background-color: var(--ncmec-warm-gray);
   padding: 48px 56px;
   gap: 48px;
 }
@@ -40,7 +40,7 @@
 }
 
 .mail-address-heading {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
 }
 
@@ -51,7 +51,7 @@
 
 .mail-address-content {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   text-align: left;
 }
 

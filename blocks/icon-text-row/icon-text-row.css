@@ -29,7 +29,7 @@
   width: 96px;
   height: 96px;
   margin-bottom: 16px;
-  background-color: #008DB6;
+  background-color: var(--ncmec-blue-medium);
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;
@@ -46,7 +46,7 @@
 .icon-text-row-text {
   font-size: var(--deck-size);
   font-weight: var(--body-weight-strong);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   line-height: var(--caption-line-height);
   text-align: center;

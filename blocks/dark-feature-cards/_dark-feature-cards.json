@@ -137,15 +137,27 @@
           "label": "Card Background Color",
           "options": [
             {
-              "name": "Dark Navy (#0F3357)",
-              "value": "#0f3357"
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
             },
             {
-              "name": "Brand Blue (#008DB6)",
-              "value": "#008db6"
+              "name": "Navy Raised (#0F3357)",
+              "value": "#0F3357"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
             }
           ],
-          "value": "#0f3357"
+          "value": "#0F3357"
         },
         {
           "component": "text",

@@ -99,72 +99,76 @@
               "value": "#FFFFFF"
             },
             {
-              "name": "Primary Blue 1 (#00264D)",
+              "name": "Navy Dark (#00264D)",
               "value": "#00264D"
             },
             {
-              "name": "Primary Blue 2 (#007294)",
-              "value": "#007294"
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
             },
             {
-              "name": "Primary Blue 3 (#008EB7)",
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
               "value": "#008EB7"
             },
             {
-              "name": "Brand Blue (#008DB6)",
-              "value": "#008DB6"
-            },
-            {
-              "name": "Primary Grey 1 (#404041)",
-              "value": "#404041"
-            },
-            {
-              "name": "Primary Grey 2 (#0D273B)",
-              "value": "#0D273B"
-            },
-            {
-              "name": "Primary Grey 3 (#A1A1A1)",
-              "value": "#A1A1A1"
-            },
-            {
-              "name": "Orange (#E07E27)",
-              "value": "#E07E27"
-            },
-            {
-              "name": "Light Orange (#FAAB60)",
-              "value": "#FAAB60"
-            },
-            {
-              "name": "Peach (#FCBC7E)",
-              "value": "#FCBC7E"
-            },
-            {
-              "name": "Green (#7BC581)",
-              "value": "#7BC581"
-            },
-            {
-              "name": "Primary Red 1 (#E13E30)",
-              "value": "#E13E30"
-            },
-            {
-              "name": "Primary Red 2 (#F58A80)",
-              "value": "#F58A80"
-            },
-            {
-              "name": "Light Blue (#92D6E3)",
+              "name": "Blue Light (#92D6E3)",
               "value": "#92D6E3"
             },
             {
-              "name": "Light Grey 1 (#F6F6F6)",
-              "value": "#F6F6F6"
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
             },
             {
-              "name": "Light Grey 2 (#E7E4E1)",
-              "value": "#E7E4E1"
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
             },
             {
-              "name": "Light Grey 3 (#DDD5CC)",
-              "value": "#DDD5CC"
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
             }
           ],
           "value": ""

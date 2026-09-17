@@ -1,5 +1,5 @@
 .amber-still-missing {
-  background: #f5f7f8;
+  background: var(--ncmec-gray-lightest);
   padding: 0 0 56px;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .amber-still-missing-status.is-loading {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
 }
 
 .amber-still-missing-status.is-error {
@@ -68,7 +68,7 @@
 }
 
 .amber-still-missing a:any-link {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   overflow-wrap: anywhere;
   text-decoration: none;
 }
@@ -78,7 +78,7 @@
 }
 
 .amber-still-missing a:focus-visible {
-  outline: 2px solid #007294;
+  outline: 2px solid var(--ncmec-blue-dark);
   outline-offset: 2px;
 }
 

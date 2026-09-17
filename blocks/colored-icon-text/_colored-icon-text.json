@@ -167,7 +167,7 @@
           "label": "Text Color",
           "options": [
             {
-              "name": "Default Navy (#00264D)",
+              "name": "Default (Navy Dark)",
               "value": ""
             },
             {
@@ -175,24 +175,28 @@
               "value": "#FFFFFF"
             },
             {
-              "name": "Navy (#00264D)",
+              "name": "Navy Dark (#00264D)",
               "value": "#00264D"
             },
             {
-              "name": "Dark Navy (#092348)",
-              "value": "#092348"
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
             },
             {
-              "name": "Teal (#008EB7)",
-              "value": "#008EB7"
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
             },
             {
-              "name": "Orange (#F7941D)",
-              "value": "#F7941D"
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
             },
             {
-              "name": "Body Grey (#404041)",
-              "value": "#404041"
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
             }
           ],
           "value": ""
@@ -208,28 +212,32 @@
               "value": ""
             },
             {
-              "name": "Teal",
-              "value": "teal"
-            },
-            {
-              "name": "Orange",
-              "value": "orange"
-            },
-            {
-              "name": "Navy",
-              "value": "navy"
-            },
-            {
-              "name": "Dark Navy",
-              "value": "dark-navy"
-            },
-            {
               "name": "White",
               "value": "white"
             },
             {
-              "name": "Body Grey",
+              "name": "Navy Dark",
+              "value": "navy"
+            },
+            {
+              "name": "Navy Medium",
+              "value": "navy-medium"
+            },
+            {
+              "name": "Blue Dark",
+              "value": "blue-dark"
+            },
+            {
+              "name": "Gray Dark",
               "value": "grey"
+            },
+            {
+              "name": "Gray Lightest",
+              "value": "gray-lightest"
+            },
+            {
+              "name": "Red, urgent only",
+              "value": "red"
             }
           ],
           "value": ""
@@ -246,28 +254,32 @@
               "value": ""
             },
             {
-              "name": "Teal",
-              "value": "teal"
-            },
-            {
-              "name": "Orange",
-              "value": "orange"
-            },
-            {
-              "name": "Navy",
-              "value": "navy"
-            },
-            {
-              "name": "Dark Navy",
-              "value": "dark-navy"
-            },
-            {
               "name": "White",
               "value": "white"
             },
             {
-              "name": "Body Grey",
+              "name": "Navy Dark",
+              "value": "navy"
+            },
+            {
+              "name": "Navy Medium",
+              "value": "navy-medium"
+            },
+            {
+              "name": "Blue Dark",
+              "value": "blue-dark"
+            },
+            {
+              "name": "Gray Dark",
               "value": "grey"
+            },
+            {
+              "name": "Gray Lightest",
+              "value": "gray-lightest"
+            },
+            {
+              "name": "Red, urgent only",
+              "value": "red"
             }
           ],
           "value": ""
@@ -328,31 +340,35 @@
           "label": "Text 2 Color",
           "options": [
             {
-              "name": "Body Grey (#404041)",
-              "value": "#404041"
-            },
-            {
               "name": "White (#FFFFFF)",
               "value": "#FFFFFF"
             },
             {
-              "name": "Navy (#00264D)",
+              "name": "Navy Dark (#00264D)",
               "value": "#00264D"
             },
             {
-              "name": "Dark Navy (#092348)",
-              "value": "#092348"
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
             },
             {
-              "name": "Teal (#008EB7)",
-              "value": "#008EB7"
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
             },
             {
-              "name": "Orange (#F7941D)",
-              "value": "#F7941D"
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
             }
           ],
-          "value": "#404041"
+          "value": "#414042"
         },
         {
           "component": "text",
@@ -369,7 +385,7 @@
           "label": "Block Background Color",
           "options": [
             {
-              "name": "Default Light Blue (#E9F7FA)",
+              "name": "Default (Blue Tint)",
               "value": ""
             },
             {
@@ -377,24 +393,88 @@
               "value": "#FFFFFF"
             },
             {
-              "name": "Light Blue (#E9F7FA)",
-              "value": "#E9F7FA"
-            },
-            {
-              "name": "Light Blue 2 (#C5EAF2)",
-              "value": "#C5EAF2"
-            },
-            {
-              "name": "Navy (#00264D)",
+              "name": "Navy Dark (#00264D)",
               "value": "#00264D"
             },
             {
-              "name": "Dark Navy (#092348)",
-              "value": "#092348"
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
             },
             {
-              "name": "Orange (#F7941D)",
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
               "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
             },
             {
               "name": "Transparent",

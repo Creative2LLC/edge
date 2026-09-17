@@ -230,7 +230,7 @@ const TAG_COLORS = {
   policymakers: { bg: '#9ca3af', color: '#fff' },
   training: { bg: '#b15b21', color: '#fff' },
   'fact-sheet': { bg: '#2eb6d8', color: '#fff' },
-  kidsmartz: { bg: '#008db6', color: '#fff' },
+  kidsmartz: { bg: '#008eb7', color: '#fff' },
   netsmartz: { bg: '#f28c28', color: '#102536' },
   'safe-to-compete': { bg: '#00264d', color: '#fff' },
   'k-2': { bg: '#c7e8d1', color: '#143423' },
@@ -240,14 +240,14 @@ const TAG_COLORS = {
 };
 
 const ACTIVE_CHIP_COLORS = {
-  programs: { border: '#48c7e8', bg: '#effbff', color: '#008db6' },
+  programs: { border: '#48c7e8', bg: '#E9F7FA', color: '#008eb7' },
   grade_ages: { border: '#ff7f73', bg: '#fff1ef', color: '#c7352b' },
   audience: { border: '#87d89a', bg: '#f0fbf2', color: '#358f49' },
   issue: { border: '#f4bd47', bg: '#fff8e8', color: '#9c6d00' },
-  type: { border: '#243846', bg: '#eef2f5', color: '#243846' },
-  lengths: { border: '#b9b0a8', bg: '#f6f3ef', color: '#6b625a' },
-  language: { border: '#9aa7b3', bg: '#f3f7fa', color: '#465968' },
-  tags: { border: '#48c7e8', bg: '#effbff', color: '#008db6' },
+  type: { border: '#243846', bg: '#F1F2F2', color: '#243846' },
+  lengths: { border: '#b9b0a8', bg: '#F4F1EC', color: '#6b625a' },
+  language: { border: '#9aa7b3', bg: '#F1F2F2', color: '#465968' },
+  tags: { border: '#48c7e8', bg: '#E9F7FA', color: '#008eb7' },
 };
 
 function collectLegacyBlockFields(block) {

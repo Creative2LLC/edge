@@ -103,7 +103,7 @@ header nav .nav-hamburger button {
   padding: 0;
   background: rgb(255 255 255 / 84%);
   box-shadow: 0 10px 24px rgb(17 54 82 / 10%);
-  color: #143654;
+  color: var(--ncmec-navy-raised);
   cursor: pointer;
   overflow: initial;
   text-overflow: initial;
@@ -435,7 +435,7 @@ header nav .nav-search-result:hover {
 }
 
 header nav .nav-search-result-type {
-  color: #00708f;
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1121,7 +1121,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     border-radius: 999px;
     background: rgb(255 255 255 / 84%);
     box-shadow: 0 12px 26px rgb(13 41 63 / 10%);
-    color: #143654;
+    color: var(--ncmec-navy-raised);
     padding: 11px 16px;
     font-size: var(--body-sm-size);
     font-weight: 700;
@@ -1471,7 +1471,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   }
 
   header nav .nav-tools a.button.nav-tool-primary {
-    background: #143654;
+    background: var(--ncmec-navy-raised);
     color: #fff;
     border: 0;
   }

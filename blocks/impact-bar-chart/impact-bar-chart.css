@@ -1,12 +1,12 @@
 .impact-bar-chart {
   --impact-bar-chart-ink: #113a67;
-  --impact-bar-chart-text: #404041;
+  --impact-bar-chart-text: var(--ncmec-gray-dark);
   --impact-bar-chart-muted: #667784;
   --impact-bar-chart-heading-color: var(--impact-bar-chart-ink);
   --impact-bar-chart-copy-color: var(--impact-bar-chart-muted);
   --impact-bar-chart-border: rgb(17 58 103 / 13%);
-  --impact-bar-chart-track: #e9f1f5;
-  --impact-bar-chart-color: #1491bf;
+  --impact-bar-chart-track: var(--ncmec-blue-tint);
+  --impact-bar-chart-color: var(--ncmec-blue-medium);
 
   max-width: var(--container);
   margin: 0 auto;
@@ -231,7 +231,7 @@
   background: #fff;
   box-shadow: 0 14px 30px rgb(17 58 103 / 7%);
   overscroll-behavior-inline: contain;
-  scrollbar-color: #147da8 #e9f1f5;
+  scrollbar-color: #147da8 var(--ncmec-blue-tint);
   scrollbar-width: thin;
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
@@ -261,7 +261,7 @@
 }
 
 .impact-bar-chart .impact-bar-chart-table th {
-  background: #f5f9fb;
+  background: var(--ncmec-gray-lightest);
   color: #147da8;
   font-size: var(--caption-size);
   font-weight: 800;

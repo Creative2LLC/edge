@@ -60,7 +60,7 @@
 
 /* Title */
 .split-card-detail-card-title {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 8px;
 }
 
@@ -82,7 +82,7 @@
 
 .split-card-detail-card-placeholder {
   font-size: var(--caption-size);
-  color: #999;
+  color: var(--ncmec-gray-medium);
   margin: 0;
   text-align: center;
 }

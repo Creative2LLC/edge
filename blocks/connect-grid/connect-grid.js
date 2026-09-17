@@ -125,7 +125,7 @@ const LEGACY_ITEM_COLUMN_INDEX = {
 const DEFAULTS = {
   columns: '3',
   iconColor: '#ff8b7e',
-  cardBackgroundColor: '#f4f0ec',
+  cardBackgroundColor: '#F4F1EC',
   showDivider: 'show',
 };
 

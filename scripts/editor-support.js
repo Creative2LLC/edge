@@ -9,6 +9,7 @@ import {
   loadScript,
   loadSections,
 } from './aem.js';
+import { remapLegacyColors } from './color-tokens.js';
 import { decorateRichtext } from './editor-support-rte.js';
 import {
   applyDefaultContentAuthorStyles,
@@ -253,6 +254,7 @@ async function applyChanges(event) {
       if (newBlock) {
         newBlock.style.display = 'none';
         blockToReplace.insertAdjacentElement('afterend', newBlock);
+        remapLegacyColors(newBlock);
         decorateButtons(newBlock);
         decorateIcons(newBlock);
         decorateBlock(newBlock);
@@ -285,6 +287,7 @@ async function applyChanges(event) {
         const [newSection] = newElements;
         newSection.style.display = 'none';
         element.insertAdjacentElement('afterend', newSection);
+        remapLegacyColors(newSection);
         decorateButtons(newSection);
         decorateIcons(newSection);
         decorateRichtext(newSection);
@@ -300,6 +303,7 @@ async function applyChanges(event) {
         newSection.style.display = null;
       } else {
         element.replaceWith(...newElements);
+        remapLegacyColors(parentElement);
         decorateButtons(parentElement);
         decorateIcons(parentElement);
         decorateRichtext(parentElement);

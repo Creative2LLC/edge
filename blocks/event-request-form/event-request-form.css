@@ -8,7 +8,7 @@ main > .section > .event-request-form-wrapper {
   --event-request-form-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   padding: var(--event-request-form-top-padding) 0 clamp(52px, 7vw, 96px);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .event-request-form-shell {
@@ -36,7 +36,7 @@ main > .section > .event-request-form-wrapper {
   border-radius: 999px;
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
@@ -51,7 +51,7 @@ main > .section > .event-request-form-wrapper {
 
 .event-request-form-intro {
   max-width: 58rem;
-  color: #4b4b4f;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -112,7 +112,7 @@ main > .section > .event-request-form-wrapper {
   border-radius: 8px;
   padding: 12px;
   background: #fff;
-  color: #4b4b4f;
+  color: var(--ncmec-gray-dark);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -143,7 +143,7 @@ main > .section > .event-request-form-wrapper {
   height: 32px;
   border-radius: 999px;
   background: rgb(0 141 182 / 12%);
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 900;
   line-height: 1;
@@ -192,7 +192,7 @@ main > .section > .event-request-form-wrapper {
 
 .event-request-form-step-kicker {
   margin: 0;
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 850;
   line-height: 1;
@@ -320,7 +320,7 @@ main > .section > .event-request-form-wrapper {
 .event-request-form-choice {
   width: 19px;
   height: 19px;
-  accent-color: #007294;
+  accent-color: var(--ncmec-blue-dark);
   flex: 0 0 auto;
 }
 

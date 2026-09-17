@@ -54,7 +54,7 @@ main > .section > .partners-showcase-wrapper {
 
 .partners-showcase .partners-showcase-subheading {
   margin-top: 20px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   line-height: var(--body-line-height);
   font-weight: var(--body-weight-medium);
@@ -216,7 +216,7 @@ main > .section > .partners-showcase-wrapper {
 
 .partners-showcase .partners-showcase-testimonial-quote {
   margin-top: 26px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--deck-size);
   line-height: var(--caption-line-height);
 }
@@ -224,7 +224,7 @@ main > .section > .partners-showcase-wrapper {
 .partners-showcase .partners-showcase-testimonial-attribution {
   margin: auto 0 0;
   padding-top: 28px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-weight: var(--body-weight-bold);
 }
 

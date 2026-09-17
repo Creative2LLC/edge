@@ -84,7 +84,7 @@
 }
 
 .poster-map-viewer a:focus-visible {
-  outline: 2px solid #007294;
+  outline: 2px solid var(--ncmec-blue-dark);
   outline-offset: 3px;
 }
 
@@ -107,7 +107,7 @@
 
 /* stylelint-disable-next-line no-descending-specificity -- unrelated to the .poster-map-viewer link rules above */
 .poster-map-footer a {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-weight: 700;
   text-decoration: none;
 }
@@ -117,7 +117,7 @@
 }
 
 .poster-map-footer a:focus-visible {
-  outline: 2px solid #007294;
+  outline: 2px solid var(--ncmec-blue-dark);
   outline-offset: 2px;
 }
 

@@ -5,7 +5,7 @@
   --colored-button-font-size: 1rem;
   --colored-button-font-weight: 700;
   --colored-button-icon-size: 1.25rem;
-  --colored-button-ring-color: #092348;
+  --colored-button-ring-color: var(--ncmec-navy-dark);
   --colored-button-ring-offset: #fff;
   --colored-button-min-height: 0;
   --colored-button-block-bg: transparent;

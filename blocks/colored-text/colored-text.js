@@ -414,7 +414,7 @@ export default function decorate(block) {
   const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fallback(1));
   const textColor = normalizeColorValue(txtField.value || publishedFields.textColor)
     || getInheritedTextColor(block)
-    || (hasDarkSectionBackground(block) ? '#FFF' : '#404041');
+    || (hasDarkSectionBackground(block) ? '#FFF' : '#414042');
   const fontSize = normalizeCssLength(
     publishedFields.fontSize
       || readField(block, 'fontSize', ['font size', 'text size'], fallback(2), isEditor).value,
@@ -596,7 +596,7 @@ export default function decorate(block) {
   }
 
   injectColorPickers(block, [
-    { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#404041' },
+    { label: 'Text Color', cssVar: '--colored-text-color', value: textColor || '#414042' },
     {
       label: 'Block Background',
       cssVar: '--colored-text-block-bg',

@@ -19,7 +19,7 @@
 }
 
 .us-map-svg-wrap svg path[data-state] {
-  fill: #edebe9;
+  fill: var(--ncmec-warm-gray);
   stroke: none;
   cursor: pointer;
   transition: fill 0.15s ease;
@@ -30,7 +30,7 @@
 }
 
 .us-map-svg-wrap svg path[data-state].selected {
-  fill: #f9ab61;
+  fill: var(--ncmec-beige-dark);
 }
 
 .us-map-svg-wrap svg path[data-state].selected:hover {
@@ -39,7 +39,7 @@
 
 .us-map-svg-wrap svg path.us-map-borders {
   fill: none;
-  stroke: #a1a1a1;
+  stroke: var(--ncmec-gray-medium);
   stroke-width: 2;
   stroke-linejoin: round;
   stroke-linecap: round;
@@ -152,7 +152,7 @@
   align-items: center;
   max-width: 960px;
   margin: 48px auto 0;
-  background-color: #ddd5cc52;
+  background-color: var(--ncmec-warm-gray);
   border-radius: 0 0 8px 8px;
   padding: 0 28px;
   height: 85px;
@@ -166,7 +166,7 @@
 .us-map-link-bar-name {
   font-size: var(--heading-6-size);
   font-weight: 700;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   white-space: nowrap;
   flex-shrink: 0;
@@ -186,7 +186,7 @@
 .us-map-link-bar-url a {
   font-size: var(--body-sm-size);
   font-weight: 400;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   text-decoration: underline;
   word-break: break-all;
 }
@@ -196,12 +196,12 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .us-map-link-bar-url a:hover,
 .us-map-link-bar-arrow a:hover {
-  color: #008db6;
+  color: var(--ncmec-blue-medium);
 }
 
 .us-map .us-map-link-bar-arrow a svg {
@@ -222,7 +222,7 @@
   display: none;
   max-width: 960px;
   margin: 0 auto;
-  background-color: #ddd5cc52;
+  background-color: var(--ncmec-warm-gray);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -253,7 +253,7 @@
 .us-map-list-row-name {
   font-size: var(--heading-6-size);
   font-weight: 700;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   flex-shrink: 0;
 }
 
@@ -267,18 +267,18 @@
 .us-map-list-row-url a {
   font-size: var(--body-sm-size);
   font-weight: 400;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   text-decoration: underline;
   word-break: break-all;
 }
 
 .us-map-list-row-url a:hover {
-  color: #008db6;
+  color: var(--ncmec-blue-medium);
 }
 
 .us-map-list-row-empty {
   font-size: var(--body-sm-size);
-  color: #999;
+  color: var(--ncmec-gray-medium);
   font-style: italic;
 }
 

@@ -22,7 +22,7 @@ function buildCard(data) {
     iconWrap.className = 'icon-text-row-icon';
     const img = data.iconField.img.cloneNode(true);
     if (data.iconField.source) moveInstrumentation(data.iconField.source, img);
-    const color = data.iconColor || '#008DB6';
+    const color = data.iconColor || '#008EB7';
     const imgSrc = img.src || img.currentSrc;
     if (imgSrc) {
       iconWrap.style.setProperty('background-color', color);

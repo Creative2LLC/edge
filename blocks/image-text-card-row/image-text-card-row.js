@@ -170,7 +170,7 @@ function buildCard(data, row) {
 
   const content = document.createElement('div');
   content.className = 'image-text-card-row-card-content';
-  content.style.backgroundColor = data.cardContentBg || '#DDD5CC52';
+  content.style.backgroundColor = data.cardContentBg || '#ECE8E3';
 
   // Icon (optional)
   if (data.iconPicture || data.iconSrc) {

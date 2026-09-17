@@ -35,7 +35,7 @@ const CARD_PROPS = [
 ];
 
 const DEFAULTS = {
-  blockBackgroundColor: '#efebe8',
+  blockBackgroundColor: '#ECE8E3',
   cardBackgroundColor: '#00264d',
   activeCardBackgroundColor: '#1598bf',
   activeNumberColor: '#ffffff',

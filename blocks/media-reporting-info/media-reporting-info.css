@@ -1,6 +1,6 @@
 .media-reporting-info {
-  background: #f4f5f5;
-  color: #404041;
+  background: var(--ncmec-gray-lightest);
+  color: var(--ncmec-gray-dark);
   padding: 44px 0 30px;
 }
 
@@ -20,7 +20,7 @@
 
 .media-reporting-info-intro {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -33,11 +33,11 @@
 
 .media-reporting-info-item-heading {
   margin: 0 0 24px;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .media-reporting-info-item-copy {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-weight: var(--body-weight-medium);
   line-height: var(--caption-line-height);
 }

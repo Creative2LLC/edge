@@ -8,7 +8,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   --missing-child-poster-api-registration-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   padding: var(--missing-child-poster-api-registration-top-padding) 0 clamp(52px, 7vw, 96px);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .missing-child-poster-api-registration-shell {
@@ -37,7 +37,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   border-radius: 999px;
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
@@ -52,7 +52,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 
 .missing-child-poster-api-registration-intro {
   max-width: 56rem;
-  color: #4b4b4f;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -191,7 +191,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   border-radius: 8px;
   padding: 18px;
   background: rgb(255 255 255 / 76%);
-  color: #45484d;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-sm-size);
   font-weight: 500;
   line-height: 1.55;
@@ -226,7 +226,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   width: 20px;
   height: 20px;
   margin: 0.05em 0 0;
-  accent-color: #008db6;
+  accent-color: var(--ncmec-blue-medium);
 }
 
 .missing-child-poster-api-registration-actions {
@@ -281,7 +281,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
   display: grid;
   gap: 16px;
   margin-top: 22px;
-  border-left: 4px solid #007294;
+  border-left: 4px solid var(--ncmec-blue-dark);
   background: #fff;
 }
 
@@ -297,7 +297,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 .missing-child-poster-api-registration-credentials-copy,
 .missing-child-poster-api-registration-docs {
   margin: 0;
-  color: #45484d;
+  color: var(--ncmec-gray-dark);
   font-weight: var(--body-weight-strong);
 }
 
@@ -325,7 +325,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 }
 
 .missing-child-poster-api-registration-docs a {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-weight: 800;
   text-decoration: underline;
   text-underline-offset: 0.16em;

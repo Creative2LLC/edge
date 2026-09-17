@@ -19,7 +19,7 @@
 
 :root {
   /* colors */
-  --background-color: #f6f6f6;
+  --background-color: var(--ncmec-gray-lightest);
   --light-color: #f8f8f8;
   --dark-color: #505050;
 
@@ -38,6 +38,35 @@
   --body-color: var(--text-color);
   --body-muted-color: #516272;
   --body-on-dark-color: #fff;
+
+  /* Brand palette, from the 2026-09-16 design sheet. scripts/color-tokens.js is the source
+     of truth; npm run lint:palette keeps these and every block dropdown in step with it. */
+  --ncmec-white: #fff;
+  --ncmec-navy-dark: #00264D;
+  --ncmec-navy-medium: #004B76;
+  --ncmec-blue-dark: #006D90;
+  --ncmec-blue-medium: #008EB7;
+  --ncmec-blue-light: #92D6E3;
+  --ncmec-gray-dark: #414042;
+  --ncmec-gray-medium: #939598;
+  --ncmec-gray-light: #C7C8CA;
+  --ncmec-gray-lightest: #F1F2F2;
+  --ncmec-yellow: #FDB913;
+  --ncmec-yellow-dark: #F7941D;
+  --ncmec-red: #AE1B1F;
+  --ncmec-peach-dark: #F26D5F;
+  --ncmec-peach-medium: #F8AC99;
+  --ncmec-beige-dark: #FAAB60;
+  --ncmec-beige-medium: #FDCFA3;
+  --ncmec-green-medium: #5ABB64;
+  --ncmec-green-light: #A2D4A3;
+
+  /* Site surface steps (SITE_NEUTRALS in color-tokens.js): the ladder rungs the palette lacks,
+     so a card, its section and the page stay visibly apart. */
+  --ncmec-warm-off-white: #F4F1EC;
+  --ncmec-warm-gray: #ECE8E3;
+  --ncmec-blue-tint: #E9F7FA;
+  --ncmec-navy-raised: #0F3357;
 
   /* fonts */
   --body-font-family: "Figtree", figtree-fallback, sans-serif;
@@ -237,7 +266,7 @@
      grid puts each row a third of a cycle behind the one above it, which is
      what produces the diagonal travel. */
   --skeleton-cascade-step: 90ms;
-  --beacon-color: #007294;
+  --beacon-color: var(--ncmec-blue-dark);
   --beacon-size: 56px;
 
   /* ------------------------------------------------------------------
@@ -345,7 +374,7 @@
     box-shadow var(--hover-duration) var(--hover-ease);
   --button-primary: #006D90;
   --button-primary-hover: #005771;
-  --button-tint: #e3f0f5;
+  --button-tint: var(--ncmec-blue-tint);
   --button-tint-hover: #cfe5ee;
   --button-navy: #00264d;
   --button-on-dark-link-hover: #dcebf4;
@@ -1159,7 +1188,7 @@ main form {
   --form-control-focus-ring: rgb(227 139 34 / 16%);
   --form-control-hover-border: #c8bdb2;
   --form-control-invalid-color: #b6462f;
-  --form-control-label-focus-color: #007294;
+  --form-control-label-focus-color: var(--ncmec-blue-dark);
 }
 
 main form :is(
@@ -1275,7 +1304,7 @@ main form :is(
   textarea
 ):user-invalid {
   border-color: var(--form-control-invalid-color);
-  background: #fffafa;
+  background: var(--ncmec-white);
   box-shadow: 0 0 0 4px rgb(182 70 47 / 12%);
 }
 
@@ -1671,7 +1700,7 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
   overflow: hidden;
   border: 1px solid transparent;
   border-radius: 8px;
-  background-color: #ddd5cc52;
+  background-color: var(--ncmec-warm-gray);
   box-shadow: 0 4px 14px rgb(17 58 103 / 0%);
   transition:
     border-color var(--accordion-duration) ease,

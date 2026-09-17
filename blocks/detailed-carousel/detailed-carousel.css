@@ -33,7 +33,7 @@
 .detailed-carousel .detailed-carousel-description {
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   max-width: 680px;
   margin: 0 0 40px;
   line-height: var(--caption-line-height);
@@ -134,7 +134,7 @@
 
 .detailed-carousel .detailed-carousel-stat-body {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0;
   line-height: var(--caption-line-height);
 }

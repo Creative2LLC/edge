@@ -1,13 +1,13 @@
 .event-calendar {
   --event-calendar-ink: #113a67;
   --event-calendar-navy: #062650;
-  --event-calendar-text: #404041;
+  --event-calendar-text: var(--ncmec-gray-dark);
   --event-calendar-muted: #667784;
-  --event-calendar-blue: #1491bf;
-  --event-calendar-gold: #fbbf24;
+  --event-calendar-blue: var(--ncmec-blue-medium);
+  --event-calendar-gold: var(--ncmec-yellow);
   --event-calendar-border: rgb(17 58 103 / 14%);
-  --event-calendar-soft: #e8f7fb;
-  --event-calendar-wash: #f5f9fb;
+  --event-calendar-soft: var(--ncmec-blue-tint);
+  --event-calendar-wash: var(--ncmec-gray-lightest);
   --event-calendar-surface: #fff;
 
   max-width: var(--container);
@@ -245,7 +245,7 @@
 .event-calendar .event-calendar-month-label,
 .event-calendar .event-calendar-table-heading {
   margin: 0;
-  color: #3b3d44;
+  color: var(--ncmec-gray-dark);
   text-align: center;
 }
 
@@ -344,7 +344,7 @@
 }
 
 .event-calendar .event-calendar-pill[data-color='blue'] {
-  background: #007294;
+  background: var(--ncmec-blue-dark);
 }
 
 .event-calendar .event-calendar-pill[data-color='teal'] {
@@ -400,7 +400,7 @@
 }
 
 .event-calendar .event-calendar-table th {
-  background: #929497;
+  background: var(--ncmec-gray-medium);
   color: #fff;
   font-size: var(--caption-size);
   font-weight: 800;
@@ -426,7 +426,7 @@
 }
 
 .event-calendar .event-calendar-table td:nth-child(3) {
-  color: #008fbd;
+  color: var(--ncmec-blue-medium);
   font-weight: 800;
 }
 

@@ -42,7 +42,7 @@
 /* Text/content side */
 .product-list-card-content {
   flex: 1;
-  background-color: #DDD5CC52;
+  background-color: var(--ncmec-warm-gray);
   border-radius: 14px;
   padding: 32px 36px;
   display: flex;
@@ -53,7 +53,7 @@
 
 /* Title */
 .product-list-card-title {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 12px;
   text-align: left;
 }
@@ -61,7 +61,7 @@
 /* Description */
 .product-list-card-description {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   text-align: left;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .product-list-card-description a {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   text-decoration: underline;
 }
 

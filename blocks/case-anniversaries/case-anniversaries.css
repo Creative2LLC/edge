@@ -1,5 +1,5 @@
 .case-anniversaries {
-  background: #f4f5f5;
+  background: var(--ncmec-gray-lightest);
   color: #303030;
 }
 
@@ -124,7 +124,7 @@
   border: 2px solid #00a9d6;
   border-radius: 999px;
   background: #d8f4fb;
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   cursor: pointer;
   font: inherit;
   font-size: var(--caption-size);
@@ -181,7 +181,7 @@
 }
 
 .case-anniversaries-status.is-loading {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
 }
 
 .case-anniversaries-grid {
@@ -234,7 +234,7 @@
   position: relative;
   min-height: 230px;
   overflow: hidden;
-  background: #e8eef1;
+  background: var(--ncmec-gray-lightest);
 }
 
 .case-anniversaries-grid[data-view="list"] .case-anniversaries-card-media {
@@ -289,7 +289,7 @@
 }
 
 .case-anniversaries .case-anniversaries-card-title-link {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   text-decoration: none;
 }
 
@@ -299,7 +299,7 @@
 }
 
 .case-anniversaries .case-anniversaries-card-title-link:focus-visible {
-  outline: 2px solid #007294;
+  outline: 2px solid var(--ncmec-blue-dark);
   outline-offset: 3px;
 }
 
@@ -346,19 +346,19 @@
 }
 
 .case-anniversaries .case-anniversaries-card-link {
-  color: #007294 !important;
+  color: var(--ncmec-blue-dark) !important;
   font-size: var(--body-sm-size);
   font-weight: 800;
   text-decoration: none;
 }
 
 .case-anniversaries .case-anniversaries-card-link:focus-visible {
-  outline: 2px solid #007294;
+  outline: 2px solid var(--ncmec-blue-dark);
   outline-offset: 2px;
 }
 
 .case-anniversaries .case-anniversaries-card-link:hover {
-  color: #007294 !important;
+  color: var(--ncmec-blue-dark) !important;
   text-decoration: underline;
 }
 
@@ -398,7 +398,7 @@
 .case-anniversaries-chip:focus-visible,
 .case-anniversaries-clear:focus-visible,
 .case-anniversaries-load-more:focus-visible {
-  outline: 2px solid #007294;
+  outline: 2px solid var(--ncmec-blue-dark);
   outline-offset: 2px;
 }
 

@@ -51,7 +51,7 @@ main > .section > .resources-wrapper {
 .resources .resources-subheading {
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 8px 0 0;
   text-align: left;
   line-height: var(--caption-line-height);
@@ -184,7 +184,7 @@ main > .section > .resources-wrapper {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  background: #e8f1f5;
+  background: var(--ncmec-blue-tint);
   color: #0d3c50;
   padding: 4px 10px;
   font-size: var(--caption-size);
@@ -194,14 +194,14 @@ main > .section > .resources-wrapper {
 
 /* Card title */
 .resources .resources-card-title {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 8px;
 }
 
 /* Card subheading */
 .resources .resources-card-subheading {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 20px;
   line-height: 1.15;
 }
@@ -226,7 +226,7 @@ main > .section > .resources-wrapper {
 
 .resources .resources-empty {
   margin: 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   line-height: 1.5;
 }

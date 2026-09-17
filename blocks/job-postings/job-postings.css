@@ -39,7 +39,7 @@
 
 .job-postings-card-placeholder {
   font-size: var(--body-sm-size);
-  color: #999;
+  color: var(--ncmec-gray-medium);
   margin: 0;
 }
 
@@ -72,7 +72,7 @@
   align-items: center;
   gap: 6px;
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   line-height: var(--caption-line-height);
 }
 

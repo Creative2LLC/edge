@@ -99,7 +99,7 @@ export default function decorate(block) {
   }
   // The panel is always coloured (red by default), so its button takes the dark form
   // unless an author chose a light background.
-  markButtonSurface(contentSection, isDarkSurface(backgroundColor || '#e13e30'));
+  markButtonSurface(contentSection, isDarkSurface(backgroundColor || '#ae1b1f'));
 
   // Left column of right side
   const mainCol = document.createElement('div');

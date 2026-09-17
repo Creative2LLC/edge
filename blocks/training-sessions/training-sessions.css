@@ -21,7 +21,7 @@ main > .section > .training-sessions-wrapper {
 
 .training-sessions .training-sessions-description {
   margin: 16px 0 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .training-sessions .training-sessions-title :is(h1, h2, h3, h4, p),
@@ -55,7 +55,7 @@ main > .section > .training-sessions-wrapper {
   gap: 24px;
   padding: 26px 30px;
   border-radius: 8px;
-  background-color: #ddd5cc52;
+  background-color: var(--ncmec-warm-gray);
 }
 
 /* ---------- Columns ---------- */
@@ -73,7 +73,7 @@ main > .section > .training-sessions-wrapper {
 
 .training-sessions .training-sessions-col-2,
 .training-sessions .training-sessions-col-3 {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-weight: 500;
 }
 
@@ -90,7 +90,7 @@ main > .section > .training-sessions-wrapper {
 /* ---------- Arrow ---------- */
 .training-sessions .training-sessions-arrow {
   justify-self: end;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: 17px;
   line-height: 1;
   text-decoration: none;
@@ -99,7 +99,7 @@ main > .section > .training-sessions-wrapper {
 
 .training-sessions a.training-sessions-arrow:hover,
 .training-sessions a.training-sessions-arrow:focus-visible {
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   opacity: 0.7;
   transform: translateX(3px);
 }

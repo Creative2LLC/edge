@@ -8,7 +8,7 @@ main > .section > .missing-child-quick-report-wrapper {
   --missing-child-quick-report-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   padding: var(--missing-child-quick-report-top-padding) 0 clamp(48px, 7vw, 96px);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
 }
 
 .missing-child-quick-report-shell {
@@ -38,7 +38,7 @@ main > .section > .missing-child-quick-report-wrapper {
   border-radius: 999px;
   padding: 7px 14px;
   background: rgb(0 141 182 / 11%);
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1;
@@ -53,7 +53,7 @@ main > .section > .missing-child-quick-report-wrapper {
 
 .missing-child-quick-report-intro {
   max-width: 56rem;
-  color: #4b4b4f;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
 }
@@ -86,7 +86,7 @@ main > .section > .missing-child-quick-report-wrapper {
 }
 
 .missing-child-quick-report-emergency-copy {
-  color: #45484d;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
 }
@@ -164,7 +164,7 @@ main > .section > .missing-child-quick-report-wrapper {
 .missing-child-quick-report-context a {
   display: inline-flex;
   margin-top: 8px;
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   font-size: var(--body-sm-size);
   font-weight: 800;
   text-decoration: underline;
@@ -246,7 +246,7 @@ main > .section > .missing-child-quick-report-wrapper {
 
 .missing-child-quick-report-radio:hover,
 .missing-child-quick-report-radio:focus-within {
-  border-color: #007294;
+  border-color: var(--ncmec-blue-dark);
   box-shadow: 0 8px 20px rgb(0 114 148 / 10%);
   transform: translateY(-1px);
 }
@@ -255,7 +255,7 @@ main > .section > .missing-child-quick-report-wrapper {
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: #007294;
+  accent-color: var(--ncmec-blue-dark);
 }
 
 .missing-child-quick-report-actions {
@@ -309,7 +309,7 @@ main > .section > .missing-child-quick-report-wrapper {
 }
 
 .missing-child-quick-report-call-center a {
-  color: #007294;
+  color: var(--ncmec-blue-dark);
   text-decoration: none;
 }
 

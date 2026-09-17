@@ -36,7 +36,7 @@ const ITEM_COLUMN_INDEX = {
 const DEFAULTS = {
   heading: 'Historical CyberTipline Reports',
   subheading: 'Access complete CyberTipline data reports from previous years.',
-  cardBackgroundColor: '#f4f0ec',
+  cardBackgroundColor: '#F4F1EC',
   year: 'Year',
   reportCount: 'Report count',
   linkText: 'Download PDF',

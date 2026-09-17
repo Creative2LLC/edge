@@ -43,7 +43,7 @@
 }
 
 .resource-video-hero .resource-video-hero-breadcrumb a:hover {
-  color: #008db6;
+  color: var(--ncmec-blue-medium);
 }
 
 .resource-video-hero .resource-video-hero-breadcrumb > * + *::before {
@@ -77,8 +77,8 @@
   min-height: 2rem;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
-  background: #ecf6fa;
-  color: #0d6e8c;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 800;
   text-decoration: none;

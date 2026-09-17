@@ -3,5 +3,5 @@
 .impact-geo-report {
   --cybertipline-geo-blue: #2aa7c9;
   --cybertipline-geo-orange: #de8a2a;
-  --cybertipline-geo-gold: #f5b51b;
+  --cybertipline-geo-gold: var(--ncmec-yellow);
 }

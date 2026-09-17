@@ -1,6 +1,6 @@
 .support-cta.block {
-  --support-cta-background-start: #f3efea;
-  --support-cta-background-end: #ece8e3;
+  --support-cta-background-start: var(--ncmec-warm-off-white);
+  --support-cta-background-end: var(--ncmec-warm-gray);
   --support-cta-reveal-duration: 0.55s;
   --support-cta-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -62,7 +62,7 @@
 .support-cta .support-cta-subheading {
   max-width: 1228px;
   margin: 26px 0 0;
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-lg-size);
   line-height: var(--caption-line-height);
   opacity: 0;

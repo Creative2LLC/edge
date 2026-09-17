@@ -39,7 +39,7 @@ main > .section > .split-thin-carousel-wrapper {
 .split-thin-carousel .stc-description {
   font-size: var(--body-lg-size);
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   max-width: 680px;
   margin: 0 0 40px;
   line-height: var(--caption-line-height);
@@ -116,7 +116,7 @@ main > .section > .split-thin-carousel-wrapper {
   align-items: flex-start;
   padding: 40px 48px;
   box-sizing: border-box;
-  background-color: #edebe9;
+  background-color: var(--ncmec-warm-gray);
 }
 
 /* Heading */
@@ -128,7 +128,7 @@ main > .section > .split-thin-carousel-wrapper {
 /* Subheading / body (rich text) */
 .split-thin-carousel .stc-subheading {
   font-weight: var(--body-weight-medium);
-  color: #404041;
+  color: var(--ncmec-gray-dark);
   margin: 0 0 24px;
   white-space: pre-line;
 }
