@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 import { showSkeleton, clearSkeleton, setButtonLoading } from '../../scripts/skeleton.js';
 import {
@@ -154,6 +155,22 @@ function getFieldValue(block, name, fallback = '') {
     || readConfigValue(rows, name)
     || getLegacyValue(block, name)
     || fallback;
+}
+
+const MAX_CARD_PILLS = 5;
+
+// The two label systems also disagree on plurals: the story_type taxonomy says
+// "Featured Case" and "Event" where the tag list says "Featured Cases" and
+// "Events". Those are the only two pairs in the data, and a trailing "s" is all
+// that separates them, so the dedupe key ignores one.
+function pillKey(label) {
+  return `${label}`.trim().toLowerCase().replace(/s$/, '');
+}
+
+let groupIdCounter = 0;
+function groupId() {
+  groupIdCounter += 1;
+  return groupIdCounter;
 }
 
 function buildMessage(title, description) {
@@ -350,24 +367,39 @@ function buildCard(article, index = 0, onFacetActivate = null, config = {}) {
 
   const body = document.createElement('div');
   body.className = 'article-list-card-body';
+  // Two label systems feed a card: the four curated blog-taxonomy groups and the
+  // free tag list. Ten tag names are word-for-word duplicates of a taxonomy name
+  // ("News", "Missing Children", "40th Anniversary"...), which is why most cards
+  // used to print the same word twice, in two separate rows. Taxonomy wins,
+  // because its pill filters the specific group rather than the flat tag list.
   const facetByGroup = {
     primary_area: 'audience',
     topic: 'issue',
     story_type: 'type',
-    program_series: 'tags',
+    program_series: 'programs',
   };
   const taxonomyEntries = (article.blog_taxonomy || [])
     .map((entry) => ({
       facet: facetByGroup[entry.group],
-      label: entry.name,
-      value: entry.slug,
+      label: normalizeText(entry.name),
+      value: normalizeText(entry.slug),
     }))
-    .filter((entry) => entry.facet && normalizeText(entry.label) && normalizeText(entry.value));
+    .filter((entry) => entry.facet && entry.label && entry.value);
 
-  if (taxonomyEntries.length) {
+  const seen = new Set(taxonomyEntries.map((entry) => pillKey(entry.label)));
+  const tagEntries = (article.tags || [])
+    .map((tag) => ({
+      facet: 'tags',
+      label: normalizeText(tag.name),
+      value: normalizeText(tag.slug || tag.name),
+    }))
+    .filter((tag) => tag.label && !seen.has(pillKey(tag.label)));
+
+  const pillEntries = [...taxonomyEntries, ...tagEntries].slice(0, MAX_CARD_PILLS);
+  if (pillEntries.length) {
     const taxonomy = document.createElement('div');
     taxonomy.className = 'article-list-taxonomy';
-    taxonomyEntries.forEach(({ facet, label, value }) => taxonomy.append(
+    pillEntries.forEach(({ facet, label, value }) => taxonomy.append(
       buildInteractivePill(label, 'is-taxonomy', () => onFacetActivate?.(facet, value)),
     ));
     body.append(taxonomy);
@@ -392,27 +424,13 @@ function buildCard(article, index = 0, onFacetActivate = null, config = {}) {
     body.append(excerpt);
   }
 
-  const tags = (article.tags || [])
-    .map((tag) => ({
-      label: normalizeText(tag.name),
-      value: normalizeText(tag.slug || tag.name),
-    }))
-    .filter((tag) => tag.label)
-    .slice(0, 3);
-  if (tags.length) {
-    const tagsWrap = document.createElement('div');
-    tagsWrap.className = 'article-list-tags';
-    tags.forEach((tag) => tagsWrap.append(
-      buildInteractivePill(tag.label, '', () => onFacetActivate?.('tags', tag.value)),
-    ));
-    body.append(tagsWrap);
-  }
-
   if (linkHref) {
     const link = document.createElement('a');
     link.className = 'article-list-card-link';
     link.href = linkHref;
-    link.textContent = 'Read Article';
+    link.textContent = 'Learn More';
+    // The shared text-link style draws its own arrow; the block no longer does.
+    applyButtonStyle(link, 'text-link');
     body.append(link);
   }
 
@@ -444,10 +462,13 @@ function buildShell(config) {
   headerTop.append(viewToggle);
   header.append(headerTop);
 
+  // Broad to narrow, each group named. The area pills used to sit BELOW the
+  // dropdowns even though they are the widest cut of the library, and sort was
+  // parked next to search as if it were a filter — between them you could not
+  // tell which control did what.
   const controls = document.createElement('div');
   controls.className = 'article-list-controls';
-  const primaryRow = document.createElement('div');
-  primaryRow.className = 'article-list-primary-row';
+
   const searchWrap = document.createElement('label');
   searchWrap.className = 'article-list-search-wrap';
   const searchInput = document.createElement('input');
@@ -455,38 +476,58 @@ function buildShell(config) {
   searchInput.type = 'search';
   searchInput.placeholder = config.searchPlaceholder;
   searchWrap.append(searchInput);
-  primaryRow.append(searchWrap);
+  controls.append(searchWrap);
 
+  const areaGroup = document.createElement('div');
+  areaGroup.className = 'article-list-group article-list-area-group';
+  const areaLabel = document.createElement('p');
+  areaLabel.className = 'article-list-group-label';
+  areaLabel.id = `article-list-area-label-${groupId()}`;
+  areaLabel.textContent = 'Browse by area';
   const areaPills = document.createElement('div');
   areaPills.className = 'article-list-area-pills';
-  areaPills.setAttribute('aria-label', 'Explore by topic');
-  const issueSelect = createFilterSelect('Topics');
-  const typeSelect = createFilterSelect('Story type');
-  const tagSelect = createFilterSelect('Programs & series');
-  const sortSelect = createSortSelect('Sort articles');
-  primaryRow.append(sortSelect);
-  controls.append(primaryRow);
+  areaPills.setAttribute('role', 'group');
+  areaPills.setAttribute('aria-labelledby', areaLabel.id);
+  areaGroup.append(areaLabel, areaPills);
+  controls.append(areaGroup);
 
+  const refineGroup = document.createElement('div');
+  refineGroup.className = 'article-list-group article-list-refine-group';
+  const refineLabel = document.createElement('p');
+  refineLabel.className = 'article-list-group-label';
+  refineLabel.textContent = 'Refine';
+  const issueSelect = createFilterSelect('Topic');
+  const typeSelect = createFilterSelect('Story type');
+  const tagSelect = createFilterSelect('Program or series');
+  const sortSelect = createSortSelect('Sort articles');
   const filterRow = document.createElement('div');
   filterRow.className = 'article-list-filter-row';
   filterRow.append(issueSelect, typeSelect, tagSelect);
-  controls.append(filterRow);
-  controls.append(areaPills);
+  const sortWrap = document.createElement('div');
+  sortWrap.className = 'article-list-sort-wrap';
+  const sortLabel = document.createElement('span');
+  sortLabel.className = 'article-list-sort-label';
+  sortLabel.textContent = 'Sort';
+  sortWrap.append(sortLabel, sortSelect);
+  refineGroup.append(refineLabel, filterRow, sortWrap);
+  controls.append(refineGroup);
   header.append(controls);
   inner.append(header);
 
+  // Count first, then what is switched on, then the way to switch it off —
+  // "Clear Filters" used to float between the chips and the count.
   const meta = document.createElement('div');
   meta.className = 'article-list-meta';
+  const count = document.createElement('p');
+  count.className = 'article-list-count';
   const activeFilters = document.createElement('div');
   activeFilters.className = 'article-list-active-filters';
   const clearAllButton = document.createElement('button');
   clearAllButton.className = 'article-list-clear-all';
   clearAllButton.type = 'button';
-  clearAllButton.textContent = 'Clear Filters';
+  clearAllButton.textContent = 'Clear all';
   clearAllButton.hidden = true;
-  const count = document.createElement('p');
-  count.className = 'article-list-count';
-  meta.append(activeFilters, clearAllButton, count);
+  meta.append(count, activeFilters, clearAllButton);
   inner.append(meta);
 
   const cardsContainer = document.createElement('div');
@@ -551,6 +592,7 @@ function renderApiList(block, config) {
     selectedAudience: new Set(),
     selectedIssue: new Set(),
     selectedType: new Set(),
+    selectedPrograms: new Set(),
     selectedTags: new Set(),
     sort: '',
     hasExplicitSort: false,
@@ -565,7 +607,8 @@ function renderApiList(block, config) {
     selectedAudience: parseList(config.audiencePreset).map(normalizeToken),
     selectedIssue: parseList(config.issuePreset).map(normalizeToken),
     selectedType: parseList(config.typePreset).map(normalizeToken),
-    selectedTags: parseList(config.tagPreset).map(normalizeToken),
+    selectedPrograms: parseList(config.tagPreset).map(normalizeToken),
+    selectedTags: [],
   };
   const locationState = readListFilterState();
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
@@ -587,13 +630,17 @@ function renderApiList(block, config) {
       ? locationState.storyTypes.values
       : defaultState.selectedType,
   );
+  state.selectedPrograms = new Set(
+    locationState.programs.present ? locationState.programs.values : defaultState.selectedPrograms,
+  );
   state.selectedTags = new Set(
-    locationState.programs.present ? locationState.programs.values : defaultState.selectedTags,
+    locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
   );
   const optionLabels = {
     audience: new Map(),
     issue: new Map(),
     type: new Map(),
+    programs: new Map(),
     tags: new Map(),
   };
   const syncUrlState = (replace = true) => {
@@ -602,7 +649,8 @@ function renderApiList(block, config) {
       areas: [...state.selectedAudience],
       topics: [...state.selectedIssue],
       storyTypes: [...state.selectedType],
-      programs: [...state.selectedTags],
+      programs: [...state.selectedPrograms],
+      tags: [...state.selectedTags],
       sort: state.hasExplicitSort ? state.sort : '',
       view: state.view,
     }, replace);
@@ -610,7 +658,7 @@ function renderApiList(block, config) {
   const syncFilterControls = () => {
     syncSelectValue(issueSelect, state.selectedIssue);
     syncSelectValue(typeSelect, state.selectedType);
-    syncSelectValue(tagSelect, state.selectedTags);
+    syncSelectValue(tagSelect, state.selectedPrograms);
   };
   const syncSortControl = () => {
     sortSelect.value = state.sort || '';
@@ -624,10 +672,10 @@ function renderApiList(block, config) {
     const audiences = filters.areas || [];
     const issues = filters.topics || [];
     const types = filters.story_types || [];
-    const tags = filters.programs || [];
-    setFilterOptions(issueSelect, 'Topics', issues);
+    const programs = filters.programs || [];
+    setFilterOptions(issueSelect, 'Topic', issues);
     setFilterOptions(typeSelect, 'Story type', types);
-    setFilterOptions(tagSelect, 'Programs & series', tags);
+    setFilterOptions(tagSelect, 'Program or series', programs);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
@@ -637,8 +685,11 @@ function renderApiList(block, config) {
     optionLabels.type = new Map(
       types.map((option) => [normalizeToken(option.value), option.label]),
     );
+    optionLabels.programs = new Map(
+      programs.map((option) => [normalizeToken(option.value), option.label]),
+    );
     optionLabels.tags = new Map(
-      tags.map((option) => [normalizeToken(option.value), option.label]),
+      (filters.tags || []).map((option) => [normalizeToken(option.slug), option.name]),
     );
     areaPills.replaceChildren();
     const allAreas = [{ value: '', label: 'All articles' }, ...audiences];
@@ -680,6 +731,7 @@ function renderApiList(block, config) {
     if (facet === 'audience') state.selectedAudience.add(value);
     if (facet === 'issue') state.selectedIssue.add(value);
     if (facet === 'type') state.selectedType.add(value);
+    if (facet === 'programs') state.selectedPrograms.add(value);
     if (facet === 'tags') state.selectedTags.add(value);
 
     syncFilterControls();
@@ -693,6 +745,7 @@ function renderApiList(block, config) {
       ...[...state.selectedAudience].map((value) => ({ facet: 'audience', value })),
       ...[...state.selectedIssue].map((value) => ({ facet: 'issue', value })),
       ...[...state.selectedType].map((value) => ({ facet: 'type', value })),
+      ...[...state.selectedPrograms].map((value) => ({ facet: 'programs', value })),
       ...[...state.selectedTags].map((value) => ({ facet: 'tags', value })),
     ];
     facets.forEach(({ facet, value }) => {
@@ -701,6 +754,7 @@ function renderApiList(block, config) {
         if (facet === 'audience') state.selectedAudience.delete(value);
         if (facet === 'issue') state.selectedIssue.delete(value);
         if (facet === 'type') state.selectedType.delete(value);
+        if (facet === 'programs') state.selectedPrograms.delete(value);
         if (facet === 'tags') state.selectedTags.delete(value);
         syncFilterControls();
         syncUrlState();
@@ -767,7 +821,8 @@ function renderApiList(block, config) {
     state.selectedAudience.forEach((value) => url.searchParams.append('areas[]', value));
     state.selectedIssue.forEach((value) => url.searchParams.append('topics[]', value));
     state.selectedType.forEach((value) => url.searchParams.append('story_types[]', value));
-    state.selectedTags.forEach((value) => url.searchParams.append('programs[]', value));
+    state.selectedPrograms.forEach((value) => url.searchParams.append('programs[]', value));
+    state.selectedTags.forEach((value) => url.searchParams.append('tags[]', value));
     selected.ids.forEach((value) => url.searchParams.append('ids[]', value));
     selected.slugs.forEach((value) => url.searchParams.append('slugs[]', value));
     excluded.forEach((value) => url.searchParams.append('exclude_slugs[]', value));
@@ -845,7 +900,7 @@ function renderApiList(block, config) {
     applyFacet(typeSelect, state.selectedType);
   });
   tagSelect.addEventListener('change', () => {
-    applyFacet(tagSelect, state.selectedTags);
+    applyFacet(tagSelect, state.selectedPrograms);
   });
   sortSelect.addEventListener('change', () => {
     state.sort = normalizeListSort(sortSelect.value);
@@ -859,6 +914,7 @@ function renderApiList(block, config) {
     state.selectedAudience.clear();
     state.selectedIssue.clear();
     state.selectedType.clear();
+    state.selectedPrograms.clear();
     state.selectedTags.clear();
     searchInput.value = '';
     syncFilterControls();

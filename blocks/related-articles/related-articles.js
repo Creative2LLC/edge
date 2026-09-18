@@ -1,4 +1,5 @@
 import resolveSiteHref from '../../scripts/link-utils.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
 import {
   getBlockRows,
   readLinkField,
@@ -300,6 +301,8 @@ function buildCard(item, config) {
     link.className = 'related-articles-card-link';
     link.href = href;
     link.textContent = 'Learn More';
+    // The shared text-link style draws its own arrow; the block no longer does.
+    applyButtonStyle(link, 'text-link');
     actions.append(link);
   }
 

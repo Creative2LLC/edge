@@ -28,6 +28,10 @@
   }
 }
 
+/* Base shadow, transition and hover all match .article-list-card, so a related
+   blog card and a blog-browser card behave identically. The old rule only
+   deepened an already-heavy shadow, with no lift, no transition and no
+   keyboard equivalent. */
 .related-articles .related-articles-card {
   position: relative;
   display: flex;
@@ -35,11 +39,25 @@
   overflow: hidden;
   border-radius: 22px;
   background: #fff;
-  box-shadow: 0 18px 40px rgb(22 50 74 / 10%);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 8%);
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
 }
 
-.related-articles .related-articles-card:has(.related-articles-card-link-cover):hover {
-  box-shadow: 0 22px 48px rgb(22 50 74 / 18%);
+.related-articles .related-articles-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+.related-articles .related-articles-card:focus-within {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .related-articles .related-articles-card {
+    transition: none;
+  }
+
+  .related-articles .related-articles-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+  .related-articles .related-articles-card:focus-within {
+    transform: none;
+  }
 }
 
 .related-articles .related-articles-card-link-cover {
@@ -112,18 +130,10 @@
   font-size: var(--body-size);
 }
 
+/* Look, size and arrow come from the shared .button.text-link style (37px tall, so it clears the WCAG 2.5.8 target on its own) the block
+   applies — the same one the blog browser cards use. */
 .related-articles .related-articles-card-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--ncmec-blue-dark);
-  font-size: var(--body-sm-size);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.related-articles .related-articles-card-link::after {
-  content: '->';
+  flex: 0 0 auto;
 }
 
 .related-articles .related-articles-card-actions {

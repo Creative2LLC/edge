@@ -29,24 +29,64 @@
 
 .article-list .article-list-controls {
   display: grid;
-  gap: 0.8rem;
+  gap: 1.35rem;
 }
 
-.article-list .article-list-primary-row {
+/* Each filter mechanism is named, and the groups are separated by more space
+   than the controls inside them — without that, four different mechanisms read
+   as one undifferentiated pile of pills and dropdowns. */
+.article-list .article-list-group {
   display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(180px, 1fr);
-  gap: 0.8rem;
+  gap: 0.6rem;
+}
+
+.article-list .article-list-group-label {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
+  text-transform: uppercase;
+}
+
+/* Refine: the three narrowing dropdowns on the left, sort pushed to the right —
+   sort is not a filter and should not sit in the filter run. */
+.article-list .article-list-refine-group {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "label label"
+    "filters sort";
   align-items: center;
+  column-gap: 1.25rem;
+}
+
+.article-list .article-list-refine-group .article-list-group-label {
+  grid-area: label;
 }
 
 .article-list .article-list-filter-row {
+  grid-area: filters;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.8rem;
   align-items: center;
 }
 
+.article-list .article-list-sort-wrap {
+  grid-area: sort;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.article-list .article-list-sort-label {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-bold);
+  white-space: nowrap;
+}
+
 .article-list .article-list-search-wrap {
+  display: block;
   min-width: 0;
 }
 
@@ -68,7 +108,8 @@
 }
 
 .article-list .article-list-sort {
-  min-width: 0;
+  width: auto;
+  min-width: 11rem;
 }
 
 .article-list .article-list-area-pills {
@@ -98,15 +139,20 @@
   color: #fff;
 }
 
+/* Count, then the chips for what is switched on, then the way to switch it all
+   off. "Clear Filters" used to sit between the chips and the count, reading as
+   though it belonged to neither. */
 .article-list .article-list-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem 1rem;
   align-items: center;
-  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ncmec-gray-light);
 }
 
 .article-list .article-list-active-filters {
+  flex: 1 1 auto;
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
@@ -181,6 +227,7 @@
 }
 
 .article-list .article-list-clear-all {
+  margin-left: auto;
   border: 0;
   background: transparent;
   color: var(--ncmec-blue-dark);
@@ -273,8 +320,7 @@
   padding: 1.1rem 1.25rem 1.2rem;
 }
 
-.article-list .article-list-taxonomy,
-.article-list .article-list-tags {
+.article-list .article-list-taxonomy {
   position: relative;
   z-index: 3;
   display: flex;
@@ -305,22 +351,13 @@
   font-size: var(--body-size);
 }
 
+/* Only position and placement live here — the colour, size, weight and the
+   arrow all come from the shared .button.text-link style (37px tall, so it clears the WCAG 2.5.8 target on its own) the block now applies,
+   so this link matches every other text link on the site. */
 .article-list .article-list-card-link {
   position: relative;
   z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px; /* WCAG 2.5.8 target-size */
-  gap: 0.35rem;
   margin-top: auto;
-  color: #0d3c50;
-  font-size: var(--body-sm-size);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.article-list .article-list-card-link::after {
-  content: '->';
 }
 
 .article-list .article-list-empty,
@@ -410,12 +447,20 @@
 }
 
 @media (width <= 980px) {
-  .article-list .article-list-primary-row {
-    grid-template-columns: 1fr;
+  .article-list .article-list-refine-group {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "label"
+      "filters"
+      "sort";
   }
 
   .article-list .article-list-filter-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .article-list .article-list-sort-wrap {
+    justify-content: flex-end;
   }
 }
 
@@ -435,6 +480,11 @@
 
   .article-list .article-list-filter-row {
     grid-template-columns: 1fr;
+  }
+
+  .article-list .article-list-sort,
+  .article-list .article-list-sort-wrap {
+    width: 100%;
   }
 
   .article-list .article-list-card-media {
