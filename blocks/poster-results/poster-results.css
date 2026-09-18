@@ -128,9 +128,11 @@
   white-space: nowrap;
 }
 
+/* Bottom LEFT: on the right it sat against the Get Help Now pill, which is fixed in that
+   corner, and the two read as one crowded control. */
 .poster-results-back-to-search {
   position: fixed;
-  right: 198px;
+  left: 22px;
   bottom: 22px;
   z-index: 10000;
   display: inline-flex;
@@ -1107,8 +1109,9 @@
 
 @media (width <= 640px) {
   .poster-results-back-to-search {
-    right: 14px;
-    bottom: 78px;
+    /* Still bottom left, just tucked in: it no longer has to clear Get Help Now. */
+    left: 14px;
+    bottom: 14px;
   }
 }
 

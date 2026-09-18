@@ -14,7 +14,7 @@ const DEFAULTS = {
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   state: '',
   emptyMessage: 'There are no AMBER Alerts at this time.',
-  detailLabel: 'Open poster',
+  detailLabel: 'View Poster',
   posterPagePath: '/missing-children-posters',
   disclosure: 'Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster.',
 };
@@ -270,8 +270,9 @@ function createAlertCard(alert, config) {
     poster.target = '_blank';
     poster.rel = 'noopener noreferrer';
     poster.textContent = config.detailLabel;
-    // The look comes from the button standard (AMBER).
-    actions.append(applyButtonStyle(poster, 'amber'));
+    // The look comes from the button standard (EMERGENCY): a white label on the emergency
+    // red, matching the AMBER ALERT badge above it. The amber style carries a black label.
+    actions.append(applyButtonStyle(poster, 'emergency'));
   }
 
   body.append(badge, title, details);
