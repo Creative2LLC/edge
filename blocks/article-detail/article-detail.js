@@ -1,4 +1,4 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import { buildListFilterHref } from '../../scripts/list-filter-state.js';
 import {
@@ -228,14 +228,8 @@ function buildMeta(article) {
   return meta;
 }
 
-function shouldTemporarilyHideHeaderImage() {
-  return typeof window !== 'undefined' && window.location.pathname.includes('/blog/');
-}
-
 function buildHero(article, config) {
-  const image = shouldTemporarilyHideHeaderImage()
-    ? null
-    : article.header_image || article.thumbnail;
+  const image = article.header_image || article.thumbnail;
 
   const section = document.createElement('section');
   section.className = 'article-detail-hero';
@@ -244,10 +238,10 @@ function buildHero(article, config) {
     const media = document.createElement('div');
     media.className = 'article-detail-hero-media';
     media.append(
-      createOptimizedPicture(
+      createRemoteSafePicture(
         image,
         article.title || 'Article image',
-        false,
+        true,
         [{ width: '750' }, { width: '1600' }],
       ),
     );

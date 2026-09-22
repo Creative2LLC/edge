@@ -1,4 +1,5 @@
-import { createOptimizedPicture, getMetadata } from '../../scripts/aem.js';
+import { getMetadata } from '../../scripts/aem.js';
+import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   getBlockRows,
@@ -140,6 +141,82 @@ function getRows(block) {
   return getBlockRows(block);
 }
 
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute?.('data-aue-resource')
+      || scope?.querySelector?.('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+// An ISO-8601 stamp is the one parent value that identifies itself, which makes
+// articleDate the only safe anchor in published markup.
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}(?:[T\s]|$)/;
+
+const publishedLayoutCache = new WeakMap();
+
+/**
+ * Where each field sits on a PUBLISHED page.
+ *
+ * Everything else in this block reads fields through `data-aue-prop` /
+ * `data-aue-model`, which exist only inside the Universal Editor, and falls
+ * back to FIELD_COLUMN_INDEX — a COLUMN index, i.e. `row.children[4]`. Published
+ * output has a different geometry entirely: one field per ROW, one cell per row.
+ * So every lookup past index 0 read `undefined`, and only pageTitle survived,
+ * by accident, because `.find(Boolean)` happens to pick the first row. Measured
+ * on the first published blog (mary-theresa, 2026-09-21): title rendered, author
+ * / date / hero / body all empty.
+ *
+ *   row 0 pageTitle | 1 authorName | 2 articleDate | 3 thumbnail | 4 headerImage
+ *   row 5+          one row per article-body item
+ *
+ * `jcr:description` never appears as a row: it is a JCR property, which the page
+ * renderer consumes as <meta name="description">, so the model's six fields
+ * become five cells.
+ *
+ * Offsets hang off the date row rather than being hard-coded, so a field added
+ * or dropped ahead of it shifts the whole map instead of silently re-pointing
+ * every field after it.
+ */
+function computePublishedLayout(block) {
+  if (hasAuthoringContext(block)) return null;
+
+  const rows = getRows(block);
+  if (rows.length < 3) return null;
+
+  const dateIndex = rows.findIndex((row) => row.children.length === 1
+    && ISO_DATE_RE.test(normalizeText(row.textContent)));
+  // 2 with jcr:description absorbed into page metadata, 3 if it ever renders.
+  const dateRow = dateIndex === 2 || dateIndex === 3 ? dateIndex : 2;
+
+  return {
+    rows,
+    fieldRow: {
+      pageTitle: 0,
+      authorName: dateRow - 1,
+      articleDate: dateRow,
+      thumbnail: dateRow + 1,
+      headerImage: dateRow + 2,
+    },
+    bodyStart: dateRow + 3,
+  };
+}
+
+function getPublishedLayout(block) {
+  if (!publishedLayoutCache.has(block)) {
+    publishedLayoutCache.set(block, computePublishedLayout(block));
+  }
+
+  return publishedLayoutCache.get(block);
+}
+
+function getPublishedCell(block, name) {
+  const layout = getPublishedLayout(block);
+  const index = layout?.fieldRow?.[name];
+  if (index === undefined || index < 0) return null;
+
+  return layout.rows[index]?.children?.[0] || null;
+}
+
 async function getResourceData(scope) {
   const resource = scope?.getAttribute('data-aue-resource')
     || scope?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
@@ -177,6 +254,9 @@ function getTextField(block, name, fallback = '') {
     readLinkField(block, name).value || readTextField(block, name).value,
   );
   if (namedValue) return namedValue;
+
+  const publishedCell = getPublishedCell(block, name);
+  if (publishedCell) return normalizeText(publishedCell.textContent) || fallback;
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return fallback;
@@ -297,13 +377,6 @@ function appendResourceBodyItems(data, items, pageTitle) {
   });
 }
 
-function hasAuthoringContext(scope) {
-  return Boolean(
-    scope?.getAttribute?.('data-aue-resource')
-      || scope?.querySelector?.('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
-  );
-}
-
 function ensureAuthoringContainer(block) {
   if (!hasAuthoringContext(block)) return;
 
@@ -357,9 +430,58 @@ function getBodyItemImage(row, fallbackAlt) {
   };
 }
 
+/**
+ * Body items on a PUBLISHED page.
+ *
+ * `isBodyItemRow` only ever matches on `data-aue-model` / `data-aue-prop`, so on
+ * a published page it returns false for every row and `getBodyItemRows` recurses
+ * down to the leaves and yields nothing — the article body simply vanished.
+ * Published items are positional instead, starting at `layout.bodyStart`, and
+ * tell themselves apart by shape: an image item carries a <picture>, a text item
+ * carries richtext. A trailing empty field is trimmed, which is why an image row
+ * usually has two cells (image, alt) rather than three.
+ */
+function getPublishedBodyItems(layout, pageTitle) {
+  return layout.rows.slice(layout.bodyStart).map((row) => {
+    const cells = [...row.children];
+    if (!cells.length) return null;
+
+    if (row.querySelector('picture, img')) {
+      const alt = normalizeText(cells[1]?.textContent) || pageTitle || 'Article image';
+      const image = imageFromNode(cells[0], alt);
+      if (!image?.src) return null;
+
+      return {
+        type: 'image',
+        image,
+        caption: normalizeText(cells[2]?.innerHTML),
+        source: row,
+      };
+    }
+
+    const cell = cells[0];
+    const html = normalizeText(cell.innerHTML);
+    if (!html) return null;
+
+    // A single unwrapped line comes through as a bare text node; the body styles
+    // are written for paragraphs, so give it one.
+    return {
+      type: 'text',
+      html: cell.firstElementChild ? html : `<p>${html}</p>`,
+      source: row,
+    };
+  }).filter(Boolean);
+}
+
 function getArticleBodyItems(block, pageTitle, resourceData = {}) {
   const items = [];
   const isAuthoring = hasAuthoringContext(block);
+
+  const publishedLayout = getPublishedLayout(block);
+  if (publishedLayout) {
+    const published = getPublishedBodyItems(publishedLayout, pageTitle);
+    if (published.length) return published;
+  }
 
   getBodyItemRows(block).forEach((row) => {
     const model = bodyItemModel(row);
@@ -443,6 +565,9 @@ function getImageField(block, name, resourceData = {}) {
   const namedImage = readImageField(block, name);
   const propImage = imageFromNode(namedImage.cell, fallbackAlt);
   if (namedImage.source && propImage) return propImage;
+
+  const publishedImage = imageFromNode(getPublishedCell(block, name), fallbackAlt);
+  if (publishedImage) return publishedImage;
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return null;
@@ -622,12 +747,8 @@ function buildMeta(authorName, articleDate) {
   return meta;
 }
 
-function shouldTemporarilyHideHeaderImage() {
-  return typeof window !== 'undefined' && window.location.pathname.includes('/blog/');
-}
-
 function buildHero(fields) {
-  const image = shouldTemporarilyHideHeaderImage() ? null : fields.headerImage || fields.thumbnail;
+  const image = fields.headerImage || fields.thumbnail;
 
   const section = document.createElement('section');
   section.className = 'article-details-hero';
@@ -635,14 +756,20 @@ function buildHero(fields) {
   if (image?.src) {
     const media = document.createElement('div');
     media.className = 'article-details-hero-media';
-    media.append(
-      createOptimizedPicture(
-        image.src,
-        image.alt || fields.pageTitle || 'Article image',
-        false,
-        [{ width: '750' }, { width: '1600' }],
-      ),
+    const picture = createRemoteSafePicture(
+      image.src,
+      image.alt || fields.pageTitle || 'Article image',
+      true,
+      [{ width: '750' }, { width: '1600' }],
     );
+    // Most legacy blog heroes point at a DAM asset that was never migrated onto
+    // the publish tier, and a hero that 404s leaves the overlay floating over
+    // nothing. Fall back to the no-image gradient, which is a finished design.
+    picture.querySelector('img')?.addEventListener('error', () => {
+      media.remove();
+      section.classList.add('is-without-image');
+    }, { once: true });
+    media.append(picture);
     section.append(media);
   } else {
     section.classList.add('is-without-image');
@@ -762,7 +889,7 @@ function buildBody(fields) {
       if (item.source) moveInstrumentation(item.source, figure);
       if (item.image?.src) {
         figure.append(
-          createOptimizedPicture(
+          createRemoteSafePicture(
             item.image.src,
             item.image.alt || fields.pageTitle || 'Article image',
             false,
@@ -805,6 +932,12 @@ export default async function decorate(block) {
 
   const fields = {
     pageTitle: getTextField(block, 'pageTitle', normalizeJsonFieldValue(resourceData.pageTitle)),
+    // Authored value only. jcr:description survives onto a published page as
+    // the meta description, but it is NOT the same copy: the legacy import
+    // wrote a search snippet into it, and 358 of the 397 imported blogs end in
+    // a literal "..." while 304 repeat the body's opening sentence word for
+    // word. Reading it back would print that sentence twice on most of the
+    // blog, so the hero shows an excerpt only where someone wrote one.
     description: getTextField(block, 'jcr:description'),
     authorName: getTextField(block, 'authorName'),
     articleDate: formatArticleDate(getTextField(block, 'articleDate')),

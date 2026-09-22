@@ -1,4 +1,4 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
@@ -355,7 +355,7 @@ function buildCard(article, index = 0, onFacetActivate = null, config = {}) {
     const media = document.createElement('div');
     media.className = 'article-list-card-media';
     media.append(
-      createOptimizedPicture(
+      createRemoteSafePicture(
         image,
         article.title || 'Article image',
         false,

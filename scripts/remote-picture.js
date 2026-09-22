@@ -1,5 +1,32 @@
 import { createOptimizedPicture } from './aem.js';
 
+const AEM_PUBLISH_ORIGIN = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+
+/**
+ * Point a /content/dam/ path at the tier that actually serves it.
+ *
+ * DAM assets live on the AEM publish tier and are never mirrored onto the EDS
+ * host, so a site-absolute `/content/dam/...` is always a 404 on *.aem.page and
+ * *.aem.live. Being site-absolute is exactly what makes it dangerous here:
+ * `isSameOrigin` below calls it same-origin and hands it to the optimizer,
+ * which keeps it on the wrong host. Measured on /blog 2026-09-21: all nine
+ * listing cards rendered an <img> with naturalWidth 0, including assets that
+ * returned 200 from the publish tier.
+ *
+ * On an author host the DAM path already resolves against the current origin,
+ * and unpublished assets exist ONLY there, so leave it untouched.
+ */
+export function resolveDamAssetUrl(src) {
+  const value = `${src || ''}`.trim();
+  if (!value) return '';
+  if (typeof window !== 'undefined' && window.location.hostname.includes('adobeaemcloud.com')) {
+    return value;
+  }
+
+  const match = value.match(/\/content\/dam\/[^?#"'\s]+/);
+  return match ? `${AEM_PUBLISH_ORIGIN}${match[0]}` : value;
+}
+
 /**
  * createOptimizedPicture(), but safe for images hosted somewhere else.
  *
@@ -42,7 +69,7 @@ export function isSameOrigin(src) {
 }
 
 export default function createRemoteSafePicture(src, alt = '', eager = false, breakpoints = undefined) {
-  const value = typeof src === 'string' ? src.trim() : '';
+  const value = resolveDamAssetUrl(typeof src === 'string' ? src : '');
 
   if (!value) return null;
 
