@@ -4,7 +4,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -363,9 +363,13 @@ function buildCheckboxGroup({
   options,
   required = false,
 }) {
+  // Several boxes share one field, so the inputs carry `name[]`: posted bare,
+  // PHP keeps only the last checked value and the rest vanish silently.
+  const fieldName = `${name}[]`;
+
   const group = document.createElement('fieldset');
   group.className = 'event-request-form-choice-group event-request-form-field-wide';
-  if (required) group.dataset.requiredName = name;
+  if (required) group.dataset.requiredName = fieldName;
 
   const legend = document.createElement('legend');
   legend.className = 'event-request-form-label';
@@ -374,7 +378,7 @@ function buildCheckboxGroup({
 
   const list = document.createElement('div');
   list.className = 'event-request-form-choice-list';
-  options.forEach((option) => list.append(buildCheckboxItem(name, option)));
+  options.forEach((option) => list.append(buildCheckboxItem(fieldName, option)));
   group.append(legend, list);
   return group;
 }
@@ -467,63 +471,63 @@ function buildForm() {
         buildGrid(
           buildInput({
             label: 'First Name',
-            name: 'Case.FirstName__c',
+            name: 'firstName',
             autocomplete: 'given-name',
             required: true,
           }),
           buildInput({
             label: 'Last Name',
-            name: 'Case.LastName__c',
+            name: 'lastName',
             autocomplete: 'family-name',
             required: true,
           }),
           buildInput({
             label: 'Job Title',
-            name: 'Case.JobTitle__c',
+            name: 'jobTitle',
             autocomplete: 'organization-title',
             required: true,
           }),
           buildInput({
             label: 'Organization Name',
-            name: 'Case.OrganizationName__c',
+            name: 'organizationName',
             autocomplete: 'organization',
             required: true,
           }),
           buildSelect({
             label: 'Country',
-            name: 'Case.Country__c',
+            name: 'country',
             options: COUNTRIES,
             defaultValue: 'United States of America',
           }),
           buildInput({
             label: 'Address Line 1',
-            name: 'Case.AddressLine1__c',
+            name: 'addressLine1',
             autocomplete: 'address-line1',
             required: true,
           }),
           buildInput({
             label: 'Address Line 2',
-            name: 'Case.AddressLine2__c',
+            name: 'addressLine2',
             autocomplete: 'address-line2',
           }),
           buildInput({
             label: 'City',
-            name: 'Case.City__c',
+            name: 'city',
             autocomplete: 'address-level2',
           }),
           buildSelect({
             label: 'State/Province',
-            name: 'Case.CaseState__c',
+            name: 'state',
             options: STATES,
           }),
           buildInput({
             label: 'Zip/Postal Code',
-            name: 'Case.ZipPostalCode__c',
+            name: 'zipPostalCode',
             autocomplete: 'postal-code',
           }),
           buildInput({
             label: 'Email Address',
-            name: 'Case.EmailAddress__c',
+            name: 'emailAddress',
             type: 'email',
             autocomplete: 'email',
             inputMode: 'email',
@@ -531,36 +535,36 @@ function buildForm() {
           }),
           buildInput({
             label: 'Phone Number',
-            name: 'Case.PhoneNumber__c',
+            name: 'phoneNumber',
             type: 'tel',
             autocomplete: 'tel',
             inputMode: 'tel',
           }),
           buildInput({
             label: 'NCMEC Contact Name',
-            name: 'Case.NCMECContactName__c',
+            name: 'ncmecContactName',
           }),
           buildSelect({
             label: 'How did you hear about NCMEC?',
-            name: 'Case.How_did_you_hear_about_NCMEC__c',
+            name: 'howDidYouHear',
             options: HEAR_ABOUT_OPTIONS,
           }),
           buildInput({
             label: 'Conference Name',
-            name: 'Case.Please_specify_name_of_conference__c',
+            name: 'conferenceName',
           }),
           buildInput({
             label: 'Other Source',
-            name: 'Case.How_did_you_hear_about_NCMEC_Other__c',
+            name: 'howDidYouHearOther',
           }),
           buildCheckboxGroup({
             label: 'What NCMEC resources have you used before?',
-            name: 'Case.What_NCMEC_resources_have_you_used_befor__c',
+            name: 'ncmecResourcesUsed',
             options: NCMEC_RESOURCES,
           }),
           buildInput({
             label: 'Other NCMEC Resources Used',
-            name: 'Case.Other_NCMEC_resources_used__c',
+            name: 'ncmecResourcesUsedOther',
           }),
         ),
       ]),
@@ -571,90 +575,90 @@ function buildForm() {
         buildGrid(
           buildSelect({
             label: 'Event Type',
-            name: 'Case.EventType__c',
+            name: 'eventType',
             options: EVENT_TYPES,
             required: true,
           }),
           buildInput({
             label: 'Event Type Other',
-            name: 'Case.EventTypeOther__c',
+            name: 'eventTypeOther',
           }),
           buildCheckboxGroup({
             label: 'Activity Type',
-            name: 'Case.ActivityType__c',
+            name: 'activityType',
             options: ACTIVITY_TYPES,
           }),
           buildSelect({
             label: 'Delivery Type',
-            name: 'Case.DeliveryType__c',
+            name: 'deliveryType',
             options: DELIVERY_TYPES,
           }),
           buildInput({
             label: 'Event Name',
-            name: 'Case.EventName__c',
+            name: 'eventName',
             required: true,
           }),
           buildInput({
             label: 'Event Start Date',
-            name: 'Case.EventStartDate__c',
+            name: 'eventStartDate',
             type: 'date',
             required: true,
           }),
           buildInput({
             label: 'Event End Date',
-            name: 'Case.EventEndDate__c',
+            name: 'eventEndDate',
             type: 'date',
             required: true,
           }),
           buildTextarea({
             label: 'Description',
-            name: 'Case.Description',
+            name: 'description',
             required: true,
           }),
           buildSelect({
             label: 'Event Country',
-            name: 'Case.EventCountry__c',
+            name: 'eventCountry',
             options: COUNTRIES,
             defaultValue: 'United States of America',
           }),
           buildInput({
             label: 'Event Location Address',
-            name: 'Case.EventLocationAddress__c',
+            name: 'eventLocationAddress',
           }),
           buildInput({
             label: 'Event City',
-            name: 'Case.EventCity__c',
+            name: 'eventCity',
             required: true,
           }),
           buildSelect({
             label: 'Event State',
-            name: 'Case.EventState__c',
+            name: 'eventState',
             options: STATES,
             required: true,
           }),
           buildInput({
             label: 'Event Zip',
-            name: 'Case.EventZip__c',
+            name: 'eventZip',
           }),
           buildInput({
             label: 'Estimated Attendance Size',
-            name: 'Case.EstimatedAttendanceSize__c',
+            name: 'estimatedAttendanceSize',
             inputMode: 'numeric',
             required: true,
           }),
           buildCheckboxGroup({
             label: 'Event Reach',
-            name: 'Case.Event_Reach__c',
+            name: 'eventReach',
             options: EVENT_REACH,
             required: true,
           }),
           buildInput({
             label: 'Other Participating Organizations',
-            name: 'Case.OtherParticipatingOrganizations__c',
+            name: 'otherParticipatingOrganizations',
           }),
           buildInput({
             label: 'Website / Social Media Handles',
-            name: 'Case.WebsiteSocialMediaHandles__c',
+            name: 'websiteSocialMediaHandles',
           }),
         ),
       ]),
@@ -665,40 +669,40 @@ function buildForm() {
         buildGrid(
           buildCheckboxGroup({
             label: 'Target Audience',
-            name: 'Case.TargetAudience__c',
+            name: 'targetAudience',
             options: TARGET_AUDIENCES,
             required: true,
           }),
           buildInput({
             label: 'Target Audience Other',
-            name: 'Case.TargetAudienceOther__c',
+            name: 'targetAudienceOther',
           }),
           buildCheckboxGroup({
             label: 'Materials Applicable to Event',
-            name: 'Case.MaterialsForEvent__c',
+            name: 'materialsForEvent',
             options: MATERIAL_OPTIONS,
           }),
           buildInput({
             label: 'Other Materials Requested',
-            name: 'Case.OtherMaterialsForEvent__c',
+            name: 'materialsForEventOther',
           }),
           buildCheckboxGroup({
             label: 'Amenities Provided',
-            name: 'Case.Amenities_For_Event__c',
+            name: 'amenitiesForEvent',
             options: AMENITY_OPTIONS,
           }),
           buildInput({
             label: 'Other Amenities Provided',
-            name: 'Case.OtherAmenitiesForEvent__c',
+            name: 'amenitiesForEventOther',
           }),
           buildCheckboxGroup({
             label: 'Type of Social Engagement',
-            name: 'Case.Type_Of_SocialEngagement__c',
+            name: 'socialEngagementType',
             options: SOCIAL_ENGAGEMENT_OPTIONS,
           }),
           buildInput({
             label: 'Other Social Engagement Details',
-            name: 'Case.OtherSocialEngagementDetails__c',
+            name: 'socialEngagementOther',
           }),
         ),
       ]),
@@ -709,55 +713,55 @@ function buildForm() {
         buildGrid(
           buildSelect({
             label: 'First Topic Choice',
-            name: 'Case.FirstTopicChoice__c',
+            name: 'firstTopicChoice',
             options: TOPIC_OPTIONS,
             required: true,
           }),
           buildSelect({
             label: 'Second Topic Choice',
-            name: 'Case.SecondTopicChoice__c',
+            name: 'secondTopicChoice',
             options: [...TOPIC_OPTIONS, 'N/A'],
             defaultValue: 'N/A',
           }),
           buildSelect({
             label: 'Third Topic Choice',
-            name: 'Case.Third_Topic_Choice__c',
+            name: 'thirdTopicChoice',
             options: [...TOPIC_OPTIONS, 'N/A'],
             defaultValue: 'N/A',
           }),
           buildCheckboxGroup({
             label: 'Speaker Expenses Your Organization Can Cover',
-            name: 'Case.SpeakerExpenses__c',
+            name: 'speakerExpenses',
             options: SPEAKER_EXPENSES,
           }),
           buildInput({
             label: 'Length of Presentation in Minutes',
-            name: 'Case.LengthOfPresentation__c',
+            name: 'lengthOfPresentation',
             inputMode: 'numeric',
           }),
           buildSelect({
             label: 'Will engagement be repeated?',
-            name: 'Case.EngagementRepeated__c',
+            name: 'engagementRepeated',
             options: ['Yes', 'No'],
           }),
           buildSelect({
             label: 'Will the presentation be recorded?',
-            name: 'Case.PresentationRecorded__c',
+            name: 'presentationRecorded',
             options: ['Yes', 'No', 'I\'m not sure'],
           }),
           buildTextarea({
             label: 'Request Summary',
-            name: 'Case.RequestSummary__c',
+            name: 'requestSummary',
             required: true,
           }),
           buildTextarea({
             label: 'Goals and Outcomes',
-            name: 'Case.GoalsAndOutcomes__c',
+            name: 'goalsAndOutcomes',
             required: true,
           }),
           buildTextarea({
             label: 'Previous Efforts',
-            name: 'Case.PreviousEfforts__c',
+            name: 'previousEfforts',
             required: true,
           }),
         ),
@@ -873,24 +877,6 @@ function appendOriginalFormMetadata(formData, originalFormUrl) {
   formData.set('inputCase.BusinessHoursId', formData.get('inputCase.BusinessHoursId') || 'Default');
 }
 
-function getValues(formData, name) {
-  return formData.getAll(name).filter(Boolean).join(', ');
-}
-
-function appendNormalizedFields(formData) {
-  formData.set('firstName', formData.get('Case.FirstName__c') || '');
-  formData.set('lastName', formData.get('Case.LastName__c') || '');
-  formData.set('organization', formData.get('Case.OrganizationName__c') || '');
-  formData.set('email', formData.get('Case.EmailAddress__c') || '');
-  formData.set('phone', formData.get('Case.PhoneNumber__c') || '');
-  formData.set('eventType', formData.get('Case.EventType__c') || '');
-  formData.set('eventName', formData.get('Case.EventName__c') || '');
-  formData.set('eventStartDate', formData.get('Case.EventStartDate__c') || '');
-  formData.set('eventEndDate', formData.get('Case.EventEndDate__c') || '');
-  formData.set('eventReach', getValues(formData, 'Case.Event_Reach__c'));
-  formData.set('targetAudience', getValues(formData, 'Case.TargetAudience__c'));
-}
-
 function buildOriginalEmbed(embedUrl) {
   const frame = document.createElement('iframe');
   frame.className = 'event-request-form-embed';
@@ -920,7 +906,6 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
     const formData = new FormData(form);
     appendFormMetadata(formData, formSession);
     appendOriginalFormMetadata(formData, config.originalFormUrl);
-    appendNormalizedFields(formData);
 
     block.dispatchEvent(
       new CustomEvent('event-request-form:submit', {
@@ -969,7 +954,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--event-request-form-top-padding', topPadding);
 
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('event-request-form', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
   const embedUrl = getTextField(block, 'embedUrl').value || DEFAULTS.embedUrl;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
@@ -1001,7 +986,7 @@ export default function decorate(block) {
   }
 
   const { form } = buildForm();
-  applyPhoneValidation(form.querySelector('[name="Case.PhoneNumber__c"]'));
+  applyPhoneValidation(form.querySelector('[name="phoneNumber"]'));
   bindRequiredCheckboxGroups(form);
 
   const actions = document.createElement('div');

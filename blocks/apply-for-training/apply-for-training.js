@@ -4,7 +4,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -283,9 +283,14 @@ function buildChoiceGroup({
   required = false,
   type = 'radio',
 }) {
+  // A checkbox group has several boxes sharing one field, so its inputs carry
+  // `name[]`: posted bare, PHP keeps only the last checked value. Radio groups
+  // are single-value and keep the plain name.
+  const fieldName = type === 'checkbox' ? `${name}[]` : name;
+
   const group = document.createElement('fieldset');
   group.className = 'event-request-form-choice-group event-request-form-field-wide';
-  if (required) group.dataset.requiredName = name;
+  if (required) group.dataset.requiredName = fieldName;
 
   const legend = document.createElement('legend');
   legend.className = 'event-request-form-label';
@@ -294,7 +299,7 @@ function buildChoiceGroup({
 
   const list = document.createElement('div');
   list.className = 'event-request-form-choice-list';
-  options.forEach((option) => list.append(buildChoiceItem(name, option, type)));
+  options.forEach((option) => list.append(buildChoiceItem(fieldName, option, type)));
   group.append(legend, list);
   return group;
 }
@@ -390,7 +395,7 @@ function buildForm() {
         buildGrid(
           buildInput({
             label: 'Name of Agency or Organization',
-            name: 'agency-name',
+            name: 'agencyName',
             autocomplete: 'organization',
             required: true,
           }),
@@ -402,12 +407,12 @@ function buildForm() {
           }),
           buildSelect({
             label: 'How did you learn about MKRP?',
-            name: 'heard-about',
+            name: 'heardAbout',
             options: HEARD_ABOUT_OPTIONS,
           }),
           buildInput({
             label: 'Other',
-            name: 'heard-about-other',
+            name: 'heardAboutOther',
           }),
         ),
       ]),
@@ -418,19 +423,19 @@ function buildForm() {
         buildGrid(
           buildInput({
             label: 'Name of Primary Contact Person',
-            name: 'poc-name',
+            name: 'contactName',
             autocomplete: 'name',
             required: true,
           }),
           buildInput({
             label: 'Title of Primary Contact Person',
-            name: 'poc-title',
+            name: 'contactTitle',
             autocomplete: 'organization-title',
             required: true,
           }),
           buildInput({
             label: 'Daytime Phone Number',
-            name: 'poc-phone-daytime',
+            name: 'contactPhoneDaytime',
             type: 'tel',
             autocomplete: 'tel',
             inputMode: 'tel',
@@ -438,12 +443,12 @@ function buildForm() {
           }),
           buildInput({
             label: 'Daytime Phone Extension',
-            name: 'poc-phone-daytime-extension',
+            name: 'contactPhoneDaytimeExtension',
             inputMode: 'numeric',
           }),
           buildInput({
             label: 'Mobile Phone Number',
-            name: 'poc-phone-mobile',
+            name: 'contactPhoneMobile',
             type: 'tel',
             autocomplete: 'tel',
             inputMode: 'tel',
@@ -456,7 +461,7 @@ function buildForm() {
           }),
           buildInput({
             label: 'Email Address',
-            name: 'poc-email',
+            name: 'contactEmail',
             type: 'email',
             autocomplete: 'email',
             inputMode: 'email',
@@ -464,31 +469,31 @@ function buildForm() {
           }),
           buildInput({
             label: 'Website',
-            name: 'website',
+            name: 'organizationWebsite',
             type: 'url',
             autocomplete: 'url',
           }),
           buildInput({
             label: 'Street Address',
-            name: 'address-street',
+            name: 'addressStreet',
             autocomplete: 'street-address',
             required: true,
           }),
           buildInput({
             label: 'City',
-            name: 'address-city',
+            name: 'addressCity',
             autocomplete: 'address-level2',
             required: true,
           }),
           buildSelect({
             label: 'State',
-            name: 'address-state',
+            name: 'addressState',
             options: STATES,
             required: true,
           }),
           buildInput({
             label: 'ZIP Code',
-            name: 'address-zipcode',
+            name: 'addressZipCode',
             autocomplete: 'postal-code',
             inputMode: 'numeric',
             required: true,
@@ -503,19 +508,19 @@ function buildForm() {
           buildCoursePanel('MKRP - Law Enforcement Agencies', [
             buildInput({
               label: 'ORI',
-              name: 'course-lea-ori',
+              name: 'leaOri',
               required: true,
             }),
             buildInput({
               label: 'What is the population of your jurisdiction?',
-              name: 'course-lea-population',
+              name: 'leaPopulation',
               type: 'number',
               inputMode: 'numeric',
               required: true,
             }),
             buildInput({
               label: 'How many employees are in your agency?',
-              name: 'course-lea-employees',
+              name: 'leaEmployees',
               type: 'number',
               inputMode: 'numeric',
               required: true,
@@ -524,54 +529,54 @@ function buildForm() {
           buildCoursePanel('MKRP - Emergency Communications', [
             buildChoiceGroup({
               label: 'Type of PSAP',
-              name: 'course-ec-type-of-psap',
+              name: 'ecTypeOfPsap',
               options: ['Primary', 'Secondary'],
               required: true,
             }),
             buildChoiceGroup({
               label: 'Services Performed',
-              name: 'course-ec-services-performed',
+              name: 'ecServicesPerformed',
               options: ['Law Enforcement Only', 'Consolidated'],
               required: true,
             }),
             buildInput({
               label: 'Population Served',
-              name: 'course-ec-population-served',
+              name: 'ecPopulationServed',
               type: 'number',
               inputMode: 'numeric',
               required: true,
             }),
             buildInput({
               label: 'Annual Call Volume',
-              name: 'course-ec-call-volume',
+              name: 'ecCallVolume',
               type: 'number',
               inputMode: 'numeric',
               required: true,
             }),
             buildInput({
               label: '# of Telecommunicator Positions',
-              name: 'course-ec-telecom-positions',
+              name: 'ecTelecomPositions',
               type: 'number',
               inputMode: 'numeric',
               required: true,
             }),
             buildInput({
               label: '# of Work Stations',
-              name: 'course-ec-work-stations',
+              name: 'ecWorkStations',
               type: 'number',
               inputMode: 'numeric',
               required: true,
             }),
             buildInput({
               label: '# of Agencies the PSAP Serves',
-              name: 'course-ec-agencies-served',
+              name: 'ecAgenciesServed',
               type: 'number',
               inputMode: 'numeric',
               required: true,
             }),
             buildTextarea({
               label: 'Notes',
-              name: 'course-ec-notes',
+              name: 'ecNotes',
             }),
           ]),
         ),
@@ -589,13 +594,13 @@ function buildForm() {
           })(),
           buildInput({
             label: 'Name',
-            name: 'affirmation-name',
+            name: 'affirmationName',
             autocomplete: 'name',
             required: true,
           }),
           buildInput({
             label: 'Title',
-            name: 'affirmation-title',
+            name: 'affirmationTitle',
             autocomplete: 'organization-title',
             required: true,
           }),
@@ -612,7 +617,7 @@ function buildForm() {
   form.append(
     buildHidden('originalFormName', 'Missing Kids Readiness Program (MKRP) Training Registration'),
     buildHidden('subject', 'Missing Kids Readiness Program Training Application'),
-    buildHidden('affirmation-date', ''),
+    buildHidden('affirmationDate', ''),
     progress,
     stepsWrap,
   );
@@ -705,8 +710,8 @@ function syncCoursePanels(form) {
 }
 
 function bindConditionalFields(form) {
-  const heardAbout = form.querySelector('[name="heard-about"]');
-  const other = form.querySelector('[name="heard-about-other"]');
+  const heardAbout = form.querySelector('[name="heardAbout"]');
+  const other = form.querySelector('[name="heardAboutOther"]');
   const course = form.querySelector('[name="course"]');
 
   const syncOther = () => {
@@ -760,14 +765,9 @@ function appendOriginalFormMetadata(formData, originalFormUrl) {
   formData.set('adaptiveFormPath', '/content/forms/af/mkrp-training-registration');
 }
 
-function appendNormalizedFields(formData) {
+function appendDerivedFields(formData) {
   const today = new Date();
-  formData.set('affirmation-date', today.toISOString().slice(0, 10));
-  formData.set('agencyName', formData.get('agency-name') || '');
-  formData.set('contactName', formData.get('poc-name') || '');
-  formData.set('contactEmail', formData.get('poc-email') || '');
-  formData.set('contactPhone', formData.get('poc-phone-daytime') || '');
-  formData.set('courseName', formData.get('course') || '');
+  formData.set('affirmationDate', today.toISOString().slice(0, 10));
 }
 
 function buildOriginalEmbed(embedUrl) {
@@ -798,7 +798,7 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
     const formData = new FormData(form);
     appendFormMetadata(formData, formSession);
     appendOriginalFormMetadata(formData, config.originalFormUrl);
-    appendNormalizedFields(formData);
+    appendDerivedFields(formData);
 
     block.dispatchEvent(
       new CustomEvent('apply-for-training:submit', {
@@ -850,7 +850,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--event-request-form-top-padding', topPadding);
 
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('apply-for-training', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
   const embedUrl = getTextField(block, 'embedUrl').value || DEFAULTS.embedUrl;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
@@ -882,8 +882,8 @@ export default function decorate(block) {
   }
 
   const { form } = buildForm();
-  applyPhoneValidation(form.querySelector('[name="poc-phone-daytime"]'));
-  applyPhoneValidation(form.querySelector('[name="poc-phone-mobile"]'));
+  applyPhoneValidation(form.querySelector('[name="contactPhoneDaytime"]'));
+  applyPhoneValidation(form.querySelector('[name="contactPhoneMobile"]'));
   applyPhoneValidation(form.querySelector('[name="fax"]'));
   bindConditionalFields(form);
   bindRequiredChoiceGroups(form);

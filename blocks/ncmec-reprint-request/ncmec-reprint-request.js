@@ -4,7 +4,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -530,7 +530,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--ncmec-reprint-request-top-padding', topPadding);
 
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('ncmec-reprint-request', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;
 

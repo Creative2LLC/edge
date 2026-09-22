@@ -4,7 +4,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -248,9 +248,13 @@ function buildCheckboxGroup({
   options,
   required = false,
 }) {
+  // Several boxes share one field, so the inputs carry `name[]`: posted bare,
+  // PHP keeps only the last checked value and the rest vanish silently.
+  const fieldName = `${name}[]`;
+
   const group = document.createElement('fieldset');
   group.className = 'event-request-form-choice-group event-request-form-field-wide';
-  if (required) group.dataset.requiredName = name;
+  if (required) group.dataset.requiredName = fieldName;
 
   const legend = document.createElement('legend');
   legend.className = 'event-request-form-label';
@@ -259,7 +263,7 @@ function buildCheckboxGroup({
 
   const list = document.createElement('div');
   list.className = 'event-request-form-choice-list';
-  options.forEach((option) => list.append(buildCheckboxItem(name, option)));
+  options.forEach((option) => list.append(buildCheckboxItem(fieldName, option)));
   group.append(legend, list);
   return group;
 }
@@ -618,18 +622,6 @@ function appendOriginalFormMetadata(formData, originalFormUrl) {
   formData.set('submissionSystem', 'Asana Forms');
 }
 
-function getValues(formData, name) {
-  return formData.getAll(name).filter(Boolean).join(', ');
-}
-
-function appendNormalizedFields(formData) {
-  formData.set('applicantName', `${formData.get('firstName') || ''} ${formData.get('lastName') || ''}`.trim());
-  formData.set('email', formData.get('agencyEmail') || '');
-  formData.set('phone', formData.get('agencyPhone') || '');
-  formData.set('organization', formData.get('agencyName') || '');
-  formData.set('responsibilities', getValues(formData, 'currentResponsibilities'));
-}
-
 function buildOriginalEmbed(embedUrl) {
   const frame = document.createElement('iframe');
   frame.className = 'event-request-form-embed';
@@ -659,7 +651,6 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
     const formData = new FormData(form);
     appendFormMetadata(formData, formSession);
     appendOriginalFormMetadata(formData, config.originalFormUrl);
-    appendNormalizedFields(formData);
 
     block.dispatchEvent(
       new CustomEvent('prpl-application:submit', {
@@ -710,7 +701,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--event-request-form-top-padding', topPadding);
 
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('prpl-application', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
   const embedUrl = getTextField(block, 'embedUrl').value || DEFAULTS.embedUrl;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;

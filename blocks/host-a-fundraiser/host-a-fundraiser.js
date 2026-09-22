@@ -4,7 +4,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -172,7 +172,7 @@ function buildCheckbox(value) {
   const input = document.createElement('input');
   input.className = 'host-a-fundraiser-checkbox';
   input.type = 'checkbox';
-  input.name = 'q17_whatKind[]';
+  input.name = 'fundraisingTypes[]';
   input.value = value;
 
   const text = document.createElement('span');
@@ -196,10 +196,11 @@ function buildCheckboxGroup() {
   const other = document.createElement('label');
   other.className = 'host-a-fundraiser-checkbox-item host-a-fundraiser-other';
 
+  // Deliberately unnamed: it only reveals the text input beside it, and the
+  // two sharing a name meant whichever came last in the DOM won.
   const otherCheckbox = document.createElement('input');
   otherCheckbox.className = 'host-a-fundraiser-checkbox';
   otherCheckbox.type = 'checkbox';
-  otherCheckbox.name = 'q17_whatKind[other]';
   otherCheckbox.value = 'other';
 
   const otherText = document.createElement('span');
@@ -208,7 +209,7 @@ function buildCheckboxGroup() {
   const otherInput = document.createElement('input');
   otherInput.className = 'host-a-fundraiser-input host-a-fundraiser-other-input';
   otherInput.type = 'text';
-  otherInput.name = 'q17_whatKind[other]';
+  otherInput.name = 'fundraisingTypeOther';
   otherInput.placeholder = 'Please type another option here';
   otherInput.disabled = true;
 
@@ -238,29 +239,29 @@ function buildForm() {
   form.append(
     buildInput({
       label: 'First Name',
-      name: 'q3_firstName',
+      name: 'firstName',
       autocomplete: 'given-name',
       required: true,
     }),
     buildInput({
       label: 'Last Name',
-      name: 'q6_lastName',
+      name: 'lastName',
       autocomplete: 'family-name',
       required: true,
     }),
     buildInput({
       label: 'Job Title',
-      name: 'q7_jobTitle',
+      name: 'jobTitle',
       autocomplete: 'organization-title',
     }),
     buildInput({
       label: 'Organization/Company Name',
-      name: 'q4_organizationcompanyName',
+      name: 'organizationName',
       autocomplete: 'organization',
     }),
     buildInput({
       label: 'Zip Code',
-      name: 'q13_zipCode',
+      name: 'zipCode',
       autocomplete: 'postal-code',
       inputMode: 'numeric',
       pattern: '^\\d{5}(-\\d{4})?$',
@@ -269,7 +270,7 @@ function buildForm() {
     }),
     buildInput({
       label: 'Phone Number',
-      name: 'q9_phoneNumber[full]',
+      name: 'phoneNumber',
       type: 'tel',
       autocomplete: 'tel',
       inputMode: 'tel',
@@ -277,7 +278,7 @@ function buildForm() {
     }),
     buildInput({
       label: 'Email',
-      name: 'q5_email',
+      name: 'email',
       type: 'email',
       autocomplete: 'email',
       inputMode: 'email',
@@ -286,7 +287,7 @@ function buildForm() {
     }),
     buildInput({
       label: 'Confirm Email',
-      name: 'q5_email',
+      name: 'emailConfirmation',
       type: 'email',
       autocomplete: 'off',
       inputMode: 'email',
@@ -296,19 +297,18 @@ function buildForm() {
     buildCheckboxGroup(),
     buildTextarea({
       label: 'Tell us about your fundraising idea. How would you like to raise funds for NCMEC, and how can we support you in doing so?',
-      name: 'q16_tellUs',
+      name: 'fundraisingIdea',
       rows: 6,
     }),
   );
 
-  applyPhoneValidation(form.querySelector('[name="q9_phoneNumber[full]"]'));
+  applyPhoneValidation(form.querySelector('[name="phoneNumber"]'));
   return form;
 }
 
 function applyEmailConfirmationValidation(form) {
-  const emails = form.querySelectorAll('[name="q5_email"]');
-  const email = emails[0];
-  const confirmation = emails[1];
+  const email = form.querySelector('[name="email"]');
+  const confirmation = form.querySelector('[name="emailConfirmation"]');
   if (!email || !confirmation) return;
 
   const validate = () => {
@@ -322,17 +322,14 @@ function applyEmailConfirmationValidation(form) {
   validate();
 }
 
-function appendNormalizedFields(formData) {
-  const emails = formData.getAll('q5_email').filter(Boolean);
-  formData.set('firstName', formData.get('q3_firstName') || '');
-  formData.set('lastName', formData.get('q6_lastName') || '');
-  formData.set('jobTitle', formData.get('q7_jobTitle') || '');
-  formData.set('organization', formData.get('q4_organizationcompanyName') || '');
-  formData.set('zipCode', formData.get('q13_zipCode') || '');
-  formData.set('phone', formData.get('q9_phoneNumber[full]') || '');
-  formData.set('email', emails[0] || '');
-  formData.set('emailConfirmation', emails[1] || '');
-  formData.set('fundraisingIdea', formData.get('q16_tellUs') || '');
+/*
+ * Jotform-only aliases. The inputs themselves now carry clean names that the
+ * NCMEC API validates against; these duplicate a few of them back under the
+ * names the legacy Jotform build expects, and are appended only on that path.
+ */
+function appendJotformAliasFields(formData) {
+  formData.set('organization', formData.get('organizationName') || '');
+  formData.set('phone', formData.get('phoneNumber') || '');
   formData.set('originalFormUrl', 'https://form.jotform.com/252933506907159');
 }
 
@@ -421,7 +418,6 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
 
     const formData = new FormData(form);
     appendFormMetadata(formData, formSession);
-    appendNormalizedFields(formData);
 
     block.dispatchEvent(
       new CustomEvent('host-a-fundraiser:submit', {
@@ -436,6 +432,7 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
 
     try {
       if (config.mode === 'jotform') {
+        appendJotformAliasFields(formData);
         appendJotformFields(formData);
         await postToJotform(formData, config.jotformAction);
       } else {
@@ -481,7 +478,7 @@ export default function decorate(block) {
   if (topPadding) block.style.setProperty('--host-a-fundraiser-top-padding', topPadding);
 
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('host-a-fundraiser', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const jotformAction = getTextField(block, 'jotformAction').value || DEFAULTS.jotformAction;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;

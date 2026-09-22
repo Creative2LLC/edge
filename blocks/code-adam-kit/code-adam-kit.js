@@ -3,7 +3,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -267,7 +267,7 @@ function buildForm() {
 
   const country = document.createElement('input');
   country.type = 'hidden';
-  country.name = 'CodeAdam__c.Country__c';
+  country.name = 'country';
   country.value = 'United States of America';
   form.append(country);
 
@@ -275,13 +275,13 @@ function buildForm() {
   organization.grid.append(
     buildInput({
       label: 'Business or Organization Name',
-      name: 'CodeAdam__c.Organization_Name__c',
+      name: 'organizationName',
       autocomplete: 'organization',
       required: true,
     }),
     buildSelect({
       label: 'Organization Type',
-      name: 'CodeAdam__c.Organization_Type__c',
+      name: 'organizationType',
       options: [
         ['Retail', 'Retail'],
         ['Restaurant', 'Restaurant'],
@@ -294,7 +294,7 @@ function buildForm() {
     }),
     buildInput({
       label: 'Store Number',
-      name: 'CodeAdam__c.Store_Number__c',
+      name: 'storeNumber',
     }),
   );
 
@@ -302,24 +302,24 @@ function buildForm() {
   contact.grid.append(
     buildInput({
       label: 'First Name',
-      name: 'CodeAdam__c.First_Name__c',
+      name: 'firstName',
       autocomplete: 'given-name',
       required: true,
     }),
     buildInput({
       label: 'Last Name',
-      name: 'CodeAdam__c.Name',
+      name: 'lastName',
       autocomplete: 'family-name',
       required: true,
     }),
     buildInput({
       label: 'Job Title',
-      name: 'CodeAdam__c.Job_Title__c',
+      name: 'jobTitle',
       autocomplete: 'organization-title',
     }),
     buildInput({
       label: 'Email Address',
-      name: 'CodeAdam__c.CodeAdam_Email__c',
+      name: 'emailAddress',
       type: 'email',
       autocomplete: 'email',
       inputMode: 'email',
@@ -327,7 +327,7 @@ function buildForm() {
     }),
     buildInput({
       label: 'Re-enter Email',
-      name: 'FSGFShortAnswer390',
+      name: 'emailAddressConfirm',
       type: 'email',
       autocomplete: 'email',
       inputMode: 'email',
@@ -339,31 +339,31 @@ function buildForm() {
   shipping.grid.append(
     buildInput({
       label: 'USA Street Address',
-      name: 'CodeAdam__c.Street_Address__c',
+      name: 'streetAddress',
       autocomplete: 'address-line1',
       required: true,
     }),
     buildInput({
       label: 'Apt/Suite',
-      name: 'CodeAdam__c.Apt_Suite__c',
+      name: 'aptSuite',
       autocomplete: 'address-line2',
     }),
     buildInput({
       label: 'City',
-      name: 'CodeAdam__c.City__c',
+      name: 'city',
       autocomplete: 'address-level2',
       required: true,
     }),
     buildSelect({
       label: 'State',
-      name: 'CodeAdam__c.State__c',
+      name: 'state',
       options: US_STATES,
       placeholder: 'Select a state',
       required: true,
     }),
     buildInput({
       label: 'ZIP Code',
-      name: 'CodeAdam__c.Zipcode__c',
+      name: 'zipCode',
       autocomplete: 'postal-code',
       inputMode: 'numeric',
       required: true,
@@ -374,21 +374,21 @@ function buildForm() {
   kit.grid.append(
     buildSelect({
       label: 'Number of Kits',
-      name: 'CodeAdam__c.Number_of_Kits__c',
+      name: 'numberOfKits',
       options: ['0', '1', '2', '3', '4', '5'].map((value) => [value, value]),
       required: true,
       placeholder: 'Select number of kits',
     }),
     buildSelect({
       label: 'Number of Additional Window Decals',
-      name: 'CodeAdam__c.Number_of_Window_Decals__c',
+      name: 'numberOfWindowDecals',
       options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
         .map((value) => [value, value]),
       placeholder: 'Select number of decals',
     }),
     buildCheckbox({
       label: 'Sign me up for the NCMEC Newsletter',
-      name: 'CodeAdam__c.Sign_me_up_for_the_NCMEC_Newsletter__c',
+      name: 'newsletterOptIn',
       checked: true,
     }),
   );
@@ -398,8 +398,8 @@ function buildForm() {
 }
 
 function applyEmailConfirmationValidation(form) {
-  const email = form.querySelector('[name="CodeAdam__c.CodeAdam_Email__c"]');
-  const confirmation = form.querySelector('[name="FSGFShortAnswer390"]');
+  const email = form.querySelector('[name="emailAddress"]');
+  const confirmation = form.querySelector('[name="emailAddressConfirm"]');
   if (!email || !confirmation) return;
 
   const validate = () => {
@@ -416,8 +416,8 @@ function applyEmailConfirmationValidation(form) {
 function appendOriginalFormMetadata(formData, originalFormUrl) {
   formData.set('originalFormName', 'Code Adam');
   formData.set('originalFormUrl', originalFormUrl || DEFAULTS.embedUrl);
-  if (!formData.has('CodeAdam__c.Number_of_Window_Decals__c')) {
-    formData.set('CodeAdam__c.Number_of_Window_Decals__c', '0');
+  if (!formData.has('numberOfWindowDecals')) {
+    formData.set('numberOfWindowDecals', '0');
   }
 }
 
@@ -497,7 +497,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--code-adam-kit-top-padding', topPadding);
 
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('code-adam-kit', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
   const embedUrl = getTextField(block, 'embedUrl').value || DEFAULTS.embedUrl;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;

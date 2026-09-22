@@ -1,3 +1,11 @@
+import {
+  appendFormMetadata,
+  createFormSession,
+  extractApiMessage,
+  isFormValid,
+  resolveFormAction,
+  updateFormStatus,
+} from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField } from '../../scripts/block-field-utils.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
@@ -21,15 +29,11 @@ const DEFAULTS = {
   intro: 'Use this form to send NCMEC details about a possible sighting of a missing child.',
   emergencyHeading: 'Is the child in immediate danger?',
   emergencyCopy: 'Call 911 now. You can also contact NCMEC 24 hours a day at 1-800-THE-LOST (1-800-843-5678).',
-  formAction: 'https://www.missingkids.org/missingkids/servlet/FormMultipartServlet',
+  formAction: '',
   buttonText: 'Submit Report',
   successMessage: 'Thanks for reporting. Your information has been submitted.',
   errorMessage: 'We could not submit this report. Please call 1-800-THE-LOST (1-800-843-5678).',
-  fromAddress: 'servlet@ncmec.org',
-  mailtoAddress: 'hotline@ncmec.org',
-  subject: 'missingkids online-sighting Web Form',
-  formType: 'quickReport',
-  action: 'sendEmailReport',
+  missingEndpointMessage: 'This form is not connected yet.',
 };
 
 function getRows(block) {
@@ -90,10 +94,6 @@ function getQueryValue(name) {
   } catch {
     return '';
   }
-}
-
-function makeId(base) {
-  return `${base}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 function appendHidden(form, name, value) {
@@ -187,7 +187,7 @@ function buildRunawayTrainField() {
 
     const input = document.createElement('input');
     input.type = 'radio';
-    input.name = 'baseonvideo';
+    input.name = 'basedOnVideo';
     input.value = label;
     input.dataset.legacyName = name;
 
@@ -200,12 +200,6 @@ function buildRunawayTrainField() {
 
   fieldset.append(options);
   return fieldset;
-}
-
-function syncLegacyVideoFields(form) {
-  const selected = form.querySelector('input[name="baseonvideo"]:checked')?.value || '';
-  form.querySelector('input[name="_u05baseonvideo_yes"]').value = selected === 'Yes' ? 'Yes' : '';
-  form.querySelector('input[name="_u06baseonvideo_no"]').value = selected === 'No' ? 'No' : '';
 }
 
 function buildPosterContext({ missingName, img, posterUrl }) {
@@ -249,59 +243,52 @@ function buildPosterContext({ missingName, img, posterUrl }) {
   return context;
 }
 
-function updateStatus(status, message, tone = 'info') {
-  status.textContent = message;
-  status.hidden = !message;
-  status.classList.remove('is-info', 'is-success', 'is-error');
-  if (message) status.classList.add(`is-${tone}`);
-}
+function bindSubmit(block, form, button, status, config, formSession) {
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (button.disabled) return;
+    if (!isFormValid(form)) return;
 
-function bindSubmit(block, form, button, status, messages) {
-  form.addEventListener('submit', (event) => {
-    if (!form.reportValidity()) {
-      event.preventDefault();
+    if (!config.action) {
+      updateFormStatus(status, DEFAULTS.missingEndpointMessage, 'info');
       return;
     }
 
-    event.preventDefault();
-    syncLegacyVideoFields(form);
+    const formData = new FormData(form);
+    appendFormMetadata(formData, formSession);
 
-    const iframe = document.createElement('iframe');
-    iframe.name = makeId('missing-child-quick-report-submit');
-    iframe.className = 'missing-child-quick-report-submit-frame';
-    iframe.hidden = true;
-    iframe.setAttribute('aria-hidden', 'true');
-    form.after(iframe);
-
-    form.target = iframe.name;
     button.disabled = true;
     block.classList.add('is-submitting');
-    updateStatus(status, 'Submitting report...', 'info');
+    updateFormStatus(status, 'Submitting report...', 'info');
 
-    let completed = false;
-    const cleanup = () => {
-      window.setTimeout(() => iframe.remove(), 1000);
-      form.removeAttribute('target');
+    try {
+      const response = await fetch(config.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      const responseMessage = await extractApiMessage(response);
+
+      if (!response.ok) {
+        throw new Error(responseMessage || config.errorMessage);
+      }
+
+      form.reset();
+      formSession.reset();
+      updateFormStatus(status, responseMessage || config.successMessage, 'success');
+    } catch (error) {
+      const message = error instanceof Error
+        && error.message
+        && error.message !== 'Failed to fetch'
+        ? error.message
+        : config.errorMessage;
+      updateFormStatus(status, message, 'error');
+    } finally {
       button.disabled = false;
       block.classList.remove('is-submitting');
-    };
-
-    iframe.addEventListener('load', () => {
-      if (completed) return;
-      completed = true;
-      form.reset();
-      updateStatus(status, messages.success, 'success');
-      cleanup();
-    });
-
-    window.setTimeout(() => {
-      if (completed) return;
-      completed = true;
-      updateStatus(status, messages.error, 'error');
-      cleanup();
-    }, 15000);
-
-    form.submit();
+    }
   });
 }
 
@@ -312,7 +299,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--missing-child-quick-report-top-padding', topPadding);
 
-  const action = getTextField(block, 'formAction').value || DEFAULTS.formAction;
+  const action = resolveFormAction('missing-child-quick-report', getTextField(block, 'formAction').value);
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;
 
@@ -359,43 +346,40 @@ export default function decorate(block) {
   form.append(
     buildTextInput({
       label: 'Missing Child\'s Name',
-      name: '_u00childname',
+      name: 'childName',
       value: missingName,
       required: true,
     }),
     buildTextInput({
       label: 'When',
-      name: '_u01when',
+      name: 'whenLastSeen',
       autocomplete: 'off',
     }),
     buildTextarea({
       label: 'Where (complete address if possible)',
-      name: '_u02location',
+      name: 'location',
       rows: 3,
     }),
     buildTextarea({
       label: 'Description and/or circumstances',
-      name: '_u03description',
+      name: 'description',
       rows: 5,
       required: true,
     }),
     buildTextarea({
       label: 'Your contact info (name, email, phone)',
-      name: '_u04contactInfo',
+      name: 'contactInfo',
       rows: 4,
     }),
     buildRunawayTrainField(),
   );
 
-  appendHidden(form, 'action', DEFAULTS.action);
-  appendHidden(form, 'fromAddress', DEFAULTS.fromAddress);
-  appendHidden(form, 'mailtoAddress', DEFAULTS.mailtoAddress);
-  appendHidden(form, 'subject', DEFAULTS.subject);
-  appendHidden(form, 'formType', DEFAULTS.formType);
-  appendHidden(form, '_s00_missingName', missingName);
-  appendHidden(form, '_s00_posterUrl', posterUrl);
-  appendHidden(form, '_u05baseonvideo_yes', '');
-  appendHidden(form, '_u06baseonvideo_no', '');
+  // Context carried over when the visitor arrives from a specific poster. The
+  // routing hiddens this form used to carry (mailtoAddress, fromAddress, the
+  // legacy _u05/_u06 pair) are gone: the recipient is decided in the admin now,
+  // not by a hidden field anyone could edit before submitting.
+  appendHidden(form, 'missingName', missingName);
+  appendHidden(form, 'posterUrl', posterUrl);
 
   const actions = document.createElement('div');
   actions.className = 'missing-child-quick-report-actions';
@@ -422,8 +406,11 @@ export default function decorate(block) {
   shell.append(header, emergency, form);
   block.replaceChildren(shell);
 
+  const formSession = createFormSession(form, 'missing-child-quick-report');
+
   bindSubmit(block, form, button, status, {
-    success: successMessage,
-    error: errorMessage,
-  });
+    action,
+    successMessage,
+    errorMessage,
+  }, formSession);
 }

@@ -4,7 +4,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -360,7 +360,10 @@ function buildCheckboxItem(name, value, required, otherName = '') {
   const input = document.createElement('input');
   input.className = 'faon-application-choice';
   input.type = 'checkbox';
-  input.name = otherName || name;
+  // The "Other" box is left unnamed on purpose: it only reveals the text input
+  // beside it, and the two sharing a name made the field arrive as whichever
+  // came last in the DOM rather than as the typed answer.
+  if (!otherName) input.name = name;
   input.value = otherName ? 'other' : value;
   if (required) input.required = true;
 
@@ -433,7 +436,7 @@ function buildSectionIntro(text) {
   return intro;
 }
 
-function buildLicenseFields(qid, required = false, title = '') {
+function buildLicenseFields(key, required = false, title = '') {
   const group = document.createElement('div');
   group.className = 'faon-application-field-group';
 
@@ -446,35 +449,35 @@ function buildLicenseFields(qid, required = false, title = '') {
   group.append(buildGrid(
     buildInput({
       label: 'Professional First Name',
-      name: `q${qid}_input${qid}[firstname-1]`,
+      name: `${key}FirstName`,
       required,
       autocomplete: 'given-name',
     }),
     buildInput({
       label: 'Professional Last Name',
-      name: `q${qid}_input${qid}[lastname-1]`,
+      name: `${key}LastName`,
       required,
       autocomplete: 'family-name',
     }),
     buildInput({
       label: 'License Number',
-      name: `q${qid}_input${qid}[shorttext-2]`,
+      name: `${key}Number`,
       required,
     }),
     buildInput({
       label: 'Type of License',
-      name: `q${qid}_input${qid}[shorttext-4]`,
+      name: `${key}Role`,
       placeholder: 'LMFT, LCSW, LPC, etc.',
       required,
     }),
     buildInput({
       label: 'Licensing State',
-      name: `q${qid}_input${qid}[shorttext-3]`,
+      name: `${key}State`,
       required,
     }),
     buildInput({
       label: 'License Expiration Date',
-      name: `q${qid}_input${qid}[shorttext-5]`,
+      name: `${key}ExpiresOn`,
       type: 'date',
       required,
     }),
@@ -483,7 +486,7 @@ function buildLicenseFields(qid, required = false, title = '') {
   return group;
 }
 
-function buildStaffFields(qid, title) {
+function buildStaffFields(key, title) {
   const group = document.createElement('div');
   group.className = 'faon-application-field-group';
 
@@ -493,35 +496,35 @@ function buildStaffFields(qid, title) {
   group.append(heading, buildGrid(
     buildInput({
       label: 'Staff First Name',
-      name: `q${qid}_input${qid}[firstname-1]`,
+      name: `${key}FirstName`,
       autocomplete: 'given-name',
     }),
     buildInput({
       label: 'Staff Last Name',
-      name: `q${qid}_input${qid}[lastname-1]`,
+      name: `${key}LastName`,
       autocomplete: 'family-name',
     }),
     buildInput({
       label: 'Title/Role',
-      name: `q${qid}_input${qid}[shorttext-4]`,
+      name: `${key}Role`,
     }),
     buildInput({
       label: 'Email',
-      name: `q${qid}_input${qid}[email-2]`,
+      name: `${key}Email`,
       type: 'email',
       autocomplete: 'email',
       inputMode: 'email',
     }),
     buildInput({
       label: 'Phone Area Code',
-      name: `q${qid}_input${qid}[areacode-3]`,
+      name: `${key}PhoneAreaCode`,
       inputMode: 'numeric',
       pattern: '^\\d{3}$',
       title: 'Enter a 3 digit area code.',
     }),
     buildInput({
       label: 'Phone Number',
-      name: `q${qid}_input${qid}[phone-3]`,
+      name: `${key}Phone`,
       type: 'tel',
       inputMode: 'tel',
     }),
@@ -530,7 +533,7 @@ function buildStaffFields(qid, title) {
   return group;
 }
 
-function buildAddressFields(qid, baseName, title, required = false) {
+function buildAddressFields(key, title, required = false) {
   const group = document.createElement('div');
   group.className = 'faon-application-field-group';
 
@@ -540,30 +543,30 @@ function buildAddressFields(qid, baseName, title, required = false) {
   group.append(heading, buildGrid(
     buildInput({
       label: 'Street Address',
-      name: `q${qid}_${baseName}[addr_line1]`,
+      name: `${key}AddressLine1`,
       autocomplete: 'address-line1',
       required,
     }),
     buildInput({
       label: 'Street Address Line 2',
-      name: `q${qid}_${baseName}[addr_line2]`,
+      name: `${key}AddressLine2`,
       autocomplete: 'address-line2',
     }),
     buildInput({
       label: 'City',
-      name: `q${qid}_${baseName}[city]`,
+      name: `${key}City`,
       autocomplete: 'address-level2',
       required,
     }),
     buildInput({
       label: 'State / Province',
-      name: `q${qid}_${baseName}[state]`,
+      name: `${key}State`,
       autocomplete: 'address-level1',
       required,
     }),
     buildInput({
       label: 'Postal / Zip Code',
-      name: `q${qid}_${baseName}[postal]`,
+      name: `${key}Postal`,
       autocomplete: 'postal-code',
       required,
     }),
@@ -664,37 +667,37 @@ function buildForm() {
     buildGrid(
       buildInput({
         label: 'First Name',
-        name: 'q261_applicantName[first]',
+        name: 'applicantFirstName',
         autocomplete: 'given-name',
         required: true,
       }),
       buildInput({
         label: 'Last Name',
-        name: 'q261_applicantName[last]',
+        name: 'applicantLastName',
         autocomplete: 'family-name',
         required: true,
       }),
       buildInput({
         label: 'Organization Name',
-        name: 'q262_organizationName',
+        name: 'organizationName',
         autocomplete: 'organization',
         required: true,
       }),
       buildInput({
         label: 'Website',
-        name: 'q293_website',
+        name: 'organizationWebsite',
         type: 'url',
         placeholder: 'https://example.org',
         required: true,
       }),
       buildInput({
         label: 'Job Title',
-        name: 'q263_jobTitle',
+        name: 'jobTitle',
         autocomplete: 'organization-title',
       }),
       buildInput({
         label: 'Applicant Phone Number',
-        name: 'q264_applicantPhone[full]',
+        name: 'applicantPhone',
         type: 'tel',
         autocomplete: 'tel',
         inputMode: 'tel',
@@ -703,7 +706,7 @@ function buildForm() {
       }),
       buildInput({
         label: 'Applicant Email Address',
-        name: 'q265_applicantEmail',
+        name: 'applicantEmail',
         type: 'email',
         autocomplete: 'email',
         inputMode: 'email',
@@ -716,33 +719,33 @@ function buildForm() {
   const licensePanel = buildPanel(2, 'Professional License', [
     buildRadioGroup({
       label: 'I am interested in joining FAON as a...',
-      name: 'q37_iAm',
+      name: 'membershipInterest',
       options: MEMBERSHIP_OPTIONS,
       required: true,
     }),
-    buildLicenseFields(52, true, 'Primary License'),
-    buildLicenseFields(274, false, 'Organization Provider License'),
-    buildLicenseFields(275, false, 'Supervisor License'),
+    buildLicenseFields('primaryLicense', true, 'Primary License'),
+    buildLicenseFields('organizationProviderLicense', false, 'Organization Provider License'),
+    buildLicenseFields('supervisorLicense', false, 'Supervisor License'),
     buildRadioGroup({
       label: 'Do you want to add an additional license?',
-      name: 'q269_doYou269',
+      name: 'addAdditionalLicense',
       options: ['Yes', 'No'],
     }),
-    buildLicenseFields(270, false, 'Additional License 1'),
-    buildLicenseFields(271, false, 'Additional License 2'),
-    buildLicenseFields(272, false, 'Additional License 3'),
+    buildLicenseFields('additionalLicense1', false, 'Additional License 1'),
+    buildLicenseFields('additionalLicense2', false, 'Additional License 2'),
+    buildLicenseFields('additionalLicense3', false, 'Additional License 3'),
     buildTextarea({
       label: 'If you have more licenses to list, please provide that information here.',
-      name: 'q273_ifYou273',
+      name: 'additionalLicenses',
       rows: 4,
     }),
   ]);
 
   const staffPanel = buildPanel(3, 'Staff and Compliance', [
     buildSectionIntro('Add additional clinical staff who can provide services to NCMEC cases.'),
-    buildStaffFields(88, 'Staff Member 1'),
-    buildStaffFields(89, 'Staff Member 2'),
-    buildStaffFields(217, 'Staff Member 3'),
+    buildStaffFields('staffMember1', 'Staff Member 1'),
+    buildStaffFields('staffMember2', 'Staff Member 2'),
+    buildStaffFields('staffMember3', 'Staff Member 3'),
     buildTextarea({
       label: 'Additional staff members',
       name: 'additionalStaffMembers',
@@ -750,13 +753,13 @@ function buildForm() {
     }),
     buildRadioGroup({
       label: 'Has there ever been disciplinary action against you, the agency or any professionals in the group?',
-      name: 'q65_hasThere65',
+      name: 'hasDisciplinaryAction',
       options: ['Yes', 'No'],
       required: true,
     }),
     buildTextarea({
       label: 'Please provide detailed information for each incident.',
-      name: 'q96_pleaseProvide96',
+      name: 'disciplinaryActionDetails',
       rows: 5,
     }),
   ]);
@@ -764,50 +767,52 @@ function buildForm() {
   const servicePanel = buildPanel(4, 'Service Details', [
     buildCheckboxGroup({
       label: 'I can clinically support those impacted by',
-      name: 'q222_pleaseSelect222[]',
+      name: 'clinicalSupportFor[]',
       options: CASE_TYPES,
       required: true,
-      otherName: 'q222_pleaseSelect222[other]',
+      otherName: 'clinicalSupportForOther',
     }),
     buildInput({
       label: 'If you offer services in languages other than English, please list them.',
-      name: 'q294_ifYou',
+      name: 'languagesOffered',
     }),
     buildCheckboxGroup({
       label: 'How do you provide services?',
-      name: 'q278_howDo[]',
+      name: 'serviceDeliveryMethods[]',
       options: SERVICE_MODES,
       required: true,
-      otherName: 'q278_howDo[other]',
+      otherName: 'serviceDeliveryMethodsOther',
     }),
-    buildAddressFields(279, 'whatIs', 'In-Person Location', true),
+    buildAddressFields('inPersonLocation', 'In-Person Location', true),
     buildRadioGroup({
       label: 'Do you want to add another in-person location?',
-      name: 'q280_doYou',
+      name: 'addAnotherLocation',
       options: ['Yes', 'No'],
     }),
-    buildAddressFields(281, 'whatIs281', 'Additional In-Person Location 1'),
-    buildAddressFields(282, 'whatIs282', 'Additional In-Person Location 2'),
-    buildAddressFields(283, 'whatIs283', 'Additional In-Person Location 3'),
+    buildAddressFields('additionalInPersonLocation1', 'Additional In-Person Location 1'),
+    buildAddressFields('additionalInPersonLocation2', 'Additional In-Person Location 2'),
+    buildAddressFields('additionalInPersonLocation3', 'Additional In-Person Location 3'),
     buildTextarea({
       label: 'If you have more in-person locations to list, please provide that information here.',
-      name: 'q284_ifYou284',
+      name: 'additionalLocations',
       rows: 4,
     }),
     buildSelect({
       label: 'What US states/territories do you provide virtual services in?',
-      name: 'q311_whatUs',
+      // Multi-select, so the name carries `[]`: posted bare, only the last
+      // state selected would survive.
+      name: 'virtualServiceStates[]',
       options: STATES,
       multiple: true,
       required: true,
     }),
-    buildAddressFields(286, 'whatIs286', 'Mailing Address', true),
+    buildAddressFields('mailingAddress', 'Mailing Address', true),
     buildCheckboxGroup({
       label: 'Treatment Modalities',
-      name: 'q295_treatmentModalities[]',
+      name: 'treatmentModalities[]',
       options: TREATMENT_MODALITIES,
       required: true,
-      otherName: 'q295_treatmentModalities[other]',
+      otherName: 'treatmentModalitiesOther',
     }),
     buildGrid(
       buildInput({
@@ -831,61 +836,61 @@ function buildForm() {
     buildGrid(
       buildInput({
         label: 'Self-pay rate for individual counseling',
-        name: 'q110_whatIs110',
+        name: 'selfPayRate',
         required: true,
       }),
       buildInput({
         label: 'Sliding scale/reduced fee rate',
-        name: 'q109_whatIs109',
+        name: 'slidingScaleRate',
         required: true,
       }),
     ),
     buildInput({
       label: 'Do you offer pro-bono services and what are the requirements?',
-      name: 'q287_doYou287',
+      name: 'proBonoServices',
       required: true,
     }),
     buildTextarea({
       label: 'Which insurances are you in-network with?',
-      name: 'q288_whichInsurances',
+      name: 'insuranceNetworks',
       required: true,
     }),
     buildTextarea({
       label: 'Please list any additional payment methods you accept.',
-      name: 'q296_pleaseList',
+      name: 'additionalPaymentMethods',
     }),
     buildRadioGroup({
       label: 'Do you have professional liability insurance?',
-      name: 'q289_doYou289',
+      name: 'hasLiabilityInsurance',
       options: ['Yes', 'No'],
       required: true,
     }),
     buildTextarea({
       label: 'Which days and times do you provide counseling services?',
-      name: 'q290_whichDays',
+      name: 'serviceDaysAndTimes',
       required: true,
     }),
     buildRadioGroup({
       label: 'Do you currently, or often, have a waitlist for counseling services?',
-      name: 'q291_doYou291',
+      name: 'hasWaitlist',
       options: ['Yes', 'No'],
       required: true,
     }),
     buildTextarea({
       label: 'What is your current or typical waitlist?',
-      name: 'q292_whatIs292',
+      name: 'waitlistDetails',
     }),
     buildTextarea({
       label: 'Is there anything else that you would like us to know about yourself or your practice/organization?',
-      name: 'q256_isThere',
+      name: 'additionalInformation',
       rows: 5,
     }),
     buildRadioGroup({
       label: 'How did you hear about FAON?',
-      name: 'q297_howDid',
+      name: 'howDidYouHear',
       options: REFERRAL_SOURCES,
       required: true,
-      otherName: 'q297_howDid[other]',
+      otherName: 'howDidYouHearOther',
     }),
     buildTerms(),
     buildRadioGroup({
@@ -901,7 +906,7 @@ function buildForm() {
     buildHidden('jotformFormId', '233355995169168'),
   );
 
-  applyPhoneValidation(form.querySelector('[name="q264_applicantPhone[full]"]'));
+  applyPhoneValidation(form.querySelector('[name="applicantPhone"]'));
   return form;
 }
 
@@ -956,29 +961,28 @@ function getAllValues(formData, name) {
   return formData.getAll(name).filter(Boolean).join(', ');
 }
 
-function syncDerivedFields(formData) {
+/*
+ * Jotform-only aliases. The inputs themselves now carry clean names that the
+ * NCMEC API validates against; these duplicate a few of them back under the
+ * names the legacy Jotform build expects, and are appended only on that path.
+ *
+ * Note `website` is deliberately NOT aliased here: it is the name of one of the
+ * two honeypots in form-utils, so populating it would trip our own spam trap.
+ */
+function appendJotformAliasFields(formData) {
   const minAge = formData.get('ageMinimum') || '';
   const maxAge = formData.get('ageMaximum') || '';
   formData.set('q302_typeA302', minAge && maxAge ? `${minAge} - ${maxAge}` : '');
 
-  const states = formData.getAll('q311_whatUs').filter(Boolean);
-  formData.delete('q311_whatUs');
-  formData.set('q311_whatUs', states.join(', '));
-}
-
-function appendNormalizedFields(formData) {
-  formData.set('firstName', formData.get('q261_applicantName[first]') || '');
-  formData.set('lastName', formData.get('q261_applicantName[last]') || '');
-  formData.set('organization', formData.get('q262_organizationName') || '');
-  formData.set('website', formData.get('q293_website') || '');
-  formData.set('jobTitle', formData.get('q263_jobTitle') || '');
-  formData.set('phone', formData.get('q264_applicantPhone[full]') || '');
-  formData.set('email', formData.get('q265_applicantEmail') || '');
-  formData.set('membershipType', formData.get('q37_iAm') || '');
-  formData.set('caseTypes', getAllValues(formData, 'q222_pleaseSelect222[]'));
-  formData.set('serviceModes', getAllValues(formData, 'q278_howDo[]'));
-  formData.set('virtualStates', formData.get('q311_whatUs') || '');
-  formData.set('treatmentModalities', getAllValues(formData, 'q295_treatmentModalities[]'));
+  formData.set('firstName', formData.get('applicantFirstName') || '');
+  formData.set('lastName', formData.get('applicantLastName') || '');
+  formData.set('organization', formData.get('organizationName') || '');
+  formData.set('phone', formData.get('applicantPhone') || '');
+  formData.set('email', formData.get('applicantEmail') || '');
+  formData.set('membershipType', formData.get('membershipInterest') || '');
+  formData.set('caseTypes', getAllValues(formData, 'clinicalSupportFor[]'));
+  formData.set('serviceModes', getAllValues(formData, 'serviceDeliveryMethods[]'));
+  formData.set('virtualStates', getAllValues(formData, 'virtualServiceStates[]'));
   formData.set('originalFormUrl', 'https://form.jotform.com/233355995169168');
 }
 
@@ -1066,9 +1070,7 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
     }
 
     const formData = new FormData(form);
-    syncDerivedFields(formData);
     appendFormMetadata(formData, formSession);
-    appendNormalizedFields(formData);
 
     block.dispatchEvent(
       new CustomEvent('faon-application:submit', {
@@ -1083,6 +1085,7 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
 
     try {
       if (config.mode === 'jotform') {
+        appendJotformAliasFields(formData);
         appendJotformFields(formData);
         await postToJotform(formData, config.jotformAction);
       } else {
@@ -1130,7 +1133,7 @@ export default function decorate(block) {
   if (topPadding) block.style.setProperty('--faon-application-top-padding', topPadding);
 
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('faon-application', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const jotformAction = getTextField(block, 'jotformAction').value || DEFAULTS.jotformAction;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;

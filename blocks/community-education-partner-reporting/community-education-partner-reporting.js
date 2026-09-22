@@ -3,7 +3,7 @@ import {
   createFormSession,
   extractApiMessage,
   isFormValid,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -358,25 +358,25 @@ function buildForm() {
         buildGrid(
           buildInput({
             label: 'Organization Name',
-            name: 'Case.OrganizationName__c',
+            name: 'organizationName',
             autocomplete: 'organization',
             required: true,
           }),
           buildInput({
             label: 'First Name',
-            name: 'Case.FirstName__c',
+            name: 'firstName',
             autocomplete: 'given-name',
             required: true,
           }),
           buildInput({
             label: 'Last Name',
-            name: 'Case.LastName__c',
+            name: 'lastName',
             autocomplete: 'family-name',
             required: true,
           }),
           buildInput({
             label: 'Email Address',
-            name: 'Case.EmailAddress__c',
+            name: 'emailAddress',
             type: 'email',
             autocomplete: 'email',
             inputMode: 'email',
@@ -391,30 +391,30 @@ function buildForm() {
         buildGrid(
           buildInput({
             label: 'Address Line 1',
-            name: 'Case.AddressLine1__c',
+            name: 'addressLine1',
             autocomplete: 'address-line1',
             required: true,
           }),
           buildInput({
             label: 'Address Line 2',
-            name: 'Case.AddressLine2__c',
+            name: 'addressLine2',
             autocomplete: 'address-line2',
           }),
           buildInput({
             label: 'City',
-            name: 'Case.City__c',
+            name: 'city',
             autocomplete: 'address-level2',
             required: true,
           }),
           buildSelect({
             label: 'State',
-            name: 'Case.CaseState__c',
+            name: 'state',
             options: STATES,
             required: true,
           }),
           buildInput({
             label: 'Zip/Postal Code',
-            name: 'Case.ZipPostalCode__c',
+            name: 'zipPostalCode',
             autocomplete: 'postal-code',
             required: true,
           }),
@@ -427,43 +427,43 @@ function buildForm() {
         buildGrid(
           buildInput({
             label: 'Start Date',
-            name: 'Case.Start_date_of_the_quarter__c',
+            name: 'quarterStartDate',
             type: 'date',
           }),
           buildInput({
             label: 'End Date of the Quarter',
-            name: 'Case.End_date_of_the_quarter__c',
+            name: 'quarterEndDate',
             type: 'date',
           }),
           buildSelect({
             label: 'Quarter',
-            name: 'Case.Quarter__c',
+            name: 'quarter',
             options: ['Q1 (1 JAN - 31 MAR)', 'Q2 (1 APR - 30 JUN)', 'Q3 (1 JUL - 30 SEP)', 'Q4 (1 OCT - 31 DEC)'],
             defaultValue: currentQuarter,
             required: true,
           }),
           buildSelect({
             label: 'Presentation Type',
-            name: 'Case.CEP__c.A_1_.Presentation_Type__c',
+            name: 'presentationType',
             options: PRESENTATION_TYPES,
           }),
           buildInput({
             label: 'Number of Sessions',
-            name: 'Case.CEP__c.A_1_.Number_of_Sessions__c',
+            name: 'numberOfSessions',
             type: 'number',
             inputMode: 'numeric',
             required: true,
           }),
           buildInput({
             label: 'Child Attendees',
-            name: 'Case.CEP__c.A_1_.Number_of_Adult_Attendees__c',
+            name: 'numberOfChildAttendees',
             type: 'number',
             inputMode: 'numeric',
             required: true,
           }),
           buildInput({
             label: 'Adult Attendees',
-            name: 'Case.CEP__c.A_1_.Number_of_Child_Attendees__c',
+            name: 'numberOfAdultAttendees',
             type: 'number',
             inputMode: 'numeric',
             required: true,
@@ -477,12 +477,12 @@ function buildForm() {
         buildGrid(
           buildTextarea({
             label: 'What went well this quarter? Please share any anecdotes or especially successful events.',
-            name: 'Case.What_went_well_this_quarter__c',
+            name: 'whatWentWell',
             rows: 6,
           }),
           buildTextarea({
             label: 'What challenges did you experience this quarter?',
-            name: 'Case.What_challenges_did_you_experience_this__c',
+            name: 'whatChallenges',
             rows: 6,
           }),
         ),
@@ -578,18 +578,6 @@ function appendOriginalFormMetadata(formData, originalFormUrl) {
   formData.set('originalFormUrl', originalFormUrl || DEFAULTS.embedUrl);
 }
 
-function appendNormalizedFields(formData) {
-  formData.set('organization', formData.get('Case.OrganizationName__c') || '');
-  formData.set('firstName', formData.get('Case.FirstName__c') || '');
-  formData.set('lastName', formData.get('Case.LastName__c') || '');
-  formData.set('email', formData.get('Case.EmailAddress__c') || '');
-  formData.set('quarter', formData.get('Case.Quarter__c') || '');
-  formData.set('presentationType', formData.get('Case.CEP__c.A_1_.Presentation_Type__c') || '');
-  formData.set('numberOfSessions', formData.get('Case.CEP__c.A_1_.Number_of_Sessions__c') || '');
-  formData.set('childAttendees', formData.get('Case.CEP__c.A_1_.Number_of_Adult_Attendees__c') || '');
-  formData.set('adultAttendees', formData.get('Case.CEP__c.A_1_.Number_of_Child_Attendees__c') || '');
-}
-
 function buildOriginalEmbed(embedUrl) {
   const frame = document.createElement('iframe');
   frame.className = 'cep-reporting-embed';
@@ -619,7 +607,6 @@ function bindSubmit(block, form, submitButton, status, config, formSession) {
     const formData = new FormData(form);
     appendFormMetadata(formData, formSession);
     appendOriginalFormMetadata(formData, config.originalFormUrl);
-    appendNormalizedFields(formData);
 
     block.dispatchEvent(
       new CustomEvent('community-education-partner-reporting:submit', {
@@ -668,7 +655,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--cep-reporting-top-padding', topPadding);
 
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('community-education-partner-reporting', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const submissionMode = getTextField(block, 'submissionMode').value || DEFAULTS.submissionMode;
   const embedUrl = getTextField(block, 'embedUrl').value || DEFAULTS.embedUrl;
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;

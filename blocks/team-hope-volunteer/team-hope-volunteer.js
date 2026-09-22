@@ -3,7 +3,7 @@ import {
   applyPhoneValidation,
   createFormSession,
   extractApiMessage,
-  normalizeFormAction,
+  resolveFormAction,
   updateFormStatus,
 } from '../../scripts/form-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
@@ -328,45 +328,45 @@ function buildPersonalPanel() {
   return buildGrid(
     buildInput({
       label: 'Name',
-      name: '_01name',
+      name: 'name',
       autocomplete: 'name',
       required: true,
     }),
     buildInput({
       label: 'Street',
-      name: '_02street',
+      name: 'street',
       autocomplete: 'street-address',
       required: true,
     }),
     buildInput({
       label: 'City',
-      name: '_03city',
+      name: 'city',
       autocomplete: 'address-level2',
       required: true,
     }),
     buildSelect({
       label: 'State',
-      name: '_04state',
+      name: 'state',
       options: US_STATES,
       required: true,
     }),
-    zipInput('Zip Code', '_05zipcode'),
-    phoneInput('Home Phone', '_06phone', true),
+    zipInput('Zip Code', 'zipCode'),
+    phoneInput('Home Phone', 'phone', true),
     buildInput({
       label: 'Email',
-      name: '_07email',
+      name: 'email',
       type: 'email',
       autocomplete: 'email',
       inputMode: 'email',
       placeholder: 'jane.doe@example.com',
       required: true,
     }),
-    phoneInput('Work Phone', '_08workPhone'),
-    phoneInput('Cell Phone', '_09cellPhone'),
-    dateInput('Date of Birth', '_10dateOfBirth'),
+    phoneInput('Work Phone', 'workPhone'),
+    phoneInput('Cell Phone', 'cellPhone'),
+    dateInput('Date of Birth', 'dateOfBirth'),
     buildInput({
       label: 'Best Way/Time to Reach',
-      name: '_11contactMethod',
+      name: 'contactMethod',
     }),
   );
 }
@@ -378,36 +378,36 @@ function buildChildCasePanel() {
   return buildGrid(
     buildInput({
       label: "Missing, Recovered, or Sexually Exploited Child's Name",
-      name: '_12childName',
+      name: 'childName',
       required: true,
     }),
-    dateInput('His/Her Date of Birth', '_13childBirthDate'),
+    dateInput('His/Her Date of Birth', 'childBirthDate'),
     buildSelect({
       label: 'Case Type',
-      name: '_14caseType',
+      name: 'caseType',
       options: CASE_TYPES,
       required: true,
     }),
     note,
-    dateInput('His/Her Missing Date', '_15dateMissing'),
-    dateInput('His/Her Recovery Date', '_16dateRecovered'),
+    dateInput('His/Her Missing Date', 'dateMissing'),
+    dateInput('His/Her Recovery Date', 'dateRecovered'),
     buildInput({
       label: 'NCMEC Case Number',
-      name: '_17caseNumber',
+      name: 'caseNumber',
     }),
     buildInput({
       label: 'NCMEC Case Manager',
-      name: '_18caseManager',
+      name: 'caseManager',
     }),
     buildInput({
       label: 'Website',
-      name: '_19childWebsite',
+      name: 'childWebsite',
       type: 'url',
       placeholder: 'If you have a website for your missing child',
     }),
     buildInput({
       label: 'Online Flier/Facebook Page',
-      name: '_20otherWebsite',
+      name: 'otherWebsite',
       type: 'url',
       placeholder: 'If there is another web page for your missing child',
     }),
@@ -418,42 +418,42 @@ function buildBackgroundPanel() {
   return buildGrid(
     buildTextarea({
       label: 'How did you find out about Team HOPE?',
-      name: '_21explainHow',
+      name: 'howHeardAboutTeamHope',
       required: true,
     }),
     buildTextarea({
       label: 'List other volunteer activities you have been involved with.',
-      name: '_22explainActivities',
+      name: 'volunteerActivities',
       required: true,
     }),
     buildTextarea({
       label: 'List special skills/talents, areas of expertise and knowledge.',
-      name: '_23explainSkills',
+      name: 'skills',
       required: true,
     }),
     buildTextarea({
       label: 'List languages in which you are fluent.',
-      name: '_24explainLanguages',
+      name: 'languages',
       required: true,
     }),
     buildTextarea({
       label: 'Have you had experience working with families in crisis situations?',
-      name: '_25explainExperience',
+      name: 'crisisExperience',
       required: true,
     }),
     buildInput({
       label: 'How many hours a week are you able to commit to Team HOPE?',
-      name: '_26hoursAvailable',
+      name: 'hoursAvailable',
       inputMode: 'numeric',
     }),
     buildRadioGroup({
       legend: 'Have you ever been convicted of a felony or misdemeanor?',
-      name: '_27hasConviction',
+      name: 'hasConviction',
       options: [['no', 'No'], ['yes', 'Yes']],
     }),
     buildTextarea({
       label: 'If yes, explain below.',
-      name: '_29explainConviction',
+      name: 'convictionDetails',
       rows: 4,
     }),
   );
@@ -461,26 +461,22 @@ function buildBackgroundPanel() {
 
 function buildReferenceFields(prefix, number) {
   const group = buildFieldGroup(`Professional Reference ${number}`);
-  const fieldNumber = number === 1
-    ? ['30', '31', '32', '33', '34', '35', '36', '37', '38']
-    : ['39', '40', '41', '42', '43', '44', '45', '46', '47'];
-  const key = `reference_${number}`;
 
   group.append(buildGrid(
-    buildInput({ label: 'Name', name: `_${fieldNumber[0]}${key}_name`, required: true }),
-    buildInput({ label: 'Street', name: `_${fieldNumber[1]}${key}_street`, required: true }),
-    buildInput({ label: 'City', name: `_${fieldNumber[2]}${key}_city`, required: true }),
+    buildInput({ label: 'Name', name: `${prefix}Name`, required: true }),
+    buildInput({ label: 'Street', name: `${prefix}Street`, required: true }),
+    buildInput({ label: 'City', name: `${prefix}City`, required: true }),
     buildSelect({
       label: 'State',
-      name: `_${fieldNumber[3]}${key}_state`,
+      name: `${prefix}State`,
       options: US_STATES,
       required: true,
     }),
-    zipInput('Zip Code', `_${fieldNumber[4]}${key}_zipcode`),
-    phoneInput('Phone', `_${fieldNumber[5]}${key}_phone`, true),
+    zipInput('Zip Code', `${prefix}ZipCode`),
+    phoneInput('Phone', `${prefix}Phone`, true),
     buildInput({
       label: 'Email',
-      name: `_${fieldNumber[6]}${key}_email`,
+      name: `${prefix}Email`,
       type: 'email',
       inputMode: 'email',
       placeholder: 'jane.doe@example.com',
@@ -488,12 +484,12 @@ function buildReferenceFields(prefix, number) {
     }),
     buildInput({
       label: 'How long have you known this reference?',
-      name: `_${fieldNumber[7]}${key}_known`,
+      name: `${prefix}KnownFor`,
       required: true,
     }),
     buildInput({
       label: 'How do you know this reference?',
-      name: `_${fieldNumber[8]}${key}_relationship`,
+      name: `${prefix}Relationship`,
       required: true,
     }),
   ));
@@ -658,7 +654,7 @@ function buildForm() {
     ...buildPanels(),
   );
 
-  ['_06phone', '_08workPhone', '_09cellPhone', '_35reference_1_phone', '_44reference_2_phone']
+  ['phone', 'workPhone', 'cellPhone', 'reference1Phone', 'reference2Phone']
     .forEach((name) => applyPhoneValidation(form.querySelector(`[name="${name}"]`)));
 
   setupAccordion(form);
@@ -732,7 +728,7 @@ export default function decorate(block) {
   const topPadding = normalizeLengthValue(getTextField(block, 'topPadding').value);
   if (topPadding) block.style.setProperty('--team-hope-volunteer-top-padding', topPadding);
 
-  const formAction = normalizeFormAction(getTextField(block, 'formAction').value || DEFAULTS.formAction);
+  const formAction = resolveFormAction('team-hope-volunteer', getTextField(block, 'formAction').value || DEFAULTS.formAction);
   const successMessage = getTextField(block, 'successMessage').value || DEFAULTS.successMessage;
   const errorMessage = getTextField(block, 'errorMessage').value || DEFAULTS.errorMessage;
 

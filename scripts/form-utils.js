@@ -1,11 +1,49 @@
-export const PHONE_PATTERN = '^[+]?[0-9().\\\\s-]{7,25}$';
+/*
+ * Kept in step with the phone rule in the backend's config/forms.php.
+ *
+ * The escaping matters: this string is assigned to an <input pattern> as well
+ * as passed to new RegExp(). It previously read '\\\\s', which reaches the
+ * regex as an escaped backslash plus a literal "s" — so spaces were rejected
+ * (the backend accepts them) and Chrome discarded the pattern attribute as an
+ * invalid expression, turning off client-side phone validation entirely.
+ */
+export const PHONE_PATTERN = '^[+]?[0-9().\\s-]{7,25}$';
+
+const API_ORIGIN = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
+
+/*
+ * These five forms predate the generic endpoint and each has its own table,
+ * controller and admin screen in the backend. They keep their own paths.
+ */
+const DEDICATED_FORM_ENDPOINTS = {
+  'general-inquiries': `${API_ORIGIN}/api/general-inquiries`,
+  newsletter: `${API_ORIGIN}/api/newsletter-subscriptions`,
+  'resource-registration': `${API_ORIGIN}/api/resource-registrations`,
+  'resource-download': `${API_ORIGIN}/api/resource-downloads`,
+  'missing-child-poster-api-registration': `${API_ORIGIN}/api/poster-api-registrations`,
+};
+
+/*
+ * Everything else posts to /api/forms/<form id>, which validates against the
+ * matching entry in the backend's config/forms.php. The ids here ARE those
+ * config keys, so adding a form means adding it in both places.
+ */
+const GENERIC_FORM_IDS = [
+  'apply-for-training',
+  'code-adam-kit',
+  'community-education-partner-reporting',
+  'event-request-form',
+  'faon-application',
+  'host-a-fundraiser',
+  'missing-child-quick-report',
+  'ncmec-reprint-request',
+  'prpl-application',
+  'team-hope-volunteer',
+];
 
 export const DEFAULT_FORM_ENDPOINTS = {
-  'general-inquiries': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/general-inquiries',
-  newsletter: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/newsletter-subscriptions',
-  'resource-registration': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/resource-registrations',
-  'resource-download': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/resource-downloads',
-  'missing-child-poster-api-registration': 'https://stunning-dust-ntqeawud3dqy.on-vapor.com/api/poster-api-registrations',
+  ...DEDICATED_FORM_ENDPOINTS,
+  ...Object.fromEntries(GENERIC_FORM_IDS.map((id) => [id, `${API_ORIGIN}/api/forms/${id}`])),
 };
 
 function countPhoneDigits(value) {
