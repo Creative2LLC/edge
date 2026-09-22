@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   readAueResourceFields,
@@ -451,7 +452,8 @@ function applySettings(block, settings = {}) {
   }
 
   if (defaultHighlightTextColor) {
-    block.style.setProperty('--cards-card-highlight-default', defaultHighlightTextColor);
+    // The stat figure renders at 32px+, so AA asks 3:1 here rather than 4.5.
+    setReadableColor(block, '--cards-card-highlight-default', defaultHighlightTextColor, { min: 3 });
   } else {
     block.style.removeProperty('--cards-card-highlight-default');
   }
@@ -515,7 +517,10 @@ function applyCardStyles(li, fields = {}, partial = false) {
   }
 
   if (!partial || hasOwnField(fields, 'highlightTextColor')) {
-    setCssVariable(li, '--cards-card-highlight', normalizeColorValue(fields.highlightTextColor));
+    const highlight = normalizeColorValue(fields.highlightTextColor);
+    // The stat figure renders at 32px+, so AA asks 3:1; checked once the card is painted.
+    if (highlight) setReadableColor(li, '--cards-card-highlight', highlight, { min: 3 });
+    else setCssVariable(li, '--cards-card-highlight', '');
   }
 
   /* Card body text is owned by the global body scale — see ALLOW_AUTHOR_CARD_TEXT_SIZE.

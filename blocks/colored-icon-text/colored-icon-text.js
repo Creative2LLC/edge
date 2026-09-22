@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   readAueResourceFields,
@@ -302,7 +303,9 @@ const LABEL_COLOR_MAP = {
 function applyLabelColor(block, value, cssVar = '--colored-icon-text-label-color') {
   const hex = LABEL_COLOR_MAP[String(value || '').trim().toLowerCase()] || '';
   if (hex) {
-    block.style.setProperty(cssVar, hex);
+    // The label is text: Blue Medium reads 3.78 on a light card, so it is checked against
+    // whatever the label ends up sitting on once the page has painted.
+    setReadableColor(block, cssVar, hex, { min: 4.5 });
   } else {
     block.style.removeProperty(cssVar);
   }
@@ -636,8 +639,8 @@ function decorateBlock(block) {
     dropShadow: dropShadowField.value,
   });
 
-  block.style.setProperty('--colored-icon-text-color', textColor);
-  block.style.setProperty('--colored-icon-text-text2-color', text2Color);
+  setReadableColor(block, '--colored-icon-text-color', textColor, { min: 4.5 });
+  setReadableColor(block, '--colored-icon-text-text2-color', text2Color, { min: 4.5 });
   applyLabelColor(block, labelColorField.value);
   applyLabelColor(block, labelColor2Field.value, '--colored-icon-text-label-color-2');
   if (imageSize) block.style.setProperty('--colored-icon-text-image-size', imageSize);

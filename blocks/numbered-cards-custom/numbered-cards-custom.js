@@ -37,7 +37,8 @@ const CARD_PROPS = [
 const DEFAULTS = {
   blockBackgroundColor: '#ECE8E3',
   cardBackgroundColor: '#00264d',
-  activeCardBackgroundColor: '#1598bf',
+  // Blue Dark: the active card's body text is white, and white on the old #1598bf was 3.34.
+  activeCardBackgroundColor: '#006D90',
   activeNumberColor: '#ffffff',
   gridNumberColor: '#92d6e3',
   carouselNumberColor: '#12a0ca',

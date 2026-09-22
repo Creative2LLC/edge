@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { textSafeSurface } from '../../scripts/color-tokens.js';
 import {
   readImageField, readLinkField, readRichTextField, readTextField, takeHeadingLevel,
 } from '../../scripts/block-field-utils.js';
@@ -691,7 +692,9 @@ export default async function decorate(block) {
   }
 
   if (backgroundColor) {
-    contentSide.style.setProperty('background-color', backgroundColor, 'important');
+    // The panel carries body copy, so it has to be a colour text can sit on: Blue Medium
+    // renders as Blue Dark, since white on Blue Medium is 3.78 (AA wants 4.5).
+    contentSide.style.setProperty('background-color', textSafeSurface(backgroundColor), 'important');
   }
   // Buttons take the dark form on a dark content panel. Variant 2 has no card of its
   // own, so with no authored colour its buttons sit straight on the section.

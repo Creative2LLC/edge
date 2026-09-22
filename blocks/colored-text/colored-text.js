@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   readAueResourceFields,
@@ -547,7 +548,7 @@ export default function decorate(block) {
     marginStyle: marginStyleField.value,
     dropShadow: dropShadowField.value,
   });
-  if (textColor) block.style.setProperty('--colored-text-color', textColor);
+  if (textColor) setReadableColor(block, '--colored-text-color', textColor, { min: 4.5 });
   applyBlockBackground(block, blockBackgroundColor);
   if (fontSize) block.style.setProperty('--colored-text-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-text-weight', fontWeight);

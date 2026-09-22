@@ -238,7 +238,7 @@
 
 .article-list .article-list-count {
   margin: 0;
-  color: #607282;
+  color: var(--ncmec-gray-dark); /* #607282 was 4.42 on Gray Lightest, just under AA. */
   font-size: var(--body-sm-size);
   font-weight: 700;
 }

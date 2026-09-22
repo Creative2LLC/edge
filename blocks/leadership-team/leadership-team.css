@@ -35,7 +35,9 @@
   margin: 12px 0;
   font-size: var(--button-font-size);
   font-weight: 600;
-  color: #00000080;
+
+  /* Was #00000080, which composites to 3.81 on the warm gray rail. */
+  color: var(--ncmec-gray-dark);
   background: none;
   border: none;
   padding: 8px 20px;

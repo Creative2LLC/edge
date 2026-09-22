@@ -92,6 +92,8 @@ const LEGACY_COLORS = {
 
   '#008EB6': '#008EB7',
   '#0F94BF': '#008EB7',
+  // A legacy cyan still on our-impact-report, where it read 1.9 against the page.
+  '#39C1DA': '#008EB7',
   '#039AB5': '#008EB7',
   '#FAAD67': '#FAAB60',
   '#F7941C': '#F7941D',
@@ -176,6 +178,232 @@ const SOLID_ALPHA = 'FE';
    live colour field (the rest are locked to site styles), so they skip the remap whole. */
 const GRADIENT_BLOCKS = '.cta-card-1, .support-cta';
 export const GRADIENT_STOP_FIELDS = new Set(['gradientLeft', 'gradientRight', 'backgroundStart', 'backgroundEnd']);
+
+/* ---- contrast ----
+   A colour a block picks for a SURFACE is free; a colour it puts on TEXT has to clear WCAG
+   AA on whatever it sits on: 4.5:1, or 3:1 once the text is at least 24px, or 18.66px bold.
+   These two helpers are how a block keeps an authored or coded colour readable instead of
+   guessing. See the contrast findings in audits/report-2026-09-17/accessibility/. */
+
+const INK_DARK = '#00264D'; // Navy Dark: the palette's darkest text colour.
+const INK_LIGHT = '#FFFFFF';
+
+function channels(hex) {
+  const value = String(hex ?? '').trim().replace('#', '');
+  const full = value.length === 3 ? [...value].map((c) => c + c).join('') : value.slice(0, 6);
+  if (!/^[0-9a-f]{6}$/i.test(full)) return null;
+  return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+}
+
+function luminance(hex) {
+  const rgb = channels(hex);
+  if (!rgb) return null;
+  const [r, g, b] = rgb.map((c) => {
+    const n = c / 255;
+    return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+  });
+  return (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+}
+
+/**
+ * WCAG contrast ratio between two colours, 1 (identical) to 21 (black on white).
+ * @param {string} a hex colour
+ * @param {string} b hex colour
+ * @returns {number} the ratio, or 0 if either colour is unreadable
+ */
+export function contrastRatio(a, b) {
+  const [x, y] = [luminance(a), luminance(b)];
+  if (x == null || y == null) return 0;
+  const [hi, lo] = x >= y ? [x, y] : [y, x];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * The palette ink — white or Navy Dark — that reads best on `background`.
+ * @param {string} background hex colour the text sits on
+ * @returns {string} '#FFFFFF' or '#00264D'
+ */
+export function readableInk(background) {
+  return contrastRatio(INK_LIGHT, background) >= contrastRatio(INK_DARK, background)
+    ? INK_LIGHT : INK_DARK;
+}
+
+/**
+ * Keeps a colour's hue but darkens it until it clears `min` on `background`, so a block can
+ * colour-code text (a stat, a status) without dropping below AA. Falls back to the readable
+ * ink when even black would not clear it.
+ * @param {string} hex the colour a block or author picked
+ * @param {string} background hex colour the text sits on
+ * @param {number} [min] required ratio: 4.5 normal text, 3 for large text
+ * @returns {string} a hex that clears `min`
+ */
+export function ensureContrast(hex, background, min = 4.5) {
+  const rgb = channels(hex);
+  if (!rgb || !channels(background)) return hex;
+  if (contrastRatio(hex, background) >= min) return hex;
+
+  for (let scale = 0.95; scale > 0; scale -= 0.05) {
+    const darker = `#${rgb.map((c) => Math.round(c * scale).toString(16).padStart(2, '0')).join('')}`;
+    if (contrastRatio(darker, background) >= min) return darker;
+  }
+  return readableInk(background);
+}
+
+/**
+ * Snaps a SURFACE an author picked to one that can carry text. Blue Medium is the case this
+ * exists for: nothing in the palette clears 4.5 on it, white included (3.78), so a card
+ * painted Blue Medium fails AA the moment it holds body copy. Returns the nearest palette
+ * colour that white or Navy Dark can sit on — Blue Dark, for Blue Medium.
+ * @param {string} hex the surface colour an author picked
+ * @returns {string} the same hex when it can carry text, else the nearest one that can
+ */
+export function textSafeSurface(hex) {
+  const rgb = channels(hex);
+  if (!rgb) return hex;
+  if (contrastRatio(INK_LIGHT, hex) >= 4.5 || contrastRatio(INK_DARK, hex) >= 4.5) return hex;
+
+  const distance = (swatch) => {
+    const other = channels(swatch.hex);
+    return other ? other.reduce((sum, c, i) => sum + ((c - rgb[i]) ** 2), 0) : Infinity;
+  };
+  const safe = [...PALETTE, ...SITE_NEUTRALS]
+    .filter((swatch) => contrastRatio(INK_LIGHT, swatch.hex) >= 4.5
+      || contrastRatio(INK_DARK, swatch.hex) >= 4.5)
+    .sort((a, b) => distance(a) - distance(b));
+  return safe[0]?.hex ?? ensureContrast(hex, INK_LIGHT, 4.5);
+}
+
+/* rgb()/rgba() as the browser reports a computed background, to hex. A colour that is
+   mostly transparent is not the surface — the next ancestor up is. */
+function computedToHex(value) {
+  const match = String(value || '').match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+))?/i);
+  if (!match) return null;
+  if (match[4] !== undefined && Number(match[4]) < 0.5) return null;
+  return `#${match.slice(1, 4).map((c) => Math.round(Number(c)).toString(16).padStart(2, '0')).join('')}`;
+}
+
+/**
+ * The colour an element actually sits on: its own painted background, else the nearest
+ * ancestor that paints one (a section's authored colour, the page background). Reads the
+ * COMPUTED background rather than guessing — assuming white made this darken text on navy
+ * sections, which turned passing elements into failures.
+ * @param {Element} element must be in the document; a detached node has no computed style
+ * @param {string} [fallback] the site's page background, used when nothing paints one
+ * @returns {string} hex colour
+ */
+export function surfaceBehind(element, fallback = '#F1F2F2') {
+  let current = element;
+  while (current && current.nodeType === 1) {
+    const own = current.dataset?.backgroundColor || current.style?.backgroundColor;
+    const hex = String(own || '').trim();
+    if (channels(hex)) return hex;
+    const computed = computedToHex(own) || (typeof window !== 'undefined' && window.getComputedStyle
+      ? computedToHex(window.getComputedStyle(current).backgroundColor)
+      : null);
+    if (computed) return computed;
+    current = current.parentElement;
+  }
+  return fallback;
+}
+
+/**
+ * An authored text colour, made readable on whatever it will sit on. Published pages carry
+ * colours their authors picked under older palettes (cyans, ambers, Blue Medium as text),
+ * and a dropdown change cannot reach them; this keeps the hue and darkens only as far as AA.
+ * @param {string} color the authored text colour
+ * @param {object} [options]
+ * @param {string} [options.background] the block's own background, when it paints one
+ * @param {Element} [options.element] the element, used to find the surface behind it
+ * @param {number} [options.min] 4.5 for body copy, 3 for display-size headings
+ * @returns {string} a hex that clears `min` on that surface
+ */
+export function readableTextColor(color, { background, element, min = 4.5 } = {}) {
+  const surface = channels(background) ? background : surfaceBehind(element);
+  return ensureContrast(color, surface, min);
+}
+
+/* A block cannot judge its own contrast while it decorates: the surface behind it is often
+   painted by a block that has not run yet (a colored-text inside a colored-grid reads its
+   navy row as transparent, concludes the page is light, and darkens text that was already
+   readable). So a block REGISTERS the colour it wants and the check runs once the sections
+   have loaded, when the real background is on screen. */
+const pendingColors = [];
+
+/**
+ * Sets an authored colour now and re-checks it against the real surface after load.
+ * @param {Element} element the element carrying the property (usually the block)
+ * @param {string} property the custom property to write, or 'color'
+ * @param {string} color the authored colour
+ * @param {object} [options]
+ * @param {number} [options.min] required ratio; omit to measure the element's own text size
+ * @param {string} [options.background] a surface the caller already knows (a button's fill)
+ */
+export function setReadableColor(element, property, color, { min, background } = {}) {
+  if (!element || !color) return;
+  if (property === 'color') element.style.color = color;
+  else element.style.setProperty(property, color);
+  pendingColors.push({
+    element, property, color, min, background,
+  });
+}
+
+const READABLE_TEXT_SELECTOR = 'p,h1,h2,h3,h4,h5,h6,li,td,th,span,strong,em,a,div,button,figcaption';
+
+function normalizeHex(value) {
+  const rgb = channels(value);
+  return rgb ? `#${rgb.map((c) => c.toString(16).padStart(2, '0')).join('')}`.toLowerCase() : null;
+}
+
+/**
+ * Re-checks every colour registered by setReadableColor(), now that the page is painted.
+ *
+ * Measures at the element that RENDERS the colour, never at the block: several blocks paint
+ * their background on an inner wrapper, so a block-level reading finds the section behind the
+ * card and "corrects" text that sits on the card — which turned readable text into 1:1.
+ * Idempotent: the queue drains, and a second call with nothing queued does nothing.
+ */
+export function applyReadableColors() {
+  const queued = pendingColors.splice(0, pendingColors.length);
+  queued.forEach(({
+    element, property, color, min, background,
+  }) => {
+    if (!element?.isConnected) return;
+    const intended = normalizeHex(color);
+    const targets = property === 'color'
+      ? [element]
+      : [element, ...element.querySelectorAll(READABLE_TEXT_SELECTOR)];
+    targets.forEach((node) => {
+      if (!node.isConnected || !node.textContent?.trim()) return;
+      const style = typeof window !== 'undefined' && window.getComputedStyle
+        ? window.getComputedStyle(node) : null;
+      // eslint-disable-next-line no-use-before-define
+      const rendered = normalizeHex(computedToHex(style?.color) || '');
+      // Only the elements actually showing the authored colour: a card's other text keeps
+      // whatever the stylesheet gave it.
+      if (!rendered || (intended && rendered !== intended)) return;
+      // eslint-disable-next-line no-use-before-define
+      const surface = channels(background) ? background : surfaceBehind(node);
+      // eslint-disable-next-line no-use-before-define
+      const required = min ?? minRatioFor(node);
+      if (contrastRatio(rendered, surface) >= required) return;
+      node.style.color = ensureContrast(rendered, surface, required);
+    });
+  });
+}
+
+/**
+ * What AA asks of text rendered at an element's size: 3:1 once it is 24px, or 18.66px bold,
+ * and 4.5:1 below that. Lets a caller darken a display figure less than body copy.
+ * @param {Element} element must be in the document
+ * @returns {number} 3 or 4.5
+ */
+export function minRatioFor(element) {
+  if (!element || typeof window === 'undefined' || !window.getComputedStyle) return 4.5;
+  const style = window.getComputedStyle(element);
+  const size = Number.parseFloat(style.fontSize) || 16;
+  const weight = Number(style.fontWeight) || 400;
+  return size >= 24 || (size >= 18.66 && weight >= 700) ? 3 : 4.5;
+}
 
 const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 // A hex standing alone in a config value: bare, or one entry of a list such as

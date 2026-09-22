@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readableTextColor, textSafeSurface } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   readAueResourceFields,
@@ -416,9 +417,12 @@ export default function decorate(block) {
   if (fontWeight) block.style.setProperty('--colored-button-font-weight', fontWeight);
   if (iconSize) block.style.setProperty('--colored-button-icon-size', iconSize);
   if (minHeight) block.style.setProperty('--colored-button-min-height', minHeight);
-  block.style.setProperty('--colored-button-bg', backgroundColor);
-  block.style.setProperty('--colored-button-text', textColor);
-  block.style.setProperty('--colored-button-border', borderColor);
+  // The label sits on the button, so the button has to be a colour a label can sit on:
+  // Blue Medium renders as Blue Dark, then the label is checked against that.
+  const buttonBg = textSafeSurface(backgroundColor);
+  block.style.setProperty('--colored-button-bg', buttonBg);
+  block.style.setProperty('--colored-button-text', readableTextColor(textColor, { background: buttonBg }));
+  block.style.setProperty('--colored-button-border', borderColor === backgroundColor ? buttonBg : borderColor);
   applyBlockBackground(block, blockBackgroundColor);
 
   const inner = document.createElement('div');

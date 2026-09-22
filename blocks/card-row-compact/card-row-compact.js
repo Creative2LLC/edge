@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { textSafeSurface } from '../../scripts/color-tokens.js';
 import {
   readImageField, readLinkField, readTextField, setItemLabel,
 } from '../../scripts/block-field-utils.js';
@@ -77,7 +78,9 @@ function buildCard(data) {
   if (data.row) moveInstrumentation(data.row, card);
   setItemLabel(card, [data.titleField.value, data.subheadingField.value]);
 
-  const cardBg = data.cardBg || '#ffffff';
+  // textSafeSurface: the card holds a subheading and body copy, and Blue Medium cannot carry
+  // either (white on it is 3.78), so it renders as Blue Dark.
+  const cardBg = textSafeSurface(data.cardBg || '#ffffff');
   card.style.setProperty('background-color', cardBg, 'important');
   markButtonSurface(card, isDarkSurface(cardBg));
 

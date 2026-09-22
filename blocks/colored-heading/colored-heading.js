@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   readAueResourceFields,
@@ -378,7 +379,8 @@ export default function decorate(block) {
     marginStyle: marginStyleField.value,
     dropShadow: dropShadowField.value,
   });
-  block.style.setProperty('--colored-heading-color', textColor);
+  // min 3: a heading renders at display sizes, where AA asks 3:1 rather than 4.5.
+  setReadableColor(block, '--colored-heading-color', textColor, { min: 3 });
   applyBlockBackground(block, blockBackgroundColor);
   if (fontSize) {
     block.classList.add('has-custom-size');

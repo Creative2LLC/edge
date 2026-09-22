@@ -13,7 +13,9 @@ import {
   loadSections,
   loadCSS,
 } from './aem.js';
-import { remapLegacyColors, resolveBrandColor } from './color-tokens.js';
+import {
+  applyReadableColors, minRatioFor, remapLegacyColors, resolveBrandColor, setReadableColor,
+} from './color-tokens.js';
 
 /**
  * Moves all the attributes from a given elmenet to another given element.
@@ -832,7 +834,12 @@ export function decorateInlineColors(main) {
         frag.appendChild(document.createTextNode(text.slice(last, match.index)));
       }
       const span = document.createElement('span');
-      span.style.color = resolveBrandColor(color);
+      // Published pages carry inline colours picked under older palettes, several of which
+      // cannot be read where they sit. The span is checked once the page is painted; the
+      // size comes from the text node's parent, since the span has no computed style yet.
+      setReadableColor(span, 'color', resolveBrandColor(color), {
+        min: minRatioFor(textNode.parentElement),
+      });
       span.textContent = inner;
       frag.appendChild(span);
       last = match.index + full.length;
@@ -1028,6 +1035,10 @@ async function loadLazy(doc) {
   if (main) decorateInlineColors(main);
   if (main) decoratePdfLinks(main);
   if (main) removeAemBlockFieldArtifacts(main);
+  // Contrast-check the authored colours now, after every block and the inline colours have
+  // painted: a block cannot see the surface a later block paints behind it, so checking
+  // during its own decorate darkened text that was already readable (see setReadableColor).
+  applyReadableColors();
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;

@@ -7,10 +7,13 @@ import {
 } from '../../scripts/block-field-utils.js';
 
 /* Status slug -> display text + color. Selecting an option in the model picks
-   which text/color pair renders in column 4. */
+   which text/color pair renders in column 4.
+
+   The colours are one step darker than the status palette's own greens and ambers: the
+   rows sit on the warm gray card, where #338739 read 3.69 and #AC6005 3.88, both under AA. */
 const STATUSES = {
-  'accepting-applications': { label: 'Accepting Applications', color: '#338739' },
-  'limited-seats': { label: 'Limited Seats', color: '#AC6005' },
+  'accepting-applications': { label: 'Accepting Applications', color: '#2B7330' },
+  'limited-seats': { label: 'Limited Seats', color: '#9B5605' },
   'coming-soon': { label: 'Coming Soon', color: '#414042' },
   closed: { label: 'Closed', color: '#B3261E' },
   'waitlist-open': { label: 'Waitlist Open', color: '#006D90' },

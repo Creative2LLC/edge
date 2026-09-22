@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { textSafeSurface } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   getFieldSelector,
@@ -668,7 +669,8 @@ function syncCardStyles(resourcePath, card, content, data, variant) {
       if (!Object.keys(fields).length) return;
 
       if (fields.cardBackgroundColor) {
-        card.style.setProperty('--info-card-bg', fields.cardBackgroundColor);
+        // The card's title and subtitle sit on this, so Blue Medium renders as Blue Dark.
+        card.style.setProperty('--info-card-bg', textSafeSurface(fields.cardBackgroundColor));
       }
       if (fields.cardHoverBackgroundColor) {
         // This late correction can land on a card that already took the subtle
@@ -791,7 +793,8 @@ function buildCard(data, index, variant, isEditor) {
     cardBg = cardStyle === 'outline' ? 'transparent' : '#ffffff';
   }
 
-  card.style.setProperty('--info-card-bg', cardBg);
+  // The card's title, subtitle and body sit on this, so Blue Medium renders as Blue Dark.
+  card.style.setProperty('--info-card-bg', textSafeSurface(cardBg));
   if (data.cardHoverBg) {
     card.classList.add('info-cards-grid-card-has-hover-bg');
     card.style.setProperty('--info-card-hover-bg', data.cardHoverBg);

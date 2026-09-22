@@ -70,17 +70,19 @@ a.picture-card {
   object-fit: cover;
 }
 
-/* Dark overlay */
+/* Dark overlay. 42% left the title and description at 2.97 over a light photo — under AA,
+   and the photo decides, so the scrim has to carry the contrast on its own: at 56% even a
+   white photo lands near #707070, where white text reads about 5:1. */
 .picture-cards .picture-card-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgb(0 0 0 / 42%);
+  background: rgb(0 0 0 / 56%);
   transition: background 0.2s ease;
 }
 
 a.picture-card:hover .picture-card-overlay {
-  background: rgb(0 0 0 / 55%);
+  background: rgb(0 0 0 / 66%);
 }
 
 /* Text content */
@@ -100,7 +102,9 @@ a.picture-card:hover .picture-card-overlay {
 .picture-cards .picture-card-description {
   margin: 0;
   font-size: var(--body-size);
-  color: rgb(255 255 255 / 88%);
+
+  /* Full white: at 88% it sat ~0.5 below the title's ratio over the same scrim. */
+  color: #fff;
   font-weight: var(--body-weight-medium);
 }
 

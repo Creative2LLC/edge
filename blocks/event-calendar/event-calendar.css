@@ -3,7 +3,10 @@
   --event-calendar-navy: #062650;
   --event-calendar-text: var(--ncmec-gray-dark);
   --event-calendar-muted: #667784;
-  --event-calendar-blue: var(--ncmec-blue-medium);
+
+  /* Blue Dark, not Blue Medium: this paints text (event names, the featured meta line),
+     and Blue Medium on white is 3.78, under AA. */
+  --event-calendar-blue: var(--ncmec-blue-dark);
   --event-calendar-gold: var(--ncmec-yellow);
   --event-calendar-border: rgb(17 58 103 / 14%);
   --event-calendar-soft: var(--ncmec-blue-tint);
@@ -426,7 +429,8 @@
 }
 
 .event-calendar .event-calendar-table td:nth-child(3) {
-  color: var(--ncmec-blue-medium);
+  /* Blue Dark, not Blue Medium: 15px bold event names, so they need AA's 4.5. */
+  color: var(--event-calendar-blue);
   font-weight: 800;
 }
 

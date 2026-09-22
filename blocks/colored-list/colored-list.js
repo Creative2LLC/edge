@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   readAueResourceFields,
@@ -334,9 +335,10 @@ export default function decorate(block) {
     marginStyle: marginStyleField.value,
     dropShadow: dropShadowField.value,
   });
-  block.style.setProperty('--colored-list-text-color', textColor);
+  setReadableColor(block, '--colored-list-text-color', textColor, { min: 4.5 });
   block.style.setProperty('--colored-list-marker-color', markerColor);
-  block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
+  // The marker's own label sits on the marker colour, not on the block background.
+  setReadableColor(block, '--colored-list-marker-text-color', markerTextColor, { min: 4.5, background: markerColor });
   applyBlockBackground(block, blockBackgroundColor);
   if (fontSize) block.style.setProperty('--colored-list-font-size', fontSize);
   if (fontWeight) block.style.setProperty('--colored-list-font-weight', fontWeight);

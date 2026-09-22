@@ -63,7 +63,9 @@
   --connect-grid-title-color: var(--ncmec-gray-dark);
   --connect-grid-description-color: var(--ncmec-gray-dark);
   --connect-grid-method-label-color: #5e5f63;
-  --connect-grid-method-value-color: var(--ncmec-blue-medium);
+
+  /* Blue Dark, not Blue Medium: Blue Medium on white is 3.78, under AA for body-size text. */
+  --connect-grid-method-value-color: var(--ncmec-blue-dark);
   --connect-grid-description-size: var(--body-size);
   --connect-grid-method-label-size: var(--body-sm-size);
   --connect-grid-method-value-size: var(--body-size);
