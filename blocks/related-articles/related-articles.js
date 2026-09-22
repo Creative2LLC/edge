@@ -7,18 +7,15 @@ import {
 } from '../../scripts/block-field-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 import { showSkeleton } from '../../scripts/skeleton.js';
+import { resolveDamAssetUrl } from '../../scripts/remote-picture.js';
 
-const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
-
-// A /content/dam/ asset only resolves on the publish tier, never the site
-// domain — point any DAM path (bare or site-absolute) at the publish host.
-function resolveDownloadUrl(url) {
-  const value = `${url || ''}`.trim();
-  if (!value) return '';
-  const match = value.match(/\/content\/dam\/[^?#"'\s]+/);
-  if (match) return `${PUBLISH_BASE_URL}${match[0]}`;
-  return value;
-}
+// This block used to carry its own copy of the DAM-to-publish rewrite, and
+// applied it to the download URL but never to the card thumbnail — so every
+// related-article image was requested from the EDS host, where /content/dam/ is
+// always a 404. It went unnoticed while the assets were dead on both tiers, and
+// surfaced the moment they were activated. One shared implementation now, so
+// the two cannot drift apart again.
+const resolveDownloadUrl = resolveDamAssetUrl;
 
 const FIELD_LABELS = {
   apiBaseUrl: ['api base url', 'api url', 'resource api base url', 'resource api url', 'article api base url', 'article api url'],
@@ -261,7 +258,7 @@ function buildCard(item, config) {
     const media = document.createElement('div');
     media.className = 'related-articles-card-media';
     const image = document.createElement('img');
-    image.src = item.thumbnail;
+    image.src = resolveDamAssetUrl(item.thumbnail);
     image.alt = item.title || 'Related article image';
     image.loading = 'lazy';
     media.append(image);
