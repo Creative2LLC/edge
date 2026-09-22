@@ -112,6 +112,83 @@
   line-height: 1.75;
 }
 
+/* ====================================================================
+   AUTHORED HERO OPTIONS
+
+   Added long after 397 blogs were published, so every rule below is
+   opt-in behind a class the block only adds when an author picked a
+   value. A page that has never been re-authored carries none of them
+   and renders exactly as it did before.
+   ==================================================================== */
+
+.article-details .article-details-hero.is-height-short {
+  min-height: clamp(260px, 38vw, 420px);
+  padding-top: clamp(92px, 12vw, 120px);
+}
+
+.article-details .article-details-hero.is-height-medium {
+  min-height: clamp(320px, 48vw, 520px);
+}
+
+.article-details .article-details-hero.is-height-tall {
+  min-height: clamp(440px, 72vw, 760px);
+}
+
+/* The hero is a flex row whose single child is the content block, so the
+   content moves by its own margins rather than by changing the parent's
+   alignment — that keeps `align-items: flex-end` (the bottom-anchored
+   layout) intact while the horizontal position changes. */
+.article-details .article-details-hero.is-content-center .article-details-hero-content {
+  text-align: center;
+  justify-items: center;
+}
+
+.article-details .article-details-hero.is-content-center .article-details-title,
+.article-details .article-details-hero.is-content-right .article-details-title {
+  max-width: 24ch;
+}
+
+.article-details .article-details-hero.is-content-center .article-details-meta,
+.article-details .article-details-hero.is-content-center .article-details-tags {
+  justify-content: center;
+}
+
+.article-details .article-details-hero.is-content-right .article-details-hero-content {
+  text-align: right;
+  justify-items: end;
+}
+
+.article-details .article-details-hero.is-content-right .article-details-meta,
+.article-details .article-details-hero.is-content-right .article-details-tags {
+  justify-content: flex-end;
+}
+
+/* An authored opacity replaces the two-gradient wash with a single flat
+   scrim, because a percentage the author typed should mean that
+   percentage — layering it over the existing gradients would make 30%
+   land somewhere near 70%. */
+.article-details .article-details-hero.has-overlay-opacity .article-details-hero-overlay {
+  background: rgb(247 247 247 / calc(var(--article-hero-overlay-opacity, 0.5) * 100%));
+}
+
+.article-details .article-details-hero.is-without-gradient .article-details-hero-overlay {
+  background: none;
+}
+
+/* Opacity still wins when both are set: "hide the gradient" is about the
+   default wash, not about a scrim the author asked for by number. */
+.article-details .article-details-hero.is-without-gradient.has-overlay-opacity .article-details-hero-overlay {
+  background: rgb(247 247 247 / calc(var(--article-hero-overlay-opacity, 0.5) * 100%));
+}
+
+.article-details .article-details-hero.has-text-color .article-details-title,
+.article-details .article-details-hero.has-text-color .article-details-meta,
+.article-details .article-details-hero.has-text-color .article-details-meta-item,
+.article-details .article-details-hero.has-text-color .article-details-meta-separator,
+.article-details .article-details-hero.has-text-color .article-details-excerpt {
+  color: var(--article-hero-text-color);
+}
+
 /* Same column as `main > .section > div`: the wrapper above is full-bleed
    (max-width/padding are unset at the top of this file), so the card has to
    re-establish the column itself — capped at --container-content and inset by
@@ -128,7 +205,7 @@
 }
 
 .article-details .article-details-prose {
-  width: min(100%, 760px);
+  max-width: min(100%, 1100px);
   margin: 0 auto;
 }
 

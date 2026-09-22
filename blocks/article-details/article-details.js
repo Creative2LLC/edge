@@ -152,6 +152,69 @@ function hasAuthoringContext(scope) {
 // articleDate the only safe anchor in published markup.
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}(?:[T\s]|$)/;
 
+/**
+ * The hero options, in model order, with the exact vocabulary each one accepts.
+ *
+ * They were added after 397 blogs had already been published, so a published
+ * page has either none of these rows or all five, and a positional reader has
+ * to tell which WITHOUT being told. That is only safe because every one is a
+ * select: the set of strings that can legitimately appear in these rows is
+ * closed and defined right here, so a row either belongs to this list or it is
+ * where the article body starts.
+ *
+ * Keep in step with _article-details.json. A value missing from a list makes
+ * that row read as body copy and drags every later field back with it.
+ */
+const HERO_OPTION_FIELDS = [
+  { name: 'heroContentPosition', values: ['left', 'center', 'right'] },
+  { name: 'heroHeight', values: ['short', 'medium', 'tall'] },
+  { name: 'heroOverlayOpacity', values: ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'] },
+  { name: 'heroGradientOverlay', values: ['show', 'hide'] },
+  { name: 'heroTextColor', values: ['#ffffff', '#00264d', '#004b76', '#006d90', '#414042', '#f1f2f2', '#ae1b1f'] },
+];
+
+/**
+ * Whether this row is the Nth hero option rather than the first body item.
+ *
+ * An unset select still flattens to an empty row (div-cells keep empty fields),
+ * so empty counts as a match.
+ *
+ * Note what is NOT tested: the presence of a <p>. Read the source HTML of a
+ * published page and a select's cell holds a bare text node — but by the time a
+ * block decorates, EDS has wrapped it, so every one of these rows really looks
+ * like `<div><p>center</p></div>`. Excluding <p> rejected all five. What a
+ * select can never produce is an image, a list, a heading, or more than one
+ * paragraph, so those are the structural tests; the closed vocabulary does the
+ * rest of the work.
+ */
+function isHeroOptionRow(row, index) {
+  const field = HERO_OPTION_FIELDS[index];
+  if (!field || !row || row.children.length !== 1) return false;
+  if (row.querySelector('picture, img, ul, ol, h1, h2, h3, h4, h5, h6')) return false;
+  if (row.querySelectorAll('p').length > 1) return false;
+
+  const value = normalizeText(row.textContent).toLowerCase();
+  return value === '' || field.values.includes(value);
+}
+
+function countHeroOptionRows(rows, start) {
+  let count = 0;
+  while (count < HERO_OPTION_FIELDS.length && isHeroOptionRow(rows[start + count], count)) {
+    count += 1;
+  }
+
+  // All-or-nothing: a page is published at one model revision or the other, so a
+  // partial run is a body item that happened to look like an option, not a page
+  // caught halfway through the change.
+  return count === HERO_OPTION_FIELDS.length ? count : 0;
+}
+
+function heroOptionRows(rows, start) {
+  if (countHeroOptionRows(rows, start) === 0) return {};
+
+  return Object.fromEntries(HERO_OPTION_FIELDS.map((field, i) => [field.name, start + i]));
+}
+
 const publishedLayoutCache = new WeakMap();
 
 /**
@@ -196,8 +259,9 @@ function computePublishedLayout(block) {
       articleDate: dateRow,
       thumbnail: dateRow + 1,
       headerImage: dateRow + 2,
+      ...heroOptionRows(rows, dateRow + 3),
     },
-    bodyStart: dateRow + 3,
+    bodyStart: dateRow + 3 + countHeroOptionRows(rows, dateRow + 3),
   };
 }
 
@@ -747,11 +811,49 @@ function buildMeta(authorName, articleDate) {
   return meta;
 }
 
+/**
+ * Turn the authored hero selects into classes and custom properties.
+ *
+ * Everything is opt-in: a value the model does not offer, or the empty default,
+ * leaves the hero exactly as the 397 already-published blogs render it. That is
+ * the whole contract of adding these fields late — an existing page that has
+ * never been re-authored must not move a pixel.
+ */
+function applyHeroOptions(section, fields) {
+  const position = normalizeText(fields.heroContentPosition).toLowerCase();
+  if (['left', 'center', 'right'].includes(position)) {
+    section.classList.add(`is-content-${position}`);
+  }
+
+  const height = normalizeText(fields.heroHeight).toLowerCase();
+  if (['short', 'medium', 'tall'].includes(height)) {
+    section.classList.add(`is-height-${height}`);
+  }
+
+  if (normalizeText(fields.heroGradientOverlay).toLowerCase() === 'hide') {
+    section.classList.add('is-without-gradient');
+  }
+
+  // A percentage, including 0 — so test for a valid number, never truthiness.
+  const opacity = Number(normalizeText(fields.heroOverlayOpacity));
+  if (normalizeText(fields.heroOverlayOpacity) !== '' && Number.isFinite(opacity)) {
+    section.classList.add('has-overlay-opacity');
+    section.style.setProperty('--article-hero-overlay-opacity', `${Math.min(Math.max(opacity, 0), 100) / 100}`);
+  }
+
+  const textColor = normalizeText(fields.heroTextColor);
+  if (/^#[0-9a-f]{3,8}$/i.test(textColor)) {
+    section.style.setProperty('--article-hero-text-color', textColor);
+    section.classList.add('has-text-color');
+  }
+}
+
 function buildHero(fields) {
   const image = fields.headerImage || fields.thumbnail;
 
   const section = document.createElement('section');
   section.className = 'article-details-hero';
+  applyHeroOptions(section, fields);
 
   if (image?.src) {
     const media = document.createElement('div');
@@ -830,6 +932,18 @@ function debugArticleDetails(block, resourceData, fields) {
 
   // eslint-disable-next-line no-console
   console.groupCollapsed('[article-details] body debug');
+  // The hero options are read by row position, so which row each one landed on
+  // is the first thing worth seeing when one of them does not take effect.
+  // eslint-disable-next-line no-console
+  console.table({
+    publishedLayout: JSON.stringify(getPublishedLayout(block)?.fieldRow || null),
+    bodyStart: getPublishedLayout(block)?.bodyStart ?? null,
+    heroContentPosition: fields.heroContentPosition,
+    heroHeight: fields.heroHeight,
+    heroOverlayOpacity: fields.heroOverlayOpacity,
+    heroGradientOverlay: fields.heroGradientOverlay,
+    heroTextColor: fields.heroTextColor,
+  });
   // eslint-disable-next-line no-console
   console.table({
     resourcePath: getBlockResourcePath(block),
@@ -944,6 +1058,11 @@ export default async function decorate(block) {
     thumbnail: getImageField(block, 'thumbnail', resourceData),
     headerImage: getImageField(block, 'headerImage', resourceData),
     articleBody: chooseArticleBody(block, resourceData),
+    heroContentPosition: getTextField(block, 'heroContentPosition'),
+    heroHeight: getTextField(block, 'heroHeight'),
+    heroOverlayOpacity: getTextField(block, 'heroOverlayOpacity'),
+    heroGradientOverlay: getTextField(block, 'heroGradientOverlay'),
+    heroTextColor: getTextField(block, 'heroTextColor'),
     isAuthoring: hasAuthoringContext(block),
   };
   fields.articleBodyItems = getArticleBodyItems(block, fields.pageTitle, resourceData);

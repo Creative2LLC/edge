@@ -84,9 +84,14 @@
   object-fit: cover;
 }
 
+/* No z-index here on purpose. It made this a stacking context, which trapped
+   the actions' z-index: 3 inside it — so the whole body competed with the
+   full-card cover link at 1 against its 2, the cover painted over the Learn
+   More link and swallowed its pointer events, and the text-link arrow never
+   got a :hover. article-list's card body is positioned the same way without a
+   z-index, which is why its cards never had the problem. */
 .related-articles .related-articles-card-body {
   position: relative;
-  z-index: 1;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;

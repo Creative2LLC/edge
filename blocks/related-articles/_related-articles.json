@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Related Articles",
+      "title": "Related Blogs",
       "id": "related-articles",
       "plugins": {
         "xwalk": {
@@ -33,7 +33,7 @@
           "value": "auto",
           "options": [
             { "name": "Auto", "value": "auto" },
-            { "name": "Articles", "value": "articles" },
+            { "name": "Blogs", "value": "articles" },
             { "name": "Resources", "value": "resources" }
           ]
         },
@@ -61,7 +61,7 @@
           "component": "text",
           "valueType": "string",
           "name": "detailBasePath",
-          "label": "Article Detail Base Path",
+          "label": "Blog Detail Base Path",
           "value": "/content/edge/resources/Blogs"
         }
       ]
