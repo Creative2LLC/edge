@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Split Card Info",
+      "title": "Img Logo Btn Split Col Banner",
       "id": "split-card-info",
       "plugins": {
         "xwalk": {

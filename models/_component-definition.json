@@ -28,6 +28,351 @@
       ]
     },
     {
+      "title": "Banner",
+      "id": "banner",
+      "components": [
+        {
+          "...": "../blocks/cta-card-1/_cta-card-1.json#/definitions"
+        },
+        {
+          "...": "../blocks/cta-card-2/_cta-card-2.json#/definitions"
+        },
+        {
+          "...": "../blocks/media-contact-cta/_media-contact-cta.json#/definitions"
+        },
+        {
+          "...": "../blocks/social-report-cta/_social-report-cta.json#/definitions"
+        },
+        {
+          "...": "../blocks/support-cta/_support-cta.json#/definitions"
+        },
+        {
+          "...": "../blocks/report-download/_report-download.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-card-info/_split-card-info.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Cards",
+      "id": "cards",
+      "components": [
+        {
+          "...": "../blocks/dark-feature-cards/_dark-feature-cards.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-card/_split-card.json#/definitions"
+        },
+        {
+          "...": "../blocks/featured-event/_featured-event.json#/definitions"
+        },
+        {
+          "...": "../blocks/regional-offices/_regional-offices.json#/definitions"
+        },
+        {
+          "...": "../blocks/cards/_cards.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-card-gap/_split-card-gap.json#/definitions"
+        },
+        {
+          "...": "../blocks/image-text-card-row/_image-text-card-row.json#/definitions"
+        },
+        {
+          "...": "../blocks/card-row/_card-row.json#/definitions"
+        },
+        {
+          "...": "../blocks/info-cards-grid/_info-cards-grid.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-card-offices/_split-card-offices.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-card-list/_split-card-list.json#/definitions"
+        },
+        {
+          "...": "../blocks/text-image/_text-image.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Carousel",
+      "id": "carousel",
+      "components": [
+        {
+          "...": "../blocks/numbered-cards-custom/_numbered-cards-custom.json#/definitions"
+        },
+        {
+          "...": "../blocks/numbered-cards/_numbered-cards.json#/definitions"
+        },
+        {
+          "...": "../blocks/icon-card-carousel/_icon-card-carousel.json#/definitions"
+        },
+        {
+          "...": "../blocks/logo-carousel/_logo-carousel.json#/definitions"
+        },
+        {
+          "...": "../blocks/partners-showcase/_partners-showcase.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-thin-carousel/_split-thin-carousel.json#/definitions"
+        },
+        {
+          "...": "../blocks/detailed-carousel/_detailed-carousel.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-card-carousel/_split-card-carousel.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Customizable",
+      "id": "customizable",
+      "components": [
+        {
+          "...": "../blocks/colored-button/_colored-button.json#/definitions"
+        },
+        {
+          "...": "../blocks/columns/_columns.json#/definitions"
+        },
+        {
+          "...": "../blocks/colored-grid/_colored-grid.json#/definitions"
+        },
+        {
+          "...": "../blocks/colored-heading/_colored-heading.json#/definitions"
+        },
+        {
+          "...": "../blocks/colored-icon-text/_colored-icon-text.json#/definitions"
+        },
+        {
+          "...": "../blocks/colored-list/_colored-list.json#/definitions"
+        },
+        {
+          "...": "../blocks/colored-text/_colored-text.json#/definitions"
+        },
+        {
+          "...": "../blocks/fragment/_fragment.json#/definitions"
+        },
+        {
+          "...": "../blocks/section-title/_section-title.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Dynamic",
+      "id": "dynamic",
+      "components": [
+        {
+          "...": "../blocks/article-list/_article-list.json#/definitions"
+        },
+        {
+          "...": "../blocks/article-details/_article-details.json#/definitions"
+        },
+        {
+          "...": "../blocks/news/_news.json#/definitions"
+        },
+        {
+          "...": "../blocks/related-articles/_related-articles.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Featured",
+      "id": "featured",
+      "components": [
+        {
+          "...": "../blocks/icon-text/_icon-text.json#/definitions"
+        },
+        {
+          "...": "../blocks/footer-banner/_footer-banner.json#/definitions"
+        },
+        {
+          "...": "../blocks/hero/_hero.json#/definitions"
+        },
+        {
+          "...": "../blocks/hero-footer/_hero-footer.json#/definitions"
+        },
+        {
+          "...": "../blocks/mail-address/_mail-address.json#/definitions"
+        },
+        {
+          "...": "../blocks/media-reporting-info/_media-reporting-info.json#/definitions"
+        },
+        {
+          "...": "../blocks/mega-nav/_mega-nav.json#/definitions"
+        },
+        {
+          "...": "../blocks/site-search/_site-search.json#/definitions"
+        },
+        {
+          "...": "../blocks/card-testimonies/_card-testimonies.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Icon",
+      "id": "icon",
+      "components": [
+        {
+          "...": "../blocks/icon-text-row/_icon-text-row.json#/definitions"
+        },
+        {
+          "...": "../blocks/card-row-compact/_card-row-compact.json#/definitions"
+        },
+        {
+          "...": "../blocks/split-card-detail/_split-card-detail.json#/definitions"
+        },
+        {
+          "...": "../blocks/dual-cards/_dual-cards.json#/definitions"
+        },
+        {
+          "...": "../blocks/connect-grid/_connect-grid.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Image",
+      "id": "image",
+      "components": [
+        {
+          "...": "../blocks/image-card/_image-card.json#/definitions"
+        },
+        {
+          "...": "../blocks/gallery-grid/_gallery-grid.json#/definitions"
+        },
+        {
+          "...": "../blocks/trust-badges/_trust-badges.json#/definitions"
+        },
+        {
+          "...": "../blocks/video/_video.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Infographic",
+      "id": "infographic",
+      "components": [
+        {
+          "...": "../blocks/cybertipline-geo-report/_cybertipline-geo-report.json#/definitions"
+        },
+        {
+          "...": "../blocks/historical-trends/_historical-trends.json#/definitions"
+        },
+        {
+          "...": "../blocks/historical-reports-carousel/_historical-reports-carousel.json#/definitions"
+        },
+        {
+          "...": "../blocks/impact-bar-chart/_impact-bar-chart.json#/definitions"
+        },
+        {
+          "...": "../blocks/impact-chain/_impact-chain.json#/definitions"
+        },
+        {
+          "...": "../blocks/impact-data-table/_impact-data-table.json#/definitions"
+        },
+        {
+          "...": "../blocks/impact-donut/_impact-donut.json#/definitions"
+        },
+        {
+          "...": "../blocks/impact-geo-report/_impact-geo-report.json#/definitions"
+        },
+        {
+          "...": "../blocks/report-breakdown/_report-breakdown.json#/definitions"
+        },
+        {
+          "...": "../blocks/statistics/_statistics.json#/definitions"
+        },
+        {
+          "...": "../blocks/us-map/_us-map.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Interactive",
+      "id": "interactive",
+      "components": [
+        {
+          "...": "../blocks/faq/_faq.json#/definitions"
+        },
+        {
+          "...": "../blocks/event-calendar/_event-calendar.json#/definitions"
+        },
+        {
+          "...": "../blocks/report-section-nav/_report-section-nav.json#/definitions"
+        },
+        {
+          "...": "../blocks/tabs/_tabs.json#/definitions"
+        },
+        {
+          "...": "../blocks/training-sessions/_training-sessions.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Leadership",
+      "id": "leadership",
+      "components": [
+        {
+          "...": "../blocks/leadership-header/_leadership-header.json#/definitions"
+        },
+        {
+          "...": "../blocks/leadership-overview/_leadership-overview.json#/definitions"
+        },
+        {
+          "...": "../blocks/leadership-profile/_leadership-profile.json#/definitions"
+        },
+        {
+          "...": "../blocks/leadership-team/_leadership-team.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Poster",
+      "id": "poster",
+      "components": [
+        {
+          "...": "../blocks/amber-alert-info/_amber-alert-info.json#/definitions"
+        },
+        {
+          "...": "../blocks/amber-alerts/_amber-alerts.json#/definitions"
+        },
+        {
+          "...": "../blocks/amber-still-missing/_amber-still-missing.json#/definitions"
+        },
+        {
+          "...": "../blocks/case-anniversaries/_case-anniversaries.json#/definitions"
+        },
+        {
+          "...": "../blocks/poster-map/_poster-map.json#/definitions"
+        },
+        {
+          "...": "../blocks/poster-results/_poster-results.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Resources",
+      "id": "resources",
+      "components": [
+        {
+          "...": "../blocks/resources-browser/_resources-browser.json#/definitions"
+        },
+        {
+          "...": "../blocks/resource-details/_resource-details.json#/definitions"
+        },
+        {
+          "...": "../blocks/resource-downloads/_resource-downloads.json#/definitions"
+        },
+        {
+          "...": "../blocks/resource-hero/_resource-hero.json#/definitions"
+        },
+        {
+          "...": "../blocks/resources/_resources.json#/definitions"
+        }
+      ]
+    },
+    {
       "title": "Forms",
       "id": "forms",
       "components": [
@@ -73,17 +418,53 @@
       ]
     },
     {
-      "title": "Blocks",
-      "id": "blocks",
+      "title": "Unsorted",
+      "id": "unsorted",
       "components": [
         {
-          "...": "../blocks/!(general-inquiries|newsletter|missing-child-quick-report|missing-child-poster-api-registration|code-adam-kit|ncmec-reprint-request|team-hope-volunteer|host-a-fundraiser|faon-application|event-request-form|community-education-partner-reporting|prpl-application|apply-for-training|giving|resource-detail|article-detail|btn-group|carousel|resource-video-player)/_*.json#/definitions"
+          "...": "../blocks/card-row-detailed/_card-row-detailed.json#/definitions"
         },
         {
-          "...": "../blocks/article-details/_article-details.json#/definitions"
+          "...": "../blocks/need-help/_need-help.json#/definitions"
         },
         {
-          "...": "../blocks/resource-details/_resource-details.json#/definitions"
+          "...": "../blocks/picture-cards/_picture-cards.json#/definitions"
+        },
+        {
+          "...": "../blocks/report-archive/_report-archive.json#/definitions"
+        },
+        {
+          "...": "../blocks/resource-tags/_resource-tags.json#/definitions"
+        },
+        {
+          "...": "../blocks/resource-video-hero/_resource-video-hero.json#/definitions"
+        },
+        {
+          "...": "../blocks/resources-carousel/_resources-carousel.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Marked for Removal",
+      "id": "marked-for-removal",
+      "components": [
+        {
+          "...": "../blocks/cta-banner/_cta-banner.json#/definitions"
+        },
+        {
+          "...": "../blocks/embed/_embed.json#/definitions"
+        },
+        {
+          "...": "../blocks/internship-program/_internship-program.json#/definitions"
+        },
+        {
+          "...": "../blocks/job-postings/_job-postings.json#/definitions"
+        },
+        {
+          "...": "../blocks/product-list/_product-list.json#/definitions"
+        },
+        {
+          "...": "../blocks/terms-content/_terms-content.json#/definitions"
         }
       ]
     }

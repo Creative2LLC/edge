@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Social Report CTA",
+      "title": "CTA Social Report",
       "id": "social-report-cta",
       "plugins": {
         "xwalk": {

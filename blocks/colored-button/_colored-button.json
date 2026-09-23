@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Colored Button",
+      "title": "Custom Btn Icon",
       "id": "colored-button",
       "model": "colored-button",
       "plugins": {

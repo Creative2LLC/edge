@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Icon Text Row",
+      "title": "Icn 1x4 Col",
       "id": "icon-text-row",
       "plugins": {
         "xwalk": {

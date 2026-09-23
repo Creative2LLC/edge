@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Numbered Cards",
+      "title": "Dark Seq Btn 1x8 Card Grid Carousel",
       "id": "numbered-cards",
       "plugins": {
         "xwalk": {

@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Info Cards Grid",
+      "title": "Multi Icn Btn Col Card Grid",
       "id": "info-cards-grid",
       "plugins": {
         "xwalk": {

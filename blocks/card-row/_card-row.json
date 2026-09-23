@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Card Row",
+      "title": "Logo Btn 1x6 Col Card Grid",
       "id": "card-row",
       "plugins": {
         "xwalk": {

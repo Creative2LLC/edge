@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Split Thin Carousel",
+      "title": "Narrow Img Btn Split Col Carousel",
       "id": "split-thin-carousel",
       "plugins": {
         "xwalk": {

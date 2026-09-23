@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Amber Alerts",
+      "title": "AMBER Alerts",
       "id": "amber-alerts",
       "plugins": {
         "xwalk": {

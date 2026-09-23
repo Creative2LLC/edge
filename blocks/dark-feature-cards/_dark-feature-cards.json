@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Dark Feature Cards",
+      "title": "Dark Img Btn 1x4 Col",
       "id": "dark-feature-cards",
       "plugins": {
         "xwalk": {

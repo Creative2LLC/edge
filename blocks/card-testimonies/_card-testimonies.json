@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Card Testimonies",
+      "title": "Testimonies",
       "id": "card-testimonies",
       "plugins": {
         "xwalk": {

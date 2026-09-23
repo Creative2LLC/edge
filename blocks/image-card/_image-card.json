@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Image Card",
+      "title": "1x2 Btn Image Banner",
       "id": "image-card",
       "plugins": {
         "xwalk": {

@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Colored Heading",
+      "title": "Custom Heading",
       "id": "colored-heading",
       "model": "colored-heading",
       "plugins": {

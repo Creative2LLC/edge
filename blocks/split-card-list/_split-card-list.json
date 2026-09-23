@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Split Card List",
+      "title": "Txt Btn Split Col List Card",
       "id": "split-card-list",
       "plugins": {
         "xwalk": {

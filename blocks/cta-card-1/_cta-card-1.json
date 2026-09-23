@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "CTA Card 1",
+      "title": "CTA 2 Btn Split Col Banner",
       "id": "cta-card-1",
       "plugins": {
         "xwalk": {

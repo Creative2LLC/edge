@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Detailed Carousel",
+      "title": "Pano Img 3 Col Btn Card Carousel",
       "id": "detailed-carousel",
       "plugins": {
         "xwalk": {

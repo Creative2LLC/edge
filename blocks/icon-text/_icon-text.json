@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Icon Text",
+      "title": "Donated Redblue Txt",
       "id": "icon-text",
       "plugins": {
         "xwalk": {

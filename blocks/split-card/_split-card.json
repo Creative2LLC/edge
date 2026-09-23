@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Split Card",
+      "title": "Donate Img 2 Btn Split Col Card",
       "id": "split-card",
       "plugins": {
         "xwalk": {

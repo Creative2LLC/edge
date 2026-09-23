@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Media Contact CTA",
+      "title": "CTA Media Contact",
       "id": "media-contact-cta",
       "plugins": {
         "xwalk": {

@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Connect Grid",
+      "title": "Icon Hyperlink 1x3 Col Card",
       "id": "connect-grid",
       "plugins": {
         "xwalk": {

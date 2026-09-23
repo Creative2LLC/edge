@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Image Text Card Row",
+      "title": "Img Icon Btn 1x3 Col Card",
       "id": "image-text-card-row",
       "plugins": {
         "xwalk": {

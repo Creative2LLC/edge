@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Split Card Gap",
+      "title": "Img Icon 1x4 Split Card",
       "id": "split-card-gap",
       "plugins": {
         "xwalk": {

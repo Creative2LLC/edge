@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Colored List",
+      "title": "Custom List",
       "id": "colored-list",
       "model": "colored-list",
       "filter": "colored-list",

@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Cards",
+      "title": "Img Disclaimer 1x3 Col Card",
       "id": "cards",
       "plugins": {
         "xwalk": {

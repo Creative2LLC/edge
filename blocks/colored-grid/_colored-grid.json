@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Colored Grid",
+      "title": "Custom Grid",
       "id": "colored-grid",
       "model": "colored-grid",
       "filter": "colored-grid",

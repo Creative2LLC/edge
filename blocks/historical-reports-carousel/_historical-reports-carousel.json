@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Historical Reports Carousel",
+      "title": "Historical Trends Carousel",
       "id": "historical-reports-carousel",
       "plugins": {
         "xwalk": {

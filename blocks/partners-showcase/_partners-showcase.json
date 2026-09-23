@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Partners Showcase",
+      "title": "Marquee Logo Carousel",
       "id": "partners-showcase",
       "plugins": {
         "xwalk": {

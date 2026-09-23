@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Dual Cards",
+      "title": "Icon Hyperlink 1x2 Col Card",
       "id": "dual-cards",
       "plugins": {
         "xwalk": {

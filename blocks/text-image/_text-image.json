@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Text Image",
+      "title": "Txt Btn Split Img Card",
       "id": "text-image",
       "plugins": {
         "xwalk": {

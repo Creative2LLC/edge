@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "title": "Icon Card Carousel",
+      "title": "Icn Btn Card Carousel",
       "id": "icon-card-carousel",
       "plugins": {
         "xwalk": {
