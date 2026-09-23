@@ -1,10 +1,15 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { animateCountUp, animateCountUpOnVisible } from '../../scripts/count-up.js';
 import { buildMap, STATE_NAMES } from '../us-map/us-map.js';
+
+// The block's amber, kept as authored; applyReadableColors() darkens it only where it lands
+// on a light surface.
+const KICKER_AMBER = '#de8a2a';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -479,6 +484,10 @@ function buildHeader(
 
   const kicker = document.createElement('p');
   kicker.className = 'cybertipline-geo-report-kicker';
+  // The kicker is the one amber line whose surface varies: it sits on the section, which can
+  // be navy (where this amber reads 5.62) or light (2.70). The panel's amber is darkened in
+  // CSS; this one is checked against the surface it actually lands on.
+  setReadableColor(kicker, 'color', KICKER_AMBER, { min: 4.5 });
   kicker.textContent = report?.year
     ? `${report.year} ${reportConfig.dataLabel}`
     : reportConfig.dataLabel;
@@ -698,13 +707,55 @@ function colorForRatio(ratio) {
   return `rgb(${channels.join(' ')})`;
 }
 
+function svgElement(tagName, attributes = {}) {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', tagName);
+  Object.entries(attributes).forEach(([name, value]) => {
+    element.setAttribute(name, String(value));
+  });
+  return element;
+}
+
+// Metrics that count a closed outcome wear a check badge on the person.
+const CHECKED_METRIC_KEYS = new Set(['resolved', 'informational']);
+
+// Each metric counts children or reports about them, so its icon is a person in the ring.
+function buildMapCardIcon(key) {
+  const icon = document.createElement('span');
+  icon.className = 'cybertipline-geo-report-map-card-icon';
+  icon.setAttribute('aria-hidden', 'true');
+
+  const person = svgElement('svg', {
+    viewBox: '0 0 24 24',
+    focusable: 'false',
+    class: 'cybertipline-geo-report-map-card-person',
+  });
+  person.append(
+    svgElement('circle', { cx: 12, cy: 8, r: 3.75 }),
+    svgElement('path', { d: 'M4.75 20.25c.85-3.9 3.7-6.25 7.25-6.25s6.4 2.35 7.25 6.25' }),
+  );
+  icon.append(person);
+
+  if (CHECKED_METRIC_KEYS.has(key)) {
+    const badge = svgElement('svg', {
+      viewBox: '0 0 16 16',
+      focusable: 'false',
+      class: 'cybertipline-geo-report-map-card-badge',
+    });
+    badge.append(
+      svgElement('circle', { cx: 8, cy: 8, r: 8 }),
+      svgElement('path', { d: 'M4.6 8.3 7 10.6l4.4-4.9' }),
+    );
+    icon.append(badge);
+  }
+
+  return icon;
+}
+
 function buildMapCardMetric(entry) {
   const metric = document.createElement('div');
   metric.className = `cybertipline-geo-report-map-card-metric is-${entry.key}`;
 
-  const icon = document.createElement('span');
-  icon.className = 'cybertipline-geo-report-map-card-icon';
-  icon.setAttribute('aria-hidden', 'true');
+  const icon = buildMapCardIcon(entry.key);
 
   const value = document.createElement('strong');
   value.textContent = entry.displayValue;
@@ -826,14 +877,6 @@ function buildMapPanel(rows, dataset, onPreview, onSelect) {
 
   wrap.append(svg, hoverCard, caption);
   return wrap;
-}
-
-function svgElement(tagName, attributes = {}) {
-  const element = document.createElementNS('http://www.w3.org/2000/svg', tagName);
-  Object.entries(attributes).forEach(([name, value]) => {
-    element.setAttribute(name, String(value));
-  });
-  return element;
 }
 
 function buildViewToggleIcon(type) {

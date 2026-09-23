@@ -151,10 +151,33 @@
 
 .impact-donut .impact-donut-stat-value {
   margin-bottom: 10px;
-  color: var(--impact-donut-stat-color, var(--ncmec-blue-medium));
+
+  /* Blue Dark: Blue Medium is 3.37 on a light surface, under AA for text. */
+  color: var(--impact-donut-stat-color, var(--ncmec-blue-dark));
   font-size: var(--heading-1-size);
   font-weight: 700;
   line-height: 0.95;
+}
+
+/* COLOUR KEYS: a stat or legend entry tied to a segment keeps the block ink for its number
+   and shows the arc colour as a swatch. Text can only wear a colour darkened to AA, which
+   stopped it matching the arc; a swatch is not text, so it keeps the exact colour. */
+.impact-donut .impact-donut-key {
+  display: inline-block;
+  flex-shrink: 0;
+  background: var(--impact-donut-key-color);
+}
+
+.impact-donut .impact-donut-stat-key {
+  display: block;
+  width: 40px;
+  height: 6px;
+  margin-bottom: 16px;
+  border-radius: 3px;
+}
+
+.impact-donut .impact-donut-stat.has-key .impact-donut-stat-value {
+  color: var(--impact-donut-heading-color);
 }
 
 .impact-donut .impact-donut-stat-label {
@@ -260,8 +283,23 @@
   border-left: 1px solid var(--impact-donut-divider-color);
 }
 
+.impact-donut .impact-donut-legend-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.impact-donut .impact-donut-legend-key {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
 .impact-donut .impact-donut-legend-value {
-  margin: 0 0 8px;
+  margin: 0;
+  color: var(--impact-donut-heading-color);
   font-size: var(--heading-4-size);
   font-weight: 700;
   line-height: 1;
@@ -271,6 +309,26 @@
   margin: 0;
   color: var(--impact-donut-stat-label-color);
   line-height: var(--caption-line-height);
+}
+
+/* HIGHLIGHT: pointing at an arc, or at its legend entry or stat, dims the other arcs (in
+   JS) and the other entries here, and shows the segment beside the ring. */
+.impact-donut .impact-donut-chart:focus-visible {
+  outline: 3px solid var(--ncmec-blue-dark);
+  outline-offset: 6px;
+}
+
+.impact-donut .impact-donut-legend-item.is-linked,
+.impact-donut .impact-donut-stat.is-linked {
+  transition:
+    opacity 180ms ease,
+    transform 650ms ease;
+  transition-delay: 0s;
+}
+
+.impact-donut.has-active-segment .impact-donut-legend-item.is-linked:not(.is-active),
+.impact-donut.has-active-segment .impact-donut-stat.is-linked:not(.is-active) {
+  opacity: 0.4;
 }
 
 @media (width <= 1100px) {

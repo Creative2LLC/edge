@@ -75,21 +75,43 @@
   margin: 0 0 16px;
 }
 
-/* Tag badges */
+/* Tag pills: the blog browser's card pill (article-list), so a news card and a blog card
+   tag the same way. A tag from a blog links to the listing filtered by it. */
 .news .news-tags {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.45rem;
 }
 
 .news .news-tag {
-  border-radius: 99px;
-  padding: 4px 12px;
-  color: rgb(255 255 255 / 83%);
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.95rem;
+  padding: 0.34rem 0.78rem;
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
   font-size: var(--caption-size);
   font-weight: 700;
-  line-height: 1.4;
-  display: inline-block;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.news a.news-tag.is-linked {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.news a.news-tag.is-linked:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgb(13 110 140 / 14%);
+}
+
+.news a.news-tag.is-linked:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 3px;
 }
 
 /* Read more link: the Text link style from the button standard; this only places it. */
@@ -148,6 +170,16 @@
   font-weight: var(--body-weight-medium);
   color: var(--ncmec-gray-dark);
   margin: 0 0 16px;
+}
+
+/* A blog's summary is written for its own page and runs long; cap it so cards stay even. */
+.news .news-card-subheading.is-excerpt,
+.news .news-featured-subheading.is-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 /* Hidden cards */
@@ -218,7 +250,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .news .news-card:focus-within,
-  .news .news-card:hover {
+  .news .news-card:hover,
+  .news a.news-tag.is-linked:hover {
     transform: none;
   }
 }

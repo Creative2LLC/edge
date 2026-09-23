@@ -1,1 +1,65 @@
 /* add global styles that can be loaded post LCP here */
+
+/* CHART TOOLTIP: the hover readout shared by the data blocks (scripts/chart-tooltip.js).
+   Value leads, the label is keyed by a short stroke of the mark's colour, detail follows.
+   Anchored at its left/top point and lifted above it; .is-below flips it under. */
+.chart-tooltip {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  gap: 2px;
+
+  /* Its own width, not what is left of the host: near the host's right edge an absolute
+     box shrinks to fit, and a long label wrapped a word per line. */
+  width: max-content;
+  min-width: 140px;
+  max-width: 260px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--shadow-3);
+  color: var(--ncmec-gray-dark);
+  text-align: left;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 12px));
+}
+
+.chart-tooltip.is-below {
+  transform: translate(-50%, 12px);
+}
+
+.chart-tooltip[hidden] {
+  display: none;
+}
+
+.chart-tooltip-value {
+  color: var(--ncmec-navy-dark);
+  font-size: var(--heading-5-size);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.chart-tooltip-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+/* A short stroke keys the readout, not a box: at this size a filled swatch outweighs the label. */
+.chart-tooltip-key {
+  flex-shrink: 0;
+  width: 14px;
+  height: 3px;
+
+  /* Centred on the first line of a label that wraps. */
+  margin-top: calc((var(--caption-line-height) * 1em - 3px) / 2);
+  border-radius: 2px;
+  background: var(--chart-tooltip-key-color);
+}
+
+.chart-tooltip-detail {
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}

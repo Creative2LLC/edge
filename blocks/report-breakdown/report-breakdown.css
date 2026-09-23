@@ -410,3 +410,46 @@
     animation: none;
   }
 }
+
+/* The highlight has to sit last to win over the swatch rules above, which the rule reads as
+   descending specificity. */
+/* stylelint-disable no-descending-specificity */
+
+/* HIGHLIGHT: pointing at a slice or its row fades the other slices and swatches, washes the
+   row, and shows the shared chart tooltip beside the arc. */
+.report-breakdown .report-breakdown-arc,
+.report-breakdown .report-breakdown-swatch {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.report-breakdown .report-breakdown-panel.has-active-slice .report-breakdown-arc:not(.is-active),
+.report-breakdown .report-breakdown-panel.has-active-slice .report-breakdown-row.is-linked:not(.is-active) .report-breakdown-swatch {
+  opacity: 0.3;
+}
+
+.report-breakdown .report-breakdown-row.is-linked.is-active {
+  box-shadow: inset 0 0 0 999px rgb(0 38 77 / 5%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row.is-linked.is-active {
+  box-shadow: inset 0 0 0 999px rgb(255 255 255 / 10%);
+}
+
+.report-breakdown .report-breakdown-row.is-active .report-breakdown-swatch {
+  transform: scale(1.35);
+}
+
+.report-breakdown .report-breakdown-panel:focus-visible {
+  outline: 3px solid var(--ncmec-blue-dark);
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-breakdown .report-breakdown-row.is-active .report-breakdown-swatch {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

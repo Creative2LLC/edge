@@ -13,6 +13,7 @@ import {
   readAppendedStyles,
   takeAppendedStyleCells,
 } from '../../scripts/button-utils.js';
+import createChartTooltip, { formatChartShare } from '../../scripts/chart-tooltip.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -27,10 +28,13 @@ const BLOCK_ROW_INDEX = {
 };
 
 const DEFAULT_SEGMENT_COLOR = '#008EB7';
-const DEFAULT_STAT_COLOR = '#1491bf';
 const DEFAULT_SURFACE_COLOR = '#ffffff';
 const DEFAULT_TRACK_COLOR = '#edf1f3';
 const ANIMATION_DURATION = 1400;
+// The donut hole is inset 22% of the chart's width, so the ring starts at 56% of its radius.
+const RING_INNER_RATIO = 0.56;
+// How much of its own colour a segment keeps while another one is highlighted.
+const DIMMED_SEGMENT_MIX = 30;
 
 function normalizeTextMode(value) {
   const normalized = String(value || '').trim().toLowerCase();
@@ -232,11 +236,22 @@ function easeOutCubic(value) {
   return 1 - ((1 - value) ** 3);
 }
 
+// A swatch in a segment's own colour. The arcs can wear any colour, text can't: darkening
+// the colour until the number read as text left "33M+" brown beside a peach arc, so the
+// number takes the block's ink and this mark carries the colour-coding instead.
+function buildColorKey(color, className) {
+  const key = document.createElement('span');
+  key.className = `impact-donut-key ${className}`;
+  key.setAttribute('aria-hidden', 'true');
+  key.style.setProperty('--impact-donut-key-color', color);
+  return key;
+}
+
 function buildStatItem(item, index) {
   const stat = document.createElement('article');
   stat.className = 'impact-donut-stat impact-donut-reveal';
   stat.style.setProperty('--stagger-index', index);
-  stat.style.setProperty('--impact-donut-stat-color', item.displayColor || DEFAULT_STAT_COLOR);
+  if (item.segmentKey !== undefined) stat.dataset.segmentKey = item.segmentKey;
   if (item.row) moveInstrumentation(item.row, stat);
   setItemLabel(stat, [item.label]);
 
@@ -255,6 +270,11 @@ function buildStatItem(item, index) {
       ),
     );
     return stat;
+  }
+
+  if (item.displayColor) {
+    stat.classList.add('has-key');
+    stat.append(buildColorKey(item.displayColor, 'impact-donut-stat-key'));
   }
 
   if (item.value || item.valueField?.source) {
@@ -286,6 +306,7 @@ function buildLegendItem(segment, index) {
   const item = document.createElement('div');
   item.className = 'impact-donut-legend-item impact-donut-reveal';
   item.style.setProperty('--stagger-index', index + 1);
+  item.dataset.segmentKey = segment.segmentKey;
   if (segment.row) moveInstrumentation(segment.row, item);
   setItemLabel(item, [segment.label]);
 
@@ -302,12 +323,15 @@ function buildLegendItem(segment, index) {
     return { item, value: null, segment };
   }
 
+  // The percentage is text, so it takes the block's ink; the swatch beside it matches the arc.
   const value = document.createElement('p');
   value.className = 'impact-donut-legend-value';
-  value.style.color = segment.color;
   if (segment.valueField?.source) moveInstrumentation(segment.valueField.source, value);
   value.textContent = '0%';
-  item.append(value);
+  const valueRow = document.createElement('div');
+  valueRow.className = 'impact-donut-legend-value-row';
+  valueRow.append(buildColorKey(segment.color, 'impact-donut-legend-key'), value);
+  item.append(valueRow);
 
   const label = document.createElement('p');
   label.className = 'impact-donut-legend-label';
@@ -329,7 +353,7 @@ function updateLegendValues(legendEntries, progress) {
   });
 }
 
-function renderDonut(chart, segments, progress) {
+function renderDonut(chart, segments, progress, activeKey = null) {
   const clampedProgress = Math.max(0, Math.min(progress, 1));
   const revealedAngle = 360 * clampedProgress;
   const gradientStops = [];
@@ -339,7 +363,12 @@ function renderDonut(chart, segments, progress) {
     const segmentAngle = 360 * (segment.percentage / 100);
     const visibleEnd = Math.min(startAngle + segmentAngle, revealedAngle);
     if (visibleEnd > startAngle) {
-      gradientStops.push(`${segment.color} ${startAngle}deg ${visibleEnd}deg`);
+      // While one segment is highlighted the rest fade toward the surface, so the hovered
+      // arc keeps its exact colour and still matches its swatch.
+      const color = activeKey === null || segment.segmentKey === activeKey
+        ? segment.color
+        : `color-mix(in srgb, ${segment.color} ${DIMMED_SEGMENT_MIX}%, var(--impact-donut-surface))`;
+      gradientStops.push(`${color} ${startAngle}deg ${visibleEnd}deg`);
     }
     startAngle += segmentAngle;
   });
@@ -355,13 +384,14 @@ function renderDonut(chart, segments, progress) {
   chart.style.backgroundImage = `conic-gradient(${gradientStops.join(', ')})`;
 }
 
-function animateChart(block, chart, chartSegments, legendEntries) {
+function animateChart(block, chart, chartSegments, legendEntries, onComplete = () => {}) {
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
   const finishImmediately = () => {
     renderDonut(chart, chartSegments, 1);
     updateLegendValues(legendEntries, 1);
     block.classList.add('is-visible');
+    onComplete();
   };
 
   if (!chart || !chartSegments.length || reducedMotion || !('IntersectionObserver' in window)) {
@@ -391,6 +421,8 @@ function animateChart(block, chart, chartSegments, legendEntries) {
 
       if (rawProgress < 1) {
         window.requestAnimationFrame(tick);
+      } else {
+        onComplete();
       }
     };
 
@@ -401,6 +433,113 @@ function animateChart(block, chart, chartSegments, legendEntries) {
   });
 
   observer.observe(block);
+}
+
+/**
+ * Hover and keyboard highlighting for the donut. Pointing at an arc, or at its legend
+ * entry or stat, dims the other arcs and shows the segment's value beside it. The chart is
+ * one tab stop; the arrow keys step through the segments.
+ */
+function enableSegmentHighlight(block, chart, chartShell, chartSegments) {
+  if (!chartSegments.length) return;
+
+  const bounds = [];
+  chartSegments.reduce((start, segment) => {
+    const end = start + (360 * (segment.percentage / 100));
+    bounds.push({ segment, start, end });
+    return end;
+  }, 0);
+
+  const tooltip = createChartTooltip(chartShell);
+  let activeKey = null;
+
+  const linkedItems = (key) => block.querySelectorAll(
+    `.impact-donut-legend-item[data-segment-key="${key}"], .impact-donut-stat[data-segment-key="${key}"]`,
+  );
+
+  const showTooltip = ({ segment, start, end }) => {
+    const chartRect = chart.getBoundingClientRect();
+    const shellRect = chartShell.getBoundingClientRect();
+    const radius = chartRect.width / 2;
+    // The gradient starts at 9 o'clock (the chart is turned -90deg), so a gradient angle g
+    // sits at g - 90 measured clockwise from 12 o'clock on screen.
+    const screenAngle = (((start + end) / 2) - 90) * (Math.PI / 180);
+    const ringMiddle = radius * ((1 + RING_INNER_RATIO) / 2);
+    const x = chartRect.left - shellRect.left + radius + (ringMiddle * Math.sin(screenAngle));
+    const y = chartRect.top - shellRect.top + radius - (ringMiddle * Math.cos(screenAngle));
+    const percentLabel = formatChartShare(segment.percentage, 100);
+    // A display value such as "33M+" does not say how big the arc is; the share does.
+    tooltip.show({
+      value: segment.value || percentLabel,
+      label: segment.label || 'Segment',
+      color: segment.color,
+      detail: segment.value && segment.value !== percentLabel ? `${percentLabel} of total` : '',
+    }, x, y);
+  };
+
+  const setActive = (key) => {
+    if (key === activeKey) return;
+    if (activeKey !== null) {
+      linkedItems(activeKey).forEach((item) => item.classList.remove('is-active'));
+    }
+    activeKey = key;
+    block.classList.toggle('has-active-segment', key !== null);
+    renderDonut(chart, chartSegments, 1, key);
+
+    const entry = bounds.find(({ segment }) => segment.segmentKey === key);
+    if (!entry) {
+      tooltip.hide();
+      return;
+    }
+    linkedItems(key).forEach((item) => item.classList.add('is-active'));
+    showTooltip(entry);
+  };
+
+  const keyAtPoint = (clientX, clientY) => {
+    const rect = chart.getBoundingClientRect();
+    const radius = rect.width / 2;
+    const dx = clientX - (rect.left + radius);
+    const dy = clientY - (rect.top + radius);
+    const distance = Math.hypot(dx, dy) / radius;
+    if (distance < RING_INNER_RATIO || distance > 1) return null;
+    const screenAngle = ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360;
+    const gradientAngle = (screenAngle + 90) % 360;
+    const hit = bounds.find(({ start, end }) => gradientAngle >= start && gradientAngle < end);
+    return hit ? hit.segment.segmentKey : null;
+  };
+
+  chart.addEventListener('pointermove', (event) => setActive(keyAtPoint(event.clientX, event.clientY)));
+  chart.addEventListener('pointerdown', (event) => setActive(keyAtPoint(event.clientX, event.clientY)));
+  chart.addEventListener('pointerleave', () => setActive(null));
+
+  block.querySelectorAll('.impact-donut-legend-item[data-segment-key], .impact-donut-stat[data-segment-key]')
+    .forEach((item) => {
+      const key = Number(item.dataset.segmentKey);
+      if (!bounds.some(({ segment }) => segment.segmentKey === key)) return;
+      item.classList.add('is-linked');
+      item.addEventListener('pointerenter', () => setActive(key));
+      item.addEventListener('pointerleave', () => setActive(null));
+    });
+
+  chart.tabIndex = 0;
+  chart.addEventListener('focus', () => {
+    if (activeKey === null) setActive(bounds[0].segment.segmentKey);
+  });
+  chart.addEventListener('blur', () => setActive(null));
+  chart.addEventListener('keydown', (event) => {
+    const step = {
+      ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1,
+    }[event.key];
+    if (event.key === 'Escape') {
+      setActive(null);
+      return;
+    }
+    if (!step) return;
+    event.preventDefault();
+    const current = bounds.findIndex(({ segment }) => segment.segmentKey === activeKey);
+    const next = (current + step + bounds.length) % bounds.length;
+    setActive(bounds[next].segment.segmentKey);
+  });
 }
 
 export default function decorate(block) {
@@ -420,6 +559,7 @@ export default function decorate(block) {
   const secondaryButtonTextField = getBlockField(block, 'secondaryButtonText');
   const secondaryButtonLinkField = getBlockLinkField(block, 'secondaryButtonLink');
   const surfaceColorField = getBlockField(block, 'surfaceColor');
+  const surfaceColor = surfaceColorField.value || DEFAULT_SURFACE_COLOR;
   const chartTrackColorField = getBlockField(block, 'chartTrackColor');
   const textModeField = getBlockField(block, 'textMode');
 
@@ -484,8 +624,9 @@ export default function decorate(block) {
     item.isAuthoringPlaceholder ? sum : sum + item.numericValue
   ), 0);
 
-  const segments = segmentItems.map((item) => ({
+  const segments = segmentItems.map((item, index) => ({
     ...item,
+    segmentKey: index,
     percentage: totalSegmentValue > 0 ? (item.numericValue / totalSegmentValue) * 100 : 0,
   }));
 
@@ -604,13 +745,14 @@ export default function decorate(block) {
     inner.append(copy);
     inner.append(chartSide);
 
-    const surfaceColor = surfaceColorField.value || DEFAULT_SURFACE_COLOR;
     const chartTrackColor = chartTrackColorField.value || DEFAULT_TRACK_COLOR;
     block.style.setProperty('--impact-donut-surface', surfaceColor);
     block.style.setProperty('--impact-donut-track', chartTrackColor);
 
     block.replaceChildren(inner);
-    animateChart(block, chart, chartSegments, legendEntries);
+    animateChart(block, chart, chartSegments, legendEntries, () => {
+      enableSegmentHighlight(block, chart, chartShell, chartSegments);
+    });
     return;
   }
 
@@ -619,11 +761,12 @@ export default function decorate(block) {
   inner.append(copy);
   inner.append(chartSide);
 
-  const surfaceColor = surfaceColorField.value || DEFAULT_SURFACE_COLOR;
   const chartTrackColor = chartTrackColorField.value || DEFAULT_TRACK_COLOR;
   block.style.setProperty('--impact-donut-surface', surfaceColor);
   block.style.setProperty('--impact-donut-track', chartTrackColor);
 
   block.replaceChildren(inner);
-  animateChart(block, chart, chartSegments, []);
+  animateChart(block, chart, chartSegments, [], () => {
+    enableSegmentHighlight(block, chart, chartShell, chartSegments);
+  });
 }

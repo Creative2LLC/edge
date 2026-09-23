@@ -7,8 +7,16 @@
   --cybertipline-geo-surface: #fff;
   --cybertipline-geo-wash: #f3f7f9;
   --cybertipline-geo-border: rgb(17 58 103 / 12%);
+
+  /* Two sets on purpose. The plain tokens colour MARKS (map outline, ranked bars), which
+     carry no text and keep the brand colours. The -ink tokens colour TEXT on the white
+     panel, where Blue Medium reads 3.78 and #de8a2a 2.4 — under AA — so they darken:
+     Blue Dark passes at 5.85, and the amber darkens to 4.6 keeping its hue. One token for
+     both turned the bars and the hover outline muddy. */
   --cybertipline-geo-blue: var(--ncmec-blue-medium);
   --cybertipline-geo-orange: #de8a2a;
+  --cybertipline-geo-blue-ink: var(--ncmec-blue-dark);
+  --cybertipline-geo-orange-ink: #9a5c13;
   --cybertipline-geo-gold: var(--ncmec-yellow);
 
   max-width: var(--container);
@@ -37,7 +45,7 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-kicker {
   margin: 0;
-  color: var(--cybertipline-geo-orange);
+  color: var(--cybertipline-geo-orange-ink);
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.2;
@@ -328,52 +336,41 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-map-card-icon {
   position: relative;
+  display: grid;
+  place-items: center;
   grid-row: span 2;
   width: 48px;
   height: 48px;
+  box-sizing: border-box;
   border: 3px solid var(--ncmec-yellow-dark);
   border-radius: 50%;
 }
 
-.cybertipline-geo-report .cybertipline-geo-report-map-card-icon::before,
-.cybertipline-geo-report .cybertipline-geo-report-map-card-icon::after {
+.cybertipline-geo-report .cybertipline-geo-report-map-card-person {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: var(--ncmec-yellow-dark);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+}
+
+.cybertipline-geo-report .cybertipline-geo-report-map-card-badge {
   position: absolute;
-  display: block;
-  content: "";
+  right: -5px;
+  bottom: -5px;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.cybertipline-geo-report .cybertipline-geo-report-map-card-icon::before {
-  top: 10px;
-  left: 12px;
-  width: 18px;
-  height: 18px;
-  border: 3px solid var(--ncmec-yellow-dark);
-  border-radius: 50%;
-  background: #fff;
-}
-
-.cybertipline-geo-report .cybertipline-geo-report-map-card-icon::after {
-  right: -8px;
-  bottom: -2px;
-  width: 24px;
-  height: 12px;
-  border: 3px solid var(--ncmec-yellow-dark);
-  border-top: 0;
-  border-radius: 0 0 999px 999px;
-}
-
-.cybertipline-geo-report .cybertipline-geo-report-map-card-metric.is-informational .cybertipline-geo-report-map-card-icon::before {
-  top: 11px;
-  left: 11px;
-  width: 18px;
-  height: 10px;
-  border-width: 0 0 3px 3px;
-  border-radius: 0;
-  transform: rotate(-45deg);
-}
-
-.cybertipline-geo-report .cybertipline-geo-report-map-card-metric.is-informational .cybertipline-geo-report-map-card-icon::after {
-  display: none;
+.cybertipline-geo-report .cybertipline-geo-report-map-card-badge circle {
+  fill: var(--ncmec-yellow-dark);
+  stroke: none;
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-map-card-metric strong {
@@ -404,7 +401,8 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-map-card-total strong {
-  color: var(--cybertipline-geo-gold);
+  /* Navy like every other number on the card; the gold read 1.8 on white. */
+  color: var(--cybertipline-geo-ink);
   font-size: var(--heading-3-size);
   letter-spacing: 0;
 }
@@ -445,7 +443,7 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-detail-eyebrow {
   margin: 0;
-  color: var(--cybertipline-geo-orange);
+  color: var(--cybertipline-geo-orange-ink);
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.2;
@@ -459,7 +457,7 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-detail-value {
   display: block;
-  color: var(--cybertipline-geo-blue);
+  color: var(--cybertipline-geo-blue-ink);
   font-size: var(--heading-1-size);
   font-weight: 800;
   line-height: 0.95;
@@ -532,7 +530,7 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-detail-top-rank {
-  color: var(--cybertipline-geo-orange);
+  color: var(--cybertipline-geo-ink);
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: var(--caption-line-height);
@@ -558,7 +556,7 @@
 
 .cybertipline-geo-report .cybertipline-geo-report-detail-top-item.is-selected .cybertipline-geo-report-detail-top-name,
 .cybertipline-geo-report .cybertipline-geo-report-detail-top-item.is-selected .cybertipline-geo-report-detail-top-value {
-  color: var(--cybertipline-geo-blue);
+  color: var(--cybertipline-geo-blue-ink);
   font-weight: 800;
 }
 
@@ -686,7 +684,7 @@
 }
 
 .cybertipline-geo-report .cybertipline-geo-report-row-rank {
-  color: var(--cybertipline-geo-orange);
+  color: var(--cybertipline-geo-ink);
   font-size: var(--caption-size);
   font-weight: 800;
 }

@@ -84,8 +84,30 @@
 }
 
 .impact-bar-chart .impact-bar-chart-list {
+  position: relative;
   display: grid;
   gap: 16px;
+}
+
+/* HIGHLIGHT: pointing at a bar fades the others and shows the shared chart tooltip above
+   the bar's end (or above a stacked segment). */
+.impact-bar-chart .impact-bar-chart-list:focus-visible {
+  outline: 3px solid currentcolor;
+  outline-offset: 6px;
+}
+
+.impact-bar-chart .impact-bar-chart-row.is-linked {
+  transition:
+    opacity 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.impact-bar-chart .impact-bar-chart-list.has-active-bar .impact-bar-chart-row.is-linked:not(.is-active) {
+  opacity: 0.5;
+}
+
+.impact-bar-chart .impact-bar-chart-list.has-active-bar .impact-bar-chart-row.is-active {
+  box-shadow: var(--shadow-3);
 }
 
 .impact-bar-chart .impact-bar-chart-row {

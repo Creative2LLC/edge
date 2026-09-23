@@ -1,5 +1,7 @@
 import { getMetadata } from '../../scripts/aem.js';
 import createRemoteSafePicture from '../../scripts/remote-picture.js';
+import resolveSiteHref from '../../scripts/link-utils.js';
+import { buildListFilterHref } from '../../scripts/list-filter-state.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import {
   getBlockRows,
@@ -692,8 +694,49 @@ function getArticleSlug(pathname = window.location.pathname) {
 }
 
 /**
- * The article's own tag names, falling back to its blog taxonomy so a blog that
- * was only categorised (and never tagged) still shows something.
+ * Which listing filter each blog-taxonomy group drives.
+ *
+ * The same mapping article-list uses for its card pills, and it has to stay
+ * that way: both ends have to agree or the link filters the wrong facet. The
+ * listing reads these from the URL via readListFilterState and forwards them to
+ * the API as areas[] / topics[] / story_types[] / programs[].
+ */
+const LISTING_FACET_BY_TAXONOMY_GROUP = {
+  primary_area: 'areas',
+  topic: 'topics',
+  story_type: 'storyTypes',
+  program_series: 'programs',
+};
+
+/**
+ * The blog listing this article belongs to.
+ *
+ * Derived from the path rather than authored, because the block has no listing
+ * field and adding one would mean re-authoring 397 pages. A blog lives at
+ * <listing>/<year>/<slug>, so everything before the year segment is the
+ * listing — which also keeps a localised path (/es/blog/...) pointing at its
+ * own listing instead of the English one.
+ */
+function getListingPath(pathname = window.location.pathname) {
+  const segments = normalizeText(pathname)
+    .replace(/[?#].*$/, '')
+    .replace(/\.html$/i, '')
+    .split('/')
+    .filter(Boolean);
+
+  const yearIndex = segments.findIndex((segment) => /^\d{4}$/.test(segment));
+  const listing = yearIndex > 0 ? segments.slice(0, yearIndex) : segments.slice(0, -1);
+
+  return listing.length ? `/${listing.join('/')}` : '/blog';
+}
+
+/**
+ * The article's own tags, falling back to its blog taxonomy so a blog that was
+ * only categorised (and never tagged) still shows something.
+ *
+ * Each entry carries the facet and value it filters by, not just a label — a
+ * tag in the hero is a way back into the listing, so the value has to survive
+ * the trip.
  */
 async function fetchArticleTags() {
   const slug = getArticleSlug();
@@ -707,26 +750,50 @@ async function fetchArticleTags() {
 
     const payload = await response.json();
     const article = payload?.data || {};
-    const tags = (article.tags || []).map((tag) => normalizeText(tag?.name)).filter(Boolean);
+    const tags = (article.tags || [])
+      .map((tag) => ({
+        label: normalizeText(tag?.name),
+        facet: 'tags',
+        value: normalizeText(tag?.slug || tag?.name),
+      }))
+      .filter((tag) => tag.label && tag.value);
     if (tags.length) return tags.slice(0, MAX_HERO_TAGS);
 
     return (article.blog_taxonomy || [])
-      .map((entry) => normalizeText(entry?.name))
-      .filter(Boolean)
+      .map((entry) => ({
+        label: normalizeText(entry?.name),
+        facet: LISTING_FACET_BY_TAXONOMY_GROUP[normalizeText(entry?.group)],
+        value: normalizeText(entry?.slug),
+      }))
+      .filter((entry) => entry.label && entry.facet && entry.value)
       .slice(0, MAX_HERO_TAGS);
   } catch (e) {
     return [];
   }
 }
 
-function buildTags(labels) {
+function buildTags(entries) {
   const wrap = document.createElement('div');
   wrap.className = 'article-details-tags';
+  const listingPath = getListingPath();
 
-  labels.forEach((label) => {
-    const tag = document.createElement('span');
-    tag.className = 'article-details-tag';
+  entries.forEach(({ label, facet, value }) => {
+    // A tag with nothing to filter by stays a plain span rather than becoming a
+    // link to the unfiltered listing, which would look identical and go nowhere
+    // useful.
+    if (!facet || !value) {
+      const tag = document.createElement('span');
+      tag.className = 'article-details-tag';
+      tag.textContent = label;
+      wrap.append(tag);
+      return;
+    }
+
+    const tag = document.createElement('a');
+    tag.className = 'article-details-tag is-linked';
+    tag.href = resolveSiteHref(buildListFilterHref(listingPath, { [facet]: [value] }));
     tag.textContent = label;
+    tag.setAttribute('aria-label', `See all blogs tagged ${label}`);
     wrap.append(tag);
   });
 

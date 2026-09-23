@@ -90,6 +90,7 @@
   width: 100%;
   height: auto;
   overflow: visible;
+  cursor: crosshair;
 }
 
 .historical-trends .historical-trends-fill-group {
@@ -165,6 +166,43 @@
   color: var(--ncmec-gray-dark);
   font-weight: var(--body-weight-strong);
   line-height: 1.2;
+  transition: color 160ms ease;
+}
+
+/* HOVER: a hairline snaps to the nearest year, a marker sits on the line, and that year's
+   axis label darkens. The readout itself is the shared chart tooltip. */
+.historical-trends .historical-trends-chart:focus-visible {
+  outline: 3px solid var(--ncmec-blue-dark);
+  outline-offset: 4px;
+}
+
+.historical-trends .historical-trends-focus {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.historical-trends .historical-trends-chart-frame.is-inspecting .historical-trends-focus {
+  opacity: 1;
+}
+
+.historical-trends .historical-trends-crosshair {
+  stroke: var(--ncmec-navy-dark);
+  stroke-dasharray: 4 4;
+  stroke-opacity: 0.45;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.historical-trends .historical-trends-marker {
+  fill: #fff;
+  stroke: var(--historical-trends-line-color);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.historical-trends .historical-trends-axis-label.is-active {
+  color: var(--ncmec-navy-dark);
 }
 
 .historical-trends .historical-trends-axis-label:first-child {

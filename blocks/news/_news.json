@@ -125,6 +125,134 @@
               "value": "button-giving"
             }
           ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "blogFeed",
+          "label": "Latest Blogs",
+          "description": "Adds the newest blogs after the articles you add by hand. Each card takes its image, title, summary and tags from the blog.",
+          "value": "news-blogs-0",
+          "options": [
+            {
+              "name": "Off (only the articles you add)",
+              "value": "news-blogs-0"
+            },
+            {
+              "name": "Add the 3 newest blogs",
+              "value": "news-blogs-3"
+            },
+            {
+              "name": "Add the 4 newest blogs",
+              "value": "news-blogs-4"
+            },
+            {
+              "name": "Add the 6 newest blogs",
+              "value": "news-blogs-6"
+            },
+            {
+              "name": "Add the 9 newest blogs",
+              "value": "news-blogs-9"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "blogFilter",
+          "label": "Only Blogs About",
+          "description": "Limits Latest Blogs to one area, topic, story type or program.",
+          "value": "",
+          "options": [
+            {
+              "name": "Any topic",
+              "value": ""
+            },
+            {
+              "name": "Area: Missing Children & Exploitation",
+              "value": "news-filter-areas-missing-children-exploitation"
+            },
+            {
+              "name": "Area: Prevention & Safety",
+              "value": "news-filter-areas-prevention-safety"
+            },
+            {
+              "name": "Area: NCMEC News & Impact",
+              "value": "news-filter-areas-ncmec-news-impact"
+            },
+            {
+              "name": "Topic: Missing Children",
+              "value": "news-filter-topics-missing-children"
+            },
+            {
+              "name": "Topic: Online Exploitation",
+              "value": "news-filter-topics-online-exploitation"
+            },
+            {
+              "name": "Topic: Child Sex Trafficking",
+              "value": "news-filter-topics-child-sex-trafficking"
+            },
+            {
+              "name": "Topic: Recovery & Support",
+              "value": "news-filter-topics-recovery-support"
+            },
+            {
+              "name": "Topic: Online Safety",
+              "value": "news-filter-topics-online-safety"
+            },
+            {
+              "name": "Topic: Personal Safety",
+              "value": "news-filter-topics-personal-safety"
+            },
+            {
+              "name": "Topic: Research & Data",
+              "value": "news-filter-topics-research-data"
+            },
+            {
+              "name": "Topic: Partnerships",
+              "value": "news-filter-topics-partnerships"
+            },
+            {
+              "name": "Story type: News",
+              "value": "news-filter-story-types-news"
+            },
+            {
+              "name": "Story type: Featured Case",
+              "value": "news-filter-story-types-featured-case"
+            },
+            {
+              "name": "Story type: Event",
+              "value": "news-filter-story-types-event"
+            },
+            {
+              "name": "Story type: Research & Data",
+              "value": "news-filter-story-types-research-data"
+            },
+            {
+              "name": "Story type: Launch",
+              "value": "news-filter-story-types-launch"
+            },
+            {
+              "name": "Program: NetSmartz",
+              "value": "news-filter-programs-netsmartz"
+            },
+            {
+              "name": "Program: KidSmartz",
+              "value": "news-filter-programs-kidsmartz"
+            },
+            {
+              "name": "Program: Team Adam",
+              "value": "news-filter-programs-team-adam"
+            },
+            {
+              "name": "Program: Help ID Me",
+              "value": "news-filter-programs-help-id-me"
+            },
+            {
+              "name": "Program: 40th Anniversary",
+              "value": "news-filter-programs-40th-anniversary"
+            }
+          ]
         }
       ]
     },
@@ -160,7 +288,8 @@
           "component": "text",
           "valueType": "string",
           "name": "tags",
-          "label": "Tags (Name:#hex per line)"
+          "label": "Tags (one per line)",
+          "description": "Leave empty on an article pulled from a blog to use the blog’s own tags."
         },
         {
           "component": "text",
@@ -210,6 +339,12 @@
               "value": "button-giving"
             }
           ]
+        },
+        {
+          "component": "aem-content",
+          "name": "blog",
+          "label": "Pull From Blog",
+          "description": "Pick a blog page to fill this card. Anything typed above wins; empty fields, including tags, come from the blog."
         }
       ]
     }

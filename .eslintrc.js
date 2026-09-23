@@ -30,7 +30,7 @@ module.exports = {
       'colored-button': 17,
       'colored-icon-text': 29,
       'colored-text': 17,
-      'news-article': 6,
+      'news-article': 7,
       resources: 12,
       'resource-item': 8,
       'resource-hero': 36,

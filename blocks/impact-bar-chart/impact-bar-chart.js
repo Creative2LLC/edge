@@ -18,6 +18,7 @@ import {
   rowNumericValue,
 } from '../../scripts/impact-data-utils.js';
 import { markButtonSurface } from '../../scripts/button-utils.js';
+import createChartTooltip, { formatChartShare } from '../../scripts/chart-tooltip.js';
 
 const BLOCK_ROW_INDEX = {
   heading: 0,
@@ -393,7 +394,7 @@ function buildStackedBar(row, maxValue, metrics) {
     segment.className = 'impact-bar-chart-segment';
     segment.style.setProperty('--impact-bar-chart-segment-width', `${segmentWidth}%`);
     segment.style.setProperty('--impact-bar-chart-segment-color', metric.color);
-    segment.title = `${metric.label}: ${formatNumber(value)}`;
+    segment.dataset.metricIndex = String(metrics.indexOf(metric));
     segment.setAttribute('aria-hidden', 'true');
     bar.append(segment);
   });
@@ -423,12 +424,97 @@ function buildSeriesValues(row, metrics) {
   return list;
 }
 
+/**
+ * Hover and keyboard readout. Pointing at a bar fades the others and shows its value and
+ * its share of the whole chart above the bar's end; on a stacked bar, each segment shows
+ * its own share of that bar. The chart is one tab stop; the arrow keys step through bars.
+ */
+function enableBarHighlight(list, entries, config) {
+  const live = entries.filter(({ row }) => !row.isAuthoringPlaceholder);
+  if (!live.length) return;
+
+  const grandTotal = live.reduce((sum, entry) => sum + entry.total, 0);
+  const tooltip = createChartTooltip(list);
+  let active = null;
+
+  const anchorAbove = (element) => {
+    const rect = element.getBoundingClientRect();
+    const listRect = list.getBoundingClientRect();
+    return [rect.right - listRect.left, rect.top - listRect.top];
+  };
+
+  const setActive = (entry, segment = null) => {
+    if (active && active !== entry) active.item.classList.remove('is-active');
+    active = entry;
+    list.classList.toggle('has-active-bar', Boolean(entry));
+    if (!entry) {
+      tooltip.hide();
+      return;
+    }
+    entry.item.classList.add('is-active');
+
+    if (segment) {
+      const metric = config.metrics[Number(segment.dataset.metricIndex)];
+      const value = rowNumericValue(entry.row, metric.key) ?? 0;
+      const rect = segment.getBoundingClientRect();
+      const listRect = list.getBoundingClientRect();
+      tooltip.show({
+        value: formatNumber(value),
+        label: `${metric.label} · ${entry.row.label}`,
+        color: metric.color,
+        detail: `${formatChartShare(value, entry.total)} of ${entry.row.label}`,
+      }, rect.left - listRect.left + (rect.width / 2), rect.top - listRect.top);
+      return;
+    }
+
+    const [x, y] = anchorAbove(entry.bar);
+    tooltip.show({
+      value: entry.display,
+      label: entry.row.label,
+      color: entry.color,
+      detail: live.length > 1 ? `${formatChartShare(entry.total, grandTotal)} of the total` : '',
+    }, x, y);
+  };
+
+  live.forEach((entry) => {
+    entry.item.classList.add('is-linked');
+    entry.item.addEventListener('pointerenter', () => setActive(entry));
+    entry.item.addEventListener('pointerleave', () => setActive(null));
+    entry.bar.querySelectorAll('.impact-bar-chart-segment').forEach((segment) => {
+      segment.addEventListener('pointerenter', () => setActive(entry, segment));
+      segment.addEventListener('pointerleave', () => setActive(entry));
+    });
+  });
+
+  list.tabIndex = 0;
+  list.setAttribute('role', 'group');
+  list.setAttribute('aria-label', 'Chart. Use the arrow keys to read each bar.');
+  list.addEventListener('focus', () => {
+    if (!active) setActive(live[0]);
+  });
+  list.addEventListener('blur', () => setActive(null));
+  list.addEventListener('keydown', (event) => {
+    const step = {
+      ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1,
+    }[event.key];
+    if (event.key === 'Escape') {
+      setActive(null);
+      return;
+    }
+    if (!step) return;
+    event.preventDefault();
+    const current = live.indexOf(active);
+    setActive(live[current < 0 ? 0 : (current + step + live.length) % live.length]);
+  });
+}
+
 function buildChart(rows, config) {
   const list = document.createElement('div');
   const values = rows.map((row) => rowTotal(row, config.valueKey, config.metrics));
   const maxValue = Math.max(...values, 0);
 
   list.className = 'impact-bar-chart-list';
+  const entries = [];
 
   rows.forEach((row, index) => {
     const item = document.createElement('div');
@@ -447,9 +533,10 @@ function buildChart(rows, config) {
     label.textContent = row.label;
 
     track.className = 'impact-bar-chart-track';
-    track.append(config.metrics.length
+    const bar = config.metrics.length
       ? buildStackedBar(row, maxValue, config.metrics)
-      : buildSingleBar(row, maxValue, config.valueKey, index));
+      : buildSingleBar(row, maxValue, config.valueKey, index);
+    track.append(bar);
 
     value.className = 'impact-bar-chart-value';
     value.textContent = config.metrics.length
@@ -471,8 +558,17 @@ function buildChart(rows, config) {
     }
 
     list.append(item);
+    entries.push({
+      row,
+      item,
+      bar,
+      total: values[index],
+      display: value.textContent,
+      color: config.metrics.length ? config.metrics[0].color : normalizeColor(row.color, index),
+    });
   });
 
+  enableBarHighlight(list, entries, config);
   return list;
 }
 

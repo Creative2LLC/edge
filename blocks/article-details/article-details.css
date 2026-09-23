@@ -105,6 +105,39 @@
   font-weight: var(--body-weight-bold);
 }
 
+/* A tag that filters the listing is a real link, so it needs a real hover and
+   focus ring — the same lift article-list gives its clickable card pills, so
+   the two read as the same affordance across the blog. */
+.article-details .article-details-tag.is-linked {
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+/* The label darkens with the background: Blue Dark on Blue Light is only 3.61,
+   under AA, while Navy Dark on it is 9.35. Measured against the palette tokens,
+   not eyeballed. */
+.article-details .article-details-tag.is-linked:hover {
+  transform: translateY(-1px);
+  background: var(--ncmec-blue-light);
+  color: var(--ncmec-navy-dark);
+  box-shadow: 0 8px 18px rgb(13 110 140 / 14%);
+}
+
+.article-details .article-details-tag.is-linked:focus-visible {
+  outline: 3px solid var(--ncmec-blue-medium);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-details .article-details-tag.is-linked {
+    transition: none;
+  }
+
+  .article-details .article-details-tag.is-linked:hover {
+    transform: none;
+  }
+}
+
 .article-details .article-details-excerpt {
   margin: 0;
   color: #516272;

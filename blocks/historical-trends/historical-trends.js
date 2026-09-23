@@ -10,6 +10,7 @@ import {
   readAppendedStyles,
   takeAppendedStyleCells,
 } from '../../scripts/button-utils.js';
+import createChartTooltip, { formatChartNumber } from '../../scripts/chart-tooltip.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
@@ -178,6 +179,8 @@ function parseChartPoints(value) {
       return {
         label: rawLabel,
         value: parsedValue,
+        // Printed as authored in the hover readout, so "20.5M" stays "20.5M".
+        display: rawValue,
         order: index,
       };
     })
@@ -302,6 +305,17 @@ function setGradientStops(gradient, color) {
   );
 }
 
+function pointDisplay(point) {
+  return point.display || formatChartNumber(point.value);
+}
+
+function describeChange(point, previous) {
+  if (!previous || !previous.value) return '';
+  const rounded = Math.round(((point.value - previous.value) / previous.value) * 100);
+  if (!rounded) return `About the same as ${previous.label}`;
+  return `${rounded > 0 ? 'Up' : 'Down'} ${Math.abs(rounded)}% from ${previous.label}`;
+}
+
 function buildChart(points, highlightIndex, palette) {
   const width = 1100;
   const height = 380;
@@ -316,7 +330,9 @@ function buildChart(points, highlightIndex, palette) {
     class: 'historical-trends-chart',
     viewBox: `0 0 ${width} ${height}`,
     role: 'img',
-    'aria-label': `Trend chart from ${points[0].label} to ${points[points.length - 1].label}.`,
+    // The values are only drawn, never printed, so the label carries them for screen readers.
+    'aria-label': `Trend chart from ${points[0].label} to ${points[points.length - 1].label}: ${
+      points.map((point) => `${point.label}, ${pointDisplay(point)}`).join('; ')}.`,
   });
   const defs = createSvgElement('defs');
   const baseGradient = createSvgElement('linearGradient', {
@@ -383,9 +399,106 @@ function buildChart(points, highlightIndex, palette) {
   });
 
   fillGroup.append(baseArea, highlightArea);
-  svg.append(defs, fillGroup, line);
 
-  return { svg, line, points };
+  // Hover layer: a hairline that snaps to the nearest year and a marker on the line.
+  const focusGroup = createSvgElement('g', {
+    class: 'historical-trends-focus',
+    'aria-hidden': 'true',
+  });
+  const crosshair = createSvgElement('line', {
+    class: 'historical-trends-crosshair',
+    x1: '0',
+    x2: '0',
+    y1: '0',
+    y2: `${baselineY}`,
+  });
+  const marker = createSvgElement('circle', {
+    class: 'historical-trends-marker',
+    cx: '0',
+    cy: '0',
+    r: '7',
+  });
+  focusGroup.append(crosshair, marker);
+  svg.append(defs, fillGroup, line, focusGroup);
+
+  return {
+    svg, line, points, scaledPoints, width, crosshair, marker,
+  };
+}
+
+/**
+ * Hover and keyboard readout for the trend line. The pointer only has to aim at a year:
+ * the hairline snaps to the nearest point, marks it, and shows its value and the change
+ * from the year before. The chart is one tab stop; the arrow keys step through the years.
+ */
+function enableTrendHover(chartFrame, chart, axis, lineColor) {
+  const {
+    svg, scaledPoints, width, crosshair, marker,
+  } = chart;
+  const tooltip = createChartTooltip(chartFrame);
+  const axisLabels = [...axis.children];
+  let activeIndex = -1;
+
+  const activate = (index) => {
+    if (index === activeIndex) return;
+    axisLabels[activeIndex]?.classList.remove('is-active');
+    activeIndex = index;
+    chartFrame.classList.toggle('is-inspecting', index >= 0);
+    if (index < 0) {
+      tooltip.hide();
+      return;
+    }
+
+    const point = scaledPoints[index];
+    const svgRect = svg.getBoundingClientRect();
+    const frameRect = chartFrame.getBoundingClientRect();
+    const scale = svgRect.width / width;
+    crosshair.setAttribute('x1', point.x);
+    crosshair.setAttribute('x2', point.x);
+    marker.setAttribute('cx', point.x);
+    marker.setAttribute('cy', point.y);
+    // Keep the marker the same size on screen however far the chart is scaled down.
+    marker.setAttribute('r', 7 / scale);
+    axisLabels[index]?.classList.add('is-active');
+
+    tooltip.show({
+      value: pointDisplay(point),
+      label: point.label,
+      color: lineColor,
+      detail: describeChange(point, scaledPoints[index - 1]),
+    }, svgRect.left - frameRect.left + (point.x * scale), svgRect.top - frameRect.top
+      + (point.y * scale));
+  };
+
+  const nearestIndex = (clientX) => {
+    const rect = svg.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * width;
+    return scaledPoints.reduce((best, point, index) => (
+      Math.abs(point.x - x) < Math.abs(scaledPoints[best].x - x) ? index : best
+    ), 0);
+  };
+
+  svg.addEventListener('pointermove', (event) => activate(nearestIndex(event.clientX)));
+  svg.addEventListener('pointerdown', (event) => activate(nearestIndex(event.clientX)));
+  svg.addEventListener('pointerleave', () => activate(-1));
+
+  svg.setAttribute('tabindex', '0');
+  svg.addEventListener('focus', () => {
+    if (activeIndex < 0) activate(scaledPoints.length - 1);
+  });
+  svg.addEventListener('blur', () => activate(-1));
+  svg.addEventListener('keydown', (event) => {
+    const step = {
+      ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1,
+    }[event.key];
+    if (event.key === 'Escape') {
+      activate(-1);
+      return;
+    }
+    if (!step) return;
+    event.preventDefault();
+    activate(Math.min(Math.max(activeIndex + step, 0), scaledPoints.length - 1));
+  });
 }
 
 function buildAxis(points) {
@@ -571,7 +684,9 @@ export default function decorate(block) {
   chartFrame.style.setProperty('--stagger-index', '0.9');
 
   const chart = buildChart(chartPoints, highlightIndex, palette);
-  chartFrame.append(chart.svg, buildAxis(chart.points));
+  const axis = buildAxis(chart.points);
+  chartFrame.append(chart.svg, axis);
+  enableTrendHover(chartFrame, chart, axis, palette.lineColor);
   inner.append(chartFrame);
 
   const cardsSection = document.createElement('div');

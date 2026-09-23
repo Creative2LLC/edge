@@ -64,7 +64,9 @@ const TYPE_THEMES = {
     contains: 'This document contains:',
   },
   powerpoint: {
-    accent: '#d24726',
+    // Darkened from #d24726: the white "PPT" badge label is 11px bold, and the original
+    // gave it 4.49 against AA's 4.5. Same orange-red, one step down.
+    accent: '#c84324',
     abbr: 'PPT',
     badgeLabel: 'Presentation',
     title: 'Download PowerPoint',
@@ -88,7 +90,8 @@ const TYPE_THEMES = {
     contains: 'This bundle contains:',
   },
   video: {
-    accent: '#008eb7',
+    // Blue Dark, not Blue Medium: white on Blue Medium is 3.78, under AA for the badge label.
+    accent: '#006d90',
     abbr: 'PLAY',
     badgeLabel: 'Video',
     title: 'Watch Video',

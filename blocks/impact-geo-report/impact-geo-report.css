@@ -1,7 +1,11 @@
 @import url("../cybertipline-geo-report/cybertipline-geo-report.css");
 
 .impact-geo-report {
+  /* Marks keep this report's brighter blue; text uses the -ink tokens, because #2aa7c9
+     reads 2.81 and #de8a2a 2.4 on the white panel. See the base block for the split. */
   --cybertipline-geo-blue: #2aa7c9;
   --cybertipline-geo-orange: #de8a2a;
+  --cybertipline-geo-blue-ink: var(--ncmec-blue-dark);
+  --cybertipline-geo-orange-ink: #9a5c13;
   --cybertipline-geo-gold: var(--ncmec-yellow);
 }

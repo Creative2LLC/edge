@@ -6,6 +6,7 @@ import {
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import { animateCountUp } from '../../scripts/count-up.js';
+import createChartTooltip, { formatChartShare } from '../../scripts/chart-tooltip.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const BLOCK_ROW_INDEX = {
@@ -613,6 +614,7 @@ function buildSemiDonut(dataset) {
     role: 'img',
     'aria-label': `${dataset.year} report breakdown chart.`,
   });
+  const slices = [];
 
   basePath.setAttribute('fill', 'none');
   basePath.setAttribute('stroke-width', `${strokeWidth}`);
@@ -669,12 +671,90 @@ function buildSemiDonut(dataset) {
       arc.classList.add('is-boosted');
     }
 
+    // Where the readout points: the middle of the slice, on the centre line of the ring.
+    // The arc runs from 9 o'clock over the top to 3 o'clock, so a share t of its length
+    // sits at angle PI * (1 - t).
+    const angle = Math.PI * (1 - ((consumedLength + (segmentLength / 2)) / totalLength));
+    slices.push({
+      entry,
+      arc,
+      mid: { x: centerX + (radius * Math.cos(angle)), y: centerY - (radius * Math.sin(angle)) },
+    });
+
     arcGroup.append(arc);
     consumedLength += segmentLength;
   });
 
   svg.append(basePath, arcGroup);
-  return svg;
+  return { svg, slices };
+}
+
+/**
+ * Hover and keyboard readout. Pointing at a slice or at its table row lifts that slice,
+ * fades the rest, and shows its count and share beside the arc. Arrow keys step through
+ * the slices while the panel has focus.
+ */
+function enableSliceHighlight(panel, svg, slices, rowsByEntry) {
+  const live = slices.filter(({ entry }) => !entry.isAuthoringPlaceholder && entry.reportCount > 0);
+  if (!live.length) return;
+
+  const total = live.reduce((sum, { entry }) => sum + entry.reportCount, 0);
+  const tooltip = createChartTooltip(panel);
+  let active = null;
+
+  const setActive = (slice) => {
+    if (slice === active) return;
+    if (active) {
+      active.arc.classList.remove('is-active');
+      rowsByEntry.get(active.entry)?.classList.remove('is-active');
+    }
+    active = slice;
+    panel.classList.toggle('has-active-slice', Boolean(slice));
+    if (!slice) {
+      tooltip.hide();
+      return;
+    }
+
+    slice.arc.classList.add('is-active');
+    rowsByEntry.get(slice.entry)?.classList.add('is-active');
+    const point = svg.createSVGPoint();
+    point.x = slice.mid.x;
+    point.y = slice.mid.y;
+    const screen = point.matrixTransform(svg.getScreenCTM());
+    const panelRect = panel.getBoundingClientRect();
+    tooltip.show({
+      value: formatNumber(slice.entry.reportCount),
+      label: slice.entry.reportType,
+      color: slice.entry.color,
+      detail: `${formatChartShare(slice.entry.reportCount, total)} of all reports`,
+    }, screen.x - panelRect.left, screen.y - panelRect.top);
+  };
+
+  live.forEach((slice) => {
+    slice.arc.addEventListener('pointerenter', () => setActive(slice));
+    slice.arc.addEventListener('pointerleave', () => setActive(null));
+    const row = rowsByEntry.get(slice.entry);
+    if (!row) return;
+    row.classList.add('is-linked');
+    row.addEventListener('pointerenter', () => setActive(slice));
+    row.addEventListener('pointerleave', () => setActive(null));
+  });
+
+  panel.addEventListener('keydown', (event) => {
+    const step = {
+      ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1,
+    }[event.key];
+    if (event.key === 'Escape') {
+      setActive(null);
+      return;
+    }
+    if (!step || event.target !== panel) return;
+    event.preventDefault();
+    const current = live.indexOf(active);
+    const next = current < 0 ? 0 : (current + step + live.length) % live.length;
+    setActive(live[next]);
+  });
+  panel.addEventListener('blur', () => setActive(null));
 }
 
 function buildTableRow(entry, index) {
@@ -744,7 +824,8 @@ function buildPanel(dataset, state) {
 
   const chartShell = document.createElement('div');
   chartShell.className = 'report-breakdown-chart-shell';
-  chartShell.append(buildSemiDonut(dataset));
+  const chart = buildSemiDonut(dataset);
+  chartShell.append(chart.svg);
 
   const tableShell = document.createElement('div');
   tableShell.className = 'report-breakdown-table-shell';
@@ -752,8 +833,11 @@ function buildPanel(dataset, state) {
 
   const rows = document.createElement('div');
   rows.className = 'report-breakdown-table-body';
+  const rowsByEntry = new Map();
   (dataset.tableEntries || dataset.entries).forEach((entry, index) => {
-    rows.append(buildTableRow(entry, index));
+    const row = buildTableRow(entry, index);
+    rowsByEntry.set(entry, row);
+    rows.append(row);
   });
 
   const totalRow = document.createElement('div');
@@ -792,6 +876,7 @@ function buildPanel(dataset, state) {
     tableShell.append(rows, totalRow);
   }
   panel.append(chartShell, tableShell);
+  enableSliceHighlight(panel, chart.svg, chart.slices, rowsByEntry);
 
   return panel;
 }
