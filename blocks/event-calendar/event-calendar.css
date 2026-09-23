@@ -63,9 +63,11 @@
 }
 
 .event-calendar .event-calendar-featured {
+  --event-calendar-featured-gap: clamp(28px, 5vw, 64px);
+
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: clamp(28px, 5vw, 64px);
+  gap: var(--event-calendar-featured-gap);
   width: 100%;
   margin: 0 auto 10px;
 }
@@ -91,6 +93,14 @@
   overflow: hidden;
   box-shadow: 0 16px 36px rgb(17 58 103 / 8%);
   text-align: left;
+}
+
+/* auto-fit collapses the empty tracks, so a lone featured event inherited the whole row
+   and blew up to full container width while two or more sat at half width or less. Cap the
+   single-card case at the width one card gets in the default two-up layout: 50% of the row
+   the card now owns outright, less its share of the gap. */
+.event-calendar .event-calendar-featured-card:only-child {
+  max-width: calc(50% - (var(--event-calendar-featured-gap) / 2));
 }
 
 .event-calendar .event-calendar-featured-card:focus-visible {
@@ -611,6 +621,11 @@
   .event-calendar .event-calendar-featured {
     grid-template-columns: 1fr;
     max-width: 420px;
+  }
+
+  /* One column already, and the container is capped — a lone card should fill it. */
+  .event-calendar .event-calendar-featured-card:only-child {
+    max-width: none;
   }
 
   .event-calendar .event-calendar-controls {

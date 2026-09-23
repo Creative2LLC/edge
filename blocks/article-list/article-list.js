@@ -636,6 +636,32 @@ function renderApiList(block, config) {
   state.selectedTags = new Set(
     locationState.tags.present ? locationState.tags.values : defaultState.selectedTags,
   );
+  // Tag links in a blog hero point here with the filter already in the query string (see
+  // buildListFilterHref in article-details.js). The reader was being dropped at the top of the
+  // listing page with no sign that anything had been filtered, so once the first filtered
+  // response has rendered, bring the results into view.
+  const arrivedFiltered = locationState.hasQuery
+    || locationState.areas.present
+    || locationState.topics.present
+    || locationState.storyTypes.present
+    || locationState.programs.present
+    || locationState.tags.present;
+  // A hash in the URL means the browser is already scrolling somewhere deliberate; do not
+  // fight it. Guards to a single scroll so later filter changes never yank the page around.
+  let hasScrolledToResults = !arrivedFiltered || Boolean(window.location.hash);
+
+  const scrollToResults = () => {
+    if (hasScrolledToResults) return;
+    hasScrolledToResults = true;
+
+    const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      ? 'auto'
+      : 'smooth';
+    window.requestAnimationFrame(() => {
+      block.scrollIntoView({ behavior, block: 'start' });
+    });
+  };
+
   const optionLabels = {
     audience: new Map(),
     issue: new Map(),
@@ -861,6 +887,7 @@ function renderApiList(block, config) {
       emptyState.hidden = cardsContainer.children.length > 0;
       loadMoreButton.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
       updatePagination();
+      scrollToResults();
     } catch (error) {
       // An abort means a newer request already owns the placeholders.
       if (error.name === 'AbortError') return;

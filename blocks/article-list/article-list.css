@@ -2,6 +2,11 @@
   width: 100%;
   margin: 0 auto;
   padding: clamp(2.75rem, 6vw, 5rem) 0;
+
+  /* The header is fixed, so a scroll that lands this block at the viewport top would tuck
+     its first rows underneath. Applies to the scroll from a hero tag link and to the
+     pagination jump alike. */
+  scroll-margin-top: var(--nav-height);
 }
 
 .article-list .article-list-inner {

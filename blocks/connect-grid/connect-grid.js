@@ -639,6 +639,17 @@ function buildCard(item, index, isEditor) {
     return card;
   }
 
+  // An empty item still renders, so the author has something to click on in the editor and
+  // fill in via the rail. Without a hint it would be a blank box of card background.
+  if (item.isEmptyItem) {
+    card.classList.add('is-empty');
+
+    const hint = document.createElement('p');
+    hint.className = 'connect-grid-card-empty-hint';
+    hint.textContent = 'Empty card — add a title, description, or contact method.';
+    card.append(hint);
+  }
+
   const media = buildMedia(item);
   if (media) card.append(media);
 
@@ -941,16 +952,19 @@ export default function decorate(block) {
       isEditor,
     );
 
-    if (
-      !titleSource?.textContent?.trim()
+    // A card an author has just added in Universal Editor is empty on every field. Dropping
+    // it here meant the new item never reached the DOM, so the block kept showing only the
+    // "New connect card" placeholder no matter how many items were added — it read as though
+    // the block refused to take children. Empty items are skipped on the published page only.
+    const isEmptyItem = !titleSource?.textContent?.trim()
       && !descriptionSource
       && !contactMethodsField.value
-      && !structuredContactMethods.length
-    ) {
-      return;
-    }
+      && !structuredContactMethods.length;
+
+    if (isEmptyItem && !isEditor) return;
 
     cards.push({
+      isEmptyItem,
       iconField,
       imageField,
       imageAlt: imageAltField.value,

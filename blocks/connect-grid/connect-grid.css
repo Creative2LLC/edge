@@ -88,6 +88,20 @@
   box-shadow: none;
 }
 
+/* An item added in the editor but not yet filled in. It only ever renders in Universal
+   Editor — the published page skips empty items — so this is purely an authoring affordance. */
+.connect-grid .connect-grid-card.is-empty {
+  border: 1px dashed var(--ncmec-gray-light);
+  box-shadow: none;
+}
+
+.connect-grid .connect-grid-card-empty-hint {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  font-style: italic;
+}
+
 .connect-grid .connect-grid-card-media {
   margin-bottom: var(--connect-grid-card-media-gap);
   flex-shrink: 0;

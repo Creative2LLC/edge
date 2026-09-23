@@ -187,6 +187,7 @@
                                            "colored-list",
                                            "colored-grid",
                                            "support-cta",
+                                           "need-help",
                                            "columns",
                                            "tabs",
                                            "fragment",
@@ -195,6 +196,7 @@
                                            "news",
                                            "resources",
                                            "resources-browser",
+                                           "resources-carousel",
                                            "poster-results",
                                            "poster-map",
                                            "resource-hero",
@@ -242,6 +244,7 @@
                                            "report-section-nav",
                                            "report-breakdown",
                                            "report-download",
+                                           "report-archive",
                                            "social-report-cta",
                                            "cybertipline-geo-report",
                                            "impact-geo-report",
@@ -253,6 +256,7 @@
                                            "job-postings",
                                            "internship-program",
                                            "card-row-compact",
+                                           "card-row-detailed",
                                            "detailed-carousel",
                                            "us-map",
                                            "split-card-info",
@@ -286,6 +290,7 @@
                                            "apply-for-training",
                                            "event-calendar",
                                            "gallery-grid",
+                                           "picture-cards",
                                            "mega-nav"
                                        ]
                     }
