@@ -1370,7 +1370,10 @@ a:hover {
    (.poster-results-detail-action: CALL 911, tip, print, share) and the cookie
    banner (.cookie-consent-button: 19px bold, so its white-on-#008eb7 label is
    WCAG large text) never wear `.button`; their exceptions live in their own
-   block stylesheets.
+   block stylesheets. The resource-downloads Download / Watch buttons DO wear
+   `.button`, but take their card's file-type colour (PDF red, PPT orange…) by
+   setting this standard's --btn-* properties from --rd-accent in their block
+   stylesheet; the shape, size and states stay the standard's.
 
    Authors pick the style; the surface picks the form. Blocks mark a dark
    surface — or a single button — with `.is-on-dark`; decorateSections marks the default content
@@ -1469,6 +1472,28 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
   --btn-bg-hover: var(--button-giving-hover);
 }
 
+/* Outline forms of Emergency and Giving: the Secondary shape in their own colour. Both
+   colours carry a label on white (Emergency 6.5:1, Giving 6.1:1). */
+:where(.button).emergency-outline {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--button-emergency-tint);
+  --btn-fg: var(--button-emergency);
+  --btn-fg-hover: var(--button-emergency-hover);
+  --btn-ring: currentcolor;
+  --btn-ring-hover: currentcolor;
+  --btn-focus: var(--button-emergency);
+}
+
+:where(.button).giving-outline {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--button-giving-tint);
+  --btn-fg: var(--button-giving);
+  --btn-fg-hover: var(--button-giving-hover);
+  --btn-ring: currentcolor;
+  --btn-ring-hover: currentcolor;
+  --btn-focus: var(--button-giving);
+}
+
 :where(.button).icon {
   --btn-pad-block: 0;
   --btn-pad-inline: 0;
@@ -1506,8 +1531,9 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
 }
 
 /* A red fill disappears against navy (2.34:1), so on dark Emergency becomes white
-   with an outline and label in its own colour. */
-:where(.is-on-dark .button, .button.is-on-dark).emergency {
+   with an outline and label in its own colour. Emergency outline takes the same form:
+   a red label and ring on navy would be just as unreadable. */
+:where(.is-on-dark .button, .button.is-on-dark):is(.emergency, .emergency-outline) {
   --btn-bg: #fff;
   --btn-bg-hover: var(--button-emergency-tint);
   --btn-fg: var(--button-emergency);
@@ -1518,8 +1544,9 @@ a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
 
 /* Giving keeps its green fill and white label on dark too: the client's green gives the
    label 6.10:1 (7.34:1 on hover). The label is restated here, or the generic dark form
-   above would put a navy label on the green. */
-:where(.is-on-dark .button, .button.is-on-dark).giving {
+   above would put a navy label on the green. Giving outline fills on dark for the same
+   reason Emergency outline does: a green label on navy does not read. */
+:where(.is-on-dark .button, .button.is-on-dark):is(.giving, .giving-outline) {
   --btn-bg: var(--button-giving);
   --btn-bg-hover: var(--button-giving-hover);
   --btn-fg: #fff;

@@ -129,6 +129,14 @@
             {
               "name": "Giving",
               "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
             }
           ]
         }
@@ -316,6 +324,14 @@
             {
               "name": "Giving",
               "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
             }
           ]
         }

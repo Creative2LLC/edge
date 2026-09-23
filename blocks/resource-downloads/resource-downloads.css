@@ -920,9 +920,25 @@ main > .section > div.resource-downloads-wrapper {
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 
-/* Download and Watch buttons: styled by the button standard in styles/styles.css.
-   They no longer take the file-type colour or draw an icon; a locked (gated)
-   download keeps the padlock from styles/resource-gate.css. */
+/* Download and Watch buttons: the button standard's shape (styles/styles.css) in the
+   card's file-type colour. A named exception to the standard: a blue Primary clashed with
+   the red PDF / orange PPT card around it, so the button takes --rd-accent through the
+   standard's own --btn-* properties rather than repainting itself. Every accent carries a
+   white label at AA (PDF 4.96, PPT 4.90, Word 7.16, XLS 5.82, ZIP 5.43, video 5.85).
+   Beside a Watch button the download is the outline form in the same colour. A locked
+   (gated) download keeps the padlock from styles/resource-gate.css. */
+.resource-downloads .resource-downloads-item-button {
+  --btn-bg: var(--rd-accent, var(--button-primary));
+  --btn-bg-hover: color-mix(in srgb, var(--rd-accent, var(--button-primary)) 82%, var(--ncmec-navy-dark));
+  --btn-focus: var(--rd-accent, var(--button-primary));
+}
+
+.resource-downloads .resource-downloads-item-button.secondary {
+  --btn-bg: transparent;
+  --btn-bg-hover: color-mix(in srgb, var(--rd-accent, var(--button-primary)) 10%, #fff);
+  --btn-fg: var(--rd-accent, var(--button-primary));
+  --btn-fg-hover: color-mix(in srgb, var(--rd-accent, var(--button-primary)) 82%, var(--ncmec-navy-dark));
+}
 
 .resource-downloads-item.is-group .resource-downloads-item-actions.is-stacked .resource-downloads-item-button {
   justify-content: flex-start;

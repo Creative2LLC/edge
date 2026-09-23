@@ -16,7 +16,17 @@ const NO_ARROW_SUFFIX = /\s*\[no arrow\]\s*$/i;
 const TRAILING_ARROW = /\s*(?:→|â†’)\s*$/;
 
 /** The styles an author can pick. `icon` is set by blocks, never chosen. */
-export const BUTTON_STYLES = ['primary', 'secondary', 'soft', 'text-link', 'amber', 'emergency', 'giving'];
+export const BUTTON_STYLES = [
+  'primary',
+  'secondary',
+  'soft',
+  'text-link',
+  'amber',
+  'emergency',
+  'giving',
+  'emergency-outline',
+  'giving-outline',
+];
 
 const STYLE_CLASSES = [...BUTTON_STYLES, 'default', 'download', 'pdf'];
 
@@ -45,6 +55,8 @@ const STYLE_WORDS = {
   accent: 'amber',
   emergency: 'emergency',
   giving: 'giving',
+  'emergency-outline': 'emergency-outline',
+  'giving-outline': 'giving-outline',
 };
 
 /* The old 18-swatch button colour picker, mapped to the nearest approved style. */
@@ -232,7 +244,8 @@ export function resolveAuthoredButtonStyle(style, color, fallback = 'primary') {
    Their values are namespaced ("button-amber", and "button2-amber" for a block's second
    button) so a published page, which carries no field names, can be read by value even
    when it dropped an empty field, and no other select's option reads as a style. */
-const APPENDED_STYLE_RE = /^button([2-9])?-(primary|secondary|soft|text-link|amber|emergency|giving)$/;
+// Built from BUTTON_STYLES so a new style is readable from published pages the day it ships.
+const APPENDED_STYLE_RE = new RegExp(`^button([2-9])?-(${BUTTON_STYLES.join('|')})$`);
 
 /** Every value an appended style dropdown can store, for option vocabularies. */
 export const APPENDED_STYLE_VALUES = ['button', 'button2']

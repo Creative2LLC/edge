@@ -23,6 +23,9 @@ const DEFAULT_HEADING = 'NCMEC News';
 const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
 const BLOG_REQUEST_TIMEOUT = 8000;
 const MAX_BLOG_TAGS = 3;
+// Tag pills are hidden on news cards for now (2026-09-23). Everything that builds them —
+// authored tags, blog tags, their listing links — still runs; set this to true to show them.
+const SHOW_TAGS = false;
 
 const TAG_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const LEGACY_BLOCK_LABELS = {
@@ -403,7 +406,7 @@ function mergeBlog(article, blog) {
 /* ---- Rendering ---- */
 
 function buildTagsContainer(entries) {
-  if (!entries?.length) return null;
+  if (!SHOW_TAGS || !entries?.length) return null;
   const container = document.createElement('div');
   container.className = 'news-tags';
   entries.forEach(({ label, href }) => {

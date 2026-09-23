@@ -90,7 +90,7 @@
  "blocks/article-list/article-list.css|.article-list .article-list-pill.is-taxonomy|color|#0B6B86",
  "blocks/article-list/article-list.css|.article-list .article-list-search, .article-list .article-list-filter|border|#D8E4EA",
  "blocks/article-list/article-list.css|.article-list .article-list-search, .article-list .article-list-filter|color|#16324A",
- "blocks/article-list/article-list.css|.article-list .article-list-search:focus-visible, .article-list .article-list-filter:focus-visible, .article-list .article-list-load-more:focus-visible, .article-list .article-list-clear-all:focus-visible, .article-list .article-list-active-chip:focus-visible, .article-list .article-list-pill.is-clickable:focus-visible|outline|#0D6E8C",
+ "blocks/article-list/article-list.css|.article-list .article-list-search:focus-visible, .article-list .article-list-filter:focus-visible, .article-list .article-list-load-more:focus-visible, .article-list .article-list-clear-all:focus-visible, .article-list .article-list-active-chip:focus-visible|outline|#0D6E8C",
  "blocks/cards/cards.css|.cards > ul > li|border|#DADADA",
  "blocks/case-anniversaries/case-anniversaries.css|.case-anniversaries .case-anniversaries-card-title-link:hover|color|#005F7A",
  "blocks/case-anniversaries/case-anniversaries.css|.case-anniversaries-card h3|color|#243846",

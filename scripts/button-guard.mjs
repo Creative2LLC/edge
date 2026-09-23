@@ -29,6 +29,8 @@
  *   .image-card-btn(-primary|-secondary)     the image-card buttons
  *   .poster-results-detail-action            the poster page's action bar (CALL 911, tip, …)
  *   .cookie-consent-button                   the cookie banner (19px so it passes as large text)
+ *   resource-downloads item buttons          file-type colour via --btn-* from --rd-accent (CSS
+ *                                            custom properties, so nothing here has to allow it)
  *
  * Rules that predate the guard live in scripts/button-guard-baseline.json, keyed without
  * line numbers. New ones fail. After fixing one, prune the baseline:
@@ -71,7 +73,7 @@ const SHARED_CLASSES = new Set([
 ]);
 
 // Style and state words that ride along on a button; never a block's own button class.
-const RIDERS = new Set(['primary', 'secondary', 'soft', 'text-link', 'amber', 'emergency', 'giving', 'icon', 'active', 'selected']);
+const RIDERS = new Set(['primary', 'secondary', 'soft', 'text-link', 'amber', 'emergency', 'giving', 'emergency-outline', 'giving-outline', 'icon', 'active', 'selected']);
 
 const LOOK = /^(color|background(-color|-image)?|border(-(top|right|bottom|left))?(-(color|width|style))?|border(-(top|bottom)-(left|right))?-radius|box-shadow|outline(-(color|offset|width|style))?|font(-(size|weight|family|style))?|letter-spacing|line-height|text-decoration(-(line|color|thickness))?|text-transform|text-shadow|padding(-(top|right|bottom|left|block|inline))?|height|min-height|filter|transition|fill|stroke)$/;
 // Switching motion off (reduced-motion blocks) is not a look.

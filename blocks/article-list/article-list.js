@@ -157,16 +157,6 @@ function getFieldValue(block, name, fallback = '') {
     || fallback;
 }
 
-const MAX_CARD_PILLS = 5;
-
-// The two label systems also disagree on plurals: the story_type taxonomy says
-// "Featured Case" and "Event" where the tag list says "Featured Cases" and
-// "Events". Those are the only two pairs in the data, and a trailing "s" is all
-// that separates them, so the dedupe key ignores one.
-function pillKey(label) {
-  return `${label}`.trim().toLowerCase().replace(/s$/, '');
-}
-
 let groupIdCounter = 0;
 function groupId() {
   groupIdCounter += 1;
@@ -193,21 +183,6 @@ function buildPill(label, className = '') {
   const pill = document.createElement('span');
   pill.className = `article-list-pill ${className}`.trim();
   pill.textContent = label;
-  return pill;
-}
-
-function buildInteractivePill(label, className = '', onActivate = null) {
-  if (typeof onActivate !== 'function') return buildPill(label, className);
-
-  const pill = document.createElement('button');
-  pill.type = 'button';
-  pill.className = `article-list-pill is-clickable ${className}`.trim();
-  pill.textContent = label;
-  pill.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onActivate();
-  });
   return pill;
 }
 
@@ -336,7 +311,7 @@ function buildArticleHref(article, config) {
   return resolveSiteHref(article.primary_url || article.detail_path || article.page_path);
 }
 
-function buildCard(article, index = 0, onFacetActivate = null, config = {}) {
+function buildCard(article, index = 0, config = {}) {
   const card = document.createElement('article');
   card.className = 'article-list-card';
   card.style.setProperty('--article-card-index', String(index % 12));
@@ -367,43 +342,8 @@ function buildCard(article, index = 0, onFacetActivate = null, config = {}) {
 
   const body = document.createElement('div');
   body.className = 'article-list-card-body';
-  // Two label systems feed a card: the four curated blog-taxonomy groups and the
-  // free tag list. Ten tag names are word-for-word duplicates of a taxonomy name
-  // ("News", "Missing Children", "40th Anniversary"...), which is why most cards
-  // used to print the same word twice, in two separate rows. Taxonomy wins,
-  // because its pill filters the specific group rather than the flat tag list.
-  const facetByGroup = {
-    primary_area: 'audience',
-    topic: 'issue',
-    story_type: 'type',
-    program_series: 'programs',
-  };
-  const taxonomyEntries = (article.blog_taxonomy || [])
-    .map((entry) => ({
-      facet: facetByGroup[entry.group],
-      label: normalizeText(entry.name),
-      value: normalizeText(entry.slug),
-    }))
-    .filter((entry) => entry.facet && entry.label && entry.value);
-
-  const seen = new Set(taxonomyEntries.map((entry) => pillKey(entry.label)));
-  const tagEntries = (article.tags || [])
-    .map((tag) => ({
-      facet: 'tags',
-      label: normalizeText(tag.name),
-      value: normalizeText(tag.slug || tag.name),
-    }))
-    .filter((tag) => tag.label && !seen.has(pillKey(tag.label)));
-
-  const pillEntries = [...taxonomyEntries, ...tagEntries].slice(0, MAX_CARD_PILLS);
-  if (pillEntries.length) {
-    const taxonomy = document.createElement('div');
-    taxonomy.className = 'article-list-taxonomy';
-    pillEntries.forEach(({ facet, label, value }) => taxonomy.append(
-      buildInteractivePill(label, 'is-taxonomy', () => onFacetActivate?.(facet, value)),
-    ));
-    body.append(taxonomy);
-  }
+  // Cards carry no tag pills: they took a lot of room in the grid, and the listing's own
+  // filters already do their job. A blog's tags still show in its header (article-details).
 
   if (normalizeText(article.article_date_label)) {
     const date = document.createElement('p');
@@ -750,21 +690,6 @@ function renderApiList(block, config) {
     }
     syncSortControl();
   };
-  const applyFacetValue = (facet, rawValue) => {
-    const value = normalizeToken(rawValue);
-    if (!value) return;
-
-    if (facet === 'audience') state.selectedAudience.add(value);
-    if (facet === 'issue') state.selectedIssue.add(value);
-    if (facet === 'type') state.selectedType.add(value);
-    if (facet === 'programs') state.selectedPrograms.add(value);
-    if (facet === 'tags') state.selectedTags.add(value);
-
-    syncFilterControls();
-    syncUrlState();
-    refreshArticles(true);
-  };
-
   const renderActiveFilters = () => {
     activeFilters.replaceChildren();
     const facets = [
@@ -866,7 +791,7 @@ function renderApiList(block, config) {
       clearSkeleton(cardsContainer);
       const startIndex = cardsContainer.children.length;
       (payload.data || []).forEach((article, index) => {
-        cardsContainer.append(buildCard(article, startIndex + index, applyFacetValue, config));
+        cardsContainer.append(buildCard(article, startIndex + index, config));
       });
 
       state.page = payload.meta?.current_page || 1;

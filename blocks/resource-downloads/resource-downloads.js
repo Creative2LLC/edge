@@ -1165,8 +1165,9 @@ function buildPreview(entry, width = 400) {
 function buildDownloadButton(entry, withWatch = false) {
   const link = document.createElement('a');
   link.className = 'resource-downloads-item-button';
-  // The look comes from the button standard; beside a Watch button the download is
-  // Secondary. The card keeps its file-type colour, the button no longer uses it.
+  // The shape comes from the button standard and the colour from the card's file type
+  // (see the Buttons section of the block CSS); beside a Watch button the download is the
+  // outline (Secondary) form.
   applyButtonStyle(link, withWatch ? 'secondary' : 'primary');
   // "Button Label" is documented as the override for the item's single action
   // ("Download PDF, Download PowerPoint, Watch Video..."), so on a video item it

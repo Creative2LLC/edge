@@ -249,6 +249,14 @@
             {
               "name": "Giving",
               "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
             }
           ]
         }
