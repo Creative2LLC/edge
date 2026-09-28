@@ -179,6 +179,20 @@
           "name": "bodyText",
           "label": "Body Text / Description",
           "description": "Optional text shown between the heading and search controls."
+        },
+        {
+          "component": "select",
+          "name": "library",
+          "label": "Library",
+          "description": "Which resources this page lists and how its filters are worded (e.g. Teachable Topic vs Issue/Topic). Keep this field last: published pages read it by position.",
+          "options": [
+            { "name": "All resources (no library)", "value": "" },
+            { "name": "Prevention", "value": "prevention" },
+            { "name": "General", "value": "general" },
+            { "name": "Prevention, also listing General resources", "value": "prevention+general" },
+            { "name": "General, also listing Prevention resources", "value": "general+prevention" }
+          ],
+          "value": ""
         }
       ]
     },

@@ -16,6 +16,7 @@
     "build:json:definitions": "merge-json-cli -i \"models/_component-definition.json\" -o \"component-definition.json\"",
     "build:json:filters": "merge-json-cli -i \"models/_component-filters.json\" -o \"component-filters.json\"",
     "build:s3-options": "node scripts/build-s3-options.mjs",
+    "build:taxonomy": "node scripts/build-resource-taxonomy.mjs",
     "mock:forms": "node scripts/mock-form-server.mjs",
     "forms:sync": "node scripts/form-field-inventory.mjs",
     "forms:check": "node scripts/form-field-inventory.mjs --check",

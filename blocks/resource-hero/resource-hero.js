@@ -10,6 +10,7 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
+import { resourceSection, taxonomyLabelMap } from '../../scripts/resource-taxonomy.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
 
@@ -90,75 +91,10 @@ const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
 
 const RESOURCE_FIELD_NAMES = Object.keys(FIELD_INDEX);
 
-const TAXONOMY_LABELS = {
-  audience: {
-    families: 'Families',
-    'law-enforcement': 'Law Enforcement',
-    educators: 'Educators',
-    'child-welfare-professionals': 'Child Welfare Professionals',
-    'mental-health-professionals': 'Mental Health Professionals',
-    'legal-professionals': 'Legal Professionals',
-    'electronic-service-providers': 'Electronic Service Providers',
-    policymakers: 'Policymakers',
-    media: 'Media',
-    'native-indigenous-tribal': 'Native, Indigenous & Tribal',
-    'teens-13-plus': 'Teens (13+)',
-    'children-up-to-12': 'Children (up to 12)',
-  },
-  issue: {
-    'missing-children': 'Missing Children',
-    'autism-wandering': 'Autism & Wandering',
-    'children-missing-from-care': 'Children Missing from Care',
-    'infant-abductions': 'Infant Abductions',
-    'long-term-missing-children': 'Long-Term Missing Children',
-    'family-abduction': 'Family Abduction',
-    'help-id-me': 'Help ID Me',
-    csam: 'CSAM',
-    'child-sex-trafficking': 'Child Sex Trafficking',
-    'online-enticement': 'Online Enticement',
-    sextortion: 'Sextortion',
-    'generative-ai': 'Generative AI',
-    'end-to-end-encryption': 'End-to-End Encryption',
-    'disaster-response': 'Disaster Response',
-    'ncmec-data': 'NCMEC Data',
-    'ncmec-analysis': 'NCMEC Analysis',
-    'child-safety-advocacy': 'Child Safety Advocacy',
-  },
-  resourceType: {
-    'tip-sheet': 'Tip Sheet',
-    'educator-kit-curriculum': 'Educator Kit / Curriculum',
-    'discussion-guide': 'Discussion Guide',
-    'professional-guide': 'Professional Guide',
-    'data-report': 'Data Report',
-    video: 'Video',
-    presentation: 'Presentation',
-    'activity-sheet': 'Activity Sheet',
-    ebook: 'eBook',
-    'blog-post': 'Blog Post',
-  },
-  language: {
-    en: 'English',
-    es: 'Spanish',
-  },
-  programs: {
-    kidsmartz: 'KidSmartz',
-    netsmartz: 'NetSmartz',
-  },
-  gradeAges: {
-    'k-2': 'K-2',
-    '3-5': '3-5',
-    'middle-school': 'Middle School',
-    'high-school': 'High School',
-  },
-  length: {
-    5: '5 minutes or less',
-    10: '10 minutes or less',
-    15: '15 minutes or less',
-    30: '30 minutes or less',
-    45: '45 minutes or less',
-    60: '60 minutes or less',
-  },
-};
+// Tag values and labels come from the backend taxonomy (npm run build:taxonomy).
+// The value sets double as cell recognisers on flattened published pages, so
+// they must stay the backend's exact values.
+const TAXONOMY_GROUPS = ['audience', 'issue', 'resourceType', 'language', 'programs', 'gradeAges', 'length'];
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -286,9 +222,9 @@ function splitList(value) {
     });
 }
 
-function labelFor(group, value) {
+function labelFor(group, value, section = '') {
   const key = normalizeKey(value);
-  return TAXONOMY_LABELS[group]?.[key] || normalizeText(value);
+  return taxonomyLabelMap(group, section)[key] || normalizeText(value);
 }
 
 function parseTagEntries(value) {
@@ -346,7 +282,7 @@ function consumeMatching(entries, predicate) {
 }
 
 function taxonomyValues(group) {
-  return Object.keys(TAXONOMY_LABELS[group] || {});
+  return TAXONOMY_GROUPS.includes(group) ? Object.keys(taxonomyLabelMap(group)) : [];
 }
 
 function consumeTaxonomy(entries, group) {
@@ -838,18 +774,20 @@ function buildMetaDetailItem(group) {
 
 function collectTaxonomyGroups(fields) {
   const duration = formatDurationMinutes(fields.durationMinutes || fields.length);
+  // Prevention and General word some shared tags differently.
+  const section = resourceSection({ programs: fields.programs });
   return [
     {
       key: 'type',
       label: 'Format',
       icon: '',
-      values: splitList(fields.resourceType).map((value) => labelFor('resourceType', value)),
+      values: splitList(fields.resourceType).map((value) => labelFor('resourceType', value, section)),
     },
     {
       key: 'audience',
       label: 'Audience',
       icon: '',
-      values: splitList(fields.audience).map((value) => labelFor('audience', value)),
+      values: splitList(fields.audience).map((value) => labelFor('audience', value, section)),
     },
     {
       key: 'program',
@@ -867,13 +805,13 @@ function collectTaxonomyGroups(fields) {
       key: 'topic',
       label: 'Topic',
       icon: '',
-      values: splitList(fields.issue).map((value) => labelFor('issue', value)),
+      values: splitList(fields.issue).map((value) => labelFor('issue', value, section)),
     },
     {
       key: 'grade-age',
       label: 'Grade / Age',
       icon: '',
-      values: splitList(fields.gradeAges).map((value) => labelFor('gradeAges', value)),
+      values: splitList(fields.gradeAges).map((value) => labelFor('gradeAges', value, section)),
     },
     {
       key: 'language',

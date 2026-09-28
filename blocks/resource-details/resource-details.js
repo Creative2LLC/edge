@@ -6,6 +6,7 @@ import {
   readRichTextField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+import { resourceSection, taxonomyLabelMap } from '../../scripts/resource-taxonomy.js';
 
 const FIELD_COLUMN_INDEX = {
   pageTitle: 0,
@@ -29,76 +30,6 @@ const FIELD_COLUMN_INDEX = {
 };
 
 const resourceDataCache = new Map();
-const TAXONOMY_LABELS = {
-  audience: {
-    families: 'Families',
-    'law-enforcement': 'Law Enforcement',
-    educators: 'Educators',
-    'child-welfare-professionals': 'Child Welfare Professionals',
-    'mental-health-professionals': 'Mental Health Professionals',
-    'legal-professionals': 'Legal Professionals',
-    'electronic-service-providers': 'Electronic Service Providers',
-    policymakers: 'Policymakers',
-    media: 'Media',
-    'native-indigenous-tribal': 'Native, Indigenous & Tribal',
-    'teens-13-plus': 'Teens (13+)',
-    'children-up-to-12': 'Children (up to 12)',
-  },
-  issue: {
-    'missing-children': 'Missing Children',
-    'autism-wandering': 'Autism & Wandering',
-    'children-missing-from-care': 'Children Missing from Care',
-    'infant-abductions': 'Infant Abductions',
-    'long-term-missing-children': 'Long-Term Missing Children',
-    'family-abduction': 'Family Abduction',
-    'help-id-me': 'Help ID Me',
-    csam: 'CSAM',
-    'child-sex-trafficking': 'Child Sex Trafficking',
-    'online-enticement': 'Online Enticement',
-    sextortion: 'Sextortion',
-    'generative-ai': 'Generative AI',
-    'end-to-end-encryption': 'End-to-End Encryption',
-    'disaster-response': 'Disaster Response',
-    'ncmec-data': 'NCMEC Data',
-    'ncmec-analysis': 'NCMEC Analysis',
-    'child-safety-advocacy': 'Child Safety Advocacy',
-  },
-  resourceType: {
-    'tip-sheet': 'Tip Sheet',
-    'educator-kit-curriculum': 'Educator Kit / Curriculum',
-    'discussion-guide': 'Discussion Guide',
-    'professional-guide': 'Professional Guide',
-    'data-report': 'Data Report',
-    video: 'Video',
-    presentation: 'Presentation',
-    'activity-sheet': 'Activity Sheet',
-    ebook: 'eBook',
-    'blog-post': 'Blog Post',
-  },
-  language: {
-    en: 'English',
-    es: 'Spanish',
-  },
-  programs: {
-    kidsmartz: 'KidSmartz',
-    netsmartz: 'NetSmartz',
-  },
-  gradeAges: {
-    'k-2': 'K-2',
-    '3-5': '3-5',
-    'middle-school': 'Middle School',
-    'high-school': 'High School',
-  },
-  length: {
-    5: '5 minutes or less',
-    10: '10 minutes or less',
-    15: '15 minutes or less',
-    30: '30 minutes or less',
-    45: '45 minutes or less',
-    60: '60 minutes or less',
-  },
-};
-
 function normalizeText(value) {
   return `${value || ''}`.trim();
 }
@@ -125,9 +56,10 @@ function splitList(value) {
     });
 }
 
-function labelFor(group, value) {
+// Tag labels come from the backend taxonomy (npm run build:taxonomy).
+function labelFor(group, value, section = '') {
   const key = normalizeKey(value);
-  return TAXONOMY_LABELS[group]?.[key] || normalizeText(value);
+  return taxonomyLabelMap(group, section)[key] || normalizeText(value);
 }
 
 function parseTagEntries(value) {
@@ -343,13 +275,15 @@ function formatDurationMinutes(value) {
 
 function buildTaxonomy(fields) {
   const duration = formatDurationMinutes(fields.durationMinutes);
+  // Prevention and General word some shared tags differently.
+  const section = resourceSection({ programs: fields.programs });
   const entries = [
-    ...splitList(fields.resourceType).map((resourceType) => labelFor('resourceType', resourceType)),
-    ...splitList(fields.audience).map((audience) => labelFor('audience', audience)),
-    ...splitList(fields.issue).map((issue) => labelFor('issue', issue)),
+    ...splitList(fields.resourceType).map((resourceType) => labelFor('resourceType', resourceType, section)),
+    ...splitList(fields.audience).map((audience) => labelFor('audience', audience, section)),
+    ...splitList(fields.issue).map((issue) => labelFor('issue', issue, section)),
     fields.language ? labelFor('language', fields.language) : '',
     ...splitList(fields.programs).map((program) => labelFor('programs', program)),
-    ...splitList(fields.gradeAges).map((gradeAge) => labelFor('gradeAges', gradeAge)),
+    ...splitList(fields.gradeAges).map((gradeAge) => labelFor('gradeAges', gradeAge, section)),
     !duration && fields.length ? labelFor('length', fields.length) : '',
     duration,
   ].filter(Boolean);

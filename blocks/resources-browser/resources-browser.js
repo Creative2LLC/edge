@@ -24,6 +24,7 @@ import {
   setItemLabel,
 } from '../../scripts/block-field-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
+import { facetLabels } from '../../scripts/resource-taxonomy.js';
 
 const LEGACY_BLOCK_LABELS = {
   heading: ['heading', 'title'],
@@ -46,6 +47,7 @@ const LEGACY_BLOCK_LABELS = {
   hiddenFilterTags: ['hidden filter tags', 'excluded tag options', 'exclude tag options'],
   lockedPrograms: ['locked programs', 'locked program', 'restrict programs', 'program lock'],
   filters: ['filters', 'preset filters'],
+  library: ['library', 'resource library', 'section'],
 };
 
 const BLOCK_PROPS = [
@@ -69,6 +71,7 @@ const BLOCK_PROPS = [
   'filterTags',
   'hiddenFilterTags',
   'lockedPrograms',
+  'library',
 ];
 
 const FILTER_FACETS = [
@@ -95,6 +98,48 @@ const DEFAULT_VISIBLE_FILTERS = [
   'type',
   'lengths',
 ];
+
+// The Library setting: the page's own library (its filter wording and option
+// order), optionally also listing the other library's resources. Recognised
+// by exact value, so a stale or shifted config cell can never pick one.
+const LIBRARY_SETTINGS = {
+  prevention: { home: 'prevention', sections: ['prevention'] },
+  general: { home: 'general', sections: ['general'] },
+  'prevention+general': { home: 'prevention', sections: ['prevention', 'general'] },
+  'general+prevention': { home: 'general', sections: ['general', 'prevention'] },
+};
+
+// Filters a library page shows when the author picked none. Grade bands are
+// Prevention audiences there, so the separate grade filter never shows.
+const LIBRARY_DEFAULT_FILTERS = {
+  prevention: ['programs', 'audience', 'issue', 'type', 'lengths'],
+  general: ['audience', 'issue', 'type'],
+};
+
+const PREVENTION_ONLY_FILTERS = ['programs', 'lengths'];
+
+// Block facet -> the API's filter_labels key.
+const FILTER_LABEL_KEYS = {
+  audience: 'audiences',
+  issue: 'issues',
+  type: 'types',
+  tags: 'tags',
+  language: 'languages',
+  programs: 'programs',
+  grade_ages: 'grade_ages',
+  lengths: 'lengths',
+};
+
+const DEFAULT_FILTER_LABELS = {
+  audience: 'Audience',
+  issue: 'Topic',
+  type: 'Resource Format',
+  tags: 'Tag',
+  language: 'Language',
+  programs: 'Prevention Program',
+  grade_ages: 'Grade',
+  lengths: 'Length of Time',
+};
 
 const RESOURCE_BROWSER_ACTION_LABELS = {
   en: {
@@ -359,6 +404,29 @@ function parseVisibleFilters(value) {
   const allFiltersSelected = filters.length === FILTER_FACETS.length
     && FILTER_FACETS.every((facet) => filters.includes(facet));
   return filters.length && !allFiltersSelected ? filters : DEFAULT_VISIBLE_FILTERS;
+}
+
+function parseLibrarySetting(value) {
+  return LIBRARY_SETTINGS[normalizeToken(value)] || null;
+}
+
+function resolveVisibleFilters(value, library) {
+  const filters = parseVisibleFilters(value);
+  if (!library) return filters;
+  const base = filters === DEFAULT_VISIBLE_FILTERS
+    ? LIBRARY_DEFAULT_FILTERS[library.home]
+    : filters;
+  const listsPrevention = library.sections.includes('prevention');
+  return base.filter((facet) => facet !== 'grade_ages'
+    && (listsPrevention || !PREVENTION_ONLY_FILTERS.includes(facet)));
+}
+
+/** A filter's heading: the API's wording for this library, else the local copy, else default. */
+function filterLabel(config, facet, apiLabels = {}) {
+  const key = FILTER_LABEL_KEYS[facet];
+  return apiLabels[key]
+    || (config.library ? facetLabels(config.library.home)[key] : '')
+    || DEFAULT_FILTER_LABELS[facet];
 }
 
 function isFilterVisible(config, facet) {
@@ -902,15 +970,29 @@ function createViewToggleButton(label, view, activeView) {
 
 function setFilterOptions(select, label, options = []) {
   select.replaceChildren();
+  if (!select.classList.contains('resources-browser-sort')) select.setAttribute('aria-label', label);
   const defaultOption = document.createElement('option');
   defaultOption.value = '';
   defaultOption.textContent = label;
   select.append(defaultOption);
+  // Options carry a `group` only when a page lists both libraries; each run
+  // of one group becomes an <optgroup> subheading.
+  let group = null;
   options.forEach((option) => {
     const entry = document.createElement('option');
     entry.value = option.value;
     entry.textContent = option.label;
-    select.append(entry);
+    if (!option.group) {
+      group = null;
+      select.append(entry);
+      return;
+    }
+    if (group?.label !== option.group) {
+      group = document.createElement('optgroup');
+      group.label = option.group;
+      select.append(group);
+    }
+    group.append(entry);
   });
   select.disabled = options.length === 0;
 }
@@ -1105,14 +1187,14 @@ function buildShell(config) {
   searchWrap.append(searchInput);
   primaryRow.append(searchWrap);
 
-  const audienceSelect = createFilterSelect('Audience');
-  const issueSelect = createFilterSelect('Topic');
-  const typeSelect = createFilterSelect('Resource Format');
-  const tagSelect = createFilterSelect('Tag');
-  const languageSelect = createFilterSelect('Language');
-  const programSelect = createFilterSelect('Prevention Program');
-  const gradeAgeSelect = createFilterSelect('Grade');
-  const lengthSelect = createFilterSelect('Length of Time');
+  const audienceSelect = createFilterSelect(filterLabel(config, 'audience'));
+  const issueSelect = createFilterSelect(filterLabel(config, 'issue'));
+  const typeSelect = createFilterSelect(filterLabel(config, 'type'));
+  const tagSelect = createFilterSelect(filterLabel(config, 'tags'));
+  const languageSelect = createFilterSelect(filterLabel(config, 'language'));
+  const programSelect = createFilterSelect(filterLabel(config, 'programs'));
+  const gradeAgeSelect = createFilterSelect(filterLabel(config, 'grade_ages'));
+  const lengthSelect = createFilterSelect(filterLabel(config, 'lengths'));
   const sortSelect = createSortSelect('Sort resources');
   primaryRow.append(sortSelect);
   controls.append(primaryRow);
@@ -1806,7 +1888,7 @@ function renderApiBrowser(block, config) {
     clearAllButton.hidden = !facets.length && !state.query.trim();
   };
 
-  function updateFilters(filters = {}) {
+  function updateFilters(filters = {}, labels = {}) {
     const audiences = filters.audiences || [];
     const issues = filters.issues || [];
     const types = filters.types || [];
@@ -1819,14 +1901,14 @@ function renderApiBrowser(block, config) {
       label: option.name,
     }));
 
-    setFilterOptions(audienceSelect, 'Audience', audiences);
-    setFilterOptions(issueSelect, 'Topic', issues);
-    setFilterOptions(typeSelect, 'Resource Format', types);
-    setFilterOptions(tagSelect, 'Tag', tags);
-    setFilterOptions(languageSelect, 'Language', languages);
-    setFilterOptions(programSelect, 'Prevention Program', programs);
-    setFilterOptions(gradeAgeSelect, 'Grade', gradeAges);
-    setFilterOptions(lengthSelect, 'Length of Time', lengths);
+    setFilterOptions(audienceSelect, filterLabel(config, 'audience', labels), audiences);
+    setFilterOptions(issueSelect, filterLabel(config, 'issue', labels), issues);
+    setFilterOptions(typeSelect, filterLabel(config, 'type', labels), types);
+    setFilterOptions(tagSelect, filterLabel(config, 'tags', labels), tags);
+    setFilterOptions(languageSelect, filterLabel(config, 'language', labels), languages);
+    setFilterOptions(programSelect, filterLabel(config, 'programs', labels), programs);
+    setFilterOptions(gradeAgeSelect, filterLabel(config, 'grade_ages', labels), gradeAges);
+    setFilterOptions(lengthSelect, filterLabel(config, 'lengths', labels), lengths);
     optionLabels.audience = new Map(
       audiences.map((option) => [normalizeToken(option.value), option.label]),
     );
@@ -1934,6 +2016,10 @@ function renderApiBrowser(block, config) {
     state.selectedProgram.forEach((value) => url.searchParams.append('programs[]', value));
     state.selectedGradeAge.forEach((value) => url.searchParams.append('grade_ages[]', value));
     state.selectedLength.forEach((value) => url.searchParams.append('lengths[]', value));
+    if (config.library) {
+      url.searchParams.set('section', config.library.home);
+      config.library.sections.forEach((value) => url.searchParams.append('sections[]', value));
+    }
     config.visibleFilters.forEach((facet) => {
       url.searchParams.append('filter_groups[]', filterGroupName(facet));
     });
@@ -1968,7 +2054,7 @@ function renderApiBrowser(block, config) {
       state.lastPage = payload.meta?.last_page || 1;
       state.total = payload.meta?.total
         ?? cardsContainer.children.length;
-      updateFilters(payload.filters || {});
+      updateFilters(payload.filters || {}, payload.filter_labels || {});
       updateSorting(payload.sorting || {}, payload.applied_filters?.sort || DEFAULT_LIST_SORT);
       renderActiveFilters();
 
@@ -2089,6 +2175,12 @@ export default function decorate(block) {
     || readConfigValue(configRows, 'filters', 3)
     || readConfigField(configRow, 'filters', 3);
   const filterConfig = parseFilterLists(filterValue);
+  // New fields are appended to the model, so Library is cell 12.
+  const library = parseLibrarySetting(
+    getBlockField(block, legacyMap, 'library')
+      || readConfigValue(configRows, 'library', 12)
+      || readConfigField(configRow, 'library', 12),
+  );
   const apiBaseUrl = normalizeApiBaseUrl(
     getBlockField(block, legacyMap, 'apiBaseUrl')
       || readConfigValue(configRows, 'apiBaseUrl', 1)
@@ -2139,10 +2231,12 @@ export default function decorate(block) {
       || filterConfig.gradeAges.join(', '),
     lengthPreset: getBlockField(block, legacyMap, 'lengthPreset')
       || filterConfig.lengths.join(', '),
-    visibleFilters: parseVisibleFilters(
+    library,
+    visibleFilters: resolveVisibleFilters(
       getBlockField(block, legacyMap, 'visibleFilters')
         || readConfigValue(configRows, 'visibleFilters', 4)
         || readConfigField(configRow, 'visibleFilters', 4),
+      library,
     ),
     filterTags: getBlockField(block, legacyMap, 'filterTags')
       || readConfigValue(configRows, 'filterTags', 5)

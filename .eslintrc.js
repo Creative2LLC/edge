@@ -34,7 +34,7 @@ module.exports = {
       resources: 12,
       'resource-item': 8,
       'resource-hero': 36,
-      'resources-browser': 12,
+      'resources-browser': 13,
       'resources-browser-item': 9,
       'mega-nav-row': 6,
       'mega-nav-top-link': 5,

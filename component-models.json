@@ -22485,52 +22485,64 @@
         "label": "Resource Tags - Audience",
         "options": [
           {
-            "name": "Families",
+            "name": "K-2nd Grade",
+            "value": "k-2"
+          },
+          {
+            "name": "3rd-5th Grade",
+            "value": "3-5"
+          },
+          {
+            "name": "Middle School",
+            "value": "middle-school"
+          },
+          {
+            "name": "High School",
+            "value": "high-school"
+          },
+          {
+            "name": "Families (Prevention: Parents/Guardians)",
             "value": "families"
           },
           {
-            "name": "Law Enforcement",
-            "value": "law-enforcement"
-          },
-          {
-            "name": "Educators",
+            "name": "Educators (Prevention: Facilitators)",
             "value": "educators"
           },
           {
-            "name": "Child Welfare Professionals",
+            "name": "Child Welfare Providers",
             "value": "child-welfare-professionals"
-          },
-          {
-            "name": "Mental Health Professionals",
-            "value": "mental-health-professionals"
-          },
-          {
-            "name": "Legal Professionals",
-            "value": "legal-professionals"
           },
           {
             "name": "Electronic Service Providers",
             "value": "electronic-service-providers"
           },
           {
-            "name": "Policymakers",
-            "value": "policymakers"
+            "name": "Law Enforcement",
+            "value": "law-enforcement"
+          },
+          {
+            "name": "Legal Professionals",
+            "value": "legal-professionals"
           },
           {
             "name": "Media",
             "value": "media"
           },
           {
-            "name": "Native, Indigenous & Tribal",
+            "name": "Mental Health Professionals",
+            "value": "mental-health-professionals"
+          },
+          {
+            "name": "Native, Indigenous Tribal Nations",
             "value": "native-indigenous-tribal"
           },
           {
-            "name": "Teens (13+)",
-            "value": "teens-13-plus"
+            "name": "Policymakers",
+            "value": "policymakers"
           },
           {
-            "name": "Children (up to 12)",
-            "value": "children-up-to-12"
+            "name": "Survivors",
+            "value": "survivors"
           }
         ]
       },
@@ -22540,8 +22552,44 @@
         "label": "Resource Tags - Topic",
         "options": [
           {
-            "name": "Missing Children",
-            "value": "missing-children"
+            "name": "Generative AI (Prevention: AI Risks)",
+            "value": "generative-ai"
+          },
+          {
+            "name": "Cyberbullying",
+            "value": "cyberbullying"
+          },
+          {
+            "name": "Gaming",
+            "value": "gaming"
+          },
+          {
+            "name": "Online Enticement (Prevention: Grooming/Online Enticement)",
+            "value": "online-enticement"
+          },
+          {
+            "name": "Healthy Relationships",
+            "value": "healthy-relationships"
+          },
+          {
+            "name": "Digital Citizenship",
+            "value": "digital-citizenship"
+          },
+          {
+            "name": "Sharing Intimate Images",
+            "value": "sharing-intimate-images"
+          },
+          {
+            "name": "Personal Safety",
+            "value": "personal-safety"
+          },
+          {
+            "name": "Sextortion",
+            "value": "sextortion"
+          },
+          {
+            "name": "Online Privacy",
+            "value": "online-privacy"
           },
           {
             "name": "Autism & Wandering",
@@ -22552,6 +22600,26 @@
             "value": "children-missing-from-care"
           },
           {
+            "name": "Child Sexual Abuse Material",
+            "value": "csam"
+          },
+          {
+            "name": "Child Sex Trafficking",
+            "value": "child-sex-trafficking"
+          },
+          {
+            "name": "End-to-End Encryption",
+            "value": "end-to-end-encryption"
+          },
+          {
+            "name": "Exploited Children",
+            "value": "exploited-children"
+          },
+          {
+            "name": "Help ID Me: Unidentified Child Remains",
+            "value": "help-id-me"
+          },
+          {
             "name": "Infant Abductions",
             "value": "infant-abductions"
           },
@@ -22560,52 +22628,12 @@
             "value": "long-term-missing-children"
           },
           {
-            "name": "Family Abduction",
-            "value": "family-abduction"
+            "name": "Missing Children",
+            "value": "missing-children"
           },
           {
-            "name": "Help ID Me",
-            "value": "help-id-me"
-          },
-          {
-            "name": "CSAM",
-            "value": "csam"
-          },
-          {
-            "name": "Child Sex Trafficking",
-            "value": "child-sex-trafficking"
-          },
-          {
-            "name": "Online Enticement",
-            "value": "online-enticement"
-          },
-          {
-            "name": "Sextortion",
-            "value": "sextortion"
-          },
-          {
-            "name": "Generative AI",
-            "value": "generative-ai"
-          },
-          {
-            "name": "End-to-End Encryption",
-            "value": "end-to-end-encryption"
-          },
-          {
-            "name": "Disaster Response",
-            "value": "disaster-response"
-          },
-          {
-            "name": "NCMEC Data",
-            "value": "ncmec-data"
-          },
-          {
-            "name": "NCMEC Analysis",
-            "value": "ncmec-analysis"
-          },
-          {
-            "name": "Child Safety Advocacy",
-            "value": "child-safety-advocacy"
+            "name": "Runaway & Abducted Children",
+            "value": "runaway-abducted-children"
           }
         ]
       },
@@ -22615,44 +22643,52 @@
         "label": "Resource Tags - Resource Type",
         "options": [
           {
+            "name": "Presentation",
+            "value": "presentation"
+          },
+          {
+            "name": "Digital Activity",
+            "value": "digital-activity"
+          },
+          {
+            "name": "Printable Activity",
+            "value": "printable-activity"
+          },
+          {
             "name": "Tip Sheet",
             "value": "tip-sheet"
           },
           {
-            "name": "Educator Kit / Curriculum",
-            "value": "educator-kit-curriculum"
-          },
-          {
-            "name": "Discussion Guide",
-            "value": "discussion-guide"
-          },
-          {
-            "name": "Professional Guide",
-            "value": "professional-guide"
-          },
-          {
-            "name": "Data Report",
-            "value": "data-report"
+            "name": "Toolkit",
+            "value": "toolkit"
           },
           {
             "name": "Video",
             "value": "video"
           },
           {
-            "name": "Presentation",
-            "value": "presentation"
+            "name": "Checklists",
+            "value": "checklists"
           },
           {
-            "name": "Activity Sheet",
-            "value": "activity-sheet"
+            "name": "Data & Analysis",
+            "value": "data-analysis"
           },
           {
-            "name": "eBook",
-            "value": "ebook"
+            "name": "Financials",
+            "value": "financials"
           },
           {
-            "name": "Blog Post",
-            "value": "blog-post"
+            "name": "Guides & Protocols",
+            "value": "guides-protocols"
+          },
+          {
+            "name": "Policy Advocacy",
+            "value": "policy-advocacy"
+          },
+          {
+            "name": "Program and Issue Overviews",
+            "value": "program-issue-overviews"
           }
         ]
       },
@@ -22678,12 +22714,16 @@
         "label": "Resource Tags - Programs",
         "options": [
           {
-            "name": "KidSmartz",
-            "value": "kidsmartz"
-          },
-          {
             "name": "NetSmartz",
             "value": "netsmartz"
+          },
+          {
+            "name": "Safe to Compete",
+            "value": "safe-to-compete"
+          },
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
           }
         ]
       },
@@ -23333,52 +23373,64 @@
         "label": "Audience",
         "options": [
           {
-            "name": "Families",
+            "name": "K-2nd Grade",
+            "value": "k-2"
+          },
+          {
+            "name": "3rd-5th Grade",
+            "value": "3-5"
+          },
+          {
+            "name": "Middle School",
+            "value": "middle-school"
+          },
+          {
+            "name": "High School",
+            "value": "high-school"
+          },
+          {
+            "name": "Families (Prevention: Parents/Guardians)",
             "value": "families"
           },
           {
-            "name": "Law Enforcement",
-            "value": "law-enforcement"
-          },
-          {
-            "name": "Educators",
+            "name": "Educators (Prevention: Facilitators)",
             "value": "educators"
           },
           {
-            "name": "Child Welfare Professionals",
+            "name": "Child Welfare Providers",
             "value": "child-welfare-professionals"
-          },
-          {
-            "name": "Mental Health Professionals",
-            "value": "mental-health-professionals"
-          },
-          {
-            "name": "Legal Professionals",
-            "value": "legal-professionals"
           },
           {
             "name": "Electronic Service Providers",
             "value": "electronic-service-providers"
           },
           {
-            "name": "Policymakers",
-            "value": "policymakers"
+            "name": "Law Enforcement",
+            "value": "law-enforcement"
+          },
+          {
+            "name": "Legal Professionals",
+            "value": "legal-professionals"
           },
           {
             "name": "Media",
             "value": "media"
           },
           {
-            "name": "Native, Indigenous & Tribal",
+            "name": "Mental Health Professionals",
+            "value": "mental-health-professionals"
+          },
+          {
+            "name": "Native, Indigenous Tribal Nations",
             "value": "native-indigenous-tribal"
           },
           {
-            "name": "Teens (13+)",
-            "value": "teens-13-plus"
+            "name": "Policymakers",
+            "value": "policymakers"
           },
           {
-            "name": "Children (up to 12)",
-            "value": "children-up-to-12"
+            "name": "Survivors",
+            "value": "survivors"
           }
         ]
       },
@@ -23388,8 +23440,44 @@
         "label": "Topic",
         "options": [
           {
-            "name": "Missing Children",
-            "value": "missing-children"
+            "name": "Generative AI (Prevention: AI Risks)",
+            "value": "generative-ai"
+          },
+          {
+            "name": "Cyberbullying",
+            "value": "cyberbullying"
+          },
+          {
+            "name": "Gaming",
+            "value": "gaming"
+          },
+          {
+            "name": "Online Enticement (Prevention: Grooming/Online Enticement)",
+            "value": "online-enticement"
+          },
+          {
+            "name": "Healthy Relationships",
+            "value": "healthy-relationships"
+          },
+          {
+            "name": "Digital Citizenship",
+            "value": "digital-citizenship"
+          },
+          {
+            "name": "Sharing Intimate Images",
+            "value": "sharing-intimate-images"
+          },
+          {
+            "name": "Personal Safety",
+            "value": "personal-safety"
+          },
+          {
+            "name": "Sextortion",
+            "value": "sextortion"
+          },
+          {
+            "name": "Online Privacy",
+            "value": "online-privacy"
           },
           {
             "name": "Autism & Wandering",
@@ -23400,6 +23488,26 @@
             "value": "children-missing-from-care"
           },
           {
+            "name": "Child Sexual Abuse Material",
+            "value": "csam"
+          },
+          {
+            "name": "Child Sex Trafficking",
+            "value": "child-sex-trafficking"
+          },
+          {
+            "name": "End-to-End Encryption",
+            "value": "end-to-end-encryption"
+          },
+          {
+            "name": "Exploited Children",
+            "value": "exploited-children"
+          },
+          {
+            "name": "Help ID Me: Unidentified Child Remains",
+            "value": "help-id-me"
+          },
+          {
             "name": "Infant Abductions",
             "value": "infant-abductions"
           },
@@ -23408,52 +23516,12 @@
             "value": "long-term-missing-children"
           },
           {
-            "name": "Family Abduction",
-            "value": "family-abduction"
+            "name": "Missing Children",
+            "value": "missing-children"
           },
           {
-            "name": "Help ID Me",
-            "value": "help-id-me"
-          },
-          {
-            "name": "CSAM",
-            "value": "csam"
-          },
-          {
-            "name": "Child Sex Trafficking",
-            "value": "child-sex-trafficking"
-          },
-          {
-            "name": "Online Enticement",
-            "value": "online-enticement"
-          },
-          {
-            "name": "Sextortion",
-            "value": "sextortion"
-          },
-          {
-            "name": "Generative AI",
-            "value": "generative-ai"
-          },
-          {
-            "name": "End-to-End Encryption",
-            "value": "end-to-end-encryption"
-          },
-          {
-            "name": "Disaster Response",
-            "value": "disaster-response"
-          },
-          {
-            "name": "NCMEC Data",
-            "value": "ncmec-data"
-          },
-          {
-            "name": "NCMEC Analysis",
-            "value": "ncmec-analysis"
-          },
-          {
-            "name": "Child Safety Advocacy",
-            "value": "child-safety-advocacy"
+            "name": "Runaway & Abducted Children",
+            "value": "runaway-abducted-children"
           }
         ]
       },
@@ -23463,44 +23531,52 @@
         "label": "Resource Type",
         "options": [
           {
+            "name": "Presentation",
+            "value": "presentation"
+          },
+          {
+            "name": "Digital Activity",
+            "value": "digital-activity"
+          },
+          {
+            "name": "Printable Activity",
+            "value": "printable-activity"
+          },
+          {
             "name": "Tip Sheet",
             "value": "tip-sheet"
           },
           {
-            "name": "Educator Kit / Curriculum",
-            "value": "educator-kit-curriculum"
-          },
-          {
-            "name": "Discussion Guide",
-            "value": "discussion-guide"
-          },
-          {
-            "name": "Professional Guide",
-            "value": "professional-guide"
-          },
-          {
-            "name": "Data Report",
-            "value": "data-report"
+            "name": "Toolkit",
+            "value": "toolkit"
           },
           {
             "name": "Video",
             "value": "video"
           },
           {
-            "name": "Presentation",
-            "value": "presentation"
+            "name": "Checklists",
+            "value": "checklists"
           },
           {
-            "name": "Activity Sheet",
-            "value": "activity-sheet"
+            "name": "Data & Analysis",
+            "value": "data-analysis"
           },
           {
-            "name": "eBook",
-            "value": "ebook"
+            "name": "Financials",
+            "value": "financials"
           },
           {
-            "name": "Blog Post",
-            "value": "blog-post"
+            "name": "Guides & Protocols",
+            "value": "guides-protocols"
+          },
+          {
+            "name": "Policy Advocacy",
+            "value": "policy-advocacy"
+          },
+          {
+            "name": "Program and Issue Overviews",
+            "value": "program-issue-overviews"
           }
         ]
       },
@@ -23526,12 +23602,16 @@
         "label": "Program",
         "options": [
           {
-            "name": "KidSmartz",
-            "value": "kidsmartz"
-          },
-          {
             "name": "NetSmartz",
             "value": "netsmartz"
+          },
+          {
+            "name": "Safe to Compete",
+            "value": "safe-to-compete"
+          },
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
           }
         ]
       },
@@ -23786,52 +23866,64 @@
         "label": "Audience",
         "options": [
           {
-            "name": "Families",
+            "name": "K-2nd Grade",
+            "value": "k-2"
+          },
+          {
+            "name": "3rd-5th Grade",
+            "value": "3-5"
+          },
+          {
+            "name": "Middle School",
+            "value": "middle-school"
+          },
+          {
+            "name": "High School",
+            "value": "high-school"
+          },
+          {
+            "name": "Families (Prevention: Parents/Guardians)",
             "value": "families"
           },
           {
-            "name": "Law Enforcement",
-            "value": "law-enforcement"
-          },
-          {
-            "name": "Educators",
+            "name": "Educators (Prevention: Facilitators)",
             "value": "educators"
           },
           {
-            "name": "Child Welfare Professionals",
+            "name": "Child Welfare Providers",
             "value": "child-welfare-professionals"
-          },
-          {
-            "name": "Mental Health Professionals",
-            "value": "mental-health-professionals"
-          },
-          {
-            "name": "Legal Professionals",
-            "value": "legal-professionals"
           },
           {
             "name": "Electronic Service Providers",
             "value": "electronic-service-providers"
           },
           {
-            "name": "Policymakers",
-            "value": "policymakers"
+            "name": "Law Enforcement",
+            "value": "law-enforcement"
+          },
+          {
+            "name": "Legal Professionals",
+            "value": "legal-professionals"
           },
           {
             "name": "Media",
             "value": "media"
           },
           {
-            "name": "Native, Indigenous & Tribal",
+            "name": "Mental Health Professionals",
+            "value": "mental-health-professionals"
+          },
+          {
+            "name": "Native, Indigenous Tribal Nations",
             "value": "native-indigenous-tribal"
           },
           {
-            "name": "Teens (13+)",
-            "value": "teens-13-plus"
+            "name": "Policymakers",
+            "value": "policymakers"
           },
           {
-            "name": "Children (up to 12)",
-            "value": "children-up-to-12"
+            "name": "Survivors",
+            "value": "survivors"
           }
         ]
       },
@@ -23841,8 +23933,44 @@
         "label": "Topic",
         "options": [
           {
-            "name": "Missing Children",
-            "value": "missing-children"
+            "name": "Generative AI (Prevention: AI Risks)",
+            "value": "generative-ai"
+          },
+          {
+            "name": "Cyberbullying",
+            "value": "cyberbullying"
+          },
+          {
+            "name": "Gaming",
+            "value": "gaming"
+          },
+          {
+            "name": "Online Enticement (Prevention: Grooming/Online Enticement)",
+            "value": "online-enticement"
+          },
+          {
+            "name": "Healthy Relationships",
+            "value": "healthy-relationships"
+          },
+          {
+            "name": "Digital Citizenship",
+            "value": "digital-citizenship"
+          },
+          {
+            "name": "Sharing Intimate Images",
+            "value": "sharing-intimate-images"
+          },
+          {
+            "name": "Personal Safety",
+            "value": "personal-safety"
+          },
+          {
+            "name": "Sextortion",
+            "value": "sextortion"
+          },
+          {
+            "name": "Online Privacy",
+            "value": "online-privacy"
           },
           {
             "name": "Autism & Wandering",
@@ -23853,6 +23981,26 @@
             "value": "children-missing-from-care"
           },
           {
+            "name": "Child Sexual Abuse Material",
+            "value": "csam"
+          },
+          {
+            "name": "Child Sex Trafficking",
+            "value": "child-sex-trafficking"
+          },
+          {
+            "name": "End-to-End Encryption",
+            "value": "end-to-end-encryption"
+          },
+          {
+            "name": "Exploited Children",
+            "value": "exploited-children"
+          },
+          {
+            "name": "Help ID Me: Unidentified Child Remains",
+            "value": "help-id-me"
+          },
+          {
             "name": "Infant Abductions",
             "value": "infant-abductions"
           },
@@ -23861,52 +24009,12 @@
             "value": "long-term-missing-children"
           },
           {
-            "name": "Family Abduction",
-            "value": "family-abduction"
+            "name": "Missing Children",
+            "value": "missing-children"
           },
           {
-            "name": "Help ID Me",
-            "value": "help-id-me"
-          },
-          {
-            "name": "CSAM",
-            "value": "csam"
-          },
-          {
-            "name": "Child Sex Trafficking",
-            "value": "child-sex-trafficking"
-          },
-          {
-            "name": "Online Enticement",
-            "value": "online-enticement"
-          },
-          {
-            "name": "Sextortion",
-            "value": "sextortion"
-          },
-          {
-            "name": "Generative AI",
-            "value": "generative-ai"
-          },
-          {
-            "name": "End-to-End Encryption",
-            "value": "end-to-end-encryption"
-          },
-          {
-            "name": "Disaster Response",
-            "value": "disaster-response"
-          },
-          {
-            "name": "NCMEC Data",
-            "value": "ncmec-data"
-          },
-          {
-            "name": "NCMEC Analysis",
-            "value": "ncmec-analysis"
-          },
-          {
-            "name": "Child Safety Advocacy",
-            "value": "child-safety-advocacy"
+            "name": "Runaway & Abducted Children",
+            "value": "runaway-abducted-children"
           }
         ]
       },
@@ -23916,44 +24024,52 @@
         "label": "Resource Type",
         "options": [
           {
+            "name": "Presentation",
+            "value": "presentation"
+          },
+          {
+            "name": "Digital Activity",
+            "value": "digital-activity"
+          },
+          {
+            "name": "Printable Activity",
+            "value": "printable-activity"
+          },
+          {
             "name": "Tip Sheet",
             "value": "tip-sheet"
           },
           {
-            "name": "Educator Kit / Curriculum",
-            "value": "educator-kit-curriculum"
-          },
-          {
-            "name": "Discussion Guide",
-            "value": "discussion-guide"
-          },
-          {
-            "name": "Professional Guide",
-            "value": "professional-guide"
-          },
-          {
-            "name": "Data Report",
-            "value": "data-report"
+            "name": "Toolkit",
+            "value": "toolkit"
           },
           {
             "name": "Video",
             "value": "video"
           },
           {
-            "name": "Presentation",
-            "value": "presentation"
+            "name": "Checklists",
+            "value": "checklists"
           },
           {
-            "name": "Activity Sheet",
-            "value": "activity-sheet"
+            "name": "Data & Analysis",
+            "value": "data-analysis"
           },
           {
-            "name": "eBook",
-            "value": "ebook"
+            "name": "Financials",
+            "value": "financials"
           },
           {
-            "name": "Blog Post",
-            "value": "blog-post"
+            "name": "Guides & Protocols",
+            "value": "guides-protocols"
+          },
+          {
+            "name": "Policy Advocacy",
+            "value": "policy-advocacy"
+          },
+          {
+            "name": "Program and Issue Overviews",
+            "value": "program-issue-overviews"
           }
         ]
       },
@@ -23979,12 +24095,16 @@
         "label": "Program",
         "options": [
           {
-            "name": "KidSmartz",
-            "value": "kidsmartz"
-          },
-          {
             "name": "NetSmartz",
             "value": "netsmartz"
+          },
+          {
+            "name": "Safe to Compete",
+            "value": "safe-to-compete"
+          },
+          {
+            "name": "KidSmartz",
+            "value": "kidsmartz"
           }
         ]
       },
@@ -24292,6 +24412,35 @@
         "name": "bodyText",
         "label": "Body Text / Description",
         "description": "Optional text shown between the heading and search controls."
+      },
+      {
+        "component": "select",
+        "name": "library",
+        "label": "Library",
+        "description": "Which resources this page lists and how its filters are worded (e.g. Teachable Topic vs Issue/Topic). Keep this field last: published pages read it by position.",
+        "options": [
+          {
+            "name": "All resources (no library)",
+            "value": ""
+          },
+          {
+            "name": "Prevention",
+            "value": "prevention"
+          },
+          {
+            "name": "General",
+            "value": "general"
+          },
+          {
+            "name": "Prevention, also listing General resources",
+            "value": "prevention+general"
+          },
+          {
+            "name": "General, also listing Prevention resources",
+            "value": "general+prevention"
+          }
+        ],
+        "value": ""
       }
     ]
   },
