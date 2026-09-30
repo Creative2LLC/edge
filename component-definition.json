@@ -973,6 +973,37 @@
               }
             }
           }
+        },
+        {
+          "title": "Img Icn Hyperlink Card Carousel",
+          "id": "resources",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Resources",
+                  "model": "resources",
+                  "filter": "resources"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Resource Item",
+          "id": "resource-item",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Resource Item",
+                  "model": "resource-item"
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -2501,31 +2532,15 @@
           }
         },
         {
-          "title": "Resources",
-          "id": "resources",
+          "title": "Resource Tags (Metadata)",
+          "id": "resource-tags",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Resources",
-                  "model": "resources",
-                  "filter": "resources"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Resource Item",
-          "id": "resource-item",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Resource Item",
-                  "model": "resource-item"
+                  "name": "Resource Tags",
+                  "model": "resource-tags"
                 }
               }
             }
@@ -2656,21 +2671,6 @@
                 "template": {
                   "name": "Report Archive Item",
                   "model": "report-archive-item"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Resource Tags (Metadata)",
-          "id": "resource-tags",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block",
-                "template": {
-                  "name": "Resource Tags",
-                  "model": "resource-tags"
                 }
               }
             }

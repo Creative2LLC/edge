@@ -168,6 +168,9 @@
         },
         {
           "...": "../blocks/split-card-carousel/_split-card-carousel.json#/definitions"
+        },
+        {
+          "...": "../blocks/resources/_resources.json#/definitions"
         }
       ]
     },
@@ -413,7 +416,7 @@
           "...": "../blocks/resource-hero/_resource-hero.json#/definitions"
         },
         {
-          "...": "../blocks/resources/_resources.json#/definitions"
+          "...": "../blocks/resource-tags/_resource-tags.json#/definitions"
         }
       ]
     },
@@ -432,9 +435,6 @@
         },
         {
           "...": "../blocks/report-archive/_report-archive.json#/definitions"
-        },
-        {
-          "...": "../blocks/resource-tags/_resource-tags.json#/definitions"
         },
         {
           "...": "../blocks/resource-video-hero/_resource-video-hero.json#/definitions"
