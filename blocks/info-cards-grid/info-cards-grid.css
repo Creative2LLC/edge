@@ -136,12 +136,15 @@
   align-self: start;
   opacity: 0;
   transform: translateY(24px);
+
+  /* The stagger delays the scroll-in reveal only (opacity, transform). It used
+     to apply to every property, so the 5th card answered a hover 280ms late. */
   transition:
-    opacity 0.45s ease,
-    transform 0.45s ease,
-    box-shadow 0.25s ease,
-    background-color 0.25s ease;
-  transition-delay: calc(var(--info-card-index, 0) * 70ms);
+    opacity 0.45s ease calc(var(--info-card-index, 0) * 70ms),
+    transform 0.45s ease calc(var(--info-card-index, 0) * 70ms),
+    translate var(--hover-duration) var(--hover-ease),
+    box-shadow var(--hover-duration) var(--hover-ease),
+    background-color var(--hover-duration) var(--hover-ease);
 }
 
 /* Overlay image */
@@ -344,6 +347,22 @@
     var(--info-card-bg) calc(100% - var(--info-card-hover-mix, 10%)),
     var(--info-card-hover-tint, #000) var(--info-card-hover-mix, 10%)
   );
+}
+
+/* Light card with no authored hover colour: the site's card tier (lift +
+   shadow). Darkening a white card read as a flat, disabled-looking grey.
+   `translate`, not `transform`, because transform carries the reveal. */
+.info-cards-grid-card-default.info-cards-grid-card-has-lift-hover:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+.info-cards-grid-card-default.info-cards-grid-card-has-lift-hover:focus-within {
+  translate: 0 var(--hover-lift-card);
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .info-cards-grid-card-default.info-cards-grid-card-has-lift-hover:hover,
+  .info-cards-grid-card-default.info-cards-grid-card-has-lift-hover:focus-within {
+    translate: none;
+  }
 }
 
 /* Card buttons: styled by the button standard; this only places them. */

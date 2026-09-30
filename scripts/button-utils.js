@@ -78,6 +78,8 @@ const SWATCH_STYLES = {
   '#FCBC7E': 'amber',
   '#E38B22': 'amber',
   '#E13E30': 'emergency',
+  // Hand-typed before the picker existed; the "Call 911" cta-card-1 buttons carry it.
+  '#E14439': 'emergency',
   '#F58A80': 'emergency',
   '#7BC581': 'giving',
 };

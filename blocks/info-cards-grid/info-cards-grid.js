@@ -29,10 +29,11 @@ import {
 /**
  * Unstyled cards used to hover to a flat brand blue (#008DB6) no matter what
  * they looked like at rest, so a light-grey card flipped to saturated blue and
- * an already-blue card did not visibly change at all. The default is now a
- * subtle shift of the card's OWN background: light cards darken, dark cards
- * lighten. An authored Card Hover Background still wins outright and is applied
- * exactly as before. Set DEFAULT_HOVER_MIX to 0 to drop the default entirely.
+ * an already-blue card did not visibly change at all. Dark cards now lighten
+ * their OWN background slightly. Light cards lift with a shadow instead:
+ * darkening them read as a flat grey that looked disabled rather than hovered.
+ * An authored Card Hover Background still wins outright and is applied exactly
+ * as before. Set DEFAULT_HOVER_MIX to 0 to drop the default entirely.
  */
 const DEFAULT_HOVER_MIX = 10;
 
@@ -55,6 +56,27 @@ function hoverTintFor(background) {
     return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
   });
   return ((0.2126 * r) + (0.7152 * g) + (0.0722 * b)) < 0.3 ? '#fff' : '#000';
+}
+
+function hasDefaultHover(card) {
+  return card.classList.contains('info-cards-grid-card-has-default-hover')
+    || card.classList.contains('info-cards-grid-card-has-lift-hover');
+}
+
+function clearDefaultHover(card) {
+  card.classList.remove('info-cards-grid-card-has-default-hover', 'info-cards-grid-card-has-lift-hover');
+}
+
+// Dark card: lighten its own background. Light card: lift + shadow, no colour.
+function applyDefaultHover(card, background) {
+  clearDefaultHover(card);
+  if (hoverTintFor(background) === '#fff') {
+    card.classList.add('info-cards-grid-card-has-default-hover');
+    card.style.setProperty('--info-card-hover-tint', '#fff');
+    card.style.setProperty('--info-card-hover-mix', `${DEFAULT_HOVER_MIX}%`);
+  } else {
+    card.classList.add('info-cards-grid-card-has-lift-hover');
+  }
 }
 
 const CARD_COLOR_FIELD_NAMES = [
@@ -677,9 +699,13 @@ function syncCardStyles(resourcePath, card, content, data, variant) {
         // default. Both rules have the same specificity and the default is
         // declared second, so it would win — drop it before the authored colour
         // is applied.
-        card.classList.remove('info-cards-grid-card-has-default-hover');
+        clearDefaultHover(card);
         card.classList.add('info-cards-grid-card-has-hover-bg');
         card.style.setProperty('--info-card-hover-bg', fields.cardHoverBackgroundColor);
+      } else if (fields.cardBackgroundColor && hasDefaultHover(card)) {
+        // The default was picked from the row-position background, which this
+        // correction just replaced — a light card must not keep a dark card's hover.
+        applyDefaultHover(card, fields.cardBackgroundColor);
       }
       const cardBg = fields.cardBackgroundColor
         || card.style.getPropertyValue('--info-card-bg')
@@ -799,9 +825,7 @@ function buildCard(data, index, variant, isEditor) {
     card.classList.add('info-cards-grid-card-has-hover-bg');
     card.style.setProperty('--info-card-hover-bg', data.cardHoverBg);
   } else if (!isVolunteerVariant && DEFAULT_HOVER_MIX > 0) {
-    card.classList.add('info-cards-grid-card-has-default-hover');
-    card.style.setProperty('--info-card-hover-tint', hoverTintFor(cardBg));
-    card.style.setProperty('--info-card-hover-mix', `${DEFAULT_HOVER_MIX}%`);
+    applyDefaultHover(card, cardBg);
   }
   applyTextStyles(card, data.textStyles);
 

@@ -248,10 +248,28 @@
   transition: var(--hover-transition);
 }
 
+/* The card is transparent, so at rest the radius is invisible. It exists so
+   the hover shadow follows the photo's rounded top corners instead of drawing
+   a square box behind them. */
+.leadership-team .leadership-team-card {
+  border-radius: 14px;
+}
+
+.leadership-team .leadership-team-card-image {
+  transition: border-radius var(--hover-duration) var(--hover-ease);
+}
+
 .leadership-team .leadership-team-card:focus-within,
 .leadership-team .leadership-team-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
   transform: translateY(var(--hover-lift-card));
   box-shadow: var(--shadow-3);
+}
+
+/* Lifted, the photo becomes the top of the card: square its bottom corners so
+   it meets the card body flush instead of leaving two notches at the seam. */
+.leadership-team .leadership-team-card:focus-within .leadership-team-card-image,
+.leadership-team .leadership-team-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .leadership-team-card-image {
+  border-radius: 14px 14px 0 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

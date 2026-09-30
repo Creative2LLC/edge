@@ -107,6 +107,17 @@ function readPublishedFallbackCells(rows) {
   ) {
     cells.belowButtonText = rowAt(rows, index);
     index += 1;
+  } else if (
+    !values[index]
+    && isValidHexColor(values[index + 1])
+    && isValidHexColor(values[index + 2])
+  ) {
+    // ...but on the current model an EMPTY belowButtonText keeps its row. Left in place,
+    // it shifted every button field by one: the gradient hex was read as the button
+    // style, so the button fell back to Primary blue on the published page while the
+    // editor (which reads by name) showed the authored style. Two gradient stops must
+    // follow, so a lone empty gradientLeft on an older page is not mistaken for it.
+    index += 1;
   }
 
   if (isValidHexColor(values[index])) {
