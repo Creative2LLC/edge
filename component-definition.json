@@ -212,7 +212,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "FAON Application",
+                  "name": "Family Advocacy Outreach Network Membership Application",
                   "model": "faon-application"
                 }
               }
@@ -293,7 +293,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "CTA Card 1",
+                  "name": "CTA 2 Btn Split Col Banner",
                   "model": "cta-card-1"
                 }
               }
@@ -308,7 +308,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "CTA Card 2",
+                  "name": "CTA Icn Btn Split Col Banner",
                   "model": "cta-card-2"
                 }
               }
@@ -323,7 +323,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Media Contact CTA",
+                  "name": "CTA Media Contact",
                   "model": "media-contact-cta"
                 }
               }
@@ -338,7 +338,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Social Report CTA",
+                  "name": "CTA Social Report",
                   "model": "social-report-cta"
                 }
               }
@@ -353,7 +353,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Support CTA",
+                  "name": "CTA Support",
                   "model": "support-cta"
                 }
               }
@@ -368,7 +368,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Report Download",
+                  "name": "Img Btn Banner",
                   "model": "report-download"
                 }
               }
@@ -383,7 +383,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Split Card Info",
+                  "name": "Img Logo Btn Split Col Banner",
                   "model": "split-card-info"
                 }
               }
@@ -404,7 +404,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Dark Feature Cards",
+                  "name": "Dark Img Btn 1x4 Col",
                   "model": "dark-feature-cards",
                   "filter": "dark-feature-cards"
                 }
@@ -466,7 +466,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Split Card",
+                  "name": "Img 2 Btn Split Col Card",
                   "model": "split-card"
                 }
               }
@@ -481,7 +481,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Regional Offices",
+                  "name": "Img Btn 1-3 Col Card",
                   "model": "regional-offices",
                   "filter": "regional-offices"
                 }
@@ -512,7 +512,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Cards",
+                  "name": "Img Disclaimer 1x3 Col Card",
                   "model": "cards",
                   "filter": "cards"
                 }
@@ -543,7 +543,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Split Card Gap",
+                  "name": "Img Icon 1x4 Split Card",
                   "model": "split-card-gap",
                   "filter": "split-card-gap"
                 }
@@ -574,7 +574,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Image Text Card Row",
+                  "name": "Img Icon Btn 1x3 Col Card",
                   "model": "image-text-card-row",
                   "filter": "image-text-card-row"
                 }
@@ -605,7 +605,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Card Row",
+                  "name": "Logo Btn 1x6 Col Card Grid",
                   "model": "card-row",
                   "filter": "card-row"
                 }
@@ -636,7 +636,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Info Cards Grid",
+                  "name": "Multi Icn Btn Col Card Grid",
                   "model": "info-cards-grid",
                   "filter": "info-cards-grid"
                 }
@@ -682,7 +682,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Split Card List",
+                  "name": "Txt Btn Split Col List Card",
                   "model": "split-card-list",
                   "filter": "split-card-list"
                 }
@@ -713,7 +713,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Text Image",
+                  "name": "Txt Btn Split Img Card",
                   "model": "text-image"
                 }
               }
@@ -734,7 +734,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Numbered Cards Custom",
+                  "name": "Dark Multi # Btn Card Carousel",
                   "model": "numbered-cards-custom",
                   "filter": "numbered-cards-custom"
                 }
@@ -765,7 +765,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Numbered Cards",
+                  "name": "Dark Seq Btn 1x8 Card Grid Carousel",
                   "model": "numbered-cards",
                   "filter": "numbered-cards"
                 }
@@ -796,7 +796,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Icon Card Carousel",
+                  "name": "Icn Btn Card Carousel",
                   "model": "icon-card-carousel",
                   "filter": "icon-card-carousel"
                 }
@@ -858,7 +858,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Partners Showcase",
+                  "name": "Marquee Logo Carousel",
                   "model": "partners-showcase",
                   "filter": "partners-showcase"
                 }
@@ -889,7 +889,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Split Thin Carousel",
+                  "name": "Narrow Img Btn Split Col Carousel",
                   "model": "split-thin-carousel",
                   "filter": "split-thin-carousel"
                 }
@@ -920,7 +920,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Detailed Carousel",
+                  "name": "Pano Img 3 Col Btn Card Carousel",
                   "model": "detailed-carousel",
                   "filter": "detailed-carousel"
                 }
@@ -951,7 +951,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Split Card Carousel",
+                  "name": "Wide Img Btn Split Col Carousel",
                   "model": "split-card-carousel",
                   "filter": "split-card-carousel"
                 }
@@ -982,7 +982,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Resources",
+                  "name": "Img Icn Hyperlink Card Carousel",
                   "model": "resources",
                   "filter": "resources"
                 }
@@ -1020,7 +1020,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Colored Button",
+                  "name": "Custom Btn Icon",
                   "model": "colored-button"
                 }
               }
@@ -1053,7 +1053,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Colored Grid",
+                  "name": "Custom Grid",
                   "model": "colored-grid",
                   "filter": "colored-grid"
                 }
@@ -1086,7 +1086,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Colored Heading",
+                  "name": "Custom Heading",
                   "model": "colored-heading"
                 }
               }
@@ -1102,7 +1102,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Colored Icon Text",
+                  "name": "Custom Icon Text",
                   "model": "colored-icon-text"
                 }
               }
@@ -1119,7 +1119,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Colored List",
+                  "name": "Custom List",
                   "model": "colored-list",
                   "filter": "colored-list"
                 }
@@ -1152,7 +1152,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Colored Text",
+                  "name": "Custom Text",
                   "model": "colored-text"
                 }
               }
@@ -1316,7 +1316,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Icon Text",
+                  "name": "Donated Redblue Txt",
                   "model": "icon-text"
                 }
               }
@@ -1482,7 +1482,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Card Testimonies",
+                  "name": "Testimonies",
                   "model": "card-testimonies",
                   "filter": "card-testimonies"
                 }
@@ -1519,7 +1519,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Icon Text Row",
+                  "name": "Icn 1x4 Col",
                   "model": "icon-text-row",
                   "filter": "icon-text-row"
                 }
@@ -1550,7 +1550,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Card Row Compact",
+                  "name": "Icon 1x4 Col Card",
                   "model": "card-row-compact",
                   "filter": "card-row-compact"
                 }
@@ -1581,7 +1581,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Split Card Detail",
+                  "name": "Icon 1x4 Grid Img Split Card",
                   "model": "split-card-detail",
                   "filter": "split-card-detail"
                 }
@@ -1612,7 +1612,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Dual Cards",
+                  "name": "Icon Hyperlink 1x2 Col Card",
                   "model": "dual-cards",
                   "filter": "dual-cards"
                 }
@@ -1643,7 +1643,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Connect Grid",
+                  "name": "Icon Hyperlink 1x3 Col Card",
                   "model": "connect-grid",
                   "filter": "connect-grid"
                 }
@@ -1680,7 +1680,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Image Card",
+                  "name": "1x2 Btn Image Banner",
                   "model": "image-card-content"
                 }
               }
@@ -1840,7 +1840,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Historical Reports Carousel",
+                  "name": "Historical Trends Carousel",
                   "model": "historical-reports-carousel",
                   "filter": "historical-reports-carousel"
                 }
@@ -2109,7 +2109,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "FAQ",
+                  "name": "Accordion",
                   "model": "faq",
                   "filter": "faq"
                 }
@@ -2156,7 +2156,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Report Section Nav",
+                  "name": "Sticky Nav",
                   "model": "report-section-nav"
                 }
               }
@@ -2447,7 +2447,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Resources Browser",
+                  "name": "Resource Browser",
                   "model": "resources-browser",
                   "filter": "resources-browser"
                 }
@@ -2539,7 +2539,7 @@
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Resource Tags",
+                  "name": "Resource Tags (Metadata)",
                   "model": "resource-tags"
                 }
               }

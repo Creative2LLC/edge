@@ -12,6 +12,7 @@
 
 /* eslint-env browser */
 import { decorateButtonText, isDarkSurface } from './button-utils.js';
+import { resolveBlockAlias } from './block-aliases.js';
 
 function sampleRUM(checkpoint, data) {
   // eslint-disable-next-line max-len
@@ -1060,15 +1061,29 @@ function getBlockName(block) {
     .map((className) => normalizeBlockNameCandidate(className))
     .filter((className) => className && className !== 'block');
 
-  return normalizeBlockNameCandidate(
+  const resourceName = getResourceBlockName(block) || getResourceBlockName(resourceField);
+  let name = normalizeBlockNameCandidate(
     modelValue
-    || getResourceBlockName(block)
-    || getResourceBlockName(resourceField)
+    || resourceName
     || componentIdValue
     || block.getAttribute('data-block-name')
     || classCandidates[0]
     || '',
   );
+
+  // AEM cuts a block's node name to 20 characters, so a long name reaches the editor
+  // truncated ("numbered-cards-custo") or, worse, as a different block's name
+  // ("community-education"). The class carries the whole name, so it wins when the node
+  // name is just its prefix.
+  const className = classCandidates[0] || '';
+  const isTruncatedNodeName = !modelValue && resourceName && name
+    && className.length > name.length && className.startsWith(name);
+  if (isTruncatedNodeName) {
+    name = className;
+  }
+
+  // Renamed blocks carry their new name in the class and the node path; see block-aliases.js.
+  return resolveBlockAlias(name);
 }
 
 function isNestedBlockCandidate(candidate, columnsBlock) {

@@ -8,7 +8,7 @@
           "page": {
             "resourceType": "core/franklin/components/block/v1/block",
             "template": {
-              "name": "Resource Tags",
+              "name": "Resource Tags (Metadata)",
               "model": "resource-tags"
             }
           }

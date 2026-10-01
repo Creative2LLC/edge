@@ -16,6 +16,7 @@ import {
 import {
   applyReadableColors, minRatioFor, remapLegacyColors, resolveBrandColor, setReadableColor,
 } from './color-tokens.js';
+import { applyBlockAliases } from './block-aliases.js';
 
 /**
  * Moves all the attributes from a given elmenet to another given element.
@@ -914,6 +915,8 @@ function skipMisnamedLeadershipBlock(main) {
  */
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
+  // First of all: a renamed block's new class must read as its folder name to every step below.
+  applyBlockAliases(main);
   // Before anything reads an authored colour: published pages still carry the old palette.
   remapLegacyColors(main);
   // hopefully forward compatible button decoration
