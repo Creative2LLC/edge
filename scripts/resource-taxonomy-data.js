@@ -111,7 +111,10 @@ export default {
           'policy-advocacy',
           'program-issue-overviews',
           'presentation',
+          'digital-activity',
+          'printable-activity',
           'tip-sheet',
+          'toolkit',
           'video',
         ],
         programs: [],
@@ -129,7 +132,7 @@ export default {
         value: 'families',
         label: 'Families',
         labels: {
-          prevention: 'Parents/Guardians',
+          prevention: 'Parents/Caregivers',
           general: 'Families',
         },
         sections: [
@@ -701,6 +704,7 @@ export default {
         },
         sections: [
           'prevention',
+          'general',
         ],
       },
       {
@@ -712,6 +716,7 @@ export default {
         },
         sections: [
           'prevention',
+          'general',
         ],
       },
       {
@@ -723,6 +728,7 @@ export default {
         },
         sections: [
           'prevention',
+          'general',
         ],
       },
       {
