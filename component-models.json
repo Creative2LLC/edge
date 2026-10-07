@@ -21908,6 +21908,22 @@
         "name": "detailBasePath",
         "label": "Blog Detail Base Path",
         "value": "/content/edge/resources/Blogs"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned1",
+        "label": "Pinned Item 1 (Optional)",
+        "description": "Pick a blog page (on a blog) or a resource page (on a resource). Pinned items show first, in this order; empty slots are filled automatically from tags."
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned2",
+        "label": "Pinned Item 2 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned3",
+        "label": "Pinned Item 3 (Optional)"
       }
     ]
   },

@@ -37,14 +37,23 @@ const DEFAULT_HEADINGS = {
   resources: 'Related Resources',
 };
 
-const FIELD_COLUMN_INDEX = {
+// Position of each field in the published markup: one single-cell row per
+// field, empty fields kept. These used to be read as COLUMNS of a row, so on
+// published pages only apiBaseUrl (index 0) ever resolved and every authored
+// heading, limit and source type silently fell back to its default.
+const FIELD_INDEX = {
   apiBaseUrl: 0,
   sourceType: 1,
   slug: 2,
   heading: 3,
   limit: 4,
   detailBasePath: 5,
+  pinned1: 6,
+  pinned2: 7,
+  pinned3: 8,
 };
+
+const PIN_FIELDS = ['pinned1', 'pinned2', 'pinned3'];
 
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -109,6 +118,17 @@ function getPropValue(scope, name) {
   return normalizeText(readLinkField(scope, name).value || readTextField(scope, name).value);
 }
 
+/**
+ * Published xwalk markup is one single-cell row per field. A block authored as
+ * one wide row (document-style) keeps the old column reading.
+ */
+function getPositionalCell(rows, name) {
+  const index = FIELD_INDEX[name];
+  if (index === undefined) return null;
+  if (rows.length === 1) return rows[0].children[index] || null;
+  return rows[index]?.children[0] || null;
+}
+
 function readConfigValue(rows, name, fallback = '') {
   const propValue = rows
     .map((row) => readLinkField(row, name).value || readTextField(row, name).value)
@@ -118,24 +138,39 @@ function readConfigValue(rows, name, fallback = '') {
     return normalizeText(propValue) || fallback;
   }
 
-  const columnIndex = FIELD_COLUMN_INDEX[name];
-  if (columnIndex !== undefined) {
-    const value = rows
-      .map((row) => {
-        const cols = [...row.children];
-        const cell = cols[columnIndex];
-        if (!cell) return '';
-        const anchor = cell.querySelector('a');
-        if (anchor) return normalizeText(anchor.getAttribute('href') || anchor.textContent);
-        if (name === 'apiBaseUrl') return findUrlLikeValue(cell.textContent) || normalizeText(cell.textContent);
-        return normalizeText(cell.textContent);
-      })
-      .find(Boolean);
-
-    if (value) return value;
+  const cell = getPositionalCell(rows, name);
+  if (cell) {
+    const anchor = cell.querySelector('a');
+    if (anchor) return normalizeText(anchor.getAttribute('href') || anchor.textContent) || fallback;
+    if (name === 'apiBaseUrl') return findUrlLikeValue(cell.textContent) || normalizeText(cell.textContent) || fallback;
+    return normalizeText(cell.textContent) || fallback;
   }
 
   return fallback;
+}
+
+/**
+ * A pinned page as the backend can match it. The link's text is the JCR path
+ * with its original casing (`/content/edge/resources/Blogs/foo`); the href is
+ * the lowercased public path. Either resolves, but the JCR path is an exact
+ * match for the stored page_path, so it is preferred. decorateButtons rewrites
+ * the link text of a lone link (label cleanup), so only the path is lifted out
+ * of it, never the whole string.
+ */
+function readPinnedPath(block, name) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const cell = source || getPositionalCell(getRows(block), name);
+  if (!cell) return '';
+
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector('a');
+  const text = normalizeText(anchor?.textContent || cell.textContent);
+  const jcrPath = text.match(/\/content\/[^\s?#]+/)?.[0];
+  if (jcrPath) return jcrPath;
+  return normalizeText(anchor?.getAttribute('href')) || (text.startsWith('/') ? text : '');
+}
+
+function readPinnedPaths(block) {
+  return [...new Set(PIN_FIELDS.map((name) => readPinnedPath(block, name)).filter(Boolean))];
 }
 
 function getLegacyValue(block, name) {
@@ -382,9 +417,12 @@ function buildView(items, config) {
   return fragment;
 }
 
-async function fetchItem(apiBaseUrl, sourceType, slug, relatedLimit) {
+async function fetchItem(apiBaseUrl, sourceType, slug, relatedLimit, pins = []) {
   const endpoint = new URL(`/api/${sourceType}/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
   endpoint.searchParams.set('related_limit', String(relatedLimit));
+  // Author-pinned pages lead, in order; the backend drops any that no longer
+  // resolve and fills the remaining slots from tags.
+  pins.forEach((pin) => endpoint.searchParams.append('related_pins[]', pin));
   const response = await fetch(endpoint.toString(), {
     headers: { Accept: 'application/json' },
   });
@@ -409,6 +447,7 @@ export default async function decorate(block) {
     heading: resolveHeading(getFieldValue(block, 'heading'), sourceType),
     limit: parseLimit(getFieldValue(block, 'limit', '3'), 3),
     detailBasePath: getFieldValue(block, 'detailBasePath'),
+    pins: readPinnedPaths(block),
   };
 
   block.replaceChildren(buildSkeletonView(config));
@@ -424,7 +463,13 @@ export default async function decorate(block) {
   }
 
   try {
-    const item = await fetchItem(config.apiBaseUrl, config.sourceType, config.slug, config.limit);
+    const item = await fetchItem(
+      config.apiBaseUrl,
+      config.sourceType,
+      config.slug,
+      config.limit,
+      config.pins,
+    );
     const related = (item?.related_articles || []).slice(0, config.limit);
 
     if (!related.length) {
