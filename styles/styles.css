@@ -722,6 +722,20 @@ main .block.scroll-reveal {
   will-change: opacity, transform;
 }
 
+/* A block already on the first screen appears at once: fading in what the visitor is
+   looking at only delays it (aem.js, observeBlockReveal). */
+
+/* Universal Editor only (color-tokens.js, flagReadableAdjustments): text whose authored
+   colour the site darkened to stay readable. The class is never set on the published site. */
+.readable-adjusted-flag {
+  outline: 2px dashed var(--ncmec-yellow-dark);
+  outline-offset: 2px;
+}
+
+main .block.scroll-reveal.scroll-reveal-instant {
+  transition: none;
+}
+
 main .block.scroll-reveal.is-visible {
   opacity: 1;
 
@@ -1334,6 +1348,15 @@ a:any-link {
 a:hover {
   /* color: var(--link-hover-color); */
   text-decoration: underline;
+}
+
+/* A link inside running text is underlined: colour alone does not set it apart for
+   colour-blind visitors (WCAG 1.4.1; axe/Lighthouse link-in-text-block). Classed links
+   are components (buttons, card links) that style themselves. Just above `a:any-link`
+   (which removes the underline); :where() keeps it below any block's own link rule. */
+main p a:any-link:where(:not([class])) {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 /* ====================================================================
@@ -2391,6 +2414,12 @@ main > .section > div {
   max-width: var(--container);
   margin: auto;
   padding: 0 var(--section-pad);
+}
+
+/* Parts of a loading section at or after a block that is still loading (aem.js,
+   revealLoadedWrappers). Hidden, not just invisible, so nothing below them moves. */
+main > .section > [data-section-pending] {
+  display: none;
 }
 
 /* Inter-block vertical rhythm within a section (mobile/tablet only; desktop

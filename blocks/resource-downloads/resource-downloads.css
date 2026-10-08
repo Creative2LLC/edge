@@ -808,7 +808,9 @@ main > .section > div.resource-downloads-wrapper {
   left: 14px;
   padding: 5px 12px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 88%);
+
+  /* 96%, up from 88%: over a busy thumbnail the 13px label fell to 4.4:1. */
+  background: rgb(255 255 255 / 96%);
   color: var(--rd-accent, var(--ncmec-blue-medium));
   font-family: var(--heading-font-family, sans-serif);
   font-size: var(--caption-size);

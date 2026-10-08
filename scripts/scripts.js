@@ -14,7 +14,7 @@ import {
   loadCSS,
 } from './aem.js';
 import {
-  applyReadableColors, minRatioFor, remapLegacyColors, resolveBrandColor, setReadableColor,
+  minRatioFor, refreshReadableColors, remapLegacyColors, resolveBrandColor, setReadableColor,
 } from './color-tokens.js';
 import { applyBlockAliases } from './block-aliases.js';
 
@@ -131,6 +131,68 @@ function isConfigValueParagraph(el) {
 function isInsideUnloadedBlock(el) {
   const block = el.closest('.block[data-block-status]');
   return Boolean(block && block.dataset.blockStatus !== 'loaded');
+}
+
+/**
+ * Gives any heading that skips a level (an h3 straight after the h1) the level it should
+ * have, through aria-level, so screen readers get an unbroken outline (WCAG 1.3.1;
+ * axe/Lighthouse heading-order).
+ *
+ * Blocks pick their heading tags for themselves, so the same card block sits under an h2 on
+ * one page and straight under the hero's h1 on another. Renaming the tag would restyle it
+ * (the global type scale keys off h1-h6); aria-level fixes the outline and changes nothing
+ * on screen. Hidden headings (closed panels, inactive slides) are skipped, as axe skips them.
+ */
+export function fixHeadingOrder(main) {
+  if (!main) return;
+  let previous = 0;
+  // Each skip shifts its tag level, and every deeper one, up by the size of the gap, so a
+  // row of sibling card h3s all become h2 rather than h2, h3, h3. A heading above the
+  // shifted level (a real h2 further down) ends the shift.
+  const shifts = [];
+  main.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+    if (heading.closest('[hidden], [aria-hidden="true"]') || !heading.getClientRects().length) return;
+    if (heading.dataset.headingOrderFixed) {
+      heading.removeAttribute('aria-level');
+      delete heading.dataset.headingOrderFixed;
+    }
+    const tagLevel = Number(heading.tagName[1]);
+    while (shifts.length && tagLevel < shifts[shifts.length - 1].from) shifts.pop();
+    let level = tagLevel - (shifts[shifts.length - 1]?.by || 0);
+    if (previous && level > previous + 1) {
+      shifts.push({ from: tagLevel, by: tagLevel - (previous + 1) });
+      level = previous + 1;
+    }
+    if (level !== tagLevel) {
+      heading.setAttribute('aria-level', String(level));
+      heading.dataset.headingOrderFixed = 'true';
+    }
+    previous = level;
+  });
+}
+
+/**
+ * Keeps fixHeadingOrder() true after load. Blocks render or reveal headings later (the event
+ * calendar shows its list heading only after it has fetched events, tabs swap panels), and a
+ * heading hidden during the first pass was skipped. Re-runs, throttled, when content or
+ * visibility changes; the pass only writes aria-level and a data attribute, neither observed.
+ */
+function watchHeadingOrder(main) {
+  if (!main || main.dataset.headingOrderWatch) return;
+  main.dataset.headingOrderWatch = 'true';
+  let timer = null;
+  new MutationObserver(() => {
+    if (timer) return;
+    timer = setTimeout(() => {
+      timer = null;
+      fixHeadingOrder(main);
+    }, 250);
+  }).observe(main, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class', 'hidden', 'aria-hidden'],
+  });
 }
 
 /**
@@ -1041,7 +1103,11 @@ async function loadLazy(doc) {
   // Contrast-check the authored colours now, after every block and the inline colours have
   // painted: a block cannot see the surface a later block paints behind it, so checking
   // during its own decorate darkened text that was already readable (see setReadableColor).
-  applyReadableColors();
+  // Then the same check for every block that applies authored text colours itself, and an
+  // editor-only note on anything darkened (color-tokens.js, refreshReadableColors).
+  if (main) refreshReadableColors(main);
+  fixHeadingOrder(main);
+  watchHeadingOrder(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;

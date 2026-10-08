@@ -354,6 +354,12 @@ function normalizeHex(value) {
   return rgb ? `#${rgb.map((c) => c.toString(16).padStart(2, '0')).join('')}`.toLowerCase() : null;
 }
 
+/** Records on a darkened element what the author picked and what is shown instead. */
+function markAdjusted(node, picked, shown) {
+  node.dataset.readableAdjusted = picked;
+  node.dataset.readableShown = normalizeHex(computedToHex(shown) || shown) || shown;
+}
+
 /**
  * Re-checks every colour registered by setReadableColor(), now that the page is painted.
  *
@@ -387,6 +393,7 @@ export function applyReadableColors() {
       const required = min ?? minRatioFor(node);
       if (contrastRatio(rendered, surface) >= required) return;
       node.style.color = ensureContrast(rendered, surface, required);
+      markAdjusted(node, rendered, node.style.color);
     });
   });
 }
@@ -403,6 +410,80 @@ export function minRatioFor(element) {
   const size = Number.parseFloat(style.fontSize) || 16;
   const weight = Number(style.fontWeight) || 400;
   return size >= 24 || (size >= 18.66 && weight >= 700) ? 3 : 4.5;
+}
+
+/* Custom properties that carry a TEXT colour. Surfaces, borders, icons and markers are left
+   alone: they are not text, and darkening them would change a design for no reason. */
+const TEXT_COLOR_PROP = /colou?r/i;
+const NON_TEXT_PROP = /(^|-)(bg|background|surface|border|outline|fill|stroke|shadow|icon|marker|accent|line|rule|divider|track|dot|overlay|scrim|wash|tint)(-|$)/i;
+
+/**
+ * The flat colour behind an element, or null when it cannot be known: text over a
+ * background image, gradient, photo or video, or a see-through layer, is skipped rather
+ * than guessed (surfaceBehind() reads colours only, so it would judge white text on a dark
+ * photo against the light page and wrongly darken it).
+ */
+function trustedSurfaceBehind(element) {
+  for (let current = element; current && current.nodeType === 1; current = current.parentElement) {
+    const style = window.getComputedStyle(current);
+    if (style.backgroundImage !== 'none') return null;
+    const media = [...current.children].some((child) => /^(PICTURE|IMG|VIDEO|CANVAS)$/.test(child.tagName)
+      && child !== element && !child.contains(element)
+      && /^(absolute|fixed)$/.test(window.getComputedStyle(child).position));
+    if (media) return null;
+    const match = style.backgroundColor.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+))?/i);
+    const alpha = match && match[4] !== undefined ? Number(match[4]) : 1;
+    if (match && alpha > 0) {
+      return alpha >= 0.98 ? computedToHex(style.backgroundColor) : null;
+    }
+  }
+  return computedToHex(window.getComputedStyle(document.body).backgroundColor) || '#F1F2F2';
+}
+
+/**
+ * A safety net for every block that lets authors pick a text colour freely. Many blocks
+ * (card rows, split cards, CTA cards, section titles...) write the authored colour straight
+ * onto an element or a --*-color property, with no contrast check, so a pale pick on a
+ * light card fails AA. This finds those authored colours after the page is painted and
+ * darkens — hue kept, only as far as AA — just the text actually rendering them, where the
+ * background behind it is a flat colour that can be trusted. Runs after
+ * applyReadableColors(), so a colour a block already corrected no longer matches and is
+ * left alone. Marks each change with data-readable-adjusted.
+ * @param {Element} scope usually main
+ * @returns {number} how many elements were darkened
+ */
+export function applyAuthoredTextSafety(scope) {
+  if (!scope || typeof window === 'undefined' || !window.getComputedStyle) return 0;
+  let changed = 0;
+  scope.querySelectorAll('[style*="color" i]').forEach((owner) => {
+    const authored = new Set();
+    for (let i = 0; i < owner.style.length; i += 1) {
+      const prop = owner.style[i];
+      const isText = prop === 'color'
+        || (prop.startsWith('--') && TEXT_COLOR_PROP.test(prop) && !NON_TEXT_PROP.test(prop.slice(2)));
+      if (isText) {
+        const hex = normalizeHex(owner.style.getPropertyValue(prop).trim())
+          || normalizeHex(computedToHex(owner.style.getPropertyValue(prop)) || '');
+        if (hex) authored.add(hex);
+      }
+    }
+    if (!authored.size) return;
+    [owner, ...owner.querySelectorAll(READABLE_TEXT_SELECTOR)].forEach((node) => {
+      if (node.dataset.readableAdjusted) return;
+      const ownText = [...node.childNodes].some((n) => n.nodeType === 3 && n.nodeValue.trim());
+      if (!ownText || !node.getClientRects().length) return;
+      const rendered = normalizeHex(computedToHex(window.getComputedStyle(node).color) || '');
+      if (!rendered || !authored.has(rendered)) return;
+      const surface = trustedSurfaceBehind(node);
+      if (!surface) return;
+      const required = minRatioFor(node);
+      if (contrastRatio(rendered, surface) >= required) return;
+      node.style.color = ensureContrast(rendered, surface, required);
+      markAdjusted(node, rendered, node.style.color);
+      changed += 1;
+    });
+  });
+  return changed;
 }
 
 const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -471,4 +552,43 @@ export function remapLegacyColors(root) {
     if (href && HEX_RE.test(href)) link.setAttribute('href', resolveBrandColor(href));
     node.nodeValue = next;
   });
+}
+
+/* ---- telling authors ----
+   A darkened colour must not be a silent surprise: the author picked one colour and the
+   page shows another. Every element either pass darkens is marked with what was picked and
+   what is shown; in the Universal Editor (never on the published site) those elements get a
+   dashed outline and a hover note saying so, and how to keep the exact colour. */
+
+function isEditorPage() {
+  return typeof document !== 'undefined' && Boolean(document.querySelector('[data-aue-resource]'));
+}
+
+/**
+ * Editor only: outlines each darkened element and explains it on hover.
+ * @param {Element} scope usually main
+ */
+export function flagReadableAdjustments(scope) {
+  if (!scope || !isEditorPage()) return;
+  scope.querySelectorAll('[data-readable-adjusted]').forEach((node) => {
+    const picked = node.dataset.readableAdjusted.toUpperCase();
+    const shown = String(node.dataset.readableShown || '').toUpperCase();
+    node.classList.add('readable-adjusted-flag');
+    node.title = `Text colour ${picked} is shown as ${shown} on the site: ${picked} is too light `
+      + 'to read on this background (WCAG AA). To use your colour exactly, choose a darker '
+      + 'background or a darker text colour.';
+  });
+}
+
+/**
+ * Runs every contrast step in order: authored colours blocks registered, then the safety
+ * net for blocks that apply colours themselves, then the editor notice. Called once the
+ * page has loaded, and again by the editor after each change, so what an author sees while
+ * editing is what visitors will see.
+ * @param {Element} scope usually main
+ */
+export function refreshReadableColors(scope) {
+  applyReadableColors();
+  applyAuthoredTextSafety(scope);
+  flagReadableAdjustments(scope);
 }

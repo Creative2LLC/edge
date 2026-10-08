@@ -128,7 +128,9 @@ export function buildMap() {
   const svg = document.createElementNS(svgNS, 'svg');
   svg.setAttribute('viewBox', MAP_VIEWBOX);
   svg.setAttribute('xmlns', svgNS);
-  svg.setAttribute('role', 'img');
+  // group, not img: an img is one opaque picture to assistive tech and may not contain
+  // the focusable state buttons below (axe nested-interactive).
+  svg.setAttribute('role', 'group');
   svg.setAttribute('aria-label', 'Interactive map of the United States');
 
   Object.entries(STATE_PATHS).forEach(([abbr, d]) => {

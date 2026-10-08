@@ -69,7 +69,7 @@
 
 .impact-data-table th {
   background: var(--impact-data-table-wash);
-  color: #147da8;
+  color: var(--ncmec-blue-dark); /* was #147da8: 4.13:1 on the light header */
   font-size: var(--caption-size);
   font-weight: 800;
   line-height: 1.2;
@@ -226,7 +226,7 @@
   }
 
   .impact-data-table td::before {
-    color: #147da8;
+    color: var(--ncmec-blue-dark); /* was #147da8: 4.13:1 on the light header */
     font-size: var(--caption-size);
     font-weight: 800;
     line-height: 1.2;

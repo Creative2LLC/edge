@@ -155,6 +155,8 @@ function getDirectMobileNavLink(item) {
 function createMobileStackNavigator() {
   const stack = document.createElement('div');
   stack.className = 'nav-mobile-stack';
+  // A name needs a role on a div; without one axe flags it and screen readers drop it.
+  stack.setAttribute('role', 'group');
   stack.setAttribute('aria-label', 'Mobile navigation');
 
   const viewport = document.createElement('div');

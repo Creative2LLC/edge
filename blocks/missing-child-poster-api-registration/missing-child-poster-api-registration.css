@@ -134,7 +134,7 @@ main > .section > .missing-child-poster-api-registration-wrapper {
 }
 
 .missing-child-poster-api-registration-help {
-  color: #66717d;
+  color: var(--ncmec-gray-dark); /* was #66717d: 4.2:1 on the form panel */
   font-size: var(--body-sm-size);
   font-weight: 600;
   line-height: 1.4;

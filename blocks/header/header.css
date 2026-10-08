@@ -756,10 +756,13 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
     filter: brightness(0) saturate(100%);
   }
 
-  /* button 2 — teal */
+  /* button 2 — teal. White on #008eb7 is 3.78:1, which only passes WCAG AA as large
+     text: 19px needs a true bold (700) for that. At the inherited 600 axe and Lighthouse
+     both failed it on every page. */
   header nav .nav-tools a.button.nav-tool-accent {
     background-color: #008eb7;
     color: #fff;
+    font-weight: 700;
   }
 
   header nav .nav-tools a.button.nav-tool-accent .icon img {

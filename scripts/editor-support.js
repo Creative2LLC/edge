@@ -9,7 +9,7 @@ import {
   loadScript,
   loadSections,
 } from './aem.js';
-import { remapLegacyColors } from './color-tokens.js';
+import { refreshReadableColors, remapLegacyColors } from './color-tokens.js';
 import { decorateRichtext } from './editor-support-rte.js';
 import {
   applyDefaultContentAuthorStyles,
@@ -334,6 +334,9 @@ function attachEventListners(main) {
     event.stopPropagation();
     const applied = await applyChanges(event);
     if (!applied) window.location.reload();
+    // Re-run the contrast passes on what changed, so a colour the site will darken shows
+    // darkened here too, with its editor note, instead of only after a reload.
+    else refreshReadableColors(document.querySelector('main'));
   }));
 }
 

@@ -932,6 +932,14 @@ function observeBlockReveal(block) {
   blockRevealObserver ||= new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
+      // On the first screen before any scrolling: show it at once, no fade. The fade held the
+      // LCP text back ~1.8s on short-hero pages. Not while a loading placeholder is up: its
+      // final height is unknown (amber-alerts swaps 3 placeholder cards for one line), and
+      // shown at once that resize became a 0.2-0.3 layout shift.
+      if (window.scrollY === 0 && entry.boundingClientRect.top < window.innerHeight
+        && !entry.target.matches('.has-skeleton, :has(.has-skeleton)')) {
+        entry.target.classList.add('scroll-reveal-instant');
+      }
       revealBlock(entry.target);
       blockRevealObserver.unobserve(entry.target);
     });
@@ -2369,16 +2377,45 @@ async function waitForFirstImage(section) {
  * @param {Element} section The section element
  */
 
+/**
+ * Shows a loading section's wrappers in order, up to the first one whose block has not
+ * finished loading; that wrapper and everything after it stay hidden.
+ *
+ * A block that waits on the API in decorate (resource-downloads, poster-results) used to hold
+ * back its whole section, including text above it that was ready long before. On pages with a
+ * short hero that text was the largest thing on the first screen, so mobile LCP waited ~2.8s
+ * for API round trips. Nothing below a pending block is ever shown, so nothing already on
+ * screen moves when it arrives.
+ */
+function revealLoadedWrappers(section) {
+  let pending = false;
+  [...section.children].forEach((wrapper) => {
+    pending ||= [...wrapper.querySelectorAll('div.block')]
+      .some((block) => block.dataset.blockStatus !== 'loaded');
+    wrapper.toggleAttribute('data-section-pending', pending);
+  });
+}
+
 async function loadSection(section, loadCallback) {
   const status = section.dataset.sectionStatus;
   if (!status || status === 'initialized') {
     section.dataset.sectionStatus = 'loading';
     const blocks = [...section.querySelectorAll('div.block')];
+    // The first section keeps the all-at-once reveal: its callback (waitForFirstImage) holds
+    // it until the hero image is ready.
+    const progressive = !loadCallback;
+    if (progressive) {
+      revealLoadedWrappers(section);
+      section.style.display = null;
+    }
     for (let i = 0; i < blocks.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
       await loadBlock(blocks[i]);
+      if (progressive) revealLoadedWrappers(section);
     }
     if (loadCallback) await loadCallback(section);
+    section.querySelectorAll(':scope > [data-section-pending]')
+      .forEach((wrapper) => wrapper.removeAttribute('data-section-pending'));
     section.dataset.sectionStatus = 'loaded';
     section.style.display = null;
   }

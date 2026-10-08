@@ -467,7 +467,8 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
   trigger.id = `${uid}-trigger`;
   trigger.setAttribute('aria-haspopup', 'listbox');
   trigger.setAttribute('aria-expanded', 'false');
-  trigger.setAttribute('aria-controls', `${uid}-menu`);
+  // aria-controls is set only while the menu is open: the menu is portalled to <body> on
+  // open and removed on close, and pointing at an ID that is not on the page is invalid.
   trigger.setAttribute('aria-label', accessibleLabel);
 
   const valueEl = document.createElement('span');
@@ -536,6 +537,7 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
     if (!dropdown.classList.contains('is-open')) return;
     dropdown.classList.remove('is-open');
     trigger.setAttribute('aria-expanded', 'false');
+    trigger.removeAttribute('aria-controls');
     menu.remove();
     if (onDocPointer) {
       document.removeEventListener('pointerdown', onDocPointer, true);
@@ -553,6 +555,7 @@ function buildSelectField(placeholderField, optionsField, isAuthoring) {
     // stacking context. Positioned with fixed coordinates under the trigger.
     positionMenu();
     document.body.append(menu);
+    trigger.setAttribute('aria-controls', menu.id);
     const selectedIndex = optionEls.findIndex((el) => el.getAttribute('aria-selected') === 'true');
     setActive(selectedIndex >= 0 ? selectedIndex : 0);
     menu.focus();

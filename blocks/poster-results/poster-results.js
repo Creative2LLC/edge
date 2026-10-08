@@ -277,6 +277,8 @@ function createInfoTooltip(text) {
   const tip = document.createElement('span');
   tip.className = 'poster-results-near-me-tip';
   tip.tabIndex = 0;
+  // The "i" icon is named by its tip text; a span needs a role to carry that name.
+  tip.setAttribute('role', 'img');
   tip.setAttribute('aria-label', text);
   tip.append(document.createTextNode('i'));
 

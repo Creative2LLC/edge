@@ -152,7 +152,10 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0.1;
+
+  /* 7%, down from 10%: a bright photo lifted the card enough to put white body text
+     at 4.4:1 (needs 4.5). Still reads as texture. */
+  opacity: 0.07;
   pointer-events: none;
 }
 

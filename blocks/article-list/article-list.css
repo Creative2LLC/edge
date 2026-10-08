@@ -301,7 +301,9 @@
 
 .article-list .article-list-card-date {
   margin: 0;
-  color: #6a7c8d;
+
+  /* Was #6a7c8d, 4.30:1 on white; palette text grey clears AA. */
+  color: var(--ncmec-gray-dark);
   font-size: var(--caption-size);
   font-weight: var(--body-weight-strong);
 }
@@ -363,7 +365,9 @@
   min-width: 13rem;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(135deg, #0d6e8c 0%, #1e9ac4 100%);
+
+  /* Solid Blue Dark: the old #0d6e8c to #1e9ac4 gradient fell to 3.2:1 under white text. */
+  background: var(--ncmec-blue-dark);
   color: #fff;
   padding: 0.95rem 1.5rem;
   font-size: var(--body-sm-size);

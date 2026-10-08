@@ -11,6 +11,7 @@ import {
 import { animateCountUpOnVisible } from '../../scripts/count-up.js';
 import injectColorPickers from '../../scripts/block-color-picker.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import {
   applyColoredFieldLayoutOptions,
   syncColoredFieldLayoutOptions,
@@ -539,7 +540,6 @@ function normalizeRenderedStatistics(block) {
     renderedValue.className = valueEl?.className || 'statistics-value';
     renderedValue.textContent = value;
     renderedValue.dataset.finalValue = value;
-    renderedValue.setAttribute('aria-label', value);
     renderedItem.append(renderedValue);
 
     const renderedLabel = document.createElement('div');
@@ -1401,10 +1401,12 @@ function applyStatisticsStyles(block, fields = {}) {
   if (Object.prototype.hasOwnProperty.call(fields, 'contentSpacing')) {
     applyContentSpacing(block, fields.contentSpacing);
   }
-  setCssVar(block, '--statistics-heading-color', normalizeColorValue(fields.headingTextColor));
-  setCssVar(block, '--statistics-body-color', normalizeColorValue(fields.bodyTextColor));
-  setCssVar(block, '--statistics-value-color', normalizeColorValue(fields.valueTextColor));
-  setCssVar(block, '--statistics-label-color', normalizeColorValue(fields.labelTextColor));
+  // The published path for authored text colours (see also the textColors path): each is
+  // re-checked once the page is painted and darkened only as far as AA.
+  setReadableColor(block, '--statistics-heading-color', normalizeColorValue(fields.headingTextColor));
+  setReadableColor(block, '--statistics-body-color', normalizeColorValue(fields.bodyTextColor));
+  setReadableColor(block, '--statistics-value-color', normalizeColorValue(fields.valueTextColor));
+  setReadableColor(block, '--statistics-label-color', normalizeColorValue(fields.labelTextColor));
   setCssVar(block, '--statistics-heading-size', normalizeCssLength(fields.headingFontSize, 'font-size'));
   setCssVar(block, '--statistics-body-size', normalizeCssLength(fields.bodyFontSize, 'font-size'));
   setCssVar(block, '--statistics-value-size', normalizeCssLength(fields.valueFontSize, 'font-size'));
@@ -2190,10 +2192,12 @@ function decorateBlock(block) {
   const resolvedMarkerColor = explicitFieldValue(markerColorField, 'markerColor')
     || looseLegacyStyles.markerColor;
 
-  if (textColors.heading) block.style.setProperty('--statistics-heading-color', textColors.heading);
-  if (textColors.body) block.style.setProperty('--statistics-body-color', textColors.body);
-  if (textColors.value) block.style.setProperty('--statistics-value-color', textColors.value);
-  if (textColors.label) block.style.setProperty('--statistics-label-color', textColors.label);
+  // Authored text colours darken only as far as AA once the page is painted (bright orange
+  // and gold figures were 1.4-2.9:1 on light blocks); setReadableColor sets them now.
+  setReadableColor(block, '--statistics-heading-color', textColors.heading);
+  setReadableColor(block, '--statistics-body-color', textColors.body);
+  setReadableColor(block, '--statistics-value-color', textColors.value);
+  setReadableColor(block, '--statistics-label-color', textColors.label);
   if (textSizes.heading) block.style.setProperty('--statistics-heading-size', textSizes.heading);
   if (textSizes.body) block.style.setProperty('--statistics-body-size', textSizes.body);
   if (textSizes.value) block.style.setProperty('--statistics-value-size', textSizes.value);

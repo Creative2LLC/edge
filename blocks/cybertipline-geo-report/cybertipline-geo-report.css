@@ -1,7 +1,7 @@
 .cybertipline-geo-report {
   --cybertipline-geo-ink: #113a67;
   --cybertipline-geo-text: var(--ncmec-gray-dark);
-  --cybertipline-geo-muted: #667784;
+  --cybertipline-geo-muted: var(--ncmec-gray-dark); /* was #667784: 4.45:1 on the light cards */
   --cybertipline-geo-heading-color: var(--cybertipline-geo-ink);
   --cybertipline-geo-copy-color: var(--cybertipline-geo-muted);
   --cybertipline-geo-surface: #fff;

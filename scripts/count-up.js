@@ -3,6 +3,7 @@ function reducedMotionPreferred() {
 }
 
 function dispatchCountUpComplete(element) {
+  element.removeAttribute('aria-busy');
   element.dispatchEvent(new CustomEvent('count-up:complete', {
     bubbles: true,
   }));
@@ -78,7 +79,10 @@ export function animateCountUp(element, options = {}) {
     locale,
   };
 
-  element.setAttribute('aria-label', finalText || formatCountValue(target, formatOptions));
+  // The in-between numbers are decoration; aria-busy asks assistive tech to wait for the
+  // final value. (This used to set aria-label, which ARIA prohibits on a plain div, so
+  // screen readers ignored it and axe flagged it on every statistics block.)
+  element.setAttribute('aria-busy', 'true');
 
   if (reducedMotionPreferred() || duration <= 0) {
     element.textContent = finalText || formatCountValue(target, formatOptions);

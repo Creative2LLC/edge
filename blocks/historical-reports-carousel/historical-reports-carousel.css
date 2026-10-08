@@ -188,6 +188,19 @@ main > .section > .historical-reports-carousel-wrapper {
   justify-content: center;
 }
 
+/* On a phone the centred dots ran under the absolutely placed arrows (the last dot was
+   1px under "previous", failing the 24px target size). Side by side there is room. */
+@media (width < 600px) {
+  .historical-reports-carousel .historical-reports-carousel-controls {
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .historical-reports-carousel .historical-reports-carousel-nav {
+    position: static;
+  }
+}
+
 .historical-reports-carousel .historical-reports-carousel-empty-state {
   padding: 40px 32px;
   border: 1px dashed rgb(0 46 93 / 18%);

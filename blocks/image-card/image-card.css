@@ -78,11 +78,14 @@
   border: none;
 }
 
-/* Secondary button (outline) */
+/* Secondary button: solid peach with navy ink. It was a peach outline with no fill, and
+   over a light part of the photo the label fell to 1.7:1. Filled, it no longer depends on
+   the image: navy on peach is 8:1 (white on peach would be 1.9:1). Solid, like the red
+   primary beside it. */
 .image-card .image-card-btn-secondary {
-  background: transparent;
-  color: #faab60;
-  border: 4px solid #faab60;
+  background: #faab60;
+  color: var(--ncmec-navy-dark);
+  border: none;
 }
 
 /* Arrow icon */

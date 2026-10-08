@@ -197,7 +197,8 @@
 }
 
 .resource-hero-meta-fact-label {
-  color: rgb(64 64 65 / 64%);
+  /* 64% read 3.7:1 on the translucent panel; 13px labels need 4.5. */
+  color: rgb(64 64 65 / 84%);
   font-size: var(--caption-size);
   font-weight: 900;
   letter-spacing: 0.1em;

@@ -316,7 +316,8 @@ function buildWidget(label, layout) {
 
   const dialogId = `get-help-dialog-${Math.random().toString(36).slice(2, 9)}`;
   panel.id = dialogId;
-  trigger.setAttribute('aria-controls', dialogId);
+  // No aria-controls: with aria-haspopup it can only ever be "needs review" in axe, and
+  // the modal takes focus on open, which is what tells assistive tech where it went.
 
   const panelHeading = layout.querySelector('.get-help-column-heading');
   if (panelHeading) {

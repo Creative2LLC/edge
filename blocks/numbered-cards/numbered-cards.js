@@ -1,6 +1,7 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { readRichTextField, readTextField, setItemLabel } from '../../scripts/block-field-utils.js';
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
 import attachDragScroll, {
   createCarouselArrow,
   getCarouselItemIndex,
@@ -251,14 +252,16 @@ export default function decorate(block) {
       const numberBox = document.createElement('div');
       numberBox.className = 'numbered-cards-number-box';
       numberBox.textContent = index + 1;
-      numberBox.style.color = numColor;
+      // Authored number colours (Blue Medium, 3.78:1 on white) darken only as far as AA;
+      // the border keeps the authored colour, as decoration.
+      setReadableColor(numberBox, 'color', numColor);
       numberBox.style.borderColor = numColor;
       numberWrap.append(numberBox);
     } else {
       const numberText = document.createElement('span');
       numberText.className = 'numbered-cards-number-text';
       numberText.textContent = index + 1;
-      numberText.style.color = numColor;
+      setReadableColor(numberText, 'color', numColor);
       numberWrap.append(numberText);
     }
 

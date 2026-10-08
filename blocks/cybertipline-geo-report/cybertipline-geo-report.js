@@ -975,7 +975,8 @@ function buildViewShell(mapPanel, rowsPanel) {
 function buildFallbackWorldBaseMap() {
   const svg = svgElement('svg', {
     viewBox: '0 0 960 500',
-    role: 'img',
+    // group, not img: the countries inside are focusable buttons.
+    role: 'group',
     'aria-label': 'World map',
   });
   svg.classList.add('cybertipline-geo-report-map', 'cybertipline-geo-report-world-map');
@@ -1022,7 +1023,7 @@ async function loadWorldBaseMap() {
     ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin'].forEach((attribute) => {
       svg.removeAttribute(attribute);
     });
-    svg.setAttribute('role', 'img');
+    svg.setAttribute('role', 'group');
     svg.setAttribute('aria-label', 'World map');
     svg.classList.add('cybertipline-geo-report-map', 'cybertipline-geo-report-world-map');
     svg.querySelectorAll('[data-tippy-content]').forEach((element) => {

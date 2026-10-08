@@ -75,7 +75,9 @@
   flex-wrap: wrap;
   gap: 0.65rem;
   align-items: center;
-  color: #637788;
+
+  /* Was #637788: 3.9:1 on the hero gradient. Palette text grey clears AA. */
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-sm-size);
   font-weight: var(--body-weight-strong);
 }
@@ -318,7 +320,7 @@
 .article-details .article-details-body-image figcaption {
   margin: 0.75rem auto 0;
   max-width: 42rem;
-  color: #637788;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-sm-size);
 }
 

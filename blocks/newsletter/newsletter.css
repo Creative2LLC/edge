@@ -48,7 +48,9 @@
   margin: 0 auto;
   padding-top: 104px;
   max-width: 1080px;
-  color: #008eb7;
+
+  /* Blue Dark, not Blue Medium: Blue Medium is 2.99:1 on this light blue (WCAG 1.4.3). */
+  color: var(--ncmec-blue-dark);
 }
 
 .newsletter .newsletter-heading > :first-child {

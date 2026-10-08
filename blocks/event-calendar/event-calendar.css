@@ -413,7 +413,8 @@
 }
 
 .event-calendar .event-calendar-table th {
-  background: var(--ncmec-gray-medium);
+  /* Gray Dark, not Gray Medium: white on Gray Medium is 3.0:1 at 13px (needs 4.5). */
+  background: var(--ncmec-gray-dark);
   color: #fff;
   font-size: var(--caption-size);
   font-weight: 800;

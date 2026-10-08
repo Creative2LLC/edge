@@ -26,7 +26,8 @@
 
 /* Heading */
 .need-help-heading {
-  color: var(--ncmec-blue-medium);
+  /* Blue Dark: Blue Medium is 2.7:1 here even at heading size (needs 3). */
+  color: var(--ncmec-blue-dark);
   margin: 0 0 16px;
   text-align: center;
 }
