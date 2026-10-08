@@ -22,12 +22,16 @@ import { existsSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 import * as chromeLauncher from 'chrome-launcher';
 import lighthouse from 'lighthouse';
+import desktopConfig from 'lighthouse/core/config/desktop-config.js';
 
 function parseArgs(argv) {
-  const args = { root: '', goal: 95, extra: 2 };
+  const args = {
+    root: '', goal: 95, extra: 2, preset: 'mobile',
+  };
   for (let i = 0; i < argv.length; i += 1) {
     const next = argv[i + 1];
-    if (argv[i] === '--root' && next) { args.root = next; i += 1; } else if (argv[i] === '--goal' && next) { args.goal = Number.parseInt(next, 10) || 95; i += 1; } else if (argv[i] === '--extra' && next) { args.extra = Number.parseInt(next, 10) || 2; i += 1; }
+    // --preset must match the audit:pages run, or the re-runs score a different test.
+    if (argv[i] === '--preset' && next) { args.preset = next === 'desktop' ? 'desktop' : 'mobile'; i += 1; } else if (argv[i] === '--root' && next) { args.root = next; i += 1; } else if (argv[i] === '--goal' && next) { args.goal = Number.parseInt(next, 10) || 95; i += 1; } else if (argv[i] === '--extra' && next) { args.extra = Number.parseInt(next, 10) || 2; i += 1; }
   }
   if (!args.root) throw new Error('--root <audit:pages output dir> is required');
   return args;
@@ -66,7 +70,7 @@ async function main() {
         try {
           const { lhr } = await lighthouse(t.url, {
             port: chrome.port, onlyCategories: ['performance'], logLevel: 'error', maxWaitForLoad: 45000,
-          });
+          }, args.preset === 'desktop' ? desktopConfig : undefined);
           const score = lhr.categories.performance?.score;
           if (score != null) runs.push(Math.round(score * 100));
         } catch (error) {

@@ -34,6 +34,7 @@
  *   npm run audit:pages -- --only /amber-alerts
  *   npm run audit:pages -- --limit 5 --timeout 60000
  *   npm run audit:pages -- --base https://test--edge--creative2llc.aem.live
+ *   npm run audit:pages -- --preset desktop --viewports 1350x940
  */
 
 import fs from 'node:fs/promises';
@@ -43,6 +44,7 @@ import { existsSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 import * as chromeLauncher from 'chrome-launcher';
 import lighthouse from 'lighthouse';
+import desktopConfig from 'lighthouse/core/config/desktop-config.js';
 
 const DEFAULT_BASE = 'https://test--edge--creative2llc.aem.page';
 const DEFAULT_URLS_FILE = 'audits/page-list.txt';
@@ -84,11 +86,14 @@ function parseArgs(argv) {
     only: '',
     skipExisting: false,
     viewports: DEFAULT_VIEWPORTS,
+    preset: 'mobile',
   };
   const explicit = {};
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = argv[i + 1];
+    // --preset desktop: Lighthouse's own desktop config (1350x940, no CPU/network throttling).
+    if (arg === '--preset' && next) { args.preset = next === 'desktop' ? 'desktop' : 'mobile'; i += 1; continue; }
     if (arg === '--base' && next) { args.base = next; i += 1; } else if (arg === '--urls' && next) { args.urlsFile = next; i += 1; } else if (arg === '--out' && next) { args.outRoot = next; i += 1; } else if (arg === '--limit' && next) { args.limit = Number.parseInt(next, 10) || 0; i += 1; } else if (arg === '--threshold' && next) { args.threshold = Number.parseInt(next, 10) || 90; i += 1; } else if (arg === '--timeout' && next) { args.timeout = Number.parseInt(next, 10) || 45000; i += 1; } else if (arg === '--wait' && next) { args.waitMs = Number.parseInt(next, 10) || 0; i += 1; } else if (arg === '--only' && next) { args.only = next; i += 1; } else if (arg === '--skip-existing') { args.skipExisting = true; } else if (arg === '--viewports' && next) { args.viewports = parseViewportList(next); i += 1; } else if (CATEGORY_FLAG[arg] && next != null) { explicit[CATEGORY_FLAG[arg]] = Number.parseInt(next, 10) || 0; i += 1; }
   }
   const url = new URL(args.base);
@@ -144,14 +149,14 @@ function scoreFor(lhr, category) {
   return raw == null ? null : Math.round(raw * 100);
 }
 
-async function runLighthouse(url, port, timeout) {
+async function runLighthouse(url, port, timeout, preset = 'mobile') {
   const result = await lighthouse(url, {
     port,
     output: ['html'],
     onlyCategories: CATEGORIES,
     maxWaitForLoad: Math.max(timeout, 45000),
     logLevel: 'error',
-  });
+  }, preset === 'desktop' ? desktopConfig : undefined);
   const scores = Object.fromEntries(CATEGORIES.map((c) => [c, scoreFor(result.lhr, c)]));
   return { scores, html: result.report[0] };
 }
@@ -209,7 +214,7 @@ async function main() {
   });
   const browser = await chromium.launch();
 
-  console.log(`Per-page audit - ${urls.length} pages x (Lighthouse + ${args.viewports.length} viewports)`);
+  console.log(`Per-page audit - ${urls.length} pages x (Lighthouse ${args.preset} + ${args.viewports.length} viewports)`);
   console.log(`Pass rule: ${CATEGORIES.map((c) => `${CATEGORY_LABEL[c]}>=${args.thresholds[c]}`).join(' ')}`);
   if (args.seoRelaxed) console.log('  (SEO relaxed to 0 on preview host - override with --min-seo 90)');
   console.log(`Output: ${args.outRoot}/<page>/\n`);
@@ -233,7 +238,7 @@ async function main() {
       const record = { page: slug, url, scores: {}, lhPass: null, overflow: [], error: '' };
 
       try {
-        const lh = await runLighthouse(url, chrome.port, args.timeout);
+        const lh = await runLighthouse(url, chrome.port, args.timeout, args.preset);
         record.scores = lh.scores;
         record.lhPass = lhPass(lh.scores, args.thresholds);
         await fs.writeFile(path.join(dir, 'lighthouse.html'), lh.html, 'utf8');

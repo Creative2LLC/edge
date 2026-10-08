@@ -11,9 +11,12 @@
  *   npm run audit:accessibility -- --limit 5
  *   npm run audit:accessibility -- --only /contact-us
  *   npm run audit:accessibility -- --fail-on serious
+ *   npm run audit:accessibility -- --viewport 1350x940
+ *   npm run audit:accessibility -- --files <dir mirroring repo paths> --also heading-order
  */
 
 import fs from 'node:fs/promises';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { createRequire } from 'node:module';
@@ -27,11 +30,33 @@ const DEFAULT_OUT_DIR = 'audits/accessibility';
 const WCAG_AA_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'];
 const IMPACTS = ['critical', 'serious', 'moderate', 'minor'];
 
+/** Maps every file under a directory (mirroring repo paths) to its published path. */
+function localFiles(root) {
+  const map = {};
+  const walk = (dir) => readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full);
+    else map['/' + path.relative(root, full).split(path.sep).join('/')] = full;
+  });
+  walk(root);
+  return map;
+}
+
 function parseArgs(argv) {
-  const args = { base: process.env.AUDIT_BASE_URL || DEFAULT_BASE, urlsFile: process.env.AUDIT_URLS_FILE || DEFAULT_URLS_FILE, outDir: DEFAULT_OUT_DIR, limit: 0, only: '', timeout: 45000, waitMs: 600, failOn: 'none' };
+  const args = { base: process.env.AUDIT_BASE_URL || DEFAULT_BASE, urlsFile: process.env.AUDIT_URLS_FILE || DEFAULT_URLS_FILE, outDir: DEFAULT_OUT_DIR, limit: 0, only: '', timeout: 45000, waitMs: 600, failOn: 'none', viewport: { width: 390, height: 844 }, overrides: {}, also: [] };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = argv[i + 1];
+    if (arg === '--files' && next) { args.overrides = localFiles(next); i += 1; continue; }
+    if (arg === '--also' && next) { args.also = next.split(',').map((rule) => rule.trim()).filter(Boolean); i += 1; continue; }
+    // --viewport 1350x940 scans the desktop layout; the default is a 390px phone.
+    if (arg === '--viewport' && next) {
+      const m = next.match(/^(\d+)x(\d+)$/i);
+      if (!m) throw new Error('Invalid --viewport "' + next + '". Use WIDTHxHEIGHT.');
+      args.viewport = { width: Number(m[1]), height: Number(m[2]) };
+      i += 1;
+      continue;
+    }
     if (arg === '--base' && next) { args.base = next; i += 1; } else if (arg === '--urls' && next) { args.urlsFile = next; i += 1; } else if (arg === '--out' && next) { args.outDir = next; i += 1; } else if (arg === '--limit' && next) { args.limit = Number.parseInt(next, 10) || 0; i += 1; } else if (arg === '--only' && next) { args.only = next; i += 1; } else if (arg === '--timeout' && next) { args.timeout = Number.parseInt(next, 10) || 45000; i += 1; } else if (arg === '--wait' && next) { args.waitMs = Number.parseInt(next, 10) || 0; i += 1; } else if (arg === '--fail-on' && next) { args.failOn = next.toLowerCase(); i += 1; }
   }
   if (args.failOn !== 'none' && !IMPACTS.includes(args.failOn)) throw new Error('Invalid --fail-on. Use none, ' + IMPACTS.join(', ') + '.');
@@ -74,14 +99,34 @@ function simplify(item, includeImpact = true) {
 }
 
 async function auditPage(browser, url, args, axeSource) {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+  const context = await browser.newContext({ viewport: args.viewport, deviceScaleFactor: 1, reducedMotion: 'reduce' });
   try {
     const page = await context.newPage();
     page.setDefaultTimeout(args.timeout);
+    if (Object.keys(args.overrides).length) {
+      // --files: serve local copies in place of the live code, to check a fix before pushing.
+      const { origin } = new URL(args.base);
+      await page.route('**/*', (route) => {
+        const requested = new URL(route.request().url());
+        const file = requested.origin === origin && args.overrides[requested.pathname];
+        if (!file) return route.continue();
+        return route.fulfill({ status: 200, contentType: file.endsWith('.css') ? 'text/css' : 'text/javascript', body: readFileSync(file, 'utf8') });
+      });
+    }
     await page.goto(url, { waitUntil: 'load', timeout: args.timeout });
+    // The footer loads after every section, right before the deferred passes (readable
+    // colours, heading order). Scanning at 'load' caught authored colours before they were
+    // made readable and reported them as failures.
+    await page.waitForFunction(() => document.querySelector('footer [data-block-status="loaded"]'), null, { timeout: 15000 }).catch(() => {});
     if (args.waitMs > 0) await page.waitForTimeout(args.waitMs);
     await page.addScriptTag({ content: axeSource });
     const results = await page.evaluate(async (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }), WCAG_AA_TAGS);
+    if (args.also.length) {
+      // --also: rules outside the WCAG tags that Lighthouse still scores (heading-order).
+      const extra = await page.evaluate(async (rules) => window.axe.run(document, { runOnly: { type: 'rule', values: rules } }), args.also);
+      results.violations.push(...extra.violations);
+      results.incomplete.push(...extra.incomplete);
+    }
     return { url, title: await page.title(), violations: results.violations.map((item) => simplify(item)), incomplete: results.incomplete.map((item) => simplify(item, false)), passes: results.passes.length, error: '' };
   } catch (error) {
     return { url, title: '', violations: [], incomplete: [], passes: 0, error: error instanceof Error ? error.message : String(error) };
