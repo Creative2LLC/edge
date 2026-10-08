@@ -387,7 +387,25 @@ function renderConsentBanner(block, config, existingConsent = null, forceDetails
   shell.append(panel);
   block.append(shell);
 
-  if (forceDetails) analyticsInput.focus();
+  if (forceDetails) {
+    analyticsInput.focus();
+    return;
+  }
+
+  // Shown on its own, the banner appears only once fonts and the late stylesheets have
+  // settled. It is pinned to the bottom, so any later change in its height moved its top
+  // edge: a 0.24 layout shift on /search (desktop Lighthouse, 2 runs in 3). A banner that
+  // first appears at its final size is not a shift.
+  shell.style.visibility = 'hidden';
+  const settled = [document.fonts?.ready, new Promise((resolve) => {
+    if (document.readyState === 'complete') resolve();
+    else window.addEventListener('load', resolve, { once: true });
+  })];
+  Promise.all(settled).catch(() => {}).finally(() => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      shell.style.visibility = '';
+    }));
+  });
 }
 
 function addFooterPreferenceLink(block, config) {
