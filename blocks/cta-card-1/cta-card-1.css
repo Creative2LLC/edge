@@ -102,10 +102,11 @@
   margin-top: 2px;
 }
 
-/* --- Style Type: Variant 2 --- */
+/* --- Style Type: Variant 2 ---
+   218px is a floor: as a fixed height it cut the button off at 1024px, where the
+   copy wraps onto more lines. */
 .cta-card-1.cta-card-1-variant-2.block {
-  min-height: 0;
-  height: 218px;
+  min-height: 218px;
   border-radius: 14px;
 }
 
@@ -239,9 +240,9 @@
 
 }
 
-/* Right side: two buttons sit side-by-side. */
+/* Right side: two buttons sit side-by-side, wrapping when both labels don't fit. */
 .cta-card-1.cta-card-1-variant-4 .cta-card-1-right {
-  flex-direction: row;
+  flex-flow: row wrap;
   align-items: center;
 }
 
@@ -323,9 +324,9 @@
     text-align: center;
   }
 
-  /* --- Variant 2: drop the fixed 218px height so stacked content can grow. --- */
+  /* --- Variant 2: drop the 218px floor so the stacked card sizes to its content. --- */
   .cta-card-1.cta-card-1-variant-2.block {
-    height: auto;
+    min-height: 0;
   }
 
   /* --- Variant 4: stack the two side-by-side right buttons vertically. --- */

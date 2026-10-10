@@ -37,7 +37,10 @@
 .picture-cards .picture-card {
   position: relative;
   border-radius: 16px;
-  overflow: hidden;
+
+  /* No overflow: hidden here - aspect-ratio only grows to fit its content when overflow
+     is visible, so the clip cut longer copy off top and bottom. The photo and scrim
+     carry the rounded corners themselves instead. */
   aspect-ratio: 3 / 2;
   display: flex;
   align-items: center;
@@ -55,6 +58,8 @@ a.picture-card {
   position: absolute;
   inset: 0;
   z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
 }
 
 .picture-cards .picture-card-media picture {
@@ -77,6 +82,7 @@ a.picture-card {
   position: absolute;
   inset: 0;
   z-index: 1;
+  border-radius: inherit;
   background: rgb(0 0 0 / 56%);
   transition: background 0.2s ease;
 }

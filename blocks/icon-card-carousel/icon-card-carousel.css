@@ -84,7 +84,8 @@ main > .section > .icon-card-carousel-wrapper {
   display: flex;
 }
 
-/* Card */
+/* Card. Heights are floors only: the old max-height (and the fixed tablet height)
+   hid the body copy and button on cards with longer copy. */
 .icon-card-carousel .icon-card-carousel-card {
   display: flex;
   flex-direction: column;
@@ -92,7 +93,6 @@ main > .section > .icon-card-carousel-wrapper {
   border-radius: 12px;
   overflow: hidden;
   min-height: 460px;
-  max-height: 649px;
   flex: 1;
   background: #fff;
   box-shadow: 0 4px 10px 0 #41404233;
@@ -204,7 +204,7 @@ main > .section > .icon-card-carousel-wrapper {
   }
 
   .icon-card-carousel .icon-card-carousel-card {
-    height: 480px;
+    min-height: 480px;
     padding: 32px 24px;
   }
 
@@ -268,7 +268,6 @@ main > .section > .icon-card-carousel-wrapper {
 
   .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-card {
     min-height: 545px;
-    max-height: 545px;
   }
 
   .icon-card-carousel.icon-card-carousel-thinner .icon-card-carousel-heading,

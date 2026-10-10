@@ -304,8 +304,10 @@
   font-size: var(--deck-size);
 }
 
+/* Capped at 100% too: the body sizes to its content, and a pasted URL (which
+   overflow-wrap: break-word doesn't shrink) set its width and ran 200px off a phone. */
 .resource-hero-body {
-  max-width: 760px;
+  max-width: min(760px, 100%);
   color: var(--resource-hero-muted);
 }
 

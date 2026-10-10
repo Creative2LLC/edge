@@ -24,6 +24,11 @@
      beside it ran full height). */
   display: grid;
   grid-template-areas: "cell";
+
+  /* Without an explicit column the track is `auto`, and the aspect-ratio spacer turns
+     the row's HEIGHT into width (521px tall x 3/2 = 782px of content in a 416px tile),
+     so stat numbers and text ran off the right edge and were clipped. */
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
   overflow: hidden;
   border-radius: var(--gallery-grid-radius);

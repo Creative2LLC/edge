@@ -336,6 +336,25 @@ function buildPicture(imageField, imageAltField) {
   return optimized;
 }
 
+// The overlay sits on the photo with a max-height. Too much copy steps down to smaller
+// text, and if even that overflows the callout drops below the photo rather than being
+// cut off. Re-checked on every resize: a one-off check ran while the section was still
+// hidden (0 x 0), so it never fired.
+function fitOverlay(overlay, media) {
+  const overflow = () => overlay.scrollHeight - overlay.clientHeight;
+  const fit = () => {
+    overlay.classList.remove('text-small');
+    media.classList.remove('has-stacked-overlay');
+    if (overflow() <= 1) return;
+    overlay.classList.add('text-small');
+    // Running into the bottom padding is fine; stack only once text itself is cut.
+    if (overflow() > parseFloat(getComputedStyle(overlay).paddingBottom)) {
+      media.classList.add('has-stacked-overlay');
+    }
+  };
+  new ResizeObserver(() => requestAnimationFrame(fit)).observe(media);
+}
+
 async function decorateBlock(block) {
   const subheadField = getTextField(block, 'subhead');
   const headingField = getTextField(block, 'heading');
@@ -420,12 +439,7 @@ async function decorateBlock(block) {
     if (overlayText) overlay.append(overlayText);
     if (overlaySubtext) overlay.append(overlaySubtext);
     mediaSide.append(overlay);
-
-    requestAnimationFrame(() => {
-      if (overlay.scrollHeight > overlay.clientHeight) {
-        overlay.classList.add('text-small');
-      }
-    });
+    fitOverlay(overlay, mediaSide);
   }
 
   inner.append(mediaSide);

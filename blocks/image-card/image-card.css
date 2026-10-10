@@ -1,7 +1,8 @@
-/* Block root */
+/* Block root. min-height, not height: a fixed height cut the top off long headings
+   (the home page donation card at phone width). */
 .image-card {
   position: relative;
-  height: 650px;
+  min-height: 650px;
   border-radius: 32px;
   overflow: hidden;
   display: flex;
@@ -32,12 +33,14 @@
 .image-card .image-card-content {
   position: relative;
   z-index: 1;
-  padding: 0 64px;
+  min-width: 0;
+  padding: 64px;
   max-width: 1200px;
 }
 
 /* Heading */
 .image-card .image-card-heading {
+  overflow-wrap: break-word;
   color: #ededed;
   margin: 0 0 32px;
   max-width: 1200px;
@@ -103,11 +106,11 @@
 /* Responsive */
 @media (width <= 700px) {
   .image-card {
-    height: 500px;
+    min-height: 500px;
   }
 
   .image-card .image-card-content {
-    padding: 0 24px;
+    padding: 40px 24px;
   }
 
   .image-card .image-card-btn {

@@ -11,11 +11,12 @@
 /* Break out of section wrapper's 32px horizontal padding so the block fills
    the full 1420px section width on desktop. Applies to all variants. */
 
+/* 497px is a floor, not a cap: a fixed height cut long copy off at the bottom. */
 .text-image.block .text-image-inner {
   display: flex;
   align-items: stretch;
   gap: 0;
-  height: 497px;
+  min-height: 497px;
   overflow-x: clip;
 }
 
@@ -135,6 +136,15 @@
   object-fit: cover;
 }
 
+/* Default / Image Left: the copy sets the row height and the image fills it, so a
+   tall image can't stretch the card on its own. */
+@media (width > 900px) {
+  .text-image.block:not([class*='text-image-variant-']) .text-image-media picture {
+    position: absolute;
+    inset: 0;
+  }
+}
+
 .text-image.block .text-image-overlay {
   position: absolute;
   right: 18px;
@@ -186,6 +196,7 @@
     flex-direction: column;
     gap: 32px;
     height: auto;
+    min-height: 0;
   }
 
   .text-image.block .text-image-content {
@@ -422,6 +433,7 @@
 .text-image.block.text-image-variant-3 .text-image-inner {
   align-items: center;
   height: auto;
+  min-height: 0;
 }
 
 .text-image.block.text-image-variant-3 .text-image-content {
@@ -626,4 +638,27 @@
     max-height: none;
     aspect-ratio: 623 / 524;
   }
+}
+
+/* Last resort for the image overlay (set by fitOverlay in JS): when even the small
+   text overflows the photo, the callout drops below the image instead of being cut
+   off. Kept last so it beats every variant's fixed media height. */
+.text-image.block .text-image-media.has-stacked-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: auto;
+  max-height: none;
+}
+
+.text-image.block .text-image-media.has-stacked-overlay picture {
+  position: static;
+  height: auto;
+  aspect-ratio: 459 / 400;
+}
+
+.text-image.block .text-image-media.has-stacked-overlay .text-image-overlay {
+  position: static;
+  max-width: none;
+  max-height: none;
 }

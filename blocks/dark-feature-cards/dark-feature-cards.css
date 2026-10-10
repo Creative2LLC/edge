@@ -91,9 +91,15 @@
   display: block;
 }
 
+/* Four-up cards are ~230px of text at 1200px: a single long word ("Accountability",
+   "Enforcement") was wider than that and clipped. The title is shrink-to-fit in the
+   column, so cap it at the card width; then hyphenate, or break as a fallback. */
 .dark-feature-cards .dark-feature-cards-card-title {
+  max-width: 100%;
   margin: 0;
   color: #fff;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .dark-feature-cards .dark-feature-cards-card-subtitle {
