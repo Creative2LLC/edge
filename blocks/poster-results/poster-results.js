@@ -498,6 +498,17 @@ function computedPosterImageUrl(provider, caseNumber, seqNumber, size = '') {
   return `https://api.missingkids.org/photographs/${provider}${caseNumber}c${seqNumber}${suffix}.jpg`;
 }
 
+// The public copy of a child's primary photo. A backup for when the poster API's
+// photo can't be loaded - the same file the search results already show.
+function publicChildPhotoUrl(payload, person) {
+  const provider = normalizeText(
+    person?.orgPrefix || payload?.organizationCode || payload?.orgPrefix,
+  ).toUpperCase();
+  const caseNumber = normalizeText(person?.caseNumber || payload?.caseNumber);
+  const seq = normalizeText(person?.sequence_number || person?.seqNumber || person?.seqNum);
+  return computedPosterImageUrl(provider, caseNumber, seq || '1');
+}
+
 function fallbackPosterPayload(directRequest) {
   if (!directRequest || directRequest.type !== 'poster') return {};
 
@@ -656,7 +667,11 @@ function photoSource(photo) {
   if (!photo) return '';
   if (typeof photo === 'string') return photo;
   if (photo.base64) return `data:image/jpeg;base64,${photo.base64}`;
-  return photo.url || photo.photoUrl || photo.photoUri || '';
+  // `url` is the backend photo proxy. A bare /Poster/... photoUri needs the poster
+  // API's bearer token, so the browser can't load it - skip it rather than render a
+  // broken image.
+  const source = normalizeText(photo.url || photo.photoUrl || photo.photoUri);
+  return /^(?:https?:|data:)/i.test(source) ? source : '';
 }
 
 function photoSourcesForFields(child, fields) {
@@ -698,28 +713,47 @@ function vehiclePhotoSources(vehicle) {
   ].map(normalizeText).filter(Boolean);
 }
 
-function createDetailMedia(image, alt, fallbackImage = '') {
-  const source = normalizeText(image) || normalizeText(fallbackImage);
-  if (!source) return null;
+// `backupImages` are tried in order when the photo fails to load (e.g. the public
+// api.missingkids.org copy of a poster photo); `fallbackImage` is the "no photo"
+// placeholder shown last. With no placeholder, a photo that never loads drops the
+// media column instead of leaving a broken image.
+function createDetailMedia(image, alt, fallbackImage = '', backupImages = []) {
+  const sources = [...new Set([image, ...backupImages].map(normalizeText).filter(Boolean))];
+  const placeholder = normalizeText(fallbackImage);
+  if (!sources.length && !placeholder) return null;
 
   const media = document.createElement('div');
   media.className = 'poster-results-detail-media';
-  if (!normalizeText(image)) media.classList.add('is-fallback-media');
 
   const img = document.createElement('img');
-  img.src = source;
-  img.alt = normalizeText(image) ? alt : 'No photo submitted by investigating agency';
+  img.alt = alt;
   img.loading = 'lazy';
 
-  if (normalizeText(image) && normalizeText(fallbackImage)) {
-    img.addEventListener('error', () => {
-      if (img.dataset.fallbackApplied === 'true') return;
-      img.dataset.fallbackApplied = 'true';
-      img.src = fallbackImage;
-      img.alt = 'No photo submitted by investigating agency';
-      media.classList.add('is-fallback-media');
-    });
+  const showPlaceholder = () => {
+    img.src = placeholder;
+    img.alt = 'No photo submitted by investigating agency';
+    media.classList.add('is-fallback-media');
+  };
+
+  let current = 0;
+  if (sources.length) {
+    [img.src] = sources;
+  } else {
+    showPlaceholder();
   }
+
+  img.addEventListener('error', () => {
+    if (media.classList.contains('is-fallback-media')) return;
+    current += 1;
+    if (current < sources.length) {
+      img.src = sources[current];
+    } else if (placeholder) {
+      showPlaceholder();
+    } else {
+      media.closest('.poster-results-detail-layout')?.classList.add('is-no-photo');
+      media.remove();
+    }
+  });
 
   media.append(img);
   return media;
@@ -878,6 +912,7 @@ function appendPhotoGallery(container, child, name, sources = childPhotoSources(
     img.src = src;
     img.alt = name;
     img.loading = 'lazy';
+    img.addEventListener('error', () => button.remove());
     button.append(img);
     button.addEventListener('click', () => {
       const main = container.querySelector('.poster-results-detail-media img');
@@ -1306,7 +1341,7 @@ function participantPosterUrl(payload, person, isMain, personType = '') {
 }
 
 function buildParticipantSection(payload, {
-  person, heading, main, unidentified, facts, href, fallbackImage = '',
+  person, heading, main, unidentified, facts, href, fallbackImage = '', backupImages = [],
 }) {
   const section = document.createElement('section');
   section.className = `poster-results-participant${main ? ' is-main' : ''}`;
@@ -1323,7 +1358,7 @@ function buildParticipantSection(payload, {
 
   const name = displayName(person, heading || 'Missing Child');
   const image = childPhotoSources(person)[0];
-  const media = createDetailMedia(image, name, fallbackImage);
+  const media = createDetailMedia(image, name, fallbackImage, backupImages);
   if (media) {
     layout.append(media);
   } else {
@@ -1414,6 +1449,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
       main: !selectedRelated && index === 0,
       unidentified,
       heading,
+      backupImages: [publicChildPhotoUrl(payload, person)],
     };
   });
   const companionEntries = companions.map((person, index) => ({
@@ -1448,6 +1484,9 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
         : '')
       || `${entry.heading}:${normalizedPersonName(entry.person)}`
   )).forEach((entry) => detail.append(buildParticipantSection(payload, entry)));
+  // Case-level extra photos belong to the whole case, not one child, so they get
+  // their own section on every poster type (the legacy poster shows them too).
+  const caseExtraPhotos = photoSourcesForFields(payload, ['extraPhotos']);
   if (unidentified) {
     const ageProgressionPhotos = createSupplementaryPhotoSection(
       'Age-Progression Photos',
@@ -1456,10 +1495,17 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
     );
     const extraPhotos = createSupplementaryPhotoSection(
       'Extra Photos',
-      photoSourcesForFields(mainChild, ['extraPhotos']),
+      [...photoSourcesForFields(mainChild, ['extraPhotos']), ...caseExtraPhotos],
       displayName(mainChild, 'Unidentified Person'),
     );
     if (ageProgressionPhotos) detail.append(ageProgressionPhotos);
+    if (extraPhotos) detail.append(extraPhotos);
+  } else {
+    const extraPhotos = createSupplementaryPhotoSection(
+      'Extra Photos',
+      caseExtraPhotos,
+      displayName(mainChild, 'Missing Child'),
+    );
     if (extraPhotos) detail.append(extraPhotos);
   }
   detail.append(createDetailFooter(config, payload, mainChild));
@@ -1644,6 +1690,13 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     }),
     createAmberSafetyNotice(),
   );
+
+  if (payload?.preview === true) {
+    const preview = document.createElement('p');
+    preview.className = 'poster-results-amber-preview-notice';
+    preview.textContent = 'Archived staging preview - not an active alert';
+    detail.insertBefore(preview, detail.firstChild);
+  }
 
   const subject = buildParticipantSection(payload, {
     person: alert,
@@ -1834,6 +1887,17 @@ function createResultCard(person) {
     img.src = imageUrl;
     img.alt = fullName(person) || 'Missing child poster';
     img.loading = 'lazy';
+    // Full-size photo first, then the thumbnail, then the no-photo card layout -
+    // never a broken image.
+    const thumbnailUrl = normalizeText(person.thumbnail_url || person.thumbnailUrl);
+    img.addEventListener('error', () => {
+      if (thumbnailUrl && img.getAttribute('src') !== thumbnailUrl) {
+        img.src = thumbnailUrl;
+        return;
+      }
+      imageLink.remove();
+      card.classList.replace('has-photo', 'no-photo');
+    });
     imageLink.append(img);
     card.append(imageLink);
   } else {
@@ -2014,6 +2078,7 @@ export default async function decorate(block) {
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const payload = await response.json();
+        if (Number(payload?.success) === 0) throw new Error('AMBER feed failed');
         setStatus(status, '', '');
         replaceWithCanonicalPosterUrl(directRequest);
         renderAmberPosterDetail(results, meta, payload, {
@@ -2249,7 +2314,13 @@ export default async function decorate(block) {
     pagination.append(prev, label, next);
   };
 
+  // Each search gets an id; a response for anything but the latest one is dropped,
+  // so a slow earlier search (or a quick sort/page click) can't overwrite newer results.
+  let latestSearch = 0;
+
   searchPosters = async (page = 1, nearCurrentLocation = false) => {
+    latestSearch += 1;
+    const searchId = latestSearch;
     setStatus(status, nearCurrentLocation ? 'Searching near your location...' : 'Searching posters...', 'loading');
     submit.disabled = true;
     nearMe.button.disabled = true;
@@ -2276,6 +2347,7 @@ export default async function decorate(block) {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
+      if (searchId !== latestSearch) return;
       currentPage = payload.current_page || page;
       totalPages = payload.total_pages || 1;
       currentNearSearch = nearCurrentLocation;
@@ -2288,11 +2360,14 @@ export default async function decorate(block) {
         meta.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } catch (error) {
+      if (searchId !== latestSearch) return;
       sortBar.hidden = true;
       setStatus(status, nearCurrentLocation ? 'Search near me is unavailable.' : 'Poster search is unavailable.', 'error');
     } finally {
-      submit.disabled = false;
-      nearMe.button.disabled = false;
+      if (searchId === latestSearch) {
+        submit.disabled = false;
+        nearMe.button.disabled = false;
+      }
     }
   };
 

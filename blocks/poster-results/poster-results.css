@@ -815,6 +815,18 @@
   text-transform: uppercase;
 }
 
+/* The preview label now sits at the top of the AMBER poster itself (the red banner
+   it was styled for is no longer rendered), so it needs its own colours there. */
+.poster-results-amber-poster > .poster-results-amber-preview-notice {
+  width: fit-content;
+  margin: 0 auto 16px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--ncmec-yellow);
+  color: var(--ncmec-navy-dark);
+  text-align: center;
+}
+
 .poster-results-amber-banner-issued {
   margin: 0;
   font-size: var(--body-size);

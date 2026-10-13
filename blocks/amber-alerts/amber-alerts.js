@@ -367,7 +367,13 @@ export default async function decorate(block) {
   if (config.disclosure) inner.append(disclosure);
   block.replaceChildren(inner);
 
+  // Changing the state filter while a load is in flight must not let the older
+  // response render last.
+  let latestLoad = 0;
+
   const loadAlerts = async () => {
+    latestLoad += 1;
+    const loadId = latestLoad;
     setStatus(status, 'Loading active AMBER Alerts...', 'loading');
     // This block fans out a second request per alert to backfill missing
     // photos, so the wait here is routinely longer than a single round trip —
@@ -389,6 +395,8 @@ export default async function decorate(block) {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
+      // A failed feed must read as "unavailable", never as "no active alerts".
+      if (Number(payload?.success) !== 1) throw new Error('AMBER feed failed');
       const alerts = Array.isArray(payload?.data) ? payload.data : [];
       await Promise.all(alerts.map(async (alert) => {
         if (alert.image_url || !caseNumber(alert)) return;
@@ -408,10 +416,12 @@ export default async function decorate(block) {
           // The card remains usable without an image.
         }
       }));
+      if (loadId !== latestLoad) return;
       setStatus(status, '', '');
       clearSkeleton(list);
       renderAlerts(list, payload, config);
     } catch (error) {
+      if (loadId !== latestLoad) return;
       clearSkeleton(list);
       list.replaceChildren();
       setStatus(status, 'AMBER Alerts are unavailable.', 'error');
