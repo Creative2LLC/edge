@@ -612,7 +612,13 @@ function matchingPerson(payload, sourcePerson = {}) {
     if (match) return match;
   }
 
-  return people.length === 1 ? people[0] : sourcePerson;
+  // Nothing in the link picks a person (e.g. /poster/AMBER/{case} with no person
+  // id): the poster is about the missing child, so lead with the first one. Falling
+  // back to the bare link details left a multi-person alert's main section blank.
+  const isMissingChild = (person) => /^(?:child|missingchild)$/.test(
+    normalizeText(person?.person_type || person?.personType).toLowerCase().replace(/[^a-z]/g, ''),
+  );
+  return people.find(isMissingChild) || people[0];
 }
 
 function firstValue(source, keys) {
@@ -1694,7 +1700,8 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   if (payload?.preview === true) {
     const preview = document.createElement('p');
     preview.className = 'poster-results-amber-preview-notice';
-    preview.textContent = 'Archived staging preview - not an active alert';
+    preview.textContent = normalizeText(payload.preview_label)
+      || 'Archived staging preview - not an active alert';
     detail.insertBefore(preview, detail.firstChild);
   }
 
