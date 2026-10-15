@@ -1,0 +1,55 @@
+{
+  "about": "Display Style options HIDDEN from the Download Item dropdown in _resource-downloads.json (2026-10-15, client feedback: only Horizontal and Tile for now). They are hidden, not removed: resource-downloads.js still renders every one of these values, so items already authored with them look exactly as before. To bring one back, copy its entry into the displayStyle field's options. Not merged into component-models.json (only _*.json files are).",
+  "field": "displayStyle",
+  "previousDefault": "",
+  "options": [
+    {
+      "name": "Auto (by file type)",
+      "value": ""
+    },
+    {
+      "name": "PDF Card",
+      "value": "pdf"
+    },
+    {
+      "name": "Word Doc Card",
+      "value": "word"
+    },
+    {
+      "name": "PowerPoint Card",
+      "value": "powerpoint"
+    },
+    {
+      "name": "Spreadsheet Card",
+      "value": "spreadsheet"
+    },
+    {
+      "name": "Bundle (ZIP) Card",
+      "value": "bundle"
+    },
+    {
+      "name": "Video Player",
+      "value": "video"
+    },
+    {
+      "name": "Informative (card + audience/time/format)",
+      "value": "informative"
+    },
+    {
+      "name": "Informative — stacked card (fits Grid layout)",
+      "value": "informative-stacked"
+    },
+    {
+      "name": "Informative — full-width banner",
+      "value": "informative-banner"
+    },
+    {
+      "name": "Compact row",
+      "value": "row"
+    },
+    {
+      "name": "Grouped buttons (merge with neighbors)",
+      "value": "grouped"
+    }
+  ]
+}

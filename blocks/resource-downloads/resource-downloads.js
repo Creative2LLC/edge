@@ -6,7 +6,10 @@
  * PowerPoint, ZIP, spreadsheet), an in-page video player, the Informative
  * card (type badge + audience/time/format — also available as a stacked
  * card or a full-width banner), or a compact row — picked automatically by
- * file type or overridden per item. Consecutive "grouped"
+ * file type or overridden per item. The two client-approved styles,
+ * Horizontal (image left, details right) and Tile (image on top, in rows),
+ * are the only ones offered in the dropdown; the rest are hidden there but
+ * still render for items that already use them. Consecutive "grouped"
  * items merge into a single
  * card with stacked buttons. Gated items go through the shared registration
  * modal in scripts/resource-gate.js; downloads fire GA4 + backend events.
@@ -125,7 +128,14 @@ const EXTENSION_TYPE = {
 // "card"/"feature" values map to the auto type card for backward compatibility.
 const TYPE_STYLE_KEYS = ['pdf', 'word', 'powerpoint', 'spreadsheet', 'bundle', 'video'];
 const INFORMATIVE_STYLES = ['informative', 'informative-stacked', 'informative-banner'];
-const DISPLAY_STYLES = [...TYPE_STYLE_KEYS, 'row', 'card', 'feature', 'grouped', ...INFORMATIVE_STYLES];
+// The client-approved pair (2026-10). They are the only options left in the
+// Display Style dropdown; every older style above is HIDDEN there, not retired —
+// it still renders for the items already authored with it, and the option
+// definitions are kept in hidden-display-styles.json for when they come back.
+const CARD_STYLES = ['horizontal', 'tile'];
+const DISPLAY_STYLES = [
+  ...TYPE_STYLE_KEYS, 'row', 'card', 'feature', 'grouped', ...INFORMATIVE_STYLES, ...CARD_STYLES,
+];
 
 function typeTheme(key) {
   return TYPE_THEMES[key] || TYPE_THEMES.file;
@@ -951,7 +961,7 @@ function resolveEntry(item, resource, config, primaryResource) {
   if (TYPE_STYLE_KEYS.includes(item.displayStyle)) {
     typeKey = item.displayStyle;
     style = typeKey === 'video' ? 'video' : 'type';
-  } else if ([...INFORMATIVE_STYLES, 'row', 'grouped'].includes(item.displayStyle)) {
+  } else if ([...INFORMATIVE_STYLES, ...CARD_STYLES, 'row', 'grouped'].includes(item.displayStyle)) {
     style = item.displayStyle;
   } else {
     style = autoType === 'video' ? 'video' : 'type';
@@ -1034,6 +1044,8 @@ function defaultButtonLabel(entry) {
   if (entry.style === 'video' && !entry.downloadUrl && !entry.requiresSignedUrl) {
     return 'Watch Video';
   }
+  // The card styles play from the picture, so their button stands alone.
+  if (entry.typeKey === 'video' && CARD_STYLES.includes(entry.style)) return 'Download Video';
   // On a video, the download button (if any) sits next to a Watch button.
   if (entry.typeKey === 'video') return 'Download';
   return entry.theme?.title || 'Download';
@@ -1333,11 +1345,19 @@ function usesInformativeWatchAction(entry) {
   return INFORMATIVE_STYLES.includes(entry.style) && entry.typeKey === 'video';
 }
 
+// The card styles put a play button on the picture, so a Watch button only
+// appears when there is no file to download — a YouTube-only item would
+// otherwise be left with no action at all.
+function usesCardWatchAction(entry) {
+  return CARD_STYLES.includes(entry.style) && entry.typeKey === 'video'
+    && !entry.downloadUrl && !entry.requiresSignedUrl;
+}
+
 function buildActions(entry, isEditor) {
   const actions = document.createElement('div');
   actions.className = 'resource-downloads-item-actions';
   const useWatchAction = entry.videoPlayable
-    && (entry.style === 'video' || usesInformativeWatchAction(entry));
+    && (entry.style === 'video' || usesInformativeWatchAction(entry) || usesCardWatchAction(entry));
 
   // A signed-URL video whose Watch action IS the presigned file would only
   // duplicate itself with a download button. Once the preview comes from a
@@ -1572,14 +1592,22 @@ const META_ICONS = {
   format: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18"/><path d="M4 4v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4"/><path d="M12 15v5"/><path d="M9 20h6"/></svg>',
 };
 
-function buildMetaRow(iconKey, label, value) {
+// The card styles draw the Format icon as the format itself, so a video row
+// shows a camera and a presentation a screen. Anything else is a document.
+const FORMAT_ICONS = {
+  document: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>',
+  powerpoint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg>',
+};
+
+function buildMetaRow(iconKey, label, value, iconSvg = '') {
   const row = document.createElement('div');
   row.className = 'resource-downloads-meta-row';
   row.dataset.meta = iconKey;
 
   const icon = document.createElement('span');
   icon.className = 'resource-downloads-meta-icon';
-  icon.innerHTML = META_ICONS[iconKey];
+  icon.innerHTML = iconSvg || META_ICONS[iconKey];
   row.append(icon);
 
   const text = document.createElement('div');
@@ -1612,13 +1640,19 @@ function buildInformativeTypeBadge(theme) {
   return badge;
 }
 
-function informativeMetaRows(entry) {
+function informativeMetaValues(entry) {
   const { resource } = entry;
-  const audience = normalizeText(entry.item.informativeAudienceText)
-    || labelListText(resource?.audience_labels);
-  const time = normalizeText(entry.item.informativeTimeText)
-    || normalizeText(resource?.duration_label);
-  const format = informativeFormatValue(entry);
+  return {
+    audience: normalizeText(entry.item.informativeAudienceText)
+      || labelListText(resource?.audience_labels),
+    time: normalizeText(entry.item.informativeTimeText)
+      || normalizeText(resource?.duration_label),
+    format: informativeFormatValue(entry),
+  };
+}
+
+function informativeMetaRows(entry) {
+  const { audience, time, format } = informativeMetaValues(entry);
 
   return [
     audience ? buildMetaRow(
@@ -1781,6 +1815,162 @@ function buildInformativeBannerEntry(entry, isEditor) {
   return card;
 }
 
+// ── Card styles: Horizontal + Tile ──────────────────────────────────────────
+
+// The picture panel both card styles lead with. A video gets the play button
+// on it (the same click path as the Watch button, gating included); a download
+// with no picture gets a quiet panel carrying the file type's line art.
+function buildCardMedia(entry, width) {
+  const media = document.createElement('div');
+  media.className = 'resource-downloads-card-media';
+  media.dataset.type = entry.typeKey;
+
+  const image = buildImage(entry, width);
+  if (image) {
+    media.append(image);
+  } else if (entry.typeKey === 'video') {
+    const poster = buildDefaultVideoPoster(entry.title);
+    media.append(poster);
+    applyProviderPoster(poster, entry);
+  } else {
+    media.classList.add('is-placeholder');
+    const glyph = document.createElement('span');
+    glyph.className = 'resource-downloads-card-glyph';
+    glyph.setAttribute('aria-hidden', 'true');
+    glyph.innerHTML = TYPE_ART[entry.typeKey] || TYPE_ART.file;
+    media.append(glyph);
+  }
+
+  if (entry.videoPlayable) {
+    const playButton = document.createElement('button');
+    playButton.type = 'button';
+    playButton.className = 'resource-downloads-play';
+    playButton.setAttribute('aria-label', `Play ${entry.title}`);
+    playButton.addEventListener('click', () => buildWatchButton(entry).click());
+    media.append(playButton);
+  }
+
+  return media;
+}
+
+function capitalizeWords(value) {
+  return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+// Image left, details right: title, description, Audience / Format / Time
+// across one row, then the button. Spans the full row in a grid.
+function buildHorizontalEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-horizontal';
+  card.dataset.type = entry.typeKey;
+  card.append(buildCardMedia(entry, 600));
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+
+  const { audience, time, format } = informativeMetaValues(entry);
+  const formatIcon = FORMAT_ICONS[entry.typeKey] || FORMAT_ICONS.document;
+  const metaRows = [
+    audience ? buildMetaRow(
+      'audience',
+      normalizeText(entry.item.informativeAudienceLabel) || 'Primary Audience',
+      audience,
+    ) : null,
+    format ? buildMetaRow(
+      'format',
+      normalizeText(entry.item.informativeFormatLabel) || 'Format',
+      format,
+      formatIcon,
+    ) : null,
+    time ? buildMetaRow(
+      'time',
+      normalizeText(entry.item.informativeTimeLabel) || 'Time',
+      capitalizeWords(time),
+    ) : null,
+  ].filter(Boolean);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel is-card-meta';
+    meta.append(...metaRows);
+    body.append(meta);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+const TILE_TYPE_ICONS = {
+  document: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path fill="#fff" d="M8 11h8v1.6H8zm0 3.4h8V16H8zm0 3.4h5v1.6H8z"/></svg>',
+  video: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" fill="currentColor"/><path fill="#fff" d="m10 8.5 5.5 3.5-5.5 3.5z"/></svg>',
+};
+
+// "30 minutes" → "30M", "1 hour" → "1H"; anything else is shown as written.
+function compactDuration(value) {
+  const match = value.match(/^(\d+)\s*(m|min|mins|minutes?|h|hrs?|hours?)$/i);
+  if (!match) return value;
+  return `${match[1]}${match[2][0].toUpperCase()}`;
+}
+
+// Image on top, then file type + length, title, description and a small
+// button on a warm panel. Made for rows of tiles; see `has-tiles` in decorate.
+function buildTileEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-tile';
+  card.dataset.type = entry.typeKey;
+  card.append(buildCardMedia(entry, 400));
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+
+  const meta = document.createElement('div');
+  meta.className = 'resource-downloads-tile-meta';
+
+  const type = document.createElement('span');
+  type.className = 'resource-downloads-tile-type';
+  const typeIcon = document.createElement('span');
+  typeIcon.className = 'resource-downloads-tile-type-icon';
+  typeIcon.innerHTML = entry.typeKey === 'video' ? TILE_TYPE_ICONS.video : TILE_TYPE_ICONS.document;
+  const typeLabel = document.createElement('span');
+  typeLabel.textContent = entry.typeKey === 'video' ? 'Video' : entry.theme.abbr;
+  type.append(typeIcon, typeLabel);
+  meta.append(type);
+
+  const { time } = informativeMetaValues(entry);
+  if (time) {
+    const length = document.createElement('span');
+    length.className = 'resource-downloads-tile-time';
+    const clock = document.createElement('span');
+    clock.className = 'resource-downloads-tile-time-icon';
+    clock.innerHTML = META_ICONS.time;
+    // "45M" is the design; a screen reader gets the words.
+    const short = document.createElement('span');
+    short.setAttribute('aria-hidden', 'true');
+    short.textContent = compactDuration(time);
+    const full = document.createElement('span');
+    full.className = 'u-sr-only';
+    full.textContent = time;
+    length.append(clock, short, full);
+    meta.append(length);
+  }
+  body.append(meta);
+
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
 const ENTRY_BUILDERS = {
   type: buildTypeCard,
   video: buildVideoEntry,
@@ -1788,6 +1978,8 @@ const ENTRY_BUILDERS = {
   'informative-stacked': buildInformativeStackedEntry,
   'informative-banner': buildInformativeBannerEntry,
   row: buildRowEntry,
+  horizontal: buildHorizontalEntry,
+  tile: buildTileEntry,
 };
 
 export default async function decorate(block) {
@@ -1849,6 +2041,10 @@ export default async function decorate(block) {
   const list = document.createElement('div');
   list.className = 'resource-downloads-list';
   if (config.layout === 'grid') list.classList.add('is-grid');
+  // Tiles always sit in rows, whichever Layout is picked: a tile stretched
+  // across a stacked list is a poster, not a card. Everything else in the same
+  // list keeps the full row.
+  if (entries.some((entry) => entry.style === 'tile')) list.classList.add('has-tiles');
 
   // Merge consecutive "grouped" entries into a single stacked-button card.
   let index = 0;

@@ -22927,58 +22927,18 @@
         "valueType": "string",
         "name": "displayStyle",
         "label": "Display Style",
-        "description": "Auto renders the dedicated, color-coded card for the file type. Pick a specific type card to force it, or use Informative / Compact row / Grouped.",
+        "description": "Horizontal: image on the left, title, description, audience/format/time and the button on the right — always a full row. Tile: image on top with the file type and length, sized to sit four to a row. Tiles line up in rows on their own, whatever the block's Layout is set to.",
         "options": [
           {
-            "name": "Auto (by file type)",
-            "value": ""
+            "name": "Horizontal card (image left, details right)",
+            "value": "horizontal"
           },
           {
-            "name": "PDF Card",
-            "value": "pdf"
-          },
-          {
-            "name": "Word Doc Card",
-            "value": "word"
-          },
-          {
-            "name": "PowerPoint Card",
-            "value": "powerpoint"
-          },
-          {
-            "name": "Spreadsheet Card",
-            "value": "spreadsheet"
-          },
-          {
-            "name": "Bundle (ZIP) Card",
-            "value": "bundle"
-          },
-          {
-            "name": "Video Player",
-            "value": "video"
-          },
-          {
-            "name": "Informative (card + audience/time/format)",
-            "value": "informative"
-          },
-          {
-            "name": "Informative — stacked card (fits Grid layout)",
-            "value": "informative-stacked"
-          },
-          {
-            "name": "Informative — full-width banner",
-            "value": "informative-banner"
-          },
-          {
-            "name": "Compact row",
-            "value": "row"
-          },
-          {
-            "name": "Grouped buttons (merge with neighbors)",
-            "value": "grouped"
+            "name": "Tile (image on top, rows of tiles)",
+            "value": "tile"
           }
         ],
-        "value": ""
+        "value": "horizontal"
       },
       {
         "component": "select",

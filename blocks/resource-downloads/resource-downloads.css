@@ -920,6 +920,254 @@ main > .section > div.resource-downloads-wrapper {
   object-fit: cover;
 }
 
+/* ── Card styles: Horizontal + Tile ──────────────────────────────────────── */
+
+/* Tiles always sit in rows, whatever the Layout field says (JS adds
+   .has-tiles). Anything else in the same list keeps the full row, and so does
+   a Horizontal card in the plain Grid layout — which is how the approved
+   design puts one wide card above a row of tiles. */
+.resource-downloads-list.has-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  align-items: stretch;
+}
+
+.resource-downloads-list.has-tiles > :not(.is-tile),
+.resource-downloads-list.is-grid > .is-horizontal {
+  grid-column: 1 / -1;
+}
+
+/* The picture panel. The image is taken out of flow so the panel follows the
+   card's height (Horizontal) or its own ratio (Tile) rather than the image's
+   intrinsic size — see the note on the video media above. Documents are shown
+   whole on white; a video still fills the frame. */
+.resource-downloads-card-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--ncmec-gray-lightest);
+}
+
+.resource-downloads-card-media > picture,
+.resource-downloads-card-media > img,
+.resource-downloads-card-media > picture img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.resource-downloads-card-media[data-type="video"] > picture img,
+.resource-downloads-card-media[data-type="video"] > img {
+  object-fit: cover;
+}
+
+.resource-downloads-card-media .resource-downloads-default-video-poster {
+  position: absolute;
+  inset: 0;
+  padding: 24px;
+}
+
+.resource-downloads-card-media .resource-downloads-default-video-poster img {
+  position: relative;
+  width: min(50%, 180px);
+  height: auto;
+}
+
+.resource-downloads-card-media .has-provider-poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resource-downloads-card-media.is-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rd-accent, var(--ncmec-blue-medium));
+}
+
+.resource-downloads-card-glyph {
+  width: min(40%, 120px);
+}
+
+.resource-downloads-card-glyph svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.resource-downloads-card-media .resource-downloads-play {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+.resource-downloads-card-media .resource-downloads-play::after {
+  border-radius: 8px;
+}
+
+/* The approved designs use one button colour for every file type, so these
+   two styles go back to the standard Primary instead of the per-type accent
+   the older cards carry. */
+.resource-downloads .is-horizontal .resource-downloads-item-button,
+.resource-downloads .is-tile .resource-downloads-item-button {
+  --btn-bg: var(--button-primary);
+  --btn-bg-hover: var(--button-primary-hover);
+  --btn-focus: var(--button-primary);
+}
+
+/* Horizontal: image left, details right */
+.resource-downloads-item.is-horizontal {
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-card-media {
+  flex: 0 0 42%;
+  min-height: 220px;
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-body {
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 32px;
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-title {
+  color: var(--ncmec-navy-dark);
+  font-size: var(--heading-5-size);
+  line-height: var(--heading-line-height-tight);
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-description,
+.resource-downloads-item.is-tile .resource-downloads-item-description {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+}
+
+.resource-downloads-meta-panel.is-card-meta {
+  flex: 0 0 auto;
+  flex-flow: row wrap;
+  gap: 12px 36px;
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-row {
+  min-height: 0;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-text {
+  gap: 3px;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-value {
+  font-weight: var(--body-weight-strong);
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-actions {
+  margin-top: 8px;
+}
+
+/* Tile: image on top, details on a warm panel */
+.resource-downloads-item.is-tile {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ncmec-warm-gray);
+}
+
+.resource-downloads-item.is-tile .resource-downloads-card-media {
+  aspect-ratio: 1 / 1;
+  background: #fff;
+}
+
+.resource-downloads-item.is-tile .resource-downloads-card-media.is-placeholder {
+  background: var(--ncmec-gray-lightest);
+}
+
+.resource-downloads-item.is-tile .resource-downloads-item-body {
+  gap: 10px;
+  padding: 18px 20px 22px;
+}
+
+.resource-downloads-tile-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
+  line-height: 1;
+}
+
+.resource-downloads-tile-type,
+.resource-downloads-tile-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resource-downloads-tile-type-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  color: var(--ncmec-navy-dark);
+}
+
+.resource-downloads-tile-time-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+.resource-downloads-tile-type-icon svg,
+.resource-downloads-tile-time-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.resource-downloads-item.is-tile .resource-downloads-item-title {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--heading-6-size);
+  line-height: var(--heading-line-height-tight);
+}
+
+/* Pinned to the bottom so the buttons line up across a row of tiles whose
+   titles wrap to different lengths. */
+.resource-downloads-item.is-tile .resource-downloads-item-actions {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.resource-downloads-item.is-tile .resource-downloads-item-button {
+  --btn-font-size: var(--caption-size);
+  --btn-pad-block: 6px;
+  --btn-pad-inline: 14px;
+}
+
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 
 /* Download and Watch buttons: the button standard's shape (styles/styles.css) in the
@@ -1070,6 +1318,22 @@ main > .section > div.resource-downloads-wrapper {
 
   .resource-downloads-item.is-row {
     align-items: flex-start;
+  }
+
+  .resource-downloads-item.is-horizontal .resource-downloads-card-media {
+    flex-basis: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .resource-downloads-item.is-horizontal .resource-downloads-item-body {
+    padding: 22px 20px 24px;
+  }
+
+  /* One tile per row on a phone: a full-width square was taller than the
+     screen's useful height. */
+  .resource-downloads-item.is-tile .resource-downloads-card-media {
+    aspect-ratio: 4 / 3;
   }
 
   .resource-downloads-item-actions {
