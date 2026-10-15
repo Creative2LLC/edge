@@ -162,7 +162,7 @@
           "valueType": "string",
           "name": "displayStyle",
           "label": "Display Style",
-          "description": "Horizontal: image on the left, title, description, audience/format/time and the button on the right — always a full row. Tile: image on top with the file type and length, sized to sit four to a row. Tiles line up in rows on their own, whatever the block's Layout is set to.",
+          "description": "Horizontal: image on the left, title, description, audience/format/time and the button on the right, always a full row. Tile: image on top with the file type and length, in rows of up to four. When the block's FIRST download is a Tile it is shown as a Horizontal card across the top, with the tiles below it.",
           "options": [
             {
               "name": "Horizontal card (image left, details right)",
@@ -201,48 +201,48 @@
           "component": "text",
           "valueType": "string",
           "name": "informativeAudienceLabel",
-          "label": "Informative Audience Label Override",
-          "description": "Optional label for the audience metadata row. Defaults to Primary Audience.",
+          "label": "Audience Label Override",
+          "description": "Optional label for the audience detail on Horizontal and Informative cards. Defaults to Primary Audience.",
           "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "informativeAudienceText",
-          "label": "Informative Audience Text Override",
-          "description": "Optional audience text. Falls back to the resource audience tags. Leave blank to hide when no tags exist.",
+          "label": "Audience Override",
+          "description": "Optional audience text for Horizontal and Informative cards. Falls back to the resource audience tags; hidden when there are none.",
           "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "informativeTimeLabel",
-          "label": "Informative Time Label Override",
-          "description": "Optional label for the time metadata row. Defaults to Time.",
+          "label": "Time Label Override",
+          "description": "Optional label for the time detail on Horizontal and Informative cards. Defaults to Time.",
           "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "informativeTimeText",
-          "label": "Informative Time Text Override",
-          "description": "Optional time text. Falls back to the resource length tag. Leave blank to hide when no tag exists.",
+          "label": "Time Override",
+          "description": "Optional length, e.g. 30 minutes. Used by Horizontal, Tile and Informative cards (a Tile shortens it to 30M). Falls back to the resource length; hidden when there is none.",
           "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "informativeFormatLabel",
-          "label": "Informative Format Label Override",
-          "description": "Optional label for the format metadata row. Defaults to Format.",
+          "label": "Format Label Override",
+          "description": "Optional label for the format detail on Horizontal and Informative cards. Defaults to Format.",
           "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "informativeFormatText",
-          "label": "Informative Format Text Override",
-          "description": "Optional format text. Falls back to PDF, Video, PowerPoint, bundle, or the resource type.",
+          "label": "Format Override",
+          "description": "Optional format text for Horizontal and Informative cards. Falls back to PDF, Video, PowerPoint, bundle, or the resource type.",
           "value": ""
         }
       ]

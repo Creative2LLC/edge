@@ -16,6 +16,14 @@ main > .section > div.resource-downloads-wrapper {
   margin-inline: auto;
 }
 
+/* The Horizontal and Tile styles were designed for the full page column: the
+   wide card needs room for its picture beside three detail columns, and tiles
+   want four to a row. Blocks using either get the shared container back; the
+   older styles keep the narrow cap above. */
+main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
+  max-width: var(--container);
+}
+
 .resource-downloads {
   margin: 0 auto;
   padding: 8px 0 32px;
@@ -926,9 +934,11 @@ main > .section > div.resource-downloads-wrapper {
    .has-tiles). Anything else in the same list keeps the full row, and so does
    a Horizontal card in the plain Grid layout — which is how the approved
    design puts one wide card above a row of tiles. */
+/* Four to a row at most (the design), never narrower than 220px: the max()
+   floor is a quarter of the row less three gaps, so a fifth column never fits. */
 .resource-downloads-list.has-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(max(220px, (100% - 3 * 18px) / 4), 1fr));
   align-items: stretch;
 }
 
@@ -1029,9 +1039,13 @@ main > .section > div.resource-downloads-wrapper {
   border: 0;
 }
 
+/* 16:9 sets the card's height from its width, so at the full container the
+   picture keeps the design's proportions instead of stretching into a thin
+   band beside the text. A taller body still grows the panel with it. */
 .resource-downloads-item.is-horizontal .resource-downloads-card-media {
-  flex: 0 0 42%;
+  flex: 0 0 40%;
   min-height: 220px;
+  aspect-ratio: 16 / 9;
 }
 
 .resource-downloads-item.is-horizontal .resource-downloads-item-body {
@@ -1042,7 +1056,7 @@ main > .section > div.resource-downloads-wrapper {
 
 .resource-downloads-item.is-horizontal .resource-downloads-item-title {
   color: var(--ncmec-navy-dark);
-  font-size: var(--heading-5-size);
+  font-size: var(--heading-4-size);
   line-height: var(--heading-line-height-tight);
 }
 

@@ -1918,7 +1918,8 @@ function compactDuration(value) {
 }
 
 // Image on top, then file type + length, title, description and a small
-// button on a warm panel. Made for rows of tiles; see `has-tiles` in decorate.
+// button on a warm panel. Made for rows of tiles; see `has-tiles` in decorate,
+// which also turns a block's FIRST tile into a Horizontal card.
 function buildTileEntry(entry, isEditor) {
   const card = document.createElement('article');
   card.className = 'resource-downloads-item is-tile';
@@ -2037,6 +2038,12 @@ export default async function decorate(block) {
     || entry.requiresSignedUrl || isEditor);
 
   applyResourceThumbnailFallback(entries);
+
+  // The approved tile design leads with its first download spread across the
+  // top as a Horizontal card, with the rest as tiles beneath it. Done here
+  // rather than by asking authors to pick Horizontal for item one, so a block
+  // of tiles always comes out in that shape.
+  if (entries[0]?.style === 'tile') entries[0].style = 'horizontal';
 
   const list = document.createElement('div');
   list.className = 'resource-downloads-list';
