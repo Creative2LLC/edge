@@ -6,7 +6,8 @@ import {
 } from '../../scripts/poster-link-utils.js';
 import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
-import { createChevronIcon } from '../../scripts/carousel-utils.js';
+import { createPaginationControls } from '../../scripts/pagination-controls.js';
+import { resolveDamAssetUrl } from '../../scripts/remote-picture.js';
 
 const DEFAULTS = {
   heading: 'Poster Results',
@@ -28,8 +29,8 @@ const FIELD_LABELS = {
   heading: ['heading', 'title'],
   eyebrow: ['eyebrow', 'label'],
   apiBaseUrl: ['api base url', 'api url', 'backend url'],
-  submitLabel: ['submit label', 'button label'],
-  submitTipUrl: ['submit tip url', 'tip url'],
+  submitLabel: ['submit label', 'search button label', 'button label'],
+  submitTipUrl: ['submit tip url', 'submit a tip button url', 'tip url'],
   organizationLogo: ['organization logo', 'detail footer logo', 'logo'],
   organizationLogoAlt: ['organization logo alt', 'detail footer logo alt', 'logo alt'],
   qrCodeUrl: ['qr code url', 'qr code pdf url'],
@@ -209,6 +210,28 @@ function getLegacyValue(block, name, columnIndex) {
 
 function getFieldValue(block, name, columnIndex, fallback = '') {
   return getPropValue(block, name) || getLegacyValue(block, name, columnIndex) || fallback;
+}
+
+// Published row of each field. xwalk folds `organizationLogoAlt` into the logo's
+// <img alt>, so it has no row of its own and every field after the logo sits one row
+// earlier than its place in the model (qrCodeLabel at 8 read past the last row, so the
+// authored label was never used).
+const FIELD_ROWS = {
+  heading: 0,
+  eyebrow: 1,
+  apiBaseUrl: 2,
+  submitLabel: 3,
+  submitTipUrl: 4,
+  organizationLogo: 5,
+  qrCodeUrl: 6,
+  qrCodeLabel: 7,
+};
+
+function getLogoAlt(block) {
+  const logo = block.querySelector('[data-aue-prop="organizationLogo"]')
+    || getRows(block)[FIELD_ROWS.organizationLogo];
+  const img = logo?.tagName === 'IMG' ? logo : logo?.querySelector('img');
+  return normalizeText(getPropValue(block, 'organizationLogoAlt') || img?.getAttribute('alt'));
 }
 
 function getAuthoredAssetValue(block, name, columnIndex, extensionPattern) {
@@ -1311,8 +1334,12 @@ function participantFacts(person, unidentified) {
   return facts;
 }
 
+// The value carries the weight, not the label ("Missing Since: **October 20, 2026**").
+// `plain` facts are running prose (an AMBER description) and stay regular weight.
 function appendFactRows(container, facts) {
-  facts.forEach(({ icon, label, value }) => {
+  facts.forEach(({
+    icon, label, value, plain = false,
+  }) => {
     if (!normalizeText(value)) return;
     const row = document.createElement('p');
     row.className = 'poster-results-fact';
@@ -1321,12 +1348,15 @@ function appendFactRows(container, facts) {
     const text = document.createElement('span');
     text.className = 'poster-results-fact-text';
     if (label) {
-      const strong = document.createElement('span');
-      strong.className = 'poster-results-fact-label';
-      strong.textContent = `${label}: `;
-      text.append(strong);
+      const labelEl = document.createElement('span');
+      labelEl.className = 'poster-results-fact-label';
+      labelEl.textContent = `${label}: `;
+      text.append(labelEl);
     }
-    text.append(document.createTextNode(value));
+    const valueEl = document.createElement('span');
+    valueEl.className = `poster-results-fact-value${plain ? ' is-plain' : ''}`;
+    valueEl.textContent = value;
+    text.append(valueEl);
     row.append(text);
     container.append(row);
   });
@@ -1641,7 +1671,11 @@ function amberSubjectFacts(person, alert = null) {
     ['Weight', joinValues([firstValue(person, ['weight']), firstValue(person, ['weightTo'])], ' - ')],
     ['Description', firstValue(person, ['description', 'physicalDescription', 'pictureDescription'])],
   ].forEach(([label, value]) => {
-    if (normalizeText(value)) facts.push({ icon: 'info', label, value: normalizeText(value) });
+    if (normalizeText(value)) {
+      facts.push({
+        icon: 'info', label, value: normalizeText(value), plain: label === 'Description',
+      });
+    }
   });
 
   return facts;
@@ -2023,27 +2057,57 @@ function createNearMeSection(onNearMe) {
   return { wrap, button };
 }
 
+// The Search Near Me handout. Only the link (PDF + label) is authored; with no PDF
+// there is nothing to point at, so the sentence is left out.
+function createQrCodeNote(config) {
+  if (!config.qrCodeUrl) return null;
+  const note = document.createElement('p');
+  note.className = 'poster-results-qr-code';
+
+  const link = document.createElement('a');
+  // A /content/dam/ PDF lives on the AEM publish tier; on the EDS host it is a 404.
+  link.href = resolveDamAssetUrl(config.qrCodeUrl);
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = config.qrCodeLabel;
+
+  note.append(
+    'Download, print, and share ',
+    link,
+    ' handout to help people view missing children from their area.',
+  );
+  return note;
+}
+
 export default async function decorate(block) {
   const localApiOverride = window.location.hostname === 'localhost'
     ? normalizeApiBaseUrl(new URLSearchParams(window.location.search).get('api_base_url'))
     : '';
+  // The Universal Editor writes each field's default into the block when it is added,
+  // so once the block has rows an empty heading is the author's choice and shows
+  // nothing. Only a block with no rows at all falls back to the default copy.
+  const hasAuthoredRows = getRows(block).length > 0;
   const config = {
-    heading: normalizePosterHeading(getFieldValue(block, 'heading', 0, DEFAULTS.heading)),
-    eyebrow: getFieldValue(block, 'eyebrow', 1, DEFAULTS.eyebrow),
-    apiBaseUrl: localApiOverride
-      || normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
-    submitLabel: getFieldValue(block, 'submitLabel', 3, DEFAULTS.submitLabel),
-    submitTipUrl: getFieldValue(block, 'submitTipUrl', 4, DEFAULTS.submitTipUrl),
-    organizationLogo: getFieldValue(block, 'organizationLogo', 5, DEFAULTS.organizationLogo),
-    organizationLogoAlt: getFieldValue(
-      block,
-      'organizationLogoAlt',
-      6,
-      DEFAULTS.organizationLogoAlt,
+    heading: normalizePosterHeading(
+      getFieldValue(block, 'heading', FIELD_ROWS.heading, hasAuthoredRows ? '' : DEFAULTS.heading),
     ),
-    qrCodeUrl: getAuthoredAssetValue(block, 'qrCodeUrl', 7, /\.pdf(?:[?#].*)?$/i)
+    eyebrow: getFieldValue(block, 'eyebrow', FIELD_ROWS.eyebrow, hasAuthoredRows ? '' : DEFAULTS.eyebrow),
+    apiBaseUrl: localApiOverride
+      || normalizeApiBaseUrl(
+        getFieldValue(block, 'apiBaseUrl', FIELD_ROWS.apiBaseUrl, DEFAULTS.apiBaseUrl),
+      ),
+    submitLabel: getFieldValue(block, 'submitLabel', FIELD_ROWS.submitLabel, DEFAULTS.submitLabel),
+    submitTipUrl: getFieldValue(block, 'submitTipUrl', FIELD_ROWS.submitTipUrl, DEFAULTS.submitTipUrl),
+    organizationLogo: getFieldValue(
+      block,
+      'organizationLogo',
+      FIELD_ROWS.organizationLogo,
+      DEFAULTS.organizationLogo,
+    ),
+    organizationLogoAlt: getLogoAlt(block) || DEFAULTS.organizationLogoAlt,
+    qrCodeUrl: getAuthoredAssetValue(block, 'qrCodeUrl', FIELD_ROWS.qrCodeUrl, /\.pdf(?:[?#].*)?$/i)
       || DEFAULTS.qrCodeUrl,
-    qrCodeLabel: getFieldValue(block, 'qrCodeLabel', 8, DEFAULTS.qrCodeLabel),
+    qrCodeLabel: getFieldValue(block, 'qrCodeLabel', FIELD_ROWS.qrCodeLabel, DEFAULTS.qrCodeLabel),
   };
 
   const directRequest = directPosterRequest();
@@ -2131,13 +2195,20 @@ export default async function decorate(block) {
 
   const header = document.createElement('div');
   header.className = 'poster-results-header';
-  const eyebrow = document.createElement('p');
-  eyebrow.className = 'poster-results-eyebrow';
-  eyebrow.textContent = config.eyebrow;
-  const heading = document.createElement('h2');
-  heading.className = 'poster-results-heading';
-  heading.textContent = config.heading;
-  header.append(eyebrow, heading);
+  // An eyebrow labels the heading, so it only renders with one. On its own it kept an
+  // empty header box (eyebrows are hidden site-wide) and its margin above the form.
+  if (config.heading) {
+    if (config.eyebrow) {
+      const eyebrow = document.createElement('p');
+      eyebrow.className = 'poster-results-eyebrow';
+      eyebrow.textContent = config.eyebrow;
+      header.append(eyebrow);
+    }
+    const heading = document.createElement('h2');
+    heading.className = 'poster-results-heading';
+    heading.textContent = config.heading;
+    header.append(heading);
+  }
 
   const form = document.createElement('form');
   form.className = 'poster-results-form';
@@ -2253,6 +2324,8 @@ export default async function decorate(block) {
   submitRow.append(submit, reset, nearMe.wrap);
 
   form.append(topControls, divider, fieldGrid, submitRow);
+  const qrCodeNote = createQrCodeNote(config);
+  if (qrCodeNote) form.append(qrCodeNote);
 
   const status = document.createElement('p');
   status.hidden = true;
@@ -2272,18 +2345,23 @@ export default async function decorate(block) {
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     firstName.focus({ preventScroll: true });
   });
-  const pagination = document.createElement('nav');
-  pagination.className = 'poster-results-pagination pagination';
-  pagination.setAttribute('aria-label', 'Poster search pagination');
+  // Numbered pages (First ‹ 1 2 3 4 5 … 184 › Last) so a visitor can jump straight to
+  // any page instead of stepping through one at a time. searchPosters scrolls to the
+  // results itself, so the shared control's scroll-to-block-top (the search form) is off.
+  const paginationControls = createPaginationControls(
+    'poster-results',
+    'Poster search pagination',
+    { scrollOnPage: false },
+  );
+  const pagination = paginationControls.nav;
 
   let currentPage = 1;
   let totalPages = 1;
   let currentNearSearch = false;
-  let renderPagination = () => {};
 
   // Active AMBER Alerts are the amber-alerts block's job; this block is search only.
   inner.append(
-    header,
+    ...(header.children.length ? [header] : []),
     form,
     status,
     resultsToolbar,
@@ -2293,32 +2371,12 @@ export default async function decorate(block) {
   );
   block.replaceChildren(inner);
 
-  renderPagination = () => {
-    pagination.replaceChildren();
-    pagination.hidden = totalPages <= 1;
-    if (totalPages <= 1) return;
-
-    const prev = document.createElement('button');
-    prev.type = 'button';
-    prev.className = 'pagination-button pagination-step';
-    prev.setAttribute('aria-label', 'Previous page');
-    prev.append(createChevronIcon('prev'));
-    prev.disabled = currentPage <= 1;
-    prev.addEventListener('click', () => searchPosters(currentPage - 1, currentNearSearch));
-
-    const label = document.createElement('span');
-    label.className = 'pagination-status';
-    label.textContent = `Page ${currentPage} of ${totalPages}`;
-
-    const next = document.createElement('button');
-    next.type = 'button';
-    next.className = 'pagination-button pagination-step';
-    next.setAttribute('aria-label', 'Next page');
-    next.append(createChevronIcon('next'));
-    next.disabled = currentPage >= totalPages;
-    next.addEventListener('click', () => searchPosters(currentPage + 1, currentNearSearch));
-
-    pagination.append(prev, label, next);
+  const renderPagination = () => {
+    paginationControls.update({
+      page: currentPage,
+      lastPage: totalPages,
+      onPage: (page) => searchPosters(page, currentNearSearch),
+    });
   };
 
   // Each search gets an id; a response for anything but the latest one is dropped,
@@ -2334,7 +2392,6 @@ export default async function decorate(block) {
     results.replaceChildren();
     meta.textContent = '';
     backToSearch.hidden = true;
-    pagination.replaceChildren();
     pagination.hidden = true;
 
     try {
@@ -2399,7 +2456,7 @@ export default async function decorate(block) {
   form.addEventListener('reset', () => {
     window.setTimeout(() => {
       results.replaceChildren();
-      pagination.replaceChildren();
+      pagination.hidden = true;
       meta.textContent = '';
       backToSearch.hidden = true;
       sortBar.hidden = true;

@@ -186,6 +186,18 @@
   background: #243846;
 }
 
+.poster-results-qr-code {
+  margin: 24px 0 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  text-align: center;
+}
+
+.poster-results-qr-code a {
+  color: var(--ncmec-blue-dark);
+  font-weight: var(--body-weight-bold);
+}
+
 .poster-results-near-me-action {
   display: flex;
   align-items: center;
@@ -368,9 +380,12 @@
   padding: 0;
 }
 
+/* A result card's name is an h3 in the outline but sized as H4 (25px), the card-heading
+   size the client set for the poster grid; the global h3 (36px) was too big. */
 .poster-results-card-body h3 {
   margin: 0 0 8px;
   color: #243846;
+  font-size: var(--heading-4-size);
 }
 
 .poster-results-card-title-link {
@@ -483,7 +498,9 @@
 }
 
 /* The poster page's action bar is a named exception to the button standard (see BUTTONS
-   in styles/styles.css): CALL 911 red, the tip and print actions teal, share light blue. */
+   in styles/styles.css). Every action - CALL 911 included - is the same light blue
+   (client feedback 2026-10-22), on missing-child and AMBER posters alike. Teal label
+   on #b8e8f3 is 5.4:1. */
 .poster-results-detail-actions .poster-results-detail-action,
 .poster-results-detail-actions .poster-results-detail-action:any-link {
   display: inline-flex;
@@ -495,10 +512,10 @@
   max-width: none;
   margin: 0;
   padding: 0 20px;
-  border: 1px solid var(--ncmec-blue-dark);
+  border: 1px solid #b8e8f3;
   border-radius: 6px;
-  background: var(--ncmec-blue-dark);
-  color: #fff;
+  background: #b8e8f3;
+  color: #005f7d;
   cursor: pointer;
   font: inherit;
   font-size: var(--caption-size);
@@ -507,18 +524,6 @@
   overflow: visible;
   text-overflow: clip;
   white-space: nowrap;
-}
-
-.poster-results-detail-actions .poster-results-detail-action:first-child {
-  background: var(--ncmec-red);
-  border-color: var(--ncmec-red);
-  color: #fff;
-}
-
-.poster-results-detail-actions .poster-results-detail-action:last-child {
-  border-color: #b8e8f3;
-  background: #b8e8f3;
-  color: #005f7d;
 }
 
 .poster-results-detail-actions .poster-results-detail-action:hover,
@@ -688,8 +693,17 @@
   height: 18px;
 }
 
+/* The value carries the weight, the label stays regular (client feedback 2026-10-22). */
 .poster-results-fact-label {
+  font-weight: var(--body-weight);
+}
+
+.poster-results-fact-value {
   font-weight: var(--body-weight-bold);
+}
+
+.poster-results-fact-value.is-plain {
+  font-weight: var(--body-weight);
 }
 
 .poster-results-related-grid {
@@ -1639,23 +1653,7 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   }
 }
 
-/* stylelint-disable no-descending-specificity -- AMBER action controls intentionally share the same light-blue treatment while overriding shared poster controls. */
-.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action,
-.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:any-link {
-  border-color: #b8e8f3;
-  background: #b8e8f3;
-  color: #005f7d;
-}
-
-.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:hover,
-.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:focus-visible,
-.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:any-link:hover,
-.poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action:any-link:focus-visible {
-  border-color: #005f7d;
-  background: #005f7d;
-  color: #fff;
-}
-
+/* stylelint-disable no-descending-specificity -- AMBER poster overrides of shared poster media. */
 .poster-results-amber-poster .poster-results-detail-media.is-fallback-media {
   background: #302d2b;
 }

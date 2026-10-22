@@ -8,6 +8,16 @@
   margin: 0 auto;
 }
 
+/* Universal Editor only: the block is hidden from visitors when no alert is active. */
+.amber-alerts-editor-note {
+  margin: 0 0 24px;
+  padding: 10px 14px;
+  border: 1px dashed var(--ncmec-gray-dark);
+  border-radius: 6px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+}
+
 .amber-alerts-header {
   max-width: 1120px;
   margin-bottom: 34px;

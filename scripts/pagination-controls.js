@@ -55,7 +55,9 @@ function stepButton(className, direction, label) {
   return button;
 }
 
-export function createPaginationControls(className, ariaLabel = 'Pagination') {
+// `scrollOnPage: false` is for blocks that place the visitor themselves after a page
+// loads (poster-results scrolls to its results, not to the search form at its top).
+export function createPaginationControls(className, ariaLabel = 'Pagination', { scrollOnPage = true } = {}) {
   const nav = document.createElement('nav');
   nav.className = `${className}-pagination pagination`;
   nav.setAttribute('aria-label', ariaLabel);
@@ -89,7 +91,7 @@ export function createPaginationControls(className, ariaLabel = 'Pagination') {
         if (typeof onPage !== 'function' || targetPage === currentPage) return;
 
         Promise.resolve(onPage(targetPage)).then(() => {
-          scrollToPaginationTop(nav, className);
+          if (scrollOnPage) scrollToPaginationTop(nav, className);
         });
       };
 

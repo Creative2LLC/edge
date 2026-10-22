@@ -98,8 +98,12 @@ function getRows(block) {
   return getBlockRows(block);
 }
 
-function getPropValue(block, name) {
-  return normalizeText(readLinkField(block, name).value || readTextField(block, name).value);
+// A published page carries no field names, only one row per field in model order.
+// Without the row index every field but the heading fell back to its default on live.
+function getPropValue(block, name, rowIndex) {
+  return normalizeText(
+    readLinkField(block, name, rowIndex).value || readTextField(block, name, rowIndex).value,
+  );
 }
 
 function getLegacyValue(block, name, columnIndex) {
@@ -123,8 +127,27 @@ function getLegacyValue(block, name, columnIndex) {
   return normalizeText(anchor?.getAttribute('href') || cell.textContent);
 }
 
-function getFieldValue(block, name, columnIndex, fallback = '') {
-  return getPropValue(block, name) || getLegacyValue(block, name, columnIndex) || fallback;
+function getFieldValue(block, name, index, fallback = '') {
+  return getPropValue(block, name, index) || getLegacyValue(block, name, index) || fallback;
+}
+
+function isUniversalEditor() {
+  return Boolean(document.querySelector('[data-aue-resource]'));
+}
+
+// The block only appears while an AMBER Alert is active. With none (or with the feed
+// down) it is removed from the layout entirely, and so is its section when nothing else
+// in it is showing. The Universal Editor always shows it, so authors can still edit it.
+function setBlockShown(block, shown) {
+  const wrapper = block.parentElement?.classList.contains('amber-alerts-wrapper')
+    ? block.parentElement
+    : block;
+  wrapper.hidden = !shown;
+
+  const section = block.closest('.section');
+  if (!section) return;
+  const othersShown = [...section.children].some((child) => child !== wrapper && !child.hidden);
+  section.hidden = !shown && !othersShown;
 }
 
 function setStatus(node, message, type = '') {
@@ -325,10 +348,14 @@ function createStateFilter(defaultState) {
 }
 
 export default async function decorate(block) {
+  // The Universal Editor writes each field's default into the block when it is added,
+  // so once the block has rows an empty heading/eyebrow/intro is the author's choice and
+  // shows nothing. Only a block with no rows at all falls back to the default copy.
+  const authored = getRows(block).length > 0;
   const config = {
-    heading: getFieldValue(block, 'heading', 0, DEFAULTS.heading),
-    eyebrow: getFieldValue(block, 'eyebrow', 1, DEFAULTS.eyebrow),
-    copy: getFieldValue(block, 'copy', 2, DEFAULTS.copy),
+    heading: getFieldValue(block, 'heading', 0, authored ? '' : DEFAULTS.heading),
+    eyebrow: getFieldValue(block, 'eyebrow', 1, authored ? '' : DEFAULTS.eyebrow),
+    copy: getFieldValue(block, 'copy', 2, authored ? '' : DEFAULTS.copy),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 3, DEFAULTS.apiBaseUrl)),
     state: getFieldValue(block, 'state', 4, DEFAULTS.state).toUpperCase(),
     emptyMessage: getFieldValue(block, 'emptyMessage', 5, DEFAULTS.emptyMessage),
@@ -342,15 +369,24 @@ export default async function decorate(block) {
 
   const header = document.createElement('div');
   header.className = 'amber-alerts-header';
-  const eyebrow = document.createElement('p');
-  eyebrow.className = 'amber-alerts-eyebrow';
-  eyebrow.textContent = config.eyebrow;
-  const heading = document.createElement('h2');
-  heading.textContent = config.heading;
-  const copy = document.createElement('p');
-  copy.className = 'amber-alerts-copy';
-  copy.textContent = config.copy;
-  header.append(eyebrow, heading, copy);
+  // An eyebrow labels the heading, so it only renders with one.
+  if (config.heading) {
+    if (config.eyebrow) {
+      const eyebrow = document.createElement('p');
+      eyebrow.className = 'amber-alerts-eyebrow';
+      eyebrow.textContent = config.eyebrow;
+      header.append(eyebrow);
+    }
+    const heading = document.createElement('h2');
+    heading.textContent = config.heading;
+    header.append(heading);
+  }
+  if (config.copy) {
+    const copy = document.createElement('p');
+    copy.className = 'amber-alerts-copy';
+    copy.textContent = config.copy;
+    header.append(copy);
+  }
 
   const { select: stateSelect } = createStateFilter(config.state);
 
@@ -363,9 +399,22 @@ export default async function decorate(block) {
   disclosure.className = 'amber-alerts-disclosure';
   disclosure.textContent = config.disclosure;
 
-  inner.append(header, status, list);
+  if (header.children.length) inner.append(header);
+  inner.append(status, list);
   if (config.disclosure) inner.append(disclosure);
   block.replaceChildren(inner);
+
+  // Hidden until the feed confirms an active alert. Active alerts are rare, so starting
+  // hidden is what avoids a layout shift on almost every visit.
+  const inEditor = isUniversalEditor();
+  if (inEditor) {
+    const editorNote = document.createElement('p');
+    editorNote.className = 'amber-alerts-editor-note';
+    editorNote.textContent = 'Editor note: visitors only see this block while an AMBER Alert is active.';
+    inner.prepend(editorNote);
+  } else {
+    setBlockShown(block, false);
+  }
 
   // Changing the state filter while a load is in flight must not let the older
   // response render last.
@@ -420,11 +469,17 @@ export default async function decorate(block) {
       setStatus(status, '', '');
       clearSkeleton(list);
       renderAlerts(list, payload, config);
+      if (!inEditor) setBlockShown(block, alerts.length > 0);
     } catch (error) {
       if (loadId !== latestLoad) return;
       clearSkeleton(list);
       list.replaceChildren();
+      // A failed feed must never read as "no active alerts". Visitors see nothing
+      // (an unconfirmed alert is not one to show); the editor still says why.
       setStatus(status, 'AMBER Alerts are unavailable.', 'error');
+      if (!inEditor) setBlockShown(block, false);
+      // eslint-disable-next-line no-console
+      console.warn('[amber-alerts] Feed unavailable; block hidden.', error);
     }
   };
 

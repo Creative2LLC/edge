@@ -834,7 +834,8 @@
         "valueType": "string",
         "name": "heading",
         "label": "Heading",
-        "value": "Active AMBER Alerts"
+        "value": "Active AMBER Alerts",
+        "description": "Leave blank to show no heading. The whole block is only shown to visitors while an AMBER Alert is active."
       },
       {
         "component": "text",
@@ -848,7 +849,8 @@
         "valueType": "string",
         "name": "copy",
         "label": "Intro Copy",
-        "value": "Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle."
+        "value": "Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle.",
+        "description": "Leave blank to show no intro copy."
       },
       {
         "component": "text",
@@ -871,7 +873,8 @@
         "valueType": "string",
         "name": "emptyMessage",
         "label": "Empty Message",
-        "value": "There are no AMBER Alerts at this time."
+        "value": "There are no AMBER Alerts at this time.",
+        "description": "Shown in the editor only: visitors never see this block when there are no active alerts."
       },
       {
         "component": "text",
@@ -21527,7 +21530,8 @@
         "valueType": "string",
         "name": "heading",
         "label": "Heading",
-        "value": "Poster Results"
+        "value": "Poster Results",
+        "description": "Leave blank to show no heading."
       },
       {
         "component": "text",
@@ -21548,15 +21552,17 @@
         "component": "text",
         "valueType": "string",
         "name": "submitLabel",
-        "label": "Submit Label",
-        "value": "Search"
+        "label": "Search Button Label",
+        "value": "Search",
+        "description": "Text on the search form's submit button."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "submitTipUrl",
-        "label": "Submit Tip URL",
-        "value": "/gethelpnow/cybertipline"
+        "label": "\"Submit a Tip\" Button URL",
+        "value": "/gethelpnow/cybertipline",
+        "description": "Where the SUBMIT A TIP button on each individual poster page links. Not used by the search form."
       },
       {
         "component": "reference",
@@ -21577,14 +21583,16 @@
         "valueType": "string",
         "name": "qrCodeUrl",
         "label": "QR Code PDF URL",
-        "multi": false
+        "multi": false,
+        "description": "PDF handout linked from the line under Search Near Me. Leave empty to hide that line."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "qrCodeLabel",
         "label": "QR Code Link Label",
-        "value": "this QR Code"
+        "value": "this QR Code",
+        "description": "Link text inside the sentence: \"Download, print, and share [this QR Code] handout to help people view missing children from their area.\""
       }
     ]
   },

@@ -25,7 +25,8 @@
           "valueType": "string",
           "name": "heading",
           "label": "Heading",
-          "value": "Active AMBER Alerts"
+          "value": "Active AMBER Alerts",
+          "description": "Leave blank to show no heading. The whole block is only shown to visitors while an AMBER Alert is active."
         },
         {
           "component": "text",
@@ -39,7 +40,8 @@
           "valueType": "string",
           "name": "copy",
           "label": "Intro Copy",
-          "value": "Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle."
+          "value": "Review active AMBER Alerts and share information with law enforcement if you have seen a child or vehicle.",
+          "description": "Leave blank to show no intro copy."
         },
         {
           "component": "text",
@@ -62,7 +64,8 @@
           "valueType": "string",
           "name": "emptyMessage",
           "label": "Empty Message",
-          "value": "There are no AMBER Alerts at this time."
+          "value": "There are no AMBER Alerts at this time.",
+          "description": "Shown in the editor only: visitors never see this block when there are no active alerts."
         },
         {
           "component": "text",
