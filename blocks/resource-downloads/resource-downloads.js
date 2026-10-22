@@ -1818,8 +1818,10 @@ function buildInformativeBannerEntry(entry, isEditor) {
 // ── Card styles: Horizontal + Tile ──────────────────────────────────────────
 
 // The picture panel both card styles lead with. A video gets the play button
-// on it (the same click path as the Watch button, gating included); a download
-// with no picture gets a quiet panel carrying the file type's line art.
+// on it (the same click path as the Watch button, gating included). A download
+// with no picture gets the same animated, colour-coded type art the type cards
+// use (accent wash, dotted texture, floating glyph, type watermark), so it
+// reads as a deliberate PDF/PPT/... panel rather than a missing image.
 function buildCardMedia(entry, width) {
   const media = document.createElement('div');
   media.className = 'resource-downloads-card-media';
@@ -1834,11 +1836,7 @@ function buildCardMedia(entry, width) {
     applyProviderPoster(poster, entry);
   } else {
     media.classList.add('is-placeholder');
-    const glyph = document.createElement('span');
-    glyph.className = 'resource-downloads-card-glyph';
-    glyph.setAttribute('aria-hidden', 'true');
-    glyph.innerHTML = TYPE_ART[entry.typeKey] || TYPE_ART.file;
-    media.append(glyph);
+    media.append(buildTypeArt(entry));
   }
 
   if (entry.videoPlayable) {

@@ -783,7 +783,8 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .resource-downloads-item.is-video .resource-downloads-default-video-poster img {
+  .resource-downloads-item.is-video .resource-downloads-default-video-poster img,
+  .resource-downloads-card-media .resource-downloads-default-video-poster img {
     animation: rd-art-float 7s ease-in-out infinite;
   }
 }
@@ -993,21 +994,55 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   object-fit: cover;
 }
 
+.resource-downloads-card-media .resource-downloads-default-video-poster img {
+  filter: drop-shadow(0 8px 18px rgb(0 38 77 / 16%));
+}
+
+/* The brand-mark poster (a video with no still of its own) has the logo dead
+   centre, exactly where the play button lands. Logo up, button down, so both
+   read. A real still keeps the centred button. */
+.resource-downloads-card-media .resource-downloads-default-video-poster:not(.has-provider-poster) {
+  padding-bottom: 96px;
+}
+
+.resource-downloads-card-media:has(.resource-downloads-default-video-poster:not(.has-provider-poster)) .resource-downloads-play {
+  top: auto;
+  bottom: 22%;
+}
+
+/* No picture: the type cards' art fills the whole panel instead of a grey box.
+   Same accent wash, dot texture, floating glyph and type watermark — the file
+   type's colour (--rd-accent, set per card) is what keeps a row of image-less
+   tiles from blending into the page. The wash runs corner to corner here
+   rather than left-to-right, because the panel is the whole picture, not a
+   strip at the card's edge. */
 .resource-downloads-card-media.is-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--rd-accent, var(--ncmec-blue-medium));
+  background: #fff;
 }
 
-.resource-downloads-card-glyph {
-  width: min(40%, 120px);
+.resource-downloads-card-media .resource-downloads-type-art {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--rd-accent, #008db6) 6%, #fff) 0%, #fff 45%, color-mix(in srgb, var(--rd-accent, #008db6) 20%, #fff) 100%);
 }
 
-.resource-downloads-card-glyph svg {
-  display: block;
-  width: 100%;
-  height: auto;
+.resource-downloads-card-media .resource-downloads-type-art::before {
+  mask-image: linear-gradient(135deg, transparent 20%, #000 95%);
+}
+
+/* After the is-grid rule above, so a tile in the Grid layout keeps its size. */
+.resource-downloads-card-media .resource-downloads-type-art-glyph {
+  width: min(36%, 120px);
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-type-art-watermark {
+  font-size: 140px;
+  bottom: -38px;
+}
+
+.resource-downloads-item.is-horizontal:hover .resource-downloads-type-art-glyph,
+.resource-downloads-item.is-tile:hover .resource-downloads-type-art-glyph {
+  transform: rotate(-3deg) scale(1.05);
 }
 
 .resource-downloads-card-media .resource-downloads-play {
@@ -1115,10 +1150,6 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
 .resource-downloads-item.is-tile .resource-downloads-card-media {
   aspect-ratio: 1 / 1;
   background: #fff;
-}
-
-.resource-downloads-item.is-tile .resource-downloads-card-media.is-placeholder {
-  background: var(--ncmec-gray-lightest);
 }
 
 .resource-downloads-item.is-tile .resource-downloads-item-body {
@@ -1319,9 +1350,10 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
     aspect-ratio: 16 / 9;
   }
 
-  /* The art panel only exists to fill horizontal space; on phones it would
-     just push the button further down. */
-  .resource-downloads-type-art {
+  /* On a type card the art panel only exists to fill horizontal space; on
+     phones it would just push the button further down. Scoped to .is-type:
+     in the Horizontal/Tile picture panel the art IS the picture. */
+  .resource-downloads-item.is-type .resource-downloads-type-art {
     display: none;
   }
 
