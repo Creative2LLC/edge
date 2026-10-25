@@ -783,8 +783,7 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .resource-downloads-item.is-video .resource-downloads-default-video-poster img,
-  .resource-downloads-card-media .resource-downloads-default-video-poster img {
+  .resource-downloads-item.is-video .resource-downloads-default-video-poster img {
     animation: rd-art-float 7s ease-in-out infinite;
   }
 }
@@ -931,12 +930,19 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
 
 /* ── Card styles: Horizontal + Tile ──────────────────────────────────────── */
 
+/* Disabled for this section only. The rule compares selectors by their last
+   compound, so it reads `.resource-downloads-card-media img` here as a weaker
+   restyle of `.is-type .resource-downloads-item-media img` (and the is-grid
+   type-art rules) above. They never match the same element: the card styles
+   build their own picture panel and never contain a type card's media. */
+/* stylelint-disable no-descending-specificity */
+
 /* Tiles always sit in rows, whatever the Layout field says (JS adds
    .has-tiles). Anything else in the same list keeps the full row, and so does
    a Horizontal card in the plain Grid layout — which is how the approved
-   design puts one wide card above a row of tiles. */
-/* Four to a row at most (the design), never narrower than 220px: the max()
-   floor is a quarter of the row less three gaps, so a fifth column never fits. */
+   design puts one wide card above a row of tiles. Four to a row at most (the
+   design), never narrower than 220px: the max() floor is a quarter of the row
+   less three gaps, so a fifth column never fits. */
 .resource-downloads-list.has-tiles {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(220px, (100% - 3 * 18px) / 4), 1fr));
@@ -984,6 +990,13 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   position: relative;
   width: min(50%, 180px);
   height: auto;
+  filter: drop-shadow(0 8px 18px rgb(0 38 77 / 16%));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resource-downloads-card-media .resource-downloads-default-video-poster img {
+    animation: rd-art-float 7s ease-in-out infinite;
+  }
 }
 
 .resource-downloads-card-media .has-provider-poster img {
@@ -992,10 +1005,6 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.resource-downloads-card-media .resource-downloads-default-video-poster img {
-  filter: drop-shadow(0 8px 18px rgb(0 38 77 / 16%));
 }
 
 /* The brand-mark poster (a video with no still of its own) has the logo dead
@@ -1053,16 +1062,6 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
 
 .resource-downloads-card-media .resource-downloads-play::after {
   border-radius: 8px;
-}
-
-/* The approved designs use one button colour for every file type, so these
-   two styles go back to the standard Primary instead of the per-type accent
-   the older cards carry. */
-.resource-downloads .is-horizontal .resource-downloads-item-button,
-.resource-downloads .is-tile .resource-downloads-item-button {
-  --btn-bg: var(--button-primary);
-  --btn-bg-hover: var(--button-primary-hover);
-  --btn-focus: var(--button-primary);
 }
 
 /* Horizontal: image left, details right */
@@ -1207,11 +1206,7 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   padding-top: 6px;
 }
 
-.resource-downloads-item.is-tile .resource-downloads-item-button {
-  --btn-font-size: var(--caption-size);
-  --btn-pad-block: 6px;
-  --btn-pad-inline: 14px;
-}
+/* stylelint-enable no-descending-specificity */
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 
@@ -1226,6 +1221,23 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   --btn-bg: var(--rd-accent, var(--button-primary));
   --btn-bg-hover: color-mix(in srgb, var(--rd-accent, var(--button-primary)) 82%, var(--ncmec-navy-dark));
   --btn-focus: var(--rd-accent, var(--button-primary));
+}
+
+/* The approved Horizontal and Tile designs use one button colour for every
+   file type, so they go back to the standard Primary instead of the per-type
+   accent above. */
+.resource-downloads .is-horizontal .resource-downloads-item-button,
+.resource-downloads .is-tile .resource-downloads-item-button {
+  --btn-bg: var(--button-primary);
+  --btn-bg-hover: var(--button-primary-hover);
+  --btn-focus: var(--button-primary);
+}
+
+/* Tiles are narrow, so their button is the small size. */
+.resource-downloads-item.is-tile .resource-downloads-item-button {
+  --btn-font-size: var(--caption-size);
+  --btn-pad-block: 6px;
+  --btn-pad-inline: 14px;
 }
 
 .resource-downloads .resource-downloads-item-button.secondary {
