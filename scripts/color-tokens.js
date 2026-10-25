@@ -41,6 +41,9 @@ export const SITE_NEUTRALS = [
   { name: 'Warm Gray', hex: '#ECE8E3' },
   { name: 'Blue Tint', hex: '#E9F7FA' },
   { name: 'Navy Raised', hex: '#0F3357' },
+  // Card surfaces only: behind an overlay image it is the dark overlay the old near-black
+  // card colour gave before the palette remake. Never a text or section colour.
+  { name: 'Black', hex: '#000000' },
 ];
 const byName = (name) => [...PALETTE, ...SITE_NEUTRALS].find((swatch) => swatch.name === name);
 

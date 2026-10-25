@@ -15136,6 +15136,119 @@
     ]
   },
   {
+    "id": "custom-image",
+    "fields": [
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "name": "imageAlt",
+        "label": "Alt Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "imageLink",
+        "label": "Link (Optional)"
+      },
+      {
+        "component": "select",
+        "name": "imageTarget",
+        "label": "Open Link In",
+        "options": [
+          {
+            "name": "Same Tab",
+            "value": "_self"
+          },
+          {
+            "name": "New Tab",
+            "value": "_blank"
+          },
+          {
+            "name": "Parent Frame",
+            "value": "_parent"
+          },
+          {
+            "name": "Top Frame",
+            "value": "_top"
+          }
+        ],
+        "value": "_self"
+      },
+      {
+        "component": "select",
+        "name": "imageStyle",
+        "label": "Image Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Responsive (Max Width 100%, Height Auto)",
+            "value": "full-width"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "imagePosition",
+        "label": "Image Position",
+        "description": "Horizontal alignment of the image.",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Left",
+            "value": "align-left"
+          },
+          {
+            "name": "Center",
+            "value": "align-center"
+          },
+          {
+            "name": "Right",
+            "value": "align-right"
+          }
+        ],
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "name": "captionText",
+        "label": "Caption Text",
+        "valueType": "string",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "captionAlignment",
+        "label": "Caption Alignment",
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ],
+        "value": "left"
+      }
+    ]
+  },
+  {
     "id": "impact-bar-chart",
     "fields": [
       {
@@ -17044,6 +17157,10 @@
             "value": "#414042"
           },
           {
+            "name": "Black (#000000)",
+            "value": "#000000"
+          },
+          {
             "name": "Gray Medium (#939598)",
             "value": "#939598"
           },
@@ -17516,6 +17633,10 @@
           {
             "name": "Gray Dark (#414042)",
             "value": "#414042"
+          },
+          {
+            "name": "Black (#000000)",
+            "value": "#000000"
           },
           {
             "name": "Gray Medium (#939598)",

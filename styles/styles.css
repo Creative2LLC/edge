@@ -89,6 +89,7 @@
   --ncmec-warm-gray: #ECE8E3;
   --ncmec-blue-tint: #E9F7FA;
   --ncmec-navy-raised: #0F3357;
+  --ncmec-black: #000;
 
   /* fonts */
   --body-font-family: "Figtree", figtree-fallback, sans-serif;
@@ -1357,6 +1358,29 @@ a:hover {
 main p a:any-link:where(:not([class])) {
   text-decoration: underline;
   text-underline-offset: 0.15em;
+}
+
+/* Plain links in running text (page text, Custom Text, Custom List) take the link colour.
+   Only class-less links: buttons, card links and nav links are components that colour
+   themselves. Zero specificity, so any block's own link colour still wins; on a dark
+   surface (.is-on-dark) the link stays light and the underline marks it. */
+:where(main .default-content-wrapper, main .colored-text, main .colored-list)
+  :where(p, li, td, th, dd, blockquote, figcaption)
+  :where(a:any-link:not([class])) {
+  color: var(--link-color);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+:where(main .default-content-wrapper, main .colored-text, main .colored-list)
+  :where(p, li, td, th, dd, blockquote, figcaption)
+  :where(a:any-link:not([class]):hover) {
+  color: var(--link-hover-color);
+}
+
+:where(.is-on-dark) :where(p, li, td, th, dd, blockquote, figcaption) :where(a:any-link:not([class])),
+:where(.is-on-dark) :where(p, li, td, th, dd, blockquote, figcaption) :where(a:any-link:not([class]):hover) {
+  color: var(--body-on-dark-color);
 }
 
 /* ====================================================================

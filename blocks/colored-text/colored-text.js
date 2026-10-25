@@ -9,6 +9,7 @@ import {
 import injectColorPickers from '../../scripts/block-color-picker.js';
 import { resolveAlignAnchoredFields } from '../../scripts/flattened-item-utils.js';
 import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
+import { isDarkSurface, markButtonSurface } from '../../scripts/button-utils.js';
 import {
   applyColoredFieldLayoutOptions,
   syncColoredFieldLayoutOptions,
@@ -138,11 +139,14 @@ function applyBlockBackground(block, value) {
   if (!color) {
     block.classList.remove('has-block-background');
     block.style.removeProperty('--colored-text-block-bg');
+    markButtonSurface(block, false);
     return;
   }
 
   block.classList.add('has-block-background');
   block.style.setProperty('--colored-text-block-bg', color);
+  // Links and buttons in the text take their light form on a dark background.
+  markButtonSurface(block, isDarkSurface(color));
 }
 
 function watchColorField(source, cssVar, block) {

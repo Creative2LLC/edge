@@ -194,6 +194,9 @@
           "...": "../blocks/colored-icon-text/_colored-icon-text.json#/definitions"
         },
         {
+          "...": "../blocks/image/_image.json#/definitions"
+        },
+        {
           "...": "../blocks/colored-list/_colored-list.json#/definitions"
         },
         {

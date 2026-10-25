@@ -53,6 +53,9 @@ export const BLOCK_RENAMES = [
   ['Custom Icon Text', 'colored-icon-text'],
   ['Custom List', 'colored-list'],
   ['Custom Text', 'colored-text'],
+  // The built-in Image component cannot publish its settings, so the image block code
+  // is offered as a block of its own.
+  ['Custom Image', 'image'],
   ['Donated Redblue Txt', 'icon-text'],
   ['Testimonies', 'card-testimonies'],
   ['Icn 1x4 Col', 'icon-text-row'],

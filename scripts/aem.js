@@ -644,16 +644,38 @@ function isBareUrlAutolink(link) {
   return strip(attr) === strip(text);
 }
 
+/** Typed after a link's text in the editor to keep it a text link: "Read more [text link]". */
+const TEXT_LINK_MARKER = /\s*\[text[\s-]?link\]\s*$/i;
+
+/** Removes the [text link] marker; true when the link carried it. */
+function takeTextLinkMarker(link) {
+  const last = [...link.childNodes].reverse().find((node) => node.textContent.trim());
+  if (!last || !TEXT_LINK_MARKER.test(last.textContent)) return false;
+  last.textContent = last.textContent.replace(TEXT_LINK_MARKER, '');
+  return true;
+}
+
+/**
+ * A link alone in its paragraph that reads as a sentence ("View the available
+ * resources NCMEC can provide in these types of cases.") stays a text link: a button
+ * label never ends in a full stop. Bold or italic still makes it a button.
+ */
+function isSentenceLink(link) {
+  return /[^.]\.$/.test((link.textContent || '').trim());
+}
+
 function decorateButtons(element) {
   element.querySelectorAll('a').forEach((a) => {
     if (isAemColorValueLink(a)) return;
     if (isBareUrlAutolink(a)) return;
+    // The author asked for a text link: never a button, however it is formatted.
+    if (takeTextLinkMarker(a)) return;
 
     if (a.href !== a.textContent) {
       const up = a.parentElement;
       const twoup = a.parentElement.parentElement;
       if (!a.querySelector('img')) {
-        if (up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV')) {
+        if (up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV') && !isSentenceLink(a)) {
           a.classList.add('button'); // default
           up.classList.add('button-container');
           // Strip any typed arrow; only the text-link style shows one, drawn by CSS

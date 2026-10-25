@@ -523,6 +523,10 @@
               "value": "#414042"
             },
             {
+              "name": "Black (#000000)",
+              "value": "#000000"
+            },
+            {
               "name": "Gray Medium (#939598)",
               "value": "#939598"
             },
@@ -995,6 +999,10 @@
             {
               "name": "Gray Dark (#414042)",
               "value": "#414042"
+            },
+            {
+              "name": "Black (#000000)",
+              "value": "#000000"
             },
             {
               "name": "Gray Medium (#939598)",

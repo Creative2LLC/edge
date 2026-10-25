@@ -12,6 +12,36 @@ import {
 const POSITION_VALUES = ['align-left', 'align-center', 'align-right'];
 const STYLE_VALUES = ['full-width'];
 const CAPTION_ALIGNMENT_VALUES = ['left', 'center', 'right'];
+const TARGET_VALUES = ['_self', '_blank', '_parent', '_top'];
+
+/**
+ * A published page carries no field names, only one row per field. Every setting here
+ * has its own set of values (align-center, full-width, _blank, center), so each row is
+ * recognised by what it holds rather than where it sits; empty rows dropped by AEM
+ * cannot shift the rest. Anything else with words in it is the caption.
+ */
+function readPublishedRows(block) {
+  const found = {};
+  [...block.children].forEach((row) => {
+    const cell = row.firstElementChild || row;
+    if (cell.querySelector('picture, img')) return;
+    const value = (cell.textContent || '').trim();
+    const option = value.toLowerCase();
+    if (!value) return;
+    if (!found.position && POSITION_VALUES.includes(option)) found.position = option;
+    else if (!found.style && STYLE_VALUES.includes(option)) found.style = option;
+    else if (!found.target && TARGET_VALUES.includes(option)) found.target = option;
+    else if (!found.captionAlignment && CAPTION_ALIGNMENT_VALUES.includes(option)) {
+      found.captionAlignment = option;
+    } else if (!found.href && cell.querySelector('a') && !cell.querySelector('p > :not(a)')
+      && cell.querySelectorAll('a').length === 1 && cell.textContent.trim() === cell.querySelector('a').textContent.trim()) {
+      found.href = cell.querySelector('a').getAttribute('href');
+    } else if (!found.captionCell) {
+      found.captionCell = cell;
+    }
+  });
+  return found;
+}
 
 function normalizeOption(value, allowed) {
   const normalized = String(value || '').trim().toLowerCase().replace(/\s+/g, '-');
@@ -50,6 +80,7 @@ export default async function decorate(block) {
   const positionField = readTextField(block, 'imagePosition');
   const captionField = readRichTextField(block, 'captionText');
   const captionAlignmentField = readTextField(block, 'captionAlignment');
+  const published = readPublishedRows(block);
   const resourceFields = (
     !styleField.value
       || !positionField.value
@@ -64,13 +95,16 @@ export default async function decorate(block) {
     ])
     : {};
 
-  const styleClass = normalizeOption(styleField.value || resourceFields.imageStyle, STYLE_VALUES);
+  const styleClass = normalizeOption(
+    styleField.value || published.style || resourceFields.imageStyle,
+    STYLE_VALUES,
+  );
   const positionClass = normalizeOption(
-    positionField.value || resourceFields.imagePosition,
+    positionField.value || published.position || resourceFields.imagePosition,
     POSITION_VALUES,
   );
   const captionAlignment = normalizeOption(
-    captionAlignmentField.value || resourceFields.captionAlignment,
+    captionAlignmentField.value || published.captionAlignment || resourceFields.captionAlignment,
     CAPTION_ALIGNMENT_VALUES,
   );
 
@@ -100,11 +134,11 @@ export default async function decorate(block) {
   if (imageField.img && optimizedImg) moveInstrumentation(imageField.img, optimizedImg);
 
   let media = optimized;
-  const href = linkField.value;
+  const href = linkField.value || published.href;
   if (href) {
     const anchor = document.createElement('a');
     anchor.href = href;
-    anchor.target = targetField.value || '_self';
+    anchor.target = targetField.value || published.target || '_self';
     if (anchor.target === '_blank') anchor.rel = 'noopener noreferrer';
     if (linkField.source) moveInstrumentation(linkField.source, anchor);
     anchor.append(optimized);
@@ -119,10 +153,15 @@ export default async function decorate(block) {
   mediaWrapper.append(media);
   figure.append(mediaWrapper);
 
-  if (hasCaptionContent(captionField, resourceFields.captionText)) {
+  // On a published page the caption arrives as an unnamed row (see readPublishedRows).
+  const captionSource = hasCaptionContent(captionField, resourceFields.captionText)
+    || !published.captionCell
+    ? captionField
+    : { source: published.captionCell };
+  if (hasCaptionContent(captionSource, resourceFields.captionText)) {
     const caption = document.createElement('figcaption');
     caption.className = 'image-caption';
-    appendCaptionContent(captionField, caption, resourceFields.captionText);
+    appendCaptionContent(captionSource, caption, resourceFields.captionText);
     if (caption.textContent.trim() || caption.children.length) figure.append(caption);
   }
 
