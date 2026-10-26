@@ -87,7 +87,43 @@ function findButton2TextCell(rows, values, startIndex, endIndex) {
   return null;
 }
 
+// _cta-card-1.json's fields in order. A block published from this model keeps a row for
+// every field, empty ones included.
+const CURRENT_FIELD_ORDER = [
+  'title', 'subtitle', 'belowButtonText', 'gradientLeft', 'gradientRight',
+  'buttonText', 'buttonLink', 'buttonColor', 'buttonTextColor', 'buttonSubtext',
+  'button2Text', 'button2Link', 'button2Color', 'button2BackgroundColor', 'button2Subtext',
+  'button2Location', 'button3Text', 'button3Link', 'styleType',
+];
+
+// Older revisions also published 19 rows, in another order, so the count alone is not
+// proof: every setting slot must be empty or hold that setting's kind of value.
+function fitsCurrentFieldOrder(values) {
+  if (values.length !== CURRENT_FIELD_ORDER.length) return false;
+  const slot = (name) => values[CURRENT_FIELD_ORDER.indexOf(name)];
+  const emptyOr = (name, predicate) => !slot(name) || predicate(slot(name));
+  const isLink = (value) => !isValidHexColor(value);
+  return emptyOr('gradientLeft', isValidHexColor)
+    && emptyOr('gradientRight', isValidHexColor)
+    && emptyOr('buttonLink', isLink)
+    && emptyOr('buttonColor', isButtonColorSlotValue)
+    && emptyOr('buttonTextColor', isValidHexColor)
+    && emptyOr('button2Link', isLink)
+    && emptyOr('button2Color', isButtonColorSlotValue)
+    && emptyOr('button2BackgroundColor', isValidHexColor)
+    && emptyOr('button2Location', isButtonLocation)
+    && emptyOr('button3Link', isLink)
+    && emptyOr('styleType', isStyleType);
+}
+
 function readPublishedFallbackCells(rows) {
+  // A card published from the current model: read by position. The guesses below assume
+  // older pages that dropped empty rows; on a current card with no gradient they took an
+  // empty row for the button label and the link row for a second button.
+  if (fitsCurrentFieldOrder(rows.map(fieldText))) {
+    return Object.fromEntries(CURRENT_FIELD_ORDER.map((name, index) => [name, rowAt(rows, index)]));
+  }
+
   const values = rows.map(fieldText);
   const cells = {};
   let index = 0;
