@@ -1112,6 +1112,14 @@ function getBlockName(block) {
     name = className;
   }
 
+  // A repeated block's node can carry a short number ("custom_heading_1"). When the name
+  // without it is the block the class already names, that is the block.
+  const unnumbered = name.replace(/-\d{1,3}$/u, '');
+  if (!modelValue && resourceName && className && unnumbered !== name
+    && resolveBlockAlias(unnumbered) === resolveBlockAlias(className)) {
+    name = className;
+  }
+
   // Renamed blocks carry their new name in the class and the node path; see block-aliases.js.
   return resolveBlockAlias(name);
 }

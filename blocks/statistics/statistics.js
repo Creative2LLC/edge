@@ -1477,6 +1477,14 @@ function isItemRow(row) {
       || row.querySelector('picture');
   }
 
+  // Published, a block's own fields are rows of one cell (two when labelled) while an
+  // item is one row of all its fields, so a wide row is an item even without an icon.
+  // An empty one is an item nobody filled in; counting it would hide the block's own
+  // statValues/statLabels figures.
+  if (!row.querySelector('[data-aue-prop]') && row.children.length > 2) {
+    return Boolean(row.textContent.trim() || rowHasMedia(row));
+  }
+
   if (!row.querySelector('picture')) return false;
 
   return [...row.children].some((cell, index) => (
@@ -1537,19 +1545,32 @@ function readItemRows(block) {
     ));
 }
 
+// statistics-item's fields in _statistics.json, imageAlt and buttonStyle included.
+const ITEM_MODEL_FIELD_COUNT = 12;
+
+// Published, an item's image alt text rides on its <img> instead of a cell of its own,
+// so every field after the image sits one cell earlier than in the model.
+function hasFoldedImageAlt(row) {
+  if (row.querySelector('[data-aue-prop]')) return false;
+  const takenStyles = row.dataset.appendedStyles?.split(' ').filter(Boolean).length || 0;
+  return row.children.length + takenStyles === ITEM_MODEL_FIELD_COUNT - 1;
+}
+
 function getAuthoredItems(block) {
   return readItemRows(block).map((row) => {
+    const folded = hasFoldedImageAlt(row);
+    const cell = (index) => (folded && index > 1 ? index - 1 : index);
     const imageField = readItemImageField(row, 'image', 0);
-    const imageAltField = readItemTextField(row, 'imageAlt', 1);
-    const imageModeField = readItemTextField(row, 'imageMode', 2);
-    const iconMaxWidthField = readItemTextField(row, 'iconMaxWidth', 3);
-    const iconMaxHeightField = readItemTextField(row, 'iconMaxHeight', 4);
-    const valueField = readItemTextField(row, 'statValue', 5);
-    const labelField = readItemTextField(row, 'statLabel', 6);
-    const buttonTextField = readItemTextField(row, 'buttonText', 7);
-    const buttonLinkField = readItemLinkField(row, 'buttonLink', 8);
-    const buttonTargetField = readItemTextField(row, 'buttonTarget', 9);
-    const topLabelField = readItemTextField(row, 'statTopLabel', 10);
+    const imageAltField = readItemTextField(row, 'imageAlt', folded ? -1 : 1);
+    const imageModeField = readItemTextField(row, 'imageMode', cell(2));
+    const iconMaxWidthField = readItemTextField(row, 'iconMaxWidth', cell(3));
+    const iconMaxHeightField = readItemTextField(row, 'iconMaxHeight', cell(4));
+    const valueField = readItemTextField(row, 'statValue', cell(5));
+    const labelField = readItemTextField(row, 'statLabel', cell(6));
+    const buttonTextField = readItemTextField(row, 'buttonText', cell(7));
+    const buttonLinkField = readItemLinkField(row, 'buttonLink', cell(8));
+    const buttonTargetField = readItemTextField(row, 'buttonTarget', cell(9));
+    const topLabelField = readItemTextField(row, 'statTopLabel', cell(10));
 
     return {
       row,
@@ -1866,12 +1887,20 @@ function decorateBlock(block) {
   const legacyCell = (imageModeOffset) => (
     legacyConfig.isCompact ? null : legacyConfig.imageModeCell(imageModeOffset)
   );
+  // A block saved without its default alignment has nothing for the published fields
+  // to anchor on, but the heading is still the first field.
+  const leadingHeadingCell = () => {
+    const [first] = rows;
+    if (!first || first.querySelector('[data-aue-prop]') || isItemRow(first)) return null;
+    const cell = fieldCell(first);
+    return cell?.querySelector('h1, h2, h3, h4, h5, h6') ? cell : null;
+  };
 
   const headingField = readField(
     block,
     'heading',
     ['heading', 'title'],
-    legacyConfig.compactCell('heading') || configCell(0),
+    legacyConfig.compactCell('heading') || configCell(0) || leadingHeadingCell(),
   );
   const contentAlignmentField = readField(
     block,

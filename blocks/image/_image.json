@@ -128,6 +128,43 @@
             }
           ],
           "value": "left"
+        },
+        {
+          "component": "select",
+          "name": "imageWidth",
+          "label": "Image Width",
+          "description": "How much of the content column the image fills. It scales with the screen, and never gets narrower than 280px on phones.",
+          "options": [
+            {
+              "name": "Auto (image's own size)",
+              "value": ""
+            },
+            {
+              "name": "25%",
+              "value": "width-25"
+            },
+            {
+              "name": "33%",
+              "value": "width-33"
+            },
+            {
+              "name": "50%",
+              "value": "width-50"
+            },
+            {
+              "name": "66%",
+              "value": "width-66"
+            },
+            {
+              "name": "75%",
+              "value": "width-75"
+            },
+            {
+              "name": "100%",
+              "value": "width-100"
+            }
+          ],
+          "value": ""
         }
       ]
     }

@@ -67,6 +67,27 @@
   width: 100%;
 }
 
+/* Width: a share of the content column. The image fills its figure, and the figure
+   never drops below 280px (or the whole column, on a phone narrower than that). */
+.image[class*='width-'] .image-figure {
+  width: max(var(--image-width), min(100%, 280px));
+}
+
+.image[class*='width-'] .image-media,
+.image[class*='width-'] a,
+.image[class*='width-'] picture,
+.image[class*='width-'] img {
+  display: block;
+  width: 100%;
+}
+
+.image.width-25 { --image-width: 25%; }
+.image.width-33 { --image-width: 33.333%; }
+.image.width-50 { --image-width: 50%; }
+.image.width-66 { --image-width: 66.666%; }
+.image.width-75 { --image-width: 75%; }
+.image.width-100 { --image-width: 100%; }
+
 .image .image-caption {
   margin-top: 10px;
   color: #555;

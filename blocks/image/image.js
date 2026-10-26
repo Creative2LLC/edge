@@ -13,6 +13,7 @@ const POSITION_VALUES = ['align-left', 'align-center', 'align-right'];
 const STYLE_VALUES = ['full-width'];
 const CAPTION_ALIGNMENT_VALUES = ['left', 'center', 'right'];
 const TARGET_VALUES = ['_self', '_blank', '_parent', '_top'];
+const WIDTH_VALUES = ['width-25', 'width-33', 'width-50', 'width-66', 'width-75', 'width-100'];
 
 /**
  * A published page carries no field names, only one row per field. Every setting here
@@ -31,6 +32,7 @@ function readPublishedRows(block) {
     if (!found.position && POSITION_VALUES.includes(option)) found.position = option;
     else if (!found.style && STYLE_VALUES.includes(option)) found.style = option;
     else if (!found.target && TARGET_VALUES.includes(option)) found.target = option;
+    else if (!found.width && WIDTH_VALUES.includes(option)) found.width = option;
     else if (!found.captionAlignment && CAPTION_ALIGNMENT_VALUES.includes(option)) {
       found.captionAlignment = option;
     } else if (!found.href && cell.querySelector('a') && !cell.querySelector('p > :not(a)')
@@ -80,18 +82,21 @@ export default async function decorate(block) {
   const positionField = readTextField(block, 'imagePosition');
   const captionField = readRichTextField(block, 'captionText');
   const captionAlignmentField = readTextField(block, 'captionAlignment');
+  const widthField = readTextField(block, 'imageWidth');
   const published = readPublishedRows(block);
   const resourceFields = (
     !styleField.value
       || !positionField.value
       || !captionField.text
       || !captionAlignmentField.value
+      || !widthField.value
   )
     ? await readAueResourceFields(getAueResourcePath(block), [
       'imageStyle',
       'imagePosition',
       'captionText',
       'captionAlignment',
+      'imageWidth',
     ])
     : {};
 
@@ -108,8 +113,14 @@ export default async function decorate(block) {
     CAPTION_ALIGNMENT_VALUES,
   );
 
+  const widthClass = normalizeOption(
+    widthField.value || published.width || resourceFields.imageWidth,
+    WIDTH_VALUES,
+  );
+
   if (styleClass) block.classList.add(styleClass);
   if (positionClass) block.classList.add(positionClass);
+  if (widthClass) block.classList.add(widthClass);
   if (captionAlignment) block.classList.add(`caption-align-${captionAlignment}`);
 
   const picture = imageField.picture || block.querySelector('picture');
@@ -119,7 +130,7 @@ export default async function decorate(block) {
   if (!img) return;
 
   const alt = altField.value || img.alt || '';
-  const widths = styleClass === 'full-width'
+  const widths = styleClass === 'full-width' || ['width-75', 'width-100'].includes(widthClass)
     ? [{ media: '(min-width: 900px)', width: '2000' }, { media: '(min-width: 600px)', width: '1200' }, { width: '900' }]
     : [{ media: '(min-width: 900px)', width: '1200' }, { width: '750' }];
 
