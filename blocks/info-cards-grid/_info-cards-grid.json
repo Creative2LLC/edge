@@ -966,10 +966,10 @@
           "valueType": "string",
           "name": "cardHoverBackgroundColor",
           "label": "Card Hover Background Color",
-          "description": "Defaults to #008DB6 if left empty.",
+          "description": "Optional. The card changes to this color when hovered. Leave empty for no color change.",
           "options": [
             {
-              "name": "Default / None",
+              "name": "None",
               "value": ""
             },
             {

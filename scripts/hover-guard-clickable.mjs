@@ -42,7 +42,6 @@ const TARGETS = [
   ['faq', '.faq .faq-item'],
   ['amber-still-missing', '.amber-still-missing .amber-still-missing-accordion'],
   ['info-cards-grid', '.info-cards-grid-card-default.info-cards-grid-card-has-hover-bg'],
-  ['info-cards-grid', '.info-cards-grid-card-default.info-cards-grid-card-has-default-hover'],
   ['event-calendar', '.event-calendar .event-calendar-featured-card'],
   ['resources-carousel', '.resources-carousel .resources-carousel-card'],
 ];

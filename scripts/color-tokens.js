@@ -489,6 +489,39 @@ export function applyAuthoredTextSafety(scope) {
   return changed;
 }
 
+/* The links styles.css colours: class-less links in running text. */
+const TEXT_LINK_SELECTOR = ':is(p, li, td, th, dd, blockquote, figcaption) a:any-link:not([class])';
+
+/**
+ * Plain links take the site link colour, a blue built for light sections. On a dark card or
+ * section that a block never marked .is-on-dark (any card whose author picked a dark
+ * background), that blue sinks into the navy: 2.9:1 on the info cards' #1A1A2E. This finds
+ * those links once the page is painted and marks them data-link-on-dark, which gives them
+ * the .is-on-dark treatment: white, with the underline setting them apart. Only a link that
+ * fails AA where white passes; a block that already colours its links readably is left alone.
+ * Re-judged on every run, since in the editor the card behind a link can change colour.
+ * @param {Element} scope usually main
+ * @returns {number} how many links were marked
+ */
+export function applyLinkSurfaces(scope) {
+  if (!scope || typeof window === 'undefined' || !window.getComputedStyle) return 0;
+  const links = [...scope.querySelectorAll(TEXT_LINK_SELECTOR)];
+  // Clear every mark first, then measure: clearing one at a time would restyle the page
+  // once per link.
+  links.forEach((link) => link.removeAttribute('data-link-on-dark'));
+  const onDark = links.filter((link) => {
+    if (!link.getClientRects().length) return false;
+    const rendered = normalizeHex(computedToHex(window.getComputedStyle(link).color) || '');
+    const surface = trustedSurfaceBehind(link);
+    if (!rendered || !surface) return false;
+    const required = minRatioFor(link);
+    return contrastRatio(rendered, surface) < required
+      && contrastRatio(INK_LIGHT, surface) >= required;
+  });
+  onDark.forEach((link) => link.setAttribute('data-link-on-dark', ''));
+  return onDark.length;
+}
+
 const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 // A hex standing alone in a config value: bare, or one entry of a list such as
 // "color|#hex icon-size|64px" or "Education:#hex Blog:#hex". Not {#hex}, which
@@ -585,7 +618,8 @@ export function flagReadableAdjustments(scope) {
 
 /**
  * Runs every contrast step in order: authored colours blocks registered, then the safety
- * net for blocks that apply colours themselves, then the editor notice. Called once the
+ * net for blocks that apply colours themselves, then text links on dark surfaces, then the
+ * editor notice. Called once the
  * page has loaded, and again by the editor after each change, so what an author sees while
  * editing is what visitors will see.
  * @param {Element} scope usually main
@@ -593,5 +627,6 @@ export function flagReadableAdjustments(scope) {
 export function refreshReadableColors(scope) {
   applyReadableColors();
   applyAuthoredTextSafety(scope);
+  applyLinkSurfaces(scope);
   flagReadableAdjustments(scope);
 }

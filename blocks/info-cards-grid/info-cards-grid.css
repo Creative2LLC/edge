@@ -340,20 +340,8 @@
   background: var(--info-card-hover-bg);
 }
 
-/* No authored hover colour: nudge the card's own background rather than jumping
-   to a fixed brand blue. The tint direction is picked in JS from the card's
-   luminance, so light cards darken and dark cards lighten by the same amount. */
-.info-cards-grid-card-default.info-cards-grid-card-has-default-hover:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
-.info-cards-grid-card-default.info-cards-grid-card-has-default-hover:focus-within {
-  background: color-mix(
-    in srgb,
-    var(--info-card-bg) calc(100% - var(--info-card-hover-mix, 10%)),
-    var(--info-card-hover-tint, #000) var(--info-card-hover-mix, 10%)
-  );
-}
-
 /* Light card with no authored hover colour: the site's card tier (lift +
-   shadow). Darkening a white card read as a flat, disabled-looking grey.
+   shadow). Dark cards get no default: colour hovers are the author's pick.
    `translate`, not `transform`, because transform carries the reveal. */
 .info-cards-grid-card-default.info-cards-grid-card-has-lift-hover:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
 .info-cards-grid-card-default.info-cards-grid-card-has-lift-hover:focus-within {

@@ -398,10 +398,10 @@
           "valueType": "string",
           "name": "cardHoverBackgroundColor",
           "label": "Card Hover Background Color",
-          "description": "Optional. Applies only when provided.",
+          "description": "Optional. The card changes to this color when hovered. Leave empty for no color change.",
           "options": [
             {
-              "name": "Default / None",
+              "name": "None",
               "value": ""
             },
             {

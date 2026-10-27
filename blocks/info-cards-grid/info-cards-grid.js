@@ -19,6 +19,16 @@ import {
   resolveAuthoredButtonStyle,
 } from '../../scripts/button-utils.js';
 
+/**
+ * Hover with no authored Card Hover Background Color. A light card lifts with a shadow
+ * (the site's card tier). A dark card has no hover: its old default was a colour tint,
+ * and a colour hover is the author's pick, never automatic. An authored colour replaces
+ * the lift.
+ */
+function applyDefaultHover(card, background) {
+  card.classList.toggle('info-cards-grid-card-has-lift-hover', !isDarkSurface(background));
+}
+
 // Hex-color "select" fields never get data-aue-prop instrumentation in the editor (see
 // getColorField below), so their positional fallback is only as reliable as the fixed
 // index it's given — which breaks whenever an EARLIER field on the same card (even a
@@ -26,59 +36,6 @@ import {
 // shifts. A per-card fetch of the resource's own JSON, keyed by field NAME, sidesteps
 // row position entirely and is the authoritative correction. Matches the pattern already
 // proven in cards.js's syncResourceCardStyles/applyCardStyles.
-/**
- * Unstyled cards used to hover to a flat brand blue (#008DB6) no matter what
- * they looked like at rest, so a light-grey card flipped to saturated blue and
- * an already-blue card did not visibly change at all. Dark cards now lighten
- * their OWN background slightly. Light cards lift with a shadow instead:
- * darkening them read as a flat grey that looked disabled rather than hovered.
- * An authored Card Hover Background still wins outright and is applied exactly
- * as before. Set DEFAULT_HOVER_MIX to 0 to drop the default entirely.
- */
-const DEFAULT_HOVER_MIX = 10;
-
-function hoverTintFor(background) {
-  const value = String(background || '').trim();
-  const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
-  let channels = null;
-  if (hex) {
-    const raw = hex[1].length === 3 ? hex[1].replace(/./g, (c) => c + c) : hex[1];
-    channels = [0, 2, 4].map((i) => parseInt(raw.slice(i, i + 2), 16));
-  } else {
-    const rgb = value.match(/rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/i);
-    if (rgb) channels = rgb.slice(1, 4).map(Number);
-  }
-  // Unparseable (or transparent): assume a light surface and darken, which is
-  // the safe direction on this site's mostly-light sections.
-  if (!channels) return '#000';
-  const [r, g, b] = channels.map((c) => {
-    const n = c / 255;
-    return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
-  });
-  return ((0.2126 * r) + (0.7152 * g) + (0.0722 * b)) < 0.3 ? '#fff' : '#000';
-}
-
-function hasDefaultHover(card) {
-  return card.classList.contains('info-cards-grid-card-has-default-hover')
-    || card.classList.contains('info-cards-grid-card-has-lift-hover');
-}
-
-function clearDefaultHover(card) {
-  card.classList.remove('info-cards-grid-card-has-default-hover', 'info-cards-grid-card-has-lift-hover');
-}
-
-// Dark card: lighten its own background. Light card: lift + shadow, no colour.
-function applyDefaultHover(card, background) {
-  clearDefaultHover(card);
-  if (hoverTintFor(background) === '#fff') {
-    card.classList.add('info-cards-grid-card-has-default-hover');
-    card.style.setProperty('--info-card-hover-tint', '#fff');
-    card.style.setProperty('--info-card-hover-mix', `${DEFAULT_HOVER_MIX}%`);
-  } else {
-    card.classList.add('info-cards-grid-card-has-lift-hover');
-  }
-}
-
 const CARD_COLOR_FIELD_NAMES = [
   'iconColor',
   'cardBackgroundColor',
@@ -695,16 +652,13 @@ function syncCardStyles(resourcePath, card, content, data, variant) {
         card.style.setProperty('--info-card-bg', textSafeSurface(fields.cardBackgroundColor));
       }
       if (fields.cardHoverBackgroundColor) {
-        // This late correction can land on a card that already took the subtle
-        // default. Both rules have the same specificity and the default is
-        // declared second, so it would win — drop it before the authored colour
-        // is applied.
-        clearDefaultHover(card);
+        card.classList.remove('info-cards-grid-card-has-lift-hover');
         card.classList.add('info-cards-grid-card-has-hover-bg');
         card.style.setProperty('--info-card-hover-bg', fields.cardHoverBackgroundColor);
-      } else if (fields.cardBackgroundColor && hasDefaultHover(card)) {
-        // The default was picked from the row-position background, which this
-        // correction just replaced — a light card must not keep a dark card's hover.
+      } else if (fields.cardBackgroundColor && variant !== 'volunteer'
+        && !card.classList.contains('info-cards-grid-card-has-hover-bg')) {
+        // The lift was decided from the row-position background, which this correction
+        // just replaced: a card that turned out dark must not keep a light card's lift.
         applyDefaultHover(card, fields.cardBackgroundColor);
       }
       const cardBg = fields.cardBackgroundColor
@@ -821,10 +775,13 @@ function buildCard(data, index, variant, isEditor) {
 
   // The card's title, subtitle and body sit on this, so Blue Medium renders as Blue Dark.
   card.style.setProperty('--info-card-bg', textSafeSurface(cardBg));
+  // No colour hover unless the author picks a Card Hover Background Color. Dark cards
+  // used to tint by default, which read oddly on a card whose only links sit inside its
+  // text (the "Report" card on ai-risks).
   if (data.cardHoverBg) {
     card.classList.add('info-cards-grid-card-has-hover-bg');
     card.style.setProperty('--info-card-hover-bg', data.cardHoverBg);
-  } else if (!isVolunteerVariant && DEFAULT_HOVER_MIX > 0) {
+  } else if (!isVolunteerVariant) {
     applyDefaultHover(card, cardBg);
   }
   applyTextStyles(card, data.textStyles);

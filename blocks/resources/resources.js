@@ -60,6 +60,8 @@ const RESOURCE_ACTION_LABELS = {
 };
 
 const DEFAULT_HEADER_BUTTON_TEXT = 'Find other resources';
+// The resource library. A header button the author labelled but never linked goes here.
+const DEFAULT_HEADER_BUTTON_LINK = '/resources';
 
 /**
  * Smallest headerMaxWidth worth honouring. Belt to hasAuthoringProps' braces:
@@ -310,6 +312,11 @@ function splitSelectedResources(values) {
   }, { ids: [], slugs: [] });
 }
 
+// Words are a label, not an address.
+function looksLikeAddress(value) {
+  return /^(https?:|mailto:|tel:|www\.|\/|#)/i.test(value);
+}
+
 function parseResourceRow(row) {
   const cols = [...row.children];
 
@@ -328,9 +335,8 @@ function parseResourceRow(row) {
     }
 
     // Published, an empty link folds into its label: the cell holds only "Learn More".
-    // Words are a label, not an address.
     const value = col.textContent.trim();
-    if (value && !/^(https?:|mailto:|tel:|www\.|\/|#)/i.test(value)) {
+    if (value && !looksLikeAddress(value)) {
       return { url: '', text: value };
     }
 
@@ -366,13 +372,21 @@ function parseResourceRow(row) {
     const titleField = getRichField(3, 'title');
     const subtitleField = getRichField(4, 'subtitle');
 
+    // Published, linkText folds into the link cell (getLinkData reads it there), so it
+    // has no cell of its own and cell 6 is the tags.
     let linkUrl;
-    let linkText = getFieldText(6, 'linkText');
+    let linkText = readTextField(row, 'linkText').value;
 
     if (linkField.source) {
       linkUrl = linkField.value;
+      // In the editor an empty link reads back as its label. Same rule as published:
+      // no address, no button.
+      if (linkUrl && !looksLikeAddress(linkUrl)) {
+        if (!linkText) linkText = linkUrl;
+        linkUrl = '';
+      }
     } else {
-      const linkData = getLinkData(cols[5], cols[6]);
+      const linkData = getLinkData(cols[5]);
       linkUrl = linkData.url;
       if (!linkText) linkText = linkData.text;
     }
@@ -392,7 +406,7 @@ function parseResourceRow(row) {
       subtitleSource: subtitleField.source,
       linkUrl,
       linkText,
-      tags: parseList(getFieldText(7, 'tags')),
+      tags: parseList(getFieldText(6, 'tags')),
     };
   }
 
@@ -774,21 +788,15 @@ async function decorateBlock(block) {
 
   header.append(headerLeft);
 
-  const buttonText = config.buttonText || (resources.length ? DEFAULT_HEADER_BUTTON_TEXT : '');
-
-  // A button with nowhere to go is not published. In the editor it still shows,
-  // disabled, so the author can see the link is missing.
-  const inEditor = Boolean(document.querySelector('[data-aue-resource]'));
-  if (buttonText && (config.buttonLink || inEditor)) {
-    const button = document.createElement(config.buttonLink ? 'a' : 'span');
+  // The header button shows when the author asked for one: a label, a link, or both.
+  // A label with no link goes to the resource library, and a link with no label reads
+  // "Find other resources". Neither: no button, in the editor and on the site alike
+  // (the editor used to show a disabled grey placeholder that never published).
+  if (config.buttonText || config.buttonLink) {
+    const button = document.createElement('a');
     button.className = 'resources-button';
-    button.textContent = buttonText;
-    if (config.buttonLink) {
-      button.href = config.buttonLink;
-    } else {
-      button.setAttribute('aria-disabled', 'true');
-      button.title = 'Add a link to publish this button';
-    }
+    button.textContent = config.buttonText || DEFAULT_HEADER_BUTTON_TEXT;
+    button.href = config.buttonLink || resolveSiteHref(DEFAULT_HEADER_BUTTON_LINK);
     // The look comes from the button standard (Primary).
     header.append(applyButtonStyle(button, 'primary'));
   }

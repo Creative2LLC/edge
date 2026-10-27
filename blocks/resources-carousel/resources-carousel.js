@@ -51,6 +51,13 @@ function normalizeSourceType(value) {
   return ['articles', 'resources'].includes(v) ? v : 'resources';
 }
 
+// The library API names a resource's page `primary_url` / `detail_path`; `page_path` is
+// the old name, kept for an older API. Reading only `page_path` sent every card to "#".
+function resourceHref(resource) {
+  return resolveSiteHref(resource.primary_url || resource.detail_path || resource.page_path
+    || resource.download_url || resource.resource_url || '');
+}
+
 function getSlugFromPathname() {
   const clean = window.location.pathname.replace(/[?#].*$/, '').replace(/\/+$/, '');
   const parts = clean.split('/').filter(Boolean);
@@ -138,9 +145,10 @@ async function fetchItems(config) {
   }
   const resp = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
   if (!resp.ok || resp.status === 404) {
-    // Fall back to general listing filtered by program
+    // Fall back to general listing filtered by program. One extra, because the
+    // resource this page is about is in that list and is dropped below.
     const listUrl = new URL('/api/resources', `${apiBaseUrl}/`);
-    listUrl.searchParams.set('per_page', String(limit));
+    listUrl.searchParams.set('per_page', String(limit + 1));
     listUrl.searchParams.set('locale', locale);
     if (programs) {
       programs.split(',').map((p) => p.trim()).filter(Boolean).forEach((p) => {
@@ -150,17 +158,20 @@ async function fetchItems(config) {
     const listResp = await fetch(listUrl.toString(), { headers: { Accept: 'application/json' } });
     if (!listResp.ok) return [];
     const listPayload = await listResp.json();
-    return (listPayload.data || []).map((r) => ({
-      title: r.title,
-      subtitle: r.excerpt || r.description || '',
-      href: resolveSiteHref(r.page_path || r.resource_url || ''),
-    }));
+    return (listPayload.data || [])
+      .filter((r) => r.slug !== slug)
+      .slice(0, limit)
+      .map((r) => ({
+        title: r.title,
+        subtitle: r.excerpt || r.description || '',
+        href: resourceHref(r),
+      }));
   }
   const payload = await resp.json();
   return (payload.data || []).map((r) => ({
     title: r.title,
     subtitle: r.excerpt || r.description || '',
-    href: resolveSiteHref(r.page_path || r.resource_url || ''),
+    href: resourceHref(r),
   }));
 }
 

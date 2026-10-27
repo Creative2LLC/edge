@@ -1384,6 +1384,16 @@ main :is(p, li:where(:not(nav li))) a:any-link:where(:not([class])) {
   color: var(--body-on-dark-color);
 }
 
+/* The same, for a link on a dark card or section nobody marked .is-on-dark. The contrast
+   pass marks it after the page paints (color-tokens.js, applyLinkSurfaces), and only when
+   its colour fails there. Specific on purpose: it overrides the block colour that failed. */
+main a[data-link-on-dark]:any-link,
+main a[data-link-on-dark]:any-link:hover {
+  color: var(--body-on-dark-color);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 /* ====================================================================
    BUTTONS
    Approved by the client 2026-09-13 — "Button & Control Standard".
