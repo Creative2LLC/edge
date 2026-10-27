@@ -1,6 +1,19 @@
+# English lives at the root and Spanish mirrors it under /es. Pages that share a path
+# (/about and /es/about) are listed as hreflang alternates of each other, with English as
+# x-default; a page with no counterpart is listed on its own. Both languages write the one
+# /sitemap.xml. Sources are the `sitemap` and `sitemap-es` indices in helix-query.yaml.
 sitemaps:
   default:
     origin: https://test--edge--creative2llc.aem.live
-    source: /sitemap.json
-    destination: /sitemap.xml
     lastmod: YYYY-MM-DD
+    default: en
+    languages:
+      en:
+        source: /sitemap.json
+        destination: /sitemap.xml
+        hreflang: en
+      es:
+        source: /es/sitemap.json
+        destination: /sitemap.xml
+        hreflang: es
+        alternate: /es/{path}

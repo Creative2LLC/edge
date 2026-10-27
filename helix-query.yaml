@@ -1,6 +1,8 @@
 version: 1
 
-# Two indices: `pages` -> query-index.json (site search); `sitemap` -> sitemap.json (sitemap.xml source).
+# Three indices: `pages` -> query-index.json (site search); `sitemap` -> sitemap.json and
+# `sitemap-es` -> es/sitemap.json, the English and Spanish sources of sitemap.xml. Spanish
+# has its own source so helix-sitemap.yaml can pair /about with /es/about for hreflang.
 
 indices:
   pages:
@@ -51,7 +53,29 @@ indices:
       - '/tools/**'
       - '/for-ncmec-test-pages/**'
       - '/form-testing-page'
+      - '/es'
+      - '/es/**'
     target: /sitemap.json
+    properties:
+      lastModified:
+        select: none
+        value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
+      robots:
+        selectFirst: head > meta[name="robots"]
+        value: attribute(el, "content")
+
+  sitemap-es:
+    include:
+      - '/es'
+      - '/es/**'
+    exclude:
+      - '/es/**.json'
+      - '/es/nav'
+      - '/es/footer'
+      - '/es/fragments/**'
+      - '/es/templates/**'
+      - '/es/drafts/**'
+    target: /es/sitemap.json
     properties:
       lastModified:
         select: none

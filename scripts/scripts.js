@@ -1025,11 +1025,22 @@ function showHeaderShell(doc) {
 }
 
 /**
+ * A page's language comes from where it lives: Spanish pages mirror the English paths
+ * under /es (/about -> /es/about), everything else is English. helix-sitemap.yaml pairs
+ * the two versions for hreflang by the same rule. Author paths carry /content/edge.
+ * @param {string} [path] defaults to the current page
+ * @returns {'en'|'es'}
+ */
+export function getPageLanguage(path = window.location.pathname) {
+  return /^(?:\/content\/edge)?\/es(?:[/.]|$)/.test(path) ? 'es' : 'en';
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  document.documentElement.lang = 'en';
+  document.documentElement.lang = getPageLanguage();
   decorateTemplateAndTheme();
   showHeaderShell(doc);
   const main = doc.querySelector('main');
