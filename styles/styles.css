@@ -1351,11 +1351,11 @@ a:hover {
   text-decoration: underline;
 }
 
-/* A link inside running text is underlined: colour alone does not set it apart for
+/* A link inside running text or a list (not a nav list) is underlined: colour alone does not set it apart for
    colour-blind visitors (WCAG 1.4.1; axe/Lighthouse link-in-text-block). Classed links
    are components (buttons, card links) that style themselves. Just above `a:any-link`
    (which removes the underline); :where() keeps it below any block's own link rule. */
-main p a:any-link:where(:not([class])) {
+main :is(p, li:where(:not(nav li))) a:any-link:where(:not([class])) {
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
