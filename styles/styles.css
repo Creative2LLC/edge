@@ -1360,11 +1360,12 @@ main p a:any-link:where(:not([class])) {
   text-underline-offset: 0.15em;
 }
 
-/* Plain links in running text (page text, Custom Text, Custom List) take the link colour.
-   Only class-less links: buttons, card links and nav links are components that colour
-   themselves. Zero specificity, so any block's own link colour still wins; on a dark
-   surface (.is-on-dark) the link stays light and the underline marks it. */
-:where(main .default-content-wrapper, main .colored-text, main .colored-list)
+/* Plain links in running text (page text, Custom Text, any block's rich text) take the
+   link colour. Only class-less links: buttons, card links and nav links are components
+   that colour themselves. Zero specificity, so any block's own link colour still wins;
+   without this a block's rich-text links were browser-default blue. On a dark surface
+   (.is-on-dark) the link stays light and the underline marks it. */
+:where(main)
   :where(p, li, td, th, dd, blockquote, figcaption)
   :where(a:any-link:not([class])) {
   color: var(--link-color);
@@ -1372,7 +1373,7 @@ main p a:any-link:where(:not([class])) {
   text-underline-offset: 0.15em;
 }
 
-:where(main .default-content-wrapper, main .colored-text, main .colored-list)
+:where(main)
   :where(p, li, td, th, dd, blockquote, figcaption)
   :where(a:any-link:not([class]):hover) {
   color: var(--link-hover-color);

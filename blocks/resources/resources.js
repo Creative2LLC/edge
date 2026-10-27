@@ -327,8 +327,15 @@ function parseResourceRow(row) {
       };
     }
 
+    // Published, an empty link folds into its label: the cell holds only "Learn More".
+    // Words are a label, not an address.
+    const value = col.textContent.trim();
+    if (value && !/^(https?:|mailto:|tel:|www\.|\/|#)/i.test(value)) {
+      return { url: '', text: value };
+    }
+
     return {
-      url: col.textContent.trim(),
+      url: value,
       text: nextCol?.textContent.trim() || '',
     };
   }
@@ -428,6 +435,22 @@ function buildTag(tag) {
   return pill;
 }
 
+/**
+ * A link in a card's title or subheading is part of the copy. decorateButtons made it a
+ * button because it sat alone in its paragraph; the card's own button is the card link.
+ */
+function keepTextLinks(element) {
+  element.querySelectorAll('a.button').forEach((link) => {
+    link.classList.remove('button', 'primary', 'secondary');
+    if (!link.classList.length) link.removeAttribute('class');
+    if (link.title === link.textContent) link.removeAttribute('title');
+  });
+  element.querySelectorAll('.button-container').forEach((container) => {
+    container.classList.remove('button-container');
+    if (!container.classList.length) container.removeAttribute('class');
+  });
+}
+
 function applyRichText(element, source, html, text) {
   if (source) {
     moveInstrumentation(source, element);
@@ -435,11 +458,13 @@ function applyRichText(element, source, html, text) {
       .some((node) => node.nodeType === Node.ELEMENT_NODE);
     if (hasElementChildren) {
       while (source.firstChild) element.append(source.firstChild);
+      keepTextLinks(element);
       return;
     }
   }
   if (html && /<[^>]+>/u.test(html)) {
     element.innerHTML = html;
+    keepTextLinks(element);
     return;
   }
   element.textContent = text;
