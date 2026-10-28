@@ -1,0 +1,7 @@
+{
+  "resources-carousel": {
+    "looks": "A carousel of related resources or articles, filled from the resource library.",
+    "use": "Only on resource and article pages, when asked.",
+    "on_request": true
+  }
+}

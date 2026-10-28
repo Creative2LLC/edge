@@ -1,0 +1,23 @@
+{
+  "split-card-gap": {
+    "looks": "Two panels side by side: a photo on the left; on the right a heading, a paragraph, a 2x2 grid of small icon-and-label benefits, and up to two buttons.",
+    "use": "A recruiting or programme pitch with two to four short benefits, e.g. 'Join Our Team'.",
+    "items": {
+      "best": "4 (2 or 4 keep the grid even)"
+    },
+    "required": [
+      "heading",
+      "image"
+    ]
+  },
+  "split-card-gap-item": {
+    "required": [
+      "icon",
+      "title"
+    ],
+    "fields": {
+      "title": "A one to three word benefit, e.g. 'Mission-Driven'.",
+      "icon": "A small coloured line icon."
+    }
+  }
+}

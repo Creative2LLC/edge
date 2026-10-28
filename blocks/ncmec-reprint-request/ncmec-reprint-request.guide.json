@@ -1,0 +1,7 @@
+{
+  "ncmec-reprint-request": {
+    "looks": "The NCMEC reprint request form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  }
+}

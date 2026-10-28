@@ -1,0 +1,16 @@
+{
+  "support-cta": {
+    "looks": "A centred, rounded light panel: a large heading, one line under it, one large button with a second line on it, and a line of helper text under the button.",
+    "use": "A single phone or contact call to action, e.g. 'Ready to talk? Call Team HOPE today.'",
+    "required": [
+      "heading",
+      "buttonText"
+    ],
+    "fields": {
+      "buttonText": "e.g. 'Call 866-305-HOPE'.",
+      "buttonSubtext": "Second line on the button, e.g. the number in digits.",
+      "buttonLink": "For a phone number use tel:, e.g. tel:18663054673.",
+      "helperText": "One small line under the button."
+    }
+  }
+}

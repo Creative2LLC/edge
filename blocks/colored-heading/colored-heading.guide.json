@@ -1,0 +1,13 @@
+{
+  "colored-heading": {
+    "looks": "A heading on its own, with a chosen level and alignment, and optional highlighted words.",
+    "use": "A section heading above Custom Text or a block without its own heading.",
+    "required": [
+      "heading"
+    ],
+    "fields": {
+      "heading": "Plain text.",
+      "markerTerms": "Optional words from the heading to circle or underline, exactly as written, separated by |."
+    }
+  }
+}

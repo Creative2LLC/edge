@@ -1,0 +1,17 @@
+{
+  "split-card-detail": {
+    "looks": "A 2x2 grid of small white cards (icon, title, sentence) beside a large photo.",
+    "use": "Four values or benefits next to a photo.",
+    "items": {
+      "best": "4"
+    },
+    "required": [
+      "image"
+    ]
+  },
+  "split-card-detail-item": {
+    "required": [
+      "title"
+    ]
+  }
+}

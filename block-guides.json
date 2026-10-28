@@ -1,0 +1,1180 @@
+{
+  "amber-alert-info": {
+    "looks": "An image on the left; an AMBER Alert icon, a title, text, a button and two figures on the right.",
+    "use": "Explaining AMBER Alerts with two headline figures, when asked.",
+    "on_request": true
+  },
+  "amber-alerts": {
+    "looks": "Active AMBER Alerts, loaded live; hidden when none are active.",
+    "use": "Only on AMBER Alert and poster pages.",
+    "on_request": true
+  },
+  "amber-still-missing": {
+    "looks": "A list of children from past AMBER Alerts who are still missing, loaded live.",
+    "use": "Only on the AMBER Alerts page.",
+    "on_request": true
+  },
+  "apply-for-training": {
+    "looks": "The training application form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "article-details": {
+    "looks": "A blog article's header and body.",
+    "use": "Only on blog pages, which the backend generates.",
+    "on_request": true
+  },
+  "article-list": {
+    "looks": "A searchable, filterable list of blog articles, loaded from the backend.",
+    "use": "Only on the blog listing page, when asked.",
+    "on_request": true
+  },
+  "button": {
+    "looks": "The built-in button.",
+    "use": "Only when the author asks for this component by name.",
+    "avoid": "Use Custom Btn Icon (colored-button) for a standalone button.",
+    "on_request": true
+  },
+  "card": {
+    "required": [
+      "text"
+    ],
+    "fields": {
+      "text": "Rich text. Start with the title as a bold or heading line; put links inside the sentences.",
+      "highlightText": "Optional large text shown first, such as a figure or short phrase.",
+      "disclaimer": "Optional fine print under the text."
+    }
+  },
+  "card-row": {
+    "looks": "A grid of navy cards, each with a logo or small image at the top, a short paragraph and an outline 'Learn more' button. The vertical variant adds a title.",
+    "use": "Programmes or partner sites that each have their own logo.",
+    "avoid": "No logos: use Multi Icn Btn Col Card Grid (info-cards-grid).",
+    "items": {
+      "min": 2,
+      "best": "3 to 6"
+    }
+  },
+  "card-row-compact": {
+    "looks": "A row of small white cards: an icon, a title, a short description and an optional text link.",
+    "use": "Linking to three to six related topics or data pages.",
+    "items": {
+      "min": 2,
+      "best": "3 to 6"
+    }
+  },
+  "card-row-compact-item": {
+    "required": [
+      "title"
+    ]
+  },
+  "card-row-detailed": {
+    "looks": "A row of tall light cards: an icon, a heading, a short paragraph, a bulleted list, a button, optional extra text and a second button.",
+    "use": "Comparing two to four services, each with a list of what it includes.",
+    "items": {
+      "min": 2,
+      "best": "3"
+    }
+  },
+  "card-row-detailed-item": {
+    "required": [
+      "heading"
+    ],
+    "fields": {
+      "subheading": "One or two sentences.",
+      "bulletList": "A <ul> list of what the service includes.",
+      "additionalText": "Optional line between the two buttons."
+    }
+  },
+  "card-row-item": {
+    "required": [
+      "logo",
+      "bodyText"
+    ],
+    "fields": {
+      "logo": "A logo or emblem; the card is built around it.",
+      "title": "Shown only with variant vertical."
+    }
+  },
+  "card-testimonies": {
+    "looks": "A title and subtitle above quote cards: a main card with a photo and a larger quote, and smaller text-only quote cards.",
+    "use": "Quotes from families, survivors or partners.",
+    "items": {
+      "min": 1
+    }
+  },
+  "card-testimonies-item": {
+    "required": [
+      "quote"
+    ],
+    "fields": {
+      "image": "Add one for the large main card; leave empty for a small card.",
+      "author": "Name or role, e.g. 'Team HOPE participant'."
+    }
+  },
+  "cards": {
+    "looks": "A grid of white cards, about three per row, each with an optional picture or logo, a centred title and text with links inside the sentences, optional highlighted large text and optional fine print.",
+    "use": "Short notices or programme blurbs whose links sit inside the text, e.g. 'Missing Anniversaries … click here'.",
+    "items": {
+      "min": 2,
+      "best": "3 or 6"
+    }
+  },
+  "case-anniversaries": {
+    "looks": "A searchable list of missing child case anniversaries, loaded live.",
+    "use": "Only on case anniversary pages.",
+    "on_request": true
+  },
+  "code-adam-kit": {
+    "looks": "The Code Adam kit request form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "colored-button": {
+    "looks": "One button on its own, optionally with an icon, aligned left, centre or right, or stretched.",
+    "use": "A standalone button between other blocks, e.g. under Custom Text.",
+    "required": [
+      "label",
+      "link"
+    ],
+    "fields": {
+      "label": "The button's words, e.g. 'Make a Report'.",
+      "iconName": "Optional icon from the site's set, e.g. search or download."
+    }
+  },
+  "colored-grid": {
+    "looks": "A free-form grid: rows of 1 to 6 columns, each cell holding Custom Text, a heading, an image, Statistics, cards, a donut chart and more.",
+    "use": "Only for a layout no designed block covers, such as a figure beside a photo beside text. Build it row by row.",
+    "avoid": "Anything a designed block already does.",
+    "on_request": true
+  },
+  "colored-heading": {
+    "looks": "A heading on its own, with a chosen level and alignment, and optional highlighted words.",
+    "use": "A section heading above Custom Text or a block without its own heading.",
+    "required": [
+      "heading"
+    ],
+    "fields": {
+      "heading": "Plain text.",
+      "markerTerms": "Optional words from the heading to circle or underline, exactly as written, separated by |."
+    }
+  },
+  "colored-icon-text": {
+    "looks": "A tinted box with a circular image or an icon beside text: an optional small label, a paragraph (often a quote), an optional second paragraph and an optional button.",
+    "use": "A quote with its attribution, or one key point with an icon.",
+    "required": [
+      "text"
+    ],
+    "fields": {
+      "text": "The main paragraph or quote.",
+      "text2": "Optional second paragraph, e.g. '– Survivor'.",
+      "label": "Optional small label above the text."
+    }
+  },
+  "colored-list": {
+    "looks": "A list with styled markers: bullets, numbers, circled numbers or circled bullets.",
+    "use": "A list that needs larger or circled markers than a plain bulleted list.",
+    "items": {
+      "min": 2
+    }
+  },
+  "colored-list-item": {
+    "required": [
+      "itemText"
+    ],
+    "fields": {
+      "markerText": "Optional; replaces this item's number or bullet."
+    }
+  },
+  "colored-text": {
+    "looks": "Running copy: paragraphs, lists and links, aligned left, centre or right.",
+    "use": "Any copy that is not part of a designed block. The default for paragraphs.",
+    "required": [
+      "text"
+    ],
+    "fields": {
+      "text": "Rich text. A link alone on its own line becomes a button.",
+      "markerTerms": "Optional words to circle or underline, exactly as written, separated by |."
+    }
+  },
+  "columns": {
+    "looks": "Two or more columns side by side holding other content.",
+    "use": "Only when the author asks for columns.",
+    "avoid": "Prefer a designed block; columns are laid out by hand in the editor.",
+    "on_request": true
+  },
+  "community-education-partner-reporting": {
+    "looks": "The Community Education Partner reporting form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "connect-grid": {
+    "looks": "A heading and intro above a grid of cards: an icon, a title, a short description, then up to four contact lines (a small label above the contact itself, as a link).",
+    "use": "Ways to reach NCMEC or get help: phone numbers, email addresses, forms.",
+    "items": {
+      "min": 2,
+      "best": "3 per row"
+    }
+  },
+  "connect-grid-item": {
+    "required": [
+      "title"
+    ],
+    "link_optional": [
+      "contactMethod1Text",
+      "contactMethod2Text",
+      "contactMethod3Text",
+      "contactMethod4Text"
+    ],
+    "fields": {
+      "contactMethod1Label": "A small label, e.g. 'Call' or 'Email'.",
+      "contactMethod1Text": "What shows, e.g. '1-800-THE-LOST (24/7)'.",
+      "contactMethod1Link": "tel:, mailto: or a page, e.g. tel:18008435678.",
+      "contactMethods": "Legacy field; leave empty."
+    }
+  },
+  "cta-card-1": {
+    "looks": "A full-width rounded band in a soft colour: a heading and a sentence or two on the left, one or two buttons on the right (each with optional small text under it), and optional small print under the buttons.",
+    "use": "Closing a section or page with one urgent action and an alternative, e.g. 'Is Your Child Missing?' with 'Call 911 Immediately' and '1-800-THE-LOST'.",
+    "avoid": "Several equal choices: use a card block. No action at all: use Custom Text.",
+    "required": [
+      "title",
+      "buttonText"
+    ],
+    "fields": {
+      "title": "A short heading or question, e.g. 'Is Your Child Missing?'.",
+      "subtitle": "One or two sentences.",
+      "buttonSubtext": "Optional small line under the button, e.g. the phone number in digits.",
+      "belowButtonText": "Optional small print under the buttons.",
+      "button3Text": "Shows only with styleType variant-4.",
+      "styleType": "Colour and arrangement; keep the default unless asked."
+    }
+  },
+  "cta-card-2": {
+    "looks": "A light band with a large icon on the left, then a heading, a short paragraph and one button.",
+    "use": "Pointing people to one related service or page, e.g. 'Missing Child Clearinghouses' with 'Find Your Local Clearinghouse'.",
+    "required": [
+      "title"
+    ],
+    "fields": {
+      "icon": "A single line icon, not a photo.",
+      "subtitle": "Two or three sentences at most."
+    }
+  },
+  "custom-image": {
+    "looks": "One image with an optional link and caption, at a chosen width and alignment.",
+    "use": "A standalone image, map or chart.",
+    "required": [
+      "image"
+    ]
+  },
+  "cybertipline-geo-report": {
+    "looks": "A map and list of CyberTipline report counts by state or country, loaded from the reports database.",
+    "use": "Only on CyberTipline data pages, when asked.",
+    "on_request": true
+  },
+  "dark-feature-cards": {
+    "looks": "A dark navy panel with an optional title, then a row of up to four dark cards: an optional photo across the top, a white icon, a bold title, a short paragraph and an optional button.",
+    "use": "Four parallel focus areas or priorities on a dark background, e.g. policy priorities.",
+    "items": {
+      "min": 2,
+      "best": "4; more wrap into a second row"
+    }
+  },
+  "dark-feature-cards-item": {
+    "required": [
+      "cardTitle"
+    ],
+    "fields": {
+      "cardTitle": "Two to four short words. The cards are narrow, so long words break mid-word.",
+      "cardSubtitle": "One to three sentences.",
+      "icon": "A line icon; it is tinted white."
+    }
+  },
+  "detailed-carousel": {
+    "looks": "A section title and description, then wide slides: a panoramic photo on top, three columns of title and text below it, and a button.",
+    "use": "Several initiatives, each with three short facts or points.",
+    "items": {
+      "min": 2
+    }
+  },
+  "detailed-carousel-item": {
+    "required": [
+      "image"
+    ],
+    "fields": {
+      "stat1Title": "A few words or a figure; the column heading.",
+      "stat1Body": "One or two sentences."
+    }
+  },
+  "dual-card": {
+    "required": [
+      "title",
+      "buttonLink"
+    ]
+  },
+  "dual-cards": {
+    "looks": "Two white link cards side by side, each with a small icon and a title; the whole card is the link.",
+    "use": "Two quick links, e.g. 'Search Missing Child Posters' and 'AMBER Alerts'.",
+    "items": {
+      "best": "2 (or 4)"
+    }
+  },
+  "event-calendar": {
+    "looks": "A month calendar and table of events, loaded from the events database.",
+    "use": "Only on events pages, when asked.",
+    "on_request": true
+  },
+  "event-request-form": {
+    "looks": "The event request form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "faon-application": {
+    "looks": "The Family Advocacy Outreach Network membership application form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "faq": {
+    "looks": "An optional heading above a stack of question rows that open to show their answers.",
+    "use": "Questions and answers, or any set of topics where readers need only some of the answers.",
+    "items": {
+      "min": 2
+    }
+  },
+  "faq-item": {
+    "required": [
+      "question",
+      "answer"
+    ]
+  },
+  "featured-event": {
+    "looks": "Tall white event cards: a wide photo on top, a title, a one-line description, then up to four icon-and-label details (such as Duration, Location, For, Cost) and a button.",
+    "use": "Promoting one or a few specific events or trainings with their logistics.",
+    "items": {
+      "min": 1,
+      "best": "1 to 3"
+    }
+  },
+  "featured-event-item": {
+    "required": [
+      "image",
+      "cardTitle"
+    ],
+    "fields": {
+      "detail1Name": "The label, e.g. 'Duration'.",
+      "detail1Value": "The value, e.g. '3 Days In-Person + Online'.",
+      "ctaText": "No arrow; the site adds one."
+    }
+  },
+  "footer-banner": {
+    "looks": "A tall full-width photo fading to white, with a centred heading, a logo and a closing line.",
+    "use": "A brand closing statement at the very end of a page.",
+    "avoid": "Calls to action: use Hero Footer.",
+    "required": [
+      "image",
+      "heading"
+    ]
+  },
+  "fragment": {
+    "looks": "Shows another page's content (a shared fragment) in place.",
+    "use": "Only when the author names a fragment to include.",
+    "on_request": true
+  },
+  "gallery-grid": {
+    "looks": "A grid of 2 to 4 columns of tiles: photos, text tiles, or statistics and cards placed directly in it.",
+    "use": "A mosaic mixing photos and big figures, e.g. in an impact report.",
+    "on_request": true
+  },
+  "general-inquiries": {
+    "looks": "The General Inquiries contact form.",
+    "use": "Only on a contact page, when asked.",
+    "on_request": true
+  },
+  "hero": {
+    "looks": "The page opening: a large heading over a full-width photo (or a plain background), an optional breadcrumb, intro text, up to three buttons and an optional side panel.",
+    "use": "The first block of almost every page; one per page.",
+    "required": [
+      "content_text"
+    ],
+    "fields": {
+      "content_text": "The page heading. Keep it short.",
+      "content_textHtml": "One or two sentences under the heading.",
+      "content_breadcrumbs": "e.g. 'Resources > For Families'.",
+      "media_image": "The background photo. Offer options with find_images.",
+      "media_featuredImage": "Optional second image beside the text.",
+      "media_video": "Optional background video (MP4); leave empty unless asked.",
+      "panel_title": "Optional side panel. Leave every panel_ field empty for no panel.",
+      "markerTerms": "Optional words from the heading to highlight, exactly as written, separated by |."
+    }
+  },
+  "hero-footer": {
+    "looks": "A centred closing statement on a light background with a large faint heart: a two-line heading (the second line larger), a paragraph and two buttons.",
+    "use": "The last block of most pages: the mission line plus 'Subscribe to Updates' and 'Support NCMEC'.",
+    "required": [
+      "heading_line1",
+      "heading_line2"
+    ],
+    "fields": {
+      "heading_line1": "The smaller first line, e.g. 'Every child deserves'.",
+      "heading_line2": "The larger second line, e.g. 'a safe childhood.'"
+    }
+  },
+  "historical-reports-carousel": {
+    "looks": "Sliding cards for past reports: a cover image, the year, the report count and a download link.",
+    "use": "An archive of yearly reports.",
+    "items": {
+      "min": 2
+    }
+  },
+  "historical-reports-carousel-item": {
+    "required": [
+      "year",
+      "coverImage"
+    ]
+  },
+  "historical-trends": {
+    "looks": "A heading, a large line chart of yearly values, then a row of trend cards (title, text, link).",
+    "use": "A multi-year trend with commentary, when the source gives the yearly figures.",
+    "avoid": "Without real yearly figures from the source. Never make up chart values.",
+    "on_request": true,
+    "fields": {
+      "chartPoints": "One per line as Year|Value, e.g. 2023|36200000."
+    }
+  },
+  "host-a-fundraiser": {
+    "looks": "The Host a Fundraiser form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "icon-card-carousel": {
+    "looks": "A section title and subtitle above a sliding row of light cards, each with an optional icon, a title, a short line and a button.",
+    "use": "A browsable set of related items (publications, programmes) with a button each, more than fit across the page.",
+    "items": {
+      "min": 3
+    }
+  },
+  "icon-card-carousel-item": {
+    "required": [
+      "heading"
+    ]
+  },
+  "icon-text": {
+    "looks": "A centred heading and one line with an icon, the first part in red and the rest in blue.",
+    "use": "One short giving fact, e.g. '92% of every dollar' / 'goes directly to our child-serving operations.'",
+    "fields": {
+      "redText": "The first part, e.g. '92% of every dollar'.",
+      "blueText": "The rest of the sentence."
+    }
+  },
+  "icon-text-row": {
+    "looks": "A row of up to four columns, each a coloured line icon above a short centred sentence.",
+    "use": "Warning signs, tips or facts that are one sentence each.",
+    "items": {
+      "min": 2,
+      "best": "4 per row"
+    }
+  },
+  "icon-text-row-item": {
+    "required": [
+      "icon",
+      "cardText"
+    ],
+    "fields": {
+      "cardText": "One sentence."
+    }
+  },
+  "image-card": {
+    "looks": "A rounded banner with a full background photo under a colour wash, a large heading and two buttons.",
+    "use": "A donation or campaign appeal with two actions.",
+    "required": [
+      "media_image",
+      "content_heading"
+    ],
+    "fields": {
+      "content_heading": "One or two sentences; it is shown large."
+    }
+  },
+  "image-text-card-row": {
+    "looks": "A row of tall light cards: a picture at the top (often a document cover), an optional small icon, a title, a subtitle, a paragraph and a text link.",
+    "use": "Publications, briefs or reports, each with a cover image and a link.",
+    "items": {
+      "min": 2,
+      "best": "3 per row (columns setting)"
+    }
+  },
+  "image-text-card-row-item": {
+    "required": [
+      "image",
+      "title"
+    ],
+    "fields": {
+      "linkText": "The link's words, e.g. 'Read the Brief'.",
+      "linkUrl": "The link's address."
+    }
+  },
+  "impact-bar-chart": {
+    "looks": "A bar chart of a report dataset, loaded from the reports database.",
+    "use": "Only on impact or data report pages, when asked.",
+    "on_request": true
+  },
+  "impact-chain": {
+    "looks": "A zig-zag chain of cards joined by dotted lines; each card has a photo on one side and an icon, a coloured figure-title and a paragraph on the other.",
+    "use": "Telling an impact story as a sequence of three to five results, e.g. '91% Recovery Rate'.",
+    "items": {
+      "min": 2,
+      "best": "3 to 5"
+    }
+  },
+  "impact-chain-item": {
+    "required": [
+      "image",
+      "title"
+    ],
+    "fields": {
+      "title": "A figure with a few words, e.g. '91% Recovery Rate'."
+    }
+  },
+  "impact-data-table": {
+    "looks": "A table of a report dataset, loaded from the reports database.",
+    "use": "Only on impact or data report pages, when asked.",
+    "on_request": true
+  },
+  "impact-donut": {
+    "looks": "A heading, text and a 2x2 set of large figures with labels on the left; a donut chart with a legend on the right; up to two buttons.",
+    "use": "How a whole divides into parts (e.g. 80% of spending on programmes) beside headline figures.",
+    "items": {
+      "min": 2
+    }
+  },
+  "impact-donut-item": {
+    "required": [
+      "value",
+      "label"
+    ],
+    "fields": {
+      "itemType": "stat for a figure on the left; segment for a slice of the donut.",
+      "value": "What is shown, e.g. '80%' or '490K+'.",
+      "chartValue": "The number for the donut maths, e.g. 80. Segments should add up to 100."
+    }
+  },
+  "impact-geo-report": {
+    "looks": "A map and list of impact report counts by state or country, loaded from the reports database.",
+    "use": "Only on impact report pages, when asked.",
+    "on_request": true
+  },
+  "info-card": {
+    "required": [
+      "title"
+    ],
+    "fields": {
+      "title": "The card heading, a few words.",
+      "subtitle": "Optional short line under the title.",
+      "bodyContent": "A paragraph, or a <ul>/<ol> list. Links inside become text links.",
+      "overlayImage": "A decorative background texture. Leave it empty unless asked."
+    }
+  },
+  "info-cards-grid": {
+    "looks": "An optional heading and intro above a grid of 1 to 4 columns of cards. Each card has an optional icon, a title, a subtitle, body text that can be a bulleted or numbered list, and up to two buttons. Cards can be dark (filled) or light.",
+    "use": "The workhorse for grouping topics, services or audiences, with or without icons. The safe default when there are no images.",
+    "items": {
+      "min": 1,
+      "best": "3 or 4; set columns to match"
+    },
+    "fields": {
+      "sectionHeading": "The heading above the grid.",
+      "sectionSubheading": "One or two sentences under the heading.",
+      "introButtonText": "Optional button beside the heading.",
+      "sectionButtonText": "Optional button under the grid.",
+      "footerText": "Optional small text under the grid.",
+      "columns": "How many cards per row: 1 to 4."
+    }
+  },
+  "leadership-header": {
+    "looks": "The leadership page heading and intro.",
+    "use": "Only on leadership pages.",
+    "on_request": true
+  },
+  "leadership-overview": {
+    "looks": "A featured leader quote with cards linking to leadership pages.",
+    "use": "Only on About pages, when asked.",
+    "on_request": true
+  },
+  "leadership-profile": {
+    "looks": "One leader's photo, name, title and biography.",
+    "use": "Only on a leader's bio page.",
+    "on_request": true
+  },
+  "leadership-team": {
+    "looks": "A grid of leader cards grouped by section (Leadership, Board of Directors).",
+    "use": "Only on leadership pages.",
+    "on_request": true
+  },
+  "logo-carousel": {
+    "looks": "A thin strip of partner logos that scrolls sideways, with arrows.",
+    "use": "Partner, sponsor or member logos with no text.",
+    "items": {
+      "min": 4
+    }
+  },
+  "logo-carousel-item": {
+    "required": [
+      "logo",
+      "logoAlt"
+    ],
+    "fields": {
+      "logoAlt": "The organisation's name."
+    }
+  },
+  "mail-address": {
+    "looks": "A small card with an icon, a heading and a postal address.",
+    "use": "A mailing address for donations or letters.",
+    "required": [
+      "address"
+    ]
+  },
+  "media-contact-cta": {
+    "looks": "A dark navy band with a small icon, a heading, a sentence that ends in an email address, and a line of small print.",
+    "use": "The press contact at the end of a media or newsroom page.",
+    "required": [
+      "heading",
+      "email"
+    ],
+    "fields": {
+      "copy": "The words before the email, e.g. 'For interview requests, B-roll, or expert commentary:'.",
+      "email": "The address only, e.g. media@ncmec.org. It becomes a mail link.",
+      "note": "Small print, e.g. what to include in a request."
+    }
+  },
+  "media-reporting-info": {
+    "looks": "A heading and intro above three columns, each a small heading and a paragraph.",
+    "use": "Three short parallel points with no icons or links.",
+    "required": [
+      "heading",
+      "itemOneHeading"
+    ]
+  },
+  "mega-nav": {
+    "looks": "The site's main navigation menu.",
+    "use": "Only on the /nav page, never on a content page.",
+    "on_request": true
+  },
+  "missing-child-poster-api-registration": {
+    "looks": "The Missing Child Poster API registration form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "missing-child-quick-report": {
+    "looks": "The Missing Child Quick Report form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "ncmec-reprint-request": {
+    "looks": "The NCMEC reprint request form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "need-help": {
+    "looks": "A rounded tinted panel with a centred heading and intro, and a row of white cards (title, a short line and a link).",
+    "use": "Contact options for a specific audience near the end of a page.",
+    "items": {
+      "min": 2,
+      "best": "3"
+    }
+  },
+  "need-help-card": {
+    "required": [
+      "title"
+    ]
+  },
+  "news": {
+    "looks": "A heading, one featured article and cards for the latest news, pulled from blog pages.",
+    "use": "A latest-news section, when asked.",
+    "on_request": true
+  },
+  "newsletter": {
+    "looks": "A newsletter sign-up band: a background photo, a heading, a short line, an email field with topic choices and a button.",
+    "use": "Near the end of a page, when the author asks for a sign-up.",
+    "on_request": true
+  },
+  "numbered-cards": {
+    "looks": "A centred title and subtitle, then dark navy cards numbered automatically (1, 2, 3 ...), each with a bold title and a short paragraph; shown as a grid or a carousel.",
+    "use": "Ordered steps or tips, e.g. 'What To Do' after sextortion.",
+    "items": {
+      "min": 2,
+      "max": 8,
+      "best": "3 to 6"
+    }
+  },
+  "numbered-cards-custom": {
+    "looks": "An optional logo or image at the top and a title, then dark cards in a scrolling row (or a grid), each with its own number or year, a title, a sentence and an optional link.",
+    "use": "A timeline or milestones where each card has its own label, e.g. 1981, 1984, 1998.",
+    "avoid": "Plain ordered steps: use Dark Seq Btn 1x8 Card Grid Carousel (numbered-cards), which numbers them for you.",
+    "items": {
+      "min": 3
+    }
+  },
+  "numbered-cards-custom-item": {
+    "required": [
+      "cardNumber",
+      "cardTitle"
+    ],
+    "fields": {
+      "cardNumber": "The year or number at the top of the card, e.g. '1984'.",
+      "cardTitle": "A few words, e.g. 'NCMEC Founded'."
+    }
+  },
+  "numbered-cards-item": {
+    "required": [
+      "cardTitle"
+    ],
+    "fields": {
+      "cardTitle": "A short instruction, e.g. 'Don't pay or comply.' Do not type the number; it is added.",
+      "cardBody": "Two or three sentences."
+    }
+  },
+  "partners-showcase": {
+    "looks": "A heading and intro, a continuously scrolling strip of logos, then quote cards from partners (logo, quote, name, title), and an optional button.",
+    "use": "Corporate partners and what they say about NCMEC.",
+    "items": {
+      "min": 4
+    }
+  },
+  "partners-showcase-item": {
+    "required": [
+      "logo"
+    ],
+    "fields": {
+      "itemType": "logo for the scrolling strip; testimonial for a quote card.",
+      "quote": "Testimonial items only.",
+      "attributionName": "Testimonial items only."
+    }
+  },
+  "picture-cards": {
+    "looks": "A section heading and subheading above a row of photo cards with the title and text laid over the photo; a card can be a link.",
+    "use": "Visual topic or skill tiles with short captions.",
+    "items": {
+      "min": 2,
+      "best": "3"
+    }
+  },
+  "picture-cards-item": {
+    "required": [
+      "image",
+      "title"
+    ]
+  },
+  "poster-map": {
+    "looks": "A map image with standard and advanced poster search links.",
+    "use": "Only on the missing children posters page.",
+    "on_request": true
+  },
+  "poster-results": {
+    "looks": "The missing child poster search and results.",
+    "use": "Only on the missing children posters page.",
+    "on_request": true
+  },
+  "prpl-application": {
+    "looks": "The PRPL application form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "regional-office-item": {
+    "required": [
+      "image",
+      "title"
+    ],
+    "fields": {
+      "title": "A short name, e.g. 'Florida'.",
+      "bodyText": "Two or three sentences."
+    }
+  },
+  "regional-offices": {
+    "looks": "A centred heading and intro above a row of 2 to 4 columns; each column has an image in a soft circle, a title, a short paragraph and an outline button.",
+    "use": "A small set of parallel places, offices or options that each have a picture and a link, e.g. regional offices.",
+    "avoid": "Without images: use Multi Icn Btn Col Card Grid (info-cards-grid) or Icon 1x4 Col Card (card-row-compact).",
+    "items": {
+      "min": 2,
+      "best": "2 to 4; set columns to match"
+    },
+    "fields": {
+      "columns": "Match the number of items: 2, 3 or 4."
+    }
+  },
+  "related-articles": {
+    "looks": "Cards for related blogs or resources, filled automatically.",
+    "use": "Only at the end of blog or resource pages, when asked.",
+    "on_request": true
+  },
+  "report-archive": {
+    "looks": "An accordion of years; each opens to a cover image beside a list of PDF links.",
+    "use": "An archive of yearly report downloads.",
+    "items": {
+      "min": 1
+    }
+  },
+  "report-archive-item": {
+    "required": [
+      "year",
+      "links"
+    ],
+    "fields": {
+      "year": "e.g. '2024 Reports'.",
+      "links": "A <ul> list of links to the PDFs."
+    }
+  },
+  "report-breakdown": {
+    "looks": "A year switcher with a chart and table of report types, loaded from the reports database.",
+    "use": "Only on CyberTipline or impact data pages, when asked.",
+    "on_request": true
+  },
+  "report-download": {
+    "looks": "A light panel with two overlapping report covers on the left, a heading and short text in the middle, and a download button on the right.",
+    "use": "Offering one report or PDF to download.",
+    "required": [
+      "heading",
+      "frontImage",
+      "buttonText"
+    ],
+    "fields": {
+      "frontImage": "The report's cover.",
+      "backImage": "An inside page or second cover, shown behind and offset.",
+      "buttonLink": "The PDF: a /content/dam/… path or a URL."
+    }
+  },
+  "report-section-nav": {
+    "looks": "A sticky bar of in-page links to sections further down the page.",
+    "use": "Long pages with several named sections, when asked.",
+    "on_request": true,
+    "fields": {
+      "links": "One per line as Label|#section-id. Each id must exist on the page."
+    }
+  },
+  "resource-details": {
+    "looks": "A resource page's header and body.",
+    "use": "Only on resource pages, which the backend generates.",
+    "on_request": true
+  },
+  "resource-downloads": {
+    "looks": "The download cards for a resource.",
+    "use": "Only on resource pages, which the backend generates.",
+    "on_request": true
+  },
+  "resource-hero": {
+    "looks": "The resource page opening: title, intro, watch and download buttons, and a hero image.",
+    "use": "Only on resource pages, which the backend generates.",
+    "on_request": true
+  },
+  "resource-item": {
+    "required": [
+      "image",
+      "title",
+      "link"
+    ],
+    "fields": {
+      "link": "Where 'Learn More' goes.",
+      "linkText": "Optional; defaults to 'Learn More'.",
+      "tags": "Optional; leave empty unless the source gives tags."
+    }
+  },
+  "resource-tags": {
+    "looks": "Hidden tags for the resource library (shows nothing on the page).",
+    "use": "Only on resource pages, which the backend generates.",
+    "on_request": true
+  },
+  "resource-video-hero": {
+    "looks": "The video resource page opening, filled from the resource library.",
+    "use": "Only on generated resource pages.",
+    "on_request": true
+  },
+  "resources": {
+    "looks": "A heading with a button at the top right, then a sliding row of white cards: a photo, a coloured icon, a title, a short description and a 'Learn More' link.",
+    "use": "Pointing to audience pages or resources, e.g. 'For Families', 'For Law Enforcement'.",
+    "fields": {
+      "button": "The words on the top-right button.",
+      "settings": "Library settings. Leave as they are.",
+      "selected": "Library settings. Leave as they are.",
+      "limit": "Library settings. Leave as they are."
+    }
+  },
+  "resources-browser": {
+    "looks": "The searchable, filterable resource library.",
+    "use": "Only on resource library pages.",
+    "on_request": true
+  },
+  "resources-carousel": {
+    "looks": "A carousel of related resources or articles, filled from the resource library.",
+    "use": "Only on resource and article pages, when asked.",
+    "on_request": true
+  },
+  "section-title": {
+    "looks": "A section's heading with an optional intro paragraph and an optional button, aligned left or centre.",
+    "use": "Opening a section whose blocks have no heading of their own, e.g. above a row of cards.",
+    "required": [
+      "title"
+    ],
+    "fields": {
+      "title": "The heading. Each paragraph shows on its own line.",
+      "subtitle": "One or two sentences."
+    }
+  },
+  "site-search": {
+    "looks": "The site search box and results.",
+    "use": "Only on the search page.",
+    "on_request": true
+  },
+  "social-report-cta": {
+    "looks": "A dark panel: a heading and social media icons on one side and, optionally, a report cover with a download button on the other.",
+    "use": "The end of a data or report page: follow NCMEC on social media, plus a download of the full report.",
+    "fields": {
+      "facebookLink": "Full profile URL. An empty social link hides its icon.",
+      "reportHeading": "Leave all the report fields empty to show only the social panel.",
+      "reportButtonLink": "The report PDF (/content/dam/… or a URL)."
+    }
+  },
+  "split-card": {
+    "looks": "A large card split in two: a photo filling one half; a heading, a paragraph and one or two buttons on the other half.",
+    "use": "Introducing one programme, service or idea with a photo; the site's most common feature card. Several in a row make an alternating feature list (flip imagePosition each time).",
+    "avoid": "No photo: use Section Title, or Custom Text with a Custom Btn Icon.",
+    "required": [
+      "heading",
+      "image"
+    ],
+    "fields": {
+      "subheading": "The paragraph. Rich text; a link inside a sentence stays a text link.",
+      "buttonSubtext": "Optional small line under the button.",
+      "imagePosition": "left or right. Alternate it when stacking several split cards.",
+      "imageSize": "even (half and half) or smaller (narrower photo)."
+    }
+  },
+  "split-card-carousel": {
+    "looks": "A section title, then wide white slides one at a time: a photo on the left; a heading, text and up to two buttons on the right; dots and arrows underneath.",
+    "use": "Events or stories shown in turn, e.g. regional events.",
+    "items": {
+      "min": 2
+    }
+  },
+  "split-card-carousel-item": {
+    "required": [
+      "image",
+      "heading"
+    ]
+  },
+  "split-card-detail": {
+    "looks": "A 2x2 grid of small white cards (icon, title, sentence) beside a large photo.",
+    "use": "Four values or benefits next to a photo.",
+    "items": {
+      "best": "4"
+    },
+    "required": [
+      "image"
+    ]
+  },
+  "split-card-detail-item": {
+    "required": [
+      "title"
+    ]
+  },
+  "split-card-gap": {
+    "looks": "Two panels side by side: a photo on the left; on the right a heading, a paragraph, a 2x2 grid of small icon-and-label benefits, and up to two buttons.",
+    "use": "A recruiting or programme pitch with two to four short benefits, e.g. 'Join Our Team'.",
+    "items": {
+      "best": "4 (2 or 4 keep the grid even)"
+    },
+    "required": [
+      "heading",
+      "image"
+    ]
+  },
+  "split-card-gap-item": {
+    "required": [
+      "icon",
+      "title"
+    ],
+    "fields": {
+      "title": "A one to three word benefit, e.g. 'Mission-Driven'.",
+      "icon": "A small coloured line icon."
+    }
+  },
+  "split-card-info": {
+    "looks": "An image on the left inside a coloured shape; on the right a programme logo, a large figure followed by a few words, a paragraph and a button.",
+    "use": "One programme with a headline figure, e.g. the CyberTipline with '20,512,803 total reports of suspected child sexual exploitation online'.",
+    "required": [
+      "mainImage"
+    ],
+    "fields": {
+      "subheading": "Figure first, then the words: '20,512,803 people served'. The figure is shown large.",
+      "topLogo": "Optional programme logo, about 190x96.",
+      "heading": "Optional; often left empty when there is a logo."
+    }
+  },
+  "split-card-list": {
+    "looks": "A heading, a paragraph and a button on the left; on the right a stacked list of white rows: either statements (title, subtitle, year and a 'Read Statement' button) or email cards (icon, title and an email address).",
+    "use": "Testimony or statement archives, or a list of contact email addresses.",
+    "items": {
+      "min": 2,
+      "best": "3 to 8"
+    },
+    "fields": {
+      "layout": "statements or email-cards. Item fields marked for one layout are ignored in the other."
+    }
+  },
+  "split-card-list-item": {
+    "required": [
+      "title"
+    ],
+    "fields": {
+      "emailText": "The address only, e.g. info@ncmec.org (email-cards layout)."
+    }
+  },
+  "split-card-offices": {
+    "looks": "Two columns: a large statement in big type on the left; on the right a contact card with an icon, a heading, up to two icon-and-text detail lines and up to two buttons.",
+    "use": "One office's or team's contact details with a short statement.",
+    "fields": {
+      "headingText": "The large left-hand statement.",
+      "feature1Heading": "The card heading, e.g. 'NCMEC Texas Regional Office'.",
+      "feature2Text": "A detail line, e.g. the street address.",
+      "feature3Text": "Another detail, e.g. the phone number."
+    }
+  },
+  "split-thin-carousel": {
+    "looks": "A section title, then large slides shown one at a time: a photo on the left; a heading, paragraphs, a button and an optional text link on the right; dots and arrows underneath.",
+    "use": "Featuring several programmes in turn, each with a photo and a call to action.",
+    "items": {
+      "min": 2
+    }
+  },
+  "split-thin-carousel-item": {
+    "required": [
+      "image",
+      "heading"
+    ],
+    "fields": {
+      "linkText": "Optional extra text link under the button."
+    }
+  },
+  "statistics": {
+    "looks": "An optional heading and intro, then a row of large figures, each with a short label under it (optionally a small label above, an icon and a button), with dividers between figures. Long rows wrap into balanced rows.",
+    "use": "Two to six headline numbers that belong together. Figures from different topics, or more than six, read better as two blocks with their own headings.",
+    "avoid": "Figures that each need a sentence: use a card block or Custom Text.",
+    "items": {
+      "min": 1,
+      "max": 6,
+      "best": "3 to 5"
+    },
+    "fields": {
+      "heading": "Optional heading above the figures.",
+      "bodyText": "Optional intro sentence under the heading.",
+      "statValues": "Legacy. Leave empty; use one item per figure.",
+      "statLabels": "Legacy. Leave empty; use one item per figure.",
+      "iconImage": "Only for a block with a single figure.",
+      "defaultButtonText": "Only for a block with a single figure.",
+      "disclaimer": "Optional fine print under the figures, e.g. the data source."
+    }
+  },
+  "statistics-item": {
+    "required": [
+      "statValue",
+      "statLabel"
+    ],
+    "limits": {
+      "statValue": 16
+    },
+    "fields": {
+      "statValue": "The figure alone, e.g. '145,000+', '92%', '1 in 7'. Words go in statLabel.",
+      "statLabel": "What the figure counts, a few words, e.g. 'reports of online enticement'.",
+      "statTopLabel": "Optional small line above the figure, e.g. a year."
+    }
+  },
+  "support-cta": {
+    "looks": "A centred, rounded light panel: a large heading, one line under it, one large button with a second line on it, and a line of helper text under the button.",
+    "use": "A single phone or contact call to action, e.g. 'Ready to talk? Call Team HOPE today.'",
+    "required": [
+      "heading",
+      "buttonText"
+    ],
+    "fields": {
+      "buttonText": "e.g. 'Call 866-305-HOPE'.",
+      "buttonSubtext": "Second line on the button, e.g. the number in digits.",
+      "buttonLink": "For a phone number use tel:, e.g. tel:18663054673.",
+      "helperText": "One small line under the button."
+    }
+  },
+  "tabs": {
+    "looks": "A heading, a row of tab buttons (with optional icons) and, under the selected tab, a grid of white cards with a title, text or bullets and a link.",
+    "use": "Many cards that fall into three to six categories readers switch between.",
+    "avoid": "The assistant cannot yet set which tab a card belongs to (a multi-select), so every card shows under the first tab until the author sets it. Use Tabs only when asked, and list that as a gap.",
+    "on_request": true
+  },
+  "tabs-info-card": {
+    "required": [
+      "title"
+    ]
+  },
+  "tabs-tab-label": {
+    "required": [
+      "label"
+    ]
+  },
+  "team-hope-volunteer": {
+    "looks": "The Team HOPE volunteer application form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  },
+  "text-image": {
+    "looks": "A text column (a small label, a large heading, a paragraph and a button) beside a photo, with an optional caption box laid over the photo.",
+    "use": "A mission statement or key message beside a photo.",
+    "required": [
+      "heading",
+      "image"
+    ],
+    "fields": {
+      "subhead": "Optional small label above the heading, e.g. 'Mission'.",
+      "imageOverlayHeader": "Optional short quote or caption shown in a box over the photo."
+    }
+  },
+  "training-sessions": {
+    "looks": "A title and text above a list of rows: a bold first column, two more columns and an arrow link.",
+    "use": "A schedule of sessions: name, date, place.",
+    "items": {
+      "min": 1
+    }
+  },
+  "training-sessions-item": {
+    "required": [
+      "column1"
+    ],
+    "fields": {
+      "column1": "The session name, e.g. 'PRPL Seminar'.",
+      "column2": "e.g. the dates.",
+      "column3": "e.g. the place."
+    }
+  },
+  "trust-badge-item": {
+    "required": [
+      "logo"
+    ]
+  },
+  "trust-badges": {
+    "looks": "A centred heading and button above a row of badge logos with captions.",
+    "use": "Charity ratings and accreditations.",
+    "items": {
+      "min": 2
+    }
+  },
+  "us-map": {
+    "looks": "A clickable map of US states linking to state pages, loaded from the backend.",
+    "use": "Only on the missing child clearinghouses page, when asked.",
+    "on_request": true
+  },
+  "video": {
+    "looks": "A video with a placeholder image and a play button.",
+    "use": "One YouTube, Vimeo or MP4 video.",
+    "required": [
+      "url"
+    ],
+    "fields": {
+      "url": "A YouTube or Vimeo address, or an MP4 path.",
+      "image": "Optional still shown before playing."
+    }
+  }
+}

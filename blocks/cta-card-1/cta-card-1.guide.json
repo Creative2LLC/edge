@@ -1,0 +1,19 @@
+{
+  "cta-card-1": {
+    "looks": "A full-width rounded band in a soft colour: a heading and a sentence or two on the left, one or two buttons on the right (each with optional small text under it), and optional small print under the buttons.",
+    "use": "Closing a section or page with one urgent action and an alternative, e.g. 'Is Your Child Missing?' with 'Call 911 Immediately' and '1-800-THE-LOST'.",
+    "avoid": "Several equal choices: use a card block. No action at all: use Custom Text.",
+    "required": [
+      "title",
+      "buttonText"
+    ],
+    "fields": {
+      "title": "A short heading or question, e.g. 'Is Your Child Missing?'.",
+      "subtitle": "One or two sentences.",
+      "buttonSubtext": "Optional small line under the button, e.g. the phone number in digits.",
+      "belowButtonText": "Optional small print under the buttons.",
+      "button3Text": "Shows only with styleType variant-4.",
+      "styleType": "Colour and arrangement; keep the default unless asked."
+    }
+  }
+}

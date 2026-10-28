@@ -1,0 +1,10 @@
+{
+  "report-section-nav": {
+    "looks": "A sticky bar of in-page links to sections further down the page.",
+    "use": "Long pages with several named sections, when asked.",
+    "on_request": true,
+    "fields": {
+      "links": "One per line as Label|#section-id. Each id must exist on the page."
+    }
+  }
+}

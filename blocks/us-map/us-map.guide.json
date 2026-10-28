@@ -1,0 +1,7 @@
+{
+  "us-map": {
+    "looks": "A clickable map of US states linking to state pages, loaded from the backend.",
+    "use": "Only on the missing child clearinghouses page, when asked.",
+    "on_request": true
+  }
+}

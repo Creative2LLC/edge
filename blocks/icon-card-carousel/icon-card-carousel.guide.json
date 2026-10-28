@@ -1,0 +1,14 @@
+{
+  "icon-card-carousel": {
+    "looks": "A section title and subtitle above a sliding row of light cards, each with an optional icon, a title, a short line and a button.",
+    "use": "A browsable set of related items (publications, programmes) with a button each, more than fit across the page.",
+    "items": {
+      "min": 3
+    }
+  },
+  "icon-card-carousel-item": {
+    "required": [
+      "heading"
+    ]
+  }
+}

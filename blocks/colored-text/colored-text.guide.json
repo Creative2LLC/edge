@@ -1,0 +1,13 @@
+{
+  "colored-text": {
+    "looks": "Running copy: paragraphs, lists and links, aligned left, centre or right.",
+    "use": "Any copy that is not part of a designed block. The default for paragraphs.",
+    "required": [
+      "text"
+    ],
+    "fields": {
+      "text": "Rich text. A link alone on its own line becomes a button.",
+      "markerTerms": "Optional words to circle or underline, exactly as written, separated by |."
+    }
+  }
+}

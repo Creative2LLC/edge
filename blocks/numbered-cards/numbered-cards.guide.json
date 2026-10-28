@@ -1,0 +1,20 @@
+{
+  "numbered-cards": {
+    "looks": "A centred title and subtitle, then dark navy cards numbered automatically (1, 2, 3 ...), each with a bold title and a short paragraph; shown as a grid or a carousel.",
+    "use": "Ordered steps or tips, e.g. 'What To Do' after sextortion.",
+    "items": {
+      "min": 2,
+      "max": 8,
+      "best": "3 to 6"
+    }
+  },
+  "numbered-cards-item": {
+    "required": [
+      "cardTitle"
+    ],
+    "fields": {
+      "cardTitle": "A short instruction, e.g. 'Don't pay or comply.' Do not type the number; it is added.",
+      "cardBody": "Two or three sentences."
+    }
+  }
+}

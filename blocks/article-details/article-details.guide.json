@@ -1,0 +1,7 @@
+{
+  "article-details": {
+    "looks": "A blog article's header and body.",
+    "use": "Only on blog pages, which the backend generates.",
+    "on_request": true
+  }
+}

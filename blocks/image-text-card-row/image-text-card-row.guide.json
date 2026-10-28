@@ -1,0 +1,20 @@
+{
+  "image-text-card-row": {
+    "looks": "A row of tall light cards: a picture at the top (often a document cover), an optional small icon, a title, a subtitle, a paragraph and a text link.",
+    "use": "Publications, briefs or reports, each with a cover image and a link.",
+    "items": {
+      "min": 2,
+      "best": "3 per row (columns setting)"
+    }
+  },
+  "image-text-card-row-item": {
+    "required": [
+      "image",
+      "title"
+    ],
+    "fields": {
+      "linkText": "The link's words, e.g. 'Read the Brief'.",
+      "linkUrl": "The link's address."
+    }
+  }
+}

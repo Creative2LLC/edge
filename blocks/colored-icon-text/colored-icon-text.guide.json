@@ -1,0 +1,14 @@
+{
+  "colored-icon-text": {
+    "looks": "A tinted box with a circular image or an icon beside text: an optional small label, a paragraph (often a quote), an optional second paragraph and an optional button.",
+    "use": "A quote with its attribution, or one key point with an icon.",
+    "required": [
+      "text"
+    ],
+    "fields": {
+      "text": "The main paragraph or quote.",
+      "text2": "Optional second paragraph, e.g. '– Survivor'.",
+      "label": "Optional small label above the text."
+    }
+  }
+}

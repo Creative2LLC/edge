@@ -1,0 +1,7 @@
+{
+  "resource-downloads": {
+    "looks": "The download cards for a resource.",
+    "use": "Only on resource pages, which the backend generates.",
+    "on_request": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "dual-cards": {
+    "looks": "Two white link cards side by side, each with a small icon and a title; the whole card is the link.",
+    "use": "Two quick links, e.g. 'Search Missing Child Posters' and 'AMBER Alerts'.",
+    "items": {
+      "best": "2 (or 4)"
+    }
+  },
+  "dual-card": {
+    "required": [
+      "title",
+      "buttonLink"
+    ]
+  }
+}

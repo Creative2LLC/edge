@@ -1,0 +1,18 @@
+{
+  "split-thin-carousel": {
+    "looks": "A section title, then large slides shown one at a time: a photo on the left; a heading, paragraphs, a button and an optional text link on the right; dots and arrows underneath.",
+    "use": "Featuring several programmes in turn, each with a photo and a call to action.",
+    "items": {
+      "min": 2
+    }
+  },
+  "split-thin-carousel-item": {
+    "required": [
+      "image",
+      "heading"
+    ],
+    "fields": {
+      "linkText": "Optional extra text link under the button."
+    }
+  }
+}

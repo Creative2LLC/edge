@@ -1,0 +1,15 @@
+{
+  "card-row-compact": {
+    "looks": "A row of small white cards: an icon, a title, a short description and an optional text link.",
+    "use": "Linking to three to six related topics or data pages.",
+    "items": {
+      "min": 2,
+      "best": "3 to 6"
+    }
+  },
+  "card-row-compact-item": {
+    "required": [
+      "title"
+    ]
+  }
+}

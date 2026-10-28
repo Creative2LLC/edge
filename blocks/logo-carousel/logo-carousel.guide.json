@@ -1,0 +1,18 @@
+{
+  "logo-carousel": {
+    "looks": "A thin strip of partner logos that scrolls sideways, with arrows.",
+    "use": "Partner, sponsor or member logos with no text.",
+    "items": {
+      "min": 4
+    }
+  },
+  "logo-carousel-item": {
+    "required": [
+      "logo",
+      "logoAlt"
+    ],
+    "fields": {
+      "logoAlt": "The organisation's name."
+    }
+  }
+}

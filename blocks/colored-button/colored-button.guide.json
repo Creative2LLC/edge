@@ -1,0 +1,14 @@
+{
+  "colored-button": {
+    "looks": "One button on its own, optionally with an icon, aligned left, centre or right, or stretched.",
+    "use": "A standalone button between other blocks, e.g. under Custom Text.",
+    "required": [
+      "label",
+      "link"
+    ],
+    "fields": {
+      "label": "The button's words, e.g. 'Make a Report'.",
+      "iconName": "Optional icon from the site's set, e.g. search or download."
+    }
+  }
+}

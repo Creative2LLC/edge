@@ -1,0 +1,15 @@
+{
+  "faq": {
+    "looks": "An optional heading above a stack of question rows that open to show their answers.",
+    "use": "Questions and answers, or any set of topics where readers need only some of the answers.",
+    "items": {
+      "min": 2
+    }
+  },
+  "faq-item": {
+    "required": [
+      "question",
+      "answer"
+    ]
+  }
+}

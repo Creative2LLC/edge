@@ -1,0 +1,7 @@
+{
+  "cybertipline-geo-report": {
+    "looks": "A map and list of CyberTipline report counts by state or country, loaded from the reports database.",
+    "use": "Only on CyberTipline data pages, when asked.",
+    "on_request": true
+  }
+}

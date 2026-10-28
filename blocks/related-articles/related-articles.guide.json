@@ -1,0 +1,7 @@
+{
+  "related-articles": {
+    "looks": "Cards for related blogs or resources, filled automatically.",
+    "use": "Only at the end of blog or resource pages, when asked.",
+    "on_request": true
+  }
+}

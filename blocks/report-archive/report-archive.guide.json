@@ -1,0 +1,19 @@
+{
+  "report-archive": {
+    "looks": "An accordion of years; each opens to a cover image beside a list of PDF links.",
+    "use": "An archive of yearly report downloads.",
+    "items": {
+      "min": 1
+    }
+  },
+  "report-archive-item": {
+    "required": [
+      "year",
+      "links"
+    ],
+    "fields": {
+      "year": "e.g. '2024 Reports'.",
+      "links": "A <ul> list of links to the PDFs."
+    }
+  }
+}

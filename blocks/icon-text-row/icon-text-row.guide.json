@@ -1,0 +1,19 @@
+{
+  "icon-text-row": {
+    "looks": "A row of up to four columns, each a coloured line icon above a short centred sentence.",
+    "use": "Warning signs, tips or facts that are one sentence each.",
+    "items": {
+      "min": 2,
+      "best": "4 per row"
+    }
+  },
+  "icon-text-row-item": {
+    "required": [
+      "icon",
+      "cardText"
+    ],
+    "fields": {
+      "cardText": "One sentence."
+    }
+  }
+}

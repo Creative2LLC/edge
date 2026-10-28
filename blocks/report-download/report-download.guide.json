@@ -1,0 +1,16 @@
+{
+  "report-download": {
+    "looks": "A light panel with two overlapping report covers on the left, a heading and short text in the middle, and a download button on the right.",
+    "use": "Offering one report or PDF to download.",
+    "required": [
+      "heading",
+      "frontImage",
+      "buttonText"
+    ],
+    "fields": {
+      "frontImage": "The report's cover.",
+      "backImage": "An inside page or second cover, shown behind and offset.",
+      "buttonLink": "The PDF: a /content/dam/… path or a URL."
+    }
+  }
+}

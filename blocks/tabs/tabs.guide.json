@@ -1,0 +1,18 @@
+{
+  "tabs": {
+    "looks": "A heading, a row of tab buttons (with optional icons) and, under the selected tab, a grid of white cards with a title, text or bullets and a link.",
+    "use": "Many cards that fall into three to six categories readers switch between.",
+    "avoid": "The assistant cannot yet set which tab a card belongs to (a multi-select), so every card shows under the first tab until the author sets it. Use Tabs only when asked, and list that as a gap.",
+    "on_request": true
+  },
+  "tabs-tab-label": {
+    "required": [
+      "label"
+    ]
+  },
+  "tabs-info-card": {
+    "required": [
+      "title"
+    ]
+  }
+}

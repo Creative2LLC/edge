@@ -1,0 +1,15 @@
+{
+  "historical-reports-carousel": {
+    "looks": "Sliding cards for past reports: a cover image, the year, the report count and a download link.",
+    "use": "An archive of yearly reports.",
+    "items": {
+      "min": 2
+    }
+  },
+  "historical-reports-carousel-item": {
+    "required": [
+      "year",
+      "coverImage"
+    ]
+  }
+}

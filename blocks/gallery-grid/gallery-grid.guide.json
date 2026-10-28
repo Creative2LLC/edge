@@ -1,0 +1,7 @@
+{
+  "gallery-grid": {
+    "looks": "A grid of 2 to 4 columns of tiles: photos, text tiles, or statistics and cards placed directly in it.",
+    "use": "A mosaic mixing photos and big figures, e.g. in an impact report.",
+    "on_request": true
+  }
+}

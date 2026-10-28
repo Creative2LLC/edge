@@ -1,0 +1,7 @@
+{
+  "mega-nav": {
+    "looks": "The site's main navigation menu.",
+    "use": "Only on the /nav page, never on a content page.",
+    "on_request": true
+  }
+}

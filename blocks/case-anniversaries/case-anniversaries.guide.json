@@ -1,0 +1,7 @@
+{
+  "case-anniversaries": {
+    "looks": "A searchable list of missing child case anniversaries, loaded live.",
+    "use": "Only on case anniversary pages.",
+    "on_request": true
+  }
+}

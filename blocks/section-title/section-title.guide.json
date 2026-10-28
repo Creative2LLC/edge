@@ -1,0 +1,13 @@
+{
+  "section-title": {
+    "looks": "A section's heading with an optional intro paragraph and an optional button, aligned left or centre.",
+    "use": "Opening a section whose blocks have no heading of their own, e.g. above a row of cards.",
+    "required": [
+      "title"
+    ],
+    "fields": {
+      "title": "The heading. Each paragraph shows on its own line.",
+      "subtitle": "One or two sentences."
+    }
+  }
+}

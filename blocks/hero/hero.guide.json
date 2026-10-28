@@ -1,0 +1,19 @@
+{
+  "hero": {
+    "looks": "The page opening: a large heading over a full-width photo (or a plain background), an optional breadcrumb, intro text, up to three buttons and an optional side panel.",
+    "use": "The first block of almost every page; one per page.",
+    "required": [
+      "content_text"
+    ],
+    "fields": {
+      "content_text": "The page heading. Keep it short.",
+      "content_textHtml": "One or two sentences under the heading.",
+      "content_breadcrumbs": "e.g. 'Resources > For Families'.",
+      "media_image": "The background photo. Offer options with find_images.",
+      "media_featuredImage": "Optional second image beside the text.",
+      "media_video": "Optional background video (MP4); leave empty unless asked.",
+      "panel_title": "Optional side panel. Leave every panel_ field empty for no panel.",
+      "markerTerms": "Optional words from the heading to highlight, exactly as written, separated by |."
+    }
+  }
+}

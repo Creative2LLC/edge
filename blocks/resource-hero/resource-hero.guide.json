@@ -1,0 +1,7 @@
+{
+  "resource-hero": {
+    "looks": "The resource page opening: title, intro, watch and download buttons, and a hero image.",
+    "use": "Only on resource pages, which the backend generates.",
+    "on_request": true
+  }
+}

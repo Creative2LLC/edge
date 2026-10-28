@@ -1,0 +1,13 @@
+{
+  "video": {
+    "looks": "A video with a placeholder image and a play button.",
+    "use": "One YouTube, Vimeo or MP4 video.",
+    "required": [
+      "url"
+    ],
+    "fields": {
+      "url": "A YouTube or Vimeo address, or an MP4 path.",
+      "image": "Optional still shown before playing."
+    }
+  }
+}

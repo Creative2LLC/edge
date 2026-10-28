@@ -1,0 +1,21 @@
+{
+  "featured-event": {
+    "looks": "Tall white event cards: a wide photo on top, a title, a one-line description, then up to four icon-and-label details (such as Duration, Location, For, Cost) and a button.",
+    "use": "Promoting one or a few specific events or trainings with their logistics.",
+    "items": {
+      "min": 1,
+      "best": "1 to 3"
+    }
+  },
+  "featured-event-item": {
+    "required": [
+      "image",
+      "cardTitle"
+    ],
+    "fields": {
+      "detail1Name": "The label, e.g. 'Duration'.",
+      "detail1Value": "The value, e.g. '3 Days In-Person + Online'.",
+      "ctaText": "No arrow; the site adds one."
+    }
+  }
+}

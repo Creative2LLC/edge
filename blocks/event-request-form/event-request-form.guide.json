@@ -1,0 +1,7 @@
+{
+  "event-request-form": {
+    "looks": "The event request form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "regional-offices": {
+    "looks": "A centred heading and intro above a row of 2 to 4 columns; each column has an image in a soft circle, a title, a short paragraph and an outline button.",
+    "use": "A small set of parallel places, offices or options that each have a picture and a link, e.g. regional offices.",
+    "avoid": "Without images: use Multi Icn Btn Col Card Grid (info-cards-grid) or Icon 1x4 Col Card (card-row-compact).",
+    "items": {
+      "min": 2,
+      "best": "2 to 4; set columns to match"
+    },
+    "fields": {
+      "columns": "Match the number of items: 2, 3 or 4."
+    }
+  },
+  "regional-office-item": {
+    "required": [
+      "image",
+      "title"
+    ],
+    "fields": {
+      "title": "A short name, e.g. 'Florida'.",
+      "bodyText": "Two or three sentences."
+    }
+  }
+}

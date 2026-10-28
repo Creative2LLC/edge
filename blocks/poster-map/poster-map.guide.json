@@ -1,0 +1,7 @@
+{
+  "poster-map": {
+    "looks": "A map image with standard and advanced poster search links.",
+    "use": "Only on the missing children posters page.",
+    "on_request": true
+  }
+}

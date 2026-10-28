@@ -1,0 +1,7 @@
+{
+  "fragment": {
+    "looks": "Shows another page's content (a shared fragment) in place.",
+    "use": "Only when the author names a fragment to include.",
+    "on_request": true
+  }
+}

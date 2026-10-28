@@ -1,0 +1,7 @@
+{
+  "resources-browser": {
+    "looks": "The searchable, filterable resource library.",
+    "use": "Only on resource library pages.",
+    "on_request": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "mail-address": {
+    "looks": "A small card with an icon, a heading and a postal address.",
+    "use": "A mailing address for donations or letters.",
+    "required": [
+      "address"
+    ]
+  }
+}

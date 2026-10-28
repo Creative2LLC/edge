@@ -1,0 +1,7 @@
+{
+  "missing-child-poster-api-registration": {
+    "looks": "The Missing Child Poster API registration form.",
+    "use": "Only on its own page, when asked.",
+    "on_request": true
+  }
+}

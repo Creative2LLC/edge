@@ -1,0 +1,7 @@
+{
+  "news": {
+    "looks": "A heading, one featured article and cards for the latest news, pulled from blog pages.",
+    "use": "A latest-news section, when asked.",
+    "on_request": true
+  }
+}

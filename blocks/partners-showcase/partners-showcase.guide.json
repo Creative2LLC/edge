@@ -1,0 +1,19 @@
+{
+  "partners-showcase": {
+    "looks": "A heading and intro, a continuously scrolling strip of logos, then quote cards from partners (logo, quote, name, title), and an optional button.",
+    "use": "Corporate partners and what they say about NCMEC.",
+    "items": {
+      "min": 4
+    }
+  },
+  "partners-showcase-item": {
+    "required": [
+      "logo"
+    ],
+    "fields": {
+      "itemType": "logo for the scrolling strip; testimonial for a quote card.",
+      "quote": "Testimonial items only.",
+      "attributionName": "Testimonial items only."
+    }
+  }
+}

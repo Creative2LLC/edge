@@ -1,0 +1,20 @@
+{
+  "cards": {
+    "looks": "A grid of white cards, about three per row, each with an optional picture or logo, a centred title and text with links inside the sentences, optional highlighted large text and optional fine print.",
+    "use": "Short notices or programme blurbs whose links sit inside the text, e.g. 'Missing Anniversaries … click here'.",
+    "items": {
+      "min": 2,
+      "best": "3 or 6"
+    }
+  },
+  "card": {
+    "required": [
+      "text"
+    ],
+    "fields": {
+      "text": "Rich text. Start with the title as a bold or heading line; put links inside the sentences.",
+      "highlightText": "Optional large text shown first, such as a figure or short phrase.",
+      "disclaimer": "Optional fine print under the text."
+    }
+  }
+}

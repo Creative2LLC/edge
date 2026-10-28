@@ -1,0 +1,10 @@
+{
+  "icon-text": {
+    "looks": "A centred heading and one line with an icon, the first part in red and the rest in blue.",
+    "use": "One short giving fact, e.g. '92% of every dollar' / 'goes directly to our child-serving operations.'",
+    "fields": {
+      "redText": "The first part, e.g. '92% of every dollar'.",
+      "blueText": "The rest of the sentence."
+    }
+  }
+}

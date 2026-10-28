@@ -1,0 +1,14 @@
+{
+  "text-image": {
+    "looks": "A text column (a small label, a large heading, a paragraph and a button) beside a photo, with an optional caption box laid over the photo.",
+    "use": "A mission statement or key message beside a photo.",
+    "required": [
+      "heading",
+      "image"
+    ],
+    "fields": {
+      "subhead": "Optional small label above the heading, e.g. 'Mission'.",
+      "imageOverlayHeader": "Optional short quote or caption shown in a box over the photo."
+    }
+  }
+}

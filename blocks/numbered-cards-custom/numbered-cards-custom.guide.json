@@ -1,0 +1,20 @@
+{
+  "numbered-cards-custom": {
+    "looks": "An optional logo or image at the top and a title, then dark cards in a scrolling row (or a grid), each with its own number or year, a title, a sentence and an optional link.",
+    "use": "A timeline or milestones where each card has its own label, e.g. 1981, 1984, 1998.",
+    "avoid": "Plain ordered steps: use Dark Seq Btn 1x8 Card Grid Carousel (numbered-cards), which numbers them for you.",
+    "items": {
+      "min": 3
+    }
+  },
+  "numbered-cards-custom-item": {
+    "required": [
+      "cardNumber",
+      "cardTitle"
+    ],
+    "fields": {
+      "cardNumber": "The year or number at the top of the card, e.g. '1984'.",
+      "cardTitle": "A few words, e.g. 'NCMEC Founded'."
+    }
+  }
+}

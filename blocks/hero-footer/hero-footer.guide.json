@@ -1,0 +1,14 @@
+{
+  "hero-footer": {
+    "looks": "A centred closing statement on a light background with a large faint heart: a two-line heading (the second line larger), a paragraph and two buttons.",
+    "use": "The last block of most pages: the mission line plus 'Subscribe to Updates' and 'Support NCMEC'.",
+    "required": [
+      "heading_line1",
+      "heading_line2"
+    ],
+    "fields": {
+      "heading_line1": "The smaller first line, e.g. 'Every child deserves'.",
+      "heading_line2": "The larger second line, e.g. 'a safe childhood.'"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "columns": {
+    "looks": "Two or more columns side by side holding other content.",
+    "use": "Only when the author asks for columns.",
+    "avoid": "Prefer a designed block; columns are laid out by hand in the editor.",
+    "on_request": true
+  }
+}

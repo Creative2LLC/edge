@@ -1,0 +1,7 @@
+{
+  "site-search": {
+    "looks": "The site search box and results.",
+    "use": "Only on the search page.",
+    "on_request": true
+  }
+}

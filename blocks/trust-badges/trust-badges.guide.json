@@ -1,0 +1,14 @@
+{
+  "trust-badges": {
+    "looks": "A centred heading and button above a row of badge logos with captions.",
+    "use": "Charity ratings and accreditations.",
+    "items": {
+      "min": 2
+    }
+  },
+  "trust-badge-item": {
+    "required": [
+      "logo"
+    ]
+  }
+}

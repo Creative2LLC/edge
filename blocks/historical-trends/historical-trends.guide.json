@@ -1,0 +1,11 @@
+{
+  "historical-trends": {
+    "looks": "A heading, a large line chart of yearly values, then a row of trend cards (title, text, link).",
+    "use": "A multi-year trend with commentary, when the source gives the yearly figures.",
+    "avoid": "Without real yearly figures from the source. Never make up chart values.",
+    "on_request": true,
+    "fields": {
+      "chartPoints": "One per line as Year|Value, e.g. 2023|36200000."
+    }
+  }
+}

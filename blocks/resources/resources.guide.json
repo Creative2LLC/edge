@@ -1,0 +1,24 @@
+{
+  "resources": {
+    "looks": "A heading with a button at the top right, then a sliding row of white cards: a photo, a coloured icon, a title, a short description and a 'Learn More' link.",
+    "use": "Pointing to audience pages or resources, e.g. 'For Families', 'For Law Enforcement'.",
+    "fields": {
+      "button": "The words on the top-right button.",
+      "settings": "Library settings. Leave as they are.",
+      "selected": "Library settings. Leave as they are.",
+      "limit": "Library settings. Leave as they are."
+    }
+  },
+  "resource-item": {
+    "required": [
+      "image",
+      "title",
+      "link"
+    ],
+    "fields": {
+      "link": "Where 'Learn More' goes.",
+      "linkText": "Optional; defaults to 'Learn More'.",
+      "tags": "Optional; leave empty unless the source gives tags."
+    }
+  }
+}

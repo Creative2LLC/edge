@@ -1,0 +1,17 @@
+{
+  "colored-list": {
+    "looks": "A list with styled markers: bullets, numbers, circled numbers or circled bullets.",
+    "use": "A list that needs larger or circled markers than a plain bulleted list.",
+    "items": {
+      "min": 2
+    }
+  },
+  "colored-list-item": {
+    "required": [
+      "itemText"
+    ],
+    "fields": {
+      "markerText": "Optional; replaces this item's number or bullet."
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "impact-chain": {
+    "looks": "A zig-zag chain of cards joined by dotted lines; each card has a photo on one side and an icon, a coloured figure-title and a paragraph on the other.",
+    "use": "Telling an impact story as a sequence of three to five results, e.g. '91% Recovery Rate'.",
+    "items": {
+      "min": 2,
+      "best": "3 to 5"
+    }
+  },
+  "impact-chain-item": {
+    "required": [
+      "image",
+      "title"
+    ],
+    "fields": {
+      "title": "A figure with a few words, e.g. '91% Recovery Rate'."
+    }
+  }
+}

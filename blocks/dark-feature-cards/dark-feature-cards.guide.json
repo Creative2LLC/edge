@@ -1,0 +1,20 @@
+{
+  "dark-feature-cards": {
+    "looks": "A dark navy panel with an optional title, then a row of up to four dark cards: an optional photo across the top, a white icon, a bold title, a short paragraph and an optional button.",
+    "use": "Four parallel focus areas or priorities on a dark background, e.g. policy priorities.",
+    "items": {
+      "min": 2,
+      "best": "4; more wrap into a second row"
+    }
+  },
+  "dark-feature-cards-item": {
+    "required": [
+      "cardTitle"
+    ],
+    "fields": {
+      "cardTitle": "Two to four short words. The cards are narrow, so long words break mid-word.",
+      "cardSubtitle": "One to three sentences.",
+      "icon": "A line icon; it is tinted white."
+    }
+  }
+}

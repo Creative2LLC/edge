@@ -1,0 +1,9 @@
+{
+  "custom-image": {
+    "looks": "One image with an optional link and caption, at a chosen width and alignment.",
+    "use": "A standalone image, map or chart.",
+    "required": [
+      "image"
+    ]
+  }
+}

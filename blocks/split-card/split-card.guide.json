@@ -1,0 +1,17 @@
+{
+  "split-card": {
+    "looks": "A large card split in two: a photo filling one half; a heading, a paragraph and one or two buttons on the other half.",
+    "use": "Introducing one programme, service or idea with a photo; the site's most common feature card. Several in a row make an alternating feature list (flip imagePosition each time).",
+    "avoid": "No photo: use Section Title, or Custom Text with a Custom Btn Icon.",
+    "required": [
+      "heading",
+      "image"
+    ],
+    "fields": {
+      "subheading": "The paragraph. Rich text; a link inside a sentence stays a text link.",
+      "buttonSubtext": "Optional small line under the button.",
+      "imagePosition": "left or right. Alternate it when stacking several split cards.",
+      "imageSize": "even (half and half) or smaller (narrower photo)."
+    }
+  }
+}

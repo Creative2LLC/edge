@@ -1,0 +1,7 @@
+{
+  "resource-tags": {
+    "looks": "Hidden tags for the resource library (shows nothing on the page).",
+    "use": "Only on resource pages, which the backend generates.",
+    "on_request": true
+  }
+}

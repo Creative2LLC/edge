@@ -1,0 +1,7 @@
+{
+  "resource-video-hero": {
+    "looks": "The video resource page opening, filled from the resource library.",
+    "use": "Only on generated resource pages.",
+    "on_request": true
+  }
+}

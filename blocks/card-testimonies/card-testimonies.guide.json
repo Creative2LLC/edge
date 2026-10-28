@@ -1,0 +1,18 @@
+{
+  "card-testimonies": {
+    "looks": "A title and subtitle above quote cards: a main card with a photo and a larger quote, and smaller text-only quote cards.",
+    "use": "Quotes from families, survivors or partners.",
+    "items": {
+      "min": 1
+    }
+  },
+  "card-testimonies-item": {
+    "required": [
+      "quote"
+    ],
+    "fields": {
+      "image": "Add one for the large main card; leave empty for a small card.",
+      "author": "Name or role, e.g. 'Team HOPE participant'."
+    }
+  }
+}

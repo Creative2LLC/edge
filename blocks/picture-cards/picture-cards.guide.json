@@ -1,0 +1,16 @@
+{
+  "picture-cards": {
+    "looks": "A section heading and subheading above a row of photo cards with the title and text laid over the photo; a card can be a link.",
+    "use": "Visual topic or skill tiles with short captions.",
+    "items": {
+      "min": 2,
+      "best": "3"
+    }
+  },
+  "picture-cards-item": {
+    "required": [
+      "image",
+      "title"
+    ]
+  }
+}

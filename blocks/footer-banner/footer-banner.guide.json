@@ -1,0 +1,11 @@
+{
+  "footer-banner": {
+    "looks": "A tall full-width photo fading to white, with a centred heading, a logo and a closing line.",
+    "use": "A brand closing statement at the very end of a page.",
+    "avoid": "Calls to action: use Hero Footer.",
+    "required": [
+      "image",
+      "heading"
+    ]
+  }
+}

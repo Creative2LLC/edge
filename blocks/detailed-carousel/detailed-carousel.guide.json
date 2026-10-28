@@ -1,0 +1,18 @@
+{
+  "detailed-carousel": {
+    "looks": "A section title and description, then wide slides: a panoramic photo on top, three columns of title and text below it, and a button.",
+    "use": "Several initiatives, each with three short facts or points.",
+    "items": {
+      "min": 2
+    }
+  },
+  "detailed-carousel-item": {
+    "required": [
+      "image"
+    ],
+    "fields": {
+      "stat1Title": "A few words or a figure; the column heading.",
+      "stat1Body": "One or two sentences."
+    }
+  }
+}

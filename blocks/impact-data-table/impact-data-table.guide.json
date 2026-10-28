@@ -1,0 +1,7 @@
+{
+  "impact-data-table": {
+    "looks": "A table of a report dataset, loaded from the reports database.",
+    "use": "Only on impact or data report pages, when asked.",
+    "on_request": true
+  }
+}

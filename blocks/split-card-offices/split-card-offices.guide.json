@@ -1,0 +1,12 @@
+{
+  "split-card-offices": {
+    "looks": "Two columns: a large statement in big type on the left; on the right a contact card with an icon, a heading, up to two icon-and-text detail lines and up to two buttons.",
+    "use": "One office's or team's contact details with a short statement.",
+    "fields": {
+      "headingText": "The large left-hand statement.",
+      "feature1Heading": "The card heading, e.g. 'NCMEC Texas Regional Office'.",
+      "feature2Text": "A detail line, e.g. the street address.",
+      "feature3Text": "Another detail, e.g. the phone number."
+    }
+  }
+}

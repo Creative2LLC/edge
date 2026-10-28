@@ -1,0 +1,13 @@
+{
+  "image-card": {
+    "looks": "A rounded banner with a full background photo under a colour wash, a large heading and two buttons.",
+    "use": "A donation or campaign appeal with two actions.",
+    "required": [
+      "media_image",
+      "content_heading"
+    ],
+    "fields": {
+      "content_heading": "One or two sentences; it is shown large."
+    }
+  }
+}

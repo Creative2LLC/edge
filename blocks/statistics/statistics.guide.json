@@ -1,0 +1,35 @@
+{
+  "statistics": {
+    "looks": "An optional heading and intro, then a row of large figures, each with a short label under it (optionally a small label above, an icon and a button), with dividers between figures. Long rows wrap into balanced rows.",
+    "use": "Two to six headline numbers that belong together. Figures from different topics, or more than six, read better as two blocks with their own headings.",
+    "avoid": "Figures that each need a sentence: use a card block or Custom Text.",
+    "items": {
+      "min": 1,
+      "max": 6,
+      "best": "3 to 5"
+    },
+    "fields": {
+      "heading": "Optional heading above the figures.",
+      "bodyText": "Optional intro sentence under the heading.",
+      "statValues": "Legacy. Leave empty; use one item per figure.",
+      "statLabels": "Legacy. Leave empty; use one item per figure.",
+      "iconImage": "Only for a block with a single figure.",
+      "defaultButtonText": "Only for a block with a single figure.",
+      "disclaimer": "Optional fine print under the figures, e.g. the data source."
+    }
+  },
+  "statistics-item": {
+    "required": [
+      "statValue",
+      "statLabel"
+    ],
+    "limits": {
+      "statValue": 16
+    },
+    "fields": {
+      "statValue": "The figure alone, e.g. '145,000+', '92%', '1 in 7'. Words go in statLabel.",
+      "statLabel": "What the figure counts, a few words, e.g. 'reports of online enticement'.",
+      "statTopLabel": "Optional small line above the figure, e.g. a year."
+    }
+  }
+}

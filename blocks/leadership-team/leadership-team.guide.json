@@ -1,0 +1,7 @@
+{
+  "leadership-team": {
+    "looks": "A grid of leader cards grouped by section (Leadership, Board of Directors).",
+    "use": "Only on leadership pages.",
+    "on_request": true
+  }
+}

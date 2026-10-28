@@ -1,0 +1,15 @@
+{
+  "split-card-carousel": {
+    "looks": "A section title, then wide white slides one at a time: a photo on the left; a heading, text and up to two buttons on the right; dots and arrows underneath.",
+    "use": "Events or stories shown in turn, e.g. regional events.",
+    "items": {
+      "min": 2
+    }
+  },
+  "split-card-carousel-item": {
+    "required": [
+      "image",
+      "heading"
+    ]
+  }
+}

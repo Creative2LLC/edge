@@ -1,0 +1,20 @@
+{
+  "card-row-detailed": {
+    "looks": "A row of tall light cards: an icon, a heading, a short paragraph, a bulleted list, a button, optional extra text and a second button.",
+    "use": "Comparing two to four services, each with a list of what it includes.",
+    "items": {
+      "min": 2,
+      "best": "3"
+    }
+  },
+  "card-row-detailed-item": {
+    "required": [
+      "heading"
+    ],
+    "fields": {
+      "subheading": "One or two sentences.",
+      "bulletList": "A <ul> list of what the service includes.",
+      "additionalText": "Optional line between the two buttons."
+    }
+  }
+}

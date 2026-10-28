@@ -1,0 +1,21 @@
+{
+  "card-row": {
+    "looks": "A grid of navy cards, each with a logo or small image at the top, a short paragraph and an outline 'Learn more' button. The vertical variant adds a title.",
+    "use": "Programmes or partner sites that each have their own logo.",
+    "avoid": "No logos: use Multi Icn Btn Col Card Grid (info-cards-grid).",
+    "items": {
+      "min": 2,
+      "best": "3 to 6"
+    }
+  },
+  "card-row-item": {
+    "required": [
+      "logo",
+      "bodyText"
+    ],
+    "fields": {
+      "logo": "A logo or emblem; the card is built around it.",
+      "title": "Shown only with variant vertical."
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "leadership-profile": {
+    "looks": "One leader's photo, name, title and biography.",
+    "use": "Only on a leader's bio page.",
+    "on_request": true
+  }
+}

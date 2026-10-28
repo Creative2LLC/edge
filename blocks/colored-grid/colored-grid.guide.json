@@ -1,0 +1,8 @@
+{
+  "colored-grid": {
+    "looks": "A free-form grid: rows of 1 to 6 columns, each cell holding Custom Text, a heading, an image, Statistics, cards, a donut chart and more.",
+    "use": "Only for a layout no designed block covers, such as a figure beside a photo beside text. Build it row by row.",
+    "avoid": "Anything a designed block already does.",
+    "on_request": true
+  }
+}

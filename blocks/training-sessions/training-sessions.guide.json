@@ -1,0 +1,19 @@
+{
+  "training-sessions": {
+    "looks": "A title and text above a list of rows: a bold first column, two more columns and an arrow link.",
+    "use": "A schedule of sessions: name, date, place.",
+    "items": {
+      "min": 1
+    }
+  },
+  "training-sessions-item": {
+    "required": [
+      "column1"
+    ],
+    "fields": {
+      "column1": "The session name, e.g. 'PRPL Seminar'.",
+      "column2": "e.g. the dates.",
+      "column3": "e.g. the place."
+    }
+  }
+}

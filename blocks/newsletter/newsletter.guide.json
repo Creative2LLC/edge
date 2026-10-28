@@ -1,0 +1,7 @@
+{
+  "newsletter": {
+    "looks": "A newsletter sign-up band: a background photo, a heading, a short line, an email field with topic choices and a button.",
+    "use": "Near the end of a page, when the author asks for a sign-up.",
+    "on_request": true
+  }
+}

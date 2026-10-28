@@ -1,0 +1,8 @@
+{
+  "button": {
+    "looks": "The built-in button.",
+    "use": "Only when the author asks for this component by name.",
+    "avoid": "Use Custom Btn Icon (colored-button) for a standalone button.",
+    "on_request": true
+  }
+}

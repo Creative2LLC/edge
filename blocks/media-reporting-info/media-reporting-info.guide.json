@@ -1,0 +1,10 @@
+{
+  "media-reporting-info": {
+    "looks": "A heading and intro above three columns, each a small heading and a paragraph.",
+    "use": "Three short parallel points with no icons or links.",
+    "required": [
+      "heading",
+      "itemOneHeading"
+    ]
+  }
+}

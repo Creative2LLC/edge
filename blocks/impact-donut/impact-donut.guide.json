@@ -1,0 +1,20 @@
+{
+  "impact-donut": {
+    "looks": "A heading, text and a 2x2 set of large figures with labels on the left; a donut chart with a legend on the right; up to two buttons.",
+    "use": "How a whole divides into parts (e.g. 80% of spending on programmes) beside headline figures.",
+    "items": {
+      "min": 2
+    }
+  },
+  "impact-donut-item": {
+    "required": [
+      "value",
+      "label"
+    ],
+    "fields": {
+      "itemType": "stat for a figure on the left; segment for a slice of the donut.",
+      "value": "What is shown, e.g. '80%' or '490K+'.",
+      "chartValue": "The number for the donut maths, e.g. 80. Segments should add up to 100."
+    }
+  }
+}

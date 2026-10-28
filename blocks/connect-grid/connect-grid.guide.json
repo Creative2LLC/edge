@@ -1,0 +1,27 @@
+{
+  "connect-grid": {
+    "looks": "A heading and intro above a grid of cards: an icon, a title, a short description, then up to four contact lines (a small label above the contact itself, as a link).",
+    "use": "Ways to reach NCMEC or get help: phone numbers, email addresses, forms.",
+    "items": {
+      "min": 2,
+      "best": "3 per row"
+    }
+  },
+  "connect-grid-item": {
+    "required": [
+      "title"
+    ],
+    "link_optional": [
+      "contactMethod1Text",
+      "contactMethod2Text",
+      "contactMethod3Text",
+      "contactMethod4Text"
+    ],
+    "fields": {
+      "contactMethod1Label": "A small label, e.g. 'Call' or 'Email'.",
+      "contactMethod1Text": "What shows, e.g. '1-800-THE-LOST (24/7)'.",
+      "contactMethod1Link": "tel:, mailto: or a page, e.g. tel:18008435678.",
+      "contactMethods": "Legacy field; leave empty."
+    }
+  }
+}
