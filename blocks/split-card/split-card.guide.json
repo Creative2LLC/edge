@@ -1,6 +1,6 @@
 {
   "split-card": {
-    "looks": "A large card split in two: a photo filling one half; a heading, a paragraph and one or two buttons on the other half.",
+    "looks": "A large card split in two: a photo filling one half; a heading, a paragraph and one or two buttons on a white panel on the other half. A lighter style drops the panel and shows a smaller rounded photo.",
     "use": "Introducing one programme, service or idea with a photo; the site's most common feature card. Several in a row make an alternating feature list (flip imagePosition each time).",
     "avoid": "No photo: use Section Title, or Custom Text with a Custom Btn Icon.",
     "required": [
@@ -8,10 +8,17 @@
       "image"
     ],
     "fields": {
-      "subheading": "The paragraph. Rich text; a link inside a sentence stays a text link.",
+      "heading": "A few words.",
+      "subheading": "The paragraph, two to four sentences. Rich text; a link inside a sentence stays a text link.",
+      "image": "A photo; it is cropped to fill its half.",
+      "buttonText": "Optional button, with buttonLink.",
       "buttonSubtext": "Optional small line under the button.",
-      "imagePosition": "left or right. Alternate it when stacking several split cards.",
-      "imageSize": "even (half and half) or smaller (narrower photo)."
+      "button2Text": "Optional second button, with button2Link.",
+      "button2Subtext": "Optional small line under the second button.",
+      "imagePosition": "left (default) or right. Alternate it when stacking several split cards.",
+      "imageSize": "even (default, half and half) or smaller (a 500px photo, more room for text).",
+      "stylingVariant": "default: white panel beside a full-height photo. variant-2: no panel, a smaller rounded photo and grey text, for a quieter look.",
+      "headingLevel": "heading-h3 (default) when the card sits under a section heading; heading-h2 when the card itself opens a section."
     }
   }
 }

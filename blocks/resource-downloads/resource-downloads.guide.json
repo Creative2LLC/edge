@@ -1,7 +1,18 @@
 {
   "resource-downloads": {
-    "looks": "The download cards for a resource.",
+    "looks": "The download cards for a resource: each card has a thumbnail, title, description, audience/format/time details and a download or watch button. Gated files ask for registration first.",
     "use": "Only on resource pages, which the backend generates.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "slug": "Filled automatically: the resource this page belongs to. Leave it."
+    }
+  },
+  "resource-download-item": {
+    "fields": {
+      "itemTitle": "Optional display title; falls back to the resource title or file name.",
+      "itemDescription": "Optional line about what the file contains.",
+      "buttonLabel": "Optional; defaults by file type, e.g. 'Download PDF'.",
+      "informativeTimeText": "Optional length, e.g. '30 minutes'."
+    }
   }
 }

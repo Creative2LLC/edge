@@ -1,11 +1,20 @@
 {
   "numbered-cards": {
-    "looks": "A centred title and subtitle, then dark navy cards numbered automatically (1, 2, 3 ...), each with a bold title and a short paragraph; shown as a grid or a carousel.",
+    "looks": "A title and subtitle, then dark navy cards numbered automatically (1, 2, 3 ...) in outlined boxes, each with a bold title and a short paragraph; shown as a grid of 2 to 4 per row or as a carousel.",
     "use": "Ordered steps or tips, e.g. 'What To Do' after sextortion.",
+    "avoid": "Points with no order: use Multi Icn Btn Col Card Grid. Milestones with their own years: use numbered-cards-custom.",
     "items": {
       "min": 2,
       "max": 8,
       "best": "3 to 6"
+    },
+    "fields": {
+      "title": "The heading above the cards.",
+      "subtitle": "Optional sentence under the heading.",
+      "textAlign": "left (default), center or right for the title and subtitle.",
+      "layout": "grid (default) shows every card; carousel slides them, for six or more long cards.",
+      "cardsPerRow": "Grid only: 2, 3 or 4 (default). Match the card count: 3 or 6 cards → 3.",
+      "blockBackgroundColor": "Optional band colour behind the whole block."
     }
   },
   "numbered-cards-item": {

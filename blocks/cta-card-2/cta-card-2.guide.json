@@ -1,13 +1,17 @@
 {
   "cta-card-2": {
-    "looks": "A light band with a large icon on the left, then a heading, a short paragraph and one button.",
+    "looks": "A band with a large icon on the left, then a heading, a short paragraph and one button.",
     "use": "Pointing people to one related service or page, e.g. 'Missing Child Clearinghouses' with 'Find Your Local Clearinghouse'.",
+    "avoid": "A photo instead of an icon: use Split Card.",
     "required": [
       "title"
     ],
     "fields": {
       "icon": "A single line icon, not a photo.",
-      "subtitle": "Two or three sentences at most."
+      "title": "A few words.",
+      "subtitle": "Two or three sentences at most.",
+      "buttonText": "The button's words, with buttonLink.",
+      "backgroundColor": "The band is a light tint of this colour (a few palette colours show solid); empty gives a light grey tint."
     }
   }
 }

@@ -1,14 +1,28 @@
 {
   "icon-card-carousel": {
-    "looks": "A section title and subtitle above a sliding row of light cards, each with an optional icon, a title, a short line and a button.",
+    "looks": "A section title and subtitle above a sliding row of light cards, each with an optional icon, a title, a short line and a button. Cards without icons are shorter. Thinner styles make narrower, taller cards.",
     "use": "A browsable set of related items (publications, programmes) with a button each, more than fit across the page.",
+    "avoid": "Three or fewer items: use Multi Icn Btn Col Card Grid, which shows them all at once.",
     "items": {
-      "min": 3
+      "min": 3,
+      "best": "4 to 8"
+    },
+    "fields": {
+      "heading": "The section title.",
+      "subtitle": "One sentence under the title.",
+      "styleVariant": "default; thinner: narrower, taller cards; thinner-dynamic: the same with the content centred in each card.",
+      "blockBackgroundColor": "Optional band colour behind the whole carousel."
     }
   },
   "icon-card-carousel-item": {
     "required": [
       "heading"
-    ]
+    ],
+    "fields": {
+      "icon": "Optional line icon at the top of the card. Give every card one or none.",
+      "heading": "The card title, a few words.",
+      "body": "One or two sentences.",
+      "buttonText": "The button's words, with buttonLink."
+    }
   }
 }

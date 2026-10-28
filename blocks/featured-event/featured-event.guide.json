@@ -1,10 +1,14 @@
 {
   "featured-event": {
-    "looks": "Tall white event cards: a wide photo on top, a title, a one-line description, then up to four icon-and-label details (such as Duration, Location, For, Cost) and a button.",
+    "looks": "An optional heading, then tall white event cards: a wide photo on top, a title, a one-line description, then up to four icon-and-label details (such as Duration, Location, For, Cost) and a button.",
     "use": "Promoting one or a few specific events or trainings with their logistics.",
+    "avoid": "A schedule of many dates: use Training Sessions.",
     "items": {
       "min": 1,
       "best": "1 to 3"
+    },
+    "fields": {
+      "title": "Optional heading above the event cards."
     }
   },
   "featured-event-item": {
@@ -13,9 +17,14 @@
       "cardTitle"
     ],
     "fields": {
+      "image": "A wide photo (about 686x330).",
+      "cardTitle": "The event's name.",
+      "description": "One line about it.",
+      "detail1Icon": "Optional 32px icon for the detail, e.g. a clock for Duration.",
       "detail1Name": "The label, e.g. 'Duration'.",
       "detail1Value": "The value, e.g. '3 Days In-Person + Online'.",
-      "ctaText": "No arrow; the site adds one."
+      "ctaText": "No arrow; the site adds one.",
+      "ctaLink": "The registration or details page."
     }
   }
 }

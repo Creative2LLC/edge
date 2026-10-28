@@ -1,13 +1,17 @@
 {
   "image-card": {
-    "looks": "A rounded banner with a full background photo under a colour wash, a large heading and two buttons.",
-    "use": "A donation or campaign appeal with two actions.",
+    "looks": "A rounded banner with a full background photo under a colour wash, a large heading and up to two buttons.",
+    "use": "A donation or campaign appeal with one or two actions.",
+    "avoid": "An appeal without a photo: use a CTA card block.",
     "required": [
       "media_image",
       "content_heading"
     ],
     "fields": {
-      "content_heading": "One or two sentences; it is shown large."
+      "media_image": "A wide photo; text sits over it, so a calm image works best.",
+      "content_heading": "One or two sentences; it is shown large.",
+      "primary_text": "First button, with primary_link.",
+      "secondary_text": "Optional second button, with secondary_link."
     }
   }
 }

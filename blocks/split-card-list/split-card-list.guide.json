@@ -1,13 +1,16 @@
 {
   "split-card-list": {
-    "looks": "A heading, a paragraph and a button on the left; on the right a stacked list of white rows: either statements (title, subtitle, year and a 'Read Statement' button) or email cards (icon, title and an email address).",
+    "looks": "A heading, a paragraph and a button on the left; on the right a stacked list of white rows: either statements (title, subtitle, year and a 'Read Statement' button) or dark email cards (icon, title and an email address).",
     "use": "Testimony or statement archives, or a list of contact email addresses.",
     "items": {
       "min": 2,
       "best": "3 to 8"
     },
     "fields": {
-      "layout": "statements or email-cards. Item fields marked for one layout are ignored in the other."
+      "heading": "The left-hand heading.",
+      "bodyText": "One or two sentences.",
+      "buttonText": "Optional button under the text, with buttonLink.",
+      "layout": "statements (default) or email-cards. Item fields marked for one layout are ignored in the other."
     }
   },
   "split-card-list-item": {
@@ -15,6 +18,10 @@
       "title"
     ],
     "fields": {
+      "title": "The statement's or contact's title.",
+      "subtitle": "Statements only: e.g. the hearing or committee.",
+      "year": "Statements only: e.g. '2024'.",
+      "buttonText": "Statements only: e.g. 'Read Statement', with buttonLink.",
       "emailText": "The address only, e.g. info@ncmec.org (email-cards layout)."
     }
   }

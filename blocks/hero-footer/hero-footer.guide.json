@@ -1,14 +1,20 @@
 {
   "hero-footer": {
-    "looks": "A centred closing statement on a light background with a large faint heart: a two-line heading (the second line larger), a paragraph and two buttons.",
+    "looks": "A centred closing statement on a light background with a large faint heart: a two-line heading (the second line larger), a paragraph and two buttons. A second style makes the first line red.",
     "use": "The last block of most pages: the mission line plus 'Subscribe to Updates' and 'Support NCMEC'.",
+    "avoid": "A mid-page call to action: use a CTA block.",
     "required": [
       "heading_line1",
       "heading_line2"
     ],
     "fields": {
       "heading_line1": "The smaller first line, e.g. 'Every child deserves'.",
-      "heading_line2": "The larger second line, e.g. 'a safe childhood.'"
+      "heading_line2": "The larger second line, e.g. 'a safe childhood.'",
+      "heading_subtext": "One or two sentences under the heading.",
+      "button1Text": "First button, e.g. 'Subscribe to Updates', with button1.",
+      "button2Text": "Second button, e.g. 'Support NCMEC', with button2.",
+      "image": "Optional background image; leave empty for the standard light background.",
+      "variant": "default; variant-2 makes the first line red and medium-sized and the second line a section-heading size."
     }
   }
 }

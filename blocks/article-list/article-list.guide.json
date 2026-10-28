@@ -1,6 +1,6 @@
 {
   "article-list": {
-    "looks": "A searchable, filterable list of blog articles, loaded from the backend.",
+    "looks": "A searchable, filterable list of blog articles, loaded from the backend, with a load-more button.",
     "use": "Only on the blog listing page, when asked.",
     "on_request": true
   }

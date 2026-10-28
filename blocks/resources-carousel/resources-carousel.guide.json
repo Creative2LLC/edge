@@ -1,7 +1,13 @@
 {
   "resources-carousel": {
-    "looks": "A carousel of related resources or articles, filled from the resource library.",
+    "looks": "A sliding row of related resources or articles, filled from the resource library based on the page it sits on, with a 'find all' button.",
     "use": "Only on resource and article pages, when asked.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "heading": "Pre-filled 'Related Resources'.",
+      "sourceType": "resources (default) or articles.",
+      "findAllLabel": "The button's words, with findAllHref.",
+      "programs": "Optional program filter, e.g. kidsmartz or netsmartz."
+    }
   }
 }

@@ -1,18 +1,32 @@
 {
   "tabs": {
-    "looks": "A heading, a row of tab buttons (with optional icons) and, under the selected tab, a grid of white cards with a title, text or bullets and a link.",
-    "use": "Many cards that fall into three to six categories readers switch between.",
-    "avoid": "The assistant cannot yet set which tab a card belongs to (a multi-select), so every card shows under the first tab until the author sets it. Use Tabs only when asked, and list that as a gap.",
-    "on_request": true
+    "looks": "A heading, a row of tab buttons (with optional icons) and, under the selected tab, a grid of 2 to 4 white cards per row, each with a title, text or bullets and a link.",
+    "use": "Many cards that fall into three to six categories readers switch between, e.g. resources by audience.",
+    "avoid": "The assistant cannot yet set which tab a card belongs to (a multi-select), so every card shows under the first tab until the author sets it. Use Tabs only when asked, and list that as a gap. Fewer than about eight cards: use a card grid instead.",
+    "on_request": true,
+    "fields": {
+      "heading": "The heading above the tabs.",
+      "subheading": "Optional sentence under the heading.",
+      "columns": "Cards per row under each tab: 2, 3 or 4 (default)."
+    }
   },
   "tabs-tab-label": {
     "required": [
       "label"
-    ]
+    ],
+    "fields": {
+      "label": "The tab's words, one or two, e.g. 'Parents'. Pre-filled with 'Tab': replace it.",
+      "icon": "Optional small dark icon left of the label; it is recoloured to white on the active tab."
+    }
   },
   "tabs-info-card": {
     "required": [
       "title"
-    ]
+    ],
+    "fields": {
+      "title": "The card heading, a few words.",
+      "bodyContent": "A sentence or a short bulleted list.",
+      "linkText": "The link's words, with link."
+    }
   }
 }

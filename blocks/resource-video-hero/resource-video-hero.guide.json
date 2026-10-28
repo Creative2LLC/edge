@@ -1,7 +1,7 @@
 {
   "resource-video-hero": {
-    "looks": "The video resource page opening, filled from the resource library.",
-    "use": "Only on generated resource pages.",
+    "looks": "The video resource page opening, filled from the resource library: title, description, a link back to the listing, and Watch and Download buttons.",
+    "use": "Only on generated video resource pages.",
     "on_request": true
   }
 }

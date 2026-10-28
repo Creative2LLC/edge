@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "looks": "An optional heading and intro, then a row of large figures, each with a short label under it (optionally a small label above, an icon and a button), with dividers between figures. Long rows wrap into balanced rows.",
+    "looks": "An optional heading and intro, then a row of large figures that count up when scrolled into view, each with a short label under it (optionally a small label above, an icon and a button), with dividers between figures and optional fine print under the row. Long rows wrap into balanced rows.",
     "use": "Two to six headline numbers that belong together. Figures from different topics, or more than six, read better as two blocks with their own headings.",
     "avoid": "Figures that each need a sentence: use a card block or Custom Text.",
     "items": {
@@ -13,9 +13,12 @@
       "bodyText": "Optional intro sentence under the heading.",
       "statValues": "Legacy. Leave empty; use one item per figure.",
       "statLabels": "Legacy. Leave empty; use one item per figure.",
-      "iconImage": "Only for a block with a single figure.",
-      "defaultButtonText": "Only for a block with a single figure.",
-      "disclaimer": "Optional fine print under the figures, e.g. the data source."
+      "iconImage": "Only for a block with a single figure; with several, each item has its own icon.",
+      "defaultButtonText": "Only for a block with a single figure; with several, each item has its own button.",
+      "disclaimer": "Optional fine print under the figures, e.g. the data source and year.",
+      "contentAlignment": "center (default) centres the heading and figures; left or right lines them up on that side.",
+      "blockBackgroundColor": "Empty (default) leaves the block on the page background; a colour paints a band behind the whole block.",
+      "markerTerms": "Optional words or a figure, exactly as written, separated by |, that get a hand-drawn circle or underline when scrolled into view."
     }
   },
   "statistics-item": {
@@ -27,9 +30,11 @@
       "statValue": 16
     },
     "fields": {
-      "statValue": "The figure alone, e.g. '145,000+', '92%', '1 in 7'. Words go in statLabel.",
+      "statValue": "The figure alone, e.g. '145,000+', '92%', '1 in 7'. Numbers count up on scroll; words go in statLabel.",
       "statLabel": "What the figure counts, a few words, e.g. 'reports of online enticement'.",
-      "statTopLabel": "Optional small line above the figure, e.g. a year."
+      "statTopLabel": "Optional small line above the figure, e.g. a year.",
+      "image": "Optional small icon above the figure. Give every item an icon or none.",
+      "buttonText": "Optional button under this figure, with buttonLink. Give every item a button or none."
     }
   }
 }

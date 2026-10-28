@@ -1,7 +1,25 @@
 {
   "news": {
-    "looks": "A heading, one featured article and cards for the latest news, pulled from blog pages.",
-    "use": "A latest-news section, when asked.",
-    "on_request": true
+    "looks": "A heading with an optional button, then cards for news and blog posts (photo, tags, title, summary, link), optionally led by one large featured card. It can fill itself with the newest blogs, on one topic if you choose.",
+    "use": "A latest-news or related-blogs section, when the author or document asks for one.",
+    "on_request": true,
+    "fields": {
+      "heading": "e.g. 'Latest News'.",
+      "subheading": "Optional sentence under the heading.",
+      "headerButtonText": "Optional button beside the heading, e.g. 'View All News', with headerButtonLink.",
+      "button": "Optional 'View More' button under the cards.",
+      "blogFeed": "Adds the 3, 4, 6 or 9 newest blogs after any cards you add by hand. Use it instead of adding items when the document asks for the latest posts.",
+      "blogFilter": "Limits blogFeed to one area, topic, story type or program, e.g. a topic page's own topic. Empty = any topic.",
+      "featuredMode": "featured shows the first card large; none (default) keeps every card the same size."
+    }
+  },
+  "news-article": {
+    "fields": {
+      "blog": "A blog page to fill this card from (/content/edge/resources/Blogs/…): its image, title, summary and tags. Anything typed in the other fields wins.",
+      "title": "Only when not pulling from a blog: the article title.",
+      "subtitle": "Only when not pulling from a blog: one or two sentences.",
+      "link": "Only when not pulling from a blog: where the card goes.",
+      "tags": "Optional, one per line; leave empty to use the blog's own tags."
+    }
   }
 }

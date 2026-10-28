@@ -2,13 +2,23 @@
   "trust-badges": {
     "looks": "A centred heading and button above a row of badge logos with captions.",
     "use": "Charity ratings and accreditations.",
+    "avoid": "Partner logos without captions: use Logo Carousel or Partners Showcase.",
     "items": {
       "min": 2
+    },
+    "fields": {
+      "heading": "e.g. 'Trusted by donors'.",
+      "ctaText": "Optional button under the heading, with ctaLink."
     }
   },
   "trust-badge-item": {
     "required": [
       "logo"
-    ]
+    ],
+    "fields": {
+      "logo": "The badge or seal image.",
+      "caption": "Optional short caption under the badge, e.g. '4-Star Rating'.",
+      "badgeLink": "Optional link to the rating's own page."
+    }
   }
 }

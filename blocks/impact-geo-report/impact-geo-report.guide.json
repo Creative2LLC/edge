@@ -1,6 +1,6 @@
 {
   "impact-geo-report": {
-    "looks": "A map and list of impact report counts by state or country, loaded from the reports database.",
+    "looks": "A US map or world list of impact report counts by state or country, loaded from the reports database.",
     "use": "Only on impact report pages, when asked.",
     "on_request": true
   }

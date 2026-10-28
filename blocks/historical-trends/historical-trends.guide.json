@@ -1,11 +1,19 @@
 {
   "historical-trends": {
-    "looks": "A heading, a large line chart of yearly values, then a row of trend cards (title, text, link).",
+    "looks": "A heading, a large line chart of yearly values with the recent years highlighted, then a row of trend cards (title, text, link).",
     "use": "A multi-year trend with commentary, when the source gives the yearly figures.",
-    "avoid": "Without real yearly figures from the source. Never make up chart values.",
+    "avoid": "Without real yearly figures from the source. Never make up chart values: the block comes pre-filled with sample figures, so replace or clear every pre-filled field.",
     "on_request": true,
     "fields": {
-      "chartPoints": "One per line as Year|Value, e.g. 2023|36200000."
+      "chartPoints": "One per line as Year|Value, e.g. 2023|36200000.",
+      "highlightFrom": "The first year to colour as recent, e.g. 2021."
+    }
+  },
+  "historical-trends-card": {
+    "fields": {
+      "title": "A trend, a few words.",
+      "bodyText": "One or two sentences.",
+      "linkText": "Optional link, with linkUrl."
     }
   }
 }

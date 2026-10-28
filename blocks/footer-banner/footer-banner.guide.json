@@ -6,6 +6,12 @@
     "required": [
       "image",
       "heading"
-    ]
+    ],
+    "fields": {
+      "image": "A wide photo; its lower part fades to white.",
+      "heading": "One short line.",
+      "logo": "Optional logo under the heading.",
+      "subheading": "Optional closing line."
+    }
   }
 }

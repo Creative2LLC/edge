@@ -1,6 +1,6 @@
 {
   "regional-offices": {
-    "looks": "A centred heading and intro above a row of 2 to 4 columns; each column has an image in a soft circle, a title, a short paragraph and an outline button.",
+    "looks": "A centred heading and intro above a row of 2 to 4 columns; each column has an image in a soft circle, a title, a short paragraph and an outline button. A boxed style puts each column's text in a white box.",
     "use": "A small set of parallel places, offices or options that each have a picture and a link, e.g. regional offices.",
     "avoid": "Without images: use Multi Icn Btn Col Card Grid (info-cards-grid) or Icon 1x4 Col Card (card-row-compact).",
     "items": {
@@ -8,7 +8,10 @@
       "best": "2 to 4; set columns to match"
     },
     "fields": {
-      "columns": "Match the number of items: 2, 3 or 4."
+      "heading": "The heading above the columns.",
+      "subheading": "One or two sentences.",
+      "columns": "Columns per row: 2, 3 (default) or 4. Match the number of items.",
+      "stylingVariant": "default: open columns. boxed: each column's text sits in a white rounded box of equal height."
     }
   },
   "regional-office-item": {
@@ -17,8 +20,10 @@
       "title"
     ],
     "fields": {
+      "image": "A photo or illustration; it is cropped to a circle.",
       "title": "A short name, e.g. 'Florida'.",
-      "bodyText": "Two or three sentences."
+      "bodyText": "Two or three sentences.",
+      "buttonText": "Optional button, e.g. 'Learn More', with buttonLink."
     }
   }
 }

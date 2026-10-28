@@ -1,14 +1,23 @@
 {
   "text-image": {
-    "looks": "A text column (a small label, a large heading, a paragraph and a button) beside a photo, with an optional caption box laid over the photo.",
-    "use": "A mission statement or key message beside a photo.",
+    "looks": "A text column (a small label, a large heading, a paragraph and a button) beside a photo, with an optional caption box laid over the photo. Styles: a rounded coloured box (default), photo on the left, or open layouts without a box for long editorial copy or a very large heading.",
+    "use": "A mission statement or key message beside a photo, or a longer passage of editorial copy with a photo (variant-2).",
+    "avoid": "Several stacked image-and-text rows: Split Card is the site's standard for those.",
     "required": [
       "heading",
       "image"
     ],
     "fields": {
       "subhead": "Optional small label above the heading, e.g. 'Mission'.",
-      "imageOverlayHeader": "Optional short quote or caption shown in a box over the photo."
+      "heading": "A few words.",
+      "bodyText": "One paragraph by default; several paragraphs and lists with variant-2.",
+      "ctaText": "Optional button, with ctaLink.",
+      "image": "A photo beside the text.",
+      "imageOverlayHeader": "Optional short quote or caption shown in a box over the photo.",
+      "imageOverlayText": "Optional text inside the overlay box.",
+      "imageOverlaySubtext": "Optional attribution inside the overlay box.",
+      "styleVariant": "default: text and photo in a rounded coloured box, photo right. image-left: the same with the photo left. variant-2: no box; a section-size heading and room for several paragraphs. variant-3: no box; a very large heading centred beside the photo. variant-4: no box; a wide fixed photo with the text top-aligned.",
+      "backgroundColor": "The box colour in the default and image-left styles."
     }
   }
 }

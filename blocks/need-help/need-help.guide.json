@@ -1,15 +1,25 @@
 {
   "need-help": {
-    "looks": "A rounded tinted panel with a centred heading and intro, and a row of white cards (title, a short line and a link).",
-    "use": "Contact options for a specific audience near the end of a page.",
+    "looks": "A rounded tinted panel with a centred heading and intro, and a row of white cards (a title, a short line and a link each).",
+    "use": "Contact options for a specific audience near the end of a page, e.g. a hotline, an email and a report form.",
+    "avoid": "Cards that need icons or longer text: use Multi Icn Btn Col Card Grid.",
     "items": {
       "min": 2,
       "best": "3"
+    },
+    "fields": {
+      "heading": "e.g. 'Need help now?'.",
+      "subheading": "One sentence under the heading."
     }
   },
   "need-help-card": {
     "required": [
       "title"
-    ]
+    ],
+    "fields": {
+      "title": "The contact or service, a few words, e.g. 'Call 1-800-THE-LOST'.",
+      "subheading": "One short line, e.g. 'Available 24 hours a day'.",
+      "linkText": "The link's words, e.g. 'Call now', with linkUrl (tel:, mailto: or a page)."
+    }
   }
 }

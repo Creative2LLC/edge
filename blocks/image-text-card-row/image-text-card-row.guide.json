@@ -1,10 +1,16 @@
 {
   "image-text-card-row": {
-    "looks": "A row of tall light cards: a picture at the top (often a document cover), an optional small icon, a title, a subtitle, a paragraph and a text link.",
+    "looks": "A row of tall cards: a picture at the top (often a document cover), an optional small icon, a title, a subtitle, a paragraph and a link, on a warm grey panel. A small-image style puts a cover thumbnail at the top left instead.",
     "use": "Publications, briefs or reports, each with a cover image and a link.",
+    "avoid": "No images: use Multi Icn Btn Col Card Grid.",
     "items": {
       "min": 2,
       "best": "3 per row (columns setting)"
+    },
+    "fields": {
+      "columns": "Cards per row: 1, 2 or 3 (default).",
+      "imageStyle": "default: the picture fills the top of the card. small: a 141x183 thumbnail at the top left, for document covers.",
+      "imageAlign": "Which part of a cropped picture stays visible: center (default), left or right."
     }
   },
   "image-text-card-row-item": {
@@ -13,8 +19,14 @@
       "title"
     ],
     "fields": {
+      "image": "A cover or photo for the top of the card.",
+      "icon": "Optional small icon by the title.",
+      "title": "The publication's name.",
+      "subtitle": "Optional short line, e.g. the year or type.",
+      "bodyText": "One or two sentences.",
       "linkText": "The link's words, e.g. 'Read the Brief'.",
-      "linkUrl": "The link's address."
+      "linkUrl": "The link's address.",
+      "cardContentBg": "Panel colour under the picture; empty keeps warm grey."
     }
   }
 }

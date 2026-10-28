@@ -1,12 +1,14 @@
 {
   "colored-text": {
-    "looks": "Running copy: paragraphs, lists and links, aligned left, centre or right.",
+    "looks": "Running copy: paragraphs, bulleted or numbered lists, sub-headings and links, aligned left, centre or right, optionally on a coloured band.",
     "use": "Any copy that is not part of a designed block. The default for paragraphs.",
     "required": [
       "text"
     ],
     "fields": {
-      "text": "Rich text. A link alone on its own line becomes a button.",
+      "text": "Rich text: paragraphs, <ul>/<ol> lists, <h3> sub-headings, links. A link alone on its own line becomes a button; end its text with ' [text link]' to keep it a link.",
+      "horizontalAlign": "left (default), center or right. Centre only short passages.",
+      "blockBackgroundColor": "Empty (default) is transparent. A colour paints a band behind the text, which picks a readable text colour itself.",
       "markerTerms": "Optional words to circle or underline, exactly as written, separated by |."
     }
   }

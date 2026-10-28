@@ -1,7 +1,8 @@
 {
   "info-cards-grid": {
-    "looks": "An optional heading and intro above a grid of 1 to 4 columns of cards. Each card has an optional icon, a title, a subtitle, body text that can be a bulleted or numbered list, and up to two buttons. Cards can be dark (filled) or light.",
+    "looks": "An optional heading and intro (with an optional button beside it) above a grid of 1 to 4 cards per row. Each card has an optional icon (above the title or beside it), a title, a subtitle, body text that can be a bulleted or numbered list, and up to two buttons. Cards are dark navy with white text by default; any card colour works.",
     "use": "The workhorse for grouping topics, services or audiences, with or without icons. The safe default when there are no images.",
+    "avoid": "Cards built around photos: use Picture Cards or Image Text Card Row.",
     "items": {
       "min": 1,
       "best": "3 or 4; set columns to match"
@@ -9,10 +10,13 @@
     "fields": {
       "sectionHeading": "The heading above the grid.",
       "sectionSubheading": "One or two sentences under the heading.",
-      "introButtonText": "Optional button beside the heading.",
-      "sectionButtonText": "Optional button under the grid.",
+      "introButtonText": "Optional button beside the heading, with introButtonLink.",
+      "sectionButtonText": "Optional button under the grid, e.g. 'View All', with sectionButtonLink.",
       "footerText": "Optional small text under the grid.",
-      "columns": "How many cards per row: 1 to 4."
+      "columns": "Cards per row: 1 to 4 (default 3). Match the card count: 2, 4 or 8 cards → 2 or 4; 3, 6 or 9 → 3.",
+      "headerAlignment": "left (default) or center for the heading and intro.",
+      "cardContentAlignment": "left (default) or center for everything inside the cards. Centre suits short cards with icons.",
+      "styleVariant": "default; volunteer puts the whole grid on a warm beige rounded panel with lighter, softer cards (each card can then be filled or dashed-outline via cardStyle); button-top gives a wider heading with the intro button at the top right."
     }
   },
   "info-card": {
@@ -20,10 +24,16 @@
       "title"
     ],
     "fields": {
+      "icon": "Optional line icon at the top of the card. Give every card an icon or none.",
       "title": "The card heading, a few words.",
       "subtitle": "Optional short line under the title.",
       "bodyContent": "A paragraph, or a <ul>/<ol> list. Links inside become text links.",
-      "overlayImage": "A decorative background texture. Leave it empty unless asked."
+      "buttonText": "Optional button, with buttonLink.",
+      "button2Text": "Optional second button, with button2Link.",
+      "overlayImage": "A decorative background texture. Leave it empty unless asked.",
+      "cardBackgroundColor": "The card colour; empty keeps the default dark navy. The text switches to a readable colour on its own.",
+      "iconLayout": "Empty puts the icon above the title; left puts it beside the title.",
+      "cardStyle": "Only with the block's volunteer style: filled or outline (dashed border)."
     }
   }
 }

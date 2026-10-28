@@ -1,7 +1,25 @@
 {
   "article-details": {
-    "looks": "A blog article's header and body.",
+    "looks": "A blog article's header (title, author, date, header image under an optional overlay) and its body of text and image items.",
     "use": "Only on blog pages, which the backend generates.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "pageTitle": "The article title.",
+      "authorName": "Optional byline.",
+      "headerImage": "The header image; the blog's thumbnail elsewhere on the site comes from it.",
+      "heroContentPosition": "left (default), center or right for the title over the header image."
+    }
+  },
+  "article-body-text": {
+    "fields": {
+      "bodyText": "A run of article copy: paragraphs, lists, sub-headings and links."
+    }
+  },
+  "article-body-image": {
+    "fields": {
+      "bodyImage": "An image inside the article.",
+      "bodyImageAlt": "What the image shows.",
+      "bodyImageCaption": "Optional caption or credit."
+    }
   }
 }

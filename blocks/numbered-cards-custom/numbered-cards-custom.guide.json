@@ -5,6 +5,13 @@
     "avoid": "Plain ordered steps: use Dark Seq Btn 1x8 Card Grid Carousel (numbered-cards), which numbers them for you.",
     "items": {
       "min": 3
+    },
+    "fields": {
+      "headerImage": "Optional logo or image above the title.",
+      "title": "The heading above the cards.",
+      "subtitle": "Optional sentence under the heading.",
+      "layout": "carousel (default) scrolls the cards; grid shows them all, cardsPerRow to a row.",
+      "cardsPerRow": "Grid only: 2, 3 or 4 (default)."
     }
   },
   "numbered-cards-custom-item": {
@@ -14,7 +21,9 @@
     ],
     "fields": {
       "cardNumber": "The year or number at the top of the card, e.g. '1984'.",
-      "cardTitle": "A few words, e.g. 'NCMEC Founded'."
+      "cardTitle": "A few words, e.g. 'NCMEC Founded'.",
+      "cardBody": "One or two sentences.",
+      "ctaText": "Optional link, with ctaLink."
     }
   }
 }

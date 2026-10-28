@@ -1,7 +1,16 @@
 {
   "gallery-grid": {
-    "looks": "A grid of 2 to 4 columns of tiles: photos, text tiles, or statistics and cards placed directly in it.",
+    "looks": "A grid of 2 to 4 equal columns of tiles: photos filling their slot, plain text tiles, or Statistics and card blocks placed directly in it.",
     "use": "A mosaic mixing photos and big figures, e.g. in an impact report.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "columns": "Tiles per row: 2 (default), 3 or 4."
+    }
+  },
+  "gallery-grid-item": {
+    "fields": {
+      "image": "A photo that fills this tile.",
+      "text": "Text for a plain text tile instead of a photo; ignored when there is an image."
+    }
   }
 }

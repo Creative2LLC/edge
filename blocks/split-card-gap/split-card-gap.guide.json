@@ -1,14 +1,23 @@
 {
   "split-card-gap": {
-    "looks": "Two panels side by side: a photo on the left; on the right a heading, a paragraph, a 2x2 grid of small icon-and-label benefits, and up to two buttons.",
+    "looks": "Two panels side by side: a photo on the left; on the right a heading, a paragraph, a 2x2 grid of small icon-and-label benefits, and up to two buttons. A second style shows a large rounded photo and no panel.",
     "use": "A recruiting or programme pitch with two to four short benefits, e.g. 'Join Our Team'.",
+    "avoid": "Benefits that need a sentence each: use Split Card plus a card block.",
     "items": {
       "best": "4 (2 or 4 keep the grid even)"
     },
     "required": [
       "heading",
       "image"
-    ]
+    ],
+    "fields": {
+      "heading": "A few words; each paragraph shows on its own line.",
+      "bodyText": "One or two sentences above the benefits.",
+      "primaryButtonText": "Optional button, with primaryButtonLink.",
+      "secondaryButtonText": "Optional second button, with secondaryButtonLink.",
+      "stylingType": "default: photo beside a coloured panel. variant-2: a large rounded photo with the text beside it and no panel.",
+      "headingLevel": "heading-h3 (default) under a section heading; heading-h2 when the block opens a section."
+    }
   },
   "split-card-gap-item": {
     "required": [
@@ -17,7 +26,7 @@
     ],
     "fields": {
       "title": "A one to three word benefit, e.g. 'Mission-Driven'.",
-      "icon": "A small coloured line icon."
+      "icon": "A small line icon; it is tinted with iconColor."
     }
   }
 }

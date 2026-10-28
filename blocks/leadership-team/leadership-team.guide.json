@@ -1,7 +1,19 @@
 {
   "leadership-team": {
-    "looks": "A grid of leader cards grouped by section (Leadership, Board of Directors).",
+    "looks": "A grid of leader cards (photo, name, role, short bio, link to the bio page), grouped under section names such as 'Leadership' and 'Board of Directors'.",
     "use": "Only on leadership pages.",
     "on_request": true
+  },
+  "leader-card": {
+    "required": [
+      "leaderName"
+    ],
+    "fields": {
+      "sectionName": "The group this leader belongs to, e.g. 'Board of Directors'; cards with the same name are grouped together.",
+      "leaderName": "The person's full name.",
+      "leaderTitle": "Their role, e.g. 'President & CEO'.",
+      "bio": "Optional one or two sentences.",
+      "link": "Optional bio page."
+    }
   }
 }

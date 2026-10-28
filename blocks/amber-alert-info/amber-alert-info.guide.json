@@ -1,6 +1,6 @@
 {
   "amber-alert-info": {
-    "looks": "An image on the left; an AMBER Alert icon, a title, text, a button and two figures on the right.",
+    "looks": "An image on the left; on a red panel to the right, an AMBER Alert icon, a title, text, a button and two figures.",
     "use": "Explaining AMBER Alerts with two headline figures, when asked.",
     "on_request": true
   }

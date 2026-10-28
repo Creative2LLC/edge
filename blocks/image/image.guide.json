@@ -1,9 +1,19 @@
 {
   "custom-image": {
     "looks": "One image with an optional link and caption, at a chosen width and alignment.",
-    "use": "A standalone image, map or chart.",
+    "use": "A standalone image, map, chart or infographic.",
+    "avoid": "A photo that goes with a paragraph: use Text Image or Split Card, which set them side by side.",
     "required": [
       "image"
-    ]
+    ],
+    "fields": {
+      "image": "The image. Offer options with find_images unless the source gives a DAM path.",
+      "imageAlt": "What the image shows; for a chart, its main finding.",
+      "imageLink": "Optional address the image opens.",
+      "captionText": "Optional caption under the image, e.g. a source or credit.",
+      "imageWidth": "Share of the content column: width-25 to width-100, or empty for the image's own size. width-50 or width-66 suits a chart.",
+      "imagePosition": "align-left, align-center or align-right when the image is narrower than the column.",
+      "captionAlignment": "left (default), center or right."
+    }
   }
 }

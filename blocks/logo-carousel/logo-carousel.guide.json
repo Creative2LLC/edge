@@ -2,6 +2,7 @@
   "logo-carousel": {
     "looks": "A thin strip of partner logos that scrolls sideways, with arrows.",
     "use": "Partner, sponsor or member logos with no text.",
+    "avoid": "Logos with partner quotes: use Partners Showcase.",
     "items": {
       "min": 4
     }
@@ -12,7 +13,9 @@
       "logoAlt"
     ],
     "fields": {
-      "logoAlt": "The organisation's name."
+      "logo": "The organisation's logo, ideally on a transparent or white background.",
+      "logoAlt": "The organisation's name.",
+      "logoLink": "Optional link to the organisation's site."
     }
   }
 }

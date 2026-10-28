@@ -1,6 +1,6 @@
 {
   "general-inquiries": {
-    "looks": "The General Inquiries contact form.",
+    "looks": "The General Inquiries contact form (name, email, phone, topic, message), optionally beside a Team HOPE support panel.",
     "use": "Only on a contact page, when asked.",
     "on_request": true
   }

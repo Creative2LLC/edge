@@ -1,9 +1,15 @@
 {
   "partners-showcase": {
-    "looks": "A heading and intro, a continuously scrolling strip of logos, then quote cards from partners (logo, quote, name, title), and an optional button.",
+    "looks": "A heading and intro, a continuously scrolling strip of partner logos, then quote cards from partners (logo, quote, name, title), and an optional button.",
     "use": "Corporate partners and what they say about NCMEC.",
+    "avoid": "Logos with no quotes: use Logo Carousel.",
     "items": {
       "min": 4
+    },
+    "fields": {
+      "heading": "e.g. 'Our Partners'.",
+      "subheading": "One or two sentences.",
+      "ctaText": "Optional button under the quotes, e.g. 'Become a Partner', with ctaLink."
     }
   },
   "partners-showcase-item": {
@@ -11,9 +17,12 @@
       "logo"
     ],
     "fields": {
-      "itemType": "logo for the scrolling strip; testimonial for a quote card.",
-      "quote": "Testimonial items only.",
-      "attributionName": "Testimonial items only."
+      "itemType": "logo (default) for the scrolling strip; testimonial for a quote card. Add logos first, then testimonials.",
+      "logo": "The partner's logo.",
+      "logoLink": "Optional link to the partner's site.",
+      "quote": "Testimonial items only: the quote.",
+      "attributionName": "Testimonial items only: who said it.",
+      "attributionTitle": "Testimonial items only: their role and company."
     }
   }
 }

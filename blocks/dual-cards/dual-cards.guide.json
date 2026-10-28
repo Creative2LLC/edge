@@ -2,6 +2,7 @@
   "dual-cards": {
     "looks": "Two white link cards side by side, each with a small icon and a title; the whole card is the link.",
     "use": "Two quick links, e.g. 'Search Missing Child Posters' and 'AMBER Alerts'.",
+    "avoid": "Links that need a description: use Icon 1x4 Col Card (card-row-compact).",
     "items": {
       "best": "2 (or 4)"
     }
@@ -10,6 +11,12 @@
     "required": [
       "title",
       "buttonLink"
-    ]
+    ],
+    "fields": {
+      "icon": "A small icon beside the title.",
+      "title": "Where the card goes, a few words, e.g. 'Search Missing Child Posters'.",
+      "buttonText": "Optional link words under the title.",
+      "buttonLink": "The address the whole card opens."
+    }
   }
 }

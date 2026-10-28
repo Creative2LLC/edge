@@ -1,7 +1,12 @@
 {
   "resource-details": {
-    "looks": "A resource page's header and body.",
+    "looks": "A resource page's header (title, author, header image) and body.",
     "use": "Only on resource pages, which the backend generates.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "pageTitle": "The resource title.",
+      "authorName": "Optional author or team.",
+      "headerImage": "The header image."
+    }
   }
 }

@@ -1,15 +1,30 @@
 {
   "split-card-carousel": {
-    "looks": "A section title, then wide white slides one at a time: a photo on the left; a heading, text and up to two buttons on the right; dots and arrows underneath.",
-    "use": "Events or stories shown in turn, e.g. regional events.",
+    "looks": "A section title, then wide white slides shown one at a time: a photo on the left; a heading, text and up to two buttons on the right; dots and arrows underneath. Other styles show fixed-size cards with a 300px photo and a soft shadow.",
+    "use": "Events, stories or programmes shown in turn, e.g. regional events.",
+    "avoid": "A single item: use Split Card.",
     "items": {
-      "min": 2
+      "min": 2,
+      "best": "3 to 6"
+    },
+    "fields": {
+      "heading": "Optional section title above the slides.",
+      "description": "Optional sentence under the title.",
+      "variant": "default: full-width slides with arrows and dots. variant-2: fixed-size cards with a narrow photo and a soft shadow, text always left-aligned. variant-3: another compact card layout. Keep default unless asked."
     }
   },
   "split-card-carousel-item": {
     "required": [
       "image",
       "heading"
-    ]
+    ],
+    "fields": {
+      "image": "A photo; it fills the slide's left side.",
+      "heading": "A few words.",
+      "subheading": "Two or three sentences.",
+      "buttonText": "Optional button, with buttonLink.",
+      "button2Text": "Optional second button, with button2Link.",
+      "contentAlign": "left, center or right for this slide's text."
+    }
   }
 }

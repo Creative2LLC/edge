@@ -1,11 +1,15 @@
 {
   "card-row": {
-    "looks": "A grid of navy cards, each with a logo or small image at the top, a short paragraph and an outline 'Learn more' button. The vertical variant adds a title.",
+    "looks": "A grid of navy cards, each with a logo or small image at the top, a short paragraph and an outline 'Learn more' button. A vertical variant makes taller cards with a title, four per row.",
     "use": "Programmes or partner sites that each have their own logo.",
     "avoid": "No logos: use Multi Icn Btn Col Card Grid (info-cards-grid).",
     "items": {
       "min": 2,
       "best": "3 to 6"
+    },
+    "fields": {
+      "variant": "horizontal (default): larger cards, three per row, no title. vertical: taller cards with a title, four per row.",
+      "columns": "Optional cards per row, 1 to 6; empty keeps 3 (horizontal) or 4 (vertical)."
     }
   },
   "card-row-item": {
@@ -15,7 +19,9 @@
     ],
     "fields": {
       "logo": "A logo or emblem; the card is built around it.",
-      "title": "Shown only with variant vertical."
+      "title": "Shown only with variant vertical.",
+      "bodyText": "One or two sentences.",
+      "buttonText": "The button's words, e.g. 'Learn more', with buttonLink."
     }
   }
 }

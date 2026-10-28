@@ -1,9 +1,16 @@
 {
   "card-testimonies": {
-    "looks": "A title and subtitle above quote cards: a main card with a photo and a larger quote, and smaller text-only quote cards.",
+    "looks": "A title and subtitle above quote cards: a main card with a photo and a larger quote, and smaller text-only quote cards. A second style uses a lighter, larger title.",
     "use": "Quotes from families, survivors or partners.",
+    "avoid": "One quote on its own: use Custom Icon Text.",
     "items": {
-      "min": 1
+      "min": 1,
+      "best": "1 main card (with image) and 2 to 4 small ones"
+    },
+    "fields": {
+      "heading": "The title above the quotes.",
+      "subtitle": "Optional sentence.",
+      "titleAlign": "center (default), left or right."
     }
   },
   "card-testimonies-item": {
@@ -12,6 +19,7 @@
     ],
     "fields": {
       "image": "Add one for the large main card; leave empty for a small card.",
+      "quote": "The quote, without quotation marks.",
       "author": "Name or role, e.g. 'Team HOPE participant'."
     }
   }

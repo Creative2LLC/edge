@@ -1,6 +1,6 @@
 {
   "amber-alerts": {
-    "looks": "Active AMBER Alerts, loaded live; hidden when none are active.",
+    "looks": "Active AMBER Alerts, loaded live; hidden from visitors when none are active.",
     "use": "Only on AMBER Alert and poster pages.",
     "on_request": true
   }

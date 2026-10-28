@@ -2,9 +2,16 @@
   "media-reporting-info": {
     "looks": "A heading and intro above three columns, each a small heading and a paragraph.",
     "use": "Three short parallel points with no icons or links.",
+    "avoid": "Points with icons or links: use Multi Icn Btn Col Card Grid.",
     "required": [
       "heading",
       "itemOneHeading"
-    ]
+    ],
+    "fields": {
+      "heading": "Every text field comes pre-filled with the media team's anniversary wording: replace each one, or keep it only on a media page that uses it.",
+      "intro": "One or two sentences.",
+      "itemOneHeading": "A few words.",
+      "itemOneCopy": "One to three sentences."
+    }
   }
 }

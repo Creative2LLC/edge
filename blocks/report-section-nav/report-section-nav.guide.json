@@ -4,7 +4,8 @@
     "use": "Long pages with several named sections, when asked.",
     "on_request": true,
     "fields": {
-      "links": "One per line as Label|#section-id. Each id must exist on the page."
+      "links": "One per line as Label|#section-id. Each id must exist on the page. Pre-filled with the CyberTipline report's sections: replace them.",
+      "label": "A name for screen readers, e.g. 'Page sections'."
     }
   }
 }

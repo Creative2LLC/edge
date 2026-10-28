@@ -1,19 +1,30 @@
 {
   "hero": {
-    "looks": "The page opening: a large heading over a full-width photo (or a plain background), an optional breadcrumb, intro text, up to three buttons and an optional side panel.",
+    "looks": "The page opening: one large heading (the page's only h1) over a full-width photo or looping video under a soft white wash, with an optional breadcrumb trail, intro text, up to three buttons, a small badge image and an optional side panel. The text block sits left, centre or right.",
     "use": "The first block of almost every page; one per page.",
+    "avoid": "A second hero further down the page: use Split Card or a CTA block there.",
     "required": [
       "content_text"
     ],
     "fields": {
-      "content_text": "The page heading. Keep it short.",
-      "content_textHtml": "One or two sentences under the heading.",
-      "content_breadcrumbs": "e.g. 'Resources > For Families'.",
-      "media_image": "The background photo. Offer options with find_images.",
-      "media_featuredImage": "Optional second image beside the text.",
-      "media_video": "Optional background video (MP4); leave empty unless asked.",
-      "panel_title": "Optional side panel. Leave every panel_ field empty for no panel.",
-      "markerTerms": "Optional words from the heading to highlight, exactly as written, separated by |."
+      "content_text": "The page heading, one line: it becomes the page's only h1 and extra lines fold into it. Under about 8 words.",
+      "content_textHtml": "One or two sentences under the heading. A link inside a sentence stays a text link.",
+      "content_breadcrumbs": "The trail above the heading, e.g. 'Get Help > Survivor Support'. It only shows when content_showBreadcrumbs is 'show'.",
+      "content_showBreadcrumbs": "Set to 'show' whenever you fill content_breadcrumbs; the default 'hide' hides the trail.",
+      "content_position": "Where the text sits over the photo: left (default), center or right. Pick the side the photo leaves clear.",
+      "variant": "'homepage' is the taller home-page hero with a scroll cue, where words in [square brackets] in the heading turn blue. Only for the site's home page; everything else stays 'default'.",
+      "media_image": "The background photo, landscape, subject away from the text side. Offer options with find_images.",
+      "media_imageAlt": "Describe the photo in a short sentence.",
+      "media_featuredImage": "A small image, at most about 200px square, to the right of the text: a logo, seal or badge, never a photo.",
+      "media_video": "Optional looping background video (an MP4 in the DAM); the photo shows while it loads. Leave empty unless the source gives one.",
+      "action_1Text": "First button label, e.g. 'Make a Report'. Up to three buttons; fill 1, then 2, then 3, each with its link.",
+      "panel_title": "Optional box beside the heading for a key action or contact, e.g. 'Need help now?'. Leave every panel_ field empty for no panel.",
+      "panel_text": "One or two sentences in the side panel.",
+      "panel_primaryText": "Optional button in the side panel, with panel_primaryLink.",
+      "panel_secondaryText": "Optional text link under the panel button, with panel_secondaryLink.",
+      "panel_footerText": "Optional small print at the bottom of the panel, e.g. a phone number.",
+      "panel_image": "Optional image in the panel; used alone it shows on a clear background.",
+      "markerTerms": "Optional words from the heading or intro, exactly as written, separated by |, that get a hand-drawn circle or underline when scrolled into view. One short phrase at most."
     }
   }
 }

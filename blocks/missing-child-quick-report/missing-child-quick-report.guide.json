@@ -1,6 +1,6 @@
 {
   "missing-child-quick-report": {
-    "looks": "The Missing Child Quick Report form.",
+    "looks": "The Missing Child Quick Report form, with an emergency notice beside it.",
     "use": "Only on its own page, when asked.",
     "on_request": true
   }

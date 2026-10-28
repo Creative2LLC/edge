@@ -1,6 +1,6 @@
 {
   "impact-data-table": {
-    "looks": "A table of a report dataset, loaded from the reports database.",
+    "looks": "A heading, intro and a table of a report dataset loaded from the reports database, with optional fine print.",
     "use": "Only on impact or data report pages, when asked.",
     "on_request": true
   }

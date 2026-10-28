@@ -4,6 +4,11 @@
     "use": "A mailing address for donations or letters.",
     "required": [
       "address"
-    ]
+    ],
+    "fields": {
+      "heading": "e.g. 'Mail a Donation'.",
+      "address": "The address, one line per line of the envelope.",
+      "icon": "Optional icon, e.g. an envelope."
+    }
   }
 }

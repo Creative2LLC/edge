@@ -2,14 +2,25 @@
   "card-row-compact": {
     "looks": "A row of small white cards: an icon, a title, a short description and an optional text link.",
     "use": "Linking to three to six related topics or data pages.",
+    "avoid": "Cards that need a paragraph or a button: use Multi Icn Btn Col Card Grid.",
     "items": {
       "min": 2,
       "best": "3 to 6"
+    },
+    "fields": {
+      "columns": "Cards per row, 1 to 6; empty keeps 4.",
+      "alignment": "left (default), center or right for everything in the cards."
     }
   },
   "card-row-compact-item": {
     "required": [
       "title"
-    ]
+    ],
+    "fields": {
+      "icon": "A small icon; tinted with iconColor, or shown as is when that is empty.",
+      "title": "A few words.",
+      "subheading": "One short sentence.",
+      "linkText": "Optional text link, with linkUrl."
+    }
   }
 }

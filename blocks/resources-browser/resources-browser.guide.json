@@ -1,7 +1,12 @@
 {
   "resources-browser": {
-    "looks": "The searchable, filterable resource library.",
+    "looks": "The searchable, filterable resource library: a heading, intro, search box, filter menus and pages of resource cards loaded from the library.",
     "use": "Only on resource library pages.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "heading": "The library page's heading.",
+      "bodyText": "Optional intro between the heading and the search box.",
+      "library": "Which library this page lists and how its filters are worded: prevention, general, or both. Copy it from a similar existing page."
+    }
   }
 }

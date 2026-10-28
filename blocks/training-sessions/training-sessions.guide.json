@@ -1,9 +1,15 @@
 {
   "training-sessions": {
-    "looks": "A title and text above a list of rows: a bold first column, two more columns and an arrow link.",
-    "use": "A schedule of sessions: name, date, place.",
+    "looks": "A title and text above a list of rows: a bold first column, two more columns, a coloured status and an arrow link.",
+    "use": "A schedule of sessions: name, date, place and whether places are open.",
+    "avoid": "One or two events with photos: use Featured Event.",
     "items": {
       "min": 1
+    },
+    "fields": {
+      "title": "The heading above the list.",
+      "description": "Optional sentence.",
+      "alignment": "center (default), left or right for the title and description."
     }
   },
   "training-sessions-item": {
@@ -13,7 +19,9 @@
     "fields": {
       "column1": "The session name, e.g. 'PRPL Seminar'.",
       "column2": "e.g. the dates.",
-      "column3": "e.g. the place."
+      "column3": "e.g. the place.",
+      "status": "The coloured status in the fourth column: accepting-applications, limited-seats, coming-soon, closed or waitlist-open. Only what the source says.",
+      "link": "Where the arrow goes, e.g. the registration page."
     }
   }
 }

@@ -18,7 +18,10 @@
  *   required     fields that must be filled before the assistant may finish
  *   limits       field -> most characters it may hold
  *   link_optional  label fields that are fine without their link
- *   fields       field -> what goes in it, with an example
+ *   fields       field -> what goes in it, with an example. A note on a setting also puts
+ *                that setting in the block's style_options, which the assistant always
+ *                sees: note the settings that change the layout or look (and what each
+ *                value does), not fine-tuning, and not settings that have no effect
  *
  * They are merged into block-guides.json at the root, which the backend reads from the EDS
  * host beside component-models.json. The guide files themselves stay off the site

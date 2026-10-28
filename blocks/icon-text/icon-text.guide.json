@@ -1,8 +1,15 @@
 {
   "icon-text": {
-    "looks": "A centred heading and one line with an icon, the first part in red and the rest in blue.",
+    "looks": "A centred heading and one line with an icon, the first part of the line in red and the rest in blue.",
     "use": "One short giving fact, e.g. '92% of every dollar' / 'goes directly to our child-serving operations.'",
+    "avoid": "Several facts: use Statistics.",
+    "required": [
+      "redText",
+      "blueText"
+    ],
     "fields": {
+      "heading": "Optional heading above the line.",
+      "icon": "Optional small icon before the line.",
       "redText": "The first part, e.g. '92% of every dollar'.",
       "blueText": "The rest of the sentence."
     }

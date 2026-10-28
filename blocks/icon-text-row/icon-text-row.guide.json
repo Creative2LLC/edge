@@ -1,10 +1,11 @@
 {
   "icon-text-row": {
-    "looks": "A row of up to four columns, each a coloured line icon above a short centred sentence.",
+    "looks": "A row of up to four columns per row, each a coloured line icon above a short centred sentence. More items wrap to a new row.",
     "use": "Warning signs, tips or facts that are one sentence each.",
+    "avoid": "Points that need a title and a paragraph: use Multi Icn Btn Col Card Grid.",
     "items": {
       "min": 2,
-      "best": "4 per row"
+      "best": "4 or 8"
     }
   },
   "icon-text-row-item": {
@@ -13,6 +14,7 @@
       "cardText"
     ],
     "fields": {
+      "icon": "A simple line icon (SVG or PNG); it is tinted with iconColor.",
       "cardText": "One sentence."
     }
   }

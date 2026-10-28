@@ -1,6 +1,6 @@
 {
   "event-calendar": {
-    "looks": "A month calendar and table of events, loaded from the events database.",
+    "looks": "Featured event cards above a month calendar and a table of upcoming events, loaded from the events database.",
     "use": "Only on events pages, when asked.",
     "on_request": true
   }

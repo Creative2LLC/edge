@@ -1,7 +1,7 @@
 {
   "report-archive": {
     "looks": "An accordion of years; each opens to a cover image beside a list of PDF links.",
-    "use": "An archive of yearly report downloads.",
+    "use": "An archive of yearly report downloads, newest year first.",
     "items": {
       "min": 1
     }
@@ -13,7 +13,8 @@
     ],
     "fields": {
       "year": "e.g. '2024 Reports'.",
-      "links": "A <ul> list of links to the PDFs."
+      "links": "A <ul> list of links to the PDFs.",
+      "coverImage": "Optional cover beside the links."
     }
   }
 }

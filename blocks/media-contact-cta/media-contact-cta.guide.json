@@ -2,14 +2,17 @@
   "media-contact-cta": {
     "looks": "A dark navy band with a small icon, a heading, a sentence that ends in an email address, and a line of small print.",
     "use": "The press contact at the end of a media or newsroom page.",
+    "avoid": "Any contact that is not an email: use CTA Support or Icon Hyperlink 1x3 Col Card.",
     "required": [
       "heading",
       "email"
     ],
     "fields": {
+      "heading": "Pre-filled 'Contact Our Media Team', as are the other fields with the media team's details: keep them only for the media contact.",
       "copy": "The words before the email, e.g. 'For interview requests, B-roll, or expert commentary:'.",
       "email": "The address only, e.g. media@ncmec.org. It becomes a mail link.",
-      "note": "Small print, e.g. what to include in a request."
+      "note": "Small print, e.g. what to include in a request.",
+      "image": "Optional small icon."
     }
   }
 }

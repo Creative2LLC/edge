@@ -1,15 +1,26 @@
 {
   "historical-reports-carousel": {
-    "looks": "Sliding cards for past reports: a cover image, the year, the report count and a download link.",
+    "looks": "A heading and intro above sliding cards for past reports: a cover image, the year, the report count and a download link.",
     "use": "An archive of yearly reports.",
+    "avoid": "A single report: use Img Btn Banner (report-download).",
     "items": {
       "min": 2
+    },
+    "fields": {
+      "heading": "e.g. 'Past Reports'.",
+      "subheading": "Optional sentence."
     }
   },
   "historical-reports-carousel-item": {
     "required": [
       "year",
       "coverImage"
-    ]
+    ],
+    "fields": {
+      "coverImage": "The report's cover.",
+      "year": "e.g. '2023'.",
+      "reportCount": "Optional figure shown under the year, e.g. '36.2 million reports'. Only figures the source gives.",
+      "linkText": "e.g. 'Download Report', with linkUrl (the PDF)."
+    }
   }
 }

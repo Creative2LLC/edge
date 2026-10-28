@@ -2,8 +2,13 @@
   "split-thin-carousel": {
     "looks": "A section title, then large slides shown one at a time: a photo on the left; a heading, paragraphs, a button and an optional text link on the right; dots and arrows underneath.",
     "use": "Featuring several programmes in turn, each with a photo and a call to action.",
+    "avoid": "A single programme: use Split Card.",
     "items": {
       "min": 2
+    },
+    "fields": {
+      "heading": "Optional section title.",
+      "description": "Optional sentence under the title."
     }
   },
   "split-thin-carousel-item": {
@@ -12,7 +17,10 @@
       "heading"
     ],
     "fields": {
-      "linkText": "Optional extra text link under the button."
+      "heading": "A few words.",
+      "subheading": "One or two short paragraphs.",
+      "buttonText": "The button's words, with buttonLink.",
+      "linkText": "Optional extra text link under the button, with linkUrl."
     }
   }
 }

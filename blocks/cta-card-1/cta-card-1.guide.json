@@ -1,6 +1,6 @@
 {
   "cta-card-1": {
-    "looks": "A full-width rounded band in a soft colour: a heading and a sentence or two on the left, one or two buttons on the right (each with optional small text under it), and optional small print under the buttons.",
+    "looks": "A full-width rounded band in a soft gradient: a heading and a sentence or two on the left, one or two buttons on the right (each with optional small text under it), and optional small print under the buttons. Four arrangements, from tall stacked buttons to a compact band with buttons side by side.",
     "use": "Closing a section or page with one urgent action and an alternative, e.g. 'Is Your Child Missing?' with 'Call 911 Immediately' and '1-800-THE-LOST'.",
     "avoid": "Several equal choices: use a card block. No action at all: use Custom Text.",
     "required": [
@@ -10,10 +10,14 @@
     "fields": {
       "title": "A short heading or question, e.g. 'Is Your Child Missing?'.",
       "subtitle": "One or two sentences.",
-      "buttonSubtext": "Optional small line under the button, e.g. the phone number in digits.",
-      "belowButtonText": "Optional small print under the buttons.",
-      "button3Text": "Shows only with styleType variant-4.",
-      "styleType": "Colour and arrangement; keep the default unless asked."
+      "buttonText": "The main action, e.g. 'Call 911 Immediately', with buttonLink (tel: for a phone number).",
+      "buttonSubtext": "Optional small line on the button under its label, e.g. the number in digits.",
+      "button2Text": "Optional second action, with button2Link.",
+      "button2Subtext": "Optional small line on the second button.",
+      "belowButtonText": "Optional small print under the buttons, e.g. hours or a note.",
+      "button3Text": "Shows only with styleType variant-4, under the text on the left.",
+      "styleType": "variant-1 (default): large buttons stacked on the right. variant-2: a shorter band with a smaller heading and buttons sized to their labels. variant-3: a very large first button, the small print, then a solid second button. variant-4: compact, the two buttons side by side, plus a third button on the left.",
+      "button2Location": "right (default) beside the first button, or left under the text."
     }
   }
 }

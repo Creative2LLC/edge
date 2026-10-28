@@ -1,9 +1,14 @@
 {
   "colored-list": {
-    "looks": "A list with styled markers: bullets, numbers, circled numbers or circled bullets.",
-    "use": "A list that needs larger or circled markers than a plain bulleted list.",
+    "looks": "A list with large styled markers: bullets, numbers, numbers in circles or bullets in circles.",
+    "use": "A list of points or steps that needs bigger or circled markers than a plain bulleted list.",
+    "avoid": "A short plain list inside copy: put a <ul> in Custom Text. Steps that each need a heading: use numbered cards.",
     "items": {
       "min": 2
+    },
+    "fields": {
+      "listStyle": "bullet (default), number, circle-number (numbers in coloured circles) or circle-bullet. Steps → circle-number.",
+      "horizontalAlign": "left (default), center or right."
     }
   },
   "colored-list-item": {
@@ -11,7 +16,8 @@
       "itemText"
     ],
     "fields": {
-      "markerText": "Optional; replaces this item's number or bullet."
+      "itemText": "One point: a sentence or two; bold a lead-in if the source does.",
+      "markerText": "Optional; replaces this item's number or bullet, e.g. a letter. Leave empty for automatic numbering."
     }
   }
 }

@@ -2,14 +2,23 @@
   "faq": {
     "looks": "An optional heading above a stack of question rows that open to show their answers.",
     "use": "Questions and answers, or any set of topics where readers need only some of the answers.",
+    "avoid": "Two or three short answers everyone needs: show them as Custom Text.",
     "items": {
       "min": 2
+    },
+    "fields": {
+      "heading": "Optional, e.g. 'Frequently Asked Questions'.",
+      "preset": "manual (default) for your own questions. amber-additional-info shows the fixed AMBER Alert content instead of items; only on the AMBER page."
     }
   },
   "faq-item": {
     "required": [
       "question",
       "answer"
-    ]
+    ],
+    "fields": {
+      "question": "The question as a reader would ask it.",
+      "answer": "Rich text: paragraphs, lists and links."
+    }
   }
 }

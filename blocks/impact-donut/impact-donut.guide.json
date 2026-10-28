@@ -1,9 +1,19 @@
 {
   "impact-donut": {
-    "looks": "A heading, text and a 2x2 set of large figures with labels on the left; a donut chart with a legend on the right; up to two buttons.",
+    "looks": "A heading, text and a 2x2 set of large figures with labels on the left; a donut chart with a legend on the right; up to two buttons. White by default, or on a dark surface with white text.",
     "use": "How a whole divides into parts (e.g. 80% of spending on programmes) beside headline figures.",
+    "avoid": "Figures without a whole to divide: use Statistics.",
     "items": {
-      "min": 2
+      "min": 2,
+      "best": "4 stats and 2 to 4 segments"
+    },
+    "fields": {
+      "heading": "The heading.",
+      "bodyText": "One or two sentences.",
+      "primaryButtonText": "Optional button, with primaryButtonLink.",
+      "secondaryButtonText": "Optional second button, with secondaryButtonLink.",
+      "surfaceColor": "The block colour; empty is white. With a dark colour set textMode to light.",
+      "textMode": "dark (default) for a light surface; light (white text) for a dark surface."
     }
   },
   "impact-donut-item": {
@@ -12,9 +22,11 @@
       "label"
     ],
     "fields": {
-      "itemType": "stat for a figure on the left; segment for a slice of the donut.",
+      "itemType": "stat (default): a figure on the left. segment: a slice of the donut, listed in its legend.",
       "value": "What is shown, e.g. '80%' or '490K+'.",
-      "chartValue": "The number for the donut maths, e.g. 80. Segments should add up to 100."
+      "label": "What it is, a few words, e.g. 'Programs and services'.",
+      "chartValue": "Segments only: the number for the donut maths, e.g. 80. Segments should add up to 100. Empty uses value.",
+      "color": "Segments only: the slice colour. Give each segment a different one."
     }
   }
 }

@@ -1,16 +1,27 @@
 {
   "picture-cards": {
-    "looks": "A section heading and subheading above a row of photo cards with the title and text laid over the photo; a card can be a link.",
+    "looks": "A section heading and subheading above photo cards, three per row (two on tablets, one on phones), with the title and text laid over the lower part of each 3:2 photo; a card can be a link.",
     "use": "Visual topic or skill tiles with short captions.",
+    "avoid": "Cards whose text needs more than two sentences: the text sits on the photo, so use Image Text Card Row.",
     "items": {
       "min": 2,
-      "best": "3"
+      "best": "3 or 6"
+    },
+    "fields": {
+      "heading": "The section heading.",
+      "subheading": "Optional sentence under the heading."
     }
   },
   "picture-cards-item": {
     "required": [
       "image",
       "title"
-    ]
+    ],
+    "fields": {
+      "image": "A photo; it is cropped to 3:2 with the text over its lower part, so choose one whose subject sits high.",
+      "title": "A few words.",
+      "description": "One short sentence.",
+      "link": "Optional page the whole card opens."
+    }
   }
 }

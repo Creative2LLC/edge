@@ -1,13 +1,15 @@
 {
   "video": {
-    "looks": "A video with a placeholder image and a play button.",
+    "looks": "A video in a 16:9 frame with a placeholder image and a play button; it plays in place.",
     "use": "One YouTube, Vimeo or MP4 video.",
+    "avoid": "A video with a title, text and buttons beside it: look for a split or resource video block.",
     "required": [
       "url"
     ],
     "fields": {
-      "url": "A YouTube or Vimeo address, or an MP4 path.",
-      "image": "Optional still shown before playing."
+      "url": "A YouTube or Vimeo address, or an MP4 path in the DAM.",
+      "image": "Optional still with a play button; without one the YouTube, Vimeo or MP4 player itself loads in place.",
+      "imageAlt": "What the still shows."
     }
   }
 }

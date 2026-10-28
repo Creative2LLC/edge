@@ -1,7 +1,8 @@
 {
   "card-row-detailed": {
-    "looks": "A row of tall light cards: an icon, a heading, a short paragraph, a bulleted list, a button, optional extra text and a second button.",
-    "use": "Comparing two to four services, each with a list of what it includes.",
+    "looks": "A row of tall light cards: an optional icon, a heading, a short paragraph, a bulleted list, a button, optional extra text and a second button.",
+    "use": "Comparing two to four services or options, each with a list of what it includes.",
+    "avoid": "Cards without lists: use Multi Icn Btn Col Card Grid.",
     "items": {
       "min": 2,
       "best": "3"
@@ -12,9 +13,13 @@
       "heading"
     ],
     "fields": {
+      "icon": "Optional 96px icon at the top left.",
+      "heading": "The service or option, a few words.",
       "subheading": "One or two sentences.",
       "bulletList": "A <ul> list of what the service includes.",
-      "additionalText": "Optional line between the two buttons."
+      "buttonText": "Optional button, with buttonLink.",
+      "additionalText": "Optional line between the two buttons, e.g. 'or'.",
+      "button2Text": "Optional second button, with button2Link."
     }
   }
 }

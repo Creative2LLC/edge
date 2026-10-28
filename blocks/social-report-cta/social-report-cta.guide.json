@@ -1,10 +1,15 @@
 {
   "social-report-cta": {
-    "looks": "A dark panel: a heading and social media icons on one side and, optionally, a report cover with a download button on the other.",
+    "looks": "A dark panel: a small label, a heading, a line of intro and social media icons on one side and, optionally, a report cover with a heading, text and download button on the other.",
     "use": "The end of a data or report page: follow NCMEC on social media, plus a download of the full report.",
     "fields": {
+      "eyebrow": "Small label above the heading; pre-filled 'Stay connected'.",
+      "socialHeading": "Pre-filled 'Connect with us on social media'; keep or replace.",
+      "socialIntro": "Pre-filled one-line intro; keep or replace.",
       "facebookLink": "Full profile URL. An empty social link hides its icon.",
       "reportHeading": "Leave all the report fields empty to show only the social panel.",
+      "reportImage": "The report's cover.",
+      "reportButtonText": "e.g. 'Download the Full Report'; shows only with reportButtonLink.",
       "reportButtonLink": "The report PDF (/content/dam/… or a URL)."
     }
   }

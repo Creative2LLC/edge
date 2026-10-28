@@ -1,6 +1,6 @@
 {
   "impact-bar-chart": {
-    "looks": "A bar chart of a report dataset, loaded from the reports database.",
+    "looks": "A heading, intro and a bar chart (single or stacked) of a report dataset loaded from the reports database, with optional values on the bars, an optional data table and fine print.",
     "use": "Only on impact or data report pages, when asked.",
     "on_request": true
   }

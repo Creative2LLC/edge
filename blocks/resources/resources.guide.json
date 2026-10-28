@@ -1,10 +1,18 @@
 {
   "resources": {
-    "looks": "A heading with a button at the top right, then a sliding row of white cards: a photo, a coloured icon, a title, a short description and a 'Learn More' link.",
-    "use": "Pointing to audience pages or resources, e.g. 'For Families', 'For Law Enforcement'.",
+    "looks": "A heading with a button at the top right, then a sliding row of white cards: a photo, a small icon, a title, a short description and a 'Learn More' link. It can show resource library records instead of hand-made cards.",
+    "use": "Pointing to audience pages or resources, e.g. 'For Families', 'For Law Enforcement', four or more of them.",
+    "avoid": "Fewer than three cards: use Picture Cards or Image Text Card Row, which do not slide.",
+    "items": {
+      "min": 2,
+      "best": "4 to 8"
+    },
     "fields": {
-      "button": "The words on the top-right button.",
+      "heading": "The heading above the cards.",
+      "subheading": "Optional sentence under the heading.",
+      "button": "The words on the top-right button, e.g. 'View All Resources', with buttonLink.",
       "settings": "Library settings. Leave as they are.",
+      "apiBaseUrl": "Library settings. Leave as they are; with it set, library records replace hand-made cards.",
       "selected": "Library settings. Leave as they are.",
       "limit": "Library settings. Leave as they are."
     }
@@ -16,6 +24,10 @@
       "link"
     ],
     "fields": {
+      "image": "A landscape photo for the top of the card.",
+      "icon": "Optional small icon above the title.",
+      "title": "The audience or resource, a few words.",
+      "subtitle": "One sentence about it.",
       "link": "Where 'Learn More' goes.",
       "linkText": "Optional; defaults to 'Learn More'.",
       "tags": "Optional; leave empty unless the source gives tags."

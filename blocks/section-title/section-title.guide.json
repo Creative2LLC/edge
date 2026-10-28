@@ -1,13 +1,16 @@
 {
   "section-title": {
-    "looks": "A section's heading with an optional intro paragraph and an optional button, aligned left or centre.",
+    "looks": "A section's heading with an optional intro paragraph and an optional button, aligned left, centre or right.",
     "use": "Opening a section whose blocks have no heading of their own, e.g. above a row of cards.",
+    "avoid": "A heading alone with nothing else: Custom Heading is lighter.",
     "required": [
       "title"
     ],
     "fields": {
       "title": "The heading. Each paragraph shows on its own line.",
-      "subtitle": "One or two sentences."
+      "subtitle": "One or two sentences.",
+      "buttonText": "Optional button under the intro, with buttonLink.",
+      "textAlign": "left (default), center or right. Match the block below: centre over centred cards."
     }
   }
 }

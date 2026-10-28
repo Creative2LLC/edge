@@ -1,7 +1,13 @@
 {
   "newsletter": {
-    "looks": "A newsletter sign-up band: a background photo, a heading, a short line, an email field with topic choices and a button.",
+    "looks": "A sign-up band: a background photo, a heading, a short line and either a newsletter picker (a dropdown that opens the chosen newsletter's sign-up page) or an email field with a button.",
     "use": "Near the end of a page, when the author asks for a sign-up.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "content_heading": "e.g. 'Stay informed'.",
+      "content_subheading": "One sentence.",
+      "form_type": "dropdown (default): a list of newsletters, each opening its own sign-up page (form_options, one Label|URL per line). input: an email field that subscribes directly.",
+      "form_options": "For dropdown only: one newsletter per line as Label|URL."
+    }
   }
 }

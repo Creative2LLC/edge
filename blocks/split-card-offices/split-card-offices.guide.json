@@ -2,11 +2,15 @@
   "split-card-offices": {
     "looks": "Two columns: a large statement in big type on the left; on the right a contact card with an icon, a heading, up to two icon-and-text detail lines and up to two buttons.",
     "use": "One office's or team's contact details with a short statement.",
+    "avoid": "Several offices: use Img Btn 1-3 Col Card (regional-offices) or Icon Hyperlink 1x3 Col Card (connect-grid).",
     "fields": {
       "headingText": "The large left-hand statement.",
       "feature1Heading": "The card heading, e.g. 'NCMEC Texas Regional Office'.",
+      "feature1Icon": "Optional 48px icon above the card heading.",
       "feature2Text": "A detail line, e.g. the street address.",
-      "feature3Text": "Another detail, e.g. the phone number."
+      "feature3Text": "Another detail, e.g. the phone number.",
+      "button1Text": "Optional button, with button1Link.",
+      "button2Text": "Optional second button, with button2Link."
     }
   }
 }

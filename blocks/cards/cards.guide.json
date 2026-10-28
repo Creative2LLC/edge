@@ -1,10 +1,15 @@
 {
   "cards": {
-    "looks": "A grid of white cards, about three per row, each with an optional picture or logo, a centred title and text with links inside the sentences, optional highlighted large text and optional fine print.",
-    "use": "Short notices or programme blurbs whose links sit inside the text, e.g. 'Missing Anniversaries … click here'.",
+    "looks": "A grid of white cards, about three per row, each with an optional picture or logo, rich text whose links sit inside the sentences, optional large highlighted text (a figure or short phrase) above it and optional fine print below.",
+    "use": "Short notices or programme blurbs whose links sit inside the text, e.g. 'Missing Anniversaries … click here', or logos with a line about each partner.",
+    "avoid": "Cards that each need their own button: use Multi Icn Btn Col Card Grid (info-cards-grid). Cards built around a photo and a title: use Picture Cards or Image Card.",
     "items": {
       "min": 2,
       "best": "3 or 6"
+    },
+    "fields": {
+      "textAlignment": "left (default), center, right or justify for every card's text.",
+      "imageDisplay": "auto (default) fits logos and icons whole and crops photos to fill; logo or contain forces whole artwork; cover forces a crop."
     }
   },
   "card": {
@@ -13,8 +18,10 @@
     ],
     "fields": {
       "text": "Rich text. Start with the title as a bold or heading line; put links inside the sentences.",
-      "highlightText": "Optional large text shown first, such as a figure or short phrase.",
-      "disclaimer": "Optional fine print under the text."
+      "highlightText": "Optional large text shown first, such as a figure ('1 in 5') or a short phrase.",
+      "disclaimer": "Optional fine print under the text, e.g. a source.",
+      "image": "Optional picture or logo at the top of the card. Give every card one or none.",
+      "markerTerms": "Optional words from this card's text, exactly as written, separated by |, to circle or underline."
     }
   }
 }

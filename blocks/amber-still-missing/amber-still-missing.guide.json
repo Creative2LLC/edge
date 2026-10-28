@@ -1,6 +1,6 @@
 {
   "amber-still-missing": {
-    "looks": "A list of children from past AMBER Alerts who are still missing, loaded live.",
+    "looks": "An accordion listing children from past AMBER Alerts who are still missing, loaded live.",
     "use": "Only on the AMBER Alerts page.",
     "on_request": true
   }

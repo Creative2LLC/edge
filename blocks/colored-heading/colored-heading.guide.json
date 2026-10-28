@@ -1,12 +1,16 @@
 {
   "colored-heading": {
-    "looks": "A heading on its own, with a chosen level and alignment, and optional highlighted words.",
-    "use": "A section heading above Custom Text or a block without its own heading.",
+    "looks": "A heading on its own, with a chosen level and alignment, and optional hand-drawn highlighted words.",
+    "use": "A section heading above Custom Text, Custom List or a block without its own heading.",
+    "avoid": "A heading for a block that has its own heading field: fill that instead.",
     "required": [
       "heading"
     ],
     "fields": {
-      "heading": "Plain text.",
+      "heading": "Plain text, no links.",
+      "headingLevel": "h2 (default) for a section, h3 for a sub-section under an h2. Never h1: the hero holds the page's h1.",
+      "horizontalAlign": "left (default), center or right. Match the copy under it.",
+      "blockBackgroundColor": "Empty (default) is transparent. A colour paints a band behind the heading.",
       "markerTerms": "Optional words from the heading to circle or underline, exactly as written, separated by |."
     }
   }

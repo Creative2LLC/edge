@@ -1,6 +1,6 @@
 {
   "report-breakdown": {
-    "looks": "A year switcher with a chart and table of report types, loaded from the reports database.",
+    "looks": "A heading, a year switcher, and a chart with a table of report types for the chosen year, loaded from the reports database.",
     "use": "Only on CyberTipline or impact data pages, when asked.",
     "on_request": true
   }

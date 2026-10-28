@@ -2,8 +2,13 @@
   "detailed-carousel": {
     "looks": "A section title and description, then wide slides: a panoramic photo on top, three columns of title and text below it, and a button.",
     "use": "Several initiatives, each with three short facts or points.",
+    "avoid": "One initiative: use Split Card with a card block.",
     "items": {
       "min": 2
+    },
+    "fields": {
+      "heading": "The section title.",
+      "description": "One sentence under the title."
     }
   },
   "detailed-carousel-item": {
@@ -11,8 +16,12 @@
       "image"
     ],
     "fields": {
+      "image": "A wide panoramic photo; it is cropped to a letterbox shape.",
       "stat1Title": "A few words or a figure; the column heading.",
-      "stat1Body": "One or two sentences."
+      "stat1Body": "One or two sentences.",
+      "stat2Title": "Second column heading.",
+      "stat3Title": "Third column heading.",
+      "buttonText": "Optional button, with buttonLink."
     }
   }
 }

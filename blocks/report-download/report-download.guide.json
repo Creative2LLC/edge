@@ -2,6 +2,7 @@
   "report-download": {
     "looks": "A light panel with two overlapping report covers on the left, a heading and short text in the middle, and a download button on the right.",
     "use": "Offering one report or PDF to download.",
+    "avoid": "Several reports: use Report Archive or Historical Trends Carousel.",
     "required": [
       "heading",
       "frontImage",
@@ -9,7 +10,10 @@
     ],
     "fields": {
       "frontImage": "The report's cover.",
-      "backImage": "An inside page or second cover, shown behind and offset.",
+      "backImage": "An inside page or second cover, shown behind and offset. Optional.",
+      "heading": "The report's name.",
+      "bodyText": "One or two sentences about it.",
+      "buttonText": "e.g. 'Download the Report'.",
       "buttonLink": "The PDF: a /content/dam/… path or a URL."
     }
   }

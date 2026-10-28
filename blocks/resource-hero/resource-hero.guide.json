@@ -1,7 +1,15 @@
 {
   "resource-hero": {
-    "looks": "The resource page opening: title, intro, watch and download buttons, and a hero image.",
+    "looks": "The resource page opening: breadcrumb, title, intro, body text, 'Watch Video' and 'Download Resource' buttons, and a hero image.",
     "use": "Only on resource pages, which the backend generates.",
-    "on_request": true
+    "on_request": true,
+    "fields": {
+      "pageTitle": "The resource title.",
+      "resourceBody": "The resource description: a paragraph or two, lists allowed.",
+      "content_breadcrumbs": "e.g. 'Resources > NetSmartz'; Label::/path makes a crumb a link.",
+      "watchLabel": "The video button's words; the button shows only when a video is set.",
+      "downloadLabel": "The download button's words; the button shows only when a file or URL is set.",
+      "media_image": "The hero image."
+    }
   }
 }

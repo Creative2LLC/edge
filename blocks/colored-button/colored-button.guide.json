@@ -1,14 +1,19 @@
 {
   "colored-button": {
-    "looks": "One button on its own, optionally with an icon, aligned left, centre or right, or stretched.",
+    "looks": "One button on its own, with an icon on its right by default, aligned left, centre or right, or stretched full width. Solid, outlined or inverted.",
     "use": "A standalone button between other blocks, e.g. under Custom Text.",
+    "avoid": "A button that belongs to a block with its own button fields: fill those.",
     "required": [
       "label",
       "link"
     ],
     "fields": {
       "label": "The button's words, e.g. 'Make a Report'.",
-      "iconName": "Optional icon from the site's set, e.g. search or download."
+      "iconName": "The icon drawn on the button, from the site's set: download (the default), external-link, phone, search, send, chevron-down, clock, heart, shield, alert. Change it to match the action, or set iconPosition to 'none'.",
+      "iconPosition": "right (default), left, or none for no icon. Use none unless an icon fits the action.",
+      "icon": "Optional uploaded icon image; replaces iconName.",
+      "horizontalAlign": "left (default), center, right, or stretch for full width. Match the copy above it.",
+      "appearance": "solid (default) filled, outlined (border only), or inverted (white fill, coloured text) for a dark background."
     }
   }
 }

@@ -2,13 +2,18 @@
   "split-card-info": {
     "looks": "An image on the left inside a coloured shape; on the right a programme logo, a large figure followed by a few words, a paragraph and a button.",
     "use": "One programme with a headline figure, e.g. the CyberTipline with '20,512,803 total reports of suspected child sexual exploitation online'.",
+    "avoid": "No headline figure: use Split Card.",
     "required": [
       "mainImage"
     ],
     "fields": {
+      "mainImage": "A photo for the left side.",
       "subheading": "Figure first, then the words: '20,512,803 people served'. The figure is shown large.",
       "topLogo": "Optional programme logo, about 190x96.",
-      "heading": "Optional; often left empty when there is a logo."
+      "heading": "Optional; often left empty when there is a logo.",
+      "bodyText": "Two or three sentences.",
+      "buttonText": "Optional button, with buttonLink.",
+      "imageSplit": "half (default): the image takes half the width. third: a narrower image and more room for text."
     }
   }
 }

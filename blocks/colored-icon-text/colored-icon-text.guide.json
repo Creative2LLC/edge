@@ -1,14 +1,20 @@
 {
   "colored-icon-text": {
-    "looks": "A tinted box with a circular image or an icon beside text: an optional small label, a paragraph (often a quote), an optional second paragraph and an optional button.",
-    "use": "A quote with its attribution, or one key point with an icon.",
+    "looks": "A box with a circular photo, square photo or contained icon beside large bold text (about 32px): an optional small label that can be split in two colours, the main text (often a quote), an optional smaller second paragraph and an optional button.",
+    "use": "A pull quote with its attribution, or one key point with an icon or portrait.",
+    "avoid": "Several points in a row: use a card block. Long paragraphs: the main text is large, so keep it to one or two sentences.",
     "required": [
       "text"
     ],
     "fields": {
-      "text": "The main paragraph or quote.",
-      "text2": "Optional second paragraph, e.g. '– Survivor'.",
-      "label": "Optional small label above the text."
+      "text": "The main paragraph or quote, one or two sentences; it shows large and bold.",
+      "text2": "Optional second paragraph in normal size, e.g. the attribution '– Survivor, age 17'.",
+      "label": "Optional small label above the text, e.g. 'Survivor Story'.",
+      "labelPart2": "Optional second part of the label, shown after a divider in another colour.",
+      "image": "A portrait, photo or icon. Leave empty for text only.",
+      "imageMode": "circle (default) crops a photo to a circle, square keeps it square, icon shows artwork uncropped.",
+      "buttonText": "Optional button under the text, with buttonLink.",
+      "blockBackgroundColor": "The box colour; empty for no box."
     }
   }
 }
