@@ -12907,7 +12907,7 @@
         "valueType": "string"
       },
       {
-        "component": "text",
+        "component": "aem-content",
         "name": "action_1Link",
         "value": "",
         "label": "Button 1 Link",
@@ -12966,7 +12966,7 @@
         "valueType": "string"
       },
       {
-        "component": "text",
+        "component": "aem-content",
         "name": "action_2Link",
         "value": "",
         "label": "Button 2 Link",
@@ -13025,7 +13025,7 @@
         "valueType": "string"
       },
       {
-        "component": "text",
+        "component": "aem-content",
         "name": "action_3Link",
         "value": "",
         "label": "Button 3 Link",
@@ -13103,7 +13103,7 @@
         "valueType": "string"
       },
       {
-        "component": "text",
+        "component": "aem-content",
         "name": "panel_primaryLink",
         "value": "",
         "label": "Side Panel Primary Button Link",
@@ -13117,7 +13117,7 @@
         "valueType": "string"
       },
       {
-        "component": "text",
+        "component": "aem-content",
         "name": "panel_secondaryLink",
         "value": "",
         "label": "Side Panel Secondary Link",
@@ -18721,7 +18721,7 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "name",
+        "name": "leaderName",
         "label": "Leader Name",
         "value": ""
       },

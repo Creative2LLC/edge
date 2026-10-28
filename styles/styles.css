@@ -681,6 +681,15 @@ body {
   font-weight: var(--body-weight);
   line-height: var(--body-line-height);
   letter-spacing: var(--body-tracking);
+  overflow-wrap: break-word;
+}
+
+/* A long URL, email or unbroken word in authored copy was cut off by cards and banners
+   that clip their overflow (27 blocks in the 2026-10 stress test). `anywhere` also lets a
+   flex or grid item shrink below its longest word. Zero added specificity: a block's own
+   overflow-wrap still wins. */
+main :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, blockquote, figcaption) {
+  overflow-wrap: anywhere;
 }
 
 body.appear {

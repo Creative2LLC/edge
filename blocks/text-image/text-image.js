@@ -98,10 +98,10 @@ function getFieldCellText(row) {
   return getFieldCell(row)?.textContent?.trim() || '';
 }
 
-function isLikelyOverlayBody(value) {
-  const text = String(value || '').trim();
-  return text.length > 80 || /[.!?;]/.test(text);
-}
+// Published rows between the image and the style variant are the overlay fields in model
+// order: header, text, then subtext (older pages stop after text). Empty fields keep their
+// row, so read them by position; imageAlt never has a row, it is the image's alt.
+const OVERLAY_FIELDS = ['imageOverlayHeader', 'imageOverlayText', 'imageOverlaySubtext'];
 
 function getPublishedImageAdjacentCell(block, name) {
   const rows = [...block.querySelectorAll(':scope > div')];
@@ -114,23 +114,11 @@ function getPublishedImageAdjacentCell(block, name) {
     index > imageIndex && isStyleVariantValue(getFieldCellText(row))
   ));
   const endIndex = styleIndex >= 0 ? styleIndex : rows.length;
-  const textRows = rows
+  const overlayRows = rows
     .slice(imageIndex + 1, endIndex)
-    .map((row, offset) => ({ row, index: imageIndex + 1 + offset, value: getFieldCellText(row) }))
-    .filter(({ value }) => value && !isStyleVariantValue(value) && !isAppendedStyleValue(value));
-
-  const first = textRows[0];
-  const second = textRows[1];
-  const hasOverlayHeaderAndBody = Boolean(first && second && isLikelyOverlayBody(second.value));
-
-  if (hasOverlayHeaderAndBody) {
-    if (name === 'imageAlt') return null;
-    if (name === 'imageOverlayHeader') return getFieldCell(first.row);
-    if (name === 'imageOverlayText') return getFieldCell(second.row);
-    if (name === 'imageOverlaySubtext') return getFieldCell(textRows[2]?.row);
-  }
-
-  return null;
+    .filter((row) => !isAppendedStyleValue(getFieldCellText(row)));
+  const index = OVERLAY_FIELDS.indexOf(name);
+  return index >= 0 ? getFieldCell(overlayRows[index]) : null;
 }
 
 function getLegacyFieldCell(block, name) {
@@ -143,13 +131,9 @@ function getLegacyFieldCell(block, name) {
     return styleRow?.children[0] || null;
   }
 
-  if (['imageAlt', 'imageOverlayHeader', 'imageOverlayText', 'imageOverlaySubtext'].includes(name)) {
-    const imageAdjacentCell = getPublishedImageAdjacentCell(block, name);
-    if (imageAdjacentCell) return imageAdjacentCell;
-    if (name === 'imageAlt' && imageAdjacentCell === null) {
-      const overlayHeaderCell = getPublishedImageAdjacentCell(block, 'imageOverlayHeader');
-      if (overlayHeaderCell) return null;
-    }
+  if (name === 'imageAlt') return null;
+  if (OVERLAY_FIELDS.includes(name) && block.querySelector(':scope > div picture, :scope > div img')) {
+    return getPublishedImageAdjacentCell(block, name);
   }
 
   const index = LEGACY_FIELD_INDEX[name];

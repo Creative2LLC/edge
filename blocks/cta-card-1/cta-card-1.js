@@ -103,8 +103,11 @@ function fitsCurrentFieldOrder(values) {
   const slot = (name) => values[CURRENT_FIELD_ORDER.indexOf(name)];
   const emptyOr = (name, predicate) => !slot(name) || predicate(slot(name));
   const isLink = (value) => !isValidHexColor(value);
-  return emptyOr('gradientLeft', isValidHexColor)
-    && emptyOr('gradientRight', isValidHexColor)
+  // The gradients are free-text fields, so a typo there ("blue", "#00264") must not decide
+  // the shape; only the select slots, which hold fixed vocabularies, are evidence.
+  const isFreeText = (value) => !isButtonLocation(value) && !isStyleType(value);
+  return emptyOr('gradientLeft', isFreeText)
+    && emptyOr('gradientRight', isFreeText)
     && emptyOr('buttonLink', isLink)
     && emptyOr('buttonColor', isButtonColorSlotValue)
     && emptyOr('buttonTextColor', isValidHexColor)

@@ -101,12 +101,37 @@ async function getResourceData(scope) {
   return pendingData;
 }
 
+// Published, the block fields are the leading one-cell rows in model order (the header
+// image alt folds into the image); an empty field keeps its row.
+const BLOCK_FIELD_INDEX = {
+  headerImage: 0,
+  title: 1,
+  subtitle: 2,
+  textAlign: 3,
+  blockBackgroundColor: 4,
+  layout: 5,
+  cardsPerRow: 6,
+  cardBackgroundColor: 7,
+  colorMode: 8,
+};
+
+function publishedBlockRows(block) {
+  const rows = [];
+  [...block.querySelectorAll(':scope > div')].every((row) => {
+    if (row.children.length !== 1 || row.querySelector('[data-aue-prop]')) return false;
+    rows.push(row);
+    return true;
+  });
+  return rows;
+}
+
 function getBlockField(block, name) {
   const field = readTextField(block, name);
-  return {
-    source: field.source,
-    value: field.value,
-  };
+  if (field.source || block.querySelector('[data-aue-prop]')) {
+    return { source: field.source, value: field.value };
+  }
+  const row = publishedBlockRows(block)[BLOCK_FIELD_INDEX[name]];
+  return { source: null, value: row?.textContent.trim() || '' };
 }
 
 function getRowTextField(row, name, index) {

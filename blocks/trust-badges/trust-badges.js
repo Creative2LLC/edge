@@ -123,8 +123,10 @@ function readBlockField(block, legacyMap, name, type = 'text') {
   return legacyMap[name] || { source: null, value: '' };
 }
 
+// A badge is a row of several cells (block fields are one cell each). Requiring a logo too
+// dropped a badge published without one, caption and link included.
 function isBadgeRow(row) {
-  return row.children.length >= 3 && Boolean(row.querySelector('picture'));
+  return row.children.length >= 3;
 }
 
 function getParentRows(block) {

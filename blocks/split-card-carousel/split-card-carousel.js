@@ -85,11 +85,13 @@ function isLikelyBodyText(value) {
 }
 
 function getSlideFieldMap(row) {
-  const hasNamedHeading = Boolean(row.querySelector('[data-aue-prop="heading"]'));
-  const hasPicture = Boolean(row.querySelector('picture, img'));
+  // Published rows carry no instrumentation. Whether the slide has a picture says nothing
+  // about its shape: a slide published without an image keeps an empty image cell, and
+  // requiring a picture sent it to the editor map, one cell off (heading lost).
+  const isPublished = !row.querySelector('[data-aue-prop], [data-richtext-prop]');
   const columnCount = row.children.length;
 
-  if (!hasNamedHeading && hasPicture && columnCount <= 8) {
+  if (isPublished && columnCount <= 8) {
     const firstTextCellIsBody = isLikelyBodyText(textAt(row, 1))
       && !isLikelyBodyText(textAt(row, 2));
 
@@ -140,7 +142,7 @@ function getSlideFieldMap(row) {
   // subheading as the heading, buttonText as the subheading, and lost the
   // buttons entirely — verified against the published cells, where the two
   // "default" values land on 6 and 10 exactly as this map expects.
-  if (!hasNamedHeading && hasPicture && columnCount >= 9) {
+  if (isPublished && columnCount >= 9) {
     return {
       image: 0,
       imageAlt: -1,

@@ -153,18 +153,19 @@ export default function decorate(block) {
   const slides = [];
   slideRows.forEach((row) => {
     const imageField = getImageField(row, 0);
-    const imageAltField = getField(row, 'imageAlt', 1);
+    // imageAlt publishes as the image's alt, not a cell; the cells after it move up one.
+    const imageAltField = getField(row, 'imageAlt', null);
 
     // Read all fields
-    const stat1TitleField = getField(row, 'stat1Title', 2);
-    const stat1BodyField = getField(row, 'stat1Body', 3);
-    const stat2TitleField = getField(row, 'stat2Title', 4);
-    const stat2BodyField = getField(row, 'stat2Body', 5);
-    const stat3TitleField = getField(row, 'stat3Title', 6);
-    const stat3BodyField = getField(row, 'stat3Body', 7);
-    const buttonTextField = getField(row, 'buttonText', 8);
-    const buttonLinkField = getLinkField(row, 'buttonLink', 9);
-    const buttonColorField = getField(row, 'buttonColor', 10);
+    const stat1TitleField = getField(row, 'stat1Title', 1);
+    const stat1BodyField = getField(row, 'stat1Body', 2);
+    const stat2TitleField = getField(row, 'stat2Title', 3);
+    const stat2BodyField = getField(row, 'stat2Body', 4);
+    const stat3TitleField = getField(row, 'stat3Title', 5);
+    const stat3BodyField = getField(row, 'stat3Body', 6);
+    const buttonTextField = getField(row, 'buttonText', 7);
+    const buttonLinkField = getLinkField(row, 'buttonLink', 8);
+    const buttonColorField = getField(row, 'buttonColor', 9);
 
     // Check if stat3 values match button values (indicating they were read from same cell)
     // If stat3Title matches buttonText exactly, it means buttonText was read as stat3Title

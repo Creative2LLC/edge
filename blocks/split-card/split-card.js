@@ -88,32 +88,35 @@ const IMAGE_SIZE_VALUES = ['even', 'smaller'];
 const BLOCK_SIZE_VALUES = ['normal', 'smaller'];
 const STYLING_VARIANT_VALUES = ['default', 'variant-2'];
 
+// Published rows of the current model. imageAlt has no row: it publishes as the image's
+// alt. Every field keeps its row when empty, so a current page always has exactly these
+// rows (plus the appended Heading Level, taken first).
 const CURRENT_FIELD_INDEX = {
   heading: 0,
   subheading: 1,
   image: 2,
-  imageAlt: 3,
-  imagePosition: 4,
-  imageSize: 5,
-  buttonText: 6,
-  buttonLink: 7,
-  buttonColor: 8,
-  buttonStyle: 9,
-  buttonSubtext: 10,
-  button2Text: 11,
-  button2Link: 12,
-  button2Color: 13,
-  button2Style: 14,
-  button2Subtext: 15,
-  backgroundColor: 16,
-  headingColor: 17,
-  subheadingColor: 18,
-  textColor: 19,
-  contentAlign: 20,
-  blockSize: 21,
-  maxWidth: 22,
-  stylingVariant: 23,
+  imagePosition: 3,
+  imageSize: 4,
+  buttonText: 5,
+  buttonLink: 6,
+  buttonColor: 7,
+  buttonStyle: 8,
+  buttonSubtext: 9,
+  button2Text: 10,
+  button2Link: 11,
+  button2Color: 12,
+  button2Style: 13,
+  button2Subtext: 14,
+  backgroundColor: 15,
+  headingColor: 16,
+  subheadingColor: 17,
+  textColor: 18,
+  contentAlign: 19,
+  blockSize: 20,
+  maxWidth: 21,
+  stylingVariant: 22,
 };
+const CURRENT_ROW_COUNT = 23;
 
 // Pages authored before the field-tab cleanup publish in the previous image-first order.
 // Several optional fields do not emit rows when empty, so these indices mirror the old
@@ -259,8 +262,28 @@ function findFallbackSizeFromEnd(block, preferredIndex) {
     .find(Boolean) || '';
 }
 
+/**
+ * A page published from the current model, recognised by its shape: the exact row count,
+ * no image in the heading slot, and a valid value (or nothing) in every select slot. Its
+ * fields are read strictly by position. Deciding by an empty heading instead sent a card
+ * with no heading down the legacy path, where its buttons read the wrong rows.
+ */
+function isCurrentShape(block) {
+  const cells = getRowCells(block);
+  const text = (name) => cells[CURRENT_FIELD_INDEX[name]]?.textContent.trim().toLowerCase() || '';
+  const oneOf = (name, values) => !text(name) || values.includes(text(name));
+  return cells.length === CURRENT_ROW_COUNT
+    && [...block.querySelectorAll(':scope > div')].every((row) => row.children.length <= 1)
+    && !cells[CURRENT_FIELD_INDEX.heading].querySelector('picture')
+    && oneOf('imagePosition', IMAGE_POSITION_VALUES)
+    && oneOf('imageSize', IMAGE_SIZE_VALUES)
+    && oneOf('contentAlign', CONTENT_ALIGN_VALUES)
+    && oneOf('blockSize', BLOCK_SIZE_VALUES)
+    && oneOf('stylingVariant', STYLING_VARIANT_VALUES);
+}
+
 function getFallbackIndexMap(block, isEditor) {
-  if (isEditor) return CURRENT_FIELD_INDEX;
+  if (isEditor || isCurrentShape(block)) return CURRENT_FIELD_INDEX;
 
   const currentHeading = getFallbackText(block, CURRENT_FIELD_INDEX.heading);
   const legacyHeading = getFallbackText(block, LEGACY_FIELD_INDEX.heading);
@@ -519,7 +542,11 @@ export default async function decorate(block) {
   const headingLevel = takeHeadingLevel(block, { resourceValue: resourceData.headingLevel });
   const picture = getImage(block);
   const fieldIndex = getFallbackIndexMap(block, isEditor);
-  const flattened = parseFlattenedFields(block, isEditor);
+  // A current-shape page is read by position only; the value-guessing readers are for the
+  // older shapes, where empty fields dropped their rows.
+  const strict = !isEditor && isCurrentShape(block);
+  const flattened = strict ? {} : parseFlattenedFields(block, isEditor);
+  const strictText = (name) => (strict ? getFallbackText(block, fieldIndex[name]) : '');
 
   // Use the selected field index map for positional live fallbacks. Author keeps using
   // data-aue-prop/resource JSON, while live can support both current and pre-tabs rows.
@@ -574,8 +601,10 @@ export default async function decorate(block) {
     'default',
   );
   const buttonSubtext = getField(block, 'buttonSubtext')
+    || strictText('buttonSubtext')
     || normalizeJsonFieldValue(resourceData.buttonSubtext);
   const button2Subtext = getField(block, 'button2Subtext')
+    || strictText('button2Subtext')
     || normalizeJsonFieldValue(resourceData.button2Subtext);
   const imageAlt = getField(block, 'imageAlt') || normalizeJsonFieldValue(resourceData.imageAlt);
 
@@ -614,39 +643,39 @@ export default async function decorate(block) {
   );
   const imagePosition = normalizeOptionValue(
     getField(block, 'imagePosition')
-      || findFallbackOptionNear(block, fieldIndex.imagePosition, IMAGE_POSITION_VALUES, 'left')
+      || (strict ? strictText('imagePosition') : findFallbackOptionNear(block, fieldIndex.imagePosition, IMAGE_POSITION_VALUES, 'left'))
       || resourceData.imagePosition,
     IMAGE_POSITION_VALUES,
     'left',
   );
   const maxWidth = normalizeSizeValue(
     getField(block, 'maxWidth')
-      || findFallbackSizeFromEnd(block, fieldIndex.maxWidth)
+      || (strict ? strictText('maxWidth') : findFallbackSizeFromEnd(block, fieldIndex.maxWidth))
       || resourceData.maxWidth,
   );
   const blockSize = normalizeOptionValue(
     getField(block, 'blockSize')
-      || findFallbackOptionFromEnd(block, fieldIndex.blockSize, BLOCK_SIZE_VALUES, 'normal')
+      || (strict ? strictText('blockSize') : findFallbackOptionFromEnd(block, fieldIndex.blockSize, BLOCK_SIZE_VALUES, 'normal'))
       || resourceData.blockSize,
     BLOCK_SIZE_VALUES,
     'normal',
   );
   const imageSize = normalizeOptionValue(
     getField(block, 'imageSize')
-      || findFallbackOptionNear(block, fieldIndex.imageSize, IMAGE_SIZE_VALUES, 'even')
+      || (strict ? strictText('imageSize') : findFallbackOptionNear(block, fieldIndex.imageSize, IMAGE_SIZE_VALUES, 'even'))
       || resourceData.imageSize,
     IMAGE_SIZE_VALUES,
     'even',
   );
   const stylingVariant = normalizeOptionValue(
     getField(block, 'stylingVariant')
-      || findFallbackOptionFromEnd(
+      || (strict ? strictText('stylingVariant') : findFallbackOptionFromEnd(
         block,
         fieldIndex.stylingVariant,
         STYLING_VARIANT_VALUES,
         'default',
         false,
-      )
+      ))
       || resourceData.stylingVariant,
     STYLING_VARIANT_VALUES,
     'default',

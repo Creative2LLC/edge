@@ -149,11 +149,47 @@ function getDirectRows(block) {
   return [...block.querySelectorAll(':scope > div')];
 }
 
+// The legacy model published one row per placeholder and message (backgroundColor was row
+// 12). A current block has at most 10 rows (its hero fields share one grouped cell), so
+// only a block that long is read with the legacy map; a current block whose placeholder
+// text was simply customised used to fall through and print its colour as a placeholder.
+function isLegacyShape(block) {
+  return getDirectRows(block).length > LEGACY_ROW_INDEX.backgroundColor;
+}
+
 function hasImage(node) {
   return Boolean(node?.querySelector?.('picture, img'));
 }
 
+/**
+ * The hero_* fields share a name prefix, so they publish grouped into ONE cell: a <p> per
+ * filled field in model order (style, heading, subheading, button text, link, image), and
+ * nothing for an empty one. Returns the <p> holding the named field, or undefined when the
+ * block has no grouped hero cell.
+ */
+function findGroupedHeroPart(block, name) {
+  const cell = getDirectRows(block)
+    .map((row) => row.children[0])
+    .find((candidate) => candidate?.children.length > 1
+      && /^(default|support)$/i.test(candidate.firstElementChild?.textContent.trim()));
+  if (!cell) return undefined;
+  const parts = [...cell.children];
+  const texts = parts.slice(1).filter((part) => !part.querySelector('a, picture, img'));
+  return {
+    hero_style: parts[0],
+    hero_heading: texts[0],
+    hero_subheading: texts[1],
+    hero_buttonText: texts[2],
+    hero_buttonLink: parts.find((part) => part.querySelector('a')),
+    hero_backgroundImage: parts.find((part) => part.querySelector('picture, img')),
+  }[name] || null;
+}
+
 function findSemanticFallbackCell(block, name, rowIndex, columnIndex = 0) {
+  if (name.startsWith('hero_')) {
+    const part = findGroupedHeroPart(block, name);
+    if (part !== undefined) return part;
+  }
   const rows = getDirectRows(block);
   const rowText = (row) => row.textContent.trim();
   const findRow = (predicate) => rows.find((row) => predicate(rowText(row), row));
@@ -651,7 +687,7 @@ function buildPlaceholderFields(block) {
   const combinedField = getField(block, 'fieldPlaceholders', BLOCK_ROW_INDEX);
   const combinedValues = parseNamedEntries(combinedField.value, FIELD_KEYS);
 
-  if (combinedField.source || combinedField.value) {
+  if (combinedField.source || combinedField.value || !isLegacyShape(block)) {
     return {
       fullName: {
         source: null,
@@ -689,7 +725,7 @@ function buildStatusMessages(block) {
   const combinedField = getField(block, 'statusMessages', BLOCK_ROW_INDEX);
   const combinedValues = parseNamedEntries(combinedField.value, MESSAGE_KEYS);
 
-  if (combinedField.source || combinedField.value) {
+  if (combinedField.source || combinedField.value || !isLegacyShape(block)) {
     return {
       success: combinedValues.success || DEFAULTS.successMessage,
       error: combinedValues.error || DEFAULTS.errorMessage,

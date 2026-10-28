@@ -76,7 +76,8 @@ const ITEM_COLUMN_INDEX = {
   cardBackgroundColor: 18,
   cardHoverBackgroundColor: 19,
   showDivider: 20,
-  imageAlt: 21,
+  // imageAlt publishes as the image's alt, never as a cell.
+  imageAlt: null,
 };
 
 const LEGACY_ITEM_COLUMN_INDEX = {
@@ -101,7 +102,7 @@ const LEGACY_ITEM_COLUMN_INDEX = {
   cardBackgroundColor: 18,
   showDivider: 19,
   cardHoverBackgroundColor: 20,
-  imageAlt: 21,
+  imageAlt: null,
 };
 
 [
@@ -118,8 +119,9 @@ const LEGACY_ITEM_COLUMN_INDEX = {
   'cardItemSpacing',
   'contactMethodSpacing',
 ].forEach((name, offset) => {
-  ITEM_COLUMN_INDEX[name] = 22 + offset;
-  LEGACY_ITEM_COLUMN_INDEX[name] = 22 + offset;
+  // Straight after showDivider (20): the folded imageAlt takes no cell.
+  ITEM_COLUMN_INDEX[name] = 21 + offset;
+  LEGACY_ITEM_COLUMN_INDEX[name] = 21 + offset;
 });
 
 const DEFAULTS = {

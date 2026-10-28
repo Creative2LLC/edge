@@ -167,19 +167,28 @@ export default function decorate(block) {
     return cur && cur.parentElement === block ? cur : null;
   };
 
-  let sectionTitle = '';
-  const titleField = readTextField(block, 'title');
-  if (titleField.source) {
-    sectionTitle = titleField.value;
-    directRowOf(titleField.source)?.remove();
-  }
-
-  let sectionSubtitle = '';
-  const subtitleField = readTextField(block, 'subtitle');
-  if (subtitleField.source) {
-    sectionSubtitle = subtitleField.value;
-    directRowOf(subtitleField.source)?.remove();
-  }
+  // Published, the title and subtitle are the leading one-cell rows (cards are rows of
+  // many cells); an empty field keeps its row, so position holds.
+  const leadingRows = [];
+  [...block.querySelectorAll(':scope > div')].every((row) => {
+    if (leadingRows.length >= 2 || row.children.length !== 1 || row.querySelector('[data-aue-prop], picture')) return false;
+    leadingRows.push(row);
+    return true;
+  });
+  const readBlockText = (name, index) => {
+    const field = readTextField(block, name);
+    if (field.source) {
+      const { value } = field;
+      directRowOf(field.source)?.remove();
+      return value;
+    }
+    const row = leadingRows[index];
+    if (!row) return '';
+    row.remove();
+    return row.textContent.trim();
+  };
+  const sectionTitle = readBlockText('title', 0);
+  const sectionSubtitle = readBlockText('subtitle', 1);
 
   // Iterate remaining rows as cards
   const rows = [...block.querySelectorAll(':scope > div')];

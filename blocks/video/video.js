@@ -130,9 +130,11 @@ function loadVideoEmbed(block, link, autoplay, background) {
 
 export default async function decorate(block) {
   const placeholder = block.querySelector('picture');
-  const anchor = block.querySelector('a');
-  if (!anchor) return;
-  const link = anchor.href;
+  // The URL field publishes as a link, or as plain text when it was not auto-linked; left
+  // unread, that text was printed under the placeholder.
+  const link = block.querySelector('a')?.href
+    || block.textContent.match(/https?:\/\/\S+/)?.[0];
+  if (!link) return;
   block.textContent = '';
   block.dataset.embedLoaded = false;
 

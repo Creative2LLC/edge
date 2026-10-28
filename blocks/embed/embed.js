@@ -89,8 +89,11 @@ const loadEmbed = (block, link, autoplay) => {
 
 export default function decorate(block) {
   const placeholder = block.querySelector('picture');
-  const link = block.querySelector('a').href;
+  // The URL field publishes as a link, or as plain text when it was typed without one.
+  const link = block.querySelector('a')?.href
+    || block.textContent.trim().match(/^https?:\/\/\S+$/)?.[0];
   block.textContent = '';
+  if (!link) return;
 
   if (placeholder) {
     const wrapper = document.createElement('div');

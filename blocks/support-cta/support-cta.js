@@ -27,13 +27,19 @@ const DEFAULTS = {
 };
 
 function moveText(field, target, fallbackValue = '') {
-  if (!field?.source) {
+  // In the editor the field is its instrumented element; published, it is the plain cell.
+  const node = field?.source || field?.cell;
+  if (!node) {
     target.textContent = fallbackValue;
     return;
   }
 
-  moveInstrumentation(field.source, target);
-  while (field.source.firstChild) target.append(field.source.firstChild);
+  moveInstrumentation(node, target);
+  // A published cell wraps its text in a <p>; the target is already the text element.
+  const from = node.children.length === 1 && node.firstElementChild.tagName === 'P'
+    && !node.firstElementChild.nextSibling && !node.firstElementChild.previousSibling
+    ? node.firstElementChild : node;
+  while (from.firstChild) target.append(from.firstChild);
 
   if (!target.childNodes.length && fallbackValue) {
     target.textContent = fallbackValue;

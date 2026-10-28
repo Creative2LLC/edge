@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import getSiteSearchConfig from '../../scripts/site-search-config.js';
 import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
 import { applyButtonStyle, decorateButtonText } from '../../scripts/button-utils.js';
@@ -481,7 +482,9 @@ function parseIntSafe(value, fallback = 8) {
 }
 
 function normalizeApiBaseUrl(value) {
-  return `${value || ''}`.trim().replace(/\/+$/, '');
+  const url = `${value || ''}`.trim().replace(/\/+$/, '');
+  // Anything that is not an absolute URL (a typo, a half-typed value) would throw later.
+  return /^https?:\/\/[^/\s]+/.test(url) ? url : '';
 }
 
 function splitSelectedResources(values) {
@@ -2261,6 +2264,9 @@ export default function decorate(block) {
     })
     .filter(Boolean);
 
+  // The API URL is a per-block field, but every block talks to the one site backend; a
+  // block placed without it used to show visitors a debug panel instead of resources.
+  config.apiBaseUrl = normalizeApiBaseUrl(config.apiBaseUrl) || getSiteSearchConfig().apiBaseUrl;
   if (!config.apiBaseUrl) {
     renderInlineBrowser(block, config, inlineResources, [
       'Could not detect apiBaseUrl in the published block markup.',

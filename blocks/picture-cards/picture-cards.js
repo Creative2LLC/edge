@@ -72,8 +72,11 @@ export default function decorate(block) {
   const heading = rows.length
     ? (readTextField(block, 'heading').value || normalizeText(rows[0]?.children[0]?.textContent))
     : '';
+  // Published, the subheading is the second one-cell row (cards are rows of several cells).
+  const subheadingRow = rows[1]?.children.length === 1 && !rows[1].querySelector('img, [data-aue-prop]')
+    ? rows[1] : null;
   const subheading = rows.length
-    ? (readTextField(block, 'subheading').value || '')
+    ? (readTextField(block, 'subheading').value || normalizeText(subheadingRow?.textContent) || '')
     : '';
 
   const itemRows = rows.filter((row) => {

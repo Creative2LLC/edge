@@ -433,8 +433,21 @@ function normalizeHeight(value) {
   const trimmed = value.trim().toLowerCase();
   if (!trimmed) return null;
   if (/^[0-9]*\.?[0-9]+$/.test(trimmed)) return `${trimmed}rem`;
-  if (/^[0-9]*\.?[0-9]+rem$/.test(trimmed)) return trimmed;
+  if (/^[0-9]*\.?[0-9]+(rem|px|vh|svh|dvh|%)$/.test(trimmed)) return trimmed;
   return null;
+}
+
+/**
+ * content_textHtmlClass is the last field of the grouped content cell, so when filled it is
+ * the cell's last paragraph: a list of CSS class names. It was printed as copy. Class
+ * names are recognised by shape (each token joined by "-" or "_", like "hero-wide").
+ */
+function getPublishedHtmlClassNode(block) {
+  const contentCell = getContentCell(block);
+  const last = contentCell?.lastElementChild;
+  if (!last || last.tagName !== 'P' || last.children.length || last === contentCell.firstElementChild) return null;
+  const tokens = last.textContent.trim().split(/s+/);
+  return tokens.every((token) => /^-?[a-z_][a-z0-9]*([-_][a-z0-9]+)+$/i.test(token)) ? last : null;
 }
 
 function getFieldValue(block, nameOrNames) {
@@ -457,7 +470,16 @@ function getFieldValue(block, nameOrNames) {
     ));
     fallbackValue = getCellText(fallbackCell);
   } else if (hasName('content_height', 'height')) {
-    fallbackCell = getStandaloneNumberNode(getContentCell(block));
+    // Height is the first field of the grouped content cell; it may carry a unit.
+    const first = getContentCell(block)?.firstElementChild;
+    fallbackCell = first?.tagName === 'P' && normalizeHeight(first.textContent)
+      ? first : getStandaloneNumberNode(getContentCell(block));
+    fallbackValue = getCellText(fallbackCell);
+  } else if (hasName('content_textColor', 'text_color')) {
+    // Published, the colour is a paragraph of the grouped content cell (auto-linked as a
+    // "#hex" anchor); it had no reader, so the setting did nothing on a live page.
+    fallbackCell = [...(getContentCell(block)?.querySelectorAll(':scope > p') || [])]
+      .find((node) => /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(node.textContent.trim())) || null;
     fallbackValue = getCellText(fallbackCell);
   } else if (hasName('media_overlayOpacity', 'overlayOpacity')) {
     fallbackCell = getStandaloneNumberNode(getPublishedOverlayCell(block)) || getMediaCell(block);
@@ -468,6 +490,9 @@ function getFieldValue(block, nameOrNames) {
   } else if (hasName('content_position', 'contentPosition')) {
     fallbackCell = getContentCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['left', 'center', 'right']);
+  } else if (hasName('content_textHtmlClass', 'textHtmlClass')) {
+    fallbackCell = getPublishedHtmlClassNode(block);
+    fallbackValue = getCellText(fallbackCell);
   } else if (hasName('content_showBreadcrumbs', 'showBreadcrumbs')) {
     fallbackCell = getContentCell(block);
     fallbackValue = getChoiceFromCell(fallbackCell, ['show', 'hide']);
@@ -708,8 +733,10 @@ function isIgnoredFallbackText(text) {
 
 function getFallbackTextNodes(block) {
   const contentCell = getContentCell(block) || block;
+  const classNode = getPublishedHtmlClassNode(block);
   return [...contentCell.querySelectorAll('h1, h2, h3, h4, h5, h6, p')]
     .filter((node) => {
+      if (node === classNode) return false;
       if (node.hasAttribute('data-aue-prop') || node.hasAttribute('data-richtext-prop')) return false;
       if (node.closest('[data-aue-prop], [data-richtext-prop], picture, video')) return false;
       return !isIgnoredFallbackText(node.textContent);
@@ -795,7 +822,9 @@ function readTextColor(block, fallbackValue = '') {
   const instrumented = textColorField.source;
   if (instrumented) {
     rawValue = textColorField.value;
-    const row = getDirectRow(block, instrumented);
+    // Published, the colour is one paragraph of the grouped content cell: remove just
+    // that paragraph, never the row (which is the whole content cell).
+    const row = instrumented.tagName === 'P' ? null : getDirectRow(block, instrumented);
     if (row) {
       rowsToRemove.push(row);
     } else {

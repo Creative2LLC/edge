@@ -35,21 +35,18 @@ function findHexAcrossRows(block) {
 }
 
 export default function decorate(block) {
-  const rows = getBlockRows(block);
   const allPictures = [...block.querySelectorAll('picture')];
 
   const mainImageField = readImageField(block, 'mainImage', 0);
   const mainPicture = mainImageField.picture || allPictures[0] || null;
 
-  // In live delivery AEM omits rows whose value matches the field's default.
-  // mainImageAlt has default "" so it is absent when not authored. Detect this:
-  // in live mode (no data-aue-prop attributes) if row 1 contains a picture it is
-  // actually the icon row — mainImageAlt was stripped and everything shifts by -1.
+  // Published, mainImageAlt never has a row: it publishes as the main image's alt, so every
+  // later field sits one row earlier. (This used to be inferred from a picture in row 1,
+  // so a block with no icon read every field from the row after its own.)
   const hasAuthorProps = !!block.querySelector('[data-aue-prop], [data-richtext-prop]');
-  const liveRow1HasPicture = !hasAuthorProps && !!rows[1]?.querySelector('img, picture');
-  const i = liveRow1HasPicture ? -1 : 0; // row-index compensation
+  const i = hasAuthorProps ? 0 : -1; // row-index compensation
 
-  const mainImageAlt = (!hasAuthorProps && liveRow1HasPicture)
+  const mainImageAlt = !hasAuthorProps
     ? (mainPicture?.querySelector('img')?.alt || '')
     : readTextField(block, 'mainImageAlt', 1).value;
 

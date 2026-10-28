@@ -80,6 +80,11 @@ function getParentCells(block) {
 
 function getBlockFallbackCell(block, name) {
   const parentCells = getParentCells(block);
+  // Published with every block field (empty ones keep their row): read by position. The
+  // value guess below let an empty heading or body move each button label up one slot.
+  if (parentCells.length >= Object.keys(BLOCK_ROW_INDEX).length) {
+    return parentCells[BLOCK_ROW_INDEX[name]] || null;
+  }
   const plainTextCells = parentCells.filter((cell) => {
     const text = cell.textContent.trim();
     return text && !cell.querySelector('a[href]');

@@ -79,6 +79,15 @@ const STYLING_PATTERN = /^(default|variant[\s-]?2)$/i;
 function getFallbackCell(scope, index) {
   if (!scope?.matches?.('.split-card-gap')) return scope?.children?.[index] || null;
   const parentCells = getParentCells(scope);
+  // imageAlt publishes inside the image (its alt), never as a row, so published rows are
+  // the model order minus that field. Pages published with every field (empty ones keep
+  // their row; stylingType came later) are read by position: guessing by value let an
+  // empty field shift the rest, putting the heading in the alt and body copy on a button.
+  const altIndex = BLOCK_FIELD_NAMES.indexOf('imageAlt');
+  if (parentCells.length >= BLOCK_FIELD_NAMES.length - 2) {
+    if (index === altIndex) return null;
+    return parentCells[index > altIndex ? index - 1 : index] || null;
+  }
   // Only genuine text belongs here. Cells that fill a dedicated typed slot
   // (styling type, color, size/number) must be excluded — otherwise e.g. the
   // styling-type value "default" gets positionally picked up as a button label.
@@ -310,7 +319,9 @@ function normalizeSizeValue(value) {
 function isItemRow(row) {
   if (row.querySelector('[data-aue-prop="icon"], [data-aue-prop="title"]')) return true;
   if (row.querySelector(BLOCK_FIELD_NAMES.map((name) => getFieldSelector(name)).join(', '))) return false;
-  return row.children.length >= 3 && Boolean(row.querySelector('picture'));
+  // Published, a benefit is one row of three cells (block fields are one cell each); one
+  // published without an icon still has its title.
+  return row.children.length >= 3;
 }
 
 function buildBenefitItem(data, textColor) {

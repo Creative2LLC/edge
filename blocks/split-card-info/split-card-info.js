@@ -177,6 +177,32 @@ function getPublishedFields(block, mainPicture, topLogoPicture) {
   if (block.querySelector('[data-aue-prop]')) return {};
 
   const rows = getPublishedRows(block);
+
+  // Current pages publish every field in model order, empty ones included, with the two
+  // alts folded into their images. Read those by position: guessing colours by the order
+  // their hex values appear broke once the button colours were locked to site styles
+  // (empty cells), putting the background into the button colour.
+  const CURRENT_ORDER = ['imageSplit', 'mainImage', 'topLogo', 'heading', 'subheading', 'bodyText',
+    'buttonText', 'buttonLink', 'buttonColor', 'buttonTextColor', 'contentBackgroundColor'];
+  const at = (name) => rows[CURRENT_ORDER.indexOf(name)];
+  if (rows.length === CURRENT_ORDER.length
+    && /^(half|third|)$/i.test(at('imageSplit').text)
+    && (!at('contentBackgroundColor').text || isColorToken(at('contentBackgroundColor').text))) {
+    const text = (name) => at(name).text || undefined;
+    return {
+      positional: true,
+      imageSplit: text('imageSplit')?.toLowerCase(),
+      heading: text('heading'),
+      subheading: text('subheading'),
+      bodyText: at('bodyText').html || undefined,
+      buttonText: text('buttonText'),
+      buttonLink: at('buttonLink').href || text('buttonLink'),
+      buttonColor: text('buttonColor'),
+      buttonTextColor: text('buttonTextColor'),
+      contentBackgroundColor: text('contentBackgroundColor'),
+    };
+  }
+
   const fields = {};
   const splitRow = rows.find((record) => /^(half|third)$/i.test(record.text));
   if (splitRow) fields.imageSplit = splitRow.text.toLowerCase();
@@ -304,7 +330,9 @@ export default async function decorate(block) {
     || normalizeColorValue(publishedFields.contentBackgroundColor)
     || normalizeColorValue(getField(block, 'contentBackgroundColor'));
 
-  if (!buttonColor || !buttonTextColor || !contentBackgroundColor) {
+  // Read by position, an empty colour is genuinely empty (the button colours are locked).
+  const anyColorMissing = !buttonColor || !buttonTextColor || !contentBackgroundColor;
+  if (!publishedFields.positional && anyColorMissing) {
     const orphans = collectOrphanedColorValues(block);
     // The three color fields appear in this order in _split-card-info.json:
     //   buttonColor, buttonTextColor, contentBackgroundColor

@@ -126,17 +126,46 @@ function getBreadcrumbContext() {
   };
 }
 
+/**
+ * Published pages carry no field instrumentation. Rows are the photo (alt folded in),
+ * then the name (only once the field stopped being called `name`, which published as the
+ * block's class instead of a row), the title, and the bio. Pages from before the
+ * breadcrumb fields were dropped have three breadcrumb rows ahead of the photo.
+ */
+function readPublishedRows(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const pictureIndex = rows.findIndex((row) => row.querySelector('picture, img'));
+  if (pictureIndex < 0) return {};
+  const after = rows.slice(pictureIndex + 1);
+  const cell = (row) => row?.querySelector(':scope > div') || row || null;
+  const last = after[after.length - 1];
+  const lastIsBio = after.length > 1 || Boolean(last?.querySelector('p'));
+  const bio = lastIsBio ? cell(last) : null;
+  const texts = (lastIsBio ? after.slice(0, -1) : after).map(cell);
+  return {
+    image: cell(rows[pictureIndex]),
+    name: texts.length > 1 ? texts[0] : null,
+    title: texts[texts.length - 1] || null,
+    bio,
+  };
+}
+
 export default function decorate(block) {
   const resource = block.getAttribute('data-aue-resource')
     || block.querySelector('[data-aue-resource]')?.getAttribute('data-aue-resource')
     || '';
   const nodesToCleanup = new Set();
+  const isInstrumented = Boolean(resource || block.querySelector('[data-aue-prop], [data-richtext-prop]'));
+  const published = isInstrumented ? {} : readPublishedRows(block);
 
-  const instrImage = resolveField(block, 'image', resource);
+  const instrImage = resolveField(block, 'image', resource) || published.image;
   const instrImageAlt = resolveField(block, 'imageAlt', resource);
-  const instrName = resolveField(block, 'name', resource);
-  const instrTitle = resolveField(block, 'leaderTitle', resource);
-  const instrBio = resolveField(block, 'bio', resource);
+  // `name` collided with the block's own name and published as its class (C6); renamed.
+  const instrName = resolveField(block, 'leaderName', resource)
+    || resolveField(block, 'name', resource)
+    || published.name;
+  const instrTitle = resolveField(block, 'leaderTitle', resource) || published.title;
+  const instrBio = resolveField(block, 'bio', resource) || published.bio;
   const legacyBreadcrumbParent = resolveField(block, 'breadcrumbParent', resource);
   const legacyBreadcrumbParentLink = resolveField(block, 'breadcrumbParentLink', resource);
   const legacyBreadcrumbCurrent = resolveField(block, 'breadcrumbCurrent', resource);
@@ -154,7 +183,7 @@ export default function decorate(block) {
 
   const leaderName = readText(instrName) || getPageTitle();
   const leaderTitle = readText(instrTitle);
-  const imageAlt = readText(instrImageAlt) || leaderName;
+  const imageAlt = readText(instrImageAlt) || getImageNode(instrImage)?.alt.trim() || leaderName;
   const {
     parentLabel: breadcrumbParent,
     parentLink: breadcrumbParentLink,

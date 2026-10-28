@@ -11,7 +11,10 @@
  *
  * Checks, for each block definition (child items are skipped; their name is only a label):
  *   - the class name and the node name both resolve to a folder with a <name>.js;
- *   - no alias shadows a real block folder, and every alias target exists.
+ *   - no alias shadows a real block folder, and every alias target exists;
+ *   - no model field is named after a template property (name, model, filter). Authoring
+ *     such a field overwrites the block's own property: a Leadership Profile field called
+ *     `name` turned every leader's name into the block class, so no block code loaded.
  *
  * Usage: npm run lint:blocks
  */
@@ -34,11 +37,19 @@ Object.entries(BLOCK_ALIASES).forEach(([alias, folder]) => {
   if (hasBlock(alias)) problems.push(`alias "${alias}" shadows the real block blocks/${alias}/`);
 });
 
+const TEMPLATE_PROPERTIES = ['name', 'model', 'filter'];
+
 let checked = 0;
 fs.readdirSync(BLOCKS).forEach((dir) => {
   const file = path.join(BLOCKS, dir, `_${dir}.json`);
   if (!fs.existsSync(file)) return;
-  const definitions = JSON.parse(fs.readFileSync(file, 'utf8')).definitions || [];
+  const json = JSON.parse(fs.readFileSync(file, 'utf8'));
+  (json.models || []).forEach((model) => (model.fields || []).forEach((field) => {
+    if (TEMPLATE_PROPERTIES.includes(field.name)) {
+      problems.push(`${path.relative(ROOT, file)}: model "${model.id}" field "${field.name}" overwrites the block's template property; rename it`);
+    }
+  }));
+  const definitions = json.definitions || [];
   definitions.forEach((definition) => {
     const page = definition.plugins?.xwalk?.page;
     const name = page?.template?.name;

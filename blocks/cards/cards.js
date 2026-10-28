@@ -268,6 +268,21 @@ function isConfigOnlyText(value) {
 }
 
 function getLegacySettingCells(rows) {
+  // A block published from the current model has one row per setting, empty ones
+  // included, before its cards (rows of many cells): read those by position. Guessing by
+  // value gave the card gap to the text size and left gap, highlight size and padding
+  // with no published reader at all.
+  const settingRows = [];
+  rows.every((row) => {
+    if (row.children.length !== 1 || row.querySelector('picture, [data-aue-prop]')) return false;
+    settingRows.push(row);
+    return true;
+  });
+  if (settingRows.length === SETTING_NAMES.length
+    && hasOptionText(settingRows[0], ['left', 'center', 'right', 'justify'])) {
+    return Object.fromEntries(SETTING_NAMES.map((name, i) => [name, fieldCell(settingRows[i])]));
+  }
+
   const scanRows = rows.slice(0, Math.min(rows.length, 14));
   const textAlignmentIndex = scanRows.findIndex((row) => (
     hasOptionText(row, ['left', 'center', 'right', 'justify'])
@@ -1063,19 +1078,19 @@ export default function decorate(block) {
       legacySettings.defaultCardTextSize,
       isEditor,
     ),
-    cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null, isEditor),
+    cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], legacySettings.cardGap, isEditor),
     defaultHighlightTextSize: readSetting(
       block,
       'defaultHighlightTextSize',
       ['default highlighted text size', 'highlighted text size', 'highlight text size'],
-      null,
+      legacySettings.defaultHighlightTextSize,
       isEditor,
     ),
     defaultCardPaddingStyle: readSetting(
       block,
       'defaultCardPaddingStyle',
       ['default card padding', 'card padding'],
-      null,
+      legacySettings.defaultCardPaddingStyle,
       isEditor,
     ),
   });

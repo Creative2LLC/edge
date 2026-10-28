@@ -608,12 +608,13 @@ async function decorateBlock(block) {
     const compactTestimonial = readCompactTestimonialData(row);
     const data = {
       row,
+      // logoAlt publishes as the logo's alt, not a cell; the cells after it move up one.
       logoField: readRowImageField(row, 'logo', 1),
-      logoAltField: readRowTextField(row, 'logoAlt', 2),
-      logoLinkField: readRowLinkField(row, 'logoLink', 3),
-      quoteField: readRowRichTextField(row, 'quote', 4),
-      attributionNameField: readRowTextField(row, 'attributionName', 5),
-      attributionTitleField: readRowTextField(row, 'attributionTitle', 6),
+      logoAltField: readRowTextField(row, 'logoAlt', null),
+      logoLinkField: readRowLinkField(row, 'logoLink', 2),
+      quoteField: readRowRichTextField(row, 'quote', 3),
+      attributionNameField: readRowTextField(row, 'attributionName', 4),
+      attributionTitleField: readRowTextField(row, 'attributionTitle', 5),
     };
 
     const itemTypeField = readRowTextField(row, 'itemType', 0);

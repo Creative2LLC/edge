@@ -123,11 +123,13 @@ function readPublishedFallbackCells(rows) {
     index = buttonStyleIndex + 1;
   }
 
-  if (isHexColor(values[index])) {
+  // The button colours are locked to site styles, so they publish as empty rows; step over
+  // an empty slot too, or the margins after them were never reached.
+  if (isHexColor(values[index]) || values[index] === '') {
     cells.buttonColor = rowAt(rows, index);
     index += 1;
   }
-  if (isHexColor(values[index])) {
+  if (isHexColor(values[index]) || values[index] === '') {
     cells.buttonTextColor = rowAt(rows, index);
     index += 1;
   }

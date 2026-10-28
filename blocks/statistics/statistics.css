@@ -27,7 +27,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 0;
+
+  /* Minimum Height / Minimum Height (Mobile) fields; both were set on the block and never used. */
+  min-height: var(--statistics-min-height);
   background-color: var(--statistics-block-bg);
   border-radius: var(--statistics-border-radius);
   justify-content: flex-start;
@@ -387,5 +389,11 @@
 
   .statistics.statistics-no-dividers .statistics-item + .statistics-item {
     border-top: none;
+  }
+}
+
+@media (width <= 700px) {
+  .statistics .statistics-inner {
+    min-height: var(--statistics-min-height-mobile);
   }
 }

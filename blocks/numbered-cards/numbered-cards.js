@@ -20,6 +20,19 @@ const BLOCK_PROPS = [
   'numberBorder',
 ];
 
+// Props only a card has. cardBackgroundColor is on both the block and the card, so it
+// cannot tell a card from the block-settings rows.
+const ITEM_PROPS = ['cardTitle', 'cardBody', 'numberColor', 'titleColor', 'bodyColor'];
+
+function isItemRow(row) {
+  return ITEM_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`))
+    || row.children.length > 1;
+}
+
+function isBlockConfigRow(row) {
+  return !isItemRow(row) && BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
+}
+
 const CONFIG_VALUE_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$|^(?:left|center|right|grid|carousel|[234]|show|hide)$/i;
 
 function normalizeText(value) {
@@ -45,7 +58,17 @@ function findAndConsume(entries, predicate) {
 }
 
 function parsePublishedBlockConfig(block) {
-  const entries = directRows(block)
+  // Published, block settings are one-cell rows and each card is one row of all its fields.
+  const blockRows = directRows(block).filter((row) => !isItemRow(row) && !row.querySelector('[data-aue-prop]'));
+
+  // Every live page carries the current model: all eight settings, empty ones included,
+  // so read by position. Guessing by value let an empty title take the first card's text.
+  if (blockRows.length === BLOCK_PROPS.length) {
+    const values = Object.fromEntries(BLOCK_PROPS.map((prop, i) => [prop, rowText(blockRows[i])]));
+    return { values, rows: blockRows };
+  }
+
+  const entries = blockRows
     .map((row) => ({ row, value: rowText(row), consumed: false }))
     .filter((entry) => entry.value);
 
@@ -144,8 +167,7 @@ export default function decorate(block) {
   // Remove config rows � author rows carry block props, live rows are flattened.
   const liveConfigRows = new Set(config.publishedRows);
   [...block.querySelectorAll(':scope > div')].forEach((row) => {
-    const hasBlockProp = BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
-    if (hasBlockProp || liveConfigRows.has(row)) row.remove();
+    if (isBlockConfigRow(row) || liveConfigRows.has(row)) row.remove();
   });
   // Apply block background
   if (blockBg) {
@@ -198,8 +220,7 @@ export default function decorate(block) {
 
   rows.forEach((row) => {
     // Skip rows that contain block-level config fields (not card items)
-    const isConfigRow = BLOCK_PROPS.some((prop) => row.querySelector(`[data-aue-prop="${prop}"]`));
-    if (isConfigRow) return;
+    if (isBlockConfigRow(row)) return;
 
     // Only treat as a card if it has card-level content
     const hasCardProp = row.querySelector('[data-aue-prop="cardTitle"]')

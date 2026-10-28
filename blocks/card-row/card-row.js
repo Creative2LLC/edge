@@ -95,10 +95,14 @@ function buildCard(data, variant) {
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
-  const variantEl = block.querySelector('[data-aue-prop="variant"]');
+  // Published, the two settings are the leading one-cell rows (cards have many cells).
+  const settingRows = rows.filter((row) => row.children.length === 1 && !row.querySelector('[data-aue-prop]'));
+  const variantEl = block.querySelector('[data-aue-prop="variant"]')
+    || settingRows.find((row) => ['horizontal', 'vertical'].includes(row.textContent.trim()));
   const variant = variantEl?.textContent.trim() || 'horizontal';
 
-  const columnsEl = block.querySelector('[data-aue-prop="columns"]');
+  const columnsEl = block.querySelector('[data-aue-prop="columns"]')
+    || settingRows.find((row) => /^\d+$/.test(row.textContent.trim()));
   const defaultCols = variant === 'vertical' ? 4 : 3;
   const columns = parseInt(columnsEl?.textContent.trim(), 10) || defaultCols;
 

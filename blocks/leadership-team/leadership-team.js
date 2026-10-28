@@ -43,26 +43,20 @@ function hasInstrumentation(row) {
   return Boolean(row.querySelector('[data-aue-prop], [data-richtext-prop]'));
 }
 
-function getPublishedFieldMap(row, imageIndex) {
-  if (hasInstrumentation(row)) return FIELD_INDEX;
+// Published rows have no imageAlt cell: it publishes as the image's alt.
+const PUBLISHED_FIELD_INDEX = {
+  sectionName: 0,
+  image: 1,
+  imageAlt: null,
+  leaderName: 2,
+  leaderTitle: 3,
+  bio: 4,
+  link: 5,
+  imageSize: 6,
+};
 
-  const sectionName = row.children[0]?.textContent.trim() || '';
-  const imageAlt = row.children[imageIndex + 1]?.textContent.trim() || '';
-  const leaderName = row.children[imageIndex + 2]?.textContent.trim() || '';
-
-  if (imageIndex === 1 && sectionName && imageAlt && !leaderName) {
-    return {
-      ...FIELD_INDEX,
-      imageAlt: null,
-      leaderName: imageIndex + 1,
-      leaderTitle: imageIndex + 2,
-      bio: imageIndex + 3,
-      link: imageIndex + 4,
-      imageSize: imageIndex + 5,
-    };
-  }
-
-  return FIELD_INDEX;
+function getPublishedFieldMap(row) {
+  return hasInstrumentation(row) ? FIELD_INDEX : PUBLISHED_FIELD_INDEX;
 }
 
 /**
@@ -76,17 +70,9 @@ function parseLeaderRow(row) {
   if (cols.length < 2) return null;
 
   // Find the image by scanning for a <picture> or <img> element
-  let imageCol = null;
-  let imageIndex = FIELD_INDEX.image;
-  for (let i = 0; i < cols.length; i += 1) {
-    if (cols[i].querySelector('picture') || cols[i].querySelector('img')) {
-      imageCol = cols[i];
-      imageIndex = i;
-      break;
-    }
-  }
+  const imageCol = cols.find((col) => col.querySelector('picture, img')) || null;
 
-  const fieldMap = getPublishedFieldMap(row, imageIndex);
+  const fieldMap = getPublishedFieldMap(row);
   const imageField = readImageField(row, 'image', { fallbackCell: imageCol });
   const { picture, img } = imageField;
   const imgSrc = img?.src || '';

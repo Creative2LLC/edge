@@ -1234,37 +1234,52 @@ function getLegacyConfig(rows) {
   const isContentRow = (value) => Boolean(
     value && !isConfigOnlyText(value) && !isLikelyButtonText(value),
   );
+  // With trusted positions an empty field is genuinely empty. Falling back to the value
+  // guess then filled it from a neighbour (an empty min height took the mobile height).
+  const guess = (row) => (trustedOffsetMaps.length ? null : row);
   const compactFields = {
     heading: headingRow,
     bodyText: bodyTextRow,
     imageMode: compactImageModeRow,
-    defaultButtonText: compactButtonTextRow,
+    // A trusted position beats the "looks like a button label" guess, which misses any
+    // label that is not a stock phrase.
+    defaultButtonText: legacyOffsetRow('defaultButtonText', isContentRow)
+      || guess(compactButtonTextRow),
     defaultButtonLink: compactButtonLinkRow,
     defaultButtonTarget: compactTargetRow,
     verticalDividers: compactDividerRow,
-    blockBackgroundColor: legacyOffsetRow('blockBackgroundColor', isHexColorText) || blockBackgroundColorRow,
-    headingTextColor: legacyOffsetRow('headingTextColor', isHexColorText) || headingColorRow,
+    blockBackgroundColor: legacyOffsetRow('blockBackgroundColor', isHexColorText)
+      || guess(blockBackgroundColorRow),
+    headingTextColor: legacyOffsetRow('headingTextColor', isHexColorText) || guess(headingColorRow),
     headingFontSize: legacyOffsetRow('headingFontSize', isCssLengthText),
     headingFontWeight: legacyOffsetRow('headingFontWeight', isFontWeightText),
-    bodyTextColor: legacyOffsetRow('bodyTextColor', isHexColorText) || bodyColorRow,
-    bodyFontSize: legacyOffsetRow('bodyFontSize', isCssLengthText) || bodySizeRow,
+    bodyTextColor: legacyOffsetRow('bodyTextColor', isHexColorText) || guess(bodyColorRow),
+    bodyFontSize: legacyOffsetRow('bodyFontSize', isCssLengthText) || guess(bodySizeRow),
     bodyFontWeight: legacyOffsetRow('bodyFontWeight', isFontWeightText),
-    valueTextColor: legacyOffsetRow('valueTextColor', isHexColorText) || valueColorRow,
-    valueFontSize: legacyOffsetRow('valueFontSize', isCssLengthText) || valueSizeRow,
+    valueTextColor: legacyOffsetRow('valueTextColor', isHexColorText) || guess(valueColorRow),
+    valueFontSize: legacyOffsetRow('valueFontSize', isCssLengthText) || guess(valueSizeRow),
     valueFontWeight: legacyOffsetRow('valueFontWeight', isFontWeightText),
-    labelTextColor: legacyOffsetRow('labelTextColor', isHexColorText) || labelColorRow,
-    labelFontSize: legacyOffsetRow('labelFontSize', isCssLengthText) || labelSizeRow,
-    labelFontWeight: legacyOffsetRow('labelFontWeight', isFontWeightText) || labelWeightRow,
-    minHeight: legacyOffsetRow('minHeight', isCssLengthText) || minHeightRows[0],
-    minHeightMobile: legacyOffsetRow('minHeightMobile', isCssLengthText) || minHeightRows[1],
-    statValues: legacyOffsetRow('statValues', isContentRow) || statValueRow,
-    statLabels: legacyOffsetRow('statLabels', isContentRow) || statLabelRow,
+    labelTextColor: legacyOffsetRow('labelTextColor', isHexColorText) || guess(labelColorRow),
+    labelFontSize: legacyOffsetRow('labelFontSize', isCssLengthText) || guess(labelSizeRow),
+    labelFontWeight: legacyOffsetRow('labelFontWeight', isFontWeightText) || guess(labelWeightRow),
+    minHeight: legacyOffsetRow('minHeight', isCssLengthText) || guess(minHeightRows[0]),
+    minHeightMobile: legacyOffsetRow('minHeightMobile', isCssLengthText) || guess(minHeightRows[1]),
+    statValues: legacyOffsetRow('statValues', isContentRow) || guess(statValueRow),
+    statLabels: legacyOffsetRow('statLabels', isContentRow) || guess(statLabelRow),
     markerTerms: legacyOffsetRow('markerTerms', isContentRow),
-    markerColor: legacyOffsetRow('markerColor', isHexColorText) || compactMarkerColorRow,
+    markerColor: legacyOffsetRow('markerColor', isHexColorText) || guess(compactMarkerColorRow),
     markerStyle: compactMarkerStyleRow,
-    contentSpacing: compactContentSpacingRow,
-    paddingStyle: compactPaddingStyleRow,
-    borderRadius: compactBorderRadiusRow,
+    contentSpacing: legacyOffsetRow('contentSpacing', (text) => Boolean(normalizeContentSpacing(text, '')))
+      || guess(compactContentSpacingRow),
+    paddingStyle: legacyOffsetRow('paddingStyle', (text) => Boolean(normalizePaddingStyle(text, '')))
+      || guess(compactPaddingStyleRow),
+    // Border radius and drop shadow share none/small/medium/large, so the guess (last such
+    // value in the block) took the shadow for the radius. A trusted position decides first.
+    borderRadius: legacyOffsetRow('borderRadius', (text) => Boolean(normalizeBorderRadius(text, '')))
+      || guess(compactBorderRadiusRow),
+    dropShadow: legacyOffsetRow('dropShadow', (text) => Boolean(text)),
+    disclaimer: legacyOffsetRow('disclaimer', isContentRow),
+    disclaimerFontSize: legacyOffsetRow('disclaimerFontSize', isCssLengthText),
   };
 
   return {
@@ -1918,7 +1933,9 @@ function decorateBlock(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
   const publishedFieldValues = snapshotPublishedFieldValues(rows);
   const authoredFieldValues = snapshotAuthoredFieldValues(block);
-  const legacyConfig = getLegacyConfig(rows);
+  // Item rows come last, so leaving them out shifts no block-field offset; given them, the
+  // legacy reader took items for its compact stat rows and cleanupCompactRows deleted them.
+  const legacyConfig = getLegacyConfig(rows.filter((row) => !isItemRow(row)));
   const looseLegacy = getLooseLegacyStatContent(rows);
   const configCell = (index) => legacyConfig.cell(index);
   const legacyCell = (imageModeOffset) => (
@@ -2173,13 +2190,13 @@ function decorateBlock(block) {
     block,
     'disclaimer',
     ['disclaimer', 'disclaimer text'],
-    legacyCell(CURRENT_IMAGE_MODE_OFFSETS.disclaimer),
+    legacyConfig.compactCell('disclaimer') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.disclaimer),
   );
   const disclaimerFontSizeField = readField(
     block,
     'disclaimerFontSize',
     ['disclaimer font size'],
-    legacyCell(CURRENT_IMAGE_MODE_OFFSETS.disclaimerFontSize),
+    legacyConfig.compactCell('disclaimerFontSize') || legacyCell(CURRENT_IMAGE_MODE_OFFSETS.disclaimerFontSize),
   );
   const compactValue = (name) => legacyConfig.compactValue?.(name) || '';
   const authoredOrPublishedValue = (name) => authoredFieldValues[name] || publishedFieldValues[name] || '';

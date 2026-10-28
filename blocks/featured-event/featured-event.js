@@ -182,6 +182,13 @@ export default function decorate(block) {
     headerHtml = titleField.html;
     headerSource = titleField.source;
     directRowOf(titleField.source)?.remove();
+  } else {
+    // Published, the title is the leading one-cell row; each event is a row of many cells.
+    const first = block.querySelector(':scope > div');
+    if (first?.children.length === 1 && !first.querySelector('picture, [data-aue-prop]')) {
+      headerHtml = first.firstElementChild.innerHTML.trim();
+      first.remove();
+    }
   }
 
   const rows = [...block.querySelectorAll(':scope > div')];

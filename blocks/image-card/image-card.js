@@ -25,7 +25,12 @@ function moveFieldBinding(from, to) {
 function getLinkUrl(fieldOrSource) {
   if (!fieldOrSource) return '';
   if (fieldOrSource.value) return fieldOrSource.value;
-  return readLinkField(fieldOrSource, '', { fallbackCell: fieldOrSource }).value;
+  // Given a field object with no value (an empty link), there is nothing to read; only an
+  // element can hold a link.
+  const el = fieldOrSource.nodeType ? fieldOrSource : fieldOrSource.source || fieldOrSource.cell;
+  if (!el) return '';
+  const anchor = el.tagName === 'A' ? el : el.querySelector('a');
+  return anchor?.getAttribute('href') || el.textContent.trim();
 }
 
 function parseLegacyFields(block) {
@@ -70,7 +75,8 @@ function buildBackground(block) {
   const img = picture.querySelector('img');
   if (!img) return picture;
 
-  const altField = readTextField(block, ['media_imageAlt', 'imageAlt'], { rowIndex: 1 });
+  // Published, the alt has no row of its own (it is already the img's alt); row 1 is the heading.
+  const altField = readTextField(block, ['media_imageAlt', 'imageAlt']);
   const altSource = altField.source || altField.cell;
   const alt = altField.value || img.alt || '';
 
@@ -133,9 +139,17 @@ export default function decorate(block) {
   });
 
   let headingText = headingField.value;
-  let primaryText = primaryTextField.value;
+  // The image-card-content model groups each button's text and link (primary_text +
+  // primary_link) into one published cell, so the label is the text beside the link.
+  const textBesideLink = (cell) => {
+    if (!cell) return '';
+    const copy = cell.cloneNode(true);
+    copy.querySelectorAll('a').forEach((a) => a.remove());
+    return copy.textContent.trim();
+  };
+  let primaryText = primaryTextField.value || textBesideLink(linkCells[0]);
   let primaryUrl = getLinkUrl(primaryLinkField);
-  let secondaryText = secondaryTextField.value;
+  let secondaryText = secondaryTextField.value || textBesideLink(linkCells[1]);
   let secondaryUrl = getLinkUrl(secondaryLinkField);
 
   /* legacy fallback */

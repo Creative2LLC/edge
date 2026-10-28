@@ -255,6 +255,32 @@ function textTokens(cell) {
     .filter(Boolean);
 }
 
+// Rows of a block published from the current model. The content_* and media_* fields share
+// one grouped cell each; jcr:description is a page property, never a row; empty fields
+// keep their row.
+const CURRENT_SHAPE_ROWS = [
+  'variant', 'contentGroup', 'mediaGroup', 'pageTitle', 'resourceBody',
+  'watchLabel', 'videoFile', 'videoFilePath', 'videoUrl',
+  'downloadLabel', 'downloadFile', 'downloadFilePath', 'downloadUrl', 'gated',
+  'authorName', 'articleDate', 'thumbnail',
+  'audience', 'issue', 'resourceType', 'language', 'programs', 'gradeAges',
+  'durationMinutes', 'weight', 'tags', 'markerTerms', 'markerColor', 'markerStyle',
+];
+const CURRENT_SHAPE_TEXT_FIELDS = [
+  'pageTitle', 'videoFilePath', 'downloadFilePath', 'gated', 'authorName', 'articleDate',
+  'audience', 'issue', 'resourceType', 'language', 'programs', 'gradeAges',
+  'durationMinutes', 'weight', 'tags', 'markerTerms', 'markerColor', 'markerStyle',
+];
+
+function getCurrentShapeCells(block) {
+  const cells = getBlockRows(block).map((row) => row.children[0] || row);
+  const at = (name) => cells[CURRENT_SHAPE_ROWS.indexOf(name)];
+  if (cells.length !== CURRENT_SHAPE_ROWS.length
+    || !/^(default|compact|)$/.test(cellText(at('variant')))
+    || !/^(circle|underline|)$/.test(cellText(at('markerStyle')))) return null;
+  return Object.fromEntries(CURRENT_SHAPE_ROWS.map((name) => [name, at(name)]));
+}
+
 function getFlattenedEntries(block) {
   if (isUniversalEditor()) return [];
 
@@ -412,6 +438,41 @@ function parseFlattenedFields(block) {
   fields.programs = consumeTaxonomy(entries, 'programs');
   fields.gradeAges = consumeTaxonomy(entries, 'gradeAges');
   fields.length = consumeTaxonomy(entries, 'length');
+
+  // A block published from the current model is read by position. Value guessing printed
+  // whatever it could not place (a second download URL, the tags, a custom button label)
+  // as intro or body copy, and only recognised the stock button labels.
+  const current = getCurrentShapeCells(block);
+  if (current) {
+    const text = (name) => cellText(current[name]);
+    // The content_* settings share one grouped cell, a paragraph per filled field. Read
+    // each by its vocabulary: matching the whole cell against one token never hit, so the
+    // text colour and the title size/colour/weight did nothing on a published page.
+    const contentParts = [...(current.contentGroup?.querySelectorAll(':scope > p') || [])]
+      .map((part) => cellText(part));
+    const contentPart = (predicate) => contentParts.find(predicate) || '';
+    const isToken = (tokens) => (value) => tokens.includes(normalizeKey(value));
+    return {
+      ...fields,
+      content_textColor: contentPart((value) => /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(value)),
+      content_titleSize: contentPart(isToken(TITLE_SIZE_TOKENS)),
+      content_titleColor: contentPart(isToken(TITLE_COLOR_TOKENS)),
+      content_titleWeight: contentPart(isToken(TITLE_WEIGHT_TOKENS)),
+      // The one free-text part: not a length, position, show/hide, colour or title token.
+      content_breadcrumbs: contentPart((value) => !/^\d+(\.\d+)?(px|rem|vh|%)?$/i.test(value)
+        && !isToken(['left', 'center', 'right', 'show', 'hide'])(value)
+        && !/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(value)
+        && !isToken([...TITLE_SIZE_TOKENS, ...TITLE_COLOR_TOKENS, ...TITLE_WEIGHT_TOKENS])(value)),
+      ...Object.fromEntries(CURRENT_SHAPE_TEXT_FIELDS.map((name) => [name, text(name)])),
+      watchLabel: text('watchLabel') || fields.watchLabel,
+      downloadLabel: text('downloadLabel') || fields.downloadLabel,
+      videoUrl: text('videoUrl') && entryUrl({ cell: current.videoUrl, text: text('videoUrl') }),
+      downloadUrl: text('downloadUrl') && entryUrl({ cell: current.downloadUrl, text: text('downloadUrl') }),
+      resourceBody: cellHtml(current.resourceBody),
+      description: '',
+    };
+  }
+
   if (fields.length) {
     fields.weight = consumeNumericField(entries);
   } else {

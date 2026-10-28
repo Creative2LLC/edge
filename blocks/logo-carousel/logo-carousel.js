@@ -130,8 +130,9 @@ export default function decorate(block) {
     if (cols.length < 1) return;
 
     const logoField = getImageField(row, 'logo', 0);
-    const altField = getField(row, 'logoAlt', 1);
-    const linkField = getLinkField(row, 'logoLink', 2);
+    // logoAlt publishes as the logo's alt, not a cell, so the link is the second cell.
+    const altField = getField(row, 'logoAlt', null);
+    const linkField = getLinkField(row, 'logoLink', 1);
 
     const isAuthoring = Boolean(
       row.getAttribute('data-aue-resource')

@@ -12,6 +12,8 @@ import {
   loadSection,
   loadSections,
   loadCSS,
+  getMetadata,
+  toClassName,
 } from './aem.js';
 import {
   minRatioFor, refreshReadableColors, remapLegacyColors, resolveBrandColor, setReadableColor,
@@ -935,39 +937,24 @@ export function observeInlineColors(main) {
 }
 
 /**
- * Leadership bio pages (/about/leadership/<name>) were authored with the content
- * block named after the person (e.g. `<div class="blair-bjellos">`) instead of a
- * real block name. EDS would therefore fetch a non-existent
- * /blocks/<name>/<name>.{css,js} — producing 404s and console errors that hurt
- * the Lighthouse "errors-in-console" (best-practices) audit.
- *
- * We can't rename the block (that lives in the source document, not the code),
- * and the existing `leadership-profile` block relies on author-only field
- * instrumentation that isn't present on published pages, so remapping to it
- * would drop the job title / restructure the bio. Instead, mark the mis-named
- * block as already loaded so the loader skips the fetch: the bio content already
- * renders correctly as plain block content, and the 404s disappear.
- *
- * The proper fix is to rename the block to "Leadership Profile" in each source
- * document; this is a resilient code-side fallback until then.
- * @param {Element} main The main element (already run through decorateBlocks)
+ * Leadership bio pages (/about/leadership/<name>) are Leadership Profile blocks whose
+ * model had a field called `name`. Authoring the leader's name overwrote the block's own
+ * name, so the block publishes with the person as its class (`<div class="blair-bjellos">`)
+ * and no block code loads. The field is `leaderName` now, but every existing profile keeps
+ * the person's name until it is re-authored, so the block is put back here: a block whose
+ * class is the page title (also the leader's name) or the URL slug, on a leaf bio page.
+ * @param {Element} main The main element (before decorateBlocks)
  */
-function skipMisnamedLeadershipBlock(main) {
+function aliasMisnamedLeadershipBlock(main) {
+  const path = window.location.pathname.replace(/\.html$/, '').replace(/\/$/, '');
   // Leaf bio page only, e.g. /about/leadership/john-e-bischoff (not the index).
-  const isLeafBioPage = /\/about\/leadership\/[^/]+$/.test(
-    window.location.pathname.replace(/\.html$/, '').replace(/\/$/, ''),
-  );
-  if (!isLeafBioPage) return;
-
-  // The bio block is named after the person (which varies from the URL slug -
-  // e.g. "dr-john-e-bischoff-iii"), so match it structurally: a block that is
-  // not the real `leadership-profile` block and carries the headshot. Marking it
-  // "loaded" makes the loader skip the (404-ing) fetch; the content renders as-is.
-  main.querySelectorAll('.block').forEach((block) => {
-    const name = block.dataset.blockName;
-    if (name && name !== 'leadership-profile' && block.querySelector('picture')) {
-      block.dataset.blockStatus = 'loaded';
-    }
+  if (!/\/about\/leadership\/[^/]+$/.test(path)) return;
+  const names = new Set([path.split('/').pop(), toClassName(getMetadata('og:title') || document.title)]);
+  main.querySelectorAll(':scope > div > div[class]').forEach((block) => {
+    const [name] = block.classList;
+    if (!names.has(name) || !block.querySelector('picture')) return;
+    block.classList.replace(name, 'leadership-profile');
+    block.dataset.blockAlias = name;
   });
 }
 
@@ -979,6 +966,7 @@ function skipMisnamedLeadershipBlock(main) {
 export function decorateMain(main) {
   // First of all: a renamed block's new class must read as its folder name to every step below.
   applyBlockAliases(main);
+  aliasMisnamedLeadershipBlock(main);
   // Before anything reads an authored colour: published pages still carry the old palette.
   remapLegacyColors(main);
   // hopefully forward compatible button decoration
@@ -988,7 +976,6 @@ export function decorateMain(main) {
   decorateSections(main);
   applySectionSpacing(main);
   decorateBlocks(main);
-  skipMisnamedLeadershipBlock(main);
   applyDefaultContentAuthorStyles(main);
   applyImageLinks(main);
   decoratePdfLinks(main);
