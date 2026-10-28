@@ -512,6 +512,41 @@ function redistributeAuthoredLabels(items) {
   }));
 }
 
+// A figure's width in digits: commas and points are about half a digit, a percent sign
+// a digit and a quarter. A figure may wrap between words, so its widest word counts.
+function figureWidth(text) {
+  return Math.max(0, ...text.split(/\s+/).map((word) => [...word]
+    .reduce((sum, char) => sum + ({ ',': 0.5, '.': 0.5, '%': 1.25 }[char] ?? 1), 0)));
+}
+
+// The widest figure sizes the columns and the figures (see .statistics-list).
+function sizeColumnsToValues(list) {
+  const widest = Math.max(0, ...[...list.querySelectorAll('.statistics-value')]
+    .map((valueEl) => figureWidth(valueEl.dataset.finalValue || valueEl.textContent.trim())));
+  if (widest) list.style.setProperty('--statistics-value-digits', widest);
+}
+
+// Wrapped figures are spread evenly over the rows (five as 3 + 2, not 4 + 1), and each
+// row's first figure drops its divider. The CSS decides how many columns fit.
+function balanceRows(list) {
+  if (typeof ResizeObserver === 'undefined') return;
+  let lastWidth = -1;
+  new ResizeObserver(([entry]) => {
+    const width = Math.round(entry.contentRect.width);
+    if (width === lastWidth) return;
+    lastWidth = width;
+
+    const items = [...list.children];
+    list.classList.remove('is-balanced');
+    const fit = getComputedStyle(list).gridTemplateColumns.split(' ')
+      .filter((track) => parseFloat(track) > 0).length || 1;
+    const columns = Math.ceil(items.length / Math.ceil(items.length / fit));
+    list.style.setProperty('--statistics-columns', columns);
+    list.classList.toggle('is-balanced', columns < fit);
+    items.forEach((item, index) => item.classList.toggle('is-row-start', index % columns === 0));
+  }).observe(list);
+}
+
 function normalizeRenderedStatistics(block) {
   const inner = block.querySelector(':scope > .statistics-inner');
   const list = inner?.querySelector?.(':scope > .statistics-list');
@@ -551,7 +586,9 @@ function normalizeRenderedStatistics(block) {
   });
 
   list.replaceChildren(...renderedItems);
+  sizeColumnsToValues(list);
 }
+
 function snapshotAuthoredFieldValues(block) {
   return [...block.querySelectorAll('[data-aue-prop], [data-richtext-prop]')]
     .reduce((values, source) => {
@@ -1895,6 +1932,14 @@ function decorateBlock(block) {
     const cell = fieldCell(first);
     return cell?.querySelector('h1, h2, h3, h4, h5, h6') ? cell : null;
   };
+  // The body text, when there is one, is the second.
+  const leadingBodyCell = () => {
+    const second = rows[1];
+    if (!leadingHeadingCell() || !second || second.querySelector('[data-aue-prop]') || isItemRow(second)) {
+      return null;
+    }
+    return isConfigOnlyText(rowText(second)) ? null : fieldCell(second);
+  };
 
   const headingField = readField(
     block,
@@ -1909,7 +1954,9 @@ function decorateBlock(block) {
     configCell(1),
   );
   const verticalAlignmentField = readField(block, 'verticalAlignment', ['vertical alignment'], configCell(2));
-  const bodyTextCell = legacyConfig.active ? legacyConfig.bodyTextCell() : configCell(3);
+  const bodyTextCell = legacyConfig.active
+    ? legacyConfig.bodyTextCell()
+    : configCell(3) || leadingBodyCell();
   const bodyTextField = readField(
     block,
     'bodyText',
@@ -2304,6 +2351,8 @@ function decorateBlock(block) {
     if (item) list.append(item);
   });
   if (list.childElementCount) wrapper.append(list);
+  sizeColumnsToValues(list);
+  balanceRows(list);
 
   const disclaimer = buildTextElement('div', 'statistics-disclaimer', disclaimerField);
   if (disclaimer) {

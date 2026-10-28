@@ -191,14 +191,20 @@ function getItemColumnMap(row) {
     };
   }
 
+  // In the editor every field with a value is bound by name. An empty one is not
+  // bound, so a position could only ever find a different field: the cells follow
+  // the published shape (Image Alt takes none), and an empty Body Text borrowed the
+  // Button Text cell, showing the label twice. The style select is found by value.
+  const styleCell = cells
+    .findIndex((c) => isButtonStyleValue(normalizeCompactText(c.textContent)));
   return {
-    image: 0,
-    imageAlt: 1,
-    title: 2,
-    bodyText: 3,
-    buttonText: 4,
-    buttonLink: 5,
-    buttonStyle: 6,
+    image: null,
+    imageAlt: null,
+    title: null,
+    bodyText: null,
+    buttonText: null,
+    buttonLink: null,
+    buttonStyle: styleCell >= 0 ? styleCell : null,
   };
 }
 
@@ -281,12 +287,16 @@ function buildOfficeCard(item, index, variant) {
     setItemLabel(card, [item.titleField.value, item.bodySource?.textContent]);
   }
 
-  const media = document.createElement('div');
-  media.className = 'regional-offices-card-media';
-  media.style.setProperty('--stagger-index', index + 0.5);
+  // A card without an image keeps the empty image area only in the editor, as a
+  // place to drop one; on the live page it would be a 230px gap.
   const picture = buildPicture(item.imageField, item.imageAltField.value);
-  if (picture) media.append(picture);
-  card.append(media);
+  if (picture || isUniversalEditor()) {
+    const media = document.createElement('div');
+    media.className = 'regional-offices-card-media';
+    media.style.setProperty('--stagger-index', index + 0.5);
+    if (picture) media.append(picture);
+    card.append(media);
+  }
 
   const textWrap = document.createElement('div');
   textWrap.className = 'regional-offices-card-text';

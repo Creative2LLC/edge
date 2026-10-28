@@ -186,6 +186,24 @@
   margin-bottom: 0;
 }
 
+/* Centred or right-aligned copy: a list moves as one block, no wider than its
+   longest line, and its lines stay left-aligned so each marker sits beside its
+   words. Centring the lines left the bullets stranded at the column's edge. */
+.colored-text.colored-text-h-center .colored-text-content > :is(ul, ol),
+.colored-text.colored-text-h-right .colored-text-content > :is(ul, ol) {
+  width: fit-content;
+  max-width: 100%;
+  text-align: left;
+}
+
+.colored-text.colored-text-h-center .colored-text-content > :is(ul, ol) {
+  margin-inline: auto;
+}
+
+.colored-text.colored-text-h-right .colored-text-content > :is(ul, ol) {
+  margin-left: auto;
+}
+
 @media (width <= 900px) {
   .colored-text .colored-text-content {
     font-size: 18px;

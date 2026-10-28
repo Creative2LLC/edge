@@ -165,13 +165,31 @@
   font-weight: 700;
 }
 
+/* Figures shrink to fit their column, down to the design's smallest figure size;
+   below that the row wraps instead, so long figures never run into each other.
+   --statistics-value-digits is the widest figure in digits (set by the JS) and
+   --statistics-digit-width is one Figtree bold digit (measured 0.61em). */
 .statistics .statistics-list {
+  --statistics-digit-width: 0.62;
+  --statistics-value-min-size: 2.5rem;
+
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(
+      min(100%, max(200px, calc(var(--statistics-value-digits, 0) * var(--statistics-digit-width) * var(--statistics-value-min-size) + 48px))),
+      1fr
+    )
+  );
   gap: 0;
+}
+
+/* Rows that wrap are evened out by the JS: five figures as 3 + 2, not 4 + 1. */
+.statistics .statistics-list.is-balanced {
+  grid-template-columns: repeat(var(--statistics-columns), minmax(0, 1fr));
 }
 
 @media (width <= 900px) {
@@ -181,6 +199,7 @@
 }
 
 .statistics .statistics-item {
+  container-type: inline-size;
   text-align: center;
   padding: 12px 24px;
 }
@@ -230,8 +249,15 @@
   border-left: 1px solid #e6e0da;
 }
 
+.statistics .statistics-item.is-row-start {
+  border-left: none;
+}
+
 .statistics .statistics-value {
-  font-size: var(--statistics-value-size);
+  font-size: min(
+    var(--statistics-value-size),
+    calc(100cqi / (var(--statistics-value-digits, 1) * var(--statistics-digit-width)))
+  );
   font-weight: var(--statistics-value-weight);
   line-height: 1;
   color: var(--statistics-value-color);
