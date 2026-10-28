@@ -29,6 +29,26 @@ const FIELD_COLUMN_INDEX = {
   weight: 17,
 };
 
+// Published, each field is its own one-cell row (the column map above is the older
+// one-wide-row format). jcr:description is a page property and headerImageAlt folds into
+// the header image, so neither has a row; pages from before Tags was added have 14 rows.
+const PUBLISHED_ROW_ORDER = [
+  'pageTitle', 'authorName', 'articleDate', 'thumbnail', 'headerImage', 'resourceBody',
+  'audience', 'issue', 'resourceType', 'language', 'programs', 'gradeAges',
+  'tags', 'durationMinutes', 'weight',
+];
+
+function publishedRowCell(block, name) {
+  const rows = getBlockRows(block);
+  if (rows.length < PUBLISHED_ROW_ORDER.length - 1) return null;
+  if (rows.some((row) => row.children.length > 1)) return null;
+  const order = rows.length === PUBLISHED_ROW_ORDER.length
+    ? PUBLISHED_ROW_ORDER
+    : PUBLISHED_ROW_ORDER.filter((field) => field !== 'tags');
+  const index = order.indexOf(name);
+  return index < 0 ? null : rows[index]?.children[0] || null;
+}
+
 const resourceDataCache = new Map();
 function normalizeText(value) {
   return `${value || ''}`.trim();
@@ -125,6 +145,12 @@ function getTextField(block, name, fallback = '') {
   );
   if (namedValue) return namedValue;
 
+  const rowCell = publishedRowCell(block, name);
+  if (rowCell) {
+    return normalizeText(readLinkField(rowCell, name, { fallbackCell: rowCell }).value
+      || rowCell.textContent) || fallback;
+  }
+
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return fallback;
 
@@ -140,6 +166,9 @@ function getTextField(block, name, fallback = '') {
 function getHtmlField(block, name) {
   const richField = readRichTextField(block, name);
   if (richField.source) return richField.html;
+
+  const rowCell = publishedRowCell(block, name);
+  if (rowCell) return rowCell.innerHTML.trim();
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return '';
@@ -186,6 +215,12 @@ function getImageField(block, name, resourceData = {}) {
   const namedImage = readImageField(block, name);
   const propImage = imageFromNode(namedImage.cell, fallbackAlt);
   if (namedImage.source && propImage) return propImage;
+
+  const rowCell = publishedRowCell(block, name);
+  if (rowCell) {
+    const rowImage = imageFromNode(rowCell, fallbackAlt);
+    if (rowImage) return rowImage;
+  }
 
   const columnIndex = FIELD_COLUMN_INDEX[name];
   if (columnIndex === undefined) return null;

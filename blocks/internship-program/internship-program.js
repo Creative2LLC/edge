@@ -67,30 +67,16 @@ function getRowCell(row) {
   return row.children[0] || row;
 }
 
-function getRowText(rows, index) {
-  const cell = getRowCell(rows[index]);
-  return (cell?.textContent || '').replace(/\s+/g, ' ').trim();
-}
-
-function useCompactFieldOrder(block, rows) {
-  if (block.querySelector('[data-aue-prop]')) return false;
-
-  const compactTitle = getRowText(rows, COMPACT_FIELD_INDEX.title);
-  const standardTitle = getRowText(rows, FIELD_INDEX.title);
-  if (!compactTitle || !standardTitle) return false;
-
-  const hasSubtitleShape = standardTitle.length > 80
-    || /\b(internship|program|hands-on|experience|skills)\b/i.test(standardTitle);
-  const compactLooksLikeTitle = compactTitle.length < standardTitle.length
-    && !/^https?:\/\//i.test(compactTitle)
-    && !HEX_COLOR.test(compactTitle);
-
-  return hasSubtitleShape && compactLooksLikeTitle;
+// imageAlt publishes as the image's alt and never as a row, so every published block uses
+// the compact order. This used to be guessed from how the title text read, which failed for
+// most content and read every later field (button style included) one row late.
+function useCompactFieldOrder(block) {
+  return !block.querySelector('[data-aue-prop]');
 }
 
 function getFallbackCell(block, name) {
   const rows = getRows(block);
-  const indexMap = useCompactFieldOrder(block, rows) ? COMPACT_FIELD_INDEX : FIELD_INDEX;
+  const indexMap = useCompactFieldOrder(block) ? COMPACT_FIELD_INDEX : FIELD_INDEX;
   const index = indexMap[name];
   if (index === null || index === undefined) return null;
   return getRowCell(rows[index]);

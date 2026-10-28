@@ -454,6 +454,7 @@ function parseFlattenedFields(block) {
     const isToken = (tokens) => (value) => tokens.includes(normalizeKey(value));
     return {
       ...fields,
+      content_height: contentPart((value) => Boolean(normalizeHeight(value))),
       content_textColor: contentPart((value) => /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(value)),
       content_titleSize: contentPart(isToken(TITLE_SIZE_TOKENS)),
       content_titleColor: contentPart(isToken(TITLE_COLOR_TOKENS)),

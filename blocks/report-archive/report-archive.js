@@ -180,11 +180,13 @@ export default async function decorate(block) {
   const configRows = getBlockConfigRows(rows);
   const itemRows = rows.filter(isItemRow);
 
-  const headingField = readTextField(block, 'heading', {
-    fallbackCell: configRows[0]?.children.length >= 2 ? configRows[0].children[1] : null,
-  });
+  // Config rows are "label | value" in the old format and a single value cell when published.
+  const configCell = (row) => (
+    row?.children.length >= 2 ? row.children[1] : row?.children[0] || null
+  );
+  const headingField = readTextField(block, 'heading', { fallbackCell: configCell(configRows[0]) });
   const bgField = readTextField(block, 'backgroundColor', {
-    fallbackCell: configRows[1]?.children.length >= 2 ? configRows[1].children[1] : null,
+    fallbackCell: configCell(configRows[1]),
   });
 
   const headingText = headingField.value || '';

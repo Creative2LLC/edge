@@ -541,7 +541,8 @@ function decorateBlock(block) {
     }
 
     return fieldCell(
-      rows[imageModeIndex + relativeOffset + (relativeOffset < 0 ? preAnchorShift : 0)],
+      // Only fields before imageAlt (-2) move; imagePosition (-1) sits after it either way.
+      rows[imageModeIndex + relativeOffset + (relativeOffset < -2 ? preAnchorShift : 0)],
     );
   };
 

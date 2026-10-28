@@ -81,36 +81,14 @@ function hasAuthoringContext(scope) {
   );
 }
 
-// Index of the first field added after some pages were published. Everything from
-// here on sits one cell earlier in those rows.
+// reportImageAlt publishes as the report image's alt, never as a row, so on a published
+// page every later field sits one row earlier. (This was inferred from where an auto/show/
+// hide value sat, which failed whenever Report Panel Display was left empty.)
 const REPORT_IMAGE_ALT_INDEX = FIELD_INDEX.reportImageAlt;
-
-const PANEL_DISPLAY_VALUES = ['auto', 'show', 'hide'];
-
-/**
- * True when the block's rows predate `reportImageAlt`.
- *
- * Decided by VALUE, not by row count: reportPanelDisplay can only ever hold
- * auto/show/hide, so finding one of those a cell EARLIER than the current model
- * expects — and not where it expects — is unambiguous.
- *
- * Getting this wrong is not cosmetic. Read at the current indices, an older row hands
- * reportButtonLink the string "auto" (really reportPanelDisplay). That is truthy, so
- * the report panel counts as having content and renders — turning a social-only block
- * into a two-column layout with an empty second panel.
- */
-function usesPreImageAltOrder(block) {
-  const rows = directRows(block);
-  const textAt = (index) => (fieldCell(rows[index])?.textContent || '').trim().toLowerCase();
-  return PANEL_DISPLAY_VALUES.includes(textAt(FIELD_INDEX.reportPanelDisplay - 1))
-    && !PANEL_DISPLAY_VALUES.includes(textAt(FIELD_INDEX.reportPanelDisplay));
-}
 
 function fieldIndex(block, name, isEditor) {
   const index = FIELD_INDEX[name];
   if (isEditor || index < REPORT_IMAGE_ALT_INDEX) return index;
-  if (!usesPreImageAltOrder(block)) return index;
-  // reportImageAlt itself has no cell in that revision.
   return name === 'reportImageAlt' ? -1 : index - 1;
 }
 

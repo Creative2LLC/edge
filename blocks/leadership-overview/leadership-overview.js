@@ -478,11 +478,13 @@ async function buildNavCard(row, index) {
   const titleField = readRowTextField(row, 'title', 0);
   const descriptionField = readRowTextField(row, 'description', 1);
   const linkTextField = readRowTextField(row, 'linkText', 2);
-  const linkField = readRowLinkField(row, 'link', 3);
-  const cardBackgroundColorField = readRowTextField(row, 'cardBackgroundColor', 4);
-  const titleColorField = readRowTextField(row, 'titleColor', 5);
-  const descriptionColorField = readRowTextField(row, 'descriptionColor', 6);
-  const linkStyleField = readRowTextField(row, 'linkColor', 7);
+  // Published, linkText folds into the link's cell (as its anchor text), so the link is
+  // cell 2 and every field after it sits one cell earlier than in the model.
+  const linkField = readRowLinkField(row, 'link', 2);
+  const cardBackgroundColorField = readRowTextField(row, 'cardBackgroundColor', 3);
+  const titleColorField = readRowTextField(row, 'titleColor', 4);
+  const descriptionColorField = readRowTextField(row, 'descriptionColor', 5);
+  const linkStyleField = readRowTextField(row, 'linkColor', 6);
 
   if (!linkField.value) {
     const compactLinkField = findRowLinkField(row, 2);

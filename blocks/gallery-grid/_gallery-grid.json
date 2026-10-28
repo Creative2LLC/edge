@@ -165,8 +165,7 @@
       "id": "gallery-grid",
       "components": [
         "gallery-grid-item",
-        "statistics",
-        "cards"
+        "statistics"
       ]
     }
   ]

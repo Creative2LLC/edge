@@ -23,9 +23,11 @@ const DEFAULT_SETTINGS = {
 };
 
 // A gallery-grid item is either a plain background image, or an author-nested
-// Statistics/Cards component filling the slot instead — this is the allow-list
-// for the latter (must match the "gallery-grid-item" filter in _gallery-grid.json).
-const NESTED_BLOCK_NAMES = new Set(['statistics', 'cards']);
+// Statistics component filling the slot instead — this is the allow-list for the latter
+// (must match the "gallery-grid" filter in _gallery-grid.json). Cards was offered too, but
+// published pages carry one level of nested blocks, so a nested Cards block published its
+// settings without its cards and never rendered; it was removed from the filter.
+const NESTED_BLOCK_NAMES = new Set(['statistics']);
 
 function directRowOf(block, element) {
   let row = element;

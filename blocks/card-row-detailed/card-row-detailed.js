@@ -151,7 +151,9 @@ function buildCard(data) {
 export default function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
-  const columnsEl = block.querySelector('[data-aue-prop="columns"]');
+  // Published, the column count is the leading one-cell row (cards are rows of many cells).
+  const columnsEl = block.querySelector('[data-aue-prop="columns"]')
+    || rows.find((row) => row.children.length === 1 && /^\d$/.test(row.textContent.trim()));
   const columns = parseInt(columnsEl?.textContent.trim(), 10) || 3;
 
   const cards = [];

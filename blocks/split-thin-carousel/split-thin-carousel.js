@@ -137,7 +137,37 @@ function readAuthoredSlideData(row) {
   };
 }
 
+// A slide published from the current model: every field keeps its cell, empty or not, and
+// imageAlt folds into the image. Walking only the non-empty cells broke as soon as the
+// locked button colours published empty, so the background colour was never reached.
+const CURRENT_SLIDE_CELLS = ['image', 'heading', 'subheading', 'buttonText', 'buttonLink',
+  'buttonColor', 'buttonTextColor', 'buttonStyle', 'linkText', 'linkUrl', 'linkColor',
+  'contentBackgroundColor'];
+
+function readCurrentSlideData(row) {
+  const cell = (name) => row.children[CURRENT_SLIDE_CELLS.indexOf(name)];
+  const imageField = getImageField(row, 0);
+  const heading = cellText(cell('heading'));
+  return {
+    imageField,
+    imageAlt: imageField.img?.alt || heading,
+    heading,
+    subheading: cellHtml(cell('subheading')),
+    buttonText: cellText(cell('buttonText')),
+    buttonLink: cellText(cell('buttonLink')) ? getCellLink(cell('buttonLink')) : '',
+    buttonColor: getCellColor(cell('buttonColor')),
+    buttonTextColor: getCellColor(cell('buttonTextColor')),
+    buttonStyle: isButtonStyle(cellText(cell('buttonStyle')))
+      ? cellText(cell('buttonStyle')).toLowerCase() : 'solid',
+    linkText: cellText(cell('linkText')),
+    linkUrl: cellText(cell('linkUrl')) ? getCellLink(cell('linkUrl')) : '',
+    linkColor: getCellColor(cell('linkColor')),
+    contentBackgroundColor: getCellColor(cell('contentBackgroundColor')),
+  };
+}
+
 function readLiveSlideData(row) {
+  if (row.children.length === CURRENT_SLIDE_CELLS.length) return readCurrentSlideData(row);
   const imageField = getImageField(row, 0);
   const cells = nonEmptyCells(row);
   let index = hasMedia(cells[0]) ? 1 : 0;
