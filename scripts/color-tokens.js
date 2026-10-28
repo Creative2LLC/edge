@@ -492,6 +492,65 @@ export function applyAuthoredTextSafety(scope) {
 /* The links styles.css colours: class-less links in running text. */
 const TEXT_LINK_SELECTOR = ':is(p, li, td, th, dd, blockquote, figcaption) a:any-link:not([class])';
 
+/* A surface painted from an authored field: an inline background, or a custom property
+   naming one (--info-card-bg). */
+const SURFACE_PROP = /(^|-)(bg|background|surface)(-|$)/i;
+
+function paintsSurface(element) {
+  const { style } = element;
+  if (style.backgroundColor) return true;
+  for (let i = 0; i < style.length; i += 1) {
+    if (style[i].startsWith('--') && SURFACE_PROP.test(style[i].slice(2))) return true;
+  }
+  return false;
+}
+
+/**
+ * Text a block's STYLESHEET colours, on a surface an author painted. A block picks its
+ * default ink for its default surface (white on the info cards' navy), so an author or the
+ * page assistant who paints the card white and leaves the text colour empty gets white on
+ * white, and applyAuthoredTextSafety() never looks: that white is the stylesheet's, not
+ * authored. This finds every element painted from an authored field and gives the text on
+ * it that fails AA the readable ink, white or Navy Dark. Text with its own inline colour
+ * is left to the passes above, and text links to applyLinkSurfaces(). Hidden text counts
+ * too (a closed tab or accordion opens later). Re-judged on every run, since in the
+ * editor the surface can change colour.
+ * @param {Element} scope usually main
+ * @returns {number} how many elements were re-inked
+ */
+export function applySurfaceInk(scope) {
+  if (!scope || typeof window === 'undefined' || !window.getComputedStyle) return 0;
+  scope.querySelectorAll('[data-surface-ink]').forEach((node) => {
+    node.style.removeProperty('color');
+    node.removeAttribute('data-surface-ink');
+  });
+
+  const nodes = new Set();
+  [scope, ...scope.querySelectorAll('[style]')].filter(paintsSurface).forEach((owner) => {
+    nodes.add(owner);
+    owner.querySelectorAll(READABLE_TEXT_SELECTOR).forEach((node) => nodes.add(node));
+  });
+
+  let changed = 0;
+  nodes.forEach((node) => {
+    if (node.style.color || node.dataset.readableAdjusted) return;
+    if (node.matches(TEXT_LINK_SELECTOR)) return;
+    if (![...node.childNodes].some((n) => n.nodeType === 3 && n.nodeValue.trim())) return;
+    const rendered = normalizeHex(computedToHex(window.getComputedStyle(node).color) || '');
+    const surface = rendered && trustedSurfaceBehind(node);
+    if (!surface) return;
+    const required = minRatioFor(node);
+    const ink = readableInk(surface);
+    // Already readable, or a surface no ink reads on (textSafeSurface's job, not this one's).
+    if (contrastRatio(rendered, surface) >= required) return;
+    if (contrastRatio(ink, surface) < required) return;
+    node.style.color = ink;
+    node.dataset.surfaceInk = '';
+    changed += 1;
+  });
+  return changed;
+}
+
 /**
  * Plain links take the site link colour, a blue built for light sections. On a dark card or
  * section that a block never marked .is-on-dark (any card whose author picked a dark
@@ -618,8 +677,8 @@ export function flagReadableAdjustments(scope) {
 
 /**
  * Runs every contrast step in order: authored colours blocks registered, then the safety
- * net for blocks that apply colours themselves, then text links on dark surfaces, then the
- * editor notice. Called once the
+ * net for blocks that apply colours themselves, then default text on authored surfaces,
+ * then text links on dark surfaces, then the editor notice. Called once the
  * page has loaded, and again by the editor after each change, so what an author sees while
  * editing is what visitors will see.
  * @param {Element} scope usually main
@@ -627,6 +686,7 @@ export function flagReadableAdjustments(scope) {
 export function refreshReadableColors(scope) {
   applyReadableColors();
   applyAuthoredTextSafety(scope);
+  applySurfaceInk(scope);
   applyLinkSurfaces(scope);
   flagReadableAdjustments(scope);
 }

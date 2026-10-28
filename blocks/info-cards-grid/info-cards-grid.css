@@ -147,6 +147,13 @@
     background-color var(--hover-duration) var(--hover-ease);
 }
 
+/* A card painted light with no text colour picked: Navy Dark, not the navy card's white. */
+.info-cards-grid-card.info-cards-grid-card-on-light {
+  --info-card-title-color: var(--ncmec-navy-dark);
+  --info-card-subtitle-color: var(--ncmec-navy-dark);
+  --info-card-body-color: var(--ncmec-navy-dark);
+}
+
 /* Overlay image */
 .info-cards-grid-card-overlay {
   position: absolute;

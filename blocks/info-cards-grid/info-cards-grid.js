@@ -1,5 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { textSafeSurface } from '../../scripts/color-tokens.js';
+import { readableInk, textSafeSurface } from '../../scripts/color-tokens.js';
 import {
   getAueResourcePath,
   getFieldSelector,
@@ -27,6 +27,15 @@ import {
  */
 function applyDefaultHover(card, background) {
   card.classList.toggle('info-cards-grid-card-has-lift-hover', !isDarkSurface(background));
+}
+
+/**
+ * Text with no colour authored. The stylesheet's white suits the default navy card; a
+ * card painted light (the page assistant's white cards) would hide it, so a card that
+ * reads better with Navy Dark text gets it. Authored colours are inline and still win.
+ */
+function applyDefaultInk(card, background) {
+  card.classList.toggle('info-cards-grid-card-on-light', readableInk(textSafeSurface(background)) !== '#FFFFFF');
 }
 
 // Hex-color "select" fields never get data-aue-prop instrumentation in the editor (see
@@ -650,6 +659,7 @@ function syncCardStyles(resourcePath, card, content, data, variant) {
       if (fields.cardBackgroundColor) {
         // The card's title and subtitle sit on this, so Blue Medium renders as Blue Dark.
         card.style.setProperty('--info-card-bg', textSafeSurface(fields.cardBackgroundColor));
+        applyDefaultInk(card, fields.cardBackgroundColor);
       }
       if (fields.cardHoverBackgroundColor) {
         card.classList.remove('info-cards-grid-card-has-lift-hover');
@@ -775,6 +785,7 @@ function buildCard(data, index, variant, isEditor) {
 
   // The card's title, subtitle and body sit on this, so Blue Medium renders as Blue Dark.
   card.style.setProperty('--info-card-bg', textSafeSurface(cardBg));
+  applyDefaultInk(card, cardBg);
   // No colour hover unless the author picks a Card Hover Background Color. Dark cards
   // used to tint by default, which read oddly on a card whose only links sit inside its
   // text (the "Report" card on ai-risks).
