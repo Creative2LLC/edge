@@ -1,0 +1,188 @@
+{
+  "definitions": [
+    {
+      "title": "Dark Img Btn 1x4 Col",
+      "id": "dark-feature-cards",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Dark Img Btn 1x4 Col",
+              "model": "dark-feature-cards",
+              "filter": "dark-feature-cards"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Dark Feature Card",
+      "id": "dark-feature-cards-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Dark Feature Card",
+              "model": "dark-feature-cards-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "dark-feature-cards",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Section Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Section Subtitle"
+        }
+      ]
+    },
+    {
+      "id": "dark-feature-cards-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Top Image (Optional)",
+          "description": "Optional image at the top of the card. Sits at the very top, full card width, max height 178px.",
+          "multi": false
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon (64x64)",
+          "description": "Icon displayed at the top of the card body, color-tinted white.",
+          "multi": false
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "cardTitle",
+          "label": "Card Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "cardSubtitle",
+          "label": "Card Subtitle"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonStyle",
+          "label": "Button Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "secondary",
+          "options": [
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardBackgroundColor",
+          "label": "Card Background Color",
+          "options": [
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Raised (#0F3357)",
+              "value": "#0F3357"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            }
+          ],
+          "value": "#0F3357"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "dark-feature-cards",
+      "components": [
+        "dark-feature-cards-item"
+      ]
+    }
+  ]
+}

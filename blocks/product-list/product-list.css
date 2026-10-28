@@ -1,0 +1,155 @@
+/* Block root */
+.product-list.block {
+  padding: 60px 0;
+}
+
+/* Stack of cards */
+.product-list-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Each card row: image left, text right */
+.product-list-card {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  max-height: 360px;
+}
+
+/* Image side */
+.product-list-card-image {
+  flex: 0 0 432px;
+  max-width: 432px;
+  max-height: 310px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.product-list-card-image picture {
+  display: block;
+  height: 100%;
+}
+
+.product-list-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Text/content side */
+.product-list-card-content {
+  flex: 1;
+  background-color: var(--ncmec-warm-gray);
+  border-radius: 14px;
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+/* Title */
+.product-list-card-title {
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 12px;
+  text-align: left;
+}
+
+/* Description */
+.product-list-card-description {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  text-align: left;
+}
+
+.product-list-card-description p {
+  margin: 0 0 12px;
+}
+
+.product-list-card-description p:last-child {
+  margin-bottom: 0;
+}
+
+.product-list-card-description a {
+  color: var(--ncmec-blue-dark);
+  text-decoration: underline;
+}
+
+.product-list-card-description a:hover {
+  text-decoration: none;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .product-list-card-image {
+    flex: 0 0 300px;
+    max-width: 300px;
+  }
+
+  .product-list-card-content {
+    padding: 24px 28px;
+  }
+}
+
+/* Responsive — mobile */
+@media (width <= 600px) {
+  .product-list-card {
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .product-list-card-image {
+    flex: 0 0 auto;
+    max-width: 100%;
+    height: 220px;
+  }
+
+  .product-list-card-content {
+    padding: 24px;
+  }
+}
+
+/* HOVER — edge tier (rule draws along the bottom edge). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.product-list .product-list-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  position: relative;
+  transition: var(--hover-transition);
+}
+
+.product-list .product-list-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"]))))::after {
+  content: "";
+  position: absolute;
+  bottom: var(--hover-edge-offset);
+  left: 50%;
+  width: var(--hover-edge-width);
+  height: var(--hover-edge-height);
+  translate: -50% 0;
+  background: var(--hover-edge-color, var(--text-marker-color, #f5c84b));
+  mask-image: var(--hover-edge-mark);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--hover-edge-duration) var(--hover-ease);
+}
+
+.product-list .product-list-card:focus-within::after,
+.product-list .product-list-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-list .product-list-card::after {
+    transition: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
-
 .hero-container .hero-wrapper {
   max-width: unset;
   padding: 0;
@@ -7,34 +5,43 @@
 
 .hero {
   position: relative;
-  padding: 40px 24px;
-  min-height: var(--hero-height, 300px);
+  display: flex;
+  align-items: flex-end;
+  min-height: var(--hero-height, 620px);
+  padding: clamp(112px, 15vw, 172px) 24px 48px;
+  overflow: hidden;
+  isolation: isolate;
 }
 
-.hero h1 {
-  font-family: Inter, sans-serif;
-  max-width: 1200px;
-  color:#00264D;
-  font-weight: 800;
-  font-size: 64px;
-  margin: 28rem auto 0;
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(246 248 250 / var(--hero-overlay-opacity, 78%));
 }
 
-.hero h2 {
-  font-family: Inter, sans-serif;
-  max-width: 1200px;
-  color: #008EB7;
-  font-weight: 800;
-  font-size: 64px;
-  margin: 0 auto;
+.hero.hero-gradient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgb(246 246 246 / 0%) 20.19%,
+    rgb(246 246 246 / 40%) 50%,
+    #f6f6f6 94.71%,
+    #f5f5f5 100%
+  );
+  pointer-events: none;
 }
 
 .hero picture {
   position: absolute;
-  z-index: -1;
+  z-index: -2;
   inset: 0;
-  object-fit: cover;
   box-sizing: border-box;
+  display: block;
 }
 
 .hero img {
@@ -43,8 +50,709 @@
   height: 100%;
 }
 
+/* Keep empty-image heroes intentional instead of leaving a flat neutral fill. */
+.hero.hero-no-media {
+  background:
+    radial-gradient(ellipse at 84% 14%, rgb(74 184 211 / 52%) 0%, rgb(117 204 225 / 24%) 42%, transparent 74%),
+    radial-gradient(circle at 94% 86%, rgb(255 184 28 / 16%) 0%, transparent 18rem),
+    linear-gradient(135deg, #eefbff 0%, #fff 56%, #f4f8fa 100%);
+}
+
+.hero.hero-no-media::before {
+  background: linear-gradient(90deg, rgb(255 255 255 / 82%) 0%, rgb(255 255 255 / 58%) 52%, rgb(255 255 255 / 28%) 100%);
+}
+
+.hero.hero-no-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 75% 24%, rgb(0 142 183 / 15%) 0%, transparent 10rem),
+    radial-gradient(circle at 91% 47%, rgb(0 142 183 / 10%) 0%, transparent 15rem);
+  pointer-events: none;
+}
+
+.hero.hero-no-media.hero-gradient::after {
+  background:
+    radial-gradient(circle at 75% 24%, rgb(0 142 183 / 15%) 0%, transparent 10rem),
+    radial-gradient(circle at 91% 47%, rgb(0 142 183 / 10%) 0%, transparent 15rem),
+    linear-gradient(
+      180deg,
+      rgb(246 246 246 / 0%) 20.19%,
+      rgb(246 246 246 / 40%) 50%,
+      #f6f6f6 94.71%,
+      #f5f5f5 100%
+    );
+}
+
+/* Background video */
+.hero .hero-video {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* keep the top of the frame in view: the hero's height is fixed, so on wide
+     viewports cover-cropping otherwise trims both edges equally and pushes
+     faces near the top of the frame off screen */
+  object-position: center top;
+  display: block;
+  pointer-events: none;
+}
+
+.hero .hero-content {
+  width: 100%;
+
+  /* The column width, not the container width: .hero already supplies side
+     padding, so capping at --container put hero copy 32px outside the edge
+     every in-container block uses. */
+  max-width: var(--container-content);
+  margin: 0 auto;
+}
+
+.hero .hero-richtext {
+  max-width: 900px;
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+}
+
+.hero .hero-layout {
+  display: grid;
+  gap: 32px;
+  align-items: end;
+}
+
+.hero .hero-main {
+  min-width: 0;
+}
+
+.hero .hero-main-body {
+  min-width: 0;
+}
+
+.hero .hero-main.has-featured-image {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+}
+
+.hero .hero-main.has-featured-image .hero-main-body {
+  flex: 0 1 auto;
+}
+
+.hero .hero-featured-image {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 202px;
+  max-height: 200px;
+}
+
+.hero .hero-featured-image picture {
+  position: static;
+  display: block;
+  max-width: 202px;
+  max-height: 200px;
+  inset: auto;
+}
+
+.hero .hero-featured-image img {
+  display: block;
+  max-width: 202px;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.hero .hero-richtext h1,
+.hero .hero-richtext h2,
+.hero .hero-richtext h3,
+.hero .hero-richtext h4,
+.hero .hero-richtext h5,
+.hero .hero-richtext h6 {
+  margin: 0;
+  white-space: pre-line;
+  color: #00264d;
+}
+
+.hero .hero-richtext h2 {
+  margin-top: 8px;
+}
+
+.hero .hero-richtext > h3:not(:first-child) {
+  margin-top: 8px;
+}
+
+.hero .hero-richtext p {
+  margin: 24px 0 0;
+  max-width: 960px;
+  font-size: var(--deck-size);
+  line-height: var(--caption-line-height);
+  color: var(--ncmec-gray-dark);
+}
+
+/* A subtitle line that hero.js demoted out of the heading outline. It must keep
+   the size it had as an h2/h3 — the point is a correct outline, not a redesign —
+   so it mirrors the global heading contract and re-states its level's token.
+   Declared after `.hero .hero-richtext p` deliberately: it has to out-specify it. */
+.hero .hero-richtext .hero-richtext-subtitle {
+  margin: 8px 0 0;
+  max-width: none;
+  color: #00264d;
+  font-family: var(--heading-font-family);
+  font-weight: var(--heading-weight);
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
+  white-space: pre-line;
+  text-wrap: balance;
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="2"] {
+  font-size: var(--heading-2-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="3"] {
+  font-size: var(--heading-3-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="4"] {
+  font-size: var(--heading-4-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="5"] {
+  font-size: var(--heading-5-size);
+}
+
+.hero .hero-richtext .hero-richtext-subtitle[data-heading-level="6"] {
+  font-size: var(--heading-6-size);
+}
+
+.hero .hero-text-html {
+  margin-top: 18px;
+  max-width: 760px;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+}
+
+.hero .hero-text-html > :where(p, ul, ol, blockquote) {
+  margin-block: 0;
+}
+
+.hero .hero-text-html > :where(p, ul, ol, blockquote)
+  + :where(p, ul, ol, blockquote) {
+  margin-top: 1em;
+}
+
+.hero .hero-breadcrumbs {
+  margin-bottom: 24px;
+}
+
+.hero .hero-breadcrumbs ol {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 14px;
+  list-style: none;
+
+  /* 72%, up from 20%: over a darker hero image the 13px links measured 4.1:1 (need 4.5). */
+  background: rgb(255 255 255 / 72%);
+  backdrop-filter: blur(24px);
+}
+
+.hero .hero-breadcrumbs li span {
+  font-size: var(--body-sm-size);
+  font-weight: 500;
+  color: #515b67;
+}
+
+.hero .hero-side-panel-footer a {
+  color: #9be7ff;
+}
+
+.hero .hero-breadcrumbs li a,
+.hero .hero-breadcrumbs li a:any-link {
+  font-size: var(--body-sm-size);
+  font-weight: 500;
+  color: #515b67;
+  text-decoration: none;
+}
+
+.hero .hero-breadcrumbs li a:hover {
+  color: var(--ncmec-blue-dark);
+  text-decoration: underline;
+}
+
+.hero .hero-breadcrumbs li.is-current span {
+  /* Blue Medium was ~3.4:1 behind the translucent pill; this is 13px text (needs 4.5). */
+  color: var(--ncmec-blue-dark);
+}
+
+.hero .hero-breadcrumbs li.separator {
+  font-size: var(--body-sm-size);
+  font-weight: 600;
+  color: #6f7883;
+}
+
+.hero .hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+/* Action buttons: styled by the button standard in styles/styles.css.
+   No arrow — the client dropped it from these styles. */
+
+.hero .hero-side-panel {
+  width: 100%;
+  max-width: 430px;
+  border-radius: 10px;
+  padding: 28px 26px;
+  background: #002a5a;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 14%);
+}
+
+.hero .hero-side-panel.is-image-only {
+  padding: 18px;
+  background: #002a5a;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 14%);
+}
+
+.hero .hero-side-panel-image {
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.hero .hero-side-panel.is-image-only .hero-side-panel-image {
+  display: grid;
+  aspect-ratio: 16 / 9;
+  place-items: center;
+
+  /* background: #fff; */
+}
+
+.hero .hero-side-panel-image picture,
+.hero .hero-side-panel-image img {
+  position: static;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 250px;
+  z-index: 1;
+}
+
+.hero .hero-side-panel-image img {
+  object-fit: contain;
+}
+
+.hero .hero-side-panel-title {
+  margin: 0;
+  color: #fff;
+}
+
+.hero .hero-side-panel-text {
+  margin-top: 14px;
+}
+
+.hero .hero-side-panel-text p {
+  margin: 0;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
+  color: rgb(255 255 255 / 92%);
+}
+
+.hero .hero-side-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.hero .hero-side-panel-footer {
+  margin-top: 18px;
+}
+
+.hero .hero-side-panel-footer p {
+  margin: 0;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-medium);
+  color: rgb(255 255 255 / 78%);
+}
+
+.hero .hero-side-panel-text p:first-child {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-bold);
+}
+
+.hero .hero-text-html p:empty,
+.hero .hero-text-html p:has(br:only-child) {
+  min-height: 1em;
+}
+
+/* Side panel buttons: styled by the button standard (dark form — the panel is navy). */
+
+.hero.hero-pos-center .hero-layout {
+  justify-items: center;
+  text-align: center;
+}
+
+.hero.hero-pos-center .hero-main {
+  max-width: 980px;
+}
+
+.hero.hero-pos-center .hero-actions {
+  justify-content: center;
+}
+
+.hero.hero-pos-center .hero-text-html {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero.hero-pos-right .hero-layout {
+  justify-items: end;
+  text-align: right;
+}
+
+.hero.hero-pos-right .hero-actions {
+  justify-content: flex-end;
+}
+
+.hero.hero-pos-right .hero-text-html {
+  margin-left: auto;
+}
+
+.hero.hero-variant-homepage {
+  --hero-height: 1117px;
+
+  /* Named so the scroll cue can stay inside this band and never ride up into
+     the headline. Changing the padding moves the cue with it. */
+  --hero-pad-bottom: clamp(160px, 18vw, 240px);
+
+  padding-bottom: var(--hero-pad-bottom);
+}
+
+.hero.hero-authoring.hero-variant-homepage {
+  align-items: center;
+  min-height: min(var(--hero-height, 760px), 760px);
+  padding-bottom: clamp(64px, 8vw, 96px);
+}
+
+.hero .hero-richtext .hero-accent {
+  color: var(--ncmec-blue-dark);
+}
+
+.hero.hero-variant-homepage .hero-text-html {
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+}
+
+/* The homepage hero is the only place that uses the home h1 size; every other
+   hero keeps the global h1. It reads from a token so a change to the type
+   system still reaches it — do not hardcode a px or clamp() value here. */
+.hero.hero-variant-homepage .hero-richtext :is(h1, h2, h3, h4, h5, h6),
+.hero.hero-variant-homepage .hero-richtext .hero-richtext-subtitle {
+  font-size: var(--heading-1-home-size);
+}
+
 @media (width >= 900px) {
   .hero {
-    padding: 40px 32px;
+    padding: clamp(120px, 12vw, 172px) 32px 56px;
+  }
+
+  .hero .hero-layout.has-side-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 540px);
+    column-gap: 56px;
+  }
+
+  .hero .hero-layout.has-side-panel .hero-side-panel {
+    max-width: 540px;
+  }
+}
+
+@media (width >= 900px) and (width <= 1199px) {
+  .hero {
+    min-height: min(var(--hero-height, 520px), 520px);
+    padding: clamp(72px, 9vw, 108px) 32px 34px;
+  }
+
+  .hero .hero-layout {
+    gap: 24px;
+  }
+
+  .hero .hero-richtext p {
+    margin-top: 18px;
+    font-size: var(--body-lg-size);
+  }
+
+  .hero .hero-side-panel {
+    max-width: 360px;
+    padding: 22px 20px;
+  }
+}
+
+@media (width <= 899px) {
+  .hero {
+    min-height: min(var(--hero-height, 420px), 420px);
+    padding: 40px 24px 28px;
+  }
+
+  .hero .hero-main.has-featured-image {
+    gap: 20px;
+  }
+
+  .hero .hero-layout {
+    gap: 18px;
+    align-items: start;
+  }
+
+  .hero .hero-richtext h2 {
+    margin-top: 6px;
+  }
+
+  .hero .hero-richtext p {
+    margin-top: 14px;
+    font-size: var(--body-lg-size);
+  }
+
+  .hero .hero-text-html {
+    margin-top: 14px;
+  }
+
+  .hero .hero-breadcrumbs {
+    margin-bottom: 18px;
+  }
+
+  /* Vertical padding trimmed from 7px to 2px: the links' 24px tap area (below) now
+     supplies that space, so the pill stays the same height. */
+  .hero .hero-breadcrumbs ol {
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    align-items: center;
+  }
+
+  .hero .hero-breadcrumbs li {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+  }
+
+  /* 24px min-height, WCAG 2.5.8: at line-height 1 a caption-size link was ~13px tall,
+     and a wrapped trail put two links within 24px of each other. */
+  .hero .hero-breadcrumbs li a,
+  .hero .hero-breadcrumbs li a:any-link,
+  .hero .hero-breadcrumbs li span,
+  .hero .hero-breadcrumbs li.separator {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    font-size: var(--caption-size);
+    line-height: 1;
+  }
+
+  /* The ">" glyph optically centers higher than text; nudge it down to align. */
+  .hero .hero-breadcrumbs li.separator {
+    transform: translateY(1px);
+  }
+
+  .hero .hero-actions {
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .hero .hero-side-panel {
+    max-width: none;
+    padding: 20px 18px;
+  }
+}
+
+@media (width <= 600px) {
+  .hero {
+    min-height: min(var(--hero-height, 360px), 360px);
+    padding: 28px 24px 24px;
+  }
+
+  .hero .hero-main.has-featured-image {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .hero.hero-pos-center .hero-main.has-featured-image {
+    align-items: center;
+  }
+
+  .hero.hero-pos-right .hero-main.has-featured-image {
+    align-items: flex-end;
+  }
+
+  .hero .hero-richtext p {
+    font-size: var(--body-sm-size);
+    line-height: var(--caption-line-height);
+  }
+
+  .hero .hero-breadcrumbs {
+    margin-bottom: 14px;
+  }
+
+  .hero .hero-breadcrumbs li a,
+  .hero .hero-breadcrumbs li a:any-link,
+  .hero .hero-breadcrumbs li span,
+  .hero .hero-breadcrumbs li.separator {
+    font-size: var(--caption-size);
+  }
+}
+
+
+/* ====================================================================
+   HOMEPAGE SCROLL CUE
+   Only on .hero-variant-homepage, which runs ~1100px tall and otherwise
+   gives no sign that anything follows it. Markup from buildScrollCue().
+
+   The motion is the loading system's idea reused: a bright brand segment
+   travelling along a track, the same read as the skeleton sweep and the
+   beacon. One vocabulary for "something is moving here" beats a shimmer
+   language for loading plus an unrelated bouncing arrow for scrolling.
+   ==================================================================== */
+.hero .hero-scroll-cue {
+  position: absolute;
+
+  /* Pinned to the first SCREENFUL, and to the RIGHT of the copy column.
+     Both parts are forced by the same measurement. This hero is a fixed
+     1117px against a ~900px laptop viewport, so anchoring the cue to the
+     hero's base left it entirely below the fold — the one thing a scroll cue
+     must not be. Pulling it up into the fold then put it on top of the
+     headline, because the hero's copy sits in the bottom ~240px band.
+     The copy is left-aligned and caps at 900px, so the right edge is the only
+     region that is empty at every viewport size. Measured in
+     audits/hero-cue-heights.mjs.
+
+     `100%` is the hero's own height: on a hero shorter than the viewport the
+     calc goes negative and max() falls back to sitting above the hero's base,
+     which is what mobile gets. svh (not vh) so mobile browser chrome counts. */
+  bottom: max(clamp(32px, 5vw, 56px), calc(100% - 100vh + 150px));
+  bottom: max(clamp(32px, 5vw, 56px), calc(100% - 100svh + 150px));
+  right: clamp(20px, 3vw, 48px);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 2.4em;
+  background: none;
+  color: #00264d;
+  cursor: pointer;
+
+  /* Fades out on scroll rather than disappearing; see .is-hidden. */
+  transition: opacity 0.32s ease, transform 0.32s ease;
+}
+
+/* Past the first 80px the cue has done its job, and on a hero this tall it
+   would otherwise hang over the content the visitor scrolled to. */
+.hero .hero-scroll-cue.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.hero .hero-scroll-cue-track {
+  position: relative;
+  overflow: hidden;
+  width: 1px;
+  height: clamp(32px, 4vw, 44px);
+  background: rgb(0 38 77 / 16%);
+}
+
+/* The travelling segment. Starts above the track and runs off the bottom, so
+   the eye is pulled downward — the direction the cue is asking you to go. */
+.hero .hero-scroll-cue-track::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 46%;
+  background: linear-gradient(180deg, rgb(0 114 148 / 0%), var(--beacon-color, #007294));
+  animation: hero-scroll-cue-travel 2.3s cubic-bezier(0.55, 0, 0.45, 1) infinite;
+}
+
+/* Chevron drawn from two borders. The global reset zeroes border-width and
+   sets border-style: solid, so both have to be restated here. */
+.hero .hero-scroll-cue-arrow {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform 0.24s ease;
+}
+
+.hero .hero-scroll-cue:hover {
+  color: var(--beacon-color, var(--ncmec-blue-dark));
+}
+
+.hero .hero-scroll-cue:hover .hero-scroll-cue-arrow {
+  transform: rotate(45deg) translate(1px, 1px);
+}
+
+.hero .hero-scroll-cue:focus-visible {
+  outline: 2px solid var(--beacon-color, var(--ncmec-blue-dark));
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+@keyframes hero-scroll-cue-travel {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(220%);
+  }
+}
+
+/* The travel and the arrow nudge are decorative and carry no information the
+   chevron does not already give, so they stop outright. The segment is left
+   sitting in the track so the cue still reads as a deliberate mark. */
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-scroll-cue,
+  .hero .hero-scroll-cue-arrow {
+    transition: none;
+  }
+
+  .hero .hero-scroll-cue-track::after {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

@@ -1,5 +1,9 @@
 version: 1
 
+# Three indices: `pages` -> query-index.json (site search); `sitemap` -> sitemap.json and
+# `sitemap-es` -> es/sitemap.json, the English and Spanish sources of sitemap.xml. Spanish
+# has its own source so helix-sitemap.yaml can pair /about with /es/about for hreflang.
+
 indices:
   pages:
     include:
@@ -8,9 +12,74 @@ indices:
       - '/**.json'
     target: /query-index.json
     properties:
+      title:
+        selectFirst: head > meta[property="og:title"]
+        value: attribute(el, "content")
+      description:
+        selectFirst: head > meta[name="description"]
+        value: attribute(el, "content")
+      keywords:
+        selectFirst: head > meta[name="keywords"]
+        value: attribute(el, "content")
+      template:
+        selectFirst: head > meta[name="template"]
+        value: attribute(el, "content")
+      searchExcerpt:
+        selectFirst: head > meta[name="search-excerpt"]
+        value: attribute(el, "content")
+      audience:
+        selectFirst: head > meta[name="audience"]
+        value: attribute(el, "content")
+      topic:
+        selectFirst: head > meta[name="topic"]
+        value: attribute(el, "content")
       lastModified:
         select: none
         value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
       robots:
-        select: head > meta[name="robots"]
+        selectFirst: head > meta[name="robots"]
+        value: attribute(el, "content")
+
+  sitemap:
+    include:
+      - '/**'
+    exclude:
+      - '/**.json'
+      - '/nav'
+      - '/footer'
+      - '/fragments/**'
+      - '/templates/**'
+      - '/drafts/**'
+      - '/tools/**'
+      - '/for-ncmec-test-pages/**'
+      - '/form-testing-page'
+      - '/es'
+      - '/es/**'
+    target: /sitemap.json
+    properties:
+      lastModified:
+        select: none
+        value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
+      robots:
+        selectFirst: head > meta[name="robots"]
+        value: attribute(el, "content")
+
+  sitemap-es:
+    include:
+      - '/es'
+      - '/es/**'
+    exclude:
+      - '/es/**.json'
+      - '/es/nav'
+      - '/es/footer'
+      - '/es/fragments/**'
+      - '/es/templates/**'
+      - '/es/drafts/**'
+    target: /es/sitemap.json
+    properties:
+      lastModified:
+        select: none
+        value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
+      robots:
+        selectFirst: head > meta[name="robots"]
         value: attribute(el, "content")

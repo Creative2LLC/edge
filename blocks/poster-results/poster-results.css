@@ -1,0 +1,1696 @@
+.poster-results {
+  background: var(--ncmec-gray-lightest);
+  padding: 52px 0 60px;
+}
+
+.poster-results-inner {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.poster-results-header {
+  max-width: 840px;
+  margin-bottom: 24px;
+}
+
+.poster-results-eyebrow {
+  margin: 0 0 8px;
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.poster-results-heading {
+  margin: 0;
+  color: #243846;
+}
+
+.poster-results-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #d9e1e6;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.poster-results-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.poster-results-field span,
+.poster-results-radio-group legend {
+  color: #3f4b53;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+}
+
+.poster-results-field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.poster-results-field input,
+.poster-results-field select {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #c7d1d8;
+  border-radius: 6px;
+  background: #fff;
+  color: #243846;
+  font: inherit;
+  font-size: var(--body-size);
+  padding: 9px 12px;
+  box-sizing: border-box;
+}
+
+.poster-results-field input::placeholder {
+  color: #6b7882;
+}
+
+.poster-results-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.poster-results-radio-group legend {
+  flex-basis: 100%;
+  margin-bottom: -4px;
+}
+
+.poster-results-radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #243846;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+}
+
+.poster-results-radio-group input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ncmec-blue-dark);
+}
+
+.poster-results-actions {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
+/* Form buttons that are not on the button standard (the sort toggles). Submit, Reset
+   and Near Me carry .button, and :where() keeps this rule's specificity unchanged. */
+.poster-results-form button:where(:not(.button)) {
+  height: 46px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--ncmec-blue-dark);
+  color: #fff;
+  font: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 800;
+  padding: 0 22px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Bottom LEFT: on the right it sat against the Get Help Now pill, which is fixed in that
+   corner, and the two read as one crowded control. */
+.poster-results-back-to-search {
+  position: fixed;
+  left: 22px;
+  bottom: 22px;
+  z-index: 10000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  max-width: calc(100vw - 36px);
+  border: 1px solid #c7d1d8;
+  border-radius: 999px;
+  background: #fff;
+  color: #243846;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1;
+  padding: 0 12px;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 16%);
+}
+
+.poster-results-back-to-search[hidden] {
+  display: none;
+}
+
+.poster-results-form button:where(:not(.button)):disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.poster-results-form button:where(:not(.button)):hover {
+  background: #005f7d;
+}
+
+.poster-results-near-me {
+  display: grid;
+  gap: 26px;
+  margin: 12px 0 30px;
+}
+
+.poster-results-near-me-divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  color: #243846;
+  font-size: var(--body-sm-size);
+}
+
+.poster-results-near-me-divider span {
+  height: 1px;
+  background: #243846;
+}
+
+.poster-results-qr-code {
+  margin: 24px 0 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  text-align: center;
+}
+
+.poster-results-qr-code a {
+  color: var(--ncmec-blue-dark);
+  font-weight: var(--body-weight-bold);
+}
+
+.poster-results-near-me-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.poster-results-near-me-tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #6b7882;
+  color: #fff !important;
+  cursor: help;
+  font-size: var(--caption-size);
+  font-weight: 800;
+}
+
+.poster-results-near-me-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 2;
+  width: 240px;
+  max-width: 70vw;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #243846;
+  color: #fff;
+  font-size: var(--caption-size);
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  transform: translateX(-50%);
+  transition: opacity 0.15s ease;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 18%);
+}
+
+.poster-results-near-me-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  border: 6px solid transparent;
+  border-top-color: #243846;
+  transform: translateX(-50%);
+}
+
+.poster-results-near-me-tip:hover .poster-results-near-me-tooltip,
+.poster-results-near-me-tip:focus .poster-results-near-me-tooltip,
+.poster-results-near-me-tip:focus-visible .poster-results-near-me-tooltip {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster-results-near-me-tooltip {
+    transition: none;
+  }
+}
+
+.poster-results-qr {
+  margin: 20px 0 0;
+  color: #243846;
+  font-size: var(--body-size);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.poster-results-status,
+.poster-results-meta {
+  margin: 0 0 18px;
+  color: #3f4b53;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+}
+
+.poster-results-status.is-error {
+  color: #b42318;
+}
+
+.poster-results-status.is-loading {
+  color: var(--ncmec-blue-dark);
+}
+
+/* Poster-shaped placeholder shown while the poster API responds. Mirrors the
+   .poster-results-detail-layout grid so the real content lands in place. Worn
+   by a shared skeleton item — see renderPosterSkeleton. */
+.poster-results-skeleton {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+
+.poster-results-skeleton-photo {
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+}
+
+.poster-results-skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 6px;
+}
+
+/* No shimmer paint here on purpose. These three classes now supply GEOMETRY
+   only — the bones inside them are drawn by the shared loading system in
+   styles.css (see scripts/skeleton.js). This block used to carry the site's
+   only hand-built skeleton, complete with its own gradient, keyframes and
+   reduced-motion block; all three are gone rather than duplicated. */
+
+@media (width <= 700px) {
+  .poster-results-skeleton {
+    grid-template-columns: 1fr;
+  }
+
+  .poster-results-skeleton-photo {
+    max-width: 320px;
+  }
+}
+
+.poster-results-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(380px, 1fr));
+  gap: 24px 28px;
+  align-items: stretch;
+}
+
+.poster-results-card {
+  display: grid;
+  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
+  min-height: 230px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 8px rgb(0 0 0 / 7%);
+}
+
+.poster-results-card.no-photo {
+  grid-template-columns: 1fr;
+  padding: 24px 26px 22px;
+}
+
+.poster-results-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 230px;
+  padding: 0;
+  border: 0;
+  background: #dfe5e9;
+  cursor: pointer;
+}
+
+.poster-results-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 230px;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.poster-results-card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 26px 22px;
+  min-width: 0;
+}
+
+.poster-results-card.no-photo .poster-results-card-body {
+  padding: 0;
+}
+
+/* A result card's name is an h3 in the outline but sized as H4 (25px), the card-heading
+   size the client set for the poster grid; the global h3 (36px) was too big. */
+.poster-results-card-body h3 {
+  margin: 0 0 8px;
+  color: #243846;
+  font-size: var(--heading-4-size);
+}
+
+.poster-results-card-title-link {
+  color: var(--ncmec-blue-medium);
+  text-decoration: none;
+}
+
+.poster-results-card-title-link:hover,
+.poster-results-card-title-link:focus-visible {
+  text-decoration: underline;
+}
+
+.poster-results-card-body dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 4px;
+  margin: 0;
+}
+
+.poster-results-card-body dt {
+  color: #3f4a52;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  line-height: 1.25;
+}
+
+.poster-results-card-body dt::after {
+  content: ':';
+}
+
+.poster-results-card-body dd {
+  margin: 0;
+  color: #3f4a52;
+  font-size: var(--body-lg-size);
+  line-height: 1.25;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.poster-results-card-actions {
+  display: flex;
+  align-items: center;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+/* Card link: the Text link style from the button standard. */
+
+.poster-results-search-back,
+.poster-results-search-back:any-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 0 0 28px;
+  padding: 0 20px;
+  border: 1px solid var(--ncmec-blue-dark);
+  border-radius: 6px;
+  background: var(--ncmec-blue-dark);
+  color: #fff;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  overflow-wrap: normal;
+  text-decoration: none;
+}
+
+.poster-results-search-back:hover,
+.poster-results-search-back:focus-visible,
+.poster-results-search-back:any-link:hover,
+.poster-results-search-back:any-link:focus-visible {
+  border-color: #005f7d;
+  background: #005f7d;
+  color: #fff;
+  text-decoration: none;
+}
+
+.poster-results-detail {
+  grid-column: 1 / -1;
+  padding: 22px;
+  border: 1px solid #d9e1e6;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.poster-results-missing-child-heading {
+  display: grid;
+  grid-template-columns: minmax(40px, 1fr) auto minmax(40px, 1fr);
+  align-items: center;
+  gap: 32px;
+  margin: 0 0 34px;
+}
+
+.poster-results-missing-child-heading span {
+  height: 10px;
+  background: var(--ncmec-red);
+}
+
+.poster-results-missing-child-heading h1 {
+  margin: 0;
+  color: var(--ncmec-red);
+  text-transform: uppercase;
+}
+
+.poster-results-detail-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: -22px -22px 30px;
+}
+
+/* The poster page's action bar is a named exception to the button standard (see BUTTONS
+   in styles/styles.css). Every action - CALL 911 included - is the same light blue
+   (client feedback 2026-10-22), on missing-child and AMBER posters alike. Teal label
+   on #b8e8f3 is 5.4:1. */
+.poster-results-detail-actions .poster-results-detail-action,
+.poster-results-detail-actions .poster-results-detail-action:any-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 44px;
+  min-width: 132px;
+  max-width: none;
+  margin: 0;
+  padding: 0 20px;
+  border: 1px solid #b8e8f3;
+  border-radius: 6px;
+  background: #b8e8f3;
+  color: #005f7d;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  text-decoration: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.poster-results-detail-actions .poster-results-detail-action:hover,
+.poster-results-detail-actions .poster-results-detail-action:focus-visible,
+.poster-results-detail-actions .poster-results-detail-action:any-link:hover,
+.poster-results-detail-actions .poster-results-detail-action:any-link:focus-visible {
+  background: #005f7d;
+  border-color: #005f7d;
+  color: #fff;
+  text-decoration: none;
+}
+
+.poster-results-detail-back {
+  margin-bottom: 20px;
+}
+
+.poster-results-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+
+.poster-results-detail-layout.is-no-photo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.poster-results-detail-media {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #dfe5e9;
+}
+
+.poster-results-detail-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.poster-results-detail-body h3 {
+  margin: 0 0 18px;
+  color: #243846;
+}
+
+.poster-results-detail-subcase {
+  margin: -8px 0 18px;
+  color: #5f6a72;
+  font-size: var(--body-sm-size);
+}
+
+.poster-results-detail-body > dl {
+  margin-bottom: 18px;
+}
+
+.poster-results-detail-body dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 10px 16px;
+  margin: 0;
+}
+
+.poster-results-detail-body dt {
+  color: #5f6a72;
+  font-size: var(--caption-size);
+  font-weight: 800;
+}
+
+.poster-results-detail-body dd {
+  margin: 0;
+  color: #303030;
+  font-size: var(--body-sm-size);
+  overflow-wrap: anywhere;
+}
+
+.poster-results-detail-seen {
+  margin: 18px 0 0;
+  color: #303030;
+}
+
+.poster-results-detail-copy {
+  margin: 22px 0 0;
+  color: #303030;
+}
+
+/* Participant sections. */
+.poster-results-participant + .poster-results-participant,
+.poster-results-detail-layout + .poster-results-participant {
+  margin-top: 32px;
+  padding-top: 30px;
+  border-top: 1px solid #e2e6ea;
+}
+
+.poster-results-participant-heading {
+  margin: 0 0 24px;
+  color: #243846;
+  text-align: center;
+}
+
+.poster-results-participant-heading::after {
+  content: "";
+  display: block;
+  width: 132px;
+  height: 3px;
+  margin: 10px auto 0;
+  border-radius: 2px;
+  background: #f4c21d;
+}
+
+.poster-results-detail-body h3.poster-results-detail-name {
+  margin: 0 0 6px;
+  color: var(--ncmec-blue-medium);
+}
+
+.poster-results-linked-name {
+  color: var(--ncmec-blue-medium);
+  text-decoration: none;
+}
+
+.poster-results-linked-name:hover,
+.poster-results-linked-name:focus-visible {
+  text-decoration: underline;
+}
+
+.poster-results-detail-ncic {
+  margin: 0 0 18px;
+  color: #6b7680;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
+}
+
+.poster-results-detail-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.poster-results-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  color: #303030;
+  font-size: var(--body-size);
+  line-height: 1.45;
+}
+
+.poster-results-fact-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: #33566b;
+}
+
+.poster-results-fact-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.poster-results-detail-actions .poster-results-detail-report-sighting {
+  gap: 8px;
+}
+
+.poster-results-detail-actions .poster-results-detail-report-sighting svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* The value carries the weight, the label stays regular (client feedback 2026-10-22). */
+.poster-results-fact-label {
+  font-weight: var(--body-weight);
+}
+
+.poster-results-fact-value {
+  font-weight: var(--body-weight-bold);
+}
+
+.poster-results-fact-value.is-plain {
+  font-weight: var(--body-weight);
+}
+
+.poster-results-related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid #d9e1e6;
+}
+
+.poster-results-related-grid.is-single {
+  grid-template-columns: 1fr;
+}
+
+.poster-results-related {
+  min-width: 0;
+}
+
+.poster-results-related + .poster-results-related {
+  padding-left: 28px;
+  border-left: 1px solid #d9e1e6;
+}
+
+.poster-results-related h4 {
+  margin: 0 0 14px;
+  color: #243846;
+}
+
+.poster-results-related-list {
+  display: grid;
+  gap: 14px;
+}
+
+.poster-results-related-person {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.poster-results-related-person img {
+  display: block;
+  width: 86px;
+  height: 108px;
+  border-radius: 6px;
+  background: #dfe5e9;
+  object-fit: cover;
+}
+
+.poster-results-related-person h5 {
+  margin: 0 0 4px;
+  color: #243846;
+}
+
+.poster-results-related-person p {
+  margin: 0 0 10px;
+  color: #b42318;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.poster-results-related-person p.poster-results-related-copy {
+  margin: 8px 0 0;
+  color: #475467;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight);
+  text-transform: none;
+}
+
+/* Modern AMBER alert banner: rounded charcoal band with the amber/red wordmark,
+   the issuing state, and the alert number. Replaces the flat gray issue bar. */
+.poster-results-amber-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 26px;
+  max-width: 980px;
+  margin: 0 auto 22px;
+  padding: 18px 26px;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #26262b, #3a3a42);
+  box-shadow: 0 12px 30px rgb(20 20 25 / 20%);
+}
+
+.poster-results-amber-banner-brand {
+  display: inline-grid;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.poster-results-amber-banner-brand span {
+  color: #ffc20e;
+  font-size: var(--heading-4-size);
+  font-weight: 900;
+}
+
+.poster-results-amber-banner-brand strong {
+  color: #ff4b3e;
+  font-size: var(--heading-3-size);
+  font-weight: 900;
+}
+
+.poster-results-amber-banner-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  color: #fff;
+}
+
+.poster-results-amber-preview-notice {
+  flex-basis: 100%;
+  order: -1;
+  margin: 0;
+  color: #fff;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* The preview label now sits at the top of the AMBER poster itself (the red banner
+   it was styled for is no longer rendered), so it needs its own colours there. */
+.poster-results-amber-poster > .poster-results-amber-preview-notice {
+  width: fit-content;
+  margin: 0 auto 16px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--ncmec-yellow);
+  color: var(--ncmec-navy-dark);
+  text-align: center;
+}
+
+.poster-results-amber-banner-issued {
+  margin: 0;
+  font-size: var(--body-size);
+  font-weight: 700;
+}
+
+.poster-results-amber-banner-issued strong {
+  color: #ffc20e;
+}
+
+.poster-results-amber-banner-case {
+  margin: 0;
+  color: #ffc20e;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.poster-results-amber-poster .poster-results-detail-actions {
+  max-width: 980px;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.poster-results-amber-safety-notice {
+  max-width: 980px;
+  margin: 0 auto 32px;
+  color: #303030;
+  font-size: var(--body-size);
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.poster-results-amber-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: clamp(24px, 3.4vw, 40px);
+  align-items: start;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.poster-results-amber-subject:only-child {
+  grid-column: 1 / -1;
+}
+
+.poster-results-amber-overview .poster-results-detail-layout {
+  grid-template-columns: minmax(220px, 290px) minmax(0, 1fr);
+  gap: 30px;
+  max-width: none;
+  margin: 0;
+}
+
+.poster-results-amber-poster .poster-results-detail-media {
+  border-radius: 10px;
+  background: #dfe5e9;
+}
+
+.poster-results-amber-poster .poster-results-detail-body h3.poster-results-detail-name {
+  margin-bottom: 8px;
+}
+
+/* Vehicle card: car icon header + clean spec grid, matching the poster's cards. */
+.poster-results-amber-vehicle-card {
+  align-self: start;
+  padding: 20px 22px;
+  border: 1px solid #e6eaee;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgb(20 30 40 / 6%);
+}
+
+.poster-results-amber-vehicle-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #ffc20e;
+}
+
+.poster-results-amber-vehicle-heading .poster-results-fact-icon {
+  width: 24px;
+  height: 24px;
+  color: #e03127;
+}
+
+.poster-results-amber-vehicle-heading h4 {
+  margin: 0;
+  color: #243846;
+}
+
+.poster-results-amber-vehicle-section {
+  max-width: 980px;
+  margin: 32px auto 0;
+  padding-top: 30px;
+  border-top: 1px solid #e2e6ea;
+}
+
+.poster-results-amber-vehicle-list {
+  display: grid;
+  gap: 16px;
+}
+
+.poster-results-amber-vehicle-list dl {
+  display: grid;
+  grid-template-columns: minmax(78px, max-content) minmax(0, 1fr);
+  gap: 8px 14px;
+  margin: 0;
+}
+
+.poster-results-amber-vehicle-list dt {
+  color: #303030;
+  font-size: var(--body-size);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.poster-results-amber-vehicle-list dd {
+  margin: 0;
+  color: #303030;
+  font-size: var(--body-size);
+  line-height: 1.45;
+}
+
+/* Companions: stacked participant sections (not boxed), each with its own type
+   heading. */
+.poster-results-amber-companion {
+  max-width: 980px;
+  margin-inline: auto;
+  margin-top: 32px;
+  padding-top: 30px;
+  border-top: 1px solid #e2e6ea;
+}
+
+.poster-results-amber-poster .poster-results-detail-footer {
+  max-width: 980px;
+  margin: 52px auto 0;
+  border-top: 1px solid #d0d7dc;
+}
+
+.poster-results-detail-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.poster-results-detail-thumb {
+  width: 128px;
+  height: 158px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.poster-results-detail-thumb:hover,
+.poster-results-detail-thumb:focus-visible {
+  border-color: #00a9d6;
+}
+
+.poster-results-detail-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* stylelint-disable-next-line no-descending-specificity -- amber override above is intentionally more specific */
+.poster-results-detail-footer {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 36px;
+  align-items: center;
+  margin: 30px -22px -22px;
+  padding: 30px 36px;
+  border-top: 1px solid #d0d7dc;
+  background: #fff;
+}
+
+.poster-results-detail-logo {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  color: var(--ncmec-gray-dark);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.poster-results-detail-logo img {
+  display: block;
+  max-width: 230px;
+  max-height: 140px;
+  object-fit: contain;
+}
+
+.poster-results-detail-logo span {
+  font-size: var(--body-size);
+  line-height: 1;
+}
+
+.poster-results-detail-logo strong {
+  font-size: 28px;
+  line-height: 0.95;
+}
+
+.poster-results-detail-footer-info {
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  font-weight: 800;
+  text-align: center;
+}
+
+.poster-results-detail-footer-info p {
+  margin: 0;
+}
+
+.poster-results-detail-footer-info a {
+  color: var(--ncmec-blue-dark);
+  text-decoration: none;
+}
+
+.poster-results-qr a {
+  color: var(--ncmec-blue-dark);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.poster-results-detail-footer-info a:hover {
+  text-decoration: underline;
+}
+
+.poster-results-qr a:hover {
+  text-decoration: underline;
+}
+
+.poster-results-field input:focus-visible,
+.poster-results-field select:focus-visible,
+.poster-results-radio-group input:focus-visible,
+.poster-results-form button:focus-visible,
+.poster-results-back-to-search:focus-visible,
+.poster-results-near-me-action button:focus-visible,
+.poster-results-near-me-tip:focus-visible,
+.poster-results-qr a:focus-visible,
+.poster-results-detail-back:focus-visible,
+.poster-results-detail-thumb:focus-visible,
+.poster-results-card-link:focus-visible,
+.poster-results-photo:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 2px;
+}
+
+.poster-results-empty {
+  grid-column: 1 / -1;
+  margin: 12px 0;
+  color: var(--ncmec-gray-dark);
+  font-weight: 800;
+}
+
+/* The shared .pagination (styles.css); only its placement is here. */
+.poster-results-pagination {
+  display: flex;
+  margin-top: 24px;
+}
+
+.poster-results-back-to-search:hover {
+  background: #eef3f6;
+}
+
+.poster-results.is-poster-page {
+  background: var(--ncmec-gray-lightest);
+  padding: 52px 0 120px;
+  margin-top: 120px;
+  margin-bottom: 70px;
+}
+
+@media (width <= 1200px) {
+  .poster-results.is-poster-page {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+}
+
+@media (width <= 640px) {
+  .poster-results-back-to-search {
+    /* Still bottom left, just tucked in: it no longer has to clear Get Help Now. */
+    left: 14px;
+    bottom: 14px;
+  }
+}
+
+body.poster-results-direct-page main > .section:not(.poster-results-direct-section) {
+  display: none;
+}
+
+.poster-results.is-poster-page .poster-results-header,
+.poster-results.is-poster-page .poster-results-form,
+.poster-results.is-poster-page .poster-results-near-me,
+.poster-results.is-poster-page .poster-results-back-to-search,
+.poster-results.is-poster-page .poster-results-pagination {
+  display: none;
+}
+
+.poster-results.is-poster-page .poster-results-list {
+  display: block;
+}
+
+.poster-results.is-poster-page .poster-results-detail {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.poster-results.is-poster-page .poster-results-detail-actions {
+  margin: 0 auto 36px;
+}
+
+.poster-results.is-poster-page .poster-results-detail-layout {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.poster-results.is-poster-page .poster-results-detail-back {
+  display: none;
+}
+
+.poster-results.is-poster-page .poster-results-detail-gallery {
+  max-width: 980px;
+  margin: 34px auto 0;
+  padding-left: 0;
+}
+
+.poster-results.is-poster-page .poster-results-detail-footer {
+  max-width: 980px;
+  margin: 48px auto 0;
+  border: 0;
+  background: transparent;
+}
+
+@media (width <= 1100px) {
+  .poster-results-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 900px) {
+  .poster-results-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 700px) {
+  .poster-results {
+    padding: 36px 0 44px;
+  }
+
+  .poster-results-inner {
+    width: min(1180px, calc(100% - 24px));
+  }
+
+.poster-results-form,
+  .poster-results-list {
+    grid-template-columns: 1fr;
+  }
+
+  .poster-results-actions {
+    align-items: stretch;
+  }
+
+  /* .poster-results-actions button {
+    flex: 1 1 0;
+  } */
+
+  .poster-results-near-me {
+    gap: 20px;
+  }
+
+  .poster-results-qr {
+    font-size: var(--body-size);
+  }
+
+  .poster-results-card {
+    grid-template-columns: 116px minmax(0, 1fr);
+  }
+
+  .poster-results-photo {
+    min-height: 180px;
+  }
+
+  .poster-results-card-body {
+    padding: 14px;
+  }
+
+.poster-results-detail-layout,
+  .poster-results-amber-overview,
+  .poster-results-amber-overview .poster-results-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .poster-results-amber-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .poster-results-amber-banner-meta {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .poster-results-amber-poster .poster-results-detail-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .poster-results-amber-poster .poster-results-detail-actions .poster-results-detail-action {
+    width: 100%;
+  }
+
+  .poster-results-detail-body dl {
+    grid-template-columns: 1fr;
+  }
+
+  .poster-results-related-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .poster-results-related + .poster-results-related {
+    padding-top: 24px;
+    padding-left: 0;
+    border-top: 1px solid #d9e1e6;
+    border-left: 0;
+  }
+
+  .poster-results-related-person {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .poster-results-related-person img {
+    width: 72px;
+    height: 92px;
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity -- amber override is intentionally more specific */
+  .poster-results-detail-actions {
+    flex-wrap: wrap;
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity -- amber override is intentionally more specific */
+  .poster-results-detail-action {
+    flex: 1 1 50%;
+  }
+
+  .poster-results-missing-child-heading {
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+
+  .poster-results-missing-child-heading span {
+    height: 6px;
+  }
+
+  .poster-results-detail-footer {
+    grid-template-columns: 1fr;
+    padding: 28px 20px;
+  }
+
+  .poster-results.is-poster-page .poster-results-detail-gallery {
+    padding-left: 0;
+  }
+}
+
+/* Redesigned search form */
+.poster-results:not(.is-poster-page) {
+  padding: 60px 0 90px;
+  background: linear-gradient(90deg, #f8f8f8 0%, #f4f6f8 100%);
+}
+
+.poster-results:not(.is-poster-page) .poster-results-inner {
+  width: min(1500px, calc(100% - 96px));
+}
+
+.poster-results:not(.is-poster-page) .poster-results-header {
+  max-width: none;
+  margin: 0 0 52px;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-eyebrow {
+  margin: 0 0 8px;
+  color: var(--ncmec-blue-medium);
+  font-size: var(--caption-size);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-heading {
+  margin: 0;
+  color: #304656;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-form {
+  display: block;
+  margin: 0 0 34px;
+  padding: 38px 42px 42px;
+  background: #fff;
+  border: 1px solid #d9dde0;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 16%);
+}
+
+.poster-results-form-top {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) minmax(180px, 260px);
+  gap: clamp(48px, 7vw, 126px);
+  align-items: start;
+}
+
+.poster-results-form-divider {
+  height: 1px;
+  margin: 31px 0 58px;
+  background: var(--ncmec-gray-medium);
+}
+
+.poster-results-field-grid {
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) minmax(210px, 1fr) minmax(150px, 0.6fr) minmax(210px, 1fr);
+  gap: clamp(34px, 5.8vw, 92px);
+  align-items: start;
+}
+
+.poster-results-field-column {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-field {
+  gap: 7px;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-field span,
+.poster-results:not(.is-poster-page) .poster-results-radio-group legend {
+  margin: 0;
+  color: #66717a;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+/* Form labels target every span, including tooltip content. Restore the shared
+   tooltip treatment with an equally specific selector for City and From. */
+.poster-results:not(.is-poster-page) .poster-results-field .poster-results-near-me-tooltip {
+  width: 240px;
+  max-width: 70vw;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: var(--caption-size);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-field input,
+.poster-results:not(.is-poster-page) .poster-results-field select {
+  height: 44px;
+  padding: 0 16px;
+  color: #304656;
+  background-color: #fff;
+  border: 1px solid #cbd2d7;
+  border-radius: 11px;
+  box-shadow: none;
+  font-size: var(--body-size);
+  line-height: 1;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-field input::placeholder {
+  color: #9aa2a9;
+  opacity: 1;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-field select {
+  color: #6b767e; /* was #77838c (3.88:1); darkened for WCAG AA 4.5:1 */
+}
+
+.poster-results:not(.is-poster-page) .poster-results-radio-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-radio-group legend {
+  flex: 0 0 100%;
+  margin-bottom: 4px;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-radio-group label {
+  gap: 6px;
+  color: #5c6972;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-radio-group input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--ncmec-blue-medium);
+}
+
+/* The summary and sort control share one result-header row. */
+.poster-results-results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 20px;
+}
+
+.poster-results-results-toolbar .poster-results-meta {
+  margin: 0;
+}
+
+/* Sort control uses a pressed-state button toggle, so there are no radio
+   controls once results are visible. */
+.poster-results-sort-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.poster-results-sort-bar[hidden] {
+  display: none;
+}
+
+.poster-results-sort-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 4px;
+  border: 1px solid #cbd6dd;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgb(36 56 70 / 8%);
+}
+
+.poster-results-sort-label {
+  padding-left: 10px;
+  color: #243846;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.poster-results-sort-options {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.poster-results-sort-option {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #405260;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 800;
+}
+
+.poster-results-sort-option.is-active {
+  background: #06345d;
+  color: #fff;
+  box-shadow: 0 5px 12px rgb(6 52 93 / 18%);
+}
+
+@media (width <= 640px) {
+  .poster-results-results-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .poster-results-sort-bar {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .poster-results-sort-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.poster-results:not(.is-poster-page) .poster-results-actions {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 72px;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-actions > button,
+.poster-results:not(.is-poster-page) .poster-results-near-me-button {
+  width: 174px;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-near-me {
+  display: inline-flex;
+  gap: 18px;
+  align-items: center;
+  margin: 0;
+}
+
+.poster-results:not(.is-poster-page) .poster-results-near-me-divider {
+  display: inline-flex;
+  color: var(--ncmec-gray-dark);
+  background: transparent;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1;
+}
+
+@media (width <= 1100px) {
+  .poster-results:not(.is-poster-page) .poster-results-inner {
+    width: 100%;
+  }
+
+  .poster-results:not(.is-poster-page) .poster-results-header {
+    margin-left: 0;
+  }
+
+  .poster-results-form-top,
+  .poster-results-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 700px) {
+  .poster-results:not(.is-poster-page) {
+    padding: 44px 0 0;
+  }
+
+  .poster-results:not(.is-poster-page) .poster-results-inner {
+    width: 100%;
+  }
+
+  .poster-results:not(.is-poster-page) .poster-results-form {
+    padding: 28px 20px 32px;
+  }
+
+  .poster-results-form-top,
+  .poster-results-field-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .poster-results-form-divider {
+    margin: 22px 0 28px;
+  }
+
+  .poster-results:not(.is-poster-page) .poster-results-actions {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .poster-results:not(.is-poster-page) .poster-results-actions > button,
+  .poster-results:not(.is-poster-page) .poster-results-near-me,
+  .poster-results:not(.is-poster-page) .poster-results-near-me-button {
+    width: 100%;
+  }
+
+  .poster-results:not(.is-poster-page) .poster-results-near-me {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media print {
+  .poster-results-form,
+  .poster-results-detail-back,
+  .poster-results-pagination {
+    display: none;
+  }
+
+  .poster-results {
+    background: #fff;
+  }
+}
+
+/* stylelint-disable no-descending-specificity -- AMBER poster overrides of shared poster media. */
+.poster-results-amber-poster .poster-results-detail-media.is-fallback-media {
+  background: #302d2b;
+}
+
+.poster-results-amber-poster .poster-results-detail-media.is-fallback-media img {
+  object-fit: contain;
+}
+
+.poster-results-amber-vehicle {
+  display: grid;
+  grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 18px;
+  border: 1px solid #e6eaee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.poster-results-amber-vehicle .poster-results-detail-media {
+  align-self: start;
+  border-radius: 8px;
+}
+
+.poster-results-amber-vehicle .poster-results-detail-media img {
+  width: 100%;
+  object-fit: contain;
+}
+
+/* stylelint-enable no-descending-specificity */
+
+@media (width <= 700px) {
+  .poster-results-amber-vehicle {
+    grid-template-columns: 1fr;
+  }
+
+  .poster-results-amber-vehicle .poster-results-detail-media {
+    width: min(100%, 220px);
+  }
+}

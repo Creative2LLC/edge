@@ -1,0 +1,189 @@
+.trust-badges {
+  padding: 96px 24px 88px;
+  background-color: #fff;
+}
+
+.trust-badges .trust-badges-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.trust-badges .trust-badges-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.trust-badges .trust-badges-heading {
+  max-width: 920px;
+  margin: 0;
+  color: #00264d;
+}
+
+/* CTA: styled by the button standard in styles/styles.css; this only places it. */
+.trust-badges .trust-badges-cta {
+  margin-top: 36px;
+}
+
+.trust-badges .trust-badges-grid {
+  margin-top: 88px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 56px 48px;
+  align-items: start;
+}
+
+.trust-badges.no-header .trust-badges-grid {
+  margin-top: 0;
+}
+
+.trust-badges .trust-badges-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.trust-badges .trust-badges-item.is-authoring-placeholder {
+  padding: 20px 18px 24px;
+  border: 1px dashed rgb(0 38 77 / 16%);
+  border-radius: 18px;
+  background: rgb(0 38 77 / 3%);
+}
+
+.trust-badges .trust-badges-item-media.is-empty {
+  border: 1px dashed rgb(0 38 77 / 18%);
+  border-radius: 14px;
+  background: rgb(0 38 77 / 4%);
+}
+
+.trust-badges .trust-badges-item-placeholder,
+.trust-badges .trust-badges-item-caption-placeholder {
+  color: #5f6f7f;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  text-align: center;
+}
+
+.trust-badges .trust-badges-item-caption-placeholder {
+  max-width: 240px;
+}
+
+.trust-badges .trust-badges-item:hover,
+.trust-badges .trust-badges-item:focus-visible {
+  text-decoration: none;
+}
+
+.trust-badges .trust-badges-item-media {
+  width: 100%;
+  max-width: 280px;
+  min-height: 148px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trust-badges .trust-badges-item-media picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.trust-badges .trust-badges-item-media img {
+  display: block;
+  max-width: 100%;
+  max-height: 116px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.trust-badges .trust-badges-item-caption {
+  max-width: 280px;
+  margin: 20px 0 0;
+  color: var(--ncmec-gray-dark);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+@media (width <= 900px) {
+  .trust-badges {
+    padding: 80px 20px 72px;
+  }
+
+  .trust-badges .trust-badges-grid {
+    margin-top: 72px;
+    gap: 40px 28px;
+  }
+
+  .trust-badges .trust-badges-item-media {
+    min-height: 132px;
+  }
+}
+
+@media (width <= 600px) {
+  .trust-badges {
+    padding: 64px 16px 56px;
+  }
+
+  .trust-badges .trust-badges-cta {
+    margin-top: 28px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .trust-badges .trust-badges-grid {
+    margin-top: 52px;
+    gap: 32px;
+  }
+
+  .trust-badges .trust-badges-item-media {
+    min-height: 120px;
+  }
+}
+
+/* HOVER — edge tier (rule draws along the bottom edge). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.trust-badges .trust-badges-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  position: relative;
+  transition: var(--hover-transition);
+}
+
+.trust-badges .trust-badges-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"]))))::after {
+  content: "";
+  position: absolute;
+  bottom: var(--hover-edge-offset);
+  left: 50%;
+  width: var(--hover-edge-width);
+  height: var(--hover-edge-height);
+  translate: -50% 0;
+  background: var(--hover-edge-color, var(--text-marker-color, #f5c84b));
+  mask-image: var(--hover-edge-mark);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--hover-edge-duration) var(--hover-ease);
+}
+
+.trust-badges .trust-badges-item:focus-within::after,
+.trust-badges .trust-badges-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-badges .trust-badges-item::after {
+    transition: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

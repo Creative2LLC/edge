@@ -1,0 +1,212 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField, readLinkField, readTextField, setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+} from '../../scripts/carousel-utils.js';
+
+function getField(row, name, index) {
+  return readTextField(row, name, { fallbackCell: row.children[index] });
+}
+
+function getLinkField(row, name, index) {
+  return readLinkField(row, name, { fallbackCell: row.children[index] });
+}
+
+function getImageField(row, name, index) {
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, picture: field.picture, img: field.img };
+}
+
+function buildSlide(data) {
+  const slide = document.createElement('div');
+  slide.className = 'logo-carousel-slide';
+  if (data.row) moveInstrumentation(data.row, slide);
+  setItemLabel(slide, [data.altText]);
+
+  if (!data.logoField.img && !data.logoField.picture) {
+    // Authoring placeholder so an empty item is still selectable in the editor.
+    slide.classList.add('is-authoring-placeholder');
+    const placeholder = document.createElement('span');
+    placeholder.className = 'logo-carousel-placeholder';
+    placeholder.textContent = 'Add a logo image';
+    slide.append(placeholder);
+    return slide;
+  }
+
+  const logoWrap = document.createElement(data.linkHref ? 'a' : 'div');
+  logoWrap.className = 'logo-carousel-logo';
+  if (data.linkHref) {
+    logoWrap.href = data.linkHref;
+  }
+
+  let imgEl;
+  if (data.logoField.picture) {
+    const picture = data.logoField.picture.cloneNode(true);
+    imgEl = picture.querySelector('img');
+    logoWrap.append(picture);
+  } else {
+    imgEl = data.logoField.img.cloneNode(true);
+    logoWrap.append(imgEl);
+  }
+
+  if (imgEl) {
+    if (data.altText) imgEl.alt = data.altText;
+    imgEl.loading = 'lazy';
+  }
+
+  if (data.logoField.source) {
+    moveInstrumentation(data.logoField.source, imgEl || logoWrap);
+  }
+
+  slide.append(logoWrap);
+  return slide;
+}
+
+function buildControls() {
+  const controls = document.createElement('div');
+  controls.className = 'logo-carousel-controls';
+
+  // Slider bar (left)
+  const bar = document.createElement('div');
+  bar.className = 'logo-carousel-bar';
+  const barTrack = document.createElement('div');
+  barTrack.className = 'logo-carousel-bar-track';
+  const barThumb = document.createElement('div');
+  barThumb.className = 'logo-carousel-bar-thumb';
+  barTrack.append(barThumb);
+  bar.append(barTrack);
+
+  // Nav buttons (right)
+  const nav = document.createElement('div');
+  nav.className = 'logo-carousel-nav';
+
+  const prevBtn = createCarouselArrow('prev', {
+    className: 'logo-carousel-nav-btn logo-carousel-prev',
+    label: 'Previous logos',
+  });
+
+  const nextBtn = createCarouselArrow('next', {
+    className: 'logo-carousel-nav-btn logo-carousel-next',
+    label: 'Next logos',
+  });
+
+  nav.append(prevBtn, nextBtn);
+  controls.append(bar, nav);
+
+  return {
+    controls,
+    barTrack,
+    barThumb,
+    prevBtn,
+    nextBtn,
+  };
+}
+
+function updateBarThumb(track, barTrack, barThumb) {
+  const max = track.scrollWidth - track.clientWidth;
+  if (max <= 0) {
+    barThumb.style.width = '100%';
+    barThumb.style.transform = 'translateX(0)';
+    return;
+  }
+  const visibleRatio = Math.min(1, track.clientWidth / track.scrollWidth);
+  const thumbWidth = Math.max(visibleRatio * barTrack.clientWidth, 24);
+  const progress = track.scrollLeft / max;
+  const offset = (barTrack.clientWidth - thumbWidth) * progress;
+  barThumb.style.width = `${thumbWidth}px`;
+  barThumb.style.transform = `translateX(${offset}px)`;
+}
+
+export default function decorate(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+
+  const slides = [];
+  rows.forEach((row) => {
+    const cols = [...row.children];
+    if (cols.length < 1) return;
+
+    const logoField = getImageField(row, 'logo', 0);
+    const altField = getField(row, 'logoAlt', 1);
+    const linkField = getLinkField(row, 'logoLink', 2);
+
+    const isAuthoring = Boolean(
+      row.getAttribute('data-aue-resource')
+        || row.querySelector('[data-aue-resource], [data-aue-prop]'),
+    );
+
+    if (!logoField.img && !logoField.picture && !isAuthoring) return;
+
+    slides.push({
+      logoField,
+      altText: altField.value,
+      linkHref: linkField.value,
+      row,
+    });
+  });
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'logo-carousel-wrapper';
+
+  const track = document.createElement('div');
+  track.className = 'logo-carousel-track';
+
+  slides.forEach((data) => {
+    track.append(buildSlide(data));
+  });
+
+  wrapper.append(track);
+
+  const {
+    controls, barTrack, barThumb, prevBtn, nextBtn,
+  } = buildControls();
+  wrapper.append(controls);
+
+  block.replaceChildren(wrapper);
+  attachDragScroll(track);
+
+  // Wire up interactions
+  const refreshBar = () => updateBarThumb(track, barTrack, barThumb);
+
+  const goToSlide = (index) => {
+    const logoSlides = [...track.children];
+    if (!logoSlides.length) return;
+    const targetIndex = ((index % logoSlides.length) + logoSlides.length) % logoSlides.length;
+    scrollToCarouselItem(track, logoSlides[targetIndex]);
+  };
+
+  prevBtn.addEventListener('click', () => {
+    const logoSlides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, logoSlides) - 1);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    const logoSlides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, logoSlides) + 1);
+  });
+
+  track.addEventListener('scroll', refreshBar, { passive: true });
+  window.addEventListener('resize', refreshBar);
+
+  // Wait for images so the scrollWidth is accurate.
+  const imgs = [...track.querySelectorAll('img')];
+  if (imgs.length === 0) {
+    refreshBar();
+  } else {
+    let pending = imgs.length;
+    const done = () => {
+      pending -= 1;
+      if (pending <= 0) refreshBar();
+    };
+    imgs.forEach((img) => {
+      if (img.complete) done();
+      else {
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      }
+    });
+  }
+}

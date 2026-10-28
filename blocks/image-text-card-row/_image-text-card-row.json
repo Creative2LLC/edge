@@ -1,0 +1,408 @@
+{
+  "definitions": [
+    {
+      "title": "Img Icon Btn 1x3 Col Card",
+      "id": "image-text-card-row",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Img Icon Btn 1x3 Col Card",
+              "model": "image-text-card-row",
+              "filter": "image-text-card-row"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Image Text Card Row Item",
+      "id": "image-text-card-row-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Image Text Card Row Item",
+              "model": "image-text-card-row-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "image-text-card-row",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "columns",
+          "label": "Cards Per Row",
+          "description": "Number of cards to display per row (defaults to 3)",
+          "options": [
+            {
+              "name": "1 Card",
+              "value": "1"
+            },
+            {
+              "name": "2 Cards",
+              "value": "2"
+            },
+            {
+              "name": "3 Cards",
+              "value": "3"
+            }
+          ],
+          "value": "3"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "imageStyle",
+          "label": "Image Style",
+          "description": "Default = full-width image at the top of the card. Small = 141x183 image positioned at the top-left of the card with padding around it.",
+          "options": [
+            {
+              "name": "Default (Full Width Top)",
+              "value": "default"
+            },
+            {
+              "name": "Small (141x183 Top Left)",
+              "value": "small"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "imageAlign",
+          "label": "Image Alignment",
+          "description": "Controls which part of the image is shown when cropped (object-position). Center is the default.",
+          "options": [
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "center"
+        }
+      ]
+    },
+    {
+      "id": "image-text-card-row-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Card Image",
+          "multi": false
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon (Optional)",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconColor",
+          "label": "Icon Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Subtitle"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "Link Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkUrl",
+          "label": "Link URL"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardContentBg",
+          "label": "Card Content Background Color (Hex)",
+          "description": "Background color for the content area below the image. Defaults to Warm Gray (#ECE8E3).",
+          "options": [
+            {
+              "name": "Default (Warm Gray)",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "linkStyle",
+          "label": "Link Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "image-text-card-row",
+      "components": [
+        "image-text-card-row-item"
+      ]
+    }
+  ]
+}

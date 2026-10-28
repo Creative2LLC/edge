@@ -1,0 +1,173 @@
+.amber-alert-info .amber-alert-info-container {
+  display: flex;
+  max-width: 1420px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Left: image */
+.amber-alert-info .amber-alert-info-media {
+  flex: 0 0 35%;
+  position: relative;
+  overflow: hidden;
+}
+
+.amber-alert-info .amber-alert-info-media picture,
+.amber-alert-info .amber-alert-info-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Right: content */
+.amber-alert-info .amber-alert-info-content {
+  flex: 1;
+  background-color: var(--amber-alert-info-bg, var(--ncmec-red));
+  color: #fff;
+  padding: 64px;
+  display: flex;
+  gap: 48px;
+  box-sizing: border-box;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* Left column of the right side */
+.amber-alert-info .amber-alert-info-main {
+  flex: 0 0 471px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.amber-alert-info .amber-alert-info-icon {
+  display: block;
+  max-width: 227px;
+  max-height: 80px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: left center;
+  margin-bottom: 24px;
+}
+
+.amber-alert-info .amber-alert-info-title {
+  color: #fff;
+  margin: 0 0 16px;
+  text-align: left;
+}
+
+.amber-alert-info .amber-alert-info-title p {
+  margin: 0 0 8px;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.amber-alert-info .amber-alert-info-subtitle {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: #fff;
+  margin: 0 0 32px;
+  line-height: var(--body-line-height);
+  text-align: left;
+}
+
+.amber-alert-info .amber-alert-info-subtitle p {
+  margin: 0 0 12px;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.amber-alert-info .amber-alert-info-title p:last-child,
+.amber-alert-info .amber-alert-info-subtitle p:last-child {
+  margin-bottom: 0;
+}
+
+/* Button: styled by the button standard in styles/styles.css (dark form, since
+   the panel is coloured). */
+
+/* Right column of the right side (stats) */
+.amber-alert-info .amber-alert-info-stats {
+  flex: 0 0 231px;
+  display: flex;
+  flex-direction: column;
+}
+
+.amber-alert-info .amber-alert-info-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.amber-alert-info .amber-alert-info-stat-number {
+  font-size: var(--heading-3-size);
+  font-weight: var(--body-weight-bold);
+  color: #fff;
+  line-height: 1.1;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.amber-alert-info .amber-alert-info-stat-text {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: #fff;
+  line-height: var(--caption-line-height);
+  text-align: left;
+}
+
+.amber-alert-info .amber-alert-info-divider {
+  height: 1px;
+  background-color: rgb(231 228 225 / 32%);
+  margin: 24px 0;
+  width: 100%;
+}
+
+/* ===========================================================================
+   Stacked layout (<= 1440px) - the desktop layout forces a fixed 1420px-wide
+   row plus fixed inner column widths, so it runs off the right edge on anything
+   narrower than ~1440px (phones through small desktops). Stack everything into
+   a single column and let widths flow. The wide two-column desktop layout above
+   applies only where its 1420px min width actually fits.
+   =========================================================================== */
+@media (width <= 1440px) {
+  .amber-alert-info .amber-alert-info-container {
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Image becomes a full-width banner across the top. */
+  .amber-alert-info .amber-alert-info-media {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 220px;
+  }
+
+  /* Content stacks under the image with lighter padding and a smaller gap. */
+  .amber-alert-info .amber-alert-info-content {
+    flex-direction: column;
+    padding: 32px 24px;
+    gap: 32px;
+  }
+
+  /* Both inner columns span full width (drop the fixed 471px / 231px). */
+  .amber-alert-info .amber-alert-info-main,
+  .amber-alert-info .amber-alert-info-stats {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Wrap long words/headlines instead of overflowing. */
+  .amber-alert-info .amber-alert-info-title,
+  .amber-alert-info .amber-alert-info-subtitle {
+    overflow-wrap: break-word;
+  }
+}

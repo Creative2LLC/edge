@@ -1,0 +1,264 @@
+.regional-offices {
+  padding: 72px 0 60px;
+}
+
+.regional-offices .regional-offices-inner {
+  display: grid;
+  gap: 44px;
+}
+
+.regional-offices .regional-offices-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease;
+  transition-delay: calc(var(--stagger-index, 0) * 110ms);
+}
+
+.regional-offices.is-visible .regional-offices-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.regional-offices .regional-offices-header {
+  max-width: 1336px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.regional-offices .regional-offices-heading {
+  margin: 0 0 14px;
+  color: #113a67;
+}
+
+.regional-offices .regional-offices-subheading {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.regional-offices .regional-offices-subheading > :first-child {
+  margin-top: 0;
+}
+
+.regional-offices .regional-offices-subheading > :last-child {
+  margin-bottom: 0;
+}
+
+.regional-offices .regional-offices-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--regional-offices-columns, 3), minmax(0, 1fr));
+  gap: 30px 42px;
+}
+
+.regional-offices .regional-offices-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Default variant: the text wrapper is layout-transparent so title/body
+   still participate in the card's flex centering. The Boxed variant
+   overrides this with explicit dimensions and a white background. */
+.regional-offices .regional-offices-card-text {
+  display: contents;
+}
+
+.regional-offices .regional-offices-card-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 230px;
+  margin-bottom: 20px;
+}
+
+.regional-offices .regional-offices-card-media::before {
+  content: '';
+  position: absolute;
+  inset: 22% 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(20 145 191 / 10%) 0%, rgb(20 145 191 / 0%) 72%);
+  opacity: 0;
+  transform: scale(0.82);
+  transition:
+    opacity 800ms ease,
+    transform 800ms ease;
+  transition-delay: calc(var(--stagger-index, 0) * 110ms);
+}
+
+.regional-offices.is-visible .regional-offices-card-media::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.regional-offices .regional-offices-card-media picture,
+.regional-offices .regional-offices-card-media img {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+}
+
+.regional-offices .regional-offices-card-media img {
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgb(17 58 103 / 8%));
+  transform: translateY(0) scale(0.96);
+  transition: transform 850ms cubic-bezier(0.2, 1, 0.22, 1);
+}
+
+.regional-offices.is-visible .regional-offices-card-media img {
+  transform: translateY(0) scale(1);
+  animation: regional-offices-float 7s ease-in-out infinite;
+  animation-delay: calc(var(--stagger-index, 0) * 600ms);
+}
+
+.regional-offices .regional-offices-card-title {
+  margin: 0 0 14px;
+  color: var(--ncmec-gray-dark);
+}
+
+.regional-offices .regional-offices-card-body {
+  max-width: 370px;
+  margin-bottom: 24px;
+  color: var(--ncmec-gray-dark);
+  line-height: var(--caption-line-height);
+  font-weight: var(--body-weight-medium);
+}
+
+.regional-offices .regional-offices-card-body > :first-child {
+  margin-top: 0;
+}
+
+.regional-offices .regional-offices-card-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* Buttons are styled by the button standard in styles/styles.css, which also
+   supplies the focus ring and the colour-shift hover. No arrow and no lift:
+   the client dropped both for these styles. */
+.regional-offices .regional-offices-button {
+  margin-top: auto;
+}
+
+/* Editor-only: the author set button text but no link. Deliberately not styled
+   as a button — it is a note, not a control. */
+.regional-offices .regional-offices-button-missing-link {
+  margin: auto 0 0;
+  padding: 10px 12px;
+  border: 1px dashed #b4451f;
+  border-radius: 8px;
+  color: #b4451f;
+  font-size: var(--body-sm-size);
+  line-height: 1.35;
+}
+
+/* Boxed styling variant ---------------------------------------------------- */
+
+.regional-offices.regional-offices-boxed .regional-offices-grid {
+  gap: 12px;
+}
+
+.regional-offices.regional-offices-boxed .regional-offices-card-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 346px;
+  max-width: 100%;
+  height: 231px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.regional-offices.regional-offices-boxed .regional-offices-card-title {
+  margin: 0 0 8px;
+}
+
+.regional-offices.regional-offices-boxed .regional-offices-card-body {
+  margin: 0;
+  font-weight: var(--body-weight-medium);
+}
+
+@keyframes regional-offices-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.012);
+  }
+}
+
+@media (width <= 1100px) {
+  .regional-offices .regional-offices-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 700px) {
+  .regional-offices {
+    padding: 56px 0 44px;
+  }
+
+  .regional-offices .regional-offices-inner {
+    gap: 34px;
+  }
+
+  .regional-offices .regional-offices-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .regional-offices .regional-offices-card-media {
+    min-height: 190px;
+    margin-bottom: 14px;
+  }
+
+  .regional-offices .regional-offices-card-body {
+    margin-bottom: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regional-offices .regional-offices-reveal,
+  .regional-offices .regional-offices-card-media::before,
+  .regional-offices .regional-offices-card-media img,
+  .regional-offices .regional-offices-button {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.regional-offices .regional-offices-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.regional-offices .regional-offices-card:focus-within,
+.regional-offices .regional-offices-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regional-offices .regional-offices-card:focus-within,
+  .regional-offices .regional-offices-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

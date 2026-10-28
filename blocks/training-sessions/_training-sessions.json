@@ -1,0 +1,118 @@
+{
+  "definitions": [
+    {
+      "title": "Training Sessions",
+      "id": "training-sessions",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Training Sessions",
+              "model": "training-sessions",
+              "filter": "training-sessions"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Training Session",
+      "id": "training-sessions-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Training Session",
+              "model": "training-sessions-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "training-sessions",
+      "fields": [
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "description",
+          "label": "Description"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "alignment",
+          "label": "Title & Description Alignment",
+          "options": [
+            { "name": "Center", "value": "center" },
+            { "name": "Left", "value": "left" },
+            { "name": "Right", "value": "right" }
+          ],
+          "value": "center"
+        }
+      ]
+    },
+    {
+      "id": "training-sessions-item",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "column1",
+          "label": "Column 1 (Bold)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "column2",
+          "label": "Column 2"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "column3",
+          "label": "Column 3"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "status",
+          "label": "Status",
+          "description": "Selects the status text shown in column 4 and its color.",
+          "options": [
+            { "name": "None", "value": "" },
+            { "name": "Accepting Applications", "value": "accepting-applications" },
+            { "name": "Limited Seats", "value": "limited-seats" },
+            { "name": "Coming Soon", "value": "coming-soon" },
+            { "name": "Closed", "value": "closed" },
+            { "name": "Waitlist Open", "value": "waitlist-open" }
+          ],
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Arrow Link"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "training-sessions",
+      "components": [
+        "training-sessions-item"
+      ]
+    }
+  ]
+}

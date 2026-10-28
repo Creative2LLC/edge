@@ -1,0 +1,163 @@
+/* Leadership Profile Block */
+.leadership-profile-container .leadership-profile-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.leadership-profile {
+  padding: calc(var(--nav-height, 64px) + var(--top-banner-height, 0px) + 40px) 0 56px;
+}
+
+/* Breadcrumb */
+.leadership-profile-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  gap: 8px;
+}
+
+.leadership-profile-breadcrumb li a {
+  font-size: var(--body-sm-size);
+  font-weight: 500;
+  color: #000;
+  text-decoration: none;
+}
+
+.leadership-profile-breadcrumb li a:hover {
+  text-decoration: underline;
+}
+
+.leadership-profile-breadcrumb .breadcrumb-separator {
+  display: flex;
+  align-items: center;
+}
+
+.leadership-profile-breadcrumb .breadcrumb-current span {
+  font-size: var(--body-sm-size);
+  font-weight: 500;
+  color: #008eb7;
+}
+
+/* Profile Content Layout */
+.leadership-profile-content {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+/* Image */
+.leadership-profile-image {
+  flex-shrink: 0;
+}
+
+.leadership-profile-image picture,
+.leadership-profile-image img {
+  display: block;
+  width: 331px;
+  height: 348px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+/* Text Content */
+.leadership-profile-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.leadership-profile-name {
+  color: #00264d;
+  margin: 0 0 8px;
+}
+
+.leadership-profile-title {
+  font-size: var(--deck-size);
+  font-weight: 600;
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 24px;
+}
+
+.leadership-profile-bio {
+  max-width: 1025px;
+}
+
+.leadership-profile-bio p {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 16px;
+}
+
+.leadership-profile-bio p:last-child {
+  margin-bottom: 0;
+}
+
+/* Tablet and mobile */
+@media (width <= 900px) {
+  .leadership-profile-container .leadership-profile-wrapper {
+    padding: 0 20px;
+  }
+
+  .leadership-profile {
+    padding: calc(var(--nav-height, 64px) + var(--top-banner-height, 0px) + 24px) 0 40px;
+  }
+
+  .leadership-profile-breadcrumb ol {
+    margin-bottom: 24px;
+  }
+
+  .leadership-profile-content {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .leadership-profile-image {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .leadership-profile-image picture,
+  .leadership-profile-image img {
+    width: min(100%, 331px);
+    max-width: 331px;
+    height: auto;
+    aspect-ratio: 331 / 348;
+  }
+
+  .leadership-profile-title {
+    font-size: var(--deck-size);
+  }
+
+  .leadership-profile-bio {
+    max-width: 100%;
+  }
+}
+
+/* Small mobile */
+@media (width <= 600px) {
+  .leadership-profile-container .leadership-profile-wrapper {
+    padding: 0 16px;
+  }
+
+  .leadership-profile {
+    padding: calc(var(--nav-height, 64px) + var(--top-banner-height, 0px) + 20px) 0 32px;
+  }
+
+  .leadership-profile-breadcrumb li a,
+  .leadership-profile-breadcrumb .breadcrumb-current span {
+    font-size: var(--caption-size);
+  }
+
+  .leadership-profile-title {
+    font-size: var(--heading-5-size);
+    margin-bottom: 20px;
+  }
+
+  .leadership-profile-bio p {
+    font-size: var(--body-sm-size);
+  }
+}

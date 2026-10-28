@@ -1,0 +1,455 @@
+.report-breakdown {
+  position: relative;
+  padding: 84px 0 70px;
+  max-width: var(--container);
+  margin: 0 auto;
+  overflow-x: clip;
+}
+
+.report-breakdown .report-breakdown-inner {
+  display: grid;
+  gap: 30px;
+}
+
+.report-breakdown .report-breakdown-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 1, 0.22, 1);
+}
+
+.report-breakdown.is-visible .report-breakdown-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.report-breakdown .report-breakdown-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.report-breakdown .report-breakdown-heading {
+  max-width: 1100px;
+  margin: 0;
+  color: #113a67;
+  text-align: center;
+}
+
+.report-breakdown .report-breakdown-body-text {
+  max-width: 760px;
+  margin-inline: auto;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-size);
+  text-align: center;
+}
+
+.report-breakdown .report-breakdown-body-text > :first-child {
+  margin-top: 0;
+}
+
+.report-breakdown .report-breakdown-body-text > :last-child {
+  margin-bottom: 0;
+}
+
+.report-breakdown .report-breakdown-tabs-shell {
+  display: flex;
+  justify-content: center;
+  transition-delay: 80ms;
+}
+
+.report-breakdown .report-breakdown-panels {
+  transition-delay: 160ms;
+}
+
+.report-breakdown .report-breakdown-panel {
+  position: relative;
+  min-height: 900px;
+}
+
+.report-breakdown .report-breakdown-chart-shell {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  padding-top: 28px;
+}
+
+.report-breakdown .report-breakdown-chart-shell::before,
+.report-breakdown .report-breakdown-chart-shell::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
+}
+
+.report-breakdown .report-breakdown-chart-shell::before {
+  inset: 16% 20% 18% 14%;
+  background: radial-gradient(circle, rgb(255 173 91 / 18%) 0%, rgb(255 173 91 / 0%) 74%);
+  filter: blur(24px);
+  transform: scale(0.92);
+}
+
+.report-breakdown .report-breakdown-chart-shell::after {
+  inset: 32% 6% 10% 58%;
+  background: radial-gradient(circle, rgb(140 207 223 / 18%) 0%, rgb(140 207 223 / 0%) 74%);
+  filter: blur(22px);
+  transform: scale(0.95);
+}
+
+.report-breakdown.is-visible .report-breakdown-chart-shell::before,
+.report-breakdown.is-visible .report-breakdown-chart-shell::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.report-breakdown .report-breakdown-chart {
+  display: block;
+  width: min(100%, 1440px);
+  height: auto;
+  overflow: visible;
+  transform: translateX(24px);
+}
+
+.report-breakdown .report-breakdown-arc-track {
+  stroke: rgb(226 220 214 / 72%);
+}
+
+.report-breakdown .report-breakdown-arc {
+  filter: drop-shadow(0 10px 18px rgb(17 58 103 / 7%));
+}
+
+.report-breakdown .report-breakdown-arc.is-boosted {
+  filter:
+    drop-shadow(0 0 2px rgb(255 255 255 / 52%))
+    drop-shadow(0 12px 18px rgb(17 58 103 / 11%));
+}
+
+.report-breakdown .report-breakdown-table-shell {
+  --report-breakdown-table-side-padding: 32px;
+  --report-breakdown-table-count-width: 132px;
+
+  position: absolute;
+  left: 46px;
+  bottom: 148px;
+  z-index: 2;
+  width: min(100%, 778px);
+}
+
+.report-breakdown .report-breakdown-table-head,
+.report-breakdown .report-breakdown-row,
+.report-breakdown .report-breakdown-total {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--report-breakdown-table-count-width) 30px;
+  gap: 16px;
+  align-items: center;
+}
+
+.report-breakdown .report-breakdown-table-head {
+  padding: 0 var(--report-breakdown-table-side-padding) 10px;
+  color: #113a67;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.report-breakdown .report-breakdown-table-marker {
+  width: 18px;
+}
+
+.report-breakdown .report-breakdown-table-body {
+  overflow: hidden;
+  border: 1px solid rgb(17 58 103 / 12%);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 16px 34px rgb(17 58 103 / 10%);
+  backdrop-filter: blur(10px);
+}
+
+.report-breakdown .report-breakdown-row {
+  min-height: 52px;
+  padding: 14px var(--report-breakdown-table-side-padding);
+  border-bottom: 1px solid rgb(17 58 103 / 9%);
+  background: #fff;
+}
+
+.report-breakdown .report-breakdown-row:last-child {
+  border-bottom: none;
+}
+
+.report-breakdown .report-breakdown-type {
+  color: #113a67;
+  font-size: var(--body-size);
+  font-weight: 500;
+  line-height: 1.28;
+}
+
+.report-breakdown .report-breakdown-count {
+  min-width: 0;
+  justify-self: start;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--heading-7-size);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.report-breakdown .report-breakdown-swatch {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 86%);
+}
+
+.report-breakdown .report-breakdown-row.is-authoring-placeholder {
+  border-bottom-style: dashed;
+  background: rgb(20 145 191 / 5%);
+}
+
+.report-breakdown .report-breakdown-row.is-authoring-placeholder .report-breakdown-type,
+.report-breakdown .report-breakdown-row.is-authoring-placeholder .report-breakdown-count {
+  color: #5f6e7f;
+}
+
+.report-breakdown .report-breakdown-row.is-authoring-placeholder .report-breakdown-swatch {
+  box-shadow: inset 0 0 0 1px rgb(17 58 103 / 10%);
+}
+
+.report-breakdown .report-breakdown-total {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  margin-top: 12px;
+  padding: 20px var(--report-breakdown-table-side-padding);
+  border: 1px solid rgb(17 58 103 / 12%);
+  border-radius: 12px;
+  background: var(--ncmec-white);
+  box-shadow: 0 12px 24px rgb(17 58 103 / 8%);
+}
+
+.report-breakdown .report-breakdown-total-label {
+  color: #113a67;
+  font-size: var(--heading-4-size);
+  font-weight: var(--body-weight-bold);
+  line-height: 1.1;
+}
+
+.report-breakdown .report-breakdown-total-value {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--heading-3-size);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-table-head {
+  color: rgb(255 255 255 / 78%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-table-body {
+  border-color: rgb(255 255 255 / 14%);
+  background: #12395d;
+  box-shadow: 0 18px 38px rgb(17 58 103 / 20%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row {
+  border-bottom-color: rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 6%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row:nth-child(even) {
+  background: rgb(255 255 255 / 9%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-type,
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-count,
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-total-label,
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-total-value {
+  color: #fff;
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-swatch {
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 18%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-total {
+  border-color: rgb(255 255 255 / 16%);
+  background: #0b2a48;
+  box-shadow: 0 14px 30px rgb(17 58 103 / 20%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row.is-authoring-placeholder {
+  background: rgb(20 145 191 / 18%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted
+.report-breakdown-row.is-authoring-placeholder .report-breakdown-type,
+.report-breakdown .report-breakdown-table-shell.is-inverted
+.report-breakdown-row.is-authoring-placeholder .report-breakdown-count {
+  color: rgb(255 255 255 / 76%);
+}
+
+.report-breakdown .report-breakdown-empty {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+  padding: 36px 32px;
+  border: 1px dashed #c6d7e1;
+  border-radius: 24px;
+  background: rgb(20 145 191 / 4%);
+}
+
+.report-breakdown .report-breakdown-empty-title {
+  margin: 0;
+  color: #113a67;
+  font-size: var(--heading-5-size);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.report-breakdown .report-breakdown-empty-body {
+  margin: 0;
+  color: #5f6e7f;
+}
+
+@media (width <= 1280px) {
+  .report-breakdown .report-breakdown-panel {
+    min-height: 810px;
+  }
+
+  .report-breakdown .report-breakdown-chart {
+    transform: translateX(14px);
+  }
+
+  .report-breakdown .report-breakdown-table-shell {
+    left: 34px;
+    bottom: 118px;
+    width: min(100%, 700px);
+  }
+}
+
+@media (width <= 1024px) {
+  .report-breakdown .report-breakdown-panel {
+    display: grid;
+    gap: 22px;
+    min-height: auto;
+  }
+
+  .report-breakdown .report-breakdown-table-shell {
+    --report-breakdown-table-count-width: 122px;
+
+    position: relative;
+    left: auto;
+    bottom: auto;
+    order: 2;
+    width: 100%;
+  }
+
+  .report-breakdown .report-breakdown-chart-shell {
+    order: 1;
+    padding-top: 0;
+  }
+
+  .report-breakdown .report-breakdown-chart {
+    width: min(100%, 1200px);
+    transform: none;
+  }
+}
+
+@media (width <= 700px) {
+  .report-breakdown {
+    padding: 0;
+  }
+
+  .report-breakdown .report-breakdown-inner {
+    gap: 22px;
+  }
+
+  /* Let the pill shrink to its tabs and stay centered by the shell (instead of
+     spanning full width and left-aligning a lone year badge); cap + scroll when
+     there are many years. */
+  .report-breakdown .report-breakdown-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .report-breakdown .report-breakdown-table-head,
+  .report-breakdown .report-breakdown-row {
+    grid-template-columns: minmax(0, 1fr) minmax(86px, 104px) 22px;
+    gap: 10px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .report-breakdown .report-breakdown-table-head {
+    padding-bottom: 10px;
+    font-size: var(--caption-size);
+  }
+
+  .report-breakdown .report-breakdown-type,
+  .report-breakdown .report-breakdown-count {
+    font-size: var(--body-sm-size);
+  }
+
+  .report-breakdown .report-breakdown-swatch {
+    width: 14px;
+    height: 14px;
+  }
+
+  .report-breakdown .report-breakdown-total {
+    padding: 16px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-breakdown .report-breakdown-reveal,
+  .report-breakdown .report-breakdown-chart-shell::before,
+  .report-breakdown .report-breakdown-chart-shell::after {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* The highlight has to sit last to win over the swatch rules above, which the rule reads as
+   descending specificity. */
+/* stylelint-disable no-descending-specificity */
+
+/* HIGHLIGHT: pointing at a slice or its row fades the other slices and swatches, washes the
+   row, and shows the shared chart tooltip beside the arc. */
+.report-breakdown .report-breakdown-arc,
+.report-breakdown .report-breakdown-swatch {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.report-breakdown .report-breakdown-panel.has-active-slice .report-breakdown-arc:not(.is-active),
+.report-breakdown .report-breakdown-panel.has-active-slice .report-breakdown-row.is-linked:not(.is-active) .report-breakdown-swatch {
+  opacity: 0.3;
+}
+
+.report-breakdown .report-breakdown-row.is-linked.is-active {
+  box-shadow: inset 0 0 0 999px rgb(0 38 77 / 5%);
+}
+
+.report-breakdown .report-breakdown-table-shell.is-inverted .report-breakdown-row.is-linked.is-active {
+  box-shadow: inset 0 0 0 999px rgb(255 255 255 / 10%);
+}
+
+.report-breakdown .report-breakdown-row.is-active .report-breakdown-swatch {
+  transform: scale(1.35);
+}
+
+.report-breakdown .report-breakdown-panel:focus-visible {
+  outline: 3px solid var(--ncmec-blue-dark);
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-breakdown .report-breakdown-row.is-active .report-breakdown-swatch {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

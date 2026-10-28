@@ -1,0 +1,101 @@
+/* CTA Banner Block */
+.cta-banner.block {
+  padding: 24px 0;
+  margin: 0 auto;
+}
+
+.cta-banner-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 32px 40px;
+  border-radius: 14px;
+  background-color: var(--ncmec-warm-gray);
+  box-sizing: border-box;
+}
+
+.cta-banner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cta-banner-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.cta-banner-icon-masked {
+  display: block;
+}
+
+.cta-banner-title {
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+}
+
+.cta-banner-subtitle {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+}
+
+/* Button: styled by the button standard in styles/styles.css; this only places it. */
+.cta-banner-button {
+  flex-shrink: 0;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .cta-banner-card {
+    padding: 28px 32px;
+    gap: 24px;
+  }}
+
+/* Responsive — mobile */
+@media (width <= 600px) {
+  .cta-banner-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+    gap: 20px;
+  }
+
+  .cta-banner-button {
+    width: 100%;
+  }
+}
+
+/* HOVER — row tier (lift + light shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.cta-banner .cta-banner-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.cta-banner .cta-banner-card:focus-within,
+.cta-banner .cta-banner-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-banner .cta-banner-card:focus-within,
+  .cta-banner .cta-banner-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

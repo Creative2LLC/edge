@@ -1,20 +1,359 @@
 footer {
-  background-color: var(--light-color);
+  background-color: var(--ncmec-warm-off-white);
+  border-top: 1px solid #d7d8d8;
+  color: var(--ncmec-gray-dark);
   font-size: var(--body-font-size-xs);
 }
 
 footer .footer > div {
   margin: auto;
-  max-width: 1200px;
-  padding: 40px 24px 24px;
+  max-width: 1440px;
+  padding: 56px 24px 32px;
 }
 
 footer .footer p {
   margin: 0;
 }
 
-@media (width >= 900px) {
+footer .footer .footer-columns-layout > div {
+  --footer-brand-width: 34%;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+footer .footer .footer-brand {
+  min-width: 0;
+  display: grid;
+  gap: 22px;
+  padding-bottom: 32px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+footer .footer .footer-brand > p:has(> img:only-child),
+footer .footer .footer-brand > p:has(> picture:only-child),
+footer .footer .footer-brand > p:has(> a:only-child > img:only-child),
+footer .footer .footer-brand > p:has(> a:only-child > picture:only-child) {
+  margin: 0;
+}
+
+footer .footer .footer-brand picture {
+  display: inline-block;
+}
+
+footer .footer .footer-brand img {
+  width: clamp(140px, 20vw, 190px);
+  height: auto;
+}
+
+footer .footer .footer-brand .image-positioned {
+  margin-inline: 0 auto;
+  text-align: left;
+}
+
+footer .footer .footer-brand a {
+  color: inherit;
+}
+
+footer .footer .footer-brand .button-container,
+footer .footer .footer-column .button-container {
+  margin: 0;
+}
+
+footer .footer .footer-brand a.button,
+footer .footer .footer-column a.button {
+  display: inline;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-align: left;
+  white-space: normal;
+}
+
+footer .footer .footer-brand a.button:hover,
+footer .footer .footer-column a.button:hover {
+  background: transparent;
+  color: inherit;
+}
+
+footer .footer .footer-copyright {
+  font-size: var(--body-sm-size);
+  line-height: 1.45;
+}
+
+footer .footer .footer-social {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+footer .footer .footer-social > *,
+footer .footer .footer-legal-links > * {
+  margin: 0;
+}
+
+footer .footer .footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #d4d6d7;
+  border-radius: 50%;
+  background: #fff;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+  color: inherit;
+  line-height: 1;
+}
+
+footer .footer .footer-social img,
+footer .footer .footer-social svg,
+footer .footer .footer-social .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* An author who picked "fit to image size" keeps the image's own size (the brand logo is
+   authored at 164x40) instead of the clamp on `.footer-brand img`. columns.css says the
+   same, but at that clamp's specificity, so whichever stylesheet loaded last used to win
+   and the logo size depended on load order. */
+footer .footer .footer-brand .image-fit-container img,
+footer .footer .footer-brand img.image-fit-container {
+  width: auto;
+}
+
+footer .footer .footer-column {
+  min-width: 0;
+  display: block;
+  padding: 28px 0;
+  border-top: 1px solid #d7d8d8;
+}
+
+footer .footer .footer-column .colored-text,
+footer .footer .footer-column .colored-text-inner {
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+footer .footer .footer-column .colored-text-content {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* The copyright is authored as a Colored Text block. Reset that standalone
+   layout so it remains in-flow inside the compact brand area. */
+footer .footer .footer-brand > .colored-text,
+footer .footer .footer-brand > .colored-text > .colored-text-inner,
+footer .footer .footer-brand > .colored-text > .colored-text-inner > .colored-text-content {
+  display: block;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+footer .footer .footer-brand > .colored-text {
+  font-size: var(--caption-size);
+}
+
+footer .footer .footer-column ul,
+footer .footer .footer-column ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer .footer .footer-link-list {
+  display: grid;
+  gap: 14px;
+}
+
+footer .footer .footer-column li + li {
+  margin-top: 10px;
+}
+
+footer .footer .footer-column .colored-text-content .footer-link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer .footer .footer-column .colored-text-content .footer-link-list > li {
+  margin: 0;
+  padding: 0;
+}
+
+footer .footer .footer-column .colored-text-content .footer-link-list > li + li {
+  margin-top: 10px;
+}
+
+footer .footer .footer-column a {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+footer .footer .footer-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: var(--body-sm-size);
+  line-height: 1.45;
+}
+
+footer .footer .footer-legal-links a {
+  color: inherit;
+  text-decoration: none;
+
+  /* Ensure a >=24px tap target with adequate spacing (WCAG 2.5.8 target-size).
+     Negative inline margin keeps the visual row width unchanged. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding-inline: 2px;
+  margin-inline: -2px;
+}
+
+footer .footer .footer-legal-links a:hover {
+  text-decoration: underline;
+}
+
+footer .footer .footer-social a:hover,
+footer .footer .footer-social a:focus-visible {
+  background: #00264d;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+footer .footer .footer-social a:hover img,
+footer .footer .footer-social a:focus-visible img {
+  filter: brightness(0) invert(1);
+}
+
+footer .footer .footer-column a:hover {
+  color: #26292d;
+  text-decoration: underline;
+}
+
+@media (width >= 700px) {
+  footer .footer .footer-columns-layout > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 40px;
+  }
+
+  footer .footer .footer-columns-layout > div > .footer-brand {
+    grid-column: 1 / -1;
+    padding-bottom: 36px;
+    border-bottom: 1px solid #d7d8d8;
+  }
+
+  footer .footer .footer-column {
+    border-top: 0;
+  }
+}
+
+@media (width >= 1024px) {
   footer .footer > div {
-    padding: 40px 32px 24px;
+    padding: 76px 84px 56px;
+  }
+
+  footer .footer .footer-columns-layout > div {
+    grid-template-columns: minmax(280px, 1.25fr) repeat(var(--footer-link-columns, 3), minmax(0, 1fr));
+    column-gap: 48px;
+    align-items: start;
+  }
+
+  footer .footer .footer-columns-layout > div > .footer-brand {
+    grid-column: auto;
+    padding: 0 48px 0 0;
+    border-right: 1px solid #d7d8d8;
+    border-bottom: 0;
+  }
+
+  footer .footer .footer-column {
+    padding: 0;
+  }
+}
+
+@media (width < 1024px) {
+  footer .footer .footer-brand {
+    order: 2;
+    justify-items: center;
+    padding: 36px 0 28px;
+    border-top: 1px solid #d7d8d8;
+    text-align: center;
+  }
+
+  footer .footer .footer-column {
+    order: 1;
+  }
+
+  footer .footer .footer-brand .image-positioned {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  footer .footer .footer-social,
+  footer .footer .footer-legal-links {
+    justify-content: center;
+  }
+
+  footer .footer .footer-brand > .colored-text {
+    text-align: center;
+  }
+}
+
+@media (width <= 699px) {
+  footer .footer .footer-brand {
+    padding-bottom: 28px;
+  }
+
+  footer .footer .footer-legal-links {
+    max-width: 31rem;
+  }
+}
+
+@media (width >= 1260px) {
+  footer .footer .footer-columns-layout > div {
+    grid-template-columns: minmax(360px, 1.45fr) repeat(var(--footer-link-columns, 3), minmax(0, 1fr));
+  }
+
+  footer .footer .footer-brand {
+    gap: 24px;
+    padding-right: 56px;
+  }
+
+  footer .footer .footer-legal-links {
+    gap: 12px 18px;
+  }
+
+  footer .footer .footer-link-list {
+    gap: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  footer .footer .footer-social a {
+    transition: none;
   }
 }

@@ -1,0 +1,226 @@
+.colored-text {
+  --colored-text-color: var(--ncmec-gray-dark);
+  --colored-text-size: 1.125rem;
+  --colored-text-weight: inherit;
+  --colored-text-min-height: 100%;
+  --colored-text-min-height-mobile: var(--colored-text-min-height);
+  --colored-text-block-bg: transparent;
+  --colored-text-list-marker-color: #ff8a00;
+  --colored-text-content-padding-top: 0;
+  --colored-text-content-padding-right: 0;
+  --colored-text-content-padding-bottom: 0;
+  --colored-text-content-padding-left: 0;
+  --colored-text-radius: 0;
+
+  height: 100%;
+  margin:
+    var(--colored-field-margin-top, 0)
+    var(--colored-field-margin-right, 0)
+    var(--colored-field-margin-bottom, 0)
+    var(--colored-field-margin-left, 0);
+  padding:
+    var(--colored-field-padding-top, 12px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 12px)
+    var(--colored-field-padding-left, 0);
+}
+
+.colored-text .colored-text-inner {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background-color: var(--colored-text-block-bg);
+  border-radius: var(--colored-text-radius);
+  overflow: hidden;
+
+  /* Padding around the content, independent of the block's own outer padding above —
+     adjustable via the "Content Padding" field. Defaults to 0, except when a block
+     background is set (see .has-block-background below), matching the 15px this
+     element always used to get automatically whenever a background color was set. */
+  padding:
+    var(--colored-text-content-padding-top)
+    var(--colored-text-content-padding-right)
+    var(--colored-text-content-padding-bottom)
+    var(--colored-text-content-padding-left);
+}
+
+.colored-text.has-block-background {
+  --colored-text-content-padding-top: 15px;
+  --colored-text-content-padding-right: 15px;
+  --colored-text-content-padding-bottom: 15px;
+  --colored-text-content-padding-left: 15px;
+}
+
+.colored-text.colored-text-radius-small {
+  --colored-text-radius: 4px;
+}
+
+.colored-text.colored-text-radius-medium {
+  --colored-text-radius: 8px;
+}
+
+.colored-text.colored-text-radius-large {
+  --colored-text-radius: 16px;
+}
+
+.colored-text.colored-text-v-top .colored-text-inner {
+  align-items: flex-start;
+}
+
+.colored-text.colored-text-v-middle .colored-text-inner {
+  align-items: center;
+}
+
+.colored-text.colored-text-v-bottom .colored-text-inner {
+  align-items: flex-end;
+}
+
+.colored-text .colored-text-content {
+  width: 100%;
+  color: var(--colored-text-color);
+  font-size: var(--colored-text-size);
+  font-weight: var(--colored-text-weight);
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.colored-text.colored-text-h-left .colored-text-content {
+  text-align: left;
+}
+
+.colored-text.colored-text-h-center .colored-text-content {
+  text-align: center;
+}
+
+.colored-text.colored-text-h-right .colored-text-content {
+  text-align: right;
+}
+
+.colored-text.colored-text-h-justify .colored-text-content {
+  text-align: justify;
+}
+
+.colored-text .colored-text-content > :first-child {
+  margin-top: 0;
+}
+
+.colored-text .colored-text-content > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-text .colored-text-content.is-authoring-placeholder {
+  color: #6b6b6b;
+  font-style: italic;
+}
+
+.colored-text-content p {
+  margin-bottom: 20px;
+}
+
+.colored-text .colored-text-content ol {
+  counter-reset: colored-text-ordered-list;
+  list-style: none;
+  margin: 0 0 1.35em;
+  padding-left: 0;
+}
+
+.colored-text .colored-text-content ol > li {
+  counter-increment: colored-text-ordered-list;
+  position: relative;
+  margin: 0 0 1.45em;
+  padding-left: 2.45em;
+}
+
+.colored-text .colored-text-content ol > li::before {
+  content: counter(colored-text-ordered-list);
+  position: absolute;
+  top: 0.22em;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  border: 2px solid var(--colored-text-list-marker-color);
+  border-radius: 50%;
+  color: var(--colored-text-list-marker-color);
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.colored-text .colored-text-content ol > li > :first-child {
+  margin-top: 0;
+}
+
+.colored-text .colored-text-content ol > li > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-text .colored-text-content ol ol {
+  margin-top: 1em;
+}
+
+.colored-text .colored-text-content ul {
+  list-style: disc;
+  margin: 0 0 1.35em;
+  padding-left: 1.4em;
+}
+
+.colored-text .colored-text-content ul > li {
+  margin: 0 0 0.65em;
+  padding-left: 0.2em;
+}
+
+.colored-text .colored-text-content ul > li::marker {
+  color: var(--colored-text-list-marker-color);
+}
+
+.colored-text .colored-text-content ul > li > :first-child {
+  margin-top: 0;
+}
+
+.colored-text .colored-text-content ul > li > :last-child {
+  margin-bottom: 0;
+}
+
+@media (width <= 900px) {
+  .colored-text .colored-text-content {
+    font-size: 18px;
+  }
+
+}
+
+.colored-text.colored-text-shadow-small .colored-text-inner {
+  box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
+}
+
+.colored-text.colored-text-shadow-medium .colored-text-inner {
+  box-shadow: 0 14px 24px 0 rgb(0 0 0 / 18%);
+}
+
+.colored-text.colored-text-shadow-large .colored-text-inner {
+  box-shadow: 0 21px 36px 0 rgb(0 0 0 / 24%);
+}
+
+.colored-text.colored-text-shadow-highlight-blue {
+  --colored-field-highlight-shadow-color: 20 145 191;
+}
+
+.colored-text.colored-text-shadow-highlight-navy {
+  --colored-field-highlight-shadow-color: 9 35 72;
+}
+
+.colored-text.colored-text-shadow-highlight-orange {
+  --colored-field-highlight-shadow-color: 247 148 29;
+}
+
+.colored-text.colored-text-shadow-highlight-gold {
+  --colored-field-highlight-shadow-color: 245 181 27;
+}
+
+.colored-text[class*="colored-text-shadow-highlight-"] .colored-text-inner {
+  box-shadow: 0 14px 24px 0 rgb(var(--colored-field-highlight-shadow-color) / 40%);
+}

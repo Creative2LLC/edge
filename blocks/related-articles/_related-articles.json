@@ -1,0 +1,87 @@
+{
+  "definitions": [
+    {
+      "title": "Related Blogs",
+      "id": "related-articles",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Related Articles",
+              "model": "related-articles"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "related-articles",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
+        },
+        {
+          "component": "select",
+          "name": "sourceType",
+          "label": "Source Type",
+          "value": "auto",
+          "options": [
+            { "name": "Auto", "value": "auto" },
+            { "name": "Blogs", "value": "articles" },
+            { "name": "Resources", "value": "resources" }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "slug",
+          "label": "Preview Slug (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Related Blogs"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "limit",
+          "label": "Item Limit",
+          "value": "3"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "detailBasePath",
+          "label": "Blog Detail Base Path",
+          "value": "/content/edge/resources/Blogs"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned1",
+          "label": "Pinned Item 1 (Optional)",
+          "description": "Pick a blog page (on a blog) or a resource page (on a resource). Pinned items show first, in this order; empty slots are filled automatically from tags."
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned2",
+          "label": "Pinned Item 2 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned3",
+          "label": "Pinned Item 3 (Optional)"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

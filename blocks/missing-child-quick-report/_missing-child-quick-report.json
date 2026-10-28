@@ -1,0 +1,99 @@
+{
+  "definitions": [
+    {
+      "title": "Missing Child Quick Report",
+      "id": "missing-child-quick-report",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Missing Child Quick Report",
+              "model": "missing-child-quick-report"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "missing-child-quick-report",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow",
+          "value": "Quick Report"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "I have seen a missing child"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro Copy",
+          "value": "Use this form to send NCMEC details about a possible sighting of a missing child."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emergencyHeading",
+          "label": "Emergency Heading",
+          "value": "Is the child in immediate danger?"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "emergencyCopy",
+          "label": "Emergency Copy",
+          "value": "Call 911 now. You can also contact NCMEC 24 hours a day at 1-800-THE-LOST (1-800-843-5678)."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "formAction",
+          "label": "Submit Endpoint URL",
+          "description": "Defaults to the legacy missingkids FormMultipartServlet endpoint. Replace later with a Laravel endpoint when available.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text",
+          "value": "Submit Report"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "successMessage",
+          "label": "Success Message",
+          "value": "Thanks for reporting. Your information has been submitted."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "errorMessage",
+          "label": "Error Message",
+          "value": "We could not submit this report. Please call 1-800-THE-LOST (1-800-843-5678)."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "topPadding",
+          "label": "Top Padding (Optional)",
+          "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

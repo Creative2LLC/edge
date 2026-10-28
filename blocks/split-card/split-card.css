@@ -1,0 +1,265 @@
+/* Block root */
+.split-card {
+  width: 100%;
+  max-width: var(--split-card-max-width, none);
+  padding: 0;
+  margin-top: 40px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Inner card container */
+.split-card .split-card-inner {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  min-height: 393px;
+  background: #fff;
+}
+
+.split-card .split-card-inner.split-card-image-right {
+  flex-direction: row-reverse;
+}
+
+/* Left: image */
+.split-card .split-card-media {
+  flex: 0 0 50%;
+  overflow: hidden;
+}
+
+.split-card .split-card-media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.split-card .split-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 0;
+}
+
+/* Right: content */
+.split-card .split-card-content {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 88px 72px;
+  box-sizing: border-box;
+}
+
+/* Heading — the author picks h2 or h3 for the outline; it is sized as h3 either way. */
+.split-card .split-card-heading {
+  font-size: var(--heading-3-size);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 12px;
+  max-width: 540px;
+}
+
+/* Subheading */
+.split-card .split-card-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 24px;
+  max-width: 540px;
+}
+
+/* Preserve the spacing authored in the rich text editor (paragraph breaks,
+   empty lines) instead of stacking default <p> margins on top. */
+.split-card .split-card-subheading p {
+  margin: 0;
+}
+
+.split-card .split-card-subheading p + p {
+  margin-top: 1em;
+}
+
+.split-card .split-card-subheading p:empty::before {
+  content: "\00a0";
+}
+
+/* Buttons container */
+.split-card .split-card-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+/* Each button + its optional subtext stacks vertically, with the subtext
+   left-aligned to the button's left edge. */
+.split-card .split-card-button-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.split-card .split-card-button-subtext {
+  font-size: var(--body-size);
+  font-weight: 500;
+  line-height: 1.4;
+  color: #fff;
+  text-align: left;
+}
+
+/* Buttons: styled by the button standard in styles/styles.css. */
+
+/* Image-smaller variant: keep its compact desktop media width, but allow the
+   row to grow whenever authored content needs more vertical space. */
+.split-card.split-card-image-smaller .split-card-inner {
+  min-height: 446px;
+}
+
+.split-card.split-card-image-smaller .split-card-media {
+  flex: 0 0 500px;
+  max-width: 500px;
+}
+
+.split-card.split-card-image-smaller .split-card-content {
+  flex: 1 1 auto;
+}
+
+.split-card.split-card-image-smaller .split-card-heading,
+.split-card.split-card-image-smaller .split-card-subheading {
+  max-width: 750px;
+}
+
+/* Smaller-size variant */
+.split-card.split-card-size-smaller {
+  --split-card-max-width: var(--container);
+}
+
+.split-card.split-card-size-smaller .split-card-inner {
+  max-height: none;
+}
+
+/* Styling Variant 2:
+   - Content flush to the block's left edge (no left padding), left aligned.
+   - Image fixed at 459 x 226 with a 14px radius on all corners, vertically
+     centered in its column. */
+.split-card.split-card-variant-2 .split-card-inner {
+  background: transparent;
+}
+
+.split-card.split-card-variant-2 .split-card-content {
+  padding-left: 0;
+  align-items: flex-start !important;
+  text-align: left !important;
+}
+
+.split-card.split-card-variant-2 .split-card-heading {
+  color: var(--ncmec-gray-dark);
+}
+
+.split-card.split-card-variant-2 .split-card-subheading {
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  max-width: 820px;
+}
+
+.split-card.split-card-variant-2 .split-card-media {
+  flex: 0 0 459px;
+  max-width: 459px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.split-card.split-card-variant-2 .split-card-media picture {
+  width: 459px;
+  height: 226px;
+  flex: none;
+}
+
+.split-card.split-card-variant-2 .split-card-media img {
+  width: 459px;
+  height: 226px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+@media (width <= 900px) {
+  /* Restore symmetric padding (variant-2 zeroes the left padding on desktop). */
+  .split-card .split-card-content,
+  .split-card.split-card-variant-2 .split-card-content {
+    padding: 28px 24px;
+  }
+}
+
+/* At tablet / small-desktop widths the split columns leave too little room
+   for long headings and rich body copy. Keep the image prominent, then place
+   the content below it instead of clipping it or forcing unreadable lines. */
+@media (701px <= width <= 960px) {
+  .split-card .split-card-inner,
+  .split-card .split-card-inner.split-card-image-right {
+    flex-direction: column;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .split-card .split-card-media,
+  .split-card.split-card-image-smaller .split-card-media,
+  .split-card.split-card-variant-2 .split-card-media {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    height: clamp(280px, 42vw, 360px);
+  }
+
+  .split-card.split-card-variant-2 .split-card-media picture,
+  .split-card.split-card-variant-2 .split-card-media img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .split-card .split-card-content,
+  .split-card.split-card-variant-2 .split-card-content {
+    padding: 40px 48px;
+  }
+}
+
+/* Responsive */
+@media (width <= 700px) {
+  /* Every variant stacks vertically on mobile (image on top, content below).
+     image-right is listed explicitly because its row-reverse rule outranks the
+     base selector and would otherwise stay side-by-side. */
+  .split-card .split-card-inner,
+  .split-card .split-card-inner.split-card-image-right {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  /* Media spans the full width at a fixed height across every variant, including
+     the ones that pin a fixed media width on desktop (image-smaller, variant-2). */
+  .split-card .split-card-media,
+  .split-card.split-card-image-smaller .split-card-media,
+  .split-card.split-card-variant-2 .split-card-media {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    height: 240px;
+  }
+
+  /* variant-2 pins its picture/img to 459×226 on desktop — let them fill the
+     stacked, full-width media instead of overflowing the screen. */
+  .split-card.split-card-variant-2 .split-card-media picture,
+  .split-card.split-card-variant-2 .split-card-media img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Restore symmetric padding (variant-2 zeroes the left padding on desktop). */
+  .split-card .split-card-content,
+  .split-card.split-card-variant-2 .split-card-content {
+    padding: 28px 24px;
+  }
+}

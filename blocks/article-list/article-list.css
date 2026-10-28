@@ -1,0 +1,471 @@
+.article-list {
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(2.75rem, 6vw, 5rem) 0;
+
+  /* The header is fixed, so a scroll that lands this block at the viewport top would tuck
+     its first rows underneath. Applies to the scroll from a hero tag link and to the
+     pagination jump alike. */
+  scroll-margin-top: var(--nav-height);
+}
+
+.article-list .article-list-inner {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.article-list .article-list-header {
+  display: grid;
+  gap: 1.1rem;
+  align-items: end;
+}
+
+.article-list .article-list-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.article-list .article-list-heading {
+  margin: 0;
+  color: #16324a;
+}
+
+.article-list .article-list-controls {
+  display: grid;
+  gap: 1.35rem;
+}
+
+/* Each filter mechanism is named, and the groups are separated by more space
+   than the controls inside them — without that, four different mechanisms read
+   as one undifferentiated pile of pills and dropdowns. */
+.article-list .article-list-group {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.article-list .article-list-group-label {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
+  text-transform: uppercase;
+}
+
+/* Refine: the three narrowing dropdowns on the left, sort pushed to the right —
+   sort is not a filter and should not sit in the filter run. */
+.article-list .article-list-refine-group {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "label label"
+    "filters sort";
+  align-items: center;
+  column-gap: 1.25rem;
+}
+
+.article-list .article-list-refine-group .article-list-group-label {
+  grid-area: label;
+}
+
+.article-list .article-list-filter-row {
+  grid-area: filters;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.article-list .article-list-sort-wrap {
+  grid-area: sort;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.article-list .article-list-sort-label {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-bold);
+  white-space: nowrap;
+}
+
+.article-list .article-list-search-wrap {
+  display: block;
+  min-width: 0;
+}
+
+.article-list .article-list-search,
+.article-list .article-list-filter {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #d8e4ea;
+  border-radius: 999px;
+  background: #fff;
+  color: #16324a;
+  font-size: var(--body-sm-size);
+  box-shadow: 0 10px 25px rgb(22 50 74 / 6%);
+}
+
+.article-list .article-list-filter {
+  padding-right: 2.4rem;
+}
+
+.article-list .article-list-sort {
+  width: auto;
+  min-width: 11rem;
+}
+
+.article-list .article-list-area-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.article-list .article-list-area-pill {
+  min-height: 2.5rem;
+  margin: 0;
+  border: 1px solid #b9cbd5;
+  border-radius: 999px;
+  background: #fff;
+  color: #16324a;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.article-list .article-list-area-pill.is-active {
+  border-color: #0d3c50;
+  background: #0d3c50;
+  color: #fff;
+}
+
+/* Count, then the chips for what is switched on, then the way to switch it all
+   off. "Clear Filters" used to sit between the chips and the count, reading as
+   though it belonged to neither. */
+.article-list .article-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1rem;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ncmec-gray-light);
+}
+
+.article-list .article-list-active-filters {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.article-list .article-list-active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.article-list .article-list-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.95rem;
+  padding: 0.34rem 0.78rem;
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.article-list .article-list-pill.is-active-chip {
+  background: #16324a;
+  color: #fff;
+}
+
+.article-list .article-list-active-chip-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--ncmec-blue-dark);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.article-list .article-list-clear-all {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--ncmec-blue-dark);
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.article-list .article-list-count {
+  margin: 0;
+  color: var(--ncmec-gray-dark); /* #607282 was 4.42 on Gray Lightest, just under AA. */
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+}
+
+.article-list .article-list-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.article-list .article-list-grid[data-view="list"] {
+  grid-template-columns: 1fr;
+}
+
+.article-list .article-list-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 8%);
+
+  /* backwards, not both: `both` keeps applying the animation's final
+     transform after it finishes, and animated values beat normal declarations
+     — which silently killed this card's own :hover lift. `backwards` holds the
+     pre-start state and releases transform once the reveal is done. */
+  animation: article-list-rise 0.45s ease backwards;
+  animation-delay: calc(var(--article-card-index, 0) * 45ms);
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
+}
+
+.article-list .article-list-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+.article-list .article-list-card:focus-within {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+.article-list .article-list-grid[data-view="list"] .article-list-card {
+  box-shadow: 0 14px 30px rgb(22 50 74 / 8%);
+}
+
+.article-list .article-list-card-link-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.article-list .article-list-card-media {
+  height: 300px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #dfe9ee 0%, #cfdde6 100%);
+}
+
+.article-list .article-list-card-media picture,
+.article-list .article-list-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.article-list .article-list-card-media img {
+  object-fit: cover;
+}
+
+.article-list .article-list-grid[data-view="list"] .article-list-card-media {
+  display: none;
+}
+
+.article-list .article-list-card-body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 20px;
+}
+
+.article-list .article-list-grid[data-view="list"] .article-list-card-body {
+  gap: 0.7rem;
+  padding: 1.1rem 1.25rem 1.2rem;
+}
+
+.article-list .article-list-card-date {
+  margin: 0;
+
+  /* Was #6a7c8d, 4.30:1 on white; palette text grey clears AA. */
+  color: var(--ncmec-gray-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
+}
+
+.article-list .article-list-card-title {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+}
+
+.article-list .article-list-grid[data-view="list"] .article-list-card-title {
+  font-size: var(--heading-5-size);
+}
+
+.article-list .article-list-card-excerpt {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-weight: var(--body-weight-medium);
+  font-size: var(--body-size);
+}
+
+/* Only position and placement live here — the colour, size, weight and the
+   arrow all come from the shared .button.text-link style (37px tall, so it clears the WCAG 2.5.8 target on its own) the block now applies,
+   so this link matches every other text link on the site. */
+.article-list .article-list-card-link {
+  position: relative;
+  z-index: 3;
+  margin-top: auto;
+}
+
+.article-list .article-list-empty,
+.article-list .article-list-message {
+  padding: 1.5rem;
+  border: 1px solid #d9e3ea;
+  border-radius: 20px;
+  background: #fff;
+  color: #516272;
+}
+
+.article-list .article-list-message-title {
+  margin: 0;
+  color: #16324a;
+}
+
+.article-list .article-list-message-copy {
+  margin: 0.75rem 0 0;
+}
+
+.article-list .article-list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.article-list .article-list-load-more {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
+  line-height: 1.25;
+  min-width: 13rem;
+  border: 0;
+  border-radius: 999px;
+
+  /* Solid Blue Dark: the old #0d6e8c to #1e9ac4 gradient fell to 3.2:1 under white text. */
+  background: var(--ncmec-blue-dark);
+  color: #fff;
+  padding: 0.95rem 1.5rem;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 18px 36px rgb(13 110 140 / 22%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.article-list .article-list-load-more:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 42px rgb(13 110 140 / 26%);
+}
+
+.article-list .article-list-search:focus-visible,
+.article-list .article-list-filter:focus-visible,
+.article-list .article-list-load-more:focus-visible,
+.article-list .article-list-clear-all:focus-visible,
+.article-list .article-list-active-chip:focus-visible {
+  outline: 2px solid #0d6e8c;
+  outline-offset: 3px;
+}
+
+.article-list .article-list-area-pill:focus-visible {
+  outline: 2px solid #0d6e8c;
+  outline-offset: 3px;
+}
+
+@keyframes article-list-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (width >= 768px) {
+  .article-list .article-list-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 1100px) {
+  .article-list .article-list-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 980px) {
+  .article-list .article-list-refine-group {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "label"
+      "filters"
+      "sort";
+  }
+
+  .article-list .article-list-filter-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .article-list .article-list-sort-wrap {
+    justify-content: flex-end;
+  }
+}
+
+@media (width <= 699px) {
+  .article-list {
+    width: 100%;
+  }
+
+  .article-list .article-list-header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .article-list .article-list-view-toggle {
+    align-self: flex-end;
+  }
+
+  .article-list .article-list-filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .article-list .article-list-sort,
+  .article-list .article-list-sort-wrap {
+    width: 100%;
+  }
+
+  .article-list .article-list-card-media {
+    height: 200px;
+  }
+
+  .article-list .article-list-load-more {
+    width: 100%;
+  }
+}

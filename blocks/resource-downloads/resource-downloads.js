@@ -1,0 +1,2137 @@
+/*
+ * Resource Downloads block — the download list on resource landing pages.
+ * Each item is backed by a backend resource slug (preferred; pulls title,
+ * file, thumbnail, video, and gating from the API) or a direct DAM file,
+ * and renders in a dedicated, color-coded card per file type (PDF, Word,
+ * PowerPoint, ZIP, spreadsheet), an in-page video player, the Informative
+ * card (type badge + audience/time/format — also available as a stacked
+ * card or a full-width banner), or a compact row — picked automatically by
+ * file type or overridden per item. The two client-approved styles,
+ * Horizontal (image left, details right) and Tile (image on top, in rows),
+ * are the only ones offered in the dropdown; the rest are hidden there but
+ * still render for items that already use them. Consecutive "grouped"
+ * items merge into a single
+ * card with stacked buttons. Gated items go through the shared registration
+ * modal in scripts/resource-gate.js; downloads fire GA4 + backend events.
+ *
+ * The backend stamps apiBaseUrl/slug/gated onto this block and seeds the
+ * first item when it auto-creates a landing page for a DAM asset.
+ */
+
+import createRemoteSafePicture from '../../scripts/remote-picture.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+  setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import {
+  bindGatedLink,
+  fetchSignedUrl,
+  isRegistered,
+  openRegistrationModal,
+} from '../../scripts/resource-gate.js';
+import { trackEvent } from '../../scripts/analytics.js';
+import buildResourceAuthoringToolbar from '../../scripts/resource-authoring-toolbar.js';
+import { applyButtonStyle } from '../../scripts/button-utils.js';
+
+const LOCKED_LABEL = 'Locked';
+
+const FILE_EXTENSION_PATTERN = /\.(pdf|docx?|pptx?|zip|xlsx?|mp4|mov)([?#]|$)/i;
+const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g|gif|webp|svg)([?#]|$)/i;
+const VIDEO_EXTENSIONS = ['mp4', 'mov'];
+
+// Single source of truth for each resource type's dedicated, color-coded
+// treatment — drives both the per-type cards and the Informative card badge.
+// `accent` is exposed to CSS as --rd-accent so styling is data-driven, not a
+// rule-per-type.
+const TYPE_THEMES = {
+  pdf: {
+    accent: '#d7263d',
+    abbr: 'PDF',
+    badgeLabel: 'PDF',
+    title: 'Download PDF',
+    format: 'PDF Document',
+    contains: 'This download contains:',
+  },
+  word: {
+    accent: '#2b579a',
+    abbr: 'DOC',
+    badgeLabel: 'Word Document',
+    title: 'Download Document',
+    format: 'Word Document',
+    contains: 'This document contains:',
+  },
+  powerpoint: {
+    // Darkened from #d24726: the white "PPT" badge label is 11px bold, and the original
+    // gave it 4.49 against AA's 4.5. Same orange-red, one step down.
+    accent: '#c84324',
+    abbr: 'PPT',
+    badgeLabel: 'Presentation',
+    title: 'Download PowerPoint',
+    format: 'Presentation (PowerPoint)',
+    contains: 'This presentation contains:',
+  },
+  spreadsheet: {
+    accent: '#217346',
+    abbr: 'XLS',
+    badgeLabel: 'Spreadsheet',
+    title: 'Download Spreadsheet',
+    format: 'Spreadsheet (Excel)',
+    contains: 'This spreadsheet contains:',
+  },
+  bundle: {
+    accent: '#5f6b7a',
+    abbr: 'ZIP',
+    badgeLabel: 'Bundle',
+    title: 'Download Bundle',
+    format: 'Download Bundle',
+    contains: 'This bundle contains:',
+  },
+  video: {
+    // Blue Dark, not Blue Medium: white on Blue Medium is 3.78, under AA for the badge label.
+    accent: '#006d90',
+    abbr: 'PLAY',
+    badgeLabel: 'Video',
+    title: 'Watch Video',
+    format: 'Video',
+    contains: 'This video covers:',
+  },
+  file: {
+    accent: '#00264d',
+    abbr: 'FILE',
+    badgeLabel: 'File',
+    title: 'Download Resource',
+    format: '',
+    contains: 'This download contains:',
+  },
+};
+
+const EXTENSION_TYPE = {
+  pdf: 'pdf',
+  doc: 'word',
+  docx: 'word',
+  ppt: 'powerpoint',
+  pptx: 'powerpoint',
+  xls: 'spreadsheet',
+  xlsx: 'spreadsheet',
+  zip: 'bundle',
+  mp4: 'video',
+  mov: 'video',
+};
+
+// Type keys double as explicit display-style values; the older abstract
+// "card"/"feature" values map to the auto type card for backward compatibility.
+const TYPE_STYLE_KEYS = ['pdf', 'word', 'powerpoint', 'spreadsheet', 'bundle', 'video'];
+const INFORMATIVE_STYLES = ['informative', 'informative-stacked', 'informative-banner'];
+// The client-approved pair (2026-10). They are the only options left in the
+// Display Style dropdown; every older style above is HIDDEN there, not retired —
+// it still renders for the items already authored with it, and the option
+// definitions are kept in hidden-display-styles.json for when they come back.
+const CARD_STYLES = ['horizontal', 'tile'];
+const DISPLAY_STYLES = [
+  ...TYPE_STYLE_KEYS, 'row', 'card', 'feature', 'grouped', ...INFORMATIVE_STYLES, ...CARD_STYLES,
+];
+
+function typeTheme(key) {
+  return TYPE_THEMES[key] || TYPE_THEMES.file;
+}
+const INFORMATIVE_META_FIELD_BY_INDEX = {
+  10: 'informativeAudienceLabel',
+  11: 'informativeAudienceText',
+  12: 'informativeTimeLabel',
+  13: 'informativeTimeText',
+  14: 'informativeFormatLabel',
+  15: 'informativeFormatText',
+};
+const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
+// AEM publish tier — the public host that serves DAM files. Used to turn a
+// raw /content/dam/ path into a working URL when no backend resource is found.
+const PUBLISH_BASE_URL = 'https://publish-p171653-e1855116.adobeaemcloud.com';
+const DEFAULT_VIDEO_POSTER_PATH = '/blocks/header/ncmec-brand-mark.svg';
+const INFORMATIVE_META_PREFIXES = [
+  ['informativeAudienceLabel', /^audience label\s*:\s*/i],
+  ['informativeAudienceText', /^(primary audience|audience)\s*:\s*/i],
+  ['informativeTimeLabel', /^time label\s*:\s*/i],
+  ['informativeTimeText', /^(time|length)\s*:\s*/i],
+  ['informativeFormatLabel', /^format label\s*:\s*/i],
+  ['informativeFormatText', /^(format|resource type)\s*:\s*/i],
+];
+
+function normalizeText(value) {
+  return `${value || ''}`.trim();
+}
+
+function codeAssetPath(path) {
+  return `${window.hlx?.codeBasePath || ''}${path}`;
+}
+
+function isUrlLike(value) {
+  return /^https?:\/\//i.test(normalizeText(value));
+}
+
+function isImageHref(href) {
+  return IMAGE_EXTENSION_PATTERN.test(normalizeText(href));
+}
+
+function isFileHref(href) {
+  const value = normalizeText(href);
+  if (!value || isImageHref(value)) return false;
+  return value.includes('/content/dam/') || FILE_EXTENSION_PATTERN.test(value);
+}
+
+function isSlugLike(value) {
+  return /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/.test(normalizeText(value));
+}
+
+function fileNameFrom(href) {
+  return normalizeText(href).split(/[?#]/)[0].split('/').pop() || '';
+}
+
+function fileExtensionFrom(href) {
+  const name = fileNameFrom(href);
+  return name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+}
+
+function isVideoFile(url) {
+  return VIDEO_EXTENSIONS.includes(fileExtensionFrom(url));
+}
+
+function videoMimeType(url) {
+  const extension = fileExtensionFrom(url);
+  if (extension === 'mov') return 'video/quicktime';
+  return `video/${extension || 'mp4'}`;
+}
+
+function titleFromFileName(href) {
+  const name = fileNameFrom(href);
+  const base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
+  return base.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// A /content/dam/ asset only resolves on the publish tier, never on the site
+// domain. Pull the DAM path out of whatever form it arrives in — a bare path,
+// or an absolute site URL the browser already resolved — and point it at the
+// publish host. Non-DAM URLs (e.g. YouTube) pass through untouched.
+function resolveDamUrl(href) {
+  const value = normalizeText(href);
+  if (!value) return '';
+  const match = value.match(/\/content\/dam\/[^?#"'\s]+/);
+  if (match) return `${PUBLISH_BASE_URL}${match[0]}`;
+  return value;
+}
+
+function parseInformativeMetaOverride(value) {
+  const text = normalizeText(value);
+  if (!text) return null;
+
+  const match = INFORMATIVE_META_PREFIXES.find(([, pattern]) => pattern.test(text));
+  if (!match) return null;
+
+  const [name, pattern] = match;
+  return { name, value: normalizeText(text.replace(pattern, '')) };
+}
+
+function slugFromPathname(pathname = window.location.pathname) {
+  const cleanPath = normalizeText(pathname);
+  const pathWithoutExtension = cleanPath.toLowerCase().endsWith('.html')
+    ? cleanPath.slice(0, -5)
+    : cleanPath;
+
+  return pathWithoutExtension
+    .split('/')
+    .filter(Boolean)
+    .pop() || '';
+}
+
+function isEditorContext(block) {
+  return Boolean(
+    block.closest('[data-aue-resource]')
+    || block.querySelector('[data-aue-prop], [data-aue-resource], [data-richtext-prop]'),
+  );
+}
+
+function emptyItem(row = null) {
+  return {
+    row,
+    title: '',
+    description: '',
+    buttonLabel: '',
+    resourceSlug: '',
+    fileHref: '',
+    // Set only by the "render one card per file" fallback below — never authored.
+    // Names an exact ResourceFile so a resource with several gated S3 downloads
+    // can expand into one card each; matching by URL cannot do that, because
+    // S3-backed files deliberately have no URL.
+    fileId: null,
+    imageEl: null,
+    imageSrc: '',
+    videoUrl: '',
+    displayStyle: '',
+    gatedOverride: '',
+    informativeAudienceLabel: '',
+    informativeAudienceText: '',
+    informativeTimeLabel: '',
+    informativeTimeText: '',
+    informativeFormatLabel: '',
+    informativeFormatText: '',
+  };
+}
+
+// ── Config/item extraction ───────────────────────────────────────────────────
+
+function isEditorItemRow(row) {
+  const model = row.getAttribute('data-aue-model') || '';
+  if (model) return model === 'resource-download-item';
+  if (!row.hasAttribute('data-aue-resource')) return false;
+  return Boolean(row.querySelector(
+    '[data-aue-prop="itemTitle"], [data-richtext-prop="itemDescription"], [data-aue-prop="resourceSlug"], [data-aue-prop="file"], [data-aue-prop="filePath"], [data-aue-prop="s3File"]',
+  )) || !row.querySelector('[data-aue-prop="apiBaseUrl"], [data-aue-prop="slug"]');
+}
+
+// Universal Editor only stamps data-aue-prop on text/richtext fields;
+// reference fields (File, Image) render as plain uninstrumented link cells,
+// so parseEditorItem's named lookups can come back empty even though the
+// author picked a file. Recover them with the same content heuristics the
+// published parser uses — but only from cells WITHOUT instrumentation, so a
+// title or description that happens to contain a link is never misread.
+function applyEditorCellFallbacks(item, row) {
+  [...row.children].forEach((cell) => {
+    if (
+      cell.hasAttribute('data-aue-prop')
+      || cell.hasAttribute('data-richtext-prop')
+      || cell.querySelector('[data-aue-prop], [data-richtext-prop]')
+    ) return;
+
+    const picture = cell.querySelector('picture');
+    const img = cell.querySelector('img');
+    if (picture || img) {
+      const src = (img || picture?.querySelector('img'))?.src || '';
+      // A video/file reference can render as an <img>; treat it as the file.
+      if (isVideoFile(src) || isFileHref(src)) {
+        if (!item.fileHref) item.fileHref = src;
+      } else if (!item.imageEl && !item.imageSrc) {
+        item.imageEl = picture || img;
+        item.imageSrc = src;
+      }
+      return;
+    }
+
+    const href = normalizeText(cell.querySelector('a')?.getAttribute('href'));
+    if (!href) return;
+    if (isImageHref(href)) {
+      if (!item.imageSrc) item.imageSrc = href;
+    } else if (isFileHref(href)) {
+      if (!item.fileHref) item.fileHref = href;
+    } else if (isUrlLike(href) && !item.videoUrl) {
+      item.videoUrl = href;
+    }
+  });
+}
+
+function parseEditorItem(row) {
+  const item = emptyItem(row);
+  const image = readImageField(row, 'image');
+
+  item.title = normalizeText(readTextField(row, 'itemTitle').value);
+  item.description = readRichTextField(row, 'itemDescription').html || '';
+  item.buttonLabel = normalizeText(readTextField(row, 'buttonLabel').value);
+  // The S3 File dropdown stores a resource slug, so it feeds the same lookup.
+  // A hand-typed slug still wins — it is the escape hatch when the generated
+  // options are stale. (Published rows need no equivalent: the stamped cell is
+  // slug-like, so parsePublishedItem already picks it up as a slug candidate.)
+  //
+  // The `s3File` FIELD is currently removed from _resource-downloads.json —
+  // authors attach gated files through the backend uploader instead, which
+  // writes the item itself. This read is kept deliberately: pages authored
+  // while the dropdown existed still carry the value, and restoring the field
+  // is then a model-only change. It must go back as the LAST field on the
+  // model — everything before it binds by cell index on published pages.
+  // Generator: `npm run build:s3-options`, or the download_options managed job.
+  item.resourceSlug = normalizeText(readTextField(row, 'resourceSlug').value)
+    || normalizeText(readTextField(row, 's3File').value);
+  item.fileHref = normalizeText(
+    readTextField(row, 'filePath').value || readLinkField(row, 'file').value,
+  );
+  item.videoUrl = normalizeText(readLinkField(row, 'videoUrl').value);
+  item.displayStyle = normalizeText(readTextField(row, 'displayStyle').value).toLowerCase();
+  item.gatedOverride = normalizeText(readTextField(row, 'gated').value).toLowerCase();
+  item.informativeAudienceLabel = normalizeText(
+    readTextField(row, 'informativeAudienceLabel').value,
+  );
+  item.informativeAudienceText = normalizeText(
+    readTextField(row, 'informativeAudienceText').value,
+  );
+  item.informativeTimeLabel = normalizeText(readTextField(row, 'informativeTimeLabel').value);
+  item.informativeTimeText = normalizeText(readTextField(row, 'informativeTimeText').value);
+  item.informativeFormatLabel = normalizeText(readTextField(row, 'informativeFormatLabel').value);
+  item.informativeFormatText = normalizeText(readTextField(row, 'informativeFormatText').value);
+  item.imageEl = image.picture || null;
+  item.imageSrc = image.img?.src || '';
+
+  applyEditorCellFallbacks(item, row);
+
+  return item;
+}
+
+function readEditorContent(block) {
+  const rows = getBlockRows(block);
+  const itemRows = rows.filter((row) => isEditorItemRow(row));
+  const configScope = document.createElement('div');
+  rows.filter((row) => !itemRows.includes(row))
+    .forEach((row) => configScope.append(row.cloneNode(true)));
+
+  return {
+    config: {
+      apiBaseUrl: normalizeText(readTextField(configScope, 'apiBaseUrl').value)
+        || DEFAULT_API_BASE_URL,
+      slug: normalizeText(readTextField(configScope, 'slug').value),
+      gated: normalizeText(readTextField(configScope, 'gated').value).toLowerCase(),
+      layout: normalizeText(readTextField(configScope, 'layout').value).toLowerCase(),
+    },
+    items: itemRows.map((row) => parseEditorItem(row)),
+    rows,
+  };
+}
+
+function parsePublishedItem(row) {
+  const item = emptyItem(row);
+  const freeCells = [];
+
+  [...row.children].forEach((cell, cellIndex) => {
+    const picture = cell.querySelector('picture');
+    const img = cell.querySelector('img');
+    if (picture || img) {
+      const src = (img || picture?.querySelector('img'))?.src || '';
+      // A video/file reference can render as an <img> — it's the file, not a
+      // poster. Never treat it as an image (avoids a broken poster request).
+      if (isVideoFile(src) || isFileHref(src)) {
+        if (!item.fileHref) item.fileHref = src;
+      } else if (!item.imageEl) {
+        item.imageEl = picture || img;
+        item.imageSrc = src;
+      }
+      return;
+    }
+
+    const anchor = cell.querySelector('a');
+    const href = normalizeText(anchor?.getAttribute('href'));
+    const text = normalizeText(cell.textContent);
+    const indexedMetaField = INFORMATIVE_META_FIELD_BY_INDEX[cellIndex];
+    if (indexedMetaField) {
+      item[indexedMetaField] = text;
+      return;
+    }
+
+    const prefixedMetaField = parseInformativeMetaOverride(text);
+    if (prefixedMetaField) {
+      item[prefixedMetaField.name] = prefixedMetaField.value;
+      return;
+    }
+
+    if (href && isImageHref(href)) {
+      if (!item.imageSrc) item.imageSrc = href;
+      return;
+    }
+
+    if ((href && isFileHref(href)) || isFileHref(text)) {
+      item.fileHref = item.fileHref || href || text;
+      return;
+    }
+
+    if ((href && isUrlLike(href)) || isUrlLike(text)) {
+      item.videoUrl = item.videoUrl || (isUrlLike(href) ? href : text.match(/https?:\/\/[^\s<>"]+/i)[0]);
+      return;
+    }
+
+    // resolveGated no longer reads this — gating comes from the backend, which
+    // is the only thing that knows where the file is stored. Still parsed so
+    // the cell is CONSUMED: letting it fall through would let a later heuristic
+    // mistake it for a title or a display style.
+    //
+    // All four spellings, because two eras of authoring wrote this cell. Older
+    // pages carry "gated"/"open"; the backend stamps "true"/"false", matching
+    // the select's option values so the Universal Editor can show the right
+    // label. Missing the true/false pair put the literal word "true" on the
+    // download button — it reached finalizePublishedText as a short plain cell,
+    // which is exactly the shape of a button label. The block-level parser
+    // below and resource-hero.js have always taken all four.
+    if (/^(gated|open|true|false)$/i.test(text)) {
+      item.gatedOverride = text.toLowerCase();
+      return;
+    }
+
+    // Stamped select values are lowercase; case-sensitive so a title like
+    // "Video" is not mistaken for a display style.
+    if (!item.displayStyle && DISPLAY_STYLES.includes(text)) {
+      item.displayStyle = text;
+      return;
+    }
+
+    // A slug and a short lowercase title are indistinguishable here, so
+    // slug-looking cells are kept as CANDIDATES and verified against the
+    // API later; losers flow back into the title/description below.
+    if (text) {
+      freeCells.push({
+        text,
+        html: cell.innerHTML,
+        slugCandidate: isSlugLike(text),
+      });
+    }
+  });
+
+  item.textEntries = freeCells;
+  item.slugCandidates = freeCells.filter((entry) => entry.slugCandidate).map((entry) => entry.text);
+
+  return item;
+}
+
+/**
+ * Once the winning slug is known, distribute the remaining text cells.
+ * Model order is title, description, button label; with omitted fields the
+ * last short plain cell is treated as the button label.
+ */
+function finalizePublishedText(item) {
+  const cells = (item.textEntries || [])
+    .filter((entry) => !(entry.slugCandidate && entry.text === item.resourceSlug));
+  if (!cells.length) return;
+
+  item.title = cells[0].text;
+  const rest = cells.slice(1);
+  if (rest.length) {
+    // A lone remaining cell is a description; the button label is only
+    // split off when there are at least two (description + short label).
+    const last = rest[rest.length - 1];
+    const looksLikeLabel = rest.length >= 2
+      && last.text.length <= 32 && last.text.split(' ').length <= 4
+      && !/<(ul|ol|h[1-3])/i.test(last.html);
+    if (looksLikeLabel) {
+      item.buttonLabel = last.text;
+      rest.pop();
+    }
+    item.description = rest
+      .map((entry) => (entry.html.includes('<') ? entry.html : `<p>${entry.html}</p>`))
+      .join('');
+  }
+}
+
+function readPublishedContent(block) {
+  const rows = getBlockRows(block);
+  const config = {
+    apiBaseUrl: '', slug: '', gated: '', layout: '',
+  };
+  const items = [];
+
+  rows.forEach((row) => {
+    const cells = [...row.children];
+    if (!cells.length) return;
+
+    if (cells.length >= 2) {
+      items.push(parsePublishedItem(row));
+      return;
+    }
+
+    const cell = cells[0];
+    const anchor = cell.querySelector('a');
+    const href = normalizeText(anchor?.getAttribute('href'));
+    const text = normalizeText(cell.textContent);
+
+    if ((href && isFileHref(href)) || cell.querySelector('picture, img')) {
+      items.push(parsePublishedItem(row));
+      return;
+    }
+
+    if (!config.apiBaseUrl && (isUrlLike(href) || isUrlLike(text))) {
+      config.apiBaseUrl = isUrlLike(href) ? href : text.match(/https?:\/\/[^\s<>"]+/i)[0];
+      return;
+    }
+
+    // Consumed but unused, same as the item's gating cell above: kept so an
+    // older page's stamped true/false does not fall through to another rule.
+    if (!config.gated && /^(true|false)$/i.test(text)) {
+      config.gated = text.toLowerCase();
+      return;
+    }
+
+    if (!config.layout && /^grid$/i.test(text)) {
+      config.layout = 'grid';
+      return;
+    }
+
+    if (!config.slug && isSlugLike(text)) {
+      config.slug = text;
+    }
+  });
+
+  config.apiBaseUrl = config.apiBaseUrl || DEFAULT_API_BASE_URL;
+  config.slug = config.slug || slugFromPathname();
+
+  return { config, items, rows };
+}
+
+// ── API access ───────────────────────────────────────────────────────────────
+
+const resourceCache = new Map();
+
+function fetchResource(apiBaseUrl, slug) {
+  if (!apiBaseUrl || !slug) return Promise.resolve(null);
+
+  const key = `${apiBaseUrl}|${slug}`;
+  if (!resourceCache.has(key)) {
+    const endpoint = new URL(`/api/resources/${encodeURIComponent(slug)}`, `${apiBaseUrl.replace(/\/+$/, '')}/`);
+    endpoint.searchParams.set('locale', currentSiteLocale());
+
+    resourceCache.set(key, fetch(endpoint.toString(), { headers: { Accept: 'application/json' } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload) => payload?.data || null)
+      .catch(() => null));
+  }
+
+  return resourceCache.get(key);
+}
+
+const assetCache = new Map();
+
+/**
+ * Resolve a file to its backend resource by DAM path, so a file-only item
+ * (no slug) still gets the public download URL and gated flag. Returns null
+ * when no published resource references that file yet.
+ */
+function fetchResourceByAsset(apiBaseUrl, assetPath) {
+  const rawPath = normalizeText(assetPath).split(/[?#]/)[0];
+  const damMatch = rawPath.match(/\/content\/dam\/[^\s?#]+/);
+  const path = damMatch ? damMatch[0] : rawPath;
+  if (!apiBaseUrl || !path.startsWith('/content/dam/')) return Promise.resolve(null);
+
+  const key = `${apiBaseUrl}|${path}`;
+  if (!assetCache.has(key)) {
+    const endpoint = new URL('/api/resources/lookup', `${apiBaseUrl.replace(/\/+$/, '')}/`);
+    endpoint.searchParams.set('asset_path', path);
+    endpoint.searchParams.set('locale', currentSiteLocale());
+
+    assetCache.set(key, fetch(endpoint.toString(), { headers: { Accept: 'application/json' } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload) => payload?.data || null)
+      .catch(() => null));
+  }
+
+  return assetCache.get(key);
+}
+
+/**
+ * Try each slug-looking cell against the API in DOM order; the first that
+ * resolves is this item's resource. fetchResource caching makes re-lookups
+ * free later in the render pass.
+ */
+function resolveSlugCandidates(item, apiBaseUrl) {
+  return (item.slugCandidates || []).reduce((chain, candidate) => chain.then((found) => {
+    if (found) return found;
+    return fetchResource(apiBaseUrl, candidate)
+      .then((resource) => (resource ? { slug: candidate, resource } : null));
+  }), Promise.resolve(null));
+}
+
+// ── Video modal ──────────────────────────────────────────────────────────────
+
+let videoModal = null;
+
+/**
+ * YouTube/Vimeo id extraction, shared by the embed and the poster so that any
+ * URL we can play is also one we can pull a still from.
+ */
+function parseVideoProvider(url) {
+  const value = String(url || '');
+  const youtube = value.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  if (youtube) return { provider: 'youtube', id: youtube[1] };
+  const vimeo = value.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if (vimeo) return { provider: 'vimeo', id: vimeo[1] };
+  return { provider: '', id: '' };
+}
+
+function buildVideoEmbed(url, title) {
+  const { provider, id } = parseVideoProvider(url);
+  if (provider === 'youtube') {
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+    iframe.title = title || 'Video';
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    return iframe;
+  }
+
+  if (provider === 'vimeo') {
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://player.vimeo.com/video/${id}?autoplay=1`;
+    iframe.title = title || 'Video';
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    return iframe;
+  }
+
+  const videoUrl = resolveDamUrl(url);
+  const video = document.createElement('video');
+  video.controls = true;
+  video.autoplay = true;
+  video.playsInline = true;
+  video.preload = 'metadata';
+  video.setAttribute('title', title || 'Video');
+  const source = document.createElement('source');
+  source.src = videoUrl;
+  source.type = videoMimeType(videoUrl);
+  video.append(source);
+  return video;
+}
+
+function playNativeVideo(root) {
+  const video = root.querySelector('video');
+  if (video?.play) video.play().catch(() => {});
+}
+
+function getVideoModal() {
+  if (videoModal) return videoModal;
+
+  const modal = document.createElement('div');
+  modal.className = 'resource-downloads-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.hidden = true;
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'resource-downloads-modal-backdrop';
+  modal.append(backdrop);
+
+  const dialog = document.createElement('div');
+  dialog.className = 'resource-downloads-modal-dialog';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'resource-downloads-modal-close';
+  closeBtn.setAttribute('aria-label', 'Close video');
+  closeBtn.innerHTML = '&times;';
+  dialog.append(closeBtn);
+
+  const frame = document.createElement('div');
+  frame.className = 'resource-downloads-modal-frame';
+  dialog.append(frame);
+
+  modal.append(dialog);
+  document.body.append(modal);
+
+  function close() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    frame.replaceChildren();
+  }
+
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modal.hidden) close();
+  });
+
+  videoModal = {
+    open(url, title) {
+      modal.setAttribute('aria-label', title || 'Video');
+      frame.replaceChildren(buildVideoEmbed(url, title));
+      playNativeVideo(frame);
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    },
+  };
+
+  return videoModal;
+}
+
+// ── Entry resolution ─────────────────────────────────────────────────────────
+
+function normalizeGatedValue(value) {
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0) return false;
+
+  const normalized = normalizeText(value).toLowerCase();
+  if (['true', 'gated', '1', 'yes'].includes(normalized)) return true;
+  if (['false', 'open', '0', 'no'].includes(normalized)) return false;
+  return null;
+}
+
+function resourceMatchesFile(resource, fileHref) {
+  const file = normalizeText(fileHref).split(/[?#]/)[0];
+  if (!resource || !file) return false;
+
+  const resourceValues = [
+    resource.aem_asset_path,
+    resource.download_url,
+    resource.resource_url,
+  ];
+  const fileValues = Array.isArray(resource.files)
+    ? resource.files.flatMap((item) => [
+      item.aem_asset_path,
+      item.download_url,
+      item.file_url,
+      // Must match resourceFileMatches(), which has always included this. An
+      // S3-backed file has NO urls and no asset path — file_name is its only
+      // handle — so leaving it out here meant this never recognised a gated
+      // file, resolveEntry() gave up on finding the resource, and the item
+      // rendered the bare file name as a relative href with no gate.
+      item.file_name,
+    ])
+    : [];
+
+  return [...resourceValues, ...fileValues].some((value) => {
+    const normalized = normalizeText(value).split(/[?#]/)[0];
+    return normalized && (
+      normalized === file
+      || normalized.endsWith(file)
+      || file.endsWith(normalized)
+    );
+  });
+}
+
+function resourceFileMatches(fileEntry, fileHref) {
+  const file = normalizeText(fileHref).split(/[?#]/)[0];
+  if (!fileEntry || !file) return false;
+
+  return [
+    fileEntry.aem_asset_path,
+    fileEntry.download_url,
+    fileEntry.file_url,
+    // file_name is the ONLY handle an S3-backed file has: its URLs are all null
+    // by design (presigned links are never persisted), so without this an author
+    // could never point an item at one of several gated files. Typing the file
+    // name into "File Path (Manual)" targets it.
+    fileEntry.file_name,
+  ].some((value) => {
+    const normalized = normalizeText(value).split(/[?#]/)[0];
+    return normalized && (
+      normalized === file
+      || normalized.endsWith(file)
+      || file.endsWith(normalized)
+    );
+  });
+}
+
+function primaryResourceFile(resource) {
+  const files = Array.isArray(resource?.files) ? resource.files : [];
+  return files.find((file) => file?.is_primary) || files[0] || null;
+}
+
+function resolveResourceFile(resource, fileHref, fileId = null) {
+  const files = Array.isArray(resource?.files) ? resource.files : [];
+  if (!files.length) return null;
+  if (fileId) return files.find((file) => file?.id === fileId) || null;
+  if (fileHref) return files.find((file) => resourceFileMatches(file, fileHref)) || null;
+  return primaryResourceFile(resource);
+}
+
+/**
+ * Whether this entry needs the registration modal.
+ *
+ * Gating is decided by STORAGE, and only the backend knows where a file lives,
+ * so every source here is a backend one. The authored "Gating Override" fields
+ * used to outrank them and no longer participate at all: an authored value can
+ * be stale — a page stamped "open" before its file moved into S3 would have
+ * un-gated a gated file — and it could never have gated a DAM file anyway,
+ * because AEM serves the DAM publicly. Both block fields are now inert and
+ * kept only so the informative fields keep their cell positions.
+ */
+function resolveGated(itemResource, primaryResource, itemFile = null, requiresSignedUrl = false) {
+  // A signed-URL file is gated in the backend, which refuses to mint the
+  // presigned URL without the registration token. Showing it as open would only
+  // hide the modal and leave the visitor clicking a button that 401s.
+  if (requiresSignedUrl) return true;
+
+  // Most specific first: the exact file, then the resource it belongs to, then
+  // the page's primary resource.
+  const fileGated = normalizeGatedValue(itemFile?.gated);
+  if (fileGated !== null) return fileGated;
+
+  const resourceGated = normalizeGatedValue(itemResource?.gated);
+  if (resourceGated !== null) return resourceGated;
+
+  const primaryGated = normalizeGatedValue(primaryResource?.gated);
+  return primaryGated !== null ? primaryGated : false;
+}
+
+// S3-backed gated files expose no URL in the API; the download-url endpoint
+// mints a presigned one per click (with the gate token when gated).
+function signedUrlEndpointFor(apiBaseUrl, slug, fileId) {
+  if (!slug) return '';
+  const base = (apiBaseUrl || DEFAULT_API_BASE_URL).replace(/\/+$/, '');
+  const endpoint = new URL(`${base}/api/resources/${encodeURIComponent(slug)}/download-url`);
+  if (fileId) endpoint.searchParams.set('file', fileId);
+  return endpoint.toString();
+}
+
+/**
+ * Let a download borrow its RESOURCE's thumbnail — but only when doing so
+ * cannot repeat a picture.
+ *
+ * The blanket fallback was removed because a resource with four downloads
+ * rendered the same image on all four cards, saying nothing about any of them.
+ * Removing it outright went too far the other way: a resource whose asset is
+ * held at resource level has no ResourceFile at all (`files: []`, common for
+ * older DAM-ingested rows), and a resource with a single download has nothing
+ * to repeat against. In both cases the resource thumbnail simply IS that
+ * download's picture, and suppressing it left authors staring at a card with no
+ * image after they had plainly set one.
+ *
+ * So the rule is per-resource, not global: an entry may borrow only when it is
+ * the ONLY entry on the page pointing at that resource. Repetition becomes
+ * impossible by construction rather than by judgement.
+ *
+ * A file's own thumbnail always wins — this only fills genuine blanks.
+ */
+function applyResourceThumbnailFallback(entries) {
+  const countBySlug = new Map();
+
+  entries.forEach((entry) => {
+    const key = entry.resource?.slug;
+    if (key) countBySlug.set(key, (countBySlug.get(key) || 0) + 1);
+  });
+
+  entries.forEach((entry) => {
+    if (entry.imageSrc || entry.imageEl) return;
+
+    const key = entry.resource?.slug;
+    if (!key || countBySlug.get(key) !== 1) return;
+
+    const thumbnail = normalizeText(entry.resource.thumbnail);
+    if (thumbnail) entry.imageSrc = thumbnail;
+  });
+}
+
+function resolveEntry(item, resource, config, primaryResource) {
+  const matchedPrimaryResource = resource
+    || (item.resourceSlug === config.slug ? primaryResource : null)
+    || (resourceMatchesFile(primaryResource, item.fileHref) ? primaryResource : null);
+  const matchedFile = resolveResourceFile(matchedPrimaryResource, item.fileHref, item.fileId);
+  // Only ever an href we can actually navigate to. A DAM path or a real URL
+  // qualifies; a bare "guide.pdf" from File Path (Manual) does NOT — that names
+  // a file, and emitting it verbatim produced a relative link resolving against
+  // the current page, which 404s.
+  const authoredHref = isUrlLike(item.fileHref) || item.fileHref.includes('/content/dam/')
+    ? resolveDamUrl(item.fileHref)
+    : '';
+
+  // Once a specific file is matched it answers for itself. Null URLs on it are
+  // MEANINGFUL — a gated S3 file is masked on purpose and its link comes from
+  // the download-url endpoint — so falling back to the resource here would hand
+  // out a different file on a resource holding both an open and a gated
+  // download, unguarded.
+  const downloadUrl = matchedFile
+    ? (matchedFile.download_url || matchedFile.file_url || '')
+    : (matchedPrimaryResource?.download_url
+      || matchedPrimaryResource?.resource_url
+      || authoredHref
+      || '');
+  // A PREVIEW source is a video that is NOT the gated file itself — an authored
+  // YouTube/Vimeo/MP4 URL, or the resource's video_url. Its presence is what
+  // lets a gated resource be watched for free: the form guards the FILE, not
+  // the content, and a preview stream hands out neither.
+  const previewUrl = resolveDamUrl(item.videoUrl || matchedPrimaryResource?.video_url || '');
+  // Falling back to the download itself keeps plain DAM videos playable. That
+  // file IS the gated one when gated, so it never counts as a preview source.
+  const videoUrl = previewUrl
+    || resolveDamUrl(VIDEO_EXTENSIONS.includes(fileExtensionFrom(downloadUrl)) ? downloadUrl : '');
+  const extension = fileExtensionFrom(downloadUrl)
+    || fileExtensionFrom(matchedFile?.file_name || '')
+    || fileExtensionFrom(matchedPrimaryResource?.aem_asset_name || '');
+
+  // The resource type (drives color/icon theming) is resolved independently of
+  // the layout style. Video links always get the player; every other type gets
+  // its dedicated color-coded card unless the author picked row/grouped.
+  const resourceTypeLower = normalizeText(matchedPrimaryResource?.resource_type_label)
+    .toLowerCase();
+  let autoType = videoUrl ? 'video' : (EXTENSION_TYPE[extension] || '');
+  if (!autoType) {
+    if (resourceTypeLower.includes('video')) autoType = 'video';
+    else if (/presentation|powerpoint/.test(resourceTypeLower)) autoType = 'powerpoint';
+    else if (resourceTypeLower.includes('pdf')) autoType = 'pdf';
+    else if (/spreadsheet|excel/.test(resourceTypeLower)) autoType = 'spreadsheet';
+    else if (/bundle|zip/.test(resourceTypeLower)) autoType = 'bundle';
+    else autoType = 'file';
+  }
+  let typeKey = autoType;
+  let style;
+  if (TYPE_STYLE_KEYS.includes(item.displayStyle)) {
+    typeKey = item.displayStyle;
+    style = typeKey === 'video' ? 'video' : 'type';
+  } else if ([...INFORMATIVE_STYLES, ...CARD_STYLES, 'row', 'grouped'].includes(item.displayStyle)) {
+    style = item.displayStyle;
+  } else {
+    style = autoType === 'video' ? 'video' : 'type';
+  }
+
+  const requiresSignedUrl = Boolean(
+    matchedFile ? matchedFile.requires_signed_url : matchedPrimaryResource?.requires_signed_url,
+  );
+  const slug = item.resourceSlug || matchedPrimaryResource?.slug || '';
+
+  // Whether this item is about the resource the PAGE is about. Compared by slug
+  // rather than object identity: a per-item slug lookup can return a different
+  // object for the very same resource.
+  const pageSlug = normalizeText(primaryResource?.slug || config.slug).toLowerCase();
+  const matchedSlug = normalizeText(matchedPrimaryResource?.slug).toLowerCase();
+  const describesThisPage = Boolean(matchedSlug) && matchedSlug === pageSlug;
+
+  return {
+    item,
+    resource: matchedPrimaryResource,
+    style,
+    typeKey,
+    theme: typeTheme(typeKey),
+    downloadUrl,
+    videoUrl,
+    hasPreviewSource: Boolean(previewUrl),
+    requiresSignedUrl,
+    signedUrlEndpoint: requiresSignedUrl
+      ? signedUrlEndpointFor(config.apiBaseUrl, slug, matchedFile?.id)
+      : '',
+    videoPlayable: Boolean(videoUrl) || (requiresSignedUrl && typeKey === 'video'),
+    extension: extension || (videoUrl ? 'video' : 'file'),
+    gated: resolveGated(
+      matchedPrimaryResource,
+      primaryResource,
+      matchedFile,
+      requiresSignedUrl,
+    ),
+    title: item.title || matchedFile?.title || matchedPrimaryResource?.title
+      || titleFromFileName(downloadUrl) || 'Download',
+    description: item.description || matchedFile?.description || '',
+    // The resource excerpt, but ONLY when this item points at some OTHER
+    // resource.
+    //
+    // `excerpt` is sourced from the resource-hero's own description field
+    // (ResourceAemSyncService reads resourceHeroBlock['jcr:description'] first),
+    // so on the resource's own landing page the hero is already showing this
+    // exact copy — and with several downloads it was showing it again on every
+    // card. Same category error as the image fallback two properties up: the
+    // excerpt describes the RESOURCE, not this file.
+    //
+    // Kept for the cross-page case, where a downloads block on a hub page names
+    // another resource by slug and its excerpt is the only description there is.
+    fallbackDescription: describesThisPage ? '' : normalizeText(matchedPrimaryResource?.excerpt),
+    // An image authored ON THIS ITEM, else THIS FILE's own thumbnail from the
+    // API. Still never the resource's thumbnail: that is the LIBRARY card's
+    // image, and falling back to it meant every download on a resource rendered
+    // the same picture — one video still repeated down a stack of PDF cards,
+    // saying nothing about any of them.
+    //
+    // matchedFile.thumbnail is per-download by construction (resource_files
+    // .thumbnail), so a stack of PDFs now shows a stack of different covers. A
+    // download with no picture anywhere still gets the type's decorative art
+    // (see buildDefaultArt below), which at least encodes the file type.
+    imageSrc: item.imageSrc || matchedFile?.thumbnail || '',
+    imageEl: item.imageEl,
+    slug,
+    fileName: fileNameFrom(downloadUrl)
+      || matchedFile?.file_name
+      || matchedPrimaryResource?.aem_asset_name
+      || '',
+  };
+}
+
+// ── Rendering ────────────────────────────────────────────────────────────────
+
+function defaultButtonLabel(entry) {
+  // A gated video has no downloadUrl — it stays masked until presigned — but
+  // its button is still the download beside Watch, not a second Watch.
+  if (entry.style === 'video' && !entry.downloadUrl && !entry.requiresSignedUrl) {
+    return 'Watch Video';
+  }
+  // The card styles play from the picture, so their button stands alone.
+  if (entry.typeKey === 'video' && CARD_STYLES.includes(entry.style)) return 'Download Video';
+  // On a video, the download button (if any) sits next to a Watch button.
+  if (entry.typeKey === 'video') return 'Download';
+  return entry.theme?.title || 'Download';
+}
+
+/**
+ * Swap the generic brand-mark poster for the video host's own still when the
+ * item points at YouTube or Vimeo and the author attached no image of their own.
+ * A plain mp4 has no thumbnail to ask for, so it keeps the existing default.
+ *
+ * The default poster stays in the DOM as the fallback: the image is only shown
+ * once it has actually loaded, so a missing still or a blocked request leaves
+ * the card exactly as it is today rather than showing a broken frame.
+ */
+function applyProviderPoster(poster, entry) {
+  const { provider, id } = parseVideoProvider(entry.videoUrl);
+  if (!provider) return;
+
+  const image = poster.querySelector('img');
+  if (!image) return;
+
+  const show = (src) => {
+    image.src = src;
+    poster.classList.add('has-provider-poster');
+  };
+
+  if (provider === 'youtube') {
+    // maxresdefault does not exist for every upload; hqdefault always does.
+    const max = `https://i.ytimg.com/vi/${encodeURIComponent(id)}/maxresdefault.jpg`;
+    const hq = `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`;
+    const probe = new Image();
+    probe.addEventListener('load', () => {
+      // YouTube serves a 120x90 grey placeholder instead of a 404 when a
+      // resolution is missing, so check the decoded size rather than the status.
+      show(probe.naturalWidth > 200 ? max : hq);
+    }, { once: true });
+    probe.addEventListener('error', () => show(hq), { once: true });
+    probe.src = max;
+    return;
+  }
+
+  fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${id}`)}`)
+    .then((response) => (response.ok ? response.json() : null))
+    .then((data) => {
+      if (data && data.thumbnail_url) show(data.thumbnail_url);
+    })
+    .catch(() => {});
+}
+
+function buildDefaultVideoPoster(title = 'NCMEC video') {
+  const poster = document.createElement('div');
+  poster.className = 'resource-downloads-default-video-poster';
+
+  const image = document.createElement('img');
+  image.src = codeAssetPath(DEFAULT_VIDEO_POSTER_PATH);
+  image.alt = title;
+  image.loading = 'lazy';
+  poster.append(image);
+
+  return poster;
+}
+
+// createRemoteSafePicture, not createOptimizedPicture: backend thumbnails live
+// on the AEM publish tier, and the optimizer drops the origin — so an image that
+// resolves perfectly well was being requested from the EDS host and 404ing.
+function buildImage(entry, width = 400) {
+  if (entry.imageEl?.tagName === 'PICTURE') {
+    const img = entry.imageEl.querySelector('img');
+    if (img?.src && !isVideoFile(img.src) && !isFileHref(img.src)) {
+      const optimized = createRemoteSafePicture(img.src, entry.title, false, [{ width: `${width}` }]);
+      if (optimized) {
+        moveInstrumentation(img, optimized.querySelector('img'));
+        return optimized;
+      }
+    }
+  }
+
+  if (entry.imageSrc && !isVideoFile(entry.imageSrc) && !isFileHref(entry.imageSrc)) {
+    return createRemoteSafePicture(entry.imageSrc, entry.title, false, [{ width: `${width}` }]);
+  }
+
+  return null;
+}
+
+/**
+ * A thumbnail presented as a DOCUMENT rather than as a photograph.
+ *
+ * Backend thumbnails are first-page covers — an AEM rendition of a PDF, the
+ * preview PowerPoint embeds in its own file — so a bare <img> reads as "some
+ * picture" and throws away the two things the card used to say clearly: that
+ * this is a multi-page document, and what type it is.
+ *
+ * So the cover sits on a sheet (CSS gives it stacked paper edges) and keeps a
+ * corner chip carrying the type abbreviation. That is the whole trick: the old
+ * site's thumbnails are recognisable but say nothing about format, and the
+ * current type art says the format but nothing about content. This says both.
+ *
+ * Returns null when there is no image, so every caller keeps its existing
+ * fallback — the decorative type art, or a plain icon on a compact row.
+ */
+function buildPreview(entry, width = 400) {
+  const image = buildImage(entry, width);
+  if (!image) return null;
+
+  const preview = document.createElement('div');
+  preview.className = 'resource-downloads-preview';
+  preview.dataset.type = entry.typeKey;
+
+  const sheet = document.createElement('div');
+  sheet.className = 'resource-downloads-preview-sheet';
+  sheet.append(image);
+  preview.append(sheet);
+
+  // A video still is not a document: no paper edges, and the play affordance
+  // its own card already draws is a better signal than a format chip.
+  if (entry.typeKey !== 'video' && entry.theme?.abbr) {
+    const badge = document.createElement('span');
+    badge.className = 'resource-downloads-preview-badge';
+    badge.textContent = entry.theme.abbr;
+    // Decorative: the format is already announced in the card's text, so a
+    // screen reader repeating it here would only add noise.
+    badge.setAttribute('aria-hidden', 'true');
+    preview.append(badge);
+  }
+
+  return preview;
+}
+
+function buildDownloadButton(entry, withWatch = false) {
+  const link = document.createElement('a');
+  link.className = 'resource-downloads-item-button';
+  // The shape comes from the button standard and the colour from the card's file type
+  // (see the Buttons section of the block CSS); beside a Watch button the download is the
+  // outline (Secondary) form.
+  applyButtonStyle(link, withWatch ? 'secondary' : 'primary');
+  // "Button Label" is documented as the override for the item's single action
+  // ("Download PDF, Download PowerPoint, Watch Video..."), so on a video item it
+  // names the Watch button. When both render, Watch keeps the authored label and
+  // the download falls back to its type default rather than echoing it.
+  const label = (!withWatch && entry.item.buttonLabel) || defaultButtonLabel(entry);
+  link.textContent = label;
+
+  // S3-backed files: no real href (nothing to leak in the DOM); the gate
+  // requests a presigned URL from the API on each click.
+  if (entry.requiresSignedUrl) {
+    link.href = '#';
+    bindGatedLink(link, {
+      gated: entry.gated,
+      resourceSlug: entry.slug,
+      fileName: entry.fileName,
+      lockedLabel: LOCKED_LABEL,
+      downloadLabel: label,
+      signedUrlEndpoint: entry.signedUrlEndpoint,
+    });
+    return link;
+  }
+
+  link.href = isUrlLike(entry.downloadUrl)
+    ? entry.downloadUrl
+    : resolveSiteHref(entry.downloadUrl);
+  if (entry.downloadUrl.includes('/content/dam/')) {
+    link.setAttribute('download', '');
+  } else {
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+
+  bindGatedLink(link, {
+    gated: entry.gated,
+    resourceSlug: entry.slug,
+    fileUrl: entry.downloadUrl,
+    fileName: entry.fileName,
+    lockedLabel: LOCKED_LABEL,
+    downloadLabel: label,
+  });
+
+  return link;
+}
+
+function buildWatchButton(entry) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'resource-downloads-item-button resource-downloads-watch-button';
+  applyButtonStyle(button, 'primary');
+  button.textContent = entry.item.buttonLabel || 'Watch Video';
+
+  const play = () => {
+    trackEvent('resource_video_watch', {
+      resource_slug: entry.slug,
+      file_name: entry.fileName || fileNameFrom(entry.videoUrl),
+    });
+    if (entry.videoUrl) {
+      getVideoModal().open(entry.videoUrl, entry.title);
+      return;
+    }
+    // S3-hosted video: mint a presigned URL (token already validated by the
+    // registration check below) and hand it to the modal player.
+    fetchSignedUrl(entry.signedUrlEndpoint).then((url) => {
+      if (url) getVideoModal().open(url, entry.title);
+    });
+  };
+
+  button.addEventListener('click', () => {
+    // Watching is free whenever a separate preview source exists: gating covers
+    // possession of the file, not the content. Without one, the only thing
+    // Watch can play is the gated object itself, and presigning that for an
+    // unregistered visitor would hand out the download in all but name.
+    if (!entry.gated || entry.hasPreviewSource || isRegistered()) {
+      play();
+      return;
+    }
+    openRegistrationModal({ resourceSlug: entry.slug }).then((registration) => {
+      if (registration) play();
+    });
+  });
+
+  return button;
+}
+
+function buildDescription(entry) {
+  const html = entry.description;
+  const text = html || entry.fallbackDescription;
+  if (!text) return null;
+
+  const description = document.createElement('div');
+  description.className = 'resource-downloads-item-description';
+  if (html) {
+    description.innerHTML = html;
+  } else {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    description.append(paragraph);
+  }
+  return description;
+}
+
+function buildEmptyNotice(entry) {
+  const notice = document.createElement('p');
+  notice.className = 'resource-downloads-item-notice';
+  if (entry.resource && !entry.downloadUrl) {
+    notice.textContent = `The resource "${entry.item.resourceSlug}" has no file yet — pick or upload one in a Download Item's File field, or set its Download URL in Filament.`;
+  } else if (entry.item.resourceSlug) {
+    notice.textContent = `Couldn't load resource "${entry.item.resourceSlug}" in the editor — check the slug is a published resource. The live page fetches it directly.`;
+  } else {
+    notice.textContent = 'Pick or upload a File (it becomes a tracked resource automatically), or set a Resource Slug or Video URL.';
+  }
+  return notice;
+}
+
+function buildTitleEl(entry, tag = 'h3') {
+  const title = document.createElement(tag);
+  title.className = 'resource-downloads-item-title';
+  title.textContent = entry.title;
+  return title;
+}
+
+// Color-coded type tile (PDF/DOC/PPT/ZIP/XLS/FILE) — accent comes from
+// --rd-accent set on the card, so one element themes every type.
+function buildTypeTile(theme) {
+  const tile = document.createElement('span');
+  tile.className = 'resource-downloads-type-tile';
+  tile.textContent = theme.abbr;
+  return tile;
+}
+
+function buildTypeIcon(entry) {
+  const icon = buildTypeTile(entry.theme);
+  icon.classList.add('resource-downloads-item-icon');
+  icon.dataset.type = entry.typeKey;
+  return icon;
+}
+
+function informativeFormatValue(entry) {
+  const override = normalizeText(entry.item.informativeFormatText);
+  if (override) return override;
+
+  const resourceType = normalizeText(entry.resource?.resource_type_label);
+  const { typeKey, theme } = entry;
+  if (!resourceType) return theme.format;
+
+  if (typeKey === 'pdf' && !/pdf/i.test(resourceType)) return `${resourceType} (PDF)`;
+  if (typeKey === 'video' && !/video/i.test(resourceType)) return `${resourceType} (Video)`;
+  if (typeKey === 'powerpoint' && !/(presentation|powerpoint)/i.test(resourceType)) {
+    return `${resourceType} (PowerPoint)`;
+  }
+  if (typeKey === 'word' && !/(word|doc)/i.test(resourceType)) return `${resourceType} (Word)`;
+
+  return resourceType;
+}
+
+function labelListText(value) {
+  if (Array.isArray(value)) return value.map((item) => normalizeText(item)).filter(Boolean).join(', ');
+  return normalizeText(value);
+}
+
+function usesInformativeWatchAction(entry) {
+  return INFORMATIVE_STYLES.includes(entry.style) && entry.typeKey === 'video';
+}
+
+// The card styles put a play button on the picture, so a Watch button only
+// appears when there is no file to download — a YouTube-only item would
+// otherwise be left with no action at all.
+function usesCardWatchAction(entry) {
+  return CARD_STYLES.includes(entry.style) && entry.typeKey === 'video'
+    && !entry.downloadUrl && !entry.requiresSignedUrl;
+}
+
+function buildActions(entry, isEditor) {
+  const actions = document.createElement('div');
+  actions.className = 'resource-downloads-item-actions';
+  const useWatchAction = entry.videoPlayable
+    && (entry.style === 'video' || usesInformativeWatchAction(entry) || usesCardWatchAction(entry));
+
+  // A signed-URL video whose Watch action IS the presigned file would only
+  // duplicate itself with a download button. Once the preview comes from a
+  // separate source, the gated download is a genuinely different action —
+  // watch it here, or fill the form and keep the file — so both must render.
+  // Informative cards use the same Watch action, so they get the same pair;
+  // they used to be watch-only, which left their file unreachable.
+  const showDownload = Boolean(entry.downloadUrl
+    || (entry.requiresSignedUrl && (!useWatchAction || entry.hasPreviewSource)));
+
+  if (useWatchAction) actions.append(buildWatchButton(entry));
+  if (showDownload) actions.append(buildDownloadButton(entry, useWatchAction));
+  if (!actions.children.length && isEditor) actions.append(buildEmptyNotice(entry));
+
+  return actions.children.length ? actions : null;
+}
+
+function buildRowEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-row';
+
+  // A stack of compact rows is the hardest layout to scan, and a real cover
+  // distinguishes them far better than the same type glyph repeated down the
+  // page. Falls back to that glyph whenever there is no thumbnail, so a row
+  // never loses its leading element.
+  const preview = buildPreview(entry, 160);
+  if (preview) {
+    preview.classList.add('is-row-preview');
+    card.append(preview);
+  } else {
+    card.append(buildTypeIcon(entry));
+  }
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+  card.append(body);
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) card.append(actions);
+
+  return card;
+}
+
+// Decorative line-art per file type, filling the right side of a type card
+// when no thumbnail is authored. Strokes inherit currentColor, so the card's
+// --rd-accent tints every type from a single set of CSS rules.
+const TYPE_ART = {
+  pdf: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M38 12h34l18 18v62H38z" opacity=".3"/><path d="M30 24h34l18 18v66H30z" fill="#fff"/><path d="M64 24v18h18"/><path d="M42 62h28M42 74h28M42 86h16"/></svg>',
+  word: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M38 12h34l18 18v62H38z" opacity=".3"/><path d="M30 24h34l18 18v66H30z" fill="#fff"/><path d="M64 24v18h18"/><path d="M42 58h40M42 70h40M42 82h40M42 94h22"/></svg>',
+  powerpoint: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="22" width="80" height="56" rx="6" fill="#fff"/><path d="M34 64V50M50 64V40M66 64V56M82 64V34"/><path d="M60 78v16M44 102l16-8 16 8"/></svg>',
+  spreadsheet: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="22" width="76" height="76" rx="6" fill="#fff"/><path d="M22 44h76M22 62h76M22 80h76M47 44v54M72 44v54"/></svg>',
+  bundle: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 42 60 22l36 20v38l-36 20-36-20z" fill="#fff"/><path d="M24 42l36 18 36-18M60 60v40"/><path d="M42 32l36 18" opacity=".4"/></svg>',
+  file: '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 16h36l20 20v68H32z" fill="#fff"/><path d="M68 16v20h20"/><path d="M44 58h32M44 70h32M44 82h20"/></svg>',
+};
+
+function buildTypeArt(entry) {
+  const art = document.createElement('div');
+  art.className = 'resource-downloads-type-art';
+  art.setAttribute('aria-hidden', 'true');
+
+  const watermark = document.createElement('span');
+  watermark.className = 'resource-downloads-type-art-watermark';
+  watermark.textContent = entry.theme.abbr;
+
+  const glyph = document.createElement('span');
+  glyph.className = 'resource-downloads-type-art-glyph';
+  glyph.innerHTML = TYPE_ART[entry.typeKey] || TYPE_ART.file;
+
+  art.append(watermark, glyph);
+  return art;
+}
+
+// Dedicated, color-coded card for every non-video file type (PDF, Word,
+// PowerPoint, ZIP, spreadsheet, generic file). One builder themed by --rd-accent.
+function buildTypeCard(entry, isEditor) {
+  const { theme } = entry;
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-type';
+  card.dataset.type = entry.typeKey;
+
+  const image = buildPreview(entry);
+  if (image) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media';
+    media.append(image);
+    card.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+
+  const head = document.createElement('div');
+  head.className = 'resource-downloads-type-head';
+  head.append(buildTypeIcon(entry));
+
+  const heading = document.createElement('div');
+  heading.className = 'resource-downloads-type-heading';
+  heading.append(buildTitleEl(entry));
+  const format = document.createElement('span');
+  format.className = 'resource-downloads-type-format';
+  format.textContent = theme.badgeLabel;
+  heading.append(format);
+  head.append(heading);
+  body.append(head);
+
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  // The decorative art now renders ALONGSIDE a cover rather than only standing
+  // in for a missing one. It was the card's personality — the floating glyph and
+  // the big type watermark — and adding thumbnails quietly deleted it from every
+  // card that had one. Cover on the left, art on the right, text between.
+  //
+  // The class lets the art give up width when it is sharing the card, so the
+  // body does not get squeezed between two panels.
+  if (image) card.classList.add('has-preview');
+  card.append(buildTypeArt(entry));
+
+  return card;
+}
+
+function buildVideoEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-video';
+
+  const media = document.createElement('div');
+  media.className = 'resource-downloads-item-media';
+  const image = buildImage(entry, 800);
+  if (image) {
+    media.append(image);
+  } else {
+    const poster = buildDefaultVideoPoster(entry.title);
+    media.append(poster);
+    applyProviderPoster(poster, entry);
+  }
+
+  const chip = document.createElement('span');
+  chip.className = 'resource-downloads-video-chip';
+  chip.textContent = entry.theme.badgeLabel;
+  media.append(chip);
+
+  if (entry.videoPlayable) {
+    const playButton = document.createElement('button');
+    playButton.type = 'button';
+    playButton.className = 'resource-downloads-play';
+    playButton.setAttribute('aria-label', `Play ${entry.title}`);
+    playButton.addEventListener('click', () => {
+      const watch = buildWatchButton(entry);
+      watch.click();
+    });
+    media.append(playButton);
+  }
+
+  card.append(media);
+
+  // Footer action bar: title + description on the left, buttons on the right.
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  const text = document.createElement('div');
+  text.className = 'resource-downloads-video-text';
+  text.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) text.append(description);
+  body.append(text);
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+function buildGroupEntry(entries, isEditor) {
+  const lead = entries[0];
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-group';
+
+  const image = buildPreview(lead);
+  if (image) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media';
+    media.append(image);
+    card.append(media);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(lead));
+  const description = buildDescription(lead);
+  if (description) body.append(description);
+
+  const actions = document.createElement('div');
+  actions.className = 'resource-downloads-item-actions is-stacked';
+
+  entries.forEach((entry, index) => {
+    let button = null;
+    if (entry.videoUrl) {
+      button = buildWatchButton(entry);
+    } else if (entry.downloadUrl) {
+      button = buildDownloadButton(entry);
+      if (!entry.item.buttonLabel && entry.title && index > 0) {
+        button.textContent = entry.title;
+      }
+    } else if (isEditor) {
+      actions.append(buildEmptyNotice(entry));
+    }
+
+    if (button) {
+      if (index > 0 && entry.item.row && isEditor) {
+        moveInstrumentation(entry.item.row, button);
+        setItemLabel(button, [entry.item.buttonLabel, entry.title]);
+      }
+      actions.append(button);
+    }
+  });
+
+  if (actions.children.length) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+const META_ICONS = {
+  audience: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 19v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  time: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg>',
+  format: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18"/><path d="M4 4v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4"/><path d="M12 15v5"/><path d="M9 20h6"/></svg>',
+};
+
+// The card styles draw the Format icon as the format itself, so a video row
+// shows a camera and a presentation a screen. Anything else is a document.
+const FORMAT_ICONS = {
+  document: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>',
+  powerpoint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg>',
+};
+
+function buildMetaRow(iconKey, label, value, iconSvg = '') {
+  const row = document.createElement('div');
+  row.className = 'resource-downloads-meta-row';
+  row.dataset.meta = iconKey;
+
+  const icon = document.createElement('span');
+  icon.className = 'resource-downloads-meta-icon';
+  icon.innerHTML = iconSvg || META_ICONS[iconKey];
+  row.append(icon);
+
+  const text = document.createElement('div');
+  text.className = 'resource-downloads-meta-text';
+  const labelEl = document.createElement('span');
+  labelEl.className = 'resource-downloads-meta-label';
+  labelEl.textContent = label;
+  const valueEl = document.createElement('span');
+  valueEl.className = 'resource-downloads-meta-value';
+  valueEl.textContent = value;
+  text.append(labelEl, valueEl);
+  row.append(text);
+
+  return row;
+}
+
+function buildInformativeTypeBadge(theme) {
+  const badge = document.createElement('div');
+  badge.className = 'resource-downloads-informative-type';
+
+  const icon = document.createElement('span');
+  icon.className = 'resource-downloads-informative-type-icon';
+  icon.textContent = theme.abbr;
+
+  const label = document.createElement('span');
+  label.className = 'resource-downloads-informative-type-label';
+  label.textContent = theme.badgeLabel;
+
+  badge.append(icon, label);
+  return badge;
+}
+
+function informativeMetaValues(entry) {
+  const { resource } = entry;
+  return {
+    audience: normalizeText(entry.item.informativeAudienceText)
+      || labelListText(resource?.audience_labels),
+    time: normalizeText(entry.item.informativeTimeText)
+      || normalizeText(resource?.duration_label),
+    format: informativeFormatValue(entry),
+  };
+}
+
+function informativeMetaRows(entry) {
+  const { audience, time, format } = informativeMetaValues(entry);
+
+  return [
+    audience ? buildMetaRow(
+      'audience',
+      normalizeText(entry.item.informativeAudienceLabel) || 'Primary Audience',
+      audience,
+    ) : null,
+    time ? buildMetaRow('time', normalizeText(entry.item.informativeTimeLabel) || 'Time', time) : null,
+    format ? buildMetaRow(
+      'format',
+      normalizeText(entry.item.informativeFormatLabel) || 'Format',
+      format,
+    ) : null,
+  ].filter(Boolean);
+}
+
+function buildInformativeEntry(entry, isEditor) {
+  const { theme } = entry;
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-informative';
+
+  const panel = document.createElement('div');
+  panel.className = 'resource-downloads-informative-card';
+  panel.dataset.resourceType = entry.typeKey;
+  panel.append(buildInformativeTypeBadge(theme));
+
+  // Between the type badge and the title: the badge already names the format,
+  // so the cover's job here is to identify this particular download.
+  const preview = buildPreview(entry, 600);
+  if (preview) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media is-informative-media';
+    media.append(preview);
+    panel.append(media);
+  }
+
+  const title = document.createElement('h3');
+  title.className = 'resource-downloads-item-title';
+  title.textContent = entry.item.title || theme.title;
+  panel.append(title);
+
+  const description = buildDescription(entry);
+  if (description) {
+    const containsLabel = document.createElement('p');
+    containsLabel.className = 'resource-downloads-contains-label';
+    containsLabel.textContent = theme.contains;
+    panel.append(containsLabel);
+    description.classList.add('resource-downloads-item-contents');
+    panel.append(description);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) panel.append(actions);
+  card.append(panel);
+
+  const metaRows = informativeMetaRows(entry);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel';
+    meta.append(...metaRows);
+    card.append(meta);
+  }
+
+  return card;
+}
+
+// Informative data in a single-column card: type head, contents, meta rows
+// inline, actions. Works standalone and as a tile in the Grid layout.
+function buildInformativeStackedEntry(entry, isEditor) {
+  const { theme } = entry;
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-informative-stacked';
+  card.dataset.type = entry.typeKey;
+
+  // Informative cards lead with audience/time/format metadata, so the cover
+  // goes ABOVE that block rather than beside it — the picture identifies the
+  // download, the meta rows qualify it. No thumbnail leaves the card exactly as
+  // it was.
+  const preview = buildPreview(entry, 600);
+  if (preview) {
+    const media = document.createElement('div');
+    media.className = 'resource-downloads-item-media is-informative-media';
+    media.append(preview);
+    card.append(media);
+  }
+
+  const head = document.createElement('div');
+  head.className = 'resource-downloads-type-head';
+  head.append(buildTypeIcon(entry));
+  const heading = document.createElement('div');
+  heading.className = 'resource-downloads-type-heading';
+  const title = buildTitleEl(entry);
+  title.textContent = entry.item.title || entry.title || theme.title;
+  heading.append(title);
+  const format = document.createElement('span');
+  format.className = 'resource-downloads-type-format';
+  format.textContent = theme.badgeLabel;
+  heading.append(format);
+  head.append(heading);
+  card.append(head);
+
+  const description = buildDescription(entry);
+  if (description) {
+    const containsLabel = document.createElement('p');
+    containsLabel.className = 'resource-downloads-contains-label';
+    containsLabel.textContent = theme.contains;
+    card.append(containsLabel);
+    description.classList.add('resource-downloads-item-contents');
+    card.append(description);
+  }
+
+  const metaRows = informativeMetaRows(entry);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel is-inline';
+    meta.append(...metaRows);
+    card.append(meta);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) card.append(actions);
+
+  return card;
+}
+
+// Informative data as a full-width horizontal band: badge pill, title +
+// description, compact meta chips, and the action on the far right.
+function buildInformativeBannerEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-informative-banner';
+  card.dataset.type = entry.typeKey;
+  card.append(buildInformativeTypeBadge(entry.theme));
+
+  // The banner is a horizontal strip, so the cover leads it at row height
+  // rather than sitting full-width above — hence the row sizing.
+  const preview = buildPreview(entry, 240);
+  if (preview) {
+    preview.classList.add('is-banner-preview');
+    card.append(preview);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+  card.append(body);
+
+  const metaRows = informativeMetaRows(entry);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel is-chips';
+    meta.append(...metaRows);
+    card.append(meta);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) card.append(actions);
+
+  return card;
+}
+
+// ── Card styles: Horizontal + Tile ──────────────────────────────────────────
+
+// The picture panel both card styles lead with. A video gets the play button
+// on it (the same click path as the Watch button, gating included). A download
+// with no picture gets the same animated, colour-coded type art the type cards
+// use (accent wash, dotted texture, floating glyph, type watermark), so it
+// reads as a deliberate PDF/PPT/... panel rather than a missing image.
+function buildCardMedia(entry, width) {
+  const media = document.createElement('div');
+  media.className = 'resource-downloads-card-media';
+  media.dataset.type = entry.typeKey;
+
+  const image = buildImage(entry, width);
+  if (image) {
+    media.append(image);
+  } else if (entry.typeKey === 'video') {
+    const poster = buildDefaultVideoPoster(entry.title);
+    media.append(poster);
+    applyProviderPoster(poster, entry);
+  } else {
+    media.classList.add('is-placeholder');
+    media.append(buildTypeArt(entry));
+  }
+
+  if (entry.videoPlayable) {
+    const playButton = document.createElement('button');
+    playButton.type = 'button';
+    playButton.className = 'resource-downloads-play';
+    playButton.setAttribute('aria-label', `Play ${entry.title}`);
+    playButton.addEventListener('click', () => buildWatchButton(entry).click());
+    media.append(playButton);
+  }
+
+  return media;
+}
+
+function capitalizeWords(value) {
+  return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+// Image left, details right: title, description, Audience / Format / Time
+// across one row, then the button. Spans the full row in a grid.
+function buildHorizontalEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-horizontal';
+  card.dataset.type = entry.typeKey;
+  card.append(buildCardMedia(entry, 600));
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+
+  const { audience, time, format } = informativeMetaValues(entry);
+  const formatIcon = FORMAT_ICONS[entry.typeKey] || FORMAT_ICONS.document;
+  const metaRows = [
+    audience ? buildMetaRow(
+      'audience',
+      normalizeText(entry.item.informativeAudienceLabel) || 'Primary Audience',
+      audience,
+    ) : null,
+    format ? buildMetaRow(
+      'format',
+      normalizeText(entry.item.informativeFormatLabel) || 'Format',
+      format,
+      formatIcon,
+    ) : null,
+    time ? buildMetaRow(
+      'time',
+      normalizeText(entry.item.informativeTimeLabel) || 'Time',
+      capitalizeWords(time),
+    ) : null,
+  ].filter(Boolean);
+  if (metaRows.length) {
+    const meta = document.createElement('div');
+    meta.className = 'resource-downloads-meta-panel is-card-meta';
+    meta.append(...metaRows);
+    body.append(meta);
+  }
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+const TILE_TYPE_ICONS = {
+  document: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path fill="#fff" d="M8 11h8v1.6H8zm0 3.4h8V16H8zm0 3.4h5v1.6H8z"/></svg>',
+  video: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" fill="currentColor"/><path fill="#fff" d="m10 8.5 5.5 3.5-5.5 3.5z"/></svg>',
+};
+
+// "30 minutes" → "30M", "1 hour" → "1H"; anything else is shown as written.
+function compactDuration(value) {
+  const match = value.match(/^(\d+)\s*(m|min|mins|minutes?|h|hrs?|hours?)$/i);
+  if (!match) return value;
+  return `${match[1]}${match[2][0].toUpperCase()}`;
+}
+
+// Image on top, then file type + length, title, description and a small
+// button on a warm panel. Made for rows of tiles; see `has-tiles` in decorate,
+// which also turns a block's FIRST tile into a Horizontal card.
+function buildTileEntry(entry, isEditor) {
+  const card = document.createElement('article');
+  card.className = 'resource-downloads-item is-tile';
+  card.dataset.type = entry.typeKey;
+  card.append(buildCardMedia(entry, 400));
+
+  const body = document.createElement('div');
+  body.className = 'resource-downloads-item-body';
+
+  const meta = document.createElement('div');
+  meta.className = 'resource-downloads-tile-meta';
+
+  const type = document.createElement('span');
+  type.className = 'resource-downloads-tile-type';
+  const typeIcon = document.createElement('span');
+  typeIcon.className = 'resource-downloads-tile-type-icon';
+  typeIcon.innerHTML = entry.typeKey === 'video' ? TILE_TYPE_ICONS.video : TILE_TYPE_ICONS.document;
+  const typeLabel = document.createElement('span');
+  typeLabel.textContent = entry.typeKey === 'video' ? 'Video' : entry.theme.abbr;
+  type.append(typeIcon, typeLabel);
+  meta.append(type);
+
+  const { time } = informativeMetaValues(entry);
+  if (time) {
+    const length = document.createElement('span');
+    length.className = 'resource-downloads-tile-time';
+    const clock = document.createElement('span');
+    clock.className = 'resource-downloads-tile-time-icon';
+    clock.innerHTML = META_ICONS.time;
+    // "45M" is the design; a screen reader gets the words.
+    const short = document.createElement('span');
+    short.setAttribute('aria-hidden', 'true');
+    short.textContent = compactDuration(time);
+    const full = document.createElement('span');
+    full.className = 'u-sr-only';
+    full.textContent = time;
+    length.append(clock, short, full);
+    meta.append(length);
+  }
+  body.append(meta);
+
+  body.append(buildTitleEl(entry));
+  const description = buildDescription(entry);
+  if (description) body.append(description);
+
+  const actions = buildActions(entry, isEditor);
+  if (actions) body.append(actions);
+  card.append(body);
+
+  return card;
+}
+
+const ENTRY_BUILDERS = {
+  type: buildTypeCard,
+  video: buildVideoEntry,
+  informative: buildInformativeEntry,
+  'informative-stacked': buildInformativeStackedEntry,
+  'informative-banner': buildInformativeBannerEntry,
+  row: buildRowEntry,
+  horizontal: buildHorizontalEntry,
+  tile: buildTileEntry,
+};
+
+export default async function decorate(block) {
+  const isEditor = isEditorContext(block);
+  const { config, items, rows } = isEditor
+    ? readEditorContent(block)
+    : readPublishedContent(block);
+
+  // Published rows can't name their fields, so slug-looking cells were kept
+  // as candidates — settle them against the API before anything else. Skip
+  // this when the item already has a file (the file is authoritative), which
+  // also avoids probing a plain title like "test" as if it were a slug.
+  await Promise.all(items.map(async (item) => {
+    if (!item.textEntries) return;
+    if (!item.fileHref && !item.videoUrl) {
+      const resolved = await resolveSlugCandidates(item, config.apiBaseUrl);
+      if (resolved) item.resourceSlug = resolved.slug;
+    }
+    finalizePublishedText(item);
+  }));
+
+  const primaryResource = await fetchResource(config.apiBaseUrl, config.slug);
+
+  // If no download items are authored, fall back to the page resource's own
+  // files. A resource can carry SEVERAL gated downloads (each an S3 object an
+  // author uploaded), so this expands to one card per file rather than showing
+  // only the primary and hiding the rest. If authors did add items, those items
+  // are the source of truth; adding these again would duplicate them.
+  const workingItems = [...items];
+  if (config.slug && workingItems.length === 0) {
+    const ownFiles = Array.isArray(primaryResource?.files) ? primaryResource.files : [];
+
+    if (ownFiles.length > 1) {
+      ownFiles.forEach((file) => workingItems.push({
+        ...emptyItem(),
+        resourceSlug: config.slug,
+        fileId: file.id,
+      }));
+    } else {
+      workingItems.unshift({ ...emptyItem(), resourceSlug: config.slug });
+    }
+  }
+
+  const entries = (await Promise.all(workingItems.map(async (item) => {
+    // Prefer a slug link; otherwise resolve the picked file to its resource
+    // so file-only items still get the public URL + gated flag.
+    let resource = item.resourceSlug
+      ? await fetchResource(config.apiBaseUrl, item.resourceSlug)
+      : null;
+    if (!resource && item.fileHref && !resourceMatchesFile(primaryResource, item.fileHref)) {
+      resource = await fetchResourceByAsset(config.apiBaseUrl, item.fileHref);
+    }
+    return resolveEntry(item, resource, config, primaryResource);
+  }))).filter((entry) => entry.downloadUrl || entry.videoUrl
+    || entry.requiresSignedUrl || isEditor);
+
+  applyResourceThumbnailFallback(entries);
+
+  // The approved tile design leads with its first download spread across the
+  // top as a Horizontal card, with the rest as tiles beneath it. Done here
+  // rather than by asking authors to pick Horizontal for item one, so a block
+  // of tiles always comes out in that shape.
+  if (entries[0]?.style === 'tile') entries[0].style = 'horizontal';
+
+  const list = document.createElement('div');
+  list.className = 'resource-downloads-list';
+  if (config.layout === 'grid') list.classList.add('is-grid');
+  // Tiles always sit in rows, whichever Layout is picked: a tile stretched
+  // across a stacked list is a poster, not a card. Everything else in the same
+  // list keeps the full row.
+  if (entries.some((entry) => entry.style === 'tile')) list.classList.add('has-tiles');
+
+  // Merge consecutive "grouped" entries into a single stacked-button card.
+  let index = 0;
+  while (index < entries.length) {
+    const entry = entries[index];
+
+    if (entry.style === 'grouped') {
+      const group = [entry];
+      while (entries[index + 1]?.style === 'grouped') {
+        index += 1;
+        group.push(entries[index]);
+      }
+      const groupCard = buildGroupEntry(group, isEditor);
+      groupCard.style.setProperty('--rd-accent', group[0].theme.accent);
+      if (group[0].item.row && isEditor) {
+        moveInstrumentation(group[0].item.row, groupCard);
+      }
+      setItemLabel(groupCard, [group[0].title]);
+      list.append(groupCard);
+      index += 1;
+    } else {
+      const builder = ENTRY_BUILDERS[entry.style] || buildRowEntry;
+      const card = builder(entry, isEditor);
+      // One custom property themes the whole card (tile, button, accents).
+      card.style.setProperty('--rd-accent', entry.theme.accent);
+      if (entry.item.row && isEditor) {
+        moveInstrumentation(entry.item.row, card);
+      }
+      setItemLabel(card, [entry.title, entry.fileName]);
+      list.append(card);
+      index += 1;
+    }
+  }
+
+  if (!list.children.length && isEditor) {
+    const empty = document.createElement('p');
+    empty.className = 'resource-downloads-empty';
+    empty.textContent = 'Add download items to this block, or set the Primary Resource Slug.';
+    list.append(empty);
+  }
+
+  const children = [list];
+
+  if (isEditor) {
+    // Deep links into the backend for gated uploads and the thumbnail editor.
+    // Editor-only — data-aue-resource exists nowhere else.
+    const toolbar = buildResourceAuthoringToolbar(block, { apiBaseUrl: config.apiBaseUrl });
+    if (toolbar) children.unshift(toolbar);
+
+    // Preserve remaining instrumented rows for Universal Editor tracking
+    // (hide-not-remove; item rows already handed their identity to cards).
+    const archive = document.createElement('div');
+    archive.className = 'resource-downloads-archive';
+    archive.hidden = true;
+    rows.forEach((row) => {
+      if (row.parentElement === block) {
+        row.hidden = true;
+        archive.append(row);
+      }
+    });
+    children.push(archive);
+  }
+
+  block.replaceChildren(...children);
+
+  // Reveal cards with a soft staggered rise as they enter the viewport. The
+  // CSS only hides cards under prefers-reduced-motion: no-preference, so the
+  // editor, reduced-motion users, and no-IO browsers just render in place.
+  const cards = [...list.children];
+  if (isEditor || !('IntersectionObserver' in window)) {
+    cards.forEach((card) => card.classList.add('is-revealed'));
+    return;
+  }
+  const observer = new IntersectionObserver((observations) => {
+    observations.forEach((observation) => {
+      if (!observation.isIntersecting) return;
+      observation.target.classList.add('is-revealed');
+      observer.unobserve(observation.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  cards.forEach((card, cardIndex) => {
+    card.style.setProperty('--rd-reveal-delay', `${(cardIndex % 6) * 70}ms`);
+    observer.observe(card);
+  });
+}

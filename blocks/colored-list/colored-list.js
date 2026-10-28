@@ -1,0 +1,400 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readRichTextField,
+  readTextField,
+  setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import injectColorPickers from '../../scripts/block-color-picker.js';
+import {
+  applyColoredFieldLayoutOptions,
+  syncColoredFieldLayoutOptions,
+} from '../../scripts/colored-field-options.js';
+
+const BLOCK_FIELD_NAMES = [
+  'listStyle',
+  'textColor',
+  'markerColor',
+  'markerTextColor',
+  'blockBackgroundColor',
+  'horizontalAlign',
+  'verticalAlign',
+  'fontSize',
+  'fontWeight',
+  'minHeight',
+  'minHeightMobile',
+  'paddingStyle',
+  'marginStyle',
+  'dropShadow',
+];
+
+function directRowOf(block, element) {
+  let rowEl = element;
+  while (rowEl && rowEl.parentElement !== block) {
+    rowEl = rowEl.parentElement;
+  }
+  return rowEl && rowEl.parentElement === block ? rowEl : null;
+}
+
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function readBlockField(block, name, labels = [], fallbackCell = null) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) row.remove();
+  return field;
+}
+
+function readColorField(block, name, labels = [], isEditor = false, fallbackCell = null) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) {
+    if (isEditor && field.source) row.hidden = true;
+    else row.remove();
+  }
+  return field;
+}
+
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  return hexMatch ? hexMatch[0] : '';
+}
+
+function applyBlockBackground(block, value) {
+  const color = normalizeColorValue(value);
+  if (!color) {
+    block.classList.remove('has-block-background');
+    block.style.removeProperty('--colored-list-block-bg');
+    return;
+  }
+
+  block.classList.add('has-block-background');
+  block.style.setProperty('--colored-list-block-bg', color);
+}
+
+function watchColorField(source, cssVar, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    const color = normalizeColorValue(source.textContent.trim());
+    if (color) block.style.setProperty(cssVar, color);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function watchBlockBackgroundField(source, block) {
+  if (!source) return;
+  new MutationObserver(() => {
+    applyBlockBackground(block, source.textContent);
+  }).observe(source, { childList: true, characterData: true, subtree: true });
+}
+
+function syncResourceColorFields(resourcePath, block) {
+  readAueResourceFields(resourcePath, ['textColor', 'markerColor', 'markerTextColor', 'blockBackgroundColor'])
+    .then((fields) => {
+      const textColor = normalizeColorValue(fields.textColor);
+      const markerColor = normalizeColorValue(fields.markerColor);
+      const markerTextColor = normalizeColorValue(fields.markerTextColor);
+
+      if (textColor) block.style.setProperty('--colored-list-text-color', textColor);
+      if (markerColor) block.style.setProperty('--colored-list-marker-color', markerColor);
+      if (markerTextColor) block.style.setProperty('--colored-list-marker-text-color', markerTextColor);
+      if (Object.prototype.hasOwnProperty.call(fields, 'blockBackgroundColor')) {
+        applyBlockBackground(block, fields.blockBackgroundColor);
+      }
+    });
+}
+
+function readItemText(row, name, index) {
+  return readTextField(row, name, { fallbackCell: row.children[index] });
+}
+
+function readItemRichText(row, name, index) {
+  return readRichTextField(row, name, { fallbackCell: row.children[index] });
+}
+
+function normalizeCssLength(value, propertyName) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^-?\d+(\.\d+)?$/u.test(normalized)) return `${normalized}px`;
+  if (!window.CSS?.supports || window.CSS.supports(propertyName, normalized)) return normalized;
+  return '';
+}
+
+function normalizeOption(value, allowedValues, fallback) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function hasInsertedBlockBackgroundRow(block, rows, rowIndex) {
+  if (block.querySelector('[data-aue-prop="blockBackgroundColor"]')) return true;
+  const currentValue = fieldCell(rows[rowIndex])?.textContent?.trim() || '';
+  const nextValue = fieldCell(rows[rowIndex + 1])?.textContent?.trim() || '';
+  if (normalizeColorValue(currentValue)) return true;
+  if (!currentValue && /^(?:left|center|right)$/i.test(nextValue)) return true;
+  return false;
+}
+
+function normalizeFontWeight(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  const namedWeights = {
+    regular: '400',
+    normal: '400',
+    medium: '500',
+    semibold: '600',
+    'semi-bold': '600',
+    bold: '700',
+    extrabold: '800',
+    'extra-bold': '800',
+  };
+  if (namedWeights[normalized]) return namedWeights[normalized];
+  return /^(?:[1-9]00)$/u.test(normalized) ? normalized : '';
+}
+
+function appendPlainText(wrapper, text) {
+  const normalized = String(text || '').replace(/\r\n?/gu, '\n');
+  if (!normalized.trim()) return;
+
+  normalized.replace(/^\n+|\n+$/gu, '').split(/\n{2,}/u).forEach((chunk) => {
+    const paragraph = document.createElement('p');
+    chunk.split('\n').forEach((line, index) => {
+      if (index > 0) paragraph.append(document.createElement('br'));
+      paragraph.append(document.createTextNode(line));
+    });
+    wrapper.append(paragraph);
+  });
+}
+
+function appendRichText(field, element) {
+  if (field.source) {
+    moveInstrumentation(field.source, element);
+    while (field.source.firstChild) element.append(field.source.firstChild);
+    return;
+  }
+
+  if (field.html && /<[^>]+>/u.test(field.html)) {
+    element.innerHTML = field.html;
+    return;
+  }
+
+  appendPlainText(element, field.text);
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function isBlockFieldRow(row) {
+  return BLOCK_FIELD_NAMES.some((name) => row.querySelector(`[data-aue-prop="${name}"]`));
+}
+
+function getMarkerText(listStyle, customMarker, index) {
+  if (customMarker) return customMarker;
+  if (listStyle === 'number' || listStyle === 'circle-number') return `${index + 1}`;
+  if (listStyle === 'bullet') return '\u2022';
+  return '';
+}
+
+function buildItem(row, listStyle, index) {
+  const itemTextField = readItemRichText(row, 'itemText', 0);
+  const markerTextField = readItemText(row, 'markerText', 1);
+  const itemTextColor = normalizeColorValue(readItemText(row, 'itemTextColor', 2).value);
+  const itemMarkerColor = normalizeColorValue(readItemText(row, 'itemMarkerColor', 3).value);
+  const itemMarkerTextColor = normalizeColorValue(readItemText(row, 'itemMarkerTextColor', 4).value);
+  const isPlaceholder = hasAuthoringContext(row)
+    && !itemTextField.text.trim()
+    && !itemTextField.html.trim();
+
+  if (!itemTextField.text.trim() && !itemTextField.html.trim() && !isPlaceholder) return null;
+
+  const item = document.createElement('li');
+  item.className = 'colored-list-item';
+  moveInstrumentation(row, item);
+  setItemLabel(item, [itemTextField.text, markerTextField.value]);
+  if (itemTextColor) item.style.setProperty('--colored-list-item-text-color', itemTextColor);
+  if (itemMarkerColor) item.style.setProperty('--colored-list-item-marker-color', itemMarkerColor);
+  if (itemMarkerTextColor) item.style.setProperty('--colored-list-item-marker-text-color', itemMarkerTextColor);
+
+  const marker = document.createElement('span');
+  marker.className = 'colored-list-marker';
+  marker.setAttribute('aria-hidden', 'true');
+  marker.textContent = getMarkerText(listStyle, markerTextField.value, index);
+  if (markerTextField.source) moveInstrumentation(markerTextField.source, marker);
+  item.append(marker);
+
+  const content = document.createElement('div');
+  content.className = 'colored-list-item-content richtext-preserve-spaces';
+  if (isPlaceholder) {
+    content.classList.add('is-authoring-placeholder');
+    content.textContent = 'Add list item text in the editor.';
+  } else {
+    appendRichText(itemTextField, content);
+  }
+  item.append(content);
+
+  return item;
+}
+
+export default function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const resourcePath = getAueResourcePath(block);
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const rowOffset = hasInsertedBlockBackgroundRow(block, rows, 4) ? 1 : 0;
+
+  const listStyle = normalizeOption(
+    readBlockField(block, 'listStyle', ['list style', 'type'], fieldCell(rows[0])).value,
+    ['bullet', 'number', 'circle-number', 'circle-bullet'],
+    'bullet',
+  );
+  const txtField = readColorField(block, 'textColor', ['text color', 'color'], isEditor, fieldCell(rows[1]));
+  const textColor = normalizeColorValue(txtField.value) || '#414042';
+  const mrkField = readColorField(
+    block,
+    'markerColor',
+    ['marker color', 'bullet color'],
+    isEditor,
+    fieldCell(rows[2]),
+  );
+  const markerColor = normalizeColorValue(mrkField.value) || '#008EB7';
+  const mrkTxtField = readColorField(
+    block,
+    'markerTextColor',
+    ['marker text color'],
+    isEditor,
+    fieldCell(rows[3]),
+  );
+  const markerTextColor = normalizeColorValue(mrkTxtField.value) || '#FFFFFF';
+  const blockBgField = readColorField(
+    block,
+    'blockBackgroundColor',
+    ['block background color', 'background color'],
+    isEditor,
+    rowOffset ? fieldCell(rows[4]) : null,
+  );
+  const blockBackgroundColor = normalizeColorValue(blockBgField.value);
+  const horizontalAlign = normalizeOption(
+    readBlockField(block, 'horizontalAlign', ['horizontal alignment', 'text alignment'], fieldCell(rows[4 + rowOffset])).value,
+    ['left', 'center', 'right'],
+    'left',
+  );
+  const verticalAlign = normalizeOption(
+    readBlockField(block, 'verticalAlign', ['vertical alignment'], fieldCell(rows[5 + rowOffset])).value,
+    ['top', 'middle', 'bottom'],
+    'top',
+  );
+  const fontSize = normalizeCssLength(readBlockField(block, 'fontSize', ['font size', 'text size'], fieldCell(rows[6 + rowOffset])).value, 'font-size');
+  const fontWeight = normalizeFontWeight(readBlockField(block, 'fontWeight', ['font weight', 'weight'], fieldCell(rows[7 + rowOffset])).value);
+  const minHeight = normalizeCssLength(readBlockField(block, 'minHeight', ['minimum height', 'min height'], fieldCell(rows[8 + rowOffset])).value, 'min-height');
+  const minHeightMobile = normalizeCssLength(readBlockField(block, 'minHeightMobile', ['mobile min height', 'min height mobile', 'minimum height mobile'], fieldCell(rows[9 + rowOffset])).value, 'min-height');
+  const paddingStyleField = readBlockField(
+    block,
+    'paddingStyle',
+    ['padding style', 'padding'],
+    fieldCell(rows[10 + rowOffset]),
+  );
+  const marginStyleField = readBlockField(
+    block,
+    'marginStyle',
+    ['margin style', 'margin'],
+    fieldCell(rows[11 + rowOffset]),
+  );
+  const dropShadowField = readBlockField(
+    block,
+    'dropShadow',
+    ['drop shadow', 'shadow'],
+    fieldCell(rows[12 + rowOffset]),
+  );
+
+  block.classList.add(
+    `colored-list-style-${listStyle}`,
+    `colored-list-h-${horizontalAlign}`,
+    `colored-list-v-${verticalAlign}`,
+  );
+  applyColoredFieldLayoutOptions(block, 'colored-list', {
+    paddingStyle: paddingStyleField.value,
+    marginStyle: marginStyleField.value,
+    dropShadow: dropShadowField.value,
+  });
+  setReadableColor(block, '--colored-list-text-color', textColor, { min: 4.5 });
+  block.style.setProperty('--colored-list-marker-color', markerColor);
+  // The marker's own label sits on the marker colour, not on the block background.
+  setReadableColor(block, '--colored-list-marker-text-color', markerTextColor, { min: 4.5, background: markerColor });
+  applyBlockBackground(block, blockBackgroundColor);
+  if (fontSize) block.style.setProperty('--colored-list-font-size', fontSize);
+  if (fontWeight) block.style.setProperty('--colored-list-font-weight', fontWeight);
+  if (minHeight) block.style.setProperty('--colored-list-min-height', minHeight);
+  if (minHeightMobile) block.style.setProperty('--colored-list-min-height-mobile', minHeightMobile);
+
+  const inner = document.createElement('div');
+  inner.className = 'colored-list-inner';
+
+  const list = document.createElement(listStyle === 'number' || listStyle === 'circle-number' ? 'ol' : 'ul');
+  list.className = 'colored-list-items';
+
+  [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isBlockFieldRow(row))
+    .forEach((row, index) => {
+      const item = buildItem(row, listStyle, index);
+      if (item) list.append(item);
+    });
+
+  if (!list.children.length && hasAuthoringContext(block)) {
+    const placeholder = document.createElement('li');
+    placeholder.className = 'colored-list-item is-authoring-placeholder';
+    placeholder.textContent = 'Add colored list items in the editor.';
+    list.append(placeholder);
+  }
+
+  inner.append(list);
+
+  if (isEditor) {
+    const archive = document.createElement('span');
+    archive.hidden = true;
+    [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
+    if (archive.children.length) inner.append(archive);
+  }
+
+  block.replaceChildren(inner);
+
+  if (isEditor) {
+    watchColorField(txtField.source, '--colored-list-text-color', block);
+    watchColorField(mrkField.source, '--colored-list-marker-color', block);
+    watchColorField(mrkTxtField.source, '--colored-list-marker-text-color', block);
+    watchBlockBackgroundField(blockBgField.source, block);
+  }
+
+  injectColorPickers(block, [
+    { label: 'Text', cssVar: '--colored-list-text-color', value: textColor },
+    { label: 'Marker', cssVar: '--colored-list-marker-color', value: markerColor },
+    { label: 'Marker Text', cssVar: '--colored-list-marker-text-color', value: markerTextColor },
+    {
+      label: 'Block Background',
+      cssVar: '--colored-list-block-bg',
+      value: blockBackgroundColor || '#ffffff',
+      className: 'has-block-background',
+    },
+  ]);
+
+  syncResourceColorFields(resourcePath, block);
+  syncColoredFieldLayoutOptions(resourcePath, block, 'colored-list');
+}

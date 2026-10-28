@@ -1,0 +1,273 @@
+{
+  "definitions": [
+    {
+      "title": "Resource Browser",
+      "id": "resources-browser",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Resource Browser",
+              "model": "resources-browser",
+              "filter": "resources-browser"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Resources Browser Item",
+      "id": "resources-browser-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Resources Browser Item",
+              "model": "resources-browser-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "resources-browser",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "selected",
+          "label": "Selected Resource Slugs or IDs (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "filters",
+          "label": "Preset Filters (audiences/issues/types/tags/languages/programs/grade_ages/lengths)"
+        },
+        {
+          "component": "multiselect",
+          "name": "visibleFilters",
+          "label": "Filter Groups to Show",
+          "description": "Leave empty to show the default resource filters: Prevention Program, Grade, Audience, Resource Format, and Length of Time.",
+          "options": [
+            {
+              "name": "Audience",
+              "value": "audience"
+            },
+            {
+              "name": "Topic",
+              "value": "issue"
+            },
+            {
+              "name": "Resource Format",
+              "value": "type"
+            },
+            {
+              "name": "Universal Tags",
+              "value": "tags"
+            },
+            {
+              "name": "Language",
+              "value": "language"
+            },
+            {
+              "name": "Prevention Program",
+              "value": "programs"
+            },
+            {
+              "name": "Grade",
+              "value": "grade_ages"
+            },
+            {
+              "name": "Length of Time",
+              "value": "lengths"
+            }
+          ]
+        },
+        {
+          "component": "multiselect",
+          "name": "filterTags",
+          "label": "Visible Tag Options",
+          "description": "Optional shortcuts for common universal tag options. Leave empty to show all tag options.",
+          "options": [
+            {
+              "name": "KidSmartz",
+              "value": "kidsmartz"
+            },
+            {
+              "name": "NetSmartz",
+              "value": "netsmartz"
+            }
+          ]
+        },
+        {
+          "component": "multiselect",
+          "name": "lockedPrograms",
+          "label": "Lock to Program(s)",
+          "description": "Always filters this browser to these programs. Users cannot override this. The Program filter is automatically hidden.",
+          "options": [
+            {
+              "name": "KidSmartz",
+              "value": "kidsmartz"
+            },
+            {
+              "name": "NetSmartz",
+              "value": "netsmartz"
+            },
+            {
+              "name": "Safe to Compete",
+              "value": "safe-to-compete"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "pageSize",
+          "label": "Items Per Page",
+          "value": "8"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "searchPlaceholder",
+          "label": "Search Placeholder",
+          "value": "Search"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "loadMoreText",
+          "label": "Load More Label",
+          "value": "Load More"
+        },
+        {
+          "component": "select",
+          "name": "paginationMode",
+          "label": "Results Navigation",
+          "options": [
+            {
+              "name": "Load More",
+              "value": "load-more"
+            },
+            {
+              "name": "Pagination",
+              "value": "pagination"
+            }
+          ],
+          "value": "load-more"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text / Description",
+          "description": "Optional text shown between the heading and search controls."
+        },
+        {
+          "component": "select",
+          "name": "library",
+          "label": "Library",
+          "description": "Which resources this page lists and how its filters are worded (e.g. Teachable Topic vs Issue/Topic). Keep this field last: published pages read it by position.",
+          "options": [
+            { "name": "All resources (no library)", "value": "" },
+            { "name": "Prevention", "value": "prevention" },
+            { "name": "General", "value": "general" },
+            { "name": "Prevention, also listing General resources", "value": "prevention+general" },
+            { "name": "General, also listing Prevention resources", "value": "general+prevention" }
+          ],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "resources-browser-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Resource Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Description"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "link",
+          "label": "Learn More URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "id",
+          "label": "Resource ID (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "filters",
+          "label": "Audience/Issue/Type/Tags/Language/Program/Grade"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "durationMinutes",
+          "label": "Duration (minutes)",
+          "description": "Enter total time in minutes. Example: 45.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "weight",
+          "label": "Search Weight",
+          "description": "Optional ranking boost. Higher numbers appear first in default resource/search results. Use 0 for normal priority.",
+          "value": "0"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "resources-browser",
+      "components": [
+        "resources-browser-item"
+      ]
+    }
+  ]
+}

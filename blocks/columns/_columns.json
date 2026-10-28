@@ -1,58 +1,246 @@
 {
-  "definitions": [{
-    "title": "Columns",
-    "id": "columns",
-    "plugins": {
-      "xwalk": {
-        "page": {
-          "resourceType": "core/franklin/components/columns/v1/columns",
-          "template": {
-            "model": "columns",
-            "columns": "2",
-            "rows": "1"
+  "definitions": [
+    {
+      "title": "Custom Columns",
+      "id": "columns",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/columns/v1/columns",
+            "template": {
+              "model": "columns",
+              "columns": "2",
+              "rows": "1"
+            }
           }
         }
       }
     }
-  }],
-  "models": [{
-    "id": "columns",
-    "fields": [{
-        "component": "text",
-        "valueType": "number",
-        "name": "columns",
-        "value": "",
-        "label": "Columns"
-      },
-      {
-        "component": "text",
-        "valueType": "number",
-        "name": "rows",
-        "value": "",
-        "label": "Rows"
-      },
-      {
-        "component": "select",
-        "name": "verticalAlign",
-        "label": "Vertical Alignment",
-        "options": [{
-            "name": "Top",
-            "value": "top"
-          },
-          {
-            "name": "Middle",
-            "value": "middle"
-          },
-          {
-            "name": "Bottom",
-            "value": "bottom"
-          }
-        ],
-        "value": "top"
-      }
-    ]
-  }],
-  "filters": [{
+  ],
+  "models": [
+    {
+      "id": "columns",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "number",
+          "name": "columns",
+          "value": "",
+          "label": "Columns"
+        },
+        {
+          "component": "text",
+          "valueType": "number",
+          "name": "rows",
+          "value": "",
+          "label": "Rows"
+        },
+        {
+          "component": "select",
+          "name": "verticalAlign",
+          "label": "Vertical Alignment",
+          "options": [
+            {
+              "name": "Top",
+              "value": "top"
+            },
+            {
+              "name": "Middle",
+              "value": "middle"
+            },
+            {
+              "name": "Bottom",
+              "value": "bottom"
+            }
+          ],
+          "value": "top"
+        },
+        {
+          "component": "select",
+          "name": "horizontalAlign",
+          "label": "Horizontal Alignment",
+          "options": [
+            {
+              "name": "Left (default)",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "paddingStyle",
+          "label": "Padding",
+          "description": "Adds padding inside the Columns block without changing column alignment.",
+          "options": [
+            { "name": "Default", "value": "padding-default" },
+            { "name": "None", "value": "padding-none" },
+            { "name": "All Small", "value": "padding-all-sm" },
+            { "name": "All Medium", "value": "padding-all-md" },
+            { "name": "All Large", "value": "padding-all-lg" },
+            { "name": "Vertical Small", "value": "padding-vertical-sm" },
+            { "name": "Vertical Medium", "value": "padding-vertical-md" },
+            { "name": "Vertical Large", "value": "padding-vertical-lg" },
+            { "name": "Sides Small", "value": "padding-horizontal-sm" },
+            { "name": "Sides Medium", "value": "padding-horizontal-md" },
+            { "name": "Sides Large", "value": "padding-horizontal-lg" },
+            { "name": "Top Small", "value": "padding-top-sm" },
+            { "name": "Top Medium", "value": "padding-top-md" },
+            { "name": "Top Large", "value": "padding-top-lg" },
+            { "name": "Bottom Small", "value": "padding-bottom-sm" },
+            { "name": "Bottom Medium", "value": "padding-bottom-md" },
+            { "name": "Bottom Large", "value": "padding-bottom-lg" }
+          ],
+          "value": "padding-default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "marginStyle",
+          "label": "Margin",
+          "description": "Adds space outside the Columns block without changing column alignment.",
+          "options": [
+            { "name": "Default", "value": "margin-default" },
+            { "name": "None", "value": "margin-none" },
+            { "name": "All Small", "value": "margin-all-sm" },
+            { "name": "All Medium", "value": "margin-all-md" },
+            { "name": "All Large", "value": "margin-all-lg" },
+            { "name": "Vertical Small", "value": "margin-vertical-sm" },
+            { "name": "Vertical Medium", "value": "margin-vertical-md" },
+            { "name": "Vertical Large", "value": "margin-vertical-lg" },
+            { "name": "Sides Small", "value": "margin-horizontal-sm" },
+            { "name": "Sides Medium", "value": "margin-horizontal-md" },
+            { "name": "Sides Large", "value": "margin-horizontal-lg" },
+            { "name": "Top Small", "value": "margin-top-sm" },
+            { "name": "Top Medium", "value": "margin-top-md" },
+            { "name": "Top Large", "value": "margin-top-lg" },
+            { "name": "Bottom Small", "value": "margin-bottom-sm" },
+            { "name": "Bottom Medium", "value": "margin-bottom-md" },
+            { "name": "Bottom Large", "value": "margin-bottom-lg" }
+          ],
+          "value": "margin-default"
+        }
+      ]
+    },
+    {
+      "id": "column",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Background Color",
+          "description": "Optional CSS color value for this column, for example #f4f1ec.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
       "id": "columns",
       "components": [
         "column"
@@ -64,7 +252,14 @@
         "text",
         "image",
         "button",
-        "title"
+        "title",
+        "colored-heading",
+        "colored-text",
+        "custom-image",
+        "colored-icon-text",
+        "colored-button",
+        "colored-list",
+        "statistics"
       ]
     }
   ]

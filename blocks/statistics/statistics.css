@@ -1,14 +1,168 @@
 .statistics {
+  --statistics-heading-color: #00264d;
+  --statistics-body-color: var(--ncmec-gray-dark);
+  --statistics-subheading-color: var(--ncmec-gray-dark);
+  --statistics-value-color: #00264d;
+  --statistics-label-color: #6b6b6b;
+  --statistics-heading-size: var(--heading-2-size); /* global h2; an authored size set inline on the block still wins */
+  --statistics-heading-weight: 700;
+  --statistics-body-size: 1.25rem;
+  --statistics-body-weight: 400;
+  --statistics-value-size: clamp(2.5rem, 6vw, 4.5rem);
+  --statistics-value-weight: 700;
+  --statistics-label-size: 1.1rem;
+  --statistics-label-weight: 400;
+  --statistics-block-bg: transparent;
+  --statistics-icon-max-width: 136px;
+  --statistics-icon-max-height: 96px;
+  --statistics-min-height: 0;
+  --statistics-min-height-mobile: var(--statistics-min-height);
+  --statistics-content-spacing: 0px;
+  --statistics-border-radius: 0;
+
   padding: 20px 0 40px;
 }
 
+.statistics .statistics-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  background-color: var(--statistics-block-bg);
+  border-radius: var(--statistics-border-radius);
+  justify-content: flex-start;
+
+  /* Padding around the content inside the card (not the block's own outer spacing,
+     set above, and not --statistics-content-spacing, which only spaces out each stat
+     item's own image/label/value/button). Adjustable via the "Padding Style" field;
+     defaults to the pre-existing 15px used whenever a background color was set. */
+  padding:
+    var(--colored-field-padding-top, 15px)
+    var(--colored-field-padding-right, 15px)
+    var(--colored-field-padding-bottom, 15px)
+    var(--colored-field-padding-left, 15px);
+}
+
+.statistics.statistics-radius-small {
+  --statistics-border-radius: 4px;
+}
+
+.statistics.statistics-radius-medium {
+  --statistics-border-radius: 8px;
+}
+
+.statistics.statistics-radius-large {
+  --statistics-border-radius: 16px;
+}
+
+.statistics.statistics-shadow-highlight-blue {
+  --colored-field-highlight-shadow-color: 20 145 191;
+}
+
+.statistics.statistics-shadow-highlight-navy {
+  --colored-field-highlight-shadow-color: 9 35 72;
+}
+
+.statistics.statistics-shadow-highlight-orange {
+  --colored-field-highlight-shadow-color: 247 148 29;
+}
+
+.statistics.statistics-shadow-highlight-gold {
+  --colored-field-highlight-shadow-color: 245 181 27;
+}
+
+.statistics.statistics-shadow-white {
+  --colored-field-highlight-shadow-color: 255 255 255;
+}
+
+.statistics[class*="statistics-shadow-highlight-"] .statistics-inner,
+.statistics.statistics-shadow-white .statistics-inner {
+  box-shadow: 0 14px 24px 0 rgb(var(--colored-field-highlight-shadow-color) / 40%);
+}
+
+.statistics.statistics-v-middle .statistics-inner {
+  justify-content: center;
+}
+
+.statistics.statistics-v-bottom .statistics-inner {
+  justify-content: flex-end;
+}
+
+.columns .statistics {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  margin-inline: 0;
+  padding: 12px 0;
+}
+
+.columns .statistics .statistics-inner {
+  flex: 1 1 auto;
+}
+
+@media (width >= 700px) {
+  .columns .statistics {
+    margin-inline: 0;
+  }
+}
+
 .statistics .statistics-heading {
-  font-size: clamp(1.75rem, 3.2vw, 2.6rem);
-  font-weight: 700;
+  font-size: var(--statistics-heading-size);
+  font-weight: var(--statistics-heading-weight);
   line-height: 1.1;
-  color: #00264d;
+  color: var(--statistics-heading-color);
   margin: 0 0 32px;
-  text-align: left;
+  text-align: center;
+}
+
+.statistics .statistics-body {
+  font-size: var(--statistics-body-size);
+  font-weight: var(--statistics-body-weight);
+  line-height: 1.55;
+  color: var(--statistics-body-color);
+  max-width: 860px;
+  margin: -16px auto 32px;
+  text-align: center;
+}
+
+.statistics .statistics-body > :first-child {
+  margin-top: 0;
+}
+
+.statistics .statistics-body > :last-child {
+  margin-bottom: 0;
+}
+
+.statistics .statistics-subheading {
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--statistics-subheading-color);
+  max-width: 1055px;
+  margin: 0 auto 32px;
+  text-align: center;
+}
+
+.statistics.statistics-align-left .statistics-body {
+  margin-left: 0;
+}
+
+.statistics.statistics-align-left .statistics-subheading {
+  margin-left: 0;
+}
+
+.statistics.statistics-align-right .statistics-body {
+  margin-right: 0;
+}
+
+.statistics.statistics-align-right .statistics-subheading {
+  margin-right: 0;
+}
+
+.statistics .statistics-subheading b,
+.statistics .statistics-subheading strong {
+  font-weight: 700;
 }
 
 .statistics .statistics-list {
@@ -20,9 +174,56 @@
   gap: 0;
 }
 
+@media (width <= 900px) {
+  .statistics .statistics-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 .statistics .statistics-item {
   text-align: center;
   padding: 12px 24px;
+}
+
+.statistics .statistics-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 84px;
+  margin-bottom: calc(18px + var(--statistics-content-spacing));
+}
+
+.statistics .statistics-image picture {
+  display: block;
+}
+
+.statistics .statistics-image img {
+  display: block;
+  width: auto;
+  max-width: var(--statistics-icon-max-width);
+  max-height: var(--statistics-icon-max-height);
+  object-fit: contain;
+}
+
+.statistics .statistics-image-fluid {
+  min-height: 0;
+}
+
+.statistics .statistics-image-fluid,
+.statistics.statistics-align-left .statistics-image-fluid,
+.statistics.statistics-align-right .statistics-image-fluid {
+  justify-content: center;
+}
+
+.statistics .statistics-image-fluid picture,
+.statistics .statistics-image-fluid img {
+  width: 100%;
+}
+
+.statistics .statistics-image-fluid img {
+  height: auto;
+  max-width: 100%;
+  max-height: none;
 }
 
 .statistics .statistics-item + .statistics-item {
@@ -30,22 +231,135 @@
 }
 
 .statistics .statistics-value {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 700;
+  font-size: var(--statistics-value-size);
+  font-weight: var(--statistics-value-weight);
   line-height: 1;
-  color: #00264d;
-  margin-bottom: 10px;
+  color: var(--statistics-value-color);
+  margin-bottom: calc(10px + var(--statistics-content-spacing));
+}
+
+.statistics .statistics-top-label {
+  font-size: var(--statistics-label-size);
+  font-weight: var(--statistics-label-weight);
+  line-height: 1.4;
+  color: var(--statistics-label-color);
+  margin-bottom: calc(8px + var(--statistics-content-spacing));
 }
 
 .statistics .statistics-label {
-  font-size: 1.1rem;
+  font-size: var(--statistics-label-size);
+  font-weight: var(--statistics-label-weight);
   line-height: 1.4;
-  color: #6b6b6b;
+  color: var(--statistics-label-color);
+  padding: 20px 0;
 }
 
-@media (width <= 700px) {
+.statistics .statistics-disclaimer {
+  color: var(--statistics-body-color);
+  opacity: 0.7;
+  font-size: var(--statistics-disclaimer-size, 0.8rem);
+  font-style: italic;
+  line-height: 1.4;
+  max-width: 860px;
+  margin: 16px auto 0;
+  text-align: center;
+}
+
+.statistics .statistics-disclaimer > :first-child {
+  margin-top: 0;
+}
+
+.statistics .statistics-disclaimer > :last-child {
+  margin-bottom: 0;
+}
+
+/* Button: styled by the button standard in styles/styles.css, including the external-link
+   glyph; this only places it. */
+.statistics .statistics-button {
+  margin-top: calc(28px + var(--statistics-content-spacing));
+}
+
+/* Content Alignment: Left / Right variants
+   Constrains the inner content to 1200px (matching the hero's .hero-content)
+   so left/right-aligned text lines up with the hero title's edge. */
+.statistics.statistics-align-left .statistics-inner,
+.statistics.statistics-align-right .statistics-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.statistics.statistics-align-left .statistics-heading,
+.statistics.statistics-align-left .statistics-body,
+.statistics.statistics-align-left .statistics-subheading,
+.statistics.statistics-align-left .statistics-item {
+  text-align: left;
+}
+
+.statistics.statistics-align-right .statistics-heading,
+.statistics.statistics-align-right .statistics-body,
+.statistics.statistics-align-right .statistics-subheading,
+.statistics.statistics-align-right .statistics-item {
+  text-align: right;
+}
+
+.statistics.statistics-align-left .statistics-image {
+  justify-content: flex-start;
+}
+
+.statistics.statistics-align-left .statistics-button {
+  margin-right: auto;
+}
+
+.statistics.statistics-align-right .statistics-image {
+  justify-content: flex-end;
+}
+
+.statistics.statistics-align-right .statistics-button {
+  margin-left: auto;
+}
+
+/* Strip the outside edge padding so first/last item content
+   flushes with the container edge (matches heading/subheading). */
+.statistics.statistics-align-left .statistics-item:first-child {
+  padding-left: 0;
+}
+
+.statistics.statistics-align-right .statistics-item:last-child {
+  padding-right: 0;
+}
+
+.statistics.statistics-no-dividers .statistics-item + .statistics-item {
+  border-left: none;
+}
+
+@media (width <= 900px) {
+  .statistics {
+    padding: 0;
+  }
+
+  .statistics .statistics-value{
+        margin-bottom: 0;
+   }
+
+  .statistics .statistics-inner {
+    min-height: 0;
+    padding: 0 !important;
+  }
+
+  /* Single column on mobile: drop the items' side padding so every stat
+     lines up. (On desktop the first/last item strips one side's padding to
+     sit flush with the row edge; in one column that left only the first item
+     flush and indented the rest.) */
+  .statistics .statistics-item {
+    padding-inline: 0;
+  }
+
   .statistics .statistics-item + .statistics-item {
     border-left: none;
     border-top: 1px solid #e6e0da;
+  }
+
+  .statistics.statistics-no-dividers .statistics-item + .statistics-item {
+    border-top: none;
   }
 }

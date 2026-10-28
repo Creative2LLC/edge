@@ -1,0 +1,221 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import { textSafeSurface } from '../../scripts/color-tokens.js';
+import {
+  readImageField, readLinkField, readTextField, setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveExplicitButtonStyle,
+} from '../../scripts/button-utils.js';
+
+function getField(row, name, index) {
+  return readTextField(row, name, { fallbackCell: row.children[index] });
+}
+
+function getLinkField(row, name, index) {
+  return readLinkField(row, name, { fallbackCell: row.children[index] });
+}
+
+function getImageField(row, name, index) {
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source || field.cell, img: field.img };
+}
+
+function emptyField() {
+  return { source: null, value: '' };
+}
+
+function isColorValue(value) {
+  const trimmed = String(value || '').trim();
+  return /^#(?:[0-9a-f]{3,8})$/i.test(trimmed)
+    || /^rgba?\(/i.test(trimmed)
+    || /^hsla?\(/i.test(trimmed);
+}
+
+function isCompactLiveCardRow(row) {
+  const cols = [...row.children];
+  if (cols.length < 5 || cols.length > 8) return false;
+  const possibleLinkText = getField(row, 'linkText', 4).value;
+  return Boolean(possibleLinkText && !isColorValue(possibleLinkText));
+}
+
+function rowText(row) {
+  return row?.children?.[0]?.textContent.trim() || row?.textContent.trim() || '';
+}
+
+function readPublishedSettings(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const firstCardIndex = rows.findIndex((row) => row.querySelector('picture, img'));
+  const settingRows = firstCardIndex >= 0 ? rows.slice(0, firstCardIndex) : [];
+  const settings = {};
+  const consumedRows = [];
+
+  settingRows.forEach((row) => {
+    if (row.querySelector('[data-aue-prop]')) return;
+    const value = rowText(row).toLowerCase();
+    if (!value || row.children.length !== 1) return;
+
+    if (!settings.columns && /^[1-6]$/.test(value)) {
+      settings.columns = Number.parseInt(value, 10);
+      consumedRows.push(row);
+      return;
+    }
+
+    if (!settings.alignment && ['left', 'center', 'right'].includes(value)) {
+      settings.alignment = value;
+      consumedRows.push(row);
+    }
+  });
+
+  return { settings, consumedRows };
+}
+
+function buildCard(data) {
+  const card = document.createElement('div');
+  card.className = 'card-row-compact-card';
+  if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.titleField.value, data.subheadingField.value]);
+
+  // textSafeSurface: the card holds a subheading and body copy, and Blue Medium cannot carry
+  // either (white on it is 3.78), so it renders as Blue Dark.
+  const cardBg = textSafeSurface(data.cardBg || '#ffffff');
+  card.style.setProperty('background-color', cardBg, 'important');
+  markButtonSurface(card, isDarkSurface(cardBg));
+
+  const content = document.createElement('div');
+  content.className = 'card-row-compact-card-content';
+
+  // Icon — use mask-image technique when iconColor is set
+  if (data.iconField.img) {
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'card-row-compact-card-icon';
+    if (data.iconColor) {
+      const { src } = data.iconField.img;
+      if (src) {
+        iconWrap.style.maskImage = `url(${src})`;
+        iconWrap.style.webkitMaskImage = `url(${src})`;
+        iconWrap.style.backgroundColor = data.iconColor;
+      }
+    } else {
+      const img = data.iconField.img.cloneNode(true);
+      if (data.iconField.source) moveInstrumentation(data.iconField.source, img);
+      iconWrap.append(img);
+    }
+    content.append(iconWrap);
+  }
+
+  // Title
+  if (data.titleField.value || data.titleField.source) {
+    const h3 = document.createElement('h3');
+    h3.className = 'card-row-compact-card-title';
+    if (data.titleColor) h3.style.color = data.titleColor;
+    if (data.titleField.source) {
+      moveInstrumentation(data.titleField.source, h3);
+      while (data.titleField.source.firstChild) h3.append(data.titleField.source.firstChild);
+    } else {
+      h3.textContent = data.titleField.value;
+    }
+    content.append(h3);
+  }
+
+  // Subheading
+  if (data.subheadingField.value || data.subheadingField.source) {
+    const p = document.createElement('p');
+    p.className = 'card-row-compact-card-subheading';
+    if (data.subheadingColor) p.style.color = data.subheadingColor;
+    if (data.subheadingField.source) {
+      moveInstrumentation(data.subheadingField.source, p);
+      const { source } = data.subheadingField;
+      while (source.firstChild) p.append(source.firstChild);
+    } else {
+      p.textContent = data.subheadingField.value;
+    }
+    content.append(p);
+  }
+
+  // Link — Text link unless a style was picked in Link Style (the old link colour field,
+  // whose hex values are ignored). One with nowhere to go is not published; in the
+  // editor it still shows, disabled, so the author can see the URL is missing.
+  const linkText = data.linkTextField.value;
+  const linkHref = data.linkUrlField.value;
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (linkText && (linkHref || isEditor)) {
+    const link = document.createElement(linkHref ? 'a' : 'span');
+    link.className = 'card-row-compact-card-link';
+    link.textContent = linkText;
+    if (linkHref) {
+      link.href = linkHref;
+    } else {
+      link.setAttribute('aria-disabled', 'true');
+      link.title = 'Add a URL to publish this link';
+    }
+    applyButtonStyle(link, resolveExplicitButtonStyle(data.linkStyle, 'text-link'));
+    if (data.linkTextField.source) moveInstrumentation(data.linkTextField.source, link);
+    content.append(link);
+  }
+
+  card.append(content);
+  return card;
+}
+
+export default function decorate(block) {
+  const { settings, consumedRows } = readPublishedSettings(block);
+
+  const columnsEl = block.querySelector('[data-aue-prop="columns"]');
+  const columns = parseInt(columnsEl?.textContent.trim(), 10) || settings.columns || 4;
+
+  const alignmentEl = block.querySelector('[data-aue-prop="alignment"]');
+  const alignment = alignmentEl?.textContent.trim() || settings.alignment || 'left';
+
+  consumedRows.forEach((row) => row.remove());
+  columnsEl?.closest(':scope > div')?.remove();
+  alignmentEl?.closest(':scope > div')?.remove();
+
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const cards = [];
+  rows.forEach((row) => {
+    const cols = [...row.children];
+    if (cols.length < 2) return;
+
+    const isCompactLiveRow = isCompactLiveCardRow(row);
+    const iconField = getImageField(row, 'icon', 0);
+    const iconColorField = getField(row, 'iconColor', 1);
+    const titleField = getField(row, 'title', 2);
+    const subheadingField = getField(row, 'subheading', 3);
+    const titleColorField = isCompactLiveRow ? emptyField() : getField(row, 'titleColor', 4);
+    const subheadingColorField = isCompactLiveRow ? emptyField() : getField(row, 'subheadingColor', 5);
+    const linkTextField = getField(row, 'linkText', isCompactLiveRow ? 4 : 6);
+    const linkUrlField = getLinkField(row, 'linkUrl', isCompactLiveRow ? 5 : 7);
+    const linkStyleField = getField(row, 'linkColor', isCompactLiveRow ? 6 : 8);
+    const cardBgField = getField(row, 'cardBackgroundColor', isCompactLiveRow ? 7 : 9);
+
+    cards.push({
+      iconField,
+      iconColor: iconColorField.value,
+      titleField,
+      subheadingField,
+      titleColor: titleColorField.value,
+      subheadingColor: subheadingColorField.value,
+      linkTextField,
+      linkUrlField,
+      linkStyle: linkStyleField.value,
+      cardBg: cardBgField.value,
+      row,
+    });
+  });
+
+  const grid = document.createElement('div');
+  grid.className = 'card-row-compact-grid';
+  grid.style.setProperty('--grid-columns', columns);
+
+  block.classList.add(`card-row-compact-align-${alignment}`);
+
+  cards.forEach((data) => {
+    const card = buildCard(data);
+    grid.appendChild(card);
+  });
+
+  block.replaceChildren(grid);
+}

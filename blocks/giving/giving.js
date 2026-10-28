@@ -1,5 +1,12 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readRichTextField } from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  markButtonSurface,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
 
 const FALLBACK_OVERLAY_COLOR = '#000000';
 const FALLBACK_OVERLAY_OPACITY = 0.6;
@@ -9,15 +16,15 @@ const FALLBACK_POSITIONS = {
   primaryButton: [1, 0],
   secondaryButton: [2, 0],
   backgroundImage: [3, 0],
+  backgroundImageAlt: [4, 0],
 };
 
 function getField(block, name, rowIndex, columnIndex = 0) {
-  const instrumented = block.querySelector(`[data-aue-prop="${name}"]`);
-  if (instrumented) return instrumented;
   const [fallbackRow, fallbackCol] = FALLBACK_POSITIONS[name] || [];
   const row = block.children[rowIndex ?? fallbackRow];
-  if (!row) return null;
-  return row.children[columnIndex ?? fallbackCol] || row;
+  const fallbackCell = row?.children[columnIndex ?? fallbackCol] || row;
+  const field = readRichTextField(block, name, { fallbackCell });
+  return field.source || field.cell;
 }
 
 function parseOpacity(value) {
@@ -42,7 +49,8 @@ function extractLinkData(sourceEl) {
 function buildButton(linkData, variant) {
   if (!linkData?.href) return null;
   const btn = document.createElement('a');
-  btn.className = `button${variant ? ` ${variant}` : ''}`;
+  // The look comes from the button standard.
+  applyButtonStyle(btn, variant || 'primary');
   btn.textContent = linkData.label || linkData.href;
   btn.href = linkData.href || '#';
   btn.target = '_blank';
@@ -94,10 +102,19 @@ function readMetadata(block) {
 }
 
 export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  // Style dropdowns appended to the model; read before any row is consumed.
+  const [primaryButtonStyle, secondaryButtonStyle] = readAppendedStyles(
+    block,
+    ['primaryButtonStyle', 'secondaryButtonStyle'],
+    [...block.children],
+  );
   const introSource = getField(block, 'intro');
   const primaryButtonSource = getField(block, 'primaryButton');
   const secondaryButtonSource = getField(block, 'secondaryButton');
   const backgroundSource = getField(block, 'backgroundImage') || block.querySelector('picture');
+  const backgroundImageAltSource = getField(block, 'backgroundImageAlt');
   const metadata = readMetadata(block);
   const overlayColor = metadata.overlayColor || FALLBACK_OVERLAY_COLOR;
   const overlayOpacity = parseOpacity(metadata.overlayOpacity) ?? FALLBACK_OVERLAY_OPACITY;
@@ -117,16 +134,29 @@ export default function decorate(block) {
 
   const actions = document.createElement('div');
   actions.className = 'giving-actions';
-  const primaryBtn = buildButton(extractLinkData(primaryButtonSource), 'primary');
-  const secondaryBtn = buildButton(extractLinkData(secondaryButtonSource), 'secondary');
+  const primaryBtn = buildButton(
+    extractLinkData(primaryButtonSource),
+    primaryButtonStyle || 'primary',
+  );
+  const secondaryBtn = buildButton(
+    extractLinkData(secondaryButtonSource),
+    secondaryButtonStyle || 'secondary',
+  );
   if (primaryBtn) actions.append(primaryBtn);
   if (secondaryBtn) actions.append(secondaryBtn);
+  // The background image sits under a dark overlay (the copy is white), so the
+  // buttons take their dark form.
+  markButtonSurface(actions, true);
   if (actions.children.length) content.append(actions);
 
   const newChildren = [];
   const media = document.createElement('div');
   media.className = 'giving-media';
-  const bgAlt = metadata.backgroundAlt || backgroundSource?.querySelector('img')?.alt || '';
+  const backgroundImageAlt = backgroundImageAltSource?.textContent?.trim();
+  const bgAlt = backgroundImageAlt
+    || metadata.backgroundAlt
+    || backgroundSource?.querySelector('img')?.alt
+    || '';
   const bg = buildBackground(backgroundSource, bgAlt);
   if (bg) media.append(bg);
   if (media.childElementCount) newChildren.push(media);

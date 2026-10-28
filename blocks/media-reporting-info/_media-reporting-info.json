@@ -1,0 +1,83 @@
+{
+  "definitions": [
+    {
+      "title": "Media Reporting Info",
+      "id": "media-reporting-info",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Media Reporting Info",
+              "model": "media-reporting-info"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "media-reporting-info",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Reporting on an Anniversary?"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro Copy",
+          "value": "NCMEC's media team can help you develop compelling anniversary coverage that may generate new leads."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "itemOneHeading",
+          "label": "Item 1 Heading",
+          "value": "Case Information"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "itemOneCopy",
+          "label": "Item 1 Copy",
+          "value": "Need additional details, family contact, or case background for your story? Our media team can help."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "itemTwoHeading",
+          "label": "Item 2 Heading",
+          "value": "Age-Progressed Images"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "itemTwoCopy",
+          "label": "Item 2 Copy",
+          "value": "For long-term cases, our forensic artists create age-progressed images showing what the child might look like today."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "itemThreeHeading",
+          "label": "Item 3 Heading",
+          "value": "Expert Commentary"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "itemThreeCopy",
+          "label": "Item 3 Copy",
+          "value": "NCMEC staff can provide expert context on case types, trends, and the importance of public awareness."
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

@@ -1,0 +1,347 @@
+import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js';
+import {
+  getBlockRows,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import attachDragScroll, {
+  createCarouselArrow,
+  getCarouselItemIndex,
+  scrollToCarouselItem,
+} from '../../scripts/carousel-utils.js';
+import {
+  applyButtonStyle,
+  decorateButtonText,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
+
+// Row index for each field in the published AEM delivery
+// (each field is one row with a single cell when data-aue-prop is stripped).
+const FIELD_COLUMN_INDEX = {
+  heading: 0,
+  apiBaseUrl: 1,
+  sourceType: 2,
+  slug: 3,
+  findAllLabel: 4,
+  findAllHref: 5,
+  learnMoreLabel: 6,
+  limit: 7,
+  programs: 8,
+};
+
+function normalizeText(value) {
+  return `${value || ''}`.trim();
+}
+
+function normalizeApiBaseUrl(value) {
+  return normalizeText(value).replace(/\/+$/, '');
+}
+
+function normalizeSlug(value) {
+  const normalized = normalizeText(value)
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/\.html$/i, '');
+  if (!normalized) return '';
+  try { return decodeURIComponent(normalized); } catch { return normalized; }
+}
+
+function normalizeSourceType(value) {
+  const v = normalizeText(value).toLowerCase();
+  return ['articles', 'resources'].includes(v) ? v : 'resources';
+}
+
+// The library API names a resource's page `primary_url` / `detail_path`; `page_path` is
+// the old name, kept for an older API. Reading only `page_path` sent every card to "#".
+function resourceHref(resource) {
+  return resolveSiteHref(resource.primary_url || resource.detail_path || resource.page_path
+    || resource.download_url || resource.resource_url || '');
+}
+
+function getSlugFromPathname() {
+  const clean = window.location.pathname.replace(/[?#].*$/, '').replace(/\/+$/, '');
+  const parts = clean.split('/').filter(Boolean);
+  return normalizeSlug(parts[parts.length - 1] || '');
+}
+
+function readConfig(block) {
+  const rows = getBlockRows(block);
+
+  // Read a plain text field — checks data-aue-prop first, then falls back to
+  // a specific row index (single-column row per field in published delivery).
+  function textFieldValue(name) {
+    const textVal = readTextField(block, name).value;
+    if (textVal) return textVal;
+    const rowIndex = FIELD_COLUMN_INDEX[name];
+    if (rowIndex === undefined) return '';
+    const row = rows[rowIndex];
+    const cell = row?.children[0];
+    return normalizeText(cell?.textContent) || '';
+  }
+
+  // Read a link field (aem-content) — must resolve href, not the link label.
+  function linkFieldValue(name) {
+    const linked = readLinkField(block, name);
+    if (linked.source) return linked.value; // href if anchor, else text
+    // Published fallback: find anchor in the row at this field's index
+    const rowIndex = FIELD_COLUMN_INDEX[name];
+    if (rowIndex === undefined) return '';
+    const row = rows[rowIndex];
+    const cell = row?.children[0];
+    const anchor = cell?.querySelector('a');
+    return anchor?.getAttribute('href') || normalizeText(cell?.textContent) || '';
+  }
+
+  const [findAllStyle, learnMoreStyle] = readAppendedStyles(
+    block,
+    ['findAllStyle', 'learnMoreStyle'],
+    rows,
+  );
+
+  return {
+    heading: textFieldValue('heading') || 'Related Resources',
+    apiBaseUrl: normalizeApiBaseUrl(textFieldValue('apiBaseUrl')),
+    sourceType: normalizeSourceType(textFieldValue('sourceType')),
+    slug: normalizeSlug(textFieldValue('slug')) || getSlugFromPathname(),
+    findAllLabel: textFieldValue('findAllLabel') || 'Find other resources',
+    findAllHref: linkFieldValue('findAllHref'),
+    learnMoreLabel: textFieldValue('learnMoreLabel') || 'Learn more',
+    limit: Math.max(1, Math.min(20, parseInt(textFieldValue('limit'), 10) || 8)),
+    programs: textFieldValue('programs'),
+    findAllStyle,
+    learnMoreStyle,
+  };
+}
+
+// ── Fetch ────────────────────────────────────────────────────────────────────
+
+async function fetchItems(config) {
+  const {
+    apiBaseUrl, sourceType, slug, limit, programs,
+  } = config;
+  const locale = currentSiteLocale();
+
+  if (sourceType === 'articles') {
+    const url = new URL(`/api/articles/${encodeURIComponent(slug)}/related`, `${apiBaseUrl}/`);
+    url.searchParams.set('limit', String(limit));
+    url.searchParams.set('locale', locale);
+    const resp = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+    if (!resp.ok) return [];
+    const payload = await resp.json();
+    return (payload.data || []).map((a) => ({
+      title: a.title,
+      subtitle: a.excerpt || a.description || '',
+      href: resolveSiteHref(a.page_path || a.slug || ''),
+    }));
+  }
+
+  const url = new URL(`/api/resources/${encodeURIComponent(slug)}/related`, `${apiBaseUrl}/`);
+  url.searchParams.set('limit', String(limit));
+  url.searchParams.set('locale', locale);
+  if (programs) {
+    programs.split(',').map((p) => p.trim()).filter(Boolean).forEach((p) => {
+      url.searchParams.append('programs[]', p);
+    });
+  }
+  const resp = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+  if (!resp.ok || resp.status === 404) {
+    // Fall back to general listing filtered by program. One extra, because the
+    // resource this page is about is in that list and is dropped below.
+    const listUrl = new URL('/api/resources', `${apiBaseUrl}/`);
+    listUrl.searchParams.set('per_page', String(limit + 1));
+    listUrl.searchParams.set('locale', locale);
+    if (programs) {
+      programs.split(',').map((p) => p.trim()).filter(Boolean).forEach((p) => {
+        listUrl.searchParams.append('programs[]', p);
+      });
+    }
+    const listResp = await fetch(listUrl.toString(), { headers: { Accept: 'application/json' } });
+    if (!listResp.ok) return [];
+    const listPayload = await listResp.json();
+    return (listPayload.data || [])
+      .filter((r) => r.slug !== slug)
+      .slice(0, limit)
+      .map((r) => ({
+        title: r.title,
+        subtitle: r.excerpt || r.description || '',
+        href: resourceHref(r),
+      }));
+  }
+  const payload = await resp.json();
+  return (payload.data || []).map((r) => ({
+    title: r.title,
+    subtitle: r.excerpt || r.description || '',
+    href: resourceHref(r),
+  }));
+}
+
+// ── DOM builders ─────────────────────────────────────────────────────────────
+
+function buildCard(item, learnMoreLabel, learnMoreStyle = '') {
+  const slide = document.createElement('div');
+  slide.className = 'resources-carousel-slide';
+
+  const card = document.createElement('div');
+  card.className = 'resources-carousel-card';
+
+  const titleEl = document.createElement('h3');
+  titleEl.className = 'resources-carousel-card-title';
+  titleEl.textContent = item.title;
+  card.append(titleEl);
+
+  if (item.subtitle) {
+    const sub = document.createElement('p');
+    sub.className = 'resources-carousel-card-subtitle';
+    sub.textContent = item.subtitle;
+    card.append(sub);
+  }
+
+  const spacer = document.createElement('div');
+  spacer.className = 'resources-carousel-spacer';
+  card.append(spacer);
+
+  const link = document.createElement('a');
+  link.className = 'resources-carousel-card-link';
+  link.href = item.href || '#';
+  link.textContent = decorateButtonText(learnMoreLabel);
+  applyButtonStyle(link, learnMoreStyle || 'text-link');
+  card.append(link);
+
+  // Cover link for full-card clickability
+  const cover = document.createElement('a');
+  cover.className = 'resources-carousel-card-cover';
+  cover.href = item.href || '#';
+  cover.setAttribute('aria-hidden', 'true');
+  cover.tabIndex = -1;
+  card.append(cover);
+
+  slide.append(card);
+  return slide;
+}
+
+function buildNavArrow(direction) {
+  return createCarouselArrow(direction, {
+    className: `resources-carousel-nav-btn resources-carousel-nav-${direction}`,
+    label: direction === 'prev' ? 'Previous' : 'Next',
+  });
+}
+
+function wireCarousel(track, prevBtn, nextBtn, progressBar) {
+  attachDragScroll(track);
+
+  const updateProgress = () => {
+    const max = track.scrollWidth - track.clientWidth;
+    const pct = max > 0 ? (track.scrollLeft / max) * 100 : 0;
+    if (progressBar) progressBar.style.width = `${Math.min(100, pct)}%`;
+  };
+
+  const goToSlide = (index) => {
+    const slides = [...track.children];
+    if (!slides.length) return;
+    const targetIndex = ((index % slides.length) + slides.length) % slides.length;
+    scrollToCarouselItem(track, slides[targetIndex]);
+  };
+
+  prevBtn?.addEventListener('click', () => {
+    const slides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, slides) - 1);
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    const slides = [...track.children];
+    goToSlide(getCarouselItemIndex(track, slides) + 1);
+  });
+
+  track.addEventListener('scroll', updateProgress, { passive: true });
+  // Defer initial state update until browser has finished layout.
+  window.requestAnimationFrame(updateProgress);
+}
+
+// ── Block entry ───────────────────────────────────────────────────────────────
+
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const config = readConfig(block);
+  block.replaceChildren();
+
+  // Header row: heading left, find-all button right
+  const header = document.createElement('div');
+  header.className = 'resources-carousel-header';
+
+  const headingEl = document.createElement('h2');
+  headingEl.className = 'resources-carousel-heading';
+  headingEl.textContent = config.heading;
+  header.append(headingEl);
+
+  if (config.findAllHref && config.findAllLabel) {
+    const findAll = document.createElement('a');
+    findAll.className = 'resources-carousel-find-all';
+    findAll.href = resolveSiteHref(config.findAllHref);
+    findAll.textContent = config.findAllLabel;
+    // The look comes from the button standard (Primary).
+    header.append(applyButtonStyle(findAll, config.findAllStyle || 'primary'));
+  }
+
+  block.append(header);
+
+  // Track
+  const track = document.createElement('div');
+  track.className = 'resources-carousel-track';
+  block.append(track);
+
+  // Controls: progress bar + nav arrows
+  const controls = document.createElement('div');
+  controls.className = 'resources-carousel-controls';
+
+  const progressWrap = document.createElement('div');
+  progressWrap.className = 'resources-carousel-progress';
+  const progressBar = document.createElement('div');
+  progressBar.className = 'resources-carousel-progress-bar';
+  progressWrap.append(progressBar);
+  controls.append(progressWrap);
+
+  const nav = document.createElement('div');
+  nav.className = 'resources-carousel-nav';
+  const prevBtn = buildNavArrow('prev');
+  const nextBtn = buildNavArrow('next');
+  nav.append(prevBtn, nextBtn);
+  controls.append(nav);
+
+  block.append(controls);
+
+  if (!config.apiBaseUrl) {
+    track.append((() => {
+      const msg = document.createElement('p');
+      msg.className = 'resources-carousel-message';
+      msg.textContent = 'Set an API Base URL to load resources.';
+      return msg;
+    })());
+    return;
+  }
+
+  try {
+    const items = await fetchItems(config);
+    if (!items.length) {
+      track.append((() => {
+        const msg = document.createElement('p');
+        msg.className = 'resources-carousel-message';
+        msg.textContent = 'No related resources found.';
+        return msg;
+      })());
+      return;
+    }
+
+    items.forEach((item) => {
+      track.append(buildCard(item, config.learnMoreLabel, config.learnMoreStyle));
+    });
+    wireCarousel(track, prevBtn, nextBtn, progressBar);
+  } catch {
+    track.append((() => {
+      const msg = document.createElement('p');
+      msg.className = 'resources-carousel-message';
+      msg.textContent = 'Could not load resources.';
+      return msg;
+    })());
+  }
+}

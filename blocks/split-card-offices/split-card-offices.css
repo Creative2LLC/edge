@@ -1,0 +1,159 @@
+/* Split Card Offices Block */
+.split-card-offices {
+  margin: 112px auto;
+  padding: 0;
+
+  /* The section wrapper is display:flex, so without an explicit width this
+     block sizes to its content and the auto margins centre it off the grid. */
+  width: 100%;
+  max-width: var(--container);
+  box-sizing: border-box;
+}
+
+/* Container — 50/50 split */
+.split-card-offices .split-card-offices-container {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+}
+
+/* ---------- Left side ---------- */
+.split-card-offices .split-card-offices-left {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.split-card-offices .split-card-offices-heading {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+}
+
+/* CTA buttons row — sit side-by-side at the bottom */
+.split-card-offices .split-card-offices-buttons {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+}
+
+/* CTA buttons: styled by the button standard in styles/styles.css; this only sizes them. */
+.split-card-offices .split-card-offices-cta-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.split-card-offices .split-card-offices-cta-btn-icon {
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.split-card-offices .split-card-offices-cta-btn-icon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.split-card-offices .split-card-offices-cta-btn-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ---------- Right side ---------- */
+.split-card-offices .split-card-offices-right {
+  flex: 0 0 50%;
+  margin-left: 32px;
+  padding: 36px;
+  border-radius: 14px;
+  background-color: var(--ncmec-warm-gray);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 24px;
+}
+
+.split-card-offices .split-card-offices-feature-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.split-card-offices .split-card-offices-feature-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.split-card-offices .split-card-offices-feature-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--ncmec-gray-dark);
+}
+
+.split-card-offices .split-card-offices-feature-heading {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+}
+
+.split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text {
+  font-size: var(--body-size);
+  font-weight: 500;
+  color: var(--ncmec-gray-dark);
+  line-height: 1.5;
+}
+
+.split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text p {
+  margin: 0;
+}
+
+.split-card-offices .split-card-offices-feature-row:not(.is-heading-row) .split-card-offices-feature-text p + p {
+  margin-top: 6px;
+}
+
+/* ---------- Responsive ---------- */
+@media (width <= 900px) {
+  .split-card-offices {
+    margin: 72px auto;
+    padding: 0;
+  }
+
+  .split-card-offices .split-card-offices-container {
+    flex-direction: column;
+  }
+
+  .split-card-offices .split-card-offices-left {
+    flex: none;
+    padding-right: 0;
+    margin-bottom: 32px;
+  }
+
+  .split-card-offices .split-card-offices-right {
+    flex: none;
+    margin-left: 0;
+    padding: 28px 24px;
+  }}
+
+@media (width <= 600px) {
+  /* Stack the CTA buttons one per line so their labels aren't squeezed/clipped
+     by sharing a single row. */
+  .split-card-offices .split-card-offices-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

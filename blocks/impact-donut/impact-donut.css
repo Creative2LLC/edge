@@ -1,0 +1,481 @@
+.impact-donut {
+  --impact-donut-surface: #fff;
+  --impact-donut-track: #edf1f3;
+  --impact-donut-heading-color: #113a67;
+  --impact-donut-body-color: var(--ncmec-gray-dark);
+  --impact-donut-stat-label-color: var(--ncmec-gray-dark);
+  --impact-donut-divider-color: #e5e1db;
+
+  padding: 72px 0;
+  max-width: var(--container);
+  margin: 0 auto;
+  background: var(--impact-donut-surface);
+}
+
+.impact-donut .impact-donut-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 48px;
+  align-items: center;
+}
+
+.impact-donut .impact-donut-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 650ms ease,
+    transform 650ms ease;
+}
+
+.impact-donut.is-visible .impact-donut-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.impact-donut .impact-donut-copy {
+  transition-delay: 80ms;
+}
+
+.impact-donut .impact-donut-heading {
+  max-width: 825px;
+  margin: 0 0 24px;
+  color: var(--impact-donut-heading-color);
+}
+
+.impact-donut .impact-donut-heading > :first-child {
+  margin-top: 0;
+}
+
+.impact-donut .impact-donut-heading > :last-child {
+  margin-bottom: 0;
+}
+
+.impact-donut .impact-donut-body {
+  max-width: 825px;
+  margin-bottom: 40px;
+  color: var(--impact-donut-body-color);
+  font-size: var(--body-lg-size);
+  line-height: var(--caption-line-height);
+}
+
+.impact-donut .impact-donut-body > :first-child {
+  margin-top: 0;
+}
+
+.impact-donut .impact-donut-body > :last-child {
+  margin-bottom: 0;
+}
+
+.impact-donut .impact-donut-stats {
+  display: grid;
+  grid-template-columns: repeat(var(--impact-donut-stat-columns, 2), minmax(0, 1fr));
+  margin: 0 0 36px;
+}
+
+.impact-donut .impact-donut-stat {
+  padding: 28px 24px 26px 0;
+  transition-delay: calc(220ms + (var(--stagger-index, 0) * 90ms));
+}
+
+.impact-donut .impact-donut-stat:nth-child(2n) {
+  padding-left: 48px;
+  border-left: 1px solid var(--impact-donut-divider-color);
+}
+
+.impact-donut .impact-donut-stat:nth-child(n + 3) {
+  border-top: 1px solid var(--impact-donut-divider-color);
+  padding-top: 32px;
+}
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat {
+  padding: 12px 28px 10px 0;
+  border-top: none;
+}
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:nth-child(2n) {
+  padding-left: 0;
+  border-left: none;
+}
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:nth-child(n + 3) {
+  padding-top: 12px;
+  border-top: none;
+}
+
+.impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:not(:first-child) {
+  padding-left: 28px;
+  border-left: 1px solid var(--impact-donut-divider-color);
+}
+
+.impact-donut.impact-donut-text-light {
+  --impact-donut-heading-color: #fff;
+  --impact-donut-body-color: #fff;
+  --impact-donut-stat-label-color: #fff;
+  --impact-donut-divider-color: rgb(255 255 255 / 35%);
+}
+
+.impact-donut .impact-donut-stat.is-authoring-placeholder {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  min-height: 156px;
+  padding: 24px;
+  border: 1px dashed #c7d4de;
+  border-radius: 24px;
+  background: rgb(20 145 191 / 4%);
+}
+
+.impact-donut .impact-donut-stat.is-authoring-placeholder:nth-child(2n) {
+  padding-left: 24px;
+  border-left: 1px dashed #c7d4de;
+}
+
+.impact-donut .impact-donut-stat.is-authoring-placeholder:nth-child(n + 3) {
+  border-top: 1px dashed #c7d4de;
+  padding-top: 24px;
+}
+
+.impact-donut .impact-donut-placeholder-title {
+  margin: 0;
+  color: var(--impact-donut-heading-color);
+  font-size: var(--heading-6-size);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.impact-donut .impact-donut-placeholder-body {
+  margin: 0;
+  color: #5f6e7f;
+  font-size: var(--body-sm-size);
+}
+
+.impact-donut .impact-donut-stat-value {
+  margin-bottom: 10px;
+
+  /* Blue Dark: Blue Medium is 3.37 on a light surface, under AA for text. */
+  color: var(--impact-donut-stat-color, var(--ncmec-blue-dark));
+  font-size: var(--heading-1-size);
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+/* COLOUR KEYS: a stat or legend entry tied to a segment keeps the block ink for its number
+   and shows the arc colour as a swatch. Text can only wear a colour darkened to AA, which
+   stopped it matching the arc; a swatch is not text, so it keeps the exact colour. */
+.impact-donut .impact-donut-key {
+  display: inline-block;
+  flex-shrink: 0;
+  background: var(--impact-donut-key-color);
+}
+
+.impact-donut .impact-donut-stat-key {
+  display: block;
+  width: 40px;
+  height: 6px;
+  margin-bottom: 16px;
+  border-radius: 3px;
+}
+
+.impact-donut .impact-donut-stat.has-key .impact-donut-stat-value {
+  color: var(--impact-donut-heading-color);
+}
+
+.impact-donut .impact-donut-stat-label {
+  margin: 0;
+  color: var(--impact-donut-stat-label-color);
+}
+
+.impact-donut .impact-donut-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 22px;
+  transition-delay: 520ms;
+}
+
+/* Buttons: styled by the button standard in styles/styles.css. */
+
+.impact-donut .impact-donut-chart-side {
+  display: grid;
+  gap: 28px;
+  justify-items: center;
+}
+
+.impact-donut .impact-donut-chart-shell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 520px);
+  transition-delay: 160ms;
+}
+
+.impact-donut .impact-donut-chart-shell::before {
+  content: '';
+  position: absolute;
+  inset: 12% 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 173 93 / 18%) 0%, rgb(255 173 93 / 0%) 72%);
+  filter: blur(10px);
+  transform: scale(0.88);
+  opacity: 0;
+  transition:
+    transform 900ms ease,
+    opacity 900ms ease;
+}
+
+.impact-donut.is-visible .impact-donut-chart-shell::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.impact-donut .impact-donut-chart {
+  position: relative;
+  width: min(100%, 460px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-image: conic-gradient(var(--impact-donut-track) 0deg 360deg);
+  transform: rotate(-90deg) scale(0.94);
+  box-shadow: 0 28px 56px rgb(17 58 103 / 10%);
+  transition: transform 850ms cubic-bezier(0.2, 1, 0.22, 1);
+}
+
+.impact-donut.is-visible .impact-donut-chart {
+  transform: rotate(-90deg) scale(1);
+}
+
+.impact-donut .impact-donut-chart-hole {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background: var(--impact-donut-surface);
+  box-shadow: inset 0 0 0 1px rgb(17 58 103 / 4%);
+}
+
+.impact-donut .impact-donut-legend {
+  width: min(100%, 560px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid transparent;
+  order: 2;
+}
+
+.impact-donut .impact-donut-legend-item {
+  padding: 8px 22px 0;
+  transition-delay: calc(220ms + (var(--stagger-index, 0) * 90ms));
+  text-align: center;
+}
+
+.impact-donut .impact-donut-legend-item + .impact-donut-legend-item {
+  border-left: 1px solid var(--impact-donut-divider-color);
+}
+
+.impact-donut .impact-donut-legend-item.is-authoring-placeholder {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  min-height: 118px;
+  padding: 18px 22px;
+  border: 1px dashed #c7d4de;
+  border-radius: 20px;
+  background: rgb(20 145 191 / 4%);
+}
+
+.impact-donut .impact-donut-legend-item.is-authoring-placeholder + .impact-donut-legend-item {
+  border-left: 1px solid var(--impact-donut-divider-color);
+}
+
+.impact-donut .impact-donut-legend-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.impact-donut .impact-donut-legend-key {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.impact-donut .impact-donut-legend-value {
+  margin: 0;
+  color: var(--impact-donut-heading-color);
+  font-size: var(--heading-4-size);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.impact-donut .impact-donut-legend-label {
+  margin: 0;
+  color: var(--impact-donut-stat-label-color);
+  line-height: var(--caption-line-height);
+}
+
+/* HIGHLIGHT: pointing at an arc, or at its legend entry or stat, dims the other arcs (in
+   JS) and the other entries here, and shows the segment beside the ring. */
+.impact-donut .impact-donut-chart:focus-visible {
+  outline: 3px solid var(--ncmec-blue-dark);
+  outline-offset: 6px;
+}
+
+.impact-donut .impact-donut-legend-item.is-linked,
+.impact-donut .impact-donut-stat.is-linked {
+  transition:
+    opacity 180ms ease,
+    transform 650ms ease;
+  transition-delay: 0s;
+}
+
+.impact-donut.has-active-segment .impact-donut-legend-item.is-linked:not(.is-active),
+.impact-donut.has-active-segment .impact-donut-stat.is-linked:not(.is-active) {
+  opacity: 0.4;
+}
+
+@media (width <= 1100px) {
+  .impact-donut .impact-donut-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .impact-donut .impact-donut-heading,
+  .impact-donut .impact-donut-body {
+    max-width: none;
+  }
+
+  .impact-donut .impact-donut-chart-shell {
+    width: min(100%, 460px);
+  }
+}
+
+@media (width > 700px) and (width <= 1100px) {
+  .impact-donut .impact-donut-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .impact-donut .impact-donut-button {
+    width: 100%;
+  }
+}
+
+@media (width <= 700px) {
+  .impact-donut {
+    padding: 56px 0;
+  }
+
+    .impact-donut .impact-donut-legend-label{
+        margin: 15px 0;
+    }
+
+  .impact-donut .impact-donut-stats {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    order: 3;
+  }
+
+  .impact-donut .impact-donut-chart-side {
+    order: 2;
+  }
+
+  .impact-donut .impact-donut-copy-intro {
+    order: 1;
+    text-align: center;
+  }
+
+  .impact-donut .impact-donut-stat {
+    padding: 24px 0;
+    text-align: center;
+  }
+
+  .impact-donut .impact-donut-stat:nth-child(2n) {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .impact-donut .impact-donut-stat + .impact-donut-stat {
+    border-top: 1px solid var(--impact-donut-divider-color);
+  }
+
+  /* Three-up segment-source variant keeps per-column left padding + dividers on
+     desktop; flush every stat left on the stacked mobile layout so they all
+     align with the first item. */
+  .impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat,
+  .impact-donut .impact-donut-stats.is-segment-source.is-three-up .impact-donut-stat:not(:first-child) {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .impact-donut .impact-donut-stat.is-authoring-placeholder,
+  .impact-donut .impact-donut-stat.is-authoring-placeholder:nth-child(2n),
+  .impact-donut .impact-donut-stat.is-authoring-placeholder:nth-child(n + 3) {
+    padding: 20px;
+    border: 1px dashed #c7d4de;
+  }
+
+  .impact-donut .impact-donut-actions {
+    order: 4;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .impact-donut .impact-donut-button {
+    width: 100%;
+  }
+
+  .impact-donut .impact-donut-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .impact-donut .impact-donut-legend-item {
+    padding: 16px 0 0;
+  }
+
+  .impact-donut .impact-donut-legend-item + .impact-donut-legend-item {
+    border-left: none;
+    border-top: 1px solid var(--impact-donut-divider-color);
+  }
+
+  .impact-donut .impact-donut-legend-item.is-authoring-placeholder {
+    padding: 18px;
+  }
+
+  .impact-donut .impact-donut-legend-item.is-authoring-placeholder + .impact-donut-legend-item {
+    border-top: 1px solid var(--impact-donut-divider-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-donut .impact-donut-reveal,
+  .impact-donut .impact-donut-chart-shell::before,
+  .impact-donut .impact-donut-chart {
+    transition: none;
+  }
+}
+
+/* HOVER — row tier (lift + light shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.impact-donut .impact-donut-legend-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.impact-donut .impact-donut-legend-item:focus-within,
+.impact-donut .impact-donut-legend-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-donut .impact-donut-legend-item:focus-within,
+  .impact-donut .impact-donut-legend-item:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

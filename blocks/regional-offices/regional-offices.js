@@ -1,0 +1,405 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+  setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
+
+const BLOCK_ROW_INDEX = {
+  heading: 0,
+  subheading: 1,
+  columns: 2,
+  stylingVariant: 3,
+};
+
+function isRegionalOfficeItemRow(row) {
+  const cols = [...row.children];
+  return Boolean(
+    row.querySelector('[data-aue-prop="image"]')
+      || row.querySelector('[data-aue-prop="title"]')
+      || row.querySelector('[data-aue-prop="buttonText"]')
+      || cols.length >= 5
+      || (cols.length >= 3 && row.querySelector('picture, img')),
+  );
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .filter((row) => !isRegionalOfficeItemRow(row));
+}
+
+function getParentFallbackCell(block, rowIndex) {
+  const row = getParentRows(block)[rowIndex];
+  return row?.children?.[0] || row || null;
+}
+
+function getBlockField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
+  const field = readTextField(block, name, {
+    rowIndex,
+    columnIndex,
+    fallbackCell: getParentFallbackCell(block, rowIndex),
+  });
+  return { source: field.source || field.cell, value: field.value };
+}
+
+function getBlockRichField(block, name, rowIndex = BLOCK_ROW_INDEX[name], columnIndex = 0) {
+  const field = readRichTextField(block, name, {
+    rowIndex,
+    columnIndex,
+    fallbackCell: getParentFallbackCell(block, rowIndex),
+  });
+  return field.source || field.cell;
+}
+
+function getFallbackCellAt(row, index) {
+  return Number.isInteger(index) ? row.children[index] || null : null;
+}
+
+function getField(row, name, index) {
+  const field = readTextField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
+  return { source: field.source, value: field.value };
+}
+
+function getLinkField(row, name, index) {
+  const field = readLinkField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
+  return { source: field.source, value: field.value };
+}
+
+function getRichField(row, name, index) {
+  const field = readRichTextField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
+  return field.source || field.cell;
+}
+
+function getImageField(row, name, index) {
+  const field = readImageField(row, name, { fallbackCell: getFallbackCellAt(row, index) });
+  return {
+    source: field.source,
+    picture: field.picture,
+    img: field.img,
+  };
+}
+
+function isButtonStyleValue(value) {
+  // Legacy values plus the seven the style dropdown now stores.
+  const style = String(value || '').trim().toLowerCase();
+  return ['solid', 'outlined', ...BUTTON_STYLES].includes(style);
+}
+
+function isLikelyLinkValue(value) {
+  return /^(?:#|\/|https?:\/\/|mailto:|tel:)/i.test(String(value || '').trim());
+}
+
+function isLikelyButtonText(value, imageAlts = []) {
+  const text = String(value || '').trim();
+  return /(?:learn more|view more|read more|contact us|office details|→)/i.test(text)
+    || (imageAlts.length > 0 && /office$/i.test(text) && !imageAlts.includes(text));
+}
+
+function normalizeCompactText(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+function getCellLinkValue(cell) {
+  if (!cell) return '';
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector?.('a[href]');
+  const href = anchor?.getAttribute('href') || anchor?.href || '';
+  if (href) return href;
+  const text = cell.textContent.trim();
+  return isLikelyLinkValue(text) && !isButtonStyleValue(text) ? text : '';
+}
+
+function findRowLinkField(row, startIndex = 0) {
+  const cells = [...row.children].slice(Math.max(startIndex, 0));
+  const cell = cells.find((candidate) => getCellLinkValue(candidate));
+  return {
+    source: cell || null,
+    value: getCellLinkValue(cell),
+  };
+}
+
+function getItemColumnMap(row) {
+  const hasInstrumentation = row.querySelector('[data-aue-prop], [data-richtext-prop]');
+  const cells = [...row.children];
+
+  if (!hasInstrumentation) {
+    // Current published shape. imageAlt is folded into the <img alt> attribute
+    // and takes no cell of its own, so the 7-field model emits 6 cells and
+    // every field after the image sits one slot earlier than the model says.
+    //
+    // Worth stating explicitly rather than leaving to the heuristic below: that
+    // path hard-codes buttonLink to null, so an authored link could never
+    // resolve from it, and it discards any cell that looks like a URL before it
+    // starts matching — which is exactly the cell the link lives in.
+    if (cells.length === 6) {
+      return {
+        image: 0,
+        imageAlt: null,
+        title: 1,
+        bodyText: 2,
+        buttonText: 3,
+        buttonLink: 4,
+        buttonStyle: 5,
+      };
+    }
+
+    const imageAlts = [...row.querySelectorAll('img')]
+      .map((img) => normalizeCompactText(img.alt))
+      .filter(Boolean);
+    const textCells = cells
+      .map((cell, index) => ({
+        cell,
+        index,
+        text: normalizeCompactText(cell.textContent),
+      }))
+      .filter(({ index, text }) => index > 0 && text)
+      .filter(({ text }) => !isButtonStyleValue(text) && !isLikelyLinkValue(text));
+
+    const buttonTextCell = textCells.find(({ text }) => isLikelyButtonText(text, imageAlts));
+    const contentCells = textCells.filter((entry) => entry !== buttonTextCell);
+    const titleCell = contentCells.find(({ text }) => imageAlts.includes(text))
+      || [...contentCells].sort((a, b) => a.text.length - b.text.length)[0];
+    const bodyCell = contentCells
+      .filter((entry) => entry !== titleCell)
+      .sort((a, b) => b.text.length - a.text.length)[0];
+
+    const linkCell = cells.findIndex((c, i) => i > 0 && getCellLinkValue(c));
+    const linkCellIndex = linkCell >= 0 ? linkCell : null;
+    const styleCell = cells
+      .findIndex((c, i) => i > 0 && isButtonStyleValue(normalizeCompactText(c.textContent)));
+    const styleCellIndex = styleCell >= 0 ? styleCell : null;
+
+    return {
+      image: 0,
+      imageAlt: null,
+      title: titleCell?.index ?? 2,
+      bodyText: bodyCell?.index ?? 1,
+      buttonText: buttonTextCell?.index ?? null,
+      // Was hard-coded null, which meant an authored link on any older cell
+      // shape could never render. findRowLinkField already knows how to spot
+      // the link cell; use it rather than giving up.
+      buttonLink: linkCellIndex,
+      buttonStyle: styleCellIndex,
+    };
+  }
+
+  return {
+    image: 0,
+    imageAlt: 1,
+    title: 2,
+    bodyText: 3,
+    buttonText: 4,
+    buttonLink: 5,
+    buttonStyle: 6,
+  };
+}
+
+function buildPicture(imageField, imageAlt) {
+  const { img } = imageField;
+  if (!img?.src) return null;
+
+  const picture = createOptimizedPicture(img.src, imageAlt || img.alt || '', false, [
+    { media: '(min-width: 900px)', width: '420' },
+    { width: '300' },
+  ]);
+
+  moveInstrumentation(img, picture.querySelector('img'));
+  return picture;
+}
+
+function buildRichContent(source, className) {
+  if (!source) return null;
+
+  const content = document.createElement('div');
+  content.className = className;
+  moveInstrumentation(source, content);
+  while (source.firstChild) content.append(source.firstChild);
+
+  return content.childNodes.length ? content : null;
+}
+
+function isUniversalEditor() {
+  return Boolean(document.querySelector('[data-aue-resource]'));
+}
+
+/**
+ * A button with no destination is not a button. This used to fall back to a
+ * <span> wearing the button styles: it looked interactive to a sighted mouse
+ * user, but it could not be focused, carried no role, and was announced as
+ * plain text — so keyboard and screen-reader users got a control that did not
+ * exist, and everyone else got one that did nothing. (The stylesheet even has a
+ * :focus rule a <span> can never trigger.)
+ *
+ * A real <a> is rendered when there is somewhere to go. When there is not,
+ * nothing ships to the live page, and the editor gets an obviously-inert notice
+ * so the author can see the link is missing rather than the site pretending.
+ */
+function buildButton(buttonTextField, buttonLinkField, buttonStyle, index) {
+  const label = buttonTextField.value;
+  const href = buttonLinkField.value;
+  if (!label && !href) return null;
+
+  if (!href) {
+    if (!isUniversalEditor()) return null;
+
+    const notice = document.createElement('p');
+    notice.className = 'regional-offices-button-missing-link';
+    notice.textContent = `"${label}" has no Button Link yet, so it is hidden on the live page.`;
+    if (buttonTextField.source) moveInstrumentation(buttonTextField.source, notice);
+    return notice;
+  }
+
+  const button = document.createElement('a');
+  button.className = `regional-offices-button regional-offices-button-${buttonStyle || 'outlined'} regional-offices-reveal`;
+  // Outlined was this block's default, so an unset style stays Secondary.
+  applyButtonStyle(button, resolveButtonStyle(buttonStyle, 'secondary'));
+  button.style.setProperty('--stagger-index', index + 1.4);
+  button.textContent = label || 'Learn More';
+  button.href = href;
+
+  if (buttonTextField.source || buttonLinkField.source) {
+    moveInstrumentation(buttonTextField.source || buttonLinkField.source, button);
+  }
+
+  return button;
+}
+
+function buildOfficeCard(item, index, variant) {
+  const card = document.createElement('article');
+  card.className = 'regional-offices-card regional-offices-reveal';
+  card.style.setProperty('--stagger-index', index);
+  if (item.row) {
+    moveInstrumentation(item.row, card);
+    setItemLabel(card, [item.titleField.value, item.bodySource?.textContent]);
+  }
+
+  const media = document.createElement('div');
+  media.className = 'regional-offices-card-media';
+  media.style.setProperty('--stagger-index', index + 0.5);
+  const picture = buildPicture(item.imageField, item.imageAltField.value);
+  if (picture) media.append(picture);
+  card.append(media);
+
+  const textWrap = document.createElement('div');
+  textWrap.className = 'regional-offices-card-text';
+
+  if (item.titleField.value || item.titleField.source) {
+    const title = document.createElement('h3');
+    title.className = 'regional-offices-card-title';
+    if (item.titleField.source) {
+      moveInstrumentation(item.titleField.source, title);
+      while (item.titleField.source.firstChild) title.append(item.titleField.source.firstChild);
+    } else {
+      title.textContent = item.titleField.value;
+    }
+    textWrap.append(title);
+  }
+
+  const body = buildRichContent(item.bodySource, 'regional-offices-card-body');
+  if (body) textWrap.append(body);
+
+  if (textWrap.childElementCount) card.append(textWrap);
+
+  if (variant !== 'boxed') {
+    const button = buildButton(
+      item.buttonTextField,
+      item.buttonLinkField,
+      item.buttonStyleField.value,
+      index,
+    );
+    if (button) card.append(button);
+  }
+
+  return card;
+}
+
+export default function decorate(block) {
+  const headingField = getBlockField(block, 'heading');
+  const subheadingSource = getBlockRichField(block, 'subheading');
+  const columnsField = getBlockField(block, 'columns');
+  const stylingVariantField = getBlockField(block, 'stylingVariant');
+  const variant = (stylingVariantField.value || 'default').toLowerCase();
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const offices = [];
+
+  rows.forEach((row) => {
+    const isItemRow = isRegionalOfficeItemRow(row);
+
+    if (!isItemRow) return;
+
+    const itemColumns = getItemColumnMap(row);
+    const imageField = getImageField(row, 'image', itemColumns.image);
+    const imageAltField = getField(row, 'imageAlt', itemColumns.imageAlt);
+    const titleField = getField(row, 'title', itemColumns.title);
+    const bodySource = getRichField(row, 'bodyText', itemColumns.bodyText);
+    const buttonTextField = getField(row, 'buttonText', itemColumns.buttonText);
+    const buttonLinkField = getLinkField(row, 'buttonLink', itemColumns.buttonLink);
+    const buttonStyleField = getField(row, 'buttonStyle', itemColumns.buttonStyle);
+
+    if (isButtonStyleValue(buttonLinkField.value)) buttonLinkField.value = '';
+    if (!buttonLinkField.value) {
+      const compactLinkField = findRowLinkField(row, itemColumns.buttonText);
+      buttonLinkField.source = compactLinkField.source;
+      buttonLinkField.value = compactLinkField.value;
+    }
+
+    if (!imageField.img && !titleField.value && !bodySource && !buttonTextField.value) return;
+
+    offices.push({
+      imageField,
+      imageAltField,
+      titleField,
+      bodySource,
+      buttonTextField,
+      buttonLinkField,
+      buttonStyleField,
+      row,
+    });
+  });
+
+  const inner = document.createElement('div');
+  inner.className = 'regional-offices-inner';
+
+  const header = document.createElement('div');
+  header.className = 'regional-offices-header regional-offices-reveal';
+
+  if (headingField.value || headingField.source) {
+    const heading = document.createElement('h2');
+    heading.className = 'regional-offices-heading';
+    if (headingField.source) {
+      moveInstrumentation(headingField.source, heading);
+      while (headingField.source.firstChild) heading.append(headingField.source.firstChild);
+    } else {
+      heading.textContent = headingField.value;
+    }
+    header.append(heading);
+  }
+
+  const subheading = buildRichContent(subheadingSource, 'regional-offices-subheading');
+  if (subheading) header.append(subheading);
+
+  if (header.childElementCount) inner.append(header);
+
+  const grid = document.createElement('div');
+  grid.className = 'regional-offices-grid';
+  grid.style.setProperty('--regional-offices-columns', columnsField.value || '3');
+  // The cards are transparent, so their buttons sit straight on the section.
+  markButtonSurface(grid, isOnDarkSection(block));
+
+  offices.forEach((office, index) => {
+    grid.append(buildOfficeCard(office, index, variant));
+  });
+
+  inner.append(grid);
+  block.replaceChildren(inner);
+
+  block.classList.toggle('regional-offices-boxed', variant === 'boxed');
+}

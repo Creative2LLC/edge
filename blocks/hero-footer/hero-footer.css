@@ -1,0 +1,235 @@
+.hero-footer-container .hero-footer-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+.hero-footer {
+  --hero-footer-reveal-duration: 0.6s;
+  --hero-footer-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 810px;
+  overflow: hidden;
+}
+
+.hero-footer-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity calc(var(--hero-footer-reveal-duration) + 0.08s) var(--hero-footer-reveal-ease),
+    transform calc(var(--hero-footer-reveal-duration) + 0.08s) var(--hero-footer-reveal-ease);
+}
+
+.hero-footer-bg picture {
+  width: 810px;
+  height: 810px;
+  display: block;
+}
+
+.hero-footer-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-footer-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  max-width: 1200px;
+}
+
+.hero-footer-heading-1 {
+  font-size: var(--heading-2-size);
+  font-weight: 700;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.15;
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease),
+    transform var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease);
+}
+
+.hero-footer-heading-2 {
+  font-size: var(--heading-1-home-size);
+  font-weight: 700;
+  color: #00264d;
+  margin: 0;
+  line-height: 1.15;
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease),
+    transform var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease);
+  transition-delay: 90ms;
+}
+
+/* Rich-text heading/subheading children may include <p> wrappers — collapse
+   the outer paragraph margins so the spacing comes from the authored RTE. */
+.hero-footer-heading-1 > :first-child,
+.hero-footer-heading-2 > :first-child,
+.hero-footer-subheading > :first-child {
+  margin-top: 0;
+}
+
+.hero-footer-heading-1 > :last-child,
+.hero-footer-heading-2 > :last-child,
+.hero-footer-subheading > :last-child {
+  margin-bottom: 0;
+}
+
+.hero-footer-subheading {
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  max-width: 100%;
+  margin: 24px 0 0;
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease),
+    transform var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease);
+  transition-delay: 180ms;
+}
+
+.hero-footer-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease),
+    transform var(--hero-footer-reveal-duration) var(--hero-footer-reveal-ease);
+  transition-delay: 270ms;
+}
+
+/* Buttons: styled by the button standard in styles/styles.css. */
+
+/* ===== Variant 2 ===== */
+.hero-footer.hero-footer-variant-2 .hero-footer-heading-1 {
+  font-size: var(--deck-size);
+  font-weight: 700;
+  color: var(--ncmec-red);
+}
+
+.hero-footer.hero-footer-variant-2 .hero-footer-heading-2 {
+  font-size: var(--heading-2-size);
+  font-weight: 700;
+}
+
+.hero-footer.hero-footer-variant-2 .hero-footer-subheading {
+  width: auto;
+  max-width: 701px;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+}
+
+@media (width <= 900px) {
+  .hero-footer {
+    min-height: 620px;
+  }
+
+  .hero-footer-content {
+    width: 100%;
+    padding: 40px 20px;
+    box-sizing: border-box;
+  }
+
+  /* Let long words wrap instead of spilling past the clipped block edges. */
+  .hero-footer-heading-1,
+  .hero-footer-heading-2,
+  .hero-footer-subheading {
+    overflow-wrap: break-word;
+  }
+
+  .hero-footer-heading-1 {
+    font-size: var(--heading-2-size);
+  }
+
+  .hero-footer-heading-2 {
+    font-size: var(--heading-1-size);
+  }
+
+  .hero-footer-subheading {
+    width: 100%;
+  }
+
+  .hero-footer-bg picture {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (width <= 600px) {
+  .hero-footer {
+    min-height: 520px;
+  }
+
+  .hero-footer-content {
+    padding: 32px 18px;
+  }
+
+  /* Scale headings with the viewport so they never overrun small screens.
+     Variant-2 selectors are repeated here to beat their higher specificity. */
+  .hero-footer-heading-1 {
+    font-size: var(--heading-3-size);
+  }
+
+  .hero-footer-heading-2,
+  .hero-footer.hero-footer-variant-2 .hero-footer-heading-2 {
+    font-size: var(--heading-1-size);
+  }
+
+  .hero-footer-subheading,
+  .hero-footer.hero-footer-variant-2 .hero-footer-subheading {
+    margin-top: 18px;
+  }
+
+  .hero-footer-buttons {
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .hero-footer-btn {
+    width: 100%;
+  }
+}
+
+.hero-footer.is-visible .hero-footer-bg,
+.hero-footer.is-visible .hero-footer-heading-1,
+.hero-footer.is-visible .hero-footer-heading-2,
+.hero-footer.is-visible .hero-footer-subheading,
+.hero-footer.is-visible .hero-footer-buttons {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-footer-bg,
+  .hero-footer-heading-1,
+  .hero-footer-heading-2,
+  .hero-footer-subheading,
+  .hero-footer-buttons {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

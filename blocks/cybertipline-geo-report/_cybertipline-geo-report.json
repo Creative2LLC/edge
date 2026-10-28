@@ -1,0 +1,279 @@
+{
+  "definitions": [
+    {
+      "title": "CyberTipline Geo Report",
+      "id": "cybertipline-geo-report",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "CyberTipline Geo Report",
+              "model": "cybertipline-geo-report",
+              "filter": "cybertipline-geo-report"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "CyberTipline Geo Report Row",
+      "id": "cybertipline-geo-report-row",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "CyberTipline Geo Report Row",
+              "model": "cybertipline-geo-report-row"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "cybertipline-geo-report",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "CyberTipline Reports by Geography"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro Copy",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "description": "Laravel backend base URL. The block fetches /api/cybertipline-reports/{year}/datasets/{datasetSlug}."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "year",
+          "label": "Report Year",
+          "description": "Leave blank to use /api/cybertipline-reports/current."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "datasetSlug",
+          "label": "Dataset Slug",
+          "value": "domestic-state-reports"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "geoType",
+          "label": "Geography Type",
+          "options": [
+            {
+              "name": "State",
+              "value": "state"
+            },
+            {
+              "name": "Country / Global",
+              "value": "country"
+            },
+            {
+              "name": "Auto",
+              "value": "auto"
+            }
+          ],
+          "value": "state"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emptyMessage",
+          "label": "Empty State Message",
+          "value": "No CyberTipline geography data is available."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "sampleDataMode",
+          "label": "Sample Data Mode",
+          "description": "For testing only. Use Off for real CyberTipline API data.",
+          "options": [
+            {
+              "name": "Off",
+              "value": "off"
+            },
+            {
+              "name": "Use When Empty",
+              "value": "when-empty"
+            },
+            {
+              "name": "Always Use Sample",
+              "value": "always"
+            }
+          ],
+          "value": "off"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textMode",
+          "label": "Text Mode",
+          "description": "Light mode uses white heading/body text. Dark mode uses the default colors.",
+          "options": [
+            {
+              "name": "Dark (default)",
+              "value": "dark"
+            },
+            {
+              "name": "Light",
+              "value": "light"
+            }
+          ],
+          "value": "dark"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "disclaimerText",
+          "label": "Disclaimer Text",
+          "description": "Optional text displayed under the map/list area.",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "cybertipline-geo-report-row",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "label",
+          "label": "Location Name"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "code",
+          "label": "State/Country Code"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "value",
+          "label": "Report Count"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "description",
+          "label": "Detail Text"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "color",
+          "label": "Map Color (Optional)",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "cybertipline-geo-report",
+      "components": [
+        "cybertipline-geo-report-row"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,219 @@
+/* Logo Carousel Block */
+.logo-carousel {
+  margin: 64px auto;
+  padding: 0;
+
+  /* The EDS section wrapper shares the `logo-carousel-wrapper` class with the
+     inner div, so it picks up `display: flex` and treats this block as a flex
+     item. Combined with the auto side margins above, that would size the block
+     to its content (all logos) and push it off-screen. An explicit width keeps
+     it bounded to the viewport so the track below can scroll horizontally. */
+  width: 100%;
+  max-width: var(--container);
+  box-sizing: border-box;
+}
+
+.logo-carousel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+
+  /* Allow children to shrink below their content so the track below can become
+     a horizontal scroll container instead of pushing the page wider. */
+  min-width: 0;
+}
+
+/* Track — horizontally scrollable list of logos */
+.logo-carousel-track {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  cursor: grab;
+  scroll-snap-type: x mandatory;
+  padding: 8px 4px;
+
+  /* Stay within the parent width and scroll horizontally rather than expanding
+     to the combined logo width (which pushed the block off the screen edge). */
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* Hide native scrollbar — we render our own bar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.logo-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slide — wraps a single logo */
+.logo-carousel-slide {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 64px;
+}
+
+.logo-carousel-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.logo-carousel-logo picture {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cap logo height at 64px and let width scale proportionally */
+.logo-carousel-logo img {
+  display: block;
+  height: auto;
+  max-height: 64px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+/* Authoring placeholder so empty items are still selectable in the editor */
+.logo-carousel-slide.is-authoring-placeholder {
+  min-width: 160px;
+  min-height: 64px;
+  border: 1px dashed #c4c4c4;
+  border-radius: 8px;
+  color: var(--ncmec-gray-medium);
+  font-size: var(--body-sm-size);
+}
+
+/* Controls row — slider bar (left) + nav buttons (right) */
+.logo-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Slider bar (bottom-left) */
+.logo-carousel-bar {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  max-width: 360px;
+}
+
+.logo-carousel-bar-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background-color: rgb(0 38 77 / 12%);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.logo-carousel-bar-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #00264d;
+  border-radius: 999px;
+  transition: width 0.15s ease, transform 0.15s ease;
+}
+
+/* Pagination buttons (bottom-right). */
+.logo-carousel .logo-carousel-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+/* Responsive */
+@media (width <= 900px) {
+  .logo-carousel {
+    margin: 40px auto;
+    padding: 0;
+  }
+
+  .logo-carousel-wrapper {
+    gap: 24px;
+  }
+
+  .logo-carousel-track {
+    gap: 40px;
+  }
+
+  .logo-carousel-logo img {
+    max-height: 56px;
+    max-width: 180px;
+  }
+
+  .logo-carousel-bar {
+    max-width: none;
+  }
+}
+
+@media (width <= 600px) {
+  .logo-carousel-track {
+    gap: 32px;
+  }
+
+  .logo-carousel-logo img {
+    max-height: 48px;
+    max-width: 140px;
+  }
+}
+
+/* HOVER — edge tier (rule draws along the bottom edge). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.logo-carousel .logo-carousel-slide:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  position: relative;
+  transition: var(--hover-transition);
+}
+
+.logo-carousel .logo-carousel-slide:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"]))))::after {
+  content: "";
+  position: absolute;
+  bottom: var(--hover-edge-offset);
+  left: 50%;
+  width: var(--hover-edge-width);
+  height: var(--hover-edge-height);
+  translate: -50% 0;
+  background: var(--hover-edge-color, var(--text-marker-color, #f5c84b));
+  mask-image: var(--hover-edge-mark);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--hover-edge-duration) var(--hover-ease);
+}
+
+.logo-carousel .logo-carousel-slide:focus-within::after,
+.logo-carousel .logo-carousel-slide:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-carousel .logo-carousel-slide::after {
+    transition: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

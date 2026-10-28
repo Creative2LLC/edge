@@ -1,0 +1,227 @@
+.image-text-card-row {
+  padding: 60px 0;
+}
+
+/* Grid layout */
+.image-text-card-row .image-text-card-row-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+/* Individual card */
+.image-text-card-row .image-text-card-row-card {
+  flex: 0 0 calc((100% - (var(--grid-columns, 3) - 1) * 24px) / var(--grid-columns, 3));
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* Card image — always covers full top area */
+.image-text-card-row .image-text-card-row-card-image {
+  height: 220px;
+  overflow: hidden;
+}
+
+.image-text-card-row .image-text-card-row-card-image picture {
+  display: block;
+  height: 100%;
+}
+
+.image-text-card-row .image-text-card-row-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Card content area */
+.image-text-card-row .image-text-card-row-card-content {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: var(--ncmec-warm-gray);
+}
+
+/* Icon (optional) */
+.image-text-card-row .image-text-card-row-card-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
+}
+
+.image-text-card-row .image-text-card-row-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Preserve logo artwork instead of cropping wide marks to fill a photo frame. */
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo {
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo picture,
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo img {
+  width: 100%;
+  height: 100%;
+}
+
+.image-text-card-row .image-text-card-row-card-image.is-wide-logo img {
+  object-fit: contain;
+}
+
+/* Title */
+.image-text-card-row .image-text-card-row-card-title {
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+/* Subtitle */
+.image-text-card-row .image-text-card-row-card-subtitle {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+/* Body text */
+.image-text-card-row .image-text-card-row-card-body {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 16px;
+  text-align: left;
+}
+
+/* Link: the Text link style from the button standard; this only places it. */
+.image-text-card-row .image-text-card-row-card-link {
+  margin-top: auto;
+}
+
+/* ---------- Image alignment (object-position) ---------- */
+.image-text-card-row .image-text-card-row-img-left .image-text-card-row-card-image img {
+  object-position: left center;
+}
+
+.image-text-card-row .image-text-card-row-img-center .image-text-card-row-card-image img {
+  object-position: center center;
+}
+
+.image-text-card-row .image-text-card-row-img-right .image-text-card-row-card-image img {
+  object-position: right center;
+}
+
+/* ---------- Small image variant ----------
+   Image becomes 141x183 (max), positioned at the top-left of the card with
+   padding around it. The card itself takes on the background color and
+   padding so the inner content area no longer wraps the bg. */
+.image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card {
+  background-color: var(--ncmec-warm-gray);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card-image {
+  width: 141px;
+  height: 183px;
+  max-width: 141px;
+  max-height: 183px;
+  flex: 0 0 auto;
+  margin: 0 0 20px;
+  align-self: flex-start;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card-image picture {
+  display: block;
+  width: 141px;
+  height: 183px;
+}
+
+.image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card-image img {
+  width: 141px;
+  height: 183px;
+  object-fit: cover;
+  display: block;
+}
+
+/* In small mode, the inner content area drops its own padding/background
+   since those now live on the card itself. */
+.image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card-content {
+  padding: 0;
+  background-color: transparent;
+  width: 100%;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .image-text-card-row .image-text-card-row-card {
+    flex: 0 0 calc(50% - 12px);
+  }
+}
+
+/* Responsive — mobile */
+@media (width <= 600px) {
+  .image-text-card-row .image-text-card-row-card {
+    flex: 0 0 100%;
+  }
+
+  .image-text-card-row .image-text-card-row-card-image {
+    height: 180px;
+  }
+
+  .image-text-card-row .image-text-card-row-grid-small .image-text-card-row-card-image {
+    height: 183px;
+  }
+}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.image-text-card-row .image-text-card-row-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.image-text-card-row .image-text-card-row-card:focus-within,
+.image-text-card-row .image-text-card-row-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-text-card-row .image-text-card-row-card:focus-within,
+  .image-text-card-row .image-text-card-row-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

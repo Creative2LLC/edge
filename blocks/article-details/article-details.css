@@ -1,0 +1,365 @@
+.article-details-container .article-details-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+.article-details {
+  color: #24313f;
+}
+
+.article-details .article-details-hero {
+  position: relative;
+  display: flex;
+  min-height: clamp(360px, 58vw, 620px);
+  padding: clamp(112px, 16vw, 164px) var(--section-pad) 56px;
+  overflow: hidden;
+  isolation: isolate;
+  align-items: flex-end;
+}
+
+.article-details .article-details-hero.is-without-image {
+  background:
+    radial-gradient(circle at top left, rgb(31 141 184 / 18%) 0%, rgb(31 141 184 / 0%) 44%),
+    linear-gradient(135deg, #eef7fb 0%, #f7fbfd 52%, #edf4f8 100%);
+}
+
+.article-details .article-details-hero-media,
+.article-details .article-details-hero-media picture,
+.article-details .article-details-hero-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.article-details .article-details-hero-media {
+  z-index: -3;
+}
+
+.article-details .article-details-hero-media img {
+  display: block;
+  object-fit: cover;
+}
+
+.article-details .article-details-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgb(247 247 247 / 74%) 0%, rgb(247 247 247 / 42%) 34%, rgb(247 247 247 / 92%) 84%, #f6f6f6 100%),
+    linear-gradient(90deg, rgb(247 247 247 / 82%) 0%, rgb(247 247 247 / 38%) 100%);
+}
+
+.article-details .article-details-hero.is-without-image .article-details-hero-overlay {
+  background:
+    linear-gradient(180deg, rgb(246 251 253 / 92%) 0%, rgb(246 251 253 / 96%) 100%),
+    linear-gradient(90deg, rgb(13 110 140 / 8%) 0%, rgb(13 110 140 / 0%) 100%);
+}
+
+.article-details .article-details-hero-content {
+  width: 100%;
+  max-width: var(--container-content);
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.article-details .article-details-title {
+  margin: 0;
+  color: #16324a;
+  max-width: 14ch;
+}
+
+.article-details .article-details-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+
+  /* Was #637788: 3.9:1 on the hero gradient. Palette text grey clears AA. */
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-strong);
+}
+
+.article-details .article-details-meta-separator {
+  color: #9aa9b5;
+}
+
+/* The blog's own tags, injected into the hero once the API answers — they are
+   decoration here, not filters (the blog listing has no deep-linked tag
+   parameter to send them to), so plain spans and no interactive affordance. */
+.article-details .article-details-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.article-details .article-details-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
+}
+
+/* A tag that filters the listing is a real link, so it needs a real hover and
+   focus ring — the same lift article-list gives its clickable card pills, so
+   the two read as the same affordance across the blog. */
+.article-details .article-details-tag.is-linked {
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+/* The label darkens with the background: Blue Dark on Blue Light is only 3.61,
+   under AA, while Navy Dark on it is 9.35. Measured against the palette tokens,
+   not eyeballed. */
+.article-details .article-details-tag.is-linked:hover {
+  transform: translateY(-1px);
+  background: var(--ncmec-blue-light);
+  color: var(--ncmec-navy-dark);
+  box-shadow: 0 8px 18px rgb(13 110 140 / 14%);
+}
+
+.article-details .article-details-tag.is-linked:focus-visible {
+  outline: 3px solid var(--ncmec-blue-medium);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-details .article-details-tag.is-linked {
+    transition: none;
+  }
+
+  .article-details .article-details-tag.is-linked:hover {
+    transform: none;
+  }
+}
+
+.article-details .article-details-excerpt {
+  margin: 0;
+  color: #516272;
+  max-width: 58rem;
+  line-height: 1.75;
+}
+
+/* ====================================================================
+   AUTHORED HERO OPTIONS
+
+   Added long after 397 blogs were published, so every rule below is
+   opt-in behind a class the block only adds when an author picked a
+   value. A page that has never been re-authored carries none of them
+   and renders exactly as it did before.
+   ==================================================================== */
+
+.article-details .article-details-hero.is-height-short {
+  min-height: clamp(260px, 38vw, 420px);
+  padding-top: clamp(92px, 12vw, 120px);
+}
+
+.article-details .article-details-hero.is-height-medium {
+  min-height: clamp(320px, 48vw, 520px);
+}
+
+.article-details .article-details-hero.is-height-tall {
+  min-height: clamp(440px, 72vw, 760px);
+}
+
+/* The hero is a flex row whose single child is the content block, so the
+   content moves by its own margins rather than by changing the parent's
+   alignment — that keeps `align-items: flex-end` (the bottom-anchored
+   layout) intact while the horizontal position changes. */
+.article-details .article-details-hero.is-content-center .article-details-hero-content {
+  text-align: center;
+  justify-items: center;
+}
+
+.article-details .article-details-hero.is-content-center .article-details-title,
+.article-details .article-details-hero.is-content-right .article-details-title {
+  max-width: 24ch;
+}
+
+.article-details .article-details-hero.is-content-center .article-details-meta,
+.article-details .article-details-hero.is-content-center .article-details-tags {
+  justify-content: center;
+}
+
+.article-details .article-details-hero.is-content-right .article-details-hero-content {
+  text-align: right;
+  justify-items: end;
+}
+
+.article-details .article-details-hero.is-content-right .article-details-meta,
+.article-details .article-details-hero.is-content-right .article-details-tags {
+  justify-content: flex-end;
+}
+
+/* An authored opacity replaces the two-gradient wash with a single flat
+   scrim, because a percentage the author typed should mean that
+   percentage — layering it over the existing gradients would make 30%
+   land somewhere near 70%. */
+.article-details .article-details-hero.has-overlay-opacity .article-details-hero-overlay {
+  background: rgb(247 247 247 / calc(var(--article-hero-overlay-opacity, 0.5) * 100%));
+}
+
+.article-details .article-details-hero.is-without-gradient .article-details-hero-overlay {
+  background: none;
+}
+
+/* Opacity still wins when both are set: "hide the gradient" is about the
+   default wash, not about a scrim the author asked for by number. */
+.article-details .article-details-hero.is-without-gradient.has-overlay-opacity .article-details-hero-overlay {
+  background: rgb(247 247 247 / calc(var(--article-hero-overlay-opacity, 0.5) * 100%));
+}
+
+.article-details .article-details-hero.has-text-color .article-details-title,
+.article-details .article-details-hero.has-text-color .article-details-meta,
+.article-details .article-details-hero.has-text-color .article-details-meta-item,
+.article-details .article-details-hero.has-text-color .article-details-meta-separator,
+.article-details .article-details-hero.has-text-color .article-details-excerpt {
+  color: var(--article-hero-text-color);
+}
+
+/* Same column as `main > .section > div`: the wrapper above is full-bleed
+   (max-width/padding are unset at the top of this file), so the card has to
+   re-establish the column itself — capped at --container-content and inset by
+   --section-pad, NOT --gutter, or it lands 64px wider than the rest of the page. */
+.article-details .article-details-content {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 2 * var(--section-pad), var(--container-content));
+  margin: clamp(1.5rem, 4vw, 3rem) auto 0;
+  padding: clamp(1.75rem, 4vw, 3rem);
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgb(22 50 74 / 8%);
+}
+
+.article-details .article-details-prose {
+  max-width: min(100%, 1100px);
+  margin: 0 auto;
+}
+
+.article-details .article-details-body {
+  color: #304555;
+  line-height: 1.78;
+}
+
+.article-details .article-details-body > :first-child {
+  margin-top: 0;
+}
+
+.article-details .article-details-body h1,
+.article-details .article-details-body h2,
+.article-details .article-details-body h3,
+.article-details .article-details-body h4 {
+  margin: 2rem 0 1rem;
+  color: #16324a;
+}
+
+.article-details .article-details-body p,
+.article-details .article-details-body ul,
+.article-details .article-details-body ol,
+.article-details .article-details-body blockquote,
+.article-details .article-details-body figure {
+  margin: 0 0 1.15rem;
+}
+
+.article-details .article-details-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+  border-radius: 18px;
+}
+
+.article-details .article-details-body-text > :first-child {
+  margin-top: 0;
+}
+
+.article-details .article-details-body-image {
+  margin: 1.75rem 0;
+  text-align: center;
+}
+
+.article-details .article-details-body-placeholder {
+  border: 1px dashed #7d8ea0;
+  border-radius: 8px;
+  color: #52687d;
+  margin: 1.5rem 0;
+  padding: 18px;
+}
+
+.article-details .article-details-body-image-placeholder {
+  align-items: center;
+  aspect-ratio: 16 / 9;
+  background: var(--ncmec-gray-lightest);
+  border-radius: 8px;
+  display: flex;
+  font-weight: var(--body-weight-bold);
+  justify-content: center;
+  min-height: 180px;
+}
+
+.article-details .article-details-body-image picture,
+.article-details .article-details-body-image img {
+  display: block;
+}
+
+.article-details .article-details-body-image img {
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 18px;
+}
+
+.article-details .article-details-body-image figcaption {
+  margin: 0.75rem auto 0;
+  max-width: 42rem;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+}
+
+.article-details .article-details-message {
+  width: min(100% - 32px, 960px);
+  margin: 48px auto;
+  padding: 1.5rem;
+  border: 1px solid #d9e3ea;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.article-details .article-details-message-title {
+  margin: 0;
+  color: #16324a;
+}
+
+.article-details .article-details-message-copy {
+  margin: 0.75rem 0 0;
+  color: #516272;
+}
+
+@media (width <= 768px) {
+  .article-details .article-details-hero {
+    min-height: 420px;
+    padding: 104px var(--section-pad) 44px;
+  }
+
+  .article-details .article-details-title {
+    max-width: none;
+  }
+
+  .article-details .article-details-message {
+    width: calc(100% - 2 * var(--section-pad));
+  }
+
+  .article-details .article-details-content {
+    margin-top: -42px;
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+  }
+}

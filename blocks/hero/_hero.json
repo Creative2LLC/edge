@@ -9,7 +9,7 @@
             "resourceType": "core/franklin/components/block/v1/block",
             "template": {
               "name": "Hero",
-              "model": "hero"
+              "model": "hero-content"
             }
           }
         }
@@ -18,56 +18,637 @@
   ],
   "models": [
     {
-      "id": "hero",
+      "id": "hero-content",
       "fields": [
+        {
+          "component": "tab",
+          "name": "tabLayout",
+          "label": "Layout"
+        },
+        {
+          "component": "select",
+          "name": "variant",
+          "label": "Hero Variant",
+          "description": "Default uses the standard hero. Homepage Hero uses the taller homepage layout and lets you accent words with [brackets].",
+          "options": [
+            {
+              "name": "Default Hero",
+              "value": "default"
+            },
+            {
+              "name": "Homepage Hero",
+              "value": "homepage"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "content_height",
+          "label": "Height (rem)",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "name": "content_position",
+          "label": "Content Position",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "tab",
+          "name": "tabMedia",
+          "label": "Background & Media"
+        },
         {
           "component": "reference",
           "valueType": "string",
-          "name": "image",
+          "name": "media_image",
           "label": "Image",
           "multi": false
         },
         {
           "component": "text",
           "valueType": "string",
-          "name": "imageAlt",
+          "name": "media_imageAlt",
           "label": "Alt",
           "value": ""
         },
         {
+          "component": "reference",
+          "valueType": "string",
+          "name": "media_featuredImage",
+          "label": "Featured Image (Optional)",
+          "description": "Optional image displayed to the right of the hero title/body, vertically centered. Max 202 x 200px.",
+          "multi": false
+        },
+        {
           "component": "text",
           "valueType": "string",
-          "name": "height",
-          "label": "Height (rem)",
+          "name": "media_featuredImageAlt",
+          "label": "Featured Image Alt",
           "value": ""
         },
         {
+          "component": "reference",
+          "valueType": "string",
+          "name": "media_video",
+          "label": "Background Video (Optional, MP4)",
+          "description": "Optional looping MP4. When set, replaces the background image. The image (above) is used as the video poster while it loads.",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "name": "media_overlayOpacity",
+          "label": "Image Overlay Opacity",
+          "description": "Controls the white overlay on the background image. Higher = more white/washed out. Defaults to 50%.",
+          "options": [
+            {
+              "name": "0% (No overlay)",
+              "value": "0"
+            },
+            {
+              "name": "10%",
+              "value": "10"
+            },
+            {
+              "name": "20%",
+              "value": "20"
+            },
+            {
+              "name": "30%",
+              "value": "30"
+            },
+            {
+              "name": "40%",
+              "value": "40"
+            },
+            {
+              "name": "50% (Default)",
+              "value": "50"
+            },
+            {
+              "name": "60%",
+              "value": "60"
+            },
+            {
+              "name": "70%",
+              "value": "70"
+            },
+            {
+              "name": "78%",
+              "value": ""
+            },
+            {
+              "name": "80%",
+              "value": "80"
+            },
+            {
+              "name": "90%",
+              "value": "90"
+            },
+            {
+              "name": "100% (Fully white)",
+              "value": "100"
+            }
+          ],
+          "value": "50"
+        },
+        {
+          "component": "select",
+          "name": "media_gradientOverlay",
+          "label": "Gradient Overlay",
+          "description": "Adds a bottom-fade gradient over the hero image. Enabled by default.",
+          "options": [
+            {
+              "name": "Show (Default)",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ],
+          "value": "show"
+        },
+        {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "select",
+          "name": "content_showBreadcrumbs",
+          "label": "Show Breadcrumbs",
+          "options": [
+            {
+              "name": "Hide",
+              "value": "hide"
+            },
+            {
+              "name": "Show",
+              "value": "show"
+            }
+          ],
+          "value": "hide"
+        },
+        {
+          "component": "text",
+          "name": "content_breadcrumbs",
+          "value": "",
+          "label": "Breadcrumb Trail (use > or |)",
+          "valueType": "string"
+        },
+        {
           "component": "richtext",
-          "name": "text",
+          "name": "content_text",
           "value": "",
           "label": "Text",
           "valueType": "string"
         },
         {
-          "component": "text",
-          "name": "text_color",
+          "component": "select",
+          "valueType": "string",
+          "name": "content_textColor",
+          "label": "Text Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "name": "content_textHtml",
           "value": "",
-          "label": "Text Color (Hex)",
+          "label": "Body Text",
           "valueType": "string"
         },
         {
           "component": "text",
-          "name": "text_html",
-          "value": "",
-          "label": "Text (HTML)",
-          "valueType": "string"
-        },
-        {
-          "component": "text",
-          "name": "textHtmlClass",
+          "name": "content_textHtmlClass",
           "value": "",
           "label": "Text (HTML) Classes",
           "valueType": "string"
+        },
+        {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
+        },
+        {
+          "component": "text",
+          "name": "action_1Text",
+          "value": "",
+          "label": "Button 1 Text",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "action_1Link",
+          "value": "",
+          "label": "Button 1 Link",
+          "valueType": "string"
+        },
+        {
+          "component": "select",
+          "name": "action_1Style",
+          "label": "Button 1 Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
+          "options": [
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "name": "action_2Text",
+          "value": "",
+          "label": "Button 2 Text",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "action_2Link",
+          "value": "",
+          "label": "Button 2 Link",
+          "valueType": "string"
+        },
+        {
+          "component": "select",
+          "name": "action_2Style",
+          "label": "Button 2 Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
+          "options": [
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "name": "action_3Text",
+          "value": "",
+          "label": "Button 3 Text",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "action_3Link",
+          "value": "",
+          "label": "Button 3 Link",
+          "valueType": "string"
+        },
+        {
+          "component": "select",
+          "name": "action_3Style",
+          "label": "Button 3 Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
+          "options": [
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "tab",
+          "name": "tabPanel",
+          "label": "Side Panel"
+        },
+        {
+          "component": "text",
+          "name": "panel_title",
+          "value": "",
+          "label": "Side Panel Title",
+          "valueType": "string"
+        },
+        {
+          "component": "richtext",
+          "name": "panel_text",
+          "value": "",
+          "label": "Side Panel Text",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "panel_primaryText",
+          "value": "",
+          "label": "Side Panel Primary Button Text",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "panel_primaryLink",
+          "value": "",
+          "label": "Side Panel Primary Button Link",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "panel_secondaryText",
+          "value": "",
+          "label": "Side Panel Secondary Link Text",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "name": "panel_secondaryLink",
+          "value": "",
+          "label": "Side Panel Secondary Link",
+          "valueType": "string"
+        },
+        {
+          "component": "richtext",
+          "name": "panel_footerText",
+          "value": "",
+          "label": "Side Panel Footer Text",
+          "valueType": "string"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "panel_image",
+          "label": "Side Panel Image (Optional)",
+          "description": "When this is the only panel content, the panel background becomes transparent.",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "panel_imageAlt",
+          "label": "Side Panel Image Alt",
+          "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabMarker",
+          "label": "Animated Marker"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "markerTerms",
+          "label": "Animated Marker Text",
+          "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in the hero title/body gets a drawn marker on scroll.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "markerColor",
+          "label": "Animated Marker Color",
+          "description": "Defaults to yellow if left empty.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": "",
+          "valueFormat": "regexp",
+          "validation": {
+            "regexp": "^$|^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "markerStyle",
+          "label": "Animated Marker Style",
+          "options": [
+            {
+              "name": "Circle",
+              "value": "circle"
+            },
+            {
+              "name": "Underline",
+              "value": "underline"
+            }
+          ],
+          "value": "circle"
         }
       ]
     }

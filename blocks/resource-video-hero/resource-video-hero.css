@@ -1,0 +1,163 @@
+.resource-video-hero-container .resource-video-hero-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.resource-video-hero {
+  background: #fff;
+  color: #122f4a;
+}
+
+.resource-video-hero .resource-video-hero-shell,
+.resource-video-hero .resource-video-hero-message {
+  width: min(980px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: clamp(72px, 10vw, 126px) 0 clamp(48px, 8vw, 88px);
+}
+
+.resource-video-hero .resource-video-hero-message h2 {
+  margin: 0;
+  color: #122f4a;
+}
+
+.resource-video-hero .resource-video-hero-message p {
+  max-width: 46rem;
+  margin: 0.75rem 0 0;
+  color: #34495a;
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  color: #5c6f7d;
+  font-size: var(--caption-size);
+  font-weight: 700;
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb a {
+  color: #526a78;
+  text-decoration: none;
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb a:hover {
+  color: var(--ncmec-blue-medium);
+}
+
+.resource-video-hero .resource-video-hero-breadcrumb > * + *::before {
+  content: '/';
+  margin-right: 0.45rem;
+  color: #9aa9b2;
+}
+
+.resource-video-hero .resource-video-hero-title {
+  margin: 0;
+  color: #00264d;
+}
+
+.resource-video-hero .resource-video-hero-description {
+  max-width: 52rem;
+  margin: 1rem 0 0;
+  color: #243846;
+}
+
+.resource-video-hero .resource-video-hero-taxonomy,
+.resource-video-hero .resource-video-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.resource-video-hero .resource-video-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* Watch and Download: styled by the button standard in styles/styles.css. */
+
+@media (width <= 700px) {
+  .resource-video-hero .resource-video-hero-shell,
+  .resource-video-hero .resource-video-hero-message {
+    width: min(100% - 32px, 980px);
+  }
+}
+
+/* Watch Video modal */
+.resource-video-hero-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.resource-video-hero-modal[hidden] {
+  display: none;
+}
+
+.resource-video-hero-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 88%);
+}
+
+.resource-video-hero-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(960px, 100%);
+}
+
+.resource-video-hero-modal-close {
+  position: absolute;
+  top: -2.75rem;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  border: 2px solid rgb(255 255 255 / 40%);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.resource-video-hero-modal-close:hover {
+  border-color: #fff;
+}
+
+.resource-video-hero-modal-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.resource-video-hero-modal-frame iframe,
+.resource-video-hero-modal-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}

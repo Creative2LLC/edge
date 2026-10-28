@@ -1,0 +1,259 @@
+.news {
+  padding: 20px 0 40px;
+}
+
+/* Header row — heading/subheading left, optional button right */
+.news .news-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.news .news-header-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Heading */
+.news .news-heading {
+  color: #00264d;
+  margin: 0;
+}
+
+.news .news-subheading {
+  color: var(--ncmec-gray-dark);
+  margin: 8px 0 0;
+}
+
+/* Header and View More buttons: styled by the button standard in styles/styles.css. */
+.news .news-header-button {
+  flex-shrink: 0;
+}
+
+/* Featured card (horizontal) */
+.news .news-featured {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.news .news-featured-content {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ncmec-warm-gray);
+}
+
+.news .news-featured-image {
+  flex: 1;
+  min-height: 300px;
+}
+
+.news .news-featured-image picture {
+  display: block;
+  height: 100%;
+}
+
+.news .news-featured-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.news .news-featured-title {
+  color: var(--ncmec-gray-dark);
+  margin: 12px 0 8px;
+}
+
+.news .news-featured-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 16px;
+}
+
+/* Tag pills: the blog browser's card pill (article-list), so a news card and a blog card
+   tag the same way. A tag from a blog links to the listing filtered by it. */
+.news .news-tags {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.news .news-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.95rem;
+  padding: 0.34rem 0.78rem;
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.news a.news-tag.is-linked {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.news a.news-tag.is-linked:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgb(13 110 140 / 14%);
+}
+
+.news a.news-tag.is-linked:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 3px;
+}
+
+/* Read more link: the Text link style from the button standard; this only places it. */
+.news .news-read-more {
+  margin-top: auto;
+}
+
+/* Small cards grid */
+.news .news-cards {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.news .news-card {
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.news .news-card-image {
+  min-height: 180px;
+}
+
+.news .news-card-image picture {
+  display: block;
+  height: 100%;
+}
+
+.news .news-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  aspect-ratio: 16 / 9;
+}
+
+.news .news-card-content {
+  padding: 20px;
+  background-color: var(--ncmec-warm-gray);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.news .news-card-title {
+  color: var(--ncmec-gray-dark);
+  margin: 12px 0 8px;
+}
+
+.news .news-card-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 16px;
+}
+
+/* A blog's summary is written for its own page and runs long; cap it so cards stay even. */
+.news .news-card-subheading.is-excerpt,
+.news .news-featured-subheading.is-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* Hidden cards */
+.news .news-card-hidden {
+  display: none;
+}
+
+.news.news-expanded .news-card-hidden {
+  display: flex;
+}
+
+/* View More button */
+.news .news-button-wrapper {
+  text-align: center;
+  margin-top: 32px;
+}
+
+/* Responsive */
+@media (width >= 701px) and (width <= 900px) {
+  .news .news-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (width <= 700px) {
+  .news .news-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+.news .news-header-button,
+  .news .news-header-button:any-link {
+    align-self: stretch;
+  }
+
+  .news .news-featured {
+    flex-direction: column-reverse;
+  }
+
+  .news .news-featured-image {
+    min-height: 200px;
+  }
+
+  .news .news-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.news .news-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.news .news-card:focus-within,
+.news .news-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news .news-card:focus-within,
+  .news .news-card:hover,
+  .news a.news-tag.is-linked:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

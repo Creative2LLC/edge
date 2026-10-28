@@ -1,0 +1,270 @@
+{
+  "definitions": [
+    {
+      "title": "Tabs",
+      "id": "tabs",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Tabs",
+              "model": "tabs",
+              "filter": "tabs"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Tabs Tab Label",
+      "id": "tabs-tab-label",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Tabs Tab Label",
+              "model": "tabs-tab-label"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Tabs Info Card",
+      "id": "tabs-info-card",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Tabs Info Card",
+              "model": "tabs-info-card"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "tabs",
+      "fields": [
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "columns",
+          "label": "Cards Per Row",
+          "options": [
+            {
+              "name": "2 Cards",
+              "value": "2"
+            },
+            {
+              "name": "3 Cards",
+              "value": "3"
+            },
+            {
+              "name": "4 Cards",
+              "value": "4"
+            }
+          ],
+          "value": "4"
+        }
+      ]
+    },
+    {
+      "id": "tabs-tab-label",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "label",
+          "label": "Tab Label",
+          "description": "Text shown in the tab button.",
+          "value": "Tab"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Tab Icon (optional)",
+          "description": "Small icon shown to the left of the tab label (~24px square). Upload a dark/navy version; it is recolored to white automatically when the tab is active.",
+          "multi": false
+        }
+      ]
+    },
+    {
+      "id": "tabs-info-card",
+      "fields": [
+        {
+          "component": "multiselect",
+          "valueType": "string[]",
+          "name": "tabIndex",
+          "label": "Tab(s)",
+          "description": "Which tab(s) this card appears under. Tab 1 = first label, Tab 2 = second, etc. Select multiple to show the card in more than one tab.",
+          "options": [
+            {
+              "name": "Tab 1",
+              "value": "1"
+            },
+            {
+              "name": "Tab 2",
+              "value": "2"
+            },
+            {
+              "name": "Tab 3",
+              "value": "3"
+            },
+            {
+              "name": "Tab 4",
+              "value": "4"
+            },
+            {
+              "name": "Tab 5",
+              "value": "5"
+            },
+            {
+              "name": "Tab 6",
+              "value": "6"
+            },
+            {
+              "name": "Tab 7",
+              "value": "7"
+            },
+            {
+              "name": "Tab 8",
+              "value": "8"
+            },
+            {
+              "name": "Tab 9",
+              "value": "9"
+            },
+            {
+              "name": "Tab 10",
+              "value": "10"
+            },
+            {
+              "name": "Tab 11",
+              "value": "11"
+            },
+            {
+              "name": "Tab 12",
+              "value": "12"
+            },
+            {
+              "name": "Tab 13",
+              "value": "13"
+            },
+            {
+              "name": "Tab 14",
+              "value": "14"
+            },
+            {
+              "name": "Tab 15",
+              "value": "15"
+            }
+          ]
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyContent",
+          "label": "Body Content"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "Link Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "linkStyle",
+          "label": "Link Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "tabs",
+      "components": [
+        "tabs-tab-label",
+        "tabs-info-card"
+      ]
+    }
+  ]
+}

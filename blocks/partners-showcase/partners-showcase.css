@@ -1,0 +1,391 @@
+/* Full-bleed WITHOUT viewport units.
+ *
+ * This used to be `width: 100vw` + `transform: translateX(-50%)`, which was wrong
+ * twice over:
+ *
+ * 1. `100vw` is the viewport INCLUDING the classic scrollbar, while the usable
+ *    width excludes it. On stock Windows Chrome that is ~15px of overhang to the
+ *    right, and `body { overflow-x: clip }` swallows the scrollbar that would
+ *    otherwise reveal it — so the block silently ran off-page. It does not
+ *    reproduce in headless Chrome, which uses zero-width overlay scrollbars.
+ * 2. The `translateX(-50%)` had no matching `left: 50%`, so it was only ever
+ *    harmless because `main .block.scroll-reveal` (0,3,1) overrides transform and
+ *    beats this rule (0,1,0). Had the block ever rendered without scroll-reveal it
+ *    would have jumped half its own width to the left.
+ *
+ * `main > .section > .partners-showcase-wrapper` below already clears the
+ * container's max-width and padding, so the wrapper IS the usable width and
+ * `width: 100%` is true full-bleed — and immune to the scrollbar.
+ */
+.partners-showcase {
+  width: 100%;
+  padding: 96px 0 92px;
+  position: relative;
+  box-sizing: border-box;
+  background: #fff;
+  overflow: hidden;
+}
+
+main > .section > .partners-showcase-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.partners-showcase .partners-showcase-shell {
+  /* Mirrors `main > .section > div` so the band's content lines up with every
+     in-container block while the white band itself stays full-bleed. */
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--section-pad);
+  box-sizing: border-box;
+}
+
+.partners-showcase .partners-showcase-header {
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.partners-showcase .partners-showcase-heading {
+  margin: 0;
+  color: #00264d;
+}
+
+.partners-showcase .partners-showcase-subheading {
+  margin-top: 20px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  line-height: var(--body-line-height);
+  font-weight: var(--body-weight-medium);
+}
+
+.partners-showcase .partners-showcase-subheading > :first-child,
+.partners-showcase .partners-showcase-testimonial-quote > :first-child {
+  margin-top: 0;
+}
+
+.partners-showcase .partners-showcase-subheading > :last-child,
+.partners-showcase .partners-showcase-testimonial-quote > :last-child {
+  margin-bottom: 0;
+}
+
+/* Its parent .partners-showcase is already the full usable width, so the
+   break-out idiom is unnecessary here — and `100vw` carried the same scrollbar
+   overhang described above. */
+.partners-showcase .partners-showcase-logo-band {
+  position: relative;
+  width: 100%;
+  margin-top: 72px;
+}
+
+.partners-showcase .partners-showcase-logo-marquee {
+  overflow: hidden;
+  padding: 18px 0;
+}
+
+.partners-showcase .partners-showcase-logo-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+}
+
+.partners-showcase .partners-showcase-logo-band.is-animated .partners-showcase-logo-track {
+  animation: partners-showcase-marquee 34s linear infinite;
+}
+
+.partners-showcase .partners-showcase-logo-band.is-static .partners-showcase-logo-marquee {
+  display: flex;
+  justify-content: center;
+}
+
+.partners-showcase .partners-showcase-logo-band.is-static .partners-showcase-logo-track {
+  width: auto;
+}
+
+.partners-showcase .partners-showcase-logo-band.is-animated:hover .partners-showcase-logo-track,
+.partners-showcase .partners-showcase-logo-band.is-animated:focus-within .partners-showcase-logo-track {
+  animation-play-state: paused;
+}
+
+.partners-showcase .partners-showcase-logo-group {
+  display: flex;
+  align-items: center;
+  gap: clamp(40px, 5vw, 88px);
+  padding-right: clamp(40px, 5vw, 88px);
+  flex: 0 0 auto;
+}
+
+.partners-showcase .partners-showcase-logo-band.is-static .partners-showcase-logo-group {
+  padding-right: 0;
+}
+
+.partners-showcase .partners-showcase-logo-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  min-height: 78px;
+  color: inherit;
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+
+.partners-showcase .partners-showcase-logo-item.is-authoring-placeholder,
+.partners-showcase .partners-showcase-testimonial.is-authoring-placeholder {
+  border: 1px dashed rgb(0 38 77 / 16%);
+  background: rgb(0 38 77 / 3%);
+}
+
+.partners-showcase .partners-showcase-logo-item.is-authoring-placeholder {
+  min-width: 190px;
+  min-height: 96px;
+  padding: 20px 24px;
+  border-radius: 14px;
+}
+
+.partners-showcase .partners-showcase-testimonial.is-authoring-placeholder {
+  justify-content: center;
+}
+
+.partners-showcase .partners-showcase-item-placeholder {
+  color: #5f6f7f;
+  font-size: var(--body-sm-size);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.partners-showcase .partners-showcase-logo-item:hover,
+.partners-showcase .partners-showcase-logo-item:focus-visible {
+  text-decoration: none;
+}
+
+.partners-showcase .partners-showcase-logo-item picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.partners-showcase .partners-showcase-logo-item img {
+  display: block;
+  max-width: clamp(112px, 10vw, 190px);
+  max-height: 58px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.partners-showcase .partners-showcase-content-shell {
+  margin-top: 72px;
+}
+
+.partners-showcase .partners-showcase-testimonials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+}
+
+.partners-showcase .partners-showcase-testimonial {
+  min-height: 306px;
+  padding: 38px 34px 30px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.partners-showcase .partners-showcase-testimonial-logo {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+}
+
+.partners-showcase .partners-showcase-testimonial-logo picture {
+  display: flex;
+  align-items: center;
+}
+
+.partners-showcase .partners-showcase-testimonial-logo img {
+  display: block;
+  max-width: 168px;
+  max-height: 52px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.partners-showcase .partners-showcase-testimonial-quote {
+  margin-top: 26px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--deck-size);
+  line-height: var(--caption-line-height);
+}
+
+.partners-showcase .partners-showcase-testimonial-attribution {
+  margin: auto 0 0;
+  padding-top: 28px;
+  color: var(--ncmec-gray-dark);
+  font-weight: var(--body-weight-bold);
+}
+
+.partners-showcase .partners-showcase-testimonial-attribution::before {
+  content: '\2014\00a0';
+}
+
+.partners-showcase .partners-showcase-testimonial-attribution-title {
+  font-weight: 600;
+}
+
+.partners-showcase .partners-showcase-footer {
+  margin-top: 56px;
+  display: flex;
+  justify-content: center;
+}
+
+/* CTA: styled by the button standard in styles/styles.css. */
+
+@keyframes partners-showcase-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-showcase .partners-showcase-logo-band.is-animated .partners-showcase-logo-track {
+    animation: none;
+  }
+
+  .partners-showcase .partners-showcase-logo-group-clone {
+    display: none;
+  }
+}
+
+@media (width <= 900px) {
+  .partners-showcase {
+    padding: 76px 0 80px;
+  }
+
+  .partners-showcase .partners-showcase-logo-band {
+    margin-top: 56px;
+  }
+
+  .partners-showcase .partners-showcase-content-shell {
+    margin-top: 60px;
+  }
+
+  .partners-showcase .partners-showcase-testimonials {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .partners-showcase .partners-showcase-testimonial {
+    min-height: 0;
+  }
+}
+
+@media (width <= 600px) {
+  .partners-showcase {
+    padding: 60px 0 64px;
+  }
+
+  .partners-showcase .partners-showcase-subheading {
+    margin-top: 16px;
+    line-height: var(--caption-line-height);
+  }
+
+  .partners-showcase .partners-showcase-logo-band {
+    margin-top: 44px;
+  }
+
+  .partners-showcase .partners-showcase-logo-marquee {
+    padding: 10px 0;
+  }
+
+  .partners-showcase .partners-showcase-logo-group {
+    gap: 36px;
+    padding-right: 36px;
+  }
+
+  .partners-showcase .partners-showcase-logo-item {
+    min-width: 92px;
+    min-height: 62px;
+  }
+
+  .partners-showcase .partners-showcase-logo-item img {
+    max-width: 132px;
+    max-height: 48px;
+  }
+
+  .partners-showcase .partners-showcase-content-shell {
+    margin-top: 52px;
+  }
+
+  .partners-showcase .partners-showcase-testimonial {
+    padding: 32px 24px 24px;
+  }
+
+  .partners-showcase .partners-showcase-testimonial-quote {
+    margin-top: 22px;
+    font-size: var(--body-lg-size);
+  }
+
+  .partners-showcase .partners-showcase-testimonial-attribution {
+    padding-top: 24px;
+    font-size: var(--body-sm-size);
+  }
+
+  .partners-showcase .partners-showcase-footer {
+    margin-top: 44px;
+  }
+
+  .partners-showcase .partners-showcase-cta {
+    width: 100%;
+    max-width: 360px;
+  }
+}
+
+/* HOVER — edge tier (rule draws along the bottom edge). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.partners-showcase .partners-showcase-logo-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  position: relative;
+  transition: var(--hover-transition);
+}
+
+.partners-showcase .partners-showcase-logo-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"]))))::after {
+  content: "";
+  position: absolute;
+  bottom: var(--hover-edge-offset);
+  left: 50%;
+  width: var(--hover-edge-width);
+  height: var(--hover-edge-height);
+  translate: -50% 0;
+  background: var(--hover-edge-color, var(--text-marker-color, #f5c84b));
+  mask-image: var(--hover-edge-mark);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--hover-edge-duration) var(--hover-ease);
+}
+
+.partners-showcase .partners-showcase-logo-item:focus-within::after,
+.partners-showcase .partners-showcase-logo-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-showcase .partners-showcase-logo-item::after {
+    transition: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

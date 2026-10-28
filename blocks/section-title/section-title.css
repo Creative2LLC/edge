@@ -1,0 +1,108 @@
+.section-title {
+  padding: 40px 0 0;
+  margin-top: 40px;
+  margin-bottom: -20px;
+}
+
+/* At desktop, break out of the section's 32px side padding so the inner
+   can actually reach the full 1420px width (so left/right-aligned text
+   sits flush against the section edge). */
+@media (width >= 900px) {
+  .section-title {
+    padding: 40px 0 0;
+  }
+}
+
+.section-title .section-title-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+/* Left aligned title → button on the far right */
+.section-title .section-title-inner.section-title-align-left {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+/* Right aligned title → button on the far left */
+.section-title .section-title-inner.section-title-align-right {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
+
+/* Center aligned title → button below, centered */
+.section-title .section-title-inner.section-title-align-center {
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.section-title .section-title-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.section-title .section-title-inner.section-title-align-center .section-title-text {
+  flex: 0 0 auto;
+}
+
+.section-title .section-title-heading {
+  color: #00264d;
+  margin: 0;
+}
+
+.section-title .section-title-subtitle {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 12px 0 0;
+  line-height: 1.4;
+  max-width: 799px;
+}
+
+.section-title .section-title-subtitle p {
+  margin: 0.75em 0 0;
+}
+
+.section-title .section-title-subtitle p:first-child {
+  margin-top: 0;
+}
+
+.section-title .section-title-inner.section-title-align-center .section-title-subtitle {
+  max-width: 825px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Optional button ----------
+   Styled by the button standard in styles/styles.css; this only places it. */
+.section-title .section-title-button {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.section-title .section-title-inner.section-title-align-center .section-title-button {
+  margin-bottom: 80px;
+}
+
+@media (width <= 768px) {
+  /* Stack on mobile regardless of alignment */
+  .section-title .section-title-inner,
+  .section-title .section-title-inner.section-title-align-left,
+  .section-title .section-title-inner.section-title-align-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .section-title .section-title-inner.section-title-align-center {
+    align-items: center;
+  }
+
+  .section-title .section-title-subtitle {
+    font-size: var(--body-lg-size);
+  }
+}

@@ -1,0 +1,185 @@
+/* Card Row Block */
+.card-row.block {
+  padding: 60px 0;
+  margin: 0 auto;
+}
+
+/* Break out of the section's side padding so the block spans the full 1420px */
+
+/* Grid container */
+.card-row-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  width: 100%;
+}
+
+/* ===== HORIZONTAL VARIANT (default) ===== */
+
+.card-row-horizontal .card-row-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  width: calc((100% - 24px * (var(--grid-columns, 3) - 1)) / var(--grid-columns, 3));
+  min-height: 370px;
+  padding: 36px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px 0 #41404233;
+}
+
+.card-row-horizontal .card-row-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 auto;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Horizontal logo */
+.card-row-horizontal .card-row-card-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 250px;
+  max-height: 90px;
+}
+
+.card-row-horizontal .card-row-card-logo img {
+  max-width: 250px;
+  max-height: 90px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Horizontal body text */
+.card-row-horizontal .card-row-card-body {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  text-align: center;
+  max-width: 314px;
+  width: 100%;
+}
+
+/* ===== VERTICAL VARIANT ===== */
+
+.card-row-vertical .card-row-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 8px;
+  width: calc((100% - 24px * (var(--grid-columns, 4) - 1)) / var(--grid-columns, 4));
+  min-height: 470px;
+  padding: 36px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px 0 #41404233;
+}
+
+.card-row-vertical .card-row-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 auto;
+  gap: 12px;
+  width: 100%;
+  padding-top: 24px;
+}
+
+/* Vertical logo (small) */
+.card-row-vertical .card-row-card-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-row-vertical .card-row-card-logo img {
+  width: 46px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Vertical title */
+.card-row-vertical .card-row-card-title {
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  text-align: center;
+  max-width: 241px;
+}
+
+/* Vertical body text */
+.card-row-vertical .card-row-card-body {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  text-align: center;
+  max-width: 241px;
+}
+
+/* ===== BUTTON — styled by the button standard; this only places it ===== */
+.card-row-card-button {
+  margin-top: 16px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (width <= 900px) {
+  .card-row-grid {
+    gap: 20px;
+  }
+
+  .card-row-horizontal .card-row-card {
+    width: calc(50% - 12px);
+    min-height: 340px;
+  }
+
+  .card-row-vertical .card-row-card {
+    width: calc(50% - 12px);
+    min-height: 420px;
+  }}
+
+/* Mobile */
+@media (width <= 600px) {
+  .card-row-grid {
+    gap: 16px;
+  }
+
+  .card-row-horizontal .card-row-card,
+  .card-row-vertical .card-row-card {
+    width: 100%;
+    min-height: auto;
+  }}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.card-row .card-row-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.card-row .card-row-card:focus-within,
+.card-row .card-row-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-row .card-row-card:focus-within,
+  .card-row .card-row-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

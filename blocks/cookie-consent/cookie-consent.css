@@ -1,0 +1,276 @@
+.cookie-consent-shell {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 1300;
+  display: flex;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+
+.cookie-consent-panel {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgb(18 41 62 / 14%);
+  border-radius: 8px;
+  padding: 20px;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 22px 56px rgb(8 24 38 / 22%);
+  color: #173147;
+  font-family: var(--body-font-family);
+  pointer-events: auto;
+}
+
+.cookie-consent-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cookie-consent-heading {
+  margin: 0;
+  color: var(--ncmec-navy-raised);
+}
+
+.cookie-consent-text {
+  margin: 10px 0 0;
+  color: #3f5567;
+  font-size: var(--body-sm-size);
+}
+
+.cookie-consent-text a {
+  color: var(--ncmec-blue-dark);
+  font-weight: 700;
+}
+
+.cookie-consent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.cookie-consent-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  margin: 0;
+
+  /* Accept All sets only border-color; the width came from the old global button rule. */
+  border: 2px solid transparent;
+  border-radius: 999px;
+  padding: 10px 18px;
+
+  /* Named exception to the button standard (see BUTTONS in styles/styles.css).
+     >=18.66px bold qualifies as WCAG "large text" (3:1 contrast threshold), which
+     white on #008eb7 (3.78) passes. At the standard 16px it needs 4.5 and fails. */
+  font-size: 1.1875rem; /* 19px */
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: normal;
+}
+
+.cookie-consent-button.primary {
+  border-color: #008eb7;
+  background: #008eb7;
+  color: #fff;
+}
+
+.cookie-consent-button.primary:hover,
+.cookie-consent-button.primary:focus {
+  background: var(--ncmec-blue-dark);
+}
+
+/* Accept and Reject must read as equals. The old .ghost variant — transparent border
+   over a pale fill — made refusing visibly weaker than accepting, which is the dark
+   pattern EU regulators fine for. Both refusal buttons now carry a full-strength
+   border at the same size and weight as Accept All. */
+.cookie-consent-button.secondary {
+  border: 2px solid var(--ncmec-navy-raised);
+  background: #fff;
+  color: var(--ncmec-navy-raised);
+}
+
+.cookie-consent-button.secondary:hover,
+.cookie-consent-button.secondary:focus {
+  background: #143654;
+  color: #fff;
+}
+
+/* styles.css hides [hidden] via a zero-specificity :where(), which a plain class
+   selector outranks — so .cookie-consent-button{display:inline-flex} kept rendering
+   buttons the script had already marked hidden. Restate it at class specificity. */
+.cookie-consent-button[hidden] {
+  display: none;
+}
+
+/* Customize/Save sits apart on the left; Reject and Accept stay paired on the right so
+   the two consent choices are read together and weighed against each other. */
+.cookie-consent-actions .cookie-consent-button:first-child {
+  margin-right: auto;
+}
+
+.cookie-consent-details {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.cookie-consent-details[hidden] {
+  display: none;
+}
+
+.cookie-consent-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgb(20 54 84 / 12%);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--ncmec-white);
+}
+
+.cookie-consent-choice-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.cookie-consent-choice-title {
+  color: var(--ncmec-navy-raised);
+  font-size: var(--heading-7-size);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.cookie-consent-choice-description {
+  color: #546475;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+.cookie-consent-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 30px;
+}
+
+.cookie-consent-switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cookie-consent-switch input:disabled {
+  cursor: not-allowed;
+}
+
+.cookie-consent-switch-ui {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #cbd6df;
+  transition: background 0.2s ease;
+}
+
+.cookie-consent-switch-ui::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(12 34 52 / 20%);
+  transition: transform 0.2s ease;
+}
+
+.cookie-consent-switch input:checked + .cookie-consent-switch-ui {
+  background: #008eb7;
+}
+
+.cookie-consent-switch input:checked + .cookie-consent-switch-ui::after {
+  transform: translateX(22px);
+}
+
+.cookie-consent-switch input:focus-visible + .cookie-consent-switch-ui {
+  outline: 3px solid rgb(0 141 182 / 22%);
+  outline-offset: 3px;
+}
+
+.cookie-consent-footer-link {
+  display: inline-flex;
+}
+
+.cookie-consent-footer-button {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-decoration: none;
+  white-space: normal;
+}
+
+.cookie-consent-footer-button:hover,
+.cookie-consent-footer-button:focus {
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (width >= 780px) {
+  .cookie-consent-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (width < 640px) {
+  .cookie-consent-shell {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .cookie-consent-panel {
+    max-height: calc(100dvh - 20px);
+    padding: 16px;
+    overflow: auto;
+  }
+
+  .cookie-consent-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .cookie-consent-button {
+    width: 100%;
+  }
+
+  .cookie-consent-choice {
+    align-items: flex-start;
+    padding: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-consent-switch-ui,
+  .cookie-consent-switch-ui::after {
+    transition-duration: 0.01ms;
+  }
+}

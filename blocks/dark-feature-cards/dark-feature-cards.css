@@ -1,0 +1,213 @@
+/* Dark Feature Cards Block */
+.dark-feature-cards {
+  margin: 112px auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.dark-feature-cards .dark-feature-cards-inner {
+  background-color: #00264d;
+  border-radius: 32px;
+  padding: 80px 72px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* ---------- Header (title + subtitle) ---------- */
+.dark-feature-cards .dark-feature-cards-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  margin-bottom: 56px;
+}
+
+.dark-feature-cards .dark-feature-cards-title {
+  margin: 0 0 18px;
+  color: #fff;
+}
+
+.dark-feature-cards .dark-feature-cards-subtitle {
+  margin: 0;
+  color: #fff;
+  max-width: 731px;
+}
+
+/* ---------- Card grid ---------- */
+.dark-feature-cards .dark-feature-cards-grid {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.dark-feature-cards .dark-feature-cards-card {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Top image — full card width, locked to 178px tall so cards stay aligned
+   even when one card has a longer subtitle than the others. `flex: 0 0 178px`
+   prevents the flex parent from shrinking it. */
+.dark-feature-cards .dark-feature-cards-card-media {
+  width: 100%;
+  height: 178px;
+  display: block;
+  flex: 0 0 178px;
+  overflow: hidden;
+}
+
+.dark-feature-cards .dark-feature-cards-card-media picture {
+  display: block;
+  width: 100%;
+  height: 178px;
+}
+
+.dark-feature-cards .dark-feature-cards-card-media img {
+  display: block;
+  width: 100%;
+  height: 178px;
+  object-fit: cover;
+}
+
+/* Card body */
+.dark-feature-cards .dark-feature-cards-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 32px 28px;
+  flex: 1 1 auto;
+  gap: 18px;
+}
+
+.dark-feature-cards .dark-feature-cards-card-icon {
+  display: block;
+}
+
+/* Four-up cards are ~230px of text at 1200px: a single long word ("Accountability",
+   "Enforcement") was wider than that and clipped. The title is shrink-to-fit in the
+   column, so cap it at the card width; then hyphenate, or break as a fallback. */
+.dark-feature-cards .dark-feature-cards-card-title {
+  max-width: 100%;
+  margin: 0;
+  color: #fff;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.dark-feature-cards .dark-feature-cards-card-subtitle {
+  margin: 0;
+  font-weight: var(--body-weight-medium);
+  color: #fff;
+}
+
+.dark-feature-cards .dark-feature-cards-card-title p,
+.dark-feature-cards .dark-feature-cards-card-subtitle p {
+  margin: 0;
+}
+
+.dark-feature-cards .dark-feature-cards-card-title p + p {
+  margin-top: 4px;
+}
+
+.dark-feature-cards .dark-feature-cards-card-subtitle p + p {
+  margin-top: 8px;
+}
+
+/* ---------- Buttons ----------
+   Styled by the button standard in styles/styles.css — dark form, since the
+   cards are dark — which also restores the focus ring this block used to hide. */
+.dark-feature-cards .dark-feature-cards-card-btn {
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Pushes the button to the bottom of the card so cards line up */
+.dark-feature-cards .dark-feature-cards-card-body > .dark-feature-cards-card-btn {
+  margin-top: auto;
+}
+
+/* ---------- Responsive ---------- */
+@media (width <= 1100px) {
+  .dark-feature-cards .dark-feature-cards-inner {
+    padding: 64px 48px;
+  }
+
+  .dark-feature-cards .dark-feature-cards-grid {
+    flex-wrap: wrap;
+  }
+
+  .dark-feature-cards .dark-feature-cards-card {
+    flex: 1 1 calc(50% - 12px);
+    min-width: 240px;
+  }
+}
+
+@media (width <= 900px) {
+  .dark-feature-cards {
+    margin: 72px auto;
+    padding: 0;
+  }
+
+  .dark-feature-cards .dark-feature-cards-inner {
+    padding: 48px 32px;
+    border-radius: 24px;
+  }
+
+  .dark-feature-cards .dark-feature-cards-header {
+    margin-bottom: 40px;
+  }}
+
+@media (width <= 600px) {
+  .dark-feature-cards .dark-feature-cards-inner {
+    padding: 40px 24px;
+    border-radius: 20px;
+  }
+
+  .dark-feature-cards .dark-feature-cards-grid {
+    flex-direction: column;
+  }
+
+  .dark-feature-cards .dark-feature-cards-card {
+    flex: none;
+    width: 100%;
+  }
+
+  .dark-feature-cards .dark-feature-cards-card-body {
+    padding: 28px 24px;
+  }
+}
+
+/* HOVER — tint tier (wash, no lift). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.dark-feature-cards .dark-feature-cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.dark-feature-cards .dark-feature-cards-card:focus-within,
+.dark-feature-cards .dark-feature-cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  background-image: linear-gradient(var(--hover-tint-wash), var(--hover-tint-wash));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dark-feature-cards .dark-feature-cards-card:focus-within,
+  .dark-feature-cards .dark-feature-cards-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

@@ -6,6 +6,59 @@
     ]
   },
   {
+    "id": "richtext",
+    "rte": {
+      "toolbar": {
+        "format": [
+          "bold",
+          "italic",
+          "underline",
+          "strike"
+        ],
+        "blocks": [
+          "paragraph",
+          "h2",
+          "h3",
+          "h4"
+        ],
+        "list": [
+          "bullet_list",
+          "ordered_list"
+        ],
+        "insert": [
+          "link",
+          "unlink",
+          "image",
+          "special_characters"
+        ],
+        "editor": [
+          "removeformat",
+          "paste_text"
+        ],
+        "sections": [
+          "blocks",
+          "format",
+          "list",
+          "insert",
+          "editor"
+        ]
+      },
+      "actions": {
+        "image": {
+          "wrapInPicture": false,
+          "shortcut": "Mod-Shift-I",
+          "label": "Insert Image"
+        },
+        "link": {
+          "hideTarget": false
+        }
+      }
+    },
+    "components": [
+      "richtext"
+    ]
+  },
+  {
     "id": "section",
     "components": [
       "text",
@@ -15,12 +68,163 @@
       "hero",
       "cards",
       "statistics",
+      "colored-heading",
+      "colored-text",
+      "custom-image",
+      "colored-icon-text",
+      "colored-button",
+      "colored-list",
+      "colored-grid",
+      "support-cta",
+      "need-help",
       "columns",
-      "giving",
+      "tabs",
       "fragment",
-      "carousel",
       "embed",
-      "video"
+      "video",
+      "news",
+      "resources",
+      "resources-browser",
+      "resources-carousel",
+      "poster-results",
+      "poster-map",
+      "resource-hero",
+      "resource-details",
+      "resource-downloads",
+      "resource-tags",
+      "resource-video-hero",
+      "article-details",
+      "article-list",
+      "related-articles",
+      "icon-text",
+      "icon-text-row",
+      "hero-footer",
+      "footer-banner",
+      "image-card",
+      "newsletter",
+      "impact-chain",
+      "leadership-header",
+      "leadership-team",
+      "leadership-profile",
+      "cta-card-1",
+      "cta-card-2",
+      "info-cards-grid",
+      "card-row",
+      "section-title",
+      "split-card",
+      "split-card-gap",
+      "impact-donut",
+      "impact-data-table",
+      "impact-bar-chart",
+      "regional-offices",
+      "image-text-card-row",
+      "split-card-carousel",
+      "icon-card-carousel",
+      "numbered-cards",
+      "numbered-cards-custom",
+      "product-list",
+      "faq",
+      "general-inquiries",
+      "text-image",
+      "trust-badges",
+      "leadership-overview",
+      "historical-trends",
+      "historical-reports-carousel",
+      "report-section-nav",
+      "report-breakdown",
+      "report-download",
+      "report-archive",
+      "social-report-cta",
+      "cybertipline-geo-report",
+      "impact-geo-report",
+      "connect-grid",
+      "partners-showcase",
+      "card-testimonies",
+      "mail-address",
+      "split-card-detail",
+      "job-postings",
+      "internship-program",
+      "card-row-compact",
+      "card-row-detailed",
+      "detailed-carousel",
+      "us-map",
+      "split-card-info",
+      "logo-carousel",
+      "split-card-offices",
+      "dark-feature-cards",
+      "featured-event",
+      "training-sessions",
+      "split-card-list",
+      "split-thin-carousel",
+      "amber-alert-info",
+      "amber-alerts",
+      "amber-still-missing",
+      "case-anniversaries",
+      "media-reporting-info",
+      "media-contact-cta",
+      "site-search",
+      "cta-banner",
+      "dual-cards",
+      "terms-content",
+      "missing-child-quick-report",
+      "missing-child-poster-api-registration",
+      "code-adam-kit",
+      "ncmec-reprint-request",
+      "team-hope-volunteer",
+      "host-a-fundraiser",
+      "faon-application",
+      "event-request-form",
+      "community-education-partner-reporting",
+      "prpl-application",
+      "apply-for-training",
+      "event-calendar",
+      "gallery-grid",
+      "picture-cards",
+      "mega-nav"
+    ]
+  },
+  {
+    "id": "article-details",
+    "components": [
+      "article-body-text",
+      "article-body-image"
+    ]
+  },
+  {
+    "id": "article-details-body",
+    "components": [
+      "article-body-text",
+      "article-body-image"
+    ]
+  },
+  {
+    "id": "btn-group",
+    "components": [
+      "btn-group-item"
+    ]
+  },
+  {
+    "id": "card-row-compact",
+    "components": [
+      "card-row-compact-item"
+    ]
+  },
+  {
+    "id": "card-row-detailed",
+    "components": [
+      "card-row-detailed-item"
+    ]
+  },
+  {
+    "id": "card-row",
+    "components": [
+      "card-row-item"
+    ]
+  },
+  {
+    "id": "card-testimonies",
+    "components": [
+      "card-testimonies-item"
     ]
   },
   {
@@ -45,6 +249,33 @@
     ]
   },
   {
+    "id": "colored-grid",
+    "components": [
+      "colored-grid-row",
+      "text",
+      "image",
+      "button",
+      "title",
+      "columns",
+      "statistics",
+      "cards",
+      "colored-heading",
+      "colored-text",
+      "custom-image",
+      "colored-icon-text",
+      "colored-button",
+      "colored-list",
+      "info-cards-grid",
+      "impact-donut"
+    ]
+  },
+  {
+    "id": "colored-list",
+    "components": [
+      "colored-list-item"
+    ]
+  },
+  {
     "id": "columns",
     "components": [
       "column"
@@ -56,7 +287,295 @@
       "text",
       "image",
       "button",
-      "title"
+      "title",
+      "colored-heading",
+      "colored-text",
+      "custom-image",
+      "colored-icon-text",
+      "colored-button",
+      "colored-list",
+      "statistics"
+    ]
+  },
+  {
+    "id": "connect-grid",
+    "components": [
+      "connect-grid-item"
+    ]
+  },
+  {
+    "id": "cybertipline-geo-report",
+    "components": [
+      "cybertipline-geo-report-row"
+    ]
+  },
+  {
+    "id": "dark-feature-cards",
+    "components": [
+      "dark-feature-cards-item"
+    ]
+  },
+  {
+    "id": "detailed-carousel",
+    "components": [
+      "detailed-carousel-item"
+    ]
+  },
+  {
+    "id": "dual-cards",
+    "components": [
+      "dual-card"
+    ]
+  },
+  {
+    "id": "faq",
+    "components": [
+      "faq-item"
+    ]
+  },
+  {
+    "id": "featured-event",
+    "components": [
+      "featured-event-item"
+    ]
+  },
+  {
+    "id": "gallery-grid",
+    "components": [
+      "gallery-grid-item",
+      "statistics",
+      "cards"
+    ]
+  },
+  {
+    "id": "historical-reports-carousel",
+    "components": [
+      "historical-reports-carousel-item"
+    ]
+  },
+  {
+    "id": "historical-trends",
+    "components": [
+      "historical-trends-card"
+    ]
+  },
+  {
+    "id": "icon-card-carousel",
+    "components": [
+      "icon-card-carousel-item"
+    ]
+  },
+  {
+    "id": "icon-text-row",
+    "components": [
+      "icon-text-row-item"
+    ]
+  },
+  {
+    "id": "image-text-card-row",
+    "components": [
+      "image-text-card-row-item"
+    ]
+  },
+  {
+    "id": "impact-bar-chart",
+    "components": [
+      "impact-bar-chart-row"
+    ]
+  },
+  {
+    "id": "impact-chain",
+    "components": [
+      "impact-chain-item"
+    ]
+  },
+  {
+    "id": "impact-data-table",
+    "components": [
+      "impact-data-table-row"
+    ]
+  },
+  {
+    "id": "impact-donut",
+    "components": [
+      "impact-donut-item"
+    ]
+  },
+  {
+    "id": "impact-geo-report",
+    "components": [
+      "impact-geo-report-row"
+    ]
+  },
+  {
+    "id": "info-cards-grid",
+    "components": [
+      "info-card"
+    ]
+  },
+  {
+    "id": "job-postings",
+    "components": [
+      "job-posting-item"
+    ]
+  },
+  {
+    "id": "leadership-overview",
+    "components": [
+      "leadership-overview-card"
+    ]
+  },
+  {
+    "id": "leadership-team",
+    "components": [
+      "leader-card"
+    ]
+  },
+  {
+    "id": "logo-carousel",
+    "components": [
+      "logo-carousel-item"
+    ]
+  },
+  {
+    "id": "mega-nav",
+    "components": [
+      "mega-nav-row",
+      "mega-nav-sub-link",
+      "mega-nav-top-link"
+    ]
+  },
+  {
+    "id": "need-help",
+    "components": [
+      "need-help-card"
+    ]
+  },
+  {
+    "id": "news",
+    "components": [
+      "news-article"
+    ]
+  },
+  {
+    "id": "numbered-cards-custom",
+    "components": [
+      "numbered-cards-custom-item"
+    ]
+  },
+  {
+    "id": "numbered-cards",
+    "components": [
+      "numbered-cards-item"
+    ]
+  },
+  {
+    "id": "partners-showcase",
+    "components": [
+      "partners-showcase-item"
+    ]
+  },
+  {
+    "id": "picture-cards",
+    "components": [
+      "picture-cards-item"
+    ]
+  },
+  {
+    "id": "product-list",
+    "components": [
+      "product-list-item"
+    ]
+  },
+  {
+    "id": "regional-offices",
+    "components": [
+      "regional-office-item"
+    ]
+  },
+  {
+    "id": "report-archive",
+    "components": [
+      "report-archive-item"
+    ]
+  },
+  {
+    "id": "report-breakdown",
+    "components": [
+      "report-breakdown-item"
+    ]
+  },
+  {
+    "id": "resource-downloads",
+    "components": [
+      "resource-download-item"
+    ]
+  },
+  {
+    "id": "resources-browser",
+    "components": [
+      "resources-browser-item"
+    ]
+  },
+  {
+    "id": "resources",
+    "components": [
+      "resource-item"
+    ]
+  },
+  {
+    "id": "split-card-carousel",
+    "components": [
+      "split-card-carousel-item"
+    ]
+  },
+  {
+    "id": "split-card-detail",
+    "components": [
+      "split-card-detail-item"
+    ]
+  },
+  {
+    "id": "split-card-gap",
+    "components": [
+      "split-card-gap-item"
+    ]
+  },
+  {
+    "id": "split-card-list",
+    "components": [
+      "split-card-list-item"
+    ]
+  },
+  {
+    "id": "split-thin-carousel",
+    "components": [
+      "split-thin-carousel-item"
+    ]
+  },
+  {
+    "id": "statistics",
+    "components": [
+      "statistics-item"
+    ]
+  },
+  {
+    "id": "tabs",
+    "components": [
+      "tabs-tab-label",
+      "tabs-info-card"
+    ]
+  },
+  {
+    "id": "training-sessions",
+    "components": [
+      "training-sessions-item"
+    ]
+  },
+  {
+    "id": "trust-badges",
+    "components": [
+      "trust-badge-item"
     ]
   }
 ]

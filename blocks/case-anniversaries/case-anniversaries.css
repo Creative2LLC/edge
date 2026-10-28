@@ -1,0 +1,468 @@
+.case-anniversaries {
+  background: var(--ncmec-gray-lightest);
+  color: #303030;
+}
+
+.case-anniversaries-inner {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.case-anniversaries-header {
+  display: grid;
+  gap: 16px;
+  padding: 42px 0 18px;
+}
+
+.case-anniversaries-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.case-anniversaries-heading {
+  margin: 0;
+  color: #06345d;
+}
+
+.case-anniversaries-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.case-anniversaries-form {
+  display: grid;
+  gap: 10px;
+}
+
+.case-anniversaries-primary-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.case-anniversaries-timeframe {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+  color: #3f4b53;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.case-anniversaries-filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.case-anniversaries-search-wrap {
+  display: block;
+  min-width: 0;
+}
+
+.case-anniversaries-search,
+.case-anniversaries-filter {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  border: 1px solid #d9dfe3;
+  border-radius: 999px;
+  background: #fff;
+  color: #243846;
+  font: inherit;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+.case-anniversaries-search {
+  padding: 0 16px;
+  background-image: none;
+}
+
+.case-anniversaries-listing {
+  padding: 0 0 96px;
+}
+
+.case-anniversaries-filter {
+  padding: 0 14px;
+}
+
+.case-anniversaries-filter:disabled {
+  opacity: 0.62;
+}
+
+.case-anniversaries-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.case-anniversaries-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 24px;
+}
+
+.case-anniversaries-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 220px;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 2px solid #00a9d6;
+  border-radius: 999px;
+  background: #d8f4fb;
+  color: var(--ncmec-blue-dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 800;
+}
+
+.case-anniversaries-chip:nth-child(2n) {
+  border-color: #f26a4b;
+  background: #fff0ea;
+  color: #b13b24;
+}
+
+.case-anniversaries-chip:nth-child(3n) {
+  border-color: #8bcf87;
+  background: #eef9ed;
+  color: #3c7a39;
+}
+
+.case-anniversaries-chip span {
+  font-size: var(--caption-size);
+  line-height: 1;
+}
+
+.case-anniversaries-clear {
+  border: 0;
+  background: transparent;
+  color: #3f4b53;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  padding: 2px 4px;
+}
+
+.case-anniversaries-count {
+  margin: 0;
+  color: #3f4b53;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.case-anniversaries-status,
+.case-anniversaries-empty {
+  margin: 18px 0;
+  color: #3f4b53;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  text-align: center;
+}
+
+.case-anniversaries-status.is-error {
+  color: #b42318;
+}
+
+.case-anniversaries-status.is-loading {
+  color: var(--ncmec-blue-dark);
+}
+
+.case-anniversaries-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.case-anniversaries-decade-heading {
+  grid-column: 1 / -1;
+  margin: 14px 0 -6px;
+  color: #243846;
+}
+
+.case-anniversaries-decade-heading:first-child {
+  margin-top: 0;
+}
+
+.case-anniversaries-grid[data-view="list"] {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.case-anniversaries-card {
+  display: grid;
+  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
+  min-height: 230px;
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.case-anniversaries-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+.case-anniversaries-card:focus-within {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+.case-anniversaries-grid[data-view="list"] .case-anniversaries-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 5%);
+}
+
+.case-anniversaries-card-media {
+  position: relative;
+  min-height: 230px;
+  overflow: hidden;
+  background: var(--ncmec-gray-lightest);
+}
+
+.case-anniversaries-grid[data-view="list"] .case-anniversaries-card-media {
+  display: none;
+}
+
+.case-anniversaries-card-media picture,
+.case-anniversaries-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.case-anniversaries-card-media img {
+  object-fit: cover;
+  object-position: center top;
+}
+
+.case-anniversaries-card-media.is-placeholder::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 24px;
+  border: 3px solid #dfe1e3;
+  border-radius: 4px;
+  transform: translate(-50%, -50%);
+}
+
+.case-anniversaries-card-media.is-placeholder::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  border-top: 3px solid #dfe1e3;
+  border-left: 3px solid #dfe1e3;
+  transform: translate(-40%, 5%) rotate(45deg);
+}
+
+.case-anniversaries-card-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 24px 26px 22px;
+}
+
+.case-anniversaries-grid[data-view="list"] .case-anniversaries-card-body {
+  padding: 18px 20px;
+}
+
+.case-anniversaries .case-anniversaries-card-title-link {
+  color: var(--ncmec-blue-dark);
+  text-decoration: none;
+}
+
+.case-anniversaries .case-anniversaries-card-title-link:hover {
+  color: #005f7a;
+  text-decoration: underline;
+}
+
+.case-anniversaries .case-anniversaries-card-title-link:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 3px;
+}
+
+.case-anniversaries-card h3 {
+  min-height: 0;
+  margin: 0 0 8px;
+  color: #243846;
+}
+
+.case-anniversaries-card-body dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 4px;
+  margin: 0;
+}
+
+.case-anniversaries-card-body dt {
+  color: #3f4a52;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  line-height: 1.25;
+}
+
+.case-anniversaries-card-body dt::after {
+  content: ':';
+}
+
+.case-anniversaries-card-body dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #3f4a52;
+  font-size: var(--body-lg-size);
+  line-height: 1.25;
+}
+
+.case-anniversaries-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.case-anniversaries .case-anniversaries-card-link {
+  color: var(--ncmec-blue-dark) !important;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.case-anniversaries .case-anniversaries-card-link:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 2px;
+}
+
+.case-anniversaries .case-anniversaries-card-link:hover {
+  color: var(--ncmec-blue-dark) !important;
+  text-decoration: underline;
+}
+
+.case-anniversaries-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 34px;
+}
+
+.case-anniversaries-load-more {
+  min-height: 38px;
+  padding: 0 24px;
+  border: 1px solid #d5dde2;
+  border-radius: 999px;
+  background: #fff;
+  color: #243846;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.case-anniversaries-load-more:hover {
+  background: #eef3f6;
+}
+
+.case-anniversaries-load-more:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.case-anniversaries-search:focus-visible,
+.case-anniversaries-filter:focus-visible,
+.case-anniversaries-chip:focus-visible,
+.case-anniversaries-clear:focus-visible,
+.case-anniversaries-load-more:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 2px;
+}
+
+@media (width <= 920px) {
+  .case-anniversaries-primary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .case-anniversaries-timeframe {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .case-anniversaries-filter-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .case-anniversaries-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .case-anniversaries-card {
+    grid-template-columns: minmax(150px, 30%) minmax(0, 1fr);
+  }
+}
+
+@media (width <= 640px) {
+  .case-anniversaries-inner {
+    width: min(1180px, calc(100% - 24px));
+  }
+
+  .case-anniversaries-header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .case-anniversaries-view-toggle {
+    align-self: flex-end;
+  }
+
+  .case-anniversaries-listing {
+    padding: 0 0 72px;
+  }
+
+  .case-anniversaries-filter-row,
+  .case-anniversaries-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .case-anniversaries-count {
+    white-space: normal;
+  }
+
+  .case-anniversaries-card {
+    grid-template-columns: 1fr;
+  }
+
+  .case-anniversaries-card-media {
+    min-height: 0;
+    aspect-ratio: 1.55 / 1;
+  }
+
+  .case-anniversaries-card-body {
+    padding: 20px;
+  }
+}

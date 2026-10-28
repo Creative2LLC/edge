@@ -22,6 +22,10 @@ export function decorateRichtext(container = document) {
       richtextFilter,
       richtextLabel,
     } = element.dataset;
+    const editable = element.closest('[data-aue-resource]');
+    const isDefaultContentRichtext = Boolean(
+      editable?.closest('.default-content-wrapper') && !editable.closest('.block'),
+    );
     deleteInstrumentation(element);
     const siblings = [];
     let sibling = element;
@@ -36,14 +40,11 @@ export function decorateRichtext(container = document) {
     let orphanElements;
     if (richtextResource && richtextProp) {
       orphanElements = document.querySelectorAll(`[data-richtext-id="${richtextResource}"][data-richtext-prop="${richtextProp}"]`);
+    } else if (editable) {
+      orphanElements = editable.querySelectorAll(`:scope > :not([data-aue-resource]) [data-richtext-prop="${richtextProp}"]`);
     } else {
-      const editable = element.closest('[data-aue-resource]');
-      if (editable) {
-        orphanElements = editable.querySelectorAll(`:scope > :not([data-aue-resource]) [data-richtext-prop="${richtextProp}"]`);
-      } else {
-        console.warn(`Editable parent not found or richtext property ${richtextProp}`);
-        return;
-      }
+      console.warn(`Editable parent not found or richtext property ${richtextProp}`);
+      return;
     }
 
     if (orphanElements.length) {
@@ -52,12 +53,17 @@ export function decorateRichtext(container = document) {
       orphanElements.forEach((orphanElement) => deleteInstrumentation(orphanElement));
     } else {
       const group = document.createElement('div');
-      if (richtextResource) {
-        group.dataset.aueResource = richtextResource;
+      const groupResource = isDefaultContentRichtext ? '' : (richtextResource || editable?.dataset.aueResource);
+      if (groupResource) {
+        group.dataset.aueResource = groupResource;
         group.dataset.aueBehavior = 'component';
       }
       if (richtextProp) group.dataset.aueProp = richtextProp;
-      if (richtextLabel) group.dataset.aueLabel = richtextLabel;
+      if (isDefaultContentRichtext) {
+        group.dataset.aueLabel = 'Content';
+      } else if (richtextLabel) {
+        group.dataset.aueLabel = richtextLabel;
+      }
       if (richtextFilter) group.dataset.aueFilter = richtextFilter;
       group.dataset.aueType = 'richtext';
       element.replaceWith(group);

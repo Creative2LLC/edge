@@ -1,0 +1,1008 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  appendFormMetadata,
+  applyPhoneValidation,
+  createFormSession,
+  extractApiMessage,
+  isFormValid,
+  resolveFormAction,
+  updateFormStatus,
+} from '../../scripts/form-utils.js';
+import { moveAttributes } from '../../scripts/scripts.js';
+import {
+  applyButtonStyle,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
+
+const resourceDataCache = new Map();
+
+const BLOCK_ROW_INDEX = {
+  heading: 0,
+  subheading: 1,
+  fieldPlaceholders: 2,
+  topicOptions: 3,
+  buttonText: 4,
+  formAction: 5,
+  statusMessages: 6,
+  backgroundColor: 7,
+  hero_style: 8,
+  hero_heading: 9,
+  hero_subheading: 10,
+  hero_buttonText: 11,
+  hero_buttonLink: 12,
+  hero_backgroundImage: 13,
+};
+
+const LEGACY_ROW_INDEX = {
+  fullNamePlaceholder: 2,
+  emailPlaceholder: 3,
+  phonePlaceholder: 4,
+  topicPlaceholder: 5,
+  topicOptions: 6,
+  messagePlaceholder: 7,
+  buttonText: 8,
+  formAction: 9,
+  successMessage: 10,
+  errorMessage: 11,
+  backgroundColor: 12,
+};
+
+const FIELD_KEYS = ['fullName', 'email', 'phone', 'topic', 'message'];
+const MESSAGE_KEYS = ['success', 'error'];
+
+const KEY_ALIASES = {
+  fullname: 'fullName',
+  name: 'fullName',
+  email: 'email',
+  phone: 'phone',
+  topic: 'topic',
+  message: 'message',
+  success: 'success',
+  error: 'error',
+};
+
+const DEFAULTS = {
+  heading: 'General Inquiries',
+  subheading:
+    'For non-urgent inquiries, send us a message '
+    + 'and we\'ll respond within 2 business days.',
+  fullNamePlaceholder: 'Full Name',
+  emailPlaceholder: 'Email Address',
+  phonePlaceholder: 'Phone (optional)',
+  topicPlaceholder: 'Topic',
+  topicOptions: [
+    { label: 'General Question', value: 'General Question' },
+    { label: 'Partnership Opportunity', value: 'Partnership Opportunity' },
+    { label: 'Media Inquiry', value: 'Media Inquiry' },
+    { label: 'Technical Issue', value: 'Technical Issue' },
+    { label: 'Other', value: 'Other' },
+  ],
+  messagePlaceholder: 'Message',
+  buttonText: 'Send Message',
+  successMessage:
+    'Thank you. We received your inquiry '
+    + 'and will respond within 2 business days.',
+  errorMessage: 'We couldn\'t send your message. Please try again.',
+  missingEndpointMessage: 'This form is not connected yet.',
+  missingEndpointAuthorMessage: 'Add a submit endpoint URL to enable this form.',
+  heroStyle: 'default',
+  heroHeading: 'You don\'t have to face this alone.',
+  heroSubheading: 'Team HOPE is here to listen, support, and walk alongside you.',
+  heroButtonText: '866-305-HOPE (4673)',
+  heroButtonLink: 'tel:+18663054673',
+};
+
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || value.src || '').trim();
+  }
+  return '';
+}
+
+async function getBlockResourceData(block) {
+  const resource = block.getAttribute('data-aue-resource')
+    || block.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return {};
+
+  if (resourceDataCache.has(resourcePath)) {
+    return resourceDataCache.get(resourcePath);
+  }
+
+  const pendingData = fetch(`${resourcePath}.json`)
+    .then(async (response) => {
+      if (!response.ok) return {};
+      return response.json();
+    })
+    .catch(() => ({}));
+
+  resourceDataCache.set(resourcePath, pendingData);
+  return pendingData;
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function extractNodeValue(node) {
+  if (!node) return '';
+  const anchor = node.tagName === 'A' ? node : node.querySelector('a');
+  return anchor?.href || node.textContent.trim();
+}
+
+function getDirectRows(block) {
+  return [...block.querySelectorAll(':scope > div')];
+}
+
+function hasImage(node) {
+  return Boolean(node?.querySelector?.('picture, img'));
+}
+
+function findSemanticFallbackCell(block, name, rowIndex, columnIndex = 0) {
+  const rows = getDirectRows(block);
+  const rowText = (row) => row.textContent.trim();
+  const findRow = (predicate) => rows.find((row) => predicate(rowText(row), row));
+  const supportStyleIndex = rows.findIndex((row) => /^(default|support)$/i.test(rowText(row)));
+  const supportRow = (offset) => (supportStyleIndex >= 0 ? rows[supportStyleIndex + offset] : null);
+  const urlRow = () => findRow((text, row) => {
+    const href = row.querySelector('a')?.href || '';
+    return /^https?:\/\//i.test(text) || /^https?:\/\//i.test(href);
+  });
+
+  const semanticFinders = {
+    fieldPlaceholders: () => findRow((text) => /full\s*name/i.test(text)
+      && /email/i.test(text)
+      && /message/i.test(text)),
+    topicOptions: () => findRow((text) => /general question/i.test(text)
+      || /partnership opportunity/i.test(text)
+      || /media inquiry/i.test(text)),
+    formAction: urlRow,
+    statusMessages: () => findRow((text) => /success\|/i.test(text)
+      || /error\|/i.test(text)
+      || (/thank you/i.test(text) && /try again/i.test(text))),
+    backgroundColor: () => findRow((text) => /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text)),
+    hero_style: () => findRow((text) => /^(default|support)$/i.test(text)),
+    hero_heading: () => supportRow(1),
+    hero_subheading: () => supportRow(2),
+    hero_buttonText: () => supportRow(3),
+    hero_buttonLink: () => findRow((text, row) => {
+      const href = row.querySelector('a')?.href || '';
+      return /^tel:/i.test(text) || /^tel:/i.test(href);
+    }) || supportRow(4),
+    hero_backgroundImage: () => findRow((text, row) => hasImage(row) || /\/content\/dam\//i.test(text))
+      || supportRow(5),
+  };
+  const semanticFinder = semanticFinders[name];
+  const semanticRow = semanticFinder?.();
+
+  if (semanticFinder && !semanticRow) return null;
+
+  const row = semanticRow || rows[rowIndex];
+  return row?.children?.[columnIndex] || row || null;
+}
+
+function getField(block, name, rowIndexMap, columnIndex = 0) {
+  const source = block.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`);
+  if (source) {
+    return { source, value: extractNodeValue(source), isFallback: false };
+  }
+
+  const rowIndex = rowIndexMap?.[name];
+  const cell = Number.isInteger(rowIndex)
+    ? findSemanticFallbackCell(block, name, rowIndex, columnIndex)
+    : null;
+  if (!cell) return { source: null, value: '', isFallback: false };
+
+  return { source: cell, value: extractNodeValue(cell), isFallback: true };
+}
+
+function getFieldFromMaps(block, name, rowMaps, columnIndex = 0) {
+  for (let i = 0; i < rowMaps.length; i += 1) {
+    const field = getField(block, name, rowMaps[i], columnIndex);
+    if (field.source || field.value) return field;
+  }
+
+  return { source: null, value: '', isFallback: false };
+}
+
+function getImageField(block, name, rowIndexMap) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  const rowIndex = rowIndexMap?.[name];
+  const row = Number.isInteger(rowIndex)
+    ? findSemanticFallbackCell(block, name, rowIndex, 0)
+    : null;
+  const container = source || row;
+  const picture = source?.closest('picture')
+    || source?.querySelector('picture')
+    || row?.querySelector('picture')
+    || null;
+  const img = picture?.querySelector('img') || container?.querySelector('img') || null;
+
+  return {
+    source: source || row,
+    picture,
+    img,
+    reference: extractNodeValue(source || row),
+  };
+}
+
+function moveFieldBinding(from, to) {
+  if (!from || !to) return;
+
+  moveAttributes(
+    from,
+    to,
+    [...from.attributes]
+      .map(({ nodeName }) => nodeName)
+      .filter(
+        (attr) => attr.startsWith('data-aue-prop')
+          || attr.startsWith('data-richtext-prop')
+          || attr === 'data-aue-label'
+          || attr.startsWith('data-richtext-'),
+      ),
+  );
+}
+
+function moveFieldContent(field, target, fallbackValue = '') {
+  if (!target) return;
+
+  if (!field?.source || field.isFallback) {
+    target.textContent = field?.value || fallbackValue || '';
+    return;
+  }
+
+  moveFieldBinding(field.source, target);
+  while (field.source.firstChild) target.append(field.source.firstChild);
+
+  if (!target.childNodes.length && fallbackValue) {
+    target.textContent = fallbackValue;
+  }
+}
+
+function moveImageContent(field, target, fallbackSrc = '') {
+  if (!target) return false;
+
+  moveFieldBinding(field?.source || field?.picture, target);
+
+  let picture = field?.picture || null;
+  if (!picture && fallbackSrc) {
+    picture = createOptimizedPicture(fallbackSrc, '', false, [{ width: '1600' }]);
+  }
+
+  if (!picture) return false;
+
+  const image = picture.querySelector('img') || field?.img;
+  if (image) image.alt = '';
+  target.setAttribute('aria-hidden', 'true');
+  target.append(picture);
+  return true;
+}
+
+function normalizeAccessibleLabel(text, fallback) {
+  return (text || fallback || '')
+    .replace(/\s*\(optional\)\s*/i, '')
+    .trim();
+}
+
+function normalizeEntryKey(rawKey, fallbackKey = '') {
+  const normalized = String(rawKey || '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+
+  return KEY_ALIASES[normalized] || fallbackKey;
+}
+
+function parseNamedEntries(value, orderedKeys) {
+  if (!value) return {};
+
+  const normalized = value.replace(/\r/g, '');
+  if (!/[\n|]/.test(normalized)) return {};
+
+  const lines = normalized
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return lines.reduce((entries, line, index) => {
+    if (!line) return entries;
+
+    let key = orderedKeys[index] || '';
+    let text = line;
+
+    if (line.includes('|')) {
+      const [rawKey, rawValue] = line.split('|', 2).map((part) => part.trim());
+      key = normalizeEntryKey(rawKey, key);
+      text = rawValue;
+    }
+
+    if (key && text) {
+      entries[key] = text;
+    }
+
+    return entries;
+  }, {});
+}
+
+function splitKnownTopicOptions(value) {
+  const compactValue = String(value || '').replace(/\s+/g, ' ').trim();
+  const defaultLabels = DEFAULTS.topicOptions.map((option) => option.label);
+  const hasMultipleDefaults = defaultLabels
+    .filter((label) => compactValue.toLowerCase().includes(label.toLowerCase()))
+    .length > 1;
+
+  return hasMultipleDefaults ? DEFAULTS.topicOptions : [];
+}
+
+function parseOptions(value) {
+  if (!value) return [];
+
+  const normalized = value.replace(/\r/g, '');
+  if (!/[\n;|]/.test(normalized)) {
+    return splitKnownTopicOptions(normalized);
+  }
+
+  const delimiter = normalized.includes('\n') ? /\n+/ : /;+/;
+  return normalized
+    .split(delimiter)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [labelPart, valuePart] = entry.includes('|')
+        ? entry.split('|', 2).map((part) => part.trim())
+        : [entry, entry];
+
+      return {
+        label: labelPart || valuePart || '',
+        value: valuePart || labelPart || '',
+      };
+    })
+    .filter((entry) => entry.label && entry.value);
+}
+
+function createLabelShell(accessibleLabel) {
+  const label = document.createElement('label');
+  label.className = 'general-inquiries-field';
+
+  const srLabel = document.createElement('span');
+  srLabel.className = 'general-inquiries-sr-only';
+  srLabel.textContent = accessibleLabel;
+  label.append(srLabel);
+
+  return label;
+}
+
+function buildInputField(field, config) {
+  const placeholder = field.value || config.placeholder;
+  const accessibleLabel = normalizeAccessibleLabel(placeholder, config.label);
+  const label = createLabelShell(accessibleLabel);
+  const input = document.createElement('input');
+
+  input.className = 'general-inquiries-input';
+  input.type = config.type || 'text';
+  input.name = config.name;
+  input.placeholder = placeholder;
+  input.setAttribute('aria-label', accessibleLabel);
+  if (config.autocomplete) input.autocomplete = config.autocomplete;
+  if (config.inputMode) input.inputMode = config.inputMode;
+  if (config.required) input.required = true;
+
+  moveFieldBinding(field.source, input);
+  label.append(input);
+
+  return label;
+}
+
+function buildTextareaField(field, config) {
+  const placeholder = field.value || config.placeholder;
+  const accessibleLabel = normalizeAccessibleLabel(placeholder, config.label);
+  const label = createLabelShell(accessibleLabel);
+  const textarea = document.createElement('textarea');
+
+  textarea.className = 'general-inquiries-textarea';
+  textarea.name = config.name;
+  textarea.placeholder = placeholder;
+  textarea.rows = config.rows || 6;
+  textarea.setAttribute('aria-label', accessibleLabel);
+  if (config.required) textarea.required = true;
+
+  moveFieldBinding(field.source, textarea);
+  label.append(textarea);
+
+  return label;
+}
+
+let dropdownIdSeq = 0;
+
+/* Custom Topic dropdown. A native <select> opens an OS/browser popup we can't
+   style or position (it mis-anchors to the page corner with tiny text under a
+   transformed ancestor). So the visible control is a custom button + listbox we
+   fully control, and a hidden native <select> is kept solely to carry the value
+   into FormData and provide `required` validation. The hidden select never
+   opens — all interaction goes through the custom UI. */
+function buildSelectField(placeholderField, optionsField, isAuthoring) {
+  const placeholder = placeholderField.value || DEFAULTS.topicPlaceholder;
+  const accessibleLabel = normalizeAccessibleLabel(placeholder, 'Topic');
+  const label = createLabelShell(accessibleLabel);
+  const parsedOptions = parseOptions(optionsField.value);
+  const optionEntries = parsedOptions.length ? parsedOptions : DEFAULTS.topicOptions;
+
+  dropdownIdSeq += 1;
+  const uid = `general-inquiries-topic-${dropdownIdSeq}`;
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'general-inquiries-dropdown';
+
+  const select = document.createElement('select');
+  select.className = 'general-inquiries-select';
+  select.name = 'topic';
+  select.required = true;
+  select.tabIndex = -1;
+  select.setAttribute('aria-hidden', 'true');
+
+  const placeholderOption = document.createElement('option');
+  placeholderOption.value = '';
+  placeholderOption.textContent = placeholder;
+  placeholderOption.disabled = true;
+  placeholderOption.selected = true;
+  select.append(placeholderOption);
+
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'general-inquiries-dropdown-trigger';
+  trigger.id = `${uid}-trigger`;
+  trigger.setAttribute('aria-haspopup', 'listbox');
+  trigger.setAttribute('aria-expanded', 'false');
+  // aria-controls is set only while the menu is open: the menu is portalled to <body> on
+  // open and removed on close, and pointing at an ID that is not on the page is invalid.
+  trigger.setAttribute('aria-label', accessibleLabel);
+
+  const valueEl = document.createElement('span');
+  valueEl.className = 'general-inquiries-dropdown-value is-placeholder';
+  valueEl.textContent = placeholder;
+
+  const arrow = document.createElement('span');
+  arrow.className = 'general-inquiries-dropdown-arrow';
+  arrow.setAttribute('aria-hidden', 'true');
+  trigger.append(valueEl, arrow);
+
+  const menu = document.createElement('ul');
+  menu.className = 'general-inquiries-dropdown-menu';
+  menu.id = `${uid}-menu`;
+  menu.tabIndex = -1;
+  menu.setAttribute('role', 'listbox');
+  menu.setAttribute('aria-label', accessibleLabel);
+
+  const optionEls = optionEntries.map((entry, index) => {
+    const item = document.createElement('li');
+    item.className = 'general-inquiries-dropdown-option';
+    item.id = `${uid}-option-${index}`;
+    item.dataset.value = entry.value;
+    item.textContent = entry.label;
+    item.setAttribute('role', 'option');
+    item.setAttribute('aria-selected', 'false');
+    menu.append(item);
+
+    const option = document.createElement('option');
+    option.value = entry.value;
+    option.textContent = entry.label;
+    select.append(option);
+
+    return item;
+  });
+
+  // The menu is appended to <body> on open (see open()), not here — keeping it
+  // inside the block trapped it in an isolated/overflow-clipped stacking context
+  // where it rasterized incompletely.
+  dropdown.append(trigger, select);
+  label.append(dropdown);
+
+  let activeIndex = -1;
+  let onDocPointer = null;
+
+  const setActive = (index) => {
+    activeIndex = Math.max(0, Math.min(optionEls.length - 1, index));
+    optionEls.forEach((el, i) => {
+      const isActive = i === activeIndex;
+      el.classList.toggle('is-active', isActive);
+      if (isActive) {
+        menu.setAttribute('aria-activedescendant', el.id);
+        el.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  };
+
+  const positionMenu = () => {
+    const rect = trigger.getBoundingClientRect();
+    menu.style.left = `${Math.round(rect.left)}px`;
+    menu.style.top = `${Math.round(rect.bottom + 6)}px`;
+    menu.style.width = `${Math.round(rect.width)}px`;
+  };
+
+  const close = () => {
+    if (!dropdown.classList.contains('is-open')) return;
+    dropdown.classList.remove('is-open');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.removeAttribute('aria-controls');
+    menu.remove();
+    if (onDocPointer) {
+      document.removeEventListener('pointerdown', onDocPointer, true);
+      onDocPointer = null;
+    }
+    window.removeEventListener('scroll', positionMenu, true);
+    window.removeEventListener('resize', positionMenu);
+  };
+
+  const open = () => {
+    if (dropdown.classList.contains('is-open')) return;
+    dropdown.classList.add('is-open');
+    trigger.setAttribute('aria-expanded', 'true');
+    // Portal the menu to <body> so it leaves the block's isolated, clipped
+    // stacking context. Positioned with fixed coordinates under the trigger.
+    positionMenu();
+    document.body.append(menu);
+    trigger.setAttribute('aria-controls', menu.id);
+    const selectedIndex = optionEls.findIndex((el) => el.getAttribute('aria-selected') === 'true');
+    setActive(selectedIndex >= 0 ? selectedIndex : 0);
+    menu.focus();
+    onDocPointer = (event) => {
+      if (!dropdown.contains(event.target) && !menu.contains(event.target)) close();
+    };
+    document.addEventListener('pointerdown', onDocPointer, true);
+    window.addEventListener('scroll', positionMenu, true);
+    window.addEventListener('resize', positionMenu);
+  };
+
+  const choose = (item) => {
+    optionEls.forEach((el) => el.setAttribute('aria-selected', el === item ? 'true' : 'false'));
+    select.value = item.dataset.value;
+    valueEl.textContent = item.textContent;
+    valueEl.classList.remove('is-placeholder');
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    close();
+    trigger.focus();
+  };
+
+  trigger.addEventListener('click', () => {
+    if (dropdown.classList.contains('is-open')) close();
+    else open();
+  });
+
+  trigger.addEventListener('keydown', (event) => {
+    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+      event.preventDefault();
+      open();
+    }
+  });
+
+  optionEls.forEach((item, index) => {
+    item.addEventListener('click', () => choose(item));
+    item.addEventListener('mousemove', () => setActive(index));
+  });
+
+  menu.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setActive(activeIndex + 1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActive(activeIndex - 1);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      setActive(0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      setActive(optionEls.length - 1);
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (optionEls[activeIndex]) choose(optionEls[activeIndex]);
+    } else if (event.key === 'Escape') {
+      close();
+      trigger.focus();
+    } else if (event.key === 'Tab') {
+      close();
+    }
+  });
+
+  if (!parsedOptions.length && isAuthoring && optionsField.source && !optionsField.value) {
+    const helperOption = document.createElement('option');
+    helperOption.value = '__missing-options__';
+    helperOption.textContent = 'Add topic options in Universal Editor';
+    helperOption.disabled = true;
+    select.append(helperOption);
+  }
+
+  moveFieldBinding(placeholderField.source, valueEl);
+
+  // Restore the placeholder when the form is reset (after a successful submit).
+  // Deferred so the dropdown is attached to its form before we look it up.
+  window.requestAnimationFrame(() => {
+    const form = dropdown.closest('form');
+    if (!form) return;
+    form.addEventListener('reset', () => {
+      window.requestAnimationFrame(() => {
+        optionEls.forEach((el) => el.setAttribute('aria-selected', 'false'));
+        valueEl.textContent = placeholder;
+        valueEl.classList.add('is-placeholder');
+        activeIndex = -1;
+        close();
+      });
+    });
+  });
+
+  return label;
+}
+
+function buildPlaceholderFields(block) {
+  const combinedField = getField(block, 'fieldPlaceholders', BLOCK_ROW_INDEX);
+  const combinedValues = parseNamedEntries(combinedField.value, FIELD_KEYS);
+
+  if (combinedField.source || combinedField.value) {
+    return {
+      fullName: {
+        source: null,
+        value: combinedValues.fullName || DEFAULTS.fullNamePlaceholder,
+      },
+      email: {
+        source: null,
+        value: combinedValues.email || DEFAULTS.emailPlaceholder,
+      },
+      phone: {
+        source: null,
+        value: combinedValues.phone || DEFAULTS.phonePlaceholder,
+      },
+      topic: {
+        source: null,
+        value: combinedValues.topic || DEFAULTS.topicPlaceholder,
+      },
+      message: {
+        source: null,
+        value: combinedValues.message || DEFAULTS.messagePlaceholder,
+      },
+    };
+  }
+
+  return {
+    fullName: getField(block, 'fullNamePlaceholder', LEGACY_ROW_INDEX),
+    email: getField(block, 'emailPlaceholder', LEGACY_ROW_INDEX),
+    phone: getField(block, 'phonePlaceholder', LEGACY_ROW_INDEX),
+    topic: getField(block, 'topicPlaceholder', LEGACY_ROW_INDEX),
+    message: getField(block, 'messagePlaceholder', LEGACY_ROW_INDEX),
+  };
+}
+
+function buildStatusMessages(block) {
+  const combinedField = getField(block, 'statusMessages', BLOCK_ROW_INDEX);
+  const combinedValues = parseNamedEntries(combinedField.value, MESSAGE_KEYS);
+
+  if (combinedField.source || combinedField.value) {
+    return {
+      success: combinedValues.success || DEFAULTS.successMessage,
+      error: combinedValues.error || DEFAULTS.errorMessage,
+    };
+  }
+
+  const successField = getField(block, 'successMessage', LEGACY_ROW_INDEX);
+  const errorField = getField(block, 'errorMessage', LEGACY_ROW_INDEX);
+
+  return {
+    success: successField.value || DEFAULTS.successMessage,
+    error: errorField.value || DEFAULTS.errorMessage,
+  };
+}
+
+function bindSubmit(block, form, submitButton, status, config, formSession) {
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (submitButton.disabled) return;
+    if (!isFormValid(form)) return;
+
+    const formData = new FormData(form);
+    appendFormMetadata(formData, formSession);
+
+    block.dispatchEvent(
+      new CustomEvent('general-inquiries:submit', {
+        bubbles: true,
+        detail: Object.fromEntries(formData.entries()),
+      }),
+    );
+
+    if (!config.action) {
+      const message = config.isAuthoring
+        ? DEFAULTS.missingEndpointAuthorMessage
+        : DEFAULTS.missingEndpointMessage;
+      updateFormStatus(status, message, 'info');
+      return;
+    }
+
+    submitButton.disabled = true;
+    block.classList.add('is-submitting');
+    updateFormStatus(status, '', 'info');
+
+    try {
+      const response = await fetch(config.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      const responseMessage = await extractApiMessage(response);
+
+      if (!response.ok) {
+        throw new Error(responseMessage || config.errorMessage);
+      }
+
+      form.reset();
+      formSession.reset();
+      form.querySelector('[name="phone"]')?.dispatchEvent(new Event('input'));
+      updateFormStatus(status, responseMessage || config.successMessage, 'success');
+    } catch (error) {
+      const message = error instanceof Error
+        && error.message
+        && error.message !== 'Failed to fetch'
+        ? error.message
+        : config.errorMessage;
+      updateFormStatus(status, message, 'error');
+    } finally {
+      submitButton.disabled = false;
+      block.classList.remove('is-submitting');
+    }
+  });
+}
+
+function createPlaceholderOverlay(placeholder) {
+  const overlay = document.createElement('span');
+  overlay.className = 'general-inquiries-input-overlay';
+  overlay.setAttribute('aria-hidden', 'true');
+
+  const match = placeholder.match(/^(.*?)\s*\((optional)\)\s*$/i);
+  if (match) {
+    overlay.append(document.createTextNode(`${match[1].trim()} `));
+    const optional = document.createElement('span');
+    optional.className = 'general-inquiries-input-overlay-optional';
+    optional.textContent = `(${match[2]})`;
+    overlay.append(optional);
+  } else {
+    overlay.textContent = placeholder;
+  }
+
+  return overlay;
+}
+
+function addPlaceholderOverlays(form) {
+  form.querySelectorAll('.general-inquiries-input, .general-inquiries-textarea').forEach((input) => {
+    if (!input.placeholder) return;
+    input.insertAdjacentElement('afterend', createPlaceholderOverlay(input.placeholder));
+  });
+}
+
+function buildSupportIntro(
+  heroHeadingField,
+  heroSubheadingField,
+  heroButtonTextField,
+  heroButtonLinkField,
+) {
+  const support = document.createElement('div');
+  support.className = 'general-inquiries-support';
+
+  const heading = document.createElement('p');
+  heading.className = 'general-inquiries-support-heading';
+  moveFieldContent(heroHeadingField, heading, DEFAULTS.heroHeading);
+  support.append(heading);
+
+  const subheading = document.createElement('p');
+  subheading.className = 'general-inquiries-support-subheading';
+  moveFieldContent(heroSubheadingField, subheading, DEFAULTS.heroSubheading);
+  support.append(subheading);
+
+  const ctaHref = heroButtonLinkField.value || DEFAULTS.heroButtonLink;
+  const cta = document.createElement(ctaHref ? 'a' : 'div');
+  cta.className = 'general-inquiries-support-cta';
+  applyButtonStyle(cta, 'primary');
+  if (ctaHref) cta.href = ctaHref;
+  if (heroButtonLinkField.source) moveFieldBinding(heroButtonLinkField.source, cta);
+
+  const label = document.createElement('span');
+  label.className = 'general-inquiries-support-cta-label';
+  moveFieldContent(heroButtonTextField, label, DEFAULTS.heroButtonText);
+  cta.append(label);
+
+  support.append(cta);
+
+  return support;
+}
+
+async function decorateBlock(block) {
+  const resourceData = await getBlockResourceData(block);
+  const isAuthoring = hasAuthoringContext(block);
+  const placeholderFields = buildPlaceholderFields(block);
+  const messages = buildStatusMessages(block);
+
+  const headingField = getField(block, 'heading', BLOCK_ROW_INDEX);
+  const subheadingField = getField(block, 'subheading', BLOCK_ROW_INDEX);
+  const topicOptionsField = getFieldFromMaps(
+    block,
+    'topicOptions',
+    [BLOCK_ROW_INDEX, LEGACY_ROW_INDEX],
+  );
+  const buttonTextField = getFieldFromMaps(
+    block,
+    'buttonText',
+    [BLOCK_ROW_INDEX, LEGACY_ROW_INDEX],
+  );
+  const formActionField = getFieldFromMaps(
+    block,
+    'formAction',
+    [BLOCK_ROW_INDEX, LEGACY_ROW_INDEX],
+  );
+  const backgroundColorField = getFieldFromMaps(
+    block,
+    'backgroundColor',
+    [BLOCK_ROW_INDEX, LEGACY_ROW_INDEX],
+  );
+  const heroStyleField = getField(block, 'hero_style', BLOCK_ROW_INDEX);
+  const heroHeadingField = getField(block, 'hero_heading', BLOCK_ROW_INDEX);
+  const heroSubheadingField = getField(block, 'hero_subheading', BLOCK_ROW_INDEX);
+  const heroButtonTextField = getField(block, 'hero_buttonText', BLOCK_ROW_INDEX);
+  const heroButtonLinkField = getField(block, 'hero_buttonLink', BLOCK_ROW_INDEX);
+  const heroBackgroundImageField = getImageField(block, 'hero_backgroundImage', BLOCK_ROW_INDEX);
+
+  const authoredHeroStyle = heroStyleField.value
+    || normalizeJsonFieldValue(resourceData.hero_style);
+  const heroStyle = authoredHeroStyle || DEFAULTS.heroStyle;
+  const heroBackgroundImageSrc = normalizeJsonFieldValue(resourceData.hero_backgroundImage)
+    || heroBackgroundImageField.reference;
+  const hasSupportFields = Boolean(
+    heroBackgroundImageSrc
+      || heroBackgroundImageField.picture
+      || heroButtonLinkField.value,
+  );
+  const isSupportMode = heroStyle === 'support' || (!authoredHeroStyle && hasSupportFields);
+
+  block.classList.toggle('general-inquiries-support-mode', isSupportMode);
+
+  const shell = document.createElement('div');
+  shell.className = 'general-inquiries-shell';
+
+  if (isSupportMode) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'general-inquiries-backdrop';
+    if (moveImageContent(heroBackgroundImageField, backdrop, heroBackgroundImageSrc)) {
+      shell.append(backdrop);
+    }
+
+    shell.append(
+      buildSupportIntro(
+        heroHeadingField,
+        heroSubheadingField,
+        heroButtonTextField,
+        heroButtonLinkField,
+      ),
+    );
+  }
+
+  const copy = document.createElement('div');
+  copy.className = 'general-inquiries-copy';
+
+  const heading = document.createElement('h2');
+  heading.className = 'general-inquiries-heading';
+  moveFieldContent(headingField, heading, DEFAULTS.heading);
+  copy.append(heading);
+
+  const subheading = document.createElement('p');
+  subheading.className = 'general-inquiries-subheading';
+  moveFieldContent(subheadingField, subheading, DEFAULTS.subheading);
+  copy.append(subheading);
+
+  const form = document.createElement('form');
+  form.className = 'general-inquiries-form';
+
+  form.append(
+    buildInputField(placeholderFields.fullName, {
+      name: 'fullName',
+      placeholder: DEFAULTS.fullNamePlaceholder,
+      label: 'Full Name',
+      autocomplete: 'name',
+      required: true,
+    }),
+    buildInputField(placeholderFields.email, {
+      name: 'email',
+      placeholder: DEFAULTS.emailPlaceholder,
+      label: 'Email Address',
+      type: 'email',
+      autocomplete: 'email',
+      inputMode: 'email',
+      required: true,
+    }),
+    buildInputField(placeholderFields.phone, {
+      name: 'phone',
+      placeholder: DEFAULTS.phonePlaceholder,
+      label: 'Phone',
+      type: 'tel',
+      autocomplete: 'tel',
+      inputMode: 'tel',
+    }),
+    buildSelectField(placeholderFields.topic, topicOptionsField, isAuthoring),
+    buildTextareaField(placeholderFields.message, {
+      name: 'message',
+      placeholder: DEFAULTS.messagePlaceholder,
+      label: 'Message',
+      rows: 6,
+      required: true,
+    }),
+  );
+
+  const actions = document.createElement('div');
+  actions.className = 'general-inquiries-actions';
+
+  const status = document.createElement('p');
+  status.className = 'general-inquiries-status';
+  status.hidden = true;
+  status.setAttribute('aria-live', 'polite');
+  actions.append(status);
+
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.className = 'general-inquiries-submit';
+  applyButtonStyle(submitButton, 'primary');
+  moveFieldContent(buttonTextField, submitButton, DEFAULTS.buttonText);
+  actions.append(submitButton);
+
+  form.append(actions);
+
+  if (isSupportMode) {
+    addPlaceholderOverlays(form);
+  }
+
+  const formSession = createFormSession(form, 'general-inquiries');
+  applyPhoneValidation(form.querySelector('[name="phone"]'));
+
+  shell.append(copy, form);
+
+  if (backgroundColorField.value) {
+    block.style.setProperty(
+      '--general-inquiries-surface',
+      backgroundColorField.value,
+    );
+  }
+
+  block.replaceChildren(shell);
+
+  bindSubmit(block, form, submitButton, status, {
+    action: resolveFormAction('general-inquiries', formActionField.value),
+    successMessage: messages.success,
+    errorMessage: messages.error,
+    isAuthoring,
+  }, formSession);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [heroButtonStyle] = readAppendedStyles(
+    block,
+    ['heroButtonStyle'],
+    [...block.children],
+  );
+  await decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.general-inquiries-support-cta': heroButtonStyle,
+  });
+}

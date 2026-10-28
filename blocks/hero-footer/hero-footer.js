@@ -1,0 +1,248 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isAppendedStyleValue,
+  readAppendedStyles,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
+
+const VARIANT_VALUES = ['default', 'variant-2'];
+const HREF_TEXT_RE = /^(?:https?:\/\/|mailto:|tel:|\/(?!\/)|\.{1,2}\/|#)/i;
+
+function textFrom(node) {
+  return node?.textContent?.trim() || '';
+}
+
+function getRowCells(block) {
+  return [...block.querySelectorAll(':scope > div')]
+    .map((row) => (row.children.length > 1 ? row.children[1] : row.children[0] || row))
+    .filter(Boolean);
+}
+
+function hasMedia(cell) {
+  return Boolean(cell?.querySelector?.('picture, img'));
+}
+
+function createTextCell(text) {
+  const cell = document.createElement('div');
+  cell.textContent = text;
+  return cell;
+}
+
+function createHtmlCell(source) {
+  const cell = document.createElement('div');
+  cell.innerHTML = source.innerHTML.trim();
+  return cell;
+}
+
+function splitTextLines(value) {
+  return String(value || '')
+    .replace(/\u00a0/g, ' ')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function splitCellContent(cell) {
+  const directBlocks = [...(cell?.querySelectorAll?.(':scope > p, :scope > div, :scope > li') || [])]
+    .filter((node) => textFrom(node));
+  if (directBlocks.length > 1) return directBlocks.map(createHtmlCell);
+
+  const nestedBlocks = directBlocks.length === 1
+    ? [...directBlocks[0].querySelectorAll(':scope > p, :scope > div, :scope > li')]
+      .filter((node) => textFrom(node))
+    : [];
+  if (nestedBlocks.length > 1) return nestedBlocks.map(createHtmlCell);
+
+  if (/<br\s*\/?>(?:\s*)/i.test(cell?.innerHTML || '')) {
+    const clone = cell.cloneNode(true);
+    clone.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+    const lines = splitTextLines(clone.textContent);
+    if (lines.length > 1) return lines.map(createTextCell);
+  }
+
+  const lines = splitTextLines(cell?.textContent);
+  return lines.length > 1 ? lines.map(createTextCell) : [cell];
+}
+
+function isVariantCell(cell) {
+  return VARIANT_VALUES.includes(textFrom(cell).toLowerCase());
+}
+
+function hasLinkCell(cell) {
+  const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a[href]');
+  const href = anchor?.getAttribute?.('href') || '';
+  const text = textFrom(cell);
+
+  if (href === '#' && text && text !== '#') return false;
+  if (href && text && !HREF_TEXT_RE.test(text) && text !== href) return false;
+
+  return Boolean(href || HREF_TEXT_RE.test(text));
+}
+
+function getLiveFallbacks(block) {
+  const rowCells = getRowCells(block);
+  const textCells = rowCells
+    .filter((cell) => textFrom(cell) && !hasMedia(cell) && !isAppendedStyleValue(textFrom(cell)))
+    .flatMap(splitCellContent);
+  const variantCell = textCells.find(isVariantCell) || null;
+  const linkCells = textCells.filter((cell) => !isVariantCell(cell) && hasLinkCell(cell));
+  const contentCells = textCells.filter((cell) => (
+    !isVariantCell(cell) && !hasLinkCell(cell)
+  ));
+
+  return {
+    imageCell: rowCells.find(hasMedia) || null,
+    headingCell: contentCells[0] || null,
+    headingLargeCell: contentCells[1] || null,
+    subheadingCell: contentCells[2] || null,
+    btn1TextCell: contentCells[3] || null,
+    btn2TextCell: contentCells[4] || null,
+    btn1LinkCell: linkCells[0] || null,
+    btn2LinkCell: linkCells[1] || null,
+    variantCell,
+  };
+}
+
+/**
+ * `tag` defaults to div only because the two headline slots are still divs —
+ * see the note at their call sites. Text slots should pass a real element.
+ */
+function buildRich(className, field, tag = 'div') {
+  if (!field?.source && !field?.html && !field?.text) return null;
+
+  const el = document.createElement(tag);
+  el.className = className;
+
+  if (field.source) {
+    moveInstrumentation(field.source, el);
+    while (field.source.firstChild) el.append(field.source.firstChild);
+    field.source.remove();
+  } else if (field.html) {
+    el.innerHTML = field.html;
+  } else {
+    el.textContent = field.text;
+  }
+
+  return el;
+}
+
+function fieldHref(field) {
+  const cell = field?.cell || field?.source;
+  const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a[href]');
+  return anchor?.getAttribute?.('href') || '';
+}
+
+function buildButton(className, textField, linkField) {
+  const label = textField?.value || textField?.text || textFrom(textField?.cell);
+  if (!label) return null;
+
+  const a = document.createElement('a');
+  a.className = className;
+  a.href = linkField?.value || fieldHref(textField) || '#';
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+
+  if (textField.source) {
+    moveInstrumentation(textField.source, a);
+    a.textContent = label;
+    textField.source.remove();
+  } else {
+    a.textContent = label;
+  }
+
+  if (linkField.source) linkField.source.remove();
+  return a;
+}
+
+export default function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  // Style dropdowns appended to the model; read before any row is consumed.
+  const [button1Style, button2Style] = readAppendedStyles(
+    block,
+    ['button1Style', 'button2Style'],
+    [...block.children],
+  );
+  const fallback = getLiveFallbacks(block);
+  const imageField = readImageField(block, 'image', { fallbackCell: fallback.imageCell });
+  const imageAltField = readTextField(block, 'imageAlt');
+  const headingField = readRichTextField(block, 'heading_line1', { fallbackCell: fallback.headingCell });
+  const headingLargeField = readRichTextField(block, 'heading_line2', { fallbackCell: fallback.headingLargeCell });
+  const headingSubtextField = readRichTextField(block, 'heading_subtext', { fallbackCell: fallback.subheadingCell });
+  const btn1LinkField = readLinkField(block, 'button1', { fallbackCell: fallback.btn1LinkCell });
+  const btn1TextField = readTextField(block, 'button1Text', { fallbackCell: fallback.btn1TextCell });
+  const btn2LinkField = readLinkField(block, 'button2', { fallbackCell: fallback.btn2LinkCell });
+  const btn2TextField = readTextField(block, 'button2Text', { fallbackCell: fallback.btn2TextCell });
+  const variantField = readTextField(block, 'variant', { fallbackCell: fallback.variantCell });
+
+  if (variantField.value.toLowerCase() === 'variant-2') {
+    block.classList.add('hero-footer-variant-2');
+  }
+  if (variantField.source) variantField.source.remove();
+
+  /* background image */
+  const bgWrap = document.createElement('div');
+  bgWrap.className = 'hero-footer-bg';
+
+  const picture = imageField.picture || block.querySelector('picture');
+  if (picture) {
+    const img = picture.querySelector('img');
+    if (img) {
+      const optimized = createOptimizedPicture(
+        img.src,
+        imageAltField.value || img.alt || '',
+        false,
+        [{ width: '810' }],
+      );
+      moveInstrumentation(img, optimized.querySelector('img'));
+      bgWrap.append(optimized);
+    } else {
+      bgWrap.append(picture);
+    }
+    if (imageField.source) imageField.source.remove();
+  }
+
+  /* content overlay */
+  const content = document.createElement('div');
+  content.className = 'hero-footer-content';
+
+  /* These two are still <div>s, and that is a known gap rather than an oversight.
+     They render one sentence split across two visual sizes — "Every child
+     deserves" at 60px, "a safe childhood." at 96px — so the correct markup is a
+     SINGLE heading with a span for the second line, not two headings. Merging
+     them changes the authored field structure, so it needs a decision rather
+     than a rename. Neither size maps to a scale token either (60px has no token;
+     96px matches --heading-1-home-size). See audits/body-copy-audit.md. */
+  const h1 = buildRich('hero-footer-heading-1', headingField);
+  if (h1) content.append(h1);
+
+  const h2 = buildRich('hero-footer-heading-2', headingLargeField);
+  if (h2) content.append(h2);
+
+  const sub = buildRich('hero-footer-subheading', headingSubtextField, 'p');
+  if (sub) content.append(sub);
+
+  /* buttons */
+  const btnWrap = document.createElement('div');
+  btnWrap.className = 'hero-footer-buttons';
+
+  // The look comes from the button standard: the first button is Primary, the second
+  // Secondary. The background art is light, so neither needs its dark form.
+  const btn1 = buildButton('hero-footer-btn hero-footer-btn-primary', btn1TextField, btn1LinkField);
+  if (btn1) btnWrap.append(applyButtonStyle(btn1, button1Style || 'primary'));
+
+  const btn2 = buildButton('hero-footer-btn hero-footer-btn-secondary', btn2TextField, btn2LinkField);
+  if (btn2) btnWrap.append(applyButtonStyle(btn2, button2Style || 'secondary'));
+
+  if (btnWrap.children.length) content.append(btnWrap);
+
+  block.replaceChildren(bgWrap, content);
+}

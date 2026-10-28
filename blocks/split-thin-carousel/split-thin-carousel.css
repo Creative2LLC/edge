@@ -1,0 +1,238 @@
+/* Split Thin Carousel Block */
+.split-thin-carousel {
+  --stc-viewport-width: 100vw;
+
+  padding: 0;
+  position: relative;
+  max-width: none;
+  margin-inline: calc(50% - (var(--stc-viewport-width) / 2));
+  overflow-x: clip;
+  box-sizing: border-box;
+}
+
+@supports (width: 100dvw) {
+  .split-thin-carousel {
+    --stc-viewport-width: 100dvw;
+  }
+}
+
+/* Wrapper */
+.split-thin-carousel .stc-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 80px var(--section-pad);
+}
+
+/* Override section max-width */
+main > .section > .split-thin-carousel-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+/* Section title */
+.split-thin-carousel .stc-title {
+  color: #00264d;
+  margin: 0 0 40px;
+}
+
+/* Section description */
+.split-thin-carousel .stc-description {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  max-width: 680px;
+  margin: 0 0 40px;
+  line-height: var(--caption-line-height);
+}
+
+.split-thin-carousel .stc-title + .stc-description {
+  margin-top: -28px;
+}
+
+/* Track */
+.split-thin-carousel .stc-track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  cursor: grab;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  margin-right: calc(var(--section-pad) * -1);
+  width: calc(100% + var(--section-pad) + max(0px, (var(--stc-viewport-width) - 1420px) / 2));
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+.split-thin-carousel .stc-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slide */
+.split-thin-carousel .stc-slide {
+  flex: 0 0 85%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Card. No height cap: a 630px max-height clipped longer copy. The photo is out of
+   flow (below), so it can't stretch the card either - the copy sets the height. */
+.split-thin-carousel .stc-card {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  max-width: var(--container);
+  background: #fff;
+}
+
+/* Left: image — 40% */
+.split-thin-carousel .stc-media {
+  position: relative;
+  flex: 0 0 40%;
+  overflow: hidden;
+}
+
+.split-thin-carousel .stc-media picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.split-thin-carousel .stc-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 0;
+}
+
+/* Right: content — 60% */
+.split-thin-carousel .stc-content {
+  flex: 0 0 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 48px;
+  box-sizing: border-box;
+  background-color: var(--ncmec-warm-gray);
+}
+
+/* Heading */
+.split-thin-carousel .stc-heading {
+  color: #00264d;
+  margin: 0 0 16px;
+}
+
+/* Subheading / body (rich text) */
+.split-thin-carousel .stc-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 24px;
+  white-space: pre-line;
+}
+
+.split-thin-carousel .stc-subheading p {
+  margin: 0 0 12px;
+}
+
+.split-thin-carousel .stc-subheading p:last-child {
+  margin-bottom: 0;
+}
+
+.split-thin-carousel .stc-subheading ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.split-thin-carousel .stc-subheading ol {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  list-style: decimal;
+}
+
+.split-thin-carousel .stc-subheading li {
+  margin-bottom: 4px;
+  display: list-item;
+}
+
+/* The button and the link below it are styled by the button standard in
+   styles/styles.css. These rules only place them. */
+.split-thin-carousel .stc-link {
+  margin-top: 20px;
+
+  /* Line the link text up with the button label above it. */
+  margin-left: var(--button-padding-inline);
+}
+
+/* A text-link button above has no padding, so align flush-left instead. */
+.split-thin-carousel .stc-button.text-link + .stc-link {
+  margin-left: 0;
+}
+
+/* Controls */
+.split-thin-carousel .stc-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  position: relative;
+}
+
+/* Nav arrows */
+.split-thin-carousel .stc-nav {
+  display: flex;
+  gap: 12px;
+  position: absolute;
+  right: 0;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .split-thin-carousel .stc-slide {
+    flex: 0 0 90%;
+  }}
+
+/* Responsive — mobile */
+@media (width <= 700px) {
+  /* Keep a left gutter so the first card doesn't touch the screen edge;
+     right stays 0 so the track can still bleed/scroll off the right. */
+  .split-thin-carousel .stc-wrapper {
+    padding: 48px 0 48px 24px;
+  }
+
+  .split-thin-carousel .stc-title {
+    margin-bottom: 24px;
+  }
+
+  .split-thin-carousel .stc-slide {
+    flex: 0 0 95%;
+  }
+
+  .split-thin-carousel .stc-card {
+    flex-direction: column;
+  }
+
+  .split-thin-carousel .stc-media {
+    flex: none;
+    height: 240px;
+  }
+
+  /* Grow the content area to fill the synced card height (cards are forced to
+     the tallest card's height by JS). Without this, the #edebe9 content stops
+     where the text ends and the card's white background shows as a gap. */
+  .split-thin-carousel .stc-content {
+    flex: 1 1 auto;
+    padding: 28px 24px;
+  }
+
+  .split-thin-carousel .stc-nav {
+    position: static;
+    margin-left: 24px;
+  }
+}

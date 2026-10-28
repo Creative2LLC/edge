@@ -1,0 +1,1450 @@
+/* Deliberate exception to the shared 1420px container.
+   Download cards are full-width rows — a fixed-width media panel on the left,
+   then title, description and buttons — so at 1420px the text runs to an
+   uncomfortable measure and the buttons drift far from the content they belong
+   to. Capped on the WRAPPER rather than the block so the section keeps its
+   normal --section-pad behaviour and only the list narrows.
+   Uses the existing --container-narrow token rather than a new magic number;
+   change it here if a different width is wanted.
+
+   The selector has to out-specify `main > .section > div { max-width:
+   var(--container) }` in styles.css, which also matches this wrapper — a bare
+   `.resource-downloads-wrapper` (0,1,0) loses to that (0,1,2) and silently did
+   nothing. */
+main > .section > div.resource-downloads-wrapper {
+  max-width: var(--container-narrow, 1040px);
+  margin-inline: auto;
+}
+
+/* The Horizontal and Tile styles were designed for the full page column: the
+   wide card needs room for its picture beside three detail columns, and tiles
+   want four to a row. Blocks using either get the shared container back; the
+   older styles keep the narrow cap above. */
+main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
+  max-width: var(--container);
+}
+
+.resource-downloads {
+  margin: 0 auto;
+  padding: 8px 0 32px;
+}
+
+.resource-downloads-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.resource-downloads-list.is-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: stretch;
+}
+
+.resource-downloads-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid #e2e6eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgb(0 20 40 / 6%);
+}
+
+/* ── Motion ──────────────────────────────────────────────────────────────── */
+
+/* Cards rise in softly as they scroll into view (JS adds .is-revealed with a
+   stagger delay) and lift slightly on hover. Everything lives behind
+   prefers-reduced-motion, so those users get static, always-visible cards. */
+@media (prefers-reduced-motion: no-preference) {
+  .resource-downloads-list .resource-downloads-item {
+    opacity: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .resource-downloads-list .resource-downloads-item.is-revealed {
+    opacity: 1;
+    animation: rd-card-rise 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+    animation-delay: var(--rd-reveal-delay, 0ms);
+  }
+
+  .resource-downloads-item:not(.is-informative):hover,
+.resource-downloads-item:not(.is-informative):focus-within {
+    transform: translateY(var(--hover-lift-row));
+    box-shadow: var(--shadow-3);
+  }
+}
+
+@keyframes rd-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* ── Color-coded type tile ───────────────────────────────────────────────── */
+
+/* One element themes every type: the accent comes from --rd-accent, set on the
+   card in JS from the type theme (PDF red, Word blue, PowerPoint orange, ...). */
+.resource-downloads-type-tile {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  height: 54px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background: var(--rd-accent, #00264d);
+  color: #fff;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 12px rgb(0 20 40 / 18%);
+}
+
+.resource-downloads-item-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resource-downloads-item-title {
+  margin: 0;
+  color: #00264d;
+  font-family: var(--heading-font-family, sans-serif);
+}
+
+.resource-downloads-item-description {
+  color: #445;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.resource-downloads-item-description p {
+  margin: 0 0 4px;
+}
+
+.resource-downloads-item-description p:last-child {
+  margin-bottom: 0;
+}
+
+.resource-downloads-item-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.resource-downloads-item-actions.is-stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.resource-downloads-item.is-row .resource-downloads-item-actions {
+  margin-left: auto;
+}
+
+/* ── Per-type card (PDF, Word, PowerPoint, ZIP, spreadsheet, file) ────────── */
+
+.resource-downloads-item.is-type {
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  border-left: 5px solid var(--rd-accent, var(--ncmec-blue-medium));
+}
+
+/* ── Document preview ──────────────────────────────────────────────────────
+   Backend thumbnails are first-page covers, so they are presented as a
+   document rather than as a photograph: a sheet with stacked paper edges, and
+   a corner chip carrying the file type. The old site's thumbnails are
+   recognisable but say nothing about format; the type art says the format but
+   nothing about content. This says both. */
+.resource-downloads-preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.resource-downloads-preview-sheet {
+  position: relative;
+
+  /* Above the stack layers below. Deliberately a POSITIVE z-index on the sheet
+     rather than a negative one on the layers: `position: relative` alone does
+     not create a stacking context, so `z-index: -1` children would escape the
+     preview and paint behind the card's own white background — invisible. */
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(13 39 59 / 18%);
+}
+
+.resource-downloads-preview-sheet picture,
+.resource-downloads-preview-sheet img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The paper stack. Two offset layers behind the sheet, which is what makes a
+   cover read instantly as "multi-page document" instead of "image". Drawn on
+   the container so they sit outside the sheet's own overflow clip. */
+.resource-downloads-preview:not([data-type="video"])::before,
+.resource-downloads-preview:not([data-type="video"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(13 39 59 / 14%);
+}
+
+.resource-downloads-preview:not([data-type="video"])::before {
+  transform: translate(4px, 4px);
+}
+
+.resource-downloads-preview:not([data-type="video"])::after {
+  transform: translate(8px, 8px);
+  opacity: 0.6;
+}
+
+.resource-downloads-preview-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  border-radius: 3px;
+
+  /* --rd-accent is set per card in JS from the type theme, so the chip carries
+     the same colour as the rest of that type's styling (PDF red, PPT orange,
+     ...) rather than a second, unrelated palette. */
+  background: var(--rd-accent, var(--ncmec-navy-medium));
+  color: #fff;
+  font-size: var(--caption-size);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Compact rows lead with a small cover instead of the type glyph, so a stack
+   of downloads is scannable. The paper edges are dropped at this size — they
+   would read as clutter rather than as depth. */
+.resource-downloads-preview.is-row-preview {
+  flex: 0 0 auto;
+  width: 62px;
+  height: 52px;
+}
+
+.resource-downloads-preview.is-row-preview::before,
+.resource-downloads-preview.is-row-preview::after {
+  content: none;
+}
+
+.resource-downloads-preview.is-row-preview .resource-downloads-preview-badge {
+  display: none;
+}
+
+/* Informative cards lead with metadata, so the cover sits above it full-width
+   at the shared 1.2:1 thumbnail ratio. */
+.resource-downloads-item-media.is-informative-media {
+  width: 100%;
+  margin-bottom: 16px;
+  aspect-ratio: 1.2 / 1;
+}
+
+/* The banner variant is a horizontal strip, so its cover leads the row at row
+   height instead of stacking full-width above the text. Sized to fill that row
+   rather than float in it — at 108x90 it read as a stray icon. */
+.resource-downloads-preview.is-banner-preview {
+  flex: 0 0 auto;
+  width: 168px;
+  height: 140px;
+  align-self: center;
+}
+
+/* Stacked cards are grid TILES — `width: 100%` is right at tile width (~280px)
+   but blew up to 918x765 when one renders standalone in a full-width card, so
+   the picture dwarfed everything under it. The cap only bites when there is too
+   much room; inside a real grid tile 100% is already below it. */
+.resource-downloads-item.is-informative-stacked .resource-downloads-item-media.is-informative-media {
+  max-width: 300px;
+}
+
+.resource-downloads-preview.is-banner-preview::before,
+.resource-downloads-preview.is-banner-preview::after {
+  content: none;
+}
+
+/* Padded so the cover sits ON the accent panel like a document on a mat,
+   rather than bleeding to the card edge. Two reasons beyond looks: `.is-type`
+   sets `overflow: hidden`, so an edge-to-edge preview would have its paper
+   edges clipped away at the bottom, and the accent border reads better as a
+   surface than as a frame. */
+.resource-downloads-item.is-type .resource-downloads-item-media {
+  flex: 0 0 300px;
+  min-height: 232px;
+  padding: 20px;
+  background: var(--rd-accent, var(--ncmec-blue-tint));
+}
+
+.resource-downloads-item.is-type .resource-downloads-item-media picture,
+.resource-downloads-item.is-type .resource-downloads-item-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resource-downloads-item.is-type .resource-downloads-item-body {
+  gap: 14px;
+  padding: 22px 26px;
+  justify-content: center;
+}
+
+.resource-downloads-type-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.resource-downloads-type-heading {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.resource-downloads-type-format {
+  color: var(--rd-accent, #667);
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.resource-downloads-item.is-type .resource-downloads-item-actions {
+  margin-top: 2px;
+}
+
+/* Decorative accent-tinted art panel that fills the open side of a type card
+   when no thumbnail is authored: dotted texture, floating line-art glyph, and
+   a giant watermark of the type abbreviation. */
+.resource-downloads-type-art {
+  position: relative;
+  flex: 0 0 210px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--rd-accent, var(--ncmec-blue-medium));
+  background: linear-gradient(115deg, rgb(255 255 255 / 0%) 0%, color-mix(in srgb, var(--rd-accent, #008db6) 7%, #fff) 55%, color-mix(in srgb, var(--rd-accent, #008db6) 15%, #fff) 100%);
+}
+
+.resource-downloads-type-art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(color-mix(in srgb, var(--rd-accent, #008db6) 40%, #fff) 1.5px, transparent 1.5px);
+  background-size: 18px 18px;
+  opacity: 0.35;
+  mask-image: linear-gradient(100deg, transparent 15%, #000 90%);
+}
+
+.resource-downloads-type-art-watermark {
+  position: absolute;
+  right: -8px;
+  bottom: -26px;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: 92px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  opacity: 0.08;
+  user-select: none;
+}
+
+.resource-downloads-type-art-glyph {
+  position: relative;
+  width: 104px;
+  filter: drop-shadow(0 10px 14px color-mix(in srgb, var(--rd-accent, var(--ncmec-blue-medium)) 25%, transparent));
+  transition: transform 0.25s ease;
+}
+
+.resource-downloads-type-art-glyph svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.resource-downloads-list.is-grid .resource-downloads-type-art {
+  flex-basis: 120px;
+}
+
+.resource-downloads-list.is-grid .resource-downloads-type-art-glyph {
+  width: 76px;
+}
+
+/* Sharing the card with a cover: the art yields width so the text between them
+   is not squeezed. On its own it keeps the full panel. */
+.resource-downloads-item.is-type.has-preview .resource-downloads-type-art {
+  flex: 0 0 156px;
+}
+
+.resource-downloads-item.is-type:hover .resource-downloads-type-art-glyph {
+  transform: rotate(-3deg) scale(1.05);
+}
+
+/* The float animation lives on the svg so it can coexist with the wrapper's
+   hover transform. */
+@media (prefers-reduced-motion: no-preference) {
+  .resource-downloads-type-art-glyph svg {
+    animation: rd-art-float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes rd-art-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+/* Informative (card + audience/time/format panel) */
+
+.resource-downloads-item.is-informative {
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  margin-inline: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.resource-downloads-informative-card {
+  position: relative;
+  flex: 0 1 430px;
+  display: flex;
+  min-height: 270px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 38px 34px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e8edf1;
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgb(0 20 40 / 12%);
+}
+
+.resource-downloads-informative-type {
+  position: absolute;
+  top: -16px;
+  right: -18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  color: #00264d;
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+}
+
+.resource-downloads-informative-type-icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  background: var(--rd-accent, var(--ncmec-blue-medium));
+  border-radius: 999px;
+}
+
+.resource-downloads-informative-type-label {
+  padding-right: 2px;
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-title {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--heading-3-size);
+  line-height: var(--heading-line-height-tight);
+}
+
+.resource-downloads-contains-label {
+  margin: 0;
+  color: #737373; /* was #8a8a8a (3.45:1); darkened for WCAG AA 4.5:1 */
+  font-size: var(--caption-size);
+  font-style: italic;
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-contents {
+  max-width: 260px;
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-size);
+  line-height: 1.45;
+  font-weight: var(--body-weight-medium);
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-contents p {
+  margin: 0;
+}
+
+.resource-downloads-item.is-informative .resource-downloads-item-actions {
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.resource-downloads-meta-panel {
+  flex: 1 1 430px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+}
+
+.resource-downloads-meta-row {
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 22px;
+  background: var(--ncmec-warm-gray);
+  border-radius: 8px;
+}
+
+.resource-downloads-meta-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  color: var(--ncmec-blue-dark);
+}
+
+.resource-downloads-meta-row[data-meta="audience"] .resource-downloads-meta-icon {
+  color: #5cbf75;
+}
+
+.resource-downloads-meta-row[data-meta="time"] .resource-downloads-meta-icon {
+  color: #6fd6e8;
+}
+
+.resource-downloads-meta-row[data-meta="format"] .resource-downloads-meta-icon {
+  color: #ffb15a;
+}
+
+.resource-downloads-meta-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.resource-downloads-meta-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.resource-downloads-meta-label {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--caption-size);
+  line-height: 1;
+}
+
+.resource-downloads-meta-value {
+  color: var(--ncmec-gray-dark);
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: var(--caption-line-height);
+}
+
+/* ── Informative: stacked card variant ───────────────────────────────────── */
+
+.resource-downloads-item.is-informative-stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 26px 28px 24px;
+  border-top: 4px solid var(--rd-accent, var(--ncmec-blue-medium));
+}
+
+.resource-downloads-item.is-informative-stacked .resource-downloads-item-contents {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-size);
+  line-height: 1.45;
+  font-weight: var(--body-weight-medium);
+}
+
+.resource-downloads-item.is-informative-stacked .resource-downloads-item-actions {
+  margin-top: 6px;
+}
+
+.resource-downloads-meta-panel.is-inline {
+  width: 100%;
+  flex: 0 0 auto;
+  flex-flow: row wrap;
+  gap: 10px;
+}
+
+.resource-downloads-meta-panel.is-inline .resource-downloads-meta-row {
+  flex: 1 1 160px;
+  min-height: 0;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.resource-downloads-meta-panel.is-inline .resource-downloads-meta-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.resource-downloads-meta-panel.is-inline .resource-downloads-meta-text {
+  gap: 3px;
+}
+
+.resource-downloads-meta-panel.is-inline .resource-downloads-meta-label {
+  font-size: var(--caption-size);
+}
+
+.resource-downloads-meta-panel.is-inline .resource-downloads-meta-value {
+  font-size: var(--caption-size);
+}
+
+/* ── Informative: full-width banner variant ──────────────────────────────── */
+
+.resource-downloads-item.is-informative-banner {
+  flex-wrap: wrap;
+  gap: 18px 26px;
+  border-left: 5px solid var(--rd-accent, var(--ncmec-blue-medium));
+  background: linear-gradient(100deg, color-mix(in srgb, var(--rd-accent, #008db6) 6%, #fff) 0%, #fff 50%);
+}
+
+.resource-downloads-item.is-informative-banner .resource-downloads-informative-type {
+  position: static;
+  flex: 0 0 auto;
+  border: 1px solid #e5eaef;
+  box-shadow: none;
+}
+
+.resource-downloads-item.is-informative-banner .resource-downloads-item-body {
+  flex: 1 1 240px;
+  gap: 4px;
+}
+
+.resource-downloads-item.is-informative-banner .resource-downloads-item-actions {
+  margin-left: auto;
+}
+
+.resource-downloads-meta-panel.is-chips {
+  flex: 0 1 auto;
+  flex-flow: row wrap;
+  gap: 8px 20px;
+}
+
+.resource-downloads-meta-panel.is-chips .resource-downloads-meta-row {
+  min-height: 0;
+  gap: 10px;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.resource-downloads-meta-panel.is-chips .resource-downloads-meta-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.resource-downloads-meta-panel.is-chips .resource-downloads-meta-text {
+  gap: 2px;
+}
+
+.resource-downloads-meta-panel.is-chips .resource-downloads-meta-label {
+  color: #7a8590;
+  font-size: var(--caption-size);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.resource-downloads-meta-panel.is-chips .resource-downloads-meta-value {
+  font-size: var(--caption-size);
+}
+
+/* ── Video ───────────────────────────────────────────────────────────────── */
+
+.resource-downloads-item.is-video {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+.resource-downloads-item.is-video .resource-downloads-item-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--ncmec-navy-medium);
+}
+
+/* contain, not cover. Backend thumbnails are stored at 1.2:1 (the ratio the
+   whole library uses); cover-cropping one into this 16:9 box would throw away a
+   third of its height, and for a video still that has already been cropped to
+   1.2 it is a lossy round trip. A 16:9 authored poster still fills the box
+   exactly — same ratio, nothing to letterbox — so this costs that case nothing,
+   and the dark backdrop makes the bars read as a video player rather than as a
+   mistake. */
+
+/* Absolutely positioned, not just `height: 100%`. The media declares
+   `aspect-ratio: 16 / 9`, but that only sets a PREFERRED size — a percentage
+   height resolves against an indefinite height, falls back to the image's
+   intrinsic size, and grows the box past the ratio. With a 1.2:1 thumbnail as
+   the poster that made a 16:9 slot render 974x812 and the card 935px tall.
+   Taking the image out of flow pins it to the ratio box. */
+.resource-downloads-item.is-video .resource-downloads-item-media picture,
+.resource-downloads-item.is-video .resource-downloads-item-media img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.resource-downloads-default-video-poster {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(24px, 8vw, 58px);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--rd-accent, #008db6) 10%, #fff) 0%, #fff 52%, color-mix(in srgb, var(--rd-accent, #008db6) 16%, #fff) 100%);
+}
+
+/* Decorative accent rings behind the brand mark */
+.resource-downloads-default-video-poster::before,
+.resource-downloads-default-video-poster::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--rd-accent, var(--ncmec-blue-medium)) 22%, transparent);
+}
+
+.resource-downloads-default-video-poster::before {
+  width: 420px;
+  height: 420px;
+  top: -170px;
+  right: -150px;
+}
+
+.resource-downloads-default-video-poster::after {
+  width: 240px;
+  height: 240px;
+  bottom: -110px;
+  left: -90px;
+  border-style: dashed;
+}
+
+.resource-downloads-item.is-video .resource-downloads-default-video-poster img {
+  position: relative;
+  width: min(58%, 280px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 18px rgb(0 38 77 / 16%));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resource-downloads-item.is-video .resource-downloads-default-video-poster img {
+    animation: rd-art-float 7s ease-in-out infinite;
+  }
+}
+
+/* A real still from YouTube/Vimeo fills the frame. The padding, gradient,
+   decorative rings and float animation all exist to flatter the generic brand
+   mark; none of them should be applied to an actual video thumbnail. */
+.resource-downloads-default-video-poster.has-provider-poster {
+  padding: 0;
+  background: #00264d;
+}
+
+.resource-downloads-default-video-poster.has-provider-poster::before,
+.resource-downloads-default-video-poster.has-provider-poster::after {
+  content: none;
+}
+
+.resource-downloads-item.is-video .has-provider-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  animation: none;
+}
+
+/* Type chip pinned to the media corner */
+.resource-downloads-video-chip {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+
+  /* 96%, up from 88%: over a busy thumbnail the 13px label fell to 4.4:1. */
+  background: rgb(255 255 255 / 96%);
+  color: var(--rd-accent, var(--ncmec-blue-medium));
+  font-family: var(--heading-font-family, sans-serif);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgb(0 20 40 / 18%);
+}
+
+.resource-downloads-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 92%);
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgb(0 20 40 / 35%);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.resource-downloads-play::before {
+  content: "";
+  position: absolute;
+  left: 55%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-style: solid;
+  border-width: 14px 0 14px 24px;
+  border-color: transparent transparent transparent #00264d;
+}
+
+.resource-downloads-play:hover,
+.resource-downloads-play:focus-visible {
+  transform: scale(1.06);
+  background: #fff;
+}
+
+/* Pulsing halo ring inviting the click */
+@media (prefers-reduced-motion: no-preference) {
+  .resource-downloads-play::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid rgb(255 255 255 / 75%);
+    animation: rd-play-pulse 2.4s ease-out infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes rd-play-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+
+  70%,
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Footer action bar: text left, buttons right */
+.resource-downloads-item.is-video .resource-downloads-item-body {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 26px;
+  border-top: 1px solid #e8edf1;
+}
+
+.resource-downloads-video-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resource-downloads-item.is-video .resource-downloads-item-actions {
+  flex-wrap: nowrap;
+}
+
+/* ── Grouped buttons card ────────────────────────────────────────────────── */
+
+.resource-downloads-item.is-group {
+  align-items: stretch;
+}
+
+.resource-downloads-item.is-group .resource-downloads-item-media {
+  flex: 0 0 200px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--ncmec-blue-tint);
+  align-self: center;
+}
+
+.resource-downloads-item.is-group .resource-downloads-item-media picture,
+.resource-downloads-item.is-group .resource-downloads-item-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Card styles: Horizontal + Tile ──────────────────────────────────────── */
+
+/* Disabled for this section only. The rule compares selectors by their last
+   compound, so it reads `.resource-downloads-card-media img` here as a weaker
+   restyle of `.is-type .resource-downloads-item-media img` (and the is-grid
+   type-art rules) above. They never match the same element: the card styles
+   build their own picture panel and never contain a type card's media. */
+/* stylelint-disable no-descending-specificity */
+
+/* Tiles always sit in rows, whatever the Layout field says (JS adds
+   .has-tiles). Anything else in the same list keeps the full row, and so does
+   a Horizontal card in the plain Grid layout — which is how the approved
+   design puts one wide card above a row of tiles. Four to a row at most (the
+   design), never narrower than 220px: the max() floor is a quarter of the row
+   less three gaps, so a fifth column never fits. */
+.resource-downloads-list.has-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(220px, (100% - 3 * 18px) / 4), 1fr));
+  align-items: stretch;
+}
+
+.resource-downloads-list.has-tiles > :not(.is-tile),
+.resource-downloads-list.is-grid > .is-horizontal {
+  grid-column: 1 / -1;
+}
+
+/* The picture panel. The image is taken out of flow so the panel follows the
+   card's height (Horizontal) or its own ratio (Tile) rather than the image's
+   intrinsic size — see the note on the video media above. Documents are shown
+   whole on white; a video still fills the frame. */
+.resource-downloads-card-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--ncmec-gray-lightest);
+}
+
+.resource-downloads-card-media > picture,
+.resource-downloads-card-media > img,
+.resource-downloads-card-media > picture img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.resource-downloads-card-media[data-type="video"] > picture img,
+.resource-downloads-card-media[data-type="video"] > img {
+  object-fit: cover;
+}
+
+.resource-downloads-card-media .resource-downloads-default-video-poster {
+  position: absolute;
+  inset: 0;
+  padding: 24px;
+}
+
+.resource-downloads-card-media .resource-downloads-default-video-poster img {
+  position: relative;
+  width: min(50%, 180px);
+  height: auto;
+  filter: drop-shadow(0 8px 18px rgb(0 38 77 / 16%));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resource-downloads-card-media .resource-downloads-default-video-poster img {
+    animation: rd-art-float 7s ease-in-out infinite;
+  }
+}
+
+.resource-downloads-card-media .has-provider-poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The brand-mark poster (a video with no still of its own) has the logo dead
+   centre, exactly where the play button lands. Logo up, button down, so both
+   read. A real still keeps the centred button. */
+.resource-downloads-card-media .resource-downloads-default-video-poster:not(.has-provider-poster) {
+  padding-bottom: 96px;
+}
+
+.resource-downloads-card-media:has(.resource-downloads-default-video-poster:not(.has-provider-poster)) .resource-downloads-play {
+  top: auto;
+  bottom: 22%;
+}
+
+/* No picture: the type cards' art fills the whole panel instead of a grey box.
+   Same accent wash, dot texture, floating glyph and type watermark — the file
+   type's colour (--rd-accent, set per card) is what keeps a row of image-less
+   tiles from blending into the page. The wash runs corner to corner here
+   rather than left-to-right, because the panel is the whole picture, not a
+   strip at the card's edge. */
+.resource-downloads-card-media.is-placeholder {
+  background: #fff;
+}
+
+.resource-downloads-card-media .resource-downloads-type-art {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--rd-accent, var(--ncmec-blue-medium)) 6%, #fff) 0%, #fff 45%, color-mix(in srgb, var(--rd-accent, var(--ncmec-blue-medium)) 20%, #fff) 100%);
+}
+
+/* A mask reads only alpha, so the opaque stop's colour is irrelevant. */
+.resource-downloads-card-media .resource-downloads-type-art::before {
+  mask-image: linear-gradient(135deg, transparent 20%, black 95%);
+}
+
+/* After the is-grid rule above, so a tile in the Grid layout keeps its size. */
+.resource-downloads-card-media .resource-downloads-type-art-glyph {
+  width: min(36%, 120px);
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-type-art-watermark {
+  font-size: 140px;
+  bottom: -38px;
+}
+
+.resource-downloads-item.is-horizontal:hover .resource-downloads-type-art-glyph,
+.resource-downloads-item.is-tile:hover .resource-downloads-type-art-glyph {
+  transform: rotate(-3deg) scale(1.05);
+}
+
+.resource-downloads-card-media .resource-downloads-play {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+.resource-downloads-card-media .resource-downloads-play::after {
+  border-radius: 8px;
+}
+
+/* Horizontal: image left, details right */
+.resource-downloads-item.is-horizontal {
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+}
+
+/* 16:9 sets the card's height from its width, so at the full container the
+   picture keeps the design's proportions instead of stretching into a thin
+   band beside the text. A taller body still grows the panel with it. */
+.resource-downloads-item.is-horizontal .resource-downloads-card-media {
+  flex: 0 0 40%;
+  min-height: 220px;
+  aspect-ratio: 16 / 9;
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-body {
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 32px;
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-title {
+  color: var(--ncmec-navy-dark);
+  font-size: var(--heading-4-size);
+  line-height: var(--heading-line-height-tight);
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-description,
+.resource-downloads-item.is-tile .resource-downloads-item-description {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+}
+
+.resource-downloads-meta-panel.is-card-meta {
+  flex: 0 0 auto;
+  flex-flow: row wrap;
+  gap: 12px 36px;
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-row {
+  min-height: 0;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-text {
+  gap: 3px;
+}
+
+.resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-value {
+  font-weight: var(--body-weight-strong);
+}
+
+.resource-downloads-item.is-horizontal .resource-downloads-item-actions {
+  margin-top: 8px;
+}
+
+/* Tile: image on top, details on a warm panel */
+.resource-downloads-item.is-tile {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ncmec-warm-gray);
+}
+
+.resource-downloads-item.is-tile .resource-downloads-card-media {
+  aspect-ratio: 1 / 1;
+  background: #fff;
+}
+
+.resource-downloads-item.is-tile .resource-downloads-item-body {
+  gap: 10px;
+  padding: 18px 20px 22px;
+}
+
+.resource-downloads-tile-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
+  line-height: var(--caption-line-height);
+}
+
+.resource-downloads-tile-type,
+.resource-downloads-tile-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resource-downloads-tile-type-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  color: var(--ncmec-navy-dark);
+}
+
+.resource-downloads-tile-time-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+.resource-downloads-tile-type-icon svg,
+.resource-downloads-tile-time-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.resource-downloads-item.is-tile .resource-downloads-item-title {
+  color: var(--ncmec-gray-dark);
+  font-size: var(--heading-6-size);
+  line-height: var(--heading-line-height-tight);
+}
+
+/* Pinned to the bottom so the buttons line up across a row of tiles whose
+   titles wrap to different lengths. */
+.resource-downloads-item.is-tile .resource-downloads-item-actions {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+/* stylelint-enable no-descending-specificity */
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+/* Download and Watch buttons: the button standard's shape (styles/styles.css) in the
+   card's file-type colour. A named exception to the standard: a blue Primary clashed with
+   the red PDF / orange PPT card around it, so the button takes --rd-accent through the
+   standard's own --btn-* properties rather than repainting itself. Every accent carries a
+   white label at AA (PDF 4.96, PPT 4.90, Word 7.16, XLS 5.82, ZIP 5.43, video 5.85).
+   Beside a Watch button the download is the outline form in the same colour. A locked
+   (gated) download keeps the padlock from styles/resource-gate.css. */
+.resource-downloads .resource-downloads-item-button {
+  --btn-bg: var(--rd-accent, var(--button-primary));
+  --btn-bg-hover: color-mix(in srgb, var(--rd-accent, var(--button-primary)) 82%, var(--ncmec-navy-dark));
+  --btn-focus: var(--rd-accent, var(--button-primary));
+}
+
+/* The approved Horizontal and Tile designs use one button colour for every
+   file type, so they go back to the standard Primary instead of the per-type
+   accent above. */
+.resource-downloads .is-horizontal .resource-downloads-item-button,
+.resource-downloads .is-tile .resource-downloads-item-button {
+  --btn-bg: var(--button-primary);
+  --btn-bg-hover: var(--button-primary-hover);
+  --btn-focus: var(--button-primary);
+}
+
+/* Tiles are narrow, so their button is the small size. */
+.resource-downloads-item.is-tile .resource-downloads-item-button {
+  --btn-font-size: var(--caption-size);
+  --btn-pad-block: 6px;
+  --btn-pad-inline: 14px;
+}
+
+.resource-downloads .resource-downloads-item-button.secondary {
+  --btn-bg: transparent;
+  --btn-bg-hover: color-mix(in srgb, var(--rd-accent, var(--button-primary)) 10%, #fff);
+  --btn-fg: var(--rd-accent, var(--button-primary));
+  --btn-fg-hover: color-mix(in srgb, var(--rd-accent, var(--button-primary)) 82%, var(--ncmec-navy-dark));
+}
+
+.resource-downloads-item.is-group .resource-downloads-item-actions.is-stacked .resource-downloads-item-button {
+  justify-content: flex-start;
+}
+
+/* ── Notices ─────────────────────────────────────────────────────────────── */
+
+.resource-downloads-item-notice {
+  margin: 0;
+  color: #8a5a00;
+  font-size: var(--caption-size);
+  font-style: italic;
+  max-width: 240px;
+}
+
+.resource-downloads-empty {
+  margin: 0;
+  padding: 24px;
+  border: 1px dashed #c6cdd6;
+  border-radius: 12px;
+  color: #667;
+  text-align: center;
+  font-size: var(--body-sm-size);
+}
+
+/* ── Video modal ─────────────────────────────────────────────────────────── */
+
+.resource-downloads-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* display:flex above would defeat the hidden attribute without this */
+.resource-downloads-modal[hidden] {
+  display: none;
+}
+
+.resource-downloads-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 10 20 / 80%);
+}
+
+.resource-downloads-modal-dialog {
+  position: relative;
+  width: min(960px, 100%);
+}
+
+.resource-downloads-modal-frame {
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.resource-downloads-modal-frame iframe,
+.resource-downloads-modal-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.resource-downloads-modal-close {
+  position: absolute;
+  top: -44px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 15%);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.resource-downloads-modal-close:hover,
+.resource-downloads-modal-close:focus-visible {
+  background: rgb(255 255 255 / 30%);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (width <= 860px) {
+  .resource-downloads-item.is-informative {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .resource-downloads-informative-card {
+    flex-basis: auto;
+  }
+}
+
+@media (width <= 640px) {
+  .resource-downloads-item,
+  .resource-downloads-item.is-type,
+  .resource-downloads-item.is-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .resource-downloads-item.is-type .resource-downloads-item-media {
+    flex-basis: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* On a type card the art panel only exists to fill horizontal space; on
+     phones it would just push the button further down. Scoped to .is-type:
+     in the Horizontal/Tile picture panel the art IS the picture. */
+  .resource-downloads-item.is-type .resource-downloads-type-art {
+    display: none;
+  }
+
+  .resource-downloads-item.is-video .resource-downloads-item-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resource-downloads-item.is-row {
+    align-items: flex-start;
+  }
+
+  .resource-downloads-item.is-horizontal .resource-downloads-card-media {
+    flex-basis: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .resource-downloads-item.is-horizontal .resource-downloads-item-body {
+    padding: 22px 20px 24px;
+  }
+
+  /* One tile per row on a phone: a full-width square was taller than the
+     screen's useful height. */
+  .resource-downloads-item.is-tile .resource-downloads-card-media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .resource-downloads-item-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resource-downloads-item-button {
+    justify-content: center;
+  }
+}
+
+/* ── Authoring toolbar ───────────────────────────────────────────────────────
+   Rendered only inside the Universal Editor (see scripts/resource-authoring-
+   toolbar.js, which returns null when no data-aue-resource is present), so this
+   never appears on the live site. */
+.resource-authoring-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: var(--ncmec-gray-lightest);
+  border: 1px dashed #b7c4d2;
+  border-radius: 10px;
+}
+
+.resource-authoring-toolbar-note {
+  margin-right: 4px;
+  color: #5b6b7c;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.resource-authoring-toolbar-button {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #c3cedb;
+  border-radius: 6px;
+  color: #14405f;
+  font-size: var(--button-font-size);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.resource-authoring-toolbar-button:hover {
+  background: #e9f2f8;
+  border-color: #008eb7;
+}
+

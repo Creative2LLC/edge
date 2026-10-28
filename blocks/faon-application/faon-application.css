@@ -1,0 +1,358 @@
+main > .section > .faon-application-wrapper {
+  max-width: var(--container);
+}
+
+.faon-application {
+  --faon-application-top-padding: clamp(40px, 6vw, 88px);
+  --faon-application-reveal-duration: 0.58s;
+  --faon-application-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  padding: var(--faon-application-top-padding) 0 clamp(52px, 7vw, 96px);
+  color: var(--ncmec-gray-dark);
+}
+
+.faon-application-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 40px);
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.faon-application-header {
+  display: grid;
+  gap: 18px;
+  max-width: 920px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--faon-application-reveal-duration) var(--faon-application-reveal-ease),
+    transform var(--faon-application-reveal-duration) var(--faon-application-reveal-ease);
+}
+
+.faon-application-eyebrow {
+  width: fit-content;
+  margin: 0;
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: rgb(0 141 182 / 11%);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
+}
+
+.faon-application-heading {
+  margin: 0;
+  color: #00264d;
+}
+
+.faon-application-intro {
+  max-width: 58rem;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.faon-application-intro > :first-child {
+  margin-top: 0;
+}
+
+.faon-application-intro > :last-child {
+  margin-bottom: 0;
+}
+
+.faon-application-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  border-radius: 8px;
+  padding: clamp(20px, 3.6vw, 38px);
+  background:
+    radial-gradient(circle at top right, rgb(255 255 255 / 78%), transparent 36%),
+    linear-gradient(180deg, #f4f5f5 0%, #ece9e5 100%);
+  box-shadow: 0 24px 60px rgb(17 54 82 / 10%);
+  opacity: 0;
+  transform: translateY(28px) scale(0.992);
+  transition:
+    opacity var(--faon-application-reveal-duration) var(--faon-application-reveal-ease),
+    transform var(--faon-application-reveal-duration) var(--faon-application-reveal-ease);
+  transition-delay: 90ms;
+}
+
+/* Each step is the shared .accordion (styles.css); the step number is this form's own. */
+.faon-application-panel-number {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgb(0 141 182 / 12%);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.faon-application-panel-inner {
+  display: grid;
+  gap: 20px;
+  border-top: 1px solid rgb(0 38 77 / 10%);
+  padding: 22px 20px 24px;
+}
+
+.faon-application-section-intro {
+  margin: 0;
+  color: #5a5d62;
+  font-size: var(--body-sm-size);
+  font-weight: 650;
+}
+
+.faon-application-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.faon-application-field,
+.faon-application-choice-group {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  transition: transform 180ms ease;
+}
+
+.faon-application-field-wide,
+.faon-application-choice-group {
+  grid-column: 1 / -1;
+}
+
+.faon-application-label {
+  color: #32363b;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.faon-application-required {
+  color: #b6462f;
+}
+
+.faon-application-input,
+.faon-application-select,
+.faon-application-textarea {
+  width: 100%;
+  border: 1px solid #d9d3cd;
+  border-radius: 6px;
+  padding: 14px 15px;
+  background: #fff;
+  color: #26292d;
+  font: inherit;
+  font-size: var(--body-size);
+  line-height: 1.35;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.faon-application-select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #007294 50%),
+    linear-gradient(135deg, #007294 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 14px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px;
+}
+
+.faon-application-select[multiple] {
+  min-height: 184px;
+  background-image: none;
+}
+
+.faon-application-textarea {
+  min-height: 138px;
+  resize: vertical;
+}
+
+.faon-application-choice-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.faon-application-choice-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgb(0 38 77 / 12%);
+  border-radius: 8px;
+  padding: 13px 14px;
+  background: #fff;
+  color: #32363b;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  line-height: 1.35;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.faon-application-choice-item:hover {
+  border-color: rgb(0 114 148 / 28%);
+  box-shadow: 0 8px 22px rgb(17 54 82 / 6%);
+}
+
+.faon-application-choice-item:focus-within {
+  transform: translateY(-1px);
+}
+
+.faon-application-choice {
+  width: 19px;
+  height: 19px;
+  accent-color: var(--ncmec-blue-dark);
+  flex: 0 0 auto;
+}
+
+.faon-application-other-input {
+  flex: 1 1 260px;
+  min-width: 220px;
+  margin-left: auto;
+}
+
+.faon-application-other-input:disabled {
+  opacity: 0.55;
+}
+
+.faon-application-field-group {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid rgb(0 38 77 / 10%);
+  padding-top: 18px;
+}
+
+.faon-application-field-group h3 {
+  margin: 0;
+  color: #00264d;
+}
+
+.faon-application-terms {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid rgb(0 38 77 / 10%);
+  padding-top: 18px;
+}
+
+.faon-application-panel-footer,
+.faon-application-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.faon-application-actions {
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  border-top: 1px solid rgb(0 38 77 / 12%);
+  padding-top: 24px;
+}
+
+.faon-application-status {
+  flex: 1 1 280px;
+  min-height: 1.5em;
+  margin: 0;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.faon-application-status.is-info {
+  color: #6f6253;
+}
+
+.faon-application-status.is-success {
+  color: #1f6a3a;
+}
+
+.faon-application-status.is-error {
+  color: #a13a31;
+}
+
+/* Continue and submit: styled by the button standard in styles/styles.css. */
+.faon-application-continue,
+.faon-application-submit {
+  margin: 0;
+}
+
+.faon-application.is-submitting .faon-application-submit {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.faon-application.is-visible .faon-application-header,
+.faon-application.is-visible .faon-application-form {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (width < 760px) {
+  .faon-application {
+    --faon-application-top-padding: 32px;
+  }
+
+  .faon-application-form {
+    padding: 18px 14px;
+  }
+
+  .faon-application-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .faon-application-panel-inner {
+    padding: 20px 14px 24px;
+  }
+
+  .faon-application-choice-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .faon-application-actions {
+    align-items: stretch;
+  }
+
+  .faon-application-submit,
+  .faon-application-continue {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faon-application-header,
+  .faon-application-form,
+  .faon-application-panel,
+  .faon-application-panel-body,
+  .faon-application-field,
+  .faon-application-choice-item,
+  .faon-application-input,
+  .faon-application-select,
+  .faon-application-textarea,
+  .faon-application-continue,
+  .faon-application-submit {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

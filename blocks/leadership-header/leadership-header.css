@@ -1,0 +1,32 @@
+/* Leadership Header Block */
+.leadership-header {
+  padding: 48px 0 32px;
+  margin-top: var(--nav-height, 64px);
+}
+
+.leadership-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  text-align: center;
+}
+
+@media (width <= 768px) {
+  .leadership-header-inner {
+    padding-inline: 0; /* gutter-only on mobile */
+  }
+}
+
+.leadership-header-heading {
+  color: #00264d;
+  margin: 0 0 16px;
+}
+
+.leadership-header-subheading {
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 auto;
+  max-width: 1275px;
+}
+

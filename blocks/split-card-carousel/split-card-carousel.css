@@ -1,0 +1,437 @@
+.split-card-carousel {
+  --split-card-carousel-viewport-width: 100vw;
+
+  padding: 0;
+  position: relative;
+  max-width: none;
+  margin-inline: calc(50% - (var(--split-card-carousel-viewport-width) / 2));
+  overflow-x: clip;
+  box-sizing: border-box;
+}
+
+@supports (width: 100dvw) {
+  .split-card-carousel {
+    --split-card-carousel-viewport-width: 100dvw;
+  }
+}
+
+/* Wrapper - constrains inner content to original width */
+.split-card-carousel .split-card-carousel-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 80px var(--section-pad);
+}
+
+/* Override section max-width so full-width breakout works */
+main > .section > .split-card-carousel-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+/* Section title - top left */
+.split-card-carousel .split-card-carousel-title {
+  color: #00264d;
+  margin: 0 0 40px;
+}
+
+/* Section description */
+.split-card-carousel .split-card-carousel-description {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  max-width: 680px;
+  margin: 0 0 40px;
+  line-height: var(--caption-line-height);
+}
+
+.split-card-carousel .split-card-carousel-title + .split-card-carousel-description {
+  margin-top: -28px;
+}
+
+/* Carousel track - extends to the right edge of the page */
+.split-card-carousel .split-card-carousel-track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  cursor: grab;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  margin-right: calc(var(--section-pad) * -1);
+  width: calc(100% + var(--section-pad) + max(0px, (var(--split-card-carousel-viewport-width) - 1420px) / 2));
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+.split-card-carousel .split-card-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.split-card-carousel .split-card-carousel-track:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 4px;
+}
+
+/* Each slide */
+.split-card-carousel .split-card-carousel-slide {
+  flex: 0 0 85%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Card - replicates split-card styling. Heights here are floors, not caps: a fixed
+   height clipped the heading and button off cards with longer copy. */
+.split-card-carousel .split-card-carousel-card {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  min-height: 393px;
+  background: #fff;
+}
+
+/* Left: image */
+.split-card-carousel .split-card-carousel-media {
+  position: relative;
+  flex: 0 0 50%;
+  overflow: hidden;
+}
+
+/* Out of flow so the photo covers whatever height the copy sets instead of
+   sizing the card by its own natural height. */
+.split-card-carousel .split-card-carousel-media picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.split-card-carousel .split-card-carousel-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 0;
+}
+
+/* Right: content */
+.split-card-carousel .split-card-carousel-content {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 48px;
+  box-sizing: border-box;
+
+  /* Pasted copy can join whole phrases with non-breaking spaces; those runs set the
+     column's minimum width and pushed text off the card's right edge on tablet. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Heading */
+.split-card-carousel .split-card-carousel-heading {
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 12px;
+  max-width: 540px;
+}
+
+/* Subheading */
+.split-card-carousel .split-card-carousel-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 24px;
+  max-width: 540px;
+}
+
+/* Rich-text paragraphs inside heading/subheading should preserve authored
+   line breaks instead of stacking default <p> margins. */
+.split-card-carousel .split-card-carousel-heading p,
+.split-card-carousel .split-card-carousel-subheading p {
+  margin: 0;
+}
+
+.split-card-carousel .split-card-carousel-heading p + p {
+  margin-top: 0.25em;
+}
+
+.split-card-carousel .split-card-carousel-subheading p + p {
+  margin-top: 1em;
+}
+
+/* Restore list markers inside rich-text fields. The global base reset in
+   styles/styles.css sets `ol, ul { list-style: none; padding: 0 }` because block
+   layouts use lists structurally — which strips the numbers/bullets authored in
+   the RTE. Re-enable them here. */
+.split-card-carousel .split-card-carousel-heading ol,
+.split-card-carousel .split-card-carousel-subheading ol {
+  list-style: decimal;
+  margin: 0 0 24px;
+  padding-left: 1.5em;
+}
+
+.split-card-carousel .split-card-carousel-heading ul,
+.split-card-carousel .split-card-carousel-subheading ul {
+  list-style: disc;
+  margin: 0 0 24px;
+  padding-left: 1.5em;
+}
+
+.split-card-carousel .split-card-carousel-heading li,
+.split-card-carousel .split-card-carousel-subheading li {
+  margin: 0;
+}
+
+/* Button row — holds button 1 + optional button 2 */
+.split-card-carousel .split-card-carousel-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Button: styled by the button standard in styles/styles.css. */
+
+/* Controls row: dots centered, nav arrows right */
+.split-card-carousel .split-card-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  position: relative;
+}
+
+/* Nav arrows - positioned right on the controls row */
+.split-card-carousel .split-card-carousel-nav {
+  display: flex;
+  gap: 12px;
+  position: absolute;
+  right: 0;
+}
+
+/* ============================================================
+   Variant 2 — fixed-size cards, no controls, image left 300px,
+   content fills remaining space, gentle box shadow.
+   ============================================================ */
+
+.split-card-carousel.variant-2 .split-card-carousel-slide {
+  flex: 0 0 901px;
+  max-width: 901px;
+}
+
+.split-card-carousel.variant-2 .split-card-carousel-card {
+  width: 901px;
+  min-height: 421px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%), 0 2px 6px rgb(0 0 0 / 6%);
+}
+
+.split-card-carousel.variant-2 .split-card-carousel-media {
+  flex: 0 0 300px;
+  width: 300px;
+}
+
+.split-card-carousel.variant-2 .split-card-carousel-content {
+  flex: 1 1 auto;
+  width: auto;
+  padding: 84px;
+  justify-content: center;
+
+  /* Force left alignment in variant 2, regardless of per-item contentAlign. */
+  text-align: left !important;
+  align-items: flex-start !important;
+}
+
+/* Zero any top margin on the first child so the content block centers cleanly. */
+.split-card-carousel.variant-2 .split-card-carousel-content > :first-child {
+  margin-top: 0;
+}
+
+/* And bottom margin on the last child for the same reason. */
+.split-card-carousel.variant-2 .split-card-carousel-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* Variant 2 used to shrink its buttons below the standard to force them onto
+   one line. Buttons are one size now, so the row wraps when two don't fit. */
+.split-card-carousel.variant-2 .split-card-carousel-buttons {
+  gap: 8px;
+}
+
+/* ============================================================
+   Variant 3 — 1200px card, 500px image left, content right with
+   64px padding all around. Heading/subheading capped at 587px.
+   ============================================================ */
+
+.split-card-carousel.variant-3 .split-card-carousel-slide {
+  flex: 0 0 1200px;
+  max-width: 1200px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-card {
+  width: 1200px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-media {
+  flex: 0 0 500px;
+  width: 500px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-content {
+  flex: 1 1 auto;
+  width: auto;
+  padding: 64px;
+  justify-content: center;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-heading {
+  max-width: 587px;
+}
+
+.split-card-carousel.variant-3 .split-card-carousel-subheading {
+  font-weight: var(--body-weight-medium);
+  max-width: 587px;
+}
+
+/* Responsive - tablet */
+@media (width <= 900px) {
+  .split-card-carousel .split-card-carousel-slide {
+    flex: 0 0 90%;
+  }/* Variant 3's fixed 1200px would overflow — let it fill the slide instead. */
+  .split-card-carousel.variant-3 .split-card-carousel-slide {
+    flex: 0 0 90%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-card {
+    width: auto;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-media {
+    flex: 0 0 45%;
+    width: auto;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-content {
+    padding: 40px;
+  }
+
+  /* Variant 2 is fixed at 901px on desktop. Let it use the same responsive
+     slide width here so an entire card remains visible on tablet screens. */
+  .split-card-carousel.variant-2 .split-card-carousel-slide {
+    flex: 0 0 90%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-card {
+    width: auto;
+    height: auto;
+    min-height: 0;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-media {
+    flex-basis: 42%;
+    width: auto;
+    height: auto;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-content {
+    padding: 40px;
+  }
+}
+
+/* Responsive - mobile */
+@media (width <= 700px) {
+  /* Keep a left gutter so the first card doesn't touch the screen edge;
+     right stays 0 so the track can still bleed/scroll off the right. */
+  .split-card-carousel .split-card-carousel-wrapper {
+    padding: 48px 0 48px 24px;
+  }
+
+  .split-card-carousel .split-card-carousel-title {
+    margin-bottom: 24px;
+  }
+
+  .split-card-carousel .split-card-carousel-slide {
+    flex: 0 0 95%;
+  }
+
+  .split-card-carousel .split-card-carousel-card {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+  }
+
+  .split-card-carousel .split-card-carousel-media {
+    flex: none;
+    height: 240px;
+  }
+
+  .split-card-carousel .split-card-carousel-content {
+    padding: 28px 24px;
+  }/* Stack multiple buttons one per line on mobile (all style variants).
+     variant-2 is named too since it forces nowrap on desktop. */
+  .split-card-carousel .split-card-carousel-buttons,
+  .split-card-carousel.variant-2 .split-card-carousel-buttons {
+    flex-flow: column nowrap;
+    align-items: flex-start;
+  }
+
+  .split-card-carousel .split-card-carousel-nav {
+    position: static;
+    margin-left: 24px;
+  }
+
+  /* Variant 2 stacks like default on mobile so the fixed 901px doesn't overflow. */
+  .split-card-carousel.variant-2 .split-card-carousel-slide {
+    flex: 0 0 95%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-card {
+    width: auto;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-media {
+    flex: none;
+    width: auto;
+    height: 240px;
+  }
+
+  .split-card-carousel.variant-2 .split-card-carousel-content {
+    padding: 28px 24px;
+  }
+
+  /* Variant 3 stacks like default on mobile so the fixed 1200px doesn't overflow. */
+  .split-card-carousel.variant-3 .split-card-carousel-slide {
+    flex: 0 0 95%;
+    max-width: none;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-card {
+    width: auto;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-media {
+    flex: none;
+    width: auto;
+    height: 240px;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-content {
+    padding: 28px 24px;
+  }
+
+  .split-card-carousel.variant-3 .split-card-carousel-heading,
+  .split-card-carousel.variant-3 .split-card-carousel-subheading {
+    max-width: none;
+  }
+}

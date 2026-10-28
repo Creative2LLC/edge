@@ -1,0 +1,41 @@
+{
+  "definitions": [
+    {
+      "title": "Leadership Header",
+      "id": "leadership-header",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Leadership Header",
+              "model": "leadership-header"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "leadership-header",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

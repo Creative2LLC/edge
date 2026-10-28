@@ -1,0 +1,120 @@
+.colored-heading {
+  --colored-heading-color: #00264d;
+  --colored-heading-size: inherit;
+  --colored-heading-weight: inherit;
+  --colored-heading-min-height: 0;
+  --colored-heading-min-height-mobile: var(--colored-heading-min-height);
+  --colored-heading-block-bg: transparent;
+
+  margin:
+    var(--colored-field-margin-top, 0)
+    var(--colored-field-margin-right, 0)
+    var(--colored-field-margin-bottom, 0)
+    var(--colored-field-margin-left, 0);
+  padding:
+    var(--colored-field-padding-top, 12px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 12px)
+    var(--colored-field-padding-left, 0);
+}
+
+.colored-heading .colored-heading-inner {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  background-color: var(--colored-heading-block-bg);
+}
+
+.colored-heading.has-block-background .colored-heading-inner {
+  padding: 15px;
+}
+
+.colored-heading.colored-heading-v-top .colored-heading-inner {
+  align-items: flex-start;
+}
+
+.colored-heading.colored-heading-v-middle .colored-heading-inner {
+  align-items: center;
+}
+
+.colored-heading.colored-heading-v-bottom .colored-heading-inner {
+  align-items: flex-end;
+}
+
+.colored-heading .colored-heading-title {
+  width: 100%;
+  margin: 0;
+  color: var(--colored-heading-color);
+  line-height: 1.15;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.colored-heading.has-custom-size .colored-heading-title {
+  font-size: var(--colored-heading-size);
+}
+
+.colored-heading.has-custom-weight .colored-heading-title {
+  font-weight: var(--colored-heading-weight);
+}
+
+.colored-heading.colored-heading-h-left .colored-heading-title {
+  text-align: left;
+}
+
+.colored-heading.colored-heading-h-center .colored-heading-title {
+  text-align: center;
+}
+
+.colored-heading.colored-heading-h-right .colored-heading-title {
+  text-align: right;
+}
+
+.colored-heading.colored-heading-h-justify .colored-heading-title {
+  text-align: justify;
+}
+
+.colored-heading .colored-heading-title.is-authoring-placeholder {
+  color: #6b6b6b;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* No mobile size overrides here on purpose.
+   The title inherits the global fluid h1-h6 scale from styles.css, which already
+   ramps down on small viewports — and when an author sets a size, .has-custom-size
+   must win at every width. The previous rules hardcoded 40px/32px below 900px
+   *including* for .has-custom-size, which silently discarded the author's override
+   on mobile and broke this block's inherit-by-default contract. */
+
+.colored-heading.colored-heading-shadow-small .colored-heading-inner {
+  box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
+}
+
+.colored-heading.colored-heading-shadow-medium .colored-heading-inner {
+  box-shadow: 0 14px 24px 0 rgb(0 0 0 / 18%);
+}
+
+.colored-heading.colored-heading-shadow-large .colored-heading-inner {
+  box-shadow: 0 21px 36px 0 rgb(0 0 0 / 24%);
+}
+
+.colored-heading.colored-heading-shadow-highlight-blue {
+  --colored-field-highlight-shadow-color: 20 145 191;
+}
+
+.colored-heading.colored-heading-shadow-highlight-navy {
+  --colored-field-highlight-shadow-color: 9 35 72;
+}
+
+.colored-heading.colored-heading-shadow-highlight-orange {
+  --colored-field-highlight-shadow-color: 247 148 29;
+}
+
+.colored-heading.colored-heading-shadow-highlight-gold {
+  --colored-field-highlight-shadow-color: 245 181 27;
+}
+
+.colored-heading[class*="colored-heading-shadow-highlight-"] .colored-heading-inner {
+  box-shadow: 0 14px 24px 0 rgb(var(--colored-field-highlight-shadow-color) / 40%);
+}

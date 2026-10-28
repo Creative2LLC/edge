@@ -1,0 +1,145 @@
+function parseCsvList(value = '') {
+  return `${value || ''}`
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean)
+    .filter((entry, index, array) => array.indexOf(entry) === index);
+}
+
+function readFacetState(params, names) {
+  const present = names.some((name) => params.has(name));
+  if (!present) {
+    return { present: false, values: [] };
+  }
+
+  const rawValues = names.flatMap((name) => params.getAll(name));
+  return {
+    present: true,
+    values: parseCsvList(rawValues.join(',')),
+  };
+}
+
+function writeFacetState(searchParams, primaryName, fallbackNames, values) {
+  [primaryName, ...fallbackNames].forEach((name) => searchParams.delete(name));
+
+  const normalized = [...new Set(
+    (values || [])
+      .map((entry) => `${entry || ''}`.trim().toLowerCase())
+      .filter(Boolean),
+  )];
+
+  if (normalized.length) {
+    searchParams.set(primaryName, normalized.join(','));
+  }
+}
+
+export function readListFilterState(search = window.location.search) {
+  const params = new URLSearchParams(search);
+  const view = `${params.get('view') || ''}`.trim().toLowerCase();
+  const sort = `${params.get('sort') || ''}`.trim().toLowerCase();
+
+  return {
+    query: (params.get('search') || params.get('q') || '').trim(),
+    hasQuery: params.has('search') || params.has('q'),
+    audiences: readFacetState(params, ['audiences', 'audiences[]', 'audience']),
+    issues: readFacetState(params, ['issues', 'issues[]', 'issue']),
+    types: readFacetState(params, ['types', 'types[]', 'type']),
+    tags: readFacetState(params, ['tags', 'tags[]', 'tag']),
+    areas: readFacetState(params, ['areas', 'areas[]', 'area']),
+    topics: readFacetState(params, ['topics', 'topics[]', 'topic']),
+    storyTypes: readFacetState(params, ['story_types', 'story_types[]', 'story_type']),
+    languages: readFacetState(params, ['languages', 'languages[]', 'language']),
+    programs: readFacetState(params, ['programs', 'programs[]', 'program']),
+    gradeAges: readFacetState(params, ['grade_ages', 'grade_ages[]', 'grade_age', 'grades']),
+    lengths: readFacetState(params, ['lengths', 'lengths[]', 'length']),
+    view: view === 'list' ? 'list' : 'grid',
+    sort,
+    hasSort: params.has('sort'),
+  };
+}
+
+export function writeListFilterState({
+  query = '',
+  audiences = [],
+  issues = [],
+  types = [],
+  tags = [],
+  areas = [],
+  topics = [],
+  storyTypes = [],
+  languages = [],
+  programs = [],
+  gradeAges = [],
+  lengths = [],
+  view = '',
+  sort = '',
+}, replace = true) {
+  const url = new URL(window.location.href);
+  const normalizedQuery = `${query || ''}`.trim();
+  const normalizedView = `${view || ''}`.trim().toLowerCase();
+  const normalizedSort = `${sort || ''}`.trim().toLowerCase();
+
+  if (normalizedQuery) url.searchParams.set('search', normalizedQuery);
+  else url.searchParams.delete('search');
+
+  url.searchParams.delete('q');
+  writeFacetState(url.searchParams, 'audiences', ['audiences[]', 'audience'], audiences);
+  writeFacetState(url.searchParams, 'issues', ['issues[]', 'issue'], issues);
+  writeFacetState(url.searchParams, 'types', ['types[]', 'type'], types);
+  writeFacetState(url.searchParams, 'tags', ['tags[]', 'tag'], tags);
+  writeFacetState(url.searchParams, 'areas', ['areas[]', 'area'], areas);
+  writeFacetState(url.searchParams, 'topics', ['topics[]', 'topic'], topics);
+  writeFacetState(url.searchParams, 'story_types', ['story_types[]', 'story_type'], storyTypes);
+  writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
+  writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
+  writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);
+  writeFacetState(url.searchParams, 'lengths', ['lengths[]', 'length'], lengths);
+  if (normalizedView === 'list') url.searchParams.set('view', 'list');
+  else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
+  else url.searchParams.delete('view');
+  if (normalizedSort) url.searchParams.set('sort', normalizedSort);
+  else url.searchParams.delete('sort');
+
+  if (replace) window.history.replaceState({}, '', url);
+  else window.history.pushState({}, '', url);
+}
+
+export function buildListFilterHref(basePath, {
+  query = '',
+  audiences = [],
+  issues = [],
+  types = [],
+  tags = [],
+  areas = [],
+  topics = [],
+  storyTypes = [],
+  languages = [],
+  programs = [],
+  gradeAges = [],
+  lengths = [],
+  view = '',
+  sort = '',
+} = {}) {
+  const url = new URL(basePath, window.location.origin);
+  const normalizedQuery = `${query || ''}`.trim();
+  const normalizedView = `${view || ''}`.trim().toLowerCase();
+  const normalizedSort = `${sort || ''}`.trim().toLowerCase();
+
+  if (normalizedQuery) url.searchParams.set('search', normalizedQuery);
+  writeFacetState(url.searchParams, 'audiences', ['audiences[]', 'audience'], audiences);
+  writeFacetState(url.searchParams, 'issues', ['issues[]', 'issue'], issues);
+  writeFacetState(url.searchParams, 'types', ['types[]', 'type'], types);
+  writeFacetState(url.searchParams, 'tags', ['tags[]', 'tag'], tags);
+  writeFacetState(url.searchParams, 'areas', ['areas[]', 'area'], areas);
+  writeFacetState(url.searchParams, 'topics', ['topics[]', 'topic'], topics);
+  writeFacetState(url.searchParams, 'story_types', ['story_types[]', 'story_type'], storyTypes);
+  writeFacetState(url.searchParams, 'languages', ['languages[]', 'language'], languages);
+  writeFacetState(url.searchParams, 'programs', ['programs[]', 'program'], programs);
+  writeFacetState(url.searchParams, 'grade_ages', ['grade_ages[]', 'grade_age', 'grades'], gradeAges);
+  writeFacetState(url.searchParams, 'lengths', ['lengths[]', 'length'], lengths);
+  if (normalizedView === 'list') url.searchParams.set('view', 'list');
+  else if (normalizedView === 'grid') url.searchParams.set('view', 'grid');
+  if (normalizedSort) url.searchParams.set('sort', normalizedSort);
+
+  return `${url.pathname}${url.search}${url.hash}`;
+}

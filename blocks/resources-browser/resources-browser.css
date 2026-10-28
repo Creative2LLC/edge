@@ -1,0 +1,666 @@
+.resources-browser {
+  background: var(--ncmec-gray-lightest);
+  padding: 32px 0 56px;
+}
+
+/* Full-bleed gray band so the inner content lines up on the shared 1420px
+   content edge with the other blocks (body has overflow-x: clip). */
+main > .section > .resources-browser-wrapper {
+  max-width: none;
+
+  /* width:100% not 100vw — 100vw includes the classic scrollbar, so the block
+     overhangs the usable width and body{overflow-x:clip} hides the scrollbar.
+     The wrapper already clears max-width/padding, so 100% IS full-bleed.
+     See audits/body-copy-audit.md / partners-showcase for the full write-up. */
+  width: 100%;
+  padding: 0;
+  margin-inline: calc(50% - 50vw);
+}
+
+.resources-browser .resources-browser-inner {
+  /* Mirrors `main > .section > div` so the browser lines up with the rest. */
+  width: min(var(--container), 100%);
+  margin: 0 auto;
+  padding-inline: var(--section-pad);
+  box-sizing: border-box;
+}
+
+.resources-browser .resources-browser-header {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.resources-browser .resources-browser-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.resources-browser .resources-browser-heading {
+  margin: 0;
+  color: #243846;
+}
+
+.resources-browser .resources-browser-description {
+  max-width: 880px;
+  margin: -4px 0 2px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  overflow-wrap: anywhere;
+  white-space: break-spaces;
+}
+
+.resources-browser .resources-browser-description :where(p, li, h1, h2, h3, h4, h5, h6) {
+  overflow-wrap: anywhere;
+  white-space: break-spaces;
+}
+
+.resources-browser .resources-browser-description > :first-child {
+  margin-top: 0;
+}
+
+.resources-browser .resources-browser-description > :last-child {
+  margin-bottom: 0;
+}
+
+.resources-browser .resources-browser-controls {
+  display: grid;
+  gap: 14px;
+}
+
+.resources-browser .resources-browser-primary-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(160px, 220px);
+  align-items: center;
+  gap: 12px;
+}
+
+.resources-browser .resources-browser-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  align-items: center;
+}
+
+.resources-browser .resources-browser-search-wrap {
+  display: block;
+  min-width: 0;
+}
+
+.resources-browser .resources-browser-search,
+.resources-browser .resources-browser-filter {
+  min-width: 0;
+  height: 42px;
+  border: 1px solid #e1dedb;
+  border-radius: 999px;
+  background-color: #fff;
+  box-shadow: 0 10px 24px rgb(36 56 70 / 6%);
+  color: var(--ncmec-gray-dark);
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.resources-browser .resources-browser-search {
+  width: 100%;
+  padding: 8px 18px;
+}
+
+.resources-browser .resources-browser-filter {
+  width: 100%;
+  padding: 8px 42px 8px 16px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 5.25 7 8.75l3.5-3.5' fill='none' stroke='%23243846' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: calc(100% - 17px) 50%;
+  background-repeat: no-repeat;
+  background-size: 14px 14px;
+}
+
+.resources-browser .resources-browser-filter::-ms-expand {
+  display: none;
+}
+
+.resources-browser .resources-browser-filter:disabled {
+  opacity: 0.48;
+}
+
+.resources-browser .resources-browser-filter-row .resources-browser-filter {
+  width: auto;
+  min-width: 158px;
+}
+
+.resources-browser .resources-browser-search:hover,
+.resources-browser .resources-browser-filter:hover:not(:disabled) {
+  border-color: #cbc6c1;
+  box-shadow: 0 14px 30px rgb(36 56 70 / 9%);
+  transform: translateY(-1px);
+}
+
+.resources-browser .resources-browser-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0 30px;
+  flex-wrap: wrap;
+}
+
+.resources-browser .resources-browser-active-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.resources-browser .resources-browser-active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 5px 10px 5px 13px;
+  border: 1.5px solid var(--resource-chip-border, #777);
+  border-radius: 999px;
+  background: var(--resource-chip-bg, #fff);
+  color: var(--resource-chip-color, var(--ncmec-gray-dark));
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.resources-browser .resources-browser-active-chip:hover {
+  border-color: var(--resource-chip-border, #243846);
+  box-shadow: 0 10px 22px rgb(36 56 70 / 10%);
+  transform: translateY(-1px);
+}
+
+.resources-browser .resources-browser-active-chip-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentcolor;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.72;
+}
+
+.resources-browser .resources-browser-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: var(--caption-size);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.resources-browser button.resources-browser-tag {
+  border: 0;
+  cursor: pointer;
+}
+
+.resources-browser .resources-browser-tag.is-clickable {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.resources-browser .resources-browser-tag.is-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgb(0 0 0 / 10%);
+}
+
+.resources-browser .resources-browser-active-chip .resources-browser-tag {
+  padding: 0;
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.resources-browser .resources-browser-clear-all {
+  border: 0;
+  background: transparent;
+  color: var(--ncmec-gray-dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  padding: 0 4px;
+}
+
+.resources-browser .resources-browser-clear-all:hover {
+  color: var(--ncmec-blue-medium);
+}
+
+.resources-browser .resources-browser-count {
+  margin: 0 0 0 auto;
+  color: #6b6763;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.resources-browser .resources-browser-source-debug {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e8b7a6;
+  border-radius: 8px;
+  background: #fff7f3;
+  color: #5f2d1b;
+}
+
+.resources-browser .resources-browser-source-debug summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.resources-browser .resources-browser-source-debug-text {
+  margin: 8px 0 0;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+.resources-browser .resources-browser-source-debug-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: var(--caption-size);
+  line-height: 1.4;
+}
+
+.resources-browser .resources-browser-source-debug-list code {
+  font-size: var(--caption-size);
+}
+
+.resources-browser .resources-browser-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 24px;
+}
+
+.resources-browser .resources-browser-cards[data-view="list"] {
+  grid-template-columns: 1fr;
+}
+
+.resources-browser .resources-browser-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ncmec-warm-gray);
+  box-shadow: 0 1px 2px rgb(36 56 70 / 5%);
+  transform: translateY(0);
+}
+
+.resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  min-height: 240px;
+}
+
+.resources-browser .resources-browser-card-hidden {
+  display: none;
+}
+
+/* 1.2:1 is the thumbnail master ratio, not an arbitrary choice — every asset in
+   the legacy missingkids.org library is exactly 1.2 (346x289 / 461x385, zero
+   variance across all 38), and the backend now stores thumbnails at 1200x1000
+   to match. Holding the card at the same ratio means an imported or generated
+   thumbnail is never cropped here at all. Was 1.1:1, which clipped ~8%. */
+.resources-browser .resources-browser-card-image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1.2 / 1;
+  background: #a9a8a6;
+}
+
+.resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-image {
+  height: 100%;
+  min-height: 240px;
+  aspect-ratio: auto;
+}
+
+.resources-browser .resources-browser-card-image picture,
+.resources-browser .resources-browser-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.resources-browser .resources-browser-card-image img {
+  object-fit: cover;
+  transition: transform 0.42s ease;
+}
+
+.resources-browser .resources-browser-card-image.is-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 28% 22%, rgb(255 255 255 / 18%), transparent 26%),
+    linear-gradient(135deg, #a9a8a6 0%, #999896 100%);
+}
+
+.resources-browser .resources-browser-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px 24px;
+}
+
+.resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-content {
+  padding: 28px 30px;
+}
+
+.resources-browser .resources-browser-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #243846;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.resources-browser .resources-browser-card-type,
+.resources-browser .resources-browser-card-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.resources-browser .resources-browser-card-duration {
+  color: #67655f; /* was #8c8985 (2.85:1 on card bg); darkened for WCAG AA 4.5:1 */
+  white-space: nowrap;
+}
+
+.resources-browser .resources-browser-card-type-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  color: #243846;
+  transition: transform 0.25s ease;
+}
+
+.resources-browser .resources-browser-card-type-icon.is-video {
+  width: 24px;
+  height: 18px;
+  border-radius: 2px;
+  background: currentcolor;
+}
+
+.resources-browser .resources-browser-card-type-icon.is-video::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 9px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 7px solid #fff;
+}
+
+.resources-browser .resources-browser-card-type-icon.is-presentation::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 20px;
+  height: 13px;
+  border-radius: 2px;
+  background: currentcolor;
+}
+
+.resources-browser .resources-browser-card-type-icon.is-presentation::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 1px;
+  width: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentcolor;
+  box-shadow: 5px -3px 0 -1px currentcolor;
+}
+
+.resources-browser .resources-browser-card-type-icon.is-pdf {
+  width: 18px;
+  height: 22px;
+  border-radius: 2px;
+  background: currentcolor;
+}
+
+.resources-browser .resources-browser-card-type-icon.is-pdf::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-top: 6px solid var(--ncmec-warm-gray);
+  border-left: 6px solid rgb(255 255 255 / 45%);
+}
+
+.resources-browser .resources-browser-card-type-icon.is-resource {
+  border-radius: 2px;
+  background: currentcolor;
+}
+
+.resources-browser .resources-browser-card-type-icon.is-resource::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 10px;
+  height: 2px;
+  background: #fff;
+  box-shadow: 0 4px 0 #fff, 0 8px 0 #fff;
+}
+
+.resources-browser .resources-browser-card-duration-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  border: 2px solid currentcolor;
+  border-radius: 999px;
+  opacity: 0.72;
+}
+
+.resources-browser .resources-browser-card-duration-icon::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 7px;
+  width: 2px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentcolor;
+}
+
+.resources-browser .resources-browser-card-duration-icon::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 5px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentcolor;
+}
+
+/* Title and description share a 5-line budget, with the title served first.
+   resources-browser.js measures how many lines the title actually took and
+   hands the remainder to the subtitle via --rb-subtitle-lines. */
+.resources-browser .resources-browser-card-title {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ncmec-gray-dark);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--rb-title-lines, 5);
+}
+
+.resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-title {
+  font-size: var(--heading-3-size);
+}
+
+.resources-browser .resources-browser-card-tags {
+  display: none;
+}
+
+.resources-browser .resources-browser-card-subtitle {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #54504d;
+  font-size: var(--body-size);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--rb-subtitle-lines, 3);
+  font-weight: var(--body-weight-medium);
+}
+
+/* Title used the whole budget: nothing left for the description. Needs to beat
+   the -webkit-box display above, which would otherwise defeat [hidden]. */
+.resources-browser .resources-browser-card-subtitle[hidden] {
+  display: none;
+}
+
+.resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-subtitle {
+  max-width: 760px;
+}
+
+/* Card link: the Text link style from the button standard; this only places it. */
+.resources-browser .resources-browser-card-link {
+  width: fit-content;
+  margin-top: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resources-browser .resources-browser-card {
+    transition: box-shadow 0.28s ease, transform 0.28s ease;
+  }
+
+  .resources-browser .resources-browser-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover,
+.resources-browser .resources-browser-card:focus-within {
+    box-shadow: var(--shadow-3);
+    transform: translateY(var(--hover-lift-card));
+  }
+
+  .resources-browser .resources-browser-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .resources-browser-card-image img {
+    transform: scale(1.055);
+  }
+
+  .resources-browser .resources-browser-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .resources-browser-card-type-icon {
+    transform: rotate(-4deg) translateY(-1px);
+  }
+}
+
+.resources-browser .resources-browser-empty {
+  margin: 28px 0;
+  text-align: center;
+  color: #4f4f4f;
+  font-size: var(--body-sm-size);
+}
+
+.resources-browser .resources-browser-footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Load more: styled by the button standard in styles/styles.css. */
+
+.resources-browser .resources-browser-search:focus-visible,
+.resources-browser .resources-browser-filter:focus-visible:not(:disabled),
+.resources-browser .resources-browser-tag.is-clickable:focus-visible,
+.resources-browser .resources-browser-active-chip:focus-visible,
+.resources-browser .resources-browser-clear-all:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 2px;
+}
+
+@media (width <= 1280px) {
+  .resources-browser .resources-browser-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 1020px) {
+  .resources-browser .resources-browser-primary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .resources-browser .resources-browser-filter-row .resources-browser-filter {
+    flex: 1 1 190px;
+    min-width: min(100%, 190px);
+  }
+
+  .resources-browser .resources-browser-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card {
+    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  }
+}
+
+@media (width <= 680px) {
+  .resources-browser {
+    padding: 28px 0 44px;
+  }
+
+  .resources-browser .resources-browser-header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resources-browser .resources-browser-view-toggle {
+    align-self: flex-end;
+  }
+
+  .resources-browser .resources-browser-filter-row .resources-browser-filter {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .resources-browser .resources-browser-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .resources-browser .resources-browser-count {
+    margin-left: 0;
+  }
+
+  .resources-browser .resources-browser-cards,
+  .resources-browser .resources-browser-cards[data-view="list"] {
+    grid-template-columns: 1fr;
+  }
+
+  .resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card {
+    display: flex;
+    min-height: 0;
+  }
+
+  .resources-browser .resources-browser-cards[data-view="list"] .resources-browser-card-image {
+    min-height: 0;
+    aspect-ratio: 1.2 / 1;
+  }
+}

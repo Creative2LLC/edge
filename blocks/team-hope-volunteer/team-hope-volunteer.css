@@ -1,0 +1,317 @@
+main > .section > .team-hope-volunteer-wrapper {
+  max-width: var(--container);
+}
+
+.team-hope-volunteer {
+  --team-hope-volunteer-top-padding: clamp(40px, 6vw, 88px);
+  --team-hope-volunteer-reveal-duration: 0.58s;
+  --team-hope-volunteer-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  padding: var(--team-hope-volunteer-top-padding) 0 clamp(52px, 7vw, 96px);
+  color: var(--ncmec-gray-dark);
+}
+
+.team-hope-volunteer-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 40px);
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.team-hope-volunteer-header {
+  display: grid;
+  gap: 18px;
+  max-width: 920px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--team-hope-volunteer-reveal-duration) var(--team-hope-volunteer-reveal-ease),
+    transform var(--team-hope-volunteer-reveal-duration) var(--team-hope-volunteer-reveal-ease);
+}
+
+.team-hope-volunteer-eyebrow {
+  width: fit-content;
+  margin: 0;
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: rgb(0 141 182 / 11%);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
+}
+
+.team-hope-volunteer-heading {
+  margin: 0;
+  color: #00264d;
+}
+
+.team-hope-volunteer-intro {
+  max-width: 56rem;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.team-hope-volunteer-intro > :first-child {
+  margin-top: 0;
+}
+
+.team-hope-volunteer-intro > :last-child {
+  margin-bottom: 0;
+}
+
+.team-hope-volunteer-form {
+  display: grid;
+  gap: 16px;
+  border-radius: 8px;
+  padding: clamp(18px, 3vw, 30px);
+  background:
+    radial-gradient(circle at top right, rgb(255 255 255 / 78%), transparent 36%),
+    linear-gradient(180deg, #f4f5f5 0%, #ece9e5 100%);
+  box-shadow: 0 24px 60px rgb(17 54 82 / 10%);
+  opacity: 0;
+  transform: translateY(28px) scale(0.992);
+  transition:
+    opacity var(--team-hope-volunteer-reveal-duration) var(--team-hope-volunteer-reveal-ease),
+    transform var(--team-hope-volunteer-reveal-duration) var(--team-hope-volunteer-reveal-ease);
+  transition-delay: 90ms;
+}
+
+/* Each step is the shared .accordion (styles.css). A finished step keeps its green edge. */
+.team-hope-volunteer-panel.is-complete {
+  border-color: rgb(31 106 58 / 28%);
+}
+
+.team-hope-volunteer-panel-number {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: #00264d;
+  color: #fff;
+  font-size: var(--caption-size);
+  font-weight: 850;
+  line-height: 1;
+}
+
+.team-hope-volunteer-panel.is-complete .team-hope-volunteer-panel-number {
+  background: #1f6a3a;
+}
+
+.team-hope-volunteer-panel-inner {
+  display: grid;
+  border-top: 1px solid rgb(0 38 77 / 10%);
+  gap: 22px;
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.team-hope-volunteer-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.team-hope-volunteer-field {
+  display: grid;
+  gap: 8px;
+  transition: transform 180ms ease;
+}
+
+.team-hope-volunteer-label {
+  color: #32363b;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.team-hope-volunteer-required {
+  color: #b6462f;
+}
+
+.team-hope-volunteer-input,
+.team-hope-volunteer-select,
+.team-hope-volunteer-textarea {
+  width: 100%;
+  border: 1px solid #d9d3cd;
+  border-radius: 6px;
+  padding: 14px 15px;
+  background: #fff;
+  color: #26292d;
+  font: inherit;
+  font-size: var(--body-size);
+  line-height: 1.35;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.team-hope-volunteer-select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #66717d 50%),
+    linear-gradient(135deg, #66717d 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 13px) calc(50% - 3px);
+  background-repeat: no-repeat;
+  background-size: 5px 5px;
+  padding-right: 42px;
+}
+
+.team-hope-volunteer-textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.team-hope-volunteer-radio-group {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.team-hope-volunteer-radio-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.team-hope-volunteer-radio-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgb(0 38 77 / 12%);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: #fff;
+  color: #32363b;
+  font-size: var(--body-sm-size);
+  font-weight: 750;
+}
+
+.team-hope-volunteer-radio {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ncmec-blue-dark);
+}
+
+.team-hope-volunteer-section-intro {
+  margin: 0;
+  border-left: 4px solid var(--ncmec-blue-dark);
+  padding: 12px 14px;
+  background: rgb(0 141 182 / 7%);
+  color: #34404a;
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-bold);
+}
+
+.team-hope-volunteer-reference-wrap,
+.team-hope-volunteer-field-group {
+  display: grid;
+  gap: 18px;
+}
+
+.team-hope-volunteer-field-group {
+  border-top: 1px solid rgb(0 38 77 / 12%);
+  padding-top: 20px;
+}
+
+.team-hope-volunteer-field-group h3 {
+  margin: 0;
+  color: #00264d;
+}
+
+.team-hope-volunteer-panel-footer,
+.team-hope-volunteer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.team-hope-volunteer-actions {
+  align-items: center;
+  border-top: 1px solid rgb(0 38 77 / 12%);
+  padding-top: 22px;
+}
+
+/* Continue and submit: styled by the button standard in styles/styles.css. */
+.team-hope-volunteer.is-submitting .team-hope-volunteer-submit {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.team-hope-volunteer-status {
+  flex: 1 1 280px;
+  min-height: 1.5em;
+  margin: 0;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.team-hope-volunteer-status.is-info {
+  color: #6f6253;
+}
+
+.team-hope-volunteer-status.is-success {
+  color: #1f6a3a;
+}
+
+.team-hope-volunteer-status.is-error {
+  color: #a13a31;
+}
+
+.team-hope-volunteer.is-visible .team-hope-volunteer-header,
+.team-hope-volunteer.is-visible .team-hope-volunteer-form {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (width < 720px) {
+  .team-hope-volunteer {
+    --team-hope-volunteer-top-padding: 32px;
+  }
+
+  .team-hope-volunteer-form {
+    padding: 14px;
+  }
+
+  .team-hope-volunteer-panel-number {
+    width: 34px;
+    height: 34px;
+  }
+
+  .team-hope-volunteer-radio-list {
+    display: grid;
+  }
+
+  .team-hope-volunteer-continue,
+  .team-hope-volunteer-submit {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-hope-volunteer-header,
+  .team-hope-volunteer-form,
+  .team-hope-volunteer-panel,
+  .team-hope-volunteer-field,
+  .team-hope-volunteer-input,
+  .team-hope-volunteer-select,
+  .team-hope-volunteer-textarea,
+  .team-hope-volunteer-continue,
+  .team-hope-volunteer-submit {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

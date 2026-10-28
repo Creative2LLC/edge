@@ -1,0 +1,349 @@
+{
+  "definitions": [
+    {
+      "title": "Img Icn Hyperlink Card Carousel",
+      "id": "resources",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Img Icn Hyperlink Card Carousel",
+              "model": "resources",
+              "filter": "resources"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Resource Item",
+      "id": "resource-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Resource Item",
+              "model": "resource-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "resources",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "headerMaxWidth",
+          "label": "Header Max Width (px)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button",
+          "label": "Button Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "settings",
+          "label": "Settings (background/api/selected/limit/presets)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "selected",
+          "label": "Selected Resource Slugs or IDs (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "limit",
+          "label": "Resource Limit",
+          "value": "6"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonStyle",
+          "label": "Button Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resource-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconColor",
+          "label": "Icon Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "title",
+          "label": "Resource Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Subheading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "link",
+          "label": "Learn More URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "Link Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tags",
+          "label": "Custom Tags (Comma/Newline)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "linkStyle",
+          "label": "Link Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "resources",
+      "components": [
+        "resource-item"
+      ]
+    }
+  ]
+}

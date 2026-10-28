@@ -1,0 +1,229 @@
+/* Split Card List Block */
+.split-card-list {
+  padding: 0;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+/* Inner 50/50 container */
+.split-card-list .scl-inner {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+
+/* Left side — content */
+.split-card-list .scl-content {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Heading */
+.split-card-list .scl-heading {
+  color: #00264d;
+  margin: 0 0 16px;
+}
+
+/* Body text (rich text): sits directly under the h2 heading, so it is body copy
+   at --body-lg-size rather than the --deck-size tier. */
+.split-card-list .scl-body {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 24px;
+}
+
+.split-card-list .scl-body p {
+  margin: 0 0 12px;
+}
+
+.split-card-list .scl-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* Left side button: styled by the button standard in styles/styles.css. */
+
+/* Right side — cards container */
+.split-card-list .scl-cards {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* Statements card style */
+
+.split-card-list .scl-statement-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 10px 0 #41404233;
+  box-sizing: border-box;
+  width: 100%;
+  gap: 16px;
+}
+
+/* Left section: title + subtitle */
+.split-card-list .scl-statement-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.split-card-list .scl-statement-title {
+  color: #00264d;
+  margin: 0;
+}
+
+.split-card-list .scl-statement-subtitle {
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  line-height: var(--caption-line-height);
+}
+
+/* Year */
+.split-card-list .scl-statement-year {
+  font-size: var(--body-size);
+  font-weight: 600;
+  color: #00264d;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Statement card button: styled by the button standard; this only places it. */
+.split-card-list .scl-statement-button {
+  flex-shrink: 0;
+}
+
+/* Email card style */
+
+.split-card-list .scl-email-card {
+  background: #00264d;
+  border-radius: 14px;
+  padding: 28px 32px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Email card title */
+.split-card-list .scl-email-title {
+  color: #fff;
+  margin: 0 0 12px;
+}
+
+/* Email row: icon + text */
+.split-card-list .scl-email-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Email icon */
+.split-card-list .scl-email-icon {
+  width: 24px;
+  height: 24px;
+  max-width: 24px;
+  max-height: 24px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  filter: invert(41%) sepia(85%) saturate(1200%) hue-rotate(162deg) brightness(95%) contrast(101%);
+}
+
+/* Email text */
+.split-card-list .scl-email-text {
+  font-weight: var(--body-weight-medium);
+  color: #fff;
+  line-height: var(--caption-line-height);
+}
+
+/* Responsive */
+
+@media (width <= 1100px) {
+  .split-card-list .scl-inner {
+    /* Stack the two 50% columns: the statement cards have fixed-width content
+       that overflows a half-width column below ~900px. */
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .split-card-list .scl-content,
+  .split-card-list .scl-cards {
+    flex: none;
+    width: 100%;
+  }
+
+  .split-card-list .scl-body {
+    font-size: var(--body-lg-size);
+  }
+
+  .split-card-list .scl-statement-card {
+    padding: 20px 24px;
+  }
+}
+
+@media (width <= 600px) {
+  .split-card-list .scl-inner {
+    flex-direction: column;
+  }
+
+  .split-card-list .scl-content {
+    flex: none;
+    width: 100%;
+  }
+
+  .split-card-list .scl-cards {
+    flex: none;
+    width: 100%;
+  }
+
+  .split-card-list .scl-statement-card {
+    flex-wrap: wrap;
+    padding: 20px;
+  }
+
+  .split-card-list .scl-statement-button {
+    margin-top: 8px;
+  }
+}
+
+/* HOVER — row tier (lift + light shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.split-card-list .scl-statement-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.split-card-list .scl-statement-card:focus-within,
+.split-card-list .scl-statement-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .split-card-list .scl-statement-card:focus-within,
+  .split-card-list .scl-statement-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

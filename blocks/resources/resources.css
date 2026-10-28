@@ -1,0 +1,287 @@
+.resources {
+  --resources-viewport-width: 100vw;
+
+  padding: 0;
+
+  /* width:100% not 100vw — 100vw includes the classic scrollbar, so the block
+     overhangs the usable width and body{overflow-x:clip} hides the scrollbar.
+     The wrapper already clears max-width/padding, so 100% IS full-bleed.
+     See audits/body-copy-audit.md / partners-showcase for the full write-up. */
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+}
+
+@supports (width: 100dvw) {
+  .resources {
+    --resources-viewport-width: 100dvw;
+  }
+}
+
+/* Override section wrapper max-width for full-width breakout */
+main > .section > .resources-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.resources .resources-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 60px var(--section-pad);
+}
+
+/* Header row */
+.resources .resources-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.resources .resources-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.resources .resources-heading {
+  color: #00264d;
+  margin: 0;
+}
+
+.resources .resources-subheading {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 8px 0 0;
+  text-align: left;
+  line-height: var(--caption-line-height);
+}
+
+/* Header button: styled by the button standard in styles/styles.css. */
+
+/* Cards horizontal scroll */
+.resources .resources-cards {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  cursor: grab;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  margin-right: calc(var(--section-pad) * -1);
+  width: calc(100% + var(--section-pad) + max(0px, (var(--resources-viewport-width) - 1420px) / 2));
+
+  /* Trailing gutter so the last card doesn't sit flush against the right edge
+     when scrolled to the end. Mirrors the card's left inset at every width
+     (24px, plus the full-width breakout amount on screens wider than 1420px).
+     Padding on a scroll track only adds space after the last item, so it does
+     not affect mid-scroll peeking. */
+  padding-right: calc(var(--section-pad) + max(0px, (var(--resources-viewport-width) - 1420px) / 2));
+  padding-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.resources .resources-cards::-webkit-scrollbar {
+  display: none;
+}
+
+.resources .resources-cards:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 4px;
+}
+
+/* Individual card */
+.resources .resources-card {
+  flex: 0 0 346px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 8%);
+}
+
+/* Card image */
+.resources .resources-card-image {
+  height: 300px;
+  overflow: hidden;
+}
+
+.resources .resources-card-image picture {
+  display: block;
+  height: 100%;
+}
+
+.resources .resources-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Card icon (mask-image used for coloring when iconColor is set) */
+.resources .resources-card-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-size: contain;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-repeat: no-repeat;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-mask-position: center;
+}
+
+.resources .resources-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Card image - no-icon variant (image only, no icon) */
+.resources .resources-card-no-icon .resources-card-image {
+  height: auto;
+  padding: 20px 20px 0;
+}
+
+.resources .resources-card-no-icon .resources-card-image picture {
+  height: auto;
+}
+
+.resources .resources-card-no-icon .resources-card-image img {
+  max-width: 183px;
+  max-height: 183px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Card content */
+.resources .resources-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.resources .resources-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.resources .resources-card-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: #0d3c50;
+  padding: 4px 10px;
+  font-size: var(--caption-size);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Card title */
+.resources .resources-card-title {
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 8px;
+}
+
+/* Card subheading */
+.resources .resources-card-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 20px;
+  line-height: 1.15;
+}
+
+.resources .resources-card-title p,
+.resources .resources-card-subheading p {
+  margin: 0;
+}
+
+.resources .resources-card-title p + p {
+  margin-top: 0.25em;
+}
+
+.resources .resources-card-subheading p + p {
+  margin-top: 0.5em;
+}
+
+/* Card link: the Text link style from the button standard; this only places it. */
+.resources .resources-card-link {
+  margin-top: auto;
+}
+
+.resources .resources-empty {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-size);
+  line-height: 1.5;
+}
+
+/* Footer row */
+.resources .resources-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+/* Custom scrollbar */
+.resources .resources-scrollbar {
+  width: 200px;
+  height: 4px;
+  background: rgb(0 38 77 / 12%);
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+
+.resources .resources-scrollbar-thumb {
+  height: 100%;
+  background: #00264d;
+  border-radius: 99px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: left 0.2s ease, width 0.2s ease;
+}
+
+/* Nav buttons */
+.resources .resources-nav {
+  display: flex;
+  gap: 12px;
+}
+
+/* Responsive */
+@media (width <= 700px) {
+  .resources .resources-inner {
+    padding: 40px var(--gutter);
+  }
+
+  .resources .resources-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .resources .resources-card {
+    flex: 0 0 280px;
+  }
+
+  .resources .resources-card-image {
+    height: 200px;
+  }
+}

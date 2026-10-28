@@ -1,0 +1,376 @@
+{
+  "definitions": [
+    {
+      "title": "News",
+      "id": "news",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "News",
+              "model": "news",
+              "filter": "news"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "News Article",
+      "id": "news-article",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "News Article",
+              "model": "news-article"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "news",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "headerButtonText",
+          "label": "Header Button Text (Optional)",
+          "description": "Leave empty to hide the button"
+        },
+        {
+          "component": "aem-content",
+          "name": "headerButtonLink",
+          "label": "Header Button Link (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "featuredMode",
+          "label": "Featured Article",
+          "description": "Show the first article as a featured card, or list all articles in the grid",
+          "options": [
+            {
+              "name": "Featured First Article",
+              "value": "featured"
+            },
+            {
+              "name": "No Featured Article",
+              "value": "none"
+            }
+          ],
+          "value": "none"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button",
+          "label": "View More Button Text"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headerButtonStyle",
+          "label": "Header Button Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "blogFeed",
+          "label": "Latest Blogs",
+          "description": "Adds the newest blogs after the articles you add by hand. Each card takes its image, title, summary and tags from the blog.",
+          "value": "news-blogs-0",
+          "options": [
+            {
+              "name": "Off (only the articles you add)",
+              "value": "news-blogs-0"
+            },
+            {
+              "name": "Add the 3 newest blogs",
+              "value": "news-blogs-3"
+            },
+            {
+              "name": "Add the 4 newest blogs",
+              "value": "news-blogs-4"
+            },
+            {
+              "name": "Add the 6 newest blogs",
+              "value": "news-blogs-6"
+            },
+            {
+              "name": "Add the 9 newest blogs",
+              "value": "news-blogs-9"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "blogFilter",
+          "label": "Only Blogs About",
+          "description": "Limits Latest Blogs to one area, topic, story type or program.",
+          "value": "",
+          "options": [
+            {
+              "name": "Any topic",
+              "value": ""
+            },
+            {
+              "name": "Area: Missing Children & Exploitation",
+              "value": "news-filter-areas-missing-children-exploitation"
+            },
+            {
+              "name": "Area: Prevention & Safety",
+              "value": "news-filter-areas-prevention-safety"
+            },
+            {
+              "name": "Area: NCMEC News & Impact",
+              "value": "news-filter-areas-ncmec-news-impact"
+            },
+            {
+              "name": "Topic: Missing Children",
+              "value": "news-filter-topics-missing-children"
+            },
+            {
+              "name": "Topic: Online Exploitation",
+              "value": "news-filter-topics-online-exploitation"
+            },
+            {
+              "name": "Topic: Child Sex Trafficking",
+              "value": "news-filter-topics-child-sex-trafficking"
+            },
+            {
+              "name": "Topic: Recovery & Support",
+              "value": "news-filter-topics-recovery-support"
+            },
+            {
+              "name": "Topic: Online Safety",
+              "value": "news-filter-topics-online-safety"
+            },
+            {
+              "name": "Topic: Personal Safety",
+              "value": "news-filter-topics-personal-safety"
+            },
+            {
+              "name": "Topic: Research & Data",
+              "value": "news-filter-topics-research-data"
+            },
+            {
+              "name": "Topic: Partnerships",
+              "value": "news-filter-topics-partnerships"
+            },
+            {
+              "name": "Story type: News",
+              "value": "news-filter-story-types-news"
+            },
+            {
+              "name": "Story type: Featured Case",
+              "value": "news-filter-story-types-featured-case"
+            },
+            {
+              "name": "Story type: Event",
+              "value": "news-filter-story-types-event"
+            },
+            {
+              "name": "Story type: Research & Data",
+              "value": "news-filter-story-types-research-data"
+            },
+            {
+              "name": "Story type: Launch",
+              "value": "news-filter-story-types-launch"
+            },
+            {
+              "name": "Program: NetSmartz",
+              "value": "news-filter-programs-netsmartz"
+            },
+            {
+              "name": "Program: KidSmartz",
+              "value": "news-filter-programs-kidsmartz"
+            },
+            {
+              "name": "Program: Team Adam",
+              "value": "news-filter-programs-team-adam"
+            },
+            {
+              "name": "Program: Help ID Me",
+              "value": "news-filter-programs-help-id-me"
+            },
+            {
+              "name": "Program: 40th Anniversary",
+              "value": "news-filter-programs-40th-anniversary"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "news-article",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Article Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Subheading"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "link",
+          "label": "Read More URL"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tags",
+          "label": "Tags (one per line)",
+          "description": "Leave empty on an article pulled from a blog to use the blog’s own tags."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "linkStyle",
+          "label": "Link Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "aem-content",
+          "name": "blog",
+          "label": "Pull From Blog",
+          "description": "Pick a blog page to fill this card. Anything typed above wins; empty fields, including tags, come from the blog."
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "news",
+      "components": [
+        "news-article"
+      ]
+    }
+  ]
+}

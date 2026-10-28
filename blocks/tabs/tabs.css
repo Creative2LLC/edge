@@ -1,0 +1,207 @@
+.tabs {
+  --tabs-columns: 4;
+  --tabs-navy: #00264d;
+  --tabs-text: var(--ncmec-gray-dark);
+  --tabs-muted: #5b6570;
+  --tabs-accent: var(--ncmec-blue-medium);
+  --tabs-card-border: #e6e9ee;
+
+  padding: clamp(44px, 6vw, 76px) 0;
+}
+
+.tabs .tabs-shell {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: grid;
+  gap: 28px;
+}
+
+.tabs .tabs-header {
+  display: grid;
+  gap: 10px;
+}
+
+.tabs .tabs-heading {
+  margin: 0;
+  color: var(--tabs-navy);
+}
+
+.tabs .tabs-heading > :first-child,
+.tabs .tabs-subheading > :first-child {
+  margin-top: 0;
+}
+
+.tabs .tabs-heading > :last-child,
+.tabs .tabs-subheading > :last-child {
+  margin-bottom: 0;
+}
+
+.tabs .tabs-subheading {
+  max-width: 82ch;
+  color: var(--tabs-text);
+  font-weight: var(--body-weight-medium);
+}
+
+/* ── Tab bar ──────────────────────────────────────────────────────────────── */
+
+.tabs .tabs-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 4px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+/* Horizontal scroller when there are many tabs (set by JS past the threshold). */
+.tabs .tabs-tablist.is-scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 38 77 / 28%) transparent;
+}
+
+.tabs .tabs-tablist.is-scroll .tabs-tab {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.tabs .tabs-tablist.is-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tabs .tabs-tablist.is-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(0 38 77 / 28%);
+}
+
+/* ── Panels & cards ───────────────────────────────────────────────────────── */
+
+.tabs .tabs-panel {
+  min-width: 0;
+}
+
+.tabs .tabs-card-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--tabs-columns), minmax(0, 1fr));
+  gap: 22px;
+}
+
+.tabs .tabs-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 258px;
+  padding: 26px 24px;
+  border: 1px solid var(--tabs-card-border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(16 36 54 / 6%);
+  color: var(--tabs-text);
+}
+
+.tabs .tabs-card-content {
+  display: grid;
+  gap: 12px;
+}
+
+.tabs .tabs-card-title {
+  margin: 0;
+  color: var(--tabs-navy);
+}
+
+.tabs .tabs-card-title > :first-child,
+.tabs .tabs-card-body > :first-child {
+  margin-top: 0;
+}
+
+.tabs .tabs-card-title > :last-child,
+.tabs .tabs-card-body > :last-child {
+  margin-bottom: 0;
+}
+
+.tabs .tabs-card-body {
+  color: var(--tabs-muted);
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.tabs .tabs-card-body ul,
+.tabs .tabs-card-body ol {
+  margin: 0.75em 0 0;
+  padding-left: 1.2em;
+}
+
+.tabs .tabs-card-body ul {
+  list-style: disc;
+}
+
+.tabs .tabs-card-body ol {
+  list-style: decimal;
+}
+
+.tabs .tabs-card-body li + li {
+  margin-top: 0.25em;
+}
+
+/* Card link: the Text link style from the button standard (which draws the
+   arrow); this only places it. */
+.tabs .tabs-card-link {
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 22px;
+}
+
+.tabs .tabs-empty {
+  margin: 0;
+  color: var(--tabs-muted);
+  font-size: var(--body-sm-size);
+  font-weight: 600;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (width <= 1100px) {
+  .tabs .tabs-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 860px) {
+  .tabs .tabs-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (width <= 640px) {
+  .tabs {
+    padding: 36px 0 52px;
+  }
+
+  .tabs .tabs-shell {
+    gap: 22px;
+  }
+
+  .tabs .tabs-tablist {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scroll-snap-type: x proximity;
+  }
+
+  .tabs .tabs-tab {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .tabs .tabs-card-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .tabs .tabs-card {
+    min-height: 0;
+    padding: 24px 22px;
+  }
+}

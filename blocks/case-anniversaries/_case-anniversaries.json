@@ -1,0 +1,108 @@
+{
+  "definitions": [
+    {
+      "title": "Case Anniversaries",
+      "id": "case-anniversaries",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Case Anniversaries",
+              "model": "case-anniversaries"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "case-anniversaries",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "findHeading",
+          "label": "Heading",
+          "value": "Find Cases"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "value": "https://stunning-dust-ntqeawud3dqy.on-vapor.com"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "endpointPath",
+          "label": "Endpoint Path",
+          "value": "/api/case-anniversaries"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "posterPagePath",
+          "label": "Poster Detail Page Path",
+          "description": "Page containing the Poster Results block. Case links open this page with poster query parameters.",
+          "value": "/missing-children-posters"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "timeframe",
+          "label": "Timeframe",
+          "description": "today, thisWeek, or year",
+          "value": "thisWeek"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "pageSize",
+          "label": "Items Per Page",
+          "value": "8"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "searchPlaceholder",
+          "label": "Search Placeholder",
+          "value": "Search"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "loadMoreText",
+          "label": "Load More Label",
+          "value": "Load More"
+        },
+        {
+          "component": "select",
+          "name": "paginationMode",
+          "label": "Results Navigation",
+          "options": [
+            {
+              "name": "Load More",
+              "value": "load-more"
+            },
+            {
+              "name": "Pagination",
+              "value": "pagination"
+            }
+          ],
+          "value": "load-more"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emptyMessage",
+          "label": "Empty Message",
+          "value": "No case anniversaries match your current filters."
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

@@ -1,0 +1,1127 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import { textSafeSurface } from '../../scripts/color-tokens.js';
+import {
+  getAueResourcePath,
+  getFieldSelector,
+  readAueResourceFields,
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+  setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  resolveAuthoredButtonStyle,
+} from '../../scripts/button-utils.js';
+
+/**
+ * Hover with no authored Card Hover Background Color. A light card lifts with a shadow
+ * (the site's card tier). A dark card has no hover: its old default was a colour tint,
+ * and a colour hover is the author's pick, never automatic. An authored colour replaces
+ * the lift.
+ */
+function applyDefaultHover(card, background) {
+  card.classList.toggle('info-cards-grid-card-has-lift-hover', !isDarkSurface(background));
+}
+
+// Hex-color "select" fields never get data-aue-prop instrumentation in the editor (see
+// getColorField below), so their positional fallback is only as reliable as the fixed
+// index it's given — which breaks whenever an EARLIER field on the same card (even a
+// non-color one, like an empty button) has no row of its own and everything after it
+// shifts. A per-card fetch of the resource's own JSON, keyed by field NAME, sidesteps
+// row position entirely and is the authoritative correction. Matches the pattern already
+// proven in cards.js's syncResourceCardStyles/applyCardStyles.
+const CARD_COLOR_FIELD_NAMES = [
+  'iconColor',
+  'cardBackgroundColor',
+  'cardHoverBackgroundColor',
+  'buttonBackgroundColor',
+  'button2BackgroundColor',
+  'cardTextColor',
+  'titleColor',
+  'subtitleColor',
+  'bodyColor',
+];
+
+const CARD_STYLE_FIELD_NAMES = [
+  ...CARD_COLOR_FIELD_NAMES,
+  'titleFontSize',
+  'subtitleFontSize',
+  'bodyFontSize',
+  'cardIconSize',
+  'cardItemSpacing',
+  'buttonSpacing',
+];
+
+const BLOCK_FIELD_INDEX = {
+  columns: 0,
+  styleVariant: 1,
+  sectionHeading: 2,
+  sectionSubheading: 3,
+  footerText: 4,
+  sectionButtonText: 5,
+  sectionButtonLink: 6,
+  introButtonText: 7,
+  introButtonLink: 8,
+  headerAlignment: 9,
+  cardContentAlignment: 10,
+  iconSize: 11,
+};
+
+// Order below matches _info-cards-grid.json's ACTUAL current "info-card" item field order
+// (fields were regrouped under UI tabs by a later commit; tab entries are UI-only and
+// consume no row, but the reorder itself shifted cardBackgroundColor without this array
+// being updated to match). Order: icon, title, subtitle, bodyContent, buttonText,
+// buttonLink, buttonStyle, buttonBackgroundColor, button2Text, button2Link, button2Style,
+// button2BackgroundColor, iconColor, textColor, cardBackgroundColor, overlayImage,
+// cardStyle, cardHoverBackgroundColor.
+const ITEM_FIELD_NAMES = [
+  'icon',
+  'title',
+  'subtitle',
+  'bodyContent',
+  'buttonText',
+  'buttonLink',
+  'buttonStyle',
+  'buttonBackgroundColor',
+  'button2Text',
+  'button2Link',
+  'button2Style',
+  'button2BackgroundColor',
+  'iconColor',
+  'textColor',
+  'cardBackgroundColor',
+  'cardTextColor',
+  'titleColor',
+  'subtitleColor',
+  'bodyColor',
+  'titleFontSize',
+  'subtitleFontSize',
+  'bodyFontSize',
+  'cardIconSize',
+  'iconLayout',
+  'cardItemSpacing',
+  'buttonSpacing',
+  'overlayImage',
+  'cardStyle',
+  'cardHoverBackgroundColor',
+];
+
+const ITEM_FIELD_INDEX = Object.fromEntries(
+  ITEM_FIELD_NAMES.map((name, index) => [name, index]),
+);
+
+const EXTRA_ITEM_FIELD_NAMES = [
+  'cardTextColor',
+  'titleColor',
+  'subtitleColor',
+  'bodyColor',
+  'titleFontSize',
+  'subtitleFontSize',
+  'bodyFontSize',
+  'cardIconSize',
+  'iconLayout',
+  'cardItemSpacing',
+  'buttonSpacing',
+];
+
+const PREVIOUS_ITEM_FIELD_NAMES = [
+  'icon',
+  'title',
+  'subtitle',
+  'bodyContent',
+  'buttonText',
+  'buttonLink',
+  'buttonStyle',
+  'buttonBackgroundColor',
+  'button2Text',
+  'button2Link',
+  'button2Style',
+  'button2BackgroundColor',
+  'iconColor',
+  'textColor',
+  'cardBackgroundColor',
+  'overlayImage',
+  'cardStyle',
+  'cardHoverBackgroundColor',
+];
+
+const PREVIOUS_ITEM_FIELD_INDEX = Object.fromEntries(
+  PREVIOUS_ITEM_FIELD_NAMES.map((name, index) => [name, index]),
+);
+
+// Existing pages authored before the tab cleanup commit still publish with
+// cardBackgroundColor directly after buttonStyle. Author can repair that from
+// the resource JSON by field name, but live delivery has only flattened cells,
+// so keep a legacy index map for those already-authored rows.
+const LEGACY_ITEM_FIELD_NAMES = [
+  'icon',
+  'title',
+  'subtitle',
+  'bodyContent',
+  'buttonText',
+  'buttonLink',
+  'buttonStyle',
+  'cardBackgroundColor',
+  'buttonBackgroundColor',
+  'button2Text',
+  'button2Link',
+  'button2Style',
+  'button2BackgroundColor',
+  'iconColor',
+  'textColor',
+  'overlayImage',
+  'cardStyle',
+  'cardHoverBackgroundColor',
+];
+
+const LEGACY_ITEM_FIELD_INDEX = Object.fromEntries(
+  LEGACY_ITEM_FIELD_NAMES.map((name, index) => [name, index]),
+);
+
+EXTRA_ITEM_FIELD_NAMES.forEach((name, offset) => {
+  PREVIOUS_ITEM_FIELD_INDEX[name] = PREVIOUS_ITEM_FIELD_NAMES.length + offset;
+  LEGACY_ITEM_FIELD_INDEX[name] = LEGACY_ITEM_FIELD_NAMES.length + offset;
+});
+
+function hasMeaningfulNodeContent(node) {
+  if (!node) return false;
+  if (node.textContent.trim()) return true;
+  return Boolean(node.querySelector('img, picture, video, iframe, svg, ul, ol, li, a, button'));
+}
+
+function hasFieldContent(field) {
+  return Boolean(field?.value || hasMeaningfulNodeContent(field?.source));
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute?.('data-aue-resource')
+      || scope?.querySelector?.('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function normalizeLines(value) {
+  if (!value) return [];
+  return String(value).split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+}
+
+function normalizeStyleKey(value) {
+  return String(value || '').trim().toLowerCase().replace(/[^a-z]+/g, ' ');
+}
+
+function normalizeIconLayout(value) {
+  const normalizedValue = normalizeStyleKey(value);
+
+  if (['left', 'left aligned', 'left align', 'icon left', 'left icon'].includes(normalizedValue)) {
+    return 'left';
+  }
+
+  return 'default';
+}
+
+function normalizeCardStyle(value) {
+  const normalizedValue = normalizeStyleKey(value);
+
+  if (['outline', 'outlined', 'border', 'bordered', 'dashed'].includes(normalizedValue)) {
+    return 'outline';
+  }
+
+  if (['filled', 'solid', 'light'].includes(normalizedValue)) {
+    return 'filled';
+  }
+
+  return 'default';
+}
+
+function hasKnownCardStyle(value) {
+  return [
+    'default',
+    'outline',
+    'outlined',
+    'border',
+    'bordered',
+    'dashed',
+    'filled',
+    'solid',
+    'light',
+  ]
+    .includes(normalizeStyleKey(value));
+}
+
+function normalizeButtonStyle(value) {
+  // A style picked from the new dropdown passes straight through.
+  const picked = String(value || '').trim().toLowerCase();
+  if (BUTTON_STYLES.includes(picked)) return picked;
+  const normalizedValue = normalizeStyleKey(value);
+
+  if (['outline', 'outlined', 'border', 'bordered'].includes(normalizedValue)) {
+    return 'outlined';
+  }
+
+  if (['solid', 'filled', 'fill'].includes(normalizedValue)) {
+    return 'solid';
+  }
+
+  if (['link', 'text', 'plain'].includes(normalizedValue)) {
+    return 'link';
+  }
+
+  return 'default';
+}
+
+function hasKnownButtonStyle(value) {
+  return [
+    'default',
+    'solid',
+    'filled',
+    'fill',
+    'outline',
+    'outlined',
+    'border',
+    'bordered',
+    'link',
+    'text',
+    'plain',
+  ]
+    .includes(normalizeStyleKey(value))
+    || BUTTON_STYLES.includes(String(value || '').trim().toLowerCase());
+}
+
+function normalizeCssSize(value) {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) return '';
+  if (/^\d+(\.\d+)?$/.test(normalizedValue)) return `${normalizedValue}px`;
+  return normalizedValue;
+}
+
+/**
+ * Per-instance type sizing is OFF: the global scale in styles/styles.css owns
+ * typography (see audits/typography-audit.md). Flip this to true to hand size
+ * control back to authors.
+ *
+ * titleFontSize / subtitleFontSize / bodyFontSize are deliberately still read and
+ * still occupy their rows — deleting them from the model would shift every later
+ * field's index on already-published pages.
+ *
+ * TO RESTORE (two steps, both required):
+ *   1. Set this constant to true.
+ *   2. Put the field's real `options` back in the block's _*.json model and drop
+ *      the "(set by site styles)" label suffix + the "Locked." description.
+ *      The pre-lock definitions are in git — see the commit that added this note.
+ * Step 2 alone does nothing (the JS still ignores the value); step 1 alone leaves
+ * the author staring at a control with one inert choice. Never DELETE the field:
+ * its cell index is load-bearing on already-published pages.
+ */
+const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
+
+function applyAuthoredTypeSizes(card, fields) {
+  const sizes = [
+    ['titleFontSize', '--info-card-title-size'],
+    ['subtitleFontSize', '--info-card-subtitle-size'],
+    ['bodyFontSize', '--info-card-body-size'],
+  ];
+  sizes.forEach(([field, cssVar]) => {
+    if (fields[field]) card.style.setProperty(cssVar, normalizeCssSize(fields[field]));
+  });
+}
+
+function normalizeStyleLines(value) {
+  return normalizeLines(String(value || '').replace(/\s+(?=[a-z][a-z\s-]*(?:\||:))/giu, '\n'));
+}
+
+function parseTextStyles(value) {
+  return normalizeStyleLines(value).reduce((styles, line) => {
+    const separatorIndex = line.includes('|') ? line.indexOf('|') : line.indexOf(':');
+
+    if (separatorIndex <= 0) {
+      if (!styles.textColor) styles.textColor = line.trim();
+      return styles;
+    }
+
+    const key = normalizeStyleKey(line.slice(0, separatorIndex));
+    const styleValue = line.slice(separatorIndex + 1).trim();
+    if (!styleValue) return styles;
+
+    if (['color', 'text', 'text color', 'card text color'].includes(key)) styles.textColor = styleValue;
+    else if (['title color', 'heading color'].includes(key)) styles.titleColor = styleValue;
+    else if (['subtitle color', 'subheading color'].includes(key)) styles.subtitleColor = styleValue;
+    else if (['body color', 'body text color', 'text body color'].includes(key)) styles.bodyColor = styleValue;
+    else if (['title size', 'heading size', 'title font size', 'heading font size'].includes(key)) styles.titleSize = styleValue;
+    else if (['subtitle size', 'subheading size', 'subtitle font size', 'subheading font size'].includes(key)) styles.subtitleSize = styleValue;
+    else if (['body size', 'body font size', 'text size', 'body text size'].includes(key)) styles.bodySize = styleValue;
+    else if (['icon size', 'icon dimension', 'icon width'].includes(key)) styles.iconSize = normalizeCssSize(styleValue);
+    else if (['icon layout', 'icon position', 'layout'].includes(key)) styles.iconLayout = normalizeIconLayout(styleValue);
+    else if (['spacing', 'item spacing', 'card item spacing', 'content spacing'].includes(key)) styles.cardItemSpacing = normalizeCssSize(styleValue);
+    else if (['button spacing', 'button gap', 'buttons gap'].includes(key)) styles.buttonSpacing = normalizeCssSize(styleValue);
+
+    return styles;
+  }, {});
+}
+
+// Fields left empty by the author frequently get NO row at all in the exported markup, so
+// a positional fallback (row.children[index]) can silently grab a totally different field's
+// value once one earlier field is missing its row. In the editor, name-based data-aue-prop
+// lookup (already tried first inside readTextField/readLinkField/etc.) is reliable whenever
+// a field genuinely has content, so a failed name lookup there means the field is genuinely
+// empty — never fall back to a position guess in that case. Positional fallback is only
+// meaningful on true published pages, where there's no instrumentation to name-match
+// against at all. Matches colored-icon-text.js's readField/readColorField/etc. pattern.
+function getField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readTextField(row, name, { fallbackCell });
+  return { source: field.source, value: field.value };
+}
+
+// Hex-color dropdowns can render in author as bare <a href="#hex">#hex</a> values
+// with no data-aue-prop. Published pages still need positional fallback, but author
+// rows are more fragile because omitted optional fields shift cells around. In author,
+// only trust a named field; uninstrumented color values are corrected by the existing
+// AEM JSON style sync instead of guessing from a shifted positional cell.
+function getColorField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readTextField(row, name, { fallbackCell });
+  return { source: field.source, value: field.value };
+}
+
+function isValidHexColor(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
+    .test(String(value || '').trim());
+}
+
+function getCellText(row, index) {
+  return row.children[index]?.textContent?.trim() || '';
+}
+
+function getItemFieldIndex(row) {
+  const legacyCardBg = getCellText(row, LEGACY_ITEM_FIELD_INDEX.cardBackgroundColor);
+  const currentButton2Style = getCellText(row, ITEM_FIELD_INDEX.button2Style);
+  const legacyButton2Style = getCellText(row, LEGACY_ITEM_FIELD_INDEX.button2Style);
+  const currentCardStyle = getCellText(row, ITEM_FIELD_INDEX.cardStyle);
+  const previousCardStyle = getCellText(row, PREVIOUS_ITEM_FIELD_INDEX.cardStyle);
+
+  if (
+    isValidHexColor(legacyCardBg)
+    && !hasKnownButtonStyle(currentButton2Style)
+    && hasKnownButtonStyle(legacyButton2Style)
+  ) {
+    return LEGACY_ITEM_FIELD_INDEX;
+  }
+
+  if (!hasKnownCardStyle(currentCardStyle) && hasKnownCardStyle(previousCardStyle)) {
+    return PREVIOUS_ITEM_FIELD_INDEX;
+  }
+
+  return ITEM_FIELD_INDEX;
+}
+
+function getLinkField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readLinkField(row, name, { fallbackCell });
+  return { source: field.source, value: field.value };
+}
+
+function getRichField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readRichTextField(row, name, { fallbackCell });
+  return field.source || field.cell;
+}
+
+function getImageField(row, name, index, isEditor) {
+  const fallbackCell = isEditor ? null : row.children[index];
+  const field = readImageField(row, name, { fallbackCell });
+  return { source: field.source, img: field.img };
+}
+
+function getBlockField(block, rows, name, index, isEditor) {
+  const row = rows[index];
+  const fallbackCell = isEditor ? null : (row?.children[0] || row);
+  const field = readTextField(block, name, { fallbackCell });
+  return { source: field.source, value: field.value };
+}
+
+function getBlockLinkField(block, rows, name, index, isEditor) {
+  const row = rows[index];
+  const fallbackCell = isEditor ? null : (row?.children[0] || row);
+  const field = readLinkField(block, name, { fallbackCell });
+  return { source: field.source, value: field.value };
+}
+
+function moveFieldContent(field, target) {
+  if (!field?.source) {
+    target.textContent = field?.value || '';
+    return;
+  }
+
+  moveInstrumentation(field.source, target);
+  while (field.source.firstChild) target.append(field.source.firstChild);
+}
+
+function buildTitle(content, data) {
+  if (!hasFieldContent(data.titleField)) return;
+
+  const h3 = document.createElement('h3');
+  h3.className = 'info-cards-grid-card-title';
+  moveFieldContent(data.titleField, h3);
+  if (!h3.textContent.trim()) return;
+  content.append(h3);
+}
+
+function buildSubtitle(content, data) {
+  if (!hasFieldContent(data.subtitleField)) return;
+
+  const subtitle = document.createElement('p');
+  subtitle.className = 'info-cards-grid-card-subtitle';
+  moveFieldContent(data.subtitleField, subtitle);
+  if (!subtitle.textContent.trim()) return;
+  content.append(subtitle);
+}
+
+function buildBody(content, data) {
+  if (!hasMeaningfulNodeContent(data.bodySource)) return;
+
+  const body = document.createElement('div');
+  body.className = 'info-cards-grid-card-body';
+  moveInstrumentation(data.bodySource, body);
+  while (data.bodySource.firstChild) body.append(data.bodySource.firstChild);
+  if (!hasMeaningfulNodeContent(body)) return;
+  content.append(body);
+}
+
+// The look comes from the button standard. The style dropdown wins; a default style
+// falls back to the old colour picker (gold -> AMBER, red -> Emergency). With neither,
+// volunteer cards keep their solid button and other cards their outlined one.
+function styleCardButton(btn, buttonBg, buttonStyle, variant) {
+  const fallback = variant === 'volunteer' ? 'primary' : 'secondary';
+  applyButtonStyle(btn, resolveAuthoredButtonStyle(buttonStyle, buttonBg, fallback));
+}
+
+function buildCardButton(buttonData, variant) {
+  const btnLabel = buttonData.textField.value;
+  const btnHref = buttonData.linkField.value;
+  if (!btnLabel && !btnHref) return null;
+
+  const btn = document.createElement(btnHref ? 'a' : 'button');
+  btn.className = 'info-cards-grid-card-button';
+  btn.textContent = btnLabel || 'Learn More';
+  if (btnHref) btn.href = btnHref;
+  if (!btnHref) btn.type = 'button';
+  if (buttonData.textField.source) moveInstrumentation(buttonData.textField.source, btn);
+  if (buttonData.linkField.source) moveInstrumentation(buttonData.linkField.source, btn);
+
+  styleCardButton(btn, buttonData.backgroundColor, buttonData.style, variant);
+  return btn;
+}
+
+function buildButtons(card, data, cardBg, variant) {
+  const buttons = [
+    buildCardButton({
+      textField: data.buttonTextField,
+      linkField: data.buttonLinkField,
+      backgroundColor: data.buttonBg,
+      style: data.buttonStyle,
+    }, variant),
+    buildCardButton({
+      textField: data.button2TextField,
+      linkField: data.button2LinkField,
+      backgroundColor: data.button2Bg,
+      style: data.button2Style,
+    }, variant),
+  ].filter(Boolean);
+
+  if (!buttons.length) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'info-cards-grid-card-buttons';
+  // Cards default to dark navy, so their buttons usually take the dark form.
+  markButtonSurface(wrapper, isDarkSurface(cardBg));
+  buttons.forEach((button) => wrapper.append(button));
+  card.append(wrapper);
+}
+
+function buildSectionText(field, tagName, className) {
+  if (!hasFieldContent(field)) return null;
+
+  const element = document.createElement(tagName);
+  element.className = className;
+  moveFieldContent(field, element);
+
+  if (!hasMeaningfulNodeContent(element)) return null;
+  return element;
+}
+
+function buildSectionButton(
+  textField,
+  linkField,
+  className = 'info-cards-grid-section-button',
+  style = 'primary',
+) {
+  const label = textField?.value || '';
+  const href = linkField?.value || '';
+  if (!label && !href) return null;
+
+  const button = document.createElement(href ? 'a' : 'button');
+  button.className = className;
+  button.textContent = label || 'Learn More';
+  if (href) button.href = href;
+  if (!href) button.type = 'button';
+  if (textField?.source) moveInstrumentation(textField.source, button);
+  if (linkField?.source) moveInstrumentation(linkField.source, button);
+
+  applyButtonStyle(button, style);
+  return button;
+}
+
+function hasItemFieldProps(row) {
+  return ITEM_FIELD_NAMES.some((name) => row.querySelector(getFieldSelector(name)));
+}
+
+function buildIcon(content, data) {
+  if (!data.iconField.img) return;
+
+  const iconColor = data.iconColor || '#ffffff';
+  const normalizedColor = iconColor.toLowerCase();
+  const isWhite = normalizedColor === '#ffffff'
+    || normalizedColor === '#fff'
+    || normalizedColor === 'white';
+
+  if (isWhite) {
+    const img = data.iconField.img.cloneNode(true);
+    img.className = 'info-cards-grid-card-icon';
+    if (data.iconField.source) moveInstrumentation(data.iconField.source, img);
+    img.style.setProperty('filter', 'brightness(0) invert(1)', 'important');
+    content.append(img);
+    return;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'info-cards-grid-card-icon-wrap';
+  wrap.style.setProperty('background-color', iconColor, 'important');
+  wrap.style.setProperty('-webkit-mask-image', `url(${data.iconField.img.src})`, 'important');
+  wrap.style.setProperty('mask-image', `url(${data.iconField.img.src})`, 'important');
+  wrap.style.setProperty('-webkit-mask-size', 'contain', 'important');
+  wrap.style.setProperty('mask-size', 'contain', 'important');
+  wrap.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
+  wrap.style.setProperty('mask-repeat', 'no-repeat', 'important');
+  wrap.style.setProperty('-webkit-mask-position', 'center', 'important');
+  wrap.style.setProperty('mask-position', 'center', 'important');
+  if (data.iconField.source) moveInstrumentation(data.iconField.source, wrap);
+  content.append(wrap);
+}
+
+function restyleIcon(content, data) {
+  content.querySelectorAll(':scope > .info-cards-grid-card-icon, :scope > .info-cards-grid-card-icon-wrap')
+    .forEach((el) => el.remove());
+  // buildIcon() always appends — fine on first render since content is still empty at
+  // that point, but here the title/subtitle/body text block is already in place, so
+  // appending would push the icon below the text. Build into a scratch parent instead
+  // and prepend the result to preserve icon-before-text order.
+  const scratch = document.createElement('div');
+  buildIcon(scratch, data);
+  if (scratch.firstElementChild) content.prepend(scratch.firstElementChild);
+}
+
+function restyleCardButtons(card, data, cardBg, variant) {
+  const buttons = [...card.querySelectorAll(':scope > .info-cards-grid-card-buttons > .info-cards-grid-card-button')];
+  if (buttons[0]) styleCardButton(buttons[0], data.buttonBg, data.buttonStyle, cardBg, variant);
+  if (buttons[1]) styleCardButton(buttons[1], data.button2Bg, data.button2Style, cardBg, variant);
+}
+
+// Corrects style fields using the resource's own JSON (keyed by field name, so it's
+// immune to the row-position drift that breaks positional fallback — see
+// CARD_STYLE_FIELD_NAMES above). Fires after the card already rendered with its best
+// synchronous guess; invalid color values are ignored, so a malformed/unexpected API
+// response can't corrupt an already-correct card.
+function syncCardStyles(resourcePath, card, content, data, variant) {
+  readAueResourceFields(resourcePath, CARD_STYLE_FIELD_NAMES)
+    .then((fields) => {
+      Object.keys(fields).forEach((key) => {
+        if (CARD_COLOR_FIELD_NAMES.includes(key) && !isValidHexColor(fields[key])) {
+          delete fields[key];
+        }
+      });
+      if (!Object.keys(fields).length) return;
+
+      if (fields.cardBackgroundColor) {
+        // The card's title and subtitle sit on this, so Blue Medium renders as Blue Dark.
+        card.style.setProperty('--info-card-bg', textSafeSurface(fields.cardBackgroundColor));
+      }
+      if (fields.cardHoverBackgroundColor) {
+        card.classList.remove('info-cards-grid-card-has-lift-hover');
+        card.classList.add('info-cards-grid-card-has-hover-bg');
+        card.style.setProperty('--info-card-hover-bg', fields.cardHoverBackgroundColor);
+      } else if (fields.cardBackgroundColor && variant !== 'volunteer'
+        && !card.classList.contains('info-cards-grid-card-has-hover-bg')) {
+        // The lift was decided from the row-position background, which this correction
+        // just replaced: a card that turned out dark must not keep a light card's lift.
+        applyDefaultHover(card, fields.cardBackgroundColor);
+      }
+      const cardBg = fields.cardBackgroundColor
+        || card.style.getPropertyValue('--info-card-bg')
+        || data.cardBg;
+
+      if (fields.iconColor && fields.iconColor !== data.iconColor) {
+        restyleIcon(content, { ...data, iconColor: fields.iconColor });
+      }
+      if (fields.cardTextColor) {
+        card.style.setProperty('--info-card-title-color', fields.cardTextColor);
+        card.style.setProperty('--info-card-subtitle-color', fields.cardTextColor);
+        card.style.setProperty('--info-card-body-color', fields.cardTextColor);
+      }
+      if (fields.titleColor) card.style.setProperty('--info-card-title-color', fields.titleColor);
+      if (fields.subtitleColor) {
+        card.style.setProperty('--info-card-subtitle-color', fields.subtitleColor);
+      }
+      if (fields.bodyColor) card.style.setProperty('--info-card-body-color', fields.bodyColor);
+      if (ALLOW_AUTHOR_TYPE_OVERRIDES) {
+        applyAuthoredTypeSizes(card, fields);
+      }
+      if (fields.cardIconSize) {
+        card.style.setProperty('--info-card-icon-size', normalizeCssSize(fields.cardIconSize));
+      }
+      if (fields.cardItemSpacing) {
+        const spacing = normalizeCssSize(fields.cardItemSpacing);
+        card.style.setProperty('--info-card-icon-bottom-gap', spacing);
+        card.style.setProperty('--info-card-title-bottom-gap', spacing);
+        card.style.setProperty('--info-card-text-bottom-gap', spacing);
+        card.style.setProperty('--info-card-buttons-top-gap', spacing);
+      }
+      if (fields.buttonSpacing) {
+        card.style.setProperty('--info-card-buttons-gap', normalizeCssSize(fields.buttonSpacing));
+      }
+      if (
+        (fields.buttonBackgroundColor && fields.buttonBackgroundColor !== data.buttonBg)
+        || (fields.button2BackgroundColor && fields.button2BackgroundColor !== data.button2Bg)
+      ) {
+        restyleCardButtons(card, {
+          ...data,
+          buttonBg: fields.buttonBackgroundColor || data.buttonBg,
+          button2Bg: fields.button2BackgroundColor || data.button2Bg,
+        }, cardBg, variant);
+      }
+    });
+}
+
+function applyTextStyles(card, textStyles) {
+  if (!textStyles) return;
+
+  if (textStyles.textColor) {
+    card.style.setProperty('--info-card-title-color', textStyles.textColor);
+    card.style.setProperty('--info-card-subtitle-color', textStyles.textColor);
+    card.style.setProperty('--info-card-body-color', textStyles.textColor);
+  }
+
+  if (textStyles.titleColor) card.style.setProperty('--info-card-title-color', textStyles.titleColor);
+  if (textStyles.subtitleColor) card.style.setProperty('--info-card-subtitle-color', textStyles.subtitleColor);
+  if (textStyles.bodyColor) card.style.setProperty('--info-card-body-color', textStyles.bodyColor);
+  if (textStyles.titleSize) {
+    card.style.setProperty('--info-card-title-size', normalizeCssSize(textStyles.titleSize));
+  }
+  if (textStyles.subtitleSize) {
+    card.style.setProperty('--info-card-subtitle-size', normalizeCssSize(textStyles.subtitleSize));
+  }
+  if (textStyles.bodySize) {
+    card.style.setProperty('--info-card-body-size', normalizeCssSize(textStyles.bodySize));
+  }
+
+  if (textStyles.cardItemSpacing) {
+    const spacing = normalizeCssSize(textStyles.cardItemSpacing);
+    card.style.setProperty('--info-card-icon-bottom-gap', spacing);
+    card.style.setProperty('--info-card-title-bottom-gap', spacing);
+    card.style.setProperty('--info-card-text-bottom-gap', spacing);
+    card.style.setProperty('--info-card-buttons-top-gap', spacing);
+  }
+
+  if (textStyles.buttonSpacing) {
+    card.style.setProperty('--info-card-buttons-gap', normalizeCssSize(textStyles.buttonSpacing));
+  }
+}
+
+function buildCard(data, index, variant, isEditor) {
+  const card = document.createElement('div');
+  card.className = 'info-cards-grid-card';
+  card.style.setProperty('--info-card-index', index);
+  const resourcePath = data.row ? getAueResourcePath(data.row) : '';
+  if (data.row) moveInstrumentation(data.row, card);
+  setItemLabel(card, [data.titleField.value, data.subtitleField.value]);
+
+  const isVolunteerVariant = variant === 'volunteer';
+  let { cardStyle } = data;
+  if (cardStyle === 'default' && isVolunteerVariant) {
+    cardStyle = 'filled';
+  }
+
+  if (isVolunteerVariant) {
+    card.classList.add('info-cards-grid-card-volunteer');
+  } else {
+    card.classList.add('info-cards-grid-card-default');
+  }
+
+  if (cardStyle === 'filled') {
+    card.classList.add('info-cards-grid-card-filled');
+  } else if (cardStyle === 'outline') {
+    card.classList.add('info-cards-grid-card-outline');
+  }
+
+  let cardBg = data.cardBg || '#1a1a2e';
+  if (isVolunteerVariant && !data.cardBg) {
+    cardBg = cardStyle === 'outline' ? 'transparent' : '#ffffff';
+  }
+
+  // The card's title, subtitle and body sit on this, so Blue Medium renders as Blue Dark.
+  card.style.setProperty('--info-card-bg', textSafeSurface(cardBg));
+  // No colour hover unless the author picks a Card Hover Background Color. Dark cards
+  // used to tint by default, which read oddly on a card whose only links sit inside its
+  // text (the "Report" card on ai-risks).
+  if (data.cardHoverBg) {
+    card.classList.add('info-cards-grid-card-has-hover-bg');
+    card.style.setProperty('--info-card-hover-bg', data.cardHoverBg);
+  } else if (!isVolunteerVariant) {
+    applyDefaultHover(card, cardBg);
+  }
+  applyTextStyles(card, data.textStyles);
+
+  if (isVolunteerVariant) {
+    if (!data.textStyles.textColor && !data.textStyles.titleColor) {
+      card.style.setProperty('--info-card-title-color', '#00264d');
+    }
+    if (!data.textStyles.textColor && !data.textStyles.subtitleColor) {
+      card.style.setProperty('--info-card-subtitle-color', '#465a70');
+    }
+    if (!data.textStyles.textColor && !data.textStyles.bodyColor) {
+      card.style.setProperty('--info-card-body-color', '#2f485d');
+    }
+  }
+
+  if (data.iconSize) {
+    card.style.setProperty('--info-card-icon-size', data.iconSize);
+  }
+
+  if (data.iconLayout === 'left' && data.iconField.img) {
+    card.classList.add('info-cards-grid-card-left-icon');
+  }
+
+  if (data.overlayField?.img) {
+    const overlay = document.createElement('div');
+    overlay.className = 'info-cards-grid-card-overlay';
+    const img = data.overlayField.img.cloneNode(true);
+    if (data.overlayField.source) moveInstrumentation(data.overlayField.source, img);
+    overlay.append(img);
+    card.append(overlay);
+  }
+
+  const content = document.createElement('div');
+  content.className = 'info-cards-grid-card-content';
+
+  buildIcon(content, data);
+
+  const textContent = document.createElement('div');
+  textContent.className = 'info-cards-grid-card-text';
+  buildTitle(textContent, data);
+  buildSubtitle(textContent, data);
+  buildBody(textContent, data);
+
+  if (textContent.childElementCount) {
+    content.append(textContent);
+  }
+
+  card.append(content);
+  buildButtons(card, data, cardBg, variant);
+
+  // `data.row` is discarded after this point (only `card` gets attached to the DOM), but
+  // several of its style-only select fields (buttonStyle, cardBackgroundColor,
+  // cardHoverBackgroundColor, buttonBackgroundColor, button2Style, button2BackgroundColor,
+  // iconColor, typography/style controls, cardStyle) were only ever read by value above — unlike
+  // icon/title/subtitle/bodyContent/buttons/overlayImage, their aue-tracked elements were
+  // never individually relocated into `card`. Fully dropping `row` desyncs Universal
+  // Editor's tracking of those fields, so a live edit to e.g. Card Background Color patches
+  // a DOM node that no longer exists on the page (visible only after a hard refresh).
+  // moveInstrumentation(data.row, card) above already stripped row's OWN aue-resource
+  // identity, so re-attaching it hidden inside `card` can't create a duplicate/competing
+  // resource — only its still-instrumented field descendants remain live. Matches the
+  // hide-not-remove / re-attach pattern used in cards.js's buildCard().
+  if (data.row && hasAuthoringContext(data.row)) {
+    data.row.hidden = true;
+    card.append(data.row);
+  }
+
+  if (isEditor && resourcePath) {
+    syncCardStyles(resourcePath, card, content, data, variant);
+  }
+
+  return card;
+}
+
+function setupMatchedHeights(block, grid) {
+  if (typeof block.infoCardsGridHeightCleanup === 'function') {
+    block.infoCardsGridHeightCleanup();
+  }
+
+  const cards = [...grid.querySelectorAll('.info-cards-grid-card')];
+  if (!cards.length) {
+    block.infoCardsGridHeightCleanup = null;
+    return;
+  }
+
+  let frameId = 0;
+  const syncHeights = () => {
+    if (frameId) window.cancelAnimationFrame(frameId);
+
+    frameId = window.requestAnimationFrame(() => {
+      frameId = 0;
+      cards.forEach((card) => card.style.removeProperty('--info-card-matched-height'));
+
+      if (window.matchMedia('(max-width: 768px)').matches) return;
+
+      const tallestHeight = Math.ceil(
+        Math.max(0, ...cards.map((card) => card.getBoundingClientRect().height)),
+      );
+
+      cards.forEach((card) => {
+        if (tallestHeight > 0) {
+          card.style.setProperty('--info-card-matched-height', `${tallestHeight}px`);
+        } else {
+          card.style.removeProperty('--info-card-matched-height');
+        }
+      });
+    });
+  };
+
+  const onResize = () => syncHeights();
+  window.addEventListener('resize', onResize, { passive: true });
+
+  const mutationObserver = 'MutationObserver' in window
+    ? new MutationObserver(() => syncHeights())
+    : null;
+  mutationObserver?.observe(grid, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+
+  const resizeObserver = 'ResizeObserver' in window
+    ? new ResizeObserver(() => syncHeights())
+    : null;
+  cards.forEach((card) => {
+    const observedTarget = card.querySelector('.info-cards-grid-card-content') || card;
+    resizeObserver?.observe(observedTarget);
+  });
+
+  grid.querySelectorAll('img').forEach((img) => {
+    if (img.complete) return;
+    img.addEventListener('load', syncHeights, { once: true });
+    img.addEventListener('error', syncHeights, { once: true });
+  });
+
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(() => syncHeights()).catch(() => {});
+  }
+
+  syncHeights();
+
+  block.infoCardsGridHeightCleanup = () => {
+    if (frameId) window.cancelAnimationFrame(frameId);
+    window.removeEventListener('resize', onResize);
+    mutationObserver?.disconnect();
+    resizeObserver?.disconnect();
+    cards.forEach((card) => card.style.removeProperty('--info-card-matched-height'));
+  };
+}
+
+export default function decorate(block) {
+  const isEditor = hasAuthoringContext(block);
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const firstItemRowIndex = rows.findIndex((row) => {
+    if (hasItemFieldProps(row)) return true;
+    if (row.querySelector('[data-aue-prop]')) return false;
+    return row.children.length >= 4;
+  });
+  const blockRows = firstItemRowIndex >= 0 ? rows.slice(0, firstItemRowIndex) : rows;
+  const itemRows = firstItemRowIndex >= 0 ? rows.slice(firstItemRowIndex) : [];
+  const columnsField = getBlockField(block, blockRows, 'columns', BLOCK_FIELD_INDEX.columns, isEditor);
+  const styleVariantField = getBlockField(block, blockRows, 'styleVariant', BLOCK_FIELD_INDEX.styleVariant, isEditor);
+  const sectionHeadingField = getBlockField(block, blockRows, 'sectionHeading', BLOCK_FIELD_INDEX.sectionHeading, isEditor);
+  const sectionSubheadingField = getBlockField(block, blockRows, 'sectionSubheading', BLOCK_FIELD_INDEX.sectionSubheading, isEditor);
+  const introButtonTextField = getBlockField(block, blockRows, 'introButtonText', BLOCK_FIELD_INDEX.introButtonText, isEditor);
+  const introButtonLinkField = getBlockLinkField(block, blockRows, 'introButtonLink', BLOCK_FIELD_INDEX.introButtonLink, isEditor);
+  const footerTextField = getBlockField(block, blockRows, 'footerText', BLOCK_FIELD_INDEX.footerText, isEditor);
+  const sectionButtonTextField = getBlockField(block, blockRows, 'sectionButtonText', BLOCK_FIELD_INDEX.sectionButtonText, isEditor);
+  const sectionButtonLinkField = getBlockLinkField(block, blockRows, 'sectionButtonLink', BLOCK_FIELD_INDEX.sectionButtonLink, isEditor);
+  const headerAlignmentField = getBlockField(block, blockRows, 'headerAlignment', BLOCK_FIELD_INDEX.headerAlignment, isEditor);
+  const cardContentAlignmentField = getBlockField(block, blockRows, 'cardContentAlignment', BLOCK_FIELD_INDEX.cardContentAlignment, isEditor);
+  const iconSizeField = getBlockField(block, blockRows, 'iconSize', BLOCK_FIELD_INDEX.iconSize, isEditor);
+
+  const columns = parseInt(columnsField.value, 10) || 3;
+  const variant = styleVariantField.value === 'volunteer' ? 'volunteer' : 'default';
+  const headerAlignment = ['left', 'center', 'right'].includes(headerAlignmentField.value)
+    ? headerAlignmentField.value
+    : 'left';
+  const cardContentAlignment = ['left', 'center', 'right'].includes(cardContentAlignmentField.value)
+    ? cardContentAlignmentField.value
+    : 'left';
+
+  block.classList.toggle('info-cards-grid-volunteer', variant === 'volunteer');
+  block.classList.toggle('info-cards-grid-button-top', styleVariantField.value === 'button-top');
+  block.classList.toggle('info-cards-grid-icon-large', iconSizeField.value === 'large');
+
+  const cards = [];
+  itemRows.forEach((row) => {
+    const itemFieldIndex = getItemFieldIndex(row);
+    const iconField = getImageField(row, 'icon', 0, isEditor);
+    const titleField = getField(row, 'title', 1, isEditor);
+    const subtitleField = getField(row, 'subtitle', 2, isEditor);
+    const bodySource = getRichField(row, 'bodyContent', 3, isEditor);
+    const buttonTextField = getField(row, 'buttonText', itemFieldIndex.buttonText, isEditor);
+    const buttonLinkField = getLinkField(row, 'buttonLink', itemFieldIndex.buttonLink, isEditor);
+    const buttonStyleField = getField(row, 'buttonStyle', itemFieldIndex.buttonStyle, isEditor);
+    const cardBgField = getColorField(
+      row,
+      'cardBackgroundColor',
+      itemFieldIndex.cardBackgroundColor,
+      isEditor,
+    );
+    const cardHoverBgField = getColorField(
+      row,
+      'cardHoverBackgroundColor',
+      itemFieldIndex.cardHoverBackgroundColor,
+      isEditor,
+    );
+    const buttonBgField = getColorField(
+      row,
+      'buttonBackgroundColor',
+      itemFieldIndex.buttonBackgroundColor,
+      isEditor,
+    );
+    const button2TextField = getField(row, 'button2Text', itemFieldIndex.button2Text, isEditor);
+    const button2LinkField = getLinkField(row, 'button2Link', itemFieldIndex.button2Link, isEditor);
+    const button2StyleField = getField(row, 'button2Style', itemFieldIndex.button2Style, isEditor);
+    const button2BgField = getColorField(
+      row,
+      'button2BackgroundColor',
+      itemFieldIndex.button2BackgroundColor,
+      isEditor,
+    );
+    const iconColorField = getColorField(row, 'iconColor', itemFieldIndex.iconColor, isEditor);
+    const textStyleField = getField(row, 'textColor', itemFieldIndex.textColor, isEditor);
+    const cardTextColorField = getColorField(row, 'cardTextColor', itemFieldIndex.cardTextColor, isEditor);
+    const titleColorField = getColorField(row, 'titleColor', itemFieldIndex.titleColor, isEditor);
+    const subtitleColorField = getColorField(row, 'subtitleColor', itemFieldIndex.subtitleColor, isEditor);
+    const bodyColorField = getColorField(row, 'bodyColor', itemFieldIndex.bodyColor, isEditor);
+    const titleSizeField = getField(row, 'titleFontSize', itemFieldIndex.titleFontSize, isEditor);
+    const subtitleSizeField = getField(row, 'subtitleFontSize', itemFieldIndex.subtitleFontSize, isEditor);
+    const bodySizeField = getField(row, 'bodyFontSize', itemFieldIndex.bodyFontSize, isEditor);
+    const cardIconSizeField = getField(row, 'cardIconSize', itemFieldIndex.cardIconSize, isEditor);
+    const iconLayoutField = getField(row, 'iconLayout', itemFieldIndex.iconLayout, isEditor);
+    const cardItemSpacingField = getField(row, 'cardItemSpacing', itemFieldIndex.cardItemSpacing, isEditor);
+    const buttonSpacingField = getField(row, 'buttonSpacing', itemFieldIndex.buttonSpacing, isEditor);
+    const overlayField = getImageField(row, 'overlayImage', itemFieldIndex.overlayImage, isEditor);
+    const cardStyleField = getField(row, 'cardStyle', itemFieldIndex.cardStyle, isEditor);
+    const legacyTextStyles = parseTextStyles(textStyleField.value);
+    const textStyles = {
+      ...legacyTextStyles,
+      textColor: cardTextColorField.value || legacyTextStyles.textColor,
+      titleColor: titleColorField.value || legacyTextStyles.titleColor,
+      subtitleColor: subtitleColorField.value || legacyTextStyles.subtitleColor,
+      bodyColor: bodyColorField.value || legacyTextStyles.bodyColor,
+      titleSize: titleSizeField.value || legacyTextStyles.titleSize,
+      subtitleSize: subtitleSizeField.value || legacyTextStyles.subtitleSize,
+      bodySize: bodySizeField.value || legacyTextStyles.bodySize,
+      iconSize: normalizeCssSize(cardIconSizeField.value || legacyTextStyles.iconSize),
+      iconLayout: normalizeIconLayout(iconLayoutField.value || legacyTextStyles.iconLayout),
+      cardItemSpacing: cardItemSpacingField.value || legacyTextStyles.cardItemSpacing,
+      buttonSpacing: buttonSpacingField.value || legacyTextStyles.buttonSpacing,
+    };
+
+    cards.push({
+      iconField,
+      titleField,
+      subtitleField,
+      bodySource,
+      buttonTextField,
+      buttonLinkField,
+      buttonStyle: normalizeButtonStyle(buttonStyleField.value),
+      button2TextField,
+      button2LinkField,
+      button2Style: normalizeButtonStyle(button2StyleField.value),
+      cardBg: cardBgField.value,
+      cardHoverBg: cardHoverBgField.value,
+      buttonBg: buttonBgField.value,
+      button2Bg: button2BgField.value,
+      iconColor: iconColorField.value,
+      textStyles,
+      overlayField,
+      cardStyle: normalizeCardStyle(cardStyleField.value),
+      iconLayout: textStyles.iconLayout || 'default',
+      iconSize: textStyles.iconSize,
+      row,
+    });
+  });
+
+  const shell = document.createElement('div');
+  shell.className = 'info-cards-grid-shell';
+
+  const intro = document.createElement('div');
+  intro.className = 'info-cards-grid-intro';
+  intro.classList.add(`info-cards-grid-intro-align-${headerAlignment}`);
+  const introContent = document.createElement('div');
+  introContent.className = 'info-cards-grid-intro-content';
+  const introHeading = buildSectionText(sectionHeadingField, 'h2', 'info-cards-grid-section-heading');
+  const introSubheading = buildSectionText(sectionSubheadingField, 'p', 'info-cards-grid-section-subheading');
+  // The intro button was slate (greys are Secondary now) unless Button Top made it blue.
+  const introButton = buildSectionButton(
+    introButtonTextField,
+    introButtonLinkField,
+    'info-cards-grid-intro-button',
+    styleVariantField.value === 'button-top' ? 'primary' : 'secondary',
+  );
+  if (introHeading) introContent.append(introHeading);
+  if (introSubheading) introContent.append(introSubheading);
+  if (introContent.childElementCount) intro.append(introContent);
+  // Intro and footer buttons sit on the block, which is transparent except in the
+  // volunteer style (a light panel).
+  const onDarkSection = variant !== 'volunteer' && isOnDarkSection(block);
+  if (introButton) {
+    markButtonSurface(introButton, onDarkSection);
+    intro.append(introButton);
+  }
+  if (intro.childElementCount) shell.append(intro);
+
+  const grid = document.createElement('div');
+  grid.className = 'info-cards-grid-inner';
+  grid.classList.add(`info-cards-grid-inner-align-${cardContentAlignment}`);
+  grid.style.setProperty('--grid-columns', columns);
+
+  const cardElements = cards.map((data, index) => buildCard(data, index, variant, isEditor));
+  const orphanCount = columns > 1 ? cardElements.length % columns : 0;
+  const fullRowCount = cardElements.length - orphanCount;
+
+  cardElements.slice(0, fullRowCount).forEach((card) => grid.append(card));
+
+  if (orphanCount > 0) {
+    const orphanRow = document.createElement('div');
+    orphanRow.className = 'info-cards-grid-orphan-row';
+    cardElements.slice(fullRowCount).forEach((card) => orphanRow.append(card));
+    grid.append(orphanRow);
+  }
+
+  shell.append(grid);
+
+  const footer = document.createElement('div');
+  footer.className = 'info-cards-grid-footer';
+  const footerText = buildSectionText(footerTextField, 'p', 'info-cards-grid-footer-text');
+  const sectionButton = buildSectionButton(sectionButtonTextField, sectionButtonLinkField);
+  if (footerText) footer.append(footerText);
+  if (sectionButton) {
+    markButtonSurface(sectionButton, onDarkSection);
+    footer.append(sectionButton);
+  }
+  if (footer.childElementCount) shell.append(footer);
+
+  block.replaceChildren(shell);
+  setupMatchedHeights(block, grid);
+}

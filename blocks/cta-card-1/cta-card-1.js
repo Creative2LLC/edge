@@ -1,0 +1,636 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  getAueResourcePath,
+  getBlockRows,
+  readAueResourceFields,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import {
+  BUTTON_STYLES,
+  applyButtonStyle,
+  cleanButtonLabel,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+  resolveExplicitButtonStyle,
+} from '../../scripts/button-utils.js';
+
+// Hex-color select fields never get data-aue-prop instrumentation in the editor, so their
+// positional fallback is only as reliable as the fixed index it's given — which breaks
+// whenever an EARLIER field (even a non-color one) has no row of its own and everything
+// after it shifts. A resource JSON fetch, keyed by field name, sidesteps row position
+// entirely and is the authoritative correction. Matches the pattern in cards.js /
+// info-cards-grid.js / connect-grid.js.
+const COLOR_FIELD_NAMES = ['gradientLeft', 'gradientRight', 'buttonColor', 'buttonTextColor', 'button2Color', 'button2BackgroundColor'];
+
+function isValidHexColor(value) {
+  return /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim());
+}
+
+// The button colour pickers are now style dropdowns, so a published colour slot may
+// hold a style word. It counts like a colour there, keeping every later field in place.
+function isButtonColorSlotValue(value) {
+  return isValidHexColor(value)
+    || BUTTON_STYLES.includes(String(value || '').trim().toLowerCase());
+}
+
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function fieldText(row) {
+  return fieldCell(row)?.textContent?.trim() || '';
+}
+
+function isButtonLocation(value) {
+  return /^(?:left|right)$/i.test(String(value || '').trim());
+}
+
+function isStyleType(value) {
+  return /^variant-[1-4]$/i.test(String(value || '').trim());
+}
+
+function isTextFieldValue(value) {
+  return Boolean(value)
+    && !isValidHexColor(value)
+    && !isButtonLocation(value)
+    && !isStyleType(value)
+    && !BUTTON_STYLES.includes(String(value).trim().toLowerCase());
+}
+
+function rowAt(rows, index) {
+  return index >= 0 && index < rows.length ? fieldCell(rows[index]) : null;
+}
+
+function lastIndexBefore(values, beforeIndex, predicate) {
+  for (let index = beforeIndex - 1; index >= 0; index -= 1) {
+    if (predicate(values[index])) return index;
+  }
+  return -1;
+}
+
+function findButton2TextCell(rows, values, startIndex, endIndex) {
+  for (let index = startIndex; index < endIndex; index += 1) {
+    const value = values[index];
+    const remainingTextValues = values
+      .slice(index + 1, endIndex)
+      .filter(isTextFieldValue);
+    const isValidButtonText = isTextFieldValue(value)
+      && !isButtonLocation(value)
+      && !isStyleType(value)
+      && !remainingTextValues.length;
+    if (isValidButtonText) return rowAt(rows, index);
+  }
+  return null;
+}
+
+// _cta-card-1.json's fields in order. A block published from this model keeps a row for
+// every field, empty ones included.
+const CURRENT_FIELD_ORDER = [
+  'title', 'subtitle', 'belowButtonText', 'gradientLeft', 'gradientRight',
+  'buttonText', 'buttonLink', 'buttonColor', 'buttonTextColor', 'buttonSubtext',
+  'button2Text', 'button2Link', 'button2Color', 'button2BackgroundColor', 'button2Subtext',
+  'button2Location', 'button3Text', 'button3Link', 'styleType',
+];
+
+// Older revisions also published 19 rows, in another order, so the count alone is not
+// proof: every setting slot must be empty or hold that setting's kind of value.
+function fitsCurrentFieldOrder(values) {
+  if (values.length !== CURRENT_FIELD_ORDER.length) return false;
+  const slot = (name) => values[CURRENT_FIELD_ORDER.indexOf(name)];
+  const emptyOr = (name, predicate) => !slot(name) || predicate(slot(name));
+  const isLink = (value) => !isValidHexColor(value);
+  return emptyOr('gradientLeft', isValidHexColor)
+    && emptyOr('gradientRight', isValidHexColor)
+    && emptyOr('buttonLink', isLink)
+    && emptyOr('buttonColor', isButtonColorSlotValue)
+    && emptyOr('buttonTextColor', isValidHexColor)
+    && emptyOr('button2Link', isLink)
+    && emptyOr('button2Color', isButtonColorSlotValue)
+    && emptyOr('button2BackgroundColor', isValidHexColor)
+    && emptyOr('button2Location', isButtonLocation)
+    && emptyOr('button3Link', isLink)
+    && emptyOr('styleType', isStyleType);
+}
+
+function readPublishedFallbackCells(rows) {
+  // A card published from the current model: read by position. The guesses below assume
+  // older pages that dropped empty rows; on a current card with no gradient they took an
+  // empty row for the button label and the link row for a second button.
+  if (fitsCurrentFieldOrder(rows.map(fieldText))) {
+    return Object.fromEntries(CURRENT_FIELD_ORDER.map((name, index) => [name, rowAt(rows, index)]));
+  }
+
+  const values = rows.map(fieldText);
+  const cells = {};
+  let index = 0;
+
+  cells.title = rowAt(rows, index);
+  index += 1;
+  cells.subtitle = rowAt(rows, index);
+  index += 1;
+
+  // Optional rich text rows are omitted from published markup when empty. Only consume
+  // belowButtonText when it is followed by the color run that starts the background fields;
+  // otherwise the first button label would be mistaken for below-button copy on simpler cards.
+  if (
+    values[index]
+    && !isValidHexColor(values[index])
+    && (isValidHexColor(values[index + 1]) || isValidHexColor(values[index + 2]))
+  ) {
+    cells.belowButtonText = rowAt(rows, index);
+    index += 1;
+  } else if (
+    !values[index]
+    && isValidHexColor(values[index + 1])
+    && isValidHexColor(values[index + 2])
+  ) {
+    // ...but on the current model an EMPTY belowButtonText keeps its row. Left in place,
+    // it shifted every button field by one: the gradient hex was read as the button
+    // style, so the button fell back to Primary blue on the published page while the
+    // editor (which reads by name) showed the authored style. Two gradient stops must
+    // follow, so a lone empty gradientLeft on an older page is not mistaken for it.
+    index += 1;
+  }
+
+  if (isValidHexColor(values[index])) {
+    cells.gradientLeft = rowAt(rows, index);
+    index += 1;
+  }
+  if (isValidHexColor(values[index])) {
+    cells.gradientRight = rowAt(rows, index);
+    index += 1;
+  }
+
+  cells.buttonText = rowAt(rows, index);
+  index += 1;
+  cells.buttonLink = rowAt(rows, index);
+  index += 1;
+
+  if (isButtonColorSlotValue(values[index])) {
+    cells.buttonColor = rowAt(rows, index);
+    index += 1;
+  }
+  if (isValidHexColor(values[index])) {
+    cells.buttonTextColor = rowAt(rows, index);
+    index += 1;
+  }
+
+  const styleIndex = lastIndexBefore(values, values.length, isStyleType);
+  if (styleIndex >= 0) cells.styleType = rowAt(rows, styleIndex);
+
+  const fullTailLocationIndex = index + 6;
+  const fullTailStyleIndex = index + 10;
+  const hasFullTailLayout = isButtonLocation(values[fullTailLocationIndex])
+    || isStyleType(values[fullTailStyleIndex]);
+
+  if (hasFullTailLayout) {
+    if (isTextFieldValue(values[index])) cells.buttonSubtext = rowAt(rows, index);
+    if (isTextFieldValue(values[index + 1])) cells.button2Text = rowAt(rows, index + 1);
+    if (values[index + 2]) cells.button2Link = rowAt(rows, index + 2);
+    if (isButtonColorSlotValue(values[index + 3])) cells.button2Color = rowAt(rows, index + 3);
+    if (isValidHexColor(values[index + 4])) {
+      cells.button2BackgroundColor = rowAt(rows, index + 4);
+    }
+    if (isTextFieldValue(values[index + 5])) cells.button2Subtext = rowAt(rows, index + 5);
+    if (isButtonLocation(values[fullTailLocationIndex])) {
+      cells.button2Location = rowAt(rows, fullTailLocationIndex);
+    }
+    if (isTextFieldValue(values[index + 7])) cells.belowButtonText = rowAt(rows, index + 7);
+    if (isTextFieldValue(values[index + 8])) cells.button3Text = rowAt(rows, index + 8);
+    if (values[index + 9]) cells.button3Link = rowAt(rows, index + 9);
+    if (isStyleType(values[fullTailStyleIndex])) cells.styleType = rowAt(rows, fullTailStyleIndex);
+    return cells;
+  }
+
+  const tailEnd = styleIndex >= 0 ? styleIndex : values.length;
+  const locationIndex = lastIndexBefore(values, tailEnd, isButtonLocation);
+  if (locationIndex >= 0) cells.button2Location = rowAt(rows, locationIndex);
+
+  let beforeLocation = locationIndex >= 0 ? locationIndex : tailEnd;
+
+  const textBeforeLocation = [];
+  for (
+    let textIndex = beforeLocation - 1;
+    textIndex >= index && isTextFieldValue(values[textIndex]);
+    textIndex -= 1
+  ) {
+    textBeforeLocation.unshift(textIndex);
+  }
+
+  if (textBeforeLocation.length > 1 && !cells.belowButtonText) {
+    const belowIndex = textBeforeLocation[textBeforeLocation.length - 1];
+    cells.belowButtonText = rowAt(rows, belowIndex);
+    beforeLocation = belowIndex;
+  }
+
+  if (!cells.button2Text) {
+    cells.button2Text = findButton2TextCell(rows, values, index, beforeLocation);
+  }
+
+  if (beforeLocation > index && !isButtonColorSlotValue(values[beforeLocation - 1])) {
+    cells.button2Subtext = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 1;
+  }
+  if (beforeLocation > index && isValidHexColor(values[beforeLocation - 1])) {
+    cells.button2BackgroundColor = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 1;
+  }
+  if (beforeLocation > index && isButtonColorSlotValue(values[beforeLocation - 1])) {
+    cells.button2Color = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 1;
+  }
+  if (beforeLocation - index >= 2) {
+    if (!cells.button2Text) cells.button2Text = rowAt(rows, beforeLocation - 2);
+    cells.button2Link = rowAt(rows, beforeLocation - 1);
+    beforeLocation -= 2;
+  }
+  if (beforeLocation > index) {
+    cells.buttonSubtext = rowAt(rows, index);
+  }
+
+  if (locationIndex >= 0 && styleIndex > locationIndex) {
+    const afterLocation = locationIndex + 1;
+    if (values[styleIndex].toLowerCase() === 'variant-4') {
+      if (afterLocation < styleIndex) cells.button3Text = rowAt(rows, afterLocation);
+      if (afterLocation + 1 < styleIndex) cells.button3Link = rowAt(rows, afterLocation + 1);
+    } else if (!cells.belowButtonText) {
+      const belowIndex = values.findIndex((value, valueIndex) => (
+        valueIndex >= afterLocation
+          && valueIndex < styleIndex
+          && isTextFieldValue(value)
+      ));
+      if (belowIndex >= 0) cells.belowButtonText = rowAt(rows, belowIndex);
+    }
+  }
+
+  if (!cells.belowButtonText && locationIndex >= 0) {
+    const afterLocation = locationIndex + 1;
+    const scanEnd = styleIndex > locationIndex ? styleIndex : values.length;
+    const belowIndex = values.findIndex((value, valueIndex) => (
+      valueIndex >= afterLocation
+        && valueIndex < scanEnd
+        && isTextFieldValue(value)
+    ));
+    if (belowIndex >= 0) cells.belowButtonText = rowAt(rows, belowIndex);
+  }
+
+  if (!cells.belowButtonText && styleIndex >= 0) {
+    const belowIndex = values.findIndex((value, valueIndex) => (
+      valueIndex > styleIndex && isTextFieldValue(value)
+    ));
+    if (belowIndex >= 0) cells.belowButtonText = rowAt(rows, belowIndex);
+  }
+
+  return cells;
+}
+
+// Fields with no authored value frequently don't get their own row in the exported
+// markup at all, so a positional fallback can silently grab a completely different
+// field's value. In the editor, named data-aue-prop lookup is reliable whenever a
+// field actually has content, so a failed name lookup there means the field is
+// genuinely empty — never fall back to a position guess in that case. Positional
+// fallback is only meaningful on true published pages (see cards.js /
+// colored-icon-text.js for the same pattern).
+function getField(block, name, fallbackCell, isEditor) {
+  return readTextField(block, name, { fallbackCell: isEditor ? null : fallbackCell });
+}
+
+// Hex-color "select" fields (regex-validated) render in the editor as a bare
+// <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
+// unlike every other field type, which does get real instrumentation whenever it has
+// content. Name-based lookup can never succeed for these, so unlike getField above,
+// positional fallback must stay enabled in the editor too, or these fields always read
+// empty (this caused a live regression: color pickers falling back to defaults because
+// the field could never be read in the editor).
+function getColorField(block, name, fallbackCell) {
+  return readTextField(block, name, { fallbackCell });
+}
+
+function getRichField(block, name, fallbackCell, isEditor) {
+  return readRichTextField(block, name, { fallbackCell: isEditor ? null : fallbackCell });
+}
+
+function getLinkField(block, name, fallbackCell, isEditor) {
+  return readLinkField(block, name, { fallbackCell: isEditor ? null : fallbackCell });
+}
+
+function directRowOf(block, element) {
+  let row = element;
+  while (row && row.parentElement !== block) {
+    row = row.parentElement;
+  }
+  return row && row.parentElement === block ? row : null;
+}
+
+// Hides (in the editor) rather than removes a field's row/source — permanently
+// removing an aue-tracked node that was never moveInstrumentation'd elsewhere
+// desyncs Universal Editor's resource tree from the DOM and breaks live-patching
+// of that field on the next decoration pass (see cards.js's readSetting for the
+// same pattern). Hidden nodes get swept into an archive before the final
+// block.replaceChildren() call so they survive being detached from `block`.
+function removeOrHideField(block, source, isEditor) {
+  if (!source) return;
+  const row = directRowOf(block, source) || source;
+  if (isEditor) row.hidden = true;
+  else row.remove();
+}
+
+function buildTextElement(tag, className, field) {
+  if (!field?.value && !field?.source?.childNodes?.length) return null;
+  const el = document.createElement(tag);
+  el.className = className;
+  if (field.source) {
+    moveInstrumentation(field.source, el);
+    while (field.source.firstChild) el.append(field.source.firstChild);
+    field.source.remove();
+  } else {
+    el.textContent = field.value;
+  }
+  return el;
+}
+
+function buildRichTextElement(tag, className, field) {
+  if (!field?.html && !field?.source?.childNodes?.length) return null;
+  const el = document.createElement(tag);
+  el.className = className;
+  if (field.source) {
+    moveInstrumentation(field.source, el);
+    while (field.source.firstChild) el.append(field.source.firstChild);
+    field.source.remove();
+  } else if (field.html) {
+    el.innerHTML = field.html;
+  } else {
+    el.textContent = field.text || '';
+  }
+  return el;
+}
+
+// Corrects color fields using the resource's own JSON (keyed by field name, so it's
+// immune to the row-position drift that breaks positional fallback). Fires after the
+// block already rendered with its best synchronous guess; only touches fields the fetch
+// actually returned a valid hex value for, so a malformed/unexpected API response can't
+// corrupt an already-correct render.
+// Buttons take their dark form when the gradient behind them is dark.
+function markSurfaces(block, leftColor, rightColor) {
+  markButtonSurface(block.querySelector('.cta-card-1-left'), isDarkSurface(leftColor));
+  markButtonSurface(block.querySelector('.cta-card-1-right'), isDarkSurface(rightColor));
+}
+
+// Button 2's first picker is now its style dropdown, and a style picked there wins.
+// Otherwise button 2 was an outline unless an author gave it a fill: a missing, white
+// or transparent fill stays Secondary; any other fill picks the nearest style.
+function secondaryButtonStyle(backgroundColor, style = '') {
+  const picked = resolveExplicitButtonStyle(style, '');
+  if (picked) return picked;
+  const value = String(backgroundColor || '').trim().toLowerCase();
+  if (!value || ['#fff', '#ffffff', 'transparent'].includes(value)) return 'secondary';
+  return resolveButtonStyle(value, 'secondary');
+}
+
+function syncColors(block, defaultLeftColor, defaultRightColor) {
+  const resourcePath = getAueResourcePath(block);
+  if (!resourcePath) return;
+
+  readAueResourceFields(resourcePath, COLOR_FIELD_NAMES)
+    .then((fields) => {
+      Object.keys(fields).forEach((key) => {
+        if (!isButtonColorSlotValue(fields[key])) delete fields[key];
+      });
+      if (!Object.keys(fields).length) return;
+
+      if (fields.gradientLeft || fields.gradientRight) {
+        const leftColor = fields.gradientLeft || defaultLeftColor;
+        const rightColor = fields.gradientRight || defaultRightColor;
+        block.style.setProperty('background', `linear-gradient(to right, ${leftColor}, ${rightColor})`, 'important');
+        markSurfaces(block, leftColor, rightColor);
+      }
+
+      // Colours only choose the style now; the look comes from the button standard.
+      const primaryBtn = block.querySelector(
+        '.cta-card-1-button:not(.cta-card-1-button-secondary):not(.cta-card-1-button-tertiary)',
+      );
+      if (primaryBtn && fields.buttonColor) {
+        applyButtonStyle(primaryBtn, resolveButtonStyle(fields.buttonColor));
+      }
+
+      const secondaryBtn = block.querySelector('.cta-card-1-button-secondary');
+      if (secondaryBtn && (fields.button2Color || fields.button2BackgroundColor)) {
+        applyButtonStyle(
+          secondaryBtn,
+          secondaryButtonStyle(fields.button2BackgroundColor, fields.button2Color),
+        );
+      }
+    });
+}
+
+export default function decorate(block) {
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  const rows = getBlockRows(block);
+  const publishedCells = isEditor ? {} : readPublishedFallbackCells(rows);
+  const fallbackCell = (name, index) => (
+    isEditor ? fieldCell(rows[index]) : publishedCells[name] || null
+  );
+
+  // Indices below match _cta-card-1.json's ACTUAL current field order (fields were
+  // regrouped under UI tabs by a later commit — belowButtonText was pulled to the front
+  // of the Content tab, right after subtitle, shifting every button field after it).
+  const titleField = getField(block, 'title', fallbackCell('title', 0), isEditor);
+  const subtitleField = getRichField(block, 'subtitle', fallbackCell('subtitle', 1), isEditor);
+  const belowButtonTextField = getRichField(
+    block,
+    'belowButtonText',
+    fallbackCell('belowButtonText', 2),
+    isEditor,
+  );
+  const gradientLeftField = getColorField(block, 'gradientLeft', fallbackCell('gradientLeft', 3));
+  const gradientRightField = getColorField(block, 'gradientRight', fallbackCell('gradientRight', 4));
+  const buttonTextField = getField(block, 'buttonText', fallbackCell('buttonText', 5), isEditor);
+  const buttonLinkField = getLinkField(block, 'buttonLink', fallbackCell('buttonLink', 6), isEditor);
+  const buttonColorField = getColorField(block, 'buttonColor', fallbackCell('buttonColor', 7));
+  const buttonSubtextField = getField(block, 'buttonSubtext', fallbackCell('buttonSubtext', 9), isEditor);
+  const button2TextField = getField(block, 'button2Text', fallbackCell('button2Text', 10), isEditor);
+  const button2LinkField = getLinkField(block, 'button2Link', fallbackCell('button2Link', 11), isEditor);
+  const button2ColorField = getColorField(block, 'button2Color', fallbackCell('button2Color', 12));
+  const button2BackgroundColorField = getColorField(
+    block,
+    'button2BackgroundColor',
+    fallbackCell('button2BackgroundColor', 13),
+  );
+  const button2SubtextField = getField(block, 'button2Subtext', fallbackCell('button2Subtext', 14), isEditor);
+  const button2LocationField = getField(block, 'button2Location', fallbackCell('button2Location', 15), isEditor);
+  const button3TextField = getField(block, 'button3Text', fallbackCell('button3Text', 16), isEditor);
+  const button3LinkField = getLinkField(block, 'button3Link', fallbackCell('button3Link', 17), isEditor);
+  const styleTypeField = getField(block, 'styleType', fallbackCell('styleType', 18), isEditor);
+  const button2Location = button2LocationField.value.toLowerCase() === 'left' ? 'left' : 'right';
+  if (button2Location === 'left') block.classList.add('cta-card-1-button2-left');
+  removeOrHideField(block, button2LocationField.source, isEditor);
+
+  const styleType = styleTypeField.value.toLowerCase();
+  if (styleType === 'variant-2') {
+    block.classList.add('cta-card-1-variant-2');
+  } else if (styleType === 'variant-3') {
+    block.classList.add('cta-card-1-variant-3');
+  } else if (styleType === 'variant-4') {
+    block.classList.add('cta-card-1-variant-4');
+  }
+  removeOrHideField(block, styleTypeField.source, isEditor);
+
+  // Apply gradient background
+  const leftColor = gradientLeftField.value || '#ffffff';
+  const rightColor = gradientRightField.value || '#ffffff';
+  block.style.setProperty('background', `linear-gradient(to right, ${leftColor}, ${rightColor})`, 'important');
+
+  // Build inner layout
+  const left = document.createElement('div');
+  left.className = 'cta-card-1-left';
+
+  const title = buildTextElement('h2', 'cta-card-1-title', titleField);
+  if (title) left.append(title);
+
+  const subtitle = buildRichTextElement('div', 'cta-card-1-subtitle', subtitleField);
+  if (subtitle) left.append(subtitle);
+
+  // Third button (Variant 4 only) — outlined, sits under the subtitle on the left.
+  const btn3Label = button3TextField.value;
+  const btn3Href = button3LinkField.value;
+  if (styleType === 'variant-4' && btn3Label) {
+    const btn3 = document.createElement(btn3Href ? 'a' : 'button');
+    btn3.className = 'cta-card-1-button cta-card-1-button-tertiary';
+    if (btn3Href) btn3.href = btn3Href;
+    if (!btn3Href) btn3.type = 'button';
+    if (button3TextField.source) {
+      moveInstrumentation(button3TextField.source, btn3);
+      button3TextField.source.remove();
+    }
+    btn3.textContent = cleanButtonLabel(btn3Label);
+    // Was an outlined red link; the closest standard style is Secondary.
+    applyButtonStyle(btn3, 'secondary');
+    left.append(btn3);
+  } else {
+    removeOrHideField(block, button3TextField.source, isEditor);
+  }
+  removeOrHideField(block, button3LinkField.source, isEditor);
+
+  // Right side
+  const right = document.createElement('div');
+  right.className = 'cta-card-1-right';
+
+  const btnLabel = buttonTextField.value || 'Learn More';
+  const btnHref = buttonLinkField.value;
+  const btnSubtext = buttonSubtextField.value;
+  const btn = document.createElement(btnHref ? 'a' : 'button');
+  btn.className = 'cta-card-1-button';
+  if (btnHref) btn.href = btnHref;
+  if (!btnHref) btn.type = 'button';
+  if (buttonTextField.source) {
+    moveInstrumentation(buttonTextField.source, btn);
+    buttonTextField.source.remove();
+  }
+
+  if (btnSubtext) {
+    btn.classList.add('has-subtext');
+    const mainSpan = document.createElement('span');
+    mainSpan.className = 'cta-card-1-button-main';
+    mainSpan.textContent = cleanButtonLabel(btnLabel);
+    const subSpan = document.createElement('span');
+    subSpan.className = 'cta-card-1-button-subtext';
+    subSpan.textContent = btnSubtext;
+    if (buttonSubtextField.source) {
+      moveInstrumentation(buttonSubtextField.source, subSpan);
+      buttonSubtextField.source.remove();
+    }
+    btn.append(mainSpan, subSpan);
+  } else {
+    btn.textContent = cleanButtonLabel(btnLabel);
+  }
+
+  // The look comes from the button standard; the old colour picker only chooses the style
+  // (red -> Emergency for the "Call 911" cards).
+  applyButtonStyle(btn, resolveButtonStyle(buttonColorField.value));
+  right.append(btn);
+
+  // Second button (optional — outline style)
+  const btn2Label = button2TextField.value;
+  const btn2Href = button2LinkField.value;
+  if (btn2Label) {
+    const btn2 = document.createElement(btn2Href ? 'a' : 'button');
+    btn2.className = 'cta-card-1-button cta-card-1-button-secondary';
+    if (btn2Href) btn2.href = btn2Href;
+    if (!btn2Href) btn2.type = 'button';
+    if (button2TextField.source) {
+      moveInstrumentation(button2TextField.source, btn2);
+      button2TextField.source.remove();
+    }
+
+    const btn2Subtext = button2SubtextField.value;
+    if (btn2Subtext) {
+      btn2.classList.add('has-subtext');
+      const mainSpan = document.createElement('span');
+      mainSpan.className = 'cta-card-1-button-main';
+      mainSpan.textContent = cleanButtonLabel(btn2Label);
+      const subSpan = document.createElement('span');
+      subSpan.className = 'cta-card-1-button-subtext';
+      subSpan.textContent = btn2Subtext;
+      if (button2SubtextField.source) {
+        moveInstrumentation(button2SubtextField.source, subSpan);
+        button2SubtextField.source.remove();
+      }
+      btn2.append(mainSpan, subSpan);
+    } else {
+      btn2.textContent = cleanButtonLabel(btn2Label);
+    }
+
+    applyButtonStyle(
+      btn2,
+      secondaryButtonStyle(button2BackgroundColorField.value, button2ColorField.value),
+    );
+    if (button2Location === 'left') left.append(btn2);
+    else right.append(btn2);
+  }
+
+  // Clean up button2Link source
+  removeOrHideField(block, button2LinkField.source, isEditor);
+
+  // On the published page (no field instrumentation) the styleType select value
+  // can leak into this slot via positional fallback — never render a bare
+  // "variant-N" keyword as the below-button caption.
+  if (/^variant-\d+$/i.test((belowButtonTextField.text || '').trim())) {
+    belowButtonTextField.html = '';
+    belowButtonTextField.source = null;
+  }
+  const belowText = buildRichTextElement('div', 'cta-card-1-below-button', belowButtonTextField);
+  if (belowText) {
+    if (button2Location === 'left') {
+      right.classList.add('cta-card-1-right-inline');
+      right.append(belowText);
+    } else {
+      right.append(belowText);
+    }
+  }
+
+  // Clean up buttonLink source
+  removeOrHideField(block, buttonLinkField.source, isEditor);
+
+  // Rows hidden above (instead of removed) need to survive replaceChildren to stay
+  // live-trackable by Universal Editor — collect them into a hidden archive appended
+  // alongside the real content, matching cards.js / colored-icon-text.js / hero.js.
+  const hiddenRows = [...block.querySelectorAll(':scope > div[hidden]')];
+  if (hiddenRows.length) {
+    const archive = document.createElement('span');
+    archive.hidden = true;
+    hiddenRows.forEach((row) => archive.append(row));
+    block.replaceChildren(left, right, archive);
+  } else {
+    block.replaceChildren(left, right);
+  }
+
+  markSurfaces(block, leftColor, rightColor);
+
+  if (isEditor) {
+    syncColors(block, leftColor, rightColor);
+  }
+}

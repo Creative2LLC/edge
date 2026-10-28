@@ -1,0 +1,664 @@
+/* Block root */
+.text-image.block {
+  --text-image-reveal-duration: 0.58s;
+  --text-image-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Break out of section wrapper's 32px horizontal padding so the block fills
+   the full 1420px section width on desktop. Applies to all variants. */
+
+/* 497px is a floor, not a cap: a fixed height cut long copy off at the bottom. */
+.text-image.block .text-image-inner {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-height: 497px;
+  overflow-x: clip;
+}
+
+.text-image.block .text-image-content {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 85px;
+  box-sizing: border-box;
+}
+
+.text-image.block .text-image-subhead {
+  margin: 0 0 20px;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-strong);
+  line-height: 1.2;
+  color: #6b6b6f;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--text-image-reveal-duration) var(--text-image-reveal-ease),
+    transform var(--text-image-reveal-duration) var(--text-image-reveal-ease);
+}
+
+.text-image.block .text-image-heading {
+  margin: 0 0 24px;
+  color: #00264d;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--text-image-reveal-duration) var(--text-image-reveal-ease),
+    transform var(--text-image-reveal-duration) var(--text-image-reveal-ease);
+  transition-delay: 70ms;
+}
+
+.text-image.block .text-image-body {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  text-align: left;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--text-image-reveal-duration) var(--text-image-reveal-ease),
+    transform var(--text-image-reveal-duration) var(--text-image-reveal-ease);
+  transition-delay: 140ms;
+}
+
+.text-image.block .text-image-body > :first-child {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.text-image.block .text-image-body > :last-child {
+  margin-bottom: 0;
+}
+
+.text-image.block .text-image-body > * + * {
+  margin-top: 32px;
+}
+
+.text-image.block .text-image-body p,
+.text-image.block .text-image-body ul,
+.text-image.block .text-image-body ol {
+  margin: 0;
+}
+
+.text-image.block .text-image-body ul,
+.text-image.block .text-image-body ol {
+  padding-left: 1.25em;
+}
+
+/* CTA: styled by the button standard in styles/styles.css. This keeps its place and
+   the reveal; the delay sits on the reveal only, so hover stays immediate. */
+.text-image.block .text-image-cta {
+  margin-top: 32px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--text-image-reveal-duration) var(--text-image-reveal-ease) 210ms,
+    transform var(--text-image-reveal-duration) var(--text-image-reveal-ease) 210ms,
+    var(--button-transition);
+}
+
+.text-image.block .text-image-cta-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-image.block .text-image-media {
+  position: relative;
+  flex: 1 1 0%;
+  opacity: 0;
+  transform: translateX(34px) scale(0.985);
+  transition:
+    opacity calc(var(--text-image-reveal-duration) + 0.04s) var(--text-image-reveal-ease),
+    transform calc(var(--text-image-reveal-duration) + 0.04s) var(--text-image-reveal-ease);
+  transition-delay: 110ms;
+}
+
+.text-image.block .text-image-media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.text-image.block .text-image-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* Default / Image Left: the copy sets the row height and the image fills it, so a
+   tall image can't stretch the card on its own. */
+@media (width > 900px) {
+  .text-image.block:not([class*='text-image-variant-']) .text-image-media picture {
+    position: absolute;
+    inset: 0;
+  }
+}
+
+.text-image.block .text-image-overlay {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  max-width: min(280px, calc(100% - 36px));
+  max-height: calc(100% - 36px);
+  overflow: hidden;
+  padding: 26px 24px;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 78%) 0%, rgb(247 240 231 / 74%) 100%);
+  box-shadow: 0 18px 42px rgb(0 0 0 / 16%);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  transform: translateY(18px) scale(0.97);
+  transition:
+    opacity 0.45s var(--text-image-reveal-ease),
+    transform 0.45s var(--text-image-reveal-ease);
+  transition-delay: 260ms;
+}
+
+.text-image.block .text-image-overlay-header {
+  margin: 0 0 8px;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-bold);
+  line-height: 1.15;
+  color: #163b61;
+}
+
+.text-image.block .text-image-overlay-text {
+  margin: 0;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-strong);
+  line-height: 1.2;
+  color: #163b61;
+}
+
+.text-image.block .text-image-overlay.text-small .text-image-overlay-header {
+  font-size: var(--deck-size);
+}
+
+.text-image.block .text-image-overlay.text-small .text-image-overlay-text {
+  font-size: var(--body-size);
+}
+
+@media (width <= 900px) {
+  .text-image.block .text-image-inner {
+    flex-direction: column;
+    gap: 32px;
+    height: auto;
+    min-height: 0;
+  }
+
+  .text-image.block .text-image-content {
+    flex: none;
+    width: 100%;
+    padding: 48px 24px;
+  }
+
+  .text-image.block .text-image-subhead {
+    margin-bottom: 16px;
+  }
+
+  .text-image.block .text-image-body > * + * {
+    margin-top: 24px;
+  }
+
+  .text-image.block .text-image-cta {
+    margin-top: 28px;
+  }
+
+  .text-image.block .text-image-media {
+    flex: none;
+    width: 100%;
+  }
+
+  .text-image.block .text-image-media picture {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 459 / 400;
+  }
+
+  .text-image.block .text-image-media img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .text-image.block .text-image-overlay {
+    right: 14px;
+    bottom: 14px;
+    max-width: min(270px, calc(100% - 28px));
+    max-height: calc(100% - 28px);
+    padding: 24px 20px;
+  }
+
+  .text-image.block .text-image-overlay-header {
+    font-size: var(--deck-size);
+  }
+
+  .text-image.block .text-image-overlay.text-small .text-image-overlay-header {
+    font-size: var(--body-lg-size);
+  }
+}
+
+@media (width <= 600px) {
+  .text-image.block .text-image-overlay {
+    right: 12px;
+    bottom: 12px;
+    max-width: calc(100% - 24px);
+    max-height: calc(100% - 24px);
+    padding: 18px 16px;
+  }
+
+  .text-image.block .text-image-overlay-header {
+    font-size: var(--body-lg-size);
+  }
+
+  .text-image.block .text-image-overlay.text-small .text-image-overlay-header {
+    font-size: var(--body-size);
+  }
+
+  .text-image.block .text-image-overlay.text-small .text-image-overlay-text {
+    font-size: var(--body-sm-size);
+  }
+}
+
+.text-image.block.is-visible .text-image-subhead,
+.text-image.block.is-visible .text-image-heading,
+.text-image.block.is-visible .text-image-body,
+.text-image.block.is-visible .text-image-cta,
+.text-image.block.is-visible .text-image-media,
+.text-image.block.is-visible .text-image-overlay {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-image.block .text-image-subhead,
+  .text-image.block .text-image-heading,
+  .text-image.block .text-image-body,
+  .text-image.block .text-image-cta,
+  .text-image.block .text-image-media,
+  .text-image.block .text-image-overlay {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------- Style Variant: Image Left ---------- */
+
+.text-image.block.text-image-image-left .text-image-inner {
+  flex-direction: row-reverse;
+}
+
+@media (width <= 900px) {
+  .text-image.block.text-image-image-left .text-image-inner {
+    flex-direction: column;
+  }
+}
+
+/* ---------- Style Variant 2 ---------- */
+
+.text-image.block.text-image-variant-2 {
+  border-radius: 0;
+  overflow: visible;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-2 .text-image-inner {
+  align-items: flex-start;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-2 .text-image-content {
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-2 .text-image-subhead {
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-strong);
+  color: var(--ncmec-gray-dark);
+}
+
+.text-image.block.text-image-variant-2 .text-image-heading {
+  max-width: 700px;
+  font-size: var(--heading-2-size);
+}
+
+.text-image.block.text-image-variant-2 .text-image-body {
+  max-width: 700px;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+}
+
+/* Prose paragraph spacing for variant 2: every paragraph / list / element
+   pair gets a consistent gap and the body grows freely with content,
+   instead of the base block's fixed 32px + first-child override which
+   produces uneven gaps between authored paragraphs. */
+.text-image.block.text-image-variant-2 .text-image-body,
+.text-image.block.text-image-variant-2 .text-image-body * {
+  max-height: none;
+  overflow: visible;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body > :first-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body > * + * {
+  margin-top: 1em;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body p,
+.text-image.block.text-image-variant-2 .text-image-body ul,
+.text-image.block.text-image-variant-2 .text-image-body ol {
+  margin: 0;
+}
+
+.text-image.block.text-image-variant-2 .text-image-body p + p {
+  margin-top: 1em;
+}
+
+.text-image.block.text-image-variant-2 .text-image-media {
+  flex: 0 0 459px;
+  width: 459px;
+  height: 400px;
+}
+
+.text-image.block.text-image-variant-2 .text-image-media picture {
+  border-radius: 14px;
+}
+
+/* The editorial copy in Variant 2 can be substantially longer than a
+   standard card. Stack it before the two columns become visually crowded on
+   small desktops. */
+@media (width <= 1100px) {
+  .text-image.block.text-image-variant-2 .text-image-inner {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .text-image.block.text-image-variant-2 .text-image-content {
+    width: 100%;
+  }
+
+  .text-image.block.text-image-variant-2 .text-image-media {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+
+  .text-image.block.text-image-variant-2 .text-image-media picture {
+    aspect-ratio: 459 / 400;
+  }
+}
+
+@media (width <= 900px) {
+  .text-image.block.text-image-variant-2 .text-image-content {
+    padding: 48px 24px;
+  }
+
+  .text-image.block.text-image-variant-2 .text-image-media {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* ---------- Style Variant 3 ---------- */
+
+.text-image.block.text-image-variant-3 {
+  border-radius: 0;
+  overflow: visible;
+}
+
+.text-image.block.text-image-variant-3 .text-image-inner {
+  align-items: center;
+  height: auto;
+  min-height: 0;
+}
+
+.text-image.block.text-image-variant-3 .text-image-content {
+  padding: 0;
+}
+
+.text-image.block.text-image-variant-3 .text-image-heading {
+  max-width: 658px;
+  font-size: var(--heading-1-size);
+}
+
+.text-image.block.text-image-variant-3 .text-image-body {
+  max-width: 658px;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  text-align: left;
+}
+
+.text-image.block.text-image-variant-3 .text-image-media {
+  flex: 0 0 623px;
+  max-width: 623px;
+  height: 524px;
+  max-height: 524px;
+}
+
+.text-image.block.text-image-variant-3 .text-image-media picture {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.text-image.block.text-image-variant-3 .text-image-media img {
+  border-radius: 14px;
+}
+
+.text-image.block.text-image-variant-3 .text-image-overlay {
+  inset: auto auto 40px 40px;
+  max-width: min(320px, calc(100% - 80px));
+  max-height: calc(100% - 80px);
+  border-radius: 8px;
+}
+
+.text-image.block.text-image-variant-3 .text-image-overlay .text-image-overlay-text {
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+}
+
+.text-image.block.text-image-variant-3 .text-image-overlay .text-image-overlay-text p {
+  margin: 0;
+  min-height: 1.2em;
+}
+
+.text-image.block.text-image-variant-3 .text-image-overlay-subtext {
+  margin: 12px 0 0;
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-strong);
+  line-height: var(--caption-line-height);
+  color: var(--ncmec-gray-dark);
+}
+
+@media (width <= 900px) {
+  .text-image.block.text-image-variant-3 .text-image-content {
+    padding: 48px 24px;
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-media {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-overlay {
+    bottom: 16px;
+    left: 16px;
+    max-width: min(280px, calc(100% - 32px));
+    max-height: calc(100% - 32px);
+  }
+}
+
+/* ---------- Style Variant 4 ---------- */
+
+.text-image.block.text-image-variant-4 {
+  border-radius: 0;
+  overflow: visible;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-4 .text-image-inner {
+  align-items: flex-start;
+  gap: 48px;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-4 .text-image-content {
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.text-image.block.text-image-variant-4 .text-image-subhead {
+  max-width: 662px;
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-strong);
+  color: var(--ncmec-gray-dark);
+}
+
+.text-image.block.text-image-variant-4 .text-image-heading {
+  max-width: 662px;
+  font-size: var(--heading-2-size);
+}
+
+.text-image.block.text-image-variant-4 .text-image-body {
+  max-width: 662px;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.text-image.block.text-image-variant-4 .text-image-body,
+.text-image.block.text-image-variant-4 .text-image-body * {
+  max-height: none;
+  overflow: visible;
+}
+
+.text-image.block.text-image-variant-4 .text-image-body > :first-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.text-image.block.text-image-variant-4 .text-image-body > * + * {
+  margin-top: 1em;
+}
+
+.text-image.block.text-image-variant-4 .text-image-media {
+  flex: 0 0 662px;
+  max-width: 662px;
+  height: 565px;
+}
+
+.text-image.block.text-image-variant-4 .text-image-media picture {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.text-image.block.text-image-variant-4 .text-image-media img {
+  border-radius: 14px;
+}
+
+/* Variant 4 has a fixed, wide image on desktop. Stack it before the image
+   crowds the copy into an unreadably narrow column on small desktops. */
+@media (width <= 1100px) {
+  .text-image.block.text-image-variant-4 .text-image-inner {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .text-image.block.text-image-variant-4 .text-image-content {
+    padding: 48px 24px;
+  }
+
+  .text-image.block.text-image-variant-4 .text-image-media {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Keep Variant 3 balanced while the viewport is too narrow for its fixed
+   623px image and 64px heading, but still wide enough for a two-column story. */
+@media (width > 900px) and (width <= 1200px) {
+  .text-image.block.text-image-variant-3 .text-image-inner {
+    align-items: center;
+    gap: clamp(32px, 4vw, 48px);
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-content {
+    flex: 1 1 42%;
+    min-width: 0;
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-heading {
+    max-width: none;
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-body {
+    max-width: none;
+  }
+
+  .text-image.block.text-image-variant-3 .text-image-media {
+    flex: 1 1 58%;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 623 / 524;
+  }
+}
+
+/* Last resort for the image overlay (set by fitOverlay in JS): when even the small
+   text overflows the photo, the callout drops below the image instead of being cut
+   off. Kept last so it beats every variant's fixed media height. */
+.text-image.block .text-image-media.has-stacked-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: auto;
+  max-height: none;
+}
+
+.text-image.block .text-image-media.has-stacked-overlay picture {
+  position: static;
+  height: auto;
+  aspect-ratio: 459 / 400;
+}
+
+.text-image.block .text-image-media.has-stacked-overlay .text-image-overlay {
+  position: static;
+  max-width: none;
+  max-height: none;
+}

@@ -1,0 +1,259 @@
+{
+  "definitions": [
+    {
+      "title": "Resource Downloads",
+      "id": "resource-downloads",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Resource Downloads",
+              "model": "resource-downloads",
+              "filter": "resource-downloads"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Download Item",
+      "id": "resource-download-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Download Item",
+              "model": "resource-download-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "resource-downloads",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "description": "Backend API origin. Filled automatically when the page is generated from a resource."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "slug",
+          "label": "Primary Resource Slug",
+          "description": "Slug of the resource this landing page belongs to. Filled automatically."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "gated",
+          "label": "Gating for this resource (read-only)",
+          "description": "Shows what the backend recorded for this resource, so you can see it without leaving the editor. Gating follows where a file is stored — private S3 bucket means registration is required, AEM DAM means public — so changing this does nothing: the block asks the API per file when the page renders, and the backend rewrites this field on its next sync. To actually change it, move the file's storage in the backend admin.",
+          "options": [
+            {
+              "name": "Not synced yet",
+              "value": ""
+            },
+            {
+              "name": "Gated — private S3 bucket, registration required",
+              "value": "true"
+            },
+            {
+              "name": "Open — AEM DAM, public",
+              "value": "false"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "layout",
+          "label": "Layout",
+          "options": [
+            {
+              "name": "Stacked list",
+              "value": ""
+            },
+            {
+              "name": "Grid",
+              "value": "grid"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "resource-download-item",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "itemTitle",
+          "label": "Title",
+          "description": "Display title for this download. Falls back to the resource title or file name."
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "itemDescription",
+          "label": "Description",
+          "description": "Supporting copy. On Feature cards this doubles as the 'what's inside' line."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonLabel",
+          "label": "Button Label",
+          "description": "Defaults by file type (Download PDF, Download PowerPoint, Watch Video...)."
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "file",
+          "label": "File",
+          "description": "Pick or upload a DAM file (PDF, Word, PowerPoint, ZIP, MP4). On the next resource sync, this becomes a tracked file on the current resource page - no slug needed.",
+          "validation": {
+            "rootPath": "/content/dam/edge/misc/PDFs"
+          },
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "filePath",
+          "label": "File Path (Manual)",
+          "description": "Paste the DAM path here if the picker does not open the expected folder or the file still needs to be uploaded first. Example: /content/dam/edge/misc/PDFs/example.pdf. Overrides the picker value.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "resourceSlug",
+          "label": "Resource Slug (existing resource)",
+          "description": "Only for linking an EXISTING backend resource by slug — pulls its title, file, thumbnail, and gating. Filled automatically for file items once they sync."
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image / Poster",
+          "description": "Thumbnail for Document cards or poster for Video items. Optional — a card with no picture shows colour-coded art for the file type instead. This is per download; the resource's own thumbnail is the image on its library card, and is no longer repeated onto every download here.",
+          "rootPath": "/content/dam/edge",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "videoUrl",
+          "label": "Video URL",
+          "description": "YouTube, Vimeo, or MP4 URL for Video items. Slug-backed items fall back to the resource's video."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "displayStyle",
+          "label": "Display Style",
+          "description": "Horizontal: image on the left, title, description, audience/format/time and the button on the right, always a full row. Tile: image on top with the file type and length, in rows of up to four. When the block's FIRST download is a Tile it is shown as a Horizontal card across the top, with the tiles below it.",
+          "options": [
+            {
+              "name": "Horizontal card (image left, details right)",
+              "value": "horizontal"
+            },
+            {
+              "name": "Tile (image on top, rows of tiles)",
+              "value": "tile"
+            }
+          ],
+          "value": "horizontal"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "gated",
+          "label": "Gating for this file (read-only)",
+          "description": "Shows where this file is stored, which is what decides gating. A file in the private S3 bucket requires registration; a file in the AEM DAM is public and cannot be gated, because AEM publishes it to the public tier as soon as a page referencing it is published. Uploaded files are stamped here automatically; a DAM file you picked yourself stays blank. Changing it does nothing — the block asks the API per file when the page renders. To gate a file that is already open, migrate it in the backend admin — no re-upload needed.",
+          "options": [
+            {
+              "name": "Not stamped — picked from the DAM, so public",
+              "value": ""
+            },
+            {
+              "name": "Gated — private S3 bucket, registration required",
+              "value": "true"
+            },
+            {
+              "name": "Open — AEM DAM, public",
+              "value": "false"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeAudienceLabel",
+          "label": "Audience Label Override",
+          "description": "Optional label for the audience detail on Horizontal and Informative cards. Defaults to Primary Audience.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeAudienceText",
+          "label": "Audience Override",
+          "description": "Optional audience text for Horizontal and Informative cards. Falls back to the resource audience tags; hidden when there are none.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeTimeLabel",
+          "label": "Time Label Override",
+          "description": "Optional label for the time detail on Horizontal and Informative cards. Defaults to Time.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeTimeText",
+          "label": "Time Override",
+          "description": "Optional length, e.g. 30 minutes. Used by Horizontal, Tile and Informative cards (a Tile shortens it to 30M). Falls back to the resource length; hidden when there is none.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeFormatLabel",
+          "label": "Format Label Override",
+          "description": "Optional label for the format detail on Horizontal and Informative cards. Defaults to Format.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "informativeFormatText",
+          "label": "Format Override",
+          "description": "Optional format text for Horizontal and Informative cards. Falls back to PDF, Video, PowerPoint, bundle, or the resource type.",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "resource-downloads",
+      "components": [
+        "resource-download-item"
+      ]
+    }
+  ]
+}

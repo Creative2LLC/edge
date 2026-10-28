@@ -1,0 +1,218 @@
+.support-cta.block {
+  --support-cta-background-start: var(--ncmec-warm-off-white);
+  --support-cta-background-end: var(--ncmec-warm-gray);
+  --support-cta-reveal-duration: 0.55s;
+  --support-cta-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  padding: 24px 0 48px;
+}
+
+.support-cta .support-cta-card {
+  border-radius: 34px;
+  padding: 88px 40px 92px;
+  background:
+    radial-gradient(circle at 12% 18%, rgb(255 255 255 / 54%) 0, transparent 34%),
+    linear-gradient(
+      90deg,
+      var(--support-cta-background-start) 0%,
+      var(--support-cta-background-end) 100%
+    );
+  box-shadow: 0 18px 42px rgb(17 58 103 / 7%);
+  opacity: 0;
+  transform: translateY(34px) scale(0.985);
+  transition:
+    opacity var(--support-cta-reveal-duration) var(--support-cta-reveal-ease),
+    transform var(--support-cta-reveal-duration) var(--support-cta-reveal-ease),
+    box-shadow 0.28s ease;
+}
+
+.support-cta .support-cta-content {
+  width: 100%;
+  max-width: 1228px;
+  margin: 0 auto;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.support-cta .support-cta-content > * {
+  max-width: 1228px;
+}
+
+.support-cta .support-cta-heading {
+  max-width: 1228px;
+  margin: 0;
+  color: #002e5d;
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease);
+}
+
+.support-cta .support-cta-heading > :is(p, h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+/* A p directly under the h2 heading, so it is body copy at --body-lg-size
+   rather than the --deck-size tier. */
+.support-cta .support-cta-subheading {
+  max-width: 1228px;
+  margin: 26px 0 0;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  line-height: var(--caption-line-height);
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease);
+  transition-delay: 70ms;
+}
+
+.support-cta .support-cta-subheading > p {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.support-cta .support-cta-subheading > p + p {
+  margin-top: 0.6em;
+}
+
+/* Colours, type, padding and hover come from the button standard. This keeps the
+   two-line label (number underneath) and the reveal animation. */
+.support-cta .support-cta-button {
+  min-width: min(100%, 294px);
+  margin-top: 40px;
+  display: inline-grid;
+  justify-items: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease),
+    background-color var(--hover-duration) var(--hover-ease);
+  transition-delay: 140ms, 140ms, 0s;
+}
+
+.support-cta .support-cta-button-subtext {
+  font-size: var(--caption-size);
+  font-weight: 400;
+  line-height: 1.1;
+  opacity: 0.94;
+}
+
+.support-cta .support-cta-helper {
+  max-width: 1228px;
+  margin: 24px 0 0;
+  color: #565656;
+  font-size: var(--body-sm-size);
+  font-weight: 400;
+  line-height: 1.45;
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s var(--support-cta-reveal-ease),
+    transform 0.5s var(--support-cta-reveal-ease);
+  transition-delay: 210ms;
+}
+
+@media (width <= 900px) {
+  .support-cta.block {
+    padding: 20px 0 36px;
+  }
+
+  .support-cta .support-cta-card {
+    border-radius: 26px;
+    padding: 64px 24px 68px;
+  }
+
+  .support-cta .support-cta-subheading {
+    margin-top: 22px;
+  }
+
+  .support-cta .support-cta-button {
+    margin-top: 32px;
+  }
+}
+
+@media (width <= 600px) {
+  main > .section > .support-cta-wrapper {
+    max-width: none;
+  }
+
+  .support-cta.block {
+    padding: 16px 0 28px;
+  }
+
+  .support-cta .support-cta-card {
+    border-radius: 22px;
+    padding: 48px 18px 52px;
+  }
+
+  .support-cta .support-cta-content {
+    width: 100%;
+  }
+
+  .support-cta .support-cta-heading {
+    max-width: none;
+  }
+
+  .support-cta .support-cta-button {
+    width: min(100%, 312px);
+    min-width: 0;
+  }
+}
+
+.support-cta.block.is-visible .support-cta-card,
+.support-cta.block.is-visible .support-cta-heading,
+.support-cta.block.is-visible .support-cta-subheading,
+.support-cta.block.is-visible .support-cta-button,
+.support-cta.block.is-visible .support-cta-helper {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-cta .support-cta-card,
+  .support-cta .support-cta-heading,
+  .support-cta .support-cta-subheading,
+  .support-cta .support-cta-button,
+  .support-cta .support-cta-helper {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* HOVER — row tier (lift + light shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.support-cta .support-cta-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.support-cta .support-cta-card:focus-within,
+.support-cta .support-cta-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-cta .support-cta-card:focus-within,
+  .support-cta .support-cta-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

@@ -1,0 +1,942 @@
+{
+  "definitions": [
+    {
+      "title": "Icon Hyperlink 1x3 Col Card",
+      "id": "connect-grid",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Icon Hyperlink 1x3 Col Card",
+              "model": "connect-grid",
+              "filter": "connect-grid"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Connect Grid Item",
+      "id": "connect-grid-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Connect Grid Item",
+              "model": "connect-grid-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "connect-grid",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "columns",
+          "label": "Cards Per Row",
+          "options": [
+            {
+              "name": "2 Cards",
+              "value": "2"
+            },
+            {
+              "name": "3 Cards",
+              "value": "3"
+            },
+            {
+              "name": "4 Cards",
+              "value": "4"
+            }
+          ],
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "connect-grid-item",
+      "fields": [
+        {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "description",
+          "label": "Description"
+        },
+        {
+          "component": "tab",
+          "name": "tabMedia",
+          "label": "Media"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon",
+          "multi": false
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Top Image",
+          "multi": false
+        },
+        {
+          "component": "tab",
+          "name": "tabContactMethods",
+          "label": "Contact Methods"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Label",
+          "label": "Contact Method 1 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Text",
+          "label": "Contact Method 1 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod1Link",
+          "label": "Contact Method 1 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Label",
+          "label": "Contact Method 2 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Text",
+          "label": "Contact Method 2 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod2Link",
+          "label": "Contact Method 2 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Label",
+          "label": "Contact Method 3 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Text",
+          "label": "Contact Method 3 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod3Link",
+          "label": "Contact Method 3 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Label",
+          "label": "Contact Method 4 Label"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Text",
+          "label": "Contact Method 4 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethod4Link",
+          "label": "Contact Method 4 Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "contactMethods",
+          "label": "Legacy Contact Methods (One Per Line: Label|Text|Link)",
+          "description": "Optional fallback for existing cards. Example: Email|help@ncmec.org|mailto:help@ncmec.org"
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconColor",
+          "label": "Icon Color",
+          "description": "Defaults to #ff8b7e if left empty. Used for icons only.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardBackgroundColor",
+          "label": "Card Background Color",
+          "description": "Defaults to #f4f0ec if left empty.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardHoverBackgroundColor",
+          "label": "Card Hover Background Color",
+          "description": "Optional. The card changes to this color when hovered. Leave empty for no color change.",
+          "options": [
+            {
+              "name": "None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "showDivider",
+          "label": "Description Divider",
+          "options": [
+            {
+              "name": "Show",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ],
+          "value": "show"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardTextColor",
+          "label": "All Text Color",
+          "description": "Optional color applied to title, description, and contact method text.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "titleColor",
+          "label": "Title Color",
+          "description": "Optional title-only color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "descriptionColor",
+          "label": "Description Color",
+          "description": "Optional description-only color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contactLabelColor",
+          "label": "Contact Label Color",
+          "description": "Optional contact label color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contactValueColor",
+          "label": "Contact Value Color",
+          "description": "Optional contact value or link color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "titleFontSize",
+          "label": "Title Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "descriptionFontSize",
+          "label": "Description Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contactLabelFontSize",
+          "label": "Contact Label Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contactValueFontSize",
+          "label": "Contact Value Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in connect-grid.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconSize",
+          "label": "Icon Size",
+          "description": "Optional per-card icon size.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Small (32px)",
+              "value": "32px"
+            },
+            {
+              "name": "Medium (48px)",
+              "value": "48px"
+            },
+            {
+              "name": "Large (64px)",
+              "value": "64px"
+            },
+            {
+              "name": "XL (80px)",
+              "value": "80px"
+            },
+            {
+              "name": "2XL (96px)",
+              "value": "96px"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardItemSpacing",
+          "label": "Card Item Spacing",
+          "description": "Spacing between the icon/image, title, description, divider, and methods.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "None (0px)",
+              "value": "0px"
+            },
+            {
+              "name": "Tight (8px)",
+              "value": "8px"
+            },
+            {
+              "name": "Small (12px)",
+              "value": "12px"
+            },
+            {
+              "name": "Medium (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "2XL (32px)",
+              "value": "32px"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contactMethodSpacing",
+          "label": "Contact Method Spacing",
+          "description": "Spacing between multiple contact methods.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "None (0px)",
+              "value": "0px"
+            },
+            {
+              "name": "Tight (8px)",
+              "value": "8px"
+            },
+            {
+              "name": "Small (12px)",
+              "value": "12px"
+            },
+            {
+              "name": "Medium (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "2XL (32px)",
+              "value": "32px"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "connect-grid",
+      "components": [
+        "connect-grid-item"
+      ]
+    }
+  ]
+}

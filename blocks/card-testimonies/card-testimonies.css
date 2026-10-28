@@ -1,0 +1,237 @@
+/* Card Testimonies Block */
+.card-testimonies.block {
+  --card-testimonies-surface-bg: #fff;
+  --card-testimonies-secondary-surface-bg: var(--ncmec-warm-gray);
+
+  /* The section wrapper already supplies the side gutter, so the cards sit
+     directly on the shared content edge with no horizontal padding here. */
+  padding: 60px 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ===== HEADER ===== */
+.card-testimonies-header {
+  margin-bottom: 40px;
+}
+
+/* When the header is the only/last content, drop the trailing margin so the
+   title + subtitle sit vertically centered within the block. */
+.card-testimonies-header:last-child {
+  margin-bottom: 0;
+}
+
+.card-testimonies-title {
+  color: #00264d;
+  margin: 0 0 16px;
+}
+
+.card-testimonies-subtitle {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  max-width: 886px;
+  line-height: var(--caption-line-height);
+}
+
+/* Normalize rich text wrappers so multi-line content keeps its breaks
+   without inheriting default paragraph margins. */
+.card-testimonies-title > :first-child,
+.card-testimonies-subtitle > :first-child {
+  margin-top: 0;
+}
+
+.card-testimonies-title > :last-child,
+.card-testimonies-subtitle > :last-child {
+  margin-bottom: 0;
+}
+
+.card-testimonies-title p,
+.card-testimonies-subtitle p {
+  margin: 0;
+}
+
+/* ===== MAIN TESTIMONIAL CARD ===== */
+.card-testimonies-main {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+
+.card-testimonies-main-image {
+  flex: 0 0 33.333%;
+  max-width: 33.333%;
+  overflow: hidden;
+}
+
+.card-testimonies-main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 14px 0 0 14px;
+}
+
+.card-testimonies-main-text {
+  flex: 1 1 66.666%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 64px 96px;
+  background-color: var(--card-testimonies-surface-bg);
+}
+
+.card-testimonies-main-quote {
+  font-size: var(--display-sm-size);
+  font-weight: var(--body-weight-strong);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 24px;
+  line-height: var(--caption-line-height);
+}
+
+.card-testimonies-main-author {
+  font-size: var(--deck-size);
+  font-weight: 600;
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ===== SMALL CARDS ROW ===== */
+.card-testimonies-small-row {
+  display: flex;
+  gap: 40px;
+}
+
+.card-testimonies-small {
+  flex: 1 1 0;
+  border-radius: 8px;
+  background-color: var(--card-testimonies-secondary-surface-bg);
+  overflow: hidden;
+}
+
+.card-testimonies-small-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 36px;
+  min-height: 220px;
+}
+
+.card-testimonies-small-quote {
+  font-size: var(--deck-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 20px;
+  line-height: var(--caption-line-height);
+  text-align: left;
+  width: 100%;
+}
+
+.card-testimonies-small-author {
+  font-size: var(--body-sm-size);
+  font-weight: 600;
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* ===== VARIANT 2 ===== */
+.card-testimonies.block.card-testimonies-variant-2 {
+  border-radius: 12px;
+  padding: 64px 0;
+}
+
+.card-testimonies-variant-2 .card-testimonies-title {
+  font-size: var(--display-sm-size);
+  font-weight: var(--heading-weight-light);
+  color: var(--ncmec-gray-dark);
+}
+
+.card-testimonies-variant-2 .card-testimonies-subtitle {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (width <= 900px) {.card-testimonies-subtitle {
+    font-size: var(--body-lg-size);
+  }
+
+  .card-testimonies-main-text {
+    padding: 32px 36px;
+  }
+
+  .card-testimonies-main-quote {
+    font-size: var(--heading-3-size);
+  }
+
+  .card-testimonies-main-author {
+    font-size: var(--deck-size);
+  }
+
+  .card-testimonies-small-inner {
+    padding: 32px 28px;
+  }
+
+  .card-testimonies-small-quote {
+    font-size: var(--body-lg-size);
+  }
+}
+
+/* Mobile */
+@media (width <= 600px) {
+  .card-testimonies-header {
+    padding: 0 24px;
+  }
+
+  .card-testimonies.block {
+    padding: 40px 0;
+  }
+
+  .card-testimonies-main {
+    flex-direction: column;
+    border-radius: 14px;
+  }
+
+  .card-testimonies-main-image {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  .card-testimonies-main-image img {
+    border-radius: 14px 14px 0 0;
+    max-height: 300px;
+  }
+
+  .card-testimonies-main-text {
+    padding: 28px 24px;
+  }
+
+  .card-testimonies-main-quote {
+    font-size: var(--deck-size);
+  }
+
+  .card-testimonies-main-author {
+    font-size: var(--body-lg-size);
+  }
+
+  .card-testimonies-small-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card-testimonies-small-inner {
+    padding: 28px 24px;
+    min-height: auto;
+  }
+
+}

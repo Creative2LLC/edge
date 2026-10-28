@@ -1,0 +1,158 @@
+.picture-cards-container .picture-cards-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+/* The wrapper above is max-width:none/padding:0, so this block rebuilds the
+   content column itself. --container + --section-pad is the same pair the
+   section rule uses, which is what puts it on the shared 1356px column; the
+   1200px it replaced was an ad-hoc width matching no token. */
+.picture-cards {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: clamp(3rem, 6vw, 5rem) var(--section-pad);
+}
+
+.picture-cards .picture-cards-header {
+  margin-bottom: 2rem;
+}
+
+.picture-cards .picture-cards-heading {
+  margin: 0 0 0.5rem;
+  color: #00264d;
+}
+
+.picture-cards .picture-cards-subheading {
+  margin: 0;
+  color: #516272;
+}
+
+.picture-cards .picture-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card */
+.picture-cards .picture-card {
+  position: relative;
+  border-radius: 16px;
+
+  /* No overflow: hidden here - aspect-ratio only grows to fit its content when overflow
+     is visible, so the clip cut longer copy off top and bottom. The photo and scrim
+     carry the rounded corners themselves instead. */
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: default;
+}
+
+a.picture-card {
+  cursor: pointer;
+}
+
+/* Background image */
+.picture-cards .picture-card-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.picture-cards .picture-card-media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.picture-cards .picture-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dark overlay. 42% left the title and description at 2.97 over a light photo — under AA,
+   and the photo decides, so the scrim has to carry the contrast on its own: at 56% even a
+   white photo lands near #707070, where white text reads about 5:1. */
+.picture-cards .picture-card-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: rgb(0 0 0 / 56%);
+  transition: background 0.2s ease;
+}
+
+a.picture-card:hover .picture-card-overlay {
+  background: rgb(0 0 0 / 66%);
+}
+
+/* Text content */
+.picture-cards .picture-card-content {
+  position: relative;
+  z-index: 2;
+  padding: 1.5rem;
+  text-align: center;
+  color: #fff;
+}
+
+.picture-cards .picture-card-title {
+  margin: 0 0 0.6rem;
+  color: #fff;
+}
+
+.picture-cards .picture-card-description {
+  margin: 0;
+  font-size: var(--body-size);
+
+  /* Full white: at 88% it sat ~0.5 below the title's ratio over the same scrim. */
+  color: #fff;
+  font-weight: var(--body-weight-medium);
+}
+
+@media (width <= 900px) {
+  .picture-cards .picture-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 600px) {
+  .picture-cards .picture-cards-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .picture-cards .picture-card {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.picture-cards .picture-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.picture-cards .picture-card:focus-within,
+.picture-cards .picture-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .picture-cards .picture-card:focus-within,
+  .picture-cards .picture-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

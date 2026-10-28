@@ -1,0 +1,390 @@
+{
+  "definitions": [
+    {
+      "title": "Marquee Logo Carousel",
+      "id": "partners-showcase",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Marquee Logo Carousel",
+              "model": "partners-showcase",
+              "filter": "partners-showcase"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Partners Showcase Item",
+      "id": "partners-showcase-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Partners Showcase Item",
+              "model": "partners-showcase-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "partners-showcase",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "ctaText",
+          "label": "CTA Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "ctaLink",
+          "label": "CTA Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Background Color",
+          "description": "Defaults to #FFFFFF",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "testimonialCardBackgroundColor",
+          "label": "Testimonial Card Background Color",
+          "description": "Defaults to #F4F0EA",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "ctaStyle",
+          "label": "Button Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "partners-showcase-item",
+      "fields": [
+        {
+          "component": "select",
+          "name": "itemType",
+          "label": "Item Type",
+          "options": [
+            {
+              "name": "Logo",
+              "value": "logo"
+            },
+            {
+              "name": "Testimonial",
+              "value": "testimonial"
+            }
+          ],
+          "value": "logo"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "logo",
+          "label": "Logo",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "logoAlt",
+          "label": "Logo Alt Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "logoLink",
+          "label": "Logo Link"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "quote",
+          "label": "Quote",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "attributionName",
+          "label": "Attribution Name",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "attributionTitle",
+          "label": "Attribution Title",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "partners-showcase",
+      "components": [
+        "partners-showcase-item"
+      ]
+    }
+  ]
+}

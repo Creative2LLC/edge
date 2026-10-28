@@ -1,0 +1,504 @@
+{
+  "definitions": [
+    {
+      "title": "Img Icon 1x4 Split Card",
+      "id": "split-card-gap",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Img Icon 1x4 Split Card",
+              "model": "split-card-gap",
+              "filter": "split-card-gap"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Split Card Gap Item",
+      "id": "split-card-gap-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Split Card Gap Item",
+              "model": "split-card-gap-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "split-card-gap",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "description": "Supports multiple lines / rich text. Each paragraph renders on its own line within the heading."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageWidth",
+          "label": "Image Width (%)",
+          "description": "Desktop width for the image column. Use values like 50 or 75. Defaults to 52.5.",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text",
+          "description": "Add Split Card Gap Item child entries to render the SVG + text list below this copy on the right side."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contentBackgroundColor",
+          "label": "Content Background Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Text Color",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "primaryButtonText",
+          "label": "Primary Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "primaryButtonLink",
+          "label": "Primary Button Link (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "secondaryButtonText",
+          "label": "Secondary Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "secondaryButtonLink",
+          "label": "Secondary Button Link (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "maxWidth",
+          "label": "Max Width (e.g. 1200px or 72rem)",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "stylingType",
+          "label": "Styling Type",
+          "description": "Choose the visual treatment for this block. Default keeps the current styling; Variant 2 applies the alternate layout.",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Variant 2",
+              "value": "variant-2"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "primaryButtonStyle",
+          "label": "Primary Button Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "secondaryButtonStyle",
+          "label": "Secondary Button Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button2-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button2-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button2-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button2-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button2-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button2-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button2-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button2-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button2-giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingLevel",
+          "label": "Heading Level",
+          "description": "For screen readers and the page outline; the heading looks the same either way. Keep H3 when this block sits under a section heading. Choose H2 when it starts its own section, with only the page title above it.",
+          "value": "heading-h3",
+          "options": [
+            {
+              "name": "H3 (default)",
+              "value": "heading-h3"
+            },
+            {
+              "name": "H2 (starts its own section)",
+              "value": "heading-h2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "split-card-gap-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Benefit Icon / SVG",
+          "multi": false,
+          "description": "Upload or reference the SVG/icon that should appear in the benefit list."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Benefit Text",
+          "description": "This text renders beside the icon under the parent block body copy."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconColor",
+          "label": "Icon Color",
+          "description": "Defaults to #008DB6",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": "#008EB7"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "split-card-gap",
+      "components": [
+        "split-card-gap-item"
+      ]
+    }
+  ]
+}

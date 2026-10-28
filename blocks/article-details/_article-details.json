@@ -1,0 +1,222 @@
+{
+  "definitions": [
+    {
+      "title": "Blog Details",
+      "id": "article-details",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Article Details",
+              "model": "article-details",
+              "filter": "article-details"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Blog Body Text",
+      "id": "article-body-text",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Article Body Text",
+              "model": "article-body-text"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Blog Body Image",
+      "id": "article-body-image",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Article Body Image",
+              "model": "article-body-image"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "article-details",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "pageTitle",
+          "label": "Page Title"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "jcr:description",
+          "label": "Intro / Description"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "authorName",
+          "label": "Author Name"
+        },
+        {
+          "component": "date-time",
+          "valueType": "date",
+          "name": "articleDate",
+          "label": "Blog Date",
+          "displayFormat": "MMMM D, YYYY",
+          "valueFormat": "YYYY-MM-DD"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "thumbnail",
+          "label": "Thumbnail Image",
+          "multi": false
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "headerImage",
+          "label": "Header Image",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "heroContentPosition",
+          "label": "Hero Content Position",
+          "value": "left",
+          "options": [
+            { "name": "Left (Default)", "value": "left" },
+            { "name": "Center", "value": "center" },
+            { "name": "Right", "value": "right" }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "heroHeight",
+          "label": "Hero Height",
+          "value": "",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "Short", "value": "short" },
+            { "name": "Medium", "value": "medium" },
+            { "name": "Tall", "value": "tall" }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "heroOverlayOpacity",
+          "label": "Hero Overlay Opacity",
+          "value": "",
+          "options": [
+            { "name": "Default", "value": "" },
+            { "name": "0% (No overlay)", "value": "0" },
+            { "name": "10%", "value": "10" },
+            { "name": "20%", "value": "20" },
+            { "name": "30%", "value": "30" },
+            { "name": "40%", "value": "40" },
+            { "name": "50%", "value": "50" },
+            { "name": "60%", "value": "60" },
+            { "name": "70%", "value": "70" },
+            { "name": "80%", "value": "80" },
+            { "name": "90%", "value": "90" },
+            { "name": "100% (Solid)", "value": "100" }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "heroGradientOverlay",
+          "label": "Hero Gradient Overlay",
+          "value": "show",
+          "options": [
+            { "name": "Show (Default)", "value": "show" },
+            { "name": "Hide", "value": "hide" }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "heroTextColor",
+          "label": "Hero Text Color",
+          "value": "",
+          "options": [
+            { "name": "Default / None", "value": "" },
+            { "name": "White (#FFFFFF)", "value": "#FFFFFF" },
+            { "name": "Navy Dark (#00264D)", "value": "#00264D" },
+            { "name": "Navy Medium (#004B76)", "value": "#004B76" },
+            { "name": "Blue Dark (#006D90)", "value": "#006D90" },
+            { "name": "Gray Dark (#414042)", "value": "#414042" },
+            { "name": "Gray Lightest (#F1F2F2)", "value": "#F1F2F2" },
+            { "name": "Red, urgent only (#AE1B1F)", "value": "#AE1B1F" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "article-body-text",
+      "fields": [
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "id": "article-body-image",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "bodyImage",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bodyImageAlt",
+          "label": "Alt Text"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyImageCaption",
+          "label": "Caption"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "article-details",
+      "components": [
+        "article-body-text",
+        "article-body-image"
+      ]
+    },
+    {
+      "id": "article-details-body",
+      "components": [
+        "article-body-text",
+        "article-body-image"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,293 @@
+.get-help-host {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  pointer-events: none;
+}
+
+.get-help {
+  position: relative;
+}
+
+.get-help-host .get-help {
+  pointer-events: auto;
+}
+
+.get-help .get-help-trigger,
+.get-help .get-help-close {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-family: var(--body-font-family);
+
+  /* Client exception: white on orange. It passes only as WCAG LARGE text (19px+ bold
+     needs 3:1): white on #DD7C26 is 3.01:1, on the #C77022 hover 3.64:1. Keep the label
+     at least 1.1875rem / 700 and the orange no lighter, or it fails (the client's
+     #E07E27 is 2.92:1). The phone badge's white icon needs 3:1 too, and gets it. */
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1;
+  background: #DD7C26;
+  color: #fff;
+  box-shadow: 0 14px 32px rgb(0 0 0 / 35%);
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.get-help .get-help-close {
+  position: absolute;
+  right: 0;
+  bottom: -76px;
+}
+
+.get-help .get-help-trigger:hover,
+.get-help .get-help-close:hover {
+  background: #C77022;
+}
+
+.get-help .get-help-trigger .icon,
+.get-help .get-help-close .icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.get-help.is-open .get-help-trigger {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.get-help .get-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1201;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(8 18 28 / 58%);
+  backdrop-filter: blur(2px);
+  overflow: auto;
+}
+
+.get-help .get-help-overlay[hidden] {
+  display: none;
+}
+
+.get-help .get-help-panel {
+  width: min(1040px, calc(100vw - 48px));
+
+  /* auto top/left margins pin the panel bottom-right but still allow the
+     overlay to scroll when the panel is taller than the viewport; the bottom
+     margin reserves the strip where the close pill sits (bottom: -76px) */
+  margin: auto 0 76px auto;
+  position: relative;
+}
+
+.get-help .get-help-card {
+  border-radius: 10px;
+  border: 1px solid rgb(18 38 56 / 14%);
+  background: var(--ncmec-gray-lightest);
+  padding: 34px 30px;
+  box-shadow: 0 26px 60px rgb(0 0 0 / 45%);
+}
+
+.get-help .get-help-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+}
+
+.get-help .get-help-column + .get-help-column {
+  border-left: 1px solid #d3d8de;
+  padding-left: 48px;
+}
+
+.get-help .get-help-column-heading {
+  margin: 0;
+  color: #173147;
+  font-family: var(--body-font-family);
+  font-size: var(--heading-5-size);
+}
+
+.get-help .is-contact-column .get-help-column-heading {
+  font-size: var(--heading-font-size-m);
+}
+
+.get-help .get-help-list {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 26px;
+}
+
+.get-help .is-contact-column .get-help-list {
+  margin-top: 40px;
+  gap: 48px;
+}
+
+.get-help .get-help-item {
+  margin: 0;
+}
+
+.get-help .get-help-item-link {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #173147;
+  font-family: var(--body-font-family);
+  font-size: var(--heading-4-size);
+  font-weight: 700;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.get-help .get-help-item-link::after {
+  content: '\203a';
+  margin-left: auto;
+  color: #173147;
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 0.8;
+}
+
+/* contact icon color lives in the SVG files (phone-out.svg / smartphone.svg)
+   because decorateIcons loads them as <img>, so CSS color can't reach them */
+.get-help .get-help-item-link .icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+}
+
+/* No font-size here or in the mobile block on purpose. These inherit
+   --body-size, which is already fluid (16px at 390px -> 18px at 1200px), so the
+   hardcoded 1.05rem/1rem mobile overrides that came in with the Figma pass were
+   hand-rolling the shrink the token does by itself — and landed inside the same
+   16-17.3px band it produces. Sized once, in styles.css. */
+.get-help .get-help-item-description {
+  margin: 2px 0 0;
+  color: #546475;
+  font-family: var(--body-font-family);
+  font-weight: var(--body-weight-medium);
+}
+
+/* indent past the 44px icon + 20px gap so the number aligns under the title */
+.get-help .is-contact-column .get-help-item-description {
+  margin-left: 64px;
+  color: #173147;
+}
+
+.get-help .get-help-note {
+  margin: 48px 0 0;
+  color: #7c8691;
+  font-family: var(--body-font-family);
+  font-weight: var(--body-weight-medium);
+}
+
+@media (width < 900px) {
+  .get-help-host {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .get-help .get-help-trigger,
+  .get-help .get-help-close {
+    font-size: 1.1875rem; /* never below 19px bold: the white label relies on large-text contrast */
+    padding: 12px 18px;
+  }
+
+  .get-help .get-help-overlay {
+    padding: 16px;
+  }
+
+  .get-help .get-help-panel {
+    width: min(640px, calc(100vw - 16px));
+    margin: auto 0 0 auto;
+  }
+
+  .get-help .get-help-card {
+    padding: 20px;
+  }
+
+  .get-help .get-help-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .get-help .get-help-column + .get-help-column {
+    border-left: 0;
+    border-top: 1px solid #d3d8de;
+    padding-left: 0;
+    padding-top: 24px;
+  }
+
+  .get-help .get-help-item-link {
+    font-size: var(--deck-size);
+  }
+
+  .get-help .get-help-item-link::after {
+    font-size: 1.75rem;
+  }
+
+  .get-help .get-help-item-link .icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+  }
+
+  .get-help .is-contact-column .get-help-item-description {
+    margin-left: 54px;
+  }
+
+  .get-help .get-help-close {
+    position: static;
+    margin: 16px 0 0 auto;
+  }
+}
+
+/* Phones: collapse the "Get Help Now" pill into a small circular icon badge
+   anchored bottom-right, so it stays subtle and doesn't sprawl across the page.
+   The open panel (≤ 900px rules above) is unchanged. */
+@media (width < 600px) {
+  .get-help-host {
+    left: auto;
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .get-help .get-help-trigger {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    gap: 0;
+    border-radius: 50%;
+  }
+
+  /* Hide the text label visually but keep it as the button's accessible name. */
+  .get-help .get-help-trigger span:not(.icon) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .get-help .get-help-trigger .icon {
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+  }
+}

@@ -1,0 +1,665 @@
+{
+  "definitions": [
+    {
+      "title": "Custom Heading",
+      "id": "colored-heading",
+      "model": "colored-heading",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Custom Heading",
+              "model": "colored-heading"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "colored-heading",
+      "fields": [
+        {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Heading"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingLevel",
+          "label": "Heading Tag",
+          "options": [
+            {
+              "name": "H1",
+              "value": "h1"
+            },
+            {
+              "name": "H2",
+              "value": "h2"
+            },
+            {
+              "name": "H3",
+              "value": "h3"
+            },
+            {
+              "name": "H4",
+              "value": "h4"
+            },
+            {
+              "name": "H5",
+              "value": "h5"
+            },
+            {
+              "name": "H6",
+              "value": "h6"
+            }
+          ],
+          "value": "h2"
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Text Color",
+          "description": "Enter a hex color, for example #00264D.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "value": "#00264D",
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #00264D."
+          }
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "fontSize",
+          "label": "Font Size",
+          "description": "Optional CSS length such as 48px, 3rem, or clamp(2rem, 5vw, 4rem).",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "fontWeight",
+          "label": "Font Weight",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Regular",
+              "value": "400"
+            },
+            {
+              "name": "Medium",
+              "value": "500"
+            },
+            {
+              "name": "Semi Bold",
+              "value": "600"
+            },
+            {
+              "name": "Bold",
+              "value": "700"
+            },
+            {
+              "name": "Extra Bold",
+              "value": "800"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabLayoutSpacing",
+          "label": "Layout & Spacing"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "horizontalAlign",
+          "label": "Horizontal Alignment",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            },
+            {
+              "name": "Justify",
+              "value": "justify"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalAlign",
+          "label": "Vertical Alignment",
+          "options": [
+            {
+              "name": "Top",
+              "value": "top"
+            },
+            {
+              "name": "Middle",
+              "value": "middle"
+            },
+            {
+              "name": "Bottom",
+              "value": "bottom"
+            }
+          ],
+          "value": "top"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeight",
+          "label": "Minimum Height",
+          "description": "Optional CSS length. Use this when vertical alignment needs a taller area.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeightMobile",
+          "label": "Minimum Height (Mobile)",
+          "description": "Optional CSS length override for screens ≤ 640px. Leave blank to use the same value as Minimum Height.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "paddingStyle",
+          "label": "Padding",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "All Small",
+              "value": "all-sm"
+            },
+            {
+              "name": "All Medium",
+              "value": "all-md"
+            },
+            {
+              "name": "All Large",
+              "value": "all-lg"
+            },
+            {
+              "name": "Vertical Small",
+              "value": "vertical-sm"
+            },
+            {
+              "name": "Vertical Medium",
+              "value": "vertical-md"
+            },
+            {
+              "name": "Vertical Large",
+              "value": "vertical-lg"
+            },
+            {
+              "name": "Sides Small",
+              "value": "horizontal-sm"
+            },
+            {
+              "name": "Sides Medium",
+              "value": "horizontal-md"
+            },
+            {
+              "name": "Sides Large",
+              "value": "horizontal-lg"
+            },
+            {
+              "name": "Top Small",
+              "value": "top-sm"
+            },
+            {
+              "name": "Top Medium",
+              "value": "top-md"
+            },
+            {
+              "name": "Top Large",
+              "value": "top-lg"
+            },
+            {
+              "name": "Bottom Small",
+              "value": "bottom-sm"
+            },
+            {
+              "name": "Bottom Medium",
+              "value": "bottom-md"
+            },
+            {
+              "name": "Bottom Large",
+              "value": "bottom-lg"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "marginStyle",
+          "label": "Margin",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "All Small",
+              "value": "all-sm"
+            },
+            {
+              "name": "All Medium",
+              "value": "all-md"
+            },
+            {
+              "name": "All Large",
+              "value": "all-lg"
+            },
+            {
+              "name": "Vertical Small",
+              "value": "vertical-sm"
+            },
+            {
+              "name": "Vertical Medium",
+              "value": "vertical-md"
+            },
+            {
+              "name": "Vertical Large",
+              "value": "vertical-lg"
+            },
+            {
+              "name": "Sides Small",
+              "value": "horizontal-sm"
+            },
+            {
+              "name": "Sides Medium",
+              "value": "horizontal-md"
+            },
+            {
+              "name": "Sides Large",
+              "value": "horizontal-lg"
+            },
+            {
+              "name": "Top Small",
+              "value": "top-sm"
+            },
+            {
+              "name": "Top Medium",
+              "value": "top-md"
+            },
+            {
+              "name": "Top Large",
+              "value": "top-lg"
+            },
+            {
+              "name": "Bottom Small",
+              "value": "bottom-sm"
+            },
+            {
+              "name": "Bottom Medium",
+              "value": "bottom-md"
+            },
+            {
+              "name": "Bottom Large",
+              "value": "bottom-lg"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "tab",
+          "name": "tabBackground",
+          "label": "Background"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "blockBackgroundColor",
+          "label": "Block Background Color (Optional)",
+          "description": "Leave empty for a transparent block background.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": "",
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #F4F1EC."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "dropShadow",
+          "label": "Drop Shadow",
+          "options": [
+            {
+              "name": "None",
+              "value": "none"
+            },
+            {
+              "name": "Small",
+              "value": "small"
+            },
+            {
+              "name": "Medium",
+              "value": "medium"
+            },
+            {
+              "name": "Large",
+              "value": "large"
+            },
+            {
+              "name": "Highlighter Blue",
+              "value": "highlight-blue"
+            },
+            {
+              "name": "Highlighter Navy",
+              "value": "highlight-navy"
+            },
+            {
+              "name": "Highlighter Orange",
+              "value": "highlight-orange"
+            },
+            {
+              "name": "Highlighter Gold",
+              "value": "highlight-gold"
+            }
+          ],
+          "value": "none"
+        },
+        {
+          "component": "tab",
+          "name": "tabAnimatedMarker",
+          "label": "Animated Marker"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "markerTerms",
+          "label": "Animated Marker Text",
+          "description": "Optional. Add exact words or phrases separated by line breaks or |. Matching text in the heading gets a drawn marker on scroll.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "markerColor",
+          "label": "Animated Marker Color",
+          "description": "Defaults to yellow if left empty.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": "",
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Enter a valid hex color, for example #F5C84B."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "markerStyle",
+          "label": "Animated Marker Style",
+          "options": [
+            {
+              "name": "Circle",
+              "value": "circle"
+            },
+            {
+              "name": "Underline",
+              "value": "underline"
+            }
+          ],
+          "value": "circle"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

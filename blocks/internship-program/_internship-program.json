@@ -1,0 +1,307 @@
+{
+  "definitions": [
+    {
+      "title": "Internship Program",
+      "id": "internship-program",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Internship Program",
+              "model": "internship-program"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "internship-program",
+      "fields": [
+        {
+          "component": "tab",
+          "name": "tabImage",
+          "label": "Image"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Image Alt Text"
+        },
+        {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Subtitle"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "sectionHeader",
+          "label": "Section Header"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "sectionText",
+          "label": "Section Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "card1Title",
+          "label": "Card 1 Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "card1Text",
+          "label": "Card 1 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "card2Title",
+          "label": "Card 2 Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "card2Text",
+          "label": "Card 2 Text"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bottomHeader",
+          "label": "Bottom Header"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bottomText",
+          "label": "Bottom Text"
+        },
+        {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonColor",
+          "label": "Button Color (set by site styles)",
+          "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonTextColor",
+          "label": "Button Text Color (set by site styles)",
+          "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonStyle",
+          "label": "Button Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "primary",
+          "options": [
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "tab",
+          "name": "tabBackground",
+          "label": "Background"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contentBackgroundColor",
+          "label": "Content Background Color",
+          "description": "Defaults to Warm Gray (#ECE8E3) if left empty",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

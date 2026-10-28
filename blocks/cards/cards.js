@@ -1,23 +1,1106 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { setReadableColor } from '../../scripts/color-tokens.js';
+import {
+  getAueResourcePath,
+  readAueResourceFields,
+  readImageField,
+  readRichTextField,
+  readTextField,
+  setItemLabel,
+} from '../../scripts/block-field-utils.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
+
+const SETTING_NAMES = [
+  'textAlignment',
+  'defaultCardBackgroundColor',
+  'defaultCardTextColor',
+  'defaultHighlightTextColor',
+  'buttonDisplay',
+  'imageDisplay',
+  'cardBorderRadius',
+  'cardShadow',
+  'defaultCardTextSize',
+  'cardGap',
+  'defaultHighlightTextSize',
+  'defaultCardPaddingStyle',
+];
+
+const CARD_FIELD_NAMES = [
+  'image',
+  'text',
+  'highlightText',
+  'disclaimer',
+  'cardBackgroundColor',
+  'cardTextColor',
+  'highlightTextColor',
+  'cardTextSize',
+  'highlightTextSize',
+  'disclaimerFontSize',
+  'markerTerms',
+  'markerColor',
+  'markerStyle',
+  'cardAlignment',
+  'cardPaddingStyle',
+  'imageAlt',
+];
+
+const CARD_STYLE_FIELD_NAMES = [
+  'cardBackgroundColor',
+  'cardTextColor',
+  'highlightTextColor',
+  'cardTextSize',
+  'highlightTextSize',
+  'disclaimerFontSize',
+  'cardAlignment',
+  'cardPaddingStyle',
+];
+
+const DEFAULT_SETTINGS = {
+  textAlignment: 'left',
+  defaultCardBackgroundColor: '',
+  defaultCardTextColor: '',
+  defaultHighlightTextColor: '',
+  buttonDisplay: 'show',
+  imageDisplay: 'auto',
+  cardBorderRadius: 'none',
+  cardShadow: 'none',
+  defaultCardTextSize: '',
+  cardGap: '',
+  defaultHighlightTextSize: '',
+  defaultCardPaddingStyle: '',
+};
+
+function directRowOf(block, element) {
+  let row = element;
+  while (row && row.parentElement !== block) {
+    row = row.parentElement;
+  }
+  return row && row.parentElement === block ? row : null;
+}
+
+function fieldCell(row) {
+  if (!row) return null;
+  return row.children.length > 1 ? row.children[1] : row.children[0] || row;
+}
+
+function normalizeOption(value, allowedValues, fallback) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+const CARD_PADDING_OPTIONS = [
+  'default',
+  'none',
+  'all-sm',
+  'all-md',
+  'all-lg',
+  'vertical-sm',
+  'vertical-md',
+  'vertical-lg',
+  'horizontal-sm',
+  'horizontal-md',
+  'horizontal-lg',
+  'top-sm',
+  'top-md',
+  'top-lg',
+  'bottom-sm',
+  'bottom-md',
+  'bottom-lg',
+];
+const CARD_PADDING_SPACE = { sm: '12px', md: '24px', lg: '40px' };
+
+// Self-contained (not the shared colored-field-options.js) so it doesn't collide
+// with any other block's use of --colored-field-padding-*.
+function computeCardPadding(value) {
+  const option = normalizeOption(value, CARD_PADDING_OPTIONS, 'default');
+  if (option === 'default') return null;
+  if (option === 'none') {
+    return {
+      top: '0', right: '0', bottom: '0', left: '0',
+    };
+  }
+
+  const [, position, size] = option.match(/^(all|vertical|horizontal|top|bottom)-(sm|md|lg)$/u) || [];
+  if (!position) return null;
+
+  const amount = CARD_PADDING_SPACE[size];
+  const zero = '0';
+  const sides = {
+    all: {
+      top: amount, right: amount, bottom: amount, left: amount,
+    },
+    vertical: {
+      top: amount, right: zero, bottom: amount, left: zero,
+    },
+    horizontal: {
+      top: zero, right: amount, bottom: zero, left: amount,
+    },
+    top: {
+      top: amount, right: zero, bottom: zero, left: zero,
+    },
+    bottom: {
+      top: zero, right: zero, bottom: amount, left: zero,
+    },
+  };
+  return sides[position];
+}
+
+function normalizeButtonDisplay(value) {
+  const normalized = normalizeOption(
+    value,
+    ['show', 'hide', 'hidden', 'no', 'false', 'off'],
+    'show',
+  );
+  return normalized === 'show' ? 'show' : 'hide';
+}
+
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  return hexMatch ? hexMatch[0] : '';
+}
+
+/**
+ * Per-instance type sizing is OFF: the global scale in styles/styles.css owns
+ * typography (see audits/typography-audit.md). Flip to true to restore the authored
+ * disclaimerFontSize override.
+ *
+ * TO RESTORE (two steps, both required):
+ *   1. Set this constant to true.
+ *   2. Put the field's real `options` back in the block's _*.json model and drop
+ *      the "(set by site styles)" label suffix + the "Locked." description.
+ *      The pre-lock definitions are in git — see the commit that added this note.
+ * Step 2 alone does nothing (the JS still ignores the value); step 1 alone leaves
+ * the author staring at a control with one inert choice. Never DELETE the field:
+ * its cell index is load-bearing on already-published pages.
+ */
+const ALLOW_AUTHOR_TYPE_OVERRIDES = false;
+
+/**
+ * Card BODY text sizing is OFF: the body scale in styles/styles.css owns it
+ * (see audits/body-copy-audit.md). Gates `cardTextSize` and `defaultCardTextSize`.
+ *
+ * This is deliberately a SEPARATE flag from ALLOW_AUTHOR_TYPE_OVERRIDES above.
+ * `cards` is otherwise an author-sized block: `highlightTextSize` must keep working,
+ * because it drives `.cards-card-highlight` — the 96px stat figures on
+ * /data-and-impact/our-impact-report — and styles.css carries a deliberate rule
+ * letting headings inside those slots adopt the slot size. Folding this into the
+ * existing flag would take the highlight figures down with the body text, which is
+ * not what was asked for.
+ *
+ * TO RESTORE (two steps, both required):
+ *   1. Set this constant to true.
+ *   2. Put the real `options`/`component: text` back for `cardTextSize` and
+ *      `defaultCardTextSize` in _cards.json and drop the "(set by site styles)"
+ *      label suffix + the "Locked." description.
+ * Never DELETE either field: their cell indices are load-bearing on published pages.
+ */
+const ALLOW_AUTHOR_CARD_TEXT_SIZE = false;
+
+function normalizeCssLength(value, propertyName) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^-?\d+(\.\d+)?$/u.test(normalized)) return `${normalized}px`;
+  if (!window.CSS?.supports || window.CSS.supports(propertyName, normalized)) return normalized;
+  return '';
+}
+
+function isExplicitCssLength(value) {
+  const normalized = String(value || '').trim();
+  return /^-?\d+(\.\d+)?(?:px|em|rem|ch|ex|vh|vw|vmin|vmax|%)$/iu.test(normalized)
+    || /^(?:calc|min|max|clamp)\(.+\)$/iu.test(normalized);
+}
+
+function rowText(row) {
+  return fieldCell(row)?.textContent?.trim() || '';
+}
+
+function derivePublishedCardStyleFields(row) {
+  const colors = [...row.children]
+    .map(rowText)
+    .map((value) => normalizeColorValue(value))
+    .filter(Boolean);
+
+  return {
+    cardBackgroundColor: colors[0] || '',
+  };
+}
+function hasOptionText(row, allowedValues) {
+  return Boolean(normalizeOption(rowText(row), allowedValues, ''));
+}
+
+function isConfigOnlyText(value) {
+  const text = String(value || '').trim();
+  if (!text) return true;
+
+  return Boolean(
+    normalizeColorValue(text)
+      || isExplicitCssLength(text)
+      || normalizeOption(text, [
+        'left',
+        'center',
+        'right',
+        'justify',
+        'show',
+        'hide',
+        'hidden',
+        'no',
+        'false',
+        'off',
+        'auto',
+        'cover',
+        'contain',
+        'logo',
+        'none',
+        'small',
+        'medium',
+        'large',
+      ], ''),
+  );
+}
+
+function getLegacySettingCells(rows) {
+  const scanRows = rows.slice(0, Math.min(rows.length, 14));
+  const textAlignmentIndex = scanRows.findIndex((row) => (
+    hasOptionText(row, ['left', 'center', 'right', 'justify'])
+  ));
+
+  if (textAlignmentIndex < 0) return {};
+
+  const buttonDisplayIndex = scanRows.findIndex((row, index) => (
+    index > textAlignmentIndex && hasOptionText(row, ['show', 'hide'])
+  ));
+  const imageDisplayIndex = scanRows.findIndex((row, index) => (
+    index > textAlignmentIndex && hasOptionText(row, ['auto', 'cover', 'contain', 'logo'])
+  ));
+  const radiusShadowRows = scanRows
+    .map((row, index) => ({ row, index }))
+    .filter(({ index }) => index > Math.max(textAlignmentIndex, imageDisplayIndex))
+    .filter(({ row }) => hasOptionText(row, [
+      'none', 'small', 'medium', 'large',
+      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold', 'white',
+    ]));
+  const colorEndIndex = [
+    buttonDisplayIndex,
+    imageDisplayIndex,
+    ...radiusShadowRows.map(({ index }) => index),
+    scanRows.length,
+  ].filter((index) => index > textAlignmentIndex).sort((a, b) => a - b)[0];
+  // The three default colour fields are adjacent in the model
+  // (defaultCardBackgroundColor, defaultCardTextColor, defaultHighlightTextColor),
+  // so their POSITION in this region identifies them. Filtering the empties out
+  // first destroys that: a block that leaves defaultHighlightTextColor blank yields
+  // only two rows, the `>= 3` guard below then refuses to assign the text colour,
+  // and the card renders with no --cards-card-text-default at all.
+  const colorRegion = scanRows.slice(textAlignmentIndex + 1, colorEndIndex);
+  const colorAt = (position) => {
+    const row = colorRegion[position];
+    return row && normalizeColorValue(rowText(row)) ? row : null;
+  };
+  const colorRows = colorRegion.filter((row) => normalizeColorValue(rowText(row)));
+  const defaultCardTextSizeRow = scanRows.find((row, index) => (
+    index > textAlignmentIndex && isExplicitCssLength(rowText(row))
+  ));
+
+  return {
+    textAlignment: fieldCell(scanRows[textAlignmentIndex]),
+    // Position first; the old count-based heuristic stays as the fallback for rows
+    // whose colour region doesn't line up with the current model order.
+    defaultCardBackgroundColor: fieldCell(colorAt(0) || colorRows[0]),
+    defaultCardTextColor: fieldCell(
+      colorAt(1) || (colorRows.length >= 3 ? colorRows[1] : null),
+    ),
+    defaultHighlightTextColor: fieldCell(
+      colorAt(2) || (colorRows.length >= 2 ? colorRows[colorRows.length - 1] : null),
+    ),
+    buttonDisplay: fieldCell(scanRows[buttonDisplayIndex]),
+    imageDisplay: fieldCell(scanRows[imageDisplayIndex]),
+    cardBorderRadius: fieldCell(radiusShadowRows[0]?.row),
+    cardShadow: fieldCell(radiusShadowRows[1]?.row),
+    defaultCardTextSize: fieldCell(defaultCardTextSizeRow),
+  };
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope.getAttribute?.('data-aue-resource')
+      || scope.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+// In the editor, hide (don't remove) setting rows that carry Universal Editor
+// instrumentation — permanently removing an aue-tracked node can desync UE's
+// resource tree from the DOM and break later live-edit syncing for the whole
+// block, not just the row itself (see colored-grid.js's cleanupConfigRows and
+// gallery-grid.js's readSetting for the same pattern/fix).
+function readSetting(block, name, labels = [], fallbackCell = null, isEditor = false) {
+  const field = readTextField(block, name, {
+    labels: [name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), ...labels],
+    fallbackCell,
+  });
+  const row = field.cell ? directRowOf(block, field.cell) : null;
+  if (row) {
+    if (isEditor && hasAuthoringContext(row)) row.hidden = true;
+    else row.remove();
+  }
+  return field.value;
+}
+
+function isSettingRow(row) {
+  return SETTING_NAMES.some((name) => row.querySelector(`[data-aue-prop="${name}"]`));
+}
+
+function applySettings(block, settings = {}) {
+  const nextSettings = {
+    ...DEFAULT_SETTINGS,
+    ...(block.cardsSettings || {}),
+    ...settings,
+  };
+  block.cardsSettings = nextSettings;
+
+  const textAlignment = normalizeOption(
+    nextSettings.textAlignment,
+    ['left', 'center', 'right', 'justify'],
+    'left',
+  );
+  const buttonDisplay = normalizeButtonDisplay(nextSettings.buttonDisplay);
+  const defaultCardBackground = normalizeColorValue(nextSettings.defaultCardBackgroundColor);
+  const defaultCardTextColor = normalizeColorValue(nextSettings.defaultCardTextColor);
+  const defaultHighlightTextColor = normalizeColorValue(nextSettings.defaultHighlightTextColor);
+  const imageDisplay = normalizeOption(
+    nextSettings.imageDisplay,
+    ['auto', 'cover', 'contain', 'logo'],
+    'auto',
+  );
+  const cardBorderRadius = normalizeOption(
+    nextSettings.cardBorderRadius,
+    ['none', 'small', 'medium', 'large'],
+    'none',
+  );
+  const cardShadow = normalizeOption(
+    nextSettings.cardShadow,
+    [
+      'none', 'small', 'medium', 'large',
+      'highlight-blue', 'highlight-navy', 'highlight-orange', 'highlight-gold', 'white',
+    ],
+    'none',
+  );
+  const defaultCardTextSize = normalizeCssLength(
+    nextSettings.defaultCardTextSize,
+    'font-size',
+  );
+  const defaultHighlightTextSize = normalizeCssLength(
+    nextSettings.defaultHighlightTextSize,
+    'font-size',
+  );
+  const defaultCardPadding = computeCardPadding(nextSettings.defaultCardPaddingStyle);
+  const cardGap = normalizeCssLength(nextSettings.cardGap, 'gap');
+
+  block.classList.remove(
+    'cards-text-align-left',
+    'cards-text-align-center',
+    'cards-text-align-right',
+    'cards-text-align-justify',
+    'cards-hide-buttons',
+    'cards-has-default-card-background',
+    'cards-image-auto',
+    'cards-image-cover',
+    'cards-image-contain',
+    'cards-image-logo',
+    'cards-radius-none',
+    'cards-radius-small',
+    'cards-radius-medium',
+    'cards-radius-large',
+    'cards-shadow-none',
+    'cards-shadow-small',
+    'cards-shadow-medium',
+    'cards-shadow-large',
+    'cards-shadow-highlight-blue',
+    'cards-shadow-highlight-navy',
+    'cards-shadow-highlight-orange',
+    'cards-shadow-highlight-gold',
+    'cards-shadow-white',
+  );
+  block.classList.add(
+    `cards-text-align-${textAlignment}`,
+    `cards-image-${imageDisplay}`,
+    `cards-radius-${cardBorderRadius}`,
+    `cards-shadow-${cardShadow}`,
+  );
+
+  if (buttonDisplay === 'hide') block.classList.add('cards-hide-buttons');
+
+  if (defaultCardBackground) {
+    block.classList.add('cards-has-default-card-background');
+    block.style.setProperty('--cards-card-bg-default', defaultCardBackground);
+  } else {
+    block.style.removeProperty('--cards-card-bg-default');
+  }
+
+  if (defaultCardTextColor) {
+    block.style.setProperty('--cards-card-text-default', defaultCardTextColor);
+  } else {
+    block.style.removeProperty('--cards-card-text-default');
+  }
+
+  if (defaultHighlightTextColor) {
+    // The stat figure renders at 32px+, so AA asks 3:1 here rather than 4.5.
+    setReadableColor(block, '--cards-card-highlight-default', defaultHighlightTextColor, { min: 3 });
+  } else {
+    block.style.removeProperty('--cards-card-highlight-default');
+  }
+
+  if (ALLOW_AUTHOR_CARD_TEXT_SIZE && defaultCardTextSize) {
+    block.style.setProperty('--cards-card-text-size-default', defaultCardTextSize);
+  } else {
+    block.style.removeProperty('--cards-card-text-size-default');
+  }
+
+  if (defaultHighlightTextSize) {
+    block.style.setProperty('--cards-card-highlight-size-default', defaultHighlightTextSize);
+  } else {
+    block.style.removeProperty('--cards-card-highlight-size-default');
+  }
+
+  if (defaultCardPadding) {
+    block.style.setProperty('--cards-card-padding-top-default', defaultCardPadding.top);
+    block.style.setProperty('--cards-card-padding-right-default', defaultCardPadding.right);
+    block.style.setProperty('--cards-card-padding-bottom-default', defaultCardPadding.bottom);
+    block.style.setProperty('--cards-card-padding-left-default', defaultCardPadding.left);
+  } else {
+    block.style.removeProperty('--cards-card-padding-top-default');
+    block.style.removeProperty('--cards-card-padding-right-default');
+    block.style.removeProperty('--cards-card-padding-bottom-default');
+    block.style.removeProperty('--cards-card-padding-left-default');
+  }
+
+  if (cardGap) {
+    block.style.setProperty('--cards-gap', cardGap);
+  } else {
+    block.style.removeProperty('--cards-gap');
+  }
+}
+
+function syncResourceSettings(resourcePath, block) {
+  readAueResourceFields(resourcePath, SETTING_NAMES)
+    .then((fields) => {
+      if (Object.keys(fields).length) applySettings(block, fields);
+    });
+}
+
+function hasOwnField(fields, name) {
+  return Object.prototype.hasOwnProperty.call(fields, name);
+}
+
+function setCssVariable(element, name, value) {
+  if (value) element.style.setProperty(name, value);
+  else element.style.removeProperty(name);
+}
+
+function applyCardStyles(li, fields = {}, partial = false) {
+  if (!partial || hasOwnField(fields, 'cardBackgroundColor')) {
+    const cardBackground = normalizeColorValue(fields.cardBackgroundColor);
+    li.classList.toggle('cards-card-has-background', Boolean(cardBackground));
+    setCssVariable(li, '--cards-card-bg', cardBackground);
+  }
+
+  if (!partial || hasOwnField(fields, 'cardTextColor')) {
+    setCssVariable(li, '--cards-card-text', normalizeColorValue(fields.cardTextColor));
+  }
+
+  if (!partial || hasOwnField(fields, 'highlightTextColor')) {
+    const highlight = normalizeColorValue(fields.highlightTextColor);
+    // The stat figure renders at 32px+, so AA asks 3:1; checked once the card is painted.
+    if (highlight) setReadableColor(li, '--cards-card-highlight', highlight, { min: 3 });
+    else setCssVariable(li, '--cards-card-highlight', '');
+  }
+
+  /* Card body text is owned by the global body scale — see ALLOW_AUTHOR_CARD_TEXT_SIZE.
+     Highlight sizing below is deliberately still live.
+     When disabled we pass '' rather than skipping, so an inline value left over from a
+     previous render is actively cleared — partial re-renders in the editor otherwise keep
+     a stale --cards-card-text-size on the element forever. */
+  if (!partial || hasOwnField(fields, 'cardTextSize')) {
+    setCssVariable(
+      li,
+      '--cards-card-text-size',
+      ALLOW_AUTHOR_CARD_TEXT_SIZE ? normalizeCssLength(fields.cardTextSize, 'font-size') : '',
+    );
+  }
+
+  if (!partial || hasOwnField(fields, 'highlightTextSize')) {
+    setCssVariable(
+      li,
+      '--cards-card-highlight-size',
+      normalizeCssLength(fields.highlightTextSize, 'font-size'),
+    );
+  }
+
+  /* Per-instance type sizing is OFF: the global scale in styles/styles.css owns
+     typography (see audits/typography-audit.md). Flip ALLOW_AUTHOR_TYPE_OVERRIDES
+     to restore it. disclaimerFontSize is deliberately still read and still occupies
+     its row — deleting it from the model would shift every later field's index on
+     already-published pages. */
+  if (ALLOW_AUTHOR_TYPE_OVERRIDES && (!partial || hasOwnField(fields, 'disclaimerFontSize'))) {
+    setCssVariable(
+      li,
+      '--cards-card-disclaimer-size',
+      normalizeCssLength(fields.disclaimerFontSize, 'font-size'),
+    );
+  }
+
+  if (!partial || hasOwnField(fields, 'cardPaddingStyle')) {
+    const cardPadding = computeCardPadding(fields.cardPaddingStyle);
+    ['top', 'right', 'bottom', 'left'].forEach((side) => {
+      setCssVariable(li, `--cards-card-padding-${side}`, cardPadding?.[side] || '');
+    });
+  }
+
+  if (!partial || hasOwnField(fields, 'cardAlignment')) {
+    li.classList.remove(
+      'cards-card-align-left',
+      'cards-card-align-center',
+      'cards-card-align-right',
+      'cards-card-align-justify',
+    );
+    const cardAlignment = normalizeOption(
+      fields.cardAlignment,
+      ['left', 'center', 'right', 'justify'],
+      '',
+    );
+    if (cardAlignment) li.classList.add(`cards-card-align-${cardAlignment}`);
+  }
+}
+
+function syncResourceCardStyles(resourcePath, li) {
+  readAueResourceFields(resourcePath, CARD_STYLE_FIELD_NAMES)
+    .then((fields) => {
+      if (Object.keys(fields).length) applyCardStyles(li, fields, true);
+    });
+}
+
+function watchCardStyleField(field, li, name) {
+  if (!field.source) return;
+
+  new MutationObserver(() => {
+    applyCardStyles(li, { [name]: field.source.textContent?.trim() || '' }, true);
+  }).observe(field.source, { childList: true, characterData: true, subtree: true });
+}
+
+function hasCardField(row) {
+  return CARD_FIELD_NAMES.some((name) => (
+    row.querySelector(`[data-aue-prop="${name}"], [data-richtext-prop="${name}"]`)
+  ));
+}
+
+function hasVisibleContent(row) {
+  return Boolean(
+    row.textContent.trim()
+      || row.querySelector('img, picture, video, iframe, svg, ul, ol, li, a, button'),
+  );
+}
+
+function isLegacyConfigOnlyRow(row) {
+  if (!row?.children?.length) return true;
+  if (row.querySelector('img, picture, video, iframe, svg, a[href], button')) return false;
+
+  const values = [...row.children]
+    .map((cell) => cell.textContent.trim())
+    .filter(Boolean);
+
+  return values.length > 0 && values.every(isConfigOnlyText);
+}
+
+function hasActionContent(cell) {
+  if (!cell) return false;
+  if (
+    isConfigOnlyText(cell.textContent)
+      && !cell.querySelector('button, .button-container')
+  ) {
+    return false;
+  }
+
+  return Boolean(cell?.querySelector?.('a[href], button, .button-container'));
+}
+
+function htmlHasRenderableContent(html) {
+  if (!html) return false;
+
+  const template = document.createElement('template');
+  template.innerHTML = html;
+
+  return Boolean(
+    template.content.textContent.trim()
+      || template.content.querySelector('img, picture, video, iframe, svg, ul, ol, li, a[href], button'),
+  );
+}
+
+function fieldHasRenderableContent(field) {
+  if (!field) return false;
+  return Boolean(
+    field.text?.trim()
+      || htmlHasRenderableContent(field.html)
+      || field.source?.textContent?.trim()
+      || field.source?.querySelector?.('img, picture, video, iframe, svg, ul, ol, li, a[href], button'),
+  );
+}
+
+function hasRenderableCardContent(row) {
+  const imageField = readImageField(row, 'image', { fallbackCell: row.children[0] });
+  const textField = readRichTextField(row, 'text', { fallbackCell: row.children[1] });
+  const highlightField = readRichTextField(row, 'highlightText', { fallbackCell: row.children[2] });
+  const hasLegacyAction = !hasCardField(row)
+    && [...row.children].slice(2).some((cell) => hasActionContent(cell));
+
+  return Boolean(
+    imageField.img
+      || fieldHasRenderableContent(textField)
+      || fieldHasRenderableContent(highlightField)
+      || hasLegacyAction,
+  );
+}
+
+function shouldRenderCardRow(row) {
+  if (row.getAttribute('data-aue-model') === 'card' || hasCardField(row)) {
+    return hasAuthoringContext(row) || hasRenderableCardContent(row);
+  }
+
+  if (!hasVisibleContent(row) || isLegacyConfigOnlyRow(row)) return false;
+  return hasRenderableCardContent(row);
+}
+
+function hasRenderableContent(field) {
+  return fieldHasRenderableContent(field);
+}
+
+function moveRichText(field, target) {
+  if (field.source) {
+    moveInstrumentation(field.source, target);
+    while (field.source.firstChild) target.append(field.source.firstChild);
+    return;
+  }
+
+  if (field.html) {
+    target.innerHTML = field.html;
+  }
+}
+
+function appendRichText(field, className, parent) {
+  if (!hasRenderableContent(field)) return;
+
+  const element = document.createElement('div');
+  element.className = className;
+  moveRichText(field, element);
+
+  if (element.textContent.trim() || element.querySelector('img, picture, a, ul, ol, li')) {
+    parent.append(element);
+  }
+}
+
+function fieldText(field) {
+  return field?.text?.trim()
+    || field?.source?.textContent?.trim()
+    || '';
+}
+
+function isStatLikeCardText(value) {
+  const text = String(value || '').trim();
+  return text.length <= 48 && /^\s*[-+$]?\d/u.test(text);
+}
+
+function isShortIconCardLabel(value) {
+  const text = String(value || '').trim();
+  return Boolean(text && text.length <= 80 && !/[.!?]\s*$/u.test(text));
+}
+
+function isStatIconCard(textField, highlightField) {
+  return isStatLikeCardText(fieldText(highlightField))
+    && isShortIconCardLabel(fieldText(textField));
+}
+
+function isIconLikeImage(src) {
+  try {
+    const url = new URL(src, window.location.href);
+    const path = url.pathname.toLowerCase();
+    return /\.(?:svg)$/u.test(path)
+      || /(?:^|[-_/])(icon|logo)(?:[-_. /]|$)/u.test(path);
+  } catch {
+    const path = String(src || '').toLowerCase();
+    return /\.(?:svg)(?:[?#]|$)/u.test(path)
+      || /(?:^|[-_/])(icon|logo)(?:[-_. /]|$)/u.test(path);
+  }
+}
+
+/**
+ * Ratio past which a card image is treated as a logo rather than a photograph.
+ *
+ * isIconLikeImage() above can only ever fire in the EDITOR: EDS renames
+ * published media to media_<hash>.<ext>, which destroys the "logo"/"icon"
+ * filename signal entirely. Published markup does keep the intrinsic size on
+ * the <img> though, so a pathologically wide wordmark can still be recognised —
+ * a 742x150 logo was being forced into the 4/3 object-fit:cover box and cropped
+ * to a smear.
+ *
+ * 2.5 sits above every photographic ratio in use (16:9 is 1.78) and below the
+ * 4.95 wordmarks that were breaking. It deliberately does NOT try to separate a
+ * squarer logo from a photo — measured, the two overlap around 1.6-2.0 and
+ * nothing in the published markup can tell them apart. For a block whose images
+ * are all logos, set the block's Image Display to "Logo": that is deterministic
+ * and renders identically in both environments.
+ */
+const ICON_ASPECT_RATIO = 2.5;
+
+/**
+ * Intrinsic ratio from the source <img>'s width/height attributes. Published
+ * markup carries them; the editor's DAM markup does not, which is exactly the
+ * split that makes this the right complement to the filename test.
+ */
+function hasIconLikeAspect(img) {
+  const w = Number.parseFloat(img?.getAttribute('width'));
+  const h = Number.parseFloat(img?.getAttribute('height'));
+  if (!Number.isFinite(w) || !Number.isFinite(h) || h <= 0) return false;
+  return w / h >= ICON_ASPECT_RATIO;
+}
+
+function buildImage(imageField, forceIcon = false, altVal = '') {
+  const sourceImg = imageField?.img;
+  if (!sourceImg) return null;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'cards-card-image';
+  if (forceIcon || isIconLikeImage(sourceImg.src) || hasIconLikeAspect(sourceImg)) {
+    wrapper.classList.add('cards-card-image-icon');
+  }
+
+  const optimizedPic = createOptimizedPicture(sourceImg.src, altVal || sourceImg.alt, false, [{ width: '750' }]);
+  const optimizedImg = optimizedPic.querySelector('img');
+
+  if (imageField.source && imageField.source !== sourceImg) {
+    moveInstrumentation(imageField.source, optimizedPic);
+  }
+  if (optimizedImg) moveInstrumentation(sourceImg, optimizedImg);
+
+  wrapper.append(optimizedPic);
+  return wrapper;
+}
+
+function appendLegacyActions(row, body, startIndex) {
+  if (hasCardField(row)) return;
+
+  [...row.children].slice(startIndex).forEach((cell) => {
+    if (!hasActionContent(cell)) return;
+
+    const actions = document.createElement('div');
+    actions.className = 'cards-card-actions';
+    moveInstrumentation(cell, actions);
+    while (cell.firstChild) actions.append(cell.firstChild);
+
+    if (actions.textContent.trim() || actions.querySelector('a[href], button')) {
+      body.append(actions);
+    }
+  });
+}
+
+function buildCard(row, isEditor) {
+  const li = document.createElement('li');
+  li.className = 'cards-card';
+  const resourcePath = getAueResourcePath(row);
+  moveInstrumentation(row, li);
+
+  // Fields with no authored value (and, empirically, color-select fields even WITH a
+  // value — they export as a bare uninstrumented <a href="#hex"> anchor with no
+  // data-aue-prop at all) frequently don't get reliable per-field row positions. In the
+  // editor, name-based data-aue-prop lookup is reliable whenever a field genuinely has
+  // that instrumentation, so never fall back to a position guess there — it was
+  // observed reading one field's leftover value into a completely different field
+  // (e.g. a background-color hex showing up as the disclaimer text). Positional
+  // fallback is kept for true published pages, where there's no instrumentation to
+  // name-match against at all.
+  const fallback = (index) => (isEditor ? null : row.children[index]);
+  const publishedCardStyles = isEditor ? {} : derivePublishedCardStyleFields(row);
+  // Hex-color "select" fields (regex-validated) render in the editor as a bare
+  // <a href="#hex">#hex</a> with NO data-aue-prop at all — confirmed from live markup —
+  // unlike every other field type, which does get real instrumentation whenever it has
+  // content. Name-based lookup can never succeed for these, so positional fallback must
+  // stay enabled in the editor too for them, unlike `fallback` above (this caused a live
+  // regression: cards falling back to default colors because these fields could never
+  // be read in the editor).
+  const fallbackColor = (index) => row.children[index];
+
+  // Cards published before `disclaimer` was added carry one fewer cell ahead of the
+  // colour block, and their marker/size fields sit in a different order afterwards.
+  // Both revisions appear on the SAME page, so this is decided per card, not per page.
+  //
+  // The tell is cell 3: in the current order that is `disclaimer` (free text), in the
+  // older one it is `cardBackgroundColor` (a hex). A hex there is unambiguous.
+  const legacyCardOrder = !isEditor && Boolean(normalizeColorValue(rowText(row.children[3])));
+  const LEGACY_CARD_INDEXES = {
+    cardBackgroundColor: 3,
+    cardTextColor: 4,
+    highlightTextColor: 5,
+    cardAlignment: 6,
+    cardTextSize: 7,
+    markerTerms: 8,
+    markerColor: 9,
+    markerStyle: 10,
+    highlightTextSize: 11,
+    cardPaddingStyle: 12,
+  };
+  // -1 can never match a child, so fields absent from the older revision read empty
+  // instead of picking up a neighbour's value.
+  const cardIndex = (name, currentIndex) => {
+    if (!legacyCardOrder) return currentIndex;
+    const mapped = LEGACY_CARD_INDEXES[name];
+    return Number.isInteger(mapped) ? mapped : -1;
+  };
+
+  const imageField = readImageField(row, 'image', { fallbackCell: fallback(0) });
+  const textField = readRichTextField(row, 'text', { fallbackCell: fallback(1) });
+  setItemLabel(li, [fieldText(textField)]);
+  const legacyActionStartIndex = !hasCardField(row) && hasActionContent(row.children[2]) ? 2 : 3;
+  const highlightField = legacyActionStartIndex === 2
+    ? {
+      source: null,
+      cell: null,
+      html: '',
+      text: '',
+    }
+    : readRichTextField(row, 'highlightText', { fallbackCell: fallback(2) });
+  // Fallback indices below match _cards.json's ACTUAL current field order (fields were
+  // regrouped under UI tabs by a later commit, which changed this order without the
+  // fixed-index reads here being updated — that drift was misreading one field's stored
+  // value as another's on published pages). Order: image, text, highlightText, disclaimer,
+  // cardBackgroundColor, cardTextColor, highlightTextColor, cardTextSize, highlightTextSize,
+  // disclaimerFontSize, markerTerms, markerColor, markerStyle, cardAlignment,
+  // cardPaddingStyle, imageAlt. "tab" model entries are UI-only and consume no row.
+  const disclaimerField = readTextField(row, 'disclaimer', { fallbackCell: fallback(cardIndex('disclaimer', 3)) });
+  const cardBackgroundField = readTextField(row, 'cardBackgroundColor', { fallbackCell: fallbackColor(cardIndex('cardBackgroundColor', 4)) });
+  const cardTextColorField = readTextField(row, 'cardTextColor', { fallbackCell: fallbackColor(cardIndex('cardTextColor', 5)) });
+  const highlightTextColorField = readTextField(row, 'highlightTextColor', {
+    fallbackCell: fallbackColor(cardIndex('highlightTextColor', 6)),
+  });
+  const cardTextSizeField = readTextField(row, 'cardTextSize', { fallbackCell: fallback(cardIndex('cardTextSize', 7)) });
+  const highlightTextSizeField = readTextField(row, 'highlightTextSize', { fallbackCell: fallback(cardIndex('highlightTextSize', 8)) });
+  const disclaimerFontSizeField = readTextField(row, 'disclaimerFontSize', { fallbackCell: fallback(cardIndex('disclaimerFontSize', 9)) });
+  const markerTermsField = readTextField(row, 'markerTerms', { fallbackCell: fallback(cardIndex('markerTerms', 10)) });
+  const markerColorField = readTextField(row, 'markerColor', { fallbackCell: fallbackColor(cardIndex('markerColor', 11)) });
+  const markerStyleField = readTextField(row, 'markerStyle', { fallbackCell: fallback(cardIndex('markerStyle', 12)) });
+  const cardAlignmentField = readTextField(row, 'cardAlignment', { fallbackCell: fallback(cardIndex('cardAlignment', 13)) });
+  const cardPaddingStyleField = readTextField(row, 'cardPaddingStyle', { fallbackCell: fallback(cardIndex('cardPaddingStyle', 14)) });
+  const imageAltField = readTextField(row, 'imageAlt', { fallbackCell: fallback(cardIndex('imageAlt', 15)) });
+  const resolvedCardBackground = isEditor
+    ? cardBackgroundField.value
+    : (publishedCardStyles.cardBackgroundColor || cardBackgroundField.value);
+  applyCardStyles(li, {
+    cardBackgroundColor: resolvedCardBackground,
+    cardTextColor: cardTextColorField.value,
+    highlightTextColor: highlightTextColorField.value,
+    cardTextSize: cardTextSizeField.value,
+    highlightTextSize: highlightTextSizeField.value,
+    disclaimerFontSize: disclaimerFontSizeField.value,
+    cardAlignment: cardAlignmentField.value,
+    cardPaddingStyle: cardPaddingStyleField.value,
+  });
+
+  const image = buildImage(
+    imageField,
+    isStatIconCard(textField, highlightField),
+    imageAltField.value,
+  );
+  if (image) li.append(image);
+
+  const body = document.createElement('div');
+  body.className = 'cards-card-body';
+  appendRichText(highlightField, 'cards-card-highlight', body);
+  appendRichText(textField, 'cards-card-text', body);
+
+  const disclaimerText = disclaimerField.value || disclaimerField.source?.textContent?.trim() || '';
+  if (disclaimerText && !isConfigOnlyText(disclaimerText)) {
+    const disclaimerEl = document.createElement('div');
+    disclaimerEl.className = 'cards-card-disclaimer';
+    if (disclaimerField.source) {
+      moveInstrumentation(disclaimerField.source, disclaimerEl);
+      while (disclaimerField.source.firstChild) {
+        disclaimerEl.append(disclaimerField.source.firstChild);
+      }
+    } else {
+      disclaimerEl.textContent = disclaimerField.value;
+    }
+    body.append(disclaimerEl);
+  }
+
+  appendLegacyActions(row, body, legacyActionStartIndex);
+
+  if (!body.childElementCount && hasAuthoringContext(row)) {
+    body.classList.add('is-authoring-placeholder');
+    body.textContent = 'Add card text in the editor.';
+  }
+
+  if (body.childElementCount || body.textContent.trim()) li.append(body);
+
+  // Pass the card's OWN resolved background rather than leaving the marker to infer
+  // darkness from computed styles. Attaching the card first (see below) is necessary
+  // but not sufficient: in the editor the computed background can still read as
+  // transparent at this point, so the card kept the light-background marker — a thin,
+  // washed-out circle — on a navy card. An explicit colour removes the timing
+  // dependency entirely; detection still runs when no colour is resolvable.
+  li.cardsMarkerConfig = {
+    terms: markerTermsField.value,
+    color: markerColorField.value,
+    style: markerStyleField.value,
+    background: resolvedCardBackground,
+  };
+
+  // `row` itself is discarded after this point (only `li` gets attached to the DOM), but
+  // its per-card style/config fields (cardBackgroundColor, cardTextColor, etc.) were only
+  // ever read by value here — their aue-tracked elements were never relocated into `li`.
+  // Fully dropping `row` desyncs Universal Editor's tracking of those fields, so a live
+  // edit to e.g. Card Background Color patches a DOM node that no longer exists on the
+  // page (visible only after a hard refresh). moveInstrumentation(row, li) above already
+  // stripped row's OWN aue-resource identity, so re-attaching it hidden inside `li` can't
+  // create a duplicate/competing resource — only its still-instrumented field descendants
+  // remain live. Matches the hide-not-remove pattern used for block-level settings.
+  if (hasAuthoringContext(row)) {
+    row.hidden = true;
+    li.append(row);
+  }
+
+  if (isEditor) {
+    [
+      ['cardBackgroundColor', cardBackgroundField],
+      ['cardTextColor', cardTextColorField],
+      ['highlightTextColor', highlightTextColorField],
+      ['cardTextSize', cardTextSizeField],
+      ['highlightTextSize', highlightTextSizeField],
+      ['disclaimerFontSize', disclaimerFontSizeField],
+      ['cardAlignment', cardAlignmentField],
+      ['cardPaddingStyle', cardPaddingStyleField],
+    ].forEach(([name, field]) => watchCardStyleField(field, li, name));
+    syncResourceCardStyles(resourcePath, li);
+  }
+
+  return li;
+}
+
+function archiveHiddenRows(block, isEditor) {
+  if (!isEditor) return null;
+
+  const archive = document.createElement('span');
+  archive.className = 'cards-field-archive';
+  archive.hidden = true;
+
+  [...block.querySelectorAll(':scope > div[hidden]')].forEach((row) => archive.append(row));
+
+  return archive.children.length ? archive : null;
+}
 
 export default function decorate(block) {
-  /* change to ul, li */
+  const isEditor = hasAuthoringContext(block);
+  const resourcePath = getAueResourcePath(block);
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const legacySettings = getLegacySettingCells(rows);
+  applySettings(block, {
+    textAlignment: readSetting(
+      block,
+      'textAlignment',
+      ['text alignment', 'alignment', 'horizontal alignment'],
+      legacySettings.textAlignment,
+      isEditor,
+    ),
+    defaultCardBackgroundColor: readSetting(block, 'defaultCardBackgroundColor', [
+      'default card background color',
+      'card background color',
+    ], legacySettings.defaultCardBackgroundColor, isEditor),
+    defaultCardTextColor: readSetting(block, 'defaultCardTextColor', [
+      'default card text color',
+      'card text color',
+    ], legacySettings.defaultCardTextColor, isEditor),
+    defaultHighlightTextColor: readSetting(block, 'defaultHighlightTextColor', [
+      'default highlighted text color',
+      'highlighted text color',
+      'highlight text color',
+    ], legacySettings.defaultHighlightTextColor, isEditor),
+    buttonDisplay: readSetting(
+      block,
+      'buttonDisplay',
+      ['card buttons', 'buttons'],
+      legacySettings.buttonDisplay,
+      isEditor,
+    ),
+    imageDisplay: readSetting(
+      block,
+      'imageDisplay',
+      ['image display', 'image display mode', 'image style'],
+      legacySettings.imageDisplay,
+      isEditor,
+    ),
+    cardBorderRadius: readSetting(
+      block,
+      'cardBorderRadius',
+      ['card border radius', 'border radius'],
+      legacySettings.cardBorderRadius,
+      isEditor,
+    ),
+    cardShadow: readSetting(
+      block,
+      'cardShadow',
+      ['card shadow', 'drop shadow', 'shadow'],
+      legacySettings.cardShadow,
+      isEditor,
+    ),
+    defaultCardTextSize: readSetting(
+      block,
+      'defaultCardTextSize',
+      ['default card text size', 'card text size', 'text size'],
+      legacySettings.defaultCardTextSize,
+      isEditor,
+    ),
+    cardGap: readSetting(block, 'cardGap', ['card gap', 'gap', 'card spacing'], null, isEditor),
+    defaultHighlightTextSize: readSetting(
+      block,
+      'defaultHighlightTextSize',
+      ['default highlighted text size', 'highlighted text size', 'highlight text size'],
+      null,
+      isEditor,
+    ),
+    defaultCardPaddingStyle: readSetting(
+      block,
+      'defaultCardPaddingStyle',
+      ['default card padding', 'card padding'],
+      null,
+      isEditor,
+    ),
+  });
+
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
-    const li = document.createElement('li');
-    moveInstrumentation(row, li);
-    while (row.firstElementChild) li.append(row.firstElementChild);
-    [...li.children].forEach((div) => {
-      if (div.children.length === 1 && div.querySelector('picture')) div.className = 'cards-card-image';
-      else div.className = 'cards-card-body';
-    });
-    ul.append(li);
+    if (isSettingRow(row)) {
+      if (isEditor && hasAuthoringContext(row)) row.hidden = true;
+      else row.remove();
+      return;
+    }
+
+    if (!shouldRenderCardRow(row)) {
+      row.remove();
+      return;
+    }
+
+    ul.append(buildCard(row, isEditor));
   });
-  ul.querySelectorAll('picture > img').forEach((img) => {
-    const optimizedPic = createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]);
-    moveInstrumentation(img, optimizedPic.querySelector('img'));
-    img.closest('picture').replaceWith(optimizedPic);
+
+  const archive = archiveHiddenRows(block, isEditor);
+  block.replaceChildren(ul, ...(archive ? [archive] : []));
+  [...ul.children].forEach((li) => {
+    applyAnimatedMarkers(li, li.cardsMarkerConfig);
+    delete li.cardsMarkerConfig;
   });
-  block.replaceChildren(ul);
+  syncResourceSettings(resourcePath, block);
 }

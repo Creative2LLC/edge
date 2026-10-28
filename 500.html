@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="script-src 'nonce-aem' 'strict-dynamic' 'unsafe-inline' http: https:; base-uri 'self'; object-src 'none';"
+    move-to-http-header="true"
+  >
+  <title>Something went wrong</title>
+  <script nonce="aem" type="text/javascript">
+    window.isErrorPage = true;
+    window.errorCode = '500';
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta property="og:title" content="Something went wrong">
+  <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
+  <script nonce="aem" src="/scripts/error-pages.js" type="module"></script>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/styles/error-pages.css">
+  <link rel="stylesheet" href="/styles/lazy-styles.css">
+</head>
+
+<body>
+  <header></header>
+  <main class="error">
+    <div class="section">
+      <div class="error-page" data-error-page>
+        <div class="error-page-shell">
+          <div class="error-page-copy">
+            <p class="error-page-eyebrow"></p>
+            <h1 class="error-page-title"></h1>
+            <p class="error-page-description"></p>
+            <ul class="error-page-points"></ul>
+            <div class="error-page-actions"></div>
+            <p class="error-page-meta"></p>
+          </div>
+          <div class="error-page-visual" aria-hidden="true">
+            <div class="error-page-visual-backdrop"></div>
+            <div class="error-page-orbit error-page-orbit-one"></div>
+            <div class="error-page-orbit error-page-orbit-two"></div>
+            <div class="error-page-pulse error-page-pulse-one"></div>
+            <div class="error-page-pulse error-page-pulse-two"></div>
+            <div class="error-page-code-wrap">
+              <div class="error-page-code-shadow"></div>
+              <div class="error-page-code"></div>
+            </div>
+            <div class="error-page-panel error-page-panel-top">
+              <span class="error-page-panel-label"></span>
+              <strong class="error-page-panel-value"></strong>
+            </div>
+            <div class="error-page-panel error-page-panel-bottom">
+              <span class="error-page-panel-label"></span>
+              <strong class="error-page-panel-value"></strong>
+            </div>
+            <div class="error-page-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer></footer>
+</body>
+
+</html>

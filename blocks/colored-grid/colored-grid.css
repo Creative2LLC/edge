@@ -1,0 +1,294 @@
+.colored-grid {
+  --colored-grid-bg: transparent;
+  --colored-grid-text: inherit;
+  --colored-grid-padding: 0;
+  --colored-grid-rows-gap: 24px;
+  --colored-grid-radius: 0;
+  --colored-grid-max-width: 100%;
+  --colored-grid-min-height: 0;
+  --colored-grid-row-bg: transparent;
+  --colored-grid-row-text: inherit;
+  --colored-grid-row-padding: 0;
+  --colored-grid-row-gap: 24px;
+  --colored-grid-row-radius: 0;
+  --colored-grid-row-min-height: 0;
+
+  color: var(--colored-grid-text);
+}
+
+.colored-grid .colored-grid-inner {
+  display: grid;
+  grid-template-columns: repeat(60, minmax(0, 1fr));
+  gap: var(--colored-grid-rows-gap);
+  width: 100%;
+  max-width: var(--colored-grid-max-width);
+  min-height: 0;
+  margin-inline: auto;
+  padding: var(--colored-grid-padding);
+  border-radius: var(--colored-grid-radius);
+  background: var(--colored-grid-bg);
+  color: inherit;
+}
+
+.colored-grid .colored-grid-inner > * {
+  grid-column: 1 / -1;
+}
+
+.colored-grid.colored-grid-v-middle .colored-grid-inner {
+  align-content: center;
+}
+
+.colored-grid.colored-grid-v-bottom .colored-grid-inner {
+  align-content: end;
+}
+
+.colored-grid .colored-grid-row-marker {
+  grid-column: 1 / -1;
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgb(0 38 77 / 24%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 64%);
+  color: #6b6b6b;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.colored-grid .colored-grid-row-marker::before {
+  content: attr(data-aue-label);
+}
+
+.colored-grid .colored-grid-row-marker > :not([hidden]) {
+  display: none;
+}
+
+.colored-grid .colored-grid-row-item {
+  grid-column: span var(--colored-grid-item-column-span, 60);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--colored-grid-row-padding);
+  border-radius: var(--colored-grid-row-radius);
+  background: var(--colored-grid-row-bg);
+  color: var(--colored-grid-row-text);
+}
+
+.colored-grid .colored-grid-row-start {
+  grid-column: 1 / span var(--colored-grid-item-column-span, 60);
+}
+
+.colored-grid .colored-grid-row {
+  display: grid;
+  grid-template-columns: repeat(var(--colored-grid-row-columns, 2), minmax(0, 1fr));
+  gap: var(--colored-grid-row-gap);
+  min-height: 0;
+  padding: var(--colored-grid-row-padding);
+  border-radius: var(--colored-grid-row-radius);
+  background: var(--colored-grid-row-bg);
+  color: var(--colored-grid-row-text);
+}
+
+.colored-grid .colored-grid-row > * {
+  min-width: 0;
+}
+
+.colored-grid .colored-grid-row-h-left {
+  justify-items: start;
+  text-align: left;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-h-left {
+  justify-self: stretch;
+  text-align: left;
+}
+
+.colored-grid .colored-grid-row-h-center {
+  justify-items: center;
+  text-align: center;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-h-center {
+  justify-self: stretch;
+  text-align: center;
+}
+
+.colored-grid .colored-grid-row-h-right {
+  justify-items: end;
+  text-align: right;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-h-right {
+  justify-self: stretch;
+  text-align: right;
+}
+
+.colored-grid .colored-grid-row-h-stretch {
+  justify-items: stretch;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-h-stretch {
+  justify-self: stretch;
+}
+
+.colored-grid .colored-grid-row-v-top {
+  align-items: start;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-v-top {
+  align-self: start;
+}
+
+.colored-grid .colored-grid-row-v-middle {
+  align-items: center;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-v-middle {
+  align-self: center;
+}
+
+.colored-grid .colored-grid-row-v-bottom {
+  align-items: end;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-v-bottom {
+  align-self: end;
+}
+
+.colored-grid .colored-grid-row-v-stretch {
+  align-items: stretch;
+}
+
+.colored-grid .colored-grid-row-item.colored-grid-row-v-stretch {
+  align-self: stretch;
+}
+
+.colored-grid .colored-grid-empty,
+.colored-grid .colored-grid-row-empty {
+  width: 100%;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgb(0 38 77 / 24%);
+  border-radius: 8px;
+  color: #6b6b6b;
+  font-size: var(--body-sm-size);
+  font-style: italic;
+}
+
+.colored-grid .colored-grid-row-empty {
+  grid-column: 1 / -1;
+}
+
+.colored-grid .colored-grid-field-archive {
+  display: none !important;
+}
+
+.colored-grid .color-picker-bar {
+  display: none;
+}
+
+.colored-grid .colored-grid-child-empty {
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  border: 1px dashed rgb(0 38 77 / 20%);
+  border-radius: 6px;
+  color: #6b6b6b;
+  font-size: var(--body-sm-size);
+  font-style: italic;
+}
+
+.colored-grid .statistics,
+.colored-grid .cards,
+.colored-grid .colored-heading,
+.colored-grid .colored-text,
+.colored-grid .colored-icon-text,
+.colored-grid .colored-button,
+.colored-grid .colored-list,
+.colored-grid .columns {
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: 0;
+}
+
+.colored-grid .statistics {
+  padding: 0;
+}
+
+.colored-grid .statistics .statistics-body {
+  margin-top: 0;
+}
+
+.colored-grid .statistics .statistics-value,
+.colored-grid .statistics .statistics-label {
+  overflow-wrap: anywhere;
+}
+
+.colored-grid .statistics .statistics-inner,
+.colored-grid .colored-heading .colored-heading-inner,
+.colored-grid .colored-text .colored-text-inner,
+.colored-grid .colored-icon-text .colored-icon-text-inner,
+.colored-grid .colored-list .colored-list-inner {
+  max-width: 100%;
+}
+
+/*
+  Padding fix: .colored-grid-row-item { padding } has specificity (0,2,0) which beats
+  the block's own padding rule (0,1,0), so block-level padding options were silently
+  ignored. These higher-specificity rules (0,3,0) restore the intended behavior:
+  use the block's --colored-field-padding-* when set by a padding option class,
+  otherwise fall back to the row-level --colored-grid-row-padding, then 0.
+*/
+.colored-grid .colored-grid-row-item.colored-text,
+.colored-grid .colored-grid-row-item.colored-heading,
+.colored-grid .colored-grid-row-item.colored-icon-text,
+.colored-grid .colored-grid-row-item.colored-list,
+.colored-grid .colored-grid-row-item.colored-button {
+  padding:
+    var(--colored-field-padding-top, var(--colored-grid-row-padding, 0))
+    var(--colored-field-padding-right, var(--colored-grid-row-padding, 0))
+    var(--colored-field-padding-bottom, var(--colored-grid-row-padding, 0))
+    var(--colored-field-padding-left, var(--colored-grid-row-padding, 0));
+}
+
+/* Keep dense data rows in the single-column treatment through tablet widths. */
+@media (width <= 900px) {
+    .colored-grid .statistics {
+        padding: 30px;
+    }
+
+  .colored-grid .colored-grid-row-item {
+    grid-column: 1 / -1;
+  }
+
+  .colored-grid .colored-grid-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* HOVER — tint tier (wash, no lift). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.colored-grid .colored-grid-row-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.colored-grid .colored-grid-row-item:focus-within,
+.colored-grid .colored-grid-row-item:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  background-image: linear-gradient(var(--hover-tint-wash), var(--hover-tint-wash));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .colored-grid .colored-grid-row-item:focus-within,
+  .colored-grid .colored-grid-row-item:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

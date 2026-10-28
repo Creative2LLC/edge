@@ -1,0 +1,273 @@
+{
+  "definitions": [
+    {
+      "title": "Img Logo Btn Split Col Banner",
+      "id": "split-card-info",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Img Logo Btn Split Col Banner",
+              "model": "split-card-info"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "split-card-info",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "imageSplit",
+          "label": "Image Split Ratio",
+          "description": "Choose how much space the image takes up",
+          "options": [
+            {
+              "name": "50/50 Split",
+              "value": "half"
+            },
+            {
+              "name": "Image 1/3 (with gap)",
+              "value": "third"
+            }
+          ],
+          "value": "half"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "mainImage",
+          "label": "Main Image (Left Side)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "mainImageAlt",
+          "label": "Main Image Alt Text",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "topLogo",
+          "label": "Top Logo (Optional, 190x96px)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "topLogoAlt",
+          "label": "Top Logo Alt Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading (Optional)",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "subheading",
+          "label": "Subheading with Number (Optional)",
+          "description": "Format: Number first, then text (e.g., '20,512,803 people served')",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text (Optional)",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonColor",
+          "label": "Button Style",
+          "description": "Pick a style from the site button standard. A colour chosen before this field became a style maps to the nearest style.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonTextColor",
+          "label": "Button Text Color (set by site styles)",
+          "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "contentBackgroundColor",
+          "label": "Content Background Color",
+          "description": "Background color for the right text side. Defaults to #ffffff",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

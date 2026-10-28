@@ -1,0 +1,371 @@
+.historical-trends {
+  --historical-trends-line-color: var(--ncmec-blue-medium);
+
+  position: relative;
+  padding: 84px 0 72px;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.historical-trends .historical-trends-inner {
+  display: grid;
+  gap: 44px;
+}
+
+.historical-trends .historical-trends-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 1, 0.22, 1);
+  transition-delay: calc(var(--stagger-index, 0) * 110ms);
+}
+
+.historical-trends.is-visible .historical-trends-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.historical-trends .historical-trends-header {
+  max-width: 760px;
+}
+
+.historical-trends .historical-trends-heading {
+  margin: 0 0 18px;
+  color: #113a67;
+}
+
+.historical-trends .historical-trends-subheading {
+  max-width: 780px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  line-height: var(--caption-line-height);
+  font-weight: var(--body-weight-medium);
+}
+
+.historical-trends .historical-trends-subheading > :first-child {
+  margin-top: 0;
+}
+
+.historical-trends .historical-trends-subheading > :last-child {
+  margin-bottom: 0;
+}
+
+.historical-trends .historical-trends-chart-frame {
+  position: relative;
+}
+
+.historical-trends .historical-trends-chart-frame::before,
+.historical-trends .historical-trends-chart-frame::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
+}
+
+.historical-trends .historical-trends-chart-frame::before {
+  inset: 10% 30% 22% 2%;
+  background: radial-gradient(circle, rgb(110 174 201 / 18%) 0%, rgb(110 174 201 / 0%) 72%);
+  filter: blur(14px);
+}
+
+.historical-trends .historical-trends-chart-frame::after {
+  inset: 28% 0 18% 62%;
+  background: radial-gradient(circle, rgb(242 196 138 / 34%) 0%, rgb(242 196 138 / 0%) 74%);
+  filter: blur(18px);
+}
+
+.historical-trends.is-visible .historical-trends-chart-frame::before,
+.historical-trends.is-visible .historical-trends-chart-frame::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.historical-trends .historical-trends-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  cursor: crosshair;
+}
+
+.historical-trends .historical-trends-fill-group {
+  opacity: 0.12;
+  transform: translateY(30px) scaleY(0.94);
+  transform-origin: center bottom;
+  transition:
+    opacity 1100ms ease 160ms,
+    transform 1100ms cubic-bezier(0.2, 1, 0.22, 1) 160ms;
+}
+
+.historical-trends.is-visible .historical-trends-fill-group {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+}
+
+.historical-trends .historical-trends-area {
+  pointer-events: none;
+}
+
+.historical-trends .historical-trends-area-base {
+  opacity: 0.86;
+}
+
+.historical-trends .historical-trends-area-highlight {
+  opacity: 0.98;
+}
+
+.historical-trends .historical-trends-line {
+  fill: none;
+  stroke: var(--historical-trends-line-color);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 6px 18px rgb(10 143 188 / 16%));
+}
+
+/* The trend line's reveal animation is driven by a clipPath rect that
+   scales horizontally from 0 to 1. Using a clipPath sidesteps SVG path
+   length quirks that can leave the tail of the curve un-drawn when
+   relying on stroke-dasharray + getTotalLength(). */
+.historical-trends .historical-trends-line-draw-rect {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transform: scaleX(0);
+  transition: transform 1400ms cubic-bezier(0.4, 0, 0.2, 1) 120ms;
+}
+
+.historical-trends.is-visible .historical-trends-line-draw-rect {
+  transform: scaleX(1);
+}
+
+.historical-trends .historical-trends-axis {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--historical-trends-axis-columns, 2), minmax(0, 1fr));
+  gap: 0;
+  padding-top: 14px;
+}
+
+.historical-trends .historical-trends-axis::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgb(168 164 160 / 85%);
+}
+
+.historical-trends .historical-trends-axis-label {
+  color: var(--ncmec-gray-dark);
+  font-weight: var(--body-weight-strong);
+  line-height: 1.2;
+  transition: color 160ms ease;
+}
+
+/* HOVER: a hairline snaps to the nearest year, a marker sits on the line, and that year's
+   axis label darkens. The readout itself is the shared chart tooltip. */
+.historical-trends .historical-trends-chart:focus-visible {
+  outline: 3px solid var(--ncmec-blue-dark);
+  outline-offset: 4px;
+}
+
+.historical-trends .historical-trends-focus {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.historical-trends .historical-trends-chart-frame.is-inspecting .historical-trends-focus {
+  opacity: 1;
+}
+
+.historical-trends .historical-trends-crosshair {
+  stroke: var(--ncmec-navy-dark);
+  stroke-dasharray: 4 4;
+  stroke-opacity: 0.45;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.historical-trends .historical-trends-marker {
+  fill: #fff;
+  stroke: var(--historical-trends-line-color);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.historical-trends .historical-trends-axis-label.is-active {
+  color: var(--ncmec-navy-dark);
+}
+
+.historical-trends .historical-trends-axis-label:first-child {
+  justify-self: start;
+}
+
+.historical-trends .historical-trends-axis-label:last-child {
+  justify-self: end;
+}
+
+.historical-trends .historical-trends-axis-label:not(:first-child, :last-child) {
+  justify-self: center;
+}
+
+.historical-trends .historical-trends-cards-section {
+  display: grid;
+  gap: 24px;
+}
+
+.historical-trends .historical-trends-cards-heading {
+  margin: 0;
+  color: #113a67;
+}
+
+.historical-trends .historical-trends-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.historical-trends .historical-trends-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 34px 32px 30px;
+  border: 1px solid rgb(17 58 103 / 6%);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 98%) 0%, rgb(255 255 255 / 100%) 100%);
+  box-shadow:
+    0 6px 16px rgb(17 58 103 / 7%),
+    0 18px 30px rgb(17 58 103 / 10%);
+  transition:
+    transform 260ms ease,
+    box-shadow 260ms ease,
+    border-color 260ms ease;
+}
+
+.historical-trends .historical-trends-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  border-color: rgb(20 145 191 / 18%);
+  box-shadow: var(--shadow-3);
+}
+
+.historical-trends .historical-trends-card.is-authoring-placeholder {
+  justify-content: center;
+  gap: 12px;
+  border-style: dashed;
+  border-color: #c8d8e1;
+  background: rgb(20 145 191 / 4%);
+  box-shadow: none;
+}
+
+.historical-trends .historical-trends-card-title {
+  margin: 0 0 16px;
+  color: var(--ncmec-gray-dark);
+}
+
+.historical-trends .historical-trends-card-body {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-weight: var(--body-weight-medium);
+}
+
+.historical-trends .historical-trends-card-body > :first-child {
+  margin-top: 0;
+}
+
+.historical-trends .historical-trends-card-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* Card link: the Text link style from the button standard; this only places it. */
+.historical-trends .historical-trends-card-link {
+  margin-top: auto;
+  padding-top: 26px;
+}
+
+@media (width <= 1100px) {
+  .historical-trends .historical-trends-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 700px) {
+  .historical-trends {
+    padding: 60px 0 48px;
+  }
+
+  .historical-trends .historical-trends-inner {
+    gap: 34px;
+  }
+
+  .historical-trends .historical-trends-axis {
+    padding-top: 12px;
+  }
+
+  .historical-trends .historical-trends-axis-label {
+    font-size: var(--caption-size);
+  }
+
+  .historical-trends .historical-trends-cards {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .historical-trends .historical-trends-card {
+    padding: 28px 24px 24px;
+  }
+
+  .historical-trends .historical-trends-card-title {
+    margin-bottom: 14px;
+  }
+
+  .historical-trends .historical-trends-card-link {
+    padding-top: 24px;
+  }
+}
+
+/* Eleven four-digit years cannot form a readable axis on a phone. Keep every
+   other year plus the current year, spaced as intentional timeline markers. */
+@media (width <= 600px) {
+  .historical-trends .historical-trends-axis {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .historical-trends .historical-trends-axis-label {
+    justify-self: center;
+    font-size: var(--caption-size);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  .historical-trends .historical-trends-axis-label:nth-child(even) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .historical-trends .historical-trends-reveal,
+  .historical-trends .historical-trends-chart-frame::before,
+  .historical-trends .historical-trends-chart-frame::after,
+  .historical-trends .historical-trends-fill-group,
+  .historical-trends .historical-trends-card,
+  .historical-trends .historical-trends-card-link,
+  .historical-trends .historical-trends-card-link::after {
+    transition: none;
+    animation: none;
+  }
+
+  .historical-trends .historical-trends-line-draw-rect {
+    transform: scaleX(1);
+    transition: none;
+  }
+}

@@ -1,0 +1,96 @@
+/* Block container */
+.cta-card-2.block {
+  display: flex !important;
+  align-items: stretch;
+  border-radius: 14px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Left side — icon area, compact */
+.cta-card-2 .cta-card-2-left {
+  flex: 0 0 auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 120px;
+}
+
+.cta-card-2 .cta-card-2-icon {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Right side — takes up most of the card */
+.cta-card-2 .cta-card-2-right {
+  flex: 1 1 0% !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 56px 40px 56px 0;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cta-card-2 .cta-card-2-title {
+  color: #00264d;
+  margin: 0;
+}
+
+.cta-card-2 .cta-card-2-subtitle {
+  font-size: var(--body-size) !important;
+  font-weight: 500 !important;
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  line-height: var(--body-line-height);
+}
+
+.cta-card-2 .cta-card-2-subtitle p {
+  margin: 0 0 12px;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.cta-card-2 .cta-card-2-subtitle p:last-child {
+  margin-bottom: 0;
+}
+
+.cta-card-2 .cta-card-2-subtitle ul,
+.cta-card-2 .cta-card-2-subtitle ol {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  color: inherit;
+}
+
+.cta-card-2 .cta-card-2-subtitle li {
+  margin-bottom: 4px;
+}
+
+/* Button: styled by the button standard; this only places it. */
+.cta-card-2 .cta-card-2-button {
+  width: 284px;
+  max-width: 100%;
+  margin-top: 4px;
+}
+
+/* Responsive */
+@media (width <= 900px) {
+  .cta-card-2.block {
+    flex-direction: column !important;
+    align-items: center;
+  }
+
+  .cta-card-2 .cta-card-2-left {
+    padding: 32px 32px 0;
+  }
+
+  .cta-card-2 .cta-card-2-right {
+    padding: 24px 32px 32px;
+  }}

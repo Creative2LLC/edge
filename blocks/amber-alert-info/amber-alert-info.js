@@ -1,0 +1,191 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
+
+const HEX_RE = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+
+function normalizeHex(text) {
+  if (!HEX_RE.test(text)) return '';
+  return text.startsWith('#') ? text : `#${text}`;
+}
+
+function findHexAcrossRows(block) {
+  const rows = getBlockRows(block);
+  for (let i = rows.length - 1; i >= 0; i -= 1) {
+    const row = rows[i];
+    if (row) {
+      for (let j = 0; j < row.children.length; j += 1) {
+        const hex = normalizeHex(row.children[j].textContent?.trim() || '');
+        if (hex) return hex;
+      }
+    }
+  }
+  return '';
+}
+
+export default function decorate(block) {
+  const rows = getBlockRows(block);
+  const allPictures = [...block.querySelectorAll('picture')];
+
+  const mainImageField = readImageField(block, 'mainImage', 0);
+  const mainPicture = mainImageField.picture || allPictures[0] || null;
+
+  // In live delivery AEM omits rows whose value matches the field's default.
+  // mainImageAlt has default "" so it is absent when not authored. Detect this:
+  // in live mode (no data-aue-prop attributes) if row 1 contains a picture it is
+  // actually the icon row — mainImageAlt was stripped and everything shifts by -1.
+  const hasAuthorProps = !!block.querySelector('[data-aue-prop], [data-richtext-prop]');
+  const liveRow1HasPicture = !hasAuthorProps && !!rows[1]?.querySelector('img, picture');
+  const i = liveRow1HasPicture ? -1 : 0; // row-index compensation
+
+  const mainImageAlt = (!hasAuthorProps && liveRow1HasPicture)
+    ? (mainPicture?.querySelector('img')?.alt || '')
+    : readTextField(block, 'mainImageAlt', 1).value;
+
+  const iconField = readImageField(block, 'icon', 2 + i);
+  const iconPicture = iconField.picture || allPictures.find((p) => p !== mainPicture) || null;
+
+  const titleField = readRichTextField(block, 'title', 3 + i);
+  const subtitleField = readRichTextField(block, 'subtitle', 4 + i);
+  const buttonText = readTextField(block, 'buttonText', 5 + i).value;
+  const buttonLink = readLinkField(block, 'buttonLink', 6 + i).value;
+  const stat1Number = readTextField(block, 'stat1Number', 7 + i).value;
+  const stat1Text = readTextField(block, 'stat1Text', 8 + i).value;
+  const stat2Number = readTextField(block, 'stat2Number', 9 + i).value;
+  const stat2Text = readTextField(block, 'stat2Text', 10 + i).value;
+  const rawBg = readTextField(block, 'backgroundColor', 11 + i).value.trim();
+  const backgroundColor = normalizeHex(rawBg) || findHexAcrossRows(block);
+  const buttonStyle = readTextField(block, 'buttonStyle', 12 + i).value || 'solid';
+
+  const container = document.createElement('div');
+  container.className = 'amber-alert-info-container';
+
+  // Left: main image
+  const mediaSection = document.createElement('div');
+  mediaSection.className = 'amber-alert-info-media';
+  if (mainPicture) {
+    const img = mainPicture.querySelector('img');
+    if (img) {
+      const optimized = createOptimizedPicture(
+        img.src,
+        mainImageAlt || img.alt || '',
+        false,
+        [{ width: '800' }],
+      );
+      mediaSection.appendChild(optimized);
+    }
+  }
+  container.appendChild(mediaSection);
+
+  // Right: content
+  const contentSection = document.createElement('div');
+  contentSection.className = 'amber-alert-info-content';
+  block.dataset.bgRead = rawBg || '(empty)';
+  block.dataset.bgApplied = backgroundColor || '(none)';
+  if (backgroundColor) {
+    contentSection.style.setProperty('--amber-alert-info-bg', backgroundColor);
+    contentSection.style.setProperty('background-color', backgroundColor, 'important');
+  }
+  // The panel is always coloured (red by default), so its button takes the dark form
+  // unless an author chose a light background.
+  markButtonSurface(contentSection, isDarkSurface(backgroundColor || '#ae1b1f'));
+
+  // Left column of right side
+  const mainCol = document.createElement('div');
+  mainCol.className = 'amber-alert-info-main';
+
+  if (iconPicture) {
+    const iconImg = iconPicture.querySelector('img');
+    const iconSrc = iconImg?.src || '';
+    if (iconSrc) {
+      const icon = document.createElement('img');
+      icon.className = 'amber-alert-info-icon';
+      icon.src = iconSrc;
+      icon.alt = iconImg.alt || '';
+      mainCol.appendChild(icon);
+    }
+  }
+
+  if (titleField.html || titleField.text) {
+    const h2 = document.createElement('h2');
+    h2.className = 'amber-alert-info-title';
+    h2.innerHTML = titleField.html || titleField.text;
+    mainCol.appendChild(h2);
+  }
+
+  if (subtitleField.html || subtitleField.text) {
+    const subtitle = document.createElement('div');
+    subtitle.className = 'amber-alert-info-subtitle';
+    subtitle.innerHTML = subtitleField.html || subtitleField.text;
+    mainCol.appendChild(subtitle);
+  }
+
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (buttonText && (buttonLink || hasAuthorProps)) {
+    const button = document.createElement(buttonLink ? 'a' : 'span');
+    button.className = `amber-alert-info-button amber-alert-info-button-${buttonStyle}`;
+    if (buttonLink) {
+      button.href = buttonLink;
+    } else {
+      button.setAttribute('aria-disabled', 'true');
+      button.title = 'Add a link to publish this button';
+    }
+    button.textContent = buttonText;
+    applyButtonStyle(button, resolveButtonStyle(buttonStyle));
+    mainCol.appendChild(button);
+  }
+
+  contentSection.appendChild(mainCol);
+
+  // Right column of right side (stats)
+  const statsCol = document.createElement('div');
+  statsCol.className = 'amber-alert-info-stats';
+
+  function buildStat(number, text) {
+    const stat = document.createElement('div');
+    stat.className = 'amber-alert-info-stat';
+    if (number) {
+      const num = document.createElement('div');
+      num.className = 'amber-alert-info-stat-number';
+      num.textContent = number;
+      stat.appendChild(num);
+    }
+    if (text) {
+      const t = document.createElement('p');
+      t.className = 'amber-alert-info-stat-text';
+      t.textContent = text;
+      stat.appendChild(t);
+    }
+    return stat;
+  }
+
+  if (stat1Number || stat1Text) {
+    statsCol.appendChild(buildStat(stat1Number, stat1Text));
+  }
+  if ((stat1Number || stat1Text) && (stat2Number || stat2Text)) {
+    const divider = document.createElement('div');
+    divider.className = 'amber-alert-info-divider';
+    statsCol.appendChild(divider);
+  }
+  if (stat2Number || stat2Text) {
+    statsCol.appendChild(buildStat(stat2Number, stat2Text));
+  }
+
+  contentSection.appendChild(statsCol);
+  container.appendChild(contentSection);
+
+  block.textContent = '';
+  block.appendChild(container);
+}

@@ -1,0 +1,158 @@
+/* Need Help Block */
+.need-help.block {
+  background:
+    linear-gradient(
+      270deg,
+      rgb(231 228 225 / 15%) 0%,
+      rgb(0 141 182 / 15%) 100%
+    ),
+    linear-gradient(
+      270deg,
+      #e7e4e1 0%,
+      rgb(231 228 225 / 0%) 100%
+    );
+  border-radius: 32px;
+  padding: 60px 48px;
+  margin: 0 auto;
+}
+
+/* Inner wrapper */
+.need-help-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+}
+
+/* Heading */
+.need-help-heading {
+  /* Blue Dark: Blue Medium is 2.7:1 here even at heading size (needs 3). */
+  color: var(--ncmec-blue-dark);
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+/* Subheading */
+.need-help-subheading {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 40px;
+  line-height: var(--caption-line-height);
+  text-align: center;
+  max-width: 885px;
+}
+
+/* Cards row */
+.need-help-cards {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Individual card */
+.need-help-card {
+  flex: 1 1 0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 28px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px 0 rgb(64 64 65 / 12%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Card title */
+.need-help-card-title {
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 8px;
+}
+
+/* Card subheading */
+.need-help-card-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 16px;
+}
+
+/* Card link: the Text link style from the button standard; this only places it. */
+.need-help-card-link {
+  margin-top: auto;
+}
+
+/* Parenthesized text in link */
+.need-help-card-link-small {
+  font-size: var(--body-sm-size);
+}
+
+/* === Responsive === */
+
+/* Tablet */
+@media (width <= 900px) {
+  .need-help.block {
+    padding: 48px 32px;
+  }
+
+  .need-help-subheading {
+    font-size: var(--body-lg-size);
+  }
+
+  .need-help-cards {
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .need-help-card {
+    /* Three content-heavy cards cannot maintain a readable measure at
+       tablet widths. Two columns leave room for headings, body copy, and
+       contact links; an odd final card naturally fills its own row. */
+    flex: 1 1 calc((100% - 20px) / 2);
+    min-width: 0;
+  }
+}
+
+/* Mobile */
+@media (width <= 600px) {
+  .need-help.block {
+    padding: 36px 20px;
+    border-radius: 20px;
+  }
+
+  .need-help-subheading {
+    margin-bottom: 28px;
+  }
+
+  .need-help-cards {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.need-help .need-help-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.need-help .need-help-card:focus-within,
+.need-help .need-help-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .need-help .need-help-card:focus-within,
+  .need-help .need-help-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

@@ -1,0 +1,288 @@
+/* Leadership Team Block */
+.leadership-team {
+  padding: 0 0 60px;
+}
+
+.leadership-team-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* -------------------------------------------------------
+   Navigation Bar
+   ------------------------------------------------------- */
+.leadership-team-nav {
+  margin-bottom: 48px;
+  display: flex;
+  justify-content: center;
+}
+
+.leadership-team-nav-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  padding: 4px;
+  margin: 0;
+  background-color: var(--ncmec-warm-gray);
+  border-radius: 9999px;
+  height: 42px;
+}
+
+.leadership-team-nav-btn {
+  /* Inherited from the old global button rule, dropped with the controls pass. */
+  margin: 12px 0;
+  font-size: var(--button-font-size);
+  font-weight: 600;
+
+  /* Was #00000080, which composites to 3.81 on the warm gray rail. */
+  color: var(--ncmec-gray-dark);
+  background: none;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, background-color 0.2s;
+  line-height: 1;
+}
+
+.leadership-team-nav-btn:hover,
+.leadership-team-nav-btn:focus {
+  color: #000;
+  background-color: transparent;
+}
+
+.leadership-team-nav-btn.active {
+  color: #000;
+}
+
+/* -------------------------------------------------------
+   Sections
+   ------------------------------------------------------- */
+.leadership-team-section {
+  margin-bottom: 56px;
+  scroll-margin-top: 100px;
+}
+
+.leadership-team-section:last-child {
+  margin-bottom: 0;
+}
+
+.leadership-team-section-heading {
+  color: #00264d;
+  text-align: center;
+  margin: 0 0 40px;
+}
+
+/* -------------------------------------------------------
+   Cards Grid
+   ------------------------------------------------------- */
+.leadership-team-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 32px 24px;
+  justify-items: center;
+}
+
+/* -------------------------------------------------------
+   Individual Leader Card
+   ------------------------------------------------------- */
+.leadership-team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 258px;
+  width: 100%;
+}
+
+/* Card image */
+.leadership-team-card-image {
+  width: 100%;
+  height: 348px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.leadership-team-card-image picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.leadership-team-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transform: scale(1.2);
+}
+
+/* Small image size option */
+.leadership-team-card-small-image {
+  max-width: 258px;
+}
+
+.leadership-team-card-small-image .leadership-team-card-image {
+  width: 100%;
+  height: 208px;
+  margin-bottom: 0;
+}
+
+.leadership-team-card-small-image .leadership-team-card-text {
+  width: 100%;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+/* Sections after the first: shorter image height (258 x 208) */
+.leadership-team-section ~ .leadership-team-section .leadership-team-card-image {
+  height: 208px;
+}
+
+/* Card name */
+.leadership-team-card-name {
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 4px;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+  max-width: 194px;
+}
+
+/* Card title */
+.leadership-team-card-title {
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 8px;
+  padding: 0;
+  line-height: 1.4;
+  text-align: left;
+  width: 100%;
+  max-width: 194px;
+}
+
+/* Card bio */
+.leadership-team-card-bio {
+  color: var(--ncmec-gray-dark);
+  margin: 0 0 8px;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+  max-width: 194px;
+  font-weight: var(--body-weight-medium);
+}
+
+/* Read bio link: the Text link style from the button standard. */
+
+/* -------------------------------------------------------
+   Responsive: Tablet (<=1200px) — 4 columns
+   ------------------------------------------------------- */
+@media (width <= 1200px) {
+  .leadership-team-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* -------------------------------------------------------
+   Responsive: Small tablet (<=900px) — 3 columns
+   ------------------------------------------------------- */
+@media (width <= 900px) {.leadership-team-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px 16px;
+  }
+
+  .leadership-team-card-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 258 / 348;
+  }
+
+  .leadership-team-section ~ .leadership-team-section .leadership-team-card-image {
+    height: auto;
+    aspect-ratio: 258 / 208;
+  }
+
+  .leadership-team-nav-list {
+    flex-wrap: wrap;
+    height: auto;
+    border-radius: 16px;
+    justify-content: center;
+  }
+}
+
+/* -------------------------------------------------------
+   Responsive: Mobile (<=600px) — 2 columns
+   ------------------------------------------------------- */
+@media (width <= 600px) {
+  /* Drop the full-bleed negative margin so the section's 24px gutter is
+     restored — gives the outer photos left/right padding from the screen edge. */
+  .leadership-team {
+    margin-inline: 0;
+  }
+
+  .leadership-team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 12px;
+  }
+
+  .leadership-team-card-bio {
+    font-size: var(--body-size);
+  }
+}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.leadership-team .leadership-team-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+/* The card is transparent, so at rest the radius is invisible. It exists so
+   the hover shadow follows the photo's rounded top corners instead of drawing
+   a square box behind them. */
+.leadership-team .leadership-team-card {
+  border-radius: 14px;
+}
+
+.leadership-team .leadership-team-card-image {
+  transition: border-radius var(--hover-duration) var(--hover-ease);
+}
+
+.leadership-team .leadership-team-card:focus-within,
+.leadership-team .leadership-team-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+/* Lifted, the photo becomes the top of the card: square its bottom corners so
+   it meets the card body flush instead of leaving two notches at the seam. */
+.leadership-team .leadership-team-card:focus-within .leadership-team-card-image,
+.leadership-team .leadership-team-card:where(:has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover .leadership-team-card-image {
+  border-radius: 14px 14px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leadership-team .leadership-team-card:focus-within,
+  .leadership-team .leadership-team-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */
+
+/* The card is centred, so its stretched text link centres its label (the button standard
+   leaves a text link aligned with the copy around it). */
+.leadership-team-card-link {
+  justify-content: center;
+}

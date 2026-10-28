@@ -4,6 +4,52 @@
   move-to-http-header="true"
 >
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- Site-wide social tags. Only the constants live here — anything an author can vary
+     per page (share image, title, description, type, locale, robots) comes from Page
+     Properties instead, so there is never a duplicate tag competing with an author's
+     choice. See models/_page.json and docs/seo-and-social.md.
+
+     These MUST be server-rendered. Facebook, LinkedIn, X and iMessage read the raw HTML
+     and do not run JavaScript, so a meta tag injected by a script is invisible to every
+     one of them. Nothing in scripts/ can fix a missing share tag. -->
+<meta property="og:site_name" content="National Center for Missing &amp; Exploited Children">
+<meta name="twitter:site" content="@missingkids">
+<meta name="theme-color" content="#143654">
+
+<!-- Organization structured data: what Google uses to build the knowledge panel and to
+     connect this domain to NCMEC's verified social accounts. Static because none of it
+     is per-page. type="application/ld+json" is data, not executable script, so the
+     strict-dynamic CSP above does not apply to it. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NGO",
+  "name": "National Center for Missing & Exploited Children",
+  "alternateName": "NCMEC",
+  "url": "https://www.ncmec.org/",
+  "logo": "https://www.ncmec.org/favicon.svg",
+  "sameAs": [
+    "https://www.facebook.com/missingkids",
+    "https://twitter.com/missingkids",
+    "https://www.instagram.com/ncmec"
+  ],
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "telephone": "+1-800-843-5678",
+    "contactType": "Emergency",
+    "description": "24-hour call center, 1-800-THE-LOST",
+    "areaServed": "US",
+    "availableLanguage": ["English", "Spanish"]
+  }]
+}
+</script>
+<!-- Figtree is the site's only typeface, self-hosted and declared in styles.css. Preloading
+     the latin file starts the download while the HTML parses, so it usually arrives before
+     first paint and text does not swap from the fallback. It replaces a render-blocking
+     Google Fonts stylesheet that cost two extra connections on every page. -->
+<link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script nonce="aem" src="/scripts/aem.js" type="module"></script>
 <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
 <link rel="stylesheet" href="/styles/styles.css"/>

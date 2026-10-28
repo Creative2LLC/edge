@@ -1,0 +1,269 @@
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readRichTextField,
+  readTextField,
+  setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  markButtonSurface,
+  resolveButtonStyle,
+} from '../../scripts/button-utils.js';
+
+/* ---------- Field helpers (mirror card-row-detailed.js) ---------- */
+
+function getField(row, name, index) {
+  return readTextField(row, name, { fallbackCell: row.children[index] });
+}
+
+function getRichTextField(row, name, index) {
+  const field = readRichTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.html };
+}
+
+function getLinkField(row, name, index) {
+  return readLinkField(row, name, { fallbackCell: row.children[index] });
+}
+
+function getImageField(row, name, index) {
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, picture: field.picture, img: field.img };
+}
+
+/* ---------- Icon builder (white-tinted via CSS mask) ---------- */
+
+function buildWhiteIcon(picture, size, className) {
+  const wrap = document.createElement('div');
+  wrap.className = className;
+  wrap.style.setProperty('width', `${size}px`, 'important');
+  wrap.style.setProperty('height', `${size}px`, 'important');
+  wrap.style.setProperty('flex', `0 0 ${size}px`, 'important');
+
+  const img = picture?.querySelector('img');
+  if (!img) return wrap;
+
+  wrap.style.setProperty('background-color', '#ffffff', 'important');
+  wrap.style.setProperty('-webkit-mask-image', `url(${img.src})`, 'important');
+  wrap.style.setProperty('mask-image', `url(${img.src})`, 'important');
+  wrap.style.setProperty('-webkit-mask-size', 'contain', 'important');
+  wrap.style.setProperty('mask-size', 'contain', 'important');
+  wrap.style.setProperty('-webkit-mask-repeat', 'no-repeat', 'important');
+  wrap.style.setProperty('mask-repeat', 'no-repeat', 'important');
+  wrap.style.setProperty('-webkit-mask-position', 'left center', 'important');
+  wrap.style.setProperty('mask-position', 'left center', 'important');
+
+  return wrap;
+}
+
+/* ---------- Card builder ---------- */
+
+function buildCard(data) {
+  const card = document.createElement('div');
+  card.className = 'dark-feature-cards-card';
+  if (data.row) {
+    moveInstrumentation(data.row, card);
+    // Label the item in the Universal Editor content tree by its own content so
+    // authors can tell cards apart instead of seeing the generic component name.
+    setItemLabel(card, [
+      data.cardTitleField.source?.textContent,
+      data.cardSubtitleField.source?.textContent,
+    ]);
+  }
+
+  const bg = data.cardBackgroundColor || '#0f3357';
+  card.style.setProperty('background-color', bg, 'important');
+  markButtonSurface(card, isDarkSurface(bg));
+
+  // Top image (optional, full-width, max-height 178px)
+  if (data.imageField.picture) {
+    const mediaWrap = document.createElement('div');
+    mediaWrap.className = 'dark-feature-cards-card-media';
+    const picture = data.imageField.picture.cloneNode(true);
+    if (data.imageField.source) {
+      moveInstrumentation(data.imageField.source, picture);
+    }
+    const altVal = data.imageAlt;
+    const img = picture.querySelector('img');
+    if (altVal && img) img.alt = altVal;
+    mediaWrap.append(picture);
+    card.append(mediaWrap);
+  }
+
+  // Card body
+  const body = document.createElement('div');
+  body.className = 'dark-feature-cards-card-body';
+
+  // Icon (64x64, white)
+  const iconEl = buildWhiteIcon(data.iconField.picture, 64, 'dark-feature-cards-card-icon');
+  if (data.iconField.source) moveInstrumentation(data.iconField.source, iconEl);
+  body.append(iconEl);
+
+  // Title (rich text)
+  if (data.cardTitleField.value && data.cardTitleField.value.trim()) {
+    const h3 = document.createElement('h3');
+    h3.className = 'dark-feature-cards-card-title';
+    if (data.cardTitleField.source) {
+      moveInstrumentation(data.cardTitleField.source, h3);
+    }
+    h3.innerHTML = data.cardTitleField.value;
+    body.append(h3);
+  }
+
+  // Subtitle (rich text)
+  if (data.cardSubtitleField.value && data.cardSubtitleField.value.trim()) {
+    const sub = document.createElement('div');
+    sub.className = 'dark-feature-cards-card-subtitle';
+    if (data.cardSubtitleField.source) {
+      moveInstrumentation(data.cardSubtitleField.source, sub);
+    }
+    sub.innerHTML = data.cardSubtitleField.value;
+    body.append(sub);
+  }
+
+  // Optional button. One with nowhere to go is not published; in the editor it still
+  // shows, disabled, so the author can see the link is missing.
+  const isEditor = Boolean(document.querySelector('[data-aue-resource]'));
+  if (data.buttonText && (data.buttonLink || isEditor)) {
+    const btn = document.createElement(data.buttonLink ? 'a' : 'span');
+    const styleClass = data.buttonStyle === 'solid'
+      ? 'dark-feature-cards-card-btn-solid'
+      : 'dark-feature-cards-card-btn-outlined';
+    btn.className = `dark-feature-cards-card-btn ${styleClass}`;
+    if (data.buttonLink) {
+      btn.href = data.buttonLink;
+    } else {
+      btn.setAttribute('aria-disabled', 'true');
+      btn.title = 'Add a link to publish this button';
+    }
+    btn.textContent = data.buttonText;
+    if (data.buttonTextSource) {
+      moveInstrumentation(data.buttonTextSource, btn);
+    }
+    // Outlined was this block's default, so an unset style stays Secondary.
+    applyButtonStyle(btn, resolveButtonStyle(data.buttonStyle, 'secondary'));
+    body.append(btn);
+  }
+
+  card.append(body);
+  return card;
+}
+
+/* ---------- decorate ---------- */
+
+export default function decorate(block) {
+  // Pull out block-level fields and remove their rows so they're not parsed
+  // as item rows. We can't use `closest(':scope > div')` here — `:scope` in
+  // closest() resolves to the calling element, so the selector never matches
+  // and the row would be left behind, getting picked up as a phantom card.
+  // Walk up manually until we hit a direct child of `block`.
+  const directRowOf = (el) => {
+    let cur = el;
+    while (cur && cur.parentElement && cur.parentElement !== block) {
+      cur = cur.parentElement;
+    }
+    return cur && cur.parentElement === block ? cur : null;
+  };
+
+  let sectionTitle = '';
+  const titleField = readTextField(block, 'title');
+  if (titleField.source) {
+    sectionTitle = titleField.value;
+    directRowOf(titleField.source)?.remove();
+  }
+
+  let sectionSubtitle = '';
+  const subtitleField = readTextField(block, 'subtitle');
+  if (subtitleField.source) {
+    sectionSubtitle = subtitleField.value;
+    directRowOf(subtitleField.source)?.remove();
+  }
+
+  // Iterate remaining rows as cards
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const cards = [];
+
+  rows.forEach((row) => {
+    const cols = [...row.children];
+    if (cols.length < 1) return;
+
+    const imageField = getImageField(row, 'image', 0);
+    const iconField = getImageField(row, 'icon', 1);
+    const cardTitleField = getRichTextField(row, 'cardTitle', 2);
+    const cardSubtitleField = getRichTextField(row, 'cardSubtitle', 3);
+    const buttonTextField = getField(row, 'buttonText', 4);
+    const buttonLinkField = getLinkField(row, 'buttonLink', 5);
+    const buttonStyleField = getField(row, 'buttonStyle', 6);
+    const cardBgField = getField(row, 'cardBackgroundColor', 7);
+    const imageAltField = getField(row, 'imageAlt', 8);
+
+    const hasContent = imageField.picture
+      || iconField.picture
+      || cardTitleField.value
+      || cardSubtitleField.value
+      || buttonTextField.value;
+
+    const isAuthoring = Boolean(
+      row.getAttribute('data-aue-resource')
+        || row.querySelector('[data-aue-resource], [data-aue-prop]'),
+    );
+
+    if (!hasContent && !isAuthoring) return;
+
+    cards.push({
+      imageField,
+      iconField,
+      cardTitleField,
+      cardSubtitleField,
+      buttonText: buttonTextField.value,
+      buttonTextSource: buttonTextField.source,
+      buttonLink: buttonLinkField.value,
+      buttonStyle: (buttonStyleField.value || 'outlined').toLowerCase(),
+      cardBackgroundColor: cardBgField.value || '#0f3357',
+      imageAlt: imageAltField.value,
+      row,
+    });
+  });
+
+  /* ---------- Build the new DOM ---------- */
+
+  const inner = document.createElement('div');
+  inner.className = 'dark-feature-cards-inner';
+
+  // Header (title + subtitle)
+  if (sectionTitle || sectionSubtitle) {
+    const header = document.createElement('div');
+    header.className = 'dark-feature-cards-header';
+
+    if (sectionTitle) {
+      const h2 = document.createElement('h2');
+      h2.className = 'dark-feature-cards-title';
+      h2.textContent = sectionTitle;
+      header.append(h2);
+    }
+
+    if (sectionSubtitle) {
+      const p = document.createElement('p');
+      p.className = 'dark-feature-cards-subtitle';
+      p.textContent = sectionSubtitle;
+      header.append(p);
+    }
+
+    inner.append(header);
+  }
+
+  // Cards row (cap at 4)
+  const grid = document.createElement('div');
+  grid.className = 'dark-feature-cards-grid';
+  grid.style.setProperty('--card-count', String(Math.min(cards.length, 4)));
+
+  cards.slice(0, 4).forEach((data) => {
+    grid.append(buildCard(data));
+  });
+
+  inner.append(grid);
+
+  block.replaceChildren(inner);
+}

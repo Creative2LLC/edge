@@ -1,0 +1,110 @@
+{
+  "definitions": [
+    {
+      "title": "PRPL Application",
+      "id": "prpl-application",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "PRPL Application",
+              "model": "prpl-application"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "prpl-application",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow",
+          "value": "Leadership Training"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "Protect. Reduce. Prevent. Leadership (PRPL) Application"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro Copy",
+          "value": "Apply for the PRPL cohort-based leadership seminar for professionals responding to missing and exploited child cases."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "formAction",
+          "label": "Submit Endpoint URL",
+          "description": "Use http://127.0.0.1:8787/prpl-application for local mock testing. The original form is hosted in Asana and does not expose stable browser-submit field names, so production native submits should use a backend endpoint/proxy.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text",
+          "value": "Submit Application"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "successMessage",
+          "label": "Success Message",
+          "value": "Thank you. Your PRPL application has been submitted."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "errorMessage",
+          "label": "Error Message",
+          "value": "We could not submit your application. Please try again."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "topPadding",
+          "label": "Top Padding (Optional)",
+          "description": "Accepts CSS lengths like 64px, 4rem, or 0. Plain numbers default to px.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "name": "submissionMode",
+          "label": "Submission Mode",
+          "description": "Native Form posts the redesigned form to the backend endpoint. Original Asana Embed renders the hosted Asana form.",
+          "options": [
+            {
+              "name": "Native Form",
+              "value": "native"
+            },
+            {
+              "name": "Original Asana Embed",
+              "value": "original-asana"
+            }
+          ],
+          "value": "native"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "embedUrl",
+          "label": "Original Asana Embed URL",
+          "description": "Used only when Submission Mode is Original Asana Embed.",
+          "value": "https://form.asana.com/?k=wi_yh-YJYDsMWQF4qO_8Pw&d=12268102754041"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

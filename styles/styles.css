@@ -10,27 +10,201 @@
  * governing permissions and limitations under the License.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap");
+/* Figtree is the ONLY family on the site. Loaded as a variable font across the full
+   300-900 weight axis so every weight blocks ask for (700, 800, 900, and the odd
+   650/750/820/850) renders as a real cut instead of browser-synthesized fake bold.
+
+   Self-hosted: these are the exact Google Fonts files (Figtree v9, SIL OFL) with Google's
+   own subsets and unicode-ranges. Loading them from fonts.googleapis.com meant a
+   render-blocking stylesheet plus two extra origins to connect to before first paint
+   (~0.4s on throttled mobile). head.html preloads the latin file, so text rarely paints
+   in the fallback first; declaring the faces here also covers the static error pages,
+   which link styles.css directly. The browser downloads latin-ext only when a page uses
+   one of its characters. */
+@font-face {
+  font-family: Figtree;
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("../fonts/figtree-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: Figtree;
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("../fonts/figtree-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
   /* colors */
-  --background-color: white;
+  --background-color: var(--ncmec-gray-lightest);
   --light-color: #f8f8f8;
   --dark-color: #505050;
-  --text-color: #131313;
-  --link-color: #3b63fb;
-  --link-hover-color: #1d3ecf;
+
+  /* The site's real body colour. This was #131313 — stock Adobe boilerplate that
+     no block ever used — while 48 blocks hardcoded #404041 and 606 rendered
+     elements carried it. Both greys were shipping at once. See
+     audits/body-copy-audit.md finding 02. */
+  --text-color: #414042;
+  --link-color: #006D90;
+  --link-hover-color: #005771;
+
+  /* Semantic aliases for body copy. Per-block colour overrides are deliberately
+     NOT part of this pass — 380 declarations across 117 values get their own
+     effort. These exist so a bare paragraph is right, and so the later colour
+     pass has somewhere to land. */
+  --body-color: var(--text-color);
+  --body-muted-color: #516272;
+  --body-on-dark-color: #fff;
+
+  /* Brand palette, from the 2026-09-16 design sheet. scripts/color-tokens.js is the source
+     of truth; npm run lint:palette keeps these and every block dropdown in step with it. */
+  --ncmec-white: #fff;
+  --ncmec-navy-dark: #00264D;
+  --ncmec-navy-medium: #004B76;
+  --ncmec-blue-dark: #006D90;
+  --ncmec-blue-medium: #008EB7;
+  --ncmec-blue-light: #92D6E3;
+  --ncmec-gray-dark: #414042;
+  --ncmec-gray-medium: #939598;
+  --ncmec-gray-light: #C7C8CA;
+  --ncmec-gray-lightest: #F1F2F2;
+  --ncmec-yellow: #FDB913;
+  --ncmec-yellow-dark: #F7941D;
+  --ncmec-red: #AE1B1F;
+  --ncmec-peach-dark: #F26D5F;
+  --ncmec-peach-medium: #F8AC99;
+  --ncmec-beige-dark: #FAAB60;
+  --ncmec-beige-medium: #FDCFA3;
+  --ncmec-green-medium: #5ABB64;
+  --ncmec-green-light: #A2D4A3;
+
+  /* Site surface steps (SITE_NEUTRALS in color-tokens.js): the ladder rungs the palette lacks,
+     so a card, its section and the page stay visibly apart. */
+  --ncmec-warm-off-white: #F4F1EC;
+  --ncmec-warm-gray: #ECE8E3;
+  --ncmec-blue-tint: #E9F7FA;
+  --ncmec-navy-raised: #0F3357;
+  --ncmec-black: #000;
 
   /* fonts */
-  --body-font-family: "Figtree", sans-serif;
-  --heading-font-family: "Figtree", sans-serif;
+  --body-font-family: "Figtree", figtree-fallback, sans-serif;
+  --heading-font-family: "Figtree", figtree-fallback, sans-serif;
 
-  /* body sizes */
-  --body-font-size-m: 22px;
-  --body-font-size-s: 19px;
-  --body-font-size-xs: 17px;
+  /* ------------------------------------------------------------------
+     TYPE SCALE — single source of truth for headings and body copy.
+     Change a value here and every heading on the site follows.
 
-  /* heading sizes */
+     These are fluid (clamp) so there is ONE definition per level rather
+     than a mobile value plus a desktop override. Do not add breakpoint
+     overrides for these; widen the clamp instead.
+
+     Desktop sizes come from the design (2026-09-15). Each preferred value is
+     a linear interpolation, the same form as the body scale below: the min at
+     a 390px viewport, the max from 1200px up. Big steps shrink more on mobile
+     than small ones so the hierarchy still reads on a phone.
+     ------------------------------------------------------------------ */
+
+  /* Two h1 sizes. Only the homepage hero uses the home size; every other hero
+     (default hero, resource hero, video hero, detail pages) uses the plain h1. */
+  --heading-1-home-size: clamp(3.5rem, 2.296rem + 4.938vw, 6rem);    /* 56 -> 96px */
+  --heading-1-size: clamp(2.625rem, 1.602rem + 4.198vw, 4.75rem);    /* 42 -> 76px */
+  --heading-2-size: clamp(2.125rem, 1.704rem + 1.728vw, 3rem);       /* 34 -> 48px */
+  --heading-3-size: clamp(1.625rem, 1.324rem + 1.235vw, 2.25rem);    /* 26 -> 36px */
+  --heading-4-size: clamp(1.3125rem, 1.192rem + 0.494vw, 1.5625rem); /* 21 -> 25px */
+  --heading-5-size: clamp(1.125rem, 1.065rem + 0.247vw, 1.25rem);    /* 18 -> 20px */
+  --heading-6-size: clamp(1rem, 0.94rem + 0.247vw, 1.125rem);        /* 16 -> 18px */
+
+  /* HTML stops at h6, so level 7 is a visual step only: use .u-h7. */
+  --heading-7-size: clamp(0.9375rem, 0.907rem + 0.123vw, 1rem);      /* 15 -> 16px */
+
+  /* The 36px card/section title used to sit between h2 and h3. h3 is now 36px,
+     so it is the same step; kept as an alias for the blocks that reference it. */
+  --display-sm-size: var(--heading-3-size);
+
+  /* Per-level weight / leading. No level uses negative tracking. */
+  --heading-weight: 700;
+
+  /* A few blocks deliberately set a lighter heading (card-testimonies variant 2).
+     Named here so "make all headings lighter" is still a one-line change. */
+  --heading-weight-light: 500;
+  --heading-line-height: 1.15;
+  --heading-line-height-tight: 1.08;
+  --heading-tracking: 0;
+
+  /* ------------------------------------------------------------------
+     BODY SCALE — the counterpart to the heading scale above, and the single
+     source of truth for paragraph type. Change a value here and every
+     paragraph on the site follows.
+
+     Fitted to the sizes the design had already converged on (see
+     audits/body-copy-audit.md): 97% of the 370 hardcoded body sizes across
+     100 blocks landed on one of these five steps.
+
+     Fluid in the SHRINK-ON-MOBILE direction. That is not a style choice —
+     of the 51 responsive body overrides block authors wrote by hand, 50
+     shrink on mobile and 0 grow. The old --body-font-size-* ramp did the
+     opposite and is corrected below.
+
+     px equivalents are in the comments deliberately: the unit stays rem so
+     the scale keeps honouring a reader's browser font-size setting, which
+     px would ignore.
+     ------------------------------------------------------------------ */
+
+  /* Each preferred value is a real linear interpolation (intercept + slope*vw)
+     fitted to hit the min at 390px and the max at 1200px, so the token is fully
+     saturated on any normal desktop. A bare `Nvw` preferred value — the form the
+     heading tokens used before 2026-09-15 — does NOT work at these sizes: 1.15vw is only 16.6px at
+     1440px, so `clamp(1rem, 1.15vw, 1.125rem)` would never reach 18px until a
+     1565px viewport. Verified with audits/verify-body.mjs. */
+
+  /* The tier between a heading and body copy — the subheading/intro under a
+     section title. 44 blocks invented their own; this is the one token. */
+  --deck-size:    clamp(1.125rem, 0.945rem + 0.741vw, 1.5rem);    /* 18 -> 24px */
+  --body-lg-size: clamp(1.0625rem, 0.9725rem + 0.37vw, 1.25rem);  /* 17 -> 20px */
+  --body-size:    clamp(1rem, 0.94rem + 0.247vw, 1.125rem);       /* 16 -> 18px */
+  --body-sm-size: 0.9375rem;                                      /* 15px */
+  --caption-size: 0.8125rem;                                      /* 13px */
+  --body-line-height: 1.5;      /* 45 blocks had already converged on exactly this */
+  --deck-line-height: 1.35;
+  --caption-line-height: 1.4;
+
+  /* Four steps, because body copy genuinely uses four. Measured across 217
+     declarations: 500 (80), 700 (41), 800 (33), 600 (27), 400 (19). 400 is the
+     default because that is what inherits today and what 399 rendered elements
+     carry; 500 is a real second step, not drift. The 800/900/650/850 outliers are
+     display text mis-filed as body copy and snap to bold. */
+  --body-weight: 400;
+  --body-weight-medium: 500;
+  --body-weight-strong: 600;
+  --body-weight-bold: 700;
+  --body-tracking: 0;
+
+  /* The one tracking value blocks actually converged on, for uppercase labels
+     and eyebrows: 9 blocks used exactly 0.06em. */
+  --label-tracking: 0.06em;
+
+  /* Measure. Body copy was running at a median 113 characters per line on
+     desktop; comfortable is 45-75. `ch` is the only unit that controls this. */
+  --measure: 68ch;
+  --measure-narrow: 52ch;
+  --measure-wide: 78ch;
+
+  /* Legacy body tokens, now ALIASES of the scale above.
+     They used to carry their own values AND scale backwards (22px mobile ->
+     18px desktop). Seven call sites still reference them; aliasing keeps those
+     working and kills the inverted ramp in one move. Do not use in new code. */
+  --body-font-size-m: var(--body-size);
+  --body-font-size-s: var(--body-sm-size);
+  --body-font-size-xs: var(--caption-size);
+
+  /* Legacy heading tokens. Superseded by --heading-N-size above; kept because
+     header.css and resource-downloads.css still reference them. Do not use in
+     new code. */
   --heading-font-size-xxl: 55px;
   --heading-font-size-xl: 44px;
   --heading-font-size-l: 34px;
@@ -40,27 +214,256 @@
 
   /* nav height */
   --nav-height: 64px;
+  --top-banner-height: 47px;
+
+  /* spacing scale (4px base) - snap ad-hoc padding/margin/gap to these */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-18: 72px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-28: 112px;
+  --space-32: 128px;
+
+  /* content container widths - consolidate the ~20 ad-hoc max-widths to these */
+  --container: 1420px;
+  --container-narrow: 1040px;
+  --container-text: var(--measure);   /* was a dead 760px (~84ch); now the real measure */
+
+  /* fluid section vertical rhythm - use for section padding to smooth the
+     900-1280px "awkward desktop" band instead of hard px breakpoints */
+  --space-section: clamp(40px, 6vw, 96px);
+
+  /* vertical gap BETWEEN sections. Tops out at the historical 40px so desktop is
+     unchanged, and scales down consistently on tablet/mobile (instead of the old
+     hard-zeroed mobile margin). */
+  --flow-section: clamp(28px, 5vw, 40px);
+
+  /* vertical gap BETWEEN blocks within a section (mobile/tablet only) */
+  --flow-block: clamp(20px, 4vw, 32px);
+
+  /* horizontal gutter: where content sits from the viewport edge on mobile. */
+  --gutter: 24px;
+
+  /* The section wrapper's ACTUAL horizontal padding (24px here, 32px from 900px
+     up). A full-bleed block that re-establishes the content column must mirror
+     `main > .section > div` using THIS, not --gutter: capping at --container and
+     padding by --gutter yields a 1420px column while the rest of the site runs
+     1356px, which is exactly where the old 32px-per-side drift came from. */
+  --section-pad: var(--gutter);
+
+  /* The real content column width. Use when the PARENT already supplies the
+     side padding and the child just needs to match the column. */
+  --container-content: calc(var(--container) - 2 * var(--section-pad));
+
+  /* ------------------------------------------------------------------
+     LOADING STATES — see the LOADING SYSTEM section at the foot of this
+     file, and scripts/skeleton.js for the markup these style.
+
+     The highlight in the sweep is deliberately NOT white. A plain grey
+     shimmer is the one loading state every site has; running the light
+     through the brand teal on its way to white is what makes a NCMEC
+     skeleton recognisable as ours at a glance, and it costs nothing but
+     two extra colour stops.
+     ------------------------------------------------------------------ */
+  --skeleton-base: #e4e8ec;
+  --skeleton-highlight: #f8fbfc;
+  --skeleton-tint: rgb(0 141 182 / 16%);
+  --skeleton-radius: 6px;
+
+  /* One sweep across a bone. Slow enough to read as breathing rather than
+     as a progress bar promising imminent arrival. */
+  --skeleton-sweep: 1.7s;
+
+  /* Offset between neighbouring items in the cascade. At 90ms a four-column
+     grid puts each row a third of a cycle behind the one above it, which is
+     what produces the diagonal travel. */
+  --skeleton-cascade-step: 90ms;
+  --beacon-color: var(--ncmec-blue-dark);
+  --beacon-size: 56px;
+
+  /* ------------------------------------------------------------------
+     ELEVATION
+     Four steps fitted to the clusters already in the block CSS, which
+     carried 229 shadow declarations across 156 distinct values. Each
+     step below is the centre of a real cluster, not a new invention:
+       y1/blur2   7 uses      y8/blur18-24  10 uses
+       y14/blur24-28  26 uses     y24/blur60  13 uses
+
+     The colour is the brand navy at low alpha. The stylesheets were
+     already reaching for it by hand — rgb(17 54 82), rgb(22 50 74) and
+     rgb(36 56 70) are all approximations of the same navy tint.
+     ------------------------------------------------------------------ */
+  --shadow-1: 0 1px 2px rgb(0 38 77 / 6%);
+  --shadow-2: 0 8px 20px rgb(0 38 77 / 8%);
+  --shadow-3: 0 14px 28px rgb(0 38 77 / 12%);
+  --shadow-4: 0 24px 48px rgb(0 38 77 / 16%);
+
+  /* ------------------------------------------------------------------
+     HOVER
+     Three tiers, not one. The -1px lift is already the site's dominant
+     value and sits almost entirely on pills, filters and search fields;
+     flattening it into the card lift would erase a real distinction.
+
+     A card's hover COLOUR is deliberately not here. It is semantic to
+     the block — a navy card lightens, an orange CTA deepens, a card on
+     a photo goes translucent — so blocks supply it through
+     --hover-surface and the system owns only the mechanics.
+     ------------------------------------------------------------------ */
+  --hover-lift-card: -4px;
+  --hover-lift-row: -2px;
+  --hover-lift-control: -1px;
+
+  /* Media inside a card, never the card itself: the image must move less
+     than its container or the lift reads as a zoom instead of depth. */
+  --hover-media-scale: 1.03;
+
+  /* The tint tier's wash, mixed from the card's own TEXT colour.
+     A fixed white value only works on a dark card, and several blocks let an
+     author choose the card background — cards, colored-grid, connect-grid and
+     job-postings all expose one — so a white wash would vanish the moment
+     somebody picked a light colour. currentColor contrasts with its own
+     surface by definition, so this lightens a dark card and darkens a light
+     one without anything to configure or freeze. */
+  --hover-tint-wash: color-mix(in srgb, currentcolor 8%, transparent);
+
+  /* 180ms and 0.18s were the same value written two ways, 187 uses
+     between them. ease was already near-universal at 524 of 539. */
+  --hover-duration: 180ms;
+  --hover-ease: ease;
+  --hover-transition:
+    transform var(--hover-duration) var(--hover-ease),
+    box-shadow var(--hover-duration) var(--hover-ease),
+    border-color var(--hover-duration) var(--hover-ease),
+    background-color var(--hover-duration) var(--hover-ease);
+
+  /* The edge tier draws the site's marker underline rather than a plain rule.
+     Same hand-drawn bezier animated-marker.js uses for style="underline", as a
+     MASK so the colour stays a token — a data-URI fill cannot read one. Colour
+     falls back to --text-marker-color, so a block that themes its marker
+     themes this too. */
+  --hover-edge-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath d='M4 21 C30 9 68 26 116 12' fill='none' stroke='%23000' stroke-width='11' stroke-linecap='round'/%3E%3C/svg%3E");
+
+  /* A marker is a stroke under a PHRASE, not a rule across a container. Left
+     full-bleed it stretched the hand-drawn wobble flat and ran through the
+     caption, because on these tiles the text's bottom sits on the card's
+     bottom. So: capped and centred rather than edge to edge, tall enough that
+     the stroke reads as a brush, and nudged below the baseline.
+     stroke-width is 11 rather than 7 to survive the vertical squash — the mask
+     scales to the box, so a 22px box renders 11/32 of it as roughly 7.5px. */
+
+  /* clamp, not a flat cap: these tiles range from a 108px logo to a 1356px
+     row, and one fixed width looks lost under the wide one and oversized under
+     the small one. 56% tracks the card, with floor and ceiling so it stays a
+     marker rather than a rule. */
+  --hover-edge-width: clamp(96px, 56%, 320px);
+  --hover-edge-height: 22px;
+  --hover-edge-offset: -14px;
+
+  /* Slower than the other tiers: a pen stroke that lands in 180ms reads as a
+     flicker rather than as drawing. */
+  --hover-edge-duration: 320ms;
+
+  /* ------------------------------------------------------------------
+     BUTTONS — the approved standard. Rules live in the BUTTONS section
+     below; these are the only values it reads.
+
+     Label contrast on its fill: primary 5.48 (8.07 on hover), soft 6.94,
+     amber 7.18 (6.09 on hover, black label), emergency 6.54, giving 6.10 (7.34 on hover). Each is at or near the AA
+     line on purpose — do not lighten a fill or a label.
+     ------------------------------------------------------------------ */
+  --button-font-size: 1rem; /* 16px */
+  --button-font-weight: 600;
+  --button-line-height: 1.2;
+  --button-padding-block: 9px; /* with 16px x 1.2 line-height = 37px tall */
+  --button-padding-inline: 21px;
+  --button-gap: 0.45em;
+  --button-radius: 999px;
+  --button-ring-width: 2px;
+  --button-icon-size: 38px;
+  --button-transition:
+    background-color var(--hover-duration) var(--hover-ease),
+    color var(--hover-duration) var(--hover-ease),
+    box-shadow var(--hover-duration) var(--hover-ease);
+  --button-primary: #006D90;
+  --button-primary-hover: #005771;
+  --button-tint: var(--ncmec-blue-tint);
+  --button-tint-hover: #cfe5ee;
+  --button-navy: #00264d;
+  --button-on-dark-link-hover: #dcebf4;
+  --button-amber: #F7941D;
+  --button-amber-hover: #c9761a;
+  --button-amber-label: #000;
+  --button-emergency: #AE1B1F;
+  --button-emergency-hover: #8f1f18;
+  --button-emergency-tint: #fbeae9;
+  --button-giving: #356E3A;
+  --button-giving-hover: #256140;
+  --button-giving-tint: #e5f2ec;
+  --button-disabled: #e9eef1;
+  --button-disabled-label: #5c6b75;
+
+  /* ------------------------------------------------------------------
+     CONTROLS — accordions, tabs, view toggles, pagination, carousel dots.
+     The rules are in the CONTROLS section below the buttons. Teal is the
+     one selected colour; the accordion values reproduce the FAQ exactly.
+     ------------------------------------------------------------------ */
+  --control-selected: var(--button-primary);
+  --control-selected-label: #fff;
+  --control-hover: var(--button-tint);
+  --control-focus: var(--button-primary);
+  --control-duration: 180ms;
+  --accordion-label-color: #414042;
+  --accordion-label-size: clamp(1.35rem, 1.95vw, 2rem);
+  --accordion-label-weight: 700;
+  --accordion-label-line-height: 1.22;
+  --accordion-padding: 26px 30px;
+  --accordion-gap: 20px;
+  --accordion-accent: #008EB7;
+  --accordion-icon-size: 16px;
+  --accordion-icon-ink: #006D90;
+  --accordion-focus: #F7941D;
+  --accordion-duration: 220ms;
+  --accordion-icon-duration: 280ms;
+  --accordion-panel-duration: 320ms;
+  --accordion-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --tab-ink: #414042;
+  --tab-font-size: 15px;
+  --tab-font-weight: 600;
+  --tab-padding: 9px 18px;
+  --carousel-dot-idle: #6b8394;
 }
 
-/* fallback fonts */
+/* Metric-matched fallback for Figtree.
+   size-adjust brings Arial's x-height close to Figtree's so the swap when the webfont
+   arrives does not reflow the page. The two Roboto fallbacks that used to live here
+   were left over from the Adobe boilerplate and matched a family the site never used. */
 @font-face {
-  font-family: roboto-condensed-fallback;
-  size-adjust: 88.82%;
-  src: local('Arial');
-}
-
-@font-face {
-  font-family: roboto-fallback;
-  size-adjust: 99.529%;
+  font-family: figtree-fallback;
+  size-adjust: 96.5%;
+  ascent-override: 95%;
+  descent-override: 24%;
   src: local('Arial');
 }
 
 @media (width >= 900px) {
   :root {
-    /* body sizes */
-    --body-font-size-m: 18px;
-    --body-font-size-s: 16px;
-    --body-font-size-xs: 14px;
+    /* Matches the section wrapper's desktop padding — see --section-pad. */
+    --section-pad: 32px;
+
+    /* Body sizes used to be re-declared here, LARGER on mobile than desktop.
+       They are fluid clamp() tokens now and must not be overridden per
+       breakpoint — see the BODY SCALE block above. */
 
     /* heading sizes */
     --heading-font-size-xxl: 45px;
@@ -72,14 +475,212 @@
   }
 }
 
+/* ====================================================================
+   BASE RESET
+   Ported from Tailwind Preflight when Tailwind was removed. Every rule
+   here was previously provided by tailwind.css, and the site was built
+   assuming it — 85 of 143 blocks never set their own box-sizing, no
+   block sets `display: block` on images, and block layouts assume
+   unstyled lists. Deleting any of this changes rendering site-wide.
+
+   Only the rules the codebase actually depends on were ported; the rest
+   of Preflight (form appearance, sub/sup metrics, etc.) is included
+   where it is cheap and matches browser-default expectations.
+   ==================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+
+/* The viewport takes its overflow from html, falling back to body only while html is
+   visible. Pinning the horizontal clip here rather than relying on the body rule below
+   keeps it out of reach of third-party scripts: the Classy checkout SDK writes an inline
+   `overflow: inherit` onto body to lock scrolling and leaves `overflow-x: inherit` behind
+   when it closes, which used to hand the viewport back to body and expose the full-bleed
+   100vw overhang as a horizontal scrollbar that never went away.
+   clip, not hidden — hidden would force overflow-y to auto and make html a scroll
+   container, which breaks the fixed header and scroll anchoring. */
+html {
+  line-height: 1.5;
+  tab-size: 4;
+  text-size-adjust: 100%;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Lists are unstyled by default because block layouts use ul/ol structurally.
+   Authored prose re-enables markers — see .default-content-wrapper below. */
+ol,
+ul,
+menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Block-level media: removes the inline-descender gap under images. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Form controls inherit type and carry no UA margin/padding. Block form styles
+   were all written against this, so it has to survive Tailwind's removal. */
+button,
+input,
+optgroup,
+select,
+textarea {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+button,
+select {
+  text-transform: none;
+}
+
+button,
+input:where([type="button"]),
+input:where([type="reset"]),
+input:where([type="submit"]) {
+  /* Preflight also set `-webkit-appearance: button` here. Dropped deliberately:
+     the standard property only accepts none|auto, stylelint bans the prefix, and
+     every button on this site sets its own background — nothing depends on the
+     native control appearance. */
+  background-color: transparent;
+  background-image: none;
+}
+
+:where([type="search"]) {
+  appearance: textfield;
+  outline-offset: -2px;
+}
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+::-webkit-search-decoration {
+  appearance: none;
+}
+
+::-webkit-file-upload-button {
+  font: inherit;
+}
+
+progress {
+  vertical-align: baseline;
+}
+
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+:disabled {
+  cursor: default;
+}
+
+fieldset,
+legend {
+  margin: 0;
+  padding: 0;
+}
+
+table {
+  border-collapse: collapse;
+  border-color: inherit;
+  text-indent: 0;
+}
+
+hr {
+  height: 0;
+  border-top-width: 1px;
+  color: inherit;
+}
+
+b,
+strong {
+  /* bold, not strong: this replaced the UA/reset `bolder`, which computes to 700
+     from a 400 parent. Using 600 here would have quietly lightened every bold
+     word on the site. */
+  font-weight: var(--body-weight-bold);
+}
+
+small {
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+sub,
+sup {
+  position: relative;
+  font-size: 75%;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+sub { bottom: -0.25em; }
+sup { top: -0.5em; }
+
+textarea {
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  opacity: 1;
+  color: #9ca3af;
+}
+
+summary {
+  display: list-item;
+}
+
+dialog {
+  padding: 0;
+}
+
+[hidden]:where(:not([hidden="until-found"])) {
+  display: none;
+}
+
 body {
   display: none;
   margin: 0;
+  overflow-x: clip;
   background-color: var(--background-color);
-  color: var(--text-color);
+  color: var(--body-color);
   font-family: var(--body-font-family);
-  font-size: var(--body-font-size-m);
-  line-height: 1.6;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-tracking);
 }
 
 body.appear {
@@ -87,7 +688,17 @@ body.appear {
 }
 
 header {
+  position: relative;
   height: var(--nav-height);
+  background:
+    radial-gradient(circle at top right, rgb(0 141 182 / 8%) 0 18%, transparent 19%),
+    linear-gradient(180deg, #fbfdff 0%, #eef5fb 100%);
+}
+
+@media (width >= 900px) {
+  header {
+    height: var(--top-banner-height);
+  }
 }
 
 header .header,
@@ -100,35 +711,483 @@ footer .footer[data-block-status="loaded"] {
   visibility: visible;
 }
 
+main .block.scroll-reveal {
+  --block-reveal-duration: 0.52s;
+  --block-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--block-reveal-duration) var(--block-reveal-ease),
+    transform var(--block-reveal-duration) var(--block-reveal-ease);
+  will-change: opacity, transform;
+}
+
+/* A block already on the first screen appears at once: fading in what the visitor is
+   looking at only delays it (aem.js, observeBlockReveal). */
+
+/* Universal Editor only (color-tokens.js, flagReadableAdjustments): text whose authored
+   colour the site darkened to stay readable. The class is never set on the published site. */
+.readable-adjusted-flag {
+  outline: 2px dashed var(--ncmec-yellow-dark);
+  outline-offset: 2px;
+}
+
+main .block.scroll-reveal.scroll-reveal-instant {
+  transition: none;
+}
+
+main .block.scroll-reveal.is-visible {
+  opacity: 1;
+
+  /* Use `none` (not translateY(0)) once revealed: a lingering transform creates
+     a containing block that makes native <select> popups mis-anchor to the
+     page's top-left and render with tiny text. `none` is visually identical. */
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main .block.scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}
+
+/* Header skeleton: shown from the moment the page appears until the header block has loaded,
+   which scripts.js starts only once the first section is on screen.
+
+   It sets NO height. The loaded header's box is the `header` rule above (64px, or just the
+   47px top banner from 900px, with the nav floating over the page), and anything taller here
+   pushes the page down until the real header swaps in (the old 76px / 139px skeleton did).
+   The two shapes sit where the loaded header's pieces sit (measured at 412-1440px) and
+   overflow the box instead of growing it. */
+header.is-shell-loading {
+  z-index: 20;
+}
+
+header.is-shell-loading::before,
+header.is-shell-loading::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  height: 48px;
+  animation: header-shell-pulse 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Below the desktop nav (header.js switches at 1260px): menu button left, logo centred. */
+header.is-shell-loading::before {
+  left: 16px;
+  width: 48px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 84%);
+  box-shadow: 0 6px 18px rgb(17 54 82 / 12%);
+}
+
+header.is-shell-loading::after {
+  left: calc(50% - 92px);
+  width: 184px;
+  border-radius: 12px;
+  background: rgb(15 51 87 / 9%);
+}
+
+/* Desktop nav: navy top banner, then the logo and the nav pill floating below it. */
+@media (width >= 1260px) {
+  header.is-shell-loading {
+    background: #0b1f33;
+  }
+
+  header.is-shell-loading::before {
+    top: calc(var(--top-banner-height) + 25px);
+    left: 48px;
+    width: clamp(206px, 15.5vw, 224px);
+    height: 62px;
+    border-radius: 12px;
+    background: rgb(15 51 87 / 9%);
+    box-shadow: none;
+  }
+
+  header.is-shell-loading::after {
+    top: calc(var(--top-banner-height) + 33px);
+    left: clamp(286px, 25vw, 360px);
+    width: auto;
+    right: 48px;
+    height: 46px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 84%);
+    box-shadow: 0 6px 18px rgb(17 54 82 / 12%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header.is-shell-loading::before,
+  header.is-shell-loading::after {
+    animation: none;
+  }
+}
+
+@keyframes header-shell-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ====================================================================
+   UNIVERSAL TYPE CONTRACT
+   These element rules are the single definition of what a heading looks
+   like. They apply everywhere, including inside blocks.
+
+   Margins are deliberately ZERO here. Blocks lay their own content out
+   with flex/grid `gap`, and 98 of them were relying on Tailwind
+   Preflight's `margin: 0` before this file was moved ahead of it.
+   Vertical rhythm is restored below, scoped to authored prose regions
+   only (.default-content-wrapper / richtext), where it belongs.
+   ==================================================================== */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  margin-top: 0.8em;
-  margin-bottom: 0.25em;
+  margin: 0;
   font-family: var(--heading-font-family);
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: var(--heading-weight);
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
   scroll-margin: 40px;
+  text-wrap: balance;
 }
 
-h1 { font-size: var(--heading-font-size-xxl); }
-h2 { font-size: var(--heading-font-size-xl); }
-h3 { font-size: var(--heading-font-size-l); }
-h4 { font-size: var(--heading-font-size-m); }
-h5 { font-size: var(--heading-font-size-s); }
-h6 { font-size: var(--heading-font-size-xs); }
+h1 {
+  font-size: var(--heading-1-size);
+  line-height: var(--heading-line-height-tight);
+}
 
+h2 { font-size: var(--heading-2-size); }
+h3 { font-size: var(--heading-3-size); }
+h4 { font-size: var(--heading-4-size); }
+h5 { font-size: var(--heading-5-size); }
+h6 { font-size: var(--heading-6-size); }
+
+/* Visual level != semantic level.
+   Use these when the outline demands one heading level but the design calls
+   for the size of another (a card title that is semantically an h3 but should
+   read as an h5, say). This is the sanctioned alternative to a block
+   re-declaring font-size on its own class — which is what caused the drift
+   this contract exists to fix. */
+.u-h1-home,
+.u-h1,
+.u-h2,
+.u-h3,
+.u-h4,
+.u-h5,
+.u-h6,
+.u-h7 {
+  font-family: var(--heading-font-family);
+  font-weight: var(--heading-weight);
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
+}
+
+/* Author-sized rich-text slots.
+ *
+ * These slots take their size from a PER-INSTANCE authored value
+ * (--cards-card-highlight-size, --colored-text-size, --colored-icon-text-size), so a
+ * heading an author typed inside one has to adopt the slot's size rather than the
+ * global scale. Without this, a stat authored at 96px renders at the h2 size of 48px
+ * purely because the author made it a heading instead of a paragraph.
+ *
+ * Tailwind Preflight used to do this globally via `h1-h6 { font-size: inherit }`,
+ * which is why it only became visible once Preflight was removed. Restated narrowly
+ * here: the scale still owns every heading that is NOT inside an author-sized slot.
+ * `inherit` is the guard's own first-choice escape hatch (scripts/typography-guard.mjs).
+ */
+.cards-card-highlight :is(h1, h2, h3, h4, h5, h6),
+.colored-text-content :is(h1, h2, h3, h4, h5, h6),
+.colored-icon-text-content :is(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.u-h1-home,
+.u-h1 {
+  line-height: var(--heading-line-height-tight);
+}
+
+.u-h1-home { font-size: var(--heading-1-home-size); }
+.u-h1 { font-size: var(--heading-1-size); }
+.u-h2 { font-size: var(--heading-2-size); }
+.u-h3 { font-size: var(--heading-3-size); }
+.u-h4 { font-size: var(--heading-4-size); }
+.u-h5 { font-size: var(--heading-5-size); }
+.u-h6 { font-size: var(--heading-6-size); }
+.u-h7 { font-size: var(--heading-7-size); }
+.u-display-sm { font-size: var(--display-sm-size); }
+
+/* Same reasoning as headings: zero by default, rhythm restored in prose. */
 p,
 dl,
 ol,
 ul,
 pre,
 blockquote {
+  margin: 0;
+}
+
+/* ====================================================================
+   BODY TYPE CONTRACT
+   The counterpart to the heading contract above. Body copy inherits its
+   type from `body`; these rules exist for the cases inheritance cannot
+   reach and for the deliberate steps off the default.
+
+   A block must NOT re-declare font-size / line-height / font-weight /
+   letter-spacing on body copy. Rewriting a block rule to point at a token
+   does not help — a class selector (0,1,0) beats `body`/`p` (0,0,1)
+   regardless of what is inside it. The declaration has to be GONE.
+   scripts/typography-guard.mjs enforces this.
+
+   Need a different step? Use the .u-* utilities below.
+   ==================================================================== */
+
+/* Visual step != semantic element, same idea as .u-h1-.u-h6.
+   This is the sanctioned way for a block to say "this paragraph is the deck"
+   or "this is a caption" without re-inventing a size. */
+.u-deck,
+.u-body-lg,
+.u-body,
+.u-body-sm,
+.u-caption {
+  font-family: var(--body-font-family);
+  font-weight: var(--body-weight);
+  letter-spacing: var(--body-tracking);
+}
+
+.u-deck {
+  font-size: var(--deck-size);
+  line-height: var(--deck-line-height);
+}
+
+.u-body-lg {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-line-height);
+}
+
+.u-body {
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+}
+
+.u-body-sm {
+  font-size: var(--body-sm-size);
+  line-height: var(--body-line-height);
+}
+
+.u-caption {
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+.u-body-strong { font-weight: var(--body-weight-strong); }
+.u-body-muted { color: var(--body-muted-color); }
+
+/* Measure. Long-form paragraphs were running at a median 113 characters per
+   line; 54% of them exceeded 90. Apply to a container, not to each paragraph. */
+.u-measure { max-width: var(--measure); }
+.u-measure-narrow { max-width: var(--measure-narrow); }
+.u-measure-wide { max-width: var(--measure-wide); }
+
+/* --------------------------------------------------------------------
+   Vertical rhythm for AUTHORED PROSE ONLY.
+   Scoped to the wrappers AEM puts around free-text content so blocks
+   keep full control of their own internal spacing.
+   -------------------------------------------------------------------- */
+main .default-content-wrapper :is(h1, h2, h3, h4, h5, h6) {
+  margin-bottom: 0.35em;
+}
+
+main .default-content-wrapper :is(h1, h2, h3, h4, h5, h6):not(:first-child) {
   margin-top: 0.8em;
+}
+
+main .default-content-wrapper :is(p, dl, ol, ul, pre, blockquote) {
   margin-bottom: 0.25em;
+}
+
+main .default-content-wrapper :is(p, dl, ol, ul, pre, blockquote):not(:first-child) {
+  margin-top: 0.8em;
+}
+
+main .default-content-wrapper p + p {
+  margin-top: 1.1em;
+}
+
+/* Measure for authored prose. Rare on this site — a live sweep of 40 pages found
+   exactly one such region, running at 151 characters per line — but it is the
+   correct home for the rule, and free. Long-form copy inside blocks is capped by
+   each block, since that is where this site's prose actually lives.
+   Left-aligned deliberately: authored prose here computes to `text-align: start`,
+   so a max-width alone gives the right reading column. */
+main > .section > .default-content-wrapper > :is(p, ul, ol, dl, blockquote) {
+  max-width: var(--measure);
+}
+
+/* Preflight strips list markers globally and nothing restored them, so authored
+   bullets/numbers have not been rendering in prose. Restore them here only. */
+main .default-content-wrapper :is(ul, ol) {
+  padding-left: 1.5em;
+}
+
+main .default-content-wrapper ul { list-style: disc; }
+main .default-content-wrapper ol { list-style: decimal; }
+
+.text-marker {
+  position: relative;
+  display: inline-block;
+  z-index: 0;
+  max-width: 100%;
+  white-space: normal;
+}
+
+.text-marker .text-marker-content {
+  position: relative;
+  z-index: 1;
+  overflow-wrap: anywhere;
+}
+
+.text-marker .text-marker-svg {
+  position: absolute;
+  z-index: 0;
+  inset: -0.36em -0.56em -0.24em;
+  width: calc(100% + 1.12em);
+  height: calc(100% + 0.6em);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.text-marker .text-marker-path {
+  fill: none;
+  stroke: var(--text-marker-color, #f5c84b);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  vector-effect: non-scaling-stroke;
+  transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.text-marker .text-marker-path-shadow {
+  opacity: 0.18;
+  stroke-width: 10;
+}
+
+.text-marker .text-marker-path-main {
+  opacity: 1;
+  stroke-width: 7;
+}
+
+.has-dark-text-marker-background .text-marker-brush {
+  filter: none;
+  mask: none;
+}
+
+.has-dark-text-marker-background .text-marker-path-shadow,
+.has-dark-text-marker-background .text-marker-path-grain {
+  display: none;
+}
+
+.has-dark-text-marker-background .text-marker-path-main {
+  stroke-width: 6;
+}
+
+.text-marker .text-marker-path-grain {
+  opacity: 0;
+  stroke-width: 1.45;
+  stroke-linecap: butt;
+  stroke-dasharray: 0.024 0.014 0.065 0.026 0.018 0.021;
+  stroke-dashoffset: 0;
+  transition:
+    opacity 460ms ease 420ms,
+    stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.text-marker .text-marker-path-grain.is-grain-a {
+  opacity: 0;
+  stroke-width: 1.8;
+  stroke-dasharray: 0.035 0.018 0.02 0.028 0.075 0.024;
+}
+
+.text-marker .text-marker-path-grain.is-grain-b {
+  stroke-width: 1.15;
+  stroke-dasharray: 0.018 0.02 0.045 0.024 0.028 0.032;
+  transition-delay: 520ms, 0ms;
+}
+
+.text-marker .text-marker-path-grain.is-grain-c {
+  stroke-width: 1.1;
+  stroke-dasharray: 0.055 0.018 0.016 0.024;
+  transition-delay: 620ms, 0ms;
+}
+
+.text-marker-underline .text-marker-svg {
+  inset: auto -0.24em -0.22em;
+  width: calc(100% + 0.48em);
+  height: 0.58em;
+}
+
+.text-marker-underline .text-marker-path-shadow {
+  stroke-width: 8;
+}
+
+.text-marker-underline .text-marker-path-main {
+  stroke-width: 5.4;
+}
+
+.text-marker.is-visible .text-marker-path {
+  stroke-dashoffset: 0;
+}
+
+.text-marker.is-visible .text-marker-path-grain {
+  opacity: 0.56;
+}
+
+.text-marker.is-visible .text-marker-path-grain.is-grain-a {
+  opacity: 0.64;
+}
+
+.text-marker.is-visible .text-marker-path-grain.is-grain-b {
+  opacity: 0.42;
+}
+
+.text-marker.is-visible .text-marker-path-grain.is-grain-c {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-marker .text-marker-path {
+    transition: none;
+    stroke-dashoffset: 0;
+  }
+
+  .text-marker .text-marker-path-grain {
+    opacity: 0.56;
+  }
+}
+
+:where(
+  [data-aue-type="richtext"],
+  [data-richtext-prop],
+  .richtext-preserve-spaces
+) :where(p, li, h1, h2, h3, h4, h5, h6),
+:where(
+  [data-aue-type="richtext"],
+  [data-richtext-prop],
+  .richtext-preserve-spaces
+):where(p, li, h1, h2, h3, h4, h5, h6) {
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
 }
 
 code,
@@ -155,21 +1214,232 @@ button {
   font: inherit;
 }
 
+main form {
+  --form-control-focus-color: #de8a2a;
+  --form-control-focus-ring: rgb(227 139 34 / 16%);
+  --form-control-hover-border: #c8bdb2;
+  --form-control-invalid-color: #b6462f;
+  --form-control-label-focus-color: var(--ncmec-blue-dark);
+}
+
+main form :is(
+  [class$="-field"],
+  [class*="-field "],
+  [class$="-choice-item"],
+  [class*="-choice-item "],
+  [class$="-radio"],
+  [class*="-radio "]
+) {
+  transition: transform 180ms ease;
+}
+
+main form :is(
+  [class$="-field"],
+  [class*="-field "],
+  [class$="-choice-item"],
+  [class*="-choice-item "],
+  [class$="-radio"],
+  [class*="-radio "]
+):focus-within {
+  transform: translateY(-1px);
+}
+
+main form :is(
+  [class$="-field"],
+  [class*="-field "],
+  [class$="-choice-group"],
+  [class*="-choice-group "],
+  [class$="-checkbox-group"],
+  [class*="-checkbox-group "]
+):focus-within > :is([class$="-label"], [class*="-label "]),
+main form :is(
+  [class$="-field"],
+  [class*="-field "],
+  [class$="-choice-group"],
+  [class*="-choice-group "],
+  [class$="-checkbox-group"],
+  [class*="-checkbox-group "]
+):focus-within :is([class$="-label"], [class*="-label "]) {
+  color: var(--form-control-label-focus-color);
+}
+
+main form :is(
+  input:not([type]),
+  input[type="date"],
+  input[type="email"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="text"],
+  input[type="url"],
+  select,
+  textarea
+) {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+main form :is(
+  input:not([type]),
+  input[type="date"],
+  input[type="email"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="text"],
+  input[type="url"],
+  select,
+  textarea
+):hover {
+  border-color: var(--form-control-hover-border);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 70%),
+    0 8px 22px rgb(17 54 82 / 7%);
+}
+
+main form :is(
+  input:not([type]),
+  input[type="date"],
+  input[type="email"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="text"],
+  input[type="url"],
+  select,
+  textarea
+):focus-visible {
+  outline: 0;
+  border-color: var(--form-control-focus-color);
+  box-shadow: 0 0 0 4px var(--form-control-focus-ring);
+  transform: translateY(-1px);
+}
+
+main form :is(
+  input:not([type]),
+  input[type="date"],
+  input[type="email"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="text"],
+  input[type="url"],
+  select,
+  textarea
+):user-invalid {
+  border-color: var(--form-control-invalid-color);
+  background: var(--ncmec-white);
+  box-shadow: 0 0 0 4px rgb(182 70 47 / 12%);
+}
+
 /* links */
 a:any-link {
-  color: var(--link-color);
+  /* color: var(--link-color); */
   text-decoration: none;
   overflow-wrap: break-word;
 }
 
 a:hover {
-  color: var(--link-hover-color);
+  /* color: var(--link-hover-color); */
   text-decoration: underline;
 }
 
-/* buttons */
-a.button:any-link,
-button {
+/* A link inside running text or a list (not a nav list) is underlined: colour alone does not set it apart for
+   colour-blind visitors (WCAG 1.4.1; axe/Lighthouse link-in-text-block). Classed links
+   are components (buttons, card links) that style themselves. Just above `a:any-link`
+   (which removes the underline); :where() keeps it below any block's own link rule. */
+main :is(p, li:where(:not(nav li))) a:any-link:where(:not([class])) {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Plain links in running text (page text, Custom Text, any block's rich text) take the
+   link colour. Only class-less links: buttons, card links and nav links are components
+   that colour themselves. Zero specificity, so any block's own link colour still wins;
+   without this a block's rich-text links were browser-default blue. On a dark surface
+   (.is-on-dark) the link stays light and the underline marks it. */
+:where(main)
+  :where(p, li, td, th, dd, blockquote, figcaption)
+  :where(a:any-link:not([class])) {
+  color: var(--link-color);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+:where(main)
+  :where(p, li, td, th, dd, blockquote, figcaption)
+  :where(a:any-link:not([class]):hover) {
+  color: var(--link-hover-color);
+}
+
+:where(.is-on-dark) :where(p, li, td, th, dd, blockquote, figcaption) :where(a:any-link:not([class])),
+:where(.is-on-dark) :where(p, li, td, th, dd, blockquote, figcaption) :where(a:any-link:not([class]):hover) {
+  color: var(--body-on-dark-color);
+}
+
+/* The same, for a link on a dark card or section nobody marked .is-on-dark. The contrast
+   pass marks it after the page paints (color-tokens.js, applyLinkSurfaces), and only when
+   its colour fails there. Specific on purpose: it overrides the block colour that failed. */
+main a[data-link-on-dark]:any-link,
+main a[data-link-on-dark]:any-link:hover {
+  color: var(--body-on-dark-color);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* ====================================================================
+   BUTTONS
+   Approved by the client 2026-09-13 — "Button & Control Standard".
+
+   Two populations, kept apart on purpose:
+
+   1. `.button` is the standard: every authored call to action. The style
+      classes (secondary, soft, text-link, amber, emergency, giving, icon)
+      and the surface (.is-on-dark) set ONLY per-element --btn-* values,
+      all at one specificity so source order decides. A single painting
+      rule reads them. A state is therefore one declaration, a block never
+      repaints a button, and the exemption list lives in one selector.
+
+      SIZE is per-element in the same way: --btn-font-size, --btn-pad-block,
+      --btn-pad-inline and --btn-radius each fall back to the shared
+      --button-* token. A block with a button size of its own (cta-card-1's
+      550px CTA) sets those and keeps taking its colours from the author's
+      style choice. Setting font-size, padding or height directly instead
+      takes the button off the standard — that is what the guard catches.
+
+   2. A bare <button> without `.button` gets no look from this file: the
+      form-control reset only zeroes it. Accordions, tabs, view toggles,
+      pagination and carousel dots wear the shared CONTROLS below, and
+      carousel arrows are `.button.icon`.
+
+   EXEMPT — buttons the client asked to leave exactly as they are. The
+   header tools wear `.button`, so they are held on the old rule here.
+   Change this list here and in scripts/button-guard.mjs, nowhere else.
+     .nav-tool-accent     header Donate Now
+     .nav-search-trigger  header Search
+   Get Help Now, the image-card buttons, the poster page's action bar
+   (.poster-results-detail-action: CALL 911, tip, print, share) and the cookie
+   banner (.cookie-consent-button: 19px bold, so its white-on-#008eb7 label is
+   WCAG large text) never wear `.button`; their exceptions live in their own
+   block stylesheets. The resource-downloads Download / Watch buttons DO wear
+   `.button`, but take their card's file-type colour (PDF red, PPT orange…) by
+   setting this standard's --btn-* properties from --rd-accent in their block
+   stylesheet; the shape, size and states stay the standard's.
+
+   Authors pick the style; the surface picks the form. Blocks mark a dark
+   surface — or a single button — with `.is-on-dark`; decorateSections marks the default content
+   of sections whose background colour is dark.
+   ==================================================================== */
+
+/* ---- the exempt header tools keep the rule that painted them before ---- */
+a.button:any-link:where(.nav-tool-accent, .nav-search-trigger) {
   box-sizing: border-box;
   display: inline-block;
   max-width: 100%;
@@ -178,12 +1448,16 @@ button {
   border-radius: 2.4em;
   padding: 0.5em 1.2em;
   font-family: var(--body-font-family);
+
+  /* Matches the Get Help Now pill (1.1875rem) so the three header actions read at
+     one size. They inherited --body-size (18px at 1440) before. Size only. */
+  font-size: 1.1875rem;
   font-style: normal;
   font-weight: 500;
   line-height: 1.25;
   text-align: center;
   text-decoration: none;
-  background-color: var(--link-color);
+  background-color: #008eb7;
   color: var(--background-color);
   cursor: pointer;
   overflow: hidden;
@@ -191,25 +1465,884 @@ button {
   white-space: nowrap;
 }
 
-a.button:hover,
-a.button:focus,
-button:hover,
-button:focus {
+a.button:where(.nav-tool-accent, .nav-search-trigger):hover,
+a.button:where(.nav-tool-accent, .nav-search-trigger):focus {
   background-color: var(--link-hover-color);
   cursor: pointer;
 }
 
-button:disabled,
-button:disabled:hover {
-  background-color: var(--light-color);
-  cursor: unset;
-}
-
-a.button.secondary,
-button.secondary {
+a.button.secondary:where(.nav-tool-accent, .nav-search-trigger) {
   background-color: unset;
   border: 2px solid currentcolor;
   color: var(--text-color);
+}
+
+/* ---- the standard: per-element values, light forms ---- */
+:where(.button) {
+  --btn-bg: var(--button-primary);
+  --btn-bg-hover: var(--button-primary-hover);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+  --btn-ring: transparent;
+  --btn-ring-hover: transparent;
+  --btn-focus: var(--button-primary);
+}
+
+:where(.button).secondary {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--button-tint);
+  --btn-fg: var(--button-primary);
+  --btn-fg-hover: var(--button-primary-hover);
+  --btn-ring: currentcolor;
+  --btn-ring-hover: currentcolor;
+}
+
+:where(.button).soft {
+  --btn-bg: var(--button-tint);
+  --btn-bg-hover: var(--button-tint-hover);
+  --btn-fg: var(--button-primary-hover);
+  --btn-fg-hover: var(--button-primary-hover);
+}
+
+:where(.button).text-link {
+  --btn-bg: transparent;
+  --btn-bg-hover: transparent;
+  --btn-fg: var(--button-primary);
+  --btn-fg-hover: var(--button-primary-hover);
+  --btn-pad-inline: 0;
+  --btn-hover-decoration: underline;
+}
+
+:where(.button).amber {
+  --btn-bg: var(--button-amber);
+  --btn-bg-hover: var(--button-amber-hover);
+  --btn-fg: var(--button-amber-label);
+  --btn-fg-hover: var(--button-amber-label);
+}
+
+:where(.button).emergency {
+  --btn-bg: var(--button-emergency);
+  --btn-bg-hover: var(--button-emergency-hover);
+}
+
+:where(.button).giving {
+  --btn-bg: var(--button-giving);
+  --btn-bg-hover: var(--button-giving-hover);
+}
+
+/* Outline forms of Emergency and Giving: the Secondary shape in their own colour. Both
+   colours carry a label on white (Emergency 6.5:1, Giving 6.1:1). */
+:where(.button).emergency-outline {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--button-emergency-tint);
+  --btn-fg: var(--button-emergency);
+  --btn-fg-hover: var(--button-emergency-hover);
+  --btn-ring: currentcolor;
+  --btn-ring-hover: currentcolor;
+  --btn-focus: var(--button-emergency);
+}
+
+:where(.button).giving-outline {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--button-giving-tint);
+  --btn-fg: var(--button-giving);
+  --btn-fg-hover: var(--button-giving-hover);
+  --btn-ring: currentcolor;
+  --btn-ring-hover: currentcolor;
+  --btn-focus: var(--button-giving);
+}
+
+:where(.button).icon {
+  --btn-pad-block: 0;
+  --btn-pad-inline: 0;
+  --btn-radius: 50%;
+}
+
+/* ---- dark forms. AMBER has none: gold with a dark label works anywhere ---- */
+:where(.is-on-dark .button, .button.is-on-dark) {
+  --btn-bg: #fff;
+  --btn-bg-hover: var(--button-tint);
+  --btn-fg: var(--button-navy);
+  --btn-fg-hover: var(--button-navy);
+  --btn-focus: #fff;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark).secondary {
+  --btn-bg: transparent;
+  --btn-bg-hover: rgb(255 255 255 / 16%);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark).soft {
+  --btn-bg: rgb(255 255 255 / 18%);
+  --btn-bg-hover: rgb(255 255 255 / 28%);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark).text-link {
+  --btn-bg: transparent;
+  --btn-bg-hover: transparent;
+  --btn-fg: #fff;
+  --btn-fg-hover: var(--button-on-dark-link-hover);
+}
+
+/* A red fill disappears against navy (2.34:1), so on dark Emergency becomes white
+   with an outline and label in its own colour. Emergency outline takes the same form:
+   a red label and ring on navy would be just as unreadable. */
+:where(.is-on-dark .button, .button.is-on-dark):is(.emergency, .emergency-outline) {
+  --btn-bg: #fff;
+  --btn-bg-hover: var(--button-emergency-tint);
+  --btn-fg: var(--button-emergency);
+  --btn-fg-hover: var(--button-emergency);
+  --btn-ring: var(--button-emergency);
+  --btn-ring-hover: var(--button-emergency);
+}
+
+/* Giving keeps its green fill and white label on dark too: the client's green gives the
+   label 6.10:1 (7.34:1 on hover). The label is restated here, or the generic dark form
+   above would put a navy label on the green. Giving outline fills on dark for the same
+   reason Emergency outline does: a green label on navy does not read. */
+:where(.is-on-dark .button, .button.is-on-dark):is(.giving, .giving-outline) {
+  --btn-bg: var(--button-giving);
+  --btn-bg-hover: var(--button-giving-hover);
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+}
+
+/* ---- header mega nav: Donate Now's colours at the standard size ----
+   Not an author style. The mega nav's featured buttons wear .nav-accent so they match
+   the Donate Now button in the header, which does not change colour on hover either. */
+:where(.button).nav-accent {
+  --btn-bg: #008eb7;
+  --btn-bg-hover: #008eb7;
+  --btn-fg: #fff;
+  --btn-fg-hover: #fff;
+  --btn-ring: transparent;
+  --btn-ring-hover: transparent;
+  --btn-focus: #008eb7;
+}
+
+/* ---- disabled: a state of any style, so it comes last ----
+   A locked gated download also carries aria-disabled, but it still opens the
+   registration form, so it keeps its style and shows the padlock instead. */
+:where(.button):is(:disabled, [aria-disabled="true"]):not(.is-locked) {
+  --btn-bg: var(--button-disabled);
+  --btn-bg-hover: var(--button-disabled);
+  --btn-fg: var(--button-disabled-label);
+  --btn-fg-hover: var(--button-disabled-label);
+  --btn-ring: transparent;
+  --btn-ring-hover: transparent;
+}
+
+:where(.is-on-dark .button, .button.is-on-dark):is(:disabled, [aria-disabled="true"]):not(.is-locked) {
+  --btn-bg: rgb(255 255 255 / 15%);
+  --btn-bg-hover: rgb(255 255 255 / 15%);
+  --btn-fg: rgb(255 255 255 / 75%);
+  --btn-fg-hover: rgb(255 255 255 / 75%);
+}
+
+/* ---- the one painting rule ---- */
+
+/* Where the label sits is layout, so it is a zero-specificity default a block can
+   override: centred on a button, and on a text link the alignment of the copy around it
+   (left in a left column). A block that wants a stretched text link centred sets
+   justify-content: center on it. */
+:where(.button:is(a, button, span, div, input):not(.nav-tool-accent, .nav-search-trigger)) {
+  justify-content: center;
+  text-align: center;
+}
+
+:where(.button.text-link:is(a, button, span, div, input)) {
+  justify-content: flex-start;
+  text-align: inherit;
+}
+
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--button-gap);
+  max-width: 100%;
+  border: 0;
+  border-radius: var(--btn-radius, var(--button-radius));
+  padding:
+    var(--btn-pad-block, var(--button-padding-block))
+    var(--btn-pad-inline, var(--button-padding-inline));
+  font-family: var(--body-font-family);
+  font-size: var(--btn-font-size, var(--button-font-size));
+  font-style: normal;
+  font-weight: var(--button-font-weight);
+  line-height: var(--button-line-height);
+  letter-spacing: normal;
+  text-decoration: none;
+  text-transform: none;
+  white-space: normal;
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  box-shadow: inset 0 0 0 var(--button-ring-width) var(--btn-ring);
+  cursor: pointer;
+  transition: var(--button-transition);
+}
+
+/* Layout, not look: default-content buttons have always had this spacing. */
+:where(.button-container) > .button:is(a, button):not(:where(.nav-tool-accent, .nav-search-trigger)) {
+  margin: 12px 0;
+}
+
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)):hover {
+  background-color: var(--btn-bg-hover);
+  color: var(--btn-fg-hover);
+  box-shadow: inset 0 0 0 var(--button-ring-width) var(--btn-ring-hover);
+  text-decoration: var(--btn-hover-decoration, none);
+  text-underline-offset: 4px;
+}
+
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)):focus-visible {
+  outline: 2px solid var(--btn-focus);
+  outline-offset: 2px;
+}
+
+/* A loading button keeps the progress cursor from the skeleton styles, and a locked
+   download the pointer from the gate styles. */
+.button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)):is(:disabled, [aria-disabled="true"]):not(.is-loading, .is-locked) {
+  cursor: not-allowed;
+}
+
+.button.icon:is(a, button, span, div):not(:where(.nav-tool-accent, .nav-search-trigger)) {
+  flex-shrink: 0;
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+}
+
+:where(.button).icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Text link is the only style that draws an arrow. It is never typed into
+   the label: decorateButtonText strips any the author or a block adds. */
+:where(.button).text-link::after {
+  content: "\2192";
+  display: inline-block;
+  transition: transform var(--hover-duration) var(--hover-ease);
+}
+
+:where(.button).text-link:hover::after {
+  transform: translateX(3px);
+}
+
+/* A link that leaves the site or opens a new tab carries the external-link glyph
+   after its label, in the label colour; on a text link it takes the arrow's place.
+   Blocks only add .is-external-link, so every button draws it the same way. */
+:where(.button).is-external-link::after {
+  content: "";
+  flex: 0 0 1em;
+  width: 1em;
+  height: 1em;
+  background: currentcolor;
+  mask: url("../icons/external-link.svg") center / contain no-repeat;
+}
+
+/* The painting rule's own selector: a :where() here would lose to its transition. */
+@media (prefers-reduced-motion: reduce) {
+  .button:is(a, button, span, div, input):not(:where(.nav-tool-accent, .nav-search-trigger)),
+  :where(.button).text-link::after {
+    transition: none;
+  }
+}
+
+/* ====================================================================
+   CONTROLS
+   Approved with the buttons 2026-09-13 — "Button & Control Standard".
+
+   Six shared controls. A block adds the class and keeps only layout
+   (placement, position, margins, scrolling); the look, the states and the
+   timing live here, so one edit reaches every instance.
+
+     .accordion (+ .is-card)  faq, amber-still-missing, faon-application,
+                              team-hope-volunteer; report-archive as a card
+     .disclosure              resource-hero "More details"
+     .tab-list > .tab         tabs, report-breakdown, impact-bar-chart and the
+                              case-anniversaries timeframe. Not `.tabs`: that
+                              is the tabs block's own class.
+     .view-toggle             grid/list and map/table switches
+     .pagination              scripts/pagination-controls.js, poster-results
+     .carousel-dots           slide dots. Carousel ARROWS are buttons —
+                              .button.icon with the chevron from
+                              scripts/carousel-utils.js.
+
+   State comes from the attribute assistive tech reads: aria-selected (or
+   aria-pressed) for a tab, aria-pressed for a view, aria-current for a page
+   or a dot, and .is-open / [open] for an accordion or disclosure. Teal is
+   the one selected colour.
+   ==================================================================== */
+
+/* The --control-*, --accordion-* and --tab-* tokens live in :root at the top of this file. */
+@media (width < 900px) {
+  :root {
+    --accordion-padding: 24px 22px 24px 24px;
+    --accordion-label-size: 1.35rem;
+  }
+}
+
+@media (width < 600px) {
+  :root {
+    --accordion-padding: 18px 18px 18px 20px;
+    --accordion-gap: 14px;
+    --accordion-label-size: 1.1rem;
+    --accordion-label-line-height: 1.3;
+  }
+}
+
+/* ---- accordion: .accordion > .accordion-trigger + .accordion-panel ---- */
+.accordion {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: var(--ncmec-warm-gray);
+  box-shadow: 0 4px 14px rgb(17 58 103 / 0%);
+  transition:
+    border-color var(--accordion-duration) ease,
+    background-color var(--accordion-duration) ease,
+    box-shadow var(--accordion-duration) ease,
+    transform var(--accordion-duration) ease;
+}
+
+.accordion::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--accordion-accent);
+  opacity: 0;
+  transform: scaleY(0.3);
+  transform-origin: center;
+  transition:
+    opacity var(--accordion-duration) ease,
+    transform var(--accordion-icon-duration) var(--accordion-ease);
+}
+
+/* An authoring placeholder wears the card but has nothing to open, so it never lifts. */
+.accordion:where(:has(.accordion-trigger)):hover,
+.accordion:focus-within {
+  border-color: rgb(20 145 191 / 16%);
+  background-color: rgb(244 240 236 / 88%);
+  box-shadow: var(--shadow-3);
+  transform: translateY(var(--hover-lift-row));
+}
+
+/* Open wins over hover and focus, so the card a visitor just opened is white. */
+.accordion.is-open {
+  border-color: rgb(20 145 191 / 20%);
+  background-color: #fff;
+  box-shadow: 0 14px 28px rgb(17 58 103 / 10%);
+}
+
+.accordion.is-open::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--accordion-gap);
+  width: 100%;
+  padding: var(--accordion-padding);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+  text-align: left;
+  transition:
+    background-color var(--accordion-duration) ease,
+    border-color var(--accordion-duration) ease,
+    color var(--accordion-duration) ease;
+}
+
+/* A mouse click focuses the trigger; only keyboard focus draws the ring. */
+.accordion-trigger:focus {
+  outline: none;
+}
+
+.accordion-trigger:focus-visible {
+  outline: 2px solid var(--accordion-focus);
+  outline-offset: -2px;
+}
+
+.accordion-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--accordion-label-color);
+  font-size: var(--accordion-label-size);
+  font-weight: var(--accordion-label-weight);
+  line-height: var(--accordion-label-line-height);
+}
+
+.accordion-icon {
+  position: relative;
+  display: grid;
+  flex: 0 0 var(--accordion-icon-size);
+  width: var(--accordion-icon-size);
+  height: var(--accordion-icon-size);
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 72%);
+  box-shadow: 0 4px 10px rgb(17 58 103 / 10%);
+  transition:
+    background-color var(--accordion-duration) ease,
+    box-shadow var(--accordion-duration) ease,
+    transform var(--accordion-icon-duration) ease;
+}
+
+.accordion-icon::before,
+.accordion-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--accordion-icon-ink);
+  transform: translate(-50%, -50%);
+  transition:
+    opacity 180ms ease,
+    transform var(--accordion-duration) ease,
+    background-color var(--accordion-duration) ease;
+}
+
+.accordion-icon::before {
+  width: var(--accordion-icon-size);
+  height: 2px;
+}
+
+.accordion-icon::after {
+  width: 2px;
+  height: var(--accordion-icon-size);
+}
+
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon {
+  background: var(--accordion-accent);
+  box-shadow: 0 8px 16px rgb(20 145 191 / 25%);
+  transform: rotate(90deg);
+}
+
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon::before,
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon::after {
+  background: #fff;
+}
+
+:is(.accordion.is-open, .disclosure[open]) .accordion-icon::after {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg) scaleY(0.3);
+}
+
+/* A closed panel is also invisible, so nothing inside it takes keyboard focus. */
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--accordion-panel-duration) var(--accordion-ease),
+    visibility 0s linear var(--accordion-panel-duration);
+}
+
+/* The collapse is a 0fr grid row, which cannot shrink a child below its own padding and
+   border. Forms and cards pad that child, so a closed panel folds those away too. */
+.accordion-panel > * {
+  min-height: 0;
+  overflow: hidden;
+  transition:
+    padding-block var(--accordion-panel-duration) var(--accordion-ease),
+    border-block-width var(--accordion-panel-duration) var(--accordion-ease);
+}
+
+.accordion:not(.is-open) .accordion-panel > * {
+  padding-block: 0;
+  border-block-width: 0;
+}
+
+.accordion.is-open .accordion-panel {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows var(--accordion-panel-duration) var(--accordion-ease);
+}
+
+/* ---- accordion, card form: shares the type, icon and timing ---- */
+.accordion.is-card {
+  --accordion-padding: 20px 24px;
+
+  border-color: rgb(0 46 93 / 14%);
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: none;
+  transform: none;
+}
+
+.accordion.is-card::before {
+  display: none;
+}
+
+.accordion.is-card .accordion-trigger {
+  border-bottom: 1px solid transparent;
+}
+
+.accordion.is-card .accordion-trigger:hover {
+  background-color: rgb(0 46 93 / 4%);
+}
+
+.accordion.is-card.is-open .accordion-trigger {
+  border-bottom-color: rgb(0 46 93 / 10%);
+}
+
+@media (width <= 640px) {
+  .accordion.is-card {
+    --accordion-padding: 16px 18px;
+  }
+}
+
+/* ---- disclosure: a <details> that shares the accordion icon and timing ---- */
+.disclosure > summary {
+  --accordion-icon-size: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  min-height: 2.35rem;
+  padding: 0.42rem 0.8rem;
+  background: rgb(255 255 255 / 22%);
+  color: rgb(0 38 77 / 72%);
+  font-size: var(--caption-size);
+  font-weight: 900;
+  line-height: 1.2;
+  list-style: none;
+  cursor: pointer;
+  transition:
+    background-color var(--accordion-duration) ease,
+    color var(--accordion-duration) ease;
+}
+
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure > summary:hover,
+.disclosure[open] > summary {
+  background: rgb(255 255 255 / 42%);
+  color: var(--button-primary);
+}
+
+.disclosure > summary:focus-visible {
+  outline: 2px solid var(--accordion-focus);
+  outline-offset: -2px;
+}
+
+/* ---- tabs: .tab-list > .tab ---- */
+.tab-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: var(--tab-padding);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tab-ink);
+  font-size: var(--tab-font-size);
+  font-weight: var(--tab-font-weight);
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--control-duration) ease,
+    color var(--control-duration) ease;
+}
+
+.tab:hover {
+  background-color: var(--control-hover);
+}
+
+.tab:is([aria-selected="true"], [aria-pressed="true"]) {
+  background-color: var(--control-selected);
+  color: var(--control-selected-label);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.tab-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.tab-icon :is(img, picture, svg) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Authored tab icons are dark artwork; on the teal pill they turn white. */
+.tab:is([aria-selected="true"], [aria-pressed="true"]) .tab-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* On a dark surface (marked .is-on-dark, as for buttons) the idle label is white and the
+   selected pill is white with a navy label: teal on navy does not read. */
+.is-on-dark .tab {
+  color: #fff;
+}
+
+.is-on-dark .tab:hover {
+  background-color: rgb(255 255 255 / 16%);
+}
+
+.is-on-dark .tab:is([aria-selected="true"], [aria-pressed="true"]) {
+  background-color: #fff;
+  color: var(--button-navy);
+}
+
+.is-on-dark .tab:focus-visible {
+  outline-color: #fff;
+}
+
+.is-on-dark .tab:is([aria-selected="true"], [aria-pressed="true"]) .tab-icon {
+  filter: none;
+}
+
+/* ---- view toggle: .view-toggle > .view-toggle-button[aria-pressed] ---- */
+.view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #d8e1e7;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgb(22 50 74 / 7%);
+}
+
+.view-toggle-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: transparent;
+  color: #5a6b7d;
+  cursor: pointer;
+  transition:
+    background-color var(--control-duration) ease,
+    color var(--control-duration) ease;
+}
+
+.view-toggle-button:hover {
+  background-color: var(--control-hover);
+}
+
+.view-toggle-button[aria-pressed="true"] {
+  background-color: var(--control-selected);
+  color: var(--control-selected-label);
+}
+
+.view-toggle-button:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.view-toggle-button > span {
+  display: grid;
+  place-items: center;
+}
+
+.view-toggle-button svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+/* ---- pagination ---- */
+.pagination {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pagination[hidden] {
+  display: none;
+}
+
+.pagination-pages {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pagination-label {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pagination-status {
+  color: #3f4b53;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #d8e1e7;
+  border-radius: 999px;
+  background: #fff;
+  color: #243846;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color var(--control-duration) ease,
+    border-color var(--control-duration) ease,
+    color var(--control-duration) ease;
+}
+
+.pagination-page {
+  padding-inline: 12px;
+}
+
+.pagination-step {
+  padding: 0;
+}
+
+.pagination-step svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pagination-button[aria-current="page"] {
+  border-color: var(--control-selected);
+  background-color: var(--control-selected);
+  color: var(--control-selected-label);
+}
+
+.pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.pagination-button:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.pagination-button:hover:not(:disabled, [aria-current="page"]) {
+  background-color: #eef3f6;
+}
+
+.pagination-ellipsis {
+  min-width: 20px;
+  color: #64788a;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---- carousel dots: a 24px target drawing a small bar; the current one is long and teal ---- */
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.carousel-dot {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.carousel-dot::before {
+  content: "";
+  width: 8px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--carousel-dot-idle);
+  transition:
+    width 300ms ease,
+    background-color 200ms ease;
+}
+
+.carousel-dot:hover::before {
+  background: #4f6576;
+}
+
+.carousel-dot[aria-current="true"]::before {
+  width: 28px;
+  background: var(--control-selected);
+}
+
+.carousel-dot:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.is-on-dark .carousel-dot::before {
+  background: rgb(255 255 255 / 55%);
+}
+
+.is-on-dark .carousel-dot[aria-current="true"]::before {
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion,
+  .accordion::before,
+  .accordion-trigger,
+  .accordion-icon,
+  .accordion-icon::before,
+  .accordion-icon::after,
+  .accordion-panel,
+  .disclosure > summary,
+  .tab,
+  .view-toggle-button,
+  .pagination-button,
+  .carousel-dot::before {
+    transition: none;
+  }
 }
 
 main img {
@@ -229,25 +2362,136 @@ main img {
   width: 100%;
 }
 
+main > .section.image-full-width img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+main .default-content-wrapper .image-fit-container-link,
+main .default-content-wrapper picture.image-fit-container {
+  display: inline-block;
+  max-width: 100%;
+  width: auto;
+}
+
+main .default-content-wrapper img.image-fit-container,
+main .default-content-wrapper picture.image-fit-container img,
+main .default-content-wrapper .image-fit-container-link > picture img {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+main .default-content-wrapper .image-positioned.align-left {
+  text-align: left;
+}
+
+main .default-content-wrapper .image-positioned.align-center {
+  text-align: center;
+}
+
+main .default-content-wrapper .image-positioned.align-right {
+  text-align: right;
+}
+
+main .default-content-wrapper .image-positioned > picture,
+main .default-content-wrapper .image-positioned > a,
+main .default-content-wrapper picture.image-positioned {
+  display: block;
+  max-width: 100%;
+  width: fit-content;
+}
+
+main .default-content-wrapper .image-positioned.align-left > picture,
+main .default-content-wrapper .image-positioned.align-left > a,
+main .default-content-wrapper picture.image-positioned.align-left,
+main .default-content-wrapper img.image-positioned.align-left {
+  margin-inline: 0 auto;
+}
+
+main .default-content-wrapper .image-positioned.align-center > picture,
+main .default-content-wrapper .image-positioned.align-center > a,
+main .default-content-wrapper picture.image-positioned.align-center,
+main .default-content-wrapper img.image-positioned.align-center {
+  margin-inline: auto;
+}
+
+main .default-content-wrapper .image-positioned.align-right > picture,
+main .default-content-wrapper .image-positioned.align-right > a,
+main .default-content-wrapper picture.image-positioned.align-right,
+main .default-content-wrapper img.image-positioned.align-right {
+  margin-inline: auto 0;
+}
+
 /* sections */
 main > .section {
-  margin: 40px 0;
+  /* Mobile/tablet: uniform flow gap between sections. Authored per-section
+     spacing is intentionally ignored here so mobile/tablet stay consistent. */
+  margin: var(--flow-section) 0;
+}
+
+@media (width >= 900px) {
+  main > .section {
+    /* Desktop only: honor authored per-section top/bottom spacing when set
+       (applySectionSpacing writes --section-margin-*), else fall back to flow. */
+    margin-top: var(--section-margin-top, var(--flow-section));
+    margin-bottom: var(--section-margin-bottom, var(--flow-section));
+  }
+}
+
+main > .section.no-margin {
+  margin: 0;
 }
 
 main > .section > div {
-  max-width: 1200px;
+  max-width: var(--container);
   margin: auto;
-  padding: 0 24px;
+  padding: 0 var(--section-pad);
+}
+
+/* Parts of a loading section at or after a block that is still loading (aem.js,
+   revealLoadedWrappers). Hidden, not just invisible, so nothing below them moves. */
+main > .section > [data-section-pending] {
+  display: none;
+}
+
+/* Inter-block vertical rhythm within a section (mobile/tablet only; desktop
+   keeps each block's existing spacing, which is already fine there). */
+@media (width < 900px) {
+  main > .section > div + div {
+    margin-top: var(--flow-block);
+  }
+
+  /* Make that gap the single source of inter-block spacing by neutralizing each
+     block's own outer vertical margin. Internal content spacing is untouched.
+     Add exceptions as `main > .section > div > .some-block { margin-block: revert; }`. */
+  main > .section > div > .block {
+    margin-block: 0;
+  }
+}
+
+/* Sections with an inline background color (set via AEM section metadata):
+   add top/bottom padding so the first and last blocks don't sit flush
+   against the section edge. Padding also prevents inner block margins
+   from collapsing up/out of the section. */
+main > .section[data-background-color],
+main > .section[data-background-gradient] {
+  /* ~24px on mobile up to 40px on desktop; non-zero keeps child margins from
+     collapsing out of the colored area. */
+  padding-top: clamp(24px, 5vw, 40px);
+  padding-bottom: clamp(24px, 5vw, 40px);
+}
+
+main > .section[data-background-gradient] {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 main > .section:first-of-type {
   margin-top: 0;
-}
-
-@media (width >= 900px) {
-  main > .section > div {
-    padding: 0 32px;
-  }
 }
 
 /* section metadata */
@@ -255,5 +2499,853 @@ main .section.light,
 main .section.highlight {
   background-color: var(--light-color);
   margin: 0;
-  padding: 40px 0;
+  padding: clamp(24px, 5vw, 40px) 0;
+}
+
+main > .section.padding-top-sm { padding-top: 24px; }
+main > .section.padding-top-md { padding-top: 40px; }
+main > .section.padding-top-lg { padding-top: 64px; }
+main > .section.padding-bottom-sm { padding-bottom: 24px; }
+main > .section.padding-bottom-md { padding-bottom: 40px; }
+main > .section.padding-bottom-lg { padding-bottom: 64px; }
+
+main > .section.padding-y-sm {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+main > .section.padding-y-md {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+main > .section.padding-y-lg {
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+
+@media (width >= 900px) {
+  main > .section.padding-top-sm { padding-top: 32px; }
+  main > .section.padding-top-md { padding-top: 56px; }
+  main > .section.padding-top-lg { padding-top: 88px; }
+  main > .section.padding-bottom-sm { padding-bottom: 32px; }
+  main > .section.padding-bottom-md { padding-bottom: 56px; }
+  main > .section.padding-bottom-lg { padding-bottom: 88px; }
+
+  main > .section.padding-y-sm {
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+
+  main > .section.padding-y-md {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  main > .section.padding-y-lg {
+    padding-top: 88px;
+    padding-bottom: 88px;
+  }
+}
+
+/* colored field metadata */
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics) {
+  --colored-field-space-sm: 12px;
+  --colored-field-space-md: 24px;
+  --colored-field-space-lg: 40px;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-none"] {
+  --colored-field-padding-top: 0;
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: 0;
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-none"] {
+  --colored-field-margin-top: 0;
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: 0;
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-all-sm"] {
+  --colored-field-padding-top: var(--colored-field-space-sm);
+  --colored-field-padding-right: var(--colored-field-space-sm);
+  --colored-field-padding-bottom: var(--colored-field-space-sm);
+  --colored-field-padding-left: var(--colored-field-space-sm);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-all-md"] {
+  --colored-field-padding-top: var(--colored-field-space-md);
+  --colored-field-padding-right: var(--colored-field-space-md);
+  --colored-field-padding-bottom: var(--colored-field-space-md);
+  --colored-field-padding-left: var(--colored-field-space-md);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-all-lg"] {
+  --colored-field-padding-top: var(--colored-field-space-lg);
+  --colored-field-padding-right: var(--colored-field-space-lg);
+  --colored-field-padding-bottom: var(--colored-field-space-lg);
+  --colored-field-padding-left: var(--colored-field-space-lg);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-vertical-sm"] {
+  --colored-field-padding-top: var(--colored-field-space-sm);
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: var(--colored-field-space-sm);
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-vertical-md"] {
+  --colored-field-padding-top: var(--colored-field-space-md);
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: var(--colored-field-space-md);
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-vertical-lg"] {
+  --colored-field-padding-top: var(--colored-field-space-lg);
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: var(--colored-field-space-lg);
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-horizontal-sm"] {
+  --colored-field-padding-top: 0;
+  --colored-field-padding-right: var(--colored-field-space-sm);
+  --colored-field-padding-bottom: 0;
+  --colored-field-padding-left: var(--colored-field-space-sm);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-horizontal-md"] {
+  --colored-field-padding-top: 0;
+  --colored-field-padding-right: var(--colored-field-space-md);
+  --colored-field-padding-bottom: 0;
+  --colored-field-padding-left: var(--colored-field-space-md);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-horizontal-lg"] {
+  --colored-field-padding-top: 0;
+  --colored-field-padding-right: var(--colored-field-space-lg);
+  --colored-field-padding-bottom: 0;
+  --colored-field-padding-left: var(--colored-field-space-lg);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-top-sm"] {
+  --colored-field-padding-top: var(--colored-field-space-sm);
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: 0;
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-top-md"] {
+  --colored-field-padding-top: var(--colored-field-space-md);
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: 0;
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-top-lg"] {
+  --colored-field-padding-top: var(--colored-field-space-lg);
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: 0;
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-bottom-sm"] {
+  --colored-field-padding-top: 0;
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: var(--colored-field-space-sm);
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-bottom-md"] {
+  --colored-field-padding-top: 0;
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: var(--colored-field-space-md);
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-padding-bottom-lg"] {
+  --colored-field-padding-top: 0;
+  --colored-field-padding-right: 0;
+  --colored-field-padding-bottom: var(--colored-field-space-lg);
+  --colored-field-padding-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-all-sm"] {
+  --colored-field-margin-top: var(--colored-field-space-sm);
+  --colored-field-margin-right: var(--colored-field-space-sm);
+  --colored-field-margin-bottom: var(--colored-field-space-sm);
+  --colored-field-margin-left: var(--colored-field-space-sm);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-all-md"] {
+  --colored-field-margin-top: var(--colored-field-space-md);
+  --colored-field-margin-right: var(--colored-field-space-md);
+  --colored-field-margin-bottom: var(--colored-field-space-md);
+  --colored-field-margin-left: var(--colored-field-space-md);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-all-lg"] {
+  --colored-field-margin-top: var(--colored-field-space-lg);
+  --colored-field-margin-right: var(--colored-field-space-lg);
+  --colored-field-margin-bottom: var(--colored-field-space-lg);
+  --colored-field-margin-left: var(--colored-field-space-lg);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-vertical-sm"] {
+  --colored-field-margin-top: var(--colored-field-space-sm);
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: var(--colored-field-space-sm);
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-vertical-md"] {
+  --colored-field-margin-top: var(--colored-field-space-md);
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: var(--colored-field-space-md);
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-vertical-lg"] {
+  --colored-field-margin-top: var(--colored-field-space-lg);
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: var(--colored-field-space-lg);
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-horizontal-sm"] {
+  --colored-field-margin-top: 0;
+  --colored-field-margin-right: var(--colored-field-space-sm);
+  --colored-field-margin-bottom: 0;
+  --colored-field-margin-left: var(--colored-field-space-sm);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-horizontal-md"] {
+  --colored-field-margin-top: 0;
+  --colored-field-margin-right: var(--colored-field-space-md);
+  --colored-field-margin-bottom: 0;
+  --colored-field-margin-left: var(--colored-field-space-md);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-horizontal-lg"] {
+  --colored-field-margin-top: 0;
+  --colored-field-margin-right: var(--colored-field-space-lg);
+  --colored-field-margin-bottom: 0;
+  --colored-field-margin-left: var(--colored-field-space-lg);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-top-sm"] {
+  --colored-field-margin-top: var(--colored-field-space-sm);
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: 0;
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-top-md"] {
+  --colored-field-margin-top: var(--colored-field-space-md);
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: 0;
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-top-lg"] {
+  --colored-field-margin-top: var(--colored-field-space-lg);
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: 0;
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-bottom-sm"] {
+  --colored-field-margin-top: 0;
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: var(--colored-field-space-sm);
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-bottom-md"] {
+  --colored-field-margin-top: 0;
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: var(--colored-field-space-md);
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-margin-bottom-lg"] {
+  --colored-field-margin-top: 0;
+  --colored-field-margin-right: 0;
+  --colored-field-margin-bottom: var(--colored-field-space-lg);
+  --colored-field-margin-left: 0;
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-shadow-small"]
+  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner, .statistics-inner) {
+  box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-shadow-medium"]
+  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner, .statistics-inner) {
+  box-shadow: 0 14px 24px 0 rgb(0 0 0 / 18%);
+}
+
+:is(.colored-heading, .colored-text, .colored-button, .colored-list, .colored-icon-text, .statistics)[class*="-shadow-large"]
+  > :is(.colored-heading-inner, .colored-text-inner, .colored-button-inner, .colored-list-inner, .colored-icon-text-inner, .statistics-inner) {
+  box-shadow: 0 21px 36px 0 rgb(0 0 0 / 24%);
+}
+
+/* Retain eyebrow markup for future use while suppressing those labels site-wide. */
+[class*="eyebrow"] {
+  display: none !important;
+}
+
+/* ====================================================================
+   HOVER SYSTEM
+   Three tiers of "you can interact with this", for surfaces that are
+   NOT buttons or links. Buttons have their own standard and are
+   deliberately out of scope here.
+
+   Tokens live in :root at the top of this file. A block adopts a tier
+   either by adding the class to its element, or — where the block's own
+   selector is already doing the work — by pointing that selector at the
+   same tokens.
+
+   Every tier pairs :hover with a focus state. That is the main reason
+   this is centralised: of the site's non-button hover rules, almost all
+   answered a mouse and nothing else. Cards that already contain a link
+   get a keyboard state here for free, in one place, instead of in 21
+   separate stylesheets that each have to remember.
+
+   :focus-within (not :focus-visible) for card and row, because the thing
+   that receives focus is the LINK inside the card, not the card itself.
+   Controls use :focus-visible since they are focusable in their own
+   right and should not light up on a mouse click.
+   ==================================================================== */
+.u-hover-card,
+.u-hover-row,
+.u-hover-control {
+  transition: var(--hover-transition);
+}
+
+/* A card only earns a hover if it actually contains something to click.
+   Many blocks have an OPTIONAL cta or link field, so the same block is
+   clickable on one page and inert on the next — a lift on the inert one
+   promises a click that is not there. :has() settles it per instance, at
+   render time, with no JS and no authoring flag to remember.
+
+   Only :hover needs the guard. :focus-within cannot fire unless something
+   inside can hold focus, so it is already self-limiting. */
+.u-hover-card:focus-within,
+.u-hover-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+
+  /* Opt-in and block-supplied. A block that wants no colour shift never
+     sets it and simply inherits, while still getting the lift, shadow,
+     timing and keyboard state. */
+  background: var(--hover-surface, inherit);
+}
+
+.u-hover-row:focus-within,
+.u-hover-row:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  background: var(--hover-surface, inherit);
+}
+
+.u-hover-control:hover,
+.u-hover-control:focus-visible {
+  transform: translateY(var(--hover-lift-control));
+  background: var(--hover-surface, inherit);
+}
+
+/* Media inside a hovered card. Scoped to the card tier so a bare image
+   never picks this up on its own. */
+.u-hover-card :is(img, picture) {
+  transition: transform var(--hover-duration) var(--hover-ease);
+}
+
+.u-hover-card:has(:is(a[href], button, [role="button"])):hover :is(img, picture) {
+  transform: scale(var(--hover-media-scale));
+}
+
+/* --- TINT: dark and photographic cards -----------------------------
+   A drop shadow under a dark card is invisible, and a lift makes it
+   look detached from its own background. So this tier does not move
+   the card at all — it brightens the surface with a translucent wash
+   and lets the media inside creep forward.
+
+   The wash is a background-IMAGE layer rather than a pseudo-element,
+   so it composites over whatever background the block already set
+   without needing position:relative or a spare ::after. */
+.u-hover-tint {
+  transition: var(--hover-transition);
+}
+
+.u-hover-tint :is(img, picture) {
+  transition: transform var(--hover-duration) var(--hover-ease);
+}
+
+.u-hover-tint:focus-within,
+.u-hover-tint:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  background-image: linear-gradient(var(--hover-tint-wash), var(--hover-tint-wash));
+}
+
+.u-hover-tint:focus-within :is(img, picture),
+.u-hover-tint:where(:has(:is(a[href], button, [role="button"]))):hover :is(img, picture) {
+  transform: scale(var(--hover-media-scale));
+}
+
+/* --- EDGE: flat tiles, logos and badges ----------------------------
+   A logo tile has no elevation to add to — lifting one off the page
+   reads as a rendering fault rather than as an affordance. Instead a
+   brand rule draws in along the bottom edge, left to right.
+
+   That is the same gesture as the skeleton sweep and the hero scroll
+   cue: a bright brand segment travelling a track. Using it here means
+   the site has one motion idea rather than three unrelated ones. */
+.u-hover-edge {
+  position: relative;
+  transition: var(--hover-transition);
+}
+
+.u-hover-edge::after {
+  content: "";
+  position: absolute;
+  bottom: var(--hover-edge-offset);
+  left: 50%;
+  width: var(--hover-edge-width);
+  height: var(--hover-edge-height);
+  translate: -50% 0;
+  background: var(--hover-edge-color, var(--text-marker-color, #f5c84b));
+  mask-image: var(--hover-edge-mark);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+
+  /* clip-path, not scaleX: a wipe draws the stroke in like a pen, where a
+     scale would stretch the brush shape as it grows. */
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--hover-edge-duration) var(--hover-ease);
+}
+
+.u-hover-edge:focus-within::after,
+.u-hover-edge:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .u-hover-tint,
+  .u-hover-tint :is(img, picture),
+  .u-hover-edge,
+  .u-hover-edge::after {
+    transition: none;
+  }
+
+  .u-hover-tint:focus-within :is(img, picture),
+  .u-hover-tint:hover :is(img, picture) {
+    transform: none;
+  }
+
+  /* The rule still appears, it just does not draw. Removing it entirely
+     would leave this tier with no hover feedback at all. */
+  .u-hover-edge:focus-within::after,
+  .u-hover-edge:hover::after {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* The movement stops; the affordance does not. Dropping the shadow and
+   colour too would leave a reduced-motion visitor with no hover feedback
+   at all, which is a worse outcome than a static lift. */
+@media (prefers-reduced-motion: reduce) {
+  .u-hover-card,
+  .u-hover-row,
+  .u-hover-control,
+  .u-hover-card :is(img, picture) {
+    transition: none;
+  }
+
+  .u-hover-card:hover,
+  .u-hover-card:focus-within,
+  .u-hover-row:hover,
+  .u-hover-row:focus-within,
+  .u-hover-control:hover,
+  .u-hover-control:focus-visible,
+  .u-hover-card:hover :is(img, picture) {
+    transform: none;
+  }
+}
+
+/* ====================================================================
+   LOADING SYSTEM
+   Skeleton placeholders + the beacon spinner. Markup comes from
+   scripts/skeleton.js; the tokens are in :root at the top of this file.
+
+   The identity is in two moves, both cheap, neither of which any block
+   has to opt into:
+
+   1. The sweep's highlight passes through brand teal on its way to
+      white. A flat grey shimmer is the loading state every site has;
+      the tint is what makes this one read as NCMEC's.
+
+   2. The sweep CASCADES across a grid rather than every tile pulsing in
+      lockstep. Each item carries --skeleton-index, which becomes a
+      NEGATIVE animation-delay below. Negative matters: the animation
+      starts mid-cycle, so the wave is already travelling on the first
+      painted frame instead of after a dead beat. In a four-column grid
+      the row below is four steps behind, which tilts the wave into a
+      diagonal for free — no JS needs to know the column count.
+
+   Block geometry is NEVER restated here. A skeleton wears the block's
+   own card / media / body classes on its WRAPPERS (see
+   createSkeletonItem) so it inherits that block's real grid, radius,
+   aspect-ratio and padding. Bones themselves stay class-free so their
+   shimmer is not overridden by the block's flat placeholder colours.
+   ==================================================================== */
+
+/* Content exposed to assistive tech only. The site had exactly one copy of
+   this, block-scoped inside general-inquiries; loading states need it in
+   several places, so it is a real utility now. */
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+/* --- Skeleton item ------------------------------------------------- */
+.skeleton-item {
+  /* Flash protection. A request that resolves inside 120ms removes the
+     skeleton before this delay elapses, so it never paints at all —
+     which is why call sites can stay synchronous and skip a minimum
+     display timer. `both` holds opacity 0 through the delay. */
+  animation: skeleton-fade-in 240ms ease-out 120ms both;
+}
+
+/* Generic layout, applied ONLY when there was no block class to borrow.
+   It cannot be a plain fallback on .skeleton-item: a borrowed card class
+   that happens not to declare `display` would still inherit this, and a
+   default gap between the media and the body opens a seam the real card
+   does not have (article-list's card is exactly that shape). */
+.skeleton-item.is-bare,
+.skeleton-body.is-bare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-body.is-bare {
+  flex: 1;
+}
+
+/* Holds the block's media geometry; the bone inside it does the shimmer. */
+.skeleton-media {
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- Bones ---------------------------------------------------------- */
+.skeleton-bone {
+  display: block;
+  flex: none;
+  width: 100%;
+  height: 1em;
+  border-radius: var(--skeleton-radius);
+  background-color: var(--skeleton-base);
+
+  /* Two tinted stops flanking the white core: the light reads as teal on
+     the way in and on the way out, white only at its peak. One tinted
+     stop looks like a rendering error; two looks intentional. */
+  background-image:
+    linear-gradient(
+      100deg,
+      var(--skeleton-base) 0%,
+      var(--skeleton-base) 32%,
+      var(--skeleton-tint) 42%,
+      var(--skeleton-highlight) 50%,
+      var(--skeleton-tint) 58%,
+      var(--skeleton-base) 68%,
+      var(--skeleton-base) 100%
+    );
+  background-repeat: no-repeat;
+  background-size: 220% 100%;
+  animation: skeleton-sweep var(--skeleton-sweep) linear infinite;
+
+  /* The cascade. Negative, so every bone is already mid-sweep on frame one. */
+  animation-delay: calc(var(--skeleton-index, 0) * var(--skeleton-cascade-step) * -1);
+}
+
+.skeleton-bone.is-title {
+  width: 78%;
+  height: 22px;
+}
+
+.skeleton-bone.is-title-sm {
+  width: 52%;
+  height: 22px;
+}
+
+.skeleton-bone.is-text {
+  height: 13px;
+}
+
+.skeleton-bone.is-text-sm {
+  width: 66%;
+  height: 13px;
+}
+
+.skeleton-bone.is-label {
+  width: 38%;
+  height: 11px;
+}
+
+.skeleton-bone.is-pill {
+  width: 96px;
+  height: 20px;
+  border-radius: 999px;
+}
+
+.skeleton-bone.is-button {
+  width: 150px;
+  height: 44px;
+  border-radius: 999px;
+}
+
+.skeleton-bone.is-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+
+.skeleton-bone.is-block {
+  height: 100%;
+  min-height: 180px;
+  border-radius: 10px;
+}
+
+/* Fills whatever .skeleton-media is sized to, so the wrapper keeps the
+   block's real aspect-ratio and this never has to guess one.
+
+   The highlight is pulled back here. A sweep tuned to read on a 13px
+   text bone becomes a hard glare when the same gradient is stretched
+   over a 320x270 card image — the band is simply much bigger, so the
+   same contrast lands far heavier. Dimming the highlight and widening
+   the background keeps one wave across the card instead of a spotlight
+   on the picture area. */
+.skeleton-bone.is-media {
+  --skeleton-highlight: #eef3f5;
+  --skeleton-tint: rgb(0 141 182 / 10%);
+
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background-size: 300% 100%;
+}
+
+/* A slow brand wash over the image area only. Bare shimmer on a large
+   rectangle reads as an empty box; this reads as a picture not yet
+   there, and it is the one place with room for a gradient to show. */
+.skeleton-bone.is-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 18%, rgb(0 141 182 / 12%), transparent 58%),
+    linear-gradient(135deg, rgb(0 38 77 / 7%), transparent 52%);
+}
+
+/* --- Beacon --------------------------------------------------------
+   For containers with no card shape worth faking: a map about to draw,
+   a form mid-submit, a panel whose height is unknown until data lands.
+   Rings pulse outward from a solid brand dot — a signal going out,
+   which is the right metaphor for this organisation and reads as
+   deliberate rather than as a stock spinner. */
+.skeleton-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: var(--space-10) 0;
+}
+
+.skeleton-beacon {
+  position: relative;
+  display: inline-block;
+  width: var(--beacon-size);
+  height: var(--beacon-size);
+}
+
+/* The core dot. Breathes slightly so the centre is never fully static
+   between ring emissions. */
+.skeleton-beacon::before {
+  content: "";
+  position: absolute;
+  inset: 38%;
+  border-radius: 50%;
+  background: var(--beacon-color);
+  animation: beacon-core 2.1s ease-in-out infinite;
+}
+
+.skeleton-beacon-ring {
+  position: absolute;
+  inset: 0;
+  border: 2.5px solid var(--beacon-color);
+  border-radius: 50%;
+  opacity: 0;
+  animation: beacon-pulse 2.1s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+/* Thirds of the cycle, so one ring is always mid-flight. */
+.skeleton-beacon-ring:nth-child(2) {
+  animation-delay: 0.7s;
+}
+
+.skeleton-beacon-ring:nth-child(3) {
+  animation-delay: 1.4s;
+}
+
+/* --- Inline / button states ---------------------------------------- */
+.skeleton-button-beacon {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.55em;
+  vertical-align: baseline;
+  border-radius: 50%;
+  background: currentcolor;
+  animation: beacon-core 1.2s ease-in-out infinite;
+}
+
+button.is-loading {
+  cursor: progress;
+}
+
+/* Indeterminate bar for a panel refreshing in place, where swapping the
+   content for a skeleton would throw away scroll position. */
+.skeleton-progress {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(0 114 148 / 14%);
+}
+
+.skeleton-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 38%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #00264d, var(--beacon-color), #008db6);
+  animation: skeleton-progress-slide 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+/* --- On dark surfaces ----------------------------------------------
+   Same construction, inverted. Several blocks sit on the navy, where
+   the light palette would glow like a lightbox. */
+.skeleton-on-dark,
+.skeleton-beacon.is-on-dark {
+  --skeleton-base: rgb(255 255 255 / 10%);
+  --skeleton-highlight: rgb(255 255 255 / 30%);
+  --skeleton-tint: rgb(0 190 232 / 22%);
+  --beacon-color: #6fd4ef;
+}
+
+/* --- Reduced motion -------------------------------------------------
+   Everything above is decorative motion carrying no information, so it
+   can stop outright. The bones stay visible — they still say "content
+   is coming" — and the beacon holds one static ring so it does not
+   vanish entirely. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-item,
+  .skeleton-bone,
+  .skeleton-beacon::before,
+  .skeleton-beacon-ring,
+  .skeleton-button-beacon,
+  .skeleton-progress::after {
+    animation: none;
+  }
+
+  .skeleton-bone {
+    background-image: none;
+  }
+
+  .skeleton-beacon-ring {
+    opacity: 0.35;
+  }
+
+  .skeleton-beacon-ring:nth-child(2),
+  .skeleton-beacon-ring:nth-child(3) {
+    display: none;
+  }
+
+  .skeleton-progress::after {
+    width: 100%;
+  }
+}
+
+@keyframes skeleton-sweep {
+  from {
+    background-position: 120% 0;
+  }
+
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@keyframes skeleton-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes beacon-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.34);
+  }
+
+  16% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes beacon-core {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(0.86);
+  }
+}
+
+@keyframes skeleton-progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
 }

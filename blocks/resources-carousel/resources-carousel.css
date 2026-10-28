@@ -1,0 +1,160 @@
+/* In-flow block: main > .section > div already caps at --container and pads by
+   --section-pad, so anything here is ON TOP of the shared column. The old
+   1200px cap plus side padding pulled it 78px in from every neighbouring
+   block; vertical padding is the block's own business and stays. */
+.resources-carousel {
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) 0;
+}
+
+/* Header: heading left, find-all right */
+.resources-carousel .resources-carousel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.resources-carousel .resources-carousel-heading {
+  margin: 0;
+  color: #00264d;
+}
+
+/* Find all: styled by the button standard in styles/styles.css; this only places it. */
+.resources-carousel .resources-carousel-find-all {
+  flex-shrink: 0;
+}
+
+/* Scrollable track */
+.resources-carousel .resources-carousel-track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  cursor: grab;
+}
+
+.resources-carousel .resources-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each slide */
+.resources-carousel .resources-carousel-slide {
+  flex: 0 0 clamp(260px, 30vw, 320px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+}
+
+/* Card */
+.resources-carousel .resources-carousel-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgb(0 38 77 / 9%);
+  border: 1px solid rgb(0 38 77 / 6%);
+}
+
+/* Full-card cover link */
+.resources-carousel .resources-carousel-card-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.resources-carousel .resources-carousel-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  box-shadow: 0 8px 28px rgb(0 38 77 / 14%);
+}
+
+.resources-carousel .resources-carousel-card-title {
+  margin: 0 0 0.6rem;
+  color: #00264d;
+}
+
+/* Clamped: every card in the row is as tall as the tallest, so one resource
+   with a 600-character excerpt stretched all eight to ~760px of empty card.
+   Three lines, as on the library's own cards (resources-browser). */
+.resources-carousel .resources-carousel-card-subtitle {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  margin: 0;
+  color: #516272;
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.resources-carousel .resources-carousel-spacer {
+  flex: 1;
+  min-height: 1rem;
+}
+
+/* Card link: the Text link style from the button standard. This keeps it above
+   the full-card cover link. */
+.resources-carousel .resources-carousel-card-link {
+  position: relative;
+  z-index: 2;
+  margin-top: 1rem;
+}
+
+/* Controls row */
+.resources-carousel .resources-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+/* Progress bar */
+.resources-carousel .resources-carousel-progress {
+  flex: 1;
+  height: 4px;
+  background: rgb(0 38 77 / 12%);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.resources-carousel .resources-carousel-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #00264d;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+/* Nav arrows */
+.resources-carousel .resources-carousel-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.resources-carousel .resources-carousel-message {
+  padding: 1.5rem;
+  color: #516272;
+  font-size: var(--body-sm-size);
+}
+
+@media (width <= 700px) {
+  .resources-carousel .resources-carousel-slide {
+    flex: 0 0 min(85vw, 280px);
+  }
+
+  .resources-carousel .resources-carousel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

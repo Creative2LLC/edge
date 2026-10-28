@@ -11,6 +11,9 @@
  */
 
 /* eslint-env browser */
+import { decorateButtonText, isDarkSurface } from './button-utils.js';
+import { resolveBlockAlias } from './block-aliases.js';
+
 function sampleRUM(checkpoint, data) {
   // eslint-disable-next-line max-len
   const timeShift = () => (window.performance ? window.performance.now() : Date.now() - window.hlx.rum.firstReadTime);
@@ -251,6 +254,163 @@ function readBlockConfig(block) {
   return config;
 }
 
+function cleanupFieldNode(node) {
+  const row = node?.parentElement;
+  if (row && row.children?.length === 2 && row.children[1] === node) {
+    row.remove();
+  } else if (node) {
+    node.remove();
+  }
+}
+
+function readSectionFieldValue(node) {
+  if (!node) return '';
+
+  const paragraphs = [...node.querySelectorAll('p')]
+    .map((paragraph) => paragraph.textContent.trim())
+    .filter(Boolean);
+  if (paragraphs.length === 1) return paragraphs[0];
+  if (paragraphs.length > 1) return paragraphs.join(', ');
+
+  return node.textContent.trim();
+}
+
+function normalizeColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  if (/^https?:/i.test(normalized) && hexMatch) {
+    return hexMatch[0];
+  }
+
+  return normalized;
+}
+
+function normalizeHexColorValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+
+  const hexMatch = normalized.match(/#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})(?![0-9a-f])/i);
+  return hexMatch ? hexMatch[0] : '';
+}
+
+function normalizeBackgroundGradientValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized || !/gradient\(/i.test(normalized)) return '';
+  if (window.CSS?.supports && !window.CSS.supports('background-image', normalized)) return '';
+  return normalized;
+}
+
+function normalizeSectionFieldName(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+const SECTION_FIELD_LABELS = {
+  name: ['name', 'sectionname'],
+  anchorId: ['anchorid', 'anchor', 'sectionid', 'sectionanchor'],
+  style: ['style', 'styles'],
+  backgroundColor: ['backgroundcolor', 'sectionbackgroundcolor'],
+  backgroundGradient: ['backgroundgradient', 'sectionbackgroundgradient', 'gradientbackground'],
+  topSpacing: ['topspacing', 'margintop', 'sectiontopspacing'],
+  bottomSpacing: ['bottomspacing', 'marginbottom', 'sectionbottomspacing'],
+};
+
+const SECTION_FIELDS = Object.keys(SECTION_FIELD_LABELS);
+
+function normalizeSectionMetaValue(name, value) {
+  if (name === 'backgroundColor') return normalizeColorValue(value);
+  if (name === 'backgroundGradient') return normalizeBackgroundGradientValue(value);
+  return value;
+}
+
+function findSectionLabeledField(section, name) {
+  const acceptedLabels = SECTION_FIELD_LABELS[name] || [];
+  const rows = [...section.querySelectorAll(':scope > div, :scope > div > div, :scope > div > div > div')]
+    .filter((row) => row.children?.length === 2)
+    .filter((row) => !row.closest('.block'));
+
+  return rows.find((row) => (
+    acceptedLabels.includes(normalizeSectionFieldName(row.children[0].textContent))
+  )) || null;
+}
+
+function getSectionMetadata(section) {
+  const meta = {};
+  const sectionMeta = section.querySelector('div.section-metadata');
+
+  if (sectionMeta) {
+    Object.assign(meta, readBlockConfig(sectionMeta));
+  }
+
+  const sectionResource = section.getAttribute('data-aue-resource')
+    || section.querySelector(':scope > [data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  if (sectionResource) {
+    SECTION_FIELDS.forEach((name) => {
+      const selector = `[data-aue-resource="${sectionResource}"][data-aue-prop="${name}"]`;
+      const node = section.querySelector(selector)
+        || section.querySelector(`[data-aue-prop="${name}"]`);
+      if (!node) return;
+
+      const value = readSectionFieldValue(node);
+      if (value) {
+        meta[name] = normalizeSectionMetaValue(name, value);
+      }
+
+      cleanupFieldNode(node);
+    });
+  }
+
+  SECTION_FIELDS.forEach((name) => {
+    if (meta[name]) return;
+    const row = findSectionLabeledField(section, name);
+    if (!row) return;
+
+    const value = readSectionFieldValue(row.children[1]);
+    if (value) {
+      meta[name] = normalizeSectionMetaValue(name, value);
+    }
+    row.remove();
+  });
+
+  const existingBackgroundColor = normalizeColorValue(
+    section.getAttribute('data-background-color')
+    || section.getAttribute('data-backgroundcolor'),
+  );
+  if (existingBackgroundColor && !meta.backgroundColor) {
+    meta.backgroundColor = existingBackgroundColor;
+  }
+
+  const existingBackgroundGradient = normalizeBackgroundGradientValue(
+    section.getAttribute('data-background-gradient')
+    || section.getAttribute('data-backgroundgradient'),
+  );
+  if (existingBackgroundGradient && !meta.backgroundGradient) {
+    meta.backgroundGradient = existingBackgroundGradient;
+  }
+
+  [
+    ['topSpacing', 'data-top-spacing', 'data-topspacing'],
+    ['bottomSpacing', 'data-bottom-spacing', 'data-bottomspacing'],
+  ].forEach(([name, dashAttr, compactAttr]) => {
+    if (meta[name]) return;
+    meta[name] = section.getAttribute(dashAttr)
+      || section.getAttribute(compactAttr)
+      || '';
+  });
+
+  if (sectionMeta) {
+    sectionMeta.parentNode.remove();
+  }
+
+  return meta;
+}
+
 /**
  * Loads a CSS file.
  * @param {string} href URL to the CSS file
@@ -333,7 +493,7 @@ function createOptimizedPicture(
     const source = document.createElement('source');
     if (br.media) source.setAttribute('media', br.media);
     source.setAttribute('type', 'image/webp');
-    source.setAttribute('srcset', `${pathname}?width=${br.width}&format=webply&optimize=medium`);
+    source.setAttribute('srcset', `${pathname}?width=${br.width}&format=webp&optimize=medium`);
     picture.appendChild(source);
   });
 
@@ -371,6 +531,19 @@ function decorateTemplateAndTheme() {
   if (theme) addClasses(document.body, theme);
 }
 
+const COLUMN_NESTED_BLOCK_SELECTOR = [
+  '[data-aue-model]',
+  '[data-aue-resource][data-aue-type="component"]',
+  '[data-aue-resource][data-aue-behavior="component"]',
+  '.colored-button',
+  '.colored-grid',
+  '.colored-heading',
+  '.colored-icon-text',
+  '.colored-list',
+  '.colored-text',
+  '.statistics',
+].join(', ');
+
 /**
  * Wrap inline text content of block cells within a <p> tag.
  * @param {Element} block the block element
@@ -392,6 +565,16 @@ function wrapTextNodes(block) {
     'HR',
   ];
 
+  const isColumnsBlock = block.dataset.blockName === 'columns';
+  const hasComponentContent = (element) => element.matches?.(COLUMN_NESTED_BLOCK_SELECTOR)
+    || element.querySelector?.(COLUMN_NESTED_BLOCK_SELECTOR);
+
+  const isColumnsAuthoringCell = (element) => isColumnsBlock
+    && (
+      element.matches('[data-aue-filter="column"], [data-aue-label="Column"]')
+      || element.querySelector(':scope > [data-aue-filter="column"], :scope > [data-aue-label="Column"]')
+    );
+
   const wrap = (el) => {
     const wrapper = document.createElement('p');
     wrapper.append(...el.childNodes);
@@ -410,6 +593,11 @@ function wrapTextNodes(block) {
 
   block.querySelectorAll(':scope > div > div').forEach((blockColumn) => {
     if (blockColumn.hasChildNodes()) {
+      if (
+        isColumnsBlock
+        && (hasComponentContent(blockColumn) || isColumnsAuthoringCell(blockColumn))
+      ) return;
+
       const hasWrapper = !!blockColumn.firstElementChild
         && validWrappers.some((tagName) => blockColumn.firstElementChild.tagName === tagName);
       if (!hasWrapper) {
@@ -428,16 +616,75 @@ function wrapTextNodes(block) {
  * Decorates paragraphs containing a single link as buttons.
  * @param {Element} element container element
  */
+const AEM_HEX_HREF = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+function isAemColorValueLink(link) {
+  return Boolean(
+    AEM_HEX_HREF.test(link.getAttribute('href') || '')
+      && AEM_HEX_HREF.test(link.textContent.trim()),
+  );
+}
+
+/**
+ * True when a link is just an auto-linked bare URL — the shape AEM emits for a
+ * config field holding a URL (an API base, a feed endpoint) rather than a real CTA.
+ *
+ * The naive check `a.href !== a.textContent` does NOT catch these: `a.href` is the
+ * browser-RESOLVED value, which appends a trailing slash to a bare origin, so
+ * `https://api.example.com` (text) and `https://api.example.com/` (href) compare as
+ * different. decorateButtons then treated the config cell as a CTA and appended
+ * " →" to it, corrupting every URL built from that cell. Compare the raw attribute
+ * and ignore a trailing slash.
+ */
+function isBareUrlAutolink(link) {
+  const attr = (link.getAttribute('href') || '').trim();
+  const text = (link.textContent || '').trim();
+  if (!attr || !text) return false;
+  const strip = (s) => s.replace(/\/+$/, '');
+  return strip(attr) === strip(text);
+}
+
+/** Typed after a link's text in the editor to keep it a text link: "Read more [text link]". */
+const TEXT_LINK_MARKER = /\s*\[text[\s-]?link\]\s*$/i;
+
+/** Removes the [text link] marker; true when the link carried it. */
+function takeTextLinkMarker(link) {
+  const last = [...link.childNodes].reverse().find((node) => node.textContent.trim());
+  if (!last || !TEXT_LINK_MARKER.test(last.textContent)) return false;
+  last.textContent = last.textContent.replace(TEXT_LINK_MARKER, '');
+  return true;
+}
+
+/**
+ * A link alone in its paragraph that reads as a sentence ("View the available
+ * resources NCMEC can provide in these types of cases.") stays a text link: a button
+ * label never ends in a full stop. Bold or italic still makes it a button.
+ */
+function isSentenceLink(link) {
+  return /[^.]\.$/.test((link.textContent || '').trim());
+}
+
 function decorateButtons(element) {
   element.querySelectorAll('a').forEach((a) => {
-    a.title = a.title || a.textContent;
+    if (isAemColorValueLink(a)) return;
+    if (isBareUrlAutolink(a)) return;
+    // The author asked for a text link: never a button, however it is formatted.
+    if (takeTextLinkMarker(a)) return;
+
     if (a.href !== a.textContent) {
       const up = a.parentElement;
       const twoup = a.parentElement.parentElement;
       if (!a.querySelector('img')) {
-        if (up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV')) {
-          a.className = 'button'; // default
+        if (up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV') && !isSentenceLink(a)) {
+          a.classList.add('button'); // default
           up.classList.add('button-container');
+          // Strip any typed arrow; only the text-link style shows one, drawn by CSS
+          if (!a.dataset.buttonDecorated) {
+            a.textContent = decorateButtonText(a.textContent);
+            a.dataset.buttonDecorated = 'true';
+          }
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
         if (
           up.childNodes.length === 1
@@ -445,8 +692,15 @@ function decorateButtons(element) {
           && twoup.childNodes.length === 1
           && twoup.tagName === 'P'
         ) {
-          a.className = 'button primary';
+          a.classList.add('button', 'primary');
           twoup.classList.add('button-container');
+          // Strip any typed arrow; only the text-link style shows one, drawn by CSS
+          if (!a.dataset.buttonDecorated) {
+            a.textContent = decorateButtonText(a.textContent);
+            a.dataset.buttonDecorated = 'true';
+          }
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
         if (
           up.childNodes.length === 1
@@ -454,8 +708,15 @@ function decorateButtons(element) {
           && twoup.childNodes.length === 1
           && twoup.tagName === 'P'
         ) {
-          a.className = 'button secondary';
+          a.classList.add('button', 'secondary');
           twoup.classList.add('button-container');
+          // Strip any typed arrow; only the text-link style shows one, drawn by CSS
+          if (!a.dataset.buttonDecorated) {
+            a.textContent = decorateButtonText(a.textContent);
+            a.dataset.buttonDecorated = 'true';
+          }
+          // Set title after text decoration so it doesn't include [no arrow] suffix
+          a.title = a.title || a.textContent;
         }
       }
     }
@@ -516,23 +777,55 @@ function decorateSections(main) {
     section.dataset.sectionStatus = 'initialized';
     section.style.display = 'none';
 
-    // Process section metadata
-    const sectionMeta = section.querySelector('div.section-metadata');
-    if (sectionMeta) {
-      const meta = readBlockConfig(sectionMeta);
-      Object.keys(meta).forEach((key) => {
-        if (key === 'style') {
-          const styles = meta.style
-            .split(',')
-            .filter((style) => style)
-            .map((style) => toClassName(style.trim()));
-          styles.forEach((style) => section.classList.add(style));
-        } else {
-          section.dataset[toCamelCase(key)] = meta[key];
+    const meta = getSectionMetadata(section);
+    Object.keys(meta).forEach((key) => {
+      const camelKey = key.includes('-') ? toCamelCase(key) : key;
+      if (camelKey === 'style') {
+        const styles = String(meta[key] || '')
+          .split(',')
+          .filter((style) => style)
+          .map((style) => toClassName(style.trim()));
+        styles.forEach((style) => section.classList.add(style));
+      } else if (camelKey === 'anchorId') {
+        const value = toClassName(String(meta[key] || '').replace(/^#/, ''));
+        if (value) section.id = value;
+      } else if (camelKey === 'backgroundColor') {
+        const value = normalizeColorValue(meta[key]);
+        if (value) {
+          const hasGradient = normalizeBackgroundGradientValue(
+            meta.backgroundGradient || meta['background-gradient'],
+          );
+          section.style.backgroundColor = value;
+          [...section.querySelectorAll(':scope > div')].forEach((wrapper) => {
+            wrapper.style.backgroundColor = hasGradient ? 'transparent' : value;
+          });
+          section.setAttribute('data-background-color', value);
+          section.setAttribute('data-backgroundcolor', value);
+          // Buttons in this section's own content take their dark form. Blocks
+          // mark their own surfaces, so only the default content is marked here.
+          if (!hasGradient && isDarkSurface(value)) {
+            section.querySelectorAll(':scope > .default-content-wrapper')
+              .forEach((wrapper) => wrapper.classList.add('is-on-dark'));
+          }
         }
-      });
-      sectionMeta.parentNode.remove();
-    }
+      } else if (camelKey === 'backgroundGradient') {
+        const value = normalizeBackgroundGradientValue(meta[key]);
+        if (value) {
+          section.style.backgroundImage = value;
+          section.style.backgroundPosition = 'center';
+          section.style.backgroundRepeat = 'no-repeat';
+          section.style.backgroundSize = 'cover';
+          [...section.querySelectorAll(':scope > div')].forEach((wrapper) => {
+            wrapper.style.removeProperty('background-image');
+            wrapper.style.backgroundColor = 'transparent';
+          });
+          section.setAttribute('data-background-gradient', value);
+          section.setAttribute('data-backgroundgradient', value);
+        }
+      } else {
+        section.dataset[camelKey] = meta[key];
+      }
+    });
   });
 }
 
@@ -567,41 +860,1448 @@ function buildBlock(blockName, content) {
   return blockEl;
 }
 
+function extractResourceURL(error) {
+  const target = error?.target || error?.currentTarget;
+  if (target?.href) return target.href;
+
+  if (typeof error?.message === 'string') {
+    const match = error.message.match(/https?:\/\/\S+/);
+    if (match) return match[0].replace(/[).,;]+$/, '');
+  }
+
+  return '';
+}
+
+function compactHTML(element, maxLength = 320) {
+  if (!element?.outerHTML) return '';
+  return element.outerHTML.replace(/\s+/g, ' ').trim().slice(0, maxLength);
+}
+
+function logBlockLoadError(block, blockName, phase, error, resourceURL = '') {
+  const section = block.closest('.section');
+  const wrapper = block.parentElement;
+  const url = resourceURL || extractResourceURL(error);
+
+  // eslint-disable-next-line no-console
+  console.error(`[hlx:block-load] Failed to load "${blockName}" (${phase}).`, {
+    page: window.location.href,
+    blockName,
+    phase,
+    resourceURL: url,
+    blockClasses: [...block.classList],
+    sectionClasses: section ? [...section.classList] : [],
+    wrapperClasses: wrapper ? [...wrapper.classList] : [],
+    blockHTML: compactHTML(block),
+    wrapperHTML: compactHTML(wrapper),
+  }, error);
+}
+
+const CUSTOM_REVEAL_BLOCKS = new Set([
+  'code-adam-kit',
+  'community-education-partner-reporting',
+  'connect-grid',
+  'event-request-form',
+  'faon-application',
+  'hero-footer',
+  'historical-reports-carousel',
+  'historical-trends',
+  'host-a-fundraiser',
+  'impact-donut',
+  'info-cards-grid',
+  'missing-child-poster-api-registration',
+  'missing-child-quick-report',
+  'ncmec-reprint-request',
+  'numbered-cards',
+  'regional-offices',
+  'report-breakdown',
+  'report-download',
+  'support-cta',
+  'team-hope-volunteer',
+  'text-image',
+]);
+
+const COLUMN_NESTED_BLOCK_NAMES = new Set([
+  'colored-button',
+  'colored-grid',
+  'colored-heading',
+  'colored-icon-text',
+  'colored-list',
+  'colored-text',
+  'statistics',
+]);
+
+let blockRevealObserver;
+
+function revealBlock(block) {
+  block.classList.add('is-visible');
+}
+
+function observeBlockReveal(block) {
+  if (!block.closest('main') || block.classList.contains('no-scroll-reveal')) return;
+
+  if (!CUSTOM_REVEAL_BLOCKS.has(block.dataset.blockName)) {
+    block.classList.add('scroll-reveal');
+  }
+
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    revealBlock(block);
+    return;
+  }
+
+  block.addEventListener('focusin', () => revealBlock(block), { once: true });
+
+  blockRevealObserver ||= new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      // On the first screen before any scrolling: show it at once, no fade. The fade held the
+      // LCP text back ~1.8s on short-hero pages. Not while a loading placeholder is up: its
+      // final height is unknown (amber-alerts swaps 3 placeholder cards for one line), and
+      // shown at once that resize became a 0.2-0.3 layout shift.
+      if (window.scrollY === 0 && entry.boundingClientRect.top < window.innerHeight
+        && !entry.target.matches('.has-skeleton, :has(.has-skeleton)')) {
+        entry.target.classList.add('scroll-reveal-instant');
+      }
+      revealBlock(entry.target);
+      blockRevealObserver.unobserve(entry.target);
+    });
+  }, {
+    rootMargin: '0px 0px -8% 0px',
+    threshold: 0.16,
+  });
+
+  blockRevealObserver.observe(block);
+}
+
 /**
  * Loads JS and CSS for a block.
  * @param {Element} block The block element
  */
+/**
+ * Pull flow content back out of headings.
+ *
+ * 19 blocks build a heading by moving an authored richtext field's CHILD NODES into
+ * it (`applyRichText`, `buildRichTextElement`, `while (source.firstChild) …`) or by
+ * assigning its HTML. AEM wraps authored richtext in `<p>`, so the `<p>` travels
+ * inside the `<h2>`. A live sweep of all 68 pages found 179 of these — `resources`
+ * alone accounted for 87. See audits/body-copy-audit.md finding 03.
+ *
+ * Two problems: `<p>` is flow content and is not allowed inside a heading's phrasing
+ * content model, and those paragraphs inherit heading type, which puts them out of
+ * reach of every body-copy rule.
+ *
+ * It only fires when the authored value is real richtext — a plain text cell arrives
+ * as a bare text node — which is why it looks fine on some pages and not others.
+ *
+ * Fixed centrally rather than in 19 block files: it is one behaviour, and doing it
+ * here also covers blocks written later.
+ *
+ * Deliberately SKIPS instrumented nodes. In the Universal Editor the `<p>` carries
+ * `data-aue-*`, and unwrapping would drop the field's editing handle. Published
+ * pages carry no instrumentation, so the fix lands exactly where the problem is.
+ */
+function unwrapFlowContentInHeadings(scope) {
+  const headings = scope.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading) => {
+    const flow = [...heading.children].filter((el) => el.tagName === 'P' || el.tagName === 'DIV');
+    flow.forEach((el, index) => {
+      if ([...el.attributes].some((a) => a.name.startsWith('data-aue'))) return;
+      if (index > 0) heading.insertBefore(document.createTextNode(' '), el);
+      while (el.firstChild) heading.insertBefore(el.firstChild, el);
+      el.remove();
+    });
+  });
+}
+
 async function loadBlock(block) {
   const status = block.dataset.blockStatus;
   if (status !== 'loading' && status !== 'loaded') {
     block.dataset.blockStatus = 'loading';
     const { blockName } = block.dataset;
+    let hasDetailedError = false;
+    const captureError = (phase, error, resourceURL = '') => {
+      hasDetailedError = true;
+      logBlockLoadError(block, blockName, phase, error, resourceURL);
+    };
+
     try {
-      const cssLoaded = loadCSS(`${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.css`);
+      const cssURL = `${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.css`;
+      const moduleURL = `${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.js`;
+      const cssLoaded = loadCSS(cssURL).catch((error) => {
+        captureError('css', error, cssURL);
+        throw error;
+      });
       const decorationComplete = new Promise((resolve) => {
         (async () => {
           try {
-            const mod = await import(
-              `${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.js`
-            );
+            const mod = await import(moduleURL);
             if (mod.default) {
               await mod.default(block);
             }
           } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error(`failed to load module for ${blockName}`, error);
+            captureError('module', error, moduleURL);
           }
           resolve();
         })();
       });
       await Promise.all([cssLoaded, decorationComplete]);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`failed to load block ${blockName}`, error);
+      if (!hasDetailedError) {
+        captureError('block', error);
+      }
     }
+    unwrapFlowContentInHeadings(block);
     block.dataset.blockStatus = 'loaded';
+    observeBlockReveal(block);
+    // eslint-disable-next-line no-use-before-define
+    await loadNestedBlocks(block);
   }
   return block;
+}
+
+function normalizeBlockNameCandidate(value) {
+  return toClassName(value).replace(/-\d{4,}$/u, '');
+}
+
+function getResourceSegments(resource) {
+  if (!resource) return [];
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  const normalizedPath = (match ? match[1] : resource).replace(/\/+$/g, '');
+  return normalizedPath.split('/').filter(Boolean);
+}
+
+function getResourceBlockName(element) {
+  if (!element) return '';
+  const resource = element.getAttribute('data-aue-resource') || '';
+  const propName = normalizeBlockNameCandidate(element.getAttribute('data-aue-prop') || '');
+  const segments = getResourceSegments(resource);
+  if (!segments.length) return '';
+  const lastSegment = normalizeBlockNameCandidate(segments[segments.length - 1]);
+  if (propName && lastSegment === propName && segments.length > 1) {
+    return normalizeBlockNameCandidate(segments[segments.length - 2]);
+  }
+  return lastSegment;
+}
+
+function getBlockName(block) {
+  const modelValue = block.querySelector('[data-aue-prop="model"]')?.textContent.trim() || '';
+  const componentIdValue = block.querySelector('[data-aue-prop="aueComponentId"]')?.textContent.trim() || '';
+  const resourceField = block.querySelector('[data-aue-resource]');
+  const classCandidates = [...block.classList]
+    .map((className) => normalizeBlockNameCandidate(className))
+    .filter((className) => className && className !== 'block');
+
+  const resourceName = getResourceBlockName(block) || getResourceBlockName(resourceField);
+  let name = normalizeBlockNameCandidate(
+    modelValue
+    || resourceName
+    || componentIdValue
+    || block.getAttribute('data-block-name')
+    || classCandidates[0]
+    || '',
+  );
+
+  // AEM cuts a block's node name to 20 characters, so a long name reaches the editor
+  // truncated ("numbered-cards-custo") or, worse, as a different block's name
+  // ("community-education"). The class carries the whole name, so it wins when the node
+  // name is just its prefix.
+  const className = classCandidates[0] || '';
+  const isTruncatedNodeName = !modelValue && resourceName && name
+    && className.length > name.length && className.startsWith(name);
+  if (isTruncatedNodeName) {
+    name = className;
+  }
+
+  // A repeated block's node can carry a short number ("custom_heading_1"). When the name
+  // without it is the block the class already names, that is the block.
+  const unnumbered = name.replace(/-\d{1,3}$/u, '');
+  if (!modelValue && resourceName && className && unnumbered !== name
+    && resolveBlockAlias(unnumbered) === resolveBlockAlias(className)) {
+    name = className;
+  }
+
+  // Renamed blocks carry their new name in the class and the node path; see block-aliases.js.
+  return resolveBlockAlias(name);
+}
+
+function isNestedBlockCandidate(candidate, columnsBlock) {
+  if (candidate === columnsBlock) return false;
+  if (candidate.classList.contains('block')) return false;
+  if (candidate.hasAttribute('data-aue-prop') || candidate.hasAttribute('data-richtext-prop')) return false;
+
+  const parentBlock = candidate.parentElement?.closest('.block');
+  return !parentBlock || parentBlock === columnsBlock;
+}
+
+function replaceTag(element, tagName) {
+  const replacement = document.createElement(tagName);
+  [...element.attributes].forEach(({ name, value }) => replacement.setAttribute(name, value));
+  replacement.append(...element.childNodes);
+  element.replaceWith(replacement);
+  return replacement;
+}
+
+function normalizeColumnAuthoringContainers(columnsBlock) {
+  columnsBlock
+    .querySelectorAll(':scope > div > div > p[data-aue-filter="column"], :scope > div > div > p[data-aue-label="Column"]')
+    .forEach((columnContainer) => {
+      if (!columnContainer.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return;
+      replaceTag(columnContainer, 'div');
+    });
+}
+
+function directContentChildren(element) {
+  return [...element.children]
+    .filter((child) => child.textContent.trim() || child.querySelector('picture, img'));
+}
+
+function getAlignmentClass(element) {
+  return [...(element?.classList || [])]
+    .find((className) => /^align-(?:left|center|right)$/u.test(className));
+}
+
+function hasDirectImageContent(element) {
+  return Boolean(element.querySelector(':scope > p picture, :scope > p img, :scope > picture, :scope > img'));
+}
+
+function childText(element) {
+  return element?.textContent?.trim().toLowerCase() || '';
+}
+
+function childTextRaw(element) {
+  return element?.textContent?.trim() || '';
+}
+
+function createBlockFieldRow(label, value) {
+  const row = document.createElement('div');
+  const labelCell = document.createElement('div');
+  const valueCell = document.createElement('div');
+
+  labelCell.textContent = label;
+  if (value instanceof Node) valueCell.append(value);
+  else valueCell.textContent = value || '';
+
+  row.append(labelCell, valueCell);
+  return row;
+}
+
+function createFlattenedBlock(blockName, rows) {
+  const block = document.createElement('div');
+  block.className = blockName;
+  rows.forEach((row) => block.append(row));
+  return block;
+}
+
+function isPlainParagraph(element) {
+  return element?.tagName === 'P'
+    && !element.querySelector('picture, img, a, button, iframe, video');
+}
+
+function isStandaloneLinkParagraph(element) {
+  if (element?.tagName !== 'P') return false;
+
+  const text = childTextRaw(element);
+  const linkText = [...element.querySelectorAll('a')]
+    .map((link) => link.textContent.trim())
+    .filter(Boolean)
+    .join(' ');
+
+  return Boolean(text && linkText && text === linkText);
+}
+
+function isTextContentParagraph(element) {
+  return element?.tagName === 'P'
+    && !element.querySelector('picture, img, button, iframe, video')
+    && !isStandaloneLinkParagraph(element);
+}
+
+function isTextContentList(element) {
+  return ['UL', 'OL'].includes(element?.tagName)
+    && !element.querySelector('picture, img, button, iframe, video')
+    && [...element.children].some((child) => child.tagName === 'LI' && child.textContent.trim());
+}
+
+function isRichTextContentElement(element) {
+  return isTextContentParagraph(element) || isTextContentList(element);
+}
+
+function normalizeFlattenedConfigToken(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// {edge}-{size}, optionally prefixed with the property name — the shape every
+// paddingStyle / marginStyle / contentPaddingStyle option in the models takes.
+const SPACING_STYLE_TOKEN = /^(?:(?:padding|margin)-)?(?:all|vertical|horizontal|top|bottom|left|right)-(?:sm|md|lg)$/u;
+
+// dropShadow and borderRadius share {size} and highlight-{hue}. 'none' and
+// 'default' are already covered by the literal list above.
+const SHADOW_STYLE_TOKEN = /^(?:small|medium|large|highlight-(?:blue|navy|orange|gold))$/u;
+
+function isFlattenedConfigText(value) {
+  const normalized = normalizeFlattenedConfigToken(value);
+
+  return [
+    'left',
+    'center',
+    'right',
+    'justify',
+    'stretch',
+    'default',
+    'auto',
+    'top',
+    'middle',
+    'bottom',
+    'show',
+    'hide',
+    'icon',
+    'fluid',
+    'fixed',
+    '_self',
+    '_blank',
+    '_parent',
+    '_top',
+    'self',
+    'blank',
+    'same-tab',
+    'new-tab',
+    'solid',
+    'outlined',
+    'inverted',
+    'none',
+    'yes',
+    'no',
+    'true',
+    'false',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'circle',
+    'underline',
+    'content-spacing-small',
+    'content-spacing-medium',
+    'content-spacing-large',
+  ].includes(normalized)
+    || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(value || '').trim())
+    || /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(String(value || '').trim())
+    || /^(?:[1-9]00)$/u.test(String(value || '').trim())
+    // The spacing and shadow vocabularies are generated families, not a handful of
+    // one-off words: paddingStyle, marginStyle and contentPaddingStyle share
+    // {edge}-{size} (optionally prefixed by the property, as colored-button emits),
+    // and dropShadow/borderRadius share {size}|highlight-{hue}. Listing members
+    // individually is what let "vertical-md" render as body copy on live — every
+    // new size or hue added to a model would leak until someone noticed.
+    || SPACING_STYLE_TOKEN.test(normalized)
+    || SHADOW_STYLE_TOKEN.test(normalized);
+}
+
+function isFlattenedButtonArtifactText(value) {
+  return normalizeFlattenedConfigToken(value) === 'download';
+}
+
+function isLikelyContentText(element) {
+  const text = childTextRaw(element);
+  return text && !isFlattenedConfigText(text);
+}
+
+function isDownloadButtonText(element) {
+  return /^(?:download(?:\s+\w+)*|learn more(?: here\.?)?|read more|view report)$/iu
+    .test(childTextRaw(element));
+}
+
+function getFlattenedLinkHref(element) {
+  const anchor = element?.matches?.('a[href]')
+    ? element
+    : element?.querySelector?.('a[href]');
+  const href = anchor?.getAttribute('href') || childTextRaw(element);
+  const normalized = String(href || '').trim();
+
+  if (!normalized || AEM_HEX_HREF.test(normalized)) return '';
+
+  return /^(?:https?:\/\/|mailto:|tel:|\/(?!\/)|\.{1,2}\/|#(?![0-9a-f]{3,8}$))/i.test(normalized)
+    || /\.(?:html?|pdf)(?:[?#]|$)/i.test(normalized)
+    ? normalized
+    : '';
+}
+
+function getFlattenedLinkTarget(element) {
+  const anchor = element?.matches?.('a[href]')
+    ? element
+    : element?.querySelector?.('a[href]');
+  const target = anchor?.getAttribute('target') || '';
+
+  if (target === '_blank') return 'blank';
+  if (target === '_self') return 'self';
+
+  const normalized = childTextRaw(element)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return ['self', 'blank', 'same-tab', 'new-tab'].includes(normalized) ? normalized : '';
+}
+
+function findFlattenedHexValues(children) {
+  return children
+    .map((child) => normalizeHexColorValue(childTextRaw(child)))
+    .filter(Boolean);
+}
+
+function parseColorChannels(value) {
+  const normalized = String(value || '').trim();
+  const hex = normalizeColorValue(normalized);
+
+  if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) {
+    const digits = hex.slice(1);
+    const parts = digits.length === 3
+      ? [...digits].map((digit) => `${digit}${digit}`)
+      : [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 6)];
+    return parts.map((part) => Number.parseInt(part, 16));
+  }
+
+  const rgb = normalized.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  return rgb ? rgb.slice(1, 4).map((part) => Number.parseInt(part, 10)) : null;
+}
+
+function isDarkColor(value) {
+  const channels = parseColorChannels(value);
+  if (!channels) return false;
+
+  const [red, green, blue] = channels.map((channel) => {
+    const normalized = channel / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+
+  return ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)) < 0.3;
+}
+
+function getSectionBackgroundValue(element) {
+  const section = element.closest('.section');
+  return section?.getAttribute('data-background-color')
+    || section?.getAttribute('data-backgroundcolor')
+    || section?.style?.backgroundColor
+    || '';
+}
+
+function defaultTextColorForBackground(element, fallback) {
+  return isDarkColor(getSectionBackgroundValue(element)) ? '#FFF' : fallback;
+}
+
+function normalizeFlattenedOption(value, allowedValues, fallback) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return allowedValues.includes(normalized) ? normalized : fallback;
+}
+
+function findFlattenedOptionValue(children, allowedValues, fallback = '') {
+  const match = children.find((child) => normalizeFlattenedOption(childTextRaw(child), allowedValues, ''));
+  return match ? normalizeFlattenedOption(childTextRaw(match), allowedValues, fallback) : fallback;
+}
+
+/**
+ * First strict {edge}-{size} spacing token among a cell's config paragraphs.
+ *
+ * paddingStyle, marginStyle and contentPaddingStyle share one option vocabulary, so
+ * they cannot be told apart by value — but paddingStyle comes FIRST in field order,
+ * and 'default'/'none' are deliberately excluded because those are also dropShadow
+ * and borderRadius values. That leaves only the unambiguous {edge}-{size} form,
+ * which is the one that actually changes the rendering. Without this, a column whose
+ * author set 'vertical-md' padding rendered with no padding at all on live.
+ */
+function findFlattenedPaddingValue(children, fallback = '') {
+  const match = children.find((child) => (
+    /^(?:all|vertical|horizontal|top|bottom|left|right)-(?:sm|md|lg)$/u
+      .test(normalizeFlattenedConfigToken(childTextRaw(child)))
+  ));
+  return match ? normalizeFlattenedConfigToken(childTextRaw(match)) : fallback;
+}
+
+function findFlattenedHexValue(children, fallback = '') {
+  const match = children.find((child) => normalizeHexColorValue(childTextRaw(child)));
+  return match ? normalizeHexColorValue(childTextRaw(match)) : fallback;
+}
+
+function findFlattenedLengthValue(children, fallback = '') {
+  const match = children.find((child) => (
+    /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(childTextRaw(child))
+  ));
+  return match ? childTextRaw(match) : fallback;
+}
+
+function findFlattenedWeightValue(children, fallback = '') {
+  const match = children.find((child) => /^(?:[1-9]00)$/u.test(childTextRaw(child)));
+  return match ? childTextRaw(match) : fallback;
+}
+
+function isStrongOnlyParagraph(element) {
+  if (!isPlainParagraph(element)) return false;
+
+  const text = childTextRaw(element);
+  const strongText = [...element.querySelectorAll('strong, b')]
+    .map((child) => child.textContent.trim())
+    .filter(Boolean)
+    .join(' ');
+
+  return Boolean(text && strongText && strongText === text);
+}
+
+function findFlattenedBackgroundColor(children, fallback = '') {
+  const colors = findFlattenedHexValues(children);
+  return colors.length > 1 ? colors[1] : fallback;
+}
+
+function shouldRestoreFlattenedCardBackground(column, textChildren, configChildren) {
+  const explicitBackground = findFlattenedBackgroundColor(configChildren);
+  if (explicitBackground) return explicitBackground;
+  if (isDarkColor(getSectionBackgroundValue(column))) return '';
+
+  const section = column.closest('.section');
+  const text = textChildren.map(childTextRaw).join(' ');
+  const isSectionCardLayout = section?.classList.contains('columns-container')
+    && section.classList.contains('colored-heading-container')
+    && section.classList.contains('colored-text-container')
+    && section.classList.contains('colored-button-container');
+
+  if (
+    isSectionCardLayout
+    && text.length > 220
+    && !textChildren.some(isStrongOnlyParagraph)
+  ) {
+    return '#FFF';
+  }
+
+  return '';
+}
+
+function getFlattenedHeadingTextColumnParts(column) {
+  if (document.querySelector('[data-aue-resource]')) return null;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
+
+  const children = directContentChildren(column);
+  const contentChildren = children.filter((child) => (
+    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+
+  if (contentChildren.length < 2) return null;
+
+  const heading = contentChildren[0];
+  const textChildren = contentChildren.slice(1);
+  const headingText = childTextRaw(heading);
+  const bodyText = textChildren.map(childTextRaw).join(' ');
+
+  if (!headingText || headingText.length > 90 || bodyText.length <= 120) return null;
+
+  return {
+    children,
+    heading,
+    textChildren,
+  };
+}
+
+function normalizeFlattenedHeadingTextColumn(column) {
+  const parts = getFlattenedHeadingTextColumnParts(column);
+  if (!parts) return;
+
+  const {
+    children,
+    heading,
+    textChildren,
+  } = parts;
+  const headingIndex = children.indexOf(heading);
+  const firstTextIndex = children.indexOf(textChildren[0]);
+  const lastTextIndex = children.indexOf(textChildren[textChildren.length - 1]);
+  const headingConfigChildren = children.slice(headingIndex + 1, firstTextIndex);
+  const textConfigChildren = children.slice(lastTextIndex + 1);
+  const textValue = document.createDocumentFragment();
+
+  textChildren.forEach((child) => textValue.append(child));
+
+  const headingBlock = createFlattenedBlock('colored-heading', [
+    createBlockFieldRow('heading', heading),
+    createBlockFieldRow('heading level', findFlattenedOptionValue(headingConfigChildren, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 'h3')),
+    createBlockFieldRow('text color', findFlattenedHexValue(headingConfigChildren, defaultTextColorForBackground(column, '#00264D'))),
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(headingConfigChildren, ['left', 'center', 'right', 'justify'], 'left')),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(headingConfigChildren, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('font size', findFlattenedLengthValue(headingConfigChildren, '45px')),
+    createBlockFieldRow('font weight', findFlattenedWeightValue(headingConfigChildren, '700')),
+  ]);
+  const textRows = [
+    createBlockFieldRow('text', textValue),
+    createBlockFieldRow(
+      'text color',
+      findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#414042')),
+    ),
+  ];
+  const textBackgroundColor = shouldRestoreFlattenedCardBackground(
+    column,
+    textChildren,
+    textConfigChildren,
+  );
+
+  if (textBackgroundColor) {
+    textRows.push(createBlockFieldRow('block background color', textBackgroundColor));
+  }
+
+  textRows.push(
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left')),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('font size', findFlattenedLengthValue(textConfigChildren, '27px')),
+  );
+  const textBlock = createFlattenedBlock('colored-text', textRows);
+
+  children.forEach((child) => {
+    if (
+      child.isConnected
+      && isPlainParagraph(child)
+      && isFlattenedConfigText(childTextRaw(child))
+    ) {
+      child.remove();
+    }
+  });
+  column.append(headingBlock, textBlock);
+}
+
+function shouldNormalizeFlattenedTextColumn(column) {
+  const section = column.closest('.section');
+  if (!section) return false;
+  if (section.classList.contains('colored-text-container')) return true;
+
+  return section.classList.contains('columns-container')
+    && (
+      section.classList.contains('colored-heading-container')
+      || section.classList.contains('statistics-container')
+    );
+}
+
+function isLikelyStatisticValueText(value) {
+  return /^\s*[-+$]?\d/u.test(String(value || ''));
+}
+
+function getFlattenedStatisticsEndIndex(children) {
+  let contentCount = 0;
+
+  for (let index = 2; index < children.length; index += 1) {
+    const child = children[index];
+
+    if (child.querySelector('picture, img')) {
+      if (contentCount >= 2) return index;
+    } else if (isLikelyContentText(child)) {
+      contentCount += 1;
+    }
+  }
+
+  return children.length;
+}
+
+function isFlattenedStatisticsGroup(children) {
+  if (children.length < 5) return false;
+
+  const horizontalAlign = childText(children[0]);
+  const verticalAlign = childText(children[1]);
+  const hasAlignmentRows = ['left', 'center', 'right'].includes(horizontalAlign)
+    && ['top', 'middle', 'bottom'].includes(verticalAlign);
+  const hasMarkerStyle = children.some((child) => (
+    normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], '')
+  ));
+
+  const contentChildren = children
+    .filter((child) => (
+      isTextContentParagraph(child)
+      && isLikelyContentText(child)
+      && !isDownloadButtonText(child)
+    ));
+  const hasStatisticValue = contentChildren.some((child) => (
+    isLikelyStatisticValueText(childTextRaw(child))
+  ));
+
+  return (hasAlignmentRows || hasMarkerStyle)
+    && hasStatisticValue
+    && contentChildren.length >= 2;
+}
+
+function isFlattenedStatisticsStart(children, index) {
+  return ['left', 'center', 'right'].includes(childText(children[index]))
+    && ['top', 'middle', 'bottom'].includes(childText(children[index + 1]));
+}
+
+function getFlattenedStatisticsGroups(children) {
+  if (!isFlattenedStatisticsStart(children, 0)) return [];
+
+  const starts = [0];
+  for (let index = 2; index < children.length - 1; index += 1) {
+    if (isFlattenedStatisticsStart(children, index)) starts.push(index);
+  }
+
+  return starts.map((start, index) => {
+    const nextStart = starts[index + 1] ?? children.length;
+    const candidate = children.slice(start, nextStart);
+    const end = index === starts.length - 1
+      ? getFlattenedStatisticsEndIndex(candidate)
+      : candidate.length;
+    return candidate.slice(0, end);
+  }).filter((group) => isFlattenedStatisticsGroup(group));
+}
+
+function isFlattenedStatisticsColumn(column) {
+  if (document.querySelector('[data-aue-resource]')) return false;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return false;
+
+  return getFlattenedStatisticsGroups(directContentChildren(column)).length > 0;
+}
+
+function getFlattenedMultiTextColumnParts(column) {
+  if (document.querySelector('[data-aue-resource]')) return null;
+  if (!shouldNormalizeFlattenedTextColumn(column)) return null;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
+  if (hasDirectImageContent(column)) return null;
+  if (isFlattenedStatisticsColumn(column)) return null;
+
+  const children = directContentChildren(column);
+  const contentChildren = children.filter((child) => (
+    isRichTextContentElement(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+
+  if (contentChildren.length < 2) return null;
+
+  return {
+    children,
+    textChildren: contentChildren,
+  };
+}
+
+function normalizeFlattenedMultiTextColumn(column) {
+  const parts = getFlattenedMultiTextColumnParts(column);
+  if (!parts) return;
+
+  const { children, textChildren } = parts;
+  const lastTextIndex = children.indexOf(textChildren[textChildren.length - 1]);
+  const textConfigChildren = children.slice(lastTextIndex + 1);
+  const textColor = findFlattenedHexValue(textConfigChildren, defaultTextColorForBackground(column, '#414042'));
+  const horizontalAlign = findFlattenedOptionValue(textConfigChildren, ['left', 'center', 'right', 'justify'], 'left');
+  const verticalAlign = findFlattenedOptionValue(textConfigChildren, ['top', 'middle', 'bottom'], 'top');
+  const fontSize = findFlattenedLengthValue(textConfigChildren, '27px');
+  const paddingStyle = findFlattenedPaddingValue(textConfigChildren);
+  const textBlocks = [];
+  // A bold lead-in followed by a list is one authored rich-text field, not two
+  // independently styled blocks. Splitting it changes both hierarchy and styles
+  // on live delivery while author mode keeps the original single component.
+  const hasListContent = textChildren.some((child) => child.matches('ul, ol')
+    || child.querySelector('ul, ol'));
+
+  if (textChildren.some(isStrongOnlyParagraph) && !hasListContent) {
+    textChildren.forEach((textChild) => {
+      const rows = [
+        createBlockFieldRow('text', textChild),
+        createBlockFieldRow('text color', textColor),
+      ];
+
+      if (isStrongOnlyParagraph(textChild)) {
+        rows.push(createBlockFieldRow('block background color', '#fff'));
+      }
+
+      rows.push(
+        createBlockFieldRow('horizontal alignment', horizontalAlign),
+        createBlockFieldRow('vertical alignment', verticalAlign),
+        createBlockFieldRow('font size', fontSize),
+        createBlockFieldRow('padding style', paddingStyle),
+      );
+
+      if (isStrongOnlyParagraph(textChild)) {
+        rows.push(createBlockFieldRow('font weight', '700'));
+      }
+
+      textBlocks.push(createFlattenedBlock('colored-text', rows));
+    });
+  } else {
+    const textValue = document.createDocumentFragment();
+
+    textChildren.forEach((child) => textValue.append(child));
+
+    const rows = [
+      createBlockFieldRow('text', textValue),
+      createBlockFieldRow('text color', textColor),
+    ];
+    const textBackgroundColor = shouldRestoreFlattenedCardBackground(
+      column,
+      textChildren,
+      textConfigChildren,
+    );
+
+    if (textBackgroundColor) {
+      rows.push(createBlockFieldRow('block background color', textBackgroundColor));
+    }
+
+    rows.push(
+      createBlockFieldRow('horizontal alignment', horizontalAlign),
+      createBlockFieldRow('vertical alignment', verticalAlign),
+      createBlockFieldRow('font size', fontSize),
+      createBlockFieldRow('padding style', paddingStyle),
+    );
+    textBlocks.push(createFlattenedBlock('colored-text', rows));
+  }
+
+  children.forEach((child) => {
+    if (
+      child.isConnected
+      && isPlainParagraph(child)
+      && isFlattenedConfigText(childTextRaw(child))
+    ) {
+      child.remove();
+    }
+  });
+  column.append(...textBlocks);
+}
+
+function getFlattenedSingleTextColumnParts(column) {
+  if (document.querySelector('[data-aue-resource]')) return null;
+  if (!shouldNormalizeFlattenedTextColumn(column)) return null;
+  if (column.querySelector(COLUMN_NESTED_BLOCK_SELECTOR)) return null;
+  if (hasDirectImageContent(column)) return null;
+  if (isFlattenedStatisticsColumn(column)) return null;
+
+  const children = directContentChildren(column);
+  const contentChildren = children.filter((child) => (
+    isRichTextContentElement(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+
+  if (contentChildren.length !== 1) return null;
+
+  return {
+    children,
+    text: contentChildren[0],
+  };
+}
+
+function isFlattenedCalloutText(element) {
+  const text = childTextRaw(element);
+  return text.length <= 120 && /\d+%/u.test(text);
+}
+
+function normalizeFlattenedSingleTextColumn(column) {
+  const parts = getFlattenedSingleTextColumnParts(column);
+  if (!parts) return;
+
+  const { children, text } = parts;
+  const textIndex = children.indexOf(text);
+  const textConfigChildren = children.slice(textIndex + 1);
+  const isCallout = isFlattenedCalloutText(text);
+  const textConfigColors = findFlattenedHexValues(textConfigChildren);
+  const loneCalloutBackground = isCallout
+    && textConfigColors.length === 1
+    // The old pale blue, which published pages now carry as its successor (color-tokens.js).
+    && ['#c5eaf2', '#92d6e3'].includes(textConfigColors[0].toLowerCase());
+  let textColor = textConfigColors[0] || defaultTextColorForBackground(column, '#414042');
+  let blockBackgroundColor = findFlattenedBackgroundColor(textConfigChildren);
+
+  if (isCallout) {
+    textColor = loneCalloutBackground ? '#414042' : textConfigColors[0] || '#F7941D';
+    blockBackgroundColor = loneCalloutBackground
+      ? textConfigColors[0]
+      : textConfigColors[1] || '';
+  }
+  const horizontalAlign = isCallout ? 'center' : 'left';
+  const verticalAlign = isCallout ? 'middle' : 'top';
+  const rows = [
+    createBlockFieldRow('text', text),
+    createBlockFieldRow('text color', textColor),
+  ];
+
+  if (blockBackgroundColor) {
+    rows.push(createBlockFieldRow('block background color', blockBackgroundColor));
+  }
+
+  rows.push(
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
+      textConfigChildren,
+      ['left', 'center', 'right', 'justify'],
+      horizontalAlign,
+    )),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(
+      textConfigChildren,
+      ['top', 'middle', 'bottom'],
+      verticalAlign,
+    )),
+    createBlockFieldRow('font size', findFlattenedLengthValue(
+      textConfigChildren,
+      isCallout ? '54px' : '27px',
+    )),
+    createBlockFieldRow('font weight', findFlattenedWeightValue(
+      textConfigChildren,
+      isCallout ? '700' : '',
+    )),
+    createBlockFieldRow('padding style', findFlattenedPaddingValue(textConfigChildren)),
+    createBlockFieldRow('minimum height', isCallout ? '550px' : ''),
+    createBlockFieldRow('mobile min height', isCallout ? '100px' : ''),
+  );
+  const textBlock = createFlattenedBlock('colored-text', rows);
+
+  children.forEach((child) => {
+    if (
+      child.isConnected
+      && isPlainParagraph(child)
+      && isFlattenedConfigText(childTextRaw(child))
+    ) {
+      child.remove();
+    }
+  });
+  column.append(textBlock);
+}
+
+function inferFlattenedStatisticImageMode(imageChild) {
+  if (!imageChild) return '';
+
+  const img = imageChild.querySelector('img');
+  const sourceText = [
+    img?.getAttribute('src'),
+    img?.getAttribute('alt'),
+    ...[...imageChild.querySelectorAll('source')]
+      .flatMap((source) => [
+        source.getAttribute('srcset'),
+        source.getAttribute('type'),
+      ]),
+  ].filter(Boolean).join(' ');
+  const width = Number.parseFloat(img?.getAttribute('width') || '');
+  const height = Number.parseFloat(img?.getAttribute('height') || '');
+  const isSvg = /\.svg(?:[?#]|$)/iu.test(sourceText)
+    || /(?:format=svg|image\/svg)/iu.test(sourceText);
+
+  if (/(?:chart|graph|diagram|infographic|figure)/iu.test(sourceText)) return 'fluid';
+  if (isSvg) return 'icon';
+  if (Number.isFinite(width) && width >= 300) return 'fluid';
+  if (Number.isFinite(height) && height >= 180) return 'fluid';
+  return 'icon';
+}
+
+function createLabeledFlattenedStatisticsRows(children) {
+  const iconImageChild = children.find((child) => child.querySelector('picture, img')) || null;
+  const markerStyleChild = [...children].reverse()
+    .find((child) => normalizeFlattenedOption(childTextRaw(child), ['circle', 'underline'], ''));
+  const markerStyleIndex = markerStyleChild ? children.indexOf(markerStyleChild) : -1;
+  const markerColorChild = markerStyleIndex > 0
+    && normalizeHexColorValue(childTextRaw(children[markerStyleIndex - 1]))
+    ? children[markerStyleIndex - 1]
+    : null;
+  // Spacing / radius / shadow are NOT reliably after the marker fields. In the field
+  // order these pages were published under they come BEFORE them
+  // (contentSpacing, paddingStyle, borderRadius, dropShadow, markerTerms, markerColor,
+  // markerStyle), so slicing to "everything after markerStyle" produced an EMPTY list
+  // and every one of them silently resolved to its default — square corners, no
+  // padding and no shadow on a card authored with medium/all-md/highlight-navy.
+  // Search all children instead, claiming each field by its distinctive vocabulary.
+  const markerChildren = new Set([markerStyleChild, markerColorChild].filter(Boolean));
+  const configCandidates = children.filter((child) => !markerChildren.has(child));
+  const configToken = (child) => normalizeFlattenedConfigToken(childTextRaw(child));
+
+  const contentSpacingChild = configCandidates
+    .find((child) => /^content-spacing-(small|medium|large)$/u.test(configToken(child))) || null;
+
+  // {edge}-{size} is unique to the spacing vocabulary; bare default/none are ambiguous
+  // with borderRadius/dropShadow, so they are left to the size-word pass below.
+  const paddingStyleChild = configCandidates
+    .find((child) => SPACING_STYLE_TOKEN.test(configToken(child))) || null;
+
+  // highlight-* is unique to dropShadow. Otherwise fall back to ordering: borderRadius
+  // precedes dropShadow in the model, so of the remaining size words the first is the
+  // radius and the second the shadow.
+  const claimed = new Set([contentSpacingChild, paddingStyleChild].filter(Boolean));
+  const sizeWordChildren = configCandidates.filter((child) => (
+    !claimed.has(child) && /^(none|small|medium|large|white)$/u.test(configToken(child))
+  ));
+  const highlightShadowChild = configCandidates
+    .find((child) => /^highlight-(blue|navy|orange|gold)$/u.test(configToken(child))) || null;
+  const dropShadowChild = highlightShadowChild || sizeWordChildren[1] || null;
+  const borderRadiusChild = sizeWordChildren.find((child) => child !== dropShadowChild) || null;
+
+  const colorChildren = children.filter((child) => (
+    child !== markerColorChild && normalizeHexColorValue(childTextRaw(child))
+  ));
+  const lengthChildren = children.filter((child) => (
+    /^-?\d+(\.\d+)?(?:px|em|rem|vh|vw|vmin|vmax)$/i.test(childTextRaw(child))
+  ));
+  const weightChildren = children.filter((child) => /^(?:[1-9]00)$/u.test(childTextRaw(child)));
+  const buttonChild = children.find((child) => isDownloadButtonText(child)) || null;
+  const buttonIndex = buttonChild ? children.indexOf(buttonChild) : -1;
+  const buttonLinkChild = buttonIndex >= 0
+    ? children.slice(buttonIndex + 1).find((child) => getFlattenedLinkHref(child)) || null
+    : null;
+  const buttonTargetChild = buttonIndex >= 0
+    ? children.slice(buttonIndex + 1).find((child) => getFlattenedLinkTarget(child)) || null
+    : null;
+  const contentChildren = children.filter((child) => (
+    isTextContentParagraph(child)
+      && isLikelyContentText(child)
+      && !isDownloadButtonText(child)
+      && !getFlattenedLinkHref(child)
+  ));
+  const statValueChild = contentChildren.find((child) => (
+    isLikelyStatisticValueText(childTextRaw(child))
+  ))
+    || contentChildren[0]
+    || null;
+  const statValueIndex = contentChildren.indexOf(statValueChild);
+  const bodyTextChild = statValueIndex > 0 ? contentChildren[0] : null;
+  const statLabelChild = statValueIndex >= 0
+    ? contentChildren.slice(statValueIndex + 1).find((child) => (
+      !isLikelyStatisticValueText(childTextRaw(child))
+    ))
+    : null;
+  const markerTextChild = markerStyleChild
+    ? contentChildren.slice(statValueIndex + 1).find((child) => (
+      child !== statLabelChild && childTextRaw(child)
+    ))
+    : null;
+  const blockBackgroundChild = colorChildren.length >= 5
+    || (!bodyTextChild && colorChildren.length >= 3)
+    ? colorChildren[0]
+    : null;
+  const styleColorChildren = blockBackgroundChild ? colorChildren.slice(1) : colorChildren;
+  const headingColorChild = styleColorChildren.length >= 4 ? styleColorChildren[0] : null;
+  const valueColorChild = styleColorChildren.length >= 2
+    ? styleColorChildren[styleColorChildren.length - 2]
+    : styleColorChildren[0] || null;
+  const labelColorChild = styleColorChildren.length >= 2
+    ? styleColorChildren[styleColorChildren.length - 1]
+    : null;
+  const bodyColorChild = styleColorChildren.length >= 3
+    ? styleColorChildren[styleColorChildren.length - 3]
+    : null;
+  const bodySizeChild = bodyTextChild && lengthChildren.length > 1
+    ? lengthChildren[0]
+    : null;
+  const labelSizeChild = lengthChildren
+    .find((child) => (
+      child !== bodySizeChild
+        && Number.parseFloat(childTextRaw(child)) <= 80
+    )) || null;
+  const minHeightChildren = lengthChildren.filter((child) => (
+    child !== bodySizeChild
+      && child !== labelSizeChild
+      && Number.parseFloat(childTextRaw(child)) > 80
+  ));
+
+  if (!statValueChild) return [];
+
+  return [
+    createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(children, ['left', 'center', 'right'], 'center')),
+    createBlockFieldRow('vertical alignment', findFlattenedOptionValue(children, ['top', 'middle', 'bottom'], 'top')),
+    createBlockFieldRow('body text', bodyTextChild),
+    createBlockFieldRow('icon image', iconImageChild),
+    createBlockFieldRow('icon image alt text', iconImageChild?.querySelector('img')?.alt || ''),
+    createBlockFieldRow('image mode', findFlattenedOptionValue(
+      children,
+      ['icon', 'fluid'],
+      inferFlattenedStatisticImageMode(iconImageChild),
+    )),
+    createBlockFieldRow('body text color', normalizeHexColorValue(childTextRaw(bodyColorChild))),
+    createBlockFieldRow('body font size', childTextRaw(bodySizeChild)),
+    createBlockFieldRow('body font weight', ''),
+    createBlockFieldRow('value text color', normalizeHexColorValue(childTextRaw(valueColorChild))),
+    createBlockFieldRow('value font size', ''),
+    createBlockFieldRow('value font weight', ''),
+    createBlockFieldRow('label text color', normalizeHexColorValue(childTextRaw(labelColorChild))),
+    createBlockFieldRow('label font size', childTextRaw(labelSizeChild)),
+    createBlockFieldRow('label font weight', childTextRaw(weightChildren[0])),
+    createBlockFieldRow('minimum height', childTextRaw(minHeightChildren[0])),
+    createBlockFieldRow('mobile min height', childTextRaw(minHeightChildren[1])),
+    createBlockFieldRow('stat values', statValueChild),
+    createBlockFieldRow('stat labels', statLabelChild),
+    createBlockFieldRow('button text', childTextRaw(buttonChild)),
+    createBlockFieldRow('button link', getFlattenedLinkHref(buttonChild) || getFlattenedLinkHref(buttonLinkChild)),
+    createBlockFieldRow('button target', getFlattenedLinkTarget(buttonChild) || getFlattenedLinkTarget(buttonTargetChild)),
+    createBlockFieldRow('vertical dividers', findFlattenedOptionValue(children, ['show', 'hide'], 'show')),
+    createBlockFieldRow('block background color', normalizeHexColorValue(childTextRaw(blockBackgroundChild))),
+    createBlockFieldRow('heading text color', normalizeHexColorValue(childTextRaw(headingColorChild))),
+    createBlockFieldRow('marker text', childTextRaw(markerTextChild)),
+    createBlockFieldRow('marker color', normalizeHexColorValue(childTextRaw(markerColorChild))),
+    createBlockFieldRow('marker style', childTextRaw(markerStyleChild)),
+    createBlockFieldRow('content spacing', childTextRaw(contentSpacingChild)),
+    createBlockFieldRow('padding style', childTextRaw(paddingStyleChild)),
+    createBlockFieldRow('border radius', childTextRaw(borderRadiusChild)),
+    createBlockFieldRow('drop shadow', childTextRaw(dropShadowChild)),
+  ];
+}
+
+function normalizeFlattenedStatisticsColumn(column) {
+  const children = directContentChildren(column);
+  const groups = getFlattenedStatisticsGroups(children);
+  if (!groups.length) return;
+
+  const blocks = groups.map((statsChildren) => {
+    const block = document.createElement('div');
+    block.className = 'statistics';
+    const labeledRows = createLabeledFlattenedStatisticsRows(statsChildren);
+
+    if (labeledRows.length) {
+      labeledRows.forEach((row) => block.append(row));
+      statsChildren.forEach((child) => {
+        if (child.parentElement === column) child.remove();
+      });
+    } else {
+      statsChildren.forEach((child) => {
+        const row = document.createElement('div');
+        row.append(child);
+        block.append(row);
+      });
+    }
+
+    return block;
+  });
+
+  [...column.childNodes]
+    .filter((child) => child.nodeType === Node.TEXT_NODE && !child.textContent.trim())
+    .forEach((child) => child.remove());
+  column.prepend(...blocks);
+}
+
+function normalizeFlattenedColumnImages(column) {
+  if (document.querySelector('[data-aue-resource]')) return;
+
+  column.querySelectorAll(':scope > p').forEach((paragraph) => {
+    const imageElement = paragraph.querySelector(':scope > picture, :scope > img');
+    if (!imageElement) return;
+
+    const alignment = getAlignmentClass(paragraph) || getAlignmentClass(imageElement) || 'align-center';
+
+    paragraph.classList.add('image-positioned', alignment);
+    imageElement.classList.add('image-fit-container', 'image-positioned', alignment);
+  });
+}
+
+function normalizeFlattenedPromoColumn(column) {
+  if (document.querySelector('[data-aue-resource]')) return;
+
+  const children = directContentChildren(column);
+  const imageIndex = children.findIndex((child) => child.querySelector('picture, img'));
+  if (imageIndex < 0) return;
+
+  const hasExistingButtonBlock = Boolean(column.querySelector(
+    ':scope > .colored-button, :scope > [data-aue-model="colored-button"], :scope > [data-block-name="colored-button"]',
+  ));
+  const title = children.slice(imageIndex + 1).find((child) => (
+    isTextContentParagraph(child) && isLikelyContentText(child) && !isDownloadButtonText(child)
+  ));
+  const button = children.slice(imageIndex + 1).find((child) => (
+    isPlainParagraph(child)
+      && isDownloadButtonText(child)
+      && (!hasExistingButtonBlock || !isFlattenedButtonArtifactText(childTextRaw(child)))
+  ));
+  const titleIndex = children.indexOf(title);
+  const buttonIndex = children.indexOf(button);
+  const titleConfigChildren = titleIndex >= 0 && buttonIndex > titleIndex
+    ? children.slice(titleIndex + 1, buttonIndex)
+    : [];
+  const buttonConfigChildren = buttonIndex >= 0 ? children.slice(buttonIndex + 1) : [];
+  const titleFontSize = isDarkColor(getSectionBackgroundValue(column)) ? '27px' : '';
+  const buttonColors = findFlattenedHexValues(buttonConfigChildren);
+  const buttonIcon = buttonConfigChildren.find((child) => child.querySelector('picture, img'));
+
+  if (title && !title.closest('.colored-text, .colored-button')) {
+    const textBlock = createFlattenedBlock('colored-text', [
+      createBlockFieldRow('text', title),
+      createBlockFieldRow('text color', findFlattenedHexValue(
+        titleConfigChildren,
+        defaultTextColorForBackground(column, '#414042'),
+      )),
+      createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
+        titleConfigChildren,
+        ['left', 'center', 'right', 'justify'],
+        'center',
+      )),
+      createBlockFieldRow('vertical alignment', findFlattenedOptionValue(
+        titleConfigChildren,
+        ['top', 'middle', 'bottom'],
+        'top',
+      )),
+      createBlockFieldRow('font size', findFlattenedLengthValue(titleConfigChildren, titleFontSize)),
+      createBlockFieldRow('font weight', findFlattenedWeightValue(titleConfigChildren, '')),
+    ]);
+    column.insertBefore(textBlock, button || null);
+  }
+
+  if (button && !hasExistingButtonBlock && !button.closest('.colored-button')) {
+    const buttonBlock = createFlattenedBlock('colored-button', [
+      createBlockFieldRow('label', button),
+      createBlockFieldRow('link', ''),
+      createBlockFieldRow('background color', buttonColors[0] || '#008EB7'),
+      createBlockFieldRow('text color', buttonColors[1] || '#FFFFFF'),
+      createBlockFieldRow('border color', buttonColors[2] || buttonColors[0] || '#008EB7'),
+      createBlockFieldRow('block background color', ''),
+      createBlockFieldRow('appearance', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['solid', 'outlined', 'inverted'],
+        'solid',
+      )),
+      createBlockFieldRow('invert on hover', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['yes', 'no'],
+        'no',
+      )),
+      createBlockFieldRow('horizontal alignment', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['left', 'center', 'right', 'stretch'],
+        'center',
+      )),
+      createBlockFieldRow('vertical alignment', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['top', 'middle', 'bottom'],
+        'top',
+      )),
+      createBlockFieldRow('font size', findFlattenedLengthValue(buttonConfigChildren, '')),
+      createBlockFieldRow('font weight', findFlattenedWeightValue(buttonConfigChildren, '')),
+      createBlockFieldRow('icon', buttonIcon),
+      createBlockFieldRow('icon name', ''),
+      createBlockFieldRow('icon alt', buttonIcon?.querySelector('img')?.alt || ''),
+      createBlockFieldRow('icon position', findFlattenedOptionValue(
+        buttonConfigChildren,
+        ['left', 'right', 'none'],
+        'left',
+      )),
+      createBlockFieldRow('icon size', ''),
+      createBlockFieldRow('minimum height', ''),
+      createBlockFieldRow('layout options', ''),
+    ]);
+    column.append(buttonBlock);
+  }
+}
+
+function cleanupFlattenedColumnConfigArtifacts(column) {
+  if (document.querySelector('[data-aue-resource]')) return;
+
+  const hasExistingButtonBlock = Boolean(column.querySelector(
+    ':scope > .colored-button, :scope > [data-aue-model="colored-button"], :scope > [data-block-name="colored-button"]',
+  ));
+  directContentChildren(column).forEach((child) => {
+    if (child.matches('.block') || child.querySelector('.block')) return;
+    const text = childTextRaw(child);
+    if (
+      isPlainParagraph(child)
+      && (
+        isFlattenedConfigText(text)
+        || (hasExistingButtonBlock && isFlattenedButtonArtifactText(text))
+      )
+    ) {
+      child.remove();
+    }
+  });
+}
+
+function recoverFlattenedPromoColumnAlignment(columnsBlock) {
+  if (document.querySelector('[data-aue-resource]')) return;
+  if (!columnsBlock.classList.contains('columns-align-top')) return;
+
+  const columns = [...columnsBlock.querySelectorAll(':scope > div > div')];
+  const hasCenteredPromoColumn = columns.some((column) => (
+    column.querySelector(':scope > p.image-positioned, :scope > .image-positioned')
+      && column.querySelector(':scope > .colored-text.colored-text-v-middle')
+      && column.querySelector(':scope > .colored-button')
+  ));
+
+  if (!hasCenteredPromoColumn) return;
+
+  columnsBlock.classList.remove('columns-align-top');
+  columnsBlock.classList.add('columns-align-middle');
+}
+
+function recoverFlattenedFeatureColumnPadding(columnsBlock) {
+  if (document.querySelector('[data-aue-resource]')) return;
+  if (columnsBlock.style.getPropertyValue('--columns-padding-top')) return;
+
+  const columns = [...columnsBlock.querySelectorAll(':scope > div > div')];
+  if (columns.length !== 2) return;
+
+  const textColumn = columns.find((column) => (
+    column.matches('.colored-heading-wrapper.colored-text-wrapper')
+      && column.querySelector(':scope > .colored-heading')
+      && column.querySelector(':scope > .colored-text')
+  ));
+  const imageColumn = columns.find((column) => (
+    column.classList.contains('columns-img-col')
+      && column.querySelector(':scope img')
+  ));
+
+  if (!textColumn || !imageColumn) return;
+
+  const isWhiteColor = (value) => {
+    const normalized = normalizeColorValue(value).toLowerCase().replace(/\s+/g, '');
+    return normalized === '#fff' || normalized === '#ffffff' || normalized === 'rgb(255,255,255)';
+  };
+
+  const headingColor = textColumn.querySelector(':scope > .colored-heading')
+    ?.style.getPropertyValue('--colored-heading-color') || '';
+  const textColor = textColumn.querySelector(':scope > .colored-text')
+    ?.style.getPropertyValue('--colored-text-color') || '';
+
+  if (!isWhiteColor(headingColor) || !isWhiteColor(textColor)) return;
+
+  columnsBlock.style.setProperty('--columns-padding-top', '24px');
+  columnsBlock.style.setProperty('--columns-padding-right', '0');
+  columnsBlock.style.setProperty('--columns-padding-bottom', '24px');
+  columnsBlock.style.setProperty('--columns-padding-left', '0');
+
+  if (!/\bcolumns-halign-/.test(columnsBlock.className)) {
+    columnsBlock.classList.add('columns-halign-left');
+  }
+}
+
+function decorateNestedBlocks(root) {
+  const columnsBlocks = root.matches?.('.columns.block') ? [root] : [...root.querySelectorAll('.columns.block')];
+
+  columnsBlocks.forEach((columnsBlock) => {
+    normalizeColumnAuthoringContainers(columnsBlock);
+
+    columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
+      normalizeFlattenedColumnImages(column);
+      normalizeFlattenedStatisticsColumn(column);
+      normalizeFlattenedHeadingTextColumn(column);
+      normalizeFlattenedMultiTextColumn(column);
+      normalizeFlattenedSingleTextColumn(column);
+      normalizeFlattenedPromoColumn(column);
+      cleanupFlattenedColumnConfigArtifacts(column);
+
+      column.querySelectorAll(COLUMN_NESTED_BLOCK_SELECTOR).forEach((candidate) => {
+        if (!isNestedBlockCandidate(candidate, columnsBlock)) return;
+
+        const nestedBlockName = getBlockName(candidate);
+        if (!COLUMN_NESTED_BLOCK_NAMES.has(nestedBlockName)) return;
+
+        // eslint-disable-next-line no-use-before-define
+        decorateBlock(candidate);
+      });
+    });
+  });
+}
+
+async function loadNestedBlocks(root) {
+  decorateNestedBlocks(root);
+
+  const nestedBlocks = [...root.querySelectorAll(':scope .block')]
+    .filter((nestedBlock) => nestedBlock.dataset.blockStatus === 'initialized');
+
+  for (let i = 0; i < nestedBlocks.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await loadBlock(nestedBlocks[i]);
+  }
+
+  const columnsBlocks = root.matches?.('.columns.block') ? [root] : [...root.querySelectorAll('.columns.block')];
+  columnsBlocks.forEach((columnsBlock) => {
+    columnsBlock.querySelectorAll(':scope > div > div').forEach((column) => {
+      cleanupFlattenedColumnConfigArtifacts(column);
+    });
+    recoverFlattenedPromoColumnAlignment(columnsBlock);
+    recoverFlattenedFeatureColumnPadding(columnsBlock);
+  });
 }
 
 /**
@@ -609,8 +2309,12 @@ async function loadBlock(block) {
  * @param {Element} block The block element
  */
 function decorateBlock(block) {
-  const shortBlockName = block.classList[0];
+  const shortBlockName = getBlockName(block);
+
   if (shortBlockName && !block.dataset.blockStatus) {
+    if (!block.classList.contains(shortBlockName)) {
+      block.classList.add(shortBlockName);
+    }
     block.classList.add('block');
     block.dataset.blockName = shortBlockName;
     block.dataset.blockStatus = 'initialized';
@@ -630,6 +2334,7 @@ function decorateBlock(block) {
  */
 function decorateBlocks(main) {
   main.querySelectorAll('div.section > div > div').forEach(decorateBlock);
+  decorateNestedBlocks(main);
 }
 
 /**
@@ -657,6 +2362,30 @@ async function loadFooter(footer) {
 }
 
 /**
+ * Loads a block named 'get-help' into a host element
+ * @param {Element} host host element
+ * @returns {Promise}
+ */
+async function loadGetHelp(host) {
+  const getHelpBlock = buildBlock('get-help', '');
+  host.append(getHelpBlock);
+  decorateBlock(getHelpBlock);
+  return loadBlock(getHelpBlock);
+}
+
+/**
+ * Loads a block named 'cookie-consent' into a host element
+ * @param {Element} host host element
+ * @returns {Promise}
+ */
+async function loadCookieConsent(host) {
+  const cookieConsentBlock = buildBlock('cookie-consent', '');
+  host.append(cookieConsentBlock);
+  decorateBlock(cookieConsentBlock);
+  return loadBlock(cookieConsentBlock);
+}
+
+/**
  * Wait for Image.
  * @param {Element} section section element
  */
@@ -678,16 +2407,45 @@ async function waitForFirstImage(section) {
  * @param {Element} section The section element
  */
 
+/**
+ * Shows a loading section's wrappers in order, up to the first one whose block has not
+ * finished loading; that wrapper and everything after it stay hidden.
+ *
+ * A block that waits on the API in decorate (resource-downloads, poster-results) used to hold
+ * back its whole section, including text above it that was ready long before. On pages with a
+ * short hero that text was the largest thing on the first screen, so mobile LCP waited ~2.8s
+ * for API round trips. Nothing below a pending block is ever shown, so nothing already on
+ * screen moves when it arrives.
+ */
+function revealLoadedWrappers(section) {
+  let pending = false;
+  [...section.children].forEach((wrapper) => {
+    pending ||= [...wrapper.querySelectorAll('div.block')]
+      .some((block) => block.dataset.blockStatus !== 'loaded');
+    wrapper.toggleAttribute('data-section-pending', pending);
+  });
+}
+
 async function loadSection(section, loadCallback) {
   const status = section.dataset.sectionStatus;
   if (!status || status === 'initialized') {
     section.dataset.sectionStatus = 'loading';
     const blocks = [...section.querySelectorAll('div.block')];
+    // The first section keeps the all-at-once reveal: its callback (waitForFirstImage) holds
+    // it until the hero image is ready.
+    const progressive = !loadCallback;
+    if (progressive) {
+      revealLoadedWrappers(section);
+      section.style.display = null;
+    }
     for (let i = 0; i < blocks.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
       await loadBlock(blocks[i]);
+      if (progressive) revealLoadedWrappers(section);
     }
     if (loadCallback) await loadCallback(section);
+    section.querySelectorAll(':scope > [data-section-pending]')
+      .forEach((wrapper) => wrapper.removeAttribute('data-section-pending'));
     section.dataset.sectionStatus = 'loaded';
     section.style.display = null;
   }
@@ -722,8 +2480,11 @@ export {
   decorateTemplateAndTheme,
   getMetadata,
   loadBlock,
+  loadNestedBlocks,
+  loadCookieConsent,
   loadCSS,
   loadFooter,
+  loadGetHelp,
   loadHeader,
   loadScript,
   loadSection,

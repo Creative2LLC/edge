@@ -1,0 +1,329 @@
+.colored-icon-text {
+  --colored-icon-text-color: #00264d;
+  --colored-icon-text-size: 2rem;
+  --colored-icon-text-weight: 700;
+  --colored-icon-text-image-size: 168px;
+  --colored-icon-text-gap: 38px;
+  --colored-icon-text-min-height: 0;
+  --colored-icon-text-min-height-mobile: var(--colored-icon-text-min-height);
+  --colored-icon-text-block-bg: #e9f7fa;
+  --colored-icon-text-text2-color: var(--ncmec-gray-dark);
+  --colored-icon-text-text2-size: 1.25rem;
+  --colored-icon-text-label-size: 1.75rem;
+
+  height: 100%;
+  margin:
+    var(--colored-field-margin-top, 0)
+    var(--colored-field-margin-right, 0)
+    var(--colored-field-margin-bottom, 0)
+    var(--colored-field-margin-left, 0);
+  padding:
+    var(--colored-field-padding-top, 12px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 12px)
+    var(--colored-field-padding-left, 0);
+}
+
+.colored-icon-text .colored-icon-text-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--colored-icon-text-gap);
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background-color: var(--colored-icon-text-block-bg);
+}
+
+.colored-icon-text.has-block-background .colored-icon-text-inner {
+  padding: clamp(28px, 4vw, 50px);
+}
+
+.colored-icon-text .colored-icon-text-label-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.45rem;
+}
+
+.colored-icon-text.colored-icon-text-v-top .colored-icon-text-inner {
+  align-items: flex-start;
+}
+
+.colored-icon-text.colored-icon-text-v-middle .colored-icon-text-inner {
+  align-items: center;
+}
+
+.colored-icon-text.colored-icon-text-v-bottom .colored-icon-text-inner {
+  align-items: flex-end;
+}
+
+.colored-icon-text .colored-icon-text-media {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--colored-icon-text-image-size);
+  width: var(--colored-icon-text-image-size);
+  height: var(--colored-icon-text-image-size);
+  overflow: hidden;
+}
+
+.colored-icon-text .colored-icon-text-media picture,
+.colored-icon-text .colored-icon-text-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.colored-icon-text .colored-icon-text-media img {
+  object-fit: cover;
+}
+
+.colored-icon-text .colored-icon-text-image-circle {
+  border-radius: 999px;
+}
+
+.colored-icon-text .colored-icon-text-image-square {
+  border-radius: 8px;
+}
+
+.colored-icon-text .colored-icon-text-image-icon {
+  overflow: visible;
+}
+
+/* Icon-mode art (object-fit: contain) doesn't fill its box like a circle/square
+   photo crop does, so centering it would leave a gap before the card's own
+   padding. Pin it to the top-left of its box instead. */
+.colored-icon-text .colored-icon-text-media.colored-icon-text-image-icon {
+  place-items: start;
+}
+
+.colored-icon-text .colored-icon-text-image-icon img {
+  object-fit: contain;
+}
+
+.colored-icon-text .colored-icon-text-text-wrapper {
+  /* flex-basis: 0 (not auto) keeps this off the wrapped button row's line — with
+     "auto" its unshrunk content width (a long heading) can exceed the space next
+     to the icon, pushing the whole wrapper onto its own line instead of just
+     shrinking to fit beside it. */
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(20px, 3vw, 30px);
+}
+
+.colored-icon-text .colored-icon-text-label {
+  color: var(--colored-icon-text-label-color, var(--colored-icon-text-color));
+  font-size: var(--colored-icon-text-label-size);
+  font-weight: 800;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.colored-icon-text .colored-icon-text-label-2 {
+  color: var(--colored-icon-text-label-color-2, var(--colored-icon-text-color));
+}
+
+.colored-icon-text .colored-icon-text-label-row .colored-icon-text-label:not(:last-child)::after {
+  content: "|";
+  margin-left: 0.45rem;
+  color: var(--colored-icon-text-color);
+  font-weight: 400;
+  text-transform: none;
+}
+
+.colored-icon-text .colored-icon-text-label.is-authoring-placeholder {
+  color: #6b6b6b;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+}
+
+.colored-icon-text .colored-icon-text-content {
+  min-width: 0;
+  color: var(--colored-icon-text-color);
+  font-size: var(--colored-icon-text-size);
+  font-weight: var(--colored-icon-text-weight);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.colored-icon-text .colored-icon-text-content p {
+  margin-bottom: 0.65em;
+}
+
+.colored-icon-text .colored-icon-text-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* The divider is generated INSIDE the label (a flex item), after the label's own
+   content. Authored rich text arrives wrapped in a block-level <p>, which pushes the
+   divider onto its own line underneath the text — the stray "|" floating below
+   "CASE SPOTLIGHT". Rendering the label's paragraphs inline keeps the text and the
+   divider on one baseline. */
+.colored-icon-text .colored-icon-text-label-row .colored-icon-text-label > p {
+  display: inline;
+  margin: 0;
+}
+
+.colored-icon-text.colored-icon-text-h-left .colored-icon-text-text-wrapper {
+  text-align: left;
+}
+
+.colored-icon-text.colored-icon-text-h-center .colored-icon-text-text-wrapper {
+  text-align: center;
+}
+
+.colored-icon-text.colored-icon-text-h-right .colored-icon-text-text-wrapper {
+  text-align: right;
+}
+
+.colored-icon-text.colored-icon-text-h-justify .colored-icon-text-text-wrapper {
+  text-align: justify;
+}
+
+.colored-icon-text.colored-icon-text-h-left .colored-icon-text-content {
+  text-align: left;
+}
+
+.colored-icon-text.colored-icon-text-h-center .colored-icon-text-content {
+  text-align: center;
+}
+
+.colored-icon-text.colored-icon-text-h-right .colored-icon-text-content {
+  text-align: right;
+}
+
+.colored-icon-text.colored-icon-text-h-justify .colored-icon-text-content {
+  text-align: justify;
+}
+
+.colored-icon-text .colored-icon-text-content > :first-child {
+  margin-top: 0;
+}
+
+.colored-icon-text .colored-icon-text-content > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-icon-text .colored-icon-text-text2 {
+  min-width: 0;
+  margin-top: clamp(4px, 1vw, 12px);
+  color: var(--colored-icon-text-text2-color);
+  font-size: var(--colored-icon-text-text2-size);
+  font-weight: 400;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.colored-icon-text .colored-icon-text-text2 > * {
+  margin-bottom: 0.65em;
+}
+
+.colored-icon-text .colored-icon-text-text2 > :last-child {
+  margin-bottom: 0;
+}
+
+.colored-icon-text .is-authoring-placeholder {
+  color: #6b6b6b;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.colored-icon-text .colored-icon-text-media.is-authoring-placeholder {
+  border: 1px dashed #9ccbd8;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 55%);
+}
+
+.colored-icon-text .colored-icon-text-button-row {
+  flex: 1 0 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(20px, 3vw, 32px);
+}
+
+/* Button: styled by the button standard in styles/styles.css, including the
+   external-link glyph on links that leave the site. */
+
+.colored-icon-text.colored-icon-text-shadow-small .colored-icon-text-inner {
+  box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
+}
+
+.colored-icon-text.colored-icon-text-shadow-medium .colored-icon-text-inner {
+  box-shadow: 0 14px 24px 0 rgb(0 0 0 / 18%);
+}
+
+.colored-icon-text.colored-icon-text-shadow-large .colored-icon-text-inner {
+  box-shadow: 0 21px 36px 0 rgb(0 0 0 / 24%);
+}
+
+.colored-icon-text.colored-icon-text-shadow-highlight-blue {
+  --colored-field-highlight-shadow-color: 20 145 191;
+}
+
+.colored-icon-text.colored-icon-text-shadow-highlight-navy {
+  --colored-field-highlight-shadow-color: 9 35 72;
+}
+
+.colored-icon-text.colored-icon-text-shadow-highlight-orange {
+  --colored-field-highlight-shadow-color: 247 148 29;
+}
+
+.colored-icon-text.colored-icon-text-shadow-highlight-gold {
+  --colored-field-highlight-shadow-color: 245 181 27;
+}
+
+.colored-icon-text[class*="colored-icon-text-shadow-highlight-"] .colored-icon-text-inner {
+  box-shadow: 0 14px 24px 0 rgb(var(--colored-field-highlight-shadow-color) / 40%);
+}
+
+@media (width <= 700px) {
+  .colored-icon-text .colored-icon-text-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 0;
+  }
+
+  .colored-icon-text.colored-icon-text-media-right .colored-icon-text-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .colored-icon-text .colored-icon-text-media {
+    flex-basis: min(var(--colored-icon-text-image-size), 42vw);
+    width: min(var(--colored-icon-text-image-size), 42vw);
+    height: min(var(--colored-icon-text-image-size), 42vw);
+  }
+
+  .colored-icon-text .colored-icon-text-content {
+    font-size: clamp(1.25rem, 5vw, var(--colored-icon-text-size));
+  }
+
+  .colored-icon-text .colored-icon-text-label-row {
+    display: block;
+  }
+
+  .colored-icon-text .colored-icon-text-label-row .colored-icon-text-label {
+    display: inline;
+    font-size: min(var(--colored-icon-text-label-size), 1.25rem);
+  }
+
+  .colored-icon-text .colored-icon-text-text2 {
+    font-size: min(var(--colored-icon-text-text2-size), 1.125rem);
+  }
+
+  .colored-icon-text .colored-icon-text-button-row {
+    width: 100%;
+  }
+
+  .colored-icon-text .colored-icon-text-button {
+    width: 100%;
+  }
+}

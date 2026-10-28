@@ -1,3 +1,16 @@
+.columns {
+  margin:
+    var(--columns-margin-top, 0)
+    var(--columns-margin-right, 0)
+    var(--columns-margin-bottom, 0)
+    var(--columns-margin-left, 0);
+  padding:
+    var(--columns-padding-top, 0)
+    var(--columns-padding-right, 0)
+    var(--columns-padding-bottom, 0)
+    var(--columns-padding-left, 0);
+}
+
 .columns > div {
   display: flex;
   flex-direction: column;
@@ -7,8 +20,69 @@
   width: 100%;
 }
 
+.columns picture.image-fit-container,
+.columns .image-fit-container-link {
+  display: inline-block;
+  max-width: 100%;
+  width: auto;
+}
+
+.columns img.image-fit-container,
+.columns picture.image-fit-container img,
+.columns .image-fit-container-link > picture img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+.columns .image-positioned.align-left {
+  text-align: left;
+}
+
+.columns .image-positioned.align-center {
+  text-align: center;
+}
+
+.columns .image-positioned.align-right {
+  text-align: right;
+}
+
+.columns .image-positioned > picture,
+.columns .image-positioned > a,
+.columns picture.image-positioned {
+  display: block;
+  max-width: 100%;
+  width: fit-content;
+}
+
+.columns .image-positioned.align-left > picture,
+.columns .image-positioned.align-left > a,
+.columns picture.image-positioned.align-left,
+.columns img.image-positioned.align-left {
+  margin-inline: 0 auto;
+}
+
+.columns .image-positioned.align-center > picture,
+.columns .image-positioned.align-center > a,
+.columns picture.image-positioned.align-center,
+.columns img.image-positioned.align-center {
+  margin-inline: auto;
+}
+
+.columns .image-positioned.align-right > picture,
+.columns .image-positioned.align-right > a,
+.columns picture.image-positioned.align-right,
+.columns img.image-positioned.align-right {
+  margin-inline: auto 0;
+}
+
 .columns > div > div {
+  min-width: 0;
   order: 1;
+}
+
+.columns > div > div.has-column-background {
+  background-color: var(--columns-column-background-color);
 }
 
 .columns > div > .columns-img-col {
@@ -19,20 +93,30 @@
   display: block;
 }
 
-@media (width >= 900px) {
+@media (width >= 901px) {
   .columns > div {
-    align-items: center;
+    align-items: stretch;
     flex-direction: unset;
     gap: 24px;
   }
 
   .columns > div > div {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     order: unset;
   }
 
+  /* When a column has multiple blocks, prevent any single block from filling
+     the full column height (e.g. colored-text uses height:100% / min-height:100% by default) */
+  .columns > div > div > *:not(:only-child) {
+    height: auto;
+
+    --colored-text-min-height: 0;
+  }
+
   .columns.columns-align-top > div {
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .columns.columns-align-bottom > div {
@@ -40,6 +124,42 @@
   }
 
   .columns.columns-align-middle > div {
-    align-items: center;
+    align-items: stretch;
   }
+
+  .columns.columns-align-middle > div > div {
+    justify-content: center;
+  }
+}
+
+.columns.columns-halign-left > div > div {
+  text-align: left;
+}
+
+.columns.columns-halign-left > div > div .button-container {
+  text-align: left;
+}
+
+.columns.columns-halign-center > div > div {
+  text-align: center;
+}
+
+.columns.columns-halign-center > div > div .button-container {
+  text-align: center;
+}
+
+.columns.columns-halign-center > div > .columns-img-col img {
+  margin-inline: auto;
+}
+
+.columns.columns-halign-right > div > div {
+  text-align: right;
+}
+
+.columns.columns-halign-right > div > div .button-container {
+  text-align: right;
+}
+
+.columns.columns-halign-right > div > .columns-img-col img {
+  margin-inline-start: auto;
 }

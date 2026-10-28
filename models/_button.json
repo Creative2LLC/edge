@@ -50,6 +50,10 @@
             {
               "name": "secondary",
               "value": "secondary"
+            },
+            {
+              "name": "download / pdf",
+              "value": "download"
             }
           ]
         }

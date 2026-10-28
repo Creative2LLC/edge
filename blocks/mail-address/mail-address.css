@@ -1,0 +1,113 @@
+/* Mail Address Block */
+.mail-address.block {
+  padding: 60px 0;
+  margin: 0 auto;
+  max-width: var(--container);
+}
+
+/* Break out of section wrapper's 32px horizontal padding so the block fills
+   the full 1420px section width on desktop. */
+
+.mail-address-card {
+  display: flex;
+  align-items: flex-start;
+  border-radius: 14px;
+  background-color: var(--ncmec-warm-gray);
+  padding: 48px 56px;
+  gap: 48px;
+}
+
+/* ===== LEFT SECTION ===== */
+.mail-address-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex: 1 1 0;
+}
+
+.mail-address-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: block;
+}
+
+.mail-address-icon img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+}
+
+.mail-address-heading {
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+}
+
+/* ===== RIGHT SECTION ===== */
+.mail-address-right {
+  flex: 1 1 0;
+}
+
+.mail-address-content {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  text-align: left;
+}
+
+.mail-address-content p {
+  margin: 0;
+}
+
+.mail-address-content p:first-child {
+  font-weight: var(--body-weight-bold);
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (width <= 900px) {
+  .mail-address-card {
+    padding: 36px 40px;
+    gap: 36px;
+  }}
+
+/* Mobile */
+@media (width <= 600px) {
+  .mail-address.block {
+    padding: 40px 0;
+  }
+
+  .mail-address-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 32px 24px;
+    gap: 24px;
+  }}
+
+/* HOVER — row tier (lift + light shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.mail-address .mail-address-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.mail-address .mail-address-card:focus-within,
+.mail-address .mail-address-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mail-address .mail-address-card:focus-within,
+  .mail-address .mail-address-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

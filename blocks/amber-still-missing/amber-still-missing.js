@@ -1,0 +1,305 @@
+import {
+  getBlockRows,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import { buildPosterDetailHref } from '../../scripts/poster-link-utils.js';
+
+const DEFAULTS = {
+  intro: 'AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below.',
+  heading: 'Children Still Missing from AMBER Alerts - Expand for details',
+  apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
+  endpointPath: '/api/amber-alerts/still-missing',
+  posterPagePath: '/missing-children-posters',
+  emptyMessage: 'There are no children still missing from AMBER Alerts at this time.',
+};
+
+const FIELD_LABELS = {
+  intro: ['intro', 'intro copy', 'description'],
+  heading: ['heading', 'title'],
+  apiBaseUrl: ['api base url', 'api url', 'backend url'],
+  endpointPath: ['endpoint path', 'endpoint', 'api endpoint'],
+  posterPagePath: ['poster page path', 'poster page url', 'poster url'],
+  emptyMessage: ['empty message', 'no records message'],
+};
+
+function normalizeText(value) {
+  return `${value || ''}`.replace(/\s+/g, ' ').trim();
+}
+
+function normalizeApiBaseUrl(value) {
+  return normalizeText(value).replace(/\/+$/, '');
+}
+
+function getRows(block) {
+  return getBlockRows(block);
+}
+
+function getPropValue(block, name) {
+  return normalizeText(readLinkField(block, name).value || readTextField(block, name).value);
+}
+
+function getLegacyValue(block, name, columnIndex) {
+  const labels = FIELD_LABELS[name] || [];
+  const labeledRow = getRows(block).find((row) => {
+    if (row.children.length !== 2) return false;
+    const label = normalizeText(row.children[0].textContent).toLowerCase();
+    return labels.some((entry) => label === entry || label.includes(entry));
+  });
+
+  if (labeledRow) {
+    const valueCell = labeledRow.children[1];
+    const anchor = valueCell.querySelector('a');
+    return normalizeText(anchor?.getAttribute('href') || valueCell.textContent);
+  }
+
+  const configRow = getRows(block)[0];
+  const cell = configRow ? [...configRow.children][columnIndex] : null;
+  if (!cell) return '';
+  const anchor = cell.querySelector('a');
+  return normalizeText(anchor?.getAttribute('href') || cell.textContent);
+}
+
+function getFieldValue(block, name, columnIndex, fallback = '') {
+  return getPropValue(block, name) || getLegacyValue(block, name, columnIndex) || fallback;
+}
+
+function firstValue(source, keys) {
+  return keys.map((key) => source?.[key]).find((value) => normalizeText(value)) || '';
+}
+
+function posterPartsFromUrl(url) {
+  const match = normalizeText(url).match(/\/poster\/([^/]+)\/([^/\s?#]+)(?:\/([^/\s?#]+))?/i);
+  if (!match) return {};
+
+  return {
+    orgPrefix: match[1],
+    caseNumber: match[2],
+    sequenceNumber: match[3] || '1',
+  };
+}
+
+function posterHref(row, posterPagePath = DEFAULTS.posterPagePath) {
+  const posterUrl = firstValue(row, ['poster_url', 'posterUrl', 'posterLink', 'poster']);
+  const parts = posterPartsFromUrl(posterUrl);
+  const orgPrefix = normalizeText(firstValue(row, ['org_prefix', 'orgPrefix', 'provider']) || parts.orgPrefix || 'NCMC').toUpperCase();
+  const caseNumber = normalizeText(firstValue(row, ['case_number', 'caseNumber', 'ncmecNumber', 'ncmec']) || parts.caseNumber);
+  const sequenceNumber = normalizeText(
+    firstValue(row, ['sequence_number', 'sequenceNumber', 'seqNumber', 'seqNum']) || parts.sequenceNumber || '1',
+  );
+
+  if (!caseNumber) return '';
+
+  return buildPosterDetailHref({
+    provider: orgPrefix,
+    caseNumber,
+    sequenceNumber,
+    posterPagePath,
+    details: {
+      name: normalizeText(firstValue(row, ['name', 'fullName'])),
+      missing_state: normalizeText(firstValue(row, ['missing_state', 'missingState', 'lastSeenState', 'state'])),
+      missing_date: normalizeText(firstValue(row, ['missing_date', 'missingDate', 'dateMissing', 'missingSince'])),
+    },
+  });
+}
+
+function normalizeRow(row, posterPagePath) {
+  const href = posterHref(row, posterPagePath);
+  return {
+    name: normalizeText(firstValue(row, ['name', 'fullName']) || [
+      row.firstName,
+      row.middleName,
+      row.lastName,
+    ].map(normalizeText).filter(Boolean).join(' ')),
+    missingState: normalizeText(firstValue(row, ['missing_state', 'missingState', 'lastSeenState', 'state'])),
+    missingDate: normalizeText(firstValue(row, ['missing_date', 'missingDate', 'dateMissing', 'missingSince'])),
+    posterHref: href,
+  };
+}
+
+function rowsFromPayload(payload, posterPagePath) {
+  const source = Array.isArray(payload?.data) ? payload.data : payload?.children;
+  if (!Array.isArray(source)) return [];
+
+  return source
+    .filter((row) => row && typeof row === 'object')
+    .map((row) => normalizeRow(row, posterPagePath))
+    .filter((row) => row.name || row.missingState || row.missingDate || row.posterHref);
+}
+
+function renderTable(container, rows, config) {
+  container.replaceChildren();
+
+  if (!rows.length) {
+    const empty = document.createElement('p');
+    empty.className = 'amber-still-missing-empty';
+    empty.textContent = config.emptyMessage;
+    container.append(empty);
+    return;
+  }
+
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'amber-still-missing-table-wrap';
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  ['Name', 'Missing State', 'Missing Date', 'Poster Link'].forEach((label) => {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = label;
+    headerRow.append(th);
+  });
+  thead.append(headerRow);
+
+  const tbody = document.createElement('tbody');
+  rows.forEach((row) => {
+    const tr = document.createElement('tr');
+    [row.name, row.missingState, row.missingDate].forEach((value) => {
+      const td = document.createElement('td');
+      td.textContent = value;
+      tr.append(td);
+    });
+
+    const linkCell = document.createElement('td');
+    if (row.posterHref) {
+      const link = document.createElement('a');
+      link.href = row.posterHref;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'View poster';
+      linkCell.append(link);
+    }
+    tr.append(linkCell);
+    tbody.append(tr);
+  });
+
+  table.append(thead, tbody);
+  tableWrap.append(table);
+  container.append(tableWrap);
+}
+
+function setStatus(node, message, type = '') {
+  node.className = `amber-still-missing-status${type ? ` is-${type}` : ''}`;
+  node.textContent = message;
+  node.hidden = !message;
+}
+
+function setExpanded(item, expanded, immediate = false) {
+  const button = item.querySelector('.amber-still-missing-header');
+  const panel = item.querySelector('.amber-still-missing-panel');
+  if (!button || !panel) return;
+
+  if (expanded) {
+    panel.hidden = false;
+    window.requestAnimationFrame(() => {
+      item.classList.add('amber-still-missing-open', 'is-open');
+      button.setAttribute('aria-expanded', 'true');
+      panel.setAttribute('aria-hidden', 'false');
+    });
+    return;
+  }
+
+  item.classList.remove('amber-still-missing-open', 'is-open');
+  button.setAttribute('aria-expanded', 'false');
+  panel.setAttribute('aria-hidden', 'true');
+  if (immediate) {
+    panel.hidden = true;
+    return;
+  }
+
+  const onTransitionEnd = (event) => {
+    if (event.target !== panel) return;
+    if (!item.classList.contains('amber-still-missing-open')) panel.hidden = true;
+    panel.removeEventListener('transitionend', onTransitionEnd);
+  };
+  panel.addEventListener('transitionend', onTransitionEnd);
+}
+
+export default async function decorate(block) {
+  const config = {
+    intro: getFieldValue(block, 'intro', 0, DEFAULTS.intro),
+    heading: getFieldValue(block, 'heading', 1, DEFAULTS.heading),
+    apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
+    endpointPath: getFieldValue(block, 'endpointPath', 3, DEFAULTS.endpointPath),
+    posterPagePath: getFieldValue(block, 'posterPagePath', 4, DEFAULTS.posterPagePath),
+    emptyMessage: getFieldValue(block, 'emptyMessage', 5, DEFAULTS.emptyMessage),
+  };
+
+  const inner = document.createElement('div');
+  inner.className = 'amber-still-missing-inner';
+
+  const intro = document.createElement('p');
+  intro.className = 'amber-still-missing-intro';
+  intro.textContent = config.intro;
+
+  const accordion = document.createElement('article');
+  accordion.className = 'amber-still-missing-accordion accordion';
+
+  const headerId = 'amber-still-missing-heading';
+  const panelId = 'amber-still-missing-panel';
+
+  const header = document.createElement('button');
+  header.className = 'amber-still-missing-header accordion-trigger';
+  header.type = 'button';
+  header.id = headerId;
+  header.setAttribute('aria-expanded', 'false');
+  header.setAttribute('aria-controls', panelId);
+
+  const question = document.createElement('span');
+  question.className = 'amber-still-missing-question accordion-label';
+  question.textContent = config.heading;
+
+  const icon = document.createElement('span');
+  icon.className = 'amber-still-missing-icon accordion-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  header.append(question, icon);
+
+  const panel = document.createElement('div');
+  panel.className = 'amber-still-missing-panel accordion-panel';
+  panel.id = panelId;
+  panel.hidden = true;
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-labelledby', headerId);
+  panel.setAttribute('aria-hidden', 'true');
+
+  const panelInner = document.createElement('div');
+  panelInner.className = 'amber-still-missing-panel-inner';
+
+  const answer = document.createElement('div');
+  answer.className = 'amber-still-missing-answer';
+
+  const status = document.createElement('p');
+  status.hidden = true;
+
+  const content = document.createElement('div');
+  content.className = 'amber-still-missing-content';
+
+  answer.append(status, content);
+  panelInner.append(answer);
+  panel.append(panelInner);
+
+  header.addEventListener('click', () => {
+    setExpanded(accordion, header.getAttribute('aria-expanded') !== 'true');
+  });
+
+  accordion.append(header, panel);
+  inner.append(intro, accordion);
+  block.replaceChildren(inner);
+
+  setStatus(status, 'Loading children still missing from AMBER Alerts...', 'loading');
+
+  try {
+    const url = new URL(config.endpointPath, `${config.apiBaseUrl}/`);
+    const response = await fetch(url.toString(), {
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    const rows = rowsFromPayload(payload, config.posterPagePath);
+    setStatus(status, '', '');
+    renderTable(content, rows, config);
+  } catch (error) {
+    setStatus(status, 'Children still missing from AMBER Alerts are unavailable.', 'error');
+  }
+}

@@ -1,0 +1,387 @@
+main > .section > .missing-child-poster-api-registration-wrapper {
+  max-width: var(--container);
+}
+
+.missing-child-poster-api-registration {
+  --missing-child-poster-api-registration-top-padding: clamp(40px, 6vw, 88px);
+  --missing-child-poster-api-registration-reveal-duration: 0.58s;
+  --missing-child-poster-api-registration-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  padding: var(--missing-child-poster-api-registration-top-padding) 0 clamp(52px, 7vw, 96px);
+  color: var(--ncmec-gray-dark);
+}
+
+.missing-child-poster-api-registration-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 40px);
+  align-items: start;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.missing-child-poster-api-registration-header {
+  display: grid;
+  gap: 18px;
+  max-width: 920px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease),
+    transform var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease);
+}
+
+.missing-child-poster-api-registration-eyebrow {
+  width: fit-content;
+  margin: 0;
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: rgb(0 141 182 / 11%);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
+}
+
+.missing-child-poster-api-registration-heading {
+  margin: 0;
+  color: #00264d;
+}
+
+.missing-child-poster-api-registration-intro {
+  max-width: 56rem;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+}
+
+.missing-child-poster-api-registration-intro > :first-child {
+  margin-top: 0;
+}
+
+.missing-child-poster-api-registration-intro > :last-child {
+  margin-bottom: 0;
+}
+
+.missing-child-poster-api-registration-form,
+.missing-child-poster-api-registration-credentials {
+  border-radius: 8px;
+  padding: clamp(22px, 4vw, 42px);
+  background:
+    radial-gradient(circle at top right, rgb(255 255 255 / 78%), transparent 36%),
+    linear-gradient(180deg, #f4f5f5 0%, #ece9e5 100%);
+  box-shadow: 0 24px 60px rgb(17 54 82 / 10%);
+  opacity: 0;
+  transform: translateY(28px) scale(0.992);
+  transition:
+    opacity var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease),
+    transform var(--missing-child-poster-api-registration-reveal-duration) var(--missing-child-poster-api-registration-reveal-ease);
+  transition-delay: 90ms;
+}
+
+.missing-child-poster-api-registration-form {
+  display: grid;
+  gap: 26px;
+}
+
+.missing-child-poster-api-registration-section {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid rgb(0 38 77 / 12%);
+  padding: 24px 0 0;
+}
+
+.missing-child-poster-api-registration-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.missing-child-poster-api-registration-section-title {
+  margin: 0;
+  padding: 0;
+  color: #00264d;
+  font-size: var(--heading-6-size);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.missing-child-poster-api-registration-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.missing-child-poster-api-registration-field {
+  display: grid;
+  gap: 8px;
+  transition: transform 180ms ease;
+}
+
+.missing-child-poster-api-registration-label {
+  color: #32363b;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.missing-child-poster-api-registration-required {
+  color: #b6462f;
+}
+
+.missing-child-poster-api-registration-help {
+  color: var(--ncmec-gray-dark); /* was #66717d: 4.2:1 on the form panel */
+  font-size: var(--body-sm-size);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.missing-child-poster-api-registration-input,
+.missing-child-poster-api-registration-select,
+.missing-child-poster-api-registration-textarea,
+.missing-child-poster-api-registration-token-control input {
+  width: 100%;
+  border: 1px solid #d9d3cd;
+  border-radius: 6px;
+  padding: 14px 15px;
+  background: #fff;
+  color: #26292d;
+  font: inherit;
+  font-size: var(--body-size);
+  line-height: 1.35;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.missing-child-poster-api-registration-select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #66717d 50%),
+    linear-gradient(135deg, #66717d 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 13px) calc(50% - 3px);
+  background-repeat: no-repeat;
+  background-size: 5px 5px;
+  padding-right: 42px;
+}
+
+.missing-child-poster-api-registration-token-control input {
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+
+.missing-child-poster-api-registration-textarea {
+  resize: vertical;
+}
+
+.missing-child-poster-api-registration-terms {
+  max-height: 260px;
+  overflow: auto;
+  grid-column: 1 / -1;
+  border: 1px solid #d9d3cd;
+  border-radius: 8px;
+  padding: 18px;
+  background: rgb(255 255 255 / 76%);
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.missing-child-poster-api-registration-terms:focus-visible {
+  outline: 3px solid #00264d;
+  outline-offset: 3px;
+}
+
+.missing-child-poster-api-registration-terms > :first-child {
+  margin-top: 0;
+}
+
+.missing-child-poster-api-registration-terms > :last-child {
+  margin-bottom: 0;
+}
+
+.missing-child-poster-api-registration-checkbox-field {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 10px;
+  align-items: flex-start;
+  color: #32363b;
+  font-size: var(--body-size);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.missing-child-poster-api-registration-checkbox-field input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 0.05em 0 0;
+  accent-color: var(--ncmec-blue-medium);
+}
+
+.missing-child-poster-api-registration-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  border-top: 1px solid rgb(0 38 77 / 12%);
+  padding-top: 24px;
+}
+
+.missing-child-poster-api-registration-status {
+  flex: 1 1 280px;
+  min-height: 1.5em;
+  margin: 0;
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.missing-child-poster-api-registration-status.is-info {
+  color: #6f6253;
+}
+
+.missing-child-poster-api-registration-status.is-success {
+  color: #1f6a3a;
+}
+
+.missing-child-poster-api-registration-status.is-error {
+  color: #a13a31;
+}
+
+/* Submit and token buttons: styled by the button standard in styles/styles.css.
+   The submit was AMBER gold; the client reserves AMBER for AMBER Alerts. */
+.missing-child-poster-api-registration-submit {
+  margin: 0 0 0 auto;
+}
+
+.missing-child-poster-api-registration-token-button {
+  flex: 0 0 auto;
+  min-width: 74px;
+}
+
+.missing-child-poster-api-registration.is-submitting .missing-child-poster-api-registration-submit {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.missing-child-poster-api-registration-credentials {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+  border-left: 4px solid var(--ncmec-blue-dark);
+  background: #fff;
+}
+
+.missing-child-poster-api-registration-credentials[hidden] {
+  display: none;
+}
+
+.missing-child-poster-api-registration-credentials-heading {
+  margin: 0;
+  color: #00264d;
+}
+
+.missing-child-poster-api-registration-credentials-copy,
+.missing-child-poster-api-registration-docs {
+  margin: 0;
+  color: var(--ncmec-gray-dark);
+  font-weight: var(--body-weight-strong);
+}
+
+.missing-child-poster-api-registration-tokens {
+  display: grid;
+  gap: 14px;
+}
+
+.missing-child-poster-api-registration-token {
+  display: grid;
+  gap: 8px;
+}
+
+.missing-child-poster-api-registration-token-label {
+  color: #32363b;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.missing-child-poster-api-registration-token-control {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.missing-child-poster-api-registration-docs a {
+  color: var(--ncmec-blue-dark);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.missing-child-poster-api-registration.is-visible .missing-child-poster-api-registration-header,
+.missing-child-poster-api-registration.is-visible .missing-child-poster-api-registration-form,
+.missing-child-poster-api-registration.is-visible .missing-child-poster-api-registration-credentials {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (width >= 760px) {
+  .missing-child-poster-api-registration-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width < 720px) {
+  .missing-child-poster-api-registration {
+    --missing-child-poster-api-registration-top-padding: 32px;
+  }
+
+  .missing-child-poster-api-registration-form,
+  .missing-child-poster-api-registration-credentials {
+    padding: 20px 16px;
+  }
+
+  .missing-child-poster-api-registration-actions,
+  .missing-child-poster-api-registration-token-control {
+    align-items: stretch;
+  }
+
+  .missing-child-poster-api-registration-submit,
+  .missing-child-poster-api-registration-token-button {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .missing-child-poster-api-registration-token-control {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .missing-child-poster-api-registration-header,
+  .missing-child-poster-api-registration-form,
+  .missing-child-poster-api-registration-credentials,
+  .missing-child-poster-api-registration-field,
+  .missing-child-poster-api-registration-input,
+  .missing-child-poster-api-registration-select,
+  .missing-child-poster-api-registration-textarea,
+  .missing-child-poster-api-registration-token-button,
+  .missing-child-poster-api-registration-submit {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

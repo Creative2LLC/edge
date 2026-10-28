@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NCMEC form test harness</title>
+
+  <!--
+    Renders every public form block on one page so they can be filled in and
+    submitted end to end.
+
+    The blocks are loaded exactly as the site loads them, with no authored
+    fields, so each one falls back to its DEFAULTS and to the endpoint that
+    resolveFormAction() picks from scripts/form-utils.js. The only thing this
+    page changes is WHERE that endpoint points: fetch is wrapped below to
+    rewrite the production API origin to whichever backend is selected in the
+    toolbar. That way the harness exercises the real default resolution rather
+    than a hand-typed URL.
+
+    Published, it is served straight from the repo by Edge Delivery:
+      https://<branch>--edge--creative2llc.aem.page/tools/form-test.html
+    There the API base defaults to the real backend, because the page is https
+    and a browser blocks an http://localhost call from it.
+
+    Locally, serve the repo root (the blocks load by relative path):
+      npx http-server . -p 3000   ->  http://localhost:3000/tools/form-test.html
+    or
+      python3 -m http.server 3000
+
+    This file must stay OUT of audits/, which .gitignore excludes - it has to
+    be committed to be served.
+  -->
+
+  <link rel="stylesheet" href="../styles/styles.css">
+  <style>
+    body { margin: 0; background: #f4f2ef; }
+
+    .harness-bar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      padding: 12px 20px; background: #111827; color: #fff;
+      font: 14px/1.4 Arial, Helvetica, sans-serif;
+    }
+    .harness-bar strong { font-size: 15px; }
+    .harness-bar label { display: flex; gap: 6px; align-items: center; }
+    /* styles.css styles every input on the page, so be explicit here or the
+       API base renders as white text on a white field. */
+    .harness-bar input {
+      min-width: 320px; margin: 0; padding: 6px 8px;
+      border: 0; border-radius: 4px;
+      background: #fff; color: #111827;
+      font: 14px/1.4 ui-monospace, Menlo, Consolas, monospace;
+    }
+    .harness-bar a { color: #6ee7ff; }
+
+    .harness-nav {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding: 12px 20px; background: #1f2937;
+      font: 13px/1.4 Arial, Helvetica, sans-serif;
+    }
+    .harness-nav a {
+      padding: 4px 10px; border-radius: 999px;
+      background: #374151; color: #e5e7eb; text-decoration: none;
+    }
+    .harness-nav a:hover { background: #4b5563; }
+
+    .harness-form { border-top: 8px solid #e5e7eb; padding: 8px 0 48px; }
+    .harness-form > h2 {
+      margin: 0; padding: 16px 20px; background: #e5e7eb;
+      font: 700 15px/1.4 Arial, Helvetica, sans-serif; color: #374151;
+    }
+    .harness-form > h2 code { font-weight: 400; color: #6b7280; }
+
+    .harness-log {
+      position: fixed; right: 12px; bottom: 12px; z-index: 60;
+      width: 380px; max-height: 40vh; overflow: hidden;
+      padding: 12px; border-radius: 8px;
+      background: #111827ee; color: #d1fae5;
+      font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace;
+      /* Read-only readout: it must never sit between the pointer and a
+         submit button it happens to overlap. */
+      pointer-events: none;
+    }
+    .harness-log:empty { display: none; }
+    .harness-log .err { color: #fca5a5; }
+    .harness-log .ok { color: #6ee7b7; }
+  </style>
+</head>
+<body>
+  <div class="harness-bar">
+    <strong>Form test harness</strong>
+    <label>
+      API base
+      <input id="api-base">
+    </label>
+    <span id="api-status">checking…</span>
+    <a id="link-mail" href="http://localhost:8025" target="_blank" rel="noopener" hidden>Mailpit inbox ↗</a>
+    <a id="link-admin" href="http://localhost:8000/admin" target="_blank" rel="noopener" hidden>Admin ↗</a>
+  </div>
+  <nav class="harness-nav" id="harness-nav"></nav>
+
+  <!--
+    Importing any block pulls in scripts/scripts.js, which runs loadPage() on
+    import and expects a real EDS page: a decorated section inside <main>, plus
+    a header and footer to hydrate. Without them it throws before the blocks
+    render. These empty stand-ins keep it quiet; the site's own header and
+    footer are deliberately not loaded, so the forms are the only thing here.
+  -->
+  <header hidden></header>
+  <main id="harness-forms">
+    <div class="section" data-section-status="loaded" hidden></div>
+  </main>
+  <footer hidden></footer>
+  <div class="harness-log" id="harness-log"></div>
+
+  <script type="module">
+    const FORMS = [
+      'apply-for-training',
+      'code-adam-kit',
+      'community-education-partner-reporting',
+      'event-request-form',
+      'faon-application',
+      'host-a-fundraiser',
+      'missing-child-quick-report',
+      'ncmec-reprint-request',
+      'prpl-application',
+      'team-hope-volunteer',
+    ];
+
+    // Must match API_ORIGIN in scripts/form-utils.js.
+    const PRODUCTION_ORIGIN = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
+
+    const apiBaseInput = document.getElementById('api-base');
+    const apiStatus = document.getElementById('api-status');
+    const log = document.getElementById('harness-log');
+
+    /*
+     * Default to the local backend only when this page is itself served from
+     * localhost. Published on aem.page the page is https, and a browser blocks
+     * an http://localhost request from it as mixed content - so there the real
+     * API is the only thing that can work.
+     */
+    const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
+    const isLocal = LOCAL_HOSTS.includes(window.location.hostname);
+    apiBaseInput.value = isLocal ? 'http://localhost:8000' : PRODUCTION_ORIGIN;
+
+    // Mailpit and the admin only exist on a developer's machine.
+    if (isLocal) {
+      document.getElementById('link-mail').hidden = false;
+      document.getElementById('link-admin').hidden = false;
+    }
+
+    const apiBase = () => apiBaseInput.value.trim().replace(/\/$/, '');
+
+    function write(message, tone = '') {
+      const line = document.createElement('div');
+      line.className = tone;
+      line.textContent = `${new Date().toLocaleTimeString()}  ${message}`;
+      log.prepend(line);
+    }
+
+    /*
+     * Send the blocks' production endpoint to the selected backend instead.
+     * Everything else about the request - method, FormData body, headers - is
+     * left exactly as the block built it.
+     */
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+      const url = typeof input === 'string' ? input : input?.url;
+
+      if (typeof url === 'string' && url.startsWith(PRODUCTION_ORIGIN)) {
+        const target = url.replace(PRODUCTION_ORIGIN, apiBase());
+        write(`POST ${target.replace(apiBase(), '')}`);
+
+        const response = await nativeFetch(target, init);
+        const copy = response.clone();
+
+        copy.json().then(
+          (body) => write(
+            `${response.status}  ${body.message || JSON.stringify(body.errors || body)}`,
+            response.ok ? 'ok' : 'err',
+          ),
+          () => write(`${response.status}  (no JSON body)`, response.ok ? 'ok' : 'err'),
+        );
+
+        return response;
+      }
+
+      return nativeFetch(input, init);
+    };
+
+    async function checkApi() {
+      try {
+        const response = await nativeFetch(`${apiBase()}/api/events`);
+        apiStatus.textContent = response.ok ? '● reachable' : `● HTTP ${response.status}`;
+        apiStatus.style.color = response.ok ? '#6ee7b7' : '#fca5a5';
+      } catch {
+        apiStatus.textContent = '● unreachable';
+        apiStatus.style.color = '#fca5a5';
+      }
+    }
+
+    apiBaseInput.addEventListener('change', checkApi);
+    checkApi();
+
+    const nav = document.getElementById('harness-nav');
+    const main = document.getElementById('harness-forms');
+
+    for (const name of FORMS) {
+      const link = document.createElement('a');
+      link.href = `#${name}`;
+      link.textContent = name;
+      nav.append(link);
+
+      const section = document.createElement('section');
+      section.className = 'harness-form';
+      section.id = name;
+
+      const heading = document.createElement('h2');
+      heading.innerHTML = `${name} &nbsp; <code>POST /api/forms/${name}</code>`;
+      section.append(heading);
+
+      // An empty block: no authored rows, so every field falls back to its
+      // DEFAULTS, which is what an author dropping the block in gets.
+      const block = document.createElement('div');
+      block.className = `${name} block`;
+      block.dataset.blockName = name;
+      section.append(block);
+      main.append(section);
+
+      try {
+        /* eslint-disable no-await-in-loop */
+        const module = await import(`../blocks/${name}/${name}.js`);
+        const styles = document.createElement('link');
+        styles.rel = 'stylesheet';
+        styles.href = `../blocks/${name}/${name}.css`;
+        document.head.append(styles);
+        await module.default(block);
+
+        /*
+         * On the real page aem.js's loadBlock() calls observeBlockReveal(),
+         * and an IntersectionObserver adds `is-visible` once the block scrolls
+         * into view. Each block's CSS holds its header and form at opacity 0
+         * until then. This harness calls decorate() directly, so nothing ever
+         * adds the class and every form renders invisible. Reveal them all up
+         * front - there is no reason to animate a test page in.
+         */
+        block.classList.add('is-visible');
+      } catch (error) {
+        const failure = document.createElement('p');
+        failure.style.cssText = 'padding:16px 20px;color:#b91c1c;font-family:Arial';
+        failure.textContent = `Failed to render: ${error.message}`;
+        section.append(failure);
+        write(`${name} failed to render: ${error.message}`, 'err');
+      }
+    }
+
+    /*
+     * loadLazy() pulls in the real page chrome. The consent banner and the
+     * Get Help button are both fixed to the bottom of the viewport, right over
+     * the submit button of whichever form you are on. This harness is for
+     * exercising the forms, so take them back out.
+     */
+    const dropOverlays = () => {
+      document.querySelectorAll(
+        '.cookie-consent-host, .cookie-consent-wrapper, .get-help-host, .get-help-wrapper',
+      ).forEach((el) => el.remove());
+    };
+    dropOverlays();
+    new MutationObserver(dropOverlays).observe(document.body, { childList: true, subtree: true });
+
+    write('Harness ready. Each form posts to the API base above.', 'ok');
+  </script>
+</body>
+</html>

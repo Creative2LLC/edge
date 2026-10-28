@@ -13,44 +13,12 @@
     window.errorCode = '404';
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
   <meta property="og:title" content="Page not found">
   <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
-  <script nonce="aem" type="module">
-    window.addEventListener('load', () => {
-      if (document.referrer) {
-        const { origin, pathname } = new URL(document.referrer);
-        if (origin === window.location.origin) {
-          const backBtn = document.createElement('a');
-          backBtn.classList.add('button', 'error-button-back');
-          backBtn.href = pathname;
-          backBtn.textContent = 'Go back';
-          backBtn.title = 'Go back';
-          const btnContainer = document.querySelector('.button-container');
-          btnContainer.append(backBtn);
-        }
-      }
-    });
-  </script>
-  <script nonce="aem" type="module">
-    import { sampleRUM } from '/scripts/aem.js';
-    sampleRUM('404', { source: document.referrer });
-  </script>
+  <script nonce="aem" src="/scripts/error-pages.js" type="module"></script>
   <link rel="stylesheet" href="/styles/styles.css">
-  <style>
-    main.error {
-      min-height: calc(100vh - var(--nav-height));
-      display: flex;
-      align-items: center;
-    }
-
-    main.error .error-number {
-      width: 100%;
-    }
-
-    main.error .error-number text {
-      font-family: monospace;
-    }
-  </style>
+  <link rel="stylesheet" href="/styles/error-pages.css">
   <link rel="stylesheet" href="/styles/lazy-styles.css">
 </head>
 
@@ -58,13 +26,44 @@
   <header></header>
   <main class="error">
     <div class="section">
-      <svg viewBox="1 0 38 18" class="error-number">
-        <text x="0" y="17">404</text>
-      </svg>
-      <h2 class="error-message">Page Not Found</h2>
-      <p class="button-container">
-        <a href="/" class="button secondary error-button-home">Go home</a>
-      </p>
+      <div class="error-page" data-error-page>
+        <div class="error-page-shell">
+          <div class="error-page-copy">
+            <p class="error-page-eyebrow"></p>
+            <h1 class="error-page-title"></h1>
+            <p class="error-page-description"></p>
+            <ul class="error-page-points"></ul>
+            <div class="error-page-actions"></div>
+            <p class="error-page-meta"></p>
+          </div>
+          <div class="error-page-visual" aria-hidden="true">
+            <div class="error-page-visual-backdrop"></div>
+            <div class="error-page-orbit error-page-orbit-one"></div>
+            <div class="error-page-orbit error-page-orbit-two"></div>
+            <div class="error-page-pulse error-page-pulse-one"></div>
+            <div class="error-page-pulse error-page-pulse-two"></div>
+            <div class="error-page-code-wrap">
+              <div class="error-page-code-shadow"></div>
+              <div class="error-page-code"></div>
+            </div>
+            <div class="error-page-panel error-page-panel-top">
+              <span class="error-page-panel-label"></span>
+              <strong class="error-page-panel-value"></strong>
+            </div>
+            <div class="error-page-panel error-page-panel-bottom">
+              <span class="error-page-panel-label"></span>
+              <strong class="error-page-panel-value"></strong>
+            </div>
+            <div class="error-page-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
   <footer></footer>

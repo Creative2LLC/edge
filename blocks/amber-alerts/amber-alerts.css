@@ -1,0 +1,431 @@
+.amber-alerts {
+  background: var(--ncmec-gray-lightest);
+  padding: 72px 0 76px;
+}
+
+.amber-alerts-inner {
+  width: min(1400px, calc(100% - 64px));
+  margin: 0 auto;
+}
+
+/* Universal Editor only: the block is hidden from visitors when no alert is active. */
+.amber-alerts-editor-note {
+  margin: 0 0 24px;
+  padding: 10px 14px;
+  border: 1px dashed var(--ncmec-gray-dark);
+  border-radius: 6px;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-sm-size);
+}
+
+.amber-alerts-header {
+  max-width: 1120px;
+  margin-bottom: 34px;
+}
+
+.amber-alerts-eyebrow,
+.amber-alerts-card-badge {
+  margin: 0 0 14px;
+  color: #b42318;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.amber-alerts h2 {
+  margin: 0;
+  color: #304656;
+}
+
+.amber-alerts-copy {
+  max-width: 1120px;
+  margin: 16px 0 0;
+  color: #304656;
+}
+
+.amber-alerts-filter {
+  display: none;
+  gap: 7px;
+  min-width: 220px;
+}
+
+.amber-alerts-filter span {
+  color: #3f4b53;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+}
+
+.amber-alerts-filter select {
+  height: 44px;
+  border: 1px solid #c7d1d8;
+  border-radius: 6px;
+  background: #fff;
+  color: #243846;
+  font: inherit;
+  font-size: var(--body-size);
+  padding: 8px 12px;
+}
+
+/* Card action: styled by the button standard in styles/styles.css (AMBER). */
+.amber-alerts-detail-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-bottom: 20px;
+  padding: 0 24px;
+  border: 1px solid #c7d1d8;
+  border-radius: 6px;
+  background: #fff;
+  color: #243846;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+}
+
+.amber-alerts-detail-back:hover {
+  background: #eef3f6;
+}
+
+.amber-alerts-status {
+  margin: 0 0 18px;
+  color: #3f4b53;
+  font-size: var(--body-sm-size);
+  font-weight: 800;
+}
+
+.amber-alerts-status.is-loading {
+  color: var(--ncmec-blue-dark);
+}
+
+.amber-alerts-status.is-error {
+  color: #b42318;
+}
+
+/* auto-fill (not auto-fit) keeps the empty column, so a lone alert stays
+   one column wide instead of stretching across the whole row. */
+.amber-alerts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
+  gap: 24px;
+  width: min(1280px, 100%);
+}
+
+.amber-alerts-card,
+.amber-alerts-detail {
+  overflow: hidden;
+  border: 1px solid #d6e0e7;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+}
+
+.amber-alerts-card {
+  display: grid;
+  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
+  min-height: 230px;
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
+}
+
+.amber-alerts-card.is-no-media {
+  grid-template-columns: 1fr;
+}
+
+.amber-alerts-card-media {
+  display: block;
+  height: 100%;
+  min-height: 230px;
+  background: var(--ncmec-gray-lightest);
+}
+
+.amber-alerts-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.amber-alerts-card-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 24px 26px 22px;
+}
+
+.amber-alerts-card h3 {
+  margin: 0 0 8px;
+  color: #243846;
+}
+
+/* Same linked-name treatment as the poster search result cards. */
+.amber-alerts-card-title-link {
+  color: var(--ncmec-blue-medium);
+  text-decoration: none;
+}
+
+.amber-alerts-card-title-link:hover,
+.amber-alerts-card-title-link:focus-visible {
+  text-decoration: underline;
+}
+
+.amber-alerts-detail h3 {
+  margin: 0 0 22px;
+  color: #243846;
+}
+
+.amber-alerts-card dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 4px;
+  margin: 0;
+}
+
+.amber-alerts-detail dl {
+  display: grid;
+  grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+  gap: 13px 28px;
+  margin: 0;
+}
+
+/* Label/value type matches .poster-results-card-body dt/dd. */
+.amber-alerts-card dt {
+  color: #3f4a52;
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-medium);
+  line-height: 1.25;
+}
+
+.amber-alerts-card dt::after {
+  content: ':';
+}
+
+.amber-alerts-detail dt {
+  color: #4c5964;
+  font-size: var(--body-sm-size);
+  font-weight: 900;
+}
+
+.amber-alerts-card dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #3f4a52;
+  font-size: var(--body-lg-size);
+  line-height: 1.25;
+}
+
+.amber-alerts-detail dd {
+  margin: 0;
+  color: #182b3a;
+  font-size: var(--body-size);
+  line-height: var(--caption-line-height);
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.amber-alerts-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.amber-alerts-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 24px;
+  border: 1px solid #d9e1e6;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ncmec-gray-dark);
+  font-size: var(--body-size);
+  font-weight: 800;
+}
+
+.amber-alerts-disclosure {
+  margin: 28px 0 0;
+  color: #304656;
+  font-size: var(--body-size);
+  line-height: 1.5;
+}
+
+.amber-alerts-detail {
+  grid-column: 1 / -1;
+  padding: 22px;
+}
+
+.amber-alerts-detail-body {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+
+.amber-alerts-detail-media {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #dfe5e9;
+}
+
+.amber-alerts-detail-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.amber-alerts-detail-content {
+  padding: 0;
+}
+
+.amber-alerts-detail-copy {
+  margin: 20px 0 0;
+  color: #303030;
+}
+
+.amber-alerts-related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #d9e1e6;
+}
+
+.amber-alerts-related-grid.is-single {
+  grid-template-columns: 1fr;
+}
+
+.amber-alerts-related {
+  min-width: 0;
+}
+
+.amber-alerts-related + .amber-alerts-related {
+  padding-left: 28px;
+  border-left: 1px solid #d9e1e6;
+}
+
+.amber-alerts-related h4 {
+  margin: 0 0 14px;
+  color: #243846;
+}
+
+.amber-alerts-related-list,
+.amber-alerts-vehicle-list {
+  display: grid;
+  gap: 14px;
+}
+
+.amber-alerts-related-person {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.amber-alerts-related-person img {
+  display: block;
+  width: 86px;
+  height: 108px;
+  border-radius: 6px;
+  background: #dfe5e9;
+  object-fit: cover;
+}
+
+.amber-alerts-related-person h5 {
+  margin: 0 0 4px;
+  color: #243846;
+}
+
+.amber-alerts-related-person p {
+  margin: 0 0 10px;
+  color: #b42318;
+  font-size: var(--caption-size);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.amber-alerts-detail-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.amber-alerts-detail-gallery img {
+  width: 118px;
+  height: 146px;
+  border: 2px solid #b8e8f3;
+  border-radius: 8px;
+  background: #fff;
+  object-fit: cover;
+}
+
+.amber-alerts-filter select:focus-visible,
+.amber-alerts-detail-back:focus-visible {
+  outline: 2px solid var(--ncmec-blue-dark);
+  outline-offset: 2px;
+}
+
+@media (width <= 800px) {
+  .amber-alerts {
+    padding: 36px 0 44px;
+  }
+
+  .amber-alerts-inner {
+    width: min(1400px, calc(100% - 24px));
+  }
+
+.amber-alerts-list,
+  .amber-alerts-card,
+  .amber-alerts-detail-body {
+    grid-template-columns: 1fr;
+  }
+
+  .amber-alerts-filter {
+    min-width: 0;
+  }
+
+  .amber-alerts-card {
+    min-height: 0;
+  }
+
+  .amber-alerts-card-media img {
+    max-height: 280px;
+  }
+
+  /* Cards keep "Label: value" on one line on mobile, like the poster cards. */
+  .amber-alerts-detail dl {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .amber-alerts-card-actions,
+  .amber-alerts-card-actions a {
+    width: 100%;
+  }
+
+  .amber-alerts-related-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .amber-alerts-related + .amber-alerts-related {
+    padding-top: 24px;
+    padding-left: 0;
+    border-top: 1px solid #d9e1e6;
+    border-left: 0;
+  }
+
+  .amber-alerts-related-person {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .amber-alerts-related-person img {
+    width: 72px;
+    height: 92px;
+  }
+}

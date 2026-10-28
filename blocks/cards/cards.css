@@ -1,27 +1,265 @@
+.cards {
+  --cards-card-bg-default: var(--background-color);
+  --cards-card-text-default: inherit;
+  --cards-card-highlight-default: var(--cards-card-text, var(--cards-card-text-default));
+  --cards-card-text-size-default: inherit;
+  --cards-card-highlight-size-default: clamp(2rem, 5vw, 3.625rem);
+  --cards-card-radius: 0;
+  --cards-card-shadow: none;
+}
+
 .cards > ul {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+  justify-content: center;
+  gap: var(--cards-gap, 24px);
 }
 
 .cards > ul > li {
   border: 1px solid #dadada;
-  background-color: var(--background-color);
+  background-color: var(--cards-card-bg, var(--cards-card-bg-default));
+  color: var(--cards-card-text, var(--cards-card-text-default));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--cards-card-radius);
+  box-shadow: var(--cards-card-shadow);
+}
+
+.cards.cards-radius-small {
+  --cards-card-radius: 4px;
+}
+
+.cards.cards-radius-medium {
+  --cards-card-radius: 8px;
+}
+
+.cards.cards-radius-large {
+  --cards-card-radius: 16px;
+}
+
+.cards.cards-shadow-small {
+  --cards-card-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+}
+
+.cards.cards-shadow-medium {
+  --cards-card-shadow: 0 10px 28px rgb(0 0 0 / 14%);
+}
+
+.cards.cards-shadow-large {
+  --cards-card-shadow: 0 18px 42px rgb(0 0 0 / 18%);
+}
+
+.cards.cards-shadow-highlight-blue {
+  --cards-card-shadow: 0 14px 24px 0 rgb(20 145 191 / 40%);
+}
+
+.cards.cards-shadow-highlight-navy {
+  --cards-card-shadow: 0 14px 24px 0 rgb(9 35 72 / 40%);
+}
+
+.cards.cards-shadow-highlight-orange {
+  --cards-card-shadow: 0 14px 24px 0 rgb(247 148 29 / 40%);
+}
+
+.cards.cards-shadow-highlight-gold {
+  --cards-card-shadow: 0 14px 24px 0 rgb(245 181 27 / 40%);
+}
+
+.cards.cards-shadow-white {
+  --cards-card-shadow: 0 14px 24px 0 rgb(255 255 255 / 40%);
 }
 
 .cards .cards-card-body {
-  margin: 16px;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+  color: inherit;
+
+  /* Padding around this card's own content, adjustable via the "Card Padding" /
+     "Default Card Padding" fields — not the space between cards (--cards-gap). */
+  padding:
+    var(--cards-card-padding-top, var(--cards-card-padding-top-default, 16px))
+    var(--cards-card-padding-right, var(--cards-card-padding-right-default, 16px))
+    var(--cards-card-padding-bottom, var(--cards-card-padding-bottom-default, 16px))
+    var(--cards-card-padding-left, var(--cards-card-padding-left-default, 16px));
+}
+
+.cards .cards-card-highlight {
+  color: var(--cards-card-highlight, var(--cards-card-highlight-default));
+  font-size: var(--cards-card-highlight-size, var(--cards-card-highlight-size-default));
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.cards .cards-card-highlight > :first-child,
+.cards .cards-card-text > :first-child {
+  margin-top: 0;
+}
+
+.cards .cards-card-highlight > :last-child,
+.cards .cards-card-text > :last-child {
+  margin-bottom: 0;
+}
+
+.cards .cards-card-text {
+  color: inherit;
+  font-size: var(--cards-card-text-size, var(--cards-card-text-size-default));
+}
+
+.cards .cards-card-disclaimer {
+  color: inherit;
+  opacity: 0.7;
+  font-size: var(--cards-card-disclaimer-size, 0.8rem);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.cards.cards-text-align-left .cards-card-body {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.cards.cards-text-align-center .cards-card-body {
+  text-align: center;
+  align-items: center;
+}
+
+.cards.cards-text-align-right .cards-card-body {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.cards.cards-text-align-justify .cards-card-body {
+  text-align: justify;
+  align-items: stretch;
+}
+
+.cards .cards-card.cards-card-align-left .cards-card-body {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.cards .cards-card.cards-card-align-center .cards-card-body {
+  text-align: center;
+  align-items: center;
+}
+
+.cards .cards-card.cards-card-align-right .cards-card-body {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.cards .cards-card.cards-card-align-justify .cards-card-body {
+  text-align: justify;
+  align-items: stretch;
+}
+
+.cards.cards-hide-buttons :is(.button-container, a.button) {
+  display: none !important;
 }
 
 .cards .cards-card-image {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
   line-height: 0;
 }
 
-.cards > ul > li img {
+.cards .cards-card-image picture {
+  display: block;
   width: 100%;
+  max-width: 100%;
   aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.cards.cards-image-contain .cards-card-image picture,
+.cards.cards-image-auto .cards-card-image-icon picture {
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+.cards.cards-image-logo .cards-card-image picture,
+.cards.cards-image-auto .cards-card-image-icon picture {
+  box-sizing: border-box;
+  height: 180px;
+  padding: 28px;
+  aspect-ratio: auto;
+}
+
+.cards.cards-text-align-center .cards-card-image {
+  justify-content: center;
+}
+
+.cards.cards-text-align-right .cards-card-image {
+  justify-content: flex-end;
+}
+
+.cards .cards-card.cards-card-align-center .cards-card-image {
+  justify-content: center;
+}
+
+.cards .cards-card.cards-card-align-right .cards-card-image {
+  justify-content: flex-end;
+}
+
+.cards > ul > li img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
   object-fit: cover;
 }
+
+.cards.cards-image-contain .cards-card-image img,
+.cards.cards-image-logo .cards-card-image img,
+.cards.cards-image-auto .cards-card-image-icon img {
+  object-fit: contain;
+}
+
+.cards .cards-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: inherit;
+  margin-top: 4px;
+}
+
+@media (width <= 900px) {
+  .cards .cards-card-text {
+    font-size: var(--body-lg-size);
+  }
+}
+
+/* HOVER — tint tier (wash, no lift). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.cards .cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.cards .cards-card:focus-within,
+.cards .cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  background-image: linear-gradient(var(--hover-tint-wash), var(--hover-tint-wash));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cards .cards-card:focus-within,
+  .cards .cards-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

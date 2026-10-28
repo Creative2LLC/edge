@@ -1,0 +1,254 @@
+import { GRADIENT_STOP_FIELDS, remapColorValue } from './color-tokens.js';
+
+function normalizeNames(name) {
+  return (Array.isArray(name) ? name : [name])
+    .filter((value) => value !== undefined && value !== null);
+}
+
+export function getFieldSelector(name) {
+  return normalizeNames(name)
+    .map((fieldName) => `[data-aue-prop="${fieldName}"], [data-richtext-prop="${fieldName}"]`)
+    .join(', ');
+}
+
+function getDataPropSelector(name) {
+  return normalizeNames(name)
+    .map((fieldName) => `[data-aue-prop="${fieldName}"]`)
+    .join(', ');
+}
+
+export function getBlockRows(scope) {
+  return [...(scope?.querySelectorAll?.(':scope > div') || [])];
+}
+
+/**
+ * Sets the Universal Editor content-tree / overlay label for a nested item so authors
+ * can tell items apart at a glance instead of seeing the generic component name on every
+ * one. The label is taken from the first non-empty candidate value (e.g. title, heading,
+ * name, text). Editor-only and purely additive: it is a no-op when no instrumentation is
+ * present (published pages), changes no stored content, and does not alter rendered markup.
+ *
+ * @param {Element} itemEl element carrying the item's instrumentation (data-aue-resource)
+ * @param {(string|null|undefined)[]|string} candidates ordered values; first non-empty wins
+ * @param {number} [maxLength=60] truncate long labels to keep the tree readable
+ */
+export function setItemLabel(itemEl, candidates, maxLength = 60) {
+  if (!itemEl?.setAttribute || !itemEl.hasAttribute?.('data-aue-resource')) return;
+  const value = normalizeNames(candidates)
+    .map((candidate) => `${candidate ?? ''}`.replace(/\s+/g, ' ').trim())
+    .find((candidate) => candidate.length > 0);
+  if (!value) return;
+  const label = value.length > maxLength ? `${value.slice(0, maxLength - 1).trim()}…` : value;
+  itemEl.setAttribute('data-aue-label', label);
+}
+
+function normalizeOptions(options) {
+  if (typeof options === 'number') {
+    return { rowIndex: options, columnIndex: 0 };
+  }
+
+  return {
+    rowIndex: options?.rowIndex ?? options?.row,
+    columnIndex: options?.columnIndex ?? options?.column ?? 0,
+    labels: options?.labels || options?.label || null,
+    fallbackCell: options?.fallbackCell || null,
+  };
+}
+
+function normalizeLabel(value) {
+  return `${value || ''}`
+    .replace(/\([^)]*\)/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+export function getFallbackCell(scope, options = {}) {
+  const {
+    rowIndex,
+    columnIndex,
+    labels,
+    fallbackCell,
+  } = normalizeOptions(options);
+  // A LABELLED row is checked before the positional fallback, because a name match is
+  // strictly stronger evidence than a position guess. aem.js reconstructs flattened
+  // `columns` cells into labelled rows (createBlockFieldRow) precisely so blocks can
+  // find fields by name — but with the positional fallback taking precedence, those
+  // labels were never read and e.g. an authored `padding style: vertical-md` was
+  // silently replaced by whatever sat at the guessed index.
+  //
+  // Genuine published rows are unaffected: they carry no label cell, and the
+  // `children.length < 2` guard skips them.
+  if (labels) {
+    const accepted = (Array.isArray(labels) ? labels : [labels]).map(normalizeLabel);
+    const row = getBlockRows(scope).find((candidate) => {
+      if (candidate.children.length < 2) return false;
+      return accepted.includes(normalizeLabel(candidate.children[0].textContent));
+    });
+    if (row) return row.children[1] || null;
+  }
+
+  if (fallbackCell) return fallbackCell;
+
+  if (rowIndex === undefined || rowIndex === null) return null;
+  const row = getBlockRows(scope)[rowIndex];
+  return row?.children?.[columnIndex] || null;
+}
+
+function textFrom(node) {
+  return node?.textContent?.trim() || '';
+}
+
+export function resourcePathFromAueResource(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+export function getAueResourcePath(scope) {
+  const resource = scope?.getAttribute?.('data-aue-resource')
+    || scope?.querySelector?.('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  return resourcePathFromAueResource(resource);
+}
+
+export async function readAueResourceFields(resourcePath, names = []) {
+  if (!resourcePath || typeof fetch !== 'function') return {};
+
+  try {
+    const response = await fetch(`${resourcePath}.json`, { cache: 'no-store' });
+    if (!response.ok) return {};
+
+    const data = await response.json();
+    if (!data || typeof data !== 'object') return {};
+
+    return normalizeNames(names)
+      .reduce((fields, name) => {
+        if (data[name] !== undefined && data[name] !== null) {
+          // Author JSON never passes through remapLegacyColors(), so remap here too.
+          const value = data[name];
+          fields[name] = GRADIENT_STOP_FIELDS.has(name) ? value : remapColorValue(value);
+        }
+        return fields;
+      }, {});
+  } catch {
+    return {};
+  }
+}
+
+export function readTextField(scope, name, options = {}) {
+  const source = scope.querySelector(getFieldSelector(name));
+  const fallbackCell = source ? null : getFallbackCell(scope, options);
+
+  return {
+    source,
+    cell: source || fallbackCell,
+    value: textFrom(source) || textFrom(fallbackCell),
+  };
+}
+
+/* ---- "Heading Level" select appended to a block model after its pages were published ----
+   Its values are namespaced (heading-h2, heading-h3) so a published page, which carries no
+   field names, can be read by value. The row is then removed, so a block's positional and
+   flattened readers never mistake it for text. */
+const HEADING_LEVEL_RE = /^heading-(h[2-6])$/;
+
+function parseHeadingLevel(value) {
+  const match = String(value ?? '').trim().toLowerCase().match(HEADING_LEVEL_RE);
+  return match ? match[1] : '';
+}
+
+/**
+ * Reads a block's appended Heading Level select and returns the tag to build.
+ * Call it before the block reads any other field.
+ * @param {HTMLElement} block
+ * @param {{ fallback?: string, resourceValue?: string }} [options]
+ *   fallback: the tag when nothing was authored; resourceValue: the stored value from the
+ *   block's resource JSON, for blocks that already fetch it in the editor
+ * @returns {string} 'h2' … 'h6'
+ */
+export function takeHeadingLevel(block, { fallback = 'h3', resourceValue = '' } = {}) {
+  const named = block?.querySelector?.('[data-aue-prop="headingLevel"]');
+  const authored = parseHeadingLevel(named?.textContent) || parseHeadingLevel(resourceValue);
+  if (authored) return authored;
+  if (!block || block.matches('[data-aue-resource]') || block.querySelector('[data-aue-prop]')) {
+    return fallback;
+  }
+
+  let level = '';
+  [...block.children].forEach((row) => {
+    if (row.querySelector('picture, a[href]')) return;
+    const parsed = parseHeadingLevel(row.textContent);
+    if (!parsed) return;
+    if (!level) level = parsed;
+    row.remove();
+  });
+  return level || fallback;
+}
+
+export function readLinkField(scope, name, options = {}) {
+  const source = scope.querySelector(getDataPropSelector(name));
+  const fallbackCell = source ? null : getFallbackCell(scope, options);
+  const cell = source || fallbackCell;
+  const anchor = cell?.tagName === 'A' ? cell : cell?.querySelector?.('a');
+
+  return {
+    source,
+    cell,
+    value: anchor?.getAttribute('href')
+      || cell?.getAttribute?.('href')
+      || textFrom(cell),
+  };
+}
+
+export function readRichTextField(scope, name, options = {}) {
+  const source = scope.querySelector(getFieldSelector(name));
+  const fallbackCell = source ? null : getFallbackCell(scope, options);
+  const cell = source || fallbackCell;
+
+  return {
+    source,
+    cell,
+    html: cell?.innerHTML?.trim() || '',
+    text: textFrom(cell),
+  };
+}
+
+function findPictureNearSource(source, scope) {
+  if (!source) return null;
+  if (source.tagName === 'PICTURE') return source;
+  if (source.closest?.('picture')) return source.closest('picture');
+  if (source.querySelector?.('picture')) return source.querySelector('picture');
+
+  let parent = source.parentElement;
+  while (parent && parent !== scope) {
+    const picture = parent.querySelector?.('picture');
+    if (picture) return picture;
+    parent = parent.parentElement;
+  }
+
+  return null;
+}
+
+export function readImageField(scope, name, options = {}) {
+  const source = scope.querySelector(getDataPropSelector(name));
+  const fallbackCell = source ? null : getFallbackCell(scope, options);
+  const cell = source || fallbackCell;
+  const picture = findPictureNearSource(source, scope)
+    || (cell?.tagName === 'PICTURE' ? cell : null)
+    || cell?.querySelector?.('picture')
+    || null;
+  const img = (cell?.tagName === 'IMG' ? cell : null)
+    || cell?.querySelector?.('img')
+    || picture?.querySelector?.('img')
+    || null;
+
+  return {
+    source,
+    cell,
+    picture,
+    img,
+  };
+}

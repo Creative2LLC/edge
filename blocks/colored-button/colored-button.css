@@ -1,0 +1,216 @@
+.colored-button {
+  --colored-button-bg: #f7941d1a;
+  --colored-button-text: #3c4654;
+  --colored-button-border: #f7941d;
+  --colored-button-font-size: 1rem;
+  --colored-button-font-weight: 700;
+  --colored-button-icon-size: 1.25rem;
+  --colored-button-ring-color: var(--ncmec-navy-dark);
+  --colored-button-ring-offset: #fff;
+  --colored-button-min-height: 0;
+  --colored-button-block-bg: transparent;
+
+  margin:
+    var(--colored-field-margin-top, 0)
+    var(--colored-field-margin-right, 0)
+    var(--colored-field-margin-bottom, 0)
+    var(--colored-field-margin-left, 0);
+  padding:
+    var(--colored-field-padding-top, 12px)
+    var(--colored-field-padding-right, 0)
+    var(--colored-field-padding-bottom, 12px)
+    var(--colored-field-padding-left, 0);
+}
+
+.colored-button .colored-button-inner {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  background-color: var(--colored-button-block-bg);
+}
+
+.colored-button.has-block-background .colored-button-inner {
+  padding: 15px;
+}
+
+.colored-button.colored-button-v-top .colored-button-inner {
+  align-items: flex-start;
+}
+
+.colored-button.colored-button-v-middle .colored-button-inner {
+  align-items: center;
+}
+
+.colored-button.colored-button-v-bottom .colored-button-inner {
+  align-items: flex-end;
+}
+
+.colored-button.colored-button-h-left .colored-button-inner {
+  justify-content: flex-start;
+}
+
+.colored-button.colored-button-h-center .colored-button-inner {
+  justify-content: center;
+}
+
+.colored-button.colored-button-h-right .colored-button-inner {
+  justify-content: flex-end;
+}
+
+.colored-button .colored-button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  max-width: fit-content;
+  min-height: 0;
+  padding: 1rem 1.5rem;
+  overflow: hidden;
+  border: 2px solid var(--colored-button-border);
+  border-radius: 9999px;
+  background-color: var(--colored-button-bg);
+  color: var(--colored-button-text);
+  font-size: var(--colored-button-font-size);
+  font-weight: var(--colored-button-font-weight);
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    color 150ms linear,
+    background-color 150ms linear,
+    border-color 150ms linear,
+    box-shadow 150ms linear,
+    transform 150ms linear;
+}
+
+
+/* A <button> link inherited this margin from the old global button rule, dropped with the
+   controls pass. colored-button is a named exception, so it keeps it exactly. */
+.colored-button button.colored-button-link {
+  margin: 12px 0;
+}
+
+.colored-button.colored-button-shadow-small .colored-button-link {
+  box-shadow: 0 7px 12px 0 rgb(0 0 0 / 14%);
+}
+
+.colored-button.colored-button-shadow-medium .colored-button-link {
+  box-shadow: 0 14px 24px 0 rgb(0 0 0 / 18%);
+}
+
+.colored-button.colored-button-shadow-large .colored-button-link {
+  box-shadow: 0 21px 36px 0 rgb(0 0 0 / 24%);
+}
+
+.colored-button.colored-button-shadow-highlight-blue {
+  --colored-field-highlight-shadow-color: 20 145 191;
+}
+
+.colored-button.colored-button-shadow-highlight-navy {
+  --colored-field-highlight-shadow-color: 9 35 72;
+}
+
+.colored-button.colored-button-shadow-highlight-orange {
+  --colored-field-highlight-shadow-color: 247 148 29;
+}
+
+.colored-button.colored-button-shadow-highlight-gold {
+  --colored-field-highlight-shadow-color: 245 181 27;
+}
+
+.colored-button[class*="colored-button-shadow-highlight-"] .colored-button-link {
+  box-shadow: 0 14px 24px 0 rgb(var(--colored-field-highlight-shadow-color) / 40%);
+}
+
+.colored-button.colored-button-h-stretch .colored-button-link {
+  width: 100%;
+}
+
+.colored-button.colored-button-appearance-outlined .colored-button-link {
+  background-color: transparent;
+  color: var(--colored-button-border);
+}
+
+.colored-button.colored-button-appearance-inverted .colored-button-link {
+  background-color: var(--colored-button-text);
+  color: var(--colored-button-bg);
+  border-color: var(--colored-button-text);
+}
+
+.colored-button .colored-button-link:hover,
+.colored-button .colored-button-link:focus-visible {
+  color: var(--colored-button-text);
+  text-decoration: none;
+  box-shadow:
+    0 0 0 2px var(--colored-button-ring-offset),
+    0 0 0 4px var(--colored-button-ring-color);
+}
+
+.colored-button .colored-button-link:focus-visible {
+  outline: none;
+}
+
+.colored-button.colored-button-invert-hover:not(.colored-button-appearance-inverted) .colored-button-link:hover,
+.colored-button.colored-button-invert-hover:not(.colored-button-appearance-inverted) .colored-button-link:focus-visible {
+  background-color: var(--colored-button-text);
+  color: var(--colored-button-bg);
+  border-color: var(--colored-button-text);
+}
+
+.colored-button.colored-button-invert-hover.colored-button-appearance-inverted .colored-button-link:hover,
+.colored-button.colored-button-invert-hover.colored-button-appearance-inverted .colored-button-link:focus-visible {
+  background-color: var(--colored-button-bg);
+  color: var(--colored-button-text);
+  border-color: var(--colored-button-border);
+}
+
+.colored-button .colored-button-label {
+  min-width: 0;
+}
+
+.colored-button .colored-button-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: var(--colored-button-icon-size);
+  height: var(--colored-button-icon-size);
+  color: currentcolor;
+}
+
+.colored-button .colored-button-icon-mask {
+  background-color: currentcolor;
+  mask: var(--colored-button-icon-url) center / contain no-repeat;
+}
+
+.colored-button .colored-button-icon picture,
+.colored-button .colored-button-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.colored-button .colored-button-icon img {
+  object-fit: contain;
+}
+
+@media (width <= 900px) {
+  .colored-button {
+    margin:
+      min(var(--colored-field-margin-top, 0px), 24px)
+      min(var(--colored-field-margin-right, 0px), 16px)
+      min(var(--colored-field-margin-bottom, 0px), 24px)
+      min(var(--colored-field-margin-left, 0px), 16px);
+    padding:
+      min(var(--colored-field-padding-top, 12px), 8px)
+      min(var(--colored-field-padding-right, 0px), 16px)
+      min(var(--colored-field-padding-bottom, 12px), 8px)
+      min(var(--colored-field-padding-left, 0px), 16px);
+  }
+
+  .colored-button .colored-button-link {
+    gap: 0.625rem;
+    padding: 0.75rem 1.125rem;
+    font-size: 18px;
+  }
+}

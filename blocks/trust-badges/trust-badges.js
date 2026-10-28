@@ -1,0 +1,395 @@
+/* eslint-disable no-use-before-define */
+import { createOptimizedPicture } from '../../scripts/aem.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
+import {
+  readImageField,
+  readLinkField,
+  readTextField,
+  setItemLabel,
+} from '../../scripts/block-field-utils.js';
+import {
+  applyButtonStyle,
+  isDarkSurface,
+  isOnDarkSection,
+  markButtonSurface,
+  readAppendedStyles,
+  restyleAppendedButtons,
+  takeAppendedStyleCells,
+} from '../../scripts/button-utils.js';
+
+const BLOCK_FIELDS = ['heading', 'ctaText', 'ctaLink', 'backgroundColor'];
+
+const LEGACY_BLOCK_LABELS = {
+  heading: ['heading', 'title'],
+  ctaText: ['cta text', 'button text', 'link text'],
+  ctaLink: ['cta link', 'button link', 'link url', 'link'],
+  backgroundColor: ['background color', 'section background color'],
+};
+
+function resourcePathFromUrn(resource) {
+  if (!resource) return '';
+  if (resource.startsWith('/')) return resource;
+  const match = resource.match(/(\/content\/[^?#]+)/);
+  return match ? match[1] : '';
+}
+
+function resolveLinkValue(source) {
+  if (!source) return '';
+
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a');
+  const href = anchor?.getAttribute('href')
+    || source.getAttribute('href')
+    || source.textContent.trim();
+
+  if (href) return href;
+
+  const resourceRef = source.getAttribute('data-aue-resource')
+    || source.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+
+  return resourcePathFromUrn(resourceRef);
+}
+
+function normalizeJsonFieldValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    return (value.href || value.path || value.url || '').trim();
+  }
+  return '';
+}
+
+async function getFieldValueFromResourceJson(scope, name) {
+  const resource = scope.getAttribute('data-aue-resource')
+    || scope.closest('[data-aue-resource]')?.getAttribute('data-aue-resource')
+    || '';
+  const resourcePath = resourcePathFromUrn(resource);
+  if (!resourcePath) return '';
+
+  try {
+    const response = await fetch(`${resourcePath}.json`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    return normalizeJsonFieldValue(data[name]);
+  } catch (error) {
+    return '';
+  }
+}
+
+function getTextField(scope, name) {
+  const field = readTextField(scope, name);
+  return { source: field.source, value: field.value };
+}
+
+function getLinkField(scope, name) {
+  const field = readLinkField(scope, name);
+  return {
+    source: field.source,
+    value: (field.source ? resolveLinkValue(field.source) : '') || field.value,
+  };
+}
+
+function collectLegacyBlockFields(block) {
+  const map = {};
+  const rowsToRemove = [];
+
+  block.querySelectorAll(':scope > div').forEach((row) => {
+    if (row.children.length !== 2) return;
+    const key = row.children[0].textContent.trim().toLowerCase();
+    const valueEl = row.children[1];
+
+    Object.entries(LEGACY_BLOCK_LABELS).some(([name, labels]) => {
+      if (!labels.includes(key)) return false;
+      const isLink = name.toLowerCase().includes('link');
+      const anchor = valueEl.querySelector('a');
+      map[name] = {
+        source: valueEl,
+        value: isLink ? anchor?.href || valueEl.textContent.trim() : valueEl.textContent.trim(),
+      };
+      rowsToRemove.push(row);
+      return true;
+    });
+  });
+
+  rowsToRemove.forEach((row) => row.remove());
+  return map;
+}
+
+function readBlockField(block, legacyMap, name, type = 'text') {
+  const field = type === 'link' ? getLinkField(block, name) : getTextField(block, name);
+  if (field.value || field.source) return field;
+  const liveField = readLiveBlockField(block, name, type);
+  if (liveField.value || liveField.source) return liveField;
+  return legacyMap[name] || { source: null, value: '' };
+}
+
+function isBadgeRow(row) {
+  return row.children.length >= 3 && Boolean(row.querySelector('picture'));
+}
+
+function getParentRows(block) {
+  return [...block.querySelectorAll(':scope > div')].filter((row) => !isBadgeRow(row));
+}
+
+function getParentCell(block, index) {
+  const row = getParentRows(block)[index];
+  return row?.children?.[0] || row || null;
+}
+
+function readLiveBlockField(block, name, type = 'text') {
+  const fieldIndex = BLOCK_FIELDS.indexOf(name);
+  const cell = fieldIndex >= 0 ? getParentCell(block, fieldIndex) : null;
+  if (!cell) return { source: null, value: '' };
+  const anchor = cell.querySelector?.('a[href]');
+  return {
+    source: null,
+    value: type === 'link'
+      ? anchor?.getAttribute('href') || cell.textContent.trim()
+      : cell.textContent.trim(),
+  };
+}
+
+function readRowTextField(row, name, index) {
+  const field = readTextField(row, name, { fallbackCell: row.children[index] });
+  return { source: field.source, value: field.value };
+}
+
+function readRowLinkField(row, name, index) {
+  const field = readLinkField(row, name, { fallbackCell: row.children[index] });
+  return {
+    source: field.source,
+    value: (field.source ? resolveLinkValue(field.source) : '') || field.value,
+  };
+}
+
+function readRowImageField(row, name, index) {
+  const field = readImageField(row, name, { fallbackCell: row.children[index] });
+  return {
+    source: field.source,
+    picture: field.picture,
+    img: field.img,
+  };
+}
+
+function hasAuthoringContext(scope) {
+  return Boolean(
+    scope?.getAttribute('data-aue-resource')
+      || scope?.querySelector('[data-aue-resource], [data-aue-prop], [data-richtext-prop]'),
+  );
+}
+
+function buildAuthoringPlaceholder(tagName, className, text) {
+  const placeholder = document.createElement(tagName);
+  placeholder.className = `${className} ${className}-placeholder`;
+  placeholder.textContent = text;
+  return placeholder;
+}
+
+function buildOptimizedPicture(imageField, width = 320) {
+  if (!imageField.img) return null;
+
+  const optimized = createOptimizedPicture(
+    imageField.img.src,
+    imageField.img.alt || '',
+    false,
+    [{ width: `${width}` }],
+  );
+
+  const optimizedImg = optimized.querySelector('img');
+
+  if (
+    imageField.source
+    && imageField.source !== imageField.picture
+    && imageField.source !== imageField.img
+  ) {
+    moveInstrumentation(imageField.source, optimized);
+  }
+
+  if (imageField.picture && imageField.picture !== imageField.source) {
+    moveInstrumentation(imageField.picture, optimized);
+  }
+
+  if (imageField.img && optimizedImg) {
+    moveInstrumentation(imageField.img, optimizedImg);
+  }
+
+  return optimized;
+}
+
+function moveFieldContent(field, target, fallbackValue = '') {
+  if (!field?.source || !target) {
+    if (!field?.source && fallbackValue) target.textContent = fallbackValue;
+    return;
+  }
+
+  moveInstrumentation(field.source, target);
+
+  if (field.source.firstChild) {
+    while (field.source.firstChild) target.append(field.source.firstChild);
+    return;
+  }
+
+  if (fallbackValue) target.textContent = fallbackValue;
+}
+
+function buildHeading(field) {
+  if (!field.value && !field.source) return null;
+
+  const heading = document.createElement('h2');
+  heading.className = 'trust-badges-heading';
+
+  if (field.source) {
+    moveFieldContent(field, heading, field.value);
+  } else {
+    heading.textContent = field.value;
+  }
+
+  return heading;
+}
+
+function buildCta(textField, linkField, isAuthoring) {
+  if (!textField.value && !textField.source && !linkField.value) return null;
+  // A button with nowhere to go is not published. In the editor it still shows,
+  // disabled, so the author can see the link is missing.
+  if (!linkField.value && !isAuthoring) return null;
+
+  const cta = document.createElement(linkField.value ? 'a' : 'span');
+  cta.className = 'trust-badges-cta';
+
+  if (linkField.value) {
+    cta.href = linkField.value;
+  } else {
+    cta.setAttribute('aria-disabled', 'true');
+    cta.title = 'Add a link to publish this button';
+  }
+  if (linkField.source) moveInstrumentation(linkField.source, cta);
+
+  const label = document.createElement('span');
+  label.className = 'trust-badges-cta-label';
+  if (textField.source) {
+    moveFieldContent(textField, label, textField.value || 'Learn More');
+  } else {
+    label.textContent = textField.value || 'Learn More';
+  }
+
+  cta.append(label);
+  // The look comes from the button standard (Secondary); it no longer draws an arrow.
+  return applyButtonStyle(cta, 'secondary');
+}
+
+function buildBadge(row, index) {
+  const logoField = readRowImageField(row, 'logo', 0);
+  const captionField = readRowTextField(row, 'caption', 1);
+  const linkField = readRowLinkField(row, 'badgeLink', 2);
+  const hasVisibleContent = logoField.img || captionField.value;
+  const isAuthoringPlaceholder = hasAuthoringContext(row) && !hasVisibleContent;
+
+  if (!hasVisibleContent && !isAuthoringPlaceholder) return null;
+
+  const badge = document.createElement(linkField.value ? 'a' : 'div');
+  badge.className = 'trust-badges-item';
+  badge.dataset.index = `${index}`;
+  if (linkField.value) badge.href = linkField.value;
+  if (linkField.source) moveInstrumentation(linkField.source, badge);
+  if (row) moveInstrumentation(row, badge);
+  setItemLabel(badge, [captionField.value]);
+
+  const media = document.createElement('div');
+  media.className = 'trust-badges-item-media';
+  const picture = buildOptimizedPicture(logoField);
+  if (picture) media.append(picture);
+  badge.append(media);
+
+  if (isAuthoringPlaceholder) {
+    badge.classList.add('is-authoring-placeholder');
+    media.classList.add('is-empty');
+    media.append(
+      buildAuthoringPlaceholder('span', 'trust-badges-item-placeholder', 'Add badge logo'),
+    );
+    badge.append(
+      buildAuthoringPlaceholder('p', 'trust-badges-item-caption', 'Add caption and link in the editor.'),
+    );
+    return badge;
+  }
+
+  if (captionField.value || captionField.source) {
+    const caption = document.createElement('p');
+    caption.className = 'trust-badges-item-caption';
+    if (captionField.source) {
+      moveFieldContent(captionField, caption, captionField.value);
+    } else {
+      caption.textContent = captionField.value;
+    }
+    badge.append(caption);
+  }
+
+  return badge;
+}
+
+async function decorateBlock(block) {
+  const legacyMap = collectLegacyBlockFields(block);
+  const headingField = readBlockField(block, legacyMap, 'heading');
+  const ctaTextField = readBlockField(block, legacyMap, 'ctaText');
+  const ctaLinkField = readBlockField(block, legacyMap, 'ctaLink', 'link');
+  const backgroundColorField = readBlockField(block, legacyMap, 'backgroundColor');
+
+  if (!ctaLinkField.value) {
+    ctaLinkField.value = await getFieldValueFromResourceJson(block, 'ctaLink');
+  }
+
+  const sectionBackgroundColor = block.closest('.section')?.dataset.backgroundColor || '';
+  block.style.backgroundColor = backgroundColorField.value || (sectionBackgroundColor ? 'transparent' : '#ffffff');
+
+  const inner = document.createElement('div');
+  inner.className = 'trust-badges-inner';
+
+  const header = document.createElement('div');
+  header.className = 'trust-badges-header';
+
+  const heading = buildHeading(headingField);
+  if (heading) header.append(heading);
+
+  const cta = buildCta(ctaTextField, ctaLinkField, hasAuthoringContext(block));
+  if (cta) header.append(cta);
+  const ctaSurface = backgroundColorField.value;
+  markButtonSurface(header, ctaSurface ? isDarkSurface(ctaSurface) : isOnDarkSection(block));
+
+  if (header.children.length) {
+    inner.append(header);
+  } else {
+    block.classList.add('no-header');
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'trust-badges-grid';
+
+  const rows = [...block.querySelectorAll(':scope > div')].filter((row) => (
+    isBadgeRow(row)
+      && !BLOCK_FIELDS.some((name) => row.querySelector(`[data-aue-prop="${name}"]`))
+  ));
+
+  rows.forEach((row, index) => {
+    const badge = buildBadge(row, index);
+    if (badge) grid.append(badge);
+  });
+
+  if (grid.children.length) inner.append(grid);
+
+  block.replaceChildren(inner);
+}
+
+// Style dropdowns appended to this block's model after its pages were published. They
+// are read before the block rebuilds its markup, then applied to the finished buttons.
+export default async function decorate(block) {
+  // Appended style dropdowns come out of the published markup first; see button-utils.
+  takeAppendedStyleCells(block);
+  const [ctaStyle] = readAppendedStyles(
+    block,
+    ['ctaStyle'],
+    getParentRows(block),
+  );
+  await decorateBlock(block);
+  restyleAppendedButtons(block, {
+    '.trust-badges-cta': ctaStyle,
+  });
+}

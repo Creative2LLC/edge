@@ -1,0 +1,152 @@
+/* Card Row Detailed Block */
+.card-row-detailed.block {
+  padding: 60px 0;
+  margin: 0 auto;
+}
+
+/* Grid container */
+.card-row-detailed-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+/* Card */
+.card-row-detailed-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  padding: 48px 40px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px 0 #41404233;
+  background-color: var(--ncmec-warm-gray);
+  width: calc((100% - 24px * (var(--grid-columns, 3) - 1)) / var(--grid-columns, 3));
+}
+
+/* Content wrapper */
+.card-row-detailed-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Icon (72x72, left aligned) */
+.card-row-detailed-icon {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.card-row-detailed-icon img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Heading */
+.card-row-detailed-heading {
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  text-align: left;
+}
+
+/* Subheading */
+.card-row-detailed-subheading {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  text-align: left;
+}
+
+/* Bullet list */
+.card-row-detailed-list {
+  font-size: var(--body-size);
+  font-weight: 400;
+  color: var(--ncmec-gray-dark);
+  line-height: 1.6;
+  text-align: left;
+  width: 100%;
+}
+
+.card-row-detailed-list ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.card-row-detailed-list ol {
+  margin: 0;
+  padding-left: 20px;
+  list-style: decimal;
+}
+
+.card-row-detailed-list li {
+  margin-bottom: 4px;
+  display: list-item;
+}
+
+/* Button: styled by the button standard in styles/styles.css. */
+
+/* Additional text (same style as subheading) */
+.card-row-detailed-additional-text {
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  text-align: left;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (width <= 900px) {
+  .card-row-detailed-grid {
+    gap: 20px;
+  }
+
+  .card-row-detailed-card {
+    width: calc(50% - 10px);
+  }}
+
+/* Mobile */
+@media (width <= 600px) {
+  .card-row-detailed-grid {
+    gap: 16px;
+  }
+
+  .card-row-detailed-card {
+    width: 100%;
+  }}
+
+/* HOVER — card tier (lift + shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.card-row-detailed .card-row-detailed-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.card-row-detailed .card-row-detailed-card:focus-within,
+.card-row-detailed .card-row-detailed-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-card));
+  box-shadow: var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-row-detailed .card-row-detailed-card:focus-within,
+  .card-row-detailed .card-row-detailed-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

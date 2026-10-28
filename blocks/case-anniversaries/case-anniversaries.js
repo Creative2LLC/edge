@@ -1,0 +1,816 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  createPaginationControls,
+  isPaginationMode,
+  normalizePaginationMode,
+} from '../../scripts/pagination-controls.js';
+import {
+  getBlockRows,
+  readImageField,
+  readLinkField,
+  readTextField,
+} from '../../scripts/block-field-utils.js';
+import { buildPosterDetailHref } from '../../scripts/poster-link-utils.js';
+
+const DEFAULTS = {
+  findHeading: 'Find Cases',
+  apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
+  endpointPath: '/api/case-anniversaries',
+  posterPagePath: '/missing-children-posters',
+  timeframe: 'thisWeek',
+  pageSize: 8,
+  searchPlaceholder: 'Search',
+  loadMoreText: 'Load More',
+  paginationMode: 'load-more',
+  emptyMessage: 'No case anniversaries match your current filters.',
+};
+
+const FIELD_LABELS = {
+  findHeading: ['find heading', 'results heading'],
+  apiBaseUrl: ['api base url', 'api url', 'backend url'],
+  endpointPath: ['endpoint path', 'endpoint'],
+  posterPagePath: ['poster page path', 'poster page url', 'poster url'],
+  timeframe: ['timeframe', 'term'],
+  pageSize: ['page size', 'items per page', 'limit'],
+  searchPlaceholder: ['search placeholder', 'placeholder'],
+  loadMoreText: ['load more text', 'load more'],
+  paginationMode: ['pagination mode', 'display mode', 'results mode'],
+  emptyMessage: ['empty message'],
+};
+
+const FIELD_COLUMN_INDEX = {
+  findHeading: 0,
+  apiBaseUrl: 1,
+  endpointPath: 2,
+  posterPagePath: 3,
+  timeframe: 4,
+  pageSize: 5,
+  searchPlaceholder: 6,
+  loadMoreText: 7,
+  paginationMode: 8,
+  emptyMessage: 9,
+};
+
+function normalizeText(value) {
+  return `${value || ''}`.trim();
+}
+
+function normalizeToken(value) {
+  return normalizeText(value).toLowerCase();
+}
+
+function normalizeApiBaseUrl(value) {
+  return normalizeText(value).replace(/\/+$/, '');
+}
+
+function formatMissingDate(value) {
+  const text = normalizeText(value);
+  if (!text) return '';
+  return text.replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '').trim() || text;
+}
+
+function caseValue(item, keys) {
+  return [item, item.childBean, item.child, item.person]
+    .filter(Boolean)
+    .flatMap((source) => keys.map((key) => normalizeText(source[key])))
+    .find(Boolean) || '';
+}
+
+function anniversaryDecade(item) {
+  const date = caseValue(item, [
+    'missing_date', 'missing_date_label', 'missingDate', 'dateMissing',
+  ]);
+  const year = Number(date.match(/\b(\d{4})\b/)?.[1]);
+  const currentYear = new Date().getFullYear();
+  if (!Number.isInteger(year) || year > currentYear) return null;
+
+  const start = year - (year % 10);
+  const end = Math.min(start + 9, currentYear);
+  return { key: `${start}-${end}`, start, end };
+}
+
+function createDecadeHeading(timeframe, decade) {
+  const heading = document.createElement('h3');
+  heading.className = 'case-anniversaries-decade-heading';
+  const prefix = timeframe === 'today' ? 'Anniversaries this day' : 'Anniversaries this week';
+  heading.textContent = `${prefix} - ${decade.start} - ${decade.end}`;
+  return heading;
+}
+
+function formatMissingLocation(value) {
+  return normalizeText(value)
+    .replace(/,\s*(?:US|USA|United States)$/i, '')
+    .trim();
+}
+
+function caseLocation(item) {
+  const direct = caseValue(item, ['missing_location', 'missingLocation']);
+  if (direct) return formatMissingLocation(direct);
+  return formatMissingLocation([
+    caseValue(item, ['missing_city', 'missingCity', 'city']),
+    caseValue(item, ['missing_state', 'missingState', 'state']),
+  ].filter(Boolean).join(', '));
+}
+
+function findUrlLikeValue(value) {
+  return normalizeText(value).match(/https?:\/\/[^\s<>"']+/i)?.[0] || '';
+}
+
+function parseIntSafe(value, fallback) {
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
+}
+
+function normalizeTimeframe(value) {
+  return normalizeText(value) === 'today' ? 'today' : 'thisWeek';
+}
+
+function getRows(block) {
+  return getBlockRows(block);
+}
+
+function getReferenceValue(source) {
+  if (!source) return '';
+  const anchor = source.tagName === 'A' ? source : source.querySelector('a[href]');
+  const image = source.tagName === 'IMG' ? source : source.querySelector('img');
+
+  return normalizeText(
+    anchor?.getAttribute('href')
+      || image?.getAttribute('src')
+      || source.getAttribute('href')
+      || source.getAttribute('src')
+      || source.textContent,
+  );
+}
+
+function getPropValue(block, name) {
+  const imageValue = readImageField(block, name).img?.getAttribute('src') || '';
+  return normalizeText(
+    imageValue
+      || readLinkField(block, name).value
+      || readTextField(block, name).value,
+  );
+}
+
+function getLegacyValue(block, name) {
+  const labels = FIELD_LABELS[name] || [];
+  const labeledRow = getRows(block).find((row) => {
+    if (row.children.length !== 2) return false;
+    const label = normalizeToken(row.children[0].textContent);
+    return labels.some((entry) => label === entry || label.includes(entry));
+  });
+
+  if (labeledRow) return getReferenceValue(labeledRow.children[1]);
+
+  const columnIndex = FIELD_COLUMN_INDEX[name];
+  const configRow = getRows(block)[0];
+  const fallbackValue = columnIndex === undefined ? '' : getReferenceValue(configRow?.children[columnIndex]);
+
+  if (name === 'apiBaseUrl') {
+    return fallbackValue || getRows(block)
+      .map((row) => row.querySelector('a')?.href || findUrlLikeValue(row.textContent))
+      .find(Boolean) || '';
+  }
+
+  return fallbackValue;
+}
+
+function getFieldValue(block, name, fallback = '') {
+  return getPropValue(block, name) || getLegacyValue(block, name) || fallback;
+}
+
+function setStatus(node, message, type = '') {
+  node.className = `case-anniversaries-status${type ? ` is-${type}` : ''}`;
+  node.textContent = message;
+  node.hidden = !message;
+}
+
+function posterParts(item) {
+  const posterUrl = normalizeText(item.poster_url || item.posterUrl);
+  const match = posterUrl.match(/\/poster\/([^/]+)\/([^/\s?#]+)(?:\/([^/\s?#]+))?/i);
+
+  return {
+    orgPrefix: normalizeText(item.org_prefix || item.orgPrefix || match?.[1] || 'NCMC'),
+    caseNumber: normalizeText(item.case_number || item.caseNumber || match?.[2]),
+    sequenceNumber: normalizeText(item.sequence_number || item.seqNumber || item.seqNum || match?.[3] || '1'),
+  };
+}
+
+function posterHref(item, posterPagePath = DEFAULTS.posterPagePath) {
+  const parts = posterParts(item);
+  if (!parts.caseNumber) return '';
+
+  return buildPosterDetailHref({
+    provider: parts.orgPrefix,
+    caseNumber: parts.caseNumber,
+    sequenceNumber: parts.sequenceNumber,
+    posterPagePath,
+    details: {
+      name: normalizeText(item.name || item.fullName),
+      image_url: normalizeText(item.image_url || item.thumbnail_url),
+      missing_location: normalizeText(item.missing_location),
+      missing_date: normalizeText(
+        item.missing_date || item.missing_date_label || item.anniversary_date_label,
+      ),
+      age: normalizeText(item.age_now || item.age || item.ageNow),
+    },
+  });
+}
+
+function isExternalUrl(src) {
+  try {
+    return new URL(src, window.location.href).origin !== window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+function createCaseImage(src, alt) {
+  if (!src) return null;
+
+  if (!isExternalUrl(src)) {
+    return createOptimizedPicture(src, alt, false, [{ width: '500' }]);
+  }
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = alt;
+  img.loading = 'lazy';
+  img.decoding = 'async';
+
+  const picture = document.createElement('picture');
+  picture.append(img);
+  return picture;
+}
+
+function ensurePreconnect(url) {
+  try {
+    const { origin } = new URL(url, window.location.href);
+    if (origin === window.location.origin) return;
+
+    const existing = [...document.head.querySelectorAll('link[rel="preconnect"]')]
+      .some(({ href }) => href.replace(/\/$/, '') === origin);
+    if (existing) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = origin;
+    link.crossOrigin = '';
+    document.head.append(link);
+  } catch {
+    // Ignore malformed author-provided URLs; the fetch path handles the visible error.
+  }
+}
+
+function createSelect(label, className = '') {
+  const select = document.createElement('select');
+  select.className = `case-anniversaries-filter ${className}`.trim();
+  select.setAttribute('aria-label', label);
+  return select;
+}
+
+function createViewIcon(view) {
+  const icon = document.createElement('span');
+  icon.className = `case-anniversaries-view-icon case-anniversaries-view-icon-${view}`;
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = view === 'list'
+    ? '<svg viewBox="0 0 20 20" fill="none"><path d="M4 5.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 10H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 14.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="none"><rect x="3.5" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="3.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="11" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.6"/></svg>';
+  return icon;
+}
+
+function createViewToggleButton(label, view, activeView) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'case-anniversaries-view-button view-toggle-button';
+  button.dataset.view = view;
+  button.setAttribute('aria-label', `${label} view`);
+  button.setAttribute('aria-pressed', String(view === activeView));
+  button.title = label;
+  button.append(createViewIcon(view));
+  if (view === activeView) button.classList.add('is-active');
+  return button;
+}
+
+function applyResultView(cardsContainer, buttons, view) {
+  cardsContainer.dataset.view = view;
+  buttons.forEach((button) => {
+    const active = button.dataset.view === view;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function createTimeframeButton(label, timeframe, activeTimeframe) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'case-anniversaries-timeframe-button tab';
+  button.dataset.timeframe = timeframe;
+  button.textContent = label;
+  button.setAttribute('aria-pressed', String(timeframe === activeTimeframe));
+  if (timeframe === activeTimeframe) button.classList.add('is-active');
+  return button;
+}
+
+function applyTimeframe(buttons, timeframe) {
+  buttons.forEach((button) => {
+    const active = button.dataset.timeframe === timeframe;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function setOptions(select, label, options = []) {
+  const current = select.value;
+  select.replaceChildren();
+
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = label;
+  select.append(defaultOption);
+
+  options.forEach((option) => {
+    const entry = document.createElement('option');
+    entry.value = option.value;
+    entry.textContent = option.label;
+    select.append(entry);
+  });
+
+  select.value = [...select.options].some((option) => option.value === current) ? current : '';
+  select.disabled = options.length === 0;
+}
+
+function createChip(label, onRemove) {
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'case-anniversaries-chip';
+  chip.textContent = label;
+
+  const close = document.createElement('span');
+  close.textContent = 'x';
+  close.setAttribute('aria-hidden', 'true');
+  chip.append(close);
+
+  chip.addEventListener('click', onRemove);
+  return chip;
+}
+
+function buildCard(item, config) {
+  const card = document.createElement('article');
+  card.className = 'case-anniversaries-card';
+
+  const imageUrl = normalizeText(item.image_url || item.thumbnail_url);
+  const name = normalizeText(item.name || item.fullName) || 'Missing Child';
+  const href = posterHref(item, config.posterPagePath);
+
+  const media = document.createElement('div');
+  media.className = 'case-anniversaries-card-media';
+  if (imageUrl) {
+    media.append(createCaseImage(imageUrl, name));
+  } else {
+    media.classList.add('is-placeholder');
+  }
+  card.append(media);
+
+  const body = document.createElement('div');
+  body.className = 'case-anniversaries-card-body';
+
+  const title = document.createElement('h3');
+  const titleLink = document.createElement(href ? 'a' : 'span');
+  titleLink.className = 'case-anniversaries-card-title-link';
+  titleLink.textContent = name;
+  if (href) {
+    titleLink.href = href;
+    titleLink.target = '_blank';
+    titleLink.rel = 'noopener noreferrer';
+  }
+  title.append(titleLink);
+  body.append(title);
+
+  const details = document.createElement('dl');
+  const missingSince = formatMissingDate(
+    caseValue(item, ['anniversary_date_label', 'missing_date_label', 'missing_date', 'missingDate', 'dateMissing']),
+  );
+  const location = caseLocation(item);
+  const ageNow = caseValue(item, ['age_now', 'ageNow', 'age']);
+  [
+    ['Missing Since', missingSince],
+    ['Missing From', location],
+    ['Age Now', ageNow && ageNow !== '-1' ? ageNow : ''],
+  ].forEach(([label, value]) => {
+    if (!value) return;
+    const dt = document.createElement('dt');
+    dt.textContent = label;
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    details.append(dt, dd);
+  });
+  if (details.children.length) body.append(details);
+
+  const actions = document.createElement('div');
+  actions.className = 'case-anniversaries-card-actions';
+
+  const link = document.createElement(href ? 'a' : 'span');
+  link.className = 'case-anniversaries-card-link';
+  link.textContent = 'View Poster';
+  if (href) {
+    link.href = href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+  actions.append(link);
+
+  body.append(actions);
+
+  card.append(body);
+  return card;
+}
+
+function buildShell(config) {
+  const inner = document.createElement('div');
+  inner.className = 'case-anniversaries-inner';
+
+  const header = document.createElement('div');
+  header.className = 'case-anniversaries-header';
+  const headerTop = document.createElement('div');
+  headerTop.className = 'case-anniversaries-header-top';
+  const findHeading = document.createElement('h2');
+  findHeading.className = 'case-anniversaries-heading';
+  findHeading.textContent = config.findHeading;
+  headerTop.append(findHeading);
+
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'case-anniversaries-view-toggle view-toggle';
+  const gridButton = createViewToggleButton('Grid', 'grid', 'grid');
+  const listButton = createViewToggleButton('List', 'list', 'grid');
+  viewToggle.append(gridButton, listButton);
+  headerTop.append(viewToggle);
+  header.append(headerTop);
+
+  const controls = document.createElement('div');
+  controls.className = 'case-anniversaries-controls';
+
+  const form = document.createElement('form');
+  form.className = 'case-anniversaries-form';
+  const primaryRow = document.createElement('div');
+  primaryRow.className = 'case-anniversaries-primary-row';
+  const searchWrap = document.createElement('label');
+  searchWrap.className = 'case-anniversaries-search-wrap';
+  const search = document.createElement('input');
+  search.className = 'case-anniversaries-search';
+  search.type = 'search';
+  search.placeholder = config.searchPlaceholder;
+  search.setAttribute('aria-label', config.searchPlaceholder);
+  searchWrap.append(search);
+  primaryRow.append(searchWrap);
+
+  const timeframe = document.createElement('div');
+  timeframe.className = 'case-anniversaries-timeframe';
+  const timeframeLabel = document.createElement('span');
+  timeframeLabel.className = 'case-anniversaries-timeframe-label';
+  timeframeLabel.textContent = 'View anniversaries for:';
+  const timeframeToggle = document.createElement('div');
+  timeframeToggle.className = 'case-anniversaries-timeframe-toggle tab-list';
+  const weekButton = createTimeframeButton('This Week', 'thisWeek', config.timeframe);
+  const dayButton = createTimeframeButton('This Day', 'today', config.timeframe);
+  timeframeToggle.append(weekButton, dayButton);
+  timeframe.append(timeframeLabel, timeframeToggle);
+  primaryRow.append(timeframe);
+  form.append(primaryRow);
+
+  const filterRow = document.createElement('div');
+  filterRow.className = 'case-anniversaries-filter-row';
+  const stateSelect = createSelect('State');
+  const typeSelect = createSelect('Case Type');
+  const yearsSelect = createSelect('Years Missing');
+  filterRow.append(stateSelect, typeSelect, yearsSelect);
+  form.append(filterRow);
+  controls.append(form);
+  header.append(controls);
+  inner.append(header);
+
+  const listing = document.createElement('section');
+  listing.className = 'case-anniversaries-listing';
+
+  const meta = document.createElement('div');
+  meta.className = 'case-anniversaries-meta';
+  const activeFilters = document.createElement('div');
+  activeFilters.className = 'case-anniversaries-active-filters';
+  const clearAll = document.createElement('button');
+  clearAll.type = 'button';
+  clearAll.className = 'case-anniversaries-clear';
+  clearAll.textContent = 'Clear All';
+  clearAll.hidden = true;
+  const count = document.createElement('p');
+  count.className = 'case-anniversaries-count';
+  meta.append(activeFilters, clearAll, count);
+  listing.append(meta);
+
+  const status = document.createElement('p');
+  status.hidden = true;
+  const grid = document.createElement('div');
+  grid.className = 'case-anniversaries-grid';
+  const empty = document.createElement('p');
+  empty.className = 'case-anniversaries-empty';
+  empty.textContent = config.emptyMessage;
+  empty.hidden = true;
+
+  const footer = document.createElement('div');
+  footer.className = 'case-anniversaries-footer';
+  const loadMore = document.createElement('button');
+  loadMore.type = 'button';
+  loadMore.className = 'case-anniversaries-load-more';
+  loadMore.textContent = config.loadMoreText;
+  const pagination = createPaginationControls('case-anniversaries', 'Case anniversaries pagination');
+  footer.append(loadMore, pagination.nav);
+  listing.append(status, grid, empty, footer);
+  inner.append(listing);
+
+  return {
+    inner,
+    form,
+    search,
+    stateSelect,
+    typeSelect,
+    yearsSelect,
+    viewButtons: [gridButton, listButton],
+    timeframeButtons: [weekButton, dayButton],
+    activeFilters,
+    clearAll,
+    count,
+    status,
+    grid,
+    empty,
+    loadMore,
+    pagination,
+  };
+}
+
+function debounce(callback, wait = 300) {
+  let timeoutId;
+  return (...args) => {
+    window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => callback(...args), wait);
+  };
+}
+
+export default function decorate(block) {
+  const config = {
+    findHeading: getFieldValue(block, 'findHeading', DEFAULTS.findHeading),
+    apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', DEFAULTS.apiBaseUrl)),
+    endpointPath: getFieldValue(block, 'endpointPath', DEFAULTS.endpointPath),
+    posterPagePath: getFieldValue(block, 'posterPagePath', DEFAULTS.posterPagePath),
+    timeframe: normalizeTimeframe(getFieldValue(block, 'timeframe', DEFAULTS.timeframe)),
+    pageSize: parseIntSafe(getFieldValue(block, 'pageSize', DEFAULTS.pageSize), DEFAULTS.pageSize),
+    searchPlaceholder: getFieldValue(block, 'searchPlaceholder', DEFAULTS.searchPlaceholder),
+    loadMoreText: getFieldValue(block, 'loadMoreText', DEFAULTS.loadMoreText),
+    paginationMode: normalizePaginationMode(getFieldValue(block, 'paginationMode', DEFAULTS.paginationMode)),
+    emptyMessage: getFieldValue(block, 'emptyMessage', DEFAULTS.emptyMessage),
+  };
+  const usePagination = isPaginationMode(config.paginationMode);
+  ensurePreconnect(config.apiBaseUrl);
+
+  const layout = buildShell(config);
+  const state = {
+    page: 0,
+    lastPage: 1,
+    total: 0,
+    loading: false,
+    view: 'grid',
+    timeframe: config.timeframe,
+    filters: {
+      search: '',
+      state: '',
+      caseType: '',
+      yearsMissing: '',
+    },
+    renderedCases: 0,
+    renderedDecades: new Set(),
+  };
+  let loadCases = () => {};
+  let activeController = null;
+  let requestToken = 0;
+
+  const updateActiveFilters = () => {
+    layout.activeFilters.replaceChildren();
+    const chips = [
+      state.filters.search ? ['Search: '.concat(state.filters.search), () => {
+        state.filters.search = '';
+        layout.search.value = '';
+      }] : null,
+      state.filters.state ? [state.filters.state, () => {
+        state.filters.state = '';
+        layout.stateSelect.value = '';
+      }] : null,
+      state.filters.caseType ? [state.filters.caseType, () => {
+        state.filters.caseType = '';
+        layout.typeSelect.value = '';
+      }] : null,
+      state.filters.yearsMissing ? [state.filters.yearsMissing, () => {
+        state.filters.yearsMissing = '';
+        layout.yearsSelect.value = '';
+      }] : null,
+    ].filter(Boolean);
+
+    chips.forEach(([label, reset]) => {
+      layout.activeFilters.append(createChip(label, () => {
+        reset();
+        loadCases(true);
+      }));
+    });
+
+    layout.clearAll.hidden = chips.length === 0;
+  };
+
+  const updateFilterOptions = (filters = {}) => {
+    setOptions(layout.stateSelect, 'State', filters.states || []);
+    setOptions(layout.typeSelect, 'Case Type', filters.case_types || []);
+    setOptions(layout.yearsSelect, 'Years Missing', filters.years_missing || []);
+  };
+
+  applyResultView(layout.grid, layout.viewButtons, state.view);
+  applyTimeframe(layout.timeframeButtons, state.timeframe);
+
+  const updatePagination = () => {
+    if (!usePagination) {
+      layout.pagination.nav.hidden = true;
+      return;
+    }
+    layout.pagination.update({
+      page: state.page,
+      lastPage: state.lastPage,
+      onPage: (page) => loadCases(true, page),
+    });
+  };
+
+  const renderCases = (cases = []) => {
+    cases.forEach((item) => {
+      const decade = anniversaryDecade(item);
+      if (decade && !state.renderedDecades.has(decade.key)) {
+        state.renderedDecades.add(decade.key);
+        layout.grid.append(createDecadeHeading(state.timeframe, decade));
+      }
+      layout.grid.append(buildCard(item, config));
+    });
+    state.renderedCases += cases.length;
+  };
+
+  // Defined ahead of loadCases because loadCases schedules it in its `finally`.
+  const loadCasesWhenScrolled = () => {
+    if (usePagination || state.loading || layout.loadMore.hidden) return;
+    const loadMoreTop = layout.loadMore.getBoundingClientRect().top;
+    if (loadMoreTop <= window.innerHeight + 240) loadCases(false);
+  };
+
+  loadCases = async (reset = false, targetPage = null) => {
+    if (!config.apiBaseUrl) return;
+    if (state.loading && !reset && targetPage === null) return;
+    if (activeController) activeController.abort();
+
+    const currentToken = requestToken + 1;
+    requestToken = currentToken;
+    const controller = new AbortController();
+    activeController = controller;
+
+    if (reset) {
+      state.page = 0;
+      state.lastPage = 1;
+      layout.grid.replaceChildren();
+      layout.empty.hidden = true;
+      state.renderedCases = 0;
+      state.renderedDecades.clear();
+    }
+
+    state.loading = true;
+    layout.loadMore.disabled = true;
+    layout.pagination.nav.querySelectorAll('button').forEach((button) => {
+      button.disabled = true;
+    });
+    setStatus(layout.status, 'Loading case anniversaries...', 'loading');
+
+    try {
+      const url = new URL(config.endpointPath, `${config.apiBaseUrl}/`);
+      url.searchParams.set('timeframe', state.timeframe);
+      url.searchParams.set('per_page', String(config.pageSize));
+      url.searchParams.set('page', String(targetPage || (reset ? 1 : state.page + 1)));
+      if (state.filters.search) url.searchParams.set('search', state.filters.search);
+      if (state.filters.state) url.searchParams.set('state', state.filters.state);
+      if (state.filters.caseType) url.searchParams.set('case_type', state.filters.caseType);
+      if (state.filters.yearsMissing) url.searchParams.set('years_missing', state.filters.yearsMissing);
+
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      if (currentToken !== requestToken) return;
+
+      if (usePagination) {
+        layout.grid.replaceChildren();
+        state.renderedCases = 0;
+        state.renderedDecades.clear();
+      }
+      renderCases(payload.data || []);
+      state.page = payload.meta?.current_page || 1;
+      state.lastPage = payload.meta?.last_page || 1;
+      state.total = payload.meta?.total ?? payload.total_records ?? layout.grid.children.length;
+      updateFilterOptions(payload.filters || {});
+      updateActiveFilters();
+
+      let shownStart = state.total ? 1 : 0;
+      if (state.total && usePagination) {
+        shownStart = ((state.page - 1) * config.pageSize) + 1;
+      }
+      const shownEnd = usePagination
+        ? Math.min(state.page * config.pageSize, state.total)
+        : state.renderedCases;
+      layout.count.textContent = state.total
+        ? `Showing ${shownStart}-${shownEnd} of ${state.total} case anniversaries`
+        : 'Showing 0 case anniversaries';
+      layout.empty.hidden = state.renderedCases > 0;
+      layout.loadMore.hidden = usePagination || state.page >= state.lastPage || state.total === 0;
+      updatePagination();
+      setStatus(layout.status, '', '');
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      layout.pagination.nav.hidden = true;
+      setStatus(layout.status, 'Case anniversaries are unavailable.', 'error');
+    } finally {
+      if (currentToken === requestToken) {
+        activeController = null;
+        state.loading = false;
+        layout.loadMore.disabled = false;
+        window.requestAnimationFrame(loadCasesWhenScrolled);
+      }
+    }
+  };
+
+  layout.search.addEventListener('input', debounce(() => {
+    state.filters.search = normalizeText(layout.search.value);
+    loadCases(true);
+  }));
+  layout.stateSelect.addEventListener('change', () => {
+    state.filters.state = layout.stateSelect.value;
+    loadCases(true);
+  });
+  layout.typeSelect.addEventListener('change', () => {
+    state.filters.caseType = layout.typeSelect.value;
+    loadCases(true);
+  });
+  layout.yearsSelect.addEventListener('change', () => {
+    state.filters.yearsMissing = layout.yearsSelect.value;
+    loadCases(true);
+  });
+  layout.form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    state.filters.search = normalizeText(layout.search.value);
+    loadCases(true);
+  });
+  layout.clearAll.addEventListener('click', () => {
+    state.filters = {
+      search: '',
+      state: '',
+      caseType: '',
+      yearsMissing: '',
+    };
+    layout.search.value = '';
+    layout.stateSelect.value = '';
+    layout.typeSelect.value = '';
+    layout.yearsSelect.value = '';
+    loadCases(true);
+  });
+  layout.loadMore.addEventListener('click', () => loadCases(false));
+
+  window.addEventListener('scroll', loadCasesWhenScrolled, { passive: true });
+  window.addEventListener('resize', loadCasesWhenScrolled);
+
+  layout.viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextView = button.dataset.view === 'list' ? 'list' : 'grid';
+      if (state.view === nextView) return;
+      state.view = nextView;
+      applyResultView(layout.grid, layout.viewButtons, state.view);
+    });
+  });
+  layout.timeframeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextTimeframe = normalizeTimeframe(button.dataset.timeframe);
+      if (state.timeframe === nextTimeframe) return;
+      state.timeframe = nextTimeframe;
+      applyTimeframe(layout.timeframeButtons, state.timeframe);
+      loadCases(true);
+    });
+  });
+
+  block.replaceChildren(layout.inner);
+
+  if (!config.apiBaseUrl) {
+    setStatus(layout.status, 'Add an API Base URL to load case anniversaries.', 'error');
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    loadCases(true);
+  });
+}

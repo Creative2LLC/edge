@@ -1,0 +1,1081 @@
+{
+  "definitions": [
+    {
+      "title": "Multi Icn Btn Col Card Grid",
+      "id": "info-cards-grid",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Multi Icn Btn Col Card Grid",
+              "model": "info-cards-grid",
+              "filter": "info-cards-grid"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Info Card",
+      "id": "info-card",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Info Card",
+              "model": "info-card"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "info-cards-grid",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "columns",
+          "label": "Cards Per Row",
+          "description": "Number of cards to display per row",
+          "options": [
+            {
+              "name": "1 Card",
+              "value": "1"
+            },
+            {
+              "name": "2 Cards",
+              "value": "2"
+            },
+            {
+              "name": "3 Cards",
+              "value": "3"
+            },
+            {
+              "name": "4 Cards",
+              "value": "4"
+            }
+          ],
+          "value": "3"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "styleVariant",
+          "label": "Optional Style",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Volunteer Section",
+              "value": "volunteer"
+            },
+            {
+              "name": "Button Top",
+              "value": "button-top"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "sectionHeading",
+          "label": "Section Heading",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "sectionSubheading",
+          "label": "Section Subheading",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "footerText",
+          "label": "Footer Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "sectionButtonText",
+          "label": "Section Button Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "sectionButtonLink",
+          "label": "Section Button Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "introButtonText",
+          "label": "Intro Button Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "introButtonLink",
+          "label": "Intro Button Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headerAlignment",
+          "label": "Header Alignment",
+          "description": "Aligns the Section Heading and Section Subheading.",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardContentAlignment",
+          "label": "Card Content Alignment",
+          "description": "Aligns the Title, Subtitle, Body Content, and Buttons on each card.",
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "left"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconSize",
+          "label": "Icon Size",
+          "description": "Sets the icon size for all cards in this block. Per-card icon-size overrides set in Card Styles still take precedence.",
+          "options": [
+            {
+              "name": "Default (48px)",
+              "value": "default"
+            },
+            {
+              "name": "Large (96px)",
+              "value": "large"
+            }
+          ],
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "id": "info-card",
+      "fields": [
+        {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Icon",
+          "multi": false
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "subtitle",
+          "label": "Subtitle"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyContent",
+          "label": "Body Content (Text, Bullet List, or Numbered List)"
+        },
+        {
+          "component": "tab",
+          "name": "tabButtons",
+          "label": "Buttons"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonStyle",
+          "label": "Button Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "default",
+          "options": [
+            {
+              "name": "Block default",
+              "value": "default"
+            },
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonBackgroundColor",
+          "label": "Button Background Color (set by site styles)",
+          "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "button2Text",
+          "label": "Button 2 Text"
+        },
+        {
+          "component": "aem-content",
+          "name": "button2Link",
+          "label": "Button 2 Link"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "button2Style",
+          "label": "Button 2 Style",
+          "description": "Pick a style from the site button standard. Colour, size and border come from site styles.",
+          "value": "default",
+          "options": [
+            {
+              "name": "Block default",
+              "value": "default"
+            },
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "soft"
+            },
+            {
+              "name": "Text link",
+              "value": "text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "giving-outline"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "button2BackgroundColor",
+          "label": "Button 2 Background Color (set by site styles)",
+          "description": "Locked. Button colours come from the site button standard; pick a style in the style field instead.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "tab",
+          "name": "tabTypographyColors",
+          "label": "Typography & Colors"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconColor",
+          "label": "Icon Color",
+          "description": "Defaults to white (#ffffff) if left empty",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Legacy Card Styles (Optional)",
+          "description": "Single color still works, or use one per line: color|#ffffff, title-size|40px, subtitle-size|18px, body-size|16px, icon-size|72px, icon-layout|left",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardBackgroundColor",
+          "label": "Card Background Color",
+          "description": "e.g. #1a2b3c",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Black (#000000)",
+              "value": "#000000"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardTextColor",
+          "label": "All Text Color",
+          "description": "Optional color applied to title, subtitle, and body text.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "titleColor",
+          "label": "Title Color",
+          "description": "Optional title-only color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "subtitleColor",
+          "label": "Subtitle Color",
+          "description": "Optional subtitle-only color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "bodyColor",
+          "label": "Body Color",
+          "description": "Optional body-only color. Overrides All Text Color.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "valueFormat": "regexp",
+          "validation": {
+            "regExp": "^$|^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$",
+            "customErrorMsg": "Choose a valid hex color."
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "titleFontSize",
+          "label": "Title Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in info-cards-grid.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "subtitleFontSize",
+          "label": "Subtitle Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in info-cards-grid.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "bodyFontSize",
+          "label": "Body Font Size (set by site styles)",
+          "description": "Locked. Font sizes come from the site-wide type scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in info-cards-grid.js and restore this field's options.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardIconSize",
+          "label": "Icon Size",
+          "description": "Optional per-card icon size. Overrides the block-level Icon Size setting.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Small (32px)",
+              "value": "32px"
+            },
+            {
+              "name": "Medium (48px)",
+              "value": "48px"
+            },
+            {
+              "name": "Large (64px)",
+              "value": "64px"
+            },
+            {
+              "name": "XL (80px)",
+              "value": "80px"
+            },
+            {
+              "name": "2XL (96px)",
+              "value": "96px"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconLayout",
+          "label": "Icon Layout",
+          "options": [
+            {
+              "name": "Default (above text)",
+              "value": ""
+            },
+            {
+              "name": "Left of text",
+              "value": "left"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardItemSpacing",
+          "label": "Card Item Spacing",
+          "description": "Spacing between the icon, title, subtitle, body, and button area.",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "None (0px)",
+              "value": "0px"
+            },
+            {
+              "name": "Tight (8px)",
+              "value": "8px"
+            },
+            {
+              "name": "Small (12px)",
+              "value": "12px"
+            },
+            {
+              "name": "Medium (16px)",
+              "value": "16px"
+            },
+            {
+              "name": "Large (20px)",
+              "value": "20px"
+            },
+            {
+              "name": "XL (24px)",
+              "value": "24px"
+            },
+            {
+              "name": "2XL (32px)",
+              "value": "32px"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "buttonSpacing",
+          "label": "Button Spacing (set by site styles)",
+          "description": "Locked. The space between buttons comes from site styles.",
+          "value": "",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "tab",
+          "name": "tabBackground",
+          "label": "Background"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "overlayImage",
+          "label": "Overlay Image (Optional)",
+          "description": "Image covers the card at low opacity so the background color shows through",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardStyle",
+          "label": "Card Style (Optional)",
+          "description": "Useful with the Volunteer Section layout for filled or outlined cards.",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Filled",
+              "value": "filled"
+            },
+            {
+              "name": "Outline",
+              "value": "outline"
+            }
+          ],
+          "value": "default"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "cardHoverBackgroundColor",
+          "label": "Card Hover Background Color",
+          "description": "Optional. The card changes to this color when hovered. Leave empty for no color change.",
+          "options": [
+            {
+              "name": "None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Black (#000000)",
+              "value": "#000000"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "info-cards-grid",
+      "components": [
+        "info-card"
+      ]
+    }
+  ]
+}

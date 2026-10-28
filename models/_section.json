@@ -1,62 +1,299 @@
 {
-  "definitions": [
-    {
-      "title": "Section",
-      "id": "section",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/section/v1/section",
-            "template": {
-              "model": "section"
-            }
-          }
-        }
-      }
-    }
-  ],
-  "models": [
-    {
-      "id": "section",
-      "fields": [
-        {
-          "component": "text",
-          "name": "name",
-          "label": "Section Name",
-          "description": "The label shown for this section in the Content Tree"
-        },
-        {
-          "component": "multiselect",
-          "name": "style",
-          "label": "Style",
-          "options": [
-            {
-              "name": "Highlight",
-              "value": "highlight"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "filters": [
-    {
-      "id": "section",
-      "components": [
-        "text",
-        "image",
-        "button",
-        "title",
-        "hero",
-        "cards",
-        "statistics",
-        "columns",
-        "giving",
-        "fragment",
-        "carousel",
-        "embed",
-        "video"
-      ]
-    }
-  ]
+    "definitions":  [
+                        {
+                            "title":  "Section",
+                            "id":  "section",
+                            "plugins":  {
+                                            "xwalk":  {
+                                                          "page":  {
+                                                                       "resourceType":  "core/franklin/components/section/v1/section",
+                                                                       "template":  {
+                                                                                        "model":  "section"
+                                                                                    }
+                                                                   }
+                                                      }
+                                        }
+                        }
+                    ],
+    "models":  [
+                   {
+                       "id":  "section",
+                       "fields":  [
+                                      {
+                                          "component":  "text",
+                                          "name":  "name",
+                                          "label":  "Section Name",
+                                          "description":  "The label shown for this section in the Content Tree"
+                                      },
+                                      {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "anchorId",
+                                          "label":  "Anchor ID",
+                                          "description":  "Optional page anchor for sticky nav links. Example: geography. Links should use #geography.",
+                                          "value":  ""
+                                      },
+                                      {
+                                          "component":  "multiselect",
+                                          "name":  "style",
+                                          "label":  "Style",
+                                          "options":  [
+                                                          {
+                                                              "name":  "Highlight",
+                                                              "value":  "highlight"
+                                                          },
+                                                          {
+                                                              "name":  "No Margin",
+                                                              "value":  "no-margin"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Top Small",
+                                                              "value":  "padding-top-sm"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Top Medium",
+                                                              "value":  "padding-top-md"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Top Large",
+                                                              "value":  "padding-top-lg"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Bottom Small",
+                                                              "value":  "padding-bottom-sm"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Bottom Medium",
+                                                              "value":  "padding-bottom-md"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Bottom Large",
+                                                              "value":  "padding-bottom-lg"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Y Small",
+                                                              "value":  "padding-y-sm"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Y Medium",
+                                                              "value":  "padding-y-md"
+                                                          },
+                                                          {
+                                                              "name":  "Padding Y Large",
+                                                              "value":  "padding-y-lg"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "component":  "select",
+                                          "valueType":  "string",
+                                          "name":  "backgroundColor",
+                                          "label":  "Background Color",
+                                          "description":  "Colour behind the whole section: white, the palette greys and navys, and the site surface steps (Warm Off-White, Warm Gray, Blue Tint, Navy Raised). Sections saved with another colour keep it until one is picked here.",
+                                          "value":  "",
+                                          "options":  [
+                                                          {
+                                                              "name":  "Default / None",
+                                                              "value":  ""
+                                                          },
+                                                          {
+                                                              "name":  "White (#FFFFFF)",
+                                                              "value":  "#FFFFFF"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Lightest (#F1F2F2)",
+                                                              "value":  "#F1F2F2"
+                                                          },
+                                                          {
+                                                              "name":  "Warm Off-White (#F4F1EC)",
+                                                              "value":  "#F4F1EC"
+                                                          },
+                                                          {
+                                                              "name":  "Warm Gray (#ECE8E3)",
+                                                              "value":  "#ECE8E3"
+                                                          },
+                                                          {
+                                                              "name":  "Blue Tint (#E9F7FA)",
+                                                              "value":  "#E9F7FA"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Light (#C7C8CA)",
+                                                              "value":  "#C7C8CA"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Medium (#939598)",
+                                                              "value":  "#939598"
+                                                          },
+                                                          {
+                                                              "name":  "Gray Dark (#414042)",
+                                                              "value":  "#414042"
+                                                          },
+                                                          {
+                                                              "name":  "Navy Medium (#004B76)",
+                                                              "value":  "#004B76"
+                                                          },
+                                                          {
+                                                              "name":  "Navy Raised (#0F3357)",
+                                                              "value":  "#0F3357"
+                                                          },
+                                                          {
+                                                              "name":  "Navy Dark (#00264D)",
+                                                              "value":  "#00264D"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "backgroundGradient",
+                                          "label":  "Background Gradient",
+                                          "description":  "Optional CSS gradient, for example linear-gradient(135deg, #00264d 0%, #008db6 100%).",
+                                          "value":  ""
+                                      },
+                                      {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "topSpacing",
+                                          "label":  "Top Spacing",
+                                          "description":  "Adds margin-top to the section. Type a number for px (e.g. 30 or -10) or include a unit (px, rem, em, %, vh, vw).",
+                                          "value":  ""
+                                      },
+                                      {
+                                          "component":  "text",
+                                          "valueType":  "string",
+                                          "name":  "bottomSpacing",
+                                          "label":  "Bottom Spacing",
+                                          "description":  "Adds margin-bottom to the section. Type a number for px (e.g. 30 or -10) or include a unit (px, rem, em, %, vh, vw).",
+                                          "value":  ""
+                                      }
+                                  ]
+                   }
+               ],
+    "filters":  [
+                    {
+                        "id":  "section",
+                        "components":  [
+                                           "text",
+                                           "image",
+                                           "button",
+                                           "title",
+                                           "hero",
+                                           "cards",
+                                           "statistics",
+                                           "colored-heading",
+                                           "colored-text",
+                                           "custom-image",
+                                           "colored-icon-text",
+                                           "colored-button",
+                                           "colored-list",
+                                           "colored-grid",
+                                           "support-cta",
+                                           "need-help",
+                                           "columns",
+                                           "tabs",
+                                           "fragment",
+                                           "embed",
+                                           "video",
+                                           "news",
+                                           "resources",
+                                           "resources-browser",
+                                           "resources-carousel",
+                                           "poster-results",
+                                           "poster-map",
+                                           "resource-hero",
+                                           "resource-details",
+                                           "resource-downloads",
+                                           "resource-tags",
+                                           "resource-video-hero",
+                                           "article-details",
+                                           "article-list",
+                                           "related-articles",
+                                           "icon-text",
+                                           "icon-text-row",
+                                           "hero-footer",
+                                           "footer-banner",
+                                           "image-card",
+                                           "newsletter",
+                                           "impact-chain",
+                                           "leadership-header",
+                                           "leadership-team",
+                                           "leadership-profile",
+                                           "cta-card-1",
+                                           "cta-card-2",
+                                           "info-cards-grid",
+                                           "card-row",
+                                           "section-title",
+                                           "split-card",
+                                           "split-card-gap",
+                                           "impact-donut",
+                                           "impact-data-table",
+                                           "impact-bar-chart",
+                                           "regional-offices",
+                                           "image-text-card-row",
+                                           "split-card-carousel",
+                                           "icon-card-carousel",
+                                           "numbered-cards",
+                                           "numbered-cards-custom",
+                                           "product-list",
+                                           "faq",
+                                           "general-inquiries",
+                                           "text-image",
+                                           "trust-badges",
+                                           "leadership-overview",
+                                           "historical-trends",
+                                           "historical-reports-carousel",
+                                           "report-section-nav",
+                                           "report-breakdown",
+                                           "report-download",
+                                           "report-archive",
+                                           "social-report-cta",
+                                           "cybertipline-geo-report",
+                                           "impact-geo-report",
+                                           "connect-grid",
+                                           "partners-showcase",
+                                           "card-testimonies",
+                                           "mail-address",
+                                           "split-card-detail",
+                                           "job-postings",
+                                           "internship-program",
+                                           "card-row-compact",
+                                           "card-row-detailed",
+                                           "detailed-carousel",
+                                           "us-map",
+                                           "split-card-info",
+                                           "logo-carousel",
+                                           "split-card-offices",
+                                           "dark-feature-cards",
+                                           "featured-event",
+                                           "training-sessions",
+                                           "split-card-list",
+                                           "split-thin-carousel",
+                                           "amber-alert-info",
+                                           "amber-alerts",
+                                           "amber-still-missing",
+                                           "case-anniversaries",
+                                           "media-reporting-info",
+                                           "media-contact-cta",
+                                           "site-search",
+                                           "cta-banner",
+                                           "dual-cards",
+                                           "terms-content",
+                                           "missing-child-quick-report",
+                                           "missing-child-poster-api-registration",
+                                           "code-adam-kit",
+                                           "ncmec-reprint-request",
+                                           "team-hope-volunteer",
+                                           "host-a-fundraiser",
+                                           "faon-application",
+                                           "event-request-form",
+                                           "community-education-partner-reporting",
+                                           "prpl-application",
+                                           "apply-for-training",
+                                           "event-calendar",
+                                           "gallery-grid",
+                                           "picture-cards",
+                                           "mega-nav"
+                                       ]
+                    }
+                ]
 }

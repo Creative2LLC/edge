@@ -1,0 +1,538 @@
+{
+  "definitions": [
+    {
+      "title": "Custom Grid",
+      "id": "colored-grid",
+      "model": "colored-grid",
+      "filter": "colored-grid",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Custom Grid",
+              "model": "colored-grid",
+              "filter": "colored-grid"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Colored Grid Row",
+      "id": "colored-grid-row",
+      "model": "colored-grid-row",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Colored Grid Row",
+              "model": "colored-grid-row"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "colored-grid",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Background Color",
+          "description": "Optional CSS color value for the grid surface, for example #08294D.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Text Color",
+          "description": "Optional CSS color inherited by content inside the grid.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "padding",
+          "label": "Padding",
+          "description": "Optional CSS padding, for example 80px 64px or clamp(32px, 6vw, 96px).",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "rowGap",
+          "label": "Row Gap",
+          "description": "Optional CSS length between rows.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "borderRadius",
+          "label": "Border Radius",
+          "description": "Optional CSS border radius, for example 8px.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "maxWidth",
+          "label": "Max Width",
+          "description": "Optional CSS max width for the grid surface. Leave blank for full width.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeight",
+          "label": "Minimum Height",
+          "description": "Optional CSS minimum height.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalAlign",
+          "label": "Vertical Alignment",
+          "options": [
+            {
+              "name": "Top",
+              "value": "top"
+            },
+            {
+              "name": "Middle",
+              "value": "middle"
+            },
+            {
+              "name": "Bottom",
+              "value": "bottom"
+            }
+          ],
+          "value": "top"
+        }
+      ]
+    },
+    {
+      "id": "colored-grid-row",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "columns",
+          "label": "Columns",
+          "description": "Number of columns to use for this row on desktop.",
+          "options": [
+            {
+              "name": "1 Column",
+              "value": "1"
+            },
+            {
+              "name": "2 Columns",
+              "value": "2"
+            },
+            {
+              "name": "3 Columns",
+              "value": "3"
+            },
+            {
+              "name": "4 Columns",
+              "value": "4"
+            },
+            {
+              "name": "5 Columns",
+              "value": "5"
+            },
+            {
+              "name": "6 Columns",
+              "value": "6"
+            }
+          ],
+          "value": "2"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Row Background Color",
+          "description": "Optional CSS color value for this row.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Warm Off-White (#F4F1EC)",
+              "value": "#F4F1EC"
+            },
+            {
+              "name": "Warm Gray (#ECE8E3)",
+              "value": "#ECE8E3"
+            },
+            {
+              "name": "Blue Tint (#E9F7FA)",
+              "value": "#E9F7FA"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "textColor",
+          "label": "Row Text Color",
+          "description": "Optional CSS color inherited by content in this row.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "padding",
+          "label": "Row Padding",
+          "description": "Optional CSS padding for this row.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "gap",
+          "label": "Column Gap",
+          "description": "Optional CSS length between columns in this row.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "borderRadius",
+          "label": "Row Border Radius",
+          "description": "Optional CSS border radius for this row.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "minHeight",
+          "label": "Row Minimum Height",
+          "description": "Optional CSS minimum height for this row.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "horizontalAlign",
+          "label": "Row Horizontal Alignment",
+          "options": [
+            {
+              "name": "Stretch",
+              "value": "stretch"
+            },
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ],
+          "value": "stretch"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "verticalAlign",
+          "label": "Row Vertical Alignment",
+          "options": [
+            {
+              "name": "Stretch",
+              "value": "stretch"
+            },
+            {
+              "name": "Top",
+              "value": "top"
+            },
+            {
+              "name": "Middle",
+              "value": "middle"
+            },
+            {
+              "name": "Bottom",
+              "value": "bottom"
+            }
+          ],
+          "value": "stretch"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "colored-grid",
+      "components": [
+        "colored-grid-row",
+        "text",
+        "image",
+        "button",
+        "title",
+        "columns",
+        "statistics",
+        "cards",
+        "colored-heading",
+        "colored-text",
+        "custom-image",
+        "colored-icon-text",
+        "colored-button",
+        "colored-list",
+        "info-cards-grid",
+        "impact-donut"
+      ]
+    }
+  ]
+}

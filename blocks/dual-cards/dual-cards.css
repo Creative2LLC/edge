@@ -1,0 +1,91 @@
+/* Dual Cards Block */
+.dual-cards.block {
+  padding: 24px 0;
+  margin: 0 auto;
+}
+
+.dual-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.dual-cards-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 32px 36px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px 0 rgb(64 64 65 / 20%);
+  box-sizing: border-box;
+}
+
+.dual-cards-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.dual-cards-icon-masked {
+  display: block;
+}
+
+.dual-cards-title {
+  color: var(--ncmec-gray-dark);
+  margin: 0;
+  text-align: left;
+}
+
+/* Link: styled by the button standard in styles/styles.css (Text link); this only places it. */
+.dual-cards-link {
+  margin-top: auto;
+}
+
+/* Responsive — tablet */
+@media (width <= 900px) {
+  .dual-cards-card {
+    padding: 28px;
+    gap: 18px;
+  }}
+
+/* Responsive — mobile */
+@media (width <= 600px) {
+  .dual-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .dual-cards-card {
+    padding: 24px;
+  }}
+
+/* HOVER — row tier (lift + light shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.dual-cards .dual-cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.dual-cards .dual-cards-card:focus-within,
+.dual-cards .dual-cards-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dual-cards .dual-cards-card:focus-within,
+  .dual-cards .dual-cards-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

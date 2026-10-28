@@ -1,0 +1,274 @@
+{
+  "definitions": [
+    {
+      "title": "Mega Nav",
+      "id": "mega-nav",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Mega Nav",
+              "model": "mega-nav",
+              "filter": "mega-nav"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Mega Nav Custom Dropdown Item",
+      "id": "mega-nav-row",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Mega Nav Row",
+              "model": "mega-nav-row"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Mega Dropdown Sub Link",
+      "id": "mega-nav-sub-link",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Mega Dropdown Sub Link",
+              "model": "mega-nav-sub-link"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Mega Dropdown Top Link",
+      "id": "mega-nav-top-link",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Mega Dropdown Top Link",
+              "model": "mega-nav-top-link"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "mega-nav",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "menu_label",
+          "label": "Menu Label"
+        },
+        {
+          "component": "aem-content",
+          "name": "menu_link",
+          "label": "Menu Link"
+        }
+      ]
+    },
+    {
+      "id": "mega-nav-row",
+      "fields": [
+        {
+          "component": "select",
+          "name": "type",
+          "label": "Row Type",
+          "options": [
+            {
+              "name": "Column Item",
+              "value": "column"
+            },
+            {
+              "name": "Featured",
+              "value": "featured"
+            },
+            {
+              "name": "Footer",
+              "value": "footer"
+            }
+          ],
+          "value": "column"
+        },
+        {
+          "component": "select",
+          "name": "column",
+          "label": "Column",
+          "options": [
+            {
+              "name": "Same as previous",
+              "value": ""
+            },
+            {
+              "name": "Column 1",
+              "value": "1"
+            },
+            {
+              "name": "Column 2",
+              "value": "2"
+            },
+            {
+              "name": "Column 3",
+              "value": "3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "content",
+          "label": "Content"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "buttonText",
+          "label": "Button Text (Featured only)"
+        },
+        {
+          "component": "aem-content",
+          "name": "buttonLink",
+          "label": "Button Link (Featured only)"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image (Featured only)",
+          "multi": false
+        }
+      ]
+    },
+    {
+      "id": "mega-nav-sub-link",
+      "fields": [
+        {
+          "component": "select",
+          "name": "column",
+          "label": "Column",
+          "options": [
+            {
+              "name": "Same as previous",
+              "value": ""
+            },
+            {
+              "name": "Column 1",
+              "value": "1"
+            },
+            {
+              "name": "Column 2",
+              "value": "2"
+            },
+            {
+              "name": "Column 3",
+              "value": "3"
+            }
+          ],
+          "value": ""
+        },
+        {
+          "component": "select",
+          "name": "level",
+          "label": "Level (2+ for nesting)",
+          "options": [
+            {
+              "name": "Level 2",
+              "value": "2"
+            },
+            {
+              "name": "Level 3",
+              "value": "3"
+            },
+            {
+              "name": "Level 4",
+              "value": "4"
+            }
+          ],
+          "value": "2"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "label",
+          "label": "Label"
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Link (leave blank for headers)"
+        }
+      ]
+    },
+    {
+      "id": "mega-nav-top-link",
+      "fields": [
+        {
+          "component": "select",
+          "name": "column",
+          "label": "Column",
+          "options": [
+            {
+              "name": "Column 1",
+              "value": "1"
+            },
+            {
+              "name": "Column 2",
+              "value": "2"
+            },
+            {
+              "name": "Column 3",
+              "value": "3"
+            }
+          ],
+          "value": "1"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Top Description (Optional)"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title"
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "description",
+          "label": "Description"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "mega-nav",
+      "components": [
+        "mega-nav-row",
+        "mega-nav-sub-link",
+        "mega-nav-top-link"
+      ]
+    }
+  ]
+}

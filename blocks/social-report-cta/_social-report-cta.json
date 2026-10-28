@@ -1,0 +1,208 @@
+{
+  "definitions": [
+    {
+      "title": "CTA Social Report",
+      "id": "social-report-cta",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "CTA Social Report",
+              "model": "social-report-cta"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "social-report-cta",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow (Optional)",
+          "value": "Stay connected"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "socialHeading",
+          "label": "Social Heading",
+          "value": "Connect with us on social media"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "socialIntro",
+          "label": "Social Intro (Optional)",
+          "value": "Follow NCMEC for updates, prevention resources, and ways to help."
+        },
+        {
+          "component": "aem-content",
+          "name": "facebookLink",
+          "label": "Facebook Link"
+        },
+        {
+          "component": "aem-content",
+          "name": "xLink",
+          "label": "X Link"
+        },
+        {
+          "component": "aem-content",
+          "name": "instagramLink",
+          "label": "Instagram Link"
+        },
+        {
+          "component": "aem-content",
+          "name": "tiktokLink",
+          "label": "TikTok Link"
+        },
+        {
+          "component": "aem-content",
+          "name": "linkedinLink",
+          "label": "LinkedIn Link"
+        },
+        {
+          "component": "aem-content",
+          "name": "youtubeLink",
+          "label": "YouTube Link"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "reportHeading",
+          "label": "Report Heading (Optional)",
+          "description": "Leave this and the report link/image fields empty to hide the report panel.",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "reportBody",
+          "label": "Report Body (Optional)",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "reportImage",
+          "label": "Report Cover Image (Optional)",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "reportImageAlt",
+          "label": "Report Cover Alt Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "reportButtonText",
+          "label": "Report Button Text (Optional)",
+          "description": "Only renders when a report PDF link is provided.",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "name": "reportButtonLink",
+          "label": "Report PDF Link (Optional)"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "reportPanelDisplay",
+          "label": "Report Panel Display",
+          "description": "Auto shows the report panel only when report content exists.",
+          "value": "auto",
+          "options": [
+            {
+              "name": "Auto (show when populated)",
+              "value": "auto"
+            },
+            {
+              "name": "Show in authoring",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundColor",
+          "label": "Background Color (Optional)",
+          "description": "CSS color for the full CTA background. Example: #e9fbff.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "backgroundGradient",
+          "label": "Background Gradient (Optional)",
+          "description": "CSS background value. Overrides Background Color when set.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "reportButtonStyle",
+          "label": "Report Button Style",
+          "description": "Pick a style from the site button standard. \"Block default\" keeps the style this block uses today.",
+          "value": "",
+          "options": [
+            {
+              "name": "Block default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "button-primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "button-secondary"
+            },
+            {
+              "name": "Soft",
+              "value": "button-soft"
+            },
+            {
+              "name": "Text link",
+              "value": "button-text-link"
+            },
+            {
+              "name": "AMBER",
+              "value": "button-amber"
+            },
+            {
+              "name": "Emergency",
+              "value": "button-emergency"
+            },
+            {
+              "name": "Giving",
+              "value": "button-giving"
+            },
+            {
+              "name": "Emergency outline",
+              "value": "button-emergency-outline"
+            },
+            {
+              "name": "Giving outline",
+              "value": "button-giving-outline"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

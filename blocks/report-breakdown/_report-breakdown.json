@@ -1,0 +1,260 @@
+{
+  "definitions": [
+    {
+      "title": "Report Breakdown",
+      "id": "report-breakdown",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Report Breakdown",
+              "model": "report-breakdown",
+              "filter": "report-breakdown"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Report Breakdown Item",
+      "id": "report-breakdown-item",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Report Breakdown Item",
+              "model": "report-breakdown-item"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "report-breakdown",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": "2024 CyberTipline Reports by Type"
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text (Optional)",
+          "description": "Optional paragraph displayed below the heading.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "defaultYear",
+          "label": "Default Active Year",
+          "value": "2024"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "tableLabels",
+          "label": "Table Labels (Type|Reports)",
+          "description": "Leave blank to hide the table header row.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "totalLabel",
+          "label": "Total Label",
+          "value": "Total"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiBaseUrl",
+          "label": "API Base URL",
+          "description": "Laravel backend base URL. The block fetches /api/cybertipline-reports/{year}/datasets/{datasetSlug}."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "datasetSlug",
+          "label": "Dataset Slug",
+          "description": "Use reported-incident-types for the CyberTipline incident type chart.",
+          "value": "reported-incident-types"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiEndpoint",
+          "label": "API Endpoint URL",
+          "description": "Optional override for custom JSON. Leave blank to use API Base URL + Default Active Year + Dataset Slug.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "emptyStateMessage",
+          "label": "Empty State Message",
+          "value": "No report data available."
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "bodyTextSize",
+          "label": "Body Text Font Size (set by site styles)",
+          "description": "Locked. Body text size comes from the site-wide body scale so type stays consistent across the site. To hand this control back to authors, set ALLOW_AUTHOR_TYPE_OVERRIDES = true in report-breakdown.js and restore this field.",
+          "options": [
+            {
+              "name": "Set by site styles",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "tableStyle",
+          "label": "Table Style",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Inverted",
+              "value": "inverted"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "report-breakdown-item",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "year",
+          "label": "Year"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "reportType",
+          "label": "Report Type"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "reportCount",
+          "label": "Report Count"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "color",
+          "label": "Color",
+          "description": "Optional. Defaults to the block palette if left empty.",
+          "options": [
+            {
+              "name": "Default / None",
+              "value": ""
+            },
+            {
+              "name": "White (#FFFFFF)",
+              "value": "#FFFFFF"
+            },
+            {
+              "name": "Navy Dark (#00264D)",
+              "value": "#00264D"
+            },
+            {
+              "name": "Navy Medium (#004B76)",
+              "value": "#004B76"
+            },
+            {
+              "name": "Blue Dark (#006D90)",
+              "value": "#006D90"
+            },
+            {
+              "name": "Blue Medium (#008EB7)",
+              "value": "#008EB7"
+            },
+            {
+              "name": "Blue Light (#92D6E3)",
+              "value": "#92D6E3"
+            },
+            {
+              "name": "Gray Dark (#414042)",
+              "value": "#414042"
+            },
+            {
+              "name": "Gray Medium (#939598)",
+              "value": "#939598"
+            },
+            {
+              "name": "Gray Light (#C7C8CA)",
+              "value": "#C7C8CA"
+            },
+            {
+              "name": "Gray Lightest (#F1F2F2)",
+              "value": "#F1F2F2"
+            },
+            {
+              "name": "Yellow (#FDB913)",
+              "value": "#FDB913"
+            },
+            {
+              "name": "Yellow Dark (#F7941D)",
+              "value": "#F7941D"
+            },
+            {
+              "name": "Red, urgent only (#AE1B1F)",
+              "value": "#AE1B1F"
+            },
+            {
+              "name": "Peach Dark (#F26D5F)",
+              "value": "#F26D5F"
+            },
+            {
+              "name": "Peach Medium (#F8AC99)",
+              "value": "#F8AC99"
+            },
+            {
+              "name": "Beige Dark (#FAAB60)",
+              "value": "#FAAB60"
+            },
+            {
+              "name": "Beige Medium (#FDCFA3)",
+              "value": "#FDCFA3"
+            },
+            {
+              "name": "Green Medium (#5ABB64)",
+              "value": "#5ABB64"
+            },
+            {
+              "name": "Green Light (#A2D4A3)",
+              "value": "#A2D4A3"
+            }
+          ],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "report-breakdown",
+      "components": [
+        "report-breakdown-item"
+      ]
+    }
+  ]
+}

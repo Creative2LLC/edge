@@ -1,0 +1,158 @@
+/* Job Postings Block */
+.job-postings.block {
+  padding: 0;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.job-postings-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Card list */
+.job-postings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Individual card */
+.job-postings-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 24px 32px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Authoring placeholder */
+.job-postings-card.is-authoring-placeholder {
+  border: 2px dashed #ccc;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.job-postings-card-placeholder {
+  font-size: var(--body-sm-size);
+  color: var(--ncmec-gray-medium);
+  margin: 0;
+}
+
+/* Left side — info */
+.job-postings-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Position title */
+.job-postings-card-title {
+  color: #00264d;
+  margin: 0;
+}
+
+/* Metadata row */
+.job-postings-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Individual meta item (icon + text) */
+.job-postings-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--body-weight-medium);
+  color: var(--ncmec-gray-dark);
+  line-height: var(--caption-line-height);
+}
+
+/* Meta icons */
+.job-postings-meta-icon {
+  width: 16px;
+  height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Buttons are styled by the button standard in styles/styles.css.
+   These rules only place them. */
+.job-postings-card-button {
+  flex-shrink: 0;
+  margin-left: 24px;
+}
+
+.job-postings-bottom-button {
+  margin-top: 32px;
+}
+
+/* Responsive: Tablet */
+@media (width <= 900px) {
+  .job-postings-card {
+    padding: 20px 24px;
+  }
+
+  .job-postings-card-meta {
+    gap: 14px;
+  }
+}
+
+/* Responsive: Mobile */
+@media (width <= 600px) {
+  .job-postings-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .job-postings-card-button {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+
+  .job-postings-card-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* HOVER — row tier (lift + light shadow). Tokens live in the HOVER SYSTEM section of
+   styles.css; the :where(:has(…)) guard keeps this inert on a page where no
+   link was authored on the card.
+
+   The whole block is exempt from no-descending-specificity: several of these
+   stylesheets declare a higher-specificity variant of the same card further up,
+   and the hover has to sit LAST to win, which the rule reads as descending. */
+/* stylelint-disable no-descending-specificity */
+.job-postings .job-postings-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))) {
+  transition: var(--hover-transition);
+}
+
+.job-postings .job-postings-card:focus-within,
+.job-postings .job-postings-card:where(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])), :has(:is(a[href], button, [role="button"], [tabindex]:not([tabindex="-1"])))):hover {
+  transform: translateY(var(--hover-lift-row));
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .job-postings .job-postings-card:focus-within,
+  .job-postings .job-postings-card:hover {
+    transform: none;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */
