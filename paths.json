@@ -2,7 +2,8 @@
   "mappings": [
     "/content/edge/:/",
     "/content/edge/configuration:/.helix/config.json",
-    "/content/edge/metadata:/metadata.json"
+    "/content/edge/metadata:/metadata.json",
+    "/content/edge/redirects:/redirects.json"
   ],
   "includes": [
     "/content/edge/"
