@@ -1,4 +1,4 @@
-import { GRADIENT_STOP_FIELDS, remapColorValue } from './color-tokens.js';
+import { GRADIENT_STOP_FIELDS, recheckAfterLateColors, remapColorValue } from './color-tokens.js';
 
 function normalizeNames(name) {
   return (Array.isArray(name) ? name : [name])
@@ -123,6 +123,8 @@ export async function readAueResourceFields(resourcePath, names = []) {
 
     const data = await response.json();
     if (!data || typeof data !== 'object') return {};
+
+    recheckAfterLateColors();
 
     return normalizeNames(names)
       .reduce((fields, name) => {

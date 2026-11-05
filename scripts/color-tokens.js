@@ -675,6 +675,8 @@ export function flagReadableAdjustments(scope) {
   });
 }
 
+let firstPassDone = false;
+
 /**
  * Runs every contrast step in order: authored colours blocks registered, then the safety
  * net for blocks that apply colours themselves, then default text on authored surfaces,
@@ -684,9 +686,44 @@ export function flagReadableAdjustments(scope) {
  * @param {Element} scope usually main
  */
 export function refreshReadableColors(scope) {
+  firstPassDone = true;
   applyReadableColors();
   applyAuthoredTextSafety(scope);
   applySurfaceInk(scope);
   applyLinkSurfaces(scope);
   flagReadableAdjustments(scope);
+}
+
+/* ---- colours that arrive late (editor only) ----
+   A dropdown colour reaches the editor as a bare link with no field name, so blocks fetch it
+   from the resource JSON, often after the contrast passes have run. Those passes then judged
+   the block's default surface: text turned white for a default navy card stayed white when the
+   card's real white arrived, which hid the text completely. */
+
+function clearReadableAdjustments(scope) {
+  scope.querySelectorAll('[data-readable-adjusted]').forEach((node) => {
+    node.style.color = node.dataset.readableAdjusted;
+    node.classList.remove('readable-adjusted-flag');
+    node.removeAttribute('title');
+    delete node.dataset.readableAdjusted;
+    delete node.dataset.readableShown;
+  });
+}
+
+let lateColorTimer;
+
+/**
+ * Judges the page's colours again once late colours have been applied. A short wait lets the
+ * blocks apply what they fetched, and a burst of fetches (one per card) runs it once. Before
+ * the first pass there is nothing to redo: that pass will see these colours itself.
+ */
+export function recheckAfterLateColors() {
+  if (!isEditorPage()) return;
+  clearTimeout(lateColorTimer);
+  lateColorTimer = setTimeout(() => {
+    const main = document.querySelector('main');
+    if (!firstPassDone || !main) return;
+    clearReadableAdjustments(main);
+    refreshReadableColors(main);
+  }, 100);
 }

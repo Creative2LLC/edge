@@ -16,7 +16,7 @@
       "content_showBreadcrumbs": "Set to 'show' whenever you fill content_breadcrumbs; the default 'hide' hides the trail.",
       "content_position": "Where the text sits over the photo: left (default), center or right. Pick the side the photo leaves clear.",
       "variant": "'homepage' is the taller home-page hero with a scroll cue, where words in [square brackets] in the heading turn blue. Only for the site's home page; everything else stays 'default'.",
-      "media_image": "The background photo, landscape, subject away from the text side. Offer options with find_images.",
+      "media_image": "The background photo, landscape, subject away from the text side. On a rebuilt page, place the old banner with place_old_images; otherwise offer options with find_images.",
       "media_imageAlt": "Describe the photo in a short sentence.",
       "media_featuredImage": "A small image, at most about 200px square, to the right of the text: a logo, seal or badge, never a photo.",
       "media_video": "Optional looping background video (an MP4 in the DAM); the photo shows while it loads. Leave empty unless the source gives one.",

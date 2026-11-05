@@ -612,8 +612,12 @@ export default async function decorate(block) {
   const colorValues = colors.values || [];
   const hasPrimaryButton = Boolean(buttonText || buttonLink);
   const hasSecondaryButton = Boolean(button2Text || button2Link);
-  // Colours by position first; the order-based guess only when positions don't fit this page.
-  const publishedColors = readPositionalColors(block, fieldIndex, isEditor) || {
+  // In the editor the resource JSON says exactly which colours were authored; guessing from
+  // the order of the hex values painted the background colour onto the heading. Elsewhere,
+  // colours by position first; the order-based guess only when positions don't fit this page.
+  const authoredColorsKnown = isEditor && Object.keys(resourceData).length > 0;
+  const publishedColors = (authoredColorsKnown && {})
+    || readPositionalColors(block, fieldIndex, isEditor) || {
     buttonColor: hasPrimaryButton ? colorValues[0] || '' : '',
     button2Color: hasSecondaryButton ? colorValues[hasPrimaryButton ? 1 : 0] || '' : '',
     ...resolveFlattenedColors(colorValues, hasPrimaryButton, hasSecondaryButton),
