@@ -560,9 +560,12 @@
     "required": [
       "content_text"
     ],
+    "limits": {
+      "content_textHtml": 350
+    },
     "fields": {
       "content_text": "The page heading, one line: it becomes the page's only h1 and extra lines fold into it. Under about 8 words.",
-      "content_textHtml": "One or two sentences under the heading. A link inside a sentence stays a text link.",
+      "content_textHtml": "One or two sentences under the heading, or empty. A rebuilt page uses only a short line that sat directly under its old title, never its first paragraph. A link inside a sentence stays a text link.",
       "content_breadcrumbs": "The trail above the heading, e.g. 'Get Help > Survivor Support'. It only shows when content_showBreadcrumbs is 'show'.",
       "content_showBreadcrumbs": "Set to 'show' whenever you fill content_breadcrumbs; the default 'hide' hides the trail.",
       "content_position": "Where the text sits over the photo: left (default), center or right. Pick the side the photo leaves clear.",
@@ -571,7 +574,7 @@
       "media_imageAlt": "Describe the photo in a short sentence.",
       "media_featuredImage": "A small image, at most about 200px square, to the right of the text: a logo, seal or badge, never a photo.",
       "media_video": "Optional looping background video (an MP4 in the DAM); the photo shows while it loads. Leave empty unless the source gives one.",
-      "action_1Text": "First button label, e.g. 'Make a Report'. Up to three buttons; fill 1, then 2, then 3, each with its link.",
+      "action_1Text": "First button label, e.g. 'Make a Report'. Up to three buttons; fill 1, then 2, then 3, each with its link. Only when the source has a button here; in-page jump links are not hero buttons.",
       "panel_title": "Optional box beside the heading for a key action or contact, e.g. 'Need help now?'. Leave every panel_ field empty for no panel.",
       "panel_text": "One or two sentences in the side panel.",
       "panel_primaryText": "Optional button in the side panel, with panel_primaryLink.",
