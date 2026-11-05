@@ -6,9 +6,12 @@
     "required": [
       "title"
     ],
+    "limits": {
+      "subtitle": 300
+    },
     "fields": {
       "title": "The heading. Each paragraph shows on its own line.",
-      "subtitle": "One or two sentences.",
+      "subtitle": "One or two sentences. A longer introduction goes in Custom Text under the block.",
       "buttonText": "Optional button under the intro, with buttonLink.",
       "textAlign": "left (default), center or right. Match the block below: centre over centred cards."
     }

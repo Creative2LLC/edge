@@ -2,7 +2,7 @@
   "faq": {
     "looks": "An optional heading above a stack of question rows that open to show their answers.",
     "use": "Questions and answers, or any set of topics where readers need only some of the answers.",
-    "avoid": "Two or three short answers everyone needs: show them as Custom Text.",
+    "avoid": "Two or three short answers everyone needs: show them as Custom Text. Text a rebuilt page showed openly, such as sub-headings and their paragraphs: an accordion hides it.",
     "items": {
       "min": 2
     },
