@@ -140,13 +140,18 @@ const DISPLAY_STYLES = [
 function typeTheme(key) {
   return TYPE_THEMES[key] || TYPE_THEMES.file;
 }
+// Same order as the model: audience, format, time. Format and time swapped
+// places on 2026-11-06 so the editor lists them in the order the card shows
+// them. Rows published before that carry time at 12-13 and format at 14-15;
+// measured that day, the only published rows with anything in those cells were
+// test content ("Test", "tt"), so no reader for the old order is kept.
 const INFORMATIVE_META_FIELD_BY_INDEX = {
   10: 'informativeAudienceLabel',
   11: 'informativeAudienceText',
-  12: 'informativeTimeLabel',
-  13: 'informativeTimeText',
-  14: 'informativeFormatLabel',
-  15: 'informativeFormatText',
+  12: 'informativeFormatLabel',
+  13: 'informativeFormatText',
+  14: 'informativeTimeLabel',
+  15: 'informativeTimeText',
 };
 const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
 // AEM publish tier — the public host that serves DAM files. Used to turn a
@@ -1657,7 +1662,7 @@ function informativeMetaRows(entry) {
   return [
     audience ? buildMetaRow(
       'audience',
-      normalizeText(entry.item.informativeAudienceLabel) || 'Primary Audience',
+      normalizeText(entry.item.informativeAudienceLabel) || 'Audience',
       audience,
     ) : null,
     time ? buildMetaRow('time', normalizeText(entry.item.informativeTimeLabel) || 'Time', time) : null,
@@ -1817,6 +1822,22 @@ function buildInformativeBannerEntry(entry, isEditor) {
 
 // ── Card styles: Horizontal + Tile ──────────────────────────────────────────
 
+// A picture is shown whole (object-fit: contain), never cropped, whatever its
+// shape. Whatever part of the panel it leaves empty is filled with a blurred
+// copy of the same picture (CSS ::before), so a 16:9 still in a tile or a tall
+// cover in a wide panel gets a soft extension of itself instead of grey bars.
+// Uses currentSrc once the image has loaded, so the backdrop is the file the
+// browser already fetched and costs no second request.
+function applyMediaBackdrop(media, img) {
+  const set = () => {
+    const src = img.currentSrc || img.src;
+    if (!src) return;
+    media.style.setProperty('--rd-media-backdrop', `url("${src.replace(/["\\]/g, '\\$&')}")`);
+  };
+  if (img.complete && img.naturalWidth) set();
+  else img.addEventListener('load', set, { once: true });
+}
+
 // The picture panel both card styles lead with. A video gets the play button
 // on it (the same click path as the Watch button, gating included). A download
 // with no picture gets the same animated, colour-coded type art the type cards
@@ -1830,10 +1851,18 @@ function buildCardMedia(entry, width) {
   const image = buildImage(entry, width);
   if (image) {
     media.append(image);
+    const img = image.querySelector('img') || image;
+    applyMediaBackdrop(media, img);
   } else if (entry.typeKey === 'video') {
     const poster = buildDefaultVideoPoster(entry.title);
     media.append(poster);
     applyProviderPoster(poster, entry);
+    // The brand-mark placeholder loads first; only a real YouTube/Vimeo still
+    // (which adds .has-provider-poster) earns a backdrop.
+    const img = poster.querySelector('img');
+    img.addEventListener('load', () => {
+      if (poster.classList.contains('has-provider-poster')) applyMediaBackdrop(media, img);
+    });
   } else {
     media.classList.add('is-placeholder');
     media.append(buildTypeArt(entry));
@@ -1855,6 +1884,69 @@ function capitalizeWords(value) {
   return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
 }
 
+// Card titles stay <h3> for the page outline but take the h4 size: .u-h4 is
+// the global "visual level != semantic level" utility (styles/styles.css), so
+// it follows the h4 token wherever that is set.
+function buildCardTitleEl(entry) {
+  const title = buildTitleEl(entry);
+  title.classList.add('u-h4');
+  return title;
+}
+
+/* Title + description never exceed this many lines together: the same budget
+   as the resource library's cards (CARD_TEXT_LINE_BUDGET in resources-browser.js). */
+const CARD_TEXT_LINE_BUDGET = 5;
+
+function lineHeightOf(element) {
+  const styles = window.getComputedStyle(element);
+  const lineHeight = Number.parseFloat(styles.lineHeight);
+  if (Number.isFinite(lineHeight) && lineHeight > 0) return lineHeight;
+  // line-height: normal does not resolve to a number; approximate from the font.
+  const fontSize = Number.parseFloat(styles.fontSize);
+  return Number.isFinite(fontSize) && fontSize > 0 ? fontSize * 1.2 : 0;
+}
+
+/**
+ * Give the title as many of the shared lines as it needs, then let the
+ * description have whatever is left. The title is capped at the full budget by
+ * CSS, so measuring it here always returns a number within the budget.
+ */
+function applyCardTextBudget(card) {
+  const title = card?.querySelector('.resource-downloads-item-title');
+  const description = card?.querySelector('.resource-downloads-item-description');
+  // Zero height means the section is still hidden; the observer fires again once it shows.
+  if (!title || !description || !title.offsetHeight) return;
+  const lineHeight = lineHeightOf(title);
+  const usedLines = lineHeight
+    ? Math.min(CARD_TEXT_LINE_BUDGET, Math.max(1, Math.round(title.offsetHeight / lineHeight)))
+    : 1;
+  const remaining = Math.max(0, CARD_TEXT_LINE_BUDGET - usedLines);
+  card.style.setProperty('--rd-description-lines', String(remaining));
+  description.hidden = remaining === 0;
+}
+
+/**
+ * Re-measure whenever a title changes size: when its section is first shown,
+ * and when a resize rewraps it. Watching the title (not the card) means the
+ * description clamp this sets can never re-trigger the observer.
+ */
+function observeCardTextBudget(cards) {
+  const titles = cards.filter((card) => card.matches('.is-horizontal, .is-tile'))
+    .map((card) => card.querySelector('.resource-downloads-item-title'))
+    .filter(Boolean);
+  if (!titles.length) return;
+  if (!('ResizeObserver' in window)) {
+    titles.forEach((title) => applyCardTextBudget(title.closest('.resource-downloads-item')));
+    return;
+  }
+  const observer = new ResizeObserver((records) => {
+    window.requestAnimationFrame(() => records.forEach(({ target }) => {
+      applyCardTextBudget(target.closest('.resource-downloads-item'));
+    }));
+  });
+  titles.forEach((title) => observer.observe(title));
+}
+
 // Image left, details right: title, description, Audience / Format / Time
 // across one row, then the button. Spans the full row in a grid.
 function buildHorizontalEntry(entry, isEditor) {
@@ -1865,7 +1957,7 @@ function buildHorizontalEntry(entry, isEditor) {
 
   const body = document.createElement('div');
   body.className = 'resource-downloads-item-body';
-  body.append(buildTitleEl(entry));
+  body.append(buildCardTitleEl(entry));
   const description = buildDescription(entry);
   if (description) body.append(description);
 
@@ -1874,7 +1966,7 @@ function buildHorizontalEntry(entry, isEditor) {
   const metaRows = [
     audience ? buildMetaRow(
       'audience',
-      normalizeText(entry.item.informativeAudienceLabel) || 'Primary Audience',
+      normalizeText(entry.item.informativeAudienceLabel) || 'Audience',
       audience,
     ) : null,
     format ? buildMetaRow(
@@ -1959,7 +2051,7 @@ function buildTileEntry(entry, isEditor) {
   }
   body.append(meta);
 
-  body.append(buildTitleEl(entry));
+  body.append(buildCardTitleEl(entry));
   const description = buildDescription(entry);
   if (description) body.append(description);
 
@@ -2115,10 +2207,12 @@ export default async function decorate(block) {
 
   block.replaceChildren(...children);
 
+  const cards = [...list.children];
+  observeCardTextBudget(cards);
+
   // Reveal cards with a soft staggered rise as they enter the viewport. The
   // CSS only hides cards under prefers-reduced-motion: no-preference, so the
   // editor, reduced-motion users, and no-IO browsers just render in place.
-  const cards = [...list.children];
   if (isEditor || !('IntersectionObserver' in window)) {
     cards.forEach((card) => card.classList.add('is-revealed'));
     return;

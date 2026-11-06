@@ -16,15 +16,16 @@ main > .section > div.resource-downloads-wrapper {
   margin-inline: auto;
 }
 
-/* The Horizontal and Tile styles were designed for the full page column: the
-   wide card needs room for its picture beside three detail columns, and tiles
-   want four to a row. Blocks using either get the shared container back; the
-   older styles keep the narrow cap above. */
-main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
-  max-width: var(--container);
-}
+/* The Horizontal and Tile styles used to get the full --container back. They
+   now keep the narrow cap too (2026-11-06): at full width the cards ran wider
+   than their content. 1040px still fits four tiles to a row. */
 
 .resource-downloads {
+  /* 14px rather than the site's 13px caption, for this block's small text
+     (detail labels and values, tile meta, the tile button). Scoped here, not
+     changed globally. */
+  --caption-size: 0.875rem;
+
   margin: 0 auto;
   padding: 8px 0 32px;
 }
@@ -817,7 +818,7 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   padding: 5px 12px;
   border-radius: 999px;
 
-  /* 96%, up from 88%: over a busy thumbnail the 13px label fell to 4.4:1. */
+  /* 96%, up from 88%: over a busy thumbnail the caption-size label fell to 4.4:1. */
   background: rgb(255 255 255 / 96%);
   color: var(--rd-accent, var(--ncmec-blue-medium));
   font-family: var(--heading-font-family, sans-serif);
@@ -956,12 +957,27 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
 
 /* The picture panel. The image is taken out of flow so the panel follows the
    card's height (Horizontal) or its own ratio (Tile) rather than the image's
-   intrinsic size — see the note on the video media above. Documents are shown
-   whole on white; a video still fills the frame. */
+   intrinsic size — see the note on the video media above.
+
+   Every picture is shown whole (contain), documents and video stills alike, so
+   nothing is ever cropped at any size. The space a picture leaves is filled by
+   a blurred, enlarged copy of itself (--rd-media-backdrop, set in JS once the
+   image has loaded), so an odd-shaped picture reads as deliberate rather than
+   letterboxed. Without a picture the panel shows the type art instead. */
 .resource-downloads-card-media {
   position: relative;
   overflow: hidden;
   background: var(--ncmec-gray-lightest);
+}
+
+.resource-downloads-card-media::before {
+  position: absolute;
+  inset: 0;
+  background: var(--rd-media-backdrop, none) center / cover no-repeat;
+  content: "";
+  filter: blur(22px) saturate(1.15);
+  opacity: 0.6;
+  transform: scale(1.25);
 }
 
 .resource-downloads-card-media > picture,
@@ -973,11 +989,6 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-.resource-downloads-card-media[data-type="video"] > picture img,
-.resource-downloads-card-media[data-type="video"] > img {
-  object-fit: cover;
 }
 
 .resource-downloads-card-media .resource-downloads-default-video-poster {
@@ -999,11 +1010,16 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   }
 }
 
+/* A YouTube/Vimeo still is framed at 16:9 and centred, with the backdrop
+   around it. Cover only trims the black bars YouTube bakes into its 4:3
+   fallback still (hqdefault); a true 16:9 still loses nothing. */
 .resource-downloads-card-media .has-provider-poster img {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+  height: auto;
+  margin: auto;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
@@ -1089,16 +1105,39 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   padding: 28px 32px;
 }
 
+/* The title is an h3 sized by .u-h4 (set in JS), so no font-size here. */
 .resource-downloads-item.is-horizontal .resource-downloads-item-title {
   color: var(--ncmec-navy-dark);
-  font-size: var(--heading-4-size);
   line-height: var(--heading-line-height-tight);
 }
 
+/* Description at the body size (the block's base rule), 18px on desktop. */
 .resource-downloads-item.is-horizontal .resource-downloads-item-description,
 .resource-downloads-item.is-tile .resource-downloads-item-description {
   color: var(--ncmec-gray-dark);
-  font-size: var(--body-sm-size);
+}
+
+/* Title and description share a 5-line budget, title first, the same as the
+   resource library's cards. resource-downloads.js measures how many lines the
+   title took and hands the rest to the description via --rd-description-lines. */
+.resource-downloads-item:is(.is-horizontal, .is-tile) .resource-downloads-item-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.resource-downloads-item:is(.is-horizontal, .is-tile) .resource-downloads-item-description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--rd-description-lines, 3);
+}
+
+/* Title used the whole budget: nothing left for the description. Needs to beat
+   the -webkit-box display above, which would otherwise defeat [hidden]. */
+.resource-downloads-item:is(.is-horizontal, .is-tile) .resource-downloads-item-description[hidden] {
+  display: none;
 }
 
 .resource-downloads-meta-panel.is-card-meta {
@@ -1106,7 +1145,7 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   flex-flow: row wrap;
   gap: 12px 36px;
   justify-content: flex-start;
-  margin-top: 4px;
+  margin-top: 14px;
 }
 
 .resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-row {
@@ -1131,8 +1170,10 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   font-weight: var(--body-weight-strong);
 }
 
+/* With the body's 10px gap: 24px between the description, the detail row and
+   the button. */
 .resource-downloads-item.is-horizontal .resource-downloads-item-actions {
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 /* Tile: image on top, details on a warm panel */
@@ -1147,8 +1188,10 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   background: var(--ncmec-warm-gray);
 }
 
+/* 1.2:1, the backend's thumbnail standard (1200x1000), so a standard
+   thumbnail fills the panel exactly. Other shapes are contained, never cropped. */
 .resource-downloads-item.is-tile .resource-downloads-card-media {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 6 / 5;
   background: #fff;
 }
 
@@ -1194,17 +1237,17 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
   height: 100%;
 }
 
+/* Sized by .u-h4, like the Horizontal title. */
 .resource-downloads-item.is-tile .resource-downloads-item-title {
   color: var(--ncmec-gray-dark);
-  font-size: var(--heading-6-size);
   line-height: var(--heading-line-height-tight);
 }
 
 /* Pinned to the bottom so the buttons line up across a row of tiles whose
-   titles wrap to different lengths. */
+   titles wrap to different lengths; at least 24px below the description. */
 .resource-downloads-item.is-tile .resource-downloads-item-actions {
   margin-top: auto;
-  padding-top: 6px;
+  padding-top: 14px;
 }
 
 /* stylelint-enable no-descending-specificity */
@@ -1387,12 +1430,6 @@ main > .section > div.resource-downloads-wrapper:has(.is-horizontal, .is-tile) {
 
   .resource-downloads-item.is-horizontal .resource-downloads-item-body {
     padding: 22px 20px 24px;
-  }
-
-  /* One tile per row on a phone: a full-width square was taller than the
-     screen's useful height. */
-  .resource-downloads-item.is-tile .resource-downloads-card-media {
-    aspect-ratio: 4 / 3;
   }
 
   .resource-downloads-item-actions {

@@ -23133,7 +23133,7 @@
         "valueType": "string",
         "name": "informativeAudienceLabel",
         "label": "Audience Label Override",
-        "description": "Optional label for the audience detail on Horizontal and Informative cards. Defaults to Primary Audience.",
+        "description": "Optional label for the audience detail on Horizontal and Informative cards. Defaults to Audience.",
         "value": ""
       },
       {
@@ -23142,22 +23142,6 @@
         "name": "informativeAudienceText",
         "label": "Audience Override",
         "description": "Optional audience text for Horizontal and Informative cards. Falls back to the resource audience tags; hidden when there are none.",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "informativeTimeLabel",
-        "label": "Time Label Override",
-        "description": "Optional label for the time detail on Horizontal and Informative cards. Defaults to Time.",
-        "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "informativeTimeText",
-        "label": "Time Override",
-        "description": "Optional length, e.g. 30 minutes. Used by Horizontal, Tile and Informative cards (a Tile shortens it to 30M). Falls back to the resource length; hidden when there is none.",
         "value": ""
       },
       {
@@ -23174,6 +23158,22 @@
         "name": "informativeFormatText",
         "label": "Format Override",
         "description": "Optional format text for Horizontal and Informative cards. Falls back to PDF, Video, PowerPoint, bundle, or the resource type.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "informativeTimeLabel",
+        "label": "Time Label Override",
+        "description": "Optional label for the time detail on Horizontal and Informative cards. Defaults to Time.",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "informativeTimeText",
+        "label": "Time Override",
+        "description": "Optional length, e.g. 30 minutes. Used by Horizontal, Tile and Informative cards (a Tile shortens it to 30M). Falls back to the resource length; hidden when there is none.",
         "value": ""
       }
     ]
