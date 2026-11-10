@@ -322,6 +322,12 @@
   max-width: 42rem;
   color: var(--ncmec-gray-dark);
   font-size: var(--body-sm-size);
+  font-style: italic;
+}
+
+/* An edited caption comes back wrapped in <p>; body paragraph spacing would push it off the image. */
+.article-details .article-details-body-image figcaption p {
+  margin: 0;
 }
 
 .article-details .article-details-message {

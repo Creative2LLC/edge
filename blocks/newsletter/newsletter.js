@@ -46,7 +46,8 @@ const DEFAULTS = {
 function isBlogPage() {
   const path = window.location.pathname;
   const template = getMetadata('template').toLowerCase();
-  return path.includes('/blog/') || template.split(/\s*,\s*/).includes('blog');
+  return path.includes('/ncmec-news/') || path.includes('/blog/')
+    || template.split(/\s*,\s*/).includes('blog');
 }
 
 function metadataValues(name) {

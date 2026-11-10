@@ -727,7 +727,7 @@ function getListingPath(pathname = window.location.pathname) {
   const yearIndex = segments.findIndex((segment) => /^\d{4}$/.test(segment));
   const listing = yearIndex > 0 ? segments.slice(0, yearIndex) : segments.slice(0, -1);
 
-  return listing.length ? `/${listing.join('/')}` : '/blog';
+  return listing.length ? `/${listing.join('/')}` : '/about/ncmec-news';
 }
 
 /**

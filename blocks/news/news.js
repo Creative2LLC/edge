@@ -315,10 +315,10 @@ function blogSlugFromPath(value) {
   return segments.length ? segments[segments.length - 1] : '';
 }
 
-// A link that points at a blog post (…/blog/<year>/<slug>), so the latest-blogs feed can
-// skip a post the author already placed by hand.
+// A link that points at a blog post (…/ncmec-news/<year>/<slug>, or the old …/blog/…), so
+// the latest-blogs feed can skip a post the author already placed by hand.
 function linkedBlogSlug(url) {
-  const match = normalizeText(url).match(/\/blog\/\d{4}\/([^/?#.]+)/i);
+  const match = normalizeText(url).match(/\/(?:ncmec-news|blog)\/\d{4}\/([^/?#.]+)/i);
   return match ? match[1] : '';
 }
 
@@ -333,7 +333,7 @@ function blogListingPath(article) {
     .split('/')
     .filter(Boolean);
   const yearIndex = segments.findIndex((segment) => /^\d{4}$/.test(segment));
-  return yearIndex > 0 ? `/${segments.slice(0, yearIndex).join('/')}` : '/blog';
+  return yearIndex > 0 ? `/${segments.slice(0, yearIndex).join('/')}` : '/about/ncmec-news';
 }
 
 // The same pills the blog browser shows on a card: taxonomy first, then free tags that
