@@ -23,12 +23,9 @@ const FIELD_INDEX = {
   topPadding: 9,
 };
 
+// Eyebrow, heading, intro and the emergency box are optional content and have no
+// defaults. The button and form messages keep theirs: blank, they would break the form.
 const DEFAULTS = {
-  eyebrow: 'Quick Report',
-  heading: 'I have seen a missing child',
-  intro: 'Use this form to send NCMEC details about a possible sighting of a missing child.',
-  emergencyHeading: 'Is the child in immediate danger?',
-  emergencyCopy: 'Call 911 now. You can also contact NCMEC 24 hours a day at 1-800-THE-LOST (1-800-843-5678).',
   formAction: '',
   buttonText: 'Submit Report',
   successMessage: 'Thanks for reporting. Your information has been submitted.',
@@ -311,29 +308,32 @@ export default function decorate(block) {
 
   const eyebrow = document.createElement('p');
   eyebrow.className = 'missing-child-quick-report-eyebrow';
-  moveText(getTextField(block, 'eyebrow'), eyebrow, DEFAULTS.eyebrow);
+  moveText(getTextField(block, 'eyebrow'), eyebrow);
 
   const heading = document.createElement('h2');
   heading.className = 'missing-child-quick-report-heading';
-  moveText(getTextField(block, 'heading'), heading, DEFAULTS.heading);
+  moveText(getTextField(block, 'heading'), heading);
 
   const intro = document.createElement('div');
   intro.className = 'missing-child-quick-report-intro';
-  moveHtml(getRichField(block, 'intro'), intro, DEFAULTS.intro);
+  moveHtml(getRichField(block, 'intro'), intro);
 
-  header.append(eyebrow, heading, intro);
+  // A field left blank renders nothing on the published page. In the editor the empty
+  // element stays (it carries the field's instrumentation) so it can still be filled in.
+  const isShown = (el) => Boolean(el.textContent.trim()) || el.hasAttribute('data-aue-prop');
+  header.append(...[eyebrow, heading, intro].filter(isShown));
 
   const emergency = document.createElement('aside');
   emergency.className = 'missing-child-quick-report-emergency';
 
   const emergencyHeading = document.createElement('h3');
   emergencyHeading.className = 'missing-child-quick-report-emergency-heading';
-  moveText(getTextField(block, 'emergencyHeading'), emergencyHeading, DEFAULTS.emergencyHeading);
+  moveText(getTextField(block, 'emergencyHeading'), emergencyHeading);
 
   const emergencyCopy = document.createElement('div');
   emergencyCopy.className = 'missing-child-quick-report-emergency-copy';
-  moveHtml(getRichField(block, 'emergencyCopy'), emergencyCopy, DEFAULTS.emergencyCopy);
-  emergency.append(emergencyHeading, emergencyCopy);
+  moveHtml(getRichField(block, 'emergencyCopy'), emergencyCopy);
+  emergency.append(...[emergencyHeading, emergencyCopy].filter(isShown));
 
   const form = document.createElement('form');
   form.className = 'missing-child-quick-report-form';
@@ -403,7 +403,7 @@ export default function decorate(block) {
   callCenter.innerHTML = '<strong>NCMEC 24-Hour Call Center</strong><br><a href="tel:+18008435678">1-800-THE-LOST (1-800-843-5678)</a>';
   form.append(callCenter);
 
-  shell.append(header, emergency, form);
+  shell.append(...[header, emergency].filter((el) => el.children.length), form);
   block.replaceChildren(shell);
 
   const formSession = createFormSession(form, 'missing-child-quick-report');

@@ -16,7 +16,6 @@ const DEFAULTS = {
   emptyMessage: 'There are no AMBER Alerts at this time.',
   detailLabel: 'View Poster',
   posterPagePath: '/missing-children-posters',
-  disclosure: 'Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster.',
 };
 
 const FIELD_LABELS = {
@@ -361,7 +360,9 @@ export default async function decorate(block) {
     emptyMessage: getFieldValue(block, 'emptyMessage', 5, DEFAULTS.emptyMessage),
     detailLabel: getFieldValue(block, 'detailLabel', 6, DEFAULTS.detailLabel),
     posterPagePath: getFieldValue(block, 'posterPagePath', 7, DEFAULTS.posterPagePath),
-    disclosure: getFieldValue(block, 'disclosure', 8, DEFAULTS.disclosure),
+    // Optional: a blank disclosure shows no notice. It used to fall back to the NCMEC
+    // poster-certification notice, so authors could not remove it.
+    disclosure: getFieldValue(block, 'disclosure', 8),
   };
 
   const inner = document.createElement('div');

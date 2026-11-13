@@ -1157,12 +1157,12 @@ function createShareButton() {
 }
 
 function createActionBar(config, options = {}) {
-  const { includePrint = true, reportSightingName = '' } = options;
+  const { includePrint = true, includeTip = true, reportSightingName = '' } = options;
   const actions = document.createElement('div');
   actions.className = 'poster-results-detail-actions';
 
   actions.append(createActionLink('CALL 911', 'tel:911'));
-  actions.append(createActionLink('SUBMIT A TIP', config.submitTipUrl));
+  if (includeTip) actions.append(createActionLink('SUBMIT A TIP', config.submitTipUrl));
   if (includePrint) {
     actions.append(createActionButton('PRINT POSTER', () => window.print()));
   }
@@ -1196,7 +1196,10 @@ function createOrganizationMark(config) {
   return wrap;
 }
 
-function createDetailFooter(config, payload, child) {
+// `showCaseNumbers: false` drops the "Alert #" and "NCMEC:" lines. AMBER posters use it:
+// on an AMBER alert both lines print the same AMBER alert ID (the case number IS that ID),
+// and the client asked for the alert ID to come off AMBER posters.
+function createDetailFooter(config, payload, child, { showCaseNumbers = true } = {}) {
   const footer = document.createElement('div');
   footer.className = 'poster-results-detail-footer';
   footer.append(createOrganizationMark(config));
@@ -1228,13 +1231,13 @@ function createDetailFooter(config, payload, child) {
   const alertNumber = firstValue(child, [
     'alert_number', 'alertNumber', 'amber_alert_number', 'amberAlertNumber',
   ]) || amberCaseNumber(child);
-  if (alertNumber) {
+  if (alertNumber && showCaseNumbers) {
     const alert = document.createElement('p');
     alert.className = 'poster-results-detail-alert-number';
     alert.textContent = `Alert #: ${alertNumber}`;
     info.append(alert);
   }
-  if (caseNumber) {
+  if (caseNumber && showCaseNumbers) {
     const ncmec = document.createElement('p');
     ncmec.className = 'poster-results-detail-case';
     ncmec.textContent = `NCMEC: ${caseNumber}`;
@@ -1629,12 +1632,9 @@ function createAmberBanner(payload, alert) {
 // participant section share one visual language.
 function amberSubjectFacts(person, alert = null) {
   const facts = [];
+  // A field the feed leaves blank (no race, no hair colour...) drops its whole row; the
+  // poster never prints an empty "Race:" label. The alert ID is not shown (client request).
   if (alert) {
-    const alertNumber = firstValue(alert, [
-      'alert_number', 'alertNumber', 'amber_alert_number', 'amberAlertNumber',
-    ]) || amberCaseNumber(alert);
-    if (alertNumber) facts.push({ icon: 'info', label: 'Alert #', value: alertNumber });
-
     const issuedFor = firstValue(alert, ['issued_for', 'issuedFor'])
       || firstArrayValue(
         alert?.targetList || alert?.childBean?.targetList || alert?.targets || alert?.alertAreas,
@@ -1724,8 +1724,10 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
   detail.className = 'poster-results-detail poster-results-amber-poster';
   detail.append(
     createMissingChildHeading('AMBER Alert'),
+    // No SUBMIT A TIP on AMBER posters: tips and sightings go to 911 (client request).
     createActionBar(config, {
       includePrint: false,
+      includeTip: false,
       reportSightingName: displayName(alert, 'Missing Child'),
     }),
     createAmberSafetyNotice(),
@@ -1771,7 +1773,7 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     ...config,
     organizationLogo: AMBER_ORGANIZATION_LOGO,
     organizationLogoAlt: AMBER_ORGANIZATION_LOGO_ALT,
-  }, payload, alert));
+  }, payload, alert, { showCaseNumbers: false }));
   container.append(detail);
 }
 

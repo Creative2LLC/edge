@@ -56,14 +56,14 @@
           "valueType": "string",
           "name": "searchPlaceholder",
           "label": "Search Placeholder",
-          "value": "Search articles"
+          "description": "Optional. Hint text inside the search box; leave blank for an empty box."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "loadMoreText",
           "label": "Load More Label",
-          "value": "Load More Articles"
+          "description": "Optional. Only used when Pagination Mode is Load More; leave blank for \"Load More\"."
         },
         {
           "component": "select",

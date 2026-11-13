@@ -896,7 +896,7 @@
         "valueType": "string",
         "name": "disclosure",
         "label": "Disclosure Text",
-        "value": "Notice: The National Center for Missing & Exploited Children® certifies the posters on this site only if they contain the NCMEC logo and the 1-800-THE-LOST® (1-800-843-5678) number. All other posters are the responsibility of the agency whose logo appears on the poster."
+        "description": "Optional. Leave blank to show no notice under the alerts."
       }
     ]
   },
@@ -908,7 +908,7 @@
         "valueType": "string",
         "name": "intro",
         "label": "Intro Copy",
-        "value": "AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below."
+        "description": "Optional. Leave blank to show no intro above the accordion."
       },
       {
         "component": "text",
@@ -1347,14 +1347,14 @@
         "valueType": "string",
         "name": "searchPlaceholder",
         "label": "Search Placeholder",
-        "value": "Search articles"
+        "description": "Optional. Hint text inside the search box; leave blank for an empty box."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "loadMoreText",
         "label": "Load More Label",
-        "value": "Load More Articles"
+        "description": "Optional. Only used when Pagination Mode is Load More; leave blank for \"Load More\"."
       },
       {
         "component": "select",
@@ -19375,35 +19375,35 @@
         "valueType": "string",
         "name": "eyebrow",
         "label": "Eyebrow",
-        "value": "Quick Report"
+        "description": "Optional. Shown above the heading."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "heading",
         "label": "Heading",
-        "value": "I have seen a missing child"
+        "description": "Optional. Leave blank to show no heading."
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "intro",
         "label": "Intro Copy",
-        "value": "Use this form to send NCMEC details about a possible sighting of a missing child."
+        "description": "Optional. Leave blank to show no intro."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "emergencyHeading",
         "label": "Emergency Heading",
-        "value": "Is the child in immediate danger?"
+        "description": "Optional. Leave blank (with Emergency Copy) to hide the emergency box."
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "emergencyCopy",
         "label": "Emergency Copy",
-        "value": "Call 911 now. You can also contact NCMEC 24 hours a day at 1-800-THE-LOST (1-800-843-5678)."
+        "description": "Optional. Leave blank (with Emergency Heading) to hide the emergency box."
       },
       {
         "component": "text",
@@ -21720,7 +21720,7 @@
         "name": "submitTipUrl",
         "label": "\"Submit a Tip\" Button URL",
         "value": "/gethelpnow/cybertipline",
-        "description": "Where the SUBMIT A TIP button on each individual poster page links. Not used by the search form."
+        "description": "Where the SUBMIT A TIP button on each individual poster page links. Not used by the search form. AMBER Alert posters have no SUBMIT A TIP button: they direct people to call 911."
       },
       {
         "component": "reference",
@@ -24523,14 +24523,14 @@
         "valueType": "string",
         "name": "searchPlaceholder",
         "label": "Search Placeholder",
-        "value": "Search"
+        "description": "Optional. Hint text inside the search box; leave blank for an empty box."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "loadMoreText",
         "label": "Load More Label",
-        "value": "Load More"
+        "description": "Optional. Only used when Pagination Mode is Load More; leave blank for \"Load More\"."
       },
       {
         "component": "select",

@@ -25,7 +25,7 @@
           "valueType": "string",
           "name": "intro",
           "label": "Intro Copy",
-          "value": "AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below."
+          "description": "Optional. Leave blank to show no intro above the accordion."
         },
         {
           "component": "text",

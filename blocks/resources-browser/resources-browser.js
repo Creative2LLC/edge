@@ -147,11 +147,17 @@ const RESOURCE_BROWSER_ACTION_LABELS = {
     learnMore: 'Learn more',
     downloadPdf: 'Download PDF',
     viewResource: 'Learn more',
+    // Used only when the author leaves the field blank: the search box still needs an
+    // accessible name and the button still needs a label.
+    searchLabel: 'Search resources',
+    loadMore: 'Load More',
   },
   es: {
     learnMore: 'Mas informacion',
     downloadPdf: 'Descargar PDF',
     viewResource: 'Mas informacion',
+    searchLabel: 'Buscar recursos',
+    loadMore: 'Cargar más',
   },
 };
 
@@ -326,6 +332,29 @@ function getBlockField(block, legacyMap, name, fallback = '') {
     return value || fallback;
   }
   return legacyMap[name] || fallback;
+}
+
+// A published page has one row per model field, in model order, with no field names.
+// In the model's shape since 2026-09-28 (13 rows, Library last) Search Placeholder is row 8
+// and Load More Label row 9. Reading them there keeps a blank field blank: a blank
+// placeholder used to fall through to an older layout's row 5 and show the Filter Tags
+// value, and the Load More label was never read from a published page at all.
+const CURRENT_CONFIG_ROWS = 13;
+const PUBLISHED_TEXT_ROWS = { searchPlaceholder: 8, loadMoreText: 9 };
+
+// Optional text: what the author typed, or nothing. Other layouts use `readLegacy`.
+function readOptionalText(block, configRows, name, readLegacy) {
+  const source = block.querySelector(`[data-aue-prop="${name}"]`);
+  if (source) {
+    const value = source.textContent.trim();
+    source.remove();
+    return value;
+  }
+  if (configRows.length === CURRENT_CONFIG_ROWS
+    && configRows.every((row) => row.children.length === 1)) {
+    return configRows[PUBLISHED_TEXT_ROWS[name]].textContent.trim();
+  }
+  return readLegacy();
 }
 
 function getBlockRichTextField(block, legacyMap, name, fallback = '') {
@@ -1187,6 +1216,8 @@ function buildShell(config) {
   searchInput.className = 'resources-browser-search';
   searchInput.type = 'search';
   searchInput.placeholder = searchPlaceholder;
+  // The box has no visible label, so it needs a name even when the placeholder is blank.
+  searchInput.setAttribute('aria-label', searchPlaceholder || resourceBrowserActionLabels().searchLabel);
   searchWrap.append(searchInput);
   primaryRow.append(searchWrap);
 
@@ -1247,7 +1278,7 @@ function buildShell(config) {
   const loadMoreButton = document.createElement('button');
   loadMoreButton.className = 'resources-browser-load-more';
   loadMoreButton.type = 'button';
-  loadMoreButton.textContent = loadMoreText;
+  loadMoreButton.textContent = loadMoreText || resourceBrowserActionLabels().loadMore;
   applyButtonStyle(loadMoreButton, 'primary');
   const pagination = createPaginationControls('resources-browser', 'Resource results pagination');
   footer.append(loadMoreButton, pagination.nav);
@@ -2206,12 +2237,13 @@ export default function decorate(block) {
         || readConfigField(configRow, 'pageSize', 4, '8'),
       8,
     ),
-    searchPlaceholder: getBlockField(block, legacyMap, 'searchPlaceholder', '')
-      || readConfigValue(configRows, 'searchPlaceholder', 8)
-      || readConfigValue(configRows, 'searchPlaceholder', 5, 'Search')
-      || readConfigField(configRow, 'searchPlaceholder', 5, 'Search')
-      || 'Search',
-    loadMoreText: getBlockField(block, legacyMap, 'loadMoreText', 'Load More'),
+    searchPlaceholder: readOptionalText(block, configRows, 'searchPlaceholder', () => (
+      legacyMap.searchPlaceholder
+        || readConfigValue(configRows, 'searchPlaceholder', 8)
+        || readConfigValue(configRows, 'searchPlaceholder', 5)
+        || readConfigField(configRow, 'searchPlaceholder', 5)
+    )),
+    loadMoreText: readOptionalText(block, configRows, 'loadMoreText', () => legacyMap.loadMoreText || ''),
     paginationMode: normalizePaginationMode(
       getBlockField(block, legacyMap, 'paginationMode', '')
         || readConfigValue(configRows, 'paginationMode', 10)

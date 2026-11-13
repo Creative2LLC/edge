@@ -25,35 +25,35 @@
           "valueType": "string",
           "name": "eyebrow",
           "label": "Eyebrow",
-          "value": "Quick Report"
+          "description": "Optional. Shown above the heading."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "heading",
           "label": "Heading",
-          "value": "I have seen a missing child"
+          "description": "Optional. Leave blank to show no heading."
         },
         {
           "component": "richtext",
           "valueType": "string",
           "name": "intro",
           "label": "Intro Copy",
-          "value": "Use this form to send NCMEC details about a possible sighting of a missing child."
+          "description": "Optional. Leave blank to show no intro."
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "emergencyHeading",
           "label": "Emergency Heading",
-          "value": "Is the child in immediate danger?"
+          "description": "Optional. Leave blank (with Emergency Copy) to hide the emergency box."
         },
         {
           "component": "richtext",
           "valueType": "string",
           "name": "emergencyCopy",
           "label": "Emergency Copy",
-          "value": "Call 911 now. You can also contact NCMEC 24 hours a day at 1-800-THE-LOST (1-800-843-5678)."
+          "description": "Optional. Leave blank (with Emergency Heading) to hide the emergency box."
         },
         {
           "component": "text",

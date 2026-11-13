@@ -157,6 +157,30 @@ function getFieldValue(block, name, fallback = '') {
     || fallback;
 }
 
+// A published page has one row per model field, in model order, and no field names.
+// FIELD_COLUMN_INDEX describes the old one-row table, so on published pages the search
+// placeholder and Load More label always showed their defaults, and a blank heading
+// borrowed the next row's text. This is the model's order since 2026-05-14 and is only
+// trusted when the row count matches. Only the optional text fields read it: the other
+// fields keep their old readers, so live behaviour does not shift under them.
+const PUBLISHED_ROWS = [
+  'heading', 'apiBaseUrl', 'selected', 'exclude', 'pageSize', 'searchPlaceholder',
+  'loadMoreText', 'paginationMode', 'audiencePreset', 'issuePreset', 'typePreset',
+  'tagPreset', 'detailBasePath',
+];
+
+// Optional text: what the author typed, or nothing. A blank field never falls back to
+// built-in copy or to another field's row.
+function readOptionalText(block, name) {
+  const field = readTextField(block, name);
+  if (field.source) return normalizeText(field.value);
+  const rows = getRows(block);
+  if (rows.length === PUBLISHED_ROWS.length && rows.every((row) => row.children.length === 1)) {
+    return normalizeText(rows[PUBLISHED_ROWS.indexOf(name)].textContent);
+  }
+  return getLegacyValue(block, name);
+}
+
 let groupIdCounter = 0;
 function groupId() {
   groupIdCounter += 1;
@@ -415,6 +439,8 @@ function buildShell(config) {
   searchInput.className = 'article-list-search';
   searchInput.type = 'search';
   searchInput.placeholder = config.searchPlaceholder;
+  // The box has no visible label, so it needs a name even when the placeholder is blank.
+  searchInput.setAttribute('aria-label', config.searchPlaceholder || 'Search articles');
   searchWrap.append(searchInput);
   controls.append(searchWrap);
 
@@ -481,7 +507,8 @@ function buildShell(config) {
   const loadMoreButton = document.createElement('button');
   loadMoreButton.className = 'article-list-load-more';
   loadMoreButton.type = 'button';
-  loadMoreButton.textContent = config.loadMoreText;
+  // A button needs a label: a blank Load More field gets a plain one, never an empty button.
+  loadMoreButton.textContent = config.loadMoreText || 'Load More';
   const pagination = createPaginationControls('article-list', 'Article results pagination');
   footer.append(loadMoreButton, pagination.nav);
   inner.append(cardsContainer, emptyState, footer);
@@ -894,21 +921,13 @@ function renderApiList(block, config) {
 export default function decorate(block) {
   const filters = parseFilterLists(getFieldValue(block, 'filters'));
   const config = {
-    heading: getFieldValue(block, 'heading'),
+    heading: readOptionalText(block, 'heading'),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl')),
     selectedField: getFieldValue(block, 'selected'),
     excludeField: getFieldValue(block, 'exclude'),
     pageSize: parseIntSafe(getFieldValue(block, 'pageSize', '9'), 9),
-    searchPlaceholder: getFieldValue(
-      block,
-      'searchPlaceholder',
-      'Search articles',
-    ) || 'Search articles',
-    loadMoreText: getFieldValue(
-      block,
-      'loadMoreText',
-      'Load More Articles',
-    ) || 'Load More Articles',
+    searchPlaceholder: readOptionalText(block, 'searchPlaceholder'),
+    loadMoreText: readOptionalText(block, 'loadMoreText'),
     paginationMode: normalizePaginationMode(getFieldValue(block, 'paginationMode', 'load-more')),
     defaultView: 'grid',
     audiencePreset: getFieldValue(block, 'audiencePreset') || filters.audience.join(', '),

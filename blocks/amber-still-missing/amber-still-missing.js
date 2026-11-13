@@ -6,7 +6,6 @@ import {
 import { buildPosterDetailHref } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
-  intro: 'AMBER Alerts are usually resolved within hours. However, there are still some children who were featured in AMBER Alerts who are still missing. These children and their most up to date poster can be found below.',
   heading: 'Children Still Missing from AMBER Alerts - Expand for details',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/amber-alerts/still-missing',
@@ -218,7 +217,9 @@ function setExpanded(item, expanded, immediate = false) {
 
 export default async function decorate(block) {
   const config = {
-    intro: getFieldValue(block, 'intro', 0, DEFAULTS.intro),
+    // Optional: a blank intro shows nothing (it used to fall back to built-in copy).
+    // The heading keeps its default: it is the accordion's button label.
+    intro: getFieldValue(block, 'intro', 0),
     heading: getFieldValue(block, 'heading', 1, DEFAULTS.heading),
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl', 2, DEFAULTS.apiBaseUrl)),
     endpointPath: getFieldValue(block, 'endpointPath', 3, DEFAULTS.endpointPath),
@@ -284,7 +285,8 @@ export default async function decorate(block) {
   });
 
   accordion.append(header, panel);
-  inner.append(intro, accordion);
+  if (config.intro) inner.append(intro);
+  inner.append(accordion);
   block.replaceChildren(inner);
 
   setStatus(status, 'Loading children still missing from AMBER Alerts...', 'loading');

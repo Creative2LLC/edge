@@ -57,7 +57,7 @@
           "name": "submitTipUrl",
           "label": "\"Submit a Tip\" Button URL",
           "value": "/gethelpnow/cybertipline",
-          "description": "Where the SUBMIT A TIP button on each individual poster page links. Not used by the search form."
+          "description": "Where the SUBMIT A TIP button on each individual poster page links. Not used by the search form. AMBER Alert posters have no SUBMIT A TIP button: they direct people to call 911."
         },
         {
           "component": "reference",
