@@ -68,6 +68,9 @@ export const BLOCK_RENAMES = [
   ['Accordion', 'faq'],
   ['Sticky Nav', 'report-section-nav'],
   ['Resource Browser', 'resources-browser'],
+  ['Img 1x3 Card Grid', 'picture-cards'],
+  ['CTA 1x4 Btn Card', 'need-help'],
+  ['Multi Icn Btn Card Grid', 'card-row-detailed'],
   ['Resource Tags (Metadata)', 'resource-tags'],
   // Named this way before the rename; they never matched their folder.
   ['Become a Team HOPE Volunteer', 'team-hope-volunteer'],

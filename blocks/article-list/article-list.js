@@ -3,9 +3,9 @@ import resolveSiteHref from '../../scripts/link-utils.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 import { showSkeleton, clearSkeleton, setButtonLoading } from '../../scripts/skeleton.js';
+import { observeCardTextBudget } from '../../scripts/card-text-budget.js';
 import {
   DEFAULT_LIST_SORT,
-  getListSortOptions,
   normalizeListSort,
 } from '../../scripts/list-sort.js';
 import {
@@ -18,6 +18,21 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
+
+// Blogs offer four sorts (client list, 2026-11-13). The API sends the full library list
+// (resources share it), so the block keeps only these, in this order, with these labels.
+// Any other sort (an old link, a different admin default) falls back to newest first.
+const ARTICLE_SORTS = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+  { value: 'title_asc', label: 'A-Z' },
+  { value: 'title_desc', label: 'Z-A' },
+];
+
+function normalizeArticleSort(value, fallback = DEFAULT_LIST_SORT) {
+  const sort = normalizeListSort(value, fallback);
+  return ARTICLE_SORTS.some((option) => option.value === sort) ? sort : DEFAULT_LIST_SORT;
+}
 
 const FIELD_LABELS = {
   heading: ['heading', 'title'],
@@ -392,7 +407,7 @@ function buildCard(article, index = 0, config = {}) {
     const link = document.createElement('a');
     link.className = 'article-list-card-link';
     link.href = linkHref;
-    link.textContent = 'Learn More';
+    link.textContent = 'Read More';
     // The shared text-link style draws its own arrow; the block no longer does.
     applyButtonStyle(link, 'text-link');
     body.append(link);
@@ -498,6 +513,13 @@ function buildShell(config) {
 
   const cardsContainer = document.createElement('div');
   cardsContainer.className = 'article-list-grid';
+  // Same 5-line title + excerpt budget as the Resource Browser cards.
+  observeCardTextBudget(cardsContainer, {
+    card: '.article-list-card',
+    title: '.article-list-card-title',
+    text: '.article-list-card-excerpt',
+    property: '--al-excerpt-lines',
+  });
   const emptyState = document.createElement('p');
   emptyState.className = 'article-list-empty';
   emptyState.hidden = true;
@@ -581,7 +603,7 @@ function renderApiList(block, config) {
   state.query = locationState.hasQuery ? locationState.query : defaultState.query;
   state.view = locationState.view || config.defaultView;
   state.hasExplicitSort = locationState.hasSort;
-  state.sort = locationState.hasSort ? normalizeListSort(locationState.sort) : '';
+  state.sort = locationState.hasSort ? normalizeArticleSort(locationState.sort) : '';
   state.selectedAudience = new Set(
     locationState.areas.present
       ? locationState.areas.values
@@ -707,13 +729,12 @@ function renderApiList(block, config) {
     syncFilterControls();
   };
   const updateSorting = (sorting = {}, appliedSort = DEFAULT_LIST_SORT) => {
-    const options = sorting.options || getListSortOptions();
-    setFilterOptions(sortSelect, 'Sort', options);
-    const fallbackSort = normalizeListSort(sorting.default || DEFAULT_LIST_SORT);
+    setFilterOptions(sortSelect, 'Sort', ARTICLE_SORTS);
+    const fallbackSort = normalizeArticleSort(sorting.default || DEFAULT_LIST_SORT);
     if (!state.hasExplicitSort) {
-      state.sort = normalizeListSort(appliedSort || fallbackSort, fallbackSort);
+      state.sort = normalizeArticleSort(appliedSort || fallbackSort, fallbackSort);
     } else {
-      state.sort = normalizeListSort(state.sort, fallbackSort);
+      state.sort = normalizeArticleSort(state.sort, fallbackSort);
     }
     syncSortControl();
   };
@@ -882,7 +903,7 @@ function renderApiList(block, config) {
     applyFacet(tagSelect, state.selectedPrograms);
   });
   sortSelect.addEventListener('change', () => {
-    state.sort = normalizeListSort(sortSelect.value);
+    state.sort = normalizeArticleSort(sortSelect.value);
     state.hasExplicitSort = true;
     syncUrlState();
     loadArticles(true);

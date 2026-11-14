@@ -23,7 +23,7 @@ body.nav-mobile-open header .nav-wrapper {
   z-index: 1000;
 }
 
-@media (width >= 1260px) {
+@media (width >= 1392px) {
   header .nav-wrapper {
     top: var(--top-banner-height);
   }
@@ -53,7 +53,7 @@ header nav[aria-expanded='true'] {
   min-height: 100dvh;
 }
 
-@media (width >= 1260px) {
+@media (width >= 1392px) {
   header nav {
     display: flex;
     justify-content: space-between;
@@ -182,7 +182,7 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   transform: rotate(-45deg);
 }
 
-@media (width >= 1260px) {
+@media (width >= 1392px) {
   header nav .nav-hamburger {
     display: none;
     visibility: hidden;
@@ -243,7 +243,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
   font-weight: var(--body-weight);
 }
 
-@media (width >= 1260px) {
+@media (width >= 1392px) {
   header nav .nav-sections {
     display: block;
     visibility: visible;
@@ -490,7 +490,7 @@ header .nav-top-banner {
   font-size: var(--body-sm-size);
 }
 
-@media (width >= 1260px) {
+@media (width >= 1392px) {
   header .nav-top-banner {
     display: flex;
     align-items: center;
@@ -649,7 +649,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 }
 
 /* unified desktop nav styling */
-@media (width >= 1260px) {
+@media (width >= 1392px) {
   header .nav-wrapper {
     background-color: transparent;
     transition: background 0.25s ease, backdrop-filter 0.25s ease;
@@ -771,7 +771,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
 }
 
 /* mobile + touch tablet navigation pattern */
-@media (width < 1260px) {
+@media (width < 1392px) {
   /* stylelint-disable no-descending-specificity */
   header nav {
     --nav-mobile-reveal-duration: 0.72s;
@@ -1497,7 +1497,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   /* stylelint-enable no-descending-specificity */
 }
 
-@media (width >= 640px) and (width < 1260px) {
+@media (width >= 640px) and (width < 1392px) {
   header nav .nav-mobile-meta {
     grid-template-columns: 1fr;
     align-items: start;
@@ -1513,7 +1513,7 @@ header .nav-top-banner .top-banner-language-panel li a:focus {
   }
 }
 
-@media (width >= 900px) and (width < 1260px) {
+@media (width >= 900px) and (width < 1392px) {
   header nav .nav-mobile-meta-links {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

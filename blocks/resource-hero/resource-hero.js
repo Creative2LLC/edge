@@ -655,12 +655,23 @@ function formatPathSegment(segment) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+// Author URLs carry /content/edge (and .html); live ones don't. The trail starts
+// below that root either way, and author links keep the author form so they open.
+const AUTHOR_CONTENT_ROOT = '/content/edge';
+
+function isAuthorContentPath() {
+  const { pathname } = window.location;
+  return pathname === AUTHOR_CONTENT_ROOT || pathname.startsWith(`${AUTHOR_CONTENT_ROOT}/`);
+}
+
 function getCurrentPathSegments() {
-  return window.location.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+  const segments = window.location.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+  return isAuthorContentPath() ? segments.slice(2) : segments;
 }
 
 function buildCrumbHref(pathSegments, index) {
-  return `/${pathSegments.slice(0, index + 1).join('/')}`;
+  const sitePath = `/${pathSegments.slice(0, index + 1).join('/')}`;
+  return isAuthorContentPath() ? `${AUTHOR_CONTENT_ROOT}${sitePath}.html` : sitePath;
 }
 
 function parseTrailItem(item) {

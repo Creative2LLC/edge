@@ -18,7 +18,7 @@ const trackEvent = (name, params) => import('../../scripts/analytics.js')
   .catch(() => {});
 
 // desktop nav should apply at standard desktop breakpoints
-const isDesktop = window.matchMedia('(min-width: 1260px)');
+const isDesktop = window.matchMedia('(min-width: 1392px)');
 const MOBILE_SUBNAV_TRANSITION_MS = 460;
 const FALLBACK_BRAND_LOGO = new URL('./ncmec-brand-mark.svg', import.meta.url).href;
 const BRAND_LOGO_ALT = 'National Center for Missing & Exploited Children';

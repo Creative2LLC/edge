@@ -43,10 +43,15 @@
   max-width: 885px;
 }
 
-/* Cards row */
+/* Cards row: up to four cards share one row. The editor cannot cap how many cards an
+   author adds, so a fifth card starts a new row instead of squeezing every card (and
+   its padding) until the row breaks out of the block. */
 .need-help-cards {
+  --need-help-gap: 24px;
+
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: var(--need-help-gap);
   justify-content: center;
   width: 100%;
 }
@@ -54,6 +59,8 @@
 /* Individual card */
 .need-help-card {
   flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: break-word;
   background: #fff;
   border-radius: 8px;
   padding: 28px 24px;
@@ -62,6 +69,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+/* Five or more cards: fixed quarter-width cards, the last row centred. Four or fewer
+   keep filling the row as before. Tablet and mobile already wrap (2 and 1 per row). */
+@media (width > 900px) {
+  .need-help-cards:has(> .need-help-card:nth-child(5)) > .need-help-card {
+    flex: 0 0 calc((100% - 3 * var(--need-help-gap)) / 4);
+  }
 }
 
 /* Card title */

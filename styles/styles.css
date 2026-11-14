@@ -787,7 +787,7 @@ header.is-shell-loading::after {
   pointer-events: none;
 }
 
-/* Below the desktop nav (header.js switches at 1260px): menu button left, logo centred. */
+/* Below the desktop nav (header.js switches at 1392px): menu button left, logo centred. */
 header.is-shell-loading::before {
   left: 16px;
   width: 48px;
@@ -804,7 +804,7 @@ header.is-shell-loading::after {
 }
 
 /* Desktop nav: navy top banner, then the logo and the nav pill floating below it. */
-@media (width >= 1260px) {
+@media (width >= 1392px) {
   header.is-shell-loading {
     background: #0b1f33;
   }

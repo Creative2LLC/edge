@@ -96,6 +96,9 @@
         },
         {
           "...": "../blocks/split-card-info/_split-card-info.json#/definitions"
+        },
+        {
+          "...": "../blocks/need-help/_need-help.json#/definitions"
         }
       ]
     },
@@ -138,6 +141,12 @@
         },
         {
           "...": "../blocks/text-image/_text-image.json#/definitions"
+        },
+        {
+          "...": "../blocks/picture-cards/_picture-cards.json#/definitions"
+        },
+        {
+          "...": "../blocks/card-row-detailed/_card-row-detailed.json#/definitions"
         }
       ]
     },
@@ -427,15 +436,6 @@
       "title": "Unsorted",
       "id": "unsorted",
       "components": [
-        {
-          "...": "../blocks/card-row-detailed/_card-row-detailed.json#/definitions"
-        },
-        {
-          "...": "../blocks/need-help/_need-help.json#/definitions"
-        },
-        {
-          "...": "../blocks/picture-cards/_picture-cards.json#/definitions"
-        },
         {
           "...": "../blocks/report-archive/_report-archive.json#/definitions"
         },

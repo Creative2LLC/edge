@@ -39,6 +39,11 @@ main > .section > .resources-browser-wrapper {
   flex-wrap: wrap;
 }
 
+/* With no heading the toggle is the row's only item; keep it on the right. */
+.resources-browser .resources-browser-view-toggle {
+  margin-left: auto;
+}
+
 .resources-browser .resources-browser-heading {
   margin: 0;
   color: #243846;

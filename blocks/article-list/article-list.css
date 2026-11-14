@@ -27,6 +27,11 @@
   gap: 1rem;
 }
 
+/* With no heading the toggle is the row's only item; keep it on the right. */
+.article-list .article-list-view-toggle {
+  margin-left: auto;
+}
+
 .article-list .article-list-heading {
   margin: 0;
   color: #16324a;
@@ -305,23 +310,39 @@
   /* Was #6a7c8d, 4.30:1 on white; palette text grey clears AA. */
   color: var(--ncmec-gray-dark);
   font-size: var(--caption-size);
-  font-weight: var(--body-weight-strong);
+  font-weight: 800; /* matches the Resource Browser card's type/time line */
 }
 
+/* Type and line caps match the Resource Browser cards: title + excerpt share a
+   5-line budget (scripts/card-text-budget.js sets --al-excerpt-lines), and both
+   end in an ellipsis when cut. */
 .article-list .article-list-card-title {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
   color: var(--ncmec-gray-dark);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
 }
 
 .article-list .article-list-grid[data-view="list"] .article-list-card-title {
-  font-size: var(--heading-5-size);
+  font-size: var(--heading-3-size);
 }
 
 .article-list .article-list-card-excerpt {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
   color: var(--ncmec-gray-dark);
   font-weight: var(--body-weight-medium);
   font-size: var(--body-size);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--al-excerpt-lines, 3);
+}
+
+/* Title used the whole budget: no excerpt. Beats the -webkit-box display above. */
+.article-list .article-list-card-excerpt[hidden] {
+  display: none;
 }
 
 /* Only position and placement live here — the colour, size, weight and the

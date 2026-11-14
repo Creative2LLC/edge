@@ -1,14 +1,14 @@
 {
   "definitions": [
     {
-      "title": "Need Help",
+      "title": "CTA 1x4 Btn Card",
       "id": "need-help",
       "plugins": {
         "xwalk": {
           "page": {
             "resourceType": "core/franklin/components/block/v1/block",
             "template": {
-              "name": "Need Help",
+              "name": "CTA 1x4 Btn Card",
               "model": "need-help",
               "filter": "need-help"
             }

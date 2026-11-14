@@ -332,14 +332,14 @@ function buildCard(item, config) {
     const link = document.createElement('a');
     link.className = 'related-articles-card-link';
     link.href = href;
-    link.textContent = 'Learn More';
+    link.textContent = 'Read More';
     // The shared text-link style draws its own arrow; the block no longer does.
     applyButtonStyle(link, 'text-link');
     actions.append(link);
   }
 
   // When the related resource is itself downloadable, offer a gated download
-  // straight from the card (in addition to Learn More).
+  // straight from the card (in addition to Read More).
   const downloadUrl = resolveDownloadUrl(item.download_url || item.resource_url);
   if (item.has_download && downloadUrl) {
     const download = document.createElement('a');

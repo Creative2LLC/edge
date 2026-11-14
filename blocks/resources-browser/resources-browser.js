@@ -5,6 +5,7 @@ import resolveSiteHref, { currentSiteLocale } from '../../scripts/link-utils.js'
 import { applyButtonStyle, decorateButtonText } from '../../scripts/button-utils.js';
 import { readListFilterState, writeListFilterState } from '../../scripts/list-filter-state.js';
 import { showSkeleton, clearSkeleton, setButtonLoading } from '../../scripts/skeleton.js';
+import { observeCardTextBudget } from '../../scripts/card-text-budget.js';
 import {
   DEFAULT_LIST_SORT,
   getListSortOptions,
@@ -817,10 +818,12 @@ function buildResourceTypeIcon(typeLabel) {
 function formatDurationLabel(resource) {
   const minutes = Number.parseInt(resource.durationMinutes || '', 10);
   if (Number.isFinite(minutes) && minutes > 0) {
-    if (minutes < 60) return `${minutes}M`;
+    // Same wording as the Featured (resource-downloads) cards: "20 Min", "1 Hour 50 Min".
+    if (minutes < 60) return `${minutes} Min`;
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    return remainingMinutes ? `${hours}H ${remainingMinutes}M` : `${hours}HR`;
+    const hourText = `${hours} ${hours === 1 ? 'Hour' : 'Hours'}`;
+    return remainingMinutes ? `${hourText} ${remainingMinutes} Min` : hourText;
   }
 
   return `${resource.durationLabel || ''}`.trim();
@@ -1054,62 +1057,13 @@ function createChip(label, onRemove, facet = '') {
   return chip;
 }
 
-/* Title + description never exceed this many lines together. */
-const CARD_TEXT_LINE_BUDGET = 5;
-
-function lineHeightOf(element) {
-  const styles = window.getComputedStyle(element);
-  const lineHeight = Number.parseFloat(styles.lineHeight);
-  if (Number.isFinite(lineHeight) && lineHeight > 0) return lineHeight;
-  // line-height: normal does not resolve to a number; approximate from the font.
-  const fontSize = Number.parseFloat(styles.fontSize);
-  return Number.isFinite(fontSize) && fontSize > 0 ? fontSize * 1.2 : 0;
-}
-
-/**
- * Give the title as many of the shared lines as it needs, then let the
- * description have whatever is left. The title is capped at the full budget by
- * CSS, so measuring it here always returns a number within the budget.
- */
-function applyCardTextBudget(cardsContainer) {
-  cardsContainer.querySelectorAll('.resources-browser-card').forEach((card) => {
-    const subtitle = card.querySelector('.resources-browser-card-subtitle');
-    if (!subtitle) return;
-    const title = card.querySelector('.resources-browser-card-title');
-    let usedLines = 0;
-    if (title) {
-      const lineHeight = lineHeightOf(title);
-      usedLines = lineHeight
-        ? Math.min(CARD_TEXT_LINE_BUDGET, Math.max(1, Math.round(title.offsetHeight / lineHeight)))
-        : 1;
-    }
-    const remaining = Math.max(0, CARD_TEXT_LINE_BUDGET - usedLines);
-    card.style.setProperty('--rb-subtitle-lines', String(remaining));
-    subtitle.hidden = remaining === 0;
-  });
-}
-
-/**
- * Cards arrive from several code paths (initial render, pagination, API load)
- * and the grid/list switch changes the title's font size, so rather than hook
- * every one of them, watch the container for both and re-measure.
- */
-function observeCardTextBudget(cardsContainer) {
-  const run = () => window.requestAnimationFrame(() => applyCardTextBudget(cardsContainer));
-  new MutationObserver(run).observe(cardsContainer, {
-    childList: true,
-    attributes: true,
-    attributeFilter: ['data-view'],
-  });
-  // Local timer rather than the shared debounce(): that helper is declared
-  // further down this module and would be a use-before-define here.
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(run, 150);
-  });
-  run();
-}
+// Title + description share a 5-line budget (scripts/card-text-budget.js).
+const CARD_TEXT_SELECTORS = {
+  card: '.resources-browser-card',
+  title: '.resources-browser-card-title',
+  text: '.resources-browser-card-subtitle',
+  property: '--rb-subtitle-lines',
+};
 
 function applyResultView(cardsContainer, buttons, view) {
   cardsContainer.dataset.view = view;
@@ -2194,7 +2148,7 @@ function renderApiBrowser(block, config) {
 
   syncSortControl();
   applyResultView(cardsContainer, viewButtons, state.view);
-  observeCardTextBudget(cardsContainer);
+  observeCardTextBudget(cardsContainer, CARD_TEXT_SELECTORS);
   block.replaceChildren(inner);
   window.requestAnimationFrame(() => {
     loadResources(true);
