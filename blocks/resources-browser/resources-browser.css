@@ -39,11 +39,6 @@ main > .section > .resources-browser-wrapper {
   flex-wrap: wrap;
 }
 
-/* With no heading the toggle is the row's only item; keep it on the right. */
-.resources-browser .resources-browser-view-toggle {
-  margin-left: auto;
-}
-
 .resources-browser .resources-browser-heading {
   margin: 0;
   color: #243846;
@@ -77,9 +72,10 @@ main > .section > .resources-browser-wrapper {
   gap: 14px;
 }
 
+/* Search, sort, then the grid/list switch at the right end. */
 .resources-browser .resources-browser-primary-row {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(160px, 220px);
+  grid-template-columns: minmax(260px, 1fr) minmax(160px, 220px) auto;
   align-items: center;
   gap: 12px;
 }
@@ -608,8 +604,13 @@ main > .section > .resources-browser-wrapper {
 }
 
 @media (width <= 1020px) {
+  /* Search takes its own line; sort and the grid/list switch share the next. */
   .resources-browser .resources-browser-primary-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .resources-browser .resources-browser-search-wrap {
+    grid-column: 1 / -1;
   }
 
   .resources-browser .resources-browser-filter-row .resources-browser-filter {
@@ -634,10 +635,6 @@ main > .section > .resources-browser-wrapper {
   .resources-browser .resources-browser-header-top {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .resources-browser .resources-browser-view-toggle {
-    align-self: flex-end;
   }
 
   .resources-browser .resources-browser-filter-row .resources-browser-filter {

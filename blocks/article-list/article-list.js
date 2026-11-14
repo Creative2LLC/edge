@@ -438,8 +438,7 @@ function buildShell(config) {
   const gridButton = createViewToggleButton('Grid', 'grid', config.defaultView);
   const listButton = createViewToggleButton('List', 'list', config.defaultView);
   viewToggle.append(gridButton, listButton);
-  headerTop.append(viewToggle);
-  header.append(headerTop);
+  if (headerTop.children.length) header.append(headerTop);
 
   // Broad to narrow, each group named. The area pills used to sit BELOW the
   // dropdowns even though they are the widest cut of the library, and sort was
@@ -457,7 +456,11 @@ function buildShell(config) {
   // The box has no visible label, so it needs a name even when the placeholder is blank.
   searchInput.setAttribute('aria-label', config.searchPlaceholder || 'Search articles');
   searchWrap.append(searchInput);
-  controls.append(searchWrap);
+  // The grid/list switch sits at the right end of the search row.
+  const searchRow = document.createElement('div');
+  searchRow.className = 'article-list-search-row';
+  searchRow.append(searchWrap, viewToggle);
+  controls.append(searchRow);
 
   const areaGroup = document.createElement('div');
   areaGroup.className = 'article-list-group article-list-area-group';

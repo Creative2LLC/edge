@@ -1150,8 +1150,7 @@ function buildShell(config) {
   const gridButton = createViewToggleButton('Grid', 'grid', 'grid');
   const listButton = createViewToggleButton('List', 'list', 'grid');
   viewToggle.append(gridButton, listButton);
-  headerTop.append(viewToggle);
-  header.append(headerTop);
+  if (headerTop.children.length) header.append(headerTop);
 
   if (bodyText) {
     const body = document.createElement('div');
@@ -1184,7 +1183,8 @@ function buildShell(config) {
   const gradeAgeSelect = createFilterSelect(filterLabel(config, 'grade_ages'));
   const lengthSelect = createFilterSelect(filterLabel(config, 'lengths'));
   const sortSelect = createSortSelect('Sort resources');
-  primaryRow.append(sortSelect);
+  // Search, sort, then the grid/list switch at the right end of the row.
+  primaryRow.append(sortSelect, viewToggle);
   controls.append(primaryRow);
 
   const filterRow = document.createElement('div');

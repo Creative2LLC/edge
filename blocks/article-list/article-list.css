@@ -27,9 +27,11 @@
   gap: 1rem;
 }
 
-/* With no heading the toggle is the row's only item; keep it on the right. */
-.article-list .article-list-view-toggle {
-  margin-left: auto;
+/* The grid/list switch sits at the right end of the search row. */
+.article-list .article-list-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .article-list .article-list-heading {
@@ -97,6 +99,7 @@
 
 .article-list .article-list-search-wrap {
   display: block;
+  flex: 1;
   min-width: 0;
 }
 
@@ -467,10 +470,6 @@
   .article-list .article-list-header-top {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .article-list .article-list-view-toggle {
-    align-self: flex-end;
   }
 
   .article-list .article-list-filter-row {
