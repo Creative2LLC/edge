@@ -16,16 +16,17 @@ main > .section > div.resource-downloads-wrapper {
   margin-inline: auto;
 }
 
-/* The Horizontal and Tile styles used to get the full --container back. They
-   now keep the narrow cap too (2026-11-06): at full width the cards ran wider
-   than their content. 1040px still fits four tiles to a row. */
+/* Client, 2026-11-16: only the featured card and the stacked list stay narrow.
+   A grid (the Grid layout, or rows of tiles) goes back to the full container,
+   and they are fine with the featured card above it not lining up with it.
+   So the wrapper widens whenever it holds a grid, and the full-row cards inside
+   a grid keep the narrow cap themselves (rule further down). */
+main > .section > div.resource-downloads-wrapper:has(.resource-downloads-list:is(.is-grid, .has-tiles)) {
+  max-width: var(--container);
+}
 
 .resource-downloads {
-  /* 14px rather than the site's 13px caption, for this block's small text
-     (detail labels and values, tile meta, the tile button). Scoped here, not
-     changed globally. */
-  --caption-size: 0.875rem;
-
+  /* The site caption is 14px now, so this block no longer scopes its own. */
   margin: 0 auto;
   padding: 8px 0 32px;
 }
@@ -950,9 +951,14 @@ main > .section > div.resource-downloads-wrapper {
   align-items: stretch;
 }
 
+/* Full-row cards in a grid: the featured card on top, and anything else that
+   is not a tile. They keep the narrow width, centred over the full-width grid. */
 .resource-downloads-list.has-tiles > :not(.is-tile),
 .resource-downloads-list.is-grid > .is-horizontal {
   grid-column: 1 / -1;
+  justify-self: center;
+  width: 100%;
+  max-width: var(--container-narrow, 1040px);
 }
 
 /* The picture panel. The image is taken out of flow so the panel follows the
@@ -1090,12 +1096,12 @@ main > .section > div.resource-downloads-wrapper {
   border: 0;
 }
 
-/* 16:9 sets the card's height from its width, so at the full container the
-   picture keeps the design's proportions instead of stretching into a thin
-   band beside the text. A taller body still grows the panel with it. */
+/* Client spec (Leon's mock-up, ~640x360 picture beside a ~770 text box): the
+   picture is a fixed 16:9 box aligned to the top. Only the white text side
+   grows when the copy runs long; the picture never stretches with it. */
 .resource-downloads-item.is-horizontal .resource-downloads-card-media {
-  flex: 0 0 40%;
-  min-height: 220px;
+  flex: 0 0 45%;
+  align-self: flex-start;
   aspect-ratio: 16 / 9;
 }
 
@@ -1166,7 +1172,9 @@ main > .section > div.resource-downloads-wrapper {
   gap: 3px;
 }
 
+/* Client spec: the Audience / Format / Time values are 15. */
 .resource-downloads-meta-panel.is-card-meta .resource-downloads-meta-value {
+  font-size: var(--body-sm-size);
   font-weight: var(--body-weight-strong);
 }
 
@@ -1277,9 +1285,9 @@ main > .section > div.resource-downloads-wrapper {
   --btn-focus: var(--button-primary);
 }
 
-/* Tiles are narrow, so their button is the small size. */
+/* Tiles are narrow, so their button is tighter, but its text is the site's
+   16px button size (client: all button text 16). */
 .resource-downloads-item.is-tile .resource-downloads-item-button {
-  --btn-font-size: var(--caption-size);
   --btn-pad-block: 6px;
   --btn-pad-inline: 14px;
 }
@@ -1422,8 +1430,10 @@ main > .section > div.resource-downloads-wrapper {
     align-items: flex-start;
   }
 
+  /* Stacked: the picture takes the full card width again. */
   .resource-downloads-item.is-horizontal .resource-downloads-card-media {
     flex-basis: auto;
+    align-self: stretch;
     min-height: 0;
     aspect-ratio: 16 / 9;
   }

@@ -491,7 +491,8 @@ export default function decorate(block) {
   const left = document.createElement('div');
   left.className = 'cta-card-1-left';
 
-  const title = buildTextElement('h2', 'cta-card-1-title', titleField);
+  // Stays an h2 for the outline, at the h3 size (client: banner title 36).
+  const title = buildTextElement('h2', 'cta-card-1-title u-h3', titleField);
   if (title) left.append(title);
 
   const subtitle = buildRichTextElement('div', 'cta-card-1-subtitle', subtitleField);

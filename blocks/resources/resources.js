@@ -44,6 +44,7 @@ const BLOCK_PROPS = [
   'languagePreset',
   'programPreset',
   'gradeAgePreset',
+  'layout',
 ];
 
 const RESOURCE_ACTION_LABELS = {
@@ -558,7 +559,8 @@ function buildResourceCard(resource, row) {
 
   if (resource.title) {
     const titleEl = document.createElement('h3');
-    titleEl.className = 'resources-card-title';
+    // Shared listing-card title size (24px), same as the browsers and related blocks.
+    titleEl.className = 'resources-card-title u-card-title';
     applyRichText(titleEl, resource.titleSource, resource.titleHtml, resource.title);
     content.append(titleEl);
   }
@@ -872,7 +874,24 @@ async function decorateBlock(block) {
 
 // Style dropdowns appended to this block's model after its pages were published. They
 // are read before the block rebuilds its markup, then applied to the finished buttons.
+// Layout was appended to the end of the model after pages were published, so it is
+// read by name in the editor and by VALUE on a published page: its stored value
+// ("layout-grid") names itself, and a page published before the field existed simply
+// has no such row and stays a carousel. The row is taken out before decoration, as the
+// appended style rows are, so nothing else ever sees it.
+const GRID_LAYOUT = 'layout-grid';
+function takeLayout(block) {
+  const field = block.querySelector('[data-aue-prop="layout"]');
+  if (field) return field.textContent.trim() === GRID_LAYOUT ? 'grid' : '';
+  const row = [...block.children].find((child) => child.children.length <= 1
+    && child.textContent.trim() === GRID_LAYOUT);
+  if (!row) return '';
+  row.remove();
+  return 'grid';
+}
+
 export default async function decorate(block) {
+  const layout = takeLayout(block);
   // Appended style dropdowns come out of the published markup first; see button-utils.
   takeAppendedStyleCells(block);
   const [buttonStyle] = readAppendedStyles(
@@ -880,6 +899,8 @@ export default async function decorate(block) {
     ['buttonStyle'],
     extractConfigRows(block),
   );
+  // Set before decorating, so the cards are laid out as a grid from the first frame.
+  block.classList.toggle('resources-layout-grid', layout === 'grid');
   await decorateBlock(block);
   restyleAppendedButtons(block, {
     '.resources-button': buttonStyle,

@@ -1645,6 +1645,28 @@ function buildInformativeTypeBadge(theme) {
   return badge;
 }
 
+function capitalizeWords(value) {
+  return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+// One wording for time on every card, the same as the resource library:
+// "20 Min", "1 Hour", "1 Hour 50 Min", "2 Hours 5 Min". Reads hours and minutes
+// however they were typed ("50 min", "30 minutes", "1 hour 20 min", "1h 20m");
+// anything else is shown as written, with each word capitalised.
+function formatDuration(value) {
+  const text = normalizeText(value);
+  const match = text.match(/^(?:(\d+)\s*(?:h|hrs?|hours?)\.?)?\s*(?:(\d+)\s*(?:m|mins?|minutes?)\.?)?$/i);
+  const minutes = match && (match[1] || match[2])
+    ? (Number(match[1] || 0) * 60) + Number(match[2] || 0)
+    : 0;
+  if (!minutes) return capitalizeWords(text);
+  if (minutes < 60) return `${minutes} Min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  const hourText = `${hours} ${hours === 1 ? 'Hour' : 'Hours'}`;
+  return rest ? `${hourText} ${rest} Min` : hourText;
+}
+
 function informativeMetaValues(entry) {
   const { resource } = entry;
   return {
@@ -1665,7 +1687,7 @@ function informativeMetaRows(entry) {
       normalizeText(entry.item.informativeAudienceLabel) || 'Audience',
       audience,
     ) : null,
-    time ? buildMetaRow('time', normalizeText(entry.item.informativeTimeLabel) || 'Time', time) : null,
+    time ? buildMetaRow('time', normalizeText(entry.item.informativeTimeLabel) || 'Time', formatDuration(time)) : null,
     format ? buildMetaRow(
       'format',
       normalizeText(entry.item.informativeFormatLabel) || 'Format',
@@ -1880,16 +1902,13 @@ function buildCardMedia(entry, width) {
   return media;
 }
 
-function capitalizeWords(value) {
-  return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
-}
-
-// Card titles stay <h3> for the page outline but take the h4 size: .u-h4 is
-// the global "visual level != semantic level" utility (styles/styles.css), so
-// it follows the h4 token wherever that is set.
-function buildCardTitleEl(entry) {
+// Card titles stay <h3> for the page outline but take a smaller size through the
+// global "visual level != semantic level" utilities (styles/styles.css). The
+// featured (Horizontal) card is the h4 size (client: 25); tiles use the shared
+// listing-card size (24), so they match the resource library's cards.
+function buildCardTitleEl(entry, sizeClass = 'u-h4') {
   const title = buildTitleEl(entry);
-  title.classList.add('u-h4');
+  title.classList.add(sizeClass);
   return title;
 }
 
@@ -1978,7 +1997,7 @@ function buildHorizontalEntry(entry, isEditor) {
     time ? buildMetaRow(
       'time',
       normalizeText(entry.item.informativeTimeLabel) || 'Time',
-      capitalizeWords(time),
+      formatDuration(time),
     ) : null,
   ].filter(Boolean);
   if (metaRows.length) {
@@ -1999,13 +2018,6 @@ const TILE_TYPE_ICONS = {
   document: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path fill="#fff" d="M8 11h8v1.6H8zm0 3.4h8V16H8zm0 3.4h5v1.6H8z"/></svg>',
   video: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" fill="currentColor"/><path fill="#fff" d="m10 8.5 5.5 3.5-5.5 3.5z"/></svg>',
 };
-
-// "30 minutes" → "30M", "1 hour" → "1H"; anything else is shown as written.
-function compactDuration(value) {
-  const match = value.match(/^(\d+)\s*(m|min|mins|minutes?|h|hrs?|hours?)$/i);
-  if (!match) return value;
-  return `${match[1]}${match[2][0].toUpperCase()}`;
-}
 
 // Image on top, then file type + length, title, description and a small
 // button on a warm panel. Made for rows of tiles; see `has-tiles` in decorate,
@@ -2039,19 +2051,16 @@ function buildTileEntry(entry, isEditor) {
     const clock = document.createElement('span');
     clock.className = 'resource-downloads-tile-time-icon';
     clock.innerHTML = META_ICONS.time;
-    // "45M" is the design; a screen reader gets the words.
-    const short = document.createElement('span');
-    short.setAttribute('aria-hidden', 'true');
-    short.textContent = compactDuration(time);
-    const full = document.createElement('span');
-    full.className = 'u-sr-only';
-    full.textContent = time;
-    length.append(clock, short, full);
+    // Same wording as the featured card ("20 Min", "1 Hour 50 Min"); the client
+    // asked for the tiles to stop abbreviating to "20M".
+    const label = document.createElement('span');
+    label.textContent = formatDuration(time);
+    length.append(clock, label);
     meta.append(length);
   }
   body.append(meta);
 
-  body.append(buildCardTitleEl(entry));
+  body.append(buildCardTitleEl(entry, 'u-card-title'));
   const description = buildDescription(entry);
   if (description) body.append(description);
 

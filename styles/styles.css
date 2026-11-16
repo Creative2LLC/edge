@@ -173,7 +173,7 @@
   --body-lg-size: clamp(1.0625rem, 0.9725rem + 0.37vw, 1.25rem);  /* 17 -> 20px */
   --body-size:    clamp(1rem, 0.94rem + 0.247vw, 1.125rem);       /* 16 -> 18px */
   --body-sm-size: 0.9375rem;                                      /* 15px */
-  --caption-size: 0.8125rem;                                      /* 13px */
+  --caption-size: 0.875rem;  /* 14px; client: smallest text 13 -> 14 site-wide (2026-11-06 notes) */
   --body-line-height: 1.5;      /* 45 blocks had already converged on exactly this */
   --deck-line-height: 1.35;
   --caption-line-height: 1.4;

@@ -24931,6 +24931,24 @@
             "value": "button-giving-outline"
           }
         ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "layout",
+        "label": "Layout",
+        "description": "Carousel scrolls the cards sideways with arrows. Grid shows every card at once, in rows of up to four.",
+        "value": "",
+        "options": [
+          {
+            "name": "Carousel",
+            "value": ""
+          },
+          {
+            "name": "Grid",
+            "value": "layout-grid"
+          }
+        ]
       }
     ]
   },

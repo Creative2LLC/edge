@@ -57,10 +57,10 @@
    Button Style dropdown still picks them. This block's own SIZE is set through the
    standard's per-element hooks — never a bare font-size/padding/height, which would
    take the button off the standard and out of reach of the style.
-   --btn-pad-block replaces the design's fixed 70px height: 18.18px x 1.2 line-height
-   + 24px top and bottom = 69.8px, and it grows rather than clipping a wrapped label. */
+   The label is the site's 16px button size (client: all button text 16); the
+   24px block padding keeps the design's ~70px height and grows rather than
+   clipping a wrapped label. */
 .cta-card-1 .cta-card-1-button {
-  --btn-font-size: 18.18px;
   --btn-pad-block: 24px;
   --btn-pad-inline: 36px;
 
@@ -140,9 +140,8 @@
   max-width: 367px;
 }
 
-/* Compact variant: a smaller 15px label on tighter padding. */
+/* Compact variant: tighter padding, same 16px label as every button. */
 .cta-card-1.cta-card-1-button2-left .cta-card-1-button {
-  --btn-font-size: 15px;
   --btn-pad-block: 10px;
   --btn-pad-inline: 22px;
 
