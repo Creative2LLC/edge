@@ -126,6 +126,11 @@
      so it is the same step; kept as an alias for the blocks that reference it. */
   --display-sm-size: var(--heading-3-size);
 
+  /* Listing-card titles (blog browser, resource browser, related blogs, related
+     resources): one fixed size so every card type lines up. Client spec: 24,
+     with an 18 description (--body-size) and the 16 text link. Use .u-card-title. */
+  --card-title-size: 1.5rem; /* 24px */
+
   /* Per-level weight / leading. No level uses negative tracking. */
   --heading-weight: 700;
 
@@ -894,7 +899,8 @@ h6 { font-size: var(--heading-6-size); }
 .u-h4,
 .u-h5,
 .u-h6,
-.u-h7 {
+.u-h7,
+.u-card-title {
   font-family: var(--heading-font-family);
   font-weight: var(--heading-weight);
   line-height: var(--heading-line-height);
@@ -935,6 +941,7 @@ h6 { font-size: var(--heading-6-size); }
 .u-h6 { font-size: var(--heading-6-size); }
 .u-h7 { font-size: var(--heading-7-size); }
 .u-display-sm { font-size: var(--display-sm-size); }
+.u-card-title { font-size: var(--card-title-size); }
 
 /* Same reasoning as headings: zero by default, rhythm restored in prose. */
 p,

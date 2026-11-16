@@ -185,7 +185,8 @@ function buildCard(item, learnMoreLabel, learnMoreStyle = '') {
   card.className = 'resources-carousel-card';
 
   const titleEl = document.createElement('h3');
-  titleEl.className = 'resources-carousel-card-title';
+  // Shared listing-card title size (24px), same as the blog and resource browsers.
+  titleEl.className = 'resources-carousel-card-title u-card-title';
   titleEl.textContent = item.title;
   card.append(titleEl);
 

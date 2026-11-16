@@ -10,6 +10,7 @@
  "blocks/article-detail/article-detail.css|.article-detail .article-detail-excerpt|line-height|1.75",
  "blocks/article-details/article-details.css|.article-details .article-details-body|line-height|1.78",
  "blocks/article-details/article-details.css|.article-details .article-details-excerpt|line-height|1.75",
+ "blocks/article-list/article-list.css|.article-list .article-list-card-date|font-weight|800",
  "blocks/card-testimonies/card-testimonies.css|.card-testimonies-main-quote|font-size|28px",
  "blocks/case-anniversaries/case-anniversaries.css|.case-anniversaries-card-body dd|line-height|1.25",
  "blocks/case-anniversaries/case-anniversaries.css|.case-anniversaries-card-body dt|line-height|1.25",

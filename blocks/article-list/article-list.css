@@ -27,11 +27,13 @@
   gap: 1rem;
 }
 
-/* The grid/list switch sits at the right end of the search row. */
+/* Under the filters: search, then sort, then the grid/list switch at the
+   right end. Narrow screens wrap sort and the switch onto their own line. */
 .article-list .article-list-search-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 12px 1rem;
 }
 
 .article-list .article-list-heading {
@@ -60,23 +62,9 @@
   text-transform: uppercase;
 }
 
-/* Refine: the three narrowing dropdowns on the left, sort pushed to the right —
-   sort is not a filter and should not sit in the filter run. */
-.article-list .article-list-refine-group {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "label label"
-    "filters sort";
-  align-items: center;
-  column-gap: 1.25rem;
-}
-
-.article-list .article-list-refine-group .article-list-group-label {
-  grid-area: label;
-}
-
+/* Refine: the three narrowing dropdowns. Sort is not a filter, so it lives in
+   the search row below. */
 .article-list .article-list-filter-row {
-  grid-area: filters;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.8rem;
@@ -84,7 +72,6 @@
 }
 
 .article-list .article-list-sort-wrap {
-  grid-area: sort;
   display: flex;
   gap: 0.6rem;
   align-items: center;
@@ -99,7 +86,7 @@
 
 .article-list .article-list-search-wrap {
   display: block;
-  flex: 1;
+  flex: 1 1 18rem;
   min-width: 0;
 }
 
@@ -335,10 +322,6 @@
   margin: 0;
   overflow: hidden;
   color: var(--ncmec-gray-dark);
-
-  /* Client spec for news cards: title 24, excerpt 18, link 16. The list view
-     keeps its larger heading below. */
-  font-size: 1.5rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 5;
 }
@@ -467,20 +450,17 @@
 }
 
 @media (width <= 980px) {
-  .article-list .article-list-refine-group {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "label"
-      "filters"
-      "sort";
-  }
-
   .article-list .article-list-filter-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* Search takes its own line; sort and the grid/list switch share the next. */
+  .article-list .article-list-search-wrap {
+    flex-basis: 100%;
+  }
+
   .article-list .article-list-sort-wrap {
-    justify-content: flex-end;
+    flex: 1;
   }
 }
 
@@ -498,13 +478,9 @@
     grid-template-columns: 1fr;
   }
 
-  .article-list .article-list-sort,
-  .article-list .article-list-sort-wrap {
-    width: 100%;
-  }
-
-  .article-list .article-list-card-media {
-    height: 200px;
+  .article-list .article-list-sort {
+    flex: 1;
+    min-width: 0;
   }
 
   .article-list .article-list-load-more {

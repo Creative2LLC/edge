@@ -903,7 +903,8 @@ function buildResourceCard(resource, row = null) {
 
   if (resource.title) {
     const title = document.createElement('h3');
-    title.className = 'resources-browser-card-title';
+    // Shared listing-card title size (24px); the list view keeps its larger heading.
+    title.className = 'resources-browser-card-title u-card-title';
     title.textContent = resource.title;
     content.append(title);
   }

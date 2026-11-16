@@ -135,6 +135,7 @@
   margin: 0;
   color: #516272;
   font-size: var(--body-size);
+  font-weight: var(--body-weight-medium); /* same as the other listing cards */
 }
 
 /* Look, size and arrow come from the shared .button.text-link style (37px tall, so it clears the WCAG 2.5.8 target on its own) the block

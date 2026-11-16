@@ -214,6 +214,23 @@ const PUBLISHED_ROWS = [
   'tagPreset', 'detailBasePath',
 ];
 
+// FIELD_COLUMN_INDEX still counts the "filters" row the model dropped in May, so on a
+// published page it read every later field one row late: Items Per Page came from the
+// search placeholder (the authored value was never seen) and Results Navigation from an
+// empty preset (authored pagination fell back to Load More). When the row count proves
+// the current shape, read the right row; older published tables keep the old readers.
+function readCurrentField(block, name, fallback = '') {
+  const prop = getPropValue(block, name);
+  if (prop) return prop;
+  const rows = getRows(block);
+  if (rows.length === PUBLISHED_ROWS.length && rows.every((row) => row.children.length === 1)) {
+    const cell = rows[PUBLISHED_ROWS.indexOf(name)];
+    const anchor = cell.querySelector('a');
+    return normalizeText(anchor?.getAttribute('href') || cell.textContent) || fallback;
+  }
+  return getFieldValue(block, name, fallback);
+}
+
 // Optional text: what the author typed, or nothing. A blank field never falls back to
 // built-in copy or to another field's row.
 function readOptionalText(block, name) {
@@ -371,13 +388,19 @@ function normalizeContentBasePath(value) {
   return normalizeText(value).replace(/\/+$/, '');
 }
 
+// The API's own URL wins. Detail Base Path is only for articles that come without one:
+// the blog listing still carries a stale "/content/edge/resources/Blogs" from before the
+// blogs moved to /about/ncmec-news, which would send every card to a 404.
 function buildArticleHref(article, config) {
+  const own = article.primary_url || article.detail_path || article.page_path;
+  if (normalizeText(own)) return resolveSiteHref(own);
+
   const detailBasePath = normalizeContentBasePath(config.detailBasePath);
   if (detailBasePath && normalizeText(article.slug)) {
     return resolveSiteHref(`${detailBasePath}/${article.slug}`);
   }
 
-  return resolveSiteHref(article.primary_url || article.detail_path || article.page_path);
+  return resolveSiteHref(own);
 }
 
 function buildCard(article, index = 0, config = {}) {
@@ -422,7 +445,8 @@ function buildCard(article, index = 0, config = {}) {
   }
 
   const title = document.createElement('h3');
-  title.className = 'article-list-card-title';
+  // Shared listing-card title size (24px); the list view keeps its larger heading.
+  title.className = 'article-list-card-title u-card-title';
   title.textContent = article.title || 'Article';
   body.append(title);
 
@@ -471,10 +495,8 @@ function buildShell(config) {
   viewToggle.append(gridButton, listButton);
   if (headerTop.children.length) header.append(headerTop);
 
-  // Broad to narrow, each group named. The area pills used to sit BELOW the
-  // dropdowns even though they are the widest cut of the library, and sort was
-  // parked next to search as if it were a filter — between them you could not
-  // tell which control did what.
+  // Broad to narrow, each group named: area pills, then the Refine dropdowns,
+  // then one row for search, sort and the grid/list switch (client mock-up).
   const controls = document.createElement('div');
   controls.className = 'article-list-controls';
 
@@ -487,11 +509,10 @@ function buildShell(config) {
   // The box has no visible label, so it needs a name even when the placeholder is blank.
   searchInput.setAttribute('aria-label', config.searchPlaceholder || 'Search articles');
   searchWrap.append(searchInput);
-  // The grid/list switch sits at the right end of the search row.
+  // Search, sort and the grid/list switch share one row, under the filters
+  // (client mock-up). It is built here and appended after the filter groups.
   const searchRow = document.createElement('div');
   searchRow.className = 'article-list-search-row';
-  searchRow.append(searchWrap, viewToggle);
-  controls.append(searchRow);
 
   const areaGroup = document.createElement('div');
   areaGroup.className = 'article-list-group article-list-area-group';
@@ -524,8 +545,10 @@ function buildShell(config) {
   sortLabel.className = 'article-list-sort-label';
   sortLabel.textContent = 'Sort';
   sortWrap.append(sortLabel, sortSelect);
-  refineGroup.append(refineLabel, filterRow, sortWrap);
+  refineGroup.append(refineLabel, filterRow);
   controls.append(refineGroup);
+  searchRow.append(searchWrap, sortWrap, viewToggle);
+  controls.append(searchRow);
   header.append(controls);
   inner.append(header);
 
@@ -981,16 +1004,16 @@ export default function decorate(block) {
     selectedField: getFieldValue(block, 'selected'),
     excludeField: getFieldValue(block, 'exclude'),
     // 12 fills whole rows of the four-column grid (and of three and two).
-    pageSize: parseIntSafe(getFieldValue(block, 'pageSize', '12'), 12),
+    pageSize: parseIntSafe(readCurrentField(block, 'pageSize', '12'), 12),
     searchPlaceholder: readOptionalText(block, 'searchPlaceholder'),
     loadMoreText: readOptionalText(block, 'loadMoreText'),
-    paginationMode: normalizePaginationMode(getFieldValue(block, 'paginationMode', 'load-more')),
+    paginationMode: normalizePaginationMode(readCurrentField(block, 'paginationMode', 'load-more')),
     defaultView: 'grid',
-    audiencePreset: getFieldValue(block, 'audiencePreset') || filters.audience.join(', '),
-    issuePreset: getFieldValue(block, 'issuePreset') || filters.issue.join(', '),
-    typePreset: getFieldValue(block, 'typePreset') || filters.type.join(', '),
-    tagPreset: getFieldValue(block, 'tagPreset') || filters.tags.join(', '),
-    detailBasePath: getFieldValue(block, 'detailBasePath'),
+    audiencePreset: readCurrentField(block, 'audiencePreset') || filters.audience.join(', '),
+    issuePreset: readCurrentField(block, 'issuePreset') || filters.issue.join(', '),
+    typePreset: readCurrentField(block, 'typePreset') || filters.type.join(', '),
+    tagPreset: readCurrentField(block, 'tagPreset') || filters.tags.join(', '),
+    detailBasePath: readCurrentField(block, 'detailBasePath'),
   };
   ensurePreconnect(config.apiBaseUrl);
 

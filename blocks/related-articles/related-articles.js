@@ -314,7 +314,8 @@ function buildCard(item, config) {
   }
 
   const title = document.createElement('h3');
-  title.className = 'related-articles-card-title';
+  // Shared listing-card title size (24px), same as the blog and resource browsers.
+  title.className = 'related-articles-card-title u-card-title';
   title.textContent = item.title || 'Related article';
   body.append(title);
 
