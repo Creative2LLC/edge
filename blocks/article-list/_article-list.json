@@ -49,7 +49,7 @@
           "valueType": "string",
           "name": "pageSize",
           "label": "Items Per Page",
-          "value": "9"
+          "value": "12"
         },
         {
           "component": "text",

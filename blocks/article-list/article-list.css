@@ -239,8 +239,16 @@
   grid-template-columns: 1fr;
 }
 
+/* Every row as tall as the tallest, so all cards in the grid match (the
+   title + excerpt budget alone leaves rows a few pixels apart). */
+.article-list .article-list-grid:not([data-view="list"]) {
+  grid-auto-rows: 1fr;
+}
+
 .article-list .article-list-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border-radius: 8px;
   background: #fff;
@@ -272,8 +280,11 @@
   z-index: 2;
 }
 
+/* Landscape at any column width: a fixed 300px turned photos into tall
+   portrait slivers once the grid went to four columns. */
 .article-list .article-list-card-media {
-  height: 300px;
+  flex-shrink: 0;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: linear-gradient(135deg, #dfe9ee 0%, #cfdde6 100%);
 }
@@ -324,6 +335,10 @@
   margin: 0;
   overflow: hidden;
   color: var(--ncmec-gray-dark);
+
+  /* Client spec for news cards: title 24, excerpt 18, link 16. The list view
+     keeps its larger heading below. */
+  font-size: 1.5rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 5;
 }
@@ -441,6 +456,13 @@
 @media (width >= 1100px) {
   .article-list .article-list-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Four across, from the same width as the Resource Browser grid. */
+@media (width > 1280px) {
+  .article-list .article-list-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

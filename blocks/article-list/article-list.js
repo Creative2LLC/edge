@@ -69,6 +69,36 @@ const FIELD_COLUMN_INDEX = {
 };
 
 function normalizeText(value) { return `${value || ''}`.trim(); }
+
+const TRUNCATED_ENDING = /\s*(?:\.{3}|…)$/;
+
+/** An article body as plain text, with a space between blocks. */
+function bodyText(html) {
+  if (!html) return '';
+  // An inert document: nothing in it runs or loads.
+  const doc = new DOMParser().parseFromString(String(html), 'text/html');
+  doc.body.querySelectorAll('figure, figcaption, script, style').forEach((el) => el.remove());
+  doc.body.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, div, br, blockquote').forEach((el) => el.after(' '));
+  return doc.body.textContent.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Imported blogs carry the old site's meta description as their excerpt, which
+ * it had already cut at ~100 characters with "...". Shown as is, the text ran
+ * out partway along a row, so the ellipsis landed after a word or two instead
+ * of at the end of the line budget. When the excerpt was cut, carry on from the
+ * same point in the body and let the card's line clamp add the ellipsis.
+ */
+function cardExcerpt(article) {
+  const excerpt = normalizeText(article.excerpt);
+  if (!TRUNCATED_ENDING.test(excerpt)) return excerpt;
+  const stem = excerpt.replace(TRUNCATED_ENDING, '');
+  const text = bodyText(article.body);
+  const start = text.indexOf(stem.slice(0, 40));
+  if (start < 0) return `${stem}…`;
+  // Far more than five lines; the clamp shows what fits.
+  return text.slice(start, start + 600);
+}
 function normalizeToken(value) { return normalizeText(value).toLowerCase(); }
 function parseIntSafe(value, fallback = 9) {
   const parsed = parseInt(value, 10);
@@ -396,10 +426,11 @@ function buildCard(article, index = 0, config = {}) {
   title.textContent = article.title || 'Article';
   body.append(title);
 
-  if (normalizeText(article.excerpt)) {
+  const excerptText = cardExcerpt(article);
+  if (excerptText) {
     const excerpt = document.createElement('p');
     excerpt.className = 'article-list-card-excerpt';
-    excerpt.textContent = article.excerpt;
+    excerpt.textContent = excerptText;
     body.append(excerpt);
   }
 
@@ -949,7 +980,8 @@ export default function decorate(block) {
     apiBaseUrl: normalizeApiBaseUrl(getFieldValue(block, 'apiBaseUrl')),
     selectedField: getFieldValue(block, 'selected'),
     excludeField: getFieldValue(block, 'exclude'),
-    pageSize: parseIntSafe(getFieldValue(block, 'pageSize', '9'), 9),
+    // 12 fills whole rows of the four-column grid (and of three and two).
+    pageSize: parseIntSafe(getFieldValue(block, 'pageSize', '12'), 12),
     searchPlaceholder: readOptionalText(block, 'searchPlaceholder'),
     loadMoreText: readOptionalText(block, 'loadMoreText'),
     paginationMode: normalizePaginationMode(getFieldValue(block, 'paginationMode', 'load-more')),
